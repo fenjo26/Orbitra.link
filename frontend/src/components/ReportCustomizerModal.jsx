@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { X, GripVertical, ChevronUp, ChevronDown, Plus, Trash2, Search, SlidersHorizontal, Layers, Filter as FilterIcon, RotateCcw, Star, Pencil, Save } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
-// Exact 65 Keitaro-compatible Metrics List.
+// Report metrics list.
 // `label` — full description (columns modal, header tooltips);
 // `shortLabel` — compact table-header abbreviation (nowrap <th>).
 export const ALL_REPORT_METRICS = [
@@ -43,7 +43,8 @@ export const ALL_REPORT_METRICS = [
     { id: 'cr_holds', label: 'CR (hold) — Conversion rate', shortLabel: 'CR (hold)' },
     { id: 'cr_registrations', label: 'CR (registrations) — Conversion rate', shortLabel: 'CR (regs)' },
     { id: 'roi', label: 'ROI (all) — Return on investment', shortLabel: 'ROI' },
-    { id: 'epc', label: 'EPC (all) — Earnings per click', shortLabel: 'EPC' },
+    { id: 'epc', label: 'EPC (all) — Earnings per LP click', shortLabel: 'EPC', hintKey: 'epcHint', hint: 'Revenue / LP Clicks — Earnings per click to offer' },
+    { id: 'epv', label: 'EPV — Earnings per landing-page visit', shortLabel: 'EPV', hintKey: 'epvHint', hint: 'Revenue / LP Views — Earnings per landing-page visitor' },
     { id: 'uepc', label: 'uEPC (all) — Earnings per unique click', shortLabel: 'uEPC' },
     { id: 'epc_hold', label: 'EPC (hold) — Earnings per click', shortLabel: 'EPC (hold)' },
     { id: 'uepc_hold', label: 'uEPC (hold) — Earnings per unique click', shortLabel: 'uEPC (hold)' },
@@ -56,9 +57,9 @@ export const ALL_REPORT_METRICS = [
     { id: 'cpr', label: 'CPR — Cost per registration', shortLabel: 'CPR' },
     { id: 'cpd', label: 'CPD — Cost per deposit', shortLabel: 'CPD' },
     { id: 'cpa', label: 'CPA — Cost per conversion', shortLabel: 'CPA' },
-    { id: 'cpc', label: 'CPC — Cost per click', shortLabel: 'CPC' },
+    { id: 'cpc', label: 'CPC — Cost per LP click', shortLabel: 'CPC', hintKey: 'cpcHint', hint: 'Cost / LP Clicks — Cost per landing-page CTA click' },
     { id: 'ucpc', label: 'uCPC — Cost per unique click', shortLabel: 'uCPC' },
-    { id: 'cpv', label: 'CPV — Cost per visit', shortLabel: 'CPV' },
+    { id: 'cpv', label: 'CPV — Cost per landing-page visit', shortLabel: 'CPV', hintKey: 'cpvHint', hint: 'Cost / LP Views — Cost per landing-page view' },
     { id: 'ecpc', label: 'eCPC — Cost per 1000 clicks', shortLabel: 'eCPC' },
     { id: 'ecpm_all', label: 'eCPM (all) — Profit per 1k clicks', shortLabel: 'eCPM' },
     { id: 'ecpm_confirmed', label: 'eCPM (confirmed) — Profit per 1k clicks', shortLabel: 'eCPM (conf)' },
@@ -67,22 +68,40 @@ export const ALL_REPORT_METRICS = [
     { id: 'registrations', label: 'Registrations', shortLabel: 'Regs' },
     { id: 'ucr', label: 'uCR — Unique clicks to registrations', shortLabel: 'uCR' },
     { id: 'time_since_lp_click', label: 'Time since LP click', shortLabel: 'LP time' },
-    { id: 'lp_views', label: 'LP views', shortLabel: 'LP Views' },
-    { id: 'prelander_clicks', label: 'LP clicks', shortLabel: 'LP Clicks' },
-    { id: 'lp_ctr', label: 'LP CTR — LP Click-Through Rate', shortLabel: 'LP CTR' },
+    { id: 'lp_views', label: 'LP views / visits', shortLabel: 'LP Views', hintKey: 'lpViewsHint', hint: 'Total landing-page impressions' },
+    { id: 'lp_clicks', label: 'LP clicks', shortLabel: 'LP Clicks', hintKey: 'lpClicksHint', hint: 'Total clicks on landing-page CTA buttons' },
+    { id: 'lp_ctr', label: 'LP CTR — LP Click-Through Rate', shortLabel: 'LP CTR', hintKey: 'lpCtrHint', hint: '(LP Clicks / LP Views) × 100% — Landing-page click-through rate' },
     { id: 'cr_regs_to_deps', label: 'CR (regs to deps)', shortLabel: 'CR (r→d)' },
 ];
+
+// `prelander_clicks` was previously exposed as the LP-click column even
+// though the API uses it as the legacy alias for LP views. Migrate saved
+// browser templates/selections to the unambiguous canonical field.
+export const normalizeReportMetricIds = (ids) => {
+    if (!Array.isArray(ids)) return [];
+    return [...new Set(ids.map(id => id === 'prelander_clicks' ? 'lp_clicks' : id))];
+};
 
 export const PRESETS = {
     best: ['profitability', 'clicks', 'unique_clicks', 'conversions', 'roi_confirmed', 'cost', 'revenue', 'profit', 'cr', 'epc', 'cpc', 'cpa'],
     finance: ['cost', 'revenue', 'revenue_confirmed', 'revenue_hold', 'revenue_rejected', 'profit', 'roi', 'profit_confirmed', 'roi_confirmed', 'cpa', 'epc'],
     cod: ['clicks', 'unique_clicks', 'leads', 'sales', 'approve_rate', 'rejected', 'trash', 'cost', 'cpl', 'cps', 'cpa', 'revenue_confirmed', 'profit_confirmed', 'roi_confirmed'],
-    lander_to_offer: ['clicks', 'unique_clicks', 'lp_views', 'prelander_clicks', 'lp_ctr', 'conversions', 'cr', 'cpa', 'cpc', 'epc', 'cost', 'revenue', 'profit', 'roi'],
+    lander_to_offer: ['clicks', 'unique_clicks', 'lp_views', 'lp_clicks', 'lp_ctr', 'conversions', 'cr', 'cpv', 'cpc', 'epv', 'epc', 'cpa', 'cost', 'revenue', 'profit', 'roi'],
     traffic: ['clicks', 'unique_clicks', 'visitors', 'unique_clicks_stream', 'unique_clicks_global', 'uc_rate', 'bots', 'bot_rate', 'proxies', 'empty_referrers', 'conversions', 'cr'],
     all: ALL_REPORT_METRICS.map(m => m.id),
 };
 
 const DEFAULT_METRIC_ORDER = ALL_REPORT_METRICS.map(m => m.id);
+export const getReportMetricTooltip = (metric, t) => {
+    if (!metric) return '';
+    return metric.hintKey ? t(`metrics.${metric.hintKey}`, metric.hint || metric.label) : metric.label;
+};
+const REPORT_DIMENSION_LABELS = {
+    campaign_id: 'Tracker Campaign',
+    ad_campaign_id: 'FB Campaign ID',
+    adset_id: 'FB AdSet ID',
+    ad_id: 'FB Ad ID'
+};
 
 // --- User-saved column templates (localStorage) ---
 const TEMPLATES_KEY = 'orbitra_column_templates';
@@ -97,7 +116,9 @@ const loadColumnTemplates = () => {
     try {
         const parsed = JSON.parse(localStorage.getItem(TEMPLATES_KEY) || '[]');
         if (!Array.isArray(parsed)) return [];
-        return parsed.filter(t => t && typeof t.id === 'string' && typeof t.name === 'string' && Array.isArray(t.columns));
+        return parsed
+            .filter(t => t && typeof t.id === 'string' && typeof t.name === 'string' && Array.isArray(t.columns))
+            .map(t => ({ ...t, columns: normalizeReportMetricIds(t.columns) }));
     } catch {
         // Corrupt storage entry — fall back to no saved templates
         return [];
@@ -135,9 +156,9 @@ const persistDefaultTemplateId = (id) => {
 export const getDefaultTemplateColumns = () => {
     const id = loadDefaultTemplateId();
     if (!id) return null;
-    if (Array.isArray(PRESETS[id])) return [...PRESETS[id]];
+    if (Array.isArray(PRESETS[id])) return normalizeReportMetricIds(PRESETS[id]);
     const tpl = loadColumnTemplates().find(t => t.id === id);
-    return tpl ? [...tpl.columns] : null;
+    return tpl ? normalizeReportMetricIds(tpl.columns) : null;
 };
 
 // System preset chips: [preset key, locale key under reportCustomizer.*]
@@ -158,6 +179,7 @@ const ReportCustomizerModal = ({
     mode = 'report', // 'report' or 'campaigns'
     currentLayers = [],
     onSaveLayers,
+    layerPresets = [],
     currentFilters = [],
     onSaveFilters
 }) => {
@@ -192,7 +214,9 @@ const ReportCustomizerModal = ({
 
     useEffect(() => {
         if (isOpen && !prevIsOpenRef.current) {
-            const initialSelected = selectedColumns && selectedColumns.length > 0 ? selectedColumns : PRESETS.best;
+            const initialSelected = normalizeReportMetricIds(
+                selectedColumns && selectedColumns.length > 0 ? selectedColumns : PRESETS.best
+            );
             setSelectedSet(new Set(initialSelected));
 
             // Put selected items in their user order, followed by the remaining unselected metrics
@@ -726,6 +750,7 @@ const ReportCustomizerModal = ({
                                 return (
                                     <div
                                         key={metric.id}
+                                        title={getReportMetricTooltip(metric, t)}
                                         onDragOver={(e) => handleDragOver(e, metric.id)}
                                         onDrop={(e) => handleDrop(e, metric.id)}
                                         onClick={() => handleToggleMetric(metric.id)}
@@ -829,11 +854,38 @@ const ReportCustomizerModal = ({
                             </button>
                         </div>
 
+                        {layerPresets.length > 0 && (
+                            <div className="flex flex-wrap items-center gap-2">
+                                <span className="text-xs font-semibold uppercase" style={{ color: 'var(--color-text-muted)' }}>
+                                    {t('reportCustomizer.presets', 'Presets')}:
+                                </span>
+                                {layerPresets.map((preset) => {
+                                    const active = arraysEqual(layers, preset.layers);
+                                    return (
+                                        <button
+                                            key={preset.id}
+                                            type="button"
+                                            onClick={() => setLayers([...preset.layers])}
+                                            className="text-xs px-3 py-1.5 rounded-xl border transition-colors"
+                                            style={{
+                                                backgroundColor: active ? 'var(--color-primary-light)' : 'var(--color-bg-soft)',
+                                                borderColor: active ? 'var(--color-primary)' : 'var(--color-border)',
+                                                color: active ? 'var(--color-primary)' : 'var(--color-text-primary)',
+                                                fontWeight: active ? 600 : 400
+                                            }}
+                                        >
+                                            {preset.label}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
+
                         <div className="grid grid-cols-2 gap-2">
                             {[
                                 'country', 'city', 'region', 'device_type', 'os', 'browser', 'language',
                                 'day', 'hour', 'campaign_id', 'source_id', 'stream_id', 'landing_id', 'offer_id',
-                                'ad_id', 'adset_id', 'keyword', 'creative_id', 'external_id',
+                                'ad_campaign_id', 'adset_id', 'ad_id', 'keyword', 'creative_id', 'external_id',
                                 'sub_id_1', 'sub_id_2', 'sub_id_3', 'sub_id_4', 'sub_id_5'
                             ].map((dim) => {
                                 const isChosen = layers.includes(dim);
@@ -858,7 +910,7 @@ const ReportCustomizerModal = ({
                                             fontWeight: isChosen ? 600 : 400
                                         }}
                                     >
-                                        <span className="truncate">{dim}</span>
+                                        <span className="truncate">{REPORT_DIMENSION_LABELS[dim] || dim}</span>
                                         {isChosen && (
                                             <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-blue-500 text-white font-bold">
                                                 {layerIndex + 1}
@@ -907,6 +959,7 @@ const ReportCustomizerModal = ({
                                     <option value="os">OS</option>
                                     <option value="browser">Browser</option>
                                     <option value="sub_id_1">Sub ID 1</option>
+                                    <option value="ad_campaign_id">FB Campaign ID</option>
                                     <option value="adset_id">AdSet ID</option>
                                     <option value="ad_id">Ad ID</option>
                                     <option value="keyword">Keyword</option>

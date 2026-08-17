@@ -20,20 +20,34 @@ function showStatus(message, type = '') {
   statusNode.className = type;
 }
 
-function normalizedTrackerUrl(value) {
-  const url = new URL(String(value).trim());
+function normalizeTrackerUrl(value) {
+  let input = String(value || '').trim();
+  if (!input) return '';
+
+  if (!/^https?:\/\//i.test(input)) {
+    input = `http://${input}`;
+  }
+
+  const url = new URL(input);
   if (!['http:', 'https:'].includes(url.protocol)) throw new Error('Use an http:// or https:// tracker URL.');
   url.hash = '';
   url.search = '';
-  if (!/\/api\.php\/?$/i.test(url.pathname)) {
-    url.pathname = `${url.pathname.replace(/\/$/, '')}/api.php`;
+
+  let pathname = url.pathname.replace(/\/+$/, '');
+  pathname = pathname.replace(/\/admin\.php(?:\/api\.php)?$/i, '');
+  if (!/\/api\.php$/i.test(pathname)) {
+    pathname = `${pathname}/api.php`;
+  } else {
+    pathname = pathname.replace(/\/api\.php$/i, '/api.php');
   }
+  url.pathname = pathname;
+
   return url.toString().replace(/\/$/, '');
 }
 
 function permissionOrigin(trackerUrl) {
   const url = new URL(trackerUrl);
-  return `${url.protocol}//${url.hostname}/*`;
+  return `${url.origin}/*`;
 }
 
 async function load() {
@@ -45,7 +59,10 @@ async function load() {
 }
 
 async function save() {
-  const trackerUrl = normalizedTrackerUrl(fields.trackerUrl.value);
+  const trackerUrl = normalizeTrackerUrl(fields.trackerUrl.value);
+  if (!trackerUrl) throw new Error('Paste the Orbitra tracker URL.');
+  fields.trackerUrl.value = trackerUrl;
+
   const apiKey = fields.apiKey.value.trim();
   if (!apiKey) throw new Error('Paste a read API key from Orbitra.');
 

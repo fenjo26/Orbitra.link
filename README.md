@@ -1,4 +1,4 @@
-# Orbitra v0.9.9.0 Tracker
+# Orbitra v0.9.9.1 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -422,16 +422,14 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v0.9.9.0 (2026-08-17)
-- 🏷️ Keitaro-style domain panel: groups, per-domain admin access (404), Cloudflare proxy, registrar/DNS metadata, bulk add with URL cleanup (schema v23)
-- 🎮 Play/pause for internal campaigns (disabled = 503) and real Facebook ads / ad sets from the tables and reports, via the Meta Marketing API
-- 🚦 Per-stream "Collect clicks" — fallback / white-page streams stay out of the stats (schema v24)
-- 🧩 Ads Manager browser extension: profit/ROI/CPA pills in Facebook tables + a deep-stats modal (daily history, landings & offers, Pixel/CAPI accuracy)
-- 📈 Dashboard redesign: 27 StatCards on real aggregated metrics, presets, finance masking extended to CPL/CPS/EPV
-- 📊 High-density sticky-header tables with ⋮ row menus and pagination; every monetary metric as `$0.00` (CSV included)
-- 🖥️ Shared device taxonomy (Desktop/Mobile/Tablet), CPV metric; hardcoded Tailwind colors purged panel-wide
+### Current release — v0.9.9.1 (2026-08-17)
+- 📊 Vertical column grid across the Campaigns/Reports/Landers/Offers tables; the Reports table now shares the tracker styling (pinned name column fixed)
+- 🪟 Modals fit the screen at 100% zoom; Affiliate Network & Traffic Source editors gained tabs with a pinned header/footer
+- 📋 Copy buttons work on plain-HTTP/IP installs (execCommand fallback) — postback URL, macros, integration keys, snippets
+- 🛑 Pausing a campaign can stop the linked Facebook campaigns/ad sets/ads (Meta API); the switch moved to its own Status column with a safety confirmation
+- 📈 EPC/CPC redefined per LP click, new EPV metric with customizer hints; landing editor required-field validation and ZIP re-upload
 
-Previous release — v0.9.8.2: RBAC role templates + finance masking, Namecheap integration, cloaking targeting filters, Keitaro-parity Landings/Offers columns, prefetch blank-screen fix.
+Previous release — v0.9.9.0: domain panel with groups and per-domain access, RedTrack-style play/pause, per-stream Collect clicks, Ads Manager extension, dashboard redesign, high-density tables (schema v23–v25).
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

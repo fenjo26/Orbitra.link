@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Terminal, Code, Image as ImageIcon, Copy, CheckCircle2, Server, Globe, Zap, Send, Eye, EyeOff, RefreshCw, Trash2, MessageCircle, Bell, BellOff, Clock, Users, Download, Settings, Plus, Edit2, Power, X, ArrowRight, Smartphone, Monitor, Timer, ArrowLeft, Palette, ExternalLink, Shield, DollarSign, Cloud } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import { useLanguage } from '../contexts/LanguageContext';
+import { copyToClipboard as copyUtil } from '../utils/clipboard';
 
 const API_URL = '/api.php';
 
@@ -104,10 +105,12 @@ const IntegrationsPage = () => {
         turnstile_secret_key: ''
     });
 
-    const copyToClipboard = (text, id) => {
-        navigator.clipboard.writeText(text);
-        setCopied(id);
-        setTimeout(() => setCopied(''), 2000);
+    const copyToClipboard = async (text, id) => {
+        const ok = await copyUtil(text);
+        if (ok) {
+            setCopied(id);
+            setTimeout(() => setCopied(''), 2000);
+        }
     };
 
     const trackerUrl = window.location.origin;
@@ -1309,8 +1312,10 @@ const IntegrationsPage = () => {
                                             disabled={!field.value || extKeyLoading}
                                             className="btn btn-secondary btn-sm"
                                         >
-                                            {copied === field.copyId ? <CheckCircle2 size={14} /> : <Copy size={14} />}
-                                            {copied === field.copyId ? t('integrations.copied') : t('integrations.copyCode', 'Copy')}
+                                            {copied === field.copyId ? <CheckCircle2 size={14} style={{ color: 'var(--color-success, #16a34a)' }} /> : <Copy size={14} />}
+                                            <span style={copied === field.copyId ? { color: 'var(--color-success, #16a34a)' } : undefined}>
+                                                {copied === field.copyId ? t('integrations.copied') : t('integrations.copyCode', 'Copy')}
+                                            </span>
                                         </button>
                                     </div>
                                 </div>

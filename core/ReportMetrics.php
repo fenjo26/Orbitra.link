@@ -224,11 +224,16 @@ if (!function_exists('orbitraConversionStatusGroups')) {
         $proxies         = (int) ($raw['proxies'] ?? 0);
         $emptyReferrers  = (int) ($raw['empty_referrers'] ?? 0);
 
-        $prelander       = (int) ($raw['prelander_clicks'] ?? $raw['lp_views'] ?? 0);
-        $offerClicks     = (int) ($raw['offer_clicks'] ?? $raw['lp_clicks'] ?? 0);
-        // LP CTR counts landing → offer transitions (both ids set). A click that
-        // went straight to the offer without a landing inflated the rate.
-        $lpClicks        = (int) ($raw['lp_clicks'] ?? 0);
+        // Funnel volumes are deliberately distinct. A landing view is the
+        // incoming visit; an LP click is the later CTA transition to an offer.
+        // `prelander_clicks` is the legacy raw name for landing views.
+        $lpViews         = (int) ($raw['prelander_clicks'] ?? $raw['lp_views'] ?? $clicks);
+        $lpClicks        = (int) ($raw['lp_clicks'] ?? $raw['offer_clicks'] ?? 0);
+        $offerClicks     = (int) ($raw['offer_clicks'] ?? $lpClicks);
+        // Direct-to-offer traffic has no LP-click counter. Preserve useful CPC
+        // and EPC values for that traffic while using LP clicks whenever they
+        // exist, as required by the landing funnel definitions.
+        $clickDenominator = $lpClicks > 0 ? $lpClicks : $clicks;
 
         $conversions     = (int) ($raw['conversions'] ?? 0);
         $purchases       = (int) ($raw['purchases'] ?? $raw['sales'] ?? 0);
@@ -277,11 +282,11 @@ if (!function_exists('orbitraConversionStatusGroups')) {
             'empty_referrers'         => $emptyReferrers,
 
             // Landing Pages
-            'lp_views'                => $prelander,
-            'prelander_clicks'        => $prelander,
-            'lp_clicks'               => $lpClicks > 0 ? $lpClicks : $offerClicks,
+            'lp_views'                => $lpViews,
+            'prelander_clicks'        => $lpViews,
+            'lp_clicks'               => $lpClicks,
             'offer_clicks'            => $offerClicks,
-            'lp_ctr'                  => $prelander > 0 ? round((($lpClicks > 0 ? $lpClicks : $offerClicks) / $prelander) * 100, 2) : 0,
+            'lp_ctr'                  => $lpViews > 0 ? round(($lpClicks / $lpViews) * 100, 2) : 0,
             // Average landing→offer time, human-formatted ("1m 12s").
             'time_since_lp_click'     => self_fmtLpSeconds($raw['avg_lp_seconds'] ?? null),
 
@@ -333,26 +338,22 @@ if (!function_exists('orbitraConversionStatusGroups')) {
             'real_roi'                => $realRoi,
 
             // Unit Economics
-            'epc'                     => $clicks > 0 ? round($revenue / $clicks, 4) : 0,
-            'epc_all'                 => $clicks > 0 ? round($revenue / $clicks, 4) : 0,
+            'epc'                     => $clickDenominator > 0 ? round($revenue / $clickDenominator, 4) : 0,
+            'epc_all'                 => $clickDenominator > 0 ? round($revenue / $clickDenominator, 4) : 0,
             'uepc'                    => $uniqueClicks > 0 ? round($revenue / $uniqueClicks, 4) : 0,
             'uepc_all'                => $uniqueClicks > 0 ? round($revenue / $uniqueClicks, 4) : 0,
-            'epc_confirmed'           => $clicks > 0 ? round($revConfirmed / $clicks, 4) : 0,
+            'epc_confirmed'           => $clickDenominator > 0 ? round($revConfirmed / $clickDenominator, 4) : 0,
             'uepc_confirmed'          => $uniqueClicks > 0 ? round($revConfirmed / $uniqueClicks, 4) : 0,
-            'epc_hold'                => $clicks > 0 ? round($revHold / $clicks, 4) : 0,
+            'epc_hold'                => $clickDenominator > 0 ? round($revHold / $clickDenominator, 4) : 0,
             'uepc_hold'               => $uniqueClicks > 0 ? round($revHold / $uniqueClicks, 4) : 0,
-            'epc_registration'        => $clicks > 0 ? round($revRegistration / $clicks, 4) : 0,
+            'epc_registration'        => $clickDenominator > 0 ? round($revRegistration / $clickDenominator, 4) : 0,
             'uepc_registration'       => $uniqueClicks > 0 ? round($revRegistration / $uniqueClicks, 4) : 0,
 
-            'cpc'                     => $clicks > 0 ? round($cost / $clicks, 4) : 0,
+            'cpc'                     => $clickDenominator > 0 ? round($cost / $clickDenominator, 4) : 0,
             'ucpc'                    => $uniqueClicks > 0 ? round($cost / $uniqueClicks, 4) : 0,
-            'cpv'                     => $clicks > 0 ? round($cost / $clicks, 4) : 0,
-            // EPV — earnings per visit. At campaign/landing/offer scope a visit
-            // is one click row (the LP→offer transition updates the row rather
-            // than inserting one), so the denominator is clicks and EPV equals
-            // EPC by definition, not by accident.
-            'epv'                     => $clicks > 0 ? round($revenue / $clicks, 4) : 0,
-            'epv_confirmed'           => $clicks > 0 ? round($revConfirmed / $clicks, 4) : 0,
+            'cpv'                     => $lpViews > 0 ? round($cost / $lpViews, 4) : 0,
+            'epv'                     => $lpViews > 0 ? round($revenue / $lpViews, 4) : 0,
+            'epv_confirmed'           => $lpViews > 0 ? round($revConfirmed / $lpViews, 4) : 0,
             // eCPC — effective CPC once conversions are weighed in is not
             // derivable from these counters; keep it the plain cost per click
             // (identical to CPC) rather than the bogus cost*1000 it used to be.

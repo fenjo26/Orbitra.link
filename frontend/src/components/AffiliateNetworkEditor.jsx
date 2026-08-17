@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Save, Copy, Check } from 'lucide-react';
+import { copyToClipboard as copyUtil } from '../utils/clipboard';
 import { useLanguage } from '../contexts/LanguageContext';
 import { cachedGet, cachedPost } from '../utils/apiCache';
 
@@ -9,6 +10,8 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
     const [saving, setSaving] = useState(false);
     const [templates, setTemplates] = useState([]);
     const [copied, setCopied] = useState(false);
+    const [copiedMacro, setCopiedMacro] = useState('');
+    const [activeTab, setActiveTab] = useState('general');
     const [formData, setFormData] = useState({
         name: '',
         template: 'generic',
@@ -148,13 +151,21 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
         }
     };
 
+    // Delegates to the shared helper: navigator.clipboard is unavailable on
+    // plain-HTTP/IP installs, where execCommand provides the fallback.
     const copyToClipboard = async (text) => {
-        try {
-            await navigator.clipboard.writeText(text);
+        const ok = await copyUtil(text);
+        if (ok) {
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
-        } catch (err) {
-            console.error(err);
+        }
+    };
+
+    const handleCopyMacro = async (macro) => {
+        const ok = await copyUtil(macro);
+        if (ok) {
+            setCopiedMacro(macro);
+            setTimeout(() => setCopiedMacro(''), 1500);
         }
     };
 
@@ -175,9 +186,21 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
 
     return (
         <div className="modal-overlay">
-            <div className="modal-content" style={{ maxWidth: '700px' }}>
+            <div
+                className="modal-content"
+                style={{
+                    maxWidth: '700px',
+                    /* Flex column pins header/footer; only the body scrolls —
+                       the base class scrolls the whole card, hiding Save below
+                       the fold on short screens. */
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden',
+                    padding: 0
+                }}
+            >
                 {/* Header */}
-                <div className="modal-header">
+                <div className="modal-header px-6 pt-5" style={{ flexShrink: 0 }}>
                     <h2 className="modal-title">
                         {networkId ? `${t('networks.title')}: ${formData.name}` : t('networks.title')}
                     </h2>
@@ -186,12 +209,35 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
                     </button>
                 </div>
 
-                {/* Content */}
+                {/* Tabs — OfferEditor's tab row pattern */}
+                <div className="flex px-6 pt-1 gap-7" style={{ borderBottom: '1px solid var(--color-border)', flexShrink: 0 }}>
+                    {[
+                        { id: 'general', label: t('editor.general') },
+                        { id: 'params', label: t('editor.params') },
+                        { id: 'notes', label: t('editor.notes') }
+                    ].map(tab => (
+                        <button
+                            key={tab.id}
+                            type="button"
+                            className="pb-3 px-1 font-semibold text-sm transition border-b-2 whitespace-nowrap"
+                            style={{
+                                borderColor: activeTab === tab.id ? 'var(--color-primary)' : 'transparent',
+                                color: activeTab === tab.id ? 'var(--color-primary)' : 'var(--color-text-secondary)'
+                            }}
+                            onClick={() => setActiveTab(tab.id)}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Content — the only scrolling region */}
                 <div className="flex-1 overflow-y-auto p-6">
                     {loading ? (
                         <div className="flex justify-center py-10">{t('common.loading')}</div>
                     ) : (
                         <div className="space-y-6">
+                            {activeTab === 'general' && (<>
                             {/* Basic Settings */}
                             <div className="p-4 rounded border space-y-4" style={{ background: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}>
                                 <h3 className="font-medium pb-2" style={{ color: 'var(--color-text-primary)', borderBottom: '1px solid var(--color-border)' }}>{t('networkEditor.basicSettings')}</h3>
@@ -288,7 +334,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
                                         title={t('common.copy')}
                                         aria-label={t('common.copy')}
                                     >
-                                        {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                        {copied ? <Check className="w-4 h-4" style={{ color: 'var(--color-success)' }} /> : <Copy className="w-4 h-4" />}
                                     </button>
                                 </div>
                                 <div className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
@@ -301,7 +347,9 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
                                     ))}
                                 </div>
                             </div>
+                            </>)}
 
+                            {activeTab === 'params' && (<>
                             {/* Offer Parameters */}
                             <div className="p-4 rounded border space-y-4" style={{ background: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}>
                                 <h3 className="font-medium pb-2" style={{ color: 'var(--color-text-primary)', borderBottom: '1px solid var(--color-border)' }}>{t('affiliateNetworks.offerParams', 'Offer Parameters')}</h3>
@@ -330,26 +378,34 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
                                         {t('networkEditor.availableMacros')}
                                     </label>
                                     <div className="grid grid-cols-2 gap-2">
-                                        {availableMacros.map((m) => (
-                                            <div
-                                                key={m.macro}
-                                                className="flex items-center justify-between px-2 py-1 rounded text-xs cursor-pointer"
-                                                style={{
-                                                    background: 'var(--color-bg-card)',
-                                                    border: '1px solid var(--color-border)'
-                                                }}
-                                                onClick={() => {
-                                                    navigator.clipboard.writeText(m.macro);
-                                                }}
-                                            >
-                                                <code style={{ color: 'var(--color-primary)' }}>{m.macro}</code>
-                                                <span style={{ color: 'var(--color-text-muted)' }}>{m.description}</span>
-                                            </div>
-                                        ))}
+                                        {availableMacros.map((m) => {
+                                            const isThisCopied = copiedMacro === m.macro;
+                                            return (
+                                                <div
+                                                    key={m.macro}
+                                                    className="flex items-center justify-between px-2 py-1 rounded text-xs cursor-pointer transition-colors"
+                                                    style={{
+                                                        background: isThisCopied
+                                                            ? 'color-mix(in srgb, var(--color-success) 12%, var(--color-bg-card))'
+                                                            : 'var(--color-bg-card)',
+                                                        border: `1px solid ${isThisCopied ? 'var(--color-success)' : 'var(--color-border)'}`
+                                                    }}
+                                                    onClick={() => handleCopyMacro(m.macro)}
+                                                    title={t('common.copy')}
+                                                >
+                                                    <code style={{ color: isThisCopied ? 'var(--color-success)' : 'var(--color-primary)', fontWeight: isThisCopied ? 600 : undefined }}>{m.macro}</code>
+                                                    <span style={{ color: isThisCopied ? 'var(--color-success)' : 'var(--color-text-muted)' }}>
+                                                        {isThisCopied ? t('common.copied') : m.description}
+                                                    </span>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             </div>
+                            </>)}
 
+                            {activeTab === 'notes' && (<>
                             {/* Notes */}
                             <div className="p-4 rounded border space-y-4" style={{ background: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}>
                                 <h3 className="font-medium pb-2" style={{ color: 'var(--color-text-primary)', borderBottom: '1px solid var(--color-border)' }}>{t('networkEditor.notes')}</h3>
@@ -361,12 +417,13 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
                                     placeholder={t('networkEditor.notesPlaceholder')}
                                 />
                             </div>
+                            </>)}
                         </div>
                     )}
                 </div>
 
                 {/* Footer */}
-                <div className="modal-footer">
+                <div className="modal-footer px-6 pb-5" style={{ flexShrink: 0 }}>
                     <button onClick={() => onClose(false)} className="btn btn-secondary">
                         {t('common.cancel')}
                     </button>

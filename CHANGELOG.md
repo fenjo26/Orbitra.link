@@ -7,6 +7,39 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.9.9.1] — 2026-08-17
+
+### Added
+- 🛑 **Campaign switch stops real spend** — pausing a tracker campaign can now
+  pause the linked Facebook campaigns / ad sets / ads through the Meta
+  Marketing API (`sync_remote_ads` on `ad_entity_toggle_status`, entities
+  resolved from `clicks.parameters_json` with the `ad_campaign_id` →
+  `campaign_id` fallback); new `campaign_remote_links` endpoint powers a
+  safety confirmation that lists the ad entities before stopping them.
+- 📊 **Column grid (Line System)** — light vertical dividers across the
+  high-density Campaigns / Reports / Landers / Offers tables (headers, cells
+  and the totals footer); the Reports table adopted the tracker styling.
+- 🪟 **Tabbed editors** — Affiliate Network and Traffic Source editors split
+  into General / Parameters / Notes with a pinned header and footer.
+- 📈 **EPV metric** (earnings per landing-page visit) with column hints in
+  the report customizer.
+
+### Changed
+- The pause switch moved to a dedicated sortable **Status column**, away from
+  the campaign name — a stray click on the name can no longer stop live ads.
+- **EPC / CPC redefined per LP click** (was: all clicks), aligning the
+  metrics with the landing-page funnel.
+
+### Fixed
+- **Modals fit the screen at 100% zoom** — the 100px overlay inset that
+  pushed Save buttons below the fold is gone; only the modal body scrolls.
+- **Copy buttons on plain-HTTP/IP installs** — `navigator.clipboard` is
+  unavailable outside secure contexts; a shared `utils/clipboard.js` helper
+  falls back to `execCommand` (network editor postback URL + macros,
+  integration keys, landing snippets).
+- Reports: the pinned name column no longer slides under sticky metric
+  headers during horizontal scroll.
+
 ## [0.9.9.0] — 2026-08-17
 
 ### Added

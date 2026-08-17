@@ -294,6 +294,8 @@ const Offers = ({ offers, refreshData }) => {
     const totalsProfit = totals.revenue - totals.cost;
     const totalsProfitConfirmed = totals.revenue_confirmed - totals.cost;
     const totalsApproveDenom = totals.sales + totals.leads + totals.rejected + totals.trash;
+    const totalsLpViews = totals.visits > 0 ? totals.visits : totals.clicks;
+    const totalsLpClickDenominator = totals.lp_clicks > 0 ? totals.lp_clicks : totals.clicks;
     const renderTotalCell = (colId) => {
         switch (colId) {
             case 'clicks': return totals.clicks.toLocaleString();
@@ -307,18 +309,18 @@ const Offers = ({ offers, refreshData }) => {
             case 'rejected': return totals.rejected.toLocaleString();
             case 'trash': return totals.trash.toLocaleString();
             case 'approve_rate': return totalsApproveDenom > 0 ? `${((totals.sales / totalsApproveDenom) * 100).toFixed(2)}%` : '0%';
-            case 'lp_ctr': return totals.clicks > 0 ? `${((totals.lp_clicks / totals.clicks) * 100).toFixed(2)}%` : '0%';
+            case 'lp_ctr': return totalsLpViews > 0 ? `${((totals.lp_clicks / totalsLpViews) * 100).toFixed(2)}%` : '0%';
             case 'revenue': return `$${totals.revenue.toFixed(2)}`;
             case 'revenue_confirmed': return `$${totals.revenue_confirmed.toFixed(2)}`;
             case 'cost': return `$${totals.cost.toFixed(2)}`;
             case 'profit': return `$${totalsProfit.toFixed(2)}`;
             case 'profit_confirmed': return `$${totalsProfitConfirmed.toFixed(2)}`;
             case 'cr': return totals.clicks > 0 ? `${((totals.conversions / totals.clicks) * 100).toFixed(2)}%` : '0%';
-            case 'epc': return totals.clicks > 0 ? `$${(totals.revenue / totals.clicks).toFixed(2)}` : '$0';
-            case 'epc_confirmed': return totals.clicks > 0 ? `$${(totals.revenue_confirmed / totals.clicks).toFixed(2)}` : '$0';
-            case 'epv': return totals.clicks > 0 ? `$${(totals.revenue / totals.clicks).toFixed(2)}` : '$0';
-            case 'cpc': return totals.clicks > 0 ? `$${(totals.cost / totals.clicks).toFixed(2)}` : '$0';
-            case 'cpv': return totals.clicks > 0 ? `$${(totals.cost / totals.clicks).toFixed(2)}` : '$0.00';
+            case 'epc': return totalsLpClickDenominator > 0 ? `$${(totals.revenue / totalsLpClickDenominator).toFixed(2)}` : '$0';
+            case 'epc_confirmed': return totalsLpClickDenominator > 0 ? `$${(totals.revenue_confirmed / totalsLpClickDenominator).toFixed(2)}` : '$0';
+            case 'epv': return totalsLpViews > 0 ? `$${(totals.revenue / totalsLpViews).toFixed(2)}` : '$0';
+            case 'cpc': return totalsLpClickDenominator > 0 ? `$${(totals.cost / totalsLpClickDenominator).toFixed(2)}` : '$0';
+            case 'cpv': return totalsLpViews > 0 ? `$${(totals.cost / totalsLpViews).toFixed(2)}` : '$0.00';
             case 'roi': return totals.cost > 0 ? `${((totalsProfit / totals.cost) * 100).toFixed(2)}%` : '—';
             case 'roi_confirmed': return totals.cost > 0 ? `${((totalsProfitConfirmed / totals.cost) * 100).toFixed(2)}%` : '—';
             default: return null;
@@ -362,6 +364,21 @@ const Offers = ({ offers, refreshData }) => {
     }[colId] || colId);
 
     const localizedColumns = ALL_OFFER_COLUMNS.map(c => ({ ...c, label: columnLabel(c.id) }));
+
+    const metricHint = (colId) => {
+        const hintKey = ({
+            visits: 'lpViewsHint',
+            clicks: 'lpViewsHint',
+            lp_clicks: 'lpClicksHint',
+            lp_ctr: 'lpCtrHint',
+            cpv: 'cpvHint',
+            cpc: 'cpcHint',
+            epv: 'epvHint',
+            epc: 'epcHint',
+            epc_confirmed: 'epcHint',
+        })[colId];
+        return hintKey ? t(`metrics.${hintKey}`) : undefined;
+    };
 
     const money = (v, precision = 2) => `$${(parseFloat(v) || 0).toFixed(precision)}`;
 
@@ -491,7 +508,7 @@ const Offers = ({ offers, refreshData }) => {
             : <ChevronDown className="w-3.5 h-3.5" />;
     };
 
-    const SortableTh = ({ colKey, label, defaultDir = 'asc', alignRight = false }) => {
+    const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', alignRight = false }) => {
         const isActive = sortBy.key === colKey;
         return (
             <th className={alignRight ? 'text-right' : ''} aria-sort={isActive ? (sortBy.dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
@@ -500,7 +517,7 @@ const Offers = ({ offers, refreshData }) => {
                     onClick={() => requestSort(colKey, defaultDir)}
                     className={`inline-flex items-center gap-1 select-none ${alignRight ? 'justify-end w-full' : ''}`}
                     style={{ color: isActive ? 'var(--color-text-primary)' : 'var(--color-text-secondary)' }}
-                    title={t('common.sort', 'Sort')}
+                    title={fullTitle || t('common.sort', 'Sort')}
                 >
                     <span>{label}</span>
                     <SortIcon colKey={colKey} />
@@ -708,6 +725,7 @@ const Offers = ({ offers, refreshData }) => {
                                         key={colId}
                                         colKey={colId}
                                         label={columnLabel(colId)}
+                                        fullTitle={metricHint(colId)}
                                         defaultDir={col.alignRight ? 'desc' : 'asc'}
                                         alignRight={col.alignRight}
                                     />

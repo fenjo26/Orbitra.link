@@ -45,6 +45,7 @@
       --tw-ring-offset-width: 0px;
       --tw-ring-offset-color: #fff;
       --tw-ring-offset-shadow: 0 0 #0000;
+      --tw-outline-style: solid;
       --tw-blur: initial;
       --tw-brightness: initial;
       --tw-contrast: initial;
@@ -69,6 +70,9 @@
       --tw-backdrop-sepia: initial;
       --tw-duration: initial;
       --tw-ease: initial;
+      --tw-scale-x: 1;
+      --tw-scale-y: 1;
+      --tw-scale-z: 1;
       --tw-content: "";
     }
   }
@@ -1104,10 +1108,6 @@
     width: calc(var(--spacing) * 32);
   }
 
-  .w-44 {
-    width: calc(var(--spacing) * 44);
-  }
-
   .w-48 {
     width: calc(var(--spacing) * 48);
   }
@@ -1395,6 +1395,10 @@
 
   .gap-6 {
     gap: calc(var(--spacing) * 6);
+  }
+
+  .gap-7 {
+    gap: calc(var(--spacing) * 7);
   }
 
   :where(.space-y-1 > :not(:last-child)) {
@@ -1965,6 +1969,10 @@
     padding-inline: calc(var(--spacing) * 3);
   }
 
+  .px-3\.5 {
+    padding-inline: calc(var(--spacing) * 3.5);
+  }
+
   .px-4 {
     padding-inline: calc(var(--spacing) * 4);
   }
@@ -2095,6 +2103,10 @@
 
   .pb-3 {
     padding-bottom: calc(var(--spacing) * 3);
+  }
+
+  .pb-5 {
+    padding-bottom: calc(var(--spacing) * 5);
   }
 
   .pb-7 {
@@ -2478,6 +2490,10 @@
     opacity: .2;
   }
 
+  .opacity-25 {
+    opacity: .25;
+  }
+
   .opacity-30 {
     opacity: .3;
   }
@@ -2555,6 +2571,11 @@
     --tw-ring-color: var(--color-primary);
   }
 
+  .outline {
+    outline-style: var(--tw-outline-style);
+    outline-width: 1px;
+  }
+
   .blur {
     --tw-blur: blur(8px);
     filter: var(--tw-blur,  ) var(--tw-brightness,  ) var(--tw-contrast,  ) var(--tw-grayscale,  ) var(--tw-hue-rotate,  ) var(--tw-invert,  ) var(--tw-saturate,  ) var(--tw-sepia,  ) var(--tw-drop-shadow,  );
@@ -2621,6 +2642,11 @@
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
 
+  .duration-100 {
+    --tw-duration: .1s;
+    transition-duration: .1s;
+  }
+
   .duration-150 {
     --tw-duration: .15s;
     transition-duration: .15s;
@@ -2673,6 +2699,13 @@
 
     .group-hover\:block:is(:where(.group):hover *) {
       display: block;
+    }
+
+    .group-hover\:scale-110:is(:where(.group):hover *) {
+      --tw-scale-x: 110%;
+      --tw-scale-y: 110%;
+      --tw-scale-z: 110%;
+      scale: var(--tw-scale-x) var(--tw-scale-y);
     }
 
     .group-hover\:text-\[var\(--color-primary\)\]:is(:where(.group):hover *) {
@@ -2919,6 +2952,10 @@
 
     .hover\:underline:hover {
       text-decoration-line: underline;
+    }
+
+    .hover\:opacity-75:hover {
+      opacity: .75;
     }
 
     .hover\:opacity-80:hover {
@@ -3859,18 +3896,29 @@ code {
   z-index: 10;
   background-color: var(--color-bg-soft);
   box-shadow: 0 1px 0 var(--color-border);
-  padding: 8px 12px;
+  border-right: 1px solid var(--color-border);
+  padding: 8px 14px;
   font-size: 11px;
   font-weight: 600;
   position: sticky;
   top: 0;
 }
 
+@supports (color: color-mix(in lab, red, red)) {
+  .tracker-table th {
+    border-right: 1px solid color-mix(in srgb, var(--color-border) 65%, transparent);
+  }
+}
+
+.tracker-table th:last-child {
+  border-right: none;
+}
+
 .tracker-table td {
   white-space: nowrap;
   border-bottom: 1px solid var(--color-border);
   height: 38px;
-  padding: 7px 12px;
+  padding: 7px 14px;
   font-size: 12.5px;
 }
 
@@ -3880,17 +3928,45 @@ code {
   }
 }
 
+.tracker-table td {
+  border-right: 1px solid var(--color-border);
+}
+
+@supports (color: color-mix(in lab, red, red)) {
+  .tracker-table td {
+    border-right: 1px solid color-mix(in srgb, var(--color-border) 50%, transparent);
+  }
+}
+
+.tracker-table td:last-child {
+  border-right: none;
+}
+
 .tracker-table tfoot td {
   background-color: var(--color-bg-soft);
   border-top: 2px solid var(--color-border);
-  white-space: nowrap;
-  z-index: 10;
   border-bottom: none;
-  padding: 9px 12px;
+  border-right: 1px solid var(--color-border);
+  padding: 9px 14px;
   font-size: 12px;
   font-weight: 700;
+}
+
+@supports (color: color-mix(in lab, red, red)) {
+  .tracker-table tfoot td {
+    border-right: 1px solid color-mix(in srgb, var(--color-border) 65%, transparent);
+  }
+}
+
+.tracker-table tfoot td {
+  white-space: nowrap;
+  z-index: 10;
   position: sticky;
   bottom: 0;
+}
+
+.tracker-table tfoot td:last-child {
+  border-right: none;
 }
 
 .tracker-table tbody tr:nth-child(2n) {
@@ -4100,7 +4176,7 @@ code {
   background-color: #00000080;
   justify-content: center;
   align-items: center;
-  padding: 100px 24px 24px;
+  padding: 24px;
   display: flex;
   position: fixed;
   inset: 0;
@@ -4699,6 +4775,12 @@ code {
   initial-value: 0 0 #0000;
 }
 
+@property --tw-outline-style {
+  syntax: "*";
+  inherits: false;
+  initial-value: solid;
+}
+
 @property --tw-blur {
   syntax: "*";
   inherits: false
@@ -4818,6 +4900,24 @@ code {
 @property --tw-ease {
   syntax: "*";
   inherits: false
+}
+
+@property --tw-scale-x {
+  syntax: "*";
+  inherits: false;
+  initial-value: 1;
+}
+
+@property --tw-scale-y {
+  syntax: "*";
+  inherits: false;
+  initial-value: 1;
+}
+
+@property --tw-scale-z {
+  syntax: "*";
+  inherits: false;
+  initial-value: 1;
 }
 
 @property --tw-content {

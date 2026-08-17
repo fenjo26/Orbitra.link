@@ -1,36 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Save, X, Upload, FileText, Code, Check, Plus, Eye, ExternalLink } from 'lucide-react';
+import { Save, X, Upload, FileText, Code, Check, Plus, Eye, ExternalLink, LayoutTemplate, HardDrive, Layers3, Zap } from 'lucide-react';
 import axios from 'axios';
 import GroupsModal from './GroupsModal';
+import SegmentedControl from './common/SegmentedControl';
+import FileDropzone from './common/FileDropzone';
+import CodeSnippetCard from './common/CodeSnippetCard';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getStayInEditorAfterSave } from '../utils/editorPreferences';
 import { translateLandingError, translateLandingRequestError } from '../utils/landingErrors';
+import { copyToClipboard as copyUtil } from '../utils/clipboard';
 
 const API_URL = '/api.php';
-
-// A read-only code block with a copy button. Reused by the offer-link hint so
-// every snippet gets the same one-click copy the JS-adapter block already had.
-const CopyableCode = ({ text, copied, onCopy, t, muted = false }) => (
-    <div className="relative mt-1">
-        <button
-            type="button"
-            onClick={() => { navigator.clipboard.writeText(text); onCopy && onCopy(); }}
-            className="btn btn-secondary btn-sm"
-            style={{ position: 'absolute', top: '6px', right: '6px', padding: '2px 8px', fontSize: '11px', zIndex: 1 }}
-        >
-            {copied ? <Check className="w-3 h-3" /> : <Code className="w-3 h-3" />}
-            {copied ? t('landingEditor.codeCopied') : t('landingEditor.copyCode')}
-        </button>
-        <pre className="p-2 rounded-lg overflow-x-auto" style={{
-            backgroundColor: 'var(--color-bg-card)',
-            border: '1px solid var(--color-border)',
-            color: muted ? 'var(--color-text-muted)' : 'var(--color-text-primary)',
-            fontSize: '12.5px',
-            margin: 0,
-            paddingRight: '90px'
-        }}><code>{text}</code></pre>
-    </div>
-);
 
 /**
  * The landing form. One implementation, used by the Landings page and by the
@@ -44,6 +24,7 @@ const CopyableCode = ({ text, copied, onCopy, t, muted = false }) => (
  */
 const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
     const { t } = useLanguage();
+    const [activeTab, setActiveTab] = useState('general');
     // The id is state, not just the prop it started as. Creating a landing used
     // to say "now you can upload files" and immediately close the modal, so the
     // file panel it was pointing at could only be reached by reopening the
@@ -56,6 +37,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
     // A ZIP chosen before the landing exists. It cannot be uploaded yet — the
     // endpoint needs an id — so it is held here and sent the moment we have one.
     const [pendingZip, setPendingZip] = useState(null);
+    const [lastZip, setLastZip] = useState(null);
     const [landing, setLanding] = useState({
         name: '',
         group_id: '',
@@ -76,11 +58,10 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
     // Only needed by the "send to campaign" action, so it is fetched on demand.
     const [campaigns, setCampaigns] = useState([]);
     const [postbackKey, setPostbackKey] = useState('');
-    const [adapterCopied, setAdapterCopied] = useState(false);
     // Offer-link hint: which code format to show for redirect landings, and a
     // per-snippet "copied" toast for the copy button.
     const [linkFormat, setLinkFormat] = useState('html');
-    const [linkCopied, setLinkCopied] = useState(false);
+    const [copiedSnippet, setCopiedSnippet] = useState('');
 
     const origin = (typeof window !== 'undefined' && window.location && window.location.origin)
         ? window.location.origin
@@ -102,7 +83,6 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
     // it never shows the version from before the last save or upload.
     const [viewMode, setViewMode] = useState('code');
     const [previewNonce, setPreviewNonce] = useState(0);
-    const fileInputRef = useRef(null);
     const assetInputRef = useRef(null);
 
     // The campaign list is only meaningful for one action, so it is not part of
@@ -151,7 +131,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
         };
 
         fetchInitialData();
-    }, [landingId]);
+    }, [landingId, t]);
 
     const fetchLandingFiles = async (id) => {
         try {
@@ -166,6 +146,23 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
 
     const handleSave = async (forceClose = false) => {
         if (loading || saving || uploadingZip || saveSuccess) return;
+        if (!landing.name.trim()) {
+            setActiveTab('general');
+            alert(`${t('landingEditor.name')}: ${t('landingColumns.required')}`);
+            return;
+        }
+        if (['redirect', 'preload'].includes(landing.type) && !String(landing.url || '').trim()) {
+            setActiveTab('general');
+            alert(`${t('landingEditor.urlLabel')}: ${t('landingColumns.required')}`);
+            return;
+        }
+        if (landing.type === 'action'
+            && ['to_campaign', 'show_text', 'show_html'].includes(landing.action_type || 'not_found')
+            && !String(landing.action_payload || '').trim()) {
+            setActiveTab('general');
+            alert(`${t('landingEditor.actionTypeLabel')}: ${t('landingColumns.required')}`);
+            return;
+        }
 
         try {
             setSaving(true);
@@ -183,6 +180,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                     if (pendingZip) {
                         const zip = pendingZip;
                         setPendingZip(null);
+                        setLastZip(zip);
                         await uploadZip(newId, zip);
                     }
                 }
@@ -300,11 +298,19 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
         }
     };
 
-    const handleZipUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file || !landingId) return;
-        await uploadZip(landingId, file);
-        e.target.value = null;
+    const selectLandingZip = (file) => {
+        if (landingId) {
+            setLastZip(file);
+            uploadZip(landingId, file);
+        } else {
+            setPendingZip(file);
+        }
+    };
+
+    const copySnippet = async (text, id) => {
+        if (!await copyUtil(text)) return;
+        setCopiedSnippet(id);
+        setTimeout(() => setCopiedSnippet(''), 1800);
     };
 
     const loadFileContent = async (path) => {
@@ -351,23 +357,71 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
     );
 
     const isLocal = landing.type === 'local';
+    const showFileEditor = activeTab === 'general' && isLocal && landingId;
+    const tabs = [
+        { id: 'general', label: t('editor.general') },
+        { id: 'integration', label: `${t('editor.integrations')} & ${t('landingEditor.viewCode')}` },
+        { id: 'details', label: `${t('editor.notes')} & ${t('editor.params')}` }
+    ];
+    const offerLinkSnippet = landing.type === 'redirect'
+        ? (linkFormat === 'html'
+            ? `<a href="${origin}/?_lp=1">${t('landingEditor.offerLinkWord')}</a>`
+            : linkFormat === 'js'
+                ? `<script>document.write('<a href="${origin}/?_lp=1&'+window.location.search.substring(1)+'">${t('landingEditor.offerLinkWord')}</a>');</script>`
+                : `<a href="${origin}/?_lp=1&_token=<?= urlencode($_GET['_token']) ?>">${t('landingEditor.offerLinkWord')}</a>`)
+        : t('landingEditor.offerLinkExampleSingle');
 
     return (
         <div className="modal-overlay">
-            <div className="modal-content" style={{ maxWidth: '1200px', width: '100%' }}>
-                <div className="modal-header">
-                    <h3 className="modal-title">
-                        {landingId ? `${t('landingEditor.landing')}: ${landing.name}` : t('landingEditor.createLanding')}
-                    </h3>
-                    <button onClick={() => onClose(savedSomething)} className="action-btn">
+            <div
+                className="modal-content"
+                style={{
+                    maxWidth: showFileEditor ? '1200px' : '880px', width: '100%',
+                    /* Flex column pins header/footer; only the body scrolls —
+                       the file editor used to push Save below the fold. */
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden',
+                    padding: 0
+                }}
+            >
+                <div className="modal-header px-6 pt-5" style={{ flexShrink: 0, marginBottom: 0, borderBottom: 'none' }}>
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>
+                            <LayoutTemplate className="w-5 h-5" />
+                        </div>
+                        <h3 className="modal-title truncate">
+                            {landingId ? `${t('landingEditor.landing')}: ${landing.name}` : t('landingEditor.createLanding')}
+                        </h3>
+                    </div>
+                    <button type="button" onClick={() => onClose(savedSomething)} className="action-btn" aria-label={t('common.close', 'Close')}>
                         <X className="w-5 h-5" />
                     </button>
                 </div>
 
+                <div className="flex px-6 pt-1 gap-7 overflow-x-auto" style={{ borderBottom: '1px solid var(--color-border)', flexShrink: 0 }}>
+                    {tabs.map(tab => (
+                        <button
+                            key={tab.id}
+                            type="button"
+                            className="pb-3 px-1 font-semibold text-sm transition border-b-2 whitespace-nowrap"
+                            style={{
+                                borderColor: activeTab === tab.id ? 'var(--color-primary)' : 'transparent',
+                                color: activeTab === tab.id ? 'var(--color-primary)' : 'var(--color-text-secondary)'
+                            }}
+                            onClick={() => setActiveTab(tab.id)}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+
                 <div className="flex-1 overflow-y-auto p-0 flex flex-col md:flex-row">
                     {/* Settings Panel */}
-                    <div className={`p-6 ${isLocal && landingId ? 'md:w-1/3' : 'w-full'} flex flex-col pt-4`} style={{ borderRight: isLocal && landingId ? '1px solid var(--color-border)' : 'none' }}>
+                    <div className={`p-6 ${showFileEditor ? 'md:w-1/3' : 'w-full'} flex flex-col pt-4`} style={{ borderRight: showFileEditor ? '1px solid var(--color-border)' : 'none' }}>
                         <form id="landing-form" onSubmit={handleFormSubmit} className="space-y-4">
+                            {activeTab === 'general' && (
+                            <div className="space-y-4">
                             <div>
                                 <label className="form-label">{t('landingEditor.name')}</label>
                                 <input
@@ -407,6 +461,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                                         className="form-select"
                                     >
                                         <option value="active">{t('landingEditor.active')}</option>
+                                        <option value="paused">{t('landingEditor.paused')}</option>
                                         <option value="archived">{t('landingEditor.archived')}</option>
                                     </select>
                                 </div>
@@ -414,31 +469,17 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
 
                             <div>
                                 <label className="form-label">{t('landingEditor.landingType')}</label>
-                                <div className="flex rounded-xl overflow-hidden mb-3" style={{ border: '1px solid var(--color-border)' }}>
-                                    {[
-                                        { value: 'local', label: t('landingEditor.typeLocal') },
-                                        { value: 'redirect', label: t('landingEditor.typeRedirect') },
-                                        { value: 'preload', label: t('landingEditor.typePreload') },
-                                        { value: 'action', label: t('landingEditor.typeAction') },
-                                    ].map((opt, idx, arr) => {
-                                        const active = landing.type === opt.value;
-                                        return (
-                                            <button
-                                                key={opt.value}
-                                                type="button"
-                                                onClick={() => setLanding({ ...landing, type: opt.value })}
-                                                className="flex-1 px-4 py-2 text-sm font-medium transition"
-                                                style={{
-                                                    backgroundColor: active ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
-                                                    color: active ? 'var(--color-primary)' : 'var(--color-text-primary)',
-                                                    borderRight: idx < arr.length - 1 ? '1px solid var(--color-border)' : 'none'
-                                                }}
-                                            >
-                                                {opt.label}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
+                                <SegmentedControl
+                                    ariaLabel={t('landingEditor.landingType')}
+                                    value={landing.type}
+                                    onChange={(type) => setLanding({ ...landing, type })}
+                                    options={[
+                                        { value: 'local', label: t('landingEditor.typeLocal'), icon: HardDrive },
+                                        { value: 'redirect', label: t('landingEditor.typeRedirect'), icon: ExternalLink },
+                                        { value: 'preload', label: t('landingEditor.typePreload'), icon: Layers3 },
+                                        { value: 'action', label: t('landingEditor.typeAction'), icon: Zap }
+                                    ]}
+                                />
                             </div>
 
                             {/* Folder name for a local landing. Files land in
@@ -578,151 +619,141 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                                     )}
                                 </div>
                             )}
-
-                            {/* How to point the landing's buy button at the offer.
-                                This is the first thing people get wrong when moving
-                                a landing over from another tracker, so it lives next
-                                to the upload rather than in the documentation. */}
-                            {(landing.type === 'local' || landing.type === 'preload' || landing.type === 'redirect') && (
-                                <div className="mt-4 p-4 rounded-2xl text-sm" style={{
-                                    border: '1px solid var(--color-primary)',
-                                    backgroundColor: 'var(--color-bg-soft)'
-                                }}>
-                                    <div className="flex items-center justify-between" style={{ gap: '8px', marginBottom: '4px' }}>
-                                        <div className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-                                            {t('landingEditor.offerLinkTitle')}
-                                        </div>
-                                        {/* For a redirect landing the integration code has three
-                                            shapes (an external page can build the link with plain
-                                            HTML, document.write JS, or server-side PHP). Local and
-                                            preload landings live on the tracker, where {offer} is
-                                            substituted directly, so a single HTML snippet is enough. */}
-                                        {landing.type === 'redirect' && (
-                                            <div className="flex" style={{ gap: '2px' }}>
-                                                {['html', 'js', 'php'].map(fmt => {
-                                                    const active = linkFormat === fmt;
-                                                    return (
-                                                        <button
-                                                            key={fmt}
-                                                            type="button"
-                                                            onClick={() => setLinkFormat(fmt)}
-                                                            className="px-2 py-1 text-xs rounded-md transition"
-                                                            style={{
-                                                                backgroundColor: active ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
-                                                                color: active ? 'var(--color-primary)' : 'var(--color-text-muted)',
-                                                                border: '1px solid var(--color-border)'
-                                                            }}
-                                                        >
-                                                            {fmt.toUpperCase()}
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-                                        )}
+                            {landing.type === 'local' && (
+                                <div className="p-4 rounded-2xl" style={{ border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}>
+                                    <div className="font-semibold mb-2 text-sm" style={{ color: 'var(--color-text-primary)' }}>
+                                        {t('landingEditor.uploadZip')}
                                     </div>
-                                    <p className="mb-2" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.55 }}>
-                                        {t('landingEditor.offerLinkHint')}
-                                    </p>
-                                    <CopyableCode
-                                        text={landing.type === 'redirect'
-                                            ? (linkFormat === 'html'
-                                                ? `<a href="${origin}/?_lp=1">${t('landingEditor.offerLinkWord')}</a>`
-                                                : linkFormat === 'js'
-                                                    ? `<script>document.write('<a href="${origin}/?_lp=1&'+window.location.search.substring(1)+'">${t('landingEditor.offerLinkWord')}</a>');</script>`
-                                                    : `<a href="${origin}/?_lp=1&_token=<?= urlencode($_GET['_token']) ?>">${t('landingEditor.offerLinkWord')}</a>`)
-                                            : t('landingEditor.offerLinkExampleSingle')}
-                                        copied={linkCopied}
-                                        onCopy={() => { setLinkCopied(true); setTimeout(() => setLinkCopied(false), 1800); }}
-                                        t={t}
+                                    <FileDropzone
+                                        file={pendingZip || lastZip}
+                                        onFileSelect={selectLandingZip}
+                                        disabled={uploadingZip}
+                                        label={uploadingZip ? t('landingEditor.uploadingZip') : t('landingEditor.uploadZip')}
+                                        emptyHint={t('landingEditor.zipDropHint', 'Drag & drop .zip here or click to browse files')}
+                                        replaceHint={t('landingEditor.zipReplaceHint', 'Click to replace')}
                                     />
-                                    {(landing.type === 'local' || landing.type === 'preload') && (
+                                    <p className="mt-2" style={{ fontSize: '12.5px', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+                                        {!landingId ? t('landingEditor.zipOnCreateHint') : `${files.length} ${t('offerEditor.filesLabel', 'files')}`}
+                                    </p>
+                                </div>
+                            )}
+                            </div>
+                            )}
+
+                            {activeTab === 'integration' && (
+                                <div className="space-y-4">
+                                    {(landing.type === 'local' || landing.type === 'preload' || landing.type === 'redirect') ? (
                                         <>
-                                            <p className="mt-2" style={{ color: 'var(--color-text-muted)', fontSize: '12.5px', lineHeight: 1.55 }}>
-                                                {t('landingEditor.offerLinkExtra')}
-                                            </p>
-                                            <CopyableCode
-                                                text={t('landingEditor.offerLinkExampleMulti')}
-                                                copied={linkCopied}
-                                                onCopy={() => { setLinkCopied(true); setTimeout(() => setLinkCopied(false), 1800); }}
-                                                t={t}
+                                            <CodeSnippetCard
+                                                title={t('landingEditor.offerLinkTitle')}
+                                                description={t('landingEditor.offerLinkHint')}
+                                                code={offerLinkSnippet}
+                                                copyId="landing-offer-link"
+                                                onCopy={copySnippet}
+                                                copied={copiedSnippet}
+                                                copyLabel={t('landingEditor.copyCode')}
+                                                copiedLabel={t('landingEditor.codeCopied')}
+                                                actions={landing.type === 'redirect' ? (
+                                                    <div className="flex gap-1">
+                                                        {['html', 'js', 'php'].map(format => (
+                                                            <button
+                                                                key={format}
+                                                                type="button"
+                                                                onClick={() => setLinkFormat(format)}
+                                                                className="px-2 py-1 text-[10px] font-semibold rounded-md transition"
+                                                                style={{
+                                                                    backgroundColor: linkFormat === format ? 'var(--color-primary)' : 'var(--color-bg-card)',
+                                                                    color: linkFormat === format ? '#fff' : 'var(--color-text-muted)',
+                                                                    border: '1px solid var(--color-border)'
+                                                                }}
+                                                            >
+                                                                {format.toUpperCase()}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                ) : null}
+                                            />
+                                            {(landing.type === 'local' || landing.type === 'preload') && (
+                                                <CodeSnippetCard
+                                                    title={t('landingEditor.offerLinkTitle')}
+                                                    description={t('landingEditor.offerLinkExtra')}
+                                                    code={t('landingEditor.offerLinkExampleMulti')}
+                                                    copyId="landing-multiple-offers"
+                                                    onCopy={copySnippet}
+                                                    copied={copiedSnippet}
+                                                    copyLabel={t('landingEditor.copyCode')}
+                                                    copiedLabel={t('landingEditor.codeCopied')}
+                                                    muted
+                                                />
+                                            )}
+                                            <CodeSnippetCard
+                                                title={t('landingEditor.adapterTitle')}
+                                                description={landing.type === 'redirect'
+                                                    ? t('landingEditor.adapterHintRedirect')
+                                                    : t('landingEditor.adapterHintLocal')}
+                                                code={adapterSnippet}
+                                                copyId="landing-adapter"
+                                                onCopy={copySnippet}
+                                                copied={copiedSnippet}
+                                                copyLabel={t('landingEditor.adapterCopy')}
+                                                copiedLabel={t('landingEditor.adapterCopied')}
+                                            />
+                                            <CodeSnippetCard
+                                                title={t('landingEditor.adapterPostbackHint')}
+                                                code={t('landingEditor.postbackExample')}
+                                                copyId="landing-postback"
+                                                onCopy={copySnippet}
+                                                copied={copiedSnippet}
+                                                copyLabel={t('landingEditor.copyCode')}
+                                                copiedLabel={t('landingEditor.codeCopied')}
                                                 muted
                                             />
                                         </>
+                                    ) : (
+                                        <CodeSnippetCard
+                                            title={t('landingEditor.actionPayloadLabel')}
+                                            description={t('landingEditor.actionTypeLabel')}
+                                            code={landing.action_payload || t('landingEditor.actionPayloadPlaceholder')}
+                                            copyId="landing-action"
+                                            onCopy={copySnippet}
+                                            copied={copiedSnippet}
+                                            copyLabel={t('landingEditor.copyCode')}
+                                            copiedLabel={t('landingEditor.codeCopied')}
+                                        />
                                     )}
                                 </div>
                             )}
 
-                            {/* The adapter is what makes a landing on someone else's
-                                hosting able to identify the click at all, so the
-                                snippet lives right next to the redirect URL field. */}
-                            {(landing.type === 'redirect' || landing.type === 'local' || landing.type === 'preload') && (
-                                <div className="mt-4 p-4 rounded-2xl text-sm" style={{
-                                    border: '1px solid var(--color-border)',
-                                    backgroundColor: 'var(--color-bg-soft)'
-                                }}>
-                                    <div className="flex items-center justify-between" style={{ gap: '8px', marginBottom: '4px' }}>
-                                        <div className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-                                            {t('landingEditor.adapterTitle')}
-                                        </div>
-                                        <button
-                                            type="button"
-                                            onClick={() => { navigator.clipboard.writeText(adapterSnippet); setAdapterCopied(true); setTimeout(() => setAdapterCopied(false), 1800); }}
-                                            className="btn btn-secondary btn-sm"
-                                            style={{ flexShrink: 0 }}
-                                        >
-                                            {adapterCopied ? <Check className="w-4 h-4" /> : <Code className="w-4 h-4" />}
-                                            {adapterCopied ? t('landingEditor.adapterCopied') : t('landingEditor.adapterCopy')}
-                                        </button>
-                                    </div>
-                                    <p style={{ color: 'var(--color-text-secondary)', lineHeight: 1.55, margin: 0 }}>
-                                        {landing.type === 'redirect'
-                                            ? t('landingEditor.adapterHintRedirect')
-                                            : t('landingEditor.adapterHintLocal')}
-                                    </p>
-                                    <pre className="p-2 rounded-lg overflow-x-auto mt-2" style={{
-                                        backgroundColor: 'var(--color-bg-card)',
-                                        border: '1px solid var(--color-border)',
-                                        color: 'var(--color-text-primary)', fontSize: '12.5px', margin: 0
-                                    }}><code>{adapterSnippet}</code></pre>
-                                    <p className="mt-2" style={{ color: 'var(--color-text-muted)', fontSize: '12.5px', lineHeight: 1.55 }}>
-                                        {t('landingEditor.adapterPostbackHint')}
-                                    </p>
-                                    <pre className="p-2 rounded-lg overflow-x-auto mt-1" style={{
-                                        backgroundColor: 'var(--color-bg-card)',
-                                        border: '1px solid var(--color-border)',
-                                        color: 'var(--color-text-muted)', fontSize: '12.5px', margin: 0
-                                    }}><code>{t('landingEditor.postbackExample')}</code></pre>
-                                </div>
-                            )}
-
-                            {/* A local landing that does not exist yet can still be
-                                given its archive here: upload needs an id, so the
-                                file is held and sent as soon as the landing is
-                                created. Same behaviour as the stream's modal. */}
-                            {landing.type === 'local' && !landingId && (
-                                <div className="mt-4 p-4 rounded-2xl text-sm" style={{
-                                    border: '1px solid var(--color-border)',
-                                    backgroundColor: 'var(--color-bg-soft)'
-                                }}>
-                                    <div className="font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>
-                                        {t('landingEditor.uploadZip')}
-                                    </div>
-                                    <input
-                                        type="file"
-                                        accept=".zip"
-                                        onChange={e => setPendingZip(e.target.files[0] || null)}
-                                        className="form-input"
+                            {activeTab === 'details' && (
+                                <div className="space-y-4">
+                                    <CodeSnippetCard
+                                        title={t('sourceEditor.availableMacros')}
+                                        description={t('landingEditor.offerLinkHint')}
+                                        code={'{offer}\n{subid}\n{campaign_id}\n{source}\n{keyword}'}
+                                        copyId="landing-macros"
+                                        onCopy={copySnippet}
+                                        copied={copiedSnippet}
+                                        copyLabel={t('landingEditor.copyCode')}
+                                        copiedLabel={t('landingEditor.codeCopied')}
                                     />
-                                    <p className="mt-1" style={{ fontSize: '12.5px', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
-                                        {t('landingEditor.zipOnCreateHint')}
-                                    </p>
+                                    <CodeSnippetCard
+                                        title={t('editor.params')}
+                                        description={t('landingEditor.adapterPostbackHint')}
+                                        code={'?_lp=1&subid={subid}&campaign_id={campaign_id}'}
+                                        copyId="landing-parameters"
+                                        onCopy={copySnippet}
+                                        copied={copiedSnippet}
+                                        copyLabel={t('landingEditor.copyCode')}
+                                        copiedLabel={t('landingEditor.codeCopied')}
+                                        muted
+                                    />
                                 </div>
                             )}
                         </form>
                     </div>
 
                     {/* Editor Panel (Only for saved Local landings) */}
-                    {isLocal && landingId && (
+                    {showFileEditor && (
                         <div className="flex-1 flex flex-col overflow-hidden min-h-[400px]" style={{ backgroundColor: 'var(--color-bg-soft)' }}>
                             <div className="flex justify-between items-center p-3" style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)' }}>
                                 <div className="flex items-center gap-3">
@@ -730,21 +761,6 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                                         <Code className="w-4 h-4 mr-2" style={{ color: 'var(--color-accent-purple)' }} />
                                         {t('landingEditor.title')}
                                     </h4>
-                                    <input
-                                        type="file"
-                                        accept=".zip"
-                                        ref={fileInputRef}
-                                        className="hidden"
-                                        onChange={handleZipUpload}
-                                    />
-                                    <button
-                                        onClick={() => fileInputRef.current.click()}
-                                        disabled={uploadingZip}
-                                        className="btn btn-secondary btn-sm"
-                                    >
-                                        <Upload className="w-4 h-4" />
-                                        {uploadingZip ? t('common.loading') : t('landingEditor.uploadZip')}
-                                    </button>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     {/* Code / Preview. The preview loads the landing
@@ -892,22 +908,24 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                     )}
                 </div>
 
-                <div className="modal-footer">
-                    <button onClick={() => onClose(savedSomething)} type="button" className="btn btn-secondary">
+                <div className="modal-footer px-6 pb-5" style={{ flexShrink: 0, marginTop: 0 }}>
+                    <button onClick={() => onClose(savedSomething)} type="button" className="btn btn-secondary rounded-xl">
+                        <X className="w-4 h-4" />
                         {t('common.cancel')}
                     </button>
                     <button
                         type="button"
                         onClick={() => handleSave(true)}
                         disabled={loading || saving || uploadingZip || saveSuccess}
-                        className="btn btn-secondary"
+                        className="btn btn-secondary rounded-xl"
                     >
+                        <Save className="w-4 h-4" />
                         {t('profile.saveAndClose')}
                     </button>
                     <button
                         type="submit"
                         form="landing-form"
-                        className="btn btn-primary"
+                        className="btn btn-primary rounded-xl"
                         // The archive upload must finish before the campaign link
                         // is worth testing — the first click used to race it.
                         disabled={loading || saving || uploadingZip || saveSuccess}

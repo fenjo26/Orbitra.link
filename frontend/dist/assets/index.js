@@ -15111,7 +15111,7 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$1L = [
+const __iconNode$1P = [
   [
     "path",
     {
@@ -15120,31 +15120,31 @@ const __iconNode$1L = [
     }
   ]
 ];
-const Activity = createLucideIcon("activity", __iconNode$1L);
-const __iconNode$1K = [
+const Activity = createLucideIcon("activity", __iconNode$1P);
+const __iconNode$1O = [
   ["rect", { width: "20", height: "5", x: "2", y: "3", rx: "1", key: "1wp1u1" }],
   ["path", { d: "M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8", key: "1s80jp" }],
   ["path", { d: "M10 12h4", key: "a56b0p" }]
 ];
-const Archive = createLucideIcon("archive", __iconNode$1K);
-const __iconNode$1J = [
+const Archive = createLucideIcon("archive", __iconNode$1O);
+const __iconNode$1N = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1J);
-const __iconNode$1I = [
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1N);
+const __iconNode$1M = [
   ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
   ["path", { d: "M20 7H4", key: "zbl0bi" }],
   ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
   ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1I);
-const __iconNode$1H = [
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1M);
+const __iconNode$1L = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$1H);
-const __iconNode$1G = [
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$1L);
+const __iconNode$1K = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15156,8 +15156,8 @@ const __iconNode$1G = [
   ["path", { d: "m2 2 20 20", key: "1ooewy" }],
   ["path", { d: "M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05", key: "1hqiys" }]
 ];
-const BellOff = createLucideIcon("bell-off", __iconNode$1G);
-const __iconNode$1F = [
+const BellOff = createLucideIcon("bell-off", __iconNode$1K);
+const __iconNode$1J = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15167,28 +15167,28 @@ const __iconNode$1F = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$1F);
-const __iconNode$1E = [
+const Bell = createLucideIcon("bell", __iconNode$1J);
+const __iconNode$1I = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const Calendar$1 = createLucideIcon("calendar", __iconNode$1E);
-const __iconNode$1D = [
+const Calendar$1 = createLucideIcon("calendar", __iconNode$1I);
+const __iconNode$1H = [
   ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
   ["path", { d: "M18 17V9", key: "2bz60n" }],
   ["path", { d: "M13 17V5", key: "1frdt8" }],
   ["path", { d: "M8 17v-3", key: "17ska0" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$1D);
-const __iconNode$1C = [
+const ChartColumn = createLucideIcon("chart-column", __iconNode$1H);
+const __iconNode$1G = [
   ["path", { d: "M5 21v-6", key: "1hz6c0" }],
   ["path", { d: "M12 21V3", key: "1lcnhd" }],
   ["path", { d: "M19 21V9", key: "unv183" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1C);
-const __iconNode$1B = [
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1G);
+const __iconNode$1F = [
   [
     "path",
     {
@@ -15198,39 +15198,39 @@ const __iconNode$1B = [
   ],
   ["path", { d: "M21.21 15.89A10 10 0 1 1 8 2.83", key: "k2fpak" }]
 ];
-const ChartPie = createLucideIcon("chart-pie", __iconNode$1B);
-const __iconNode$1A = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$1A);
-const __iconNode$1z = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$1z);
-const __iconNode$1y = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1y);
-const __iconNode$1x = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$1x);
-const __iconNode$1w = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$1w);
-const __iconNode$1v = [
+const ChartPie = createLucideIcon("chart-pie", __iconNode$1F);
+const __iconNode$1E = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$1E);
+const __iconNode$1D = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$1D);
+const __iconNode$1C = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1C);
+const __iconNode$1B = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$1B);
+const __iconNode$1A = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$1A);
+const __iconNode$1z = [
   ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
   ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
 ];
-const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1v);
-const __iconNode$1u = [
+const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1z);
+const __iconNode$1y = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$1u);
-const __iconNode$1t = [
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$1y);
+const __iconNode$1x = [
   ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1t);
-const __iconNode$1s = [
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1x);
+const __iconNode$1w = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$1s);
-const __iconNode$1r = [
+const CircleCheck = createLucideIcon("circle-check", __iconNode$1w);
+const __iconNode$1v = [
   [
     "path",
     {
@@ -15240,39 +15240,45 @@ const __iconNode$1r = [
   ],
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
 ];
-const CirclePlay = createLucideIcon("circle-play", __iconNode$1r);
-const __iconNode$1q = [
+const CirclePlay = createLucideIcon("circle-play", __iconNode$1v);
+const __iconNode$1u = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1q);
-const __iconNode$1p = [
+const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1u);
+const __iconNode$1t = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   ["path", { d: "m9 9 6 6", key: "z0biqf" }]
 ];
-const CircleX = createLucideIcon("circle-x", __iconNode$1p);
-const __iconNode$1o = [
+const CircleX = createLucideIcon("circle-x", __iconNode$1t);
+const __iconNode$1s = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 6v6l4 2", key: "mmk7yg" }]
 ];
-const Clock = createLucideIcon("clock", __iconNode$1o);
-const __iconNode$1n = [
+const Clock = createLucideIcon("clock", __iconNode$1s);
+const __iconNode$1r = [
+  ["path", { d: "M12 13v8", key: "1l5pq0" }],
+  ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
+  ["path", { d: "m8 17 4-4 4 4", key: "1quai1" }]
+];
+const CloudUpload = createLucideIcon("cloud-upload", __iconNode$1r);
+const __iconNode$1q = [
   ["path", { d: "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z", key: "p7xjir" }]
 ];
-const Cloud = createLucideIcon("cloud", __iconNode$1n);
-const __iconNode$1m = [
+const Cloud = createLucideIcon("cloud", __iconNode$1q);
+const __iconNode$1p = [
   ["path", { d: "m16 18 6-6-6-6", key: "eg8j8" }],
   ["path", { d: "m8 6-6 6 6 6", key: "ppft3o" }]
 ];
-const Code = createLucideIcon("code", __iconNode$1m);
-const __iconNode$1l = [
+const Code = createLucideIcon("code", __iconNode$1p);
+const __iconNode$1o = [
   ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
   ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-const Copy = createLucideIcon("copy", __iconNode$1l);
-const __iconNode$1k = [
+const Copy = createLucideIcon("copy", __iconNode$1o);
+const __iconNode$1n = [
   ["path", { d: "M12 20v2", key: "1lh1kg" }],
   ["path", { d: "M12 2v2", key: "tus03m" }],
   ["path", { d: "M17 20v2", key: "1rnc9c" }],
@@ -15288,25 +15294,25 @@ const __iconNode$1k = [
   ["rect", { x: "4", y: "4", width: "16", height: "16", rx: "2", key: "1vbyd7" }],
   ["rect", { x: "8", y: "8", width: "8", height: "8", rx: "1", key: "z9xiuo" }]
 ];
-const Cpu = createLucideIcon("cpu", __iconNode$1k);
-const __iconNode$1j = [
+const Cpu = createLucideIcon("cpu", __iconNode$1n);
+const __iconNode$1m = [
   ["ellipse", { cx: "12", cy: "5", rx: "9", ry: "3", key: "msslwz" }],
   ["path", { d: "M3 5V19A9 3 0 0 0 21 19V5", key: "1wlel7" }],
   ["path", { d: "M3 12A9 3 0 0 0 21 12", key: "mv7ke4" }]
 ];
-const Database = createLucideIcon("database", __iconNode$1j);
-const __iconNode$1i = [
+const Database = createLucideIcon("database", __iconNode$1m);
+const __iconNode$1l = [
   ["line", { x1: "12", x2: "12", y1: "2", y2: "22", key: "7eqyqh" }],
   ["path", { d: "M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", key: "1b0p4s" }]
 ];
-const DollarSign = createLucideIcon("dollar-sign", __iconNode$1i);
-const __iconNode$1h = [
+const DollarSign = createLucideIcon("dollar-sign", __iconNode$1l);
+const __iconNode$1k = [
   ["path", { d: "M12 15V3", key: "m9g1x1" }],
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["path", { d: "m7 10 5 5 5-5", key: "brsn70" }]
 ];
-const Download = createLucideIcon("download", __iconNode$1h);
-const __iconNode$1g = [
+const Download = createLucideIcon("download", __iconNode$1k);
+const __iconNode$1j = [
   [
     "path",
     {
@@ -15315,20 +15321,20 @@ const __iconNode$1g = [
     }
   ]
 ];
-const Droplet = createLucideIcon("droplet", __iconNode$1g);
-const __iconNode$1f = [
+const Droplet = createLucideIcon("droplet", __iconNode$1j);
+const __iconNode$1i = [
   ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
   ["circle", { cx: "12", cy: "5", r: "1", key: "gxeob9" }],
   ["circle", { cx: "12", cy: "19", r: "1", key: "lyex9k" }]
 ];
-const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1f);
-const __iconNode$1e = [
+const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1i);
+const __iconNode$1h = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "M10 14 21 3", key: "gplh6r" }],
   ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
 ];
-const ExternalLink = createLucideIcon("external-link", __iconNode$1e);
-const __iconNode$1d = [
+const ExternalLink = createLucideIcon("external-link", __iconNode$1h);
+const __iconNode$1g = [
   [
     "path",
     {
@@ -15346,8 +15352,8 @@ const __iconNode$1d = [
   ],
   ["path", { d: "m2 2 20 20", key: "1ooewy" }]
 ];
-const EyeOff = createLucideIcon("eye-off", __iconNode$1d);
-const __iconNode$1c = [
+const EyeOff = createLucideIcon("eye-off", __iconNode$1g);
+const __iconNode$1f = [
   [
     "path",
     {
@@ -15357,8 +15363,23 @@ const __iconNode$1c = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Eye = createLucideIcon("eye", __iconNode$1c);
-const __iconNode$1b = [
+const Eye = createLucideIcon("eye", __iconNode$1f);
+const __iconNode$1e = [
+  [
+    "path",
+    {
+      d: "M13.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v11.5",
+      key: "4pqfef"
+    }
+  ],
+  ["path", { d: "M14 2v5a1 1 0 0 0 1 1h5", key: "wfsgrz" }],
+  ["path", { d: "M8 12v-1", key: "1ej8lb" }],
+  ["path", { d: "M8 18v-2", key: "qcmpov" }],
+  ["path", { d: "M8 7V6", key: "1nbb54" }],
+  ["circle", { cx: "8", cy: "20", r: "2", key: "ckkr5m" }]
+];
+const FileArchive = createLucideIcon("file-archive", __iconNode$1e);
+const __iconNode$1d = [
   ["path", { d: "M11 21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1", key: "likhh7" }],
   ["path", { d: "M16 16a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1", key: "17ky3x" }],
   [
@@ -15369,8 +15390,8 @@ const __iconNode$1b = [
     }
   ]
 ];
-const FileStack = createLucideIcon("file-stack", __iconNode$1b);
-const __iconNode$1a = [
+const FileStack = createLucideIcon("file-stack", __iconNode$1d);
+const __iconNode$1c = [
   [
     "path",
     {
@@ -15383,8 +15404,8 @@ const __iconNode$1a = [
   ["path", { d: "M16 13H8", key: "t4e002" }],
   ["path", { d: "M16 17H8", key: "z1uh3a" }]
 ];
-const FileText = createLucideIcon("file-text", __iconNode$1a);
-const __iconNode$19 = [
+const FileText = createLucideIcon("file-text", __iconNode$1c);
+const __iconNode$1b = [
   [
     "path",
     {
@@ -15393,22 +15414,22 @@ const __iconNode$19 = [
     }
   ]
 ];
-const Funnel = createLucideIcon("funnel", __iconNode$19);
-const __iconNode$18 = [
+const Funnel = createLucideIcon("funnel", __iconNode$1b);
+const __iconNode$1a = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20", key: "13o1zl" }],
   ["path", { d: "M2 12h20", key: "9i4pu4" }]
 ];
-const Globe = createLucideIcon("globe", __iconNode$18);
-const __iconNode$17 = [
+const Globe = createLucideIcon("globe", __iconNode$1a);
+const __iconNode$19 = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M3 9h18", key: "1pudct" }],
   ["path", { d: "M3 15h18", key: "5xshup" }],
   ["path", { d: "M9 3v18", key: "fh3hqa" }],
   ["path", { d: "M15 3v18", key: "14nvp0" }]
 ];
-const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$17);
-const __iconNode$16 = [
+const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$19);
+const __iconNode$18 = [
   ["circle", { cx: "9", cy: "12", r: "1", key: "1vctgf" }],
   ["circle", { cx: "9", cy: "5", r: "1", key: "hp0tcf" }],
   ["circle", { cx: "9", cy: "19", r: "1", key: "fkjjf6" }],
@@ -15416,8 +15437,8 @@ const __iconNode$16 = [
   ["circle", { cx: "15", cy: "5", r: "1", key: "19l28e" }],
   ["circle", { cx: "15", cy: "19", r: "1", key: "f4zoj3" }]
 ];
-const GripVertical = createLucideIcon("grip-vertical", __iconNode$16);
-const __iconNode$15 = [
+const GripVertical = createLucideIcon("grip-vertical", __iconNode$18);
+const __iconNode$17 = [
   ["path", { d: "M10 16h.01", key: "1bzywj" }],
   [
     "path",
@@ -15429,8 +15450,8 @@ const __iconNode$15 = [
   ["path", { d: "M21.946 12.013H2.054", key: "zqlbp7" }],
   ["path", { d: "M6 16h.01", key: "1pmjb7" }]
 ];
-const HardDrive = createLucideIcon("hard-drive", __iconNode$15);
-const __iconNode$14 = [
+const HardDrive = createLucideIcon("hard-drive", __iconNode$17);
+const __iconNode$16 = [
   [
     "path",
     {
@@ -15439,20 +15460,20 @@ const __iconNode$14 = [
     }
   ]
 ];
-const Heart = createLucideIcon("heart", __iconNode$14);
-const __iconNode$13 = [
+const Heart = createLucideIcon("heart", __iconNode$16);
+const __iconNode$15 = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
   ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
   ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
 ];
-const Image = createLucideIcon("image", __iconNode$13);
-const __iconNode$12 = [
+const Image = createLucideIcon("image", __iconNode$15);
+const __iconNode$14 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
 ];
-const Info = createLucideIcon("info", __iconNode$12);
-const __iconNode$11 = [
+const Info = createLucideIcon("info", __iconNode$14);
+const __iconNode$13 = [
   [
     "path",
     {
@@ -15462,14 +15483,14 @@ const __iconNode$11 = [
   ],
   ["circle", { cx: "16.5", cy: "7.5", r: ".5", fill: "currentColor", key: "w0ekpg" }]
 ];
-const KeyRound = createLucideIcon("key-round", __iconNode$11);
-const __iconNode$10 = [
+const KeyRound = createLucideIcon("key-round", __iconNode$13);
+const __iconNode$12 = [
   ["path", { d: "m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4", key: "g0fldk" }],
   ["path", { d: "m21 2-9.6 9.6", key: "1j0ho8" }],
   ["circle", { cx: "7.5", cy: "15.5", r: "5.5", key: "yqb3hr" }]
 ];
-const Key = createLucideIcon("key", __iconNode$10);
-const __iconNode$$ = [
+const Key = createLucideIcon("key", __iconNode$12);
+const __iconNode$11 = [
   [
     "path",
     {
@@ -15492,22 +15513,28 @@ const __iconNode$$ = [
     }
   ]
 ];
-const Layers = createLucideIcon("layers", __iconNode$$);
-const __iconNode$_ = [
+const Layers = createLucideIcon("layers", __iconNode$11);
+const __iconNode$10 = [
   ["rect", { width: "7", height: "9", x: "3", y: "3", rx: "1", key: "10lvy0" }],
   ["rect", { width: "7", height: "5", x: "14", y: "3", rx: "1", key: "16une8" }],
   ["rect", { width: "7", height: "9", x: "14", y: "12", rx: "1", key: "1hutg5" }],
   ["rect", { width: "7", height: "5", x: "3", y: "16", rx: "1", key: "ldoo1y" }]
 ];
-const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$_);
-const __iconNode$Z = [
+const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$10);
+const __iconNode$$ = [
   ["rect", { width: "7", height: "7", x: "3", y: "3", rx: "1", key: "1g98yp" }],
   ["rect", { width: "7", height: "7", x: "14", y: "3", rx: "1", key: "6d4xhi" }],
   ["rect", { width: "7", height: "7", x: "14", y: "14", rx: "1", key: "nxv5o0" }],
   ["rect", { width: "7", height: "7", x: "3", y: "14", rx: "1", key: "1bb6yr" }]
 ];
-const LayoutGrid = createLucideIcon("layout-grid", __iconNode$Z);
-const __iconNode$Y = [
+const LayoutGrid = createLucideIcon("layout-grid", __iconNode$$);
+const __iconNode$_ = [
+  ["rect", { width: "18", height: "7", x: "3", y: "3", rx: "1", key: "f1a2em" }],
+  ["rect", { width: "9", height: "7", x: "3", y: "14", rx: "1", key: "jqznyg" }],
+  ["rect", { width: "5", height: "7", x: "16", y: "14", rx: "1", key: "q5h2i8" }]
+];
+const LayoutTemplate = createLucideIcon("layout-template", __iconNode$_);
+const __iconNode$Z = [
   [
     "path",
     {
@@ -15518,19 +15545,19 @@ const __iconNode$Y = [
   ["path", { d: "M9 18h6", key: "x1upvd" }],
   ["path", { d: "M10 22h4", key: "ceow96" }]
 ];
-const Lightbulb = createLucideIcon("lightbulb", __iconNode$Y);
-const __iconNode$X = [
+const Lightbulb = createLucideIcon("lightbulb", __iconNode$Z);
+const __iconNode$Y = [
   ["path", { d: "M9 17H7A5 5 0 0 1 7 7h2", key: "8i5ue5" }],
   ["path", { d: "M15 7h2a5 5 0 1 1 0 10h-2", key: "1b9ql8" }],
   ["line", { x1: "8", x2: "16", y1: "12", y2: "12", key: "1jonct" }]
 ];
-const Link2 = createLucideIcon("link-2", __iconNode$X);
-const __iconNode$W = [
+const Link2 = createLucideIcon("link-2", __iconNode$Y);
+const __iconNode$X = [
   ["path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71", key: "1cjeqo" }],
   ["path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71", key: "19qd67" }]
 ];
-const Link = createLucideIcon("link", __iconNode$W);
-const __iconNode$V = [
+const Link = createLucideIcon("link", __iconNode$X);
+const __iconNode$W = [
   ["path", { d: "M12 2v4", key: "3427ic" }],
   ["path", { d: "m16.2 7.8 2.9-2.9", key: "r700ao" }],
   ["path", { d: "M18 12h4", key: "wj9ykh" }],
@@ -15540,24 +15567,24 @@ const __iconNode$V = [
   ["path", { d: "M2 12h4", key: "j09sii" }],
   ["path", { d: "m4.9 4.9 2.9 2.9", key: "giyufr" }]
 ];
-const Loader = createLucideIcon("loader", __iconNode$V);
-const __iconNode$U = [
+const Loader = createLucideIcon("loader", __iconNode$W);
+const __iconNode$V = [
   ["rect", { width: "18", height: "11", x: "3", y: "11", rx: "2", ry: "2", key: "1w4ew1" }],
   ["path", { d: "M7 11V7a5 5 0 0 1 10 0v4", key: "fwvmzm" }]
 ];
-const Lock = createLucideIcon("lock", __iconNode$U);
-const __iconNode$T = [
+const Lock = createLucideIcon("lock", __iconNode$V);
+const __iconNode$U = [
   ["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }],
   ["path", { d: "M21 12H9", key: "dn1m92" }],
   ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]
 ];
-const LogOut = createLucideIcon("log-out", __iconNode$T);
-const __iconNode$S = [
+const LogOut = createLucideIcon("log-out", __iconNode$U);
+const __iconNode$T = [
   ["path", { d: "m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7", key: "132q7q" }],
   ["rect", { x: "2", y: "4", width: "20", height: "16", rx: "2", key: "izxlao" }]
 ];
-const Mail = createLucideIcon("mail", __iconNode$S);
-const __iconNode$R = [
+const Mail = createLucideIcon("mail", __iconNode$T);
+const __iconNode$S = [
   [
     "path",
     {
@@ -15567,8 +15594,8 @@ const __iconNode$R = [
   ],
   ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }]
 ];
-const MapPin = createLucideIcon("map-pin", __iconNode$R);
-const __iconNode$Q = [
+const MapPin = createLucideIcon("map-pin", __iconNode$S);
+const __iconNode$R = [
   [
     "path",
     {
@@ -15579,14 +15606,14 @@ const __iconNode$Q = [
   ["path", { d: "M15 5.764v15", key: "1pn4in" }],
   ["path", { d: "M9 3.236v15", key: "1uimfh" }]
 ];
-const Map$1 = createLucideIcon("map", __iconNode$Q);
-const __iconNode$P = [
+const Map$1 = createLucideIcon("map", __iconNode$R);
+const __iconNode$Q = [
   ["path", { d: "M4 5h16", key: "1tepv9" }],
   ["path", { d: "M4 12h16", key: "1lakjw" }],
   ["path", { d: "M4 19h16", key: "1djgab" }]
 ];
-const Menu = createLucideIcon("menu", __iconNode$P);
-const __iconNode$O = [
+const Menu = createLucideIcon("menu", __iconNode$Q);
+const __iconNode$P = [
   [
     "path",
     {
@@ -15595,8 +15622,8 @@ const __iconNode$O = [
     }
   ]
 ];
-const MessageCircle = createLucideIcon("message-circle", __iconNode$O);
-const __iconNode$N = [
+const MessageCircle = createLucideIcon("message-circle", __iconNode$P);
+const __iconNode$O = [
   [
     "path",
     {
@@ -15605,14 +15632,14 @@ const __iconNode$N = [
     }
   ]
 ];
-const MessageSquare = createLucideIcon("message-square", __iconNode$N);
-const __iconNode$M = [
+const MessageSquare = createLucideIcon("message-square", __iconNode$O);
+const __iconNode$N = [
   ["rect", { width: "20", height: "14", x: "2", y: "3", rx: "2", key: "48i651" }],
   ["line", { x1: "8", x2: "16", y1: "21", y2: "21", key: "1svkeh" }],
   ["line", { x1: "12", x2: "12", y1: "17", y2: "21", key: "vw1qmm" }]
 ];
-const Monitor = createLucideIcon("monitor", __iconNode$M);
-const __iconNode$L = [
+const Monitor = createLucideIcon("monitor", __iconNode$N);
+const __iconNode$M = [
   [
     "path",
     {
@@ -15621,7 +15648,32 @@ const __iconNode$L = [
     }
   ]
 ];
-const Moon = createLucideIcon("moon", __iconNode$L);
+const Moon = createLucideIcon("moon", __iconNode$M);
+const __iconNode$L = [
+  ["path", { d: "M12 22v-9", key: "x3hkom" }],
+  [
+    "path",
+    {
+      d: "M15.17 2.21a1.67 1.67 0 0 1 1.63 0L21 4.57a1.93 1.93 0 0 1 0 3.36L8.82 14.79a1.655 1.655 0 0 1-1.64 0L3 12.43a1.93 1.93 0 0 1 0-3.36z",
+      key: "2ntwy6"
+    }
+  ],
+  [
+    "path",
+    {
+      d: "M20 13v3.87a2.06 2.06 0 0 1-1.11 1.83l-6 3.08a1.93 1.93 0 0 1-1.78 0l-6-3.08A2.06 2.06 0 0 1 4 16.87V13",
+      key: "1pmm1c"
+    }
+  ],
+  [
+    "path",
+    {
+      d: "M21 12.43a1.93 1.93 0 0 0 0-3.36L8.83 2.2a1.64 1.64 0 0 0-1.63 0L3 4.57a1.93 1.93 0 0 0 0 3.36l12.18 6.86a1.636 1.636 0 0 0 1.63 0z",
+      key: "12ttoo"
+    }
+  ]
+];
+const PackageOpen = createLucideIcon("package-open", __iconNode$L);
 const __iconNode$K = [
   [
     "path",
@@ -16479,6 +16531,13 @@ const ru = {
     "approve": "Аппрув %",
     "epc": "EPC",
     "epv": "EPV",
+    "lpViewsHint": "Всего просмотров лендинга",
+    "lpClicksHint": "Всего кликов по CTA-кнопкам лендинга",
+    "lpCtrHint": "Пробив лендинга (Клики / Просмотры лендинга)",
+    "cpvHint": "Расход на визит (Расход / Просмотры лендинга)",
+    "cpcHint": "Расход на клик (Расход / Клики по кнопке лендинга)",
+    "epvHint": "Доход на визит (Доход / Просмотры лендинга)",
+    "epcHint": "Доход на клик (Доход / Клики по кнопке лендинга)",
     "realRevenue": "Реальный доход",
     "realRoi": "Реальный ROI"
   },
@@ -16491,6 +16550,10 @@ const ru = {
     "group": "Группа",
     "unique": "Уники",
     "noCampaignsCreated": "Нет созданных кампаний",
+    "pauseRemoteTitle": "Остановить кампанию и рекламные кабинеты?",
+    "pauseRemoteWarning": "Это действие приостановит кампанию в трекере и мгновенно ОСТАНОВИТ все связанные кампании прямо в ваших рекламных кабинетах.",
+    "pauseRemoteLinked": "Будут остановлены:",
+    "confirmPauseAll": "Остановить всю рекламу",
     "createFirstCampaign": "Вы можете создать первую кампанию",
     "updateCosts": "Обновить расходы",
     "clearStatsWarning": "Будут удалены все клики и конверсии для этой кампании. Действие необратимо.",
@@ -17441,6 +17504,8 @@ const ru = {
     "saveFirst": "Сперва сохраните настройки лендинга, чтобы загрузить файлы архива.",
     "uploadZip": "Загрузить ZIP",
     "uploadingZip": "Загрузка архива…",
+    "zipDropHint": "Перетащите .zip сюда или нажмите для выбора файла",
+    "zipReplaceHint": "Нажмите или перетащите другой файл для замены",
     "viewCode": "Код",
     "viewPreview": "Просмотр",
     "openInTab": "Открыть в новой вкладке",
@@ -17495,6 +17560,7 @@ const ru = {
     "roiConfirmed": "ROI (подтв.)"
   },
   "offerEditor": {
+    "urlTemplate": "URL оффера",
     "localArchive": "Файлы локального оффера",
     "uploadZip": "Загрузить ZIP",
     "zipError": "Ошибка загрузки ZIP",
@@ -19304,6 +19370,13 @@ const en = {
     "approve": "Approve %",
     "epc": "EPC",
     "epv": "EPV",
+    "lpViewsHint": "Total landing page impressions",
+    "lpClicksHint": "Total clicks on landing page CTA buttons",
+    "lpCtrHint": "Landing Page CTR (LP Clicks / LP Views)",
+    "cpvHint": "Cost per Visit (Cost / LP Views)",
+    "cpcHint": "Cost per Click (Cost / LP Clicks)",
+    "epvHint": "Earnings per Visit (Revenue / LP Views)",
+    "epcHint": "Earnings per Click (Revenue / LP Clicks)",
     "realRevenue": "Real Revenue",
     "realRoi": "Real ROI"
   },
@@ -19316,6 +19389,10 @@ const en = {
     "group": "Group",
     "unique": "Unique",
     "noCampaignsCreated": "No campaigns created",
+    "pauseRemoteTitle": "Pause Campaign & Ad Accounts?",
+    "pauseRemoteWarning": "This will pause the tracker campaign and immediately STOP all connected ad campaigns directly in your ad accounts.",
+    "pauseRemoteLinked": "Will be stopped:",
+    "confirmPauseAll": "Pause All Ads",
     "createFirstCampaign": "You can create the first campaign",
     "updateCosts": "Update Costs",
     "clearStatsWarning": "All clicks and conversions for this campaign will be deleted. This action cannot be undone.",
@@ -20266,6 +20343,8 @@ const en = {
     "saveFirst": "First save the landing settings to upload archive files.",
     "uploadZip": "Upload ZIP",
     "uploadingZip": "Uploading archive…",
+    "zipDropHint": "Drag & drop .zip here or click to browse files",
+    "zipReplaceHint": "Click or drop another file to replace",
     "viewCode": "Code",
     "viewPreview": "Preview",
     "openInTab": "Open in a new tab",
@@ -20320,6 +20399,7 @@ const en = {
     "roiConfirmed": "ROI (confirmed)"
   },
   "offerEditor": {
+    "urlTemplate": "Offer URL",
     "localArchive": "Local offer files",
     "uploadZip": "Upload ZIP",
     "zipError": "ZIP upload error",
@@ -22129,6 +22209,13 @@ const uk = {
     "approve": "Апрув %",
     "epc": "EPC",
     "epv": "EPV",
+    "lpViewsHint": "Усього переглядів лендінгу",
+    "lpClicksHint": "Усього кліків на CTA-кнопки лендінгу",
+    "lpCtrHint": "Пробив лендінгу (Кліки / Перегляди лендінгу)",
+    "cpvHint": "Витрати на візит (Витрати / Перегляди лендінгу)",
+    "cpcHint": "Витрати на клік (Витрати / Кліки на кнопку лендінгу)",
+    "epvHint": "Дохід на візит (Дохід / Перегляди лендінгу)",
+    "epcHint": "Дохід на клік (Дохід / Кліки на кнопку лендінгу)",
     "realRevenue": "Реальний дохід",
     "realRoi": "Реальний ROI"
   },
@@ -22141,6 +22228,10 @@ const uk = {
     "group": "Група",
     "unique": "Унікальний",
     "noCampaignsCreated": "Кампанії не створено",
+    "pauseRemoteTitle": "Зупинити кампанію та рекламні кабінети?",
+    "pauseRemoteWarning": "Це призупинить кампанію в трекері та миттєво ЗУПИНИТЬ усі пов'язані кампанії в рекламних кабінетах.",
+    "pauseRemoteLinked": "Будуть зупинені:",
+    "confirmPauseAll": "Зупинити всю рекламу",
     "createFirstCampaign": "Ви можете створити першу кампанію",
     "updateCosts": "Витрати на оновлення",
     "clearStatsWarning": "Усі кліки та переходи для цієї кампанії буде видалено. Цю дію не можна скасувати.",
@@ -23091,6 +23182,8 @@ const uk = {
     "saveFirst": "Спочатку збережіть налаштування посадки для завантаження архівних файлів.",
     "uploadZip": "Завантажити ZIP",
     "uploadingZip": "Завантаження архіву…",
+    "zipDropHint": "Перетягніть .zip сюди або натисніть для вибору файлу",
+    "zipReplaceHint": "Натисніть або перетягніть інший файл для заміни",
     "viewCode": "Код",
     "viewPreview": "Перегляд",
     "openInTab": "Відкрити в новій вкладці",
@@ -23145,6 +23238,7 @@ const uk = {
     "roiConfirmed": "ROI (підтв.)"
   },
   "offerEditor": {
+    "urlTemplate": "URL офера",
     "localArchive": "Файли локального оффера",
     "uploadZip": "Завантажити ZIP",
     "zipError": "Помилка завантаження ZIP",
@@ -24954,6 +25048,13 @@ const es = {
     "approve": "Aprobación %",
     "epc": "EPC",
     "epv": "EPV",
+    "lpViewsHint": "Total de visitas a la landing page",
+    "lpClicksHint": "Total de clics en los botones CTA de la landing page",
+    "lpCtrHint": "CTR de la Landing (Clics LP / Visitas LP)",
+    "cpvHint": "Coste por visita (Coste / Visitas LP)",
+    "cpcHint": "Coste por clic (Coste / Clics LP)",
+    "epvHint": "Ganancias por visita (Ingresos / Visitas LP)",
+    "epcHint": "Ganancias por clic (Ingresos / Clics LP)",
     "realRevenue": "Ingresos reales",
     "realRoi": "ROI real"
   },
@@ -24966,6 +25067,10 @@ const es = {
     "group": "grupo",
     "unique": "Único",
     "noCampaignsCreated": "No se han creado campañas",
+    "pauseRemoteTitle": "¿Pausar campaña y cuentas publicitarias?",
+    "pauseRemoteWarning": "Esto pausará la campaña en el rastreador y DETENDRÁ inmediatamente todas las campañas publicitarias conectadas en sus cuentas publicitarias.",
+    "pauseRemoteLinked": "Se detendrán:",
+    "confirmPauseAll": "Pausar todos los anuncios",
     "createFirstCampaign": "Puedes crear la primera campaña.",
     "updateCosts": "Costos de actualización",
     "clearStatsWarning": "Se eliminarán todos los clics y conversiones de esta campaña. Esta acción no se puede deshacer.",
@@ -25916,6 +26021,8 @@ const es = {
     "saveFirst": "Primero guarde la configuración de aterrizaje para cargar archivos.",
     "uploadZip": "Subir ZIP",
     "uploadingZip": "Subiendo archivo…",
+    "zipDropHint": "Arrastra el archivo .zip aquí o haz clic para seleccionarlo",
+    "zipReplaceHint": "Haz clic o arrastra otro archivo para reemplazarlo",
     "viewCode": "Código",
     "viewPreview": "Vista previa",
     "openInTab": "Abrir en una pestaña nueva",
@@ -25970,6 +26077,7 @@ const es = {
     "roiConfirmed": "ROI (confirmado)"
   },
   "offerEditor": {
+    "urlTemplate": "URL de la oferta",
     "localArchive": "Archivos del offer local",
     "uploadZip": "Subir ZIP",
     "zipError": "Error al subir el ZIP",
@@ -27779,6 +27887,13 @@ const zh = {
     "approve": "批准率 %",
     "epc": "EPC",
     "epv": "EPV",
+    "lpViewsHint": "着陆页总访问量",
+    "lpClicksHint": "着陆页 CTA 按钮总点击量",
+    "lpCtrHint": "着陆页点击率 (出站点击 / 着陆页访问量)",
+    "cpvHint": "每访问成本 (总花费 / 着陆页访问量)",
+    "cpcHint": "每点击成本 (总花费 / 着陆页出站点击量)",
+    "epvHint": "每访问收益 (总收入 / 着陆页访问量)",
+    "epcHint": "每点击收益 (总收入 / 着陆页出站点击量)",
     "realRevenue": "实际收入",
     "realRoi": "实际 ROI"
   },
@@ -27791,6 +27906,10 @@ const zh = {
     "group": "集团",
     "unique": "独特",
     "noCampaignsCreated": "未创建广告活动",
+    "pauseRemoteTitle": "暂停广告追踪与广告账户投放？",
+    "pauseRemoteWarning": "此操作将暂停追踪器中的广告系列，并立即停止您广告账户中所有关联的广告投放。",
+    "pauseRemoteLinked": "将停止：",
+    "confirmPauseAll": "确认暂停所有广告",
     "createFirstCampaign": "您可以创建第一个营销活动",
     "updateCosts": "更新成本",
     "clearStatsWarning": "此广告系列的所有点击和转化都将被删除。此操作无法撤消。",
@@ -28741,6 +28860,8 @@ const zh = {
     "saveFirst": "首先保存登陆设置上传存档文件。",
     "uploadZip": "上传ZIP",
     "uploadingZip": "正在上传压缩包…",
+    "zipDropHint": "将 .zip 拖到此处或点击选择文件",
+    "zipReplaceHint": "点击或拖入其他文件以替换",
     "viewCode": "代码",
     "viewPreview": "预览",
     "openInTab": "在新标签页中打开",
@@ -28795,6 +28916,7 @@ const zh = {
     "roiConfirmed": "ROI（已确认）"
   },
   "offerEditor": {
+    "urlTemplate": "Offer URL",
     "localArchive": "本地 offer 文件",
     "uploadZip": "上传 ZIP",
     "zipError": "ZIP 上传错误",
@@ -30604,6 +30726,13 @@ const fr = {
     "approve": "Approbation %",
     "epc": "EPC",
     "epv": "EPV",
+    "lpViewsHint": "Nombre total de vues de la landing page",
+    "lpClicksHint": "Nombre total de clics sur les boutons CTA de la landing page",
+    "lpCtrHint": "CTR de la Landing (Clics LP / Vues LP)",
+    "cpvHint": "Coût par visite (Coût / Vues LP)",
+    "cpcHint": "Coût par clic (Coût / Clics LP)",
+    "epvHint": "Revenu par visite (Revenu / Vues LP)",
+    "epcHint": "Revenu par clic (Revenu / Clics LP)",
     "realRevenue": "Revenu réel",
     "realRoi": "ROI réel"
   },
@@ -30616,6 +30745,10 @@ const fr = {
     "group": "Groupe",
     "unique": "Unique",
     "noCampaignsCreated": "Aucune campagne créée",
+    "pauseRemoteTitle": "Mettre en pause la campagne et les comptes publicitaires ?",
+    "pauseRemoteWarning": "Cela mettra en pause la campagne dans le tracker et ARRÊTERA immédiatement toutes les campagnes publicitaires connectées dans vos comptes publicitaires.",
+    "pauseRemoteLinked": "Seront arrêtés :",
+    "confirmPauseAll": "Tout mettre en pause",
     "createFirstCampaign": "Vous pouvez créer la première campagne",
     "updateCosts": "Mettre à jour les coûts",
     "clearStatsWarning": "Tous les clics et conversions de cette campagne seront supprimés. Cette action ne peut pas être annulée.",
@@ -31566,6 +31699,8 @@ const fr = {
     "saveFirst": "Enregistrez d'abord la destination paramètres pour télécharger les fichiers d'archive.",
     "uploadZip": "Télécharger le fichier ZIP",
     "uploadingZip": "Envoi de l'archive…",
+    "zipDropHint": "Glissez le fichier .zip ici ou cliquez pour le sélectionner",
+    "zipReplaceHint": "Cliquez ou déposez un autre fichier pour le remplacer",
     "viewCode": "Code",
     "viewPreview": "Aperçu",
     "openInTab": "Ouvrir dans un nouvel onglet",
@@ -31620,6 +31755,7 @@ const fr = {
     "roiConfirmed": "ROI (confirmé)"
   },
   "offerEditor": {
+    "urlTemplate": "URL de l'offre",
     "localArchive": "Fichiers de l’offre locale",
     "uploadZip": "Téléverser le ZIP",
     "zipError": "Erreur de téléversement du ZIP",
@@ -33431,6 +33567,13 @@ const de = {
     "approve": "Approve %",
     "epc": "EPC",
     "epv": "EPV",
+    "lpViewsHint": "Gesamtzahl der Landingpage-Aufrufe",
+    "lpClicksHint": "Gesamtzahl der Klicks auf Landingpage-CTA-Buttons",
+    "lpCtrHint": "Landingpage CTR (LP-Klicks / LP-Aufrufe)",
+    "cpvHint": "Kosten pro Besuch (Kosten / LP-Aufrufe)",
+    "cpcHint": "Kosten pro Klick (Kosten / LP-Klicks)",
+    "epvHint": "Einnahmen pro Besuch (Umsatz / LP-Aufrufe)",
+    "epcHint": "Einnahmen pro Klick (Umsatz / LP-Klicks)",
     "realRevenue": "Realer Umsatz",
     "realRoi": "Echter ROI"
   },
@@ -33443,6 +33586,10 @@ const de = {
     "group": "Gruppe",
     "unique": "Einzigartig",
     "noCampaignsCreated": "Keine Kampagnen erstellt",
+    "pauseRemoteTitle": "Kampagne und Werbekonten pausieren?",
+    "pauseRemoteWarning": "Dadurch wird die Kampagne im Tracker pausiert und alle verknüpften Werbekampagnen in Ihren Werbekonten sofort gestoppt.",
+    "pauseRemoteLinked": "Werden gestoppt:",
+    "confirmPauseAll": "Alle Anzeigen pausieren",
     "createFirstCampaign": "Sie können die erste Kampagne erstellen",
     "updateCosts": "Kosten aktualisieren",
     "clearStatsWarning": "Alle Klicks und Conversions für diese Kampagne werden gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
@@ -34393,6 +34540,8 @@ const de = {
     "saveFirst": "Speichern Sie zuerst die Landung Einstellungen zum Hochladen von Archivdateien.",
     "uploadZip": "ZIP hochladen",
     "uploadingZip": "Archiv wird hochgeladen…",
+    "zipDropHint": ".zip-Datei hierher ziehen oder zum Auswählen klicken",
+    "zipReplaceHint": "Klicken oder eine andere Datei zum Ersetzen ablegen",
     "viewCode": "Code",
     "viewPreview": "Vorschau",
     "openInTab": "In neuem Tab öffnen",
@@ -34447,6 +34596,7 @@ const de = {
     "roiConfirmed": "ROI (bestätigt)"
   },
   "offerEditor": {
+    "urlTemplate": "Angebots-URL",
     "localArchive": "Dateien des lokalen Offers",
     "uploadZip": "ZIP hochladen",
     "zipError": "ZIP-Upload-Fehler",
@@ -51750,7 +51900,8 @@ const ALL_REPORT_METRICS = [
   { id: "cr_holds", label: "CR (hold) — Conversion rate", shortLabel: "CR (hold)" },
   { id: "cr_registrations", label: "CR (registrations) — Conversion rate", shortLabel: "CR (regs)" },
   { id: "roi", label: "ROI (all) — Return on investment", shortLabel: "ROI" },
-  { id: "epc", label: "EPC (all) — Earnings per click", shortLabel: "EPC" },
+  { id: "epc", label: "EPC (all) — Earnings per LP click", shortLabel: "EPC", hintKey: "epcHint", hint: "Revenue / LP Clicks — Earnings per click to offer" },
+  { id: "epv", label: "EPV — Earnings per landing-page visit", shortLabel: "EPV", hintKey: "epvHint", hint: "Revenue / LP Views — Earnings per landing-page visitor" },
   { id: "uepc", label: "uEPC (all) — Earnings per unique click", shortLabel: "uEPC" },
   { id: "epc_hold", label: "EPC (hold) — Earnings per click", shortLabel: "EPC (hold)" },
   { id: "uepc_hold", label: "uEPC (hold) — Earnings per unique click", shortLabel: "uEPC (hold)" },
@@ -51763,9 +51914,9 @@ const ALL_REPORT_METRICS = [
   { id: "cpr", label: "CPR — Cost per registration", shortLabel: "CPR" },
   { id: "cpd", label: "CPD — Cost per deposit", shortLabel: "CPD" },
   { id: "cpa", label: "CPA — Cost per conversion", shortLabel: "CPA" },
-  { id: "cpc", label: "CPC — Cost per click", shortLabel: "CPC" },
+  { id: "cpc", label: "CPC — Cost per LP click", shortLabel: "CPC", hintKey: "cpcHint", hint: "Cost / LP Clicks — Cost per landing-page CTA click" },
   { id: "ucpc", label: "uCPC — Cost per unique click", shortLabel: "uCPC" },
-  { id: "cpv", label: "CPV — Cost per visit", shortLabel: "CPV" },
+  { id: "cpv", label: "CPV — Cost per landing-page visit", shortLabel: "CPV", hintKey: "cpvHint", hint: "Cost / LP Views — Cost per landing-page view" },
   { id: "ecpc", label: "eCPC — Cost per 1000 clicks", shortLabel: "eCPC" },
   { id: "ecpm_all", label: "eCPM (all) — Profit per 1k clicks", shortLabel: "eCPM" },
   { id: "ecpm_confirmed", label: "eCPM (confirmed) — Profit per 1k clicks", shortLabel: "eCPM (conf)" },
@@ -51774,20 +51925,34 @@ const ALL_REPORT_METRICS = [
   { id: "registrations", label: "Registrations", shortLabel: "Regs" },
   { id: "ucr", label: "uCR — Unique clicks to registrations", shortLabel: "uCR" },
   { id: "time_since_lp_click", label: "Time since LP click", shortLabel: "LP time" },
-  { id: "lp_views", label: "LP views", shortLabel: "LP Views" },
-  { id: "prelander_clicks", label: "LP clicks", shortLabel: "LP Clicks" },
-  { id: "lp_ctr", label: "LP CTR — LP Click-Through Rate", shortLabel: "LP CTR" },
+  { id: "lp_views", label: "LP views / visits", shortLabel: "LP Views", hintKey: "lpViewsHint", hint: "Total landing-page impressions" },
+  { id: "lp_clicks", label: "LP clicks", shortLabel: "LP Clicks", hintKey: "lpClicksHint", hint: "Total clicks on landing-page CTA buttons" },
+  { id: "lp_ctr", label: "LP CTR — LP Click-Through Rate", shortLabel: "LP CTR", hintKey: "lpCtrHint", hint: "(LP Clicks / LP Views) × 100% — Landing-page click-through rate" },
   { id: "cr_regs_to_deps", label: "CR (regs to deps)", shortLabel: "CR (r→d)" }
 ];
+const normalizeReportMetricIds = (ids) => {
+  if (!Array.isArray(ids)) return [];
+  return [...new Set(ids.map((id) => id === "prelander_clicks" ? "lp_clicks" : id))];
+};
 const PRESETS = {
   best: ["profitability", "clicks", "unique_clicks", "conversions", "roi_confirmed", "cost", "revenue", "profit", "cr", "epc", "cpc", "cpa"],
   finance: ["cost", "revenue", "revenue_confirmed", "revenue_hold", "revenue_rejected", "profit", "roi", "profit_confirmed", "roi_confirmed", "cpa", "epc"],
   cod: ["clicks", "unique_clicks", "leads", "sales", "approve_rate", "rejected", "trash", "cost", "cpl", "cps", "cpa", "revenue_confirmed", "profit_confirmed", "roi_confirmed"],
-  lander_to_offer: ["clicks", "unique_clicks", "lp_views", "prelander_clicks", "lp_ctr", "conversions", "cr", "cpa", "cpc", "epc", "cost", "revenue", "profit", "roi"],
+  lander_to_offer: ["clicks", "unique_clicks", "lp_views", "lp_clicks", "lp_ctr", "conversions", "cr", "cpv", "cpc", "epv", "epc", "cpa", "cost", "revenue", "profit", "roi"],
   traffic: ["clicks", "unique_clicks", "visitors", "unique_clicks_stream", "unique_clicks_global", "uc_rate", "bots", "bot_rate", "proxies", "empty_referrers", "conversions", "cr"],
   all: ALL_REPORT_METRICS.map((m) => m.id)
 };
 const DEFAULT_METRIC_ORDER = ALL_REPORT_METRICS.map((m) => m.id);
+const getReportMetricTooltip = (metric, t) => {
+  if (!metric) return "";
+  return metric.hintKey ? t(`metrics.${metric.hintKey}`, metric.hint || metric.label) : metric.label;
+};
+const REPORT_DIMENSION_LABELS = {
+  campaign_id: "Tracker Campaign",
+  ad_campaign_id: "FB Campaign ID",
+  adset_id: "FB AdSet ID",
+  ad_id: "FB Ad ID"
+};
 const TEMPLATES_KEY = "orbitra_column_templates";
 const DEFAULT_TEMPLATE_KEY = "orbitra_default_template_id";
 const arraysEqual = (a, b) => Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v, i) => v === b[i]);
@@ -51796,7 +51961,7 @@ const loadColumnTemplates = () => {
   try {
     const parsed = JSON.parse(localStorage.getItem(TEMPLATES_KEY) || "[]");
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter((t) => t && typeof t.id === "string" && typeof t.name === "string" && Array.isArray(t.columns));
+    return parsed.filter((t) => t && typeof t.id === "string" && typeof t.name === "string" && Array.isArray(t.columns)).map((t) => ({ ...t, columns: normalizeReportMetricIds(t.columns) }));
   } catch {
     return [];
   }
@@ -51824,9 +51989,9 @@ const persistDefaultTemplateId = (id) => {
 const getDefaultTemplateColumns = () => {
   const id = loadDefaultTemplateId();
   if (!id) return null;
-  if (Array.isArray(PRESETS[id])) return [...PRESETS[id]];
+  if (Array.isArray(PRESETS[id])) return normalizeReportMetricIds(PRESETS[id]);
   const tpl = loadColumnTemplates().find((t) => t.id === id);
-  return tpl ? [...tpl.columns] : null;
+  return tpl ? normalizeReportMetricIds(tpl.columns) : null;
 };
 const SYSTEM_PRESETS = [
   ["best", "presetBest"],
@@ -51845,6 +52010,7 @@ const ReportCustomizerModal = ({
   // 'report' or 'campaigns'
   currentLayers = [],
   onSaveLayers,
+  layerPresets = [],
   currentFilters = [],
   onSaveFilters
 }) => {
@@ -51867,7 +52033,9 @@ const ReportCustomizerModal = ({
   const prevIsOpenRef = reactExports.useRef(false);
   reactExports.useEffect(() => {
     if (isOpen && !prevIsOpenRef.current) {
-      const initialSelected = selectedColumns && selectedColumns.length > 0 ? selectedColumns : PRESETS.best;
+      const initialSelected = normalizeReportMetricIds(
+        selectedColumns && selectedColumns.length > 0 ? selectedColumns : PRESETS.best
+      );
       setSelectedSet(new Set(initialSelected));
       const unselected = DEFAULT_METRIC_ORDER.filter((id) => !initialSelected.includes(id));
       const initialOrder = [...initialSelected, ...unselected];
@@ -52383,6 +52551,7 @@ const ReportCustomizerModal = ({
                 return /* @__PURE__ */ jsxRuntimeExports.jsxs(
                   "div",
                   {
+                    title: getReportMetricTooltip(metric, t),
                     onDragOver: (e) => handleDragOver(e, metric.id),
                     onDrop: (e) => handleDrop(e, metric.id),
                     onClick: () => handleToggleMetric(metric.id),
@@ -52494,6 +52663,31 @@ const ReportCustomizerModal = ({
               }
             )
           ] }),
+          layerPresets.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-semibold uppercase", style: { color: "var(--color-text-muted)" }, children: [
+              t("reportCustomizer.presets", "Presets"),
+              ":"
+            ] }),
+            layerPresets.map((preset) => {
+              const active = arraysEqual(layers, preset.layers);
+              return /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => setLayers([...preset.layers]),
+                  className: "text-xs px-3 py-1.5 rounded-xl border transition-colors",
+                  style: {
+                    backgroundColor: active ? "var(--color-primary-light)" : "var(--color-bg-soft)",
+                    borderColor: active ? "var(--color-primary)" : "var(--color-border)",
+                    color: active ? "var(--color-primary)" : "var(--color-text-primary)",
+                    fontWeight: active ? 600 : 400
+                  },
+                  children: preset.label
+                },
+                preset.id
+              );
+            })
+          ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2", children: [
             "country",
             "city",
@@ -52509,8 +52703,9 @@ const ReportCustomizerModal = ({
             "stream_id",
             "landing_id",
             "offer_id",
-            "ad_id",
+            "ad_campaign_id",
             "adset_id",
+            "ad_id",
             "keyword",
             "creative_id",
             "external_id",
@@ -52541,7 +52736,7 @@ const ReportCustomizerModal = ({
                   fontWeight: isChosen ? 600 : 400
                 },
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", children: dim }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", children: REPORT_DIMENSION_LABELS[dim] || dim }),
                   isChosen && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] px-1.5 py-0.2 rounded-full bg-blue-500 text-white font-bold", children: layerIndex + 1 })
                 ]
               },
@@ -52580,6 +52775,7 @@ const ReportCustomizerModal = ({
                   /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "os", children: "OS" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "browser", children: "Browser" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "sub_id_1", children: "Sub ID 1" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "ad_campaign_id", children: "FB Campaign ID" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "adset_id", children: "AdSet ID" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "ad_id", children: "Ad ID" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "keyword", children: "Keyword" })
@@ -52666,6 +52862,23 @@ const ReportCustomizerModal = ({
   ) });
 };
 const API_URL$x = "/api.php";
+const FB_HIERARCHY_LAYERS = ["ad_campaign_id", "adset_id", "ad_id"];
+const REPORT_LAYER_PRESETS = [
+  { id: "facebook_hierarchy", label: "Facebook Hierarchy", layers: FB_HIERARCHY_LAYERS }
+];
+const ENTITY_TYPE_BY_DIMENSION = {
+  campaign_id: "tracker_campaign",
+  ad_campaign_id: "ad_campaign",
+  adset_id: "adset",
+  ad_id: "ad"
+};
+const DIMENSION_LABELS = {
+  campaign_id: "Tracker Campaign",
+  ad_campaign_id: "FB_CAMPAIGN_ID",
+  adset_id: "FB_ADSET_ID",
+  ad_id: "FB_AD_ID"
+};
+const formatDimensionLabel = (dimension) => DIMENSION_LABELS[dimension] || dimension;
 const CampaignReports = ({ campaignId, campaignName, onClose }) => {
   const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(true);
@@ -52675,33 +52888,36 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
   const [togglingIds, setTogglingIds] = reactExports.useState(/* @__PURE__ */ new Set());
   const [toggleNotice, setToggleNotice] = reactExports.useState(null);
   const handleToggleEntityStatus = async (dimKey, row) => {
-    const id = row.dimId;
-    if (!id || id === "Unknown" || id === "none" || togglingIds.has(id)) return;
-    const typeByDim = { campaign_id: "campaign", ad_id: "ad", adset_id: "adset", ad_campaign_id: "ad_campaign" };
-    const entityType = typeByDim[dimKey];
+    const entityId = String(row.dimId ?? "").trim();
+    if (!/^\d+$/.test(entityId) || togglingIds.has(entityId)) return;
+    const entityType = ENTITY_TYPE_BY_DIMENSION[dimKey];
     if (!entityType) return;
-    const next = (entityStatus[id] || "ACTIVE") === "ACTIVE" ? "PAUSED" : "ACTIVE";
-    setTogglingIds((prev) => new Set(prev).add(id));
+    const nextStatus = (entityStatus[entityId] || "ACTIVE") === "ACTIVE" ? "PAUSED" : "ACTIVE";
+    setTogglingIds((prev) => new Set(prev).add(entityId));
     try {
       const res = await axios.post(`${API_URL$x}?action=ad_entity_toggle_status`, {
         entity_type: entityType,
-        entity_id: id,
-        target_status: next
+        entity_id: entityId,
+        target_status: nextStatus
       });
       if (res.data.status === "success") {
-        setEntityStatus((prev) => ({ ...prev, [id]: next }));
-        setToggleNotice({ type: "success", text: t("automation.statusUpdated") });
+        setEntityStatus((prev) => ({ ...prev, [entityId]: nextStatus }));
+        const target = entityType === "tracker_campaign" ? "Orbitra" : "Ads Manager";
+        setToggleNotice({
+          type: "success",
+          text: `${formatDimensionLabel(dimKey)} ${entityId} → ${nextStatus} in ${target}`
+        });
       } else {
         const codeMap = { no_connection: "automation.noConnection", unsupported_network: "automation.unsupportedNetwork", invalid_id: "automation.invalidId" };
         const text = res.data.code && t(codeMap[res.data.code]) || res.data.message || t("automation.statusUpdateError");
         setToggleNotice({ type: "error", text });
       }
-    } catch (e) {
-      setToggleNotice({ type: "error", text: t("automation.statusUpdateError") });
+    } catch {
+      setToggleNotice({ type: "error", text: t("automation.networkError") });
     } finally {
       setTogglingIds((prev) => {
         const s = new Set(prev);
-        s.delete(id);
+        s.delete(entityId);
         return s;
       });
       setTimeout(() => setToggleNotice(null), 4e3);
@@ -52718,7 +52934,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
   const [chosenColumns, setChosenColumns] = reactExports.useState(() => {
     try {
       const saved = localStorage.getItem("orbitra_report_columns");
-      if (saved) return JSON.parse(saved);
+      if (saved) return normalizeReportMetricIds(JSON.parse(saved));
     } catch (e) {
     }
     const fromDefaultTemplate = getDefaultTemplateColumns();
@@ -52799,6 +53015,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       clicks: 0,
       unique_clicks: 0,
       prelander_clicks: 0,
+      lp_views: 0,
+      lp_clicks: 0,
       offer_clicks: 0,
       conversions: 0,
       purchases: 0,
@@ -52818,7 +53036,10 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     const addRow = (node, row) => {
       node.clicks += Number(row.clicks) || 0;
       node.unique_clicks += Number(row.unique_clicks) || 0;
-      node.prelander_clicks += Number(row.prelander_clicks) || 0;
+      const lpViews = Number(row.lp_views ?? row.prelander_clicks ?? row.clicks) || 0;
+      node.prelander_clicks += lpViews;
+      node.lp_views += lpViews;
+      node.lp_clicks += Number(row.lp_clicks ?? row.offer_clicks) || 0;
       node.offer_clicks += Number(row.offer_clicks) || 0;
       node.conversions += Number(row.conversions) || 0;
       node.purchases += Number(row.purchases) || 0;
@@ -52836,8 +53057,9 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       node.real_profit += Number(row.real_profit) || 0;
     };
     const computeDerived = (node) => {
+      const lpClickDenominator = node.lp_clicks > 0 ? node.lp_clicks : node.clicks;
       node.uc_rate = node.clicks > 0 ? node.unique_clicks / node.clicks * 100 : 0;
-      node.lp_ctr = node.clicks > 0 ? node.offer_clicks / node.clicks * 100 : 0;
+      node.lp_ctr = node.lp_views > 0 ? node.lp_clicks / node.lp_views * 100 : 0;
       node.cr = node.clicks > 0 ? node.conversions / node.clicks * 100 : 0;
       node.cr_sales = node.clicks > 0 ? node.purchases / node.clicks * 100 : 0;
       node.cr_holds = node.clicks > 0 ? node.holds / node.clicks * 100 : 0;
@@ -52846,11 +53068,13 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       node.approve_rate_excl_trash = nonTrash > 0 ? node.purchases / nonTrash * 100 : 0;
       node.roi = node.cost > 0 ? node.profit / node.cost * 100 : 0;
       node.real_roi = node.cost > 0 ? node.real_profit / node.cost * 100 : 0;
-      node.epc = node.clicks > 0 ? node.revenue / node.clicks : 0;
+      node.epc = lpClickDenominator > 0 ? node.revenue / lpClickDenominator : 0;
+      node.epc_all = node.epc;
+      node.epv = node.lp_views > 0 ? node.revenue / node.lp_views : 0;
       node.uepc = node.unique_clicks > 0 ? node.revenue / node.unique_clicks : 0;
-      node.cpc = node.clicks > 0 ? node.cost / node.clicks : 0;
+      node.cpc = lpClickDenominator > 0 ? node.cost / lpClickDenominator : 0;
       node.ucpc = node.unique_clicks > 0 ? node.cost / node.unique_clicks : 0;
-      node.cpv = node.clicks > 0 ? node.cost / node.clicks : 0;
+      node.cpv = node.lp_views > 0 ? node.cost / node.lp_views : 0;
       node.cpa = node.conversions > 0 ? node.cost / node.conversions : 0;
       node.earnings_per_conv = node.conversions > 0 ? node.revenue / node.conversions : 0;
     };
@@ -52891,6 +53115,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       clicks: 0,
       unique_clicks: 0,
       prelander_clicks: 0,
+      lp_views: 0,
+      lp_clicks: 0,
       offer_clicks: 0,
       conversions: 0,
       purchases: 0,
@@ -52910,7 +53136,10 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     rows.forEach((r2) => {
       t0.clicks += Number(r2.clicks) || 0;
       t0.unique_clicks += Number(r2.unique_clicks) || 0;
-      t0.prelander_clicks += Number(r2.prelander_clicks) || 0;
+      const lpViews = Number(r2.lp_views ?? r2.prelander_clicks ?? r2.clicks) || 0;
+      t0.prelander_clicks += lpViews;
+      t0.lp_views += lpViews;
+      t0.lp_clicks += Number(r2.lp_clicks ?? r2.offer_clicks) || 0;
       t0.offer_clicks += Number(r2.offer_clicks) || 0;
       t0.conversions += Number(r2.conversions) || 0;
       t0.purchases += Number(r2.purchases) || 0;
@@ -52928,7 +53157,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       t0.real_profit += Number(r2.real_profit) || 0;
     });
     const uc_rate = t0.clicks > 0 ? t0.unique_clicks / t0.clicks * 100 : 0;
-    const lp_ctr = t0.clicks > 0 ? t0.offer_clicks / t0.clicks * 100 : 0;
+    const lpClickDenominator = t0.lp_clicks > 0 ? t0.lp_clicks : t0.clicks;
+    const lp_ctr = t0.lp_views > 0 ? t0.lp_clicks / t0.lp_views * 100 : 0;
     const cr = t0.clicks > 0 ? t0.conversions / t0.clicks * 100 : 0;
     const cr_sales = t0.clicks > 0 ? t0.purchases / t0.clicks * 100 : 0;
     const cr_holds = t0.clicks > 0 ? t0.holds / t0.clicks * 100 : 0;
@@ -52937,11 +53167,12 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     const approve_rate_excl_trash = nonTrash > 0 ? t0.purchases / nonTrash * 100 : 0;
     const roi = t0.cost > 0 ? t0.profit / t0.cost * 100 : 0;
     const real_roi = t0.cost > 0 ? t0.real_profit / t0.cost * 100 : 0;
-    const epc = t0.clicks > 0 ? t0.revenue / t0.clicks : 0;
+    const epc = lpClickDenominator > 0 ? t0.revenue / lpClickDenominator : 0;
+    const epv = t0.lp_views > 0 ? t0.revenue / t0.lp_views : 0;
     const uepc = t0.unique_clicks > 0 ? t0.revenue / t0.unique_clicks : 0;
-    const cpc = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
+    const cpc = lpClickDenominator > 0 ? t0.cost / lpClickDenominator : 0;
     const ucpc = t0.unique_clicks > 0 ? t0.cost / t0.unique_clicks : 0;
-    const cpv = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
+    const cpv = t0.lp_views > 0 ? t0.cost / t0.lp_views : 0;
     const cpa = t0.conversions > 0 ? t0.cost / t0.conversions : 0;
     const earnings_per_conv = t0.conversions > 0 ? t0.revenue / t0.conversions : 0;
     return {
@@ -52956,6 +53187,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       roi,
       real_roi,
       epc,
+      epc_all: epc,
+      epv,
       uepc,
       cpc,
       ucpc,
@@ -53063,6 +53296,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       case "uepc_hold":
       case "epc_registration":
       case "uepc_registration":
+      case "epv":
       case "cpc":
       case "ucpc":
       case "cpv":
@@ -53074,7 +53308,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
   const exportToCSV = () => {
     if (!displayRows.length) return;
     const headers = [
-      layerKeys.join(" > "),
+      layerKeys.map(formatDimensionLabel).join(" > "),
       ...chosenColumns.map((cId) => {
         const def = ALL_REPORT_METRICS.find((m) => m.id === cId);
         return def?.label || cId;
@@ -53195,7 +53429,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                       idx + 1,
                       "."
                     ] }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: lName })
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: formatDimensionLabel(lName) })
                   ]
                 },
                 idx
@@ -53222,16 +53456,18 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
           toggleNotice.type === "error" ? /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChartColumn, { size: 14 }),
           toggleNotice.text
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", style: { fontVariantNumeric: "tabular-nums", minWidth: "100%", width: "max-content" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table tracker-table", style: { fontVariantNumeric: "tabular-nums", minWidth: "100%", width: "max-content" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: {
               minWidth: "240px",
               textAlign: "left",
               position: "sticky",
               left: 0,
-              zIndex: 3,
-              backgroundColor: "var(--color-bg-card)"
-            }, children: layerKeys.join(" → ") }),
+              /* above .tracker-table th's z-index:10 — the pinned
+                 header must not slide under scrolling metric th's */
+              zIndex: 11,
+              backgroundColor: "var(--color-bg-soft)"
+            }, children: layerKeys.map(formatDimensionLabel).join(" → ") }),
             chosenColumns.map((colId, colIdx) => {
               const def = ALL_REPORT_METRICS.find((m) => m.id === colId);
               const isDragOver = thDragOverIdx === colIdx && thDragIdx !== null && thDragIdx !== colIdx;
@@ -53243,7 +53479,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                   onDragOver: (e) => handleThDragOver(e, colIdx),
                   onDrop: (e) => handleThDrop(e, colIdx),
                   onDragEnd: handleThDragEnd,
-                  title: def?.label,
+                  title: getReportMetricTooltip(def, t),
                   style: {
                     textAlign: "right",
                     cursor: "grab",
@@ -53289,26 +53525,27 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                       isSubtotal && /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "w-3 h-3 inline", style: { color: "var(--color-primary)" } }),
                       (() => {
                         const dimKey = layers[r2.depth];
-                        const toggleDims = ["campaign_id", "ad_id", "adset_id", "ad_campaign_id"];
-                        if (!toggleDims.includes(dimKey) || !r2.dimId || r2.dimId === "Unknown" || r2.dimId === "none") return null;
-                        const paused = entityStatus[r2.dimId] === "PAUSED";
-                        const busy = togglingIds.has(r2.dimId);
+                        if (!ENTITY_TYPE_BY_DIMENSION[dimKey] || !r2.dimId || r2.dimId === "Unknown" || r2.dimId === "none") return null;
+                        const entityId = String(r2.dimId).trim();
+                        const validEntityId = /^\d+$/.test(entityId);
+                        const paused = entityStatus[entityId] === "PAUSED";
+                        const busy = togglingIds.has(entityId);
                         return /* @__PURE__ */ jsxRuntimeExports.jsx(
                           "button",
                           {
                             type: "button",
-                            disabled: busy,
+                            disabled: busy || !validEntityId,
                             onClick: (e) => {
                               e.stopPropagation();
                               handleToggleEntityStatus(dimKey, r2);
                             },
                             className: "relative inline-flex h-4 w-7 flex-shrink-0 items-center rounded-full transition-colors",
                             style: {
-                              background: paused || busy ? "var(--color-border)" : "var(--color-success, #10b981)",
-                              opacity: busy ? 0.5 : 1,
-                              cursor: "pointer"
+                              background: paused || busy || !validEntityId ? "var(--color-border)" : "var(--color-success, #10b981)",
+                              opacity: busy || !validEntityId ? 0.5 : 1,
+                              cursor: validEntityId && !busy ? "pointer" : "not-allowed"
                             },
-                            title: `${dimKey === "campaign_id" ? "" : "Facebook · "}${paused ? t("automation.clickToResume") : t("automation.clickToPause")}`,
+                            title: validEntityId ? `${dimKey === "campaign_id" ? "Orbitra" : "Facebook"} · ${paused ? t("automation.clickToResume") : t("automation.clickToPause")}` : t("automation.invalidId"),
                             children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "inline-block h-3 w-3 transform rounded-full bg-white shadow transition-transform", style: { transform: paused ? "translateX(2px)" : "translateX(12px)" } })
                           }
                         );
@@ -53340,6 +53577,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         mode: "report",
         currentLayers: layers,
         onSaveLayers: handleSaveLayers,
+        layerPresets: REPORT_LAYER_PRESETS,
         currentFilters: filters,
         onSaveFilters: handleSaveFilters
       }
@@ -53359,14 +53597,37 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
   const [showGroupsModal, setShowGroupsModal] = reactExports.useState(false);
   const [showGlobalReports, setShowGlobalReports] = reactExports.useState(false);
   const [campaignStateOverrides, setCampaignStateOverrides] = reactExports.useState({});
-  const [openMenuId, setOpenMenuId] = reactExports.useState(null);
+  const [menuAnchor, setMenuAnchor] = reactExports.useState(null);
   const [rowsPerPage, setRowsPerPage] = reactExports.useState(50);
   const [page, setPage] = reactExports.useState(0);
+  const handleToggleMenu = (event, campaignId) => {
+    event.stopPropagation();
+    if (menuAnchor?.id === campaignId) {
+      setMenuAnchor(null);
+      return;
+    }
+    const rect = event.currentTarget.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const openUp = spaceBelow < 240;
+    setMenuAnchor({
+      id: campaignId,
+      top: openUp ? rect.top - 8 : rect.bottom + 4,
+      right: Math.max(8, window.innerWidth - rect.right),
+      openUp
+    });
+  };
   reactExports.useEffect(() => {
-    const close = () => setOpenMenuId(null);
-    document.addEventListener("click", close);
-    return () => document.removeEventListener("click", close);
-  }, []);
+    if (!menuAnchor) return void 0;
+    const close = () => setMenuAnchor(null);
+    window.addEventListener("click", close);
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("resize", close);
+    return () => {
+      window.removeEventListener("click", close);
+      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("resize", close);
+    };
+  }, [menuAnchor]);
   reactExports.useEffect(() => {
     setPage(0);
   }, [search, rowsPerPage]);
@@ -53394,18 +53655,26 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
       alert(t("common.networkError"));
     }
   };
-  const handleToggleCampaignState = async (camp) => {
+  const handleToggleCampaignState = async (camp, targetOverride) => {
     if (togglingCampaignIds.has(camp.id)) return;
-    const target = campaignEnabled(camp) ? "PAUSED" : "ACTIVE";
+    const target = targetOverride || (campaignEnabled(camp) ? "PAUSED" : "ACTIVE");
     setTogglingCampaignIds((prev) => new Set(prev).add(camp.id));
     try {
       const res = await axios.post("/api.php?action=ad_entity_toggle_status", {
         entity_type: "campaign",
         entity_id: String(camp.id),
-        target_status: target
+        target_status: target,
+        // Pause/resume follows through to the linked ad-network
+        // campaigns (clicks.parameters_json ids) — stopping spend is
+        // the whole point of the switch.
+        sync_remote_ads: true
       });
       if (res.data.status === "success") {
         setCampaignStateOverrides((prev) => ({ ...prev, [camp.id]: target === "ACTIVE" ? "active" : "disabled" }));
+        const failed = (res.data.remote_synced || []).filter((r2) => !r2.success);
+        if (failed.length > 0) {
+          alert(`${t("automation.statusUpdateError")}: ${failed[0].message || ""} (${failed.length})`);
+        }
       } else {
         alert(res.data.message || t("automation.statusUpdateError"));
       }
@@ -53419,6 +53688,24 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
       });
     }
   };
+  const [confirmPause, setConfirmPause] = reactExports.useState(null);
+  const handleRequestToggleState = async (camp) => {
+    if (togglingCampaignIds.has(camp.id)) return;
+    if (!campaignEnabled(camp)) {
+      handleToggleCampaignState(camp, "ACTIVE");
+      return;
+    }
+    try {
+      const res = await axios.get(`${API_URL$w}?action=campaign_remote_links`, { params: { campaign_id: camp.id } });
+      const linked = res.data.status === "success" ? (res.data.data || []).flatMap((p) => (p.ids || []).map((id) => ({ platform: p.platform, id }))) : [];
+      if (linked.length > 0) {
+        setConfirmPause({ camp, linked });
+        return;
+      }
+    } catch (e) {
+    }
+    handleToggleCampaignState(camp, "PAUSED");
+  };
   const todayPreset = getPresetDates("today");
   const [dateFrom, setDateFrom] = reactExports.useState(todayPreset?.from || formatDate$1(/* @__PURE__ */ new Date()));
   const [dateTo, setDateTo] = reactExports.useState(todayPreset?.to || formatDate$1(/* @__PURE__ */ new Date()));
@@ -53430,7 +53717,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
   const [chosenColumns, setChosenColumns] = reactExports.useState(() => {
     try {
       const saved = localStorage.getItem("orbitra_campaign_columns");
-      if (saved) return JSON.parse(saved);
+      if (saved) return normalizeReportMetricIds(JSON.parse(saved));
     } catch (e) {
     }
     const fromDefaultTemplate = getDefaultTemplateColumns();
@@ -53581,6 +53868,8 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
       clicks: 0,
       unique_clicks: 0,
       prelander_clicks: 0,
+      lp_views: 0,
+      lp_clicks: 0,
       offer_clicks: 0,
       conversions: 0,
       purchases: 0,
@@ -53600,7 +53889,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     visibleCampaigns.forEach((c) => {
       t0.clicks += Number(c.clicks) || 0;
       t0.unique_clicks += Number(c.unique_clicks) || 0;
-      t0.prelander_clicks += Number(c.prelander_clicks) || 0;
+      const lpViews = Number(c.lp_views ?? c.prelander_clicks ?? c.clicks) || 0;
+      t0.prelander_clicks += lpViews;
+      t0.lp_views += lpViews;
+      t0.lp_clicks += Number(c.lp_clicks ?? c.offer_clicks) || 0;
       t0.offer_clicks += Number(c.offer_clicks) || 0;
       t0.conversions += Number(c.conversions) || 0;
       t0.purchases += Number(c.purchases) || 0;
@@ -53618,7 +53910,8 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
       t0.real_profit += Number(c.real_profit) || 0;
     });
     const uc_rate = t0.clicks > 0 ? t0.unique_clicks / t0.clicks * 100 : 0;
-    const lp_ctr = t0.clicks > 0 ? t0.offer_clicks / t0.clicks * 100 : 0;
+    const lpClickDenominator = t0.lp_clicks > 0 ? t0.lp_clicks : t0.clicks;
+    const lp_ctr = t0.lp_views > 0 ? t0.lp_clicks / t0.lp_views * 100 : 0;
     const cr = t0.clicks > 0 ? t0.conversions / t0.clicks * 100 : 0;
     const cr_sales = t0.clicks > 0 ? t0.purchases / t0.clicks * 100 : 0;
     const cr_holds = t0.clicks > 0 ? t0.holds / t0.clicks * 100 : 0;
@@ -53627,11 +53920,12 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     const approve_rate_excl_trash = nonTrash > 0 ? t0.purchases / nonTrash * 100 : 0;
     const roi = t0.cost > 0 ? t0.profit / t0.cost * 100 : 0;
     const real_roi = t0.cost > 0 ? t0.real_profit / t0.cost * 100 : 0;
-    const epc = t0.clicks > 0 ? t0.revenue / t0.clicks : 0;
+    const epc = lpClickDenominator > 0 ? t0.revenue / lpClickDenominator : 0;
+    const epv = t0.lp_views > 0 ? t0.revenue / t0.lp_views : 0;
     const uepc = t0.unique_clicks > 0 ? t0.revenue / t0.unique_clicks : 0;
-    const cpc = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
+    const cpc = lpClickDenominator > 0 ? t0.cost / lpClickDenominator : 0;
     const ucpc = t0.unique_clicks > 0 ? t0.cost / t0.unique_clicks : 0;
-    const cpv = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
+    const cpv = t0.lp_views > 0 ? t0.cost / t0.lp_views : 0;
     const cpa = t0.conversions > 0 ? t0.cost / t0.conversions : 0;
     const earnings_per_conv = t0.conversions > 0 ? t0.revenue / t0.conversions : 0;
     return {
@@ -53646,6 +53940,8 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
       roi,
       real_roi,
       epc,
+      epc_all: epc,
+      epv,
       uepc,
       cpc,
       ucpc,
@@ -53743,13 +54039,13 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
           {
             type: "button",
             onClick: () => requestSort(colKey, defaultDir),
-            className: `inline-flex items-center gap-1 text-xs font-semibold whitespace-nowrap ${alignRight ? "justify-end w-full" : ""}`,
+            className: `inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap ${alignRight ? "justify-end w-full" : ""}`,
             style: {
               color: isActive ? "var(--color-primary)" : "var(--color-text-secondary)",
               textAlign: alignRight ? "right" : "left"
             },
             children: [
-              draggable && /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3 h-3 opacity-30 -ml-1 cursor-grab flex-shrink-0" }),
+              draggable && /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3 h-3 opacity-25 hover:opacity-75 -ml-1 cursor-grab flex-shrink-0" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { colKey })
             ]
@@ -53857,6 +54153,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
       case "uepc_hold":
       case "epc_registration":
       case "uepc_registration":
+      case "epv":
       case "cpc":
       case "ucpc":
       case "cpv":
@@ -54036,6 +54333,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
           }
         ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "id", label: "ID", defaultDir: "desc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "state", label: t("common.status"), defaultDir: "asc" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "name", label: t("campaigns.campaign"), defaultDir: "asc" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "group_name", label: t("campaigns.group"), defaultDir: "asc" }),
         visibleColumns.map((colId, colIdx) => {
@@ -54045,7 +54343,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             {
               colKey: colId,
               label: def?.shortLabel || def?.label || colId,
-              fullTitle: def?.label,
+              fullTitle: getReportMetricTooltip(def, t),
               defaultDir: "desc",
               alignRight: true,
               draggable: true,
@@ -54060,7 +54358,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", style: { textAlign: "right" }, children: t("common.actions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleCampaigns.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 5 + visibleColumns.length, className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleCampaigns.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 6 + visibleColumns.length, className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("campaigns.noCampaignsCreated") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("campaigns.createFirstCampaign") })
       ] }) }) }) : pagedCampaigns.map((camp) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
@@ -54075,23 +54373,23 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
           }
         ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-medium", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { title: camp.keitaro_id ? `Keitaro ID: ${camp.keitaro_id}` : "", children: camp.id }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", style: { maxWidth: 300 }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              type: "button",
-              disabled: togglingCampaignIds.has(camp.id),
-              onClick: () => handleToggleCampaignState(camp),
-              className: "relative inline-flex h-4 w-7 flex-shrink-0 items-center rounded-full transition-colors",
-              style: {
-                background: campaignEnabled(camp) ? "var(--color-success, #10b981)" : "var(--color-border)",
-                opacity: togglingCampaignIds.has(camp.id) ? 0.5 : 1,
-                cursor: "pointer"
-              },
-              title: campaignEnabled(camp) ? t("automation.clickToPause") : t("automation.clickToResume"),
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "inline-block h-3 w-3 transform rounded-full bg-white shadow transition-transform", style: { transform: campaignEnabled(camp) ? "translateX(12px)" : "translateX(2px)" } })
-            }
-          ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            disabled: togglingCampaignIds.has(camp.id),
+            onClick: () => handleRequestToggleState(camp),
+            className: "relative inline-flex h-4 w-7 flex-shrink-0 items-center rounded-full transition-colors",
+            style: {
+              background: campaignEnabled(camp) ? "var(--color-success, #10b981)" : "var(--color-border)",
+              opacity: togglingCampaignIds.has(camp.id) ? 0.5 : 1,
+              cursor: "pointer"
+            },
+            title: campaignEnabled(camp) ? t("automation.clickToPause") : t("automation.clickToResume"),
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "inline-block h-3 w-3 transform rounded-full bg-white shadow transition-transform", style: { transform: campaignEnabled(camp) ? "translateX(12px)" : "translateX(2px)" } })
+          }
+        ) }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", style: { maxWidth: 320 }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "span",
             {
@@ -54114,86 +54412,22 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: camp.group_name || "-" }),
         visibleColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums" }, children: formatMetricCell(colId, camp) }, colId)),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative inline-block text-left", onClick: (e) => e.stopPropagation(), children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              type: "button",
-              onClick: (e) => {
-                e.stopPropagation();
-                setOpenMenuId(openMenuId === camp.id ? null : camp.id);
-              },
-              className: "p-1 rounded transition-colors",
-              style: { color: "var(--color-text-muted)" },
-              onMouseEnter: (e) => e.currentTarget.style.color = "var(--color-text-primary)",
-              onMouseLeave: (e) => e.currentTarget.style.color = "var(--color-text-muted)",
-              title: t("table.actions"),
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(EllipsisVertical, { className: "w-4 h-4" })
-            }
-          ),
-          openMenuId === camp.id && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "div",
-            {
-              className: "absolute right-0 mt-1 w-44 rounded-xl shadow-xl z-50 py-1 text-xs border",
-              style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)" },
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
-                  setOpenMenuId(null);
-                  handleEdit(camp.id);
-                }, className: "w-full text-left px-3 py-1.5 flex items-center gap-2", style: { color: "var(--color-text-primary)" }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-3.5 h-3.5" }),
-                  " ",
-                  t("common.edit")
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
-                  setOpenMenuId(null);
-                  setActionModal({ type: "update_costs", campaignId: camp.id });
-                }, className: "w-full text-left px-3 py-1.5 flex items-center gap-2", style: { color: "var(--color-text-primary)" }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { className: "w-3.5 h-3.5" }),
-                  " ",
-                  t("campaigns.updateCosts")
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
-                  setOpenMenuId(null);
-                  handleCopyCampaignLink(camp);
-                }, className: "w-full text-left px-3 py-1.5 flex items-center gap-2", style: { color: "var(--color-text-primary)" }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-3.5 h-3.5" }),
-                  " ",
-                  t("table.copyLink")
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
-                  setOpenMenuId(null);
-                  handleDuplicateCampaign(camp);
-                }, className: "w-full text-left px-3 py-1.5 flex items-center gap-2", style: { color: "var(--color-text-primary)" }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 rotate-90" }),
-                  " ",
-                  t("table.duplicate")
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
-                  setOpenMenuId(null);
-                  setActionModal({ type: "clear_stats", campaignId: camp.id });
-                }, className: "w-full text-left px-3 py-1.5 flex items-center gap-2", style: { color: "var(--color-warning, #f59e0b)" }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(CircleX, { className: "w-3.5 h-3.5" }),
-                  " ",
-                  t("common.clearStats")
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "my-1 border-t", style: { borderColor: "var(--color-border)" } }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
-                  setOpenMenuId(null);
-                  handleDelete(camp.id);
-                }, className: "w-full text-left px-3 py-1.5 flex items-center gap-2 text-red-500", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-3.5 h-3.5" }),
-                  " ",
-                  t("common.delete")
-                ] })
-              ]
-            }
-          )
-        ] }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: (event) => handleToggleMenu(event, camp.id),
+            className: "p-1.5 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5",
+            style: { color: menuAnchor?.id === camp.id ? "var(--color-primary)" : "var(--color-text-muted)" },
+            title: t("table.actions"),
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(EllipsisVertical, { className: "w-4 h-4" })
+          }
+        ) })
       ] }, camp.id)) }),
       visibleCampaigns.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tfoot", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { style: { backgroundColor: "var(--color-bg-soft)", borderTop: "2px solid var(--color-border)", fontWeight: 700 }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", {}),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: "Σ" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", {}),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
           t("campaignReports.total", "Totals"),
           " (",
@@ -54270,6 +54504,52 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         mode: "campaigns"
       }
     ),
+    confirmPause && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", onClick: () => setConfirmPause(null), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content max-w-md w-full rounded-2xl p-6", style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, onClick: (e) => e.stopPropagation(), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 mb-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-2.5 rounded-xl flex-shrink-0", style: {
+          background: "color-mix(in srgb, var(--color-warning) 12%, transparent)",
+          border: "1px solid color-mix(in srgb, var(--color-warning) 35%, transparent)",
+          color: "var(--color-warning)"
+        }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "w-5 h-5" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title font-bold text-base m-0", children: t("campaigns.pauseRemoteTitle") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs m-0 mt-0.5 truncate", style: { color: "var(--color-text-muted)" }, children: confirmPause.camp.name })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mb-3", style: { color: "var(--color-text-secondary)", lineHeight: 1.6 }, children: t("campaigns.pauseRemoteWarning") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs font-semibold mb-1.5", style: { color: "var(--color-text-primary)" }, children: t("campaigns.pauseRemoteLinked") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1.5", children: confirmPause.linked.map((l) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "span",
+          {
+            className: "text-[10px] font-mono px-1.5 py-0.5 rounded border",
+            style: { color: "var(--color-text-muted)", borderColor: "var(--color-border)" },
+            children: [
+              l.platform,
+              ":",
+              l.id
+            ]
+          },
+          `${l.platform}-${l.id}`
+        )) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-2.5 pt-3", style: { borderTop: "1px solid var(--color-border)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setConfirmPause(null), className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl", children: t("common.cancel") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => {
+              const camp = confirmPause.camp;
+              setConfirmPause(null);
+              handleToggleCampaignState(camp, "PAUSED");
+            },
+            className: "btn btn-danger text-xs py-1.5 px-4 rounded-xl font-semibold",
+            children: t("campaigns.confirmPauseAll")
+          }
+        )
+      ] })
+    ] }) }),
     actionModal.type === "clear_stats" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content max-w-md w-full rounded-2xl p-6", style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-header pb-3 mb-4", style: { borderBottom: "1px solid var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "modal-title font-bold text-base", children: [
         t("common.clearStats"),
@@ -54328,6 +54608,79 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         campaignName: null,
         onClose: () => setShowGlobalReports(false)
       }
+    ),
+    menuAnchor && typeof document !== "undefined" && reactDomExports.createPortal(
+      (() => {
+        const camp = campaignList.find((campaign) => campaign.id === menuAnchor.id);
+        if (!camp) return null;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            className: "fixed w-48 rounded-2xl shadow-2xl py-1.5 text-xs border animate-in fade-in zoom-in-95 duration-100",
+            style: {
+              backgroundColor: "var(--color-bg-card)",
+              borderColor: "var(--color-border)",
+              right: `${menuAnchor.right}px`,
+              top: menuAnchor.openUp ? void 0 : `${menuAnchor.top}px`,
+              bottom: menuAnchor.openUp ? `${window.innerHeight - menuAnchor.top}px` : void 0,
+              zIndex: 99999
+            },
+            onClick: (event) => event.stopPropagation(),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                setMenuAnchor(null);
+                handleEdit(camp.id);
+              }, className: "w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition", style: { color: "var(--color-text-primary)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-3.5 h-3.5" }),
+                " ",
+                t("common.edit")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                setMenuAnchor(null);
+                setActionModal({ type: "update_costs", campaignId: camp.id });
+              }, className: "w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition", style: { color: "var(--color-text-primary)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { className: "w-3.5 h-3.5" }),
+                " ",
+                t("campaigns.updateCosts")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                setMenuAnchor(null);
+                handleCopyCampaignLink(camp);
+              }, className: "w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition", style: { color: "var(--color-text-primary)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-3.5 h-3.5" }),
+                " ",
+                t("table.copyLink")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                setMenuAnchor(null);
+                handleDuplicateCampaign(camp);
+              }, className: "w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition", style: { color: "var(--color-text-primary)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 rotate-90" }),
+                " ",
+                t("table.duplicate")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                setMenuAnchor(null);
+                setActionModal({ type: "clear_stats", campaignId: camp.id });
+              }, className: "w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition", style: { color: "var(--color-warning, #f59e0b)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(CircleX, { className: "w-3.5 h-3.5" }),
+                " ",
+                t("common.clearStats")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "my-1 border-t", style: { borderColor: "var(--color-border)" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                setMenuAnchor(null);
+                handleDelete(camp.id);
+              }, className: "w-full text-left px-3.5 py-2 flex items-center gap-2.5 text-red-500 hover:bg-red-500/10 transition", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-3.5 h-3.5" }),
+                " ",
+                t("common.delete")
+              ] })
+            ]
+          }
+        );
+      })(),
+      document.body
     )
   ] });
 };
@@ -54506,6 +54859,186 @@ const TrafficSimulation = () => {
     ] })
   ] });
 };
+const SegmentedControl = ({ options, value, onChange, ariaLabel }) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+  "div",
+  {
+    className: "p-1 rounded-xl flex gap-1 border",
+    style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" },
+    role: "radiogroup",
+    "aria-label": ariaLabel,
+    children: options.map((option) => {
+      const isActive = value === option.value;
+      const Icon2 = option.icon;
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          type: "button",
+          role: "radio",
+          "aria-checked": isActive,
+          onClick: () => onChange(option.value),
+          className: "flex-1 py-2 px-3 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5",
+          style: {
+            backgroundColor: isActive ? "var(--color-primary)" : "transparent",
+            color: isActive ? "#ffffff" : "var(--color-text-secondary)",
+            boxShadow: isActive ? "0 2px 8px rgba(0, 0, 0, 0.15)" : "none"
+          },
+          children: [
+            Icon2 && /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "w-3.5 h-3.5" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: option.label })
+          ]
+        },
+        option.value
+      );
+    })
+  }
+);
+const acceptsFile = (file, accept) => {
+  if (!accept) return true;
+  const rules = accept.split(",").map((rule) => rule.trim().toLowerCase()).filter(Boolean);
+  return rules.some((rule) => rule.startsWith(".") ? file.name.toLowerCase().endsWith(rule) : file.type.toLowerCase() === rule);
+};
+const FileDropzone = ({
+  file,
+  onFileSelect,
+  accept = ".zip",
+  label = "Upload ZIP Archive",
+  emptyHint = "Drag & drop .zip here or click to browse files",
+  replaceHint = "Click or drop another file to replace",
+  disabled = false
+}) => {
+  const inputRef = reactExports.useRef(null);
+  const [isDragging, setIsDragging] = reactExports.useState(false);
+  const selectFile = (nextFile) => {
+    if (!nextFile || disabled || !acceptsFile(nextFile, accept)) return;
+    onFileSelect(nextFile);
+  };
+  const openPicker = () => {
+    if (!disabled) inputRef.current?.click();
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      role: "button",
+      tabIndex: disabled ? -1 : 0,
+      "aria-disabled": disabled,
+      onClick: openPicker,
+      onKeyDown: (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          openPicker();
+        }
+      },
+      onDragEnter: (event) => {
+        event.preventDefault();
+        if (!disabled) setIsDragging(true);
+      },
+      onDragOver: (event) => event.preventDefault(),
+      onDragLeave: (event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setIsDragging(false);
+      },
+      onDrop: (event) => {
+        event.preventDefault();
+        setIsDragging(false);
+        selectFile(event.dataTransfer.files?.[0]);
+      },
+      className: "border-2 border-dashed rounded-2xl p-6 text-center transition-all hover:border-[var(--color-primary)] flex flex-col items-center justify-center gap-2 group",
+      style: {
+        cursor: disabled ? "wait" : "pointer",
+        opacity: disabled ? 0.65 : 1,
+        backgroundColor: isDragging ? "var(--color-primary-light)" : "var(--color-bg-soft)",
+        borderColor: file ? "var(--color-success)" : isDragging ? "var(--color-primary)" : "var(--color-border)"
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            ref: inputRef,
+            type: "file",
+            accept,
+            className: "hidden",
+            disabled,
+            onChange: (event) => {
+              selectFile(event.target.files?.[0]);
+              event.target.value = "";
+            }
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110",
+            style: {
+              backgroundColor: file ? "rgba(34, 197, 94, 0.12)" : "var(--color-bg-card)",
+              color: file ? "var(--color-success)" : "var(--color-primary)"
+            },
+            children: file ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-6 h-6" }) : isDragging ? /* @__PURE__ */ jsxRuntimeExports.jsx(FileArchive, { className: "w-6 h-6" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(CloudUpload, { className: "w-6 h-6" })
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: file ? file.name : label }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] mt-0.5", style: { color: "var(--color-text-muted)" }, children: file ? `${(file.size / 1024 / 1024).toFixed(2)} MB · ${replaceHint}` : emptyHint })
+        ] })
+      ]
+    }
+  );
+};
+const CodeSnippetCard = ({
+  title,
+  description,
+  code,
+  copyId,
+  onCopy,
+  copied,
+  copyLabel = "Copy",
+  copiedLabel = "Copied",
+  actions,
+  muted = false
+}) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  "div",
+  {
+    className: "p-4 rounded-2xl border flex flex-col gap-2.5",
+    style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" },
+    children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-start gap-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-bold uppercase tracking-wider", style: { color: "var(--color-text-primary)" }, children: title }),
+          description && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs mt-0.5", style: { color: "var(--color-text-muted)", lineHeight: 1.5 }, children: description })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-shrink-0", children: [
+          actions,
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: () => onCopy(code, copyId),
+              disabled: !code,
+              className: "btn btn-secondary text-[11px] py-1 px-3 rounded-lg flex items-center gap-1.5",
+              children: [
+                copied === copyId ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 13, style: { color: "var(--color-success, #16a34a)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 13 }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: copied === copyId ? { color: "var(--color-success, #16a34a)" } : void 0, children: copied === copyId ? copiedLabel : copyLabel })
+              ]
+            }
+          )
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "pre",
+        {
+          className: "p-3 rounded-xl font-mono text-xs overflow-x-auto border",
+          style: {
+            backgroundColor: "var(--color-bg-card)",
+            borderColor: "var(--color-border)",
+            color: muted ? "var(--color-text-muted)" : "var(--color-text-primary)",
+            margin: 0,
+            whiteSpace: "pre-wrap",
+            overflowWrap: "anywhere"
+          },
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: code })
+        }
+      )
+    ]
+  }
+);
 const EDITOR_STAY_AFTER_SAVE_KEY = "orbitra_editor_stay_after_save";
 const getStayInEditorAfterSave = () => {
   if (typeof window === "undefined") return true;
@@ -54572,38 +55105,54 @@ function translateLandingRequestError(t, error) {
   }
   return t("landingEditor.networkError");
 }
-const API_URL$u = "/api.php";
-const CopyableCode = ({ text, copied, onCopy, t, muted = false }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative mt-1", children: [
-  /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    "button",
-    {
-      type: "button",
-      onClick: () => {
-        navigator.clipboard.writeText(text);
-        onCopy && onCopy();
-      },
-      className: "btn btn-secondary btn-sm",
-      style: { position: "absolute", top: "6px", right: "6px", padding: "2px 8px", fontSize: "11px", zIndex: 1 },
-      children: [
-        copied ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-3 h-3" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "w-3 h-3" }),
-        copied ? t("landingEditor.codeCopied") : t("landingEditor.copyCode")
-      ]
+async function copyToClipboard(text) {
+  if (!text && text !== "0") return false;
+  const value = String(text);
+  if (typeof window !== "undefined" && window.isSecureContext && navigator?.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(value);
+      return true;
+    } catch (error) {
+      console.warn("navigator.clipboard failed, falling back to execCommand:", error);
     }
-  ),
-  /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "p-2 rounded-lg overflow-x-auto", style: {
-    backgroundColor: "var(--color-bg-card)",
-    border: "1px solid var(--color-border)",
-    color: muted ? "var(--color-text-muted)" : "var(--color-text-primary)",
-    fontSize: "12.5px",
-    margin: 0,
-    paddingRight: "90px"
-  }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: text }) })
-] });
+  }
+  let textarea;
+  try {
+    textarea = document.createElement("textarea");
+    textarea.value = value;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.top = "0";
+    textarea.style.left = "-9999px";
+    textarea.style.width = "2em";
+    textarea.style.height = "2em";
+    textarea.style.padding = "0";
+    textarea.style.border = "none";
+    textarea.style.outline = "none";
+    textarea.style.boxShadow = "none";
+    textarea.style.background = "transparent";
+    textarea.style.opacity = "0";
+    textarea.style.zIndex = "-1";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    textarea.setSelectionRange(0, textarea.value.length);
+    return document.execCommand("copy");
+  } catch (error) {
+    console.error("execCommand copy failed:", error);
+    return false;
+  } finally {
+    textarea?.remove();
+  }
+}
+const API_URL$u = "/api.php";
 const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
   const { t } = useLanguage();
+  const [activeTab, setActiveTab] = reactExports.useState("general");
   const [landingId, setLandingId] = reactExports.useState(initialLandingId);
   const [savedSomething, setSavedSomething] = reactExports.useState(false);
   const [pendingZip, setPendingZip] = reactExports.useState(null);
+  const [lastZip, setLastZip] = reactExports.useState(null);
   const [landing, setLanding] = reactExports.useState({
     name: "",
     group_id: "",
@@ -54622,9 +55171,8 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
   const [showGroupsModal, setShowGroupsModal] = reactExports.useState(false);
   const [campaigns, setCampaigns] = reactExports.useState([]);
   const [postbackKey, setPostbackKey] = reactExports.useState("");
-  const [adapterCopied, setAdapterCopied] = reactExports.useState(false);
   const [linkFormat, setLinkFormat] = reactExports.useState("html");
-  const [linkCopied, setLinkCopied] = reactExports.useState(false);
+  const [copiedSnippet, setCopiedSnippet] = reactExports.useState("");
   const origin2 = typeof window !== "undefined" && window.location && window.location.origin ? window.location.origin : "https://your-tracker.example.com";
   const adapterSnippet = `<script src="${origin2}/js/orbitra-adapter.js"` + (postbackKey ? `
         data-postback="${origin2}/${postbackKey}/postback"` : "") + `><\/script>`;
@@ -54635,7 +55183,6 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
   const [uploadingZip, setUploadingZip] = reactExports.useState(false);
   const [viewMode, setViewMode] = reactExports.useState("code");
   const [previewNonce, setPreviewNonce] = reactExports.useState(0);
-  const fileInputRef = reactExports.useRef(null);
   const assetInputRef = reactExports.useRef(null);
   reactExports.useEffect(() => {
     if (landing.type !== "action" || landing.action_type !== "to_campaign" || campaigns.length) return;
@@ -54681,7 +55228,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
       }
     };
     fetchInitialData();
-  }, [landingId]);
+  }, [landingId, t]);
   const fetchLandingFiles = async (id) => {
     try {
       const res = await axios.get(`${API_URL$u}?action=landing_files&id=${id}`);
@@ -54694,6 +55241,21 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
   };
   const handleSave = async (forceClose = false) => {
     if (loading || saving || uploadingZip || saveSuccess) return;
+    if (!landing.name.trim()) {
+      setActiveTab("general");
+      alert(`${t("landingEditor.name")}: ${t("landingColumns.required")}`);
+      return;
+    }
+    if (["redirect", "preload"].includes(landing.type) && !String(landing.url || "").trim()) {
+      setActiveTab("general");
+      alert(`${t("landingEditor.urlLabel")}: ${t("landingColumns.required")}`);
+      return;
+    }
+    if (landing.type === "action" && ["to_campaign", "show_text", "show_html"].includes(landing.action_type || "not_found") && !String(landing.action_payload || "").trim()) {
+      setActiveTab("general");
+      alert(`${t("landingEditor.actionTypeLabel")}: ${t("landingColumns.required")}`);
+      return;
+    }
     try {
       setSaving(true);
       const payload = { ...landing };
@@ -54708,6 +55270,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
           if (pendingZip) {
             const zip = pendingZip;
             setPendingZip(null);
+            setLastZip(zip);
             await uploadZip(newId, zip);
           }
         }
@@ -54808,11 +55371,18 @@ ${file}`)) return;
       setUploadingZip(false);
     }
   };
-  const handleZipUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file || !landingId) return;
-    await uploadZip(landingId, file);
-    e.target.value = null;
+  const selectLandingZip = (file) => {
+    if (landingId) {
+      setLastZip(file);
+      uploadZip(landingId, file);
+    } else {
+      setPendingZip(file);
+    }
+  };
+  const copySnippet = async (text, id) => {
+    if (!await copyToClipboard(text)) return;
+    setCopiedSnippet(id);
+    setTimeout(() => setCopiedSnippet(""), 1800);
   };
   const loadFileContent = async (path) => {
     try {
@@ -54848,501 +55418,531 @@ ${file}`)) return;
   };
   if (loading) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-content", style: { maxWidth: "300px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-6", style: { color: "var(--color-text-muted)" }, children: t("common.loading") }) }) });
   const isLocal = landing.type === "local";
+  const showFileEditor = activeTab === "general" && isLocal && landingId;
+  const tabs = [
+    { id: "general", label: t("editor.general") },
+    { id: "integration", label: `${t("editor.integrations")} & ${t("landingEditor.viewCode")}` },
+    { id: "details", label: `${t("editor.notes")} & ${t("editor.params")}` }
+  ];
+  const offerLinkSnippet = landing.type === "redirect" ? linkFormat === "html" ? `<a href="${origin2}/?_lp=1">${t("landingEditor.offerLinkWord")}</a>` : linkFormat === "js" ? `<script>document.write('<a href="${origin2}/?_lp=1&'+window.location.search.substring(1)+'">${t("landingEditor.offerLinkWord")}</a>');<\/script>` : `<a href="${origin2}/?_lp=1&_token=<?= urlencode($_GET['_token']) ?>">${t("landingEditor.offerLinkWord")}</a>` : t("landingEditor.offerLinkExampleSingle");
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-overlay", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "1200px", width: "100%" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: landingId ? `${t("landingEditor.landing")}: ${landing.name}` : t("landingEditor.createLanding") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(savedSomething), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-y-auto p-0 flex flex-col md:flex-row", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `p-6 ${isLocal && landingId ? "md:w-1/3" : "w-full"} flex flex-col pt-4`, style: { borderRight: isLocal && landingId ? "1px solid var(--color-border)" : "none" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { id: "landing-form", onSubmit: handleFormSubmit, className: "space-y-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.name") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "text",
-                required: true,
-                value: landing.name,
-                onChange: (e) => setLanding({ ...landing, name: e.target.value }),
-                className: "form-input",
-                placeholder: t("landingEditor.namePlaceholder")
-              }
-            )
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "modal-content",
+        style: {
+          maxWidth: showFileEditor ? "1200px" : "880px",
+          width: "100%",
+          /* Flex column pins header/footer; only the body scrolls —
+             the file editor used to push Save below the fold. */
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+          padding: 0
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header px-6 pt-5", style: { flexShrink: 0, marginBottom: 0, borderBottom: "none" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 min-w-0", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0", style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(LayoutTemplate, { className: "w-5 h-5" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title truncate", children: landingId ? `${t("landingEditor.landing")}: ${landing.name}` : t("landingEditor.createLanding") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => onClose(savedSomething), className: "action-btn", "aria-label": t("common.close", "Close"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.group") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "select",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex px-6 pt-1 gap-7 overflow-x-auto", style: { borderBottom: "1px solid var(--color-border)", flexShrink: 0 }, children: tabs.map((tab) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              className: "pb-3 px-1 font-semibold text-sm transition border-b-2 whitespace-nowrap",
+              style: {
+                borderColor: activeTab === tab.id ? "var(--color-primary)" : "transparent",
+                color: activeTab === tab.id ? "var(--color-primary)" : "var(--color-text-secondary)"
+              },
+              onClick: () => setActiveTab(tab.id),
+              children: tab.label
+            },
+            tab.id
+          )) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-y-auto p-0 flex flex-col md:flex-row", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `p-6 ${showFileEditor ? "md:w-1/3" : "w-full"} flex flex-col pt-4`, style: { borderRight: showFileEditor ? "1px solid var(--color-border)" : "none" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { id: "landing-form", onSubmit: handleFormSubmit, className: "space-y-4", children: [
+              activeTab === "general" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.name") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      type: "text",
+                      required: true,
+                      value: landing.name,
+                      onChange: (e) => setLanding({ ...landing, name: e.target.value }),
+                      className: "form-input",
+                      placeholder: t("landingEditor.namePlaceholder")
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.group") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "select",
+                        {
+                          value: landing.group_id,
+                          onChange: (e) => setLanding({ ...landing, group_id: e.target.value }),
+                          className: "form-select rounded-r-none",
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("landingEditor.noGroup") }),
+                            groups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g.id, children: g.name }, g.id))
+                          ]
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary rounded-l-none border-l-0", onClick: () => setShowGroupsModal(true), title: t("groupsModal.landingGroups"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }) })
+                    ] })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.status") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "select",
+                      {
+                        value: landing.state,
+                        onChange: (e) => setLanding({ ...landing, state: e.target.value }),
+                        className: "form-select",
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t("landingEditor.active") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "paused", children: t("landingEditor.paused") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "archived", children: t("landingEditor.archived") })
+                        ]
+                      }
+                    )
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.landingType") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    SegmentedControl,
+                    {
+                      ariaLabel: t("landingEditor.landingType"),
+                      value: landing.type,
+                      onChange: (type) => setLanding({ ...landing, type }),
+                      options: [
+                        { value: "local", label: t("landingEditor.typeLocal"), icon: HardDrive },
+                        { value: "redirect", label: t("landingEditor.typeRedirect"), icon: ExternalLink },
+                        { value: "preload", label: t("landingEditor.typePreload"), icon: Layers },
+                        { value: "action", label: t("landingEditor.typeAction"), icon: Zap }
+                      ]
+                    }
+                  )
+                ] }),
+                landing.type === "local" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.slugLabel") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-mono", style: { color: "var(--color-text-muted)" }, children: "/lander/" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        type: "text",
+                        value: landing.slug || "",
+                        onChange: (e) => setLanding({ ...landing, slug: e.target.value }),
+                        className: "form-input font-mono",
+                        style: { flex: 1 },
+                        placeholder: t("landingEditor.slugPlaceholder"),
+                        autoComplete: "off",
+                        spellCheck: "false"
+                      }
+                    )
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: t("landingEditor.slugHint") })
+                ] }),
+                landing.type === "redirect" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.redirectMethodLabel") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "select",
+                    {
+                      value: landing.redirect_type || "redirect",
+                      onChange: (e) => setLanding({ ...landing, redirect_type: e.target.value }),
+                      className: "form-select",
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t("offerEditor.httpRedirect", "HTTP 302 Redirect") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "js", children: t("redirectTypes.jsName", "JS Redirect") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "meta_refresh", children: t("redirectTypes.metaName", "Meta Refresh") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "frame", children: t("redirectTypes.iframeName", "Iframe / Frame") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "form_submit", children: t("redirectTypes.formName", "Form Submit / POST") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "preload", children: t("offerEditor.preloadCurl", "Preload (cURL)") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "curl_proxy", children: t("redirectTypes.curlProxyName", "cURL Proxy (Reverse Proxy)") })
+                      ]
+                    }
+                  ),
+                  (() => {
+                    const descKey = {
+                      redirect: "redirectTypes.redirectDesc",
+                      js: "redirectTypes.jsDesc",
+                      meta_refresh: "redirectTypes.metaDesc",
+                      frame: "redirectTypes.iframeDesc",
+                      form_submit: "redirectTypes.formDesc",
+                      preload: "redirectTypes.preloadDesc",
+                      curl_proxy: "redirectTypes.curlProxyDesc"
+                    }[landing.redirect_type || "redirect"];
+                    return descKey ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "form-hint", style: { fontSize: "11.5px", color: "var(--color-text-muted)" }, children: t(descKey) }) : null;
+                  })()
+                ] }),
+                (landing.type === "redirect" || landing.type === "preload") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.urlLabel") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      type: "url",
+                      required: true,
+                      value: landing.url || "",
+                      onChange: (e) => setLanding({ ...landing, url: e.target.value }),
+                      className: "form-input",
+                      placeholder: t("landingEditor.urlPlaceholder")
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: landing.type === "preload" && t("landingEditor.preloadHint") })
+                ] }),
+                landing.type === "action" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.actionTypeLabel") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "select",
+                      {
+                        value: landing.action_type || "not_found",
+                        onChange: (e) => setLanding({ ...landing, action_type: e.target.value }),
+                        className: "form-input",
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "to_campaign", children: t("landingEditor.actionToCampaign") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "not_found", children: t("landingEditor.actionNotFound") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "show_text", children: t("landingEditor.actionShowText") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "show_html", children: t("landingEditor.actionShowHtml") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "do_nothing", children: t("landingEditor.actionDoNothing") })
+                        ]
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1", style: { fontSize: "12.5px", color: "var(--color-text-muted)", lineHeight: 1.5 }, children: {
+                      to_campaign: t("landingEditor.actionToCampaignHint"),
+                      not_found: t("landingEditor.actionNotFoundHint"),
+                      show_text: t("landingEditor.actionShowTextHint"),
+                      show_html: t("landingEditor.actionShowHtmlHint"),
+                      do_nothing: t("landingEditor.actionDoNothingHint")
+                    }[landing.action_type || "not_found"] })
+                  ] }),
+                  landing.action_type === "to_campaign" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.actionTargetCampaign") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "select",
+                      {
+                        required: true,
+                        value: landing.action_payload || "",
+                        onChange: (e) => setLanding({ ...landing, action_payload: e.target.value }),
+                        className: "form-input",
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("landingEditor.actionPickCampaign") }),
+                          campaigns.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: c.id, children: [
+                            c.name,
+                            " (#",
+                            c.id,
+                            ")"
+                          ] }, c.id))
+                        ]
+                      }
+                    )
+                  ] }),
+                  (landing.action_type === "show_text" || landing.action_type === "show_html") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: landing.action_type === "show_text" ? t("landingEditor.actionTextLabel") : t("landingEditor.actionHtmlLabel") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "textarea",
+                      {
+                        required: true,
+                        rows: 6,
+                        value: landing.action_payload || "",
+                        onChange: (e) => setLanding({ ...landing, action_payload: e.target.value }),
+                        className: "form-input font-mono text-sm"
+                      }
+                    )
+                  ] })
+                ] }),
+                landing.type === "local" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded-2xl", style: { border: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-soft)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold mb-2 text-sm", style: { color: "var(--color-text-primary)" }, children: t("landingEditor.uploadZip") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    FileDropzone,
+                    {
+                      file: pendingZip || lastZip,
+                      onFileSelect: selectLandingZip,
+                      disabled: uploadingZip,
+                      label: uploadingZip ? t("landingEditor.uploadingZip") : t("landingEditor.uploadZip"),
+                      emptyHint: t("landingEditor.zipDropHint", "Drag & drop .zip here or click to browse files"),
+                      replaceHint: t("landingEditor.zipReplaceHint", "Click to replace")
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2", style: { fontSize: "12.5px", color: "var(--color-text-muted)", lineHeight: 1.5 }, children: !landingId ? t("landingEditor.zipOnCreateHint") : `${files.length} ${t("offerEditor.filesLabel", "files")}` })
+                ] })
+              ] }),
+              activeTab === "integration" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-4", children: landing.type === "local" || landing.type === "preload" || landing.type === "redirect" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  CodeSnippetCard,
                   {
-                    value: landing.group_id,
-                    onChange: (e) => setLanding({ ...landing, group_id: e.target.value }),
-                    className: "form-select rounded-r-none",
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("landingEditor.noGroup") }),
-                      groups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g.id, children: g.name }, g.id))
-                    ]
+                    title: t("landingEditor.offerLinkTitle"),
+                    description: t("landingEditor.offerLinkHint"),
+                    code: offerLinkSnippet,
+                    copyId: "landing-offer-link",
+                    onCopy: copySnippet,
+                    copied: copiedSnippet,
+                    copyLabel: t("landingEditor.copyCode"),
+                    copiedLabel: t("landingEditor.codeCopied"),
+                    actions: landing.type === "redirect" ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-1", children: ["html", "js", "php"].map((format2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: () => setLinkFormat(format2),
+                        className: "px-2 py-1 text-[10px] font-semibold rounded-md transition",
+                        style: {
+                          backgroundColor: linkFormat === format2 ? "var(--color-primary)" : "var(--color-bg-card)",
+                          color: linkFormat === format2 ? "#fff" : "var(--color-text-muted)",
+                          border: "1px solid var(--color-border)"
+                        },
+                        children: format2.toUpperCase()
+                      },
+                      format2
+                    )) }) : null
                   }
                 ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary rounded-l-none border-l-0", onClick: () => setShowGroupsModal(true), title: t("groupsModal.landingGroups"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }) })
-              ] })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.status") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "select",
+                (landing.type === "local" || landing.type === "preload") && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  CodeSnippetCard,
+                  {
+                    title: t("landingEditor.offerLinkTitle"),
+                    description: t("landingEditor.offerLinkExtra"),
+                    code: t("landingEditor.offerLinkExampleMulti"),
+                    copyId: "landing-multiple-offers",
+                    onCopy: copySnippet,
+                    copied: copiedSnippet,
+                    copyLabel: t("landingEditor.copyCode"),
+                    copiedLabel: t("landingEditor.codeCopied"),
+                    muted: true
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  CodeSnippetCard,
+                  {
+                    title: t("landingEditor.adapterTitle"),
+                    description: landing.type === "redirect" ? t("landingEditor.adapterHintRedirect") : t("landingEditor.adapterHintLocal"),
+                    code: adapterSnippet,
+                    copyId: "landing-adapter",
+                    onCopy: copySnippet,
+                    copied: copiedSnippet,
+                    copyLabel: t("landingEditor.adapterCopy"),
+                    copiedLabel: t("landingEditor.adapterCopied")
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  CodeSnippetCard,
+                  {
+                    title: t("landingEditor.adapterPostbackHint"),
+                    code: t("landingEditor.postbackExample"),
+                    copyId: "landing-postback",
+                    onCopy: copySnippet,
+                    copied: copiedSnippet,
+                    copyLabel: t("landingEditor.copyCode"),
+                    copiedLabel: t("landingEditor.codeCopied"),
+                    muted: true
+                  }
+                )
+              ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+                CodeSnippetCard,
                 {
-                  value: landing.state,
-                  onChange: (e) => setLanding({ ...landing, state: e.target.value }),
-                  className: "form-select",
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t("landingEditor.active") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "archived", children: t("landingEditor.archived") })
-                  ]
+                  title: t("landingEditor.actionPayloadLabel"),
+                  description: t("landingEditor.actionTypeLabel"),
+                  code: landing.action_payload || t("landingEditor.actionPayloadPlaceholder"),
+                  copyId: "landing-action",
+                  onCopy: copySnippet,
+                  copied: copiedSnippet,
+                  copyLabel: t("landingEditor.copyCode"),
+                  copiedLabel: t("landingEditor.codeCopied")
                 }
-              )
+              ) }),
+              activeTab === "details" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  CodeSnippetCard,
+                  {
+                    title: t("sourceEditor.availableMacros"),
+                    description: t("landingEditor.offerLinkHint"),
+                    code: "{offer}\n{subid}\n{campaign_id}\n{source}\n{keyword}",
+                    copyId: "landing-macros",
+                    onCopy: copySnippet,
+                    copied: copiedSnippet,
+                    copyLabel: t("landingEditor.copyCode"),
+                    copiedLabel: t("landingEditor.codeCopied")
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  CodeSnippetCard,
+                  {
+                    title: t("editor.params"),
+                    description: t("landingEditor.adapterPostbackHint"),
+                    code: "?_lp=1&subid={subid}&campaign_id={campaign_id}",
+                    copyId: "landing-parameters",
+                    onCopy: copySnippet,
+                    copied: copiedSnippet,
+                    copyLabel: t("landingEditor.copyCode"),
+                    copiedLabel: t("landingEditor.codeCopied"),
+                    muted: true
+                  }
+                )
+              ] })
+            ] }) }),
+            showFileEditor && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col overflow-hidden min-h-[400px]", style: { backgroundColor: "var(--color-bg-soft)" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center p-3", style: { borderBottom: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("h4", { className: "font-semibold flex items-center", style: { color: "var(--color-text-primary)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "w-4 h-4 mr-2", style: { color: "var(--color-accent-purple)" } }),
+                  t("landingEditor.title")
+                ] }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex rounded-lg overflow-hidden", style: { border: "1px solid var(--color-border)" }, children: [
+                    { value: "code", label: t("landingEditor.viewCode"), icon: Code },
+                    { value: "preview", label: t("landingEditor.viewPreview"), icon: Eye }
+                  ].map((opt, idx) => {
+                    const active = viewMode === opt.value;
+                    const Icon2 = opt.icon;
+                    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: () => {
+                          if (opt.value === "preview") setPreviewNonce(Date.now());
+                          setViewMode(opt.value);
+                        },
+                        className: "px-3 py-1.5 text-xs font-medium transition flex items-center gap-1.5",
+                        style: {
+                          backgroundColor: active ? "var(--color-primary-light)" : "var(--color-bg-card)",
+                          color: active ? "var(--color-primary)" : "var(--color-text-primary)",
+                          borderRight: idx === 0 ? "1px solid var(--color-border)" : "none"
+                        },
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "w-3.5 h-3.5" }),
+                          opt.label
+                        ]
+                      },
+                      opt.value
+                    );
+                  }) }),
+                  viewMode === "preview" && landing.slug && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "a",
+                    {
+                      href: `/lander/${landing.slug}/`,
+                      target: "_blank",
+                      rel: "noopener noreferrer",
+                      className: "btn btn-secondary btn-sm",
+                      title: `/lander/${landing.slug}/`,
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(ExternalLink, { className: "w-4 h-4" }),
+                        t("landingEditor.openInTab")
+                      ]
+                    }
+                  ),
+                  viewMode === "code" && selectedFile && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      onClick: saveFileContent,
+                      disabled: savingFile,
+                      className: "btn btn-primary btn-sm",
+                      children: savingFile ? t("common.saving") : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { className: "w-4 h-4 mr-1" }),
+                        " ",
+                        t("landingEditor.save"),
+                        " ",
+                        selectedFile
+                      ] })
+                    }
+                  )
+                ] })
+              ] }),
+              viewMode === "preview" ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-hidden", style: { backgroundColor: "#fff" }, children: landing.slug ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "iframe",
+                {
+                  src: `/lander/${landing.slug}/?_preview=${previewNonce}`,
+                  title: t("landingEditor.viewPreview"),
+                  className: "w-full h-full",
+                  style: { border: "none", minHeight: "400px" }
+                },
+                previewNonce
+              ) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex h-full items-center justify-center p-6 text-center", style: { color: "var(--color-text-muted)" }, children: t("landingEditor.previewNeedsSlug") }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-1 overflow-hidden", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-1/4 overflow-y-auto", style: { borderRight: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 px-2 py-2", style: { borderBottom: "1px solid var(--color-border)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: createFile, className: "btn btn-ghost btn-sm", title: t("landingEditor.fileNew"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3.5 h-3.5" }) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => assetInputRef.current?.click(), className: "btn btn-ghost btn-sm", title: t("landingEditor.fileUpload"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "w-3.5 h-3.5" }) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("input", { ref: assetInputRef, type: "file", className: "hidden", onChange: uploadFile })
+                  ] }),
+                  files.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 text-sm text-center italic", style: { color: "var(--color-text-muted)" }, children: t("landingEditor.selectFile") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "py-2", children: files.map((file) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center group", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "button",
+                      {
+                        onClick: () => loadFileContent(file),
+                        className: `flex-1 min-w-0 text-left px-4 py-2 text-sm flex items-center transition ${selectedFile === file ? "font-medium" : ""}`,
+                        style: {
+                          backgroundColor: selectedFile === file ? "var(--color-primary-light)" : "transparent",
+                          color: selectedFile === file ? "var(--color-primary)" : "var(--color-text-primary)",
+                          borderRight: selectedFile === file ? "2px solid var(--color-primary)" : "none"
+                        },
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "w-3.5 h-3.5 mr-2 flex-shrink-0", style: { color: "var(--color-text-muted)" } }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", title: file, children: file })
+                        ]
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => renameFile(file), className: "action-btn text-blue", title: t("landingEditor.fileRename"), style: { flexShrink: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "w-3.5 h-3.5" }) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => deleteFile(file), className: "action-btn text-red", title: t("common.delete"), style: { flexShrink: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3.5 h-3.5" }) })
+                  ] }, file)) })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 relative", style: { backgroundColor: "var(--color-bg-card)" }, children: selectedFile ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "textarea",
+                  {
+                    value: fileContent,
+                    onChange: (e) => setFileContent(e.target.value),
+                    className: "absolute inset-0 w-full h-full p-4 font-mono text-sm leading-relaxed border-none resize-none focus:outline-none",
+                    style: { backgroundColor: "#1e1e1e", color: "#d4d4d4" },
+                    spellCheck: false
+                  }
+                ) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex h-full items-center justify-center", style: { color: "var(--color-text-muted)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "w-12 h-12 mx-auto mb-3 opacity-20" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("landingEditor.selectFile") })
+                ] }) }) })
+              ] })
             ] })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.landingType") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex rounded-xl overflow-hidden mb-3", style: { border: "1px solid var(--color-border)" }, children: [
-              { value: "local", label: t("landingEditor.typeLocal") },
-              { value: "redirect", label: t("landingEditor.typeRedirect") },
-              { value: "preload", label: t("landingEditor.typePreload") },
-              { value: "action", label: t("landingEditor.typeAction") }
-            ].map((opt, idx, arr) => {
-              const active = landing.type === opt.value;
-              return /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
-                {
-                  type: "button",
-                  onClick: () => setLanding({ ...landing, type: opt.value }),
-                  className: "flex-1 px-4 py-2 text-sm font-medium transition",
-                  style: {
-                    backgroundColor: active ? "var(--color-primary-light)" : "var(--color-bg-card)",
-                    color: active ? "var(--color-primary)" : "var(--color-text-primary)",
-                    borderRight: idx < arr.length - 1 ? "1px solid var(--color-border)" : "none"
-                  },
-                  children: opt.label
-                },
-                opt.value
-              );
-            }) })
-          ] }),
-          landing.type === "local" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.slugLabel") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-mono", style: { color: "var(--color-text-muted)" }, children: "/lander/" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  type: "text",
-                  value: landing.slug || "",
-                  onChange: (e) => setLanding({ ...landing, slug: e.target.value }),
-                  className: "form-input font-mono",
-                  style: { flex: 1 },
-                  placeholder: t("landingEditor.slugPlaceholder"),
-                  autoComplete: "off",
-                  spellCheck: "false"
-                }
-              )
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer px-6 pb-5", style: { flexShrink: 0, marginTop: 0 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => onClose(savedSomething), type: "button", className: "btn btn-secondary rounded-xl", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-4 h-4" }),
+              t("common.cancel")
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: t("landingEditor.slugHint") })
-          ] }),
-          landing.type === "redirect" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1.5", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.redirectMethodLabel") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "select",
+              "button",
               {
-                value: landing.redirect_type || "redirect",
-                onChange: (e) => setLanding({ ...landing, redirect_type: e.target.value }),
-                className: "form-select",
+                type: "button",
+                onClick: () => handleSave(true),
+                disabled: loading || saving || uploadingZip || saveSuccess,
+                className: "btn btn-secondary rounded-xl",
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t("offerEditor.httpRedirect", "HTTP 302 Redirect") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "js", children: t("redirectTypes.jsName", "JS Redirect") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "meta_refresh", children: t("redirectTypes.metaName", "Meta Refresh") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "frame", children: t("redirectTypes.iframeName", "Iframe / Frame") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "form_submit", children: t("redirectTypes.formName", "Form Submit / POST") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "preload", children: t("offerEditor.preloadCurl", "Preload (cURL)") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "curl_proxy", children: t("redirectTypes.curlProxyName", "cURL Proxy (Reverse Proxy)") })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { className: "w-4 h-4" }),
+                  t("profile.saveAndClose")
                 ]
               }
             ),
-            (() => {
-              const descKey = {
-                redirect: "redirectTypes.redirectDesc",
-                js: "redirectTypes.jsDesc",
-                meta_refresh: "redirectTypes.metaDesc",
-                frame: "redirectTypes.iframeDesc",
-                form_submit: "redirectTypes.formDesc",
-                preload: "redirectTypes.preloadDesc",
-                curl_proxy: "redirectTypes.curlProxyDesc"
-              }[landing.redirect_type || "redirect"];
-              return descKey ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "form-hint", style: { fontSize: "11.5px", color: "var(--color-text-muted)" }, children: t(descKey) }) : null;
-            })()
-          ] }),
-          (landing.type === "redirect" || landing.type === "preload") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.urlLabel") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
               {
-                type: "url",
-                required: true,
-                value: landing.url || "",
-                onChange: (e) => setLanding({ ...landing, url: e.target.value }),
-                className: "form-input",
-                placeholder: t("landingEditor.urlPlaceholder")
+                type: "submit",
+                form: "landing-form",
+                className: "btn btn-primary rounded-xl",
+                disabled: loading || saving || uploadingZip || saveSuccess,
+                style: saveSuccess ? { backgroundColor: "var(--color-success)" } : {},
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4 mr-1.5" }),
+                  saveSuccess ? t("editor.saved") : saving ? t("common.saving") : uploadingZip ? t("landingEditor.uploadingZip") : landingId ? t("landingEditor.saveChanges") : t("landingEditor.createLanding")
+                ]
               }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: landing.type === "preload" && t("landingEditor.preloadHint") })
-          ] }),
-          landing.type === "action" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.actionTypeLabel") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "select",
-                {
-                  value: landing.action_type || "not_found",
-                  onChange: (e) => setLanding({ ...landing, action_type: e.target.value }),
-                  className: "form-input",
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "to_campaign", children: t("landingEditor.actionToCampaign") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "not_found", children: t("landingEditor.actionNotFound") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "show_text", children: t("landingEditor.actionShowText") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "show_html", children: t("landingEditor.actionShowHtml") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "do_nothing", children: t("landingEditor.actionDoNothing") })
-                  ]
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1", style: { fontSize: "12.5px", color: "var(--color-text-muted)", lineHeight: 1.5 }, children: {
-                to_campaign: t("landingEditor.actionToCampaignHint"),
-                not_found: t("landingEditor.actionNotFoundHint"),
-                show_text: t("landingEditor.actionShowTextHint"),
-                show_html: t("landingEditor.actionShowHtmlHint"),
-                do_nothing: t("landingEditor.actionDoNothingHint")
-              }[landing.action_type || "not_found"] })
-            ] }),
-            landing.action_type === "to_campaign" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.actionTargetCampaign") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "select",
-                {
-                  required: true,
-                  value: landing.action_payload || "",
-                  onChange: (e) => setLanding({ ...landing, action_payload: e.target.value }),
-                  className: "form-input",
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("landingEditor.actionPickCampaign") }),
-                    campaigns.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: c.id, children: [
-                      c.name,
-                      " (#",
-                      c.id,
-                      ")"
-                    ] }, c.id))
-                  ]
-                }
-              )
-            ] }),
-            (landing.action_type === "show_text" || landing.action_type === "show_html") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: landing.action_type === "show_text" ? t("landingEditor.actionTextLabel") : t("landingEditor.actionHtmlLabel") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "textarea",
-                {
-                  required: true,
-                  rows: 6,
-                  value: landing.action_payload || "",
-                  onChange: (e) => setLanding({ ...landing, action_payload: e.target.value }),
-                  className: "form-input font-mono text-sm"
-                }
-              )
-            ] })
-          ] }),
-          (landing.type === "local" || landing.type === "preload" || landing.type === "redirect") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 p-4 rounded-2xl text-sm", style: {
-            border: "1px solid var(--color-primary)",
-            backgroundColor: "var(--color-bg-soft)"
-          }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", style: { gap: "8px", marginBottom: "4px" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold", style: { color: "var(--color-text-primary)" }, children: t("landingEditor.offerLinkTitle") }),
-              landing.type === "redirect" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex", style: { gap: "2px" }, children: ["html", "js", "php"].map((fmt) => {
-                const active = linkFormat === fmt;
-                return /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "button",
-                  {
-                    type: "button",
-                    onClick: () => setLinkFormat(fmt),
-                    className: "px-2 py-1 text-xs rounded-md transition",
-                    style: {
-                      backgroundColor: active ? "var(--color-primary-light)" : "var(--color-bg-card)",
-                      color: active ? "var(--color-primary)" : "var(--color-text-muted)",
-                      border: "1px solid var(--color-border)"
-                    },
-                    children: fmt.toUpperCase()
-                  },
-                  fmt
-                );
-              }) })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mb-2", style: { color: "var(--color-text-secondary)", lineHeight: 1.55 }, children: t("landingEditor.offerLinkHint") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              CopyableCode,
-              {
-                text: landing.type === "redirect" ? linkFormat === "html" ? `<a href="${origin2}/?_lp=1">${t("landingEditor.offerLinkWord")}</a>` : linkFormat === "js" ? `<script>document.write('<a href="${origin2}/?_lp=1&'+window.location.search.substring(1)+'">${t("landingEditor.offerLinkWord")}</a>');<\/script>` : `<a href="${origin2}/?_lp=1&_token=<?= urlencode($_GET['_token']) ?>">${t("landingEditor.offerLinkWord")}</a>` : t("landingEditor.offerLinkExampleSingle"),
-                copied: linkCopied,
-                onCopy: () => {
-                  setLinkCopied(true);
-                  setTimeout(() => setLinkCopied(false), 1800);
-                },
-                t
-              }
-            ),
-            (landing.type === "local" || landing.type === "preload") && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2", style: { color: "var(--color-text-muted)", fontSize: "12.5px", lineHeight: 1.55 }, children: t("landingEditor.offerLinkExtra") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                CopyableCode,
-                {
-                  text: t("landingEditor.offerLinkExampleMulti"),
-                  copied: linkCopied,
-                  onCopy: () => {
-                    setLinkCopied(true);
-                    setTimeout(() => setLinkCopied(false), 1800);
-                  },
-                  t,
-                  muted: true
-                }
-              )
-            ] })
-          ] }),
-          (landing.type === "redirect" || landing.type === "local" || landing.type === "preload") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 p-4 rounded-2xl text-sm", style: {
-            border: "1px solid var(--color-border)",
-            backgroundColor: "var(--color-bg-soft)"
-          }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", style: { gap: "8px", marginBottom: "4px" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold", style: { color: "var(--color-text-primary)" }, children: t("landingEditor.adapterTitle") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "button",
-                {
-                  type: "button",
-                  onClick: () => {
-                    navigator.clipboard.writeText(adapterSnippet);
-                    setAdapterCopied(true);
-                    setTimeout(() => setAdapterCopied(false), 1800);
-                  },
-                  className: "btn btn-secondary btn-sm",
-                  style: { flexShrink: 0 },
-                  children: [
-                    adapterCopied ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "w-4 h-4" }),
-                    adapterCopied ? t("landingEditor.adapterCopied") : t("landingEditor.adapterCopy")
-                  ]
-                }
-              )
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-secondary)", lineHeight: 1.55, margin: 0 }, children: landing.type === "redirect" ? t("landingEditor.adapterHintRedirect") : t("landingEditor.adapterHintLocal") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "p-2 rounded-lg overflow-x-auto mt-2", style: {
-              backgroundColor: "var(--color-bg-card)",
-              border: "1px solid var(--color-border)",
-              color: "var(--color-text-primary)",
-              fontSize: "12.5px",
-              margin: 0
-            }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: adapterSnippet }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2", style: { color: "var(--color-text-muted)", fontSize: "12.5px", lineHeight: 1.55 }, children: t("landingEditor.adapterPostbackHint") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "p-2 rounded-lg overflow-x-auto mt-1", style: {
-              backgroundColor: "var(--color-bg-card)",
-              border: "1px solid var(--color-border)",
-              color: "var(--color-text-muted)",
-              fontSize: "12.5px",
-              margin: 0
-            }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: t("landingEditor.postbackExample") }) })
-          ] }),
-          landing.type === "local" && !landingId && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 p-4 rounded-2xl text-sm", style: {
-            border: "1px solid var(--color-border)",
-            backgroundColor: "var(--color-bg-soft)"
-          }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold mb-1", style: { color: "var(--color-text-primary)" }, children: t("landingEditor.uploadZip") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "file",
-                accept: ".zip",
-                onChange: (e) => setPendingZip(e.target.files[0] || null),
-                className: "form-input"
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1", style: { fontSize: "12.5px", color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t("landingEditor.zipOnCreateHint") })
+            )
           ] })
-        ] }) }),
-        isLocal && landingId && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col overflow-hidden min-h-[400px]", style: { backgroundColor: "var(--color-bg-soft)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center p-3", style: { borderBottom: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("h4", { className: "font-semibold flex items-center", style: { color: "var(--color-text-primary)" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "w-4 h-4 mr-2", style: { color: "var(--color-accent-purple)" } }),
-                t("landingEditor.title")
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  type: "file",
-                  accept: ".zip",
-                  ref: fileInputRef,
-                  className: "hidden",
-                  onChange: handleZipUpload
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "button",
-                {
-                  onClick: () => fileInputRef.current.click(),
-                  disabled: uploadingZip,
-                  className: "btn btn-secondary btn-sm",
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "w-4 h-4" }),
-                    uploadingZip ? t("common.loading") : t("landingEditor.uploadZip")
-                  ]
-                }
-              )
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex rounded-lg overflow-hidden", style: { border: "1px solid var(--color-border)" }, children: [
-                { value: "code", label: t("landingEditor.viewCode"), icon: Code },
-                { value: "preview", label: t("landingEditor.viewPreview"), icon: Eye }
-              ].map((opt, idx) => {
-                const active = viewMode === opt.value;
-                const Icon2 = opt.icon;
-                return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "button",
-                  {
-                    type: "button",
-                    onClick: () => {
-                      if (opt.value === "preview") setPreviewNonce(Date.now());
-                      setViewMode(opt.value);
-                    },
-                    className: "px-3 py-1.5 text-xs font-medium transition flex items-center gap-1.5",
-                    style: {
-                      backgroundColor: active ? "var(--color-primary-light)" : "var(--color-bg-card)",
-                      color: active ? "var(--color-primary)" : "var(--color-text-primary)",
-                      borderRight: idx === 0 ? "1px solid var(--color-border)" : "none"
-                    },
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "w-3.5 h-3.5" }),
-                      opt.label
-                    ]
-                  },
-                  opt.value
-                );
-              }) }),
-              viewMode === "preview" && landing.slug && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "a",
-                {
-                  href: `/lander/${landing.slug}/`,
-                  target: "_blank",
-                  rel: "noopener noreferrer",
-                  className: "btn btn-secondary btn-sm",
-                  title: `/lander/${landing.slug}/`,
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(ExternalLink, { className: "w-4 h-4" }),
-                    t("landingEditor.openInTab")
-                  ]
-                }
-              ),
-              viewMode === "code" && selectedFile && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
-                {
-                  onClick: saveFileContent,
-                  disabled: savingFile,
-                  className: "btn btn-primary btn-sm",
-                  children: savingFile ? t("common.saving") : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { className: "w-4 h-4 mr-1" }),
-                    " ",
-                    t("landingEditor.save"),
-                    " ",
-                    selectedFile
-                  ] })
-                }
-              )
-            ] })
-          ] }),
-          viewMode === "preview" ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-hidden", style: { backgroundColor: "#fff" }, children: landing.slug ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "iframe",
-            {
-              src: `/lander/${landing.slug}/?_preview=${previewNonce}`,
-              title: t("landingEditor.viewPreview"),
-              className: "w-full h-full",
-              style: { border: "none", minHeight: "400px" }
-            },
-            previewNonce
-          ) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex h-full items-center justify-center p-6 text-center", style: { color: "var(--color-text-muted)" }, children: t("landingEditor.previewNeedsSlug") }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-1 overflow-hidden", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-1/4 overflow-y-auto", style: { borderRight: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-1 px-2 py-2", style: { borderBottom: "1px solid var(--color-border)" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: createFile, className: "btn btn-ghost btn-sm", title: t("landingEditor.fileNew"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3.5 h-3.5" }) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => assetInputRef.current?.click(), className: "btn btn-ghost btn-sm", title: t("landingEditor.fileUpload"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "w-3.5 h-3.5" }) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("input", { ref: assetInputRef, type: "file", className: "hidden", onChange: uploadFile })
-              ] }),
-              files.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 text-sm text-center italic", style: { color: "var(--color-text-muted)" }, children: t("landingEditor.selectFile") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "py-2", children: files.map((file) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center group", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "button",
-                  {
-                    onClick: () => loadFileContent(file),
-                    className: `flex-1 min-w-0 text-left px-4 py-2 text-sm flex items-center transition ${selectedFile === file ? "font-medium" : ""}`,
-                    style: {
-                      backgroundColor: selectedFile === file ? "var(--color-primary-light)" : "transparent",
-                      color: selectedFile === file ? "var(--color-primary)" : "var(--color-text-primary)",
-                      borderRight: selectedFile === file ? "2px solid var(--color-primary)" : "none"
-                    },
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "w-3.5 h-3.5 mr-2 flex-shrink-0", style: { color: "var(--color-text-muted)" } }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate", title: file, children: file })
-                    ]
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => renameFile(file), className: "action-btn text-blue", title: t("landingEditor.fileRename"), style: { flexShrink: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "w-3.5 h-3.5" }) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => deleteFile(file), className: "action-btn text-red", title: t("common.delete"), style: { flexShrink: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3.5 h-3.5" }) })
-              ] }, file)) })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 relative", style: { backgroundColor: "var(--color-bg-card)" }, children: selectedFile ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "textarea",
-              {
-                value: fileContent,
-                onChange: (e) => setFileContent(e.target.value),
-                className: "absolute inset-0 w-full h-full p-4 font-mono text-sm leading-relaxed border-none resize-none focus:outline-none",
-                style: { backgroundColor: "#1e1e1e", color: "#d4d4d4" },
-                spellCheck: false
-              }
-            ) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex h-full items-center justify-center", style: { color: "var(--color-text-muted)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "w-12 h-12 mx-auto mb-3 opacity-20" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("landingEditor.selectFile") })
-            ] }) }) })
-          ] })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(savedSomething), type: "button", className: "btn btn-secondary", children: t("common.cancel") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            type: "button",
-            onClick: () => handleSave(true),
-            disabled: loading || saving || uploadingZip || saveSuccess,
-            className: "btn btn-secondary",
-            children: t("profile.saveAndClose")
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            type: "submit",
-            form: "landing-form",
-            className: "btn btn-primary",
-            disabled: loading || saving || uploadingZip || saveSuccess,
-            style: saveSuccess ? { backgroundColor: "var(--color-success)" } : {},
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4 mr-1.5" }),
-              saveSuccess ? t("editor.saved") : saving ? t("common.saving") : uploadingZip ? t("landingEditor.uploadingZip") : landingId ? t("landingEditor.saveChanges") : t("landingEditor.createLanding")
-            ]
-          }
-        )
-      ] })
-    ] }),
+        ]
+      }
+    ),
     showGroupsModal && /* @__PURE__ */ jsxRuntimeExports.jsx(
       GroupsModal,
       {
@@ -55854,6 +56454,20 @@ const Landings = ({ landings, refreshData }) => {
     last_event: t("landingColumns.lastEvent")
   })[colId] || colId;
   const localizedColumns = ALL_LANDING_COLUMNS.map((c) => ({ ...c, label: columnLabel(c.id) }));
+  const metricHint = (colId) => {
+    const hintKey = {
+      visits: "lpViewsHint",
+      clicks: "lpViewsHint",
+      lp_clicks: "lpClicksHint",
+      lp_ctr: "lpCtrHint",
+      cpv: "cpvHint",
+      cpc: "cpcHint",
+      epv: "epvHint",
+      epc: "epcHint",
+      epc_confirmed: "epcHint"
+    }[colId];
+    return hintKey ? t(`metrics.${hintKey}`) : void 0;
+  };
   const formatLastEvent = (v) => {
     if (!v) return t("landingColumns.never");
     const d = new Date(String(v).replace(" ", "T"));
@@ -55895,6 +56509,8 @@ const Landings = ({ landings, refreshData }) => {
   const totalsProfit = totals.revenue - totals.cost;
   const totalsProfitConfirmed = totals.revenue_confirmed - totals.cost;
   const totalsApproveDenom = totals.sales + totals.leads + totals.rejected + totals.trash;
+  const totalsLpViews = totals.visits > 0 ? totals.visits : totals.clicks;
+  const totalsLpClickDenominator = totals.lp_clicks > 0 ? totals.lp_clicks : totals.clicks;
   const renderTotalCell = (colId) => {
     switch (colId) {
       case "clicks":
@@ -55920,7 +56536,7 @@ const Landings = ({ landings, refreshData }) => {
       case "approve_rate":
         return totalsApproveDenom > 0 ? `${(totals.sales / totalsApproveDenom * 100).toFixed(2)}%` : "0%";
       case "lp_ctr":
-        return totals.clicks > 0 ? `${(totals.lp_clicks / totals.clicks * 100).toFixed(2)}%` : "0%";
+        return totalsLpViews > 0 ? `${(totals.lp_clicks / totalsLpViews * 100).toFixed(2)}%` : "0%";
       case "revenue":
         return money(totals.revenue);
       case "revenue_confirmed":
@@ -55934,15 +56550,15 @@ const Landings = ({ landings, refreshData }) => {
       case "cr":
         return totals.clicks > 0 ? `${(totals.conversions / totals.clicks * 100).toFixed(2)}%` : "0%";
       case "epc":
-        return totals.clicks > 0 ? money(totals.revenue / totals.clicks) : "$0.00";
+        return totalsLpClickDenominator > 0 ? money(totals.revenue / totalsLpClickDenominator) : "$0.00";
       case "epc_confirmed":
-        return totals.clicks > 0 ? money(totals.revenue_confirmed / totals.clicks) : "$0.00";
+        return totalsLpClickDenominator > 0 ? money(totals.revenue_confirmed / totalsLpClickDenominator) : "$0.00";
       case "epv":
-        return totals.clicks > 0 ? money(totals.revenue / totals.clicks) : "$0.00";
+        return totalsLpViews > 0 ? money(totals.revenue / totalsLpViews) : "$0.00";
       case "cpc":
-        return totals.clicks > 0 ? money(totals.cost / totals.clicks) : "$0.00";
+        return totalsLpClickDenominator > 0 ? money(totals.cost / totalsLpClickDenominator) : "$0.00";
       case "cpv":
-        return totals.clicks > 0 ? money(totals.cost / totals.clicks) : "$0.00";
+        return totalsLpViews > 0 ? money(totals.cost / totalsLpViews) : "$0.00";
       case "roi":
         return totals.cost > 0 ? `${(totalsProfit / totals.cost * 100).toFixed(2)}%` : "—";
       case "roi_confirmed":
@@ -56139,7 +56755,7 @@ const Landings = ({ landings, refreshData }) => {
             onChange: (e) => toggleSelectAll(e.target.checked)
           }
         ) }),
-        chosenColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: ALL_LANDING_COLUMNS.find((c) => c.id === colId)?.alignRight ? "text-right" : "", children: columnLabel(colId) }, colId)),
+        chosenColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("th", { title: metricHint(colId), className: ALL_LANDING_COLUMNS.find((c) => c.id === colId)?.alignRight ? "text-right" : "", children: columnLabel(colId) }, colId)),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("common.actions") })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleLandings.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: chosenColumns.length + 2, className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
@@ -56496,6 +57112,8 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
   const [saving, setSaving] = reactExports.useState(false);
   const [templates, setTemplates] = reactExports.useState([]);
   const [copied, setCopied] = reactExports.useState(false);
+  const [copiedMacro, setCopiedMacro] = reactExports.useState("");
+  const [activeTab, setActiveTab] = reactExports.useState("general");
   const [formData, setFormData] = reactExports.useState({
     name: "",
     template: "generic",
@@ -56614,13 +57232,18 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
       setSaving(false);
     }
   };
-  const copyToClipboard = async (text) => {
-    try {
-      await navigator.clipboard.writeText(text);
+  const copyToClipboard$1 = async (text) => {
+    const ok = await copyToClipboard(text);
+    if (ok) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2e3);
-    } catch (err) {
-      console.error(err);
+    }
+  };
+  const handleCopyMacro = async (macro) => {
+    const ok = await copyToClipboard(macro);
+    if (ok) {
+      setCopiedMacro(macro);
+      setTimeout(() => setCopiedMacro(""), 1500);
     }
   };
   const availableMacros = [
@@ -56636,188 +57259,226 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
     { macro: "{creative}", description: t("networkEditor.macroCreative") },
     { macro: "{ad_campaign}", description: t("networkEditor.macroAdCampaign") }
   ];
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "700px" }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: networkId ? `${t("networks.title")}: ${formData.name}` : t("networks.title") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto p-6", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-10", children: t("common.loading") }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded border space-y-4", style: { background: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium pb-2", style: { color: "var(--color-text-primary)", borderBottom: "1px solid var(--color-border)" }, children: t("networkEditor.basicSettings") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("networkEditor.nameLabel") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "text",
-                value: formData.name,
-                onChange: (e) => setFormData({ ...formData, name: e.target.value }),
-                className: "form-input",
-                placeholder: t("networkEditor.namePlaceholder")
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("networkEditor.template") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "select",
-              {
-                value: formData.template,
-                onChange: (e) => handleTemplateChange(e.target.value),
-                className: "form-select",
-                children: templates.map((tmpl) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: tmpl.name, children: t("tpl.net_" + tmpl.name, tmpl.display_name) }, tmpl.name))
-              }
-            )
-          ] })
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "modal-content",
+      style: {
+        maxWidth: "700px",
+        /* Flex column pins header/footer; only the body scrolls —
+           the base class scrolls the whole card, hiding Save below
+           the fold on short screens. */
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+        padding: 0
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header px-6 pt-5", style: { flexShrink: 0 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: networkId ? `${t("networks.title")}: ${formData.name}` : t("networks.title") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("networkEditor.status") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "select",
-            {
-              value: formData.state,
-              onChange: (e) => setFormData({ ...formData, state: e.target.value }),
-              className: "form-select",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t("networkEditor.active") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "paused", children: t("networkEditor.disabled") })
-              ]
-            }
-          )
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded border space-y-3", style: {
-        background: "color-mix(in srgb, var(--color-primary) 8%, transparent)",
-        borderColor: "color-mix(in srgb, var(--color-primary) 30%, transparent)"
-      }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium", style: { color: "var(--color-primary)" }, children: t("affiliateNetworks.postbackUrl", "Postback URL") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "button",
-              {
-                type: "button",
-                onClick: useNetworkTemplate,
-                className: "text-[11px] font-medium text-[var(--color-primary)] hover:underline",
-                title: t("affiliateNetworks.resetToTemplate", "Reset to Network Template"),
-                children: [
-                  "↻ ",
-                  t("affiliateNetworks.useNetworkTemplate", "Network Template")
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px]", style: { color: "var(--color-text-muted)" }, children: "|" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                type: "button",
-                onClick: useGenericTemplate,
-                className: "text-[11px] font-medium hover:underline",
-                style: { color: "var(--color-text-secondary)" },
-                children: t("affiliateNetworks.useGenericTemplate", "Generic Postback")
-              }
-            )
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: t("networkEditor.postbackHint") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              type: "text",
-              value: formData.postback_url,
-              onChange: (e) => setFormData({ ...formData, postback_url: e.target.value }),
-              className: "form-input font-mono",
-              placeholder: getGenericPostbackUrl(),
-              spellCheck: "false"
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              type: "button",
-              onClick: () => copyToClipboard(formData.postback_url || getGenericPostbackUrl()),
-              className: "btn btn-secondary btn-icon",
-              title: t("common.copy"),
-              "aria-label": t("common.copy"),
-              children: copied ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" })
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t("networkEditor.postbackMacros") }),
-          " ",
-          ["{subid}", "{status}", "{payout}", "{tid}", "{currency}"].map((m, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs(React.Fragment, { children: [
-            i > 0 && " · ",
-            /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: { color: "var(--color-primary)" }, children: m })
-          ] }, m))
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded border space-y-4", style: { background: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium pb-2", style: { color: "var(--color-text-primary)", borderBottom: "1px solid var(--color-border)" }, children: t("affiliateNetworks.offerParams", "Offer Parameters") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: t("networkEditor.offerParamsDesc") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("networkEditor.offerParamsLabel") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              type: "text",
-              value: formData.offer_params,
-              onChange: (e) => setFormData({ ...formData, offer_params: e.target.value }),
-              className: "form-input font-mono",
-              placeholder: "&subid={subid}&sub2={ip}"
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: [
-            t("networkEditor.example"),
-            " &sub1=",
-            "{subid}",
-            "&ip=",
-            "{ip}"
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label mb-2", children: t("networkEditor.availableMacros") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2", children: availableMacros.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "div",
-            {
-              className: "flex items-center justify-between px-2 py-1 rounded text-xs cursor-pointer",
-              style: {
-                background: "var(--color-bg-card)",
-                border: "1px solid var(--color-border)"
-              },
-              onClick: () => {
-                navigator.clipboard.writeText(m.macro);
-              },
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: { color: "var(--color-primary)" }, children: m.macro }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: m.description })
-              ]
-            },
-            m.macro
-          )) })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded border space-y-4", style: { background: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium pb-2", style: { color: "var(--color-text-primary)", borderBottom: "1px solid var(--color-border)" }, children: t("networkEditor.notes") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "textarea",
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex px-6 pt-1 gap-7", style: { borderBottom: "1px solid var(--color-border)", flexShrink: 0 }, children: [
+          { id: "general", label: t("editor.general") },
+          { id: "params", label: t("editor.params") },
+          { id: "notes", label: t("editor.notes") }
+        ].map((tab) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
           {
-            value: formData.notes,
-            onChange: (e) => setFormData({ ...formData, notes: e.target.value }),
-            className: "form-input",
-            rows: 3,
-            placeholder: t("networkEditor.notesPlaceholder")
-          }
-        )
-      ] })
-    ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "btn btn-secondary", children: t("common.cancel") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleSave, disabled: saving, className: "btn btn-primary", children: saving ? t("common.saving") : t("common.save") })
-    ] })
-  ] }) });
+            type: "button",
+            className: "pb-3 px-1 font-semibold text-sm transition border-b-2 whitespace-nowrap",
+            style: {
+              borderColor: activeTab === tab.id ? "var(--color-primary)" : "transparent",
+              color: activeTab === tab.id ? "var(--color-primary)" : "var(--color-text-secondary)"
+            },
+            onClick: () => setActiveTab(tab.id),
+            children: tab.label
+          },
+          tab.id
+        )) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto p-6", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-10", children: t("common.loading") }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
+          activeTab === "general" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded border space-y-4", style: { background: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium pb-2", style: { color: "var(--color-text-primary)", borderBottom: "1px solid var(--color-border)" }, children: t("networkEditor.basicSettings") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("networkEditor.nameLabel") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      type: "text",
+                      value: formData.name,
+                      onChange: (e) => setFormData({ ...formData, name: e.target.value }),
+                      className: "form-input",
+                      placeholder: t("networkEditor.namePlaceholder")
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("networkEditor.template") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "select",
+                    {
+                      value: formData.template,
+                      onChange: (e) => handleTemplateChange(e.target.value),
+                      className: "form-select",
+                      children: templates.map((tmpl) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: tmpl.name, children: t("tpl.net_" + tmpl.name, tmpl.display_name) }, tmpl.name))
+                    }
+                  )
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("networkEditor.status") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "select",
+                  {
+                    value: formData.state,
+                    onChange: (e) => setFormData({ ...formData, state: e.target.value }),
+                    className: "form-select",
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t("networkEditor.active") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "paused", children: t("networkEditor.disabled") })
+                    ]
+                  }
+                )
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded border space-y-3", style: {
+              background: "color-mix(in srgb, var(--color-primary) 8%, transparent)",
+              borderColor: "color-mix(in srgb, var(--color-primary) 30%, transparent)"
+            }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-3", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium", style: { color: "var(--color-primary)" }, children: t("affiliateNetworks.postbackUrl", "Postback URL") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: useNetworkTemplate,
+                      className: "text-[11px] font-medium text-[var(--color-primary)] hover:underline",
+                      title: t("affiliateNetworks.resetToTemplate", "Reset to Network Template"),
+                      children: [
+                        "↻ ",
+                        t("affiliateNetworks.useNetworkTemplate", "Network Template")
+                      ]
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px]", style: { color: "var(--color-text-muted)" }, children: "|" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: useGenericTemplate,
+                      className: "text-[11px] font-medium hover:underline",
+                      style: { color: "var(--color-text-secondary)" },
+                      children: t("affiliateNetworks.useGenericTemplate", "Generic Postback")
+                    }
+                  )
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: t("networkEditor.postbackHint") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "text",
+                    value: formData.postback_url,
+                    onChange: (e) => setFormData({ ...formData, postback_url: e.target.value }),
+                    className: "form-input font-mono",
+                    placeholder: getGenericPostbackUrl(),
+                    spellCheck: "false"
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: () => copyToClipboard$1(formData.postback_url || getGenericPostbackUrl()),
+                    className: "btn btn-secondary btn-icon",
+                    title: t("common.copy"),
+                    "aria-label": t("common.copy"),
+                    children: copied ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4", style: { color: "var(--color-success)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" })
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t("networkEditor.postbackMacros") }),
+                " ",
+                ["{subid}", "{status}", "{payout}", "{tid}", "{currency}"].map((m, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs(React.Fragment, { children: [
+                  i > 0 && " · ",
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: { color: "var(--color-primary)" }, children: m })
+                ] }, m))
+              ] })
+            ] })
+          ] }),
+          activeTab === "params" && /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded border space-y-4", style: { background: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium pb-2", style: { color: "var(--color-text-primary)", borderBottom: "1px solid var(--color-border)" }, children: t("affiliateNetworks.offerParams", "Offer Parameters") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: t("networkEditor.offerParamsDesc") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("networkEditor.offerParamsLabel") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "text",
+                  value: formData.offer_params,
+                  onChange: (e) => setFormData({ ...formData, offer_params: e.target.value }),
+                  className: "form-input font-mono",
+                  placeholder: "&subid={subid}&sub2={ip}"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: [
+                t("networkEditor.example"),
+                " &sub1=",
+                "{subid}",
+                "&ip=",
+                "{ip}"
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label mb-2", children: t("networkEditor.availableMacros") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2", children: availableMacros.map((m) => {
+                const isThisCopied = copiedMacro === m.macro;
+                return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "div",
+                  {
+                    className: "flex items-center justify-between px-2 py-1 rounded text-xs cursor-pointer transition-colors",
+                    style: {
+                      background: isThisCopied ? "color-mix(in srgb, var(--color-success) 12%, var(--color-bg-card))" : "var(--color-bg-card)",
+                      border: `1px solid ${isThisCopied ? "var(--color-success)" : "var(--color-border)"}`
+                    },
+                    onClick: () => handleCopyMacro(m.macro),
+                    title: t("common.copy"),
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: { color: isThisCopied ? "var(--color-success)" : "var(--color-primary)", fontWeight: isThisCopied ? 600 : void 0 }, children: m.macro }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: isThisCopied ? "var(--color-success)" : "var(--color-text-muted)" }, children: isThisCopied ? t("common.copied") : m.description })
+                    ]
+                  },
+                  m.macro
+                );
+              }) })
+            ] })
+          ] }) }),
+          activeTab === "notes" && /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded border space-y-4", style: { background: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium pb-2", style: { color: "var(--color-text-primary)", borderBottom: "1px solid var(--color-border)" }, children: t("networkEditor.notes") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "textarea",
+              {
+                value: formData.notes,
+                onChange: (e) => setFormData({ ...formData, notes: e.target.value }),
+                className: "form-input",
+                rows: 3,
+                placeholder: t("networkEditor.notesPlaceholder")
+              }
+            )
+          ] }) })
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer px-6 pb-5", style: { flexShrink: 0 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "btn btn-secondary", children: t("common.cancel") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleSave, disabled: saving, className: "btn btn-primary", children: saving ? t("common.saving") : t("common.save") })
+        ] })
+      ]
+    }
+  ) });
 };
 const API_URL$r = "/api.php";
 const OfferEditor = ({ offerId, onClose, onCreated }) => {
@@ -56846,16 +57507,15 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
     values: [],
     state: "active"
   });
-  const [files, setFiles] = reactExports.useState([]);
   const [uploadingZip, setUploadingZip] = reactExports.useState(false);
   const [pendingZip, setPendingZip] = reactExports.useState(null);
+  const [lastZip, setLastZip] = reactExports.useState(null);
   const [offerFiles, setOfferFiles] = reactExports.useState([]);
   const [savedOfferId, setSavedOfferId] = reactExports.useState(null);
   const [savedSomething, setSavedSomething] = reactExports.useState(false);
   const [saveSuccess, setSaveSuccess] = reactExports.useState(false);
   const currentOfferId = offerId || savedOfferId;
-  const offerZipInputRef = reactExports.useRef(null);
-  reactExports.useRef(null);
+  const [copiedSnippet, setCopiedSnippet] = reactExports.useState("");
   const [showCapping, setShowCapping] = reactExports.useState(false);
   const [showGroupsModal, setShowGroupsModal] = reactExports.useState(false);
   const [showNetworkEditor, setShowNetworkEditor] = reactExports.useState(false);
@@ -56964,6 +57624,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
         if (formData.is_local && pendingZip && newId) {
           const zip = pendingZip;
           setPendingZip(null);
+          setLastZip(zip);
           await uploadOfferZip(newId, zip);
         }
         setSaveSuccess(true);
@@ -56976,7 +57637,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
       } else {
         alert(t("offerEditor.saveError") + " " + res.data.message);
       }
-    } catch (err) {
+    } catch {
       alert(t("offerEditor.networkError"));
     } finally {
       setLoading(false);
@@ -57003,6 +57664,19 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
       setUploadingZip(false);
     }
   };
+  const selectOfferZip = (file) => {
+    if (currentOfferId) {
+      setLastZip(file);
+      uploadOfferZip(currentOfferId, file);
+    } else {
+      setPendingZip(file);
+    }
+  };
+  const copySnippet = async (text, id) => {
+    if (!await copyToClipboard(text)) return;
+    setCopiedSnippet(id);
+    setTimeout(() => setCopiedSnippet(""), 1800);
+  };
   const fetchOfferFiles = async (id) => {
     try {
       const res = await axios.get(`${API_URL$r}?action=offer_files`, { params: { id } });
@@ -57016,7 +57690,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
     try {
       await axios.post(`${API_URL$r}?action=offer_file_op`, { id: currentOfferId, path, op: "delete" });
       fetchOfferFiles(currentOfferId);
-    } catch (err) {
+    } catch {
       alert(t("common.deleteError"));
     }
   };
@@ -57058,31 +57732,36 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
     "America/Sao_Paulo"
   ];
   const offerType = formData.is_local ? "local" : ["preload", "action"].includes(formData.redirect_type) ? formData.redirect_type : "redirect";
+  const tabs = [
+    { id: "general", label: t("editor.general") },
+    { id: "integration", label: `${t("editor.integrations")} & ${t("landingEditor.viewCode")}` },
+    { id: "details", label: `${t("editor.notes")} & ${t("editor.params")}` }
+  ];
   if (loading && offerId && !formData.name) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-content", style: { maxWidth: "300px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-6", style: { color: "var(--color-text-muted)" }, children: t("common.loading") }) }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-overlay", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "800px", width: "100%" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: currentOfferId ? `${t("offers.titleSingular")}: ${formData.name}` : t("offers.createOffer") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(savedSomething), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "880px", width: "100%", display: "flex", flexDirection: "column", overflow: "hidden", padding: 0 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header px-6 pt-5", style: { marginBottom: 0, borderBottom: "none", flexShrink: 0 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 min-w-0", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0", style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(PackageOpen, { className: "w-5 h-5" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title truncate", children: currentOfferId ? `${t("offers.titleSingular")}: ${formData.name}` : t("offers.createOffer") })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => onClose(savedSomething), className: "action-btn", "aria-label": t("common.close", "Close"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex px-5 pt-1 gap-6", style: { borderBottom: "1px solid var(--color-border)" }, children: ["general", "settings", "notes"].map((tab) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex px-6 pt-1 gap-7 overflow-x-auto", style: { borderBottom: "1px solid var(--color-border)", flexShrink: 0 }, children: tabs.map((tab) => /* @__PURE__ */ jsxRuntimeExports.jsx(
         "button",
         {
-          className: "pb-3 px-1 font-medium text-sm transition border-b-2",
+          type: "button",
+          className: "pb-3 px-1 font-semibold text-sm transition border-b-2 whitespace-nowrap",
           style: {
-            borderColor: activeTab === tab ? "var(--color-primary)" : "transparent",
-            color: activeTab === tab ? "var(--color-primary)" : "var(--color-text-secondary)"
+            borderColor: activeTab === tab.id ? "var(--color-primary)" : "transparent",
+            color: activeTab === tab.id ? "var(--color-primary)" : "var(--color-text-secondary)"
           },
-          onClick: () => setActiveTab(tab),
-          children: [
-            tab === "general" && t("editor.general"),
-            tab === "settings" && t("editor.params"),
-            tab === "notes" && t("editor.notes")
-          ]
+          onClick: () => setActiveTab(tab.id),
+          children: tab.label
         },
-        tab
+        tab.id
       )) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-y-auto p-6", children: [
         activeTab === "general" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
@@ -57124,28 +57803,44 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
               ] })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-                t("offerEditor.affiliateNetwork"),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-1 relative group cursor-pointer inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold rounded-full", style: { color: "var(--color-text-muted)", border: "1px solid var(--color-border)" }, children: [
-                  "?",
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute bottom-full mb-2 hidden group-hover:block w-48 rounded-xl p-2 z-10 shadow-lg text-xs", style: { backgroundColor: "var(--color-bg-card)", color: "var(--color-text-primary)", border: "1px solid var(--color-border)" }, children: t("offerEditor.networkTooltip") })
-                ] })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "select",
-                  {
-                    value: formData.affiliate_network_id,
-                    onChange: (e) => setFormData({ ...formData, affiliate_network_id: e.target.value }),
-                    className: "form-select rounded-r-none",
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("offerEditor.noNetwork") }),
-                      affiliateNetworks.map((an) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: an.id, children: an.name }, an.id))
-                    ]
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary rounded-l-none border-l-0", onClick: () => setShowNetworkEditor(true), title: t("networks.title"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }) })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.status") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "select",
+                {
+                  value: formData.state,
+                  onChange: (e) => setFormData({ ...formData, state: e.target.value }),
+                  className: "form-select",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t("landingEditor.active") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "paused", children: t("landingEditor.paused") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "archived", children: t("landingEditor.archived") })
+                  ]
+                }
+              )
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+              t("offerEditor.affiliateNetwork"),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-1 relative group cursor-pointer inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold rounded-full", style: { color: "var(--color-text-muted)", border: "1px solid var(--color-border)" }, children: [
+                "?",
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "absolute bottom-full mb-2 hidden group-hover:block w-48 rounded-xl p-2 z-10 shadow-lg text-xs", style: { backgroundColor: "var(--color-bg-card)", color: "var(--color-text-primary)", border: "1px solid var(--color-border)" }, children: t("offerEditor.networkTooltip") })
               ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "select",
+                {
+                  value: formData.affiliate_network_id,
+                  onChange: (e) => setFormData({ ...formData, affiliate_network_id: e.target.value }),
+                  className: "form-select rounded-r-none",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("offerEditor.noNetwork") }),
+                    affiliateNetworks.map((an) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: an.id, children: an.name }, an.id))
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary rounded-l-none border-l-0", onClick: () => setShowNetworkEditor(true), title: t("networks.title"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }) })
             ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -57154,59 +57849,24 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
               " ",
               /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.redirectTypeTooltip" })
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex rounded-xl overflow-hidden mb-3", style: { border: "1px solid var(--color-border)" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
-                {
-                  onClick: () => setFormData({ ...formData, redirect_type: "local", is_local: true }),
-                  className: "flex-1 px-4 py-2 text-sm font-medium transition",
-                  style: {
-                    backgroundColor: formData.is_local ? "var(--color-primary-light)" : "var(--color-bg-card)",
-                    color: formData.is_local ? "var(--color-primary)" : "var(--color-text-primary)",
-                    borderRight: "1px solid var(--color-border)"
-                  },
-                  children: t("offers.local")
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
-                {
-                  onClick: () => setFormData({ ...formData, redirect_type: "redirect", is_local: false }),
-                  className: "flex-1 px-4 py-2 text-sm font-medium transition",
-                  style: {
-                    backgroundColor: offerType === "redirect" ? "var(--color-primary-light)" : "var(--color-bg-card)",
-                    color: offerType === "redirect" ? "var(--color-primary)" : "var(--color-text-primary)",
-                    borderRight: "1px solid var(--color-border)"
-                  },
-                  children: t("offers.redirect")
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
-                {
-                  onClick: () => setFormData({ ...formData, redirect_type: "preload", is_local: false }),
-                  className: "flex-1 px-4 py-2 text-sm font-medium transition",
-                  style: {
-                    backgroundColor: offerType === "preload" ? "var(--color-primary-light)" : "var(--color-bg-card)",
-                    color: offerType === "preload" ? "var(--color-primary)" : "var(--color-text-primary)",
-                    borderRight: "1px solid var(--color-border)"
-                  },
-                  children: t("landingEditor.typePreload")
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
-                {
-                  onClick: () => setFormData({ ...formData, redirect_type: "action", is_local: false }),
-                  className: "flex-1 px-4 py-2 text-sm font-medium transition",
-                  style: {
-                    backgroundColor: offerType === "action" ? "var(--color-primary-light)" : "var(--color-bg-card)",
-                    color: offerType === "action" ? "var(--color-primary)" : "var(--color-text-primary)"
-                  },
-                  children: t("editor.action")
-                }
-              )
-            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              SegmentedControl,
+              {
+                ariaLabel: t("offerEditor.redirectType"),
+                value: offerType,
+                onChange: (type) => setFormData({
+                  ...formData,
+                  redirect_type: type,
+                  is_local: type === "local"
+                }),
+                options: [
+                  { value: "local", label: t("offers.local"), icon: HardDrive },
+                  { value: "redirect", label: t("offers.redirect"), icon: ExternalLink },
+                  { value: "preload", label: t("landingEditor.typePreload"), icon: Layers },
+                  { value: "action", label: t("editor.action"), icon: Zap }
+                ]
+              }
+            ) }),
             offerType === "redirect" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "select",
@@ -57241,62 +57901,31 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
           ] }),
           formData.is_local && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded-2xl", style: { border: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-soft)" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold mb-2 text-sm", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.localArchive", "Local offer files") }),
-            !currentOfferId ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              FileDropzone,
+              {
+                file: pendingZip || lastZip,
+                onFileSelect: selectOfferZip,
+                disabled: uploadingZip,
+                label: uploadingZip ? t("landingEditor.uploadingZip") : t("offerEditor.uploadZip", "Upload ZIP Archive"),
+                emptyHint: t("landingEditor.zipDropHint", "Drag & drop .zip here or click to browse files"),
+                replaceHint: t("landingEditor.zipReplaceHint", "Click to replace")
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2 text-xs", style: { color: "var(--color-text-muted)", lineHeight: 1.5 }, children: !currentOfferId ? t("offerEditor.zipOnCreateHint", "The archive uploads right after the offer is created (an upload needs the offer id). index.html becomes the offer page.") : offerFiles.length > 0 ? `${t("offerEditor.filesLabel", "files")}: ${offerFiles.length}` : t("offerEditor.noFiles", "No files yet") }),
+            currentOfferId && offerFiles.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "space-y-1 max-h-40 overflow-y-auto mt-3", children: offerFiles.map((f) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center justify-between gap-2 text-xs px-2 py-1.5 rounded-lg", style: { background: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate font-mono", style: { color: "var(--color-text-secondary)" }, children: f }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
+                "button",
                 {
-                  type: "file",
-                  accept: ".zip",
-                  className: "form-input",
-                  onChange: (e) => setPendingZip(e.target.files[0] || null)
+                  type: "button",
+                  className: "action-btn",
+                  onClick: () => deleteOfferFile(f),
+                  title: t("common.delete"),
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-3.5 h-3.5" })
                 }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-1 text-xs", style: { color: "var(--color-text-muted)" }, children: t("offerEditor.zipOnCreateHint", "The archive uploads right after the offer is created (an upload needs the offer id). index.html becomes the offer page.") })
-            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  type: "file",
-                  accept: ".zip",
-                  ref: offerZipInputRef,
-                  className: "hidden",
-                  onChange: (e) => {
-                    const f = e.target.files[0];
-                    if (f) uploadOfferZip(currentOfferId, f);
-                    e.target.value = null;
-                  }
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mb-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "button",
-                  {
-                    type: "button",
-                    className: "btn btn-secondary",
-                    disabled: uploadingZip,
-                    onClick: () => offerZipInputRef.current?.click(),
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "w-4 h-4" }),
-                      uploadingZip ? t("common.loading") : t("offerEditor.uploadZip", "Upload ZIP")
-                    ]
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: offerFiles.length > 0 ? `${t("offerEditor.filesLabel", "files")}: ${offerFiles.length}` : t("offerEditor.noFiles", "No files yet") })
-              ] }),
-              offerFiles.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "space-y-1 max-h-40 overflow-y-auto", children: offerFiles.map((f) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center justify-between gap-2 text-xs px-2 py-1 rounded", style: { background: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate font-mono", style: { color: "var(--color-text-secondary)" }, children: f }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "button",
-                  {
-                    type: "button",
-                    className: "action-btn",
-                    onClick: () => deleteOfferFile(f),
-                    title: t("common.delete"),
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-3.5 h-3.5" })
-                  }
-                )
-              ] }, f)) })
-            ] })
+              )
+            ] }, f)) })
           ] }),
           !formData.is_local && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
@@ -57316,7 +57945,49 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
             )
           ] })
         ] }),
-        activeTab === "settings" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
+        activeTab === "integration" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            CodeSnippetCard,
+            {
+              title: t("landingEditor.offerLinkTitle"),
+              description: t("landingEditor.offerLinkHint"),
+              code: "{offer}",
+              copyId: "offer-macro",
+              onCopy: copySnippet,
+              copied: copiedSnippet,
+              copyLabel: t("landingEditor.copyCode"),
+              copiedLabel: t("landingEditor.codeCopied")
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            CodeSnippetCard,
+            {
+              title: formData.is_local ? t("offerEditor.localArchive", "Local offer files") : t("offerEditor.urlTemplate", "Offer URL"),
+              description: formData.is_local ? t("offerEditor.zipOnCreateHint", "index.html becomes the local offer page.") : t("offerEditor.networkTooltip"),
+              code: formData.is_local ? "index.html" : formData.url || "https://offer.example.com/?subid={subid}",
+              copyId: "offer-url-template",
+              onCopy: copySnippet,
+              copied: copiedSnippet,
+              copyLabel: t("landingEditor.copyCode"),
+              copiedLabel: t("landingEditor.codeCopied")
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            CodeSnippetCard,
+            {
+              title: t("sourceEditor.availableMacros"),
+              description: t("offerEditor.valuesDesc"),
+              code: ["{subid}", ...formData.values.filter((value) => value.name).map((value) => `{offer_value:${value.name}}`)].join("\n"),
+              copyId: "offer-available-macros",
+              onCopy: copySnippet,
+              copied: copiedSnippet,
+              copyLabel: t("landingEditor.copyCode"),
+              copiedLabel: t("landingEditor.codeCopied"),
+              muted: true
+            }
+          )
+        ] }),
+        activeTab === "details" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.countries") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -57522,32 +58193,38 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
                 v.value || t("offerEditor.empty")
               ] }, idx)) })
             ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.notes") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "textarea",
+              {
+                rows: 6,
+                value: formData.notes,
+                onChange: (e) => setFormData({ ...formData, notes: e.target.value }),
+                className: "form-input resize-none",
+                placeholder: t("offerEditor.notesPlaceholder")
+              }
+            )
           ] })
-        ] }),
-        activeTab === "notes" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.notes") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "textarea",
-            {
-              rows: 8,
-              value: formData.notes,
-              onChange: (e) => setFormData({ ...formData, notes: e.target.value }),
-              className: "form-input resize-none",
-              placeholder: t("offerEditor.notesPlaceholder")
-            }
-          )
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(savedSomething), className: "btn btn-secondary", children: t("common.cancel") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer px-6 pb-5", style: { marginTop: 0, flexShrink: 0 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: () => onClose(savedSomething), className: "btn btn-secondary rounded-xl", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-4 h-4" }),
+          t("common.cancel")
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
             type: "button",
             onClick: () => handleSave(true),
             disabled: loading || uploadingZip || saveSuccess,
-            className: "btn btn-secondary",
-            children: t("profile.saveAndClose")
+            className: "btn btn-secondary rounded-xl",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { className: "w-4 h-4" }),
+              t("profile.saveAndClose")
+            ]
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -57556,7 +58233,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
             type: "button",
             onClick: () => handleSave(false),
             disabled: loading || uploadingZip || saveSuccess,
-            className: "btn btn-primary",
+            className: "btn btn-primary rounded-xl",
             style: saveSuccess ? { backgroundColor: "var(--color-success)" } : {},
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4 mr-1.5" }),
@@ -57926,6 +58603,8 @@ const Offers = ({ offers, refreshData }) => {
   const totalsProfit = totals.revenue - totals.cost;
   const totalsProfitConfirmed = totals.revenue_confirmed - totals.cost;
   const totalsApproveDenom = totals.sales + totals.leads + totals.rejected + totals.trash;
+  const totalsLpViews = totals.visits > 0 ? totals.visits : totals.clicks;
+  const totalsLpClickDenominator = totals.lp_clicks > 0 ? totals.lp_clicks : totals.clicks;
   const renderTotalCell = (colId) => {
     switch (colId) {
       case "clicks":
@@ -57951,7 +58630,7 @@ const Offers = ({ offers, refreshData }) => {
       case "approve_rate":
         return totalsApproveDenom > 0 ? `${(totals.sales / totalsApproveDenom * 100).toFixed(2)}%` : "0%";
       case "lp_ctr":
-        return totals.clicks > 0 ? `${(totals.lp_clicks / totals.clicks * 100).toFixed(2)}%` : "0%";
+        return totalsLpViews > 0 ? `${(totals.lp_clicks / totalsLpViews * 100).toFixed(2)}%` : "0%";
       case "revenue":
         return `$${totals.revenue.toFixed(2)}`;
       case "revenue_confirmed":
@@ -57965,15 +58644,15 @@ const Offers = ({ offers, refreshData }) => {
       case "cr":
         return totals.clicks > 0 ? `${(totals.conversions / totals.clicks * 100).toFixed(2)}%` : "0%";
       case "epc":
-        return totals.clicks > 0 ? `$${(totals.revenue / totals.clicks).toFixed(2)}` : "$0";
+        return totalsLpClickDenominator > 0 ? `$${(totals.revenue / totalsLpClickDenominator).toFixed(2)}` : "$0";
       case "epc_confirmed":
-        return totals.clicks > 0 ? `$${(totals.revenue_confirmed / totals.clicks).toFixed(2)}` : "$0";
+        return totalsLpClickDenominator > 0 ? `$${(totals.revenue_confirmed / totalsLpClickDenominator).toFixed(2)}` : "$0";
       case "epv":
-        return totals.clicks > 0 ? `$${(totals.revenue / totals.clicks).toFixed(2)}` : "$0";
+        return totalsLpViews > 0 ? `$${(totals.revenue / totalsLpViews).toFixed(2)}` : "$0";
       case "cpc":
-        return totals.clicks > 0 ? `$${(totals.cost / totals.clicks).toFixed(2)}` : "$0";
+        return totalsLpClickDenominator > 0 ? `$${(totals.cost / totalsLpClickDenominator).toFixed(2)}` : "$0";
       case "cpv":
-        return totals.clicks > 0 ? `$${(totals.cost / totals.clicks).toFixed(2)}` : "$0.00";
+        return totalsLpViews > 0 ? `$${(totals.cost / totalsLpViews).toFixed(2)}` : "$0.00";
       case "roi":
         return totals.cost > 0 ? `${(totalsProfit / totals.cost * 100).toFixed(2)}%` : "—";
       case "roi_confirmed":
@@ -58018,6 +58697,20 @@ const Offers = ({ offers, refreshData }) => {
     roi_confirmed: t("offerColumns.roiConfirmed")
   })[colId] || colId;
   const localizedColumns = ALL_OFFER_COLUMNS.map((c) => ({ ...c, label: columnLabel(c.id) }));
+  const metricHint = (colId) => {
+    const hintKey = {
+      visits: "lpViewsHint",
+      clicks: "lpViewsHint",
+      lp_clicks: "lpClicksHint",
+      lp_ctr: "lpCtrHint",
+      cpv: "cpvHint",
+      cpc: "cpcHint",
+      epv: "epvHint",
+      epc: "epcHint",
+      epc_confirmed: "epcHint"
+    }[colId];
+    return hintKey ? t(`metrics.${hintKey}`) : void 0;
+  };
   const money = (v, precision = 2) => `$${(parseFloat(v) || 0).toFixed(precision)}`;
   const renderOfferCell = (offer, colId) => {
     const tdCls = ALL_OFFER_COLUMNS.find((c) => c.id === colId)?.alignRight ? "text-right" : "";
@@ -58095,7 +58788,7 @@ const Offers = ({ offers, refreshData }) => {
     if (sortBy.key !== colKey) return /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 opacity-60" });
     return sortBy.dir === "asc" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5" });
   };
-  const SortableTh = ({ colKey, label, defaultDir = "asc", alignRight = false }) => {
+  const SortableTh = ({ colKey, label, fullTitle, defaultDir = "asc", alignRight = false }) => {
     const isActive = sortBy.key === colKey;
     return /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: alignRight ? "text-right" : "", "aria-sort": isActive ? sortBy.dir === "asc" ? "ascending" : "descending" : "none", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "button",
@@ -58104,7 +58797,7 @@ const Offers = ({ offers, refreshData }) => {
         onClick: () => requestSort(colKey, defaultDir),
         className: `inline-flex items-center gap-1 select-none ${alignRight ? "justify-end w-full" : ""}`,
         style: { color: isActive ? "var(--color-text-primary)" : "var(--color-text-secondary)" },
-        title: t("common.sort", "Sort"),
+        title: fullTitle || t("common.sort", "Sort"),
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { colKey })
@@ -58321,6 +59014,7 @@ const Offers = ({ offers, refreshData }) => {
             {
               colKey: colId,
               label: columnLabel(colId),
+              fullTitle: metricHint(colId),
               defaultDir: col.alignRight ? "desc" : "asc",
               alignRight: col.alignRight
             },
@@ -58414,6 +59108,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
   const [savedId, setSavedId] = reactExports.useState(null);
   const currentId = id || savedId;
   const [showEspHints, setShowEspHints] = reactExports.useState(false);
+  const [activeTab, setActiveTab] = reactExports.useState("general");
   const [templates, setTemplates] = reactExports.useState([]);
   const [formData, setFormData] = reactExports.useState({
     name: "",
@@ -58543,254 +59238,290 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
       }));
     }
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "800px" }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: currentId ? t("sources.title") : t("sources.title") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto p-6", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-8", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2", style: { borderColor: "var(--color-primary)" } }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("sourceEditor.templateLabel") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "select",
-          {
-            value: formData.template,
-            onChange: (e) => handleTemplateChange(e.target.value),
-            className: "form-select",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "", children: [
-                "⚡ ",
-                t("sourceEditor.noTemplateOption")
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { disabled: true, children: "──────────" }),
-              templates.map((tmpl) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: tmpl.name, children: t("tpl.src_" + tmpl.name, tmpl.display_name) }, tmpl.name))
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: !formData.template ? t("sourceEditor.noTemplateHint") : t("sourceEditor.templateHint") })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("sourceEditor.nameLabel") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "input",
-          {
-            type: "text",
-            value: formData.name,
-            onChange: (e) => setFormData((prev) => ({ ...prev, name: e.target.value })),
-            className: "form-input",
-            placeholder: t("sourceEditor.namePlaceholder")
-          }
-        )
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("sourceEditor.checkUrlLabel") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "input",
-          {
-            type: "url",
-            value: formData.url || "",
-            onChange: (e) => setFormData((prev) => ({ ...prev, url: e.target.value })),
-            className: "form-input",
-            placeholder: "https://example.com"
-          }
-        ),
-        formData.http_status && formData.http_status !== "unknown" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mt-1", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-xs ${formData.http_status === "200" ? "text-green-600" : "text-red-600"}`, children: formData.http_status === "200" ? `✓ ${t("sourceEditor.available")}` : `✗ ${formData.http_status}` }),
-          formData.last_checked && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: [
-            t("sourceEditor.checkedAt"),
-            ": ",
-            new Date(formData.last_checked).toLocaleString(language === "ru" ? "ru-RU" : "en-US")
-          ] })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("sourceEditor.status") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "select",
-          {
-            value: formData.state,
-            onChange: (e) => setFormData((prev) => ({ ...prev, state: e.target.value })),
-            className: "form-select",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t("sourceEditor.active") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "paused", children: t("sourceEditor.paused") })
-            ]
-          }
-        )
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded-xl", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium mb-3", style: { color: "var(--color-text-primary)" }, children: "S2S Postback" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mb-3", style: { color: "var(--color-text-secondary)" }, children: t("sourceEditor.postbackDesc") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: "Postback URL" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "text",
-                value: formData.postback_url,
-                onChange: (e) => setFormData((prev) => ({ ...prev, postback_url: e.target.value })),
-                className: "form-input",
-                placeholder: "https://example.com/postback?clickid={external_id}&sum={payout}"
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("sourceEditor.sendStatuses") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-3", children: statusOptions.map((status) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 cursor-pointer", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  type: "checkbox",
-                  checked: formData.postback_statuses.split(",").includes(status),
-                  onChange: () => toggleStatus(status),
-                  className: "rounded"
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", style: { color: "var(--color-text-primary)" }, children: status })
-            ] }, status)) })
-          ] })
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "modal-content",
+      style: {
+        maxWidth: "800px",
+        /* Flex column pins header/footer; only the body scrolls. */
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+        padding: 0
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header px-6 pt-5", style: { flexShrink: 0 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: currentId ? t("sources.title") : t("sources.title") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 p-3 rounded-xl text-xs", style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium mb-1", style: { color: "var(--color-text-primary)" }, children: t("sourceEditor.availableMacros") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: { color: "var(--color-primary)" }, children: "{clickid} {external_id} {payout} {status} {offer_id} {campaign_id} {campaign_name}" })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded-xl", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium", style: { color: "var(--color-text-primary)" }, children: t("sourceEditor.parameters") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              onClick: addParameter,
-              className: "btn btn-primary btn-sm",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 14 }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("sourceEditor.addParam") })
-              ]
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mb-3", style: { color: "var(--color-text-secondary)" }, children: t("sourceEditor.paramsDesc") }),
-        formData.parameters.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-12 gap-2 text-xs px-2", style: { color: "var(--color-text-muted)" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "col-span-3", children: t("sourceEditor.alias") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "col-span-4", children: t("sourceEditor.param") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "col-span-4", children: t("sourceEditor.sourceMacro") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "col-span-1" })
-          ] }),
-          formData.parameters.map((param, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-12 gap-2 items-center", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "text",
-                value: param.alias || "",
-                onChange: (e) => handleParameterChange(index2, "alias", e.target.value),
-                className: "form-input col-span-3 text-sm py-1.5",
-                placeholder: "utm_source"
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "text",
-                value: param.param || "",
-                onChange: (e) => handleParameterChange(index2, "param", e.target.value),
-                className: "form-input col-span-4 text-sm py-1.5",
-                placeholder: "sub_id_1"
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "text",
-                value: param.macro || "",
-                onChange: (e) => handleParameterChange(index2, "macro", e.target.value),
-                className: "form-input col-span-4 text-sm py-1.5",
-                placeholder: "{source_id}"
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                onClick: () => removeParameter(index2),
-                className: "action-btn col-span-1 text-red",
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 14 })
-              }
-            )
-          ] }, index2))
-        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm italic", style: { color: "var(--color-text-muted)" }, children: t("sourceEditor.noParams") })
-      ] }),
-      formData.template === "email" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "16px", border: "1px solid var(--color-border)", borderRadius: "10px", overflow: "hidden" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex px-6 pt-1 gap-7", style: { borderBottom: "1px solid var(--color-border)", flexShrink: 0 }, children: [
+          { id: "general", label: t("editor.general") },
+          { id: "params", label: t("editor.params") },
+          { id: "notes", label: t("editor.notes") }
+        ].map((tab) => /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
             type: "button",
-            onClick: () => setShowEspHints((h) => !h),
-            style: { width: "100%", padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--color-bg-secondary)", border: "none", cursor: "pointer", fontSize: "13px", fontWeight: "600", color: "var(--color-text-primary)" },
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-                "📧 ",
-                t("emailSource.espHintsTitle")
+            className: "pb-3 px-1 font-semibold text-sm transition border-b-2 whitespace-nowrap",
+            style: {
+              borderColor: activeTab === tab.id ? "var(--color-primary)" : "transparent",
+              color: activeTab === tab.id ? "var(--color-primary)" : "var(--color-text-secondary)"
+            },
+            onClick: () => setActiveTab(tab.id),
+            children: tab.label
+          },
+          tab.id
+        )) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto p-6", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-8", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2", style: { borderColor: "var(--color-primary)" } }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
+          activeTab === "general" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("sourceEditor.templateLabel") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "select",
+                {
+                  value: formData.template,
+                  onChange: (e) => handleTemplateChange(e.target.value),
+                  className: "form-select",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "", children: [
+                      "⚡ ",
+                      t("sourceEditor.noTemplateOption")
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { disabled: true, children: "──────────" }),
+                    templates.map((tmpl) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: tmpl.name, children: t("tpl.src_" + tmpl.name, tmpl.display_name) }, tmpl.name))
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: !formData.template ? t("sourceEditor.noTemplateHint") : t("sourceEditor.templateHint") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("sourceEditor.nameLabel") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "text",
+                  value: formData.name,
+                  onChange: (e) => setFormData((prev) => ({ ...prev, name: e.target.value })),
+                  className: "form-input",
+                  placeholder: t("sourceEditor.namePlaceholder")
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("sourceEditor.checkUrlLabel") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "url",
+                  value: formData.url || "",
+                  onChange: (e) => setFormData((prev) => ({ ...prev, url: e.target.value })),
+                  className: "form-input",
+                  placeholder: "https://example.com"
+                }
+              ),
+              formData.http_status && formData.http_status !== "unknown" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mt-1", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-xs ${formData.http_status === "200" ? "text-green-600" : "text-red-600"}`, children: formData.http_status === "200" ? `✓ ${t("sourceEditor.available")}` : `✗ ${formData.http_status}` }),
+                formData.last_checked && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: [
+                  t("sourceEditor.checkedAt"),
+                  ": ",
+                  new Date(formData.last_checked).toLocaleString(language === "ru" ? "ru-RU" : "en-US")
+                ] })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("sourceEditor.status") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "select",
+                {
+                  value: formData.state,
+                  onChange: (e) => setFormData((prev) => ({ ...prev, state: e.target.value })),
+                  className: "form-select",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t("sourceEditor.active") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "paused", children: t("sourceEditor.paused") })
+                  ]
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded-xl", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium mb-3", style: { color: "var(--color-text-primary)" }, children: "S2S Postback" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mb-3", style: { color: "var(--color-text-secondary)" }, children: t("sourceEditor.postbackDesc") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: "Postback URL" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      type: "text",
+                      value: formData.postback_url,
+                      onChange: (e) => setFormData((prev) => ({ ...prev, postback_url: e.target.value })),
+                      className: "form-input",
+                      placeholder: "https://example.com/postback?clickid={external_id}&sum={payout}"
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("sourceEditor.sendStatuses") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-3", children: statusOptions.map((status) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 cursor-pointer", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        type: "checkbox",
+                        checked: formData.postback_statuses.split(",").includes(status),
+                        onChange: () => toggleStatus(status),
+                        className: "rounded"
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", style: { color: "var(--color-text-primary)" }, children: status })
+                  ] }, status)) })
+                ] })
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "11px", color: "var(--color-text-muted)" }, children: showEspHints ? t("emailSource.hideHints") : t("emailSource.showHints") })
-            ]
-          }
-        ),
-        showEspHints && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "16px", background: "var(--color-bg-card)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginBottom: "12px" }, children: t("emailSource.espHintsDesc") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { overflowX: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { style: { width: "100%", borderCollapse: "collapse", fontSize: "12px" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { style: { borderBottom: "1px solid var(--color-border)" }, children: [t("emailSource.espCol"), t("emailSource.subscriberIdCol"), t("emailSource.campaignIdCol"), t("emailSource.listIdCol"), t("emailSource.broadcastIdCol"), t("emailSource.espNameCol")].map((h) => /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { padding: "6px 8px", textAlign: "left", fontWeight: "600", color: "var(--color-text-secondary)", whiteSpace: "nowrap" }, children: h }, h)) }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: ESP_HINTS.map((row) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { style: { borderBottom: "1px solid var(--color-border)" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { padding: "7px 8px", fontWeight: "600", color: "var(--color-text-primary)", whiteSpace: "nowrap" }, children: row.esp }),
-              [row.subscriber_id, row.campaign_id, row.list_id, row.broadcast_id, row.esp_val].map((val, idx) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { padding: "7px 8px", color: "var(--color-text-muted)", fontFamily: "monospace", fontSize: "11px" }, children: val || "—" }, idx))
-            ] }, row.esp)) })
-          ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", marginTop: "10px" }, children: t("emailSource.hintsNote") })
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 p-3 rounded-xl text-xs", style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium mb-1", style: { color: "var(--color-text-primary)" }, children: t("sourceEditor.availableMacros") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: { color: "var(--color-primary)" }, children: "{clickid} {external_id} {payout} {status} {offer_id} {campaign_id} {campaign_name}" })
+              ] })
+            ] })
+          ] }),
+          activeTab === "params" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded-xl", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-3", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium", style: { color: "var(--color-text-primary)" }, children: t("sourceEditor.parameters") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "button",
+                  {
+                    onClick: addParameter,
+                    className: "btn btn-primary btn-sm",
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 14 }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("sourceEditor.addParam") })
+                    ]
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mb-3", style: { color: "var(--color-text-secondary)" }, children: t("sourceEditor.paramsDesc") }),
+              formData.parameters.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-12 gap-2 text-xs px-2", style: { color: "var(--color-text-muted)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "col-span-3", children: t("sourceEditor.alias") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "col-span-4", children: t("sourceEditor.param") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "col-span-4", children: t("sourceEditor.sourceMacro") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "col-span-1" })
+                ] }),
+                formData.parameters.map((param, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-12 gap-2 items-center", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      type: "text",
+                      value: param.alias || "",
+                      onChange: (e) => handleParameterChange(index2, "alias", e.target.value),
+                      className: "form-input col-span-3 text-sm py-1.5",
+                      placeholder: "utm_source"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      type: "text",
+                      value: param.param || "",
+                      onChange: (e) => handleParameterChange(index2, "param", e.target.value),
+                      className: "form-input col-span-4 text-sm py-1.5",
+                      placeholder: "sub_id_1"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      type: "text",
+                      value: param.macro || "",
+                      onChange: (e) => handleParameterChange(index2, "macro", e.target.value),
+                      className: "form-input col-span-4 text-sm py-1.5",
+                      placeholder: "{source_id}"
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      onClick: () => removeParameter(index2),
+                      className: "action-btn col-span-1 text-red",
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 14 })
+                    }
+                  )
+                ] }, index2))
+              ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm italic", style: { color: "var(--color-text-muted)" }, children: t("sourceEditor.noParams") })
+            ] }),
+            formData.template === "email" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "16px", border: "1px solid var(--color-border)", borderRadius: "10px", overflow: "hidden" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => setShowEspHints((h) => !h),
+                  style: { width: "100%", padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--color-bg-secondary)", border: "none", cursor: "pointer", fontSize: "13px", fontWeight: "600", color: "var(--color-text-primary)" },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                      "📧 ",
+                      t("emailSource.espHintsTitle")
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "11px", color: "var(--color-text-muted)" }, children: showEspHints ? t("emailSource.hideHints") : t("emailSource.showHints") })
+                  ]
+                }
+              ),
+              showEspHints && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "16px", background: "var(--color-bg-card)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginBottom: "12px" }, children: t("emailSource.espHintsDesc") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { overflowX: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { style: { width: "100%", borderCollapse: "collapse", fontSize: "12px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { style: { borderBottom: "1px solid var(--color-border)" }, children: [t("emailSource.espCol"), t("emailSource.subscriberIdCol"), t("emailSource.campaignIdCol"), t("emailSource.listIdCol"), t("emailSource.broadcastIdCol"), t("emailSource.espNameCol")].map((h) => /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { padding: "6px 8px", textAlign: "left", fontWeight: "600", color: "var(--color-text-secondary)", whiteSpace: "nowrap" }, children: h }, h)) }) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: ESP_HINTS.map((row) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { style: { borderBottom: "1px solid var(--color-border)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { padding: "7px 8px", fontWeight: "600", color: "var(--color-text-primary)", whiteSpace: "nowrap" }, children: row.esp }),
+                    [row.subscriber_id, row.campaign_id, row.list_id, row.broadcast_id, row.esp_val].map((val, idx) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { padding: "7px 8px", color: "var(--color-text-muted)", fontFamily: "monospace", fontSize: "11px" }, children: val || "—" }, idx))
+                  ] }, row.esp)) })
+                ] }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", marginTop: "10px" }, children: t("emailSource.hintsNote") })
+              ] })
+            ] })
+          ] }),
+          activeTab === "notes" && /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("sourceEditor.notes") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "textarea",
+              {
+                value: formData.notes,
+                onChange: (e) => setFormData((prev) => ({ ...prev, notes: e.target.value })),
+                rows: 3,
+                className: "form-input resize-none",
+                placeholder: t("sourceEditor.notesPlaceholder")
+              }
+            )
+          ] }) })
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer px-6 pb-5", style: { flexShrink: 0 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "btn btn-secondary", children: t("common.cancel") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: () => handleSubmit(true),
+              disabled: loading || saving || saveSuccess,
+              className: "btn btn-secondary",
+              children: t("profile.saveAndClose")
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: () => handleSubmit(false),
+              disabled: loading || saving || saveSuccess,
+              className: "btn btn-primary",
+              style: saveSuccess ? { backgroundColor: "var(--color-success)" } : {},
+              children: [
+                saveSuccess ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 18 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 18 }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: saveSuccess ? t("editor.saved") : saving ? t("common.saving") : t("common.save") })
+              ]
+            }
+          )
         ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("sourceEditor.notes") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "textarea",
-          {
-            value: formData.notes,
-            onChange: (e) => setFormData((prev) => ({ ...prev, notes: e.target.value })),
-            rows: 3,
-            className: "form-input resize-none",
-            placeholder: t("sourceEditor.notesPlaceholder")
-          }
-        )
-      ] })
-    ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "btn btn-secondary", children: t("common.cancel") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          type: "button",
-          onClick: () => handleSubmit(true),
-          disabled: loading || saving || saveSuccess,
-          className: "btn btn-secondary",
-          children: t("profile.saveAndClose")
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "button",
-        {
-          type: "button",
-          onClick: () => handleSubmit(false),
-          disabled: loading || saving || saveSuccess,
-          className: "btn btn-primary",
-          style: saveSuccess ? { backgroundColor: "var(--color-success)" } : {},
-          children: [
-            saveSuccess ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 18 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 18 }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: saveSuccess ? t("editor.saved") : saving ? t("common.saving") : t("common.save") })
-          ]
-        }
-      )
-    ] })
-  ] }) });
+      ]
+    }
+  ) });
 };
 const API_URL$o = "/api.php";
 const BulkImportSources = ({ onClose, onSave }) => {
@@ -59718,7 +60449,7 @@ const PostbackSettings = () => {
       });
     }
   };
-  const copyToClipboard = (text) => {
+  const copyToClipboard2 = (text) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
     showSuccess(t("postback.copied"));
@@ -59766,7 +60497,7 @@ const PostbackSettings = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
-            onClick: () => copyToClipboard(postbackUrl),
+            onClick: () => copyToClipboard2(postbackUrl),
             className: "btn btn-primary btn-sm",
             style: { flexShrink: 0 },
             children: [
@@ -60221,7 +60952,7 @@ const AffiliateNetworks = () => {
     const host = window.location.host;
     return `${protocol}//${host}/${postbackKey}/postback`;
   };
-  const copyToClipboard = async (text, id) => {
+  const copyToClipboard2 = async (text, id) => {
     try {
       await navigator.clipboard.writeText(text);
       setCopiedId(id);
@@ -60371,7 +61102,7 @@ const AffiliateNetworks = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
-              onClick: () => copyToClipboard(getPostbackUrl(network), `pb-${network.id}`),
+              onClick: () => copyToClipboard2(getPostbackUrl(network), `pb-${network.id}`),
               className: "hover:text-[var(--color-primary)] transition",
               style: { color: "var(--color-text-muted)" },
               title: t("common.copy"),
@@ -60784,7 +61515,7 @@ const UsersPage = () => {
       setError(t("common.error"));
     }
   };
-  const copyToClipboard = (text) => {
+  const copyToClipboard2 = (text) => {
     navigator.clipboard.writeText(text);
     showSuccess(t("common.copy"));
   };
@@ -61156,7 +61887,7 @@ const UsersPage = () => {
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
-                onClick: () => copyToClipboard(`${window.location.origin}/mcp.php?k=${key.api_key}`),
+                onClick: () => copyToClipboard2(`${window.location.origin}/mcp.php?k=${key.api_key}`),
                 className: "action-btn text-blue",
                 title: t("users.copyMcpUrl", "Copy connector URL (for Claude → Add custom connector)"),
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(Link2, { size: 16 })
@@ -61165,7 +61896,7 @@ const UsersPage = () => {
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
-                onClick: () => copyToClipboard(key.api_key),
+                onClick: () => copyToClipboard2(key.api_key),
                 className: "action-btn text-blue",
                 title: t("common.copy"),
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 16 })
@@ -61226,7 +61957,7 @@ const UsersPage = () => {
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
             {
-              onClick: () => copyToClipboard(buildMcpConfig()),
+              onClick: () => copyToClipboard2(buildMcpConfig()),
               className: "btn btn-secondary",
               style: { padding: "4px 10px", fontSize: "12px" },
               children: [
@@ -64295,10 +65026,12 @@ const IntegrationsPage = () => {
     turnstile_site_key: "",
     turnstile_secret_key: ""
   });
-  const copyToClipboard = (text, id) => {
-    navigator.clipboard.writeText(text);
-    setCopied(id);
-    setTimeout(() => setCopied(""), 2e3);
+  const copyToClipboard$1 = async (text, id) => {
+    const ok = await copyToClipboard(text);
+    if (ok) {
+      setCopied(id);
+      setTimeout(() => setCopied(""), 2e3);
+    }
   };
   const trackerUrl = window.location.origin;
   const loadExtensionCredentials = reactExports.useCallback(async () => {
@@ -64588,7 +65321,7 @@ const IntegrationsPage = () => {
         cfg.config_key
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "6px", flexWrap: "wrap" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => copyToClipboard(`${trackerUrl}/api.php?action=app_config&key=${cfg.config_key}`, `url_${cfg.id}`), className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, children: copied === `url_${cfg.id}` ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => copyToClipboard$1(`${trackerUrl}/api.php?action=app_config&key=${cfg.config_key}`, `url_${cfg.id}`), className: "btn btn-secondary btn-sm", style: { fontSize: "11px" }, children: copied === `url_${cfg.id}` ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 12, style: { color: "var(--color-success)" } }),
           " ",
           t("integrations.copied")
@@ -65871,12 +66604,12 @@ add_action('wp_head', 'ltt_webview_redirect');
               "button",
               {
                 type: "button",
-                onClick: () => field.value && copyToClipboard(field.value, field.copyId),
+                onClick: () => field.value && copyToClipboard$1(field.value, field.copyId),
                 disabled: !field.value || extKeyLoading,
                 className: "btn btn-secondary btn-sm",
                 children: [
-                  copied === field.copyId ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 14 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 14 }),
-                  copied === field.copyId ? t("integrations.copied") : t("integrations.copyCode", "Copy")
+                  copied === field.copyId ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 14, style: { color: "var(--color-success, #16a34a)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 14 }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: copied === field.copyId ? { color: "var(--color-success, #16a34a)" } : void 0, children: copied === field.copyId ? t("integrations.copied") : t("integrations.copyCode", "Copy") })
                 ]
               }
             )
@@ -67059,7 +67792,7 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
                   "button",
                   {
                     className: "btn btn-secondary btn-icon",
-                    onClick: () => copyToClipboard(ncStatus?.detected_ip || ncStatus?.server_ip || "", "nc-ip"),
+                    onClick: () => copyToClipboard$1(ncStatus?.detected_ip || ncStatus?.server_ip || "", "nc-ip"),
                     title: t("common.copy"),
                     children: copied === "nc-ip" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "w-4 h-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" })
                   }
@@ -67352,7 +68085,7 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
-                onClick: () => copyToClipboard(activeObj.code, activeTab),
+                onClick: () => copyToClipboard$1(activeObj.code, activeTab),
                 className: "btn btn-secondary btn-sm",
                 children: copied === activeTab ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 16, style: { color: "var(--color-success)" } }),
@@ -68356,7 +69089,7 @@ const MigrationsPage = () => {
   const [purgeError, setPurgeError] = reactExports.useState("");
   const [purgeResult, setPurgeResult] = reactExports.useState(null);
   const [copySuccess, setCopySuccess] = reactExports.useState(false);
-  const copyToClipboard = async (text) => {
+  const copyToClipboard2 = async (text) => {
     try {
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(text);
@@ -68677,7 +69410,7 @@ mysqldump --defaults-extra-file=/root/keitaro-mariadb.cnf \\
 ls -lah "$OUT"
 echo "DONE: $OUT"
 '`;
-                    copyToClipboard(command);
+                    copyToClipboard2(command);
                   },
                   className: "text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors",
                   style: {

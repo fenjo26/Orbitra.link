@@ -14,6 +14,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     const [savedId, setSavedId] = useState(null);
     const currentId = id || savedId;
     const [showEspHints, setShowEspHints] = useState(false);
+    const [activeTab, setActiveTab] = useState('general');
     const [templates, setTemplates] = useState([]);
     const [formData, setFormData] = useState({
         name: '',
@@ -161,9 +162,19 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
 
     return (
         <div className="modal-overlay">
-            <div className="modal-content" style={{ maxWidth: '800px' }}>
+            <div
+                className="modal-content"
+                style={{
+                    maxWidth: '800px',
+                    /* Flex column pins header/footer; only the body scrolls. */
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden',
+                    padding: 0
+                }}
+            >
                 {/* Header */}
-                <div className="modal-header">
+                <div className="modal-header px-6 pt-5" style={{ flexShrink: 0 }}>
                     <h2 className="modal-title">
                         {currentId ? t('sources.title') : t('sources.title')}
                     </h2>
@@ -172,7 +183,29 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
                     </button>
                 </div>
 
-                {/* Content */}
+                {/* Tabs — OfferEditor's tab row pattern */}
+                <div className="flex px-6 pt-1 gap-7" style={{ borderBottom: '1px solid var(--color-border)', flexShrink: 0 }}>
+                    {[
+                        { id: 'general', label: t('editor.general') },
+                        { id: 'params', label: t('editor.params') },
+                        { id: 'notes', label: t('editor.notes') }
+                    ].map(tab => (
+                        <button
+                            key={tab.id}
+                            type="button"
+                            className="pb-3 px-1 font-semibold text-sm transition border-b-2 whitespace-nowrap"
+                            style={{
+                                borderColor: activeTab === tab.id ? 'var(--color-primary)' : 'transparent',
+                                color: activeTab === tab.id ? 'var(--color-primary)' : 'var(--color-text-secondary)'
+                            }}
+                            onClick={() => setActiveTab(tab.id)}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Content — the only scrolling region */}
                 <div className="flex-1 overflow-y-auto p-6">
                     {loading ? (
                         <div className="flex justify-center py-8">
@@ -180,6 +213,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
                         </div>
                     ) : (
                         <div className="space-y-5">
+                            {activeTab === 'general' && (<>
                             {/* Template Selection */}
                             <div>
                                 <label className="form-label">{t('sourceEditor.templateLabel')}</label>
@@ -294,7 +328,9 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
                                     </code>
                                 </div>
                             </div>
+                            </>)}
 
+                            {activeTab === 'params' && (<>
                             {/* Parameters */}
                             <div className="p-4 rounded-xl" style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}>
                                 <div className="flex items-center justify-between mb-3">
@@ -400,7 +436,9 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
                                     )}
                                 </div>
                             )}
+                            </>)}
 
+                            {activeTab === 'notes' && (<>
                             {/* Notes */}
                             <div>
                                 <label className="form-label">{t('sourceEditor.notes')}</label>
@@ -412,12 +450,13 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
                                     placeholder={t('sourceEditor.notesPlaceholder')}
                                 />
                             </div>
+                            </>)}
                         </div>
                     )}
                 </div>
 
                 {/* Footer */}
-                <div className="modal-footer">
+                <div className="modal-footer px-6 pb-5" style={{ flexShrink: 0 }}>
                     <button onClick={onClose} className="btn btn-secondary">
                         {t('common.cancel')}
                     </button>

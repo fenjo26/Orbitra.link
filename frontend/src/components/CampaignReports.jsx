@@ -3,9 +3,27 @@ import axios from 'axios';
 import { X, Download, Filter, BarChart3, Plus, Trash2, SlidersHorizontal, GripVertical, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
-import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getDefaultTemplateColumns } from './ReportCustomizerModal';
+import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getDefaultTemplateColumns, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
 
 const API_URL = '/api.php';
+const FB_HIERARCHY_LAYERS = ['ad_campaign_id', 'adset_id', 'ad_id'];
+const REPORT_LAYER_PRESETS = [
+    { id: 'facebook_hierarchy', label: 'Facebook Hierarchy', layers: FB_HIERARCHY_LAYERS }
+];
+const ENTITY_TYPE_BY_DIMENSION = {
+    campaign_id: 'tracker_campaign',
+    ad_campaign_id: 'ad_campaign',
+    adset_id: 'adset',
+    ad_id: 'ad'
+};
+const DIMENSION_LABELS = {
+    campaign_id: 'Tracker Campaign',
+    ad_campaign_id: 'FB_CAMPAIGN_ID',
+    adset_id: 'FB_ADSET_ID',
+    ad_id: 'FB_AD_ID'
+};
+
+const formatDimensionLabel = (dimension) => DIMENSION_LABELS[dimension] || dimension;
 
 const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     const { t } = useLanguage();
@@ -22,31 +40,36 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     const [toggleNotice, setToggleNotice] = useState(null);
 
     const handleToggleEntityStatus = async (dimKey, row) => {
-        const id = row.dimId;
-        if (!id || id === 'Unknown' || id === 'none' || togglingIds.has(id)) return;
-        const typeByDim = { campaign_id: 'campaign', ad_id: 'ad', adset_id: 'adset', ad_campaign_id: 'ad_campaign' };
-        const entityType = typeByDim[dimKey];
+        const entityId = String(row.dimId ?? '').trim();
+        if (!/^\d+$/.test(entityId) || togglingIds.has(entityId)) return;
+
+        const entityType = ENTITY_TYPE_BY_DIMENSION[dimKey];
         if (!entityType) return;
-        const next = (entityStatus[id] || 'ACTIVE') === 'ACTIVE' ? 'PAUSED' : 'ACTIVE';
-        setTogglingIds(prev => new Set(prev).add(id));
+
+        const nextStatus = (entityStatus[entityId] || 'ACTIVE') === 'ACTIVE' ? 'PAUSED' : 'ACTIVE';
+        setTogglingIds(prev => new Set(prev).add(entityId));
         try {
             const res = await axios.post(`${API_URL}?action=ad_entity_toggle_status`, {
                 entity_type: entityType,
-                entity_id: id,
-                target_status: next
+                entity_id: entityId,
+                target_status: nextStatus
             });
             if (res.data.status === 'success') {
-                setEntityStatus(prev => ({ ...prev, [id]: next }));
-                setToggleNotice({ type: 'success', text: t('automation.statusUpdated') });
+                setEntityStatus(prev => ({ ...prev, [entityId]: nextStatus }));
+                const target = entityType === 'tracker_campaign' ? 'Orbitra' : 'Ads Manager';
+                setToggleNotice({
+                    type: 'success',
+                    text: `${formatDimensionLabel(dimKey)} ${entityId} → ${nextStatus} in ${target}`
+                });
             } else {
                 const codeMap = { no_connection: 'automation.noConnection', unsupported_network: 'automation.unsupportedNetwork', invalid_id: 'automation.invalidId' };
                 const text = (res.data.code && t(codeMap[res.data.code])) || res.data.message || t('automation.statusUpdateError');
                 setToggleNotice({ type: 'error', text });
             }
-        } catch (e) {
-            setToggleNotice({ type: 'error', text: t('automation.statusUpdateError') });
+        } catch {
+            setToggleNotice({ type: 'error', text: t('automation.networkError') });
         } finally {
-            setTogglingIds(prev => { const s = new Set(prev); s.delete(id); return s; });
+            setTogglingIds(prev => { const s = new Set(prev); s.delete(entityId); return s; });
             setTimeout(() => setToggleNotice(null), 4000);
         }
     };
@@ -69,7 +92,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     const [chosenColumns, setChosenColumns] = useState(() => {
         try {
             const saved = localStorage.getItem('orbitra_report_columns');
-            if (saved) return JSON.parse(saved);
+            if (saved) return normalizeReportMetricIds(JSON.parse(saved));
         } catch (e) {}
         // No per-page selection yet — fall back to the user's default template
         const fromDefaultTemplate = getDefaultTemplateColumns();
@@ -164,6 +187,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             clicks: 0,
             unique_clicks: 0,
             prelander_clicks: 0,
+            lp_views: 0,
+            lp_clicks: 0,
             offer_clicks: 0,
             conversions: 0,
             purchases: 0,
@@ -184,7 +209,10 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         const addRow = (node, row) => {
             node.clicks += Number(row.clicks) || 0;
             node.unique_clicks += Number(row.unique_clicks) || 0;
-            node.prelander_clicks += Number(row.prelander_clicks) || 0;
+            const lpViews = Number(row.lp_views ?? row.prelander_clicks ?? row.clicks) || 0;
+            node.prelander_clicks += lpViews;
+            node.lp_views += lpViews;
+            node.lp_clicks += Number(row.lp_clicks ?? row.offer_clicks) || 0;
             node.offer_clicks += Number(row.offer_clicks) || 0;
             node.conversions += Number(row.conversions) || 0;
             node.purchases += Number(row.purchases) || 0;
@@ -203,8 +231,9 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         };
 
         const computeDerived = (node) => {
+            const lpClickDenominator = node.lp_clicks > 0 ? node.lp_clicks : node.clicks;
             node.uc_rate = node.clicks > 0 ? (node.unique_clicks / node.clicks) * 100 : 0;
-            node.lp_ctr = node.clicks > 0 ? (node.offer_clicks / node.clicks) * 100 : 0;
+            node.lp_ctr = node.lp_views > 0 ? (node.lp_clicks / node.lp_views) * 100 : 0;
             node.cr = node.clicks > 0 ? (node.conversions / node.clicks) * 100 : 0;
             node.cr_sales = node.clicks > 0 ? (node.purchases / node.clicks) * 100 : 0;
             node.cr_holds = node.clicks > 0 ? (node.holds / node.clicks) * 100 : 0;
@@ -213,11 +242,13 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             node.approve_rate_excl_trash = nonTrash > 0 ? (node.purchases / nonTrash) * 100 : 0;
             node.roi = node.cost > 0 ? (node.profit / node.cost) * 100 : 0;
             node.real_roi = node.cost > 0 ? (node.real_profit / node.cost) * 100 : 0;
-            node.epc = node.clicks > 0 ? node.revenue / node.clicks : 0;
+            node.epc = lpClickDenominator > 0 ? node.revenue / lpClickDenominator : 0;
+            node.epc_all = node.epc;
+            node.epv = node.lp_views > 0 ? node.revenue / node.lp_views : 0;
             node.uepc = node.unique_clicks > 0 ? node.revenue / node.unique_clicks : 0;
-            node.cpc = node.clicks > 0 ? node.cost / node.clicks : 0;
+            node.cpc = lpClickDenominator > 0 ? node.cost / lpClickDenominator : 0;
             node.ucpc = node.unique_clicks > 0 ? node.cost / node.unique_clicks : 0;
-            node.cpv = node.clicks > 0 ? node.cost / node.clicks : 0;
+            node.cpv = node.lp_views > 0 ? node.cost / node.lp_views : 0;
             node.cpa = node.conversions > 0 ? node.cost / node.conversions : 0;
             node.earnings_per_conv = node.conversions > 0 ? node.revenue / node.conversions : 0;
         };
@@ -264,6 +295,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             clicks: 0,
             unique_clicks: 0,
             prelander_clicks: 0,
+            lp_views: 0,
+            lp_clicks: 0,
             offer_clicks: 0,
             conversions: 0,
             purchases: 0,
@@ -284,7 +317,10 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         rows.forEach(r => {
             t0.clicks += Number(r.clicks) || 0;
             t0.unique_clicks += Number(r.unique_clicks) || 0;
-            t0.prelander_clicks += Number(r.prelander_clicks) || 0;
+            const lpViews = Number(r.lp_views ?? r.prelander_clicks ?? r.clicks) || 0;
+            t0.prelander_clicks += lpViews;
+            t0.lp_views += lpViews;
+            t0.lp_clicks += Number(r.lp_clicks ?? r.offer_clicks) || 0;
             t0.offer_clicks += Number(r.offer_clicks) || 0;
             t0.conversions += Number(r.conversions) || 0;
             t0.purchases += Number(r.purchases) || 0;
@@ -303,7 +339,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         });
 
         const uc_rate = t0.clicks > 0 ? (t0.unique_clicks / t0.clicks) * 100 : 0;
-        const lp_ctr = t0.clicks > 0 ? (t0.offer_clicks / t0.clicks) * 100 : 0;
+        const lpClickDenominator = t0.lp_clicks > 0 ? t0.lp_clicks : t0.clicks;
+        const lp_ctr = t0.lp_views > 0 ? (t0.lp_clicks / t0.lp_views) * 100 : 0;
         const cr = t0.clicks > 0 ? (t0.conversions / t0.clicks) * 100 : 0;
         const cr_sales = t0.clicks > 0 ? (t0.purchases / t0.clicks) * 100 : 0;
         const cr_holds = t0.clicks > 0 ? (t0.holds / t0.clicks) * 100 : 0;
@@ -312,11 +349,12 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         const approve_rate_excl_trash = nonTrash > 0 ? (t0.purchases / nonTrash) * 100 : 0;
         const roi = t0.cost > 0 ? (t0.profit / t0.cost) * 100 : 0;
         const real_roi = t0.cost > 0 ? (t0.real_profit / t0.cost) * 100 : 0;
-        const epc = t0.clicks > 0 ? t0.revenue / t0.clicks : 0;
+        const epc = lpClickDenominator > 0 ? t0.revenue / lpClickDenominator : 0;
+        const epv = t0.lp_views > 0 ? t0.revenue / t0.lp_views : 0;
         const uepc = t0.unique_clicks > 0 ? t0.revenue / t0.unique_clicks : 0;
-        const cpc = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
+        const cpc = lpClickDenominator > 0 ? t0.cost / lpClickDenominator : 0;
         const ucpc = t0.unique_clicks > 0 ? t0.cost / t0.unique_clicks : 0;
-        const cpv = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
+        const cpv = t0.lp_views > 0 ? t0.cost / t0.lp_views : 0;
         const cpa = t0.conversions > 0 ? t0.cost / t0.conversions : 0;
         const earnings_per_conv = t0.conversions > 0 ? t0.revenue / t0.conversions : 0;
 
@@ -332,6 +370,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             roi,
             real_roi,
             epc,
+            epc_all: epc,
+            epv,
             uepc,
             cpc,
             ucpc,
@@ -446,6 +486,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             case 'uepc_hold':
             case 'epc_registration':
             case 'uepc_registration':
+            case 'epv':
             case 'cpc':
             case 'ucpc':
             case 'cpv':
@@ -459,7 +500,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     const exportToCSV = () => {
         if (!displayRows.length) return;
         const headers = [
-            layerKeys.join(' > '),
+            layerKeys.map(formatDimensionLabel).join(' > '),
             ...chosenColumns.map(cId => {
                 const def = ALL_REPORT_METRICS.find(m => m.id === cId);
                 return def?.label || cId;
@@ -572,7 +613,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                 }}
                             >
                                 <span className="text-[10px] font-bold text-blue-500">{idx + 1}.</span>
-                                <span>{lName}</span>
+                                <span>{formatDimensionLabel(lName)}</span>
                             </span>
                         ))}
                     </div>
@@ -612,15 +653,18 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                         </div>
                     )}
 
-                            <table className="page-table" style={{ fontVariantNumeric: 'tabular-nums', minWidth: '100%', width: 'max-content' }}>
+                            <table className="page-table tracker-table" style={{ fontVariantNumeric: 'tabular-nums', minWidth: '100%', width: 'max-content' }}>
                                 <thead>
                                     <tr>
                                         <th style={{
                                             minWidth: '240px', textAlign: 'left',
-                                            position: 'sticky', left: 0, zIndex: 3,
-                                            backgroundColor: 'var(--color-bg-card)'
+                                            position: 'sticky', left: 0,
+                                            /* above .tracker-table th's z-index:10 — the pinned
+                                               header must not slide under scrolling metric th's */
+                                            zIndex: 11,
+                                            backgroundColor: 'var(--color-bg-soft)'
                                         }}>
-                                            {layerKeys.join(' → ')}
+                                            {layerKeys.map(formatDimensionLabel).join(' → ')}
                                         </th>
                                         {chosenColumns.map((colId, colIdx) => {
                                             const def = ALL_REPORT_METRICS.find(m => m.id === colId);
@@ -633,7 +677,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                     onDragOver={(e) => handleThDragOver(e, colIdx)}
                                                     onDrop={(e) => handleThDrop(e, colIdx)}
                                                     onDragEnd={handleThDragEnd}
-                                                    title={def?.label}
+                                                    title={getReportMetricTooltip(def, t)}
                                                     style={{
                                                         textAlign: 'right',
                                                         cursor: 'grab',
@@ -696,22 +740,25 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                                 {isSubtotal && <ChevronRight className="w-3 h-3 inline" style={{ color: 'var(--color-primary)' }} />}
                                                                 {(() => {
                                                                     const dimKey = layers[r.depth];
-                                                                    const toggleDims = ['campaign_id', 'ad_id', 'adset_id', 'ad_campaign_id'];
-                                                                    if (!toggleDims.includes(dimKey) || !r.dimId || r.dimId === 'Unknown' || r.dimId === 'none') return null;
-                                                                    const paused = entityStatus[r.dimId] === 'PAUSED';
-                                                                    const busy = togglingIds.has(r.dimId);
+                                                                    if (!ENTITY_TYPE_BY_DIMENSION[dimKey] || !r.dimId || r.dimId === 'Unknown' || r.dimId === 'none') return null;
+                                                                    const entityId = String(r.dimId).trim();
+                                                                    const validEntityId = /^\d+$/.test(entityId);
+                                                                    const paused = entityStatus[entityId] === 'PAUSED';
+                                                                    const busy = togglingIds.has(entityId);
                                                                     return (
                                                                         <button
                                                                             type="button"
-                                                                            disabled={busy}
+                                                                            disabled={busy || !validEntityId}
                                                                             onClick={(e) => { e.stopPropagation(); handleToggleEntityStatus(dimKey, r); }}
                                                                             className="relative inline-flex h-4 w-7 flex-shrink-0 items-center rounded-full transition-colors"
                                                                             style={{
-                                                                                background: paused || busy ? 'var(--color-border)' : 'var(--color-success, #10b981)',
-                                                                                opacity: busy ? 0.5 : 1,
-                                                                                cursor: 'pointer'
+                                                                                background: paused || busy || !validEntityId ? 'var(--color-border)' : 'var(--color-success, #10b981)',
+                                                                                opacity: busy || !validEntityId ? 0.5 : 1,
+                                                                                cursor: validEntityId && !busy ? 'pointer' : 'not-allowed'
                                                                             }}
-                                                                            title={`${dimKey === 'campaign_id' ? '' : 'Facebook · '}${paused ? t('automation.clickToResume') : t('automation.clickToPause')}`}
+                                                                            title={validEntityId
+                                                                                ? `${dimKey === 'campaign_id' ? 'Orbitra' : 'Facebook'} · ${paused ? t('automation.clickToResume') : t('automation.clickToPause')}`
+                                                                                : t('automation.invalidId')}
                                                                         >
                                                                             <span className="inline-block h-3 w-3 transform rounded-full bg-white shadow transition-transform" style={{ transform: paused ? 'translateX(2px)' : 'translateX(12px)' }} />
                                                                         </button>
@@ -750,6 +797,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                 mode="report"
                 currentLayers={layers}
                 onSaveLayers={handleSaveLayers}
+                layerPresets={REPORT_LAYER_PRESETS}
                 currentFilters={filters}
                 onSaveFilters={handleSaveFilters}
             />

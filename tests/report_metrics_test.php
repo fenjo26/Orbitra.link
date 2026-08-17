@@ -71,10 +71,10 @@ $expected = [
     'cost' => 21, 'profit' => 62.5, 'profit_confirmed' => 24,
     'roi' => 297.62, 'roi_confirmed' => 114.29, 'profitability' => 74.85,
     'cr' => 133.33, 'cr_sales' => 50, 'cr_deposits' => 16.67, 'cr_regs_to_deps' => 100, 'ucr' => 20,
-    'epc' => 13.9167, 'uepc' => 16.7, 'epc_confirmed' => 7.5, 'uepc_confirmed' => 9,
-    'epv' => 13.9167, 'epv_confirmed' => 7.5,
+    'epc' => 27.8333, 'uepc' => 16.7, 'epc_confirmed' => 15, 'uepc_confirmed' => 9,
+    'epv' => 27.8333, 'epv_confirmed' => 15,
     'cps' => 7, 'cpl' => 21, 'cpr' => 21, 'cpd' => 21, 'cpa' => 2.63,
-    'cpc' => 3.5, 'ucpc' => 4.2, 'cpv' => 3.5, 'ecpc' => 3.5,
+    'cpc' => 7, 'ucpc' => 4.2, 'cpv' => 7, 'ecpc' => 3.5,
     'ecpm_all' => 10416.67, 'ecpm_confirmed' => 4000,
     'earnings_per_conv' => 10.44, 'ec_confirmed' => 15,
     'real_profit' => 19, 'real_roi' => 90.48,
@@ -85,9 +85,29 @@ foreach ($expected as $k => $v) {
     $assert($k, $m[$k] ?? null, $v, $tol);
 }
 
+// Canonical media-buying funnel: 1,000 LP views, 200 CTA clicks, $200 cost,
+// $500 revenue. These five values pin every requested denominator explicitly.
+$funnel = orbitraComputeDerivedMetrics([
+    'clicks' => 1000, 'prelander_clicks' => 1000, 'lp_clicks' => 200,
+    'cost' => 200, 'revenue' => 500,
+]);
+foreach (['lp_ctr' => 20, 'cpv' => 0.2, 'cpc' => 1, 'epv' => 0.5, 'epc' => 2.5] as $metric => $value) {
+    $assert("canonical funnel $metric", $funnel[$metric], $value);
+}
+
 // ROI at zero spend must be null (rendered as a dash), not a made-up 100%.
 $zero = orbitraComputeDerivedMetrics(['clicks' => 1, 'cost' => 0, 'revenue' => 5]);
 $assert('roi at zero cost is null', $zero['roi'], null);
+$assert('EPC falls back to incoming clicks without LP clicks', $zero['epc'], 5);
+$assert('EPV falls back to clicks when no LP-view field is supplied', $zero['epv'], 5);
+
+$funnelZero = orbitraComputeDerivedMetrics([
+    'clicks' => 0, 'prelander_clicks' => 0, 'lp_clicks' => 0,
+    'cost' => 10, 'revenue' => 20,
+]);
+foreach (['lp_ctr', 'cpv', 'cpc', 'epv', 'epc'] as $metric) {
+    $assert("$metric is zero with a zero denominator", $funnelZero[$metric], 0);
+}
 
 // ---------------------------------------------------------------------------
 // Production SQL check for the Landings/Offers table pages: seed the mini
@@ -180,10 +200,10 @@ $assert('L1 revenue_confirmed', $lp[1]['revenue_confirmed'], 45);
 $assert('L1 cost', $lp[1]['cost'], 16);
 $assert('L1 cr', $lp[1]['cr'], 200);
 $assert('L1 approve_rate', $lp[1]['approve_rate'], 75);
-$assert('L1 epc', $lp[1]['epc'], 26);
-$assert('L1 epv (equals epc: one row = one visit)', $lp[1]['epv'], 26);
-$assert('L1 epc_confirmed', $lp[1]['epc_confirmed'], 15);
-$assert('L1 cpc', $lp[1]['cpc'], 5.3333);
+$assert('L1 epc (revenue / LP clicks)', $lp[1]['epc'], 78);
+$assert('L1 epv (revenue / LP views)', $lp[1]['epv'], 26);
+$assert('L1 epc_confirmed', $lp[1]['epc_confirmed'], 45);
+$assert('L1 cpc (cost / LP clicks)', $lp[1]['cpc'], 16);
 $assert('L1 cpv', $lp[1]['cpv'], 5.3333);
 $assert('L1 profit', $lp[1]['profit'], 62);
 $assert('L1 profit_confirmed', $lp[1]['profit_confirmed'], 29);

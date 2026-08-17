@@ -818,6 +818,104 @@ function orbitraBotListEndpoint($pdo, $table, $column, $payloadKey)
     ]);
 }
 
+// === REMOTE AD-STATUS SYNC (campaign toggle fan-out) ===
+/**
+ * Ad-network entity ids a tracker campaign forwarded traffic from. The network
+ * ids live in clicks.parameters_json (captured from the source URL macros).
+ * Campaign-level ids win; adset/ad ids are only used when no campaign id was
+ * ever captured — one granularity per tracker campaign keeps the fan-out
+ * predictable (a paused network campaign covers its adsets and ads).
+ */
+function orbitraCampaignRemoteAdIds(PDO $pdo, int $campaignId): array
+{
+    foreach ([['campaign', 'ad_campaign'], ['adset_id', 'adset'], ['ad_id', 'ad']] as [$param, $level]) {
+        if ($param === 'campaign') {
+            // Same resolution as the reports' ad_campaign_id dimension: the
+            // dedicated ad_campaign_id key first, the historical campaign_id
+            // (Facebook template stores {{campaign.id}} as campaign_id) as
+            // the compatibility fallback.
+            $expr = "COALESCE(NULLIF(json_extract(parameters_json, '\$.ad_campaign_id'), ''), NULLIF(json_extract(parameters_json, '\$.campaign_id'), ''))";
+        } else {
+            $expr = "json_extract(parameters_json, '\$.{$param}')";
+        }
+        $stmt = $pdo->prepare(
+            "SELECT DISTINCT {$expr} AS eid FROM clicks
+             WHERE campaign_id = ? AND {$expr} IS NOT NULL AND {$expr} != ''"
+        );
+        $stmt->execute([$campaignId]);
+        $ids = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $eid) {
+            $eid = trim((string) $eid);
+            if ($eid !== '' && ctype_digit($eid)) {
+                $ids[] = $eid;
+            }
+        }
+        if ($ids) {
+            return [$level, $ids];
+        }
+    }
+    return [null, []];
+}
+
+/**
+ * Push ACTIVE/PAUSED to every ad-network entity linked to a tracker campaign.
+ * Facebook only for now — the same engine limit as the report entity toggle.
+ */
+function orbitraSyncCampaignRemoteAds(PDO $pdo, int $campaignId, string $targetStatus): array
+{
+    [$level, $ids] = orbitraCampaignRemoteAdIds($pdo, $campaignId);
+    if (!$ids) {
+        return [];
+    }
+
+    // The connection that owns the entities is the one whose cost records
+    // mention their ids; without cost records, a single connected account is
+    // still unambiguous (mirrors the ad_entity_toggle_status heuristics).
+    $placeholders = implode(',', array_fill(0, count($ids), '?'));
+    $stmt = $pdo->prepare(
+        "SELECT cr.connection_id FROM cost_records cr
+         JOIN aggregator_connections ac ON ac.id = cr.connection_id
+         WHERE ac.engine = 'facebook' AND ac.is_active = 1
+           AND (cr.source_campaign_id IN ($placeholders) OR cr.adset_id IN ($placeholders) OR cr.ad_id IN ($placeholders))
+         ORDER BY cr.id DESC LIMIT 1");
+    $stmt->execute([...$ids, ...$ids, ...$ids]);
+    $connId = $stmt->fetchColumn();
+    if (!$connId) {
+        $fbIds = $pdo->query("SELECT id FROM aggregator_connections WHERE engine = 'facebook' AND is_active = 1 ORDER BY id LIMIT 2")->fetchAll(PDO::FETCH_COLUMN);
+        if (count($fbIds) === 1) {
+            $connId = $fbIds[0];
+        }
+    }
+    if (!$connId) {
+        return array_map(
+            fn($id) => ['platform' => 'facebook', 'entity_id' => $id, 'level' => $level, 'success' => false, 'message' => 'No Facebook API connection found'],
+            $ids
+        );
+    }
+
+    $stmt = $pdo->prepare("SELECT credentials_json FROM aggregator_connections WHERE id = ?");
+    $stmt->execute([(int) $connId]);
+    $credentials = json_decode((string) $stmt->fetchColumn(), true);
+    if (!is_array($credentials)) {
+        $credentials = [];
+    }
+
+    require_once __DIR__ . '/aggregator_engines/FacebookAdsEngine.php';
+    $results = [];
+    foreach ($ids as $id) {
+        $res = FacebookAdsEngine::updateEntityStatus($credentials, $id, $targetStatus);
+        $results[] = [
+            'platform' => 'facebook',
+            'entity_id' => $id,
+            'level' => $level,
+            'success' => !empty($res['success']),
+            'message' => $res['message'] ?? null,
+        ];
+    }
+    logAudit($pdo, 'UPDATE', 'Campaign', $campaignId, "Remote ad sync ($level x" . count($ids) . ") → $targetStatus");
+    return $results;
+}
+
 // === NGINX AUTO-CONFIGURATION ===
 /**
  * Check if a command exists on the system
@@ -4047,6 +4145,24 @@ try {
             }
             break;
 
+        case 'campaign_remote_links':
+            // Which ad-network entities a tracker campaign would stop when
+            // paused — powers the safety confirmation before the fan-out.
+            $cid = (int) ($_GET['campaign_id'] ?? 0);
+            if ($cid <= 0) {
+                echo json_encode(['status' => 'error', 'message' => 'campaign_id required']);
+                break;
+            }
+            [$linkLevel, $linkIds] = orbitraCampaignRemoteAdIds($pdo, $cid);
+            echo json_encode([
+                'status' => 'success',
+                'campaign_id' => $cid,
+                'data' => [
+                    ['platform' => 'facebook', 'level' => $linkLevel, 'ids' => $linkIds],
+                ],
+            ]);
+            break;
+
         case 'ad_entity_toggle_status':
             // RedTrack-style play/pause from the tracker tables. Two very
             // different targets share the endpoint: an internal campaign
@@ -4068,12 +4184,25 @@ try {
                 break;
             }
 
-            if ($type === 'campaign') {
+            if ($type === 'campaign' || $type === 'tracker_campaign') {
                 $newState = $targetStatus === 'ACTIVE' ? 'active' : 'disabled';
                 $stmt = $pdo->prepare("UPDATE campaigns SET state = ? WHERE id = ?");
                 $stmt->execute([$newState, (int) $entityId]);
                 logAudit($pdo, 'UPDATE', 'Campaign', (int) $entityId, "State: $newState (panel toggle)");
-                echo json_encode(['status' => 'success', 'new_status' => $targetStatus, 'source' => 'internal']);
+
+                // Opt-in fan-out: the campaigns page asks the linked ad-network
+                // entities to follow; the report toggle keeps local-only
+                // behaviour until it sends the flag too.
+                $remoteSynced = [];
+                if (!empty($data['sync_remote_ads'])) {
+                    $remoteSynced = orbitraSyncCampaignRemoteAds($pdo, (int) $entityId, $targetStatus);
+                }
+                echo json_encode([
+                    'status' => 'success',
+                    'new_status' => $targetStatus,
+                    'source' => 'internal',
+                    'remote_synced' => $remoteSynced,
+                ]);
                 break;
             }
 
@@ -4085,13 +4214,18 @@ try {
             // Facebook only for now: the connection that owns the entity is
             // the one whose cost records mention its id; without a cost
             // record, an unambiguous single connected account still works.
+            $costIdColumn = [
+                'ad' => 'ad_id',
+                'adset' => 'adset_id',
+                'ad_campaign' => 'source_campaign_id',
+            ][$type];
             $stmt = $pdo->prepare("
                 SELECT cr.connection_id FROM cost_records cr
                 JOIN aggregator_connections ac ON ac.id = cr.connection_id
                 WHERE ac.engine = 'facebook' AND ac.is_active = 1
-                  AND (cr.ad_id = ? OR cr.adset_id = ? OR cr.source_campaign_id = ?)
+                  AND cr.{$costIdColumn} = ?
                 ORDER BY cr.id DESC LIMIT 1");
-            $stmt->execute([$entityId, $entityId, $entityId]);
+            $stmt->execute([$entityId]);
             $connId = $stmt->fetchColumn();
             if (!$connId) {
                 $fbIds = $pdo->query("SELECT id FROM aggregator_connections WHERE engine = 'facebook' AND is_active = 1 ORDER BY id LIMIT 2")->fetchAll(PDO::FETCH_COLUMN);
@@ -7421,7 +7555,10 @@ try {
                 'hour'           => "strftime('%Y-%m-%d %H:00', clicks.created_at, '$dbTzOffset')",
                 'ad_id'          => "json_extract(clicks.parameters_json, '\$.ad_id')",
                 'adset_id'       => "json_extract(clicks.parameters_json, '\$.adset_id')",
-                'ad_campaign_id' => "json_extract(clicks.parameters_json, '\$.campaign_id')",
+                // Dedicated external campaign key first; the standard Facebook
+                // traffic-source template historically stores {{campaign.id}}
+                // as campaign_id, so keep that as a compatibility fallback.
+                'ad_campaign_id' => "COALESCE(NULLIF(json_extract(clicks.parameters_json, '\$.ad_campaign_id'), ''), NULLIF(json_extract(clicks.parameters_json, '\$.campaign_id'), ''))",
                 'keyword'        => "json_extract(clicks.parameters_json, '\$.keyword')",
                 'creative_id'    => "json_extract(clicks.parameters_json, '\$.creative')",
                 'external_id'    => "json_extract(clicks.parameters_json, '\$.external_id')",

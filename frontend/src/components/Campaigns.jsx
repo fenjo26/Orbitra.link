@@ -1,10 +1,11 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Plus, Trash2, Edit3, Settings2, DollarSign, XCircle, ChevronUp, ChevronDown, ChevronsUpDown, Filter, RefreshCw, X, Copy, BarChart2, SlidersHorizontal, GripVertical, MoreVertical } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Plus, Trash2, Edit3, Settings2, DollarSign, XCircle, ChevronUp, ChevronDown, ChevronsUpDown, Filter, RefreshCw, X, Copy, BarChart2, SlidersHorizontal, GripVertical, MoreVertical, AlertTriangle } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import GroupsModal from './GroupsModal';
 import CampaignReports from './CampaignReports';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
-import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getDefaultTemplateColumns } from './ReportCustomizerModal';
+import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getDefaultTemplateColumns, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 import { financeVisibility, financeHiddenMetric } from '../utils/permissions';
@@ -29,17 +30,46 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
 
     // Row action dropdown (⋮): one menu replaces the four always-visible
     // buttons that multiplied visual noise across 50–100 rows.
-    const [openMenuId, setOpenMenuId] = useState(null);
+    const [menuAnchor, setMenuAnchor] = useState(null);
 
     // Pagination for high-volume lists. "All" restores the previous behaviour.
     const [rowsPerPage, setRowsPerPage] = useState(50);
     const [page, setPage] = useState(0);
 
+    const handleToggleMenu = (event, campaignId) => {
+        event.stopPropagation();
+
+        if (menuAnchor?.id === campaignId) {
+            setMenuAnchor(null);
+            return;
+        }
+
+        const rect = event.currentTarget.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const openUp = spaceBelow < 240;
+
+        setMenuAnchor({
+            id: campaignId,
+            top: openUp ? rect.top - 8 : rect.bottom + 4,
+            right: Math.max(8, window.innerWidth - rect.right),
+            openUp
+        });
+    };
+
     useEffect(() => {
-        const close = () => setOpenMenuId(null);
-        document.addEventListener('click', close);
-        return () => document.removeEventListener('click', close);
-    }, []);
+        if (!menuAnchor) return undefined;
+
+        const close = () => setMenuAnchor(null);
+        window.addEventListener('click', close);
+        window.addEventListener('scroll', close, true);
+        window.addEventListener('resize', close);
+
+        return () => {
+            window.removeEventListener('click', close);
+            window.removeEventListener('scroll', close, true);
+            window.removeEventListener('resize', close);
+        };
+    }, [menuAnchor]);
 
     // Any narrowing of the list must drop the user back to the first page,
     // or page 3 of yesterday's filter shows an empty slice.
@@ -74,18 +104,26 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         }
     };
 
-    const handleToggleCampaignState = async (camp) => {
+    const handleToggleCampaignState = async (camp, targetOverride) => {
         if (togglingCampaignIds.has(camp.id)) return;
-        const target = campaignEnabled(camp) ? 'PAUSED' : 'ACTIVE';
+        const target = targetOverride || (campaignEnabled(camp) ? 'PAUSED' : 'ACTIVE');
         setTogglingCampaignIds(prev => new Set(prev).add(camp.id));
         try {
             const res = await axios.post('/api.php?action=ad_entity_toggle_status', {
                 entity_type: 'campaign',
                 entity_id: String(camp.id),
-                target_status: target
+                target_status: target,
+                // Pause/resume follows through to the linked ad-network
+                // campaigns (clicks.parameters_json ids) — stopping spend is
+                // the whole point of the switch.
+                sync_remote_ads: true
             });
             if (res.data.status === 'success') {
                 setCampaignStateOverrides(prev => ({ ...prev, [camp.id]: target === 'ACTIVE' ? 'active' : 'disabled' }));
+                const failed = (res.data.remote_synced || []).filter(r => !r.success);
+                if (failed.length > 0) {
+                    alert(`${t('automation.statusUpdateError')}: ${failed[0].message || ''} (${failed.length})`);
+                }
             } else {
                 alert(res.data.message || t('automation.statusUpdateError'));
             }
@@ -94,6 +132,30 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         } finally {
             setTogglingCampaignIds(prev => { const s = new Set(prev); s.delete(camp.id); return s; });
         }
+    };
+
+    // Pausing may stop real spend in the ad accounts — when linked ad entities
+    // exist, ask first. Resuming goes straight through.
+    const [confirmPause, setConfirmPause] = useState(null);
+    const handleRequestToggleState = async (camp) => {
+        if (togglingCampaignIds.has(camp.id)) return;
+        if (!campaignEnabled(camp)) {
+            handleToggleCampaignState(camp, 'ACTIVE');
+            return;
+        }
+        try {
+            const res = await axios.get(`${API_URL}?action=campaign_remote_links`, { params: { campaign_id: camp.id } });
+            const linked = res.data.status === 'success'
+                ? (res.data.data || []).flatMap(p => (p.ids || []).map(id => ({ platform: p.platform, id })))
+                : [];
+            if (linked.length > 0) {
+                setConfirmPause({ camp, linked });
+                return;
+            }
+        } catch (e) {
+            // No link info — fall through to a plain confirmed-by-absence pause.
+        }
+        handleToggleCampaignState(camp, 'PAUSED');
     };
 
     // Date & Timezone Range Picker State
@@ -114,7 +176,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     const [chosenColumns, setChosenColumns] = useState(() => {
         try {
             const saved = localStorage.getItem('orbitra_campaign_columns');
-            if (saved) return JSON.parse(saved);
+            if (saved) return normalizeReportMetricIds(JSON.parse(saved));
         } catch (e) {}
         // No per-page selection yet — fall back to the user's default template
         const fromDefaultTemplate = getDefaultTemplateColumns();
@@ -299,6 +361,8 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             clicks: 0,
             unique_clicks: 0,
             prelander_clicks: 0,
+            lp_views: 0,
+            lp_clicks: 0,
             offer_clicks: 0,
             conversions: 0,
             purchases: 0,
@@ -319,7 +383,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         visibleCampaigns.forEach(c => {
             t0.clicks += Number(c.clicks) || 0;
             t0.unique_clicks += Number(c.unique_clicks) || 0;
-            t0.prelander_clicks += Number(c.prelander_clicks) || 0;
+            const lpViews = Number(c.lp_views ?? c.prelander_clicks ?? c.clicks) || 0;
+            t0.prelander_clicks += lpViews;
+            t0.lp_views += lpViews;
+            t0.lp_clicks += Number(c.lp_clicks ?? c.offer_clicks) || 0;
             t0.offer_clicks += Number(c.offer_clicks) || 0;
             t0.conversions += Number(c.conversions) || 0;
             t0.purchases += Number(c.purchases) || 0;
@@ -339,7 +406,8 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
 
         // Calculated composite metrics
         const uc_rate = t0.clicks > 0 ? (t0.unique_clicks / t0.clicks) * 100 : 0;
-        const lp_ctr = t0.clicks > 0 ? (t0.offer_clicks / t0.clicks) * 100 : 0;
+        const lpClickDenominator = t0.lp_clicks > 0 ? t0.lp_clicks : t0.clicks;
+        const lp_ctr = t0.lp_views > 0 ? (t0.lp_clicks / t0.lp_views) * 100 : 0;
         const cr = t0.clicks > 0 ? (t0.conversions / t0.clicks) * 100 : 0;
         const cr_sales = t0.clicks > 0 ? (t0.purchases / t0.clicks) * 100 : 0;
         const cr_holds = t0.clicks > 0 ? (t0.holds / t0.clicks) * 100 : 0;
@@ -348,11 +416,12 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         const approve_rate_excl_trash = nonTrash > 0 ? (t0.purchases / nonTrash) * 100 : 0;
         const roi = t0.cost > 0 ? (t0.profit / t0.cost) * 100 : 0;
         const real_roi = t0.cost > 0 ? (t0.real_profit / t0.cost) * 100 : 0;
-        const epc = t0.clicks > 0 ? t0.revenue / t0.clicks : 0;
+        const epc = lpClickDenominator > 0 ? t0.revenue / lpClickDenominator : 0;
+        const epv = t0.lp_views > 0 ? t0.revenue / t0.lp_views : 0;
         const uepc = t0.unique_clicks > 0 ? t0.revenue / t0.unique_clicks : 0;
-        const cpc = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
+        const cpc = lpClickDenominator > 0 ? t0.cost / lpClickDenominator : 0;
         const ucpc = t0.unique_clicks > 0 ? t0.cost / t0.unique_clicks : 0;
-        const cpv = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
+        const cpv = t0.lp_views > 0 ? t0.cost / t0.lp_views : 0;
         const cpa = t0.conversions > 0 ? t0.cost / t0.conversions : 0;
         const earnings_per_conv = t0.conversions > 0 ? t0.revenue / t0.conversions : 0;
 
@@ -368,6 +437,8 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             roi,
             real_roi,
             epc,
+            epc_all: epc,
+            epv,
             uepc,
             cpc,
             ucpc,
@@ -477,13 +548,13 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                 <button
                     type="button"
                     onClick={() => requestSort(colKey, defaultDir)}
-                    className={`inline-flex items-center gap-1 text-xs font-semibold whitespace-nowrap ${alignRight ? 'justify-end w-full' : ''}`}
+                    className={`inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap ${alignRight ? 'justify-end w-full' : ''}`}
                     style={{
                         color: isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)',
                         textAlign: alignRight ? 'right' : 'left'
                     }}
                 >
-                    {draggable && <GripVertical className="w-3 h-3 opacity-30 -ml-1 cursor-grab flex-shrink-0" />}
+                    {draggable && <GripVertical className="w-3 h-3 opacity-25 hover:opacity-75 -ml-1 cursor-grab flex-shrink-0" />}
                     <span>{label}</span>
                     <SortIcon colKey={colKey} />
                 </button>
@@ -596,6 +667,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             case 'uepc_hold':
             case 'epc_registration':
             case 'uepc_registration':
+            case 'epv':
             case 'cpc':
             case 'ucpc':
             case 'cpv':
@@ -789,6 +861,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                 />
                             </th>
                             <SortableTh colKey="id" label="ID" defaultDir="desc" />
+                            <SortableTh colKey="state" label={t('common.status')} defaultDir="asc" />
                             <SortableTh colKey="name" label={t('campaigns.campaign')} defaultDir="asc" />
                             <SortableTh colKey="group_name" label={t('campaigns.group')} defaultDir="asc" />
 
@@ -800,7 +873,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                         key={colId}
                                         colKey={colId}
                                         label={def?.shortLabel || def?.label || colId}
-                                        fullTitle={def?.label}
+                                        fullTitle={getReportMetricTooltip(def, t)}
                                         defaultDir="desc"
                                         alignRight={true}
                                         draggable={true}
@@ -819,7 +892,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                     <tbody>
                         {visibleCampaigns.length === 0 ? (
                             <tr>
-                                <td colSpan={5 + visibleColumns.length} className="text-center py-12">
+                                <td colSpan={6 + visibleColumns.length} className="text-center py-12">
                                     <div className="empty-state">
                                         <p className="empty-state-title">{t('campaigns.noCampaignsCreated')}</p>
                                         <p className="empty-state-text">{t('campaigns.createFirstCampaign')}</p>
@@ -842,13 +915,14 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                         <span title={camp.keitaro_id ? `Keitaro ID: ${camp.keitaro_id}` : ''}>{camp.id}</span>
                                     </td>
                                     <td>
-                                        {/* One line: switch, name, alias — a second line for the
-                                            alias halved how many campaigns fit on screen. */}
-                                        <div className="flex items-center gap-2" style={{ maxWidth: 300 }}>
+                                        {/* Dedicated status column keeps the pause switch away
+                                            from the campaign name — a stray click while aiming
+                                            at the name used to stop live ads. */}
+                                        <div className="flex items-center justify-center">
                                             <button
                                                 type="button"
                                                 disabled={togglingCampaignIds.has(camp.id)}
-                                                onClick={() => handleToggleCampaignState(camp)}
+                                                onClick={() => handleRequestToggleState(camp)}
                                                 className="relative inline-flex h-4 w-7 flex-shrink-0 items-center rounded-full transition-colors"
                                                 style={{
                                                     background: campaignEnabled(camp) ? 'var(--color-success, #10b981)' : 'var(--color-border)',
@@ -859,6 +933,12 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                             >
                                                 <span className="inline-block h-3 w-3 transform rounded-full bg-white shadow transition-transform" style={{ transform: campaignEnabled(camp) ? 'translateX(12px)' : 'translateX(2px)' }} />
                                             </button>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {/* One line: name, alias — a second line for the
+                                            alias halved how many campaigns fit on screen. */}
+                                        <div className="flex items-center gap-2" style={{ maxWidth: 320 }}>
                                             <span
                                                 className="font-medium text-xs truncate cursor-pointer hover:underline"
                                                 style={{ color: 'var(--color-text-primary)' }}
@@ -886,49 +966,15 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                     ))}
 
                                     <td style={{ textAlign: 'right' }}>
-                                        <div className="relative inline-block text-left" onClick={(e) => e.stopPropagation()}>
-                                            <button
-                                                type="button"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setOpenMenuId(openMenuId === camp.id ? null : camp.id);
-                                                }}
-                                                className="p-1 rounded transition-colors"
-                                                style={{ color: 'var(--color-text-muted)' }}
-                                                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-text-primary)')}
-                                                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-muted)')}
-                                                title={t('table.actions')}
-                                            >
-                                                <MoreVertical className="w-4 h-4" />
-                                            </button>
-
-                                            {openMenuId === camp.id && (
-                                                <div
-                                                    className="absolute right-0 mt-1 w-44 rounded-xl shadow-xl z-50 py-1 text-xs border"
-                                                    style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}
-                                                >
-                                                    <button onClick={() => { setOpenMenuId(null); handleEdit(camp.id); }} className="w-full text-left px-3 py-1.5 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
-                                                        <Edit3 className="w-3.5 h-3.5" /> {t('common.edit')}
-                                                    </button>
-                                                    <button onClick={() => { setOpenMenuId(null); setActionModal({ type: 'update_costs', campaignId: camp.id }); }} className="w-full text-left px-3 py-1.5 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
-                                                        <DollarSign className="w-3.5 h-3.5" /> {t('campaigns.updateCosts')}
-                                                    </button>
-                                                    <button onClick={() => { setOpenMenuId(null); handleCopyCampaignLink(camp); }} className="w-full text-left px-3 py-1.5 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
-                                                        <Copy className="w-3.5 h-3.5" /> {t('table.copyLink')}
-                                                    </button>
-                                                    <button onClick={() => { setOpenMenuId(null); handleDuplicateCampaign(camp); }} className="w-full text-left px-3 py-1.5 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
-                                                        <ChevronsUpDown className="w-3.5 h-3.5 rotate-90" /> {t('table.duplicate')}
-                                                    </button>
-                                                    <button onClick={() => { setOpenMenuId(null); setActionModal({ type: 'clear_stats', campaignId: camp.id }); }} className="w-full text-left px-3 py-1.5 flex items-center gap-2" style={{ color: 'var(--color-warning, #f59e0b)' }}>
-                                                        <XCircle className="w-3.5 h-3.5" /> {t('common.clearStats')}
-                                                    </button>
-                                                    <div className="my-1 border-t" style={{ borderColor: 'var(--color-border)' }}></div>
-                                                    <button onClick={() => { setOpenMenuId(null); handleDelete(camp.id); }} className="w-full text-left px-3 py-1.5 flex items-center gap-2 text-red-500">
-                                                        <Trash2 className="w-3.5 h-3.5" /> {t('common.delete')}
-                                                    </button>
-                                                </div>
-                                            )}
-                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={(event) => handleToggleMenu(event, camp.id)}
+                                            className="p-1.5 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                                            style={{ color: menuAnchor?.id === camp.id ? 'var(--color-primary)' : 'var(--color-text-muted)' }}
+                                            title={t('table.actions')}
+                                        >
+                                            <MoreVertical className="w-4 h-4" />
+                                        </button>
                                     </td>
                                 </tr>
                             ))
@@ -941,6 +987,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                             <tr style={{ backgroundColor: 'var(--color-bg-soft)', borderTop: '2px solid var(--color-border)', fontWeight: 700 }}>
                                 <td></td>
                                 <td>Σ</td>
+                                <td></td>
                                 <td>{t('campaignReports.total', 'Totals')} ({visibleCampaigns.length})</td>
                                 <td>-</td>
                                 {visibleColumns.map(colId => (
@@ -1004,6 +1051,70 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                 onSaveColumns={handleSaveColumns}
                 mode="campaigns"
             />
+
+            {/* Pause Safety Confirmation — stopping a campaign with linked ad
+                entities stops real spend in the ad accounts; list them first. */}
+            {confirmPause && (
+                <div className="modal-overlay" onClick={() => setConfirmPause(null)}>
+                    <div className="modal-content max-w-md w-full rounded-2xl p-6" style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }} onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2.5 rounded-xl flex-shrink-0" style={{
+                                background: 'color-mix(in srgb, var(--color-warning) 12%, transparent)',
+                                border: '1px solid color-mix(in srgb, var(--color-warning) 35%, transparent)',
+                                color: 'var(--color-warning)'
+                            }}>
+                                <AlertTriangle className="w-5 h-5" />
+                            </div>
+                            <div className="min-w-0">
+                                <h3 className="modal-title font-bold text-base m-0">
+                                    {t('campaigns.pauseRemoteTitle')}
+                                </h3>
+                                <p className="text-xs m-0 mt-0.5 truncate" style={{ color: 'var(--color-text-muted)' }}>
+                                    {confirmPause.camp.name}
+                                </p>
+                            </div>
+                        </div>
+
+                        <p className="text-xs mb-3" style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+                            {t('campaigns.pauseRemoteWarning')}
+                        </p>
+
+                        <div className="mb-4">
+                            <p className="text-xs font-semibold mb-1.5" style={{ color: 'var(--color-text-primary)' }}>
+                                {t('campaigns.pauseRemoteLinked')}
+                            </p>
+                            <div className="flex flex-wrap gap-1.5">
+                                {confirmPause.linked.map(l => (
+                                    <span
+                                        key={`${l.platform}-${l.id}`}
+                                        className="text-[10px] font-mono px-1.5 py-0.5 rounded border"
+                                        style={{ color: 'var(--color-text-muted)', borderColor: 'var(--color-border)' }}
+                                    >
+                                        {l.platform}:{l.id}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end gap-2.5 pt-3" style={{ borderTop: '1px solid var(--color-border)' }}>
+                            <button type="button" onClick={() => setConfirmPause(null)} className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl">
+                                {t('common.cancel')}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    const camp = confirmPause.camp;
+                                    setConfirmPause(null);
+                                    handleToggleCampaignState(camp, 'PAUSED');
+                                }}
+                                className="btn btn-danger text-xs py-1.5 px-4 rounded-xl font-semibold"
+                            >
+                                {t('campaigns.confirmPauseAll')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Clear Stats Modal */}
             {actionModal.type === 'clear_stats' && (
@@ -1081,6 +1192,49 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                     campaignName={null}
                     onClose={() => setShowGlobalReports(false)}
                 />
+            )}
+
+            {menuAnchor && typeof document !== 'undefined' && createPortal(
+                (() => {
+                    const camp = campaignList.find((campaign) => campaign.id === menuAnchor.id);
+                    if (!camp) return null;
+
+                    return (
+                        <div
+                            className="fixed w-48 rounded-2xl shadow-2xl py-1.5 text-xs border animate-in fade-in zoom-in-95 duration-100"
+                            style={{
+                                backgroundColor: 'var(--color-bg-card)',
+                                borderColor: 'var(--color-border)',
+                                right: `${menuAnchor.right}px`,
+                                top: menuAnchor.openUp ? undefined : `${menuAnchor.top}px`,
+                                bottom: menuAnchor.openUp ? `${window.innerHeight - menuAnchor.top}px` : undefined,
+                                zIndex: 99999
+                            }}
+                            onClick={(event) => event.stopPropagation()}
+                        >
+                            <button onClick={() => { setMenuAnchor(null); handleEdit(camp.id); }} className="w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition" style={{ color: 'var(--color-text-primary)' }}>
+                                <Edit3 className="w-3.5 h-3.5" /> {t('common.edit')}
+                            </button>
+                            <button onClick={() => { setMenuAnchor(null); setActionModal({ type: 'update_costs', campaignId: camp.id }); }} className="w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition" style={{ color: 'var(--color-text-primary)' }}>
+                                <DollarSign className="w-3.5 h-3.5" /> {t('campaigns.updateCosts')}
+                            </button>
+                            <button onClick={() => { setMenuAnchor(null); handleCopyCampaignLink(camp); }} className="w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition" style={{ color: 'var(--color-text-primary)' }}>
+                                <Copy className="w-3.5 h-3.5" /> {t('table.copyLink')}
+                            </button>
+                            <button onClick={() => { setMenuAnchor(null); handleDuplicateCampaign(camp); }} className="w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition" style={{ color: 'var(--color-text-primary)' }}>
+                                <ChevronsUpDown className="w-3.5 h-3.5 rotate-90" /> {t('table.duplicate')}
+                            </button>
+                            <button onClick={() => { setMenuAnchor(null); setActionModal({ type: 'clear_stats', campaignId: camp.id }); }} className="w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition" style={{ color: 'var(--color-warning, #f59e0b)' }}>
+                                <XCircle className="w-3.5 h-3.5" /> {t('common.clearStats')}
+                            </button>
+                            <div className="my-1 border-t" style={{ borderColor: 'var(--color-border)' }}></div>
+                            <button onClick={() => { setMenuAnchor(null); handleDelete(camp.id); }} className="w-full text-left px-3.5 py-2 flex items-center gap-2.5 text-red-500 hover:bg-red-500/10 transition">
+                                <Trash2 className="w-3.5 h-3.5" /> {t('common.delete')}
+                            </button>
+                        </div>
+                    );
+                })(),
+                document.body
             )}
         </div>
     );

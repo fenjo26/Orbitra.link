@@ -1,13 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { X, Upload, Plus, Trash2, Check } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Plus, Trash2, Check, Save, PackageOpen, HardDrive, ExternalLink, Layers3, Zap } from 'lucide-react';
 import axios from 'axios';
 import GeoSelector from './GeoSelector';
 import HelpTooltip from './HelpTooltip';
 import GroupsModal from './GroupsModal';
 import AffiliateNetworkEditor from './AffiliateNetworkEditor';
+import SegmentedControl from './common/SegmentedControl';
+import FileDropzone from './common/FileDropzone';
+import CodeSnippetCard from './common/CodeSnippetCard';
 import { useLanguage } from '../contexts/LanguageContext';
 import { cachedGet } from '../utils/apiCache';
 import { getStayInEditorAfterSave } from '../utils/editorPreferences';
+import { copyToClipboard as copyUtil } from '../utils/clipboard';
 
 const API_URL = '/api.php';
 
@@ -43,16 +47,15 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
     });
 
     // Local offer files
-    const [files, setFiles] = useState([]);
     const [uploadingZip, setUploadingZip] = useState(false);
     const [pendingZip, setPendingZip] = useState(null);
+    const [lastZip, setLastZip] = useState(null);
     const [offerFiles, setOfferFiles] = useState([]);
     const [savedOfferId, setSavedOfferId] = useState(null);
     const [savedSomething, setSavedSomething] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
     const currentOfferId = offerId || savedOfferId;
-    const offerZipInputRef = useRef(null);
-    const fileInputRef = useRef(null);
+    const [copiedSnippet, setCopiedSnippet] = useState('');
 
     // Show/hide advanced sections
     const [showCapping, setShowCapping] = useState(false);
@@ -174,6 +177,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
                 if (formData.is_local && pendingZip && newId) {
                     const zip = pendingZip;
                     setPendingZip(null);
+                    setLastZip(zip);
                     await uploadOfferZip(newId, zip);
                 }
 
@@ -187,7 +191,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
             } else {
                 alert(t('offerEditor.saveError') + " " + res.data.message);
             }
-        } catch (err) {
+        } catch {
             alert(t('offerEditor.networkError'));
         } finally {
             setLoading(false);
@@ -217,6 +221,21 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
         }
     };
 
+    const selectOfferZip = (file) => {
+        if (currentOfferId) {
+            setLastZip(file);
+            uploadOfferZip(currentOfferId, file);
+        } else {
+            setPendingZip(file);
+        }
+    };
+
+    const copySnippet = async (text, id) => {
+        if (!await copyUtil(text)) return;
+        setCopiedSnippet(id);
+        setTimeout(() => setCopiedSnippet(''), 1800);
+    };
+
     const fetchOfferFiles = async (id) => {
         try {
             const res = await axios.get(`${API_URL}?action=offer_files`, { params: { id } });
@@ -229,7 +248,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
         try {
             await axios.post(`${API_URL}?action=offer_file_op`, { id: currentOfferId, path, op: 'delete' });
             fetchOfferFiles(currentOfferId);
-        } catch (err) {
+        } catch {
             alert(t('common.deleteError'));
         }
     };
@@ -272,6 +291,11 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
         : ['preload', 'action'].includes(formData.redirect_type)
             ? formData.redirect_type
             : 'redirect';
+    const tabs = [
+        { id: 'general', label: t('editor.general') },
+        { id: 'integration', label: `${t('editor.integrations')} & ${t('landingEditor.viewCode')}` },
+        { id: 'details', label: `${t('editor.notes')} & ${t('editor.params')}` }
+    ];
 
     if (loading && offerId && !formData.name) {
         return (
@@ -285,33 +309,34 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
 
     return (
         <div className="modal-overlay">
-            <div className="modal-content" style={{ maxWidth: '800px', width: '100%' }}>
-                <div className="modal-header">
-                    <h2 className="modal-title">
-                        {currentOfferId ? `${t('offers.titleSingular')}: ${formData.name}` : t('offers.createOffer')}
-                    </h2>
-                    <button onClick={() => onClose(savedSomething)} className="action-btn">
+            <div className="modal-content" style={{ maxWidth: '880px', width: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0 }}>
+                <div className="modal-header px-6 pt-5" style={{ marginBottom: 0, borderBottom: 'none', flexShrink: 0 }}>
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>
+                            <PackageOpen className="w-5 h-5" />
+                        </div>
+                        <h2 className="modal-title truncate">
+                            {currentOfferId ? `${t('offers.titleSingular')}: ${formData.name}` : t('offers.createOffer')}
+                        </h2>
+                    </div>
+                    <button type="button" onClick={() => onClose(savedSomething)} className="action-btn" aria-label={t('common.close', 'Close')}>
                         <X className="w-5 h-5" />
                     </button>
                 </div>
 
-                {/* Tabs. Custom values used to live in a tab mislabeled "Notes"
-                    (editor.notes instead of editor.values) — merged into the
-                    Parameters tab so the tab bar reads General | Parameters | Notes. */}
-                <div className="flex px-5 pt-1 gap-6" style={{ borderBottom: '1px solid var(--color-border)' }}>
-                    {['general', 'settings', 'notes'].map(tab => (
+                <div className="flex px-6 pt-1 gap-7 overflow-x-auto" style={{ borderBottom: '1px solid var(--color-border)', flexShrink: 0 }}>
+                    {tabs.map(tab => (
                         <button
-                            key={tab}
-                            className="pb-3 px-1 font-medium text-sm transition border-b-2"
+                            key={tab.id}
+                            type="button"
+                            className="pb-3 px-1 font-semibold text-sm transition border-b-2 whitespace-nowrap"
                             style={{
-                                borderColor: activeTab === tab ? 'var(--color-primary)' : 'transparent',
-                                color: activeTab === tab ? 'var(--color-primary)' : 'var(--color-text-secondary)'
+                                borderColor: activeTab === tab.id ? 'var(--color-primary)' : 'transparent',
+                                color: activeTab === tab.id ? 'var(--color-primary)' : 'var(--color-text-secondary)'
                             }}
-                            onClick={() => setActiveTab(tab)}
+                            onClick={() => setActiveTab(tab.id)}
                         >
-                            {tab === 'general' && t('editor.general')}
-                            {tab === 'settings' && t('editor.params')}
-                            {tab === 'notes' && t('editor.notes')}
+                            {tab.label}
                         </button>
                     ))}
                 </div>
@@ -354,30 +379,43 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="form-label">
-                                        {t('offerEditor.affiliateNetwork')}
-                                        <span className="ml-1 relative group cursor-pointer inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold rounded-full" style={{ color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}>
-                                            ?
-                                            <div className="absolute bottom-full mb-2 hidden group-hover:block w-48 rounded-xl p-2 z-10 shadow-lg text-xs" style={{ backgroundColor: 'var(--color-bg-card)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}>
-                                                {t('offerEditor.networkTooltip')}
-                                            </div>
+                                    <label className="form-label">{t('landingEditor.status')}</label>
+                                    <select
+                                        value={formData.state}
+                                        onChange={e => setFormData({ ...formData, state: e.target.value })}
+                                        className="form-select"
+                                    >
+                                        <option value="active">{t('landingEditor.active')}</option>
+                                        <option value="paused">{t('landingEditor.paused')}</option>
+                                        <option value="archived">{t('landingEditor.archived')}</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="form-label">
+                                    {t('offerEditor.affiliateNetwork')}
+                                    <span className="ml-1 relative group cursor-pointer inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold rounded-full" style={{ color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}>
+                                        ?
+                                        <span className="absolute bottom-full mb-2 hidden group-hover:block w-48 rounded-xl p-2 z-10 shadow-lg text-xs" style={{ backgroundColor: 'var(--color-bg-card)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}>
+                                            {t('offerEditor.networkTooltip')}
                                         </span>
-                                    </label>
-                                    <div className="flex">
-                                        <select
-                                            value={formData.affiliate_network_id}
-                                            onChange={e => setFormData({ ...formData, affiliate_network_id: e.target.value })}
-                                            className="form-select rounded-r-none"
-                                        >
-                                            <option value="">{t('offerEditor.noNetwork')}</option>
-                                            {affiliateNetworks.map(an => (
-                                                <option key={an.id} value={an.id}>{an.name}</option>
-                                            ))}
-                                        </select>
-                                        <button type="button" className="btn btn-secondary rounded-l-none border-l-0" onClick={() => setShowNetworkEditor(true)} title={t('networks.title')}>
-                                            <Plus className="w-4 h-4" />
-                                        </button>
-                                    </div>
+                                    </span>
+                                </label>
+                                <div className="flex">
+                                    <select
+                                        value={formData.affiliate_network_id}
+                                        onChange={e => setFormData({ ...formData, affiliate_network_id: e.target.value })}
+                                        className="form-select rounded-r-none"
+                                    >
+                                        <option value="">{t('offerEditor.noNetwork')}</option>
+                                        {affiliateNetworks.map(an => (
+                                            <option key={an.id} value={an.id}>{an.name}</option>
+                                        ))}
+                                    </select>
+                                    <button type="button" className="btn btn-secondary rounded-l-none border-l-0" onClick={() => setShowNetworkEditor(true)} title={t('networks.title')}>
+                                        <Plus className="w-4 h-4" />
+                                    </button>
                                 </div>
                             </div>
 
@@ -388,50 +426,22 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
                                 fight over redirect_type, deactivating each other. */}
                             <div>
                                 <label className="form-label">{t('offerEditor.redirectType')} <HelpTooltip textKey="help.redirectTypeTooltip" /></label>
-                                <div className="flex rounded-xl overflow-hidden mb-3" style={{ border: '1px solid var(--color-border)' }}>
-                                    <button
-                                        onClick={() => setFormData({ ...formData, redirect_type: 'local', is_local: true })}
-                                        className="flex-1 px-4 py-2 text-sm font-medium transition"
-                                        style={{
-                                            backgroundColor: formData.is_local ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
-                                            color: formData.is_local ? 'var(--color-primary)' : 'var(--color-text-primary)',
-                                            borderRight: '1px solid var(--color-border)'
-                                        }}
-                                    >
-                                        {t('offers.local')}
-                                    </button>
-                                    <button
-                                        onClick={() => setFormData({ ...formData, redirect_type: 'redirect', is_local: false })}
-                                        className="flex-1 px-4 py-2 text-sm font-medium transition"
-                                        style={{
-                                            backgroundColor: offerType === 'redirect' ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
-                                            color: offerType === 'redirect' ? 'var(--color-primary)' : 'var(--color-text-primary)',
-                                            borderRight: '1px solid var(--color-border)'
-                                        }}
-                                    >
-                                        {t('offers.redirect')}
-                                    </button>
-                                    <button
-                                        onClick={() => setFormData({ ...formData, redirect_type: 'preload', is_local: false })}
-                                        className="flex-1 px-4 py-2 text-sm font-medium transition"
-                                        style={{
-                                            backgroundColor: offerType === 'preload' ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
-                                            color: offerType === 'preload' ? 'var(--color-primary)' : 'var(--color-text-primary)',
-                                            borderRight: '1px solid var(--color-border)'
-                                        }}
-                                    >
-                                        {t('landingEditor.typePreload')}
-                                    </button>
-                                    <button
-                                        onClick={() => setFormData({ ...formData, redirect_type: 'action', is_local: false })}
-                                        className="flex-1 px-4 py-2 text-sm font-medium transition"
-                                        style={{
-                                            backgroundColor: offerType === 'action' ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
-                                            color: offerType === 'action' ? 'var(--color-primary)' : 'var(--color-text-primary)'
-                                        }}
-                                    >
-                                        {t('editor.action')}
-                                    </button>
+                                <div className="mb-3">
+                                    <SegmentedControl
+                                        ariaLabel={t('offerEditor.redirectType')}
+                                        value={offerType}
+                                        onChange={(type) => setFormData({
+                                            ...formData,
+                                            redirect_type: type,
+                                            is_local: type === 'local'
+                                        })}
+                                        options={[
+                                            { value: 'local', label: t('offers.local'), icon: HardDrive },
+                                            { value: 'redirect', label: t('offers.redirect'), icon: ExternalLink },
+                                            { value: 'preload', label: t('landingEditor.typePreload'), icon: Layers3 },
+                                            { value: 'action', label: t('editor.action'), icon: Zap }
+                                        ]}
+                                    />
                                 </div>
                                 {offerType === 'redirect' && (
                                     <>
@@ -472,66 +482,37 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
                                     <div className="font-semibold mb-2 text-sm" style={{ color: 'var(--color-text-primary)' }}>
                                         {t('offerEditor.localArchive', 'Local offer files')}
                                     </div>
-
-                                    {!currentOfferId ? (
-                                        <>
-                                            <input
-                                                type="file"
-                                                accept=".zip"
-                                                className="form-input"
-                                                onChange={e => setPendingZip(e.target.files[0] || null)}
-                                            />
-                                            <p className="mt-1 text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                                                {t('offerEditor.zipOnCreateHint', 'The archive uploads right after the offer is created (an upload needs the offer id). index.html becomes the offer page.')}
-                                            </p>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <input
-                                                type="file"
-                                                accept=".zip"
-                                                ref={offerZipInputRef}
-                                                className="hidden"
-                                                onChange={e => {
-                                                    const f = e.target.files[0];
-                                                    if (f) uploadOfferZip(currentOfferId, f);
-                                                    e.target.value = null;
-                                                }}
-                                            />
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-secondary"
-                                                    disabled={uploadingZip}
-                                                    onClick={() => offerZipInputRef.current?.click()}
-                                                >
-                                                    <Upload className="w-4 h-4" />
-                                                    {uploadingZip ? t('common.loading') : t('offerEditor.uploadZip', 'Upload ZIP')}
-                                                </button>
-                                                <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                                                    {offerFiles.length > 0
-                                                        ? `${t('offerEditor.filesLabel', 'files')}: ${offerFiles.length}`
-                                                        : t('offerEditor.noFiles', 'No files yet')}
-                                                </span>
-                                            </div>
-                                            {offerFiles.length > 0 && (
-                                                <ul className="space-y-1 max-h-40 overflow-y-auto">
-                                                    {offerFiles.map(f => (
-                                                        <li key={f} className="flex items-center justify-between gap-2 text-xs px-2 py-1 rounded" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
-                                                            <span className="truncate font-mono" style={{ color: 'var(--color-text-secondary)' }}>{f}</span>
-                                                            <button
-                                                                type="button"
-                                                                className="action-btn"
-                                                                onClick={() => deleteOfferFile(f)}
-                                                                title={t('common.delete')}
-                                                            >
-                                                                <Trash2 className="w-3.5 h-3.5" />
-                                                            </button>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            )}
-                                        </>
+                                    <FileDropzone
+                                        file={pendingZip || lastZip}
+                                        onFileSelect={selectOfferZip}
+                                        disabled={uploadingZip}
+                                        label={uploadingZip ? t('landingEditor.uploadingZip') : t('offerEditor.uploadZip', 'Upload ZIP Archive')}
+                                        emptyHint={t('landingEditor.zipDropHint', 'Drag & drop .zip here or click to browse files')}
+                                        replaceHint={t('landingEditor.zipReplaceHint', 'Click to replace')}
+                                    />
+                                    <p className="mt-2 text-xs" style={{ color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+                                        {!currentOfferId
+                                            ? t('offerEditor.zipOnCreateHint', 'The archive uploads right after the offer is created (an upload needs the offer id). index.html becomes the offer page.')
+                                            : (offerFiles.length > 0
+                                                ? `${t('offerEditor.filesLabel', 'files')}: ${offerFiles.length}`
+                                                : t('offerEditor.noFiles', 'No files yet'))}
+                                    </p>
+                                    {currentOfferId && offerFiles.length > 0 && (
+                                        <ul className="space-y-1 max-h-40 overflow-y-auto mt-3">
+                                            {offerFiles.map(f => (
+                                                <li key={f} className="flex items-center justify-between gap-2 text-xs px-2 py-1.5 rounded-lg" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+                                                    <span className="truncate font-mono" style={{ color: 'var(--color-text-secondary)' }}>{f}</span>
+                                                    <button
+                                                        type="button"
+                                                        className="action-btn"
+                                                        onClick={() => deleteOfferFile(f)}
+                                                        title={t('common.delete')}
+                                                    >
+                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                    </button>
+                                                </li>
+                                            ))}
+                                        </ul>
                                     )}
                                 </div>
                             )}
@@ -554,8 +535,46 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
                         </div>
                     )}
 
-                    {/* Settings Tab */}
-                    {activeTab === 'settings' && (
+                    {activeTab === 'integration' && (
+                        <div className="space-y-4">
+                            <CodeSnippetCard
+                                title={t('landingEditor.offerLinkTitle')}
+                                description={t('landingEditor.offerLinkHint')}
+                                code="{offer}"
+                                copyId="offer-macro"
+                                onCopy={copySnippet}
+                                copied={copiedSnippet}
+                                copyLabel={t('landingEditor.copyCode')}
+                                copiedLabel={t('landingEditor.codeCopied')}
+                            />
+                            <CodeSnippetCard
+                                title={formData.is_local ? t('offerEditor.localArchive', 'Local offer files') : t('offerEditor.urlTemplate', 'Offer URL')}
+                                description={formData.is_local
+                                    ? t('offerEditor.zipOnCreateHint', 'index.html becomes the local offer page.')
+                                    : t('offerEditor.networkTooltip')}
+                                code={formData.is_local ? 'index.html' : (formData.url || 'https://offer.example.com/?subid={subid}')}
+                                copyId="offer-url-template"
+                                onCopy={copySnippet}
+                                copied={copiedSnippet}
+                                copyLabel={t('landingEditor.copyCode')}
+                                copiedLabel={t('landingEditor.codeCopied')}
+                            />
+                            <CodeSnippetCard
+                                title={t('sourceEditor.availableMacros')}
+                                description={t('offerEditor.valuesDesc')}
+                                code={['{subid}', ...formData.values.filter(value => value.name).map(value => `{offer_value:${value.name}}`)].join('\n')}
+                                copyId="offer-available-macros"
+                                onCopy={copySnippet}
+                                copied={copiedSnippet}
+                                copyLabel={t('landingEditor.copyCode')}
+                                copiedLabel={t('landingEditor.codeCopied')}
+                                muted
+                            />
+                        </div>
+                    )}
+
+                    {/* Notes & Parameters Tab */}
+                    {activeTab === 'details' && (
                         <div className="space-y-5">
                             <div>
                                 <label className="form-label">{t('offerEditor.countries')}</label>
@@ -759,42 +778,41 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
                                     </div>
                                 )}
                             </div>
-                        </div>
-                    )}
 
-                    {/* Notes Tab */}
-                    {activeTab === 'notes' && (
-                        <div>
-                            <label className="form-label">{t('editor.notes')}</label>
-                            <textarea
-                                rows={8}
-                                value={formData.notes}
-                                onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                                className="form-input resize-none"
-                                placeholder={t('offerEditor.notesPlaceholder')}
-                            />
+                            <div className="pt-2" style={{ borderTop: '1px solid var(--color-border)' }}>
+                                <label className="form-label">{t('editor.notes')}</label>
+                                <textarea
+                                    rows={6}
+                                    value={formData.notes}
+                                    onChange={e => setFormData({ ...formData, notes: e.target.value })}
+                                    className="form-input resize-none"
+                                    placeholder={t('offerEditor.notesPlaceholder')}
+                                />
+                            </div>
                         </div>
                     )}
                 </div>
 
                 {/* Footer */}
-                <div className="modal-footer">
-                    <button onClick={() => onClose(savedSomething)} className="btn btn-secondary">
+                <div className="modal-footer px-6 pb-5" style={{ marginTop: 0, flexShrink: 0 }}>
+                    <button type="button" onClick={() => onClose(savedSomething)} className="btn btn-secondary rounded-xl">
+                        <X className="w-4 h-4" />
                         {t('common.cancel')}
                     </button>
                     <button
                         type="button"
                         onClick={() => handleSave(true)}
                         disabled={loading || uploadingZip || saveSuccess}
-                        className="btn btn-secondary"
+                        className="btn btn-secondary rounded-xl"
                     >
+                        <Save className="w-4 h-4" />
                         {t('profile.saveAndClose')}
                     </button>
                     <button
                         type="button"
                         onClick={() => handleSave(false)}
                         disabled={loading || uploadingZip || saveSuccess}
-                        className="btn btn-primary"
+                        className="btn btn-primary rounded-xl"
                         style={saveSuccess ? { backgroundColor: 'var(--color-success)' } : {}}
                     >
                         <Check className="w-4 h-4 mr-1.5" />

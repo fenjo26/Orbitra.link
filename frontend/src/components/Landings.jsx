@@ -248,6 +248,21 @@ const Landings = ({ landings, refreshData }) => {
 
     const localizedColumns = ALL_LANDING_COLUMNS.map(c => ({ ...c, label: columnLabel(c.id) }));
 
+    const metricHint = (colId) => {
+        const hintKey = ({
+            visits: 'lpViewsHint',
+            clicks: 'lpViewsHint',
+            lp_clicks: 'lpClicksHint',
+            lp_ctr: 'lpCtrHint',
+            cpv: 'cpvHint',
+            cpc: 'cpcHint',
+            epv: 'epvHint',
+            epc: 'epcHint',
+            epc_confirmed: 'epcHint',
+        })[colId];
+        return hintKey ? t(`metrics.${hintKey}`) : undefined;
+    };
+
     // SQLite hands back "YYYY-MM-DD HH:MM:SS"; the space separator chokes
     // Safari's Date parser, so normalize to ISO before formatting.
     const formatLastEvent = (v) => {
@@ -282,6 +297,8 @@ const Landings = ({ landings, refreshData }) => {
     const totalsProfit = totals.revenue - totals.cost;
     const totalsProfitConfirmed = totals.revenue_confirmed - totals.cost;
     const totalsApproveDenom = totals.sales + totals.leads + totals.rejected + totals.trash;
+    const totalsLpViews = totals.visits > 0 ? totals.visits : totals.clicks;
+    const totalsLpClickDenominator = totals.lp_clicks > 0 ? totals.lp_clicks : totals.clicks;
     const renderTotalCell = (colId) => {
         switch (colId) {
             case 'clicks': return totals.clicks.toLocaleString();
@@ -295,18 +312,18 @@ const Landings = ({ landings, refreshData }) => {
             case 'rejected': return totals.rejected.toLocaleString();
             case 'trash': return totals.trash.toLocaleString();
             case 'approve_rate': return totalsApproveDenom > 0 ? `${((totals.sales / totalsApproveDenom) * 100).toFixed(2)}%` : '0%';
-            case 'lp_ctr': return totals.clicks > 0 ? `${((totals.lp_clicks / totals.clicks) * 100).toFixed(2)}%` : '0%';
+            case 'lp_ctr': return totalsLpViews > 0 ? `${((totals.lp_clicks / totalsLpViews) * 100).toFixed(2)}%` : '0%';
             case 'revenue': return money(totals.revenue);
             case 'revenue_confirmed': return money(totals.revenue_confirmed);
             case 'cost': return money(totals.cost);
             case 'profit': return money(totalsProfit);
             case 'profit_confirmed': return money(totalsProfitConfirmed);
             case 'cr': return totals.clicks > 0 ? `${((totals.conversions / totals.clicks) * 100).toFixed(2)}%` : '0%';
-            case 'epc': return totals.clicks > 0 ? money(totals.revenue / totals.clicks) : '$0.00';
-            case 'epc_confirmed': return totals.clicks > 0 ? money(totals.revenue_confirmed / totals.clicks) : '$0.00';
-            case 'epv': return totals.clicks > 0 ? money(totals.revenue / totals.clicks) : '$0.00';
-            case 'cpc': return totals.clicks > 0 ? money(totals.cost / totals.clicks) : '$0.00';
-            case 'cpv': return totals.clicks > 0 ? money(totals.cost / totals.clicks) : '$0.00';
+            case 'epc': return totalsLpClickDenominator > 0 ? money(totals.revenue / totalsLpClickDenominator) : '$0.00';
+            case 'epc_confirmed': return totalsLpClickDenominator > 0 ? money(totals.revenue_confirmed / totalsLpClickDenominator) : '$0.00';
+            case 'epv': return totalsLpViews > 0 ? money(totals.revenue / totalsLpViews) : '$0.00';
+            case 'cpc': return totalsLpClickDenominator > 0 ? money(totals.cost / totalsLpClickDenominator) : '$0.00';
+            case 'cpv': return totalsLpViews > 0 ? money(totals.cost / totalsLpViews) : '$0.00';
             case 'roi': return totals.cost > 0 ? `${((totalsProfit / totals.cost) * 100).toFixed(2)}%` : '—';
             case 'roi_confirmed': return totals.cost > 0 ? `${((totalsProfitConfirmed / totals.cost) * 100).toFixed(2)}%` : '—';
             default: return null;
@@ -521,7 +538,7 @@ const Landings = ({ landings, refreshData }) => {
                                 />
                             </th>
                             {chosenColumns.map((colId) => (
-                                <th key={colId} className={ALL_LANDING_COLUMNS.find(c => c.id === colId)?.alignRight ? 'text-right' : ''}>{columnLabel(colId)}</th>
+                                <th key={colId} title={metricHint(colId)} className={ALL_LANDING_COLUMNS.find(c => c.id === colId)?.alignRight ? 'text-right' : ''}>{columnLabel(colId)}</th>
                             ))}
                             <th className="text-right">{t('common.actions')}</th>
                         </tr>
