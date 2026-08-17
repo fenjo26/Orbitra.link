@@ -80,8 +80,10 @@ Orbitra is deliberately lightweight — it runs on plain **PHP + SQLite** behind
 - **6 payout models**: CPC, CPuC, CPM, CPA, CPS, RevShare
 - **30+ parameters**: keyword, sub_id_1...30, cost, creative_id and more
 - **Advanced stream logic**: Intercept → Regular → Fallback with weights and positions
-- **Advanced filtering**: GEO, Device, OS, Browser, ISP, IP, Language, Referer
+- **Advanced filtering**: GEO, Device (Desktop / Mobile / Tablet taxonomy shared by the tracker, Click API and reports), OS, Browser, ISP, IP, Language, Referer
 - **A/B testing**: built-in split-test support with weighted rotation
+- **Play/Pause from the panel** — one click pauses an internal campaign (a disabled campaign stops serving immediately) or an actual Facebook ad / ad set / campaign right from the table or a report row, via the Meta Marketing API
+- **Per-stream "Collect clicks"** — fallback and white-page streams can serve their destination without writing a click row, so unwanted traffic stops polluting CR and CPA
 
 ### 4. **Integrations**
 - **S2S Postbacks** — Server-to-Server postbacks from affiliate networks
@@ -89,13 +91,20 @@ Orbitra is deliberately lightweight — it runs on plain **PHP + SQLite** behind
 - **Source templates**: Facebook, Google, TikTok, Yandex, Taboola, Outbrain, Email and others
 - **Click API** — tokens for working with integration scripts
 - **Facebook cost import** — daily ad spend pulled from the Meta Marketing API and attributed to clicks by ad / adset / campaign ID, converted into the tracker's currency ([docs](docs/facebook.md))
+- **TikTok Ads & Google Ads cost import** — the same attributed-spend pipeline for the other major networks
+- **External cost API** — Dolphin and Fbtool push spend straight into Orbitra through a Keitaro-compatible Admin API route ([docs](docs/dolphin-fbtool.md))
 - **Facebook Conversions API** — conversions sent to Meta server-side, deduplicated against the browser pixel, so the events ad blockers and iOS strip out still reach the optimiser
+- **Ads Manager extension** — a browser overlay that injects real profit / ROI / CPA pills into Facebook Ads Manager rows, with a per-entity drill-down: daily history, landings and offers breakdown, and Pixel/CAPI delivery accuracy (auto-provisioned read key, no page permissions on other sites)
+- **Cloudflare & Namecheap** — DNS parking and SSL through the Cloudflare API; buy, park and import domains through Namecheap without leaving the panel
+- **Revenue aggregators** — Affilka, ReferOn and generic S2S APIs feed real player revenue back into reports
 - **Telegram Bot** — real-time monitoring and notifications
 
 ### 5. **Analytics & Reports**
 - **Dashboard** — aggregated statistics for clicks, conversions and revenue
 - **Trends** — detailed analytics with charts across 8 metrics
-- **Campaign Reports** — campaign reports grouped by any parameter
+- **Campaign Reports** — campaign reports grouped by any parameter, with saveable column templates and a Keitaro-parity column set (visits, LP CTR, leads/sales/rejected/trash, Approve %, EPC/EPV, ROI/ROI(conf), CPV)
+- **Cohort analysis** — how campaigns launched on different dates hold up over time
+- **High-density tables** — compact sticky-header tables for Campaigns / Landers / Offers with zebra striping, pagination and a TOTAL row that always stays visible
 - **Conversion Log** — detailed conversion log with filters
 - **Traffic Simulation** — click simulation for testing streams
 
@@ -111,10 +120,13 @@ Orbitra is deliberately lightweight — it runs on plain **PHP + SQLite** behind
 - **Multilingual**: the bot speaks all 7 interface languages (EN, RU, UK, ES, ZH, FR, DE) via `/lang`
 
 ### 8. **Domain Management**
-- **DNS check** — automatic A-record verification
-- **HTTPS-only** — forced redirect to HTTPS
-- **Bot protection** — intercepts `/robots.txt` and `X-Robots-Tag`
-- **Parking mode** — domain parking with protection
+- **Domain groups** — organise parked domains ("FB Nutra", "TikTok Landers", …) with inline group creation from the domain modal
+- **Per-domain controls** — admin panel access (deny = panel and API answer 404 on that host while tracking keeps working), HTTPS-only redirect, Cloudflare proxy (SSL from the CF edge, Let's Encrypt issuance skipped), crawler indexing
+- **Index page routing & Catch 404** — serve a campaign on the domain root or catch unknown paths
+- **Registrar / DNS metadata** — registrar, DNS provider and manual status (Disabled serves 404 on the whole host)
+- **Bulk add with URL cleanup** — paste `https://track.example.com/` or a comma-separated list; HTTP(S), slashes and spaces are cleaned automatically
+- **DNS check** — automatic A-record verification with caching
+- **Automatic SSL** — Let's Encrypt via Certbot with retry backoff and chain-completeness checks; zero-config parking writes the A record when the Cloudflare or Namecheap integration is connected
 
 ### 9. **Migration from Keitaro**
 - **Full data migration**: campaigns, offers, domains, streams, affiliate networks, sources, landings
@@ -128,6 +140,26 @@ Orbitra is deliberately lightweight — it runs on plain **PHP + SQLite** behind
 - **reCAPTCHA v3** — invisible, score-based with a configurable threshold
 - **Custom code** — paste any HTML/JS verification widget
 - **Clean stats** — clicks are logged only after a successful challenge, so bots never appear in reports; challenge state is signed (HMAC-SHA256) and expires in 15 minutes to prevent replay
+
+### 11. **Roles & Security**
+- **RBAC roles** — one-click role templates (Admin / Media Buyer / Video Editor / Developer / Custom) fill the whole per-resource permission matrix
+- **Server-side financial masking** — users without `show_costs` / `show_revenue` / `show_payout` see money fields nulled across metrics, charts, campaigns and offers, with save-guards so a masked editor load can never wipe stored amounts
+- **Personal API keys** — per-user keys with `read` / `write` scopes for MCP, the Admin API and the Ads Manager extension
+- **Bot & cloak protection** — datacenter/VPN ASN detection, UA heuristics, bot-ISP blocklists, safe-page serving for suspicious visitors with per-stream control over what lands in the stats
+
+## 🤖 AI Assistant Integration (MCP)
+
+Since v0.9.5.0 Orbitra ships an **MCP server** ([`mcp/`](mcp/README.md)) — connect Claude Desktop or any other MCP client and drive the tracker in plain language:
+
+> "How did my campaigns do over the last 7 days?"
+> "Create 10 campaigns for offer #4 — one per GEO: US, CA, GB, DE, FR."
+> "Add track.example.com and point its root at campaign 12."
+
+- **31 tools** — reads (metrics, campaigns, conversions, reports) and management (create / bulk-create / edit / delete campaigns, offers, domains, sources, landings)
+- **Scoped API keys** — `read` (analytics only) and `write` (management), generated under **Users → API keys**
+- **Safe by design** — the key only ever goes to your own tracker address; read keys physically cannot change data
+
+Details: [docs/mcp.md](docs/mcp.md) and [mcp/README.md](mcp/README.md).
 
 ## 📁 Project Structure
 

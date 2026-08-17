@@ -7,6 +7,47 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+- 🎮 **RedTrack-style play/pause** — toggle internal campaigns (a disabled
+  campaign stops serving immediately, `index.php` answers 503) and real
+  Facebook ads / ad sets / campaigns right from the Campaigns table and report
+  rows (`campaign_id` / `ad_id` / `adset_id` / `ad_campaign_id` layers) via
+  `FacebookAdsEngine::updateEntityStatus`; the owning ad account is resolved
+  through `cost_records`, falling back to a single connected account. Reports
+  now return raw `dim_ids` alongside display names.
+- 🚦 **Per-stream "Collect clicks"** (schema v24, `streams.collect_clicks`,
+  default on) — fallback / white-page streams serve their destination without
+  writing a `clicks` row, consistently across `index.php`, `click.php` and the
+  Click API; stream-header checkbox with a warning note in the editor, 7 locales.
+- 🧩 **Ads Manager overlay extension** — row pills fused with attributed spend
+  and verified revenue (`extension_ads_stats`), a per-entity deep-stats modal
+  with daily history, landings & offers breakdown and Pixel/CAPI delivery
+  accuracy (`extension_deep_stats`, 36-assertion fixture test), an
+  auto-provisioned read key from the Integrations page, and a downloadable
+  `data/orbitra-extension.zip`.
+- 🏷️ **Keitaro-style domain panel** (schema v23) — dedicated `domain_groups`
+  (seeded from used offer groups under the same ids, FK rebuilt with a
+  restore-on-failure guard), per-domain admin access (deny → panel/API 404 on
+  that host while tracking keeps working; `status=Disabled` → whole host 404),
+  Cloudflare proxy flag (skips the Certbot queue — the SSL worker previously
+  retried proxied domains forever), registrar/DNS metadata, bulk add with URL
+  cleanup, "Add more" workflow; 7 locales, migration fixture test.
+- 📊 **High-density tables** — Campaigns / Landers / Offers get compact 38px
+  rows, sticky header and TOTAL footer inside a scrolling container, theme-safe
+  zebra striping, single-line campaign rows (switch + name + alias), a ⋮ row
+  menu (Edit / Costs / Copy link / Duplicate / Clear / Delete) and pagination
+  (25/50/100/All) with filter-wide totals.
+- 🖥️ **Device taxonomy** (`core/Device.php`) shared by the tracker, Click API
+  and reports; CPV metric; editor preference presets; affiliate-network
+  template presets.
+
+### Changed
+- All monetary and unit metrics render as `$0.00` (2 decimals) everywhere,
+  including CSV export — previously CPC/EPC/CPV showed four decimals.
+- `var/` (sessions, locks, caches) is gitignored.
+
 ## [0.9.8.2] — 2026-08-16
 
 ### Added
