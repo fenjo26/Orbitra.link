@@ -1,6 +1,16 @@
-# Основные Функции Orbitra v1.0.1
+# Основные Функции Orbitra v1.0.2
 
 Полный обзор функциональности трекера Orbitra — современного аналога Keitaro Tracker.
+
+## 🆕 Новое в v1.0.2
+
+- **LeadForge 2.0: Analyze → Build** — двухэтапный конвейер вместо одношотового forge: `leadforge_analyze` инспектирует до 15 ZIP/HTML/PHP бандлов без изменения файлов (детект источника по 13 сигнатурам CPA-сетей, формы и имена полей, чужие счётчики, проверка UTF-8, ГЕО по атрибуту `lang`, карточки готовности с чекбоксами) и держит staging 24 часа; `leadforge_build_batch` собирает выбранные бандлы с живой консолью исполнения. Одношотовый `leadforge_forge_landing` сохранён как делегат того же движка.
+- **Режимы интеграции Auto / Cross-Network / Raw** — Auto маршрутизирует по опознанной сети; Cross вырезает легаси-обработчики старой ПП (`order.php`/`send.php`/`api.php`/`sender.php`) и пересаживает лендинг на целевую; Raw — клон-патч: снос FB/TikTok/GA/Яндекс-счётчиков, DevTools/RightClick/Back-Redirect-скриптов, инъекция ClickID-моста и макросов `{offer}` без генерации бэкенда.
+- **Live Auto QA с Confidence Score** — после сборки `QA-Test-Lead` с телефоном по маске ГЕО (для IT — `+39 333 000 1122`) прогоняется через реальный мост `/order.php` (cookie `orbitra_lp`); 4 чека по 25% (структура формы, ответ моста, dual logging, редирект на thank_you) дают 0–100%; перепрогон — `leadforge_live_qa`. QA-клики и конверсии удаляются после прогона — аналитика чистая, vault-строка остаётся как проверяемое доказательство.
+- **CRM Anti-Shaving Vault (миграция 28)** — таблица `crm_leads`: сырой телефон как ввёл клиент vs доставленный E.164, атрибуция UTM/adset/ad, product/price, точный дамп запроса/ответа сети (endpoint, payload, HTTP-код, тело, network lead id), status_reason/source. Три пути приёма: in-process из сгенерированного order.php, публичный `POST /crm-ingest` для бандлов на чужом хостинге, вручную из панели. `leadforge_profiles` засеяна шестью сетями движка.
+- **S2S-сверка и детектор шейва** — постбек двигает CRM-статусы клика (`&reason=` сохраняется дословно); **Suspected Shave** ставится только при доказуемой связке «доставлен корректный E.164 + сеть ответила HTTP 200 + реджект»; молчание сети 24 часа после 200 — **Missing Network ACK**; тот же номер в той же сети за 30 дней — **Duplicate**. Lead Inspector: 3 таба доказательств (Raw Lead Data / Network Transaction / Tracking Attribution) с экспортируемым пакетом для тикета в саппорт ПП.
+- **orbitra_adapter.js 2.0** — ClickID-мост читает cookie трекера `orbitra_click` как последний резерв subid, принимает алиасы `clickid`/`sub_id`, хранит захваченные параметры между страницами (sessionStorage + cookie) и принудительно применяет реальную маску телефона ГЕО (placeholder, фильтрация ввода, блокировка сабмита).
+- **Фиксы** — мост order.php умирал от 3-секундного бюджета PHP-лендингов посреди сетевого вызова (теперь `max(timeout, 25с)`); router.php на dev-сервере глотал `/postback.php`, `/order.php`, `/crm-ingest` пустым 200 (список зарезервированных путей синхронизирован с index.php); LeadForge и CRM переведены на глобальную систему тем (btn-primary/btn-secondary, color-mix-тинты, `--color-text-inverse` на primary для neon), бейджи «3-in-1» убраны.
 
 ## 🆕 Новое в v1.0.1
 
@@ -566,4 +576,4 @@ scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz .
 
 ---
 
-*Функции обновлены для версии v0.9.6.0*
+*Функции обновлены для версии v1.0.2*

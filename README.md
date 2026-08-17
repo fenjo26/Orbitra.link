@@ -1,4 +1,4 @@
-# Orbitra v1.0.1 Tracker
+# Orbitra v1.0.2 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -422,14 +422,15 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.0.1 (2026-08-17)
-- 🎵 **1-Click TikTok For Business** — OAuth login from the Pixel Vault auto-discovers ad accounts and pixels, imports the pixels into the vault and sets up spend sync per selected cabinet; ~24h access tokens are refreshed automatically on every cost sync, and the fresh token propagates to the imported pixels
-- 🗂️ **Pixel Vault source tabs** — All / Facebook / TikTok / Google Ads… filter chips with live counts; pixel options in the campaign editor spell out their network
-- 📄 **TikTok Pixel snippet** — landing code that boots `ttq` from the `{pixel}` campaign parameter via cookie (Integrations → Sites & landings)
-- ⬜ **Fixed: Campaigns white screen** — TDZ crash on the traffic-source filter state shipped in 1.0.0
-- 🎨 **Fixed: dashboard stat cards** — breathing room above Traffic Dynamics, softer theme-safe active glow; clearer search input on Traffic Sources
+### Current release — v1.0.2 (2026-08-17)
+- 🔬 **LeadForge 2.0: Analyze → Build** — inspect up to 15 bundles without touching a byte (network detection across 13 CPA signatures, forms, foreign counters, encoding, GEO), then compile the selected ones through a live execution console
+- 🔀 **Auto / Cross-Network / Raw modes** — route to the detected network, swap the old network's handlers for a new one, or clone-patch with counters stripped and the ClickID bridge injected
+- 🛡️ **Live Auto QA** — a QA-Test-Lead is posted through the real order.php bridge after every build and scored 0–100% (structure, bridge, dual logging, thank-you redirect); QA traffic never touches analytics
+- 🗄️ **CRM Anti-Shaving Vault** — every lead stored with the raw phone as typed vs the E.164 delivered, UTM/adset/ad attribution, and the exact network request/response dump; fed in-process, via the public /crm-ingest endpoint, or manually
+- 🚨 **Shave detection** — rejected-after-200-with-valid-E.164 leads flag as Suspected Shave with an evidence pack for the network's support; 24h-silent leads flag as Missing Network ACK, same-phone repeats as Duplicates
+- 🧯 **Fixed: order.php bridge timeout** — the 3s PHP-landing budget killed handlers mid-network-call (now max(timeout, 25s)); router.php no longer swallows /postback.php, /order.php, /crm-ingest on the dev server; both suite pages follow the global theme system
 
-Previous release — v1.0.0: LeadForge landing forge + CRM capsule, TikTok Conversions API + pixel profiles, inline table search, universal pagination, traffic-source filter + visible stream weights, 0.9.9.2 funnel semantics.
+Previous release — v1.0.1: 1-Click TikTok For Business (OAuth + auto-discovery + spend sync with 24h token auto-refresh), Pixel Vault source tabs, TikTok pixel snippet; Campaigns TDZ white screen fix.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

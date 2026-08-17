@@ -158,6 +158,72 @@ CREATE TABLE campaign_pixels (
 
 CREATE INDEX idx_campaign_pixels_profile ON campaign_pixels(pixel_profile_id);
 
+CREATE TABLE crm_leads (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        click_id VARCHAR(64) NOT NULL,
+        campaign_id INTEGER DEFAULT 0,
+        lander_id INTEGER DEFAULT 0,
+        offer_id VARCHAR(64) DEFAULT '',
+        network VARCHAR(32) NOT NULL DEFAULT 'custom',
+        network_lead_id VARCHAR(128) DEFAULT NULL,
+        product VARCHAR(128) DEFAULT '',
+        customer_name VARCHAR(255) DEFAULT '',
+        raw_phone VARCHAR(64) NOT NULL,
+        clean_phone VARCHAR(64) NOT NULL,
+        price DECIMAL(10, 2) DEFAULT 0.00,
+        payout DECIMAL(10, 2) DEFAULT 0.00,
+        currency VARCHAR(3) DEFAULT 'USD',
+        geo VARCHAR(8) DEFAULT '',
+        ip VARCHAR(45) DEFAULT '',
+        user_agent TEXT DEFAULT '',
+        utm_source VARCHAR(128) DEFAULT '',
+        utm_campaign VARCHAR(128) DEFAULT '',
+        utm_placement VARCHAR(128) DEFAULT '',
+        adset_id VARCHAR(64) DEFAULT '',
+        adset_name VARCHAR(128) DEFAULT '',
+        ad_id VARCHAR(64) DEFAULT '',
+        ad_name VARCHAR(128) DEFAULT '',
+        sub_data_json TEXT DEFAULT '{}',
+        network_request_json TEXT DEFAULT '{}',
+        network_response_json TEXT DEFAULT '{}',
+        status VARCHAR(32) DEFAULT 'lead',
+        status_reason TEXT DEFAULT '',
+        status_source VARCHAR(32) DEFAULT 'form_submit',
+        s2s_postback_status VARCHAR(32) DEFAULT 'pending',
+        is_qa_test INTEGER DEFAULT 0,
+        is_duplicate INTEGER DEFAULT 0,
+        shave_suspect INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+CREATE INDEX idx_crm_leads_click_id ON crm_leads(click_id);
+CREATE INDEX idx_crm_leads_network_lead ON crm_leads(network_lead_id);
+CREATE INDEX idx_crm_leads_clean_phone ON crm_leads(clean_phone);
+CREATE INDEX idx_crm_leads_status ON crm_leads(status);
+CREATE INDEX idx_crm_leads_campaign ON crm_leads(campaign_id);
+CREATE INDEX idx_crm_leads_shave ON crm_leads(shave_suspect);
+CREATE INDEX idx_crm_leads_created ON crm_leads(created_at);
+
+CREATE TABLE leadforge_profiles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name VARCHAR(128) NOT NULL,
+        network_key VARCHAR(32) NOT NULL,
+        api_endpoint VARCHAR(255) NOT NULL,
+        api_key VARCHAR(255) DEFAULT '',
+        offer_id VARCHAR(64) DEFAULT '',
+        geo VARCHAR(8) DEFAULT '',
+        payout DECIMAL(10, 2) DEFAULT 0.00,
+        currency VARCHAR(3) DEFAULT 'USD',
+        click_id_field VARCHAR(32) DEFAULT 'sub1',
+        custom_headers_json TEXT DEFAULT '{}',
+        payload_template TEXT NOT NULL DEFAULT '{}',
+        api_key_required INTEGER DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+CREATE INDEX idx_leadforge_profiles_network ON leadforge_profiles(network_key);
+
 CREATE TABLE campaign_postbacks (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         campaign_id INTEGER NOT NULL,

@@ -32,6 +32,8 @@ require_once __DIR__ . '/core/backorder.php';
 require_once __DIR__ . '/core/keitaro_import.php';
 require_once __DIR__ . '/core/CloakDetector.php';
 require_once __DIR__ . '/core/geo_databases.php';
+require_once __DIR__ . '/core/LeadForge.php';
+require_once __DIR__ . '/core/CrmVault.php';
 
 // CORS Headers
 $allowedOrigins = ['https://tracker.yourdomain.com', 'http://127.0.0.1:8000', 'http://localhost:8080', 'http://localhost:5173', 'http://localhost']; // Add real domains here
@@ -3768,603 +3770,255 @@ try {
 
         // === LeadForge: Batch Lander & Offer Engine ===
         case 'leadforge_forge_landing':
+            // Legacy one-shot entry, kept for API compatibility. The panel now
+            // drives the two-stage Analyze → Build flow (leadforge_analyze /
+            // leadforge_build_batch); this delegates to the same engine.
             try {
                 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
                     echo json_encode(['status' => 'error', 'message' => 'POST required']);
                     break;
                 }
-
                 if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
                     echo json_encode(['status' => 'error', 'message' => 'ZIP file upload error: ' . ($_FILES['file']['error'] ?? 'no file')]);
                     break;
                 }
-
-                if (!class_exists('ZipArchive')) {
-                    echo json_encode(['status' => 'error', 'message' => 'missing_ext_zip']);
-                    break;
-                }
-
-                $zipFile = $_FILES['file']['tmp_name'];
-                $originalName = $_FILES['file']['name'] ?? 'landing.zip';
-                $baseZipName = pathinfo($originalName, PATHINFO_FILENAME);
-
-                $landingName = trim($_POST['name'] ?? '') ?: $baseZipName;
-                $network = strtolower(trim($_POST['network'] ?? 'drcash'));
-                $apiKey = trim($_POST['api_key'] ?? '');
-                $offerId = trim($_POST['offer_id'] ?? '');
-                $geo = strtoupper(trim($_POST['geo'] ?? 'IT'));
-                $payout = floatval($_POST['payout'] ?? 0);
-                $currency = strtoupper(trim($_POST['currency'] ?? 'USD'));
-                $groupId = !empty($_POST['group_id']) ? intval($_POST['group_id']) : null;
-                $injectOfferMacro = ($_POST['inject_offer_macro'] ?? '1') === '1';
-                $injectJsAdapter = ($_POST['inject_js_adapter'] ?? '1') === '1';
-                $addPhoneMask = ($_POST['add_phone_mask'] ?? '1') === '1';
-                $generateThankYou = ($_POST['generate_thank_you'] ?? '1') === '1';
-                $generateOrderPhp = ($_POST['generate_order_php'] ?? '1') === '1';
-                $autoSaveTracker = ($_POST['auto_save_tracker'] ?? '1') === '1';
-                $autoCreateOffer = ($_POST['auto_create_offer'] ?? '0') === '1';
-
-                // The generated handlers are PHP — same trust switch and same
-                // scan the manual landing upload enforces.
-                if ($generateOrderPhp || $generateThankYou) {
-                    require_once __DIR__ . '/core/PhpLanding.php';
-                    if (!PhpLanding::enabled($pdo)) {
-                        $itClean = new RecursiveIteratorIterator(
-                            new RecursiveDirectoryIterator($tempDir, RecursiveDirectoryIterator::SKIP_DOTS),
-                            RecursiveIteratorIterator::CHILD_FIRST
-                        );
-                        foreach ($itClean as $entryClean) {
-                            $entryClean->isDir() ? @rmdir($entryClean->getPathname()) : @unlink($entryClean->getPathname());
-                        }
-                        @rmdir($tempDir);
-                        echo json_encode([
-                            'status' => 'error',
-                            'message' => 'php_landings_disabled',
-                            'detail' => ['hint' => 'Order handler and Thank You page are PHP — turn on "Allow PHP landings" in Settings -> General'],
-                        ]);
-                        break;
-                    }
-                }
-
-                $tempDir = __DIR__ . '/data/leadforge_tmp/' . uniqid('forge_', true);
-                if (!is_dir($tempDir) && !@mkdir($tempDir, 0775, true)) {
-                    echo json_encode(['status' => 'error', 'message' => 'Cannot create temp directory for forging']);
-                    break;
-                }
-
-                $zip = new ZipArchive;
-                if ($zip->open($zipFile) !== TRUE) {
-                    echo json_encode(['status' => 'error', 'message' => 'Invalid or corrupted ZIP archive']);
-                    break;
-                }
-
-                $zip->extractTo($tempDir);
-                $zip->close();
-
-                // Flatten single nested folder if present
-                orbitraFlattenSingleNestedDir($tempDir);
-
-                // Phone mask data per GEO
-                $geoMasks = [
-                    'IT' => ['code' => '+39', 'pattern' => '+39 3## ### ####', 'min' => 9, 'max' => 11],
-                    'ES' => ['code' => '+34', 'pattern' => '+34 6## ### ###', 'min' => 9, 'max' => 9],
-                    'DE' => ['code' => '+49', 'pattern' => '+49 1## #######', 'min' => 10, 'max' => 12],
-                    'FR' => ['code' => '+33', 'pattern' => '+33 6 ## ## ## ##', 'min' => 9, 'max' => 9],
-                    'PL' => ['code' => '+48', 'pattern' => '+48 ### ### ###', 'min' => 9, 'max' => 9],
-                    'RO' => ['code' => '+40', 'pattern' => '+40 7## ### ###', 'min' => 9, 'max' => 9],
-                    'GR' => ['code' => '+30', 'pattern' => '+30 69# ### ####', 'min' => 10, 'max' => 10],
-                    'RU' => ['code' => '+7', 'pattern' => '+7 (9##) ###-##-##', 'min' => 10, 'max' => 10],
-                    'UA' => ['code' => '+380', 'pattern' => '+380 (##) ###-##-##', 'min' => 9, 'max' => 9],
-                    'KZ' => ['code' => '+7', 'pattern' => '+7 (7##) ###-##-##', 'min' => 10, 'max' => 10],
-                    'US' => ['code' => '+1', 'pattern' => '+1 (###) ###-####', 'min' => 10, 'max' => 10],
-                    'MX' => ['code' => '+52', 'pattern' => '+52 1 ### ### ####', 'min' => 10, 'max' => 10],
-                    'CO' => ['code' => '+57', 'pattern' => '+57 3## ### ####', 'min' => 10, 'max' => 10],
-                ];
-                $activeMask = $geoMasks[$geo] ?? ['code' => '', 'pattern' => '', 'min' => 7, 'max' => 15];
-
-                // 1. Generate orbitra_adapter.js
-                if ($injectJsAdapter) {
-                    $adapterJs = <<<JS
-/**
- * Orbitra LeadForge JS Adapter & ClickID Bridge
- * Automatically captures tracking macros and formats phone inputs
- */
-(function() {
-    function getQueryParam(name) {
-        var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
-        return match ? decodeURIComponent(match[1].replace(/\+/g, ' ')) : '';
-    }
-
-    var subid = getQueryParam('subid') || getQueryParam('sub_id') || getQueryParam('click_id') || '';
-    if (subid) {
-        try { sessionStorage.setItem('orbitra_subid', subid); } catch(e){}
-    } else {
-        try { subid = sessionStorage.getItem('orbitra_subid') || ''; } catch(e){}
-    }
-
-    var params = ['subid', 'sub1', 'sub2', 'sub3', 'sub4', 'sub5', 'sub6', 'sub7', 'sub8', 'sub9', 'sub10', 'pixel', 'utm_source', 'utm_campaign', 'utm_content', 'utm_medium', 'utm_term', 'fbp', 'fbc', 'fbclid', 'gclid', 'ttclid'];
-    var captured = {};
-    params.forEach(function(p) {
-        var v = getQueryParam(p);
-        if (v) {
-            captured[p] = v;
-            try { sessionStorage.setItem('orbitra_' + p, v); } catch(e){}
-        } else {
-            try { captured[p] = sessionStorage.getItem('orbitra_' + p) || ''; } catch(e){}
-        }
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        // Auto-inject hidden fields into all forms
-        var forms = document.querySelectorAll('form');
-        forms.forEach(function(form) {
-            for (var key in captured) {
-                if (captured[key] && !form.querySelector('input[name="' + key + '"]')) {
-                    var input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = key;
-                    input.value = captured[key];
-                    form.appendChild(input);
-                }
-            }
-        });
-
-        // Attach phone validation / mask if enabled
-        var phoneInputs = document.querySelectorAll('input[type="tel"], input[name*="phone"], input[name*="tel"], input[name="phone_number"]');
-        phoneInputs.forEach(function(input) {
-            input.setAttribute('autocomplete', 'tel');
-            input.setAttribute('required', 'required');
-            input.addEventListener('input', function(e) {
-                this.value = this.value.replace(/[^0-9+]/g, '');
-            });
-        });
-    });
-})();
-JS;
-                    file_put_contents($tempDir . '/orbitra_adapter.js', $adapterJs);
-                }
-
-                // 2. Scan and modify HTML files
-                $iterator = new RecursiveIteratorIterator(
-                    new RecursiveDirectoryIterator($tempDir, RecursiveDirectoryIterator::SKIP_DOTS),
-                    RecursiveIteratorIterator::SELF_FIRST
-                );
-
-                $formsDetected = 0;
-                $filesProcessed = 0;
-
-                foreach ($iterator as $file) {
-                    if (!$file->isFile()) continue;
-                    $ext = strtolower(pathinfo($file->getPathname(), PATHINFO_EXTENSION));
-                    if (!in_array($ext, ['html', 'htm', 'php'], true)) continue;
-
-                    $content = file_get_contents($file->getPathname());
-                    if ($content === false) continue;
-                    $filesProcessed++;
-
-                    // Count forms
-                    if (preg_match_all('/<form\b[^>]*>/i', $content, $matches)) {
-                        $formsDetected += count($matches[0]);
-                    }
-
-                    // Inject orbitra_adapter.js
-                    if ($injectJsAdapter && strpos($content, 'orbitra_adapter.js') === false) {
-                        if (stripos($content, '</head>') !== false) {
-                            $content = str_ireplace('</head>', "    <script src=\"orbitra_adapter.js\"></script>\n</head>", $content);
-                        } elseif (stripos($content, '</body>') !== false) {
-                            $content = str_ireplace('</body>', "    <script src=\"orbitra_adapter.js\"></script>\n</body>", $content);
-                        }
-                    }
-
-                    // Rewrite form actions to order.php
-                    if ($generateOrderPhp) {
-                        $content = preg_replace('/<form([^>]*?)action=["\'][^"\']*?["\']([^>]*?)>/i', '<form$1action="order.php"$2>', $content);
-                        $content = preg_replace('/<form(?![^>]*\baction\b)([^>]*?)>/i', '<form action="order.php"$1>', $content);
-                    }
-
-                    // Inject {offer} macro into outbound CTA links
-                    if ($injectOfferMacro) {
-                        $content = preg_replace('/<a([^>]*?)href=["\'](?:#order|order\.html|#form|#popup|https?:\/\/[^"\']+)["\']([^>]*?)>/i', '<a$1href="{offer}"$2>', $content);
-                    }
-
-                    file_put_contents($file->getPathname(), $content);
-                }
-
-                // 3. Generate robust order.php for CPA Network
-                if ($generateOrderPhp) {
-                    $orderPhpContent = <<<PHP
-<?php
-/**
- * Orbitra LeadForge — Universal CPA Order Bridge
- * Network: {$network} | Offer ID: {$offerId} | Target GEO: {$geo}
- */
-session_start();
-error_reporting(0);
-
-if (\$_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: /');
-    exit;
-}
-
-\$name = trim(\$_POST['name'] ?? \$_POST['fio'] ?? \$_POST['client'] ?? 'Customer');
-\$phone = trim(\$_POST['phone'] ?? \$_POST['tel'] ?? \$_POST['phone_number'] ?? '');
-// The click id reaches the form as a hidden field (JS adapter) or, failing
-// that, lives in the cookie the tracker set when it served this page.
-\$subid = trim(\$_POST['subid'] ?? \$_POST['sub_id'] ?? \$_POST['click_id'] ?? \$_COOKIE['orbitra_click'] ?? '');
-\$ip = \$_SERVER['HTTP_CF_CONNECTING_IP'] ?? \$_SERVER['HTTP_X_FORWARDED_FOR'] ?? \$_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
-if (strpos(\$ip, ',') !== false) {
-    \$ip = trim(explode(',', \$ip)[0]);
-}
-\$userAgent = \$_SERVER['HTTP_USER_AGENT'] ?? '';
-
-// Validate required fields
-if (empty(\$phone)) {
-    die('Error: Phone number is required.');
-}
-
-// 1. Prepare CPA Network Request
-\$apiKey = '{$apiKey}';
-\$offerId = '{$offerId}';
-\$geo = '{$geo}';
-\$network = '{$network}';
-\$responsePayload = null;
-\$leadId = 'LF-' . date('YmdHis') . '-' . rand(1000, 9999);
-
-try {
-    if (\$network === 'drcash') {
-        \$url = 'https://affiliate.dr.cash/api/order/create';
-        \$postData = [
-            'stream_code' => \$offerId,
-            'client' => ['name' => \$name, 'phone' => \$phone, 'address' => \$_POST['address'] ?? ''],
-            'sub1' => \$subid,
-            'sub2' => \$_POST['sub1'] ?? '',
-            'sub3' => \$_POST['sub2'] ?? '',
-            'sub4' => \$_POST['sub3'] ?? '',
-            'sub5' => \$_POST['sub4'] ?? '',
-        ];
-        \$ch = curl_init(\$url);
-        curl_setopt(\$ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt(\$ch, CURLOPT_POST, true);
-        curl_setopt(\$ch, CURLOPT_POSTFIELDS, json_encode(\$postData));
-        curl_setopt(\$ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . \$apiKey
-        ]);
-        curl_setopt(\$ch, CURLOPT_TIMEOUT, 15);
-        \$res = curl_exec(\$ch);
-        curl_close(\$ch);
-        \$json = json_decode(\$res, true);
-        if (!empty(\$json['uuid'])) \$leadId = \$json['uuid'];
-    } elseif (\$network === 'lemonad') {
-        \$url = 'https://lemonad.com/api/v2/lead/create';
-        \$postData = [
-            'api_token' => \$apiKey,
-            'offer_id' => \$offerId,
-            'name' => \$name,
-            'phone' => \$phone,
-            'ip' => \$ip,
-            'country' => \$geo,
-            'click_id' => \$subid,
-        ];
-        \$ch = curl_init(\$url);
-        curl_setopt(\$ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt(\$ch, CURLOPT_POST, true);
-        curl_setopt(\$ch, CURLOPT_POSTFIELDS, http_build_query(\$postData));
-        curl_setopt(\$ch, CURLOPT_TIMEOUT, 15);
-        \$res = curl_exec(\$ch);
-        curl_close(\$ch);
-        \$json = json_decode(\$res, true);
-        if (!empty(\$json['lead_id'])) \$leadId = \$json['lead_id'];
-    } elseif (\$network === 'webvork') {
-        \$url = 'https://api.webvork.com/v1/lead';
-        \$postData = [
-            'token' => \$apiKey,
-            'offer_id' => \$offerId,
-            'name' => \$name,
-            'phone' => \$phone,
-            'country' => \$geo,
-            'ip' => \$ip,
-            'utm_campaign' => \$subid,
-        ];
-        \$ch = curl_init(\$url);
-        curl_setopt(\$ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt(\$ch, CURLOPT_POST, true);
-        curl_setopt(\$ch, CURLOPT_POSTFIELDS, http_build_query(\$postData));
-        curl_setopt(\$ch, CURLOPT_TIMEOUT, 15);
-        \$res = curl_exec(\$ch);
-        curl_close(\$ch);
-    } elseif (\$network === 'leadbit') {
-        \$url = 'http://leadbit.com/api/new-order';
-        \$postData = [
-            'flow_hash' => \$offerId,
-            'api_key' => \$apiKey,
-            'country' => \$geo,
-            'name' => \$name,
-            'phone' => \$phone,
-            'sub1' => \$subid,
-            'ip' => \$ip,
-        ];
-        \$ch = curl_init(\$url);
-        curl_setopt(\$ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt(\$ch, CURLOPT_POST, true);
-        curl_setopt(\$ch, CURLOPT_POSTFIELDS, http_build_query(\$postData));
-        curl_setopt(\$ch, CURLOPT_TIMEOUT, 15);
-        \$res = curl_exec(\$ch);
-        curl_close(\$ch);
-    } elseif (\$network === 'everad') {
-        \$url = 'https://api.everad.com/campaigns/' . \$offerId . '/order';
-        \$postData = [
-            'campaign_id' => \$offerId,
-            'name' => \$name,
-            'phone' => \$phone,
-            'ip' => \$ip,
-            'sid1' => \$subid,
-        ];
-        \$ch = curl_init(\$url);
-        curl_setopt(\$ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt(\$ch, CURLOPT_POST, true);
-        curl_setopt(\$ch, CURLOPT_POSTFIELDS, json_encode(\$postData));
-        curl_setopt(\$ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'X-Api-Key: ' . \$apiKey]);
-        curl_setopt(\$ch, CURLOPT_TIMEOUT, 15);
-        \$res = curl_exec(\$ch);
-        curl_close(\$ch);
-    } else {
-        // Custom or Generic Webhook
-        if (!empty(\$offerId) && filter_var(\$offerId, FILTER_VALIDATE_URL)) {
-            \$ch = curl_init(\$offerId);
-            curl_setopt(\$ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt(\$ch, CURLOPT_POST, true);
-            curl_setopt(\$ch, CURLOPT_POSTFIELDS, http_build_query(\$_POST));
-            curl_setopt(\$ch, CURLOPT_TIMEOUT, 15);
-            \$res = curl_exec(\$ch);
-            curl_close(\$ch);
-        }
-    }
-} catch (\\Throwable \$e) {
-    // Fail-safe catch
-}
-
-// 2. Failsafe Local Lead Backup (Never lose a lead!)
-// .log on purpose: the asset server whitelists .json/.txt, and a backup full
-// of names and phone numbers must not be downloadable from the landing URL.
-\$leadLog = [
-    'time' => date('Y-m-d H:i:s'),
-    'lead_id' => \$leadId,
-    'name' => \$name,
-    'phone' => \$phone,
-    'subid' => \$subid,
-    'ip' => \$ip,
-    'geo' => \$geo,
-    'network' => \$network,
-];
-@file_put_contents(__DIR__ . '/orbitra_leads_backup.log', json_encode(\$leadLog) . PHP_EOL, FILE_APPEND | LOCK_EX);
-
-// 3. Fire Postback to Orbitra Tracker
-if (!empty(\$subid)) {
-    \$trackerHost = \$_SERVER['HTTP_HOST'] ?? '127.0.0.1';
-    \$proto = (!empty(\$_SERVER['HTTPS']) && \$_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-    \$postbackUrl = \$proto . '://' . \$trackerHost . '/pixel.gif?action=conversion&subid=' . urlencode(\$subid) . '&status=lead&payout={$payout}&currency={$currency}';
-    @file_get_contents(\$postbackUrl, false, stream_context_create(['http' => ['timeout' => 2]]));
-}
-
-// 4. Redirect to Thank You Page
-\$_SESSION['order_name'] = \$name;
-\$_SESSION['order_phone'] = \$phone;
-\$_SESSION['order_id'] = \$leadId;
-
-header('Location: thank_you.php?name=' . urlencode(\$name) . '&phone=' . urlencode(\$phone) . '&order_id=' . urlencode(\$leadId) . '&subid=' . urlencode(\$subid));
-exit;
-PHP;
-                    file_put_contents($tempDir . '/order.php', $orderPhpContent);
-
-                    // Our own generated code must pass the same scan a manual
-                    // upload goes through — a renderer regression should fail
-                    // here, not as a landing that 503s on every order.
-                    $scanProblems = PhpLanding::scan($orderPhpContent);
-                    if ($scanProblems) {
-                        echo json_encode(['status' => 'error', 'message' => 'Generated order.php failed the PHP landing scan: ' . implode(', ', $scanProblems)]);
-                        break;
-                    }
-                }
-
-                // 4. Generate Universal Localized Thank You Page
-                if ($generateThankYou) {
-                    $thankYouTitles = [
-                        'IT' => ['title' => 'Grazie per il tuo ordine!', 'subtitle' => 'Il tuo ordine è stato registrato con successo.', 'call' => 'Il nostro operatore ti contatterà a breve per confermare la spedizione.', 'details' => 'Dettagli dell\'ordine:', 'name' => 'Nome:', 'phone' => 'Telefono:', 'order' => 'Numero ordine:'],
-                        'ES' => ['title' => '¡Gracias por su pedido!', 'subtitle' => 'Su pedido ha sido registrado con éxito.', 'call' => 'Nuestro especialista se comunicará con usted en breve para confirmar el envío.', 'details' => 'Detalles del pedido:', 'name' => 'Nombre:', 'phone' => 'Teléfono:', 'order' => 'Número de pedido:'],
-                        'DE' => ['title' => 'Vielen Dank für Ihre Bestellung!', 'subtitle' => 'Ihre Bestellung wurde erfolgreich erfasst.', 'call' => 'Unser Berater wird Sie in Kürze kontaktieren, um die Details zu bestätigen.', 'details' => 'Bestelldetails:', 'name' => 'Name:', 'phone' => 'Telefon:', 'order' => 'Bestellnummer:'],
-                        'FR' => ['title' => 'Merci pour votre commande !', 'subtitle' => 'Votre commande a été enregistrée avec succès.', 'call' => 'Notre conseiller vous contactera sous peu pour confirmer les détails.', 'details' => 'Détails de la commande :', 'name' => 'Nom :', 'phone' => 'Téléphone :', 'order' => 'Numéro de commande :'],
-                        'PL' => ['title' => 'Dziękujemy za zamówienie!', 'subtitle' => 'Twoje zamówienie zostało pomyślnie przyjęte.', 'call' => 'Nasz konsultant skontaktuje się z Tobą wkrótce w celu potwierdzenia adresu.', 'details' => 'Szczegóły zamówienia:', 'name' => 'Imię:', 'phone' => 'Telefon:', 'order' => 'Numer zamówienia:'],
-                        'RO' => ['title' => 'Vă mulțumim pentru comandă!', 'subtitle' => 'Comanda dumneavoastră a fost înregistrată cu succes.', 'call' => 'Operatorul nostru vă va contacta în scurt timp pentru confirmare.', 'details' => 'Detalii comandă:', 'name' => 'Nume:', 'phone' => 'Telefon:', 'order' => 'Număr comandă:'],
-                        'RU' => ['title' => 'Спасибо за ваш заказ!', 'subtitle' => 'Ваша заявка успешно принята в обработку.', 'call' => 'Оператор свяжется с вами в течение 10-15 минут для подтверждения адреса доставки.', 'details' => 'Данные заказа:', 'name' => 'Имя:', 'phone' => 'Телефон:', 'order' => 'Номер заявки:'],
-                        'EN' => ['title' => 'Thank you for your order!', 'subtitle' => 'Your order has been placed successfully.', 'call' => 'Our representative will call you shortly to verify delivery details.', 'details' => 'Order details:', 'name' => 'Name:', 'phone' => 'Phone:', 'order' => 'Order ID:'],
-                    ];
-                    $t = $thankYouTitles[$geo] ?? $thankYouTitles['EN'];
-
-                    $thankYouPhp = <<<PHP
-<?php
-session_start();
-\$name = htmlspecialchars(\$_GET['name'] ?? \$_SESSION['order_name'] ?? 'Cliente');
-\$phone = htmlspecialchars(\$_GET['phone'] ?? \$_SESSION['order_phone'] ?? '');
-\$orderId = htmlspecialchars(\$_GET['order_id'] ?? \$_SESSION['order_id'] ?? ('#' . rand(100000, 999999)));
-\$subid = htmlspecialchars(\$_GET['subid'] ?? '');
-?>
-<!DOCTYPE html>
-<html lang="{$geo}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{$t['title']}</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f8fafc; color: #1e293b; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
-        .card { background: #ffffff; border-radius: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.06), 0 8px 10px -6px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; max-width: 500px; width: 100%; padding: 36px 28px; text-align: center; }
-        .icon-box { width: 72px; height: 72px; background: #ecfdf5; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: #10b981; }
-        h1 { font-size: 24px; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
-        p.sub { font-size: 15px; color: #64748b; margin-bottom: 24px; line-height: 1.5; }
-        .info-box { background: #f1f5f9; border-radius: 14px; padding: 18px; text-align: left; margin-bottom: 24px; }
-        .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
-        .info-row:last-child { margin-bottom: 0; }
-        .info-label { color: #64748b; }
-        .info-value { font-weight: 600; color: #0f172a; }
-        .notice { font-size: 13px; color: #059669; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 12px; margin-bottom: 24px; }
-        .btn { display: inline-block; background: #2563eb; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 12px; font-weight: 600; font-size: 14px; transition: background 0.2s; }
-        .btn:hover { background: #1d4ed8; }
-    </style>
-</head>
-<body>
-    <div class="card">
-        <div class="icon-box">
-            <svg width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-        </div>
-        <h1>{$t['title']}</h1>
-        <p class="sub">{$t['subtitle']}</p>
-
-        <div class="info-box">
-            <div class="info-row">
-                <span class="info-label">{$t['order']}</span>
-                <span class="info-value"><?php echo \$orderId; ?></span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">{$t['name']}</span>
-                <span class="info-value"><?php echo \$name; ?></span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">{$t['phone']}</span>
-                <span class="info-value"><?php echo \$phone; ?></span>
-            </div>
-        </div>
-
-        <div class="notice">
-            ⚡ {$t['call']}
-        </div>
-
-        <a href="/" class="btn">← Back to Site</a>
-    </div>
-
-    <!-- Orbitra Conversion Pixel -->
-    <?php if (!empty(\$subid)): ?>
-    <img src="/pixel.gif?action=conversion&subid=<?php echo urlencode(\$subid); ?>&status=lead&payout={$payout}&currency={$currency}" width="1" height="1" style="display:none;" alt="">
-    <?php endif; ?>
-</body>
-</html>
-PHP;
-                    file_put_contents($tempDir . '/thank_you.php', $thankYouPhp);
-                    $scanThankYou = PhpLanding::scan($thankYouPhp);
-                    if ($scanThankYou) {
-                        echo json_encode(['status' => 'error', 'message' => 'Generated thank_you.php failed the PHP landing scan: ' . implode(', ', $scanThankYou)]);
-                        break;
-                    }
-                }
-
-                // 5. Repack modified files into a downloadable ZIP
-                $downloadToken = md5(uniqid('lf_', true));
-                $downloadsDir = __DIR__ . '/data/leadforge_downloads';
-                if (!is_dir($downloadsDir)) @mkdir($downloadsDir, 0775, true);
-                $downloadZipPath = $downloadsDir . '/' . $downloadToken . '.zip';
-
-                $reZip = new ZipArchive;
-                if ($reZip->open($downloadZipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
-                    $reIterator = new RecursiveIteratorIterator(
-                        new RecursiveDirectoryIterator($tempDir, RecursiveDirectoryIterator::SKIP_DOTS),
-                        RecursiveIteratorIterator::SELF_FIRST
-                    );
-                    foreach ($reIterator as $file) {
-                        $localPath = str_replace($tempDir . '/', '', $file->getPathname());
-                        if ($file->isDir()) {
-                            $reZip->addEmptyDir($localPath);
-                        } else {
-                            $reZip->addFile($file->getPathname(), $localPath);
-                        }
-                    }
-                    $reZip->close();
-                }
-
-                $createdLandingId = null;
-                $createdSlug = '';
-                $createdOfferId = null;
-
-                // 6. Auto-Save to Orbitra Tracker
-                if ($autoSaveTracker) {
-                    $derivedSlug = orbitraSlugify($landingName);
-                    $slugCheck = orbitraValidateLandingSlug($pdo, $derivedSlug, null);
-                    if (!$slugCheck['ok']) {
-                        $base = rtrim(substr($derivedSlug, 0, 60), '-_');
-                        for ($n = 2; $n <= 50; $n++) {
-                            $cand = orbitraValidateLandingSlug($pdo, $base . '-' . $n, null);
-                            if ($cand['ok']) {
-                                $slugCheck = $cand;
-                                break;
-                            }
-                        }
-                        if (!$slugCheck['ok']) {
-                            $slugCheck = ['ok' => true, 'value' => '', 'error' => ''];
-                        }
-                    }
-                    $createdSlug = $slugCheck['value'];
-
-                    $stmt = $pdo->prepare("INSERT INTO landings (name, group_id, type, url, action_payload, action_type, state, slug, redirect_type) VALUES (?, ?, 'local', '', NULL, '', 'active', ?, 'redirect')");
-                    $stmt->execute([$landingName, $groupId, $createdSlug]);
-                    $createdLandingId = $pdo->lastInsertId();
-
-                    // Copy forged files into landing storage
-                    $targetLandingDir = orbitraLandingDir($pdo, $createdLandingId);
-                    if (!is_dir($targetLandingDir)) @mkdir($targetLandingDir, 0775, true);
-
-                    $copyIterator = new RecursiveIteratorIterator(
-                        new RecursiveDirectoryIterator($tempDir, RecursiveDirectoryIterator::SKIP_DOTS),
-                        RecursiveIteratorIterator::SELF_FIRST
-                    );
-                    foreach ($copyIterator as $item) {
-                        $destPath = $targetLandingDir . '/' . $copyIterator->getSubPathName();
-                        if ($item->isDir()) {
-                            if (!is_dir($destPath)) @mkdir($destPath, 0775, true);
-                        } else {
-                            @copy($item->getPathname(), $destPath);
-                        }
-                    }
-
-                    // Optional matching offer creation. No payout_currency
-                    // column exists on offers — the conversion carries it.
-                    if ($autoCreateOffer) {
-                        $offerName = $landingName . ' [Offer]';
-                        $stmtOff = $pdo->prepare("INSERT INTO offers (name, group_id, affiliate_network_id, payout_value, is_local, state) VALUES (?, ?, NULL, ?, 0, 'active')");
-                        $stmtOff->execute([$offerName, $groupId, $payout]);
-                        $createdOfferId = $pdo->lastInsertId();
-                    }
-                }
-
-                // Cleanup temp dir
-                $cleanIterator = new RecursiveIteratorIterator(
-                    new RecursiveDirectoryIterator($tempDir, RecursiveDirectoryIterator::SKIP_DOTS),
-                    RecursiveIteratorIterator::CHILD_FIRST
-                );
-                foreach ($cleanIterator as $item) {
-                    $item->isDir() ? @rmdir($item->getPathname()) : @unlink($item->getPathname());
-                }
-                @rmdir($tempDir);
-
-                echo json_encode([
-                    'status' => 'success',
-                    'data' => [
-                        'landing_id' => $createdLandingId,
-                        'landing_name' => $landingName,
-                        'slug' => $createdSlug,
-                        'offer_id' => $createdOfferId,
-                        'download_token' => $downloadToken,
-                        'download_url' => '/api.php?action=leadforge_download&token=' . $downloadToken,
-                        'forms_detected' => $formsDetected,
-                        'files_processed' => $filesProcessed,
-                        'geo' => $geo,
-                        'network' => $network
-                    ]
+                $lfName = trim($_POST['name'] ?? '') ?: pathinfo($_FILES['file']['name'] ?? 'landing.zip', PATHINFO_FILENAME);
+                $lfScheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                $built = LeadForge::buildBundle($pdo, $_FILES['file']['tmp_name'], null, [
+                    'mode' => 'auto',
+                    'name' => $lfName,
+                    'network' => strtolower(trim($_POST['network'] ?? 'drcash')),
+                    'api_key' => trim($_POST['api_key'] ?? ''),
+                    'offer_id' => trim($_POST['offer_id'] ?? ''),
+                    'geo' => strtoupper(trim($_POST['geo'] ?? 'IT')),
+                    'payout' => floatval($_POST['payout'] ?? 0),
+                    'currency' => strtoupper(trim($_POST['currency'] ?? 'USD')),
+                    'group_id' => !empty($_POST['group_id']) ? intval($_POST['group_id']) : null,
+                    'inject_offer_macro' => ($_POST['inject_offer_macro'] ?? '1') === '1',
+                    'inject_js_adapter' => ($_POST['inject_js_adapter'] ?? '1') === '1',
+                    'add_phone_mask' => ($_POST['add_phone_mask'] ?? '1') === '1',
+                    'generate_thank_you' => ($_POST['generate_thank_you'] ?? '1') === '1',
+                    'generate_order_php' => ($_POST['generate_order_php'] ?? '1') === '1',
+                    'auto_save_tracker' => ($_POST['auto_save_tracker'] ?? '1') === '1',
+                    'auto_create_offer' => ($_POST['auto_create_offer'] ?? '0') === '1',
+                    'crm_enabled' => ($_POST['crm_enabled'] ?? '1') === '1',
+                    'auto_qa' => false,
+                    'base_url' => $lfScheme . '://' . ($_SERVER['HTTP_HOST'] ?? ''),
                 ]);
-            } catch (\Throwable $e) {
+                echo json_encode([
+                    'status' => $built['ok'] ? 'success' : 'error',
+                    'message' => $built['message'] ?? '',
+                    'detail' => $built['detail'] ?? null,
+                    'data' => $built['result'] ?? null,
+                ]);
+            } catch (Throwable $e) {
                 error_log('leadforge_forge_landing error: ' . $e->getMessage());
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'LeadForge failed: ' . $e->getMessage()
+                echo json_encode(['status' => 'error', 'message' => 'LeadForge failed: ' . $e->getMessage()]);
+            }
+            break;
+
+        // === LeadForge 2.0: Analyze → Build pipeline ===
+
+        case 'leadforge_analyze':
+            // Stage 1: static inspection of uploaded bundles (up to 15 at a
+            // time). Files are kept in data/leadforge_staging/<token>.zip with
+            // the analysis card beside them; nothing is modified yet.
+            try {
+                if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                    echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                    break;
+                }
+                $lfFiles = [];
+                if (isset($_FILES['files']) && is_array($_FILES['files']['name'])) {
+                    foreach ($_FILES['files']['name'] as $lfI => $lfN) {
+                        $lfFiles[] = [
+                            'name' => (string) $lfN,
+                            'tmp' => (string) ($_FILES['files']['tmp_name'][$lfI] ?? ''),
+                            'err' => (int) ($_FILES['files']['error'][$lfI] ?? UPLOAD_ERR_NO_FILE),
+                        ];
+                    }
+                } elseif (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
+                    $lfFiles[] = ['name' => (string) $_FILES['file']['name'], 'tmp' => (string) $_FILES['file']['tmp_name'], 'err' => 0];
+                }
+                $lfFiles = array_slice($lfFiles, 0, 15);
+                if (!$lfFiles) {
+                    echo json_encode(['status' => 'error', 'message' => 'No files uploaded (fields: files[])']);
+                    break;
+                }
+
+                $lfStaging = __DIR__ . '/data/leadforge_staging';
+                if (!is_dir($lfStaging)) {
+                    @mkdir($lfStaging, 0775, true);
+                }
+                // Prune staging older than 24h — bundles are build-time input,
+                // not a library.
+                foreach (glob($lfStaging . '/*.zip') ?: [] as $lfOld) {
+                    if (filemtime($lfOld) < time() - 86400) {
+                        @unlink($lfOld);
+                        @unlink(substr($lfOld, 0, -4) . '.json');
+                    }
+                }
+
+                $lfResults = [];
+                foreach ($lfFiles as $lfF) {
+                    if ($lfF['err'] !== UPLOAD_ERR_OK || $lfF['tmp'] === '' || !is_uploaded_file($lfF['tmp'])) {
+                        $lfResults[] = ['file_name' => $lfF['name'], 'error' => 'upload error ' . $lfF['err']];
+                        continue;
+                    }
+                    $lfToken = bin2hex(random_bytes(16));
+                    $lfDest = $lfStaging . '/' . $lfToken . '.zip';
+                    if (!@move_uploaded_file($lfF['tmp'], $lfDest)) {
+                        $lfResults[] = ['file_name' => $lfF['name'], 'error' => 'could not stage file'];
+                        continue;
+                    }
+                    $lfCard = LeadForge::analyzeUploaded($lfDest, $lfF['name']);
+                    if (isset($lfCard['error'])) {
+                        @unlink($lfDest);
+                        $lfResults[] = ['file_name' => $lfF['name'], 'error' => $lfCard['error']];
+                        continue;
+                    }
+                    $lfCard['token'] = $lfToken;
+                    if (!empty($lfCard['network'])) {
+                        try {
+                            $lfProf = $pdo->prepare("SELECT id FROM leadforge_profiles WHERE network_key = ? ORDER BY id LIMIT 1");
+                            $lfProf->execute([$lfCard['network']]);
+                            $lfCard['suggested_profile_id'] = $lfProf->fetchColumn() ?: null;
+                        } catch (Throwable $e) {
+                        }
+                    }
+                    @file_put_contents($lfStaging . '/' . $lfToken . '.json', json_encode($lfCard, JSON_UNESCAPED_UNICODE));
+                    $lfResults[] = $lfCard;
+                }
+                echo json_encode(['status' => 'success', 'results' => $lfResults]);
+            } catch (Throwable $e) {
+                error_log('leadforge_analyze error: ' . $e->getMessage());
+                echo json_encode(['status' => 'error', 'message' => 'Analyze failed: ' . $e->getMessage()]);
+            }
+            break;
+
+        case 'leadforge_build_batch':
+            // Stage 2: compile the selected analyzed bundles according to the
+            // chosen mode. tokens[] come from leadforge_analyze.
+            try {
+                if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                    echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                    break;
+                }
+                $lfTokens = array_values(array_filter(array_map('trim', (array) ($_POST['tokens'] ?? [])), fn($tk) => preg_match('/^[a-f0-9]{32}$/', $tk)));
+                $lfTokens = array_slice($lfTokens, 0, 50);
+                if (!$lfTokens) {
+                    echo json_encode(['status' => 'error', 'message' => 'No analyzed bundles selected']);
+                    break;
+                }
+                $lfNames = [];
+                if (!empty($_POST['names']) && is_string($_POST['names'])) {
+                    $lfNames = json_decode($_POST['names'], true) ?: [];
+                }
+
+                $lfScheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                $lfOpts = [
+                    'mode' => strtolower(trim($_POST['mode'] ?? 'auto')),
+                    'network' => strtolower(trim($_POST['network'] ?? 'drcash')),
+                    'api_key' => trim($_POST['api_key'] ?? ''),
+                    'offer_id' => trim($_POST['offer_id'] ?? ''),
+                    'geo' => strtoupper(trim($_POST['geo'] ?? 'IT')),
+                    'payout' => floatval($_POST['payout'] ?? 0),
+                    'currency' => strtoupper(trim($_POST['currency'] ?? 'USD')),
+                    'group_id' => !empty($_POST['group_id']) ? intval($_POST['group_id']) : null,
+                    'inject_offer_macro' => ($_POST['inject_offer_macro'] ?? '1') === '1',
+                    'inject_js_adapter' => ($_POST['inject_js_adapter'] ?? '1') === '1',
+                    'add_phone_mask' => ($_POST['add_phone_mask'] ?? '1') === '1',
+                    'generate_thank_you' => ($_POST['generate_thank_you'] ?? '1') === '1',
+                    'generate_order_php' => ($_POST['generate_order_php'] ?? '1') === '1',
+                    'auto_save_tracker' => ($_POST['auto_save_tracker'] ?? '1') === '1',
+                    'auto_create_offer' => ($_POST['auto_create_offer'] ?? '0') === '1',
+                    'crm_enabled' => ($_POST['crm_enabled'] ?? '1') === '1',
+                    'auto_qa' => ($_POST['auto_qa'] ?? '0') === '1',
+                    'base_url' => $lfScheme . '://' . ($_SERVER['HTTP_HOST'] ?? ''),
+                ];
+
+                $lfStaging = __DIR__ . '/data/leadforge_staging';
+                $lfOut = [];
+                foreach ($lfTokens as $lfT) {
+                    $lfZip = $lfStaging . '/' . $lfT . '.zip';
+                    $lfCard = null;
+                    if (is_file($lfStaging . '/' . $lfT . '.json')) {
+                        $lfCard = json_decode((string) file_get_contents($lfStaging . '/' . $lfT . '.json'), true);
+                    }
+                    if (!is_file($lfZip) || !is_array($lfCard)) {
+                        $lfOut[] = ['token' => $lfT, 'ok' => false, 'message' => 'Bundle not found in staging — run Analyze again', 'logs' => []];
+                        continue;
+                    }
+                    $lfOpts['name'] = trim((string) ($lfNames[$lfT] ?? '')) ?: pathinfo((string) $lfCard['file_name'], PATHINFO_FILENAME);
+                    $lfBuilt = LeadForge::buildBundle($pdo, $lfZip, $lfCard, $lfOpts);
+                    $lfBuilt['token'] = $lfT;
+                    $lfOut[] = $lfBuilt;
+                }
+                echo json_encode(['status' => 'success', 'results' => $lfOut]);
+            } catch (Throwable $e) {
+                error_log('leadforge_build_batch error: ' . $e->getMessage());
+                echo json_encode(['status' => 'error', 'message' => 'Build failed: ' . $e->getMessage()]);
+            }
+            break;
+
+        case 'leadforge_live_qa':
+            // Re-run Live Auto QA for a built landing: posts a QA lead through
+            // the real /order.php route and scores it (25 points per check).
+            try {
+                if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                    echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                    break;
+                }
+                $lfLandingId = (int) ($_POST['landing_id'] ?? 0);
+                if ($lfLandingId <= 0) {
+                    echo json_encode(['status' => 'error', 'message' => 'landing_id required']);
+                    break;
+                }
+                $stmtLf = $pdo->prepare("SELECT id, slug FROM landings WHERE id = ? AND is_archived = 0 LIMIT 1");
+                $stmtLf->execute([$lfLandingId]);
+                $lfLanding = $stmtLf->fetch(PDO::FETCH_ASSOC);
+                if (!$lfLanding) {
+                    echo json_encode(['status' => 'error', 'message' => 'Landing not found']);
+                    break;
+                }
+                $lfDir = orbitraLandingDir($pdo, $lfLandingId);
+                if (!is_file($lfDir . '/order.php')) {
+                    echo json_encode(['status' => 'error', 'message' => 'This landing has no order.php (built in Raw mode?)']);
+                    break;
+                }
+                $lfCard = LeadForge::analyzeDir($lfDir);
+                $lfScheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                // base_url can be overridden for installs behind a proxy; only
+                // scheme://host[:port] is honored, any path is dropped.
+                $lfBase = trim((string) ($_POST['base_url'] ?? ''));
+                if ($lfBase !== '' && preg_match('#^https?://[A-Za-z0-9.\-:]+/?$#', $lfBase)) {
+                    $lfBase = rtrim($lfBase, '/');
+                } else {
+                    $lfBase = $lfScheme . '://' . ($_SERVER['HTTP_HOST'] ?? '');
+                }
+                $lfQa = LeadForge::runQa($pdo, $lfLandingId, (string) $lfLanding['slug'], [
+                    'geo' => strtoupper(trim($_POST['geo'] ?? 'IT')),
+                    'crm_enabled' => ($_POST['crm_enabled'] ?? '1') === '1',
+                    'base_url' => $lfBase,
+                    'forms_count' => (int) ($lfCard['forms_count'] ?? 0),
+                    'network' => strtolower(trim($_POST['network'] ?? '')),
                 ]);
+                echo json_encode(['status' => 'success', 'data' => $lfQa]);
+            } catch (Throwable $e) {
+                error_log('leadforge_live_qa error: ' . $e->getMessage());
+                echo json_encode(['status' => 'error', 'message' => 'QA failed: ' . $e->getMessage()]);
+            }
+            break;
+
+        case 'leadforge_profiles':
+            // Network presets the build engine can route to (migration 28
+            // seeds the ones it speaks natively).
+            try {
+                $lfProfiles = $pdo->query("SELECT id, name, network_key, api_endpoint, click_id_field, api_key_required, geo, currency, payout
+                                           FROM leadforge_profiles ORDER BY network_key, id")->fetchAll(PDO::FETCH_ASSOC);
+                echo json_encode(['status' => 'success', 'data' => $lfProfiles]);
+            } catch (Throwable $e) {
+                echo json_encode(['status' => 'error', 'message' => 'Profiles unavailable: ' . $e->getMessage()]);
             }
             break;
 
@@ -8581,6 +8235,10 @@ PHP;
         // conversion event; a fresh one creates a minimal click first — the
         // pixel endpoint's shape — so campaign attribution survives.
         case 'crm_lead':
+            // Panel-side lead creation. Now writes the full vault snapshot
+            // (crm_leads) through the shared recorder and lets it upsert the
+            // conversion, so a manually entered lead looks exactly like a
+            // LeadForge one in the CRM.
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
                 echo json_encode(['status' => 'error', 'message' => 'POST method required']);
                 break;
@@ -8589,50 +8247,192 @@ PHP;
             if (!is_array($crmInput)) {
                 $crmInput = [];
             }
-            $crmSubid = trim((string) ($crmInput['subid'] ?? ''));
-            $crmStatus = strtolower(trim((string) ($crmInput['status'] ?? 'lead')));
-            if (!preg_match('/^[a-z0-9_-]{1,64}$/', $crmStatus)) {
-                $crmStatus = 'lead';
+            $crmInput['status_source'] = 'manual';
+            if (!isset($crmInput['ip'])) {
+                $crmInput['ip'] = (string) ($_SERVER['REMOTE_ADDR'] ?? '');
             }
-            $crmPayout = max(0.0, (float) ($crmInput['payout'] ?? 0));
-            $crmCurrency = strtoupper(substr(preg_replace('/[^A-Za-z]/', '', (string) ($crmInput['currency'] ?? 'USD')), 0, 3));
-            if ($crmCurrency === '') {
-                $crmCurrency = 'USD';
+            if (!isset($crmInput['user_agent'])) {
+                $crmInput['user_agent'] = (string) ($_SERVER['HTTP_USER_AGENT'] ?? '');
             }
-            $crmCampaignId = (int) ($crmInput['campaign_id'] ?? 0);
-
-            if ($crmSubid === '' || !preg_match('/^[A-Za-z0-9_-]{1,64}$/', $crmSubid)) {
-                echo json_encode(['status' => 'error', 'message' => 'Valid subid required']);
+            $crmRes = orbitraCrmRecordLead($pdo, $crmInput, true);
+            if (!$crmRes['ok']) {
+                echo json_encode(['status' => 'error', 'message' => $crmRes['message']]);
                 break;
             }
+            logAudit($pdo, 'CREATE', 'CrmLead', (int) $crmRes['lead_id'], 'CRM lead ' . trim((string) orbitraCrmPick($crmInput, ['click_id', 'subid', 'lf_click_id'])) . ' → ' . strtolower(trim((string) ($crmInput['status'] ?? 'lead'))));
+            echo json_encode(['status' => 'success', 'data' => [
+                'subid' => trim((string) orbitraCrmPick($crmInput, ['click_id', 'subid', 'lf_click_id'])),
+                'status' => strtolower(trim((string) ($crmInput['status'] ?? 'lead'))),
+                'lead_id' => $crmRes['lead_id'],
+                'is_duplicate' => $crmRes['is_duplicate'],
+            ]]);
+            break;
 
-            $stmt = $pdo->prepare("SELECT id, campaign_id FROM clicks WHERE id = ? LIMIT 1");
-            $stmt->execute([$crmSubid]);
-            $crmClick = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (!$crmClick) {
-                if ($crmCampaignId <= 0) {
-                    echo json_encode(['status' => 'error', 'message' => 'Unknown subid — pick a campaign to attribute the lead to']);
-                    break;
+        // === CRM vault: lead list with reconciliation flags ===
+        case 'crm_leads':
+            try {
+                $page = max(1, (int) ($_GET['page'] ?? 1));
+                $perPage = min(500, max(10, (int) ($_GET['per_page'] ?? 100)));
+                $offset = ($page - 1) * $perPage;
+
+                $status = (string) ($_GET['status'] ?? 'all');
+                $campaignId = (int) ($_GET['campaign_id'] ?? 0);
+                $search = trim((string) ($_GET['search'] ?? ''));
+
+                // lost_in_transit is a read-time verdict, not a stored flag:
+                // "the network answered 200, we hold the evidence, and no S2S
+                // postback arrived within 24 hours".
+                $lostExpr = "CASE WHEN l.is_qa_test = 0 AND l.s2s_postback_status = 'pending'
+                             AND l.created_at <= datetime('now', '-24 hours')
+                             AND l.network_response_json LIKE '%\"http_code\":200%' THEN 1 ELSE 0 END";
+
+                $baseConds = [];
+                $baseParams = [];
+                if ($campaignId > 0) {
+                    $baseConds[] = 'l.campaign_id = ?';
+                    $baseParams[] = $campaignId;
                 }
-                $stmtC = $pdo->prepare("SELECT id FROM campaigns WHERE id = ? LIMIT 1");
-                $stmtC->execute([$crmCampaignId]);
-                if (!$stmtC->fetchColumn()) {
-                    echo json_encode(['status' => 'error', 'message' => 'Campaign not found']);
-                    break;
+                if ($search !== '') {
+                    $baseConds[] = "(l.click_id LIKE ? OR l.customer_name LIKE ? OR l.raw_phone LIKE ? OR l.clean_phone LIKE ? OR l.network_lead_id LIKE ? OR l.network LIKE ?)";
+                    for ($si = 0; $si < 6; $si++) {
+                        $baseParams[] = "%{$search}%";
+                    }
                 }
-                $pdo->prepare("INSERT INTO clicks (id, campaign_id, ip, user_agent, country, country_code, device_type, os, browser, language, accept_language_raw, parameters_json)
-                               VALUES (?, ?, ?, ?, 'Unknown', 'Unknown', 'Unknown', 'Unknown', 'Unknown', 'Unknown', '', '{}')")
-                    ->execute([$crmSubid, $crmCampaignId, (string) ($_SERVER['REMOTE_ADDR'] ?? ''), substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 255)]);
-                $crmClick = ['id' => $crmSubid, 'campaign_id' => $crmCampaignId];
+                $baseWhere = $baseConds ? implode(' AND ', $baseConds) : '1=1';
+
+                $statusConds = [];
+                switch ($status) {
+                    case 'processing':
+                        $statusConds = ["l.is_qa_test = 0 AND LOWER(l.status) IN ('lead', 'processing', 'hold', 'pending')"];
+                        break;
+                    case 'approved':
+                        $statusConds = ["LOWER(l.status) IN ('sale', 'approved')"];
+                        break;
+                    case 'rejected':
+                        $statusConds = ["LOWER(l.status) = 'rejected'"];
+                        break;
+                    case 'trash':
+                        $statusConds = ["LOWER(l.status) = 'trash'"];
+                        break;
+                    case 'qa':
+                        $statusConds = ['l.is_qa_test = 1'];
+                        break;
+                    case 'suspect':
+                        $statusConds = ['l.shave_suspect = 1'];
+                        break;
+                    case 'lost':
+                        $statusConds = ["($lostExpr) = 1"];
+                        break;
+                    case 'duplicate':
+                        $statusConds = ['l.is_duplicate = 1'];
+                        break;
+                    case 'all':
+                    default:
+                        $status = 'all';
+                        break;
+                }
+                $statusWhere = $statusConds ? ' AND ' . implode(' AND ', $statusConds) : '';
+
+                $countStmt = $pdo->prepare("SELECT COUNT(*) FROM crm_leads l WHERE $baseWhere $statusWhere");
+                $countStmt->execute($baseParams);
+                $total = (int) $countStmt->fetchColumn();
+
+                $sql = "SELECT l.*, c.name AS campaign_name, ld.name AS landing_name,
+                               COALESCE($lostExpr, 0) AS lost_in_transit
+                        FROM crm_leads l
+                        LEFT JOIN campaigns c ON c.id = l.campaign_id
+                        LEFT JOIN landings ld ON ld.id = l.lander_id
+                        WHERE $baseWhere $statusWhere
+                        ORDER BY l.id DESC
+                        LIMIT $perPage OFFSET $offset";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute($baseParams);
+                $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // KPI block: same filters, statuses ignored — the cards above
+                // the table must not change with the active tab.
+                $kpiStmt = $pdo->prepare("
+                    SELECT COUNT(*) AS total,
+                        SUM(CASE WHEN l.is_qa_test = 1 THEN 1 ELSE 0 END) AS qa,
+                        SUM(CASE WHEN LOWER(l.status) IN ('sale','approved') THEN 1 ELSE 0 END) AS approved,
+                        SUM(CASE WHEN l.is_qa_test = 0 AND LOWER(l.status) IN ('lead','processing','hold','pending') THEN 1 ELSE 0 END) AS processing,
+                        SUM(CASE WHEN LOWER(l.status) = 'rejected' THEN 1 ELSE 0 END) AS rejected,
+                        SUM(CASE WHEN LOWER(l.status) = 'trash' THEN 1 ELSE 0 END) AS trash,
+                        SUM(CASE WHEN l.shave_suspect = 1 THEN 1 ELSE 0 END) AS suspects,
+                        SUM(CASE WHEN l.is_duplicate = 1 THEN 1 ELSE 0 END) AS duplicates,
+                        SUM(CASE WHEN LOWER(l.status) IN ('sale','approved') THEN l.payout ELSE 0 END) AS revenue,
+                        COALESCE($lostExpr, 0) AS lost
+                    FROM crm_leads l WHERE $baseWhere");
+                $kpiStmt->execute($baseParams);
+                $kpi = $kpiStmt->fetch(PDO::FETCH_ASSOC) ?: [];
+
+                echo json_encode([
+                    'status' => 'success',
+                    'data' => $rows,
+                    'kpi' => [
+                        'total' => (int) ($kpi['total'] ?? 0),
+                        'qa' => (int) ($kpi['qa'] ?? 0),
+                        'approved' => (int) ($kpi['approved'] ?? 0),
+                        'processing' => (int) ($kpi['processing'] ?? 0),
+                        'rejected' => (int) ($kpi['rejected'] ?? 0),
+                        'trash' => (int) ($kpi['trash'] ?? 0),
+                        'suspects' => (int) ($kpi['suspects'] ?? 0),
+                        'duplicates' => (int) ($kpi['duplicates'] ?? 0),
+                        'lost' => (int) ($kpi['lost'] ?? 0),
+                        'revenue' => round((float) ($kpi['revenue'] ?? 0), 2),
+                    ],
+                    'pagination' => [
+                        'total' => $total,
+                        'page' => $page,
+                        'per_page' => $perPage,
+                        'total_pages' => (int) ceil($total / $perPage),
+                    ],
+                ]);
+            } catch (Throwable $e) {
+                echo json_encode(['status' => 'error', 'message' => 'crm_leads failed: ' . $e->getMessage()]);
             }
+            break;
 
-            // tid stays NULL on purpose: UNIQUE(click_id, tid) and SQLite
-            // treats NULLs as distinct, so a click can carry many CRM events.
-            $stmt = $pdo->prepare("INSERT INTO conversions (click_id, status, payout, currency, campaign_id, ip, created_at, updated_at)
-                                   VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))");
-            $stmt->execute([$crmSubid, $crmStatus, $crmPayout, $crmCurrency, (int) ($crmClick['campaign_id'] ?? $crmCampaignId), (string) ($_SERVER['REMOTE_ADDR'] ?? '')]);
-            logAudit($pdo, 'CREATE', 'Conversion', (int) $pdo->lastInsertId(), "CRM lead $crmSubid → $crmStatus");
-            echo json_encode(['status' => 'success', 'data' => ['subid' => $crmSubid, 'status' => $crmStatus]]);
+        case 'crm_lead_update':
+            // Manual status move from the inspector: vault row + the click's
+            // NULL-tid conversion move together.
+            try {
+                if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                    echo json_encode(['status' => 'error', 'message' => 'POST method required']);
+                    break;
+                }
+                $in = json_decode(orbitraRequestBody(), true);
+                if (!is_array($in)) {
+                    $in = [];
+                }
+                $id = (int) ($in['id'] ?? 0);
+                $newStatus = strtolower(trim((string) ($in['status'] ?? '')));
+                if ($id <= 0 || !preg_match('/^[a-z0-9_-]{1,32}$/', $newStatus)) {
+                    echo json_encode(['status' => 'error', 'message' => 'id and valid status required']);
+                    break;
+                }
+                $stmt = $pdo->prepare("SELECT id, click_id, payout, currency FROM crm_leads WHERE id = ? LIMIT 1");
+                $stmt->execute([$id]);
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                if (!$row) {
+                    echo json_encode(['status' => 'error', 'message' => 'Lead not found']);
+                    break;
+                }
+                $payout = array_key_exists('payout', $in) ? max(0.0, (float) $in['payout']) : (float) $row['payout'];
+                $pdo->prepare("UPDATE crm_leads SET status = ?, payout = ?, status_source = 'manual', s2s_postback_status = 'manual', updated_at = datetime('now') WHERE id = ?")
+                    ->execute([$newStatus, $payout, $id]);
+                $conv = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid IS NULL ORDER BY id DESC LIMIT 1");
+                $conv->execute([$row['click_id']]);
+                $convId = $conv->fetchColumn();
+                if ($convId) {
+                    $pdo->prepare("UPDATE conversions SET status = ?, payout = ?, updated_at = datetime('now') WHERE id = ?")
+                        ->execute([$newStatus, $payout, (int) $convId]);
+                }
+                logAudit($pdo, 'UPDATE', 'CrmLead', $id, "manual status → {$newStatus}");
+                echo json_encode(['status' => 'success', 'data' => ['id' => $id, 'status' => $newStatus]]);
+            } catch (Throwable $e) {
+                echo json_encode(['status' => 'error', 'message' => 'crm_lead_update failed: ' . $e->getMessage()]);
+            }
             break;
 
         case 'conversion_statuses':

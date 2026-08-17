@@ -2,6 +2,7 @@
 require_once 'config.php';
 require_once 'telegram_notify.php';
 require_once __DIR__ . '/core/PostbackMacros.php';
+require_once __DIR__ . '/core/CrmVault.php';
 
 function mapStatus($pdo, $status, $params)
 {
@@ -47,6 +48,9 @@ $payout = $_GET['payout'] ?? $_GET['revenue'] ?? $_GET['profit'] ?? 0.00;
 $currency = $_GET['currency'] ?? 'USD';
 $tid = $_GET['tid'] ?? null;
 $returnMsg = $_GET['return'] ?? null;
+// Optional free-text rejection reason (e.g. "Invalid Phone") — stored on the
+// CRM row so an anti-shaving dispute can quote the network's own wording.
+$reason = trim((string) ($_GET['reason'] ?? $_GET['reject_reason'] ?? ''));
 
 if (!$clickId) {
     die("Missing subid.");
@@ -145,6 +149,15 @@ try {
 
     $updateClick = $pdo->prepare("UPDATE clicks SET is_conversion = ?, revenue = ? WHERE id = ?");
     $updateClick->execute([$totals['is_conv'] > 0 ? 1 : 0, $totals['total_rev'] ?: 0, $clickId]);
+
+    // CRM vault reconciliation: every CRM row of this click moves to the
+    // network's verdict, and rejected-with-valid-phone rows become shave
+    // suspects. Best-effort by design — the postback that pays must not die
+    // because the audit trail hiccuped.
+    try {
+        orbitraCrmSyncPostbackStatus($pdo, (string) $clickId, (string) $internalStatus, (float) $payout, $reason);
+    } catch (\Exception $e) {
+    }
 
     // Telegram bot notification
     try {

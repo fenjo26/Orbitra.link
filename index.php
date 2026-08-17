@@ -24,6 +24,10 @@ require_once __DIR__ . '/core/CloakDetector.php';
 // Shared prefetch / preload detection (ignore_prefetch setting), used here and by
 // click.php / core/click_api.php so all three entry points behave identically.
 require_once __DIR__ . '/core/prefetch.php';
+// CRM lead vault. Loaded unconditionally: the LeadForge order.php bridge below
+// executes inside this process and calls orbitraCrmRecordLead() directly, and
+// the public /crm-ingest route answers stand-alone landings deployed elsewhere.
+require_once __DIR__ . '/core/CrmVault.php';
 
 // Получение реального IP адреса
 function getClientIp()
@@ -1550,6 +1554,40 @@ if ($uriPath === '/pixel.gif') {
     exit;
 }
 
+// === CRM lead ingest: POST /crm-ingest (LeadForge /crm-ingest route) ===
+// The public counterpart of the pixel's conversion endpoint: a LeadForge
+// landing deployed on foreign hosting POSTs its full lead snapshot here.
+// Same exposure model as /pixel.gif?action=conversion — anyone can call it,
+// so it attaches to existing clicks only and creates none; QA-flagged leads
+// are stored for the CRM audit trail but never touch analytics.
+if ($uriPath === '/crm-ingest') {
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    header('Access-Control-Allow-Origin: *');
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+        http_response_code(405);
+        echo json_encode(['status' => 'error', 'message' => 'POST method required']);
+        exit;
+    }
+    $rawBody = (string) file_get_contents('php://input');
+    if (strlen($rawBody) > 131072) {
+        http_response_code(413);
+        echo json_encode(['status' => 'error', 'message' => 'Payload too large']);
+        exit;
+    }
+    $ingest = json_decode($rawBody, true);
+    if (!is_array($ingest)) {
+        http_response_code(400);
+        echo json_encode(['status' => 'error', 'message' => 'JSON body required']);
+        exit;
+    }
+    $ingest['ip'] = $ingest['ip'] ?? getClientIp();
+    $ingest['user_agent'] = $ingest['user_agent'] ?? ($_SERVER['HTTP_USER_AGENT'] ?? '');
+    $res = orbitraCrmRecordLead($pdo, $ingest, false);
+    echo json_encode(['status' => $res['ok'] ? 'success' : 'error', 'message' => $res['message'], 'data' => ['lead_id' => $res['lead_id']]]);
+    exit;
+}
+
 // A local landing's own address, /lander/<slug>/, matching Keitaro. Must come
 // before the click handling below: this path is a look at the landing, not a
 // visit to a campaign, and nothing about it should be logged as traffic.
@@ -1591,7 +1629,11 @@ if ($uriPath !== null) {
                     . 'Enable it in Settings -> General -> "Allow PHP landings".';
                 exit;
             }
-            @set_time_limit(PhpLanding::timeout($pdo));
+            // The order bridge is a network actor: it calls the CPA network
+            // (curl, up to ~15s) and the CRM vault before redirecting. The
+            // generic landing budget (3s default) would kill a healthy lead
+            // mid-flight, so bridge files get a floor of their own.
+            @set_time_limit(max(PhpLanding::timeout($pdo), 25));
             require $orbitraBridgeRoot . '/' . $orbitraBridgeFile;
             exit;
         }

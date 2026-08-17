@@ -59,3 +59,8 @@ yarn-error.log
 
 # Runtime state (sessions, locks, caches)
 var/
+
+# LeadForge runtime artifacts (staged bundles, built downloads, temp dirs)
+data/leadforge_staging/
+data/leadforge_downloads/
+data/leadforge_tmp/

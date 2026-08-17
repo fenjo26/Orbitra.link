@@ -105,8 +105,16 @@ elseif ($uri === '/click_api/v3' || $uri === '/click_api/v3/') {
     orbitraClickApiV3($pdo);
     exit;
 }
+// LeadForge bridge + CRM ingest: the generated order.php / thank_you.php run
+// inside index.php's in-process route (steered by the orbitra_lp / orbitra_lo
+// cookies), and /crm-ingest is index.php's public POST endpoint. Without this
+// the single-segment alias branch below swallows both and answers empty 200s.
+elseif (preg_match('#^/(order|thank_you)\.php$#', $uri) || $uri === '/crm-ingest') {
+    include 'index.php';
+    exit;
+}
 // Support for root aliases even when domain is not parked (e.g., localhost testing)
-elseif (preg_match('#^/([^/]+)$#', $uri, $matches) && $uri !== '/admin' && $uri !== '/router.php') {
+elseif (preg_match('#^/([^/]+)$#', $uri, $matches) && !in_array($uri, ['/', '/admin', '/admin.php', '/router.php', '/api.php', '/click.php', '/postback.php', '/robots.txt', '/favicon.ico', '/crm-ingest'], true)) {
     $alias = $matches[1];
 
     // Check if it's a valid campaign alias before consuming it

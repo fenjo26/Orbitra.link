@@ -7,6 +7,70 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0.2] — 2026-08-17
+
+LeadForge grows from a one-shot forge into a two-stage compiler, and the CRM
+becomes an anti-shaving evidence vault.
+
+### Added
+- 🔬 **LeadForge 2.0: Analyze → Build** — `leadforge_analyze` inspects up to
+  15 ZIP/HTML/PHP bundles without touching a byte (source-network detection
+  across 13 CPA signatures, forms and input-name inventory, foreign counters,
+  UTF-8 checks, GEO from the `lang` attribute, ready-for-build cards), stages
+  them for 24h, and `leadforge_build_batch` compiles the selected ones with a
+  live execution console.
+- 🔀 **Three integration modes** — **Auto** (detect + route to the recognized
+  network), **Cross-Network** (cut the old network's `order.php` / `send.php`
+  / `api.php` / `sender.php` handlers and re-seat the landing on the chosen
+  target), **Raw** (strip FB/TikTok/GA/Yandex counters and hostile snippets —
+  DevTools blockers, right-click disablers, back-redirects — inject the
+  ClickID bridge and `{offer}` macros, no backend generated).
+- 🛡️ **Live Auto QA with Confidence Score** — after each build a
+  `QA-Test-Lead` (phone by GEO mask, e.g. `+39 333 000 1122` for IT) is
+  posted through the real `/order.php` bridge; four checks worth 25% each
+  (form structure, bridge response, dual logging, thank-you redirect) score
+  the bundle 0–100%, re-runnable per landing via `leadforge_live_qa`. QA
+  clicks and conversions are removed afterwards — analytics stays pristine,
+  the vault row stays as reviewable evidence.
+- 🗄️ **CRM Anti-Shaving Vault (migration 28)** — `crm_leads` stores the full
+  snapshot: raw phone as typed vs the E.164 actually delivered, UTM / adset /
+  ad attribution, product & price, and the exact network request/response
+  dump (endpoint, payload, HTTP code, body, network lead id). Fed three ways:
+  in-process from the generated order.php, via the public `POST /crm-ingest`
+  endpoint for bundles hosted on foreign hosting, and manually from the
+  panel. `leadforge_profiles` ships seeded with the six networks the engine
+  speaks.
+- 🚨 **S2S reconciliation & shave detector** — postbacks move every CRM row of
+  the click to the network's verdict (`&reason=` is stored verbatim); a lead
+  is flagged **Suspected Shave** only when provable: delivered a well-formed
+  E.164 number, the network answered HTTP 200, and the verdict is still
+  negative. Leads silent for 24h after a 200 flag as **Missing Network ACK**,
+  same-phone-same-network repeats within 30 days mark as **Duplicate**. The
+  Lead Inspector modal shows the three evidence tabs (Raw Lead Data / Network
+  Transaction / Tracking Attribution) with an exportable evidence pack for a
+  support ticket.
+- 🧷 **orbitra_adapter.js 2.0** — the ClickID bridge reads the tracker's
+  `orbitra_click` cookie as the last-resort subid, accepts `clickid` /
+  `sub_id` aliases, persists captures across pages (sessionStorage + cookie)
+  and enforces the real GEO phone mask (placeholder, input filtering,
+  submit-blocking validation).
+- 🌐 Full i18n for both pages across the 7 locales.
+
+### Fixed
+- 🧯 **order.php bridge died on the execution budget** — the generic PHP
+  landing budget (3s default) killed generated handlers mid-network-call
+  (curl waits up to 15s for the CPA network); bridge files now run with
+  `max(PhpLanding::timeout, 25s)`.
+- 🧭 **router.php swallowed service paths** — `/postback.php`, `/order.php`
+  and `/crm-ingest` fell into the single-segment alias branch and answered
+  empty 200s on the dev server (masked on Apache by the file-exists rewrite);
+  the reserved-path list now matches index.php's.
+- 🎨 **LeadForge & CRM follow the global theme system** — hardcoded
+  amber/indigo/sky gradients replaced with theme primaries (`btn-primary` /
+  `btn-secondary`, `color-mix` tints), text on primary uses
+  `--color-text-inverse` (white vanished into neon's lime), the «3-in-1»
+  header badges are gone and 17 dead icon imports pruned.
+
 ## [1.0.1] — 2026-08-17
 
 TikTok gets the same 1-click entry Facebook has, plus fixes for the 1.0.0

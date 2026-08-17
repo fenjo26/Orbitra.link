@@ -15111,7 +15111,7 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$1X = [
+const __iconNode$27 = [
   [
     "path",
     {
@@ -15120,31 +15120,31 @@ const __iconNode$1X = [
     }
   ]
 ];
-const Activity = createLucideIcon("activity", __iconNode$1X);
-const __iconNode$1W = [
+const Activity = createLucideIcon("activity", __iconNode$27);
+const __iconNode$26 = [
   ["rect", { width: "20", height: "5", x: "2", y: "3", rx: "1", key: "1wp1u1" }],
   ["path", { d: "M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8", key: "1s80jp" }],
   ["path", { d: "M10 12h4", key: "a56b0p" }]
 ];
-const Archive = createLucideIcon("archive", __iconNode$1W);
-const __iconNode$1V = [
+const Archive = createLucideIcon("archive", __iconNode$26);
+const __iconNode$25 = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$1V);
-const __iconNode$1U = [
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$25);
+const __iconNode$24 = [
   ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
   ["path", { d: "M20 7H4", key: "zbl0bi" }],
   ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
   ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$1U);
-const __iconNode$1T = [
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$24);
+const __iconNode$23 = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$1T);
-const __iconNode$1S = [
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$23);
+const __iconNode$22 = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15156,8 +15156,8 @@ const __iconNode$1S = [
   ["path", { d: "m2 2 20 20", key: "1ooewy" }],
   ["path", { d: "M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05", key: "1hqiys" }]
 ];
-const BellOff = createLucideIcon("bell-off", __iconNode$1S);
-const __iconNode$1R = [
+const BellOff = createLucideIcon("bell-off", __iconNode$22);
+const __iconNode$21 = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15167,28 +15167,28 @@ const __iconNode$1R = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$1R);
-const __iconNode$1Q = [
+const Bell = createLucideIcon("bell", __iconNode$21);
+const __iconNode$20 = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const Calendar$1 = createLucideIcon("calendar", __iconNode$1Q);
-const __iconNode$1P = [
+const Calendar$1 = createLucideIcon("calendar", __iconNode$20);
+const __iconNode$1$ = [
   ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
   ["path", { d: "M18 17V9", key: "2bz60n" }],
   ["path", { d: "M13 17V5", key: "1frdt8" }],
   ["path", { d: "M8 17v-3", key: "17ska0" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$1P);
-const __iconNode$1O = [
+const ChartColumn = createLucideIcon("chart-column", __iconNode$1$);
+const __iconNode$1_ = [
   ["path", { d: "M5 21v-6", key: "1hz6c0" }],
   ["path", { d: "M12 21V3", key: "1lcnhd" }],
   ["path", { d: "M19 21V9", key: "unv183" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1O);
-const __iconNode$1N = [
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1_);
+const __iconNode$1Z = [
   [
     "path",
     {
@@ -15198,39 +15198,39 @@ const __iconNode$1N = [
   ],
   ["path", { d: "M21.21 15.89A10 10 0 1 1 8 2.83", key: "k2fpak" }]
 ];
-const ChartPie = createLucideIcon("chart-pie", __iconNode$1N);
-const __iconNode$1M = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$1M);
-const __iconNode$1L = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$1L);
-const __iconNode$1K = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1K);
-const __iconNode$1J = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$1J);
-const __iconNode$1I = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$1I);
-const __iconNode$1H = [
+const ChartPie = createLucideIcon("chart-pie", __iconNode$1Z);
+const __iconNode$1Y = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$1Y);
+const __iconNode$1X = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$1X);
+const __iconNode$1W = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1W);
+const __iconNode$1V = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$1V);
+const __iconNode$1U = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$1U);
+const __iconNode$1T = [
   ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
   ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
 ];
-const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1H);
-const __iconNode$1G = [
+const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1T);
+const __iconNode$1S = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$1G);
-const __iconNode$1F = [
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$1S);
+const __iconNode$1R = [
   ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1F);
-const __iconNode$1E = [
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1R);
+const __iconNode$1Q = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$1E);
-const __iconNode$1D = [
+const CircleCheck = createLucideIcon("circle-check", __iconNode$1Q);
+const __iconNode$1P = [
   [
     "path",
     {
@@ -15240,50 +15240,50 @@ const __iconNode$1D = [
   ],
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
 ];
-const CirclePlay = createLucideIcon("circle-play", __iconNode$1D);
-const __iconNode$1C = [
+const CirclePlay = createLucideIcon("circle-play", __iconNode$1P);
+const __iconNode$1O = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1C);
-const __iconNode$1B = [
+const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1O);
+const __iconNode$1N = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   ["path", { d: "m9 9 6 6", key: "z0biqf" }]
 ];
-const CircleX = createLucideIcon("circle-x", __iconNode$1B);
-const __iconNode$1A = [
+const CircleX = createLucideIcon("circle-x", __iconNode$1N);
+const __iconNode$1M = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 6v6l4 2", key: "mmk7yg" }]
 ];
-const Clock = createLucideIcon("clock", __iconNode$1A);
-const __iconNode$1z = [
+const Clock = createLucideIcon("clock", __iconNode$1M);
+const __iconNode$1L = [
   ["path", { d: "M12 13v8", key: "1l5pq0" }],
   ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
   ["path", { d: "m8 17 4-4 4 4", key: "1quai1" }]
 ];
-const CloudUpload = createLucideIcon("cloud-upload", __iconNode$1z);
-const __iconNode$1y = [
+const CloudUpload = createLucideIcon("cloud-upload", __iconNode$1L);
+const __iconNode$1K = [
   ["path", { d: "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z", key: "p7xjir" }]
 ];
-const Cloud = createLucideIcon("cloud", __iconNode$1y);
-const __iconNode$1x = [
+const Cloud = createLucideIcon("cloud", __iconNode$1K);
+const __iconNode$1J = [
   ["path", { d: "m16 18 6-6-6-6", key: "eg8j8" }],
   ["path", { d: "m8 6-6 6 6 6", key: "ppft3o" }]
 ];
-const Code = createLucideIcon("code", __iconNode$1x);
-const __iconNode$1w = [
+const Code = createLucideIcon("code", __iconNode$1J);
+const __iconNode$1I = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M12 3v18", key: "108xh3" }]
 ];
-const Columns2 = createLucideIcon("columns-2", __iconNode$1w);
-const __iconNode$1v = [
+const Columns2 = createLucideIcon("columns-2", __iconNode$1I);
+const __iconNode$1H = [
   ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
   ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-const Copy = createLucideIcon("copy", __iconNode$1v);
-const __iconNode$1u = [
+const Copy = createLucideIcon("copy", __iconNode$1H);
+const __iconNode$1G = [
   ["path", { d: "M12 20v2", key: "1lh1kg" }],
   ["path", { d: "M12 2v2", key: "tus03m" }],
   ["path", { d: "M17 20v2", key: "1rnc9c" }],
@@ -15299,25 +15299,33 @@ const __iconNode$1u = [
   ["rect", { x: "4", y: "4", width: "16", height: "16", rx: "2", key: "1vbyd7" }],
   ["rect", { x: "8", y: "8", width: "8", height: "8", rx: "1", key: "z9xiuo" }]
 ];
-const Cpu = createLucideIcon("cpu", __iconNode$1u);
-const __iconNode$1t = [
+const Cpu = createLucideIcon("cpu", __iconNode$1G);
+const __iconNode$1F = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["line", { x1: "22", x2: "18", y1: "12", y2: "12", key: "l9bcsi" }],
+  ["line", { x1: "6", x2: "2", y1: "12", y2: "12", key: "13hhkx" }],
+  ["line", { x1: "12", x2: "12", y1: "6", y2: "2", key: "10w3f3" }],
+  ["line", { x1: "12", x2: "12", y1: "22", y2: "18", key: "15g9kq" }]
+];
+const Crosshair = createLucideIcon("crosshair", __iconNode$1F);
+const __iconNode$1E = [
   ["ellipse", { cx: "12", cy: "5", rx: "9", ry: "3", key: "msslwz" }],
   ["path", { d: "M3 5V19A9 3 0 0 0 21 19V5", key: "1wlel7" }],
   ["path", { d: "M3 12A9 3 0 0 0 21 12", key: "mv7ke4" }]
 ];
-const Database = createLucideIcon("database", __iconNode$1t);
-const __iconNode$1s = [
+const Database = createLucideIcon("database", __iconNode$1E);
+const __iconNode$1D = [
   ["line", { x1: "12", x2: "12", y1: "2", y2: "22", key: "7eqyqh" }],
   ["path", { d: "M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", key: "1b0p4s" }]
 ];
-const DollarSign = createLucideIcon("dollar-sign", __iconNode$1s);
-const __iconNode$1r = [
+const DollarSign = createLucideIcon("dollar-sign", __iconNode$1D);
+const __iconNode$1C = [
   ["path", { d: "M12 15V3", key: "m9g1x1" }],
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["path", { d: "m7 10 5 5 5-5", key: "brsn70" }]
 ];
-const Download = createLucideIcon("download", __iconNode$1r);
-const __iconNode$1q = [
+const Download = createLucideIcon("download", __iconNode$1C);
+const __iconNode$1B = [
   [
     "path",
     {
@@ -15326,20 +15334,20 @@ const __iconNode$1q = [
     }
   ]
 ];
-const Droplet = createLucideIcon("droplet", __iconNode$1q);
-const __iconNode$1p = [
+const Droplet = createLucideIcon("droplet", __iconNode$1B);
+const __iconNode$1A = [
   ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
   ["circle", { cx: "12", cy: "5", r: "1", key: "gxeob9" }],
   ["circle", { cx: "12", cy: "19", r: "1", key: "lyex9k" }]
 ];
-const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1p);
-const __iconNode$1o = [
+const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1A);
+const __iconNode$1z = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "M10 14 21 3", key: "gplh6r" }],
   ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
 ];
-const ExternalLink = createLucideIcon("external-link", __iconNode$1o);
-const __iconNode$1n = [
+const ExternalLink = createLucideIcon("external-link", __iconNode$1z);
+const __iconNode$1y = [
   [
     "path",
     {
@@ -15357,8 +15365,8 @@ const __iconNode$1n = [
   ],
   ["path", { d: "m2 2 20 20", key: "1ooewy" }]
 ];
-const EyeOff = createLucideIcon("eye-off", __iconNode$1n);
-const __iconNode$1m = [
+const EyeOff = createLucideIcon("eye-off", __iconNode$1y);
+const __iconNode$1x = [
   [
     "path",
     {
@@ -15368,8 +15376,8 @@ const __iconNode$1m = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Eye = createLucideIcon("eye", __iconNode$1m);
-const __iconNode$1l = [
+const Eye = createLucideIcon("eye", __iconNode$1x);
+const __iconNode$1w = [
   [
     "path",
     {
@@ -15383,8 +15391,8 @@ const __iconNode$1l = [
   ["path", { d: "M8 7V6", key: "1nbb54" }],
   ["circle", { cx: "8", cy: "20", r: "2", key: "ckkr5m" }]
 ];
-const FileArchive = createLucideIcon("file-archive", __iconNode$1l);
-const __iconNode$1k = [
+const FileArchive = createLucideIcon("file-archive", __iconNode$1w);
+const __iconNode$1v = [
   [
     "path",
     {
@@ -15396,8 +15404,21 @@ const __iconNode$1k = [
   ["path", { d: "M10 12.5 8 15l2 2.5", key: "1tg20x" }],
   ["path", { d: "m14 12.5 2 2.5-2 2.5", key: "yinavb" }]
 ];
-const FileCode = createLucideIcon("file-code", __iconNode$1k);
-const __iconNode$1j = [
+const FileCode = createLucideIcon("file-code", __iconNode$1v);
+const __iconNode$1u = [
+  [
+    "path",
+    {
+      d: "M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z",
+      key: "1oefj6"
+    }
+  ],
+  ["path", { d: "M14 2v5a1 1 0 0 0 1 1h5", key: "wfsgrz" }],
+  ["circle", { cx: "11.5", cy: "14.5", r: "2.5", key: "1bq0ko" }],
+  ["path", { d: "M13.3 16.3 15 18", key: "2quom7" }]
+];
+const FileSearch = createLucideIcon("file-search", __iconNode$1u);
+const __iconNode$1t = [
   ["path", { d: "M11 21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1", key: "likhh7" }],
   ["path", { d: "M16 16a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1", key: "17ky3x" }],
   [
@@ -15408,8 +15429,8 @@ const __iconNode$1j = [
     }
   ]
 ];
-const FileStack = createLucideIcon("file-stack", __iconNode$1j);
-const __iconNode$1i = [
+const FileStack = createLucideIcon("file-stack", __iconNode$1t);
+const __iconNode$1s = [
   [
     "path",
     {
@@ -15422,8 +15443,8 @@ const __iconNode$1i = [
   ["path", { d: "M16 13H8", key: "t4e002" }],
   ["path", { d: "M16 17H8", key: "z1uh3a" }]
 ];
-const FileText = createLucideIcon("file-text", __iconNode$1i);
-const __iconNode$1h = [
+const FileText = createLucideIcon("file-text", __iconNode$1s);
+const __iconNode$1r = [
   [
     "path",
     {
@@ -15432,22 +15453,22 @@ const __iconNode$1h = [
     }
   ]
 ];
-const Funnel = createLucideIcon("funnel", __iconNode$1h);
-const __iconNode$1g = [
+const Funnel = createLucideIcon("funnel", __iconNode$1r);
+const __iconNode$1q = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20", key: "13o1zl" }],
   ["path", { d: "M2 12h20", key: "9i4pu4" }]
 ];
-const Globe = createLucideIcon("globe", __iconNode$1g);
-const __iconNode$1f = [
+const Globe = createLucideIcon("globe", __iconNode$1q);
+const __iconNode$1p = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M3 9h18", key: "1pudct" }],
   ["path", { d: "M3 15h18", key: "5xshup" }],
   ["path", { d: "M9 3v18", key: "fh3hqa" }],
   ["path", { d: "M15 3v18", key: "14nvp0" }]
 ];
-const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$1f);
-const __iconNode$1e = [
+const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$1p);
+const __iconNode$1o = [
   ["circle", { cx: "9", cy: "12", r: "1", key: "1vctgf" }],
   ["circle", { cx: "9", cy: "5", r: "1", key: "hp0tcf" }],
   ["circle", { cx: "9", cy: "19", r: "1", key: "fkjjf6" }],
@@ -15455,8 +15476,8 @@ const __iconNode$1e = [
   ["circle", { cx: "15", cy: "5", r: "1", key: "19l28e" }],
   ["circle", { cx: "15", cy: "19", r: "1", key: "f4zoj3" }]
 ];
-const GripVertical = createLucideIcon("grip-vertical", __iconNode$1e);
-const __iconNode$1d = [
+const GripVertical = createLucideIcon("grip-vertical", __iconNode$1o);
+const __iconNode$1n = [
   ["path", { d: "M10 16h.01", key: "1bzywj" }],
   [
     "path",
@@ -15468,8 +15489,8 @@ const __iconNode$1d = [
   ["path", { d: "M21.946 12.013H2.054", key: "zqlbp7" }],
   ["path", { d: "M6 16h.01", key: "1pmjb7" }]
 ];
-const HardDrive = createLucideIcon("hard-drive", __iconNode$1d);
-const __iconNode$1c = [
+const HardDrive = createLucideIcon("hard-drive", __iconNode$1n);
+const __iconNode$1m = [
   [
     "path",
     {
@@ -15478,20 +15499,20 @@ const __iconNode$1c = [
     }
   ]
 ];
-const Heart = createLucideIcon("heart", __iconNode$1c);
-const __iconNode$1b = [
+const Heart = createLucideIcon("heart", __iconNode$1m);
+const __iconNode$1l = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
   ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
   ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
 ];
-const Image = createLucideIcon("image", __iconNode$1b);
-const __iconNode$1a = [
+const Image = createLucideIcon("image", __iconNode$1l);
+const __iconNode$1k = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
 ];
-const Info = createLucideIcon("info", __iconNode$1a);
-const __iconNode$19 = [
+const Info = createLucideIcon("info", __iconNode$1k);
+const __iconNode$1j = [
   [
     "path",
     {
@@ -15501,14 +15522,14 @@ const __iconNode$19 = [
   ],
   ["circle", { cx: "16.5", cy: "7.5", r: ".5", fill: "currentColor", key: "w0ekpg" }]
 ];
-const KeyRound = createLucideIcon("key-round", __iconNode$19);
-const __iconNode$18 = [
+const KeyRound = createLucideIcon("key-round", __iconNode$1j);
+const __iconNode$1i = [
   ["path", { d: "m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4", key: "g0fldk" }],
   ["path", { d: "m21 2-9.6 9.6", key: "1j0ho8" }],
   ["circle", { cx: "7.5", cy: "15.5", r: "5.5", key: "yqb3hr" }]
 ];
-const Key = createLucideIcon("key", __iconNode$18);
-const __iconNode$17 = [
+const Key = createLucideIcon("key", __iconNode$1i);
+const __iconNode$1h = [
   [
     "path",
     {
@@ -15531,28 +15552,28 @@ const __iconNode$17 = [
     }
   ]
 ];
-const Layers = createLucideIcon("layers", __iconNode$17);
-const __iconNode$16 = [
+const Layers = createLucideIcon("layers", __iconNode$1h);
+const __iconNode$1g = [
   ["rect", { width: "7", height: "9", x: "3", y: "3", rx: "1", key: "10lvy0" }],
   ["rect", { width: "7", height: "5", x: "14", y: "3", rx: "1", key: "16une8" }],
   ["rect", { width: "7", height: "9", x: "14", y: "12", rx: "1", key: "1hutg5" }],
   ["rect", { width: "7", height: "5", x: "3", y: "16", rx: "1", key: "ldoo1y" }]
 ];
-const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$16);
-const __iconNode$15 = [
+const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$1g);
+const __iconNode$1f = [
   ["rect", { width: "7", height: "7", x: "3", y: "3", rx: "1", key: "1g98yp" }],
   ["rect", { width: "7", height: "7", x: "14", y: "3", rx: "1", key: "6d4xhi" }],
   ["rect", { width: "7", height: "7", x: "14", y: "14", rx: "1", key: "nxv5o0" }],
   ["rect", { width: "7", height: "7", x: "3", y: "14", rx: "1", key: "1bb6yr" }]
 ];
-const LayoutGrid = createLucideIcon("layout-grid", __iconNode$15);
-const __iconNode$14 = [
+const LayoutGrid = createLucideIcon("layout-grid", __iconNode$1f);
+const __iconNode$1e = [
   ["rect", { width: "18", height: "7", x: "3", y: "3", rx: "1", key: "f1a2em" }],
   ["rect", { width: "9", height: "7", x: "3", y: "14", rx: "1", key: "jqznyg" }],
   ["rect", { width: "5", height: "7", x: "16", y: "14", rx: "1", key: "q5h2i8" }]
 ];
-const LayoutTemplate = createLucideIcon("layout-template", __iconNode$14);
-const __iconNode$13 = [
+const LayoutTemplate = createLucideIcon("layout-template", __iconNode$1e);
+const __iconNode$1d = [
   [
     "path",
     {
@@ -15563,19 +15584,19 @@ const __iconNode$13 = [
   ["path", { d: "M9 18h6", key: "x1upvd" }],
   ["path", { d: "M10 22h4", key: "ceow96" }]
 ];
-const Lightbulb = createLucideIcon("lightbulb", __iconNode$13);
-const __iconNode$12 = [
+const Lightbulb = createLucideIcon("lightbulb", __iconNode$1d);
+const __iconNode$1c = [
   ["path", { d: "M9 17H7A5 5 0 0 1 7 7h2", key: "8i5ue5" }],
   ["path", { d: "M15 7h2a5 5 0 1 1 0 10h-2", key: "1b9ql8" }],
   ["line", { x1: "8", x2: "16", y1: "12", y2: "12", key: "1jonct" }]
 ];
-const Link2 = createLucideIcon("link-2", __iconNode$12);
-const __iconNode$11 = [
+const Link2 = createLucideIcon("link-2", __iconNode$1c);
+const __iconNode$1b = [
   ["path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71", key: "1cjeqo" }],
   ["path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71", key: "19qd67" }]
 ];
-const Link = createLucideIcon("link", __iconNode$11);
-const __iconNode$10 = [
+const Link = createLucideIcon("link", __iconNode$1b);
+const __iconNode$1a = [
   ["path", { d: "M12 2v4", key: "3427ic" }],
   ["path", { d: "m16.2 7.8 2.9-2.9", key: "r700ao" }],
   ["path", { d: "M18 12h4", key: "wj9ykh" }],
@@ -15585,24 +15606,24 @@ const __iconNode$10 = [
   ["path", { d: "M2 12h4", key: "j09sii" }],
   ["path", { d: "m4.9 4.9 2.9 2.9", key: "giyufr" }]
 ];
-const Loader = createLucideIcon("loader", __iconNode$10);
-const __iconNode$$ = [
+const Loader = createLucideIcon("loader", __iconNode$1a);
+const __iconNode$19 = [
   ["rect", { width: "18", height: "11", x: "3", y: "11", rx: "2", ry: "2", key: "1w4ew1" }],
   ["path", { d: "M7 11V7a5 5 0 0 1 10 0v4", key: "fwvmzm" }]
 ];
-const Lock = createLucideIcon("lock", __iconNode$$);
-const __iconNode$_ = [
+const Lock = createLucideIcon("lock", __iconNode$19);
+const __iconNode$18 = [
   ["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }],
   ["path", { d: "M21 12H9", key: "dn1m92" }],
   ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]
 ];
-const LogOut = createLucideIcon("log-out", __iconNode$_);
-const __iconNode$Z = [
+const LogOut = createLucideIcon("log-out", __iconNode$18);
+const __iconNode$17 = [
   ["path", { d: "m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7", key: "132q7q" }],
   ["rect", { x: "2", y: "4", width: "20", height: "16", rx: "2", key: "izxlao" }]
 ];
-const Mail = createLucideIcon("mail", __iconNode$Z);
-const __iconNode$Y = [
+const Mail = createLucideIcon("mail", __iconNode$17);
+const __iconNode$16 = [
   [
     "path",
     {
@@ -15612,8 +15633,8 @@ const __iconNode$Y = [
   ],
   ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }]
 ];
-const MapPin = createLucideIcon("map-pin", __iconNode$Y);
-const __iconNode$X = [
+const MapPin = createLucideIcon("map-pin", __iconNode$16);
+const __iconNode$15 = [
   [
     "path",
     {
@@ -15624,21 +15645,21 @@ const __iconNode$X = [
   ["path", { d: "M15 5.764v15", key: "1pn4in" }],
   ["path", { d: "M9 3.236v15", key: "1uimfh" }]
 ];
-const Map$1 = createLucideIcon("map", __iconNode$X);
-const __iconNode$W = [
+const Map$1 = createLucideIcon("map", __iconNode$15);
+const __iconNode$14 = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "m21 3-7 7", key: "1l2asr" }],
   ["path", { d: "m3 21 7-7", key: "tjx5ai" }],
   ["path", { d: "M9 21H3v-6", key: "wtvkvv" }]
 ];
-const Maximize2 = createLucideIcon("maximize-2", __iconNode$W);
-const __iconNode$V = [
+const Maximize2 = createLucideIcon("maximize-2", __iconNode$14);
+const __iconNode$13 = [
   ["path", { d: "M4 5h16", key: "1tepv9" }],
   ["path", { d: "M4 12h16", key: "1lakjw" }],
   ["path", { d: "M4 19h16", key: "1djgab" }]
 ];
-const Menu = createLucideIcon("menu", __iconNode$V);
-const __iconNode$U = [
+const Menu = createLucideIcon("menu", __iconNode$13);
+const __iconNode$12 = [
   [
     "path",
     {
@@ -15647,8 +15668,8 @@ const __iconNode$U = [
     }
   ]
 ];
-const MessageCircle = createLucideIcon("message-circle", __iconNode$U);
-const __iconNode$T = [
+const MessageCircle = createLucideIcon("message-circle", __iconNode$12);
+const __iconNode$11 = [
   [
     "path",
     {
@@ -15657,21 +15678,21 @@ const __iconNode$T = [
     }
   ]
 ];
-const MessageSquare = createLucideIcon("message-square", __iconNode$T);
-const __iconNode$S = [
+const MessageSquare = createLucideIcon("message-square", __iconNode$11);
+const __iconNode$10 = [
   ["path", { d: "m14 10 7-7", key: "oa77jy" }],
   ["path", { d: "M20 10h-6V4", key: "mjg0md" }],
   ["path", { d: "m3 21 7-7", key: "tjx5ai" }],
   ["path", { d: "M4 14h6v6", key: "rmj7iw" }]
 ];
-const Minimize2 = createLucideIcon("minimize-2", __iconNode$S);
-const __iconNode$R = [
+const Minimize2 = createLucideIcon("minimize-2", __iconNode$10);
+const __iconNode$$ = [
   ["rect", { width: "20", height: "14", x: "2", y: "3", rx: "2", key: "48i651" }],
   ["line", { x1: "8", x2: "16", y1: "21", y2: "21", key: "1svkeh" }],
   ["line", { x1: "12", x2: "12", y1: "17", y2: "21", key: "vw1qmm" }]
 ];
-const Monitor = createLucideIcon("monitor", __iconNode$R);
-const __iconNode$Q = [
+const Monitor = createLucideIcon("monitor", __iconNode$$);
+const __iconNode$_ = [
   [
     "path",
     {
@@ -15680,13 +15701,21 @@ const __iconNode$Q = [
     }
   ]
 ];
-const Moon = createLucideIcon("moon", __iconNode$Q);
-const __iconNode$P = [
+const Moon = createLucideIcon("moon", __iconNode$_);
+const __iconNode$Z = [
   ["circle", { cx: "8", cy: "18", r: "4", key: "1fc0mg" }],
   ["path", { d: "M12 18V2l7 4", key: "g04rme" }]
 ];
-const Music2 = createLucideIcon("music-2", __iconNode$P);
-const __iconNode$O = [
+const Music2 = createLucideIcon("music-2", __iconNode$Z);
+const __iconNode$Y = [
+  ["rect", { x: "16", y: "16", width: "6", height: "6", rx: "1", key: "4q2zg0" }],
+  ["rect", { x: "2", y: "16", width: "6", height: "6", rx: "1", key: "8cvhb9" }],
+  ["rect", { x: "9", y: "2", width: "6", height: "6", rx: "1", key: "1egb70" }],
+  ["path", { d: "M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3", key: "1jsf9p" }],
+  ["path", { d: "M12 12V8", key: "2874zd" }]
+];
+const Network = createLucideIcon("network", __iconNode$Y);
+const __iconNode$X = [
   ["path", { d: "M12 22v-9", key: "x3hkom" }],
   [
     "path",
@@ -15710,8 +15739,8 @@ const __iconNode$O = [
     }
   ]
 ];
-const PackageOpen = createLucideIcon("package-open", __iconNode$O);
-const __iconNode$N = [
+const PackageOpen = createLucideIcon("package-open", __iconNode$X);
+const __iconNode$W = [
   [
     "path",
     {
@@ -15724,8 +15753,8 @@ const __iconNode$N = [
   ["circle", { cx: "6.5", cy: "12.5", r: ".5", fill: "currentColor", key: "qy21gx" }],
   ["circle", { cx: "8.5", cy: "7.5", r: ".5", fill: "currentColor", key: "fotxhn" }]
 ];
-const Palette = createLucideIcon("palette", __iconNode$N);
-const __iconNode$M = [
+const Palette = createLucideIcon("palette", __iconNode$W);
+const __iconNode$V = [
   ["path", { d: "M13 21h8", key: "1jsn5i" }],
   [
     "path",
@@ -15735,8 +15764,8 @@ const __iconNode$M = [
     }
   ]
 ];
-const PenLine = createLucideIcon("pen-line", __iconNode$M);
-const __iconNode$L = [
+const PenLine = createLucideIcon("pen-line", __iconNode$V);
+const __iconNode$U = [
   [
     "path",
     {
@@ -15745,8 +15774,8 @@ const __iconNode$L = [
     }
   ]
 ];
-const Pen = createLucideIcon("pen", __iconNode$L);
-const __iconNode$K = [
+const Pen = createLucideIcon("pen", __iconNode$U);
+const __iconNode$T = [
   [
     "path",
     {
@@ -15756,8 +15785,18 @@ const __iconNode$K = [
   ],
   ["path", { d: "m15 5 4 4", key: "1mk7zo" }]
 ];
-const Pencil = createLucideIcon("pencil", __iconNode$K);
-const __iconNode$J = [
+const Pencil = createLucideIcon("pencil", __iconNode$T);
+const __iconNode$S = [
+  [
+    "path",
+    {
+      d: "M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384",
+      key: "9njp5v"
+    }
+  ]
+];
+const Phone = createLucideIcon("phone", __iconNode$S);
+const __iconNode$R = [
   [
     "path",
     {
@@ -15774,8 +15813,8 @@ const __iconNode$J = [
   ],
   ["path", { d: "m2 22 .414-.414", key: "jhxm08" }]
 ];
-const Pipette = createLucideIcon("pipette", __iconNode$J);
-const __iconNode$I = [
+const Pipette = createLucideIcon("pipette", __iconNode$R);
+const __iconNode$Q = [
   [
     "path",
     {
@@ -15784,8 +15823,8 @@ const __iconNode$I = [
     }
   ]
 ];
-const Play = createLucideIcon("play", __iconNode$I);
-const __iconNode$H = [
+const Play = createLucideIcon("play", __iconNode$Q);
+const __iconNode$P = [
   ["path", { d: "M12 22v-5", key: "1ega77" }],
   ["path", { d: "M15 8V2", key: "18g5xt" }],
   [
@@ -15794,30 +15833,63 @@ const __iconNode$H = [
   ],
   ["path", { d: "M9 8V2", key: "14iosj" }]
 ];
-const Plug = createLucideIcon("plug", __iconNode$H);
-const __iconNode$G = [
+const Plug = createLucideIcon("plug", __iconNode$P);
+const __iconNode$O = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "M12 5v14", key: "s699le" }]
 ];
-const Plus = createLucideIcon("plus", __iconNode$G);
-const __iconNode$F = [
+const Plus = createLucideIcon("plus", __iconNode$O);
+const __iconNode$N = [
   ["path", { d: "M12 2v10", key: "mnfbl" }],
   ["path", { d: "M18.4 6.6a9 9 0 1 1-12.77.04", key: "obofu9" }]
 ];
-const Power = createLucideIcon("power", __iconNode$F);
-const __iconNode$E = [
+const Power = createLucideIcon("power", __iconNode$N);
+const __iconNode$M = [
   ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
   ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
   ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
   ["path", { d: "M8 16H3v5", key: "1cv678" }]
 ];
-const RefreshCw = createLucideIcon("refresh-cw", __iconNode$E);
-const __iconNode$D = [
+const RefreshCw = createLucideIcon("refresh-cw", __iconNode$M);
+const __iconNode$L = [
+  ["path", { d: "m2 9 3-3 3 3", key: "1ltn5i" }],
+  ["path", { d: "M13 18H7a2 2 0 0 1-2-2V6", key: "1r6tfw" }],
+  ["path", { d: "m22 15-3 3-3-3", key: "4rnwn2" }],
+  ["path", { d: "M11 6h6a2 2 0 0 1 2 2v10", key: "2f72bc" }]
+];
+const Repeat2 = createLucideIcon("repeat-2", __iconNode$L);
+const __iconNode$K = [
+  ["path", { d: "m17 2 4 4-4 4", key: "nntrym" }],
+  ["path", { d: "M3 11v-1a4 4 0 0 1 4-4h14", key: "84bu3i" }],
+  ["path", { d: "m7 22-4-4 4-4", key: "1wqhfi" }],
+  ["path", { d: "M21 13v1a4 4 0 0 1-4 4H3", key: "1rx37r" }]
+];
+const Repeat = createLucideIcon("repeat", __iconNode$K);
+const __iconNode$J = [
+  ["path", { d: "M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5", key: "qeys4" }],
+  [
+    "path",
+    {
+      d: "M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09",
+      key: "u4xsad"
+    }
+  ],
+  [
+    "path",
+    {
+      d: "M9 12a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.4 22.4 0 0 1-4 2z",
+      key: "676m9"
+    }
+  ],
+  ["path", { d: "M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05", key: "92ym6u" }]
+];
+const Rocket = createLucideIcon("rocket", __iconNode$J);
+const __iconNode$I = [
   ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
   ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
 ];
-const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$D);
-const __iconNode$C = [
+const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$I);
+const __iconNode$H = [
   [
     "path",
     {
@@ -15828,13 +15900,30 @@ const __iconNode$C = [
   ["path", { d: "M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7", key: "1ydtos" }],
   ["path", { d: "M7 3v4a1 1 0 0 0 1 1h7", key: "t51u73" }]
 ];
-const Save = createLucideIcon("save", __iconNode$C);
-const __iconNode$B = [
+const Save = createLucideIcon("save", __iconNode$H);
+const __iconNode$G = [
+  ["path", { d: "M3 7V5a2 2 0 0 1 2-2h2", key: "aa7l1z" }],
+  ["path", { d: "M17 3h2a2 2 0 0 1 2 2v2", key: "4qcy5o" }],
+  ["path", { d: "M21 17v2a2 2 0 0 1-2 2h-2", key: "6vwrx8" }],
+  ["path", { d: "M7 21H5a2 2 0 0 1-2-2v-2", key: "ioqczr" }],
+  ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }],
+  ["path", { d: "m16 16-1.9-1.9", key: "1dq9hf" }]
+];
+const ScanSearch = createLucideIcon("scan-search", __iconNode$G);
+const __iconNode$F = [
+  ["circle", { cx: "6", cy: "6", r: "3", key: "1lh9wr" }],
+  ["path", { d: "M8.12 8.12 12 12", key: "1alkpv" }],
+  ["path", { d: "M20 4 8.12 15.88", key: "xgtan2" }],
+  ["circle", { cx: "6", cy: "18", r: "3", key: "fqmcym" }],
+  ["path", { d: "M14.8 14.8 20 20", key: "ptml3r" }]
+];
+const Scissors = createLucideIcon("scissors", __iconNode$F);
+const __iconNode$E = [
   ["path", { d: "m21 21-4.34-4.34", key: "14j7rj" }],
   ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }]
 ];
-const Search = createLucideIcon("search", __iconNode$B);
-const __iconNode$A = [
+const Search = createLucideIcon("search", __iconNode$E);
+const __iconNode$D = [
   [
     "path",
     {
@@ -15844,8 +15933,8 @@ const __iconNode$A = [
   ],
   ["path", { d: "m21.854 2.147-10.94 10.939", key: "12cjpa" }]
 ];
-const Send = createLucideIcon("send", __iconNode$A);
-const __iconNode$z = [
+const Send = createLucideIcon("send", __iconNode$D);
+const __iconNode$C = [
   [
     "path",
     {
@@ -15864,22 +15953,22 @@ const __iconNode$z = [
   ["path", { d: "M6 18h.01", key: "uhywen" }],
   ["path", { d: "m13 6-4 6h6l-4 6", key: "14hqih" }]
 ];
-const ServerCrash = createLucideIcon("server-crash", __iconNode$z);
-const __iconNode$y = [
+const ServerCrash = createLucideIcon("server-crash", __iconNode$C);
+const __iconNode$B = [
   ["rect", { width: "20", height: "8", x: "2", y: "2", rx: "2", ry: "2", key: "ngkwjq" }],
   ["rect", { width: "20", height: "8", x: "2", y: "14", rx: "2", ry: "2", key: "iecqi9" }],
   ["line", { x1: "6", x2: "6.01", y1: "6", y2: "6", key: "16zg32" }],
   ["line", { x1: "6", x2: "6.01", y1: "18", y2: "18", key: "nzw8ys" }]
 ];
-const Server = createLucideIcon("server", __iconNode$y);
-const __iconNode$x = [
+const Server = createLucideIcon("server", __iconNode$B);
+const __iconNode$A = [
   ["path", { d: "M14 17H5", key: "gfn3mx" }],
   ["path", { d: "M19 7h-9", key: "6i9tg" }],
   ["circle", { cx: "17", cy: "17", r: "3", key: "18b49y" }],
   ["circle", { cx: "7", cy: "7", r: "3", key: "dfmy0x" }]
 ];
-const Settings2 = createLucideIcon("settings-2", __iconNode$x);
-const __iconNode$w = [
+const Settings2 = createLucideIcon("settings-2", __iconNode$A);
+const __iconNode$z = [
   [
     "path",
     {
@@ -15889,8 +15978,8 @@ const __iconNode$w = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Settings$1 = createLucideIcon("settings", __iconNode$w);
-const __iconNode$v = [
+const Settings$1 = createLucideIcon("settings", __iconNode$z);
+const __iconNode$y = [
   [
     "path",
     {
@@ -15901,8 +15990,8 @@ const __iconNode$v = [
   ["path", { d: "M12 8v4", key: "1got3b" }],
   ["path", { d: "M12 16h.01", key: "1drbdi" }]
 ];
-const ShieldAlert = createLucideIcon("shield-alert", __iconNode$v);
-const __iconNode$u = [
+const ShieldAlert = createLucideIcon("shield-alert", __iconNode$y);
+const __iconNode$x = [
   [
     "path",
     {
@@ -15912,8 +16001,19 @@ const __iconNode$u = [
   ],
   ["path", { d: "m4.243 5.21 14.39 12.472", key: "1c9a7c" }]
 ];
-const ShieldBan = createLucideIcon("shield-ban", __iconNode$u);
-const __iconNode$t = [
+const ShieldBan = createLucideIcon("shield-ban", __iconNode$x);
+const __iconNode$w = [
+  [
+    "path",
+    {
+      d: "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z",
+      key: "oel41y"
+    }
+  ],
+  ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
+];
+const ShieldCheck = createLucideIcon("shield-check", __iconNode$w);
+const __iconNode$v = [
   [
     "path",
     {
@@ -15922,8 +16022,8 @@ const __iconNode$t = [
     }
   ]
 ];
-const Shield = createLucideIcon("shield", __iconNode$t);
-const __iconNode$s = [
+const Shield = createLucideIcon("shield", __iconNode$v);
+const __iconNode$u = [
   ["circle", { cx: "8", cy: "21", r: "1", key: "jimo8o" }],
   ["circle", { cx: "19", cy: "21", r: "1", key: "13723u" }],
   [
@@ -15934,8 +16034,8 @@ const __iconNode$s = [
     }
   ]
 ];
-const ShoppingCart = createLucideIcon("shopping-cart", __iconNode$s);
-const __iconNode$r = [
+const ShoppingCart = createLucideIcon("shopping-cart", __iconNode$u);
+const __iconNode$t = [
   ["path", { d: "M10 5H3", key: "1qgfaw" }],
   ["path", { d: "M12 19H3", key: "yhmn1j" }],
   ["path", { d: "M14 3v4", key: "1sua03" }],
@@ -15946,8 +16046,8 @@ const __iconNode$r = [
   ["path", { d: "M8 10v4", key: "tgpxqk" }],
   ["path", { d: "M8 12H3", key: "a7s4jb" }]
 ];
-const SlidersHorizontal = createLucideIcon("sliders-horizontal", __iconNode$r);
-const __iconNode$q = [
+const SlidersHorizontal = createLucideIcon("sliders-horizontal", __iconNode$t);
+const __iconNode$s = [
   ["path", { d: "M10 8h4", key: "1sr2af" }],
   ["path", { d: "M12 21v-9", key: "17s77i" }],
   ["path", { d: "M12 8V3", key: "13r4qs" }],
@@ -15958,13 +16058,13 @@ const __iconNode$q = [
   ["path", { d: "M5 10V3", key: "cb8scm" }],
   ["path", { d: "M5 21v-7", key: "1w1uti" }]
 ];
-const SlidersVertical = createLucideIcon("sliders-vertical", __iconNode$q);
-const __iconNode$p = [
+const SlidersVertical = createLucideIcon("sliders-vertical", __iconNode$s);
+const __iconNode$r = [
   ["rect", { width: "14", height: "20", x: "5", y: "2", rx: "2", ry: "2", key: "1yt0o3" }],
   ["path", { d: "M12 18h.01", key: "mhygvu" }]
 ];
-const Smartphone = createLucideIcon("smartphone", __iconNode$p);
-const __iconNode$o = [
+const Smartphone = createLucideIcon("smartphone", __iconNode$r);
+const __iconNode$q = [
   [
     "path",
     {
@@ -15976,8 +16076,8 @@ const __iconNode$o = [
   ["path", { d: "M22 4h-4", key: "gwowj6" }],
   ["circle", { cx: "4", cy: "20", r: "2", key: "6kqj1y" }]
 ];
-const Sparkles = createLucideIcon("sparkles", __iconNode$o);
-const __iconNode$n = [
+const Sparkles = createLucideIcon("sparkles", __iconNode$q);
+const __iconNode$p = [
   ["path", { d: "M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7", key: "1m0v6g" }],
   [
     "path",
@@ -15987,14 +16087,14 @@ const __iconNode$n = [
     }
   ]
 ];
-const SquarePen = createLucideIcon("square-pen", __iconNode$n);
-const __iconNode$m = [
+const SquarePen = createLucideIcon("square-pen", __iconNode$p);
+const __iconNode$o = [
   ["path", { d: "m7 11 2-2-2-2", key: "1lz0vl" }],
   ["path", { d: "M11 13h4", key: "1p7l4v" }],
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }]
 ];
-const SquareTerminal = createLucideIcon("square-terminal", __iconNode$m);
-const __iconNode$l = [
+const SquareTerminal = createLucideIcon("square-terminal", __iconNode$o);
+const __iconNode$n = [
   [
     "path",
     {
@@ -16003,8 +16103,8 @@ const __iconNode$l = [
     }
   ]
 ];
-const Star = createLucideIcon("star", __iconNode$l);
-const __iconNode$k = [
+const Star = createLucideIcon("star", __iconNode$n);
+const __iconNode$m = [
   ["circle", { cx: "12", cy: "12", r: "4", key: "4exip2" }],
   ["path", { d: "M12 2v2", key: "tus03m" }],
   ["path", { d: "M12 20v2", key: "1lh1kg" }],
@@ -16015,8 +16115,8 @@ const __iconNode$k = [
   ["path", { d: "m6.34 17.66-1.41 1.41", key: "1m8zz5" }],
   ["path", { d: "m19.07 4.93-1.41 1.41", key: "1shlcs" }]
 ];
-const Sun = createLucideIcon("sun", __iconNode$k);
-const __iconNode$j = [
+const Sun = createLucideIcon("sun", __iconNode$m);
+const __iconNode$l = [
   [
     "path",
     {
@@ -16025,15 +16125,15 @@ const __iconNode$j = [
     }
   ]
 ];
-const Table2 = createLucideIcon("table-2", __iconNode$j);
-const __iconNode$i = [
+const Table2 = createLucideIcon("table-2", __iconNode$l);
+const __iconNode$k = [
   ["path", { d: "M12 3v18", key: "108xh3" }],
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M3 9h18", key: "1pudct" }],
   ["path", { d: "M3 15h18", key: "5xshup" }]
 ];
-const Table = createLucideIcon("table", __iconNode$i);
-const __iconNode$h = [
+const Table = createLucideIcon("table", __iconNode$k);
+const __iconNode$j = [
   [
     "path",
     {
@@ -16043,13 +16143,13 @@ const __iconNode$h = [
   ],
   ["circle", { cx: "7.5", cy: "7.5", r: ".5", fill: "currentColor", key: "kqv944" }]
 ];
-const Tag = createLucideIcon("tag", __iconNode$h);
-const __iconNode$g = [
+const Tag = createLucideIcon("tag", __iconNode$j);
+const __iconNode$i = [
   ["path", { d: "M12 19h8", key: "baeox8" }],
   ["path", { d: "m4 17 6-6-6-6", key: "1yngyt" }]
 ];
-const Terminal = createLucideIcon("terminal", __iconNode$g);
-const __iconNode$f = [
+const Terminal = createLucideIcon("terminal", __iconNode$i);
+const __iconNode$h = [
   [
     "path",
     { d: "M21 7 6.82 21.18a2.83 2.83 0 0 1-3.99-.01a2.83 2.83 0 0 1 0-4L17 3", key: "1ub6xw" }
@@ -16057,39 +16157,39 @@ const __iconNode$f = [
   ["path", { d: "m16 2 6 6", key: "1gw87d" }],
   ["path", { d: "M12 16H4", key: "1cjfip" }]
 ];
-const TestTubeDiagonal = createLucideIcon("test-tube-diagonal", __iconNode$f);
-const __iconNode$e = [
+const TestTubeDiagonal = createLucideIcon("test-tube-diagonal", __iconNode$h);
+const __iconNode$g = [
   ["path", { d: "M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5c-1.4 0-2.5-1.1-2.5-2.5V2", key: "125lnx" }],
   ["path", { d: "M8.5 2h7", key: "csnxdl" }],
   ["path", { d: "M14.5 16h-5", key: "1ox875" }]
 ];
-const TestTube = createLucideIcon("test-tube", __iconNode$e);
-const __iconNode$d = [
+const TestTube = createLucideIcon("test-tube", __iconNode$g);
+const __iconNode$f = [
   ["line", { x1: "10", x2: "14", y1: "2", y2: "2", key: "14vaq8" }],
   ["line", { x1: "12", x2: "15", y1: "14", y2: "11", key: "17fdiu" }],
   ["circle", { cx: "12", cy: "14", r: "8", key: "1e1u0o" }]
 ];
-const Timer = createLucideIcon("timer", __iconNode$d);
-const __iconNode$c = [
+const Timer = createLucideIcon("timer", __iconNode$f);
+const __iconNode$e = [
   ["path", { d: "M10 11v6", key: "nco0om" }],
   ["path", { d: "M14 11v6", key: "outv1u" }],
   ["path", { d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6", key: "miytrc" }],
   ["path", { d: "M3 6h18", key: "d0wm0j" }],
   ["path", { d: "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2", key: "e791ji" }]
 ];
-const Trash2 = createLucideIcon("trash-2", __iconNode$c);
-const __iconNode$b = [
+const Trash2 = createLucideIcon("trash-2", __iconNode$e);
+const __iconNode$d = [
   ["path", { d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6", key: "miytrc" }],
   ["path", { d: "M3 6h18", key: "d0wm0j" }],
   ["path", { d: "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2", key: "e791ji" }]
 ];
-const Trash = createLucideIcon("trash", __iconNode$b);
-const __iconNode$a = [
+const Trash = createLucideIcon("trash", __iconNode$d);
+const __iconNode$c = [
   ["path", { d: "M16 7h6v6", key: "box55l" }],
   ["path", { d: "m22 7-8.5 8.5-5-5L2 17", key: "1t1m79" }]
 ];
-const TrendingUp = createLucideIcon("trending-up", __iconNode$a);
-const __iconNode$9 = [
+const TrendingUp = createLucideIcon("trending-up", __iconNode$c);
+const __iconNode$b = [
   [
     "path",
     {
@@ -16100,25 +16200,25 @@ const __iconNode$9 = [
   ["path", { d: "M12 9v4", key: "juzpu7" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-const TriangleAlert = createLucideIcon("triangle-alert", __iconNode$9);
-const __iconNode$8 = [
+const TriangleAlert = createLucideIcon("triangle-alert", __iconNode$b);
+const __iconNode$a = [
   ["path", { d: "M12 4v16", key: "1654pz" }],
   ["path", { d: "M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2", key: "e0r10z" }],
   ["path", { d: "M9 20h6", key: "s66wpe" }]
 ];
-const Type = createLucideIcon("type", __iconNode$8);
-const __iconNode$7 = [
+const Type = createLucideIcon("type", __iconNode$a);
+const __iconNode$9 = [
   ["path", { d: "M9 14 4 9l5-5", key: "102s5s" }],
   ["path", { d: "M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11", key: "f3b9sd" }]
 ];
-const Undo2 = createLucideIcon("undo-2", __iconNode$7);
-const __iconNode$6 = [
+const Undo2 = createLucideIcon("undo-2", __iconNode$9);
+const __iconNode$8 = [
   ["path", { d: "M12 3v12", key: "1x0j5s" }],
   ["path", { d: "m17 8-5-5-5 5", key: "7q97r8" }],
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }]
 ];
-const Upload = createLucideIcon("upload", __iconNode$6);
-const __iconNode$5 = [
+const Upload = createLucideIcon("upload", __iconNode$8);
+const __iconNode$7 = [
   ["path", { d: "M10 15H6a4 4 0 0 0-4 4v2", key: "1nfge6" }],
   ["path", { d: "m14.305 16.53.923-.382", key: "1itpsq" }],
   ["path", { d: "m15.228 13.852-.923-.383", key: "eplpkm" }],
@@ -16131,20 +16231,20 @@ const __iconNode$5 = [
   ["circle", { cx: "18", cy: "15", r: "3", key: "gjjjvw" }],
   ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]
 ];
-const UserCog = createLucideIcon("user-cog", __iconNode$5);
-const __iconNode$4 = [
+const UserCog = createLucideIcon("user-cog", __iconNode$7);
+const __iconNode$6 = [
   ["path", { d: "M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2", key: "975kel" }],
   ["circle", { cx: "12", cy: "7", r: "4", key: "17ys0d" }]
 ];
-const User = createLucideIcon("user", __iconNode$4);
-const __iconNode$3 = [
+const User = createLucideIcon("user", __iconNode$6);
+const __iconNode$5 = [
   ["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }],
   ["path", { d: "M16 3.128a4 4 0 0 1 0 7.744", key: "16gr8j" }],
   ["path", { d: "M22 21v-2a4 4 0 0 0-3-3.87", key: "kshegd" }],
   ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]
 ];
-const Users = createLucideIcon("users", __iconNode$3);
-const __iconNode$2 = [
+const Users = createLucideIcon("users", __iconNode$5);
+const __iconNode$4 = [
   [
     "path",
     {
@@ -16160,7 +16260,24 @@ const __iconNode$2 = [
   ["path", { d: "M21 16h-4", key: "1cnmox" }],
   ["path", { d: "M11 3H9", key: "1obp7u" }]
 ];
-const WandSparkles = createLucideIcon("wand-sparkles", __iconNode$2);
+const WandSparkles = createLucideIcon("wand-sparkles", __iconNode$4);
+const __iconNode$3 = [
+  ["path", { d: "M12 20h.01", key: "zekei9" }],
+  ["path", { d: "M8.5 16.429a5 5 0 0 1 7 0", key: "1bycff" }],
+  ["path", { d: "M5 12.859a10 10 0 0 1 5.17-2.69", key: "1dl1wf" }],
+  ["path", { d: "M19 12.859a10 10 0 0 0-2.007-1.523", key: "4k23kn" }],
+  ["path", { d: "M2 8.82a15 15 0 0 1 4.177-2.643", key: "1grhjp" }],
+  ["path", { d: "M22 8.82a15 15 0 0 0-11.288-3.764", key: "z3jwby" }],
+  ["path", { d: "m2 2 20 20", key: "1ooewy" }]
+];
+const WifiOff = createLucideIcon("wifi-off", __iconNode$3);
+const __iconNode$2 = [
+  ["path", { d: "M12 20h.01", key: "zekei9" }],
+  ["path", { d: "M2 8.82a15 15 0 0 1 20 0", key: "dnpr2z" }],
+  ["path", { d: "M5 12.859a10 10 0 0 1 14 0", key: "1x1e6c" }],
+  ["path", { d: "M8.5 16.429a5 5 0 0 1 7 0", key: "1bycff" }]
+];
+const Wifi = createLucideIcon("wifi", __iconNode$2);
 const __iconNode$1 = [
   ["path", { d: "M18 6 6 18", key: "1bl5f8" }],
   ["path", { d: "m6 6 12 12", key: "d8bk6v" }]
@@ -19251,7 +19368,6 @@ const ru = {
     "downloadZip": "Скачать готовый ZIP",
     "openInTracker": "Открыть в трекере",
     "noArchives": "Архивы не выбраны. Загрузите ZIP-архивы выше для начала пакетной подготовки.",
-    "badge2": "2.0 Analyze → Build",
     "subtitle2": "Компилятор лендингов Auto / Cross / Raw с синком в CRM-хранилище и Live Auto QA",
     "pendingFiles": "Ожидают анализа",
     "bundlesTitle": "Проанализированные бандлы",
@@ -19307,7 +19423,6 @@ const ru = {
     "saveStatus": "Сохранить статус",
     "noLeads": "Лиды не найдены по выбранным критериям.",
     "title2": "CRM — заказы и Anti-Shaving хранилище",
-    "badge2": "Полные доказательства по лиду",
     "subtitle2": "Каждый лид с точным номером, доставленным в сеть, сырым обменом с API и S2S-сверкой",
     "refresh": "Обновить лиды",
     "tabAll": "Все",
@@ -22471,7 +22586,6 @@ const en = {
     "downloadZip": "Download Prepared ZIP",
     "openInTracker": "Open in Tracker",
     "noArchives": "No archives selected. Drop ZIP archives above to start batch preparation.",
-    "badge2": "2.0 Analyze → Build",
     "subtitle2": "Auto / Cross / Raw landing compiler with CRM vault sync and Live Auto QA",
     "pendingFiles": "Waiting for Analyze",
     "bundlesTitle": "Analyzed bundles",
@@ -22527,7 +22641,6 @@ const en = {
     "saveStatus": "Update Status",
     "noLeads": "No leads found matching current filters.",
     "title2": "CRM — Orders & Anti-Shaving Vault",
-    "badge2": "Full Lead Evidence",
     "subtitle2": "Every lead with the exact phone delivered to the network, the raw API exchange, and S2S reconciliation",
     "refresh": "Refresh leads",
     "tabAll": "All",
@@ -25691,7 +25804,6 @@ const uk = {
     "downloadZip": "Завантажити готовий ZIP",
     "openInTracker": "Відкрити в трекері",
     "noArchives": "Архіви не вибрано. Завантажте ZIP-архіви вище для початку пакетної підготовки.",
-    "badge2": "2.0 Analyze → Build",
     "subtitle2": "Компілятор лендінгів Auto / Cross / Raw із синком у CRM-сховище та Live Auto QA",
     "pendingFiles": "Очікують аналізу",
     "bundlesTitle": "Проаналізовані бандли",
@@ -25747,7 +25859,6 @@ const uk = {
     "saveStatus": "Зберегти статус",
     "noLeads": "Ліди не знайдено за вибраними критеріями.",
     "title2": "CRM — замовлення та Anti-Shaving сховище",
-    "badge2": "Повні докази по ліду",
     "subtitle2": "Кожен лід із точним номером, доставленим у мережу, сирим обміном з API та S2S-звіркою",
     "refresh": "Оновити ліди",
     "tabAll": "Усі",
@@ -28911,7 +29022,6 @@ const es = {
     "downloadZip": "Descargar ZIP listo",
     "openInTracker": "Abrir en el tracker",
     "noArchives": "No hay archivos seleccionados. Suba archivos ZIP arriba para comenzar.",
-    "badge2": "2.0 Analyze → Build",
     "subtitle2": "Compilador de landings Auto / Cross / Raw con sincronización al CRM y Live Auto QA",
     "pendingFiles": "Esperando análisis",
     "bundlesTitle": "Bundles analizados",
@@ -28967,7 +29077,6 @@ const es = {
     "saveStatus": "Guardar estado",
     "noLeads": "No se encontraron leads con los filtros actuales.",
     "title2": "CRM — Pedidos y bóveda Anti-Shaving",
-    "badge2": "Evidencia completa del lead",
     "subtitle2": "Cada lead con el teléfono exacto entregado a la red, el intercambio API en bruto y la conciliación S2S",
     "refresh": "Actualizar leads",
     "tabAll": "Todos",
@@ -32131,7 +32240,6 @@ const zh = {
     "downloadZip": "下载处理后的 ZIP",
     "openInTracker": "在追踪器中打开",
     "noArchives": "未选择压缩包。请在上方上传 ZIP 压缩包以开始批量准备。",
-    "badge2": "2.0 Analyze → Build",
     "subtitle2": "Auto / Cross / Raw 落地页编译器，带 CRM 保险库同步与 Live Auto QA",
     "pendingFiles": "等待分析",
     "bundlesTitle": "已分析的捆绑包",
@@ -32187,7 +32295,6 @@ const zh = {
     "saveStatus": "更新状态",
     "noLeads": "未找到符合当前筛选条件的线索。",
     "title2": "CRM — 订单与 Anti-Shaving 保险库",
-    "badge2": "完整线索证据",
     "subtitle2": "每条线索都带交付给网络的确切号码、原始 API 往来和 S2S 对账",
     "refresh": "刷新线索",
     "tabAll": "全部",
@@ -35353,7 +35460,6 @@ const fr = {
     "downloadZip": "Télécharger le ZIP prêt",
     "openInTracker": "Ouvrir dans le tracker",
     "noArchives": "Aucune archive sélectionnée. Déposez des fichiers ZIP ci-dessus pour commencer.",
-    "badge2": "2.0 Analyze → Build",
     "subtitle2": "Compilateur de landings Auto / Cross / Raw avec synchro vers le coffre-fort CRM et Live Auto QA",
     "pendingFiles": "En attente d’analyse",
     "bundlesTitle": "Bundles analysés",
@@ -35409,7 +35515,6 @@ const fr = {
     "saveStatus": "Enregistrer le statut",
     "noLeads": "Aucun lead trouvé correspondant aux filtres.",
     "title2": "CRM — Commandes et coffre Anti-Shaving",
-    "badge2": "Preuves complètes du lead",
     "subtitle2": "Chaque lead avec le numéro exact livré au réseau, l’échange API brut et le rapprochement S2S",
     "refresh": "Actualiser les leads",
     "tabAll": "Tous",
@@ -38573,7 +38678,6 @@ const de = {
     "downloadZip": "Fertiges ZIP herunterladen",
     "openInTracker": "Im Tracker öffnen",
     "noArchives": "Keine Archive ausgewählt. Ziehen Sie ZIP-Dateien hierher, um zu beginnen.",
-    "badge2": "2.0 Analyze → Build",
     "subtitle2": "Auto-/Cross-/Raw-Landing-Compiler mit CRM-Vault-Sync und Live Auto QA",
     "pendingFiles": "Warten auf Analyse",
     "bundlesTitle": "Analysierte Bundles",
@@ -38629,7 +38733,6 @@ const de = {
     "saveStatus": "Status speichern",
     "noLeads": "Keine Leads für die ausgewählten Filter gefunden.",
     "title2": "CRM — Bestellungen & Anti-Shaving-Vault",
-    "badge2": "Vollständige Lead-Beweise",
     "subtitle2": "Jeder Lead mit der exakt zugestellten Telefonnummer, dem rohen API-Austausch und S2S-Abgleich",
     "refresh": "Leads aktualisieren",
     "tabAll": "Alle",
@@ -93897,37 +94000,46 @@ const CPA_NETWORKS = [
   { id: "custom", name: "Custom API / Webhook", defaultCurrency: "USD", defaultPayout: 20, placeholder: "https://api.domain.com/lead/create" }
 ];
 const GEO_PRESETS = [
-  { code: "IT", name: "Italy (+39)", phoneCode: "+39", flag: "🇮🇹" },
-  { code: "ES", name: "Spain (+34)", phoneCode: "+34", flag: "🇪🇸" },
-  { code: "DE", name: "Germany (+49)", phoneCode: "+49", flag: "🇩🇪" },
-  { code: "FR", name: "France (+33)", phoneCode: "+33", flag: "🇫🇷" },
-  { code: "PL", name: "Poland (+48)", phoneCode: "+48", flag: "🇵🇱" },
-  { code: "RO", name: "Romania (+40)", phoneCode: "+40", flag: "🇷🇴" },
-  { code: "GR", name: "Greece (+30)", phoneCode: "+30", flag: "🇬🇷" },
-  { code: "RU", name: "Russia (+7)", phoneCode: "+7", flag: "🇷🇺" },
-  { code: "UA", name: "Ukraine (+380)", phoneCode: "+380", flag: "🇺🇦" },
-  { code: "KZ", name: "Kazakhstan (+7)", phoneCode: "+7", flag: "🇰🇿" },
-  { code: "US", name: "United States (+1)", phoneCode: "+1", flag: "🇺🇸" },
-  { code: "MX", name: "Mexico (+52)", phoneCode: "+52", flag: "🇲🇽" },
-  { code: "CO", name: "Colombia (+57)", phoneCode: "+57", flag: "🇨🇴" }
+  { code: "IT", name: "Italy (+39)", flag: "🇮🇹" },
+  { code: "ES", name: "Spain (+34)", flag: "🇪🇸" },
+  { code: "DE", name: "Germany (+49)", flag: "🇩🇪" },
+  { code: "FR", name: "France (+33)", flag: "🇫🇷" },
+  { code: "PL", name: "Poland (+48)", flag: "🇵🇱" },
+  { code: "RO", name: "Romania (+40)", flag: "🇷🇴" },
+  { code: "GR", name: "Greece (+30)", flag: "🇬🇷" },
+  { code: "RU", name: "Russia (+7)", flag: "🇷🇺" },
+  { code: "UA", name: "Ukraine (+380)", flag: "🇺🇦" },
+  { code: "KZ", name: "Kazakhstan (+7)", flag: "🇰🇿" },
+  { code: "US", name: "United States (+1)", flag: "🇺🇸" },
+  { code: "MX", name: "Mexico (+52)", flag: "🇲🇽" },
+  { code: "CO", name: "Colombia (+57)", flag: "🇨🇴" }
+];
+const MODES = [
+  { id: "auto", label: "Auto", sub: "Detect + route", icon: ScanSearch },
+  { id: "cross-network", label: "Cross", sub: "Network swap", icon: Repeat },
+  { id: "raw", label: "Raw", sub: "Clone patch", icon: Scissors }
 ];
 const LeadForgePage = ({ setActiveTab, refreshData }) => {
   const { t } = useLanguage();
   const fileInputRef = reactExports.useRef(null);
   const consoleEndRef = reactExports.useRef(null);
-  const [queue, setQueue] = reactExports.useState([]);
+  const [pendingFiles, setPendingFiles] = reactExports.useState([]);
+  const [bundles, setBundles] = reactExports.useState([]);
   const [isDragging, setIsDragging] = reactExports.useState(false);
-  const [isProcessing, setIsProcessing] = reactExports.useState(false);
-  const [progress, setProgress] = reactExports.useState({ current: 0, total: 0, percent: 0 });
+  const [analyzing, setAnalyzing] = reactExports.useState(false);
+  const [building, setBuilding] = reactExports.useState(false);
   const [logs, setLogs] = reactExports.useState([]);
   const [landingGroups, setLandingGroups] = reactExports.useState([]);
+  const [mode, setMode] = reactExports.useState(() => localStorage.getItem("orbitra_lf_mode") || "auto");
   const [selectedNetwork, setSelectedNetwork] = reactExports.useState(() => localStorage.getItem("orbitra_lf_network") || "drcash");
-  const [apiKey, setApiKey] = reactExports.useState(() => localStorage.getItem(`orbitra_lf_key_${selectedNetwork}`) || "");
+  const [apiKey, setApiKey] = reactExports.useState(() => localStorage.getItem(`orbitra_lf_key_${localStorage.getItem("orbitra_lf_network") || "drcash"}`) || "");
   const [offerId, setOfferId] = reactExports.useState("");
   const [selectedGeo, setSelectedGeo] = reactExports.useState("IT");
   const [currency, setCurrency] = reactExports.useState("USD");
   const [payout, setPayout] = reactExports.useState("25");
   const [selectedGroupId, setSelectedGroupId] = reactExports.useState("");
+  const [crmEnabled, setCrmEnabled] = reactExports.useState(true);
+  const [autoQa, setAutoQa] = reactExports.useState(true);
   const [options, setOptions2] = reactExports.useState({
     injectOfferMacro: true,
     injectJsAdapter: true,
@@ -93937,6 +94049,7 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
     autoSaveTracker: true,
     autoCreateOffer: false
   });
+  const isRaw = mode === "raw";
   reactExports.useEffect(() => {
     axios.get(`${API_URL$2}?action=landing_groups`).then((res) => {
       if (res.data?.status === "success") {
@@ -93945,11 +94058,19 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
     }).catch(() => {
     });
   }, []);
+  reactExports.useEffect(() => {
+    if (consoleEndRef.current) {
+      consoleEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [logs]);
+  const addLog = (msg, type = "info") => {
+    const time = (/* @__PURE__ */ new Date()).toLocaleTimeString();
+    setLogs((prev) => [...prev, { id: Math.random(), time, msg, type }]);
+  };
   const handleNetworkChange = (netId) => {
     setSelectedNetwork(netId);
     localStorage.setItem("orbitra_lf_network", netId);
-    const savedKey = localStorage.getItem(`orbitra_lf_key_${netId}`) || "";
-    setApiKey(savedKey);
+    setApiKey(localStorage.getItem(`orbitra_lf_key_${netId}`) || "");
     const netObj = CPA_NETWORKS.find((n) => n.id === netId);
     if (netObj) {
       setCurrency(netObj.defaultCurrency);
@@ -93960,128 +94081,183 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
     setApiKey(val);
     localStorage.setItem(`orbitra_lf_key_${selectedNetwork}`, val);
   };
-  const addLog = (msg, type = "info") => {
-    const time = (/* @__PURE__ */ new Date()).toLocaleTimeString();
-    setLogs((prev) => [...prev, { id: Math.random(), time, msg, type }]);
+  const handleModeChange = (m) => {
+    setMode(m);
+    localStorage.setItem("orbitra_lf_mode", m);
   };
-  reactExports.useEffect(() => {
-    if (consoleEndRef.current) {
-      consoleEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [logs]);
   const handleAddFiles = (files) => {
-    const zipFiles = Array.from(files).filter((f) => f.name.endsWith(".zip") || f.type.includes("zip"));
+    const zipFiles = Array.from(files).filter(
+      (f) => f.name.endsWith(".zip") || f.type.includes("zip") || /\.html?$/i.test(f.name) || /\.php$/i.test(f.name)
+    ).slice(0, 15);
     if (zipFiles.length === 0) return;
-    const newItems = zipFiles.map((file, idx) => {
-      const rawName = file.name.replace(/\.zip$/i, "");
-      const cleanName = rawName.replace(/[-_]+/g, " ").trim();
-      const titleCase = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
-      return {
-        id: `queue_${Date.now()}_${idx}_${Math.random().toString(36).substr(2, 5)}`,
-        file,
-        fileName: file.name,
-        fileSize: (file.size / (1024 * 1024)).toFixed(2) + " MB",
-        landingName: titleCase,
-        status: "pending",
-        // pending, processing, success, error
-        result: null,
-        error: null
-      };
-    });
-    setQueue((prev) => [...prev, ...newItems]);
-    addLog(`📦 Added ${newItems.length} archive(s) to LeadForge queue.`, "info");
+    setPendingFiles((prev) => [...prev, ...zipFiles].slice(0, 15));
+    addLog(t("leadforge.logAdded", `📦 Added ${zipFiles.length} file(s). Run Analyze to inspect them.`, { count: zipFiles.length }), "info");
   };
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    if (e.dataTransfer?.files) {
-      handleAddFiles(e.dataTransfer.files);
-    }
+    if (e.dataTransfer?.files) handleAddFiles(e.dataTransfer.files);
   };
-  const handleRemoveQueueItem = (id) => {
-    setQueue((prev) => prev.filter((item) => item.id !== id));
-  };
-  const handleClearQueue = () => {
-    if (isProcessing) return;
-    setQueue([]);
-    setLogs([]);
-    setProgress({ current: 0, total: 0, percent: 0 });
-  };
-  const handleUpdateLandingName = (id, newName) => {
-    setQueue((prev) => prev.map((item) => item.id === id ? { ...item, landingName: newName } : item));
-  };
-  const handleStartForge = async () => {
-    if (queue.length === 0 || isProcessing) return;
-    setIsProcessing(true);
-    setLogs([]);
-    addLog(`⚡ Starting batch forge process for ${queue.length} landing archives...`, "info");
-    let completed = 0;
-    const total = queue.length;
-    setProgress({ current: 0, total, percent: 0 });
-    for (let i = 0; i < total; i++) {
-      const item = queue[i];
-      setQueue((prev) => prev.map((q) => q.id === item.id ? { ...q, status: "processing" } : q));
-      addLog(`
-[${i + 1}/${total}] 🚀 Forging: "${item.fileName}" (${item.landingName})`, "info");
-      try {
-        const formData = new FormData();
-        formData.append("file", item.file);
-        formData.append("name", item.landingName);
-        formData.append("network", selectedNetwork);
-        formData.append("api_key", apiKey);
-        formData.append("offer_id", offerId);
-        formData.append("geo", selectedGeo);
-        formData.append("payout", payout);
-        formData.append("currency", currency);
-        if (selectedGroupId) formData.append("group_id", selectedGroupId);
-        formData.append("inject_offer_macro", options.injectOfferMacro ? "1" : "0");
-        formData.append("inject_js_adapter", options.injectJsAdapter ? "1" : "0");
-        formData.append("add_phone_mask", options.addPhoneMask ? "1" : "0");
-        formData.append("generate_thank_you", options.generateThankYou ? "1" : "0");
-        formData.append("generate_order_php", options.generateOrderPhp ? "1" : "0");
-        formData.append("auto_save_tracker", options.autoSaveTracker ? "1" : "0");
-        formData.append("auto_create_offer", options.autoCreateOffer ? "1" : "0");
-        addLog(`   💉 Injecting Orbitra JS Adapter & Macro parameters...`, "step");
-        if (options.addPhoneMask) addLog(`   📞 Attaching ${selectedGeo} Phone Mask & Validation Rules...`, "step");
-        if (options.generateOrderPhp) addLog(`   🛡️ Generating order.php API Bridge for ${CPA_NETWORKS.find((n) => n.id === selectedNetwork)?.name || selectedNetwork}...`, "step");
-        if (options.generateThankYou) addLog(`   🎁 Creating localized thank_you.php page for [${selectedGeo}]...`, "step");
-        const res = await axios.post(`${API_URL$2}?action=leadforge_forge_landing`, formData, {
-          headers: { "Content-Type": "multipart/form-data" }
-        });
-        if (res.data?.status === "success") {
-          const resultData = res.data.data;
-          setQueue((prev) => prev.map((q) => q.id === item.id ? { ...q, status: "success", result: resultData } : q));
-          addLog(`   ✅ Success: Registered in Orbitra (Landing ID #${resultData.landing_id}, Slug: /lander/${resultData.slug}/)`, "success");
-        } else {
-          const errMsg = res.data?.message || "Unknown forge error";
-          setQueue((prev) => prev.map((q) => q.id === item.id ? { ...q, status: "error", error: errMsg } : q));
-          addLog(`   ❌ Error: ${errMsg}`, "error");
-        }
-      } catch (err) {
-        const errMsg = err.response?.data?.message || err.message;
-        setQueue((prev) => prev.map((q) => q.id === item.id ? { ...q, status: "error", error: errMsg } : q));
-        addLog(`   ❌ Exception: ${errMsg}`, "error");
+  const handleAnalyze = async () => {
+    if (pendingFiles.length === 0 || analyzing) return;
+    setAnalyzing(true);
+    addLog(t("leadforge.logAnalyzeStart", `🔬 Analyzing ${pendingFiles.length} bundle(s)...`, { count: pendingFiles.length }), "info");
+    try {
+      const fd = new FormData();
+      pendingFiles.forEach((f) => fd.append("files[]", f, f.name));
+      const res = await axios.post(`${API_URL$2}?action=leadforge_analyze`, fd);
+      if (res.data?.status !== "success") {
+        addLog(`❌ ${res.data?.message || "Analyze failed"}`, "error");
+        return;
       }
-      completed++;
-      const percent = Math.round(completed / total * 100);
-      setProgress({ current: completed, total, percent });
+      const cards = (res.data.results || []).map((r2) => {
+        if (r2.error) {
+          return { ...r2, status: "error", selected: false, landingName: r2.file_name };
+        }
+        const rawName = (r2.file_name || "").replace(/\.(zip|html?|php)$/i, "");
+        return {
+          ...r2,
+          status: "analyzed",
+          selected: !!r2.ready_for_build,
+          landingName: rawName.replace(/[-_]+/g, " ").replace(/^./, (c) => c.toUpperCase())
+        };
+      });
+      setBundles((prev) => [...prev, ...cards]);
+      setPendingFiles([]);
+      cards.forEach((c) => {
+        if (c.error) {
+          addLog(`❌ ${c.file_name}: ${c.error}`, "error");
+        } else {
+          const net = c.detected ? CPA_NETWORKS.find((n) => n.id === c.network)?.name || c.network : t("leadforge.notDetected", "No network detected");
+          addLog(t("leadforge.logAnalyzed", `🗂 ${c.file_name}: ${net} · ${c.forms_count} form(s) · ${c.ready_for_build ? "READY" : "NOT READY"}`, { name: c.file_name, network: net, forms: c.forms_count, ready: c.ready_for_build }), c.ready_for_build ? "success" : "step");
+        }
+      });
+      const firstDetected = cards.find((c) => c.detected && c.network && c.network !== "custom");
+      if (firstDetected?.network && CPA_NETWORKS.some((n) => n.id === firstDetected.network)) {
+        handleNetworkChange(firstDetected.network);
+        addLog(t("leadforge.logAutoRoute", `🧭 Auto: suggested network preset → ${firstDetected.network}`), "step");
+      }
+      const firstGeo = cards.map((c) => c.detected_geo).find((g) => !!g);
+      if (firstGeo) setSelectedGeo(firstGeo);
+    } catch (err) {
+      addLog(`❌ ${err.response?.data?.message || err.message}`, "error");
+    } finally {
+      setAnalyzing(false);
     }
-    setIsProcessing(false);
-    addLog(`
-🎉 All ${total} archives processed! You can now use them in your Campaigns.`, "success");
-    if (refreshData) refreshData();
   };
-  const successfulCount = queue.filter((q) => q.status === "success").length;
+  const selectedBundles = bundles.filter((b) => b.selected && b.token);
+  const handleBuild = async () => {
+    if (selectedBundles.length === 0 || building) return;
+    setBuilding(true);
+    addLog(t("leadforge.logBuildStart", `🚀 Building ${selectedBundles.length} bundle(s) in ${mode.toUpperCase()} mode...`, { count: selectedBundles.length, mode: mode.toUpperCase() }), "info");
+    const fd = new FormData();
+    const names2 = {};
+    selectedBundles.forEach((b) => {
+      fd.append("tokens[]", b.token);
+      names2[b.token] = b.landingName;
+    });
+    fd.append("names", JSON.stringify(names2));
+    fd.append("mode", mode);
+    fd.append("network", selectedNetwork);
+    fd.append("api_key", apiKey);
+    fd.append("offer_id", offerId);
+    fd.append("geo", selectedGeo);
+    fd.append("payout", payout);
+    fd.append("currency", currency);
+    if (selectedGroupId) fd.append("group_id", selectedGroupId);
+    fd.append("crm_enabled", !isRaw && crmEnabled ? "1" : "0");
+    fd.append("auto_qa", !isRaw && autoQa ? "1" : "0");
+    fd.append("inject_offer_macro", options.injectOfferMacro ? "1" : "0");
+    fd.append("inject_js_adapter", options.injectJsAdapter ? "1" : "0");
+    fd.append("add_phone_mask", options.addPhoneMask ? "1" : "0");
+    fd.append("generate_thank_you", !isRaw && options.generateThankYou ? "1" : "0");
+    fd.append("generate_order_php", !isRaw && options.generateOrderPhp ? "1" : "0");
+    fd.append("auto_save_tracker", options.autoSaveTracker ? "1" : "0");
+    fd.append("auto_create_offer", options.autoCreateOffer ? "1" : "0");
+    setBundles((prev) => prev.map((b) => b.selected && b.token ? { ...b, status: "building" } : b));
+    try {
+      const res = await axios.post(`${API_URL$2}?action=leadforge_build_batch`, fd, { timeout: 3e5 });
+      if (res.data?.status !== "success") {
+        addLog(`❌ ${res.data?.message || "Build failed"}`, "error");
+        setBundles((prev) => prev.map((b) => b.status === "building" ? { ...b, status: "analyzed" } : b));
+        return;
+      }
+      (res.data.results || []).forEach((r2) => {
+        (r2.logs || []).forEach((line) => {
+          const type = line.startsWith("[QA PASS]") ? "success" : line.startsWith("[QA FAIL") ? "error" : line.startsWith("[QA SKIP") ? "step" : "info";
+          addLog(line, type);
+        });
+        if (!r2.ok) {
+          addLog(`❌ Bundle ${r2.token?.slice(0, 8)}…: ${r2.message}`, "error");
+        }
+        setBundles((prev) => prev.map((b) => b.token === r2.token ? { ...b, status: r2.ok ? "built" : "error", result: r2.result, qa: r2.qa, error: r2.ok ? null : r2.message } : b));
+      });
+      addLog(t("leadforge.logBuildDone", "🎉 Build pass finished. Landings are in the library, ready for campaigns."), "success");
+      if (refreshData) refreshData();
+    } catch (err) {
+      addLog(`❌ ${err.response?.data?.message || err.message}`, "error");
+      setBundles((prev) => prev.map((b) => b.status === "building" ? { ...b, status: "analyzed" } : b));
+    } finally {
+      setBuilding(false);
+    }
+  };
+  const handleRerunQa = async (bundle) => {
+    if (!bundle.result?.landing_id) return;
+    addLog(t("leadforge.logQaRerun", `🔁 Re-running Live QA for landing #${bundle.result.landing_id}...`, { id: bundle.result.landing_id }), "info");
+    try {
+      const fd = new FormData();
+      fd.append("landing_id", bundle.result.landing_id);
+      fd.append("geo", bundle.result.geo || selectedGeo);
+      fd.append("crm_enabled", crmEnabled ? "1" : "0");
+      const res = await axios.post(`${API_URL$2}?action=leadforge_live_qa`, fd, { timeout: 12e4 });
+      const qa = res.data?.data;
+      if (!qa) {
+        addLog(`❌ ${res.data?.message || "QA failed"}`, "error");
+        return;
+      }
+      (qa.log || []).forEach((line) => addLog(line, "step"));
+      addLog(qa.passed ? `[QA PASS] confidence ${qa.confidence}%` : `[QA FAIL: ${qa.fail_reason}] confidence ${qa.confidence}%`, qa.passed ? "success" : "error");
+      setBundles((prev) => prev.map((b) => b.token === bundle.token ? { ...b, qa } : b));
+    } catch (err) {
+      addLog(`❌ ${err.response?.data?.message || err.message}`, "error");
+    }
+  };
+  const toggleBundle = (token) => {
+    setBundles((prev) => prev.map((b) => b.token === token ? { ...b, selected: !b.selected } : b));
+  };
+  const toggleAll = () => {
+    const allSelected = bundles.filter((b) => b.status === "analyzed" || b.status === "built").every((b) => b.selected);
+    setBundles((prev) => prev.map((b) => b.status === "analyzed" || b.status === "built" ? { ...b, selected: !allSelected } : b));
+  };
+  const handleUpdateLandingName = (token, newName) => {
+    setBundles((prev) => prev.map((b) => b.token === token ? { ...b, landingName: newName } : b));
+  };
+  const removeBundle = (token) => {
+    setBundles((prev) => prev.filter((b) => b.token !== token));
+  };
+  const modeHint = {
+    "auto": t("leadforge.modeAutoHint", "Detect + route: the source network is identified automatically and the bundle is rebuilt for it. Forms are re-wired to order.php, the ClickID bridge is injected."),
+    "cross-network": t("leadforge.modeCrossHint", "Network swap: the old network's handlers (order.php, send.php, api.php…) and its hardcoded keys are cut out, and the landing is re-seated on the target network you pick below."),
+    "raw": t("leadforge.modeRawHint", "Clone patch: foreign counters (FB/TikTok/GA/Yandex) and hostile scripts are stripped, the ClickID bridge and {offer} macros are injected — no server-side order.php is generated.")
+  }[mode];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6 max-w-7xl mx-auto pb-12", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl border bg-[var(--color-bg-card)] border-[var(--color-border)] shadow-sm", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl border bg-[var(--color-bg-card)] border-[var(--color-border)]", style: { boxShadow: "var(--shadow-main)" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-14 h-14 rounded-2xl flex items-center justify-center bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-orange-500/20", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 28, className: "animate-pulse" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "w-14 h-14 rounded-2xl flex items-center justify-center shrink-0",
+            style: {
+              background: "color-mix(in srgb, var(--color-primary) 14%, transparent)",
+              color: "var(--color-primary)",
+              boxShadow: "inset 0 0 0 1px color-mix(in srgb, var(--color-primary) 22%, transparent)"
+            },
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 26 })
+          }
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-2xl font-bold tracking-tight", style: { color: "var(--color-text-primary)" }, children: "LeadForge" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-orange-100 text-orange-800 dark:bg-orange-950/80 dark:text-orange-300 border border-orange-200 dark:border-orange-800", children: "3-in-1 Suite Engine" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mt-0.5", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.subtitle", "Batch Landing & Offer Auto-Preparation Engine") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-2xl font-bold tracking-tight", style: { color: "var(--color-text-primary)" }, children: "LeadForge" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mt-0.5", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.subtitle2", "Auto / Cross / Raw landing compiler with CRM vault sync and Live Auto QA") })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
@@ -94090,20 +94266,19 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
           {
             type: "button",
             onClick: () => setActiveTab("landings"),
-            className: "px-4 py-2 rounded-xl text-sm font-medium border flex items-center gap-2 hover:bg-[var(--color-bg-hover)] transition cursor-pointer",
-            style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" },
+            className: "btn-secondary !py-2.5 !px-4 text-sm flex items-center gap-2 cursor-pointer",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 16 }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("leadforge.openInTracker", "Landings Library") })
             ]
           }
         ),
-        successfulCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        bundles.some((b) => b.status === "built") && /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
             type: "button",
             onClick: () => setActiveTab("campaigns"),
-            className: "px-4 py-2 rounded-xl text-sm font-semibold text-white flex items-center gap-2 bg-[var(--color-primary)] hover:opacity-90 transition shadow-sm cursor-pointer",
+            className: "btn-primary !py-2.5 !px-4 text-sm flex items-center gap-2 cursor-pointer",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 16 }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("nav.campaigns", "Go to Campaigns") })
@@ -94124,7 +94299,7 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
             onDragLeave: () => setIsDragging(false),
             onDrop: handleDrop,
             onClick: () => fileInputRef.current?.click(),
-            className: `border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all flex flex-col items-center justify-center ${isDragging ? "border-[var(--color-primary)] bg-[var(--color-primary-light)]/20 scale-[0.99]" : "border-[var(--color-border)] bg-[var(--color-bg-card)] hover:border-[var(--color-primary)] hover:bg-[var(--color-bg-hover)]"}`,
+            className: `border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all flex flex-col items-center justify-center ${isDragging ? "border-[var(--color-primary)] bg-[var(--color-primary-light)]/20 scale-[0.99]" : "border-[var(--color-border)] bg-[var(--color-bg-card)] hover:border-[var(--color-primary)] hover:bg-[var(--color-bg-hover)]"}`,
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "input",
@@ -94132,7 +94307,7 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
                   ref: fileInputRef,
                   type: "file",
                   multiple: true,
-                  accept: ".zip,application/zip",
+                  accept: ".zip,application/zip,.html,.htm,.php",
                   className: "hidden",
                   onChange: (e) => {
                     if (e.target.files) handleAddFiles(e.target.files);
@@ -94140,225 +94315,395 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
                   }
                 }
               ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-16 h-16 rounded-2xl bg-[var(--color-bg-hover)] flex items-center justify-center text-[var(--color-primary)] mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { size: 28 }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-base font-bold", style: { color: "var(--color-text-primary)" }, children: t("leadforge.dropzoneTitle", "Drag & Drop landing ZIP archives here") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1 max-w-md", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.dropzoneSub", "Supports 1 to 50+ ZIP archives simultaneously from any affiliate network") }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
+                "div",
                 {
-                  type: "button",
-                  className: "mt-4 px-4 py-1.5 rounded-full text-xs font-semibold bg-[var(--color-primary-light)] text-[var(--color-primary)] hover:opacity-80 transition",
-                  children: t("leadforge.browseFiles", "Browse ZIP Files")
+                  className: "w-14 h-14 rounded-2xl flex items-center justify-center mb-3",
+                  style: {
+                    background: "color-mix(in srgb, var(--color-primary) 12%, transparent)",
+                    color: "var(--color-primary)"
+                  },
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { size: 26 })
                 }
-              )
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-sm font-bold", style: { color: "var(--color-text-primary)" }, children: t("leadforge.dropzoneTitle", "Drag & Drop landing ZIP archives here") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1 max-w-md", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.dropzoneSub", "Up to 15 ZIP / HTML / PHP bundles per Analyze pass, from any affiliate network") })
             ]
           }
         ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              disabled: pendingFiles.length === 0 || analyzing || building,
+              onClick: handleAnalyze,
+              className: `btn-secondary flex-1 text-sm font-semibold flex items-center justify-center gap-2 ${pendingFiles.length === 0 || analyzing || building ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`,
+              children: [
+                analyzing ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ScanSearch, { size: 16 }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: analyzing ? t("leadforge.analyzing", "Analyzing…") : t("leadforge.analyzeButton", "Analyze bundles") }),
+                pendingFiles.length > 0 && !analyzing && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "opacity-70", children: [
+                  "(",
+                  pendingFiles.length,
+                  ")"
+                ] })
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              disabled: selectedBundles.length === 0 || building || analyzing,
+              onClick: handleBuild,
+              className: `btn-primary flex-1 text-sm font-bold flex items-center justify-center gap-2 ${selectedBundles.length === 0 || building || analyzing ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`,
+              children: [
+                building ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Rocket, { size: 16 }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: building ? t("leadforge.building", "Building…") : t("leadforge.buildButton", "Build all selected bundles") }),
+                selectedBundles.length > 0 && !building && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "opacity-80", children: [
+                  "(",
+                  selectedBundles.length,
+                  ")"
+                ] })
+              ]
+            }
+          )
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-5 shadow-sm space-y-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(FileArchive, { size: 18, className: "text-[var(--color-primary)]" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Layers, { size: 18, className: "text-[var(--color-primary)]" }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "text-sm font-bold", style: { color: "var(--color-text-primary)" }, children: [
-                t("leadforge.selectedFiles", "Archives in queue"),
+                t("leadforge.bundlesTitle", "Analyzed bundles"),
                 " (",
-                queue.length,
+                bundles.length,
                 ")"
               ] })
             ] }),
-            queue.length > 0 && !isProcessing && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "button",
-              {
-                type: "button",
-                onClick: handleClearQueue,
-                className: "text-xs text-red-500 hover:text-red-700 flex items-center gap-1 font-medium transition cursor-pointer",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 13 }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("leadforge.clearQueue", "Clear Queue") })
-                ]
-              }
-            )
+            bundles.some((b) => b.status === "analyzed" || b.status === "built") && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: toggleAll, className: "text-xs font-medium text-[var(--color-primary)] hover:opacity-80 cursor-pointer", children: t("leadforge.selectAll", "Select / deselect all") })
           ] }),
-          queue.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "py-8 text-center", style: { color: "var(--color-text-muted)" }, children: [
+          bundles.length === 0 && pendingFiles.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "py-8 text-center", style: { color: "var(--color-text-muted)" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(FileArchive, { size: 32, className: "mx-auto mb-2 opacity-40" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", children: t("leadforge.noArchives", "No archives selected. Drop ZIP archives above to start batch preparation.") })
-          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2.5 max-h-[380px] overflow-y-auto pr-1", children: queue.map((item, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          ] }),
+          pendingFiles.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs px-3 py-2 rounded-xl bg-[var(--color-bg-main)] border border-[var(--color-border)]", style: { color: "var(--color-text-secondary)" }, children: [
+            t("leadforge.pendingFiles", "Waiting for Analyze"),
+            ": ",
+            pendingFiles.map((f) => f.name).join(", ")
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2.5 max-h-[460px] overflow-y-auto pr-1", children: bundles.map((b, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "div",
             {
-              className: "flex items-center justify-between p-3 rounded-xl border bg-[var(--color-bg-main)] border-[var(--color-border)] gap-3 text-xs",
+              className: `p-3 rounded-xl border bg-[var(--color-bg-main)] gap-3 ${b.status === "built" ? "border-emerald-300 dark:border-emerald-800" : "border-[var(--color-border)]"} ${b.status === "error" ? "border-rose-300 dark:border-rose-900" : ""}`,
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 min-w-0 flex-1", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-8 h-8 rounded-lg bg-[var(--color-bg-card)] border border-[var(--color-border)] flex items-center justify-center font-bold text-[var(--color-text-muted)] shrink-0", children: [
-                    "#",
-                    idx + 1
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 flex-1", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start justify-between gap-3", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-2.5 min-w-0 flex-1", children: [
+                    (b.status === "analyzed" || b.status === "built") && /* @__PURE__ */ jsxRuntimeExports.jsx(
                       "input",
                       {
-                        type: "text",
-                        value: item.landingName,
-                        disabled: isProcessing,
-                        onChange: (e) => handleUpdateLandingName(item.id, e.target.value),
-                        className: "w-full font-semibold bg-transparent border-b border-transparent hover:border-[var(--color-border)] focus:border-[var(--color-primary)] focus:outline-none px-1 py-0.5 truncate",
-                        style: { color: "var(--color-text-primary)" },
-                        title: "Click to rename landing"
+                        type: "checkbox",
+                        checked: b.selected,
+                        onChange: () => toggleBundle(b.token),
+                        disabled: building,
+                        className: "mt-1.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)] cursor-pointer"
                       }
                     ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 text-[11px] text-[var(--color-text-secondary)] px-1", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: item.fileName }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "•" }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: item.fileSize })
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 flex-1", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "input",
+                        {
+                          type: "text",
+                          value: b.landingName || "",
+                          disabled: building || b.status === "building",
+                          onChange: (e) => handleUpdateLandingName(b.token, e.target.value),
+                          className: "w-full font-semibold text-sm bg-transparent border-b border-transparent hover:border-[var(--color-border)] focus:border-[var(--color-primary)] focus:outline-none px-1 py-0.5 truncate",
+                          style: { color: "var(--color-text-primary)" }
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-1.5 mt-1.5 text-[11px]", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)] px-1", children: b.file_name }),
+                        b.detected ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2 py-0.5 rounded-full font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-950/70 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800", children: CPA_NETWORKS.find((n) => n.id === b.network)?.name || b.network }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2 py-0.5 rounded-full font-medium bg-[var(--color-bg-hover)] text-[var(--color-text-secondary)]", children: t("leadforge.notDetected", "No network detected") }),
+                        b.forms_count > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "px-2 py-0.5 rounded-full bg-[var(--color-bg-hover)] text-[var(--color-text-secondary)]", children: [
+                          b.forms_count,
+                          " ",
+                          t("leadforge.formsWord", "form(s)")
+                        ] }),
+                        b.detected_geo && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2 py-0.5 rounded-full bg-[var(--color-bg-hover)] text-[var(--color-text-secondary)]", children: b.detected_geo }),
+                        (b.foreign_scripts_detected || []).map((fs) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-200 dark:border-amber-800", title: t("leadforge.foreignScript", "Foreign script — will be stripped in Raw/Cross"), children: fs }, fs)),
+                        b.encoding && !["UTF-8", "ASCII"].includes(b.encoding) && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 dark:bg-rose-950/70 dark:text-rose-300 border border-rose-200 dark:border-rose-800", children: b.encoding })
+                      ] }),
+                      (b.detected_inputs || []).length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-[11px] text-[var(--color-text-muted)] px-1 mt-1 truncate", children: [
+                        t("leadforge.inputsLabel", "inputs"),
+                        ": ",
+                        (b.detected_inputs || []).join(", ")
+                      ] })
                     ] })
-                  ] })
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 shrink-0", children: [
-                  item.status === "pending" && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2.5 py-1 rounded-full text-[11px] font-medium bg-[var(--color-bg-hover)] text-[var(--color-text-secondary)]", children: "Pending" }),
-                  item.status === "processing" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 flex items-center gap-1.5 animate-pulse", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 11, className: "animate-spin" }),
-                    " Forging..."
                   ] }),
-                  item.status === "success" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 flex items-center gap-1", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 12 }),
-                      " Ready (#",
-                      item.result?.landing_id,
-                      ")"
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 shrink-0", children: [
+                    b.status === "error" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold bg-red-100 text-red-800 dark:bg-red-950/70 dark:text-red-300 flex items-center gap-1", title: b.error || "", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 12 }),
+                      " ",
+                      t("leadforge.errorBadge", "Error")
                     ] }),
-                    item.result?.download_url && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "a",
+                    b.status === "building" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 flex items-center gap-1.5 animate-pulse", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 11, className: "animate-spin" }),
+                      " ",
+                      t("leadforge.buildingBadge", "Building…")
+                    ] }),
+                    b.status === "built" && b.result && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 flex items-center gap-1", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 12 }),
+                        " #",
+                        b.result.landing_id,
+                        " · /lander/",
+                        b.result.slug,
+                        "/"
+                      ] }),
+                      b.qa?.performed && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "span",
+                        {
+                          className: `px-2.5 py-1 rounded-full text-[11px] font-semibold flex items-center gap-1 ${b.qa.passed ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800" : "bg-rose-100 text-red-800 dark:bg-rose-950/70 dark:text-red-300 border border-rose-300 dark:border-rose-800"}`,
+                          title: Object.values(b.qa.checks || {}).map((c) => `${c.passed ? "✔" : "✘"} ${c.details}`).join("\n"),
+                          children: [
+                            b.qa.passed ? /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldCheck, { size: 12 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { size: 12 }),
+                            "QA ",
+                            b.qa.confidence,
+                            "%"
+                          ]
+                        }
+                      ),
+                      b.result.download_url && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "a",
+                        {
+                          href: b.result.download_url,
+                          download: true,
+                          className: "p-1.5 rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-bg-hover)] text-[var(--color-text-primary)]",
+                          title: t("leadforge.downloadZip", "Download Processed ZIP"),
+                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 13 })
+                        }
+                      ),
+                      b.result.landing_id && b.result.mode !== "raw" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "button",
+                        {
+                          type: "button",
+                          onClick: () => handleRerunQa(b),
+                          disabled: building,
+                          className: "p-1.5 rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-bg-hover)] text-[var(--color-primary)]",
+                          title: t("leadforge.rerunQa", "Re-run Live QA"),
+                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat, { size: 13 })
+                        }
+                      )
+                    ] }),
+                    !building && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
                       {
-                        href: item.result.download_url,
-                        download: true,
-                        className: "p-1.5 rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-bg-hover)] text-[var(--color-text-primary)]",
-                        title: "Download Processed ZIP",
-                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 13 })
+                        type: "button",
+                        onClick: () => removeBundle(b.token),
+                        className: "p-1 text-[var(--color-text-muted)] hover:text-red-500 transition cursor-pointer",
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 })
                       }
                     )
-                  ] }),
-                  item.status === "error" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "px-2.5 py-1 rounded-full text-[11px] font-semibold bg-red-100 text-red-800 dark:bg-red-950/70 dark:text-red-300 flex items-center gap-1", title: item.error, children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 12 }),
-                    " Error"
-                  ] }),
-                  !isProcessing && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "button",
-                    {
-                      type: "button",
-                      onClick: () => handleRemoveQueueItem(item.id),
-                      className: "p-1 text-[var(--color-text-muted)] hover:text-red-500 transition cursor-pointer",
-                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 })
-                    }
-                  )
-                ] })
+                  ] })
+                ] }),
+                b.status === "error" && b.error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] text-rose-600 dark:text-rose-400 px-1", children: b.error })
               ]
             },
-            item.id
+            b.token || `err_${idx}`
           )) })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "lg:col-span-5 space-y-6", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-6 shadow-sm space-y-5", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 pb-3 border-b border-[var(--color-border)]", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(SlidersVertical, { size: 18, className: "text-[var(--color-primary)]" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-base font-bold", style: { color: "var(--color-text-primary)" }, children: t("leadforge.networkApi", "CPA Affiliate Network") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-base font-bold", style: { color: "var(--color-text-primary)" }, children: t("leadforge.integrationTitle", "Integration") })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: "CPA Network Preset" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "select",
-            {
-              value: selectedNetwork,
-              onChange: (e) => handleNetworkChange(e.target.value),
-              className: "w-full px-3.5 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]",
-              style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" },
-              children: CPA_NETWORKS.map((net) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: net.id, children: net.name }, net.id))
-            }
-          )
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.modeLabel", "Build mode") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-3 gap-2", children: MODES.map((m) => {
+            const Icon2 = m.icon;
+            const active = mode === m.id;
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: () => handleModeChange(m.id),
+                className: `py-2.5 px-2 rounded-xl border text-center transition cursor-pointer ${active ? "border-[var(--color-primary)] bg-[var(--color-primary)] shadow-sm" : "border-[var(--color-border)] bg-[var(--color-bg-main)] hover:bg-[var(--color-bg-hover)]"}`,
+                style: active ? { color: "var(--color-text-inverse, white)", boxShadow: "var(--color-primary-shadow)" } : { color: "var(--color-text-primary)" },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { size: 16, className: "mx-auto mb-1" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-bold leading-none", children: m.label }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `text-[10px] mt-0.5 leading-none ${active ? "opacity-75" : "text-[var(--color-text-muted)]"}`, children: m.sub })
+                ]
+              },
+              m.id
+            );
+          }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] leading-relaxed rounded-xl p-2.5 bg-[var(--color-bg-main)] border border-[var(--color-border)]", style: { color: "var(--color-text-secondary)" }, children: modeHint })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.apiKey", "API Key / Client Token") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              type: "text",
-              value: apiKey,
-              onChange: (e) => handleApiKeyChange(e.target.value),
-              placeholder: "Paste CPA network API Key / Token...",
-              className: "w-full px-3.5 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]",
-              style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] text-[var(--color-text-muted)]", children: "Saved automatically per network in browser storage." })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.offerId", "Offer ID / Flow Token") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              type: "text",
-              value: offerId,
-              onChange: (e) => setOfferId(e.target.value),
-              placeholder: CPA_NETWORKS.find((n) => n.id === selectedNetwork)?.placeholder || "Offer ID / Stream Token",
-              className: "w-full px-3.5 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]",
-              style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
+        !isRaw && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.targetGeo", "Target GEO") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.networkApi", "CPA Affiliate Network") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "select",
               {
-                value: selectedGeo,
-                onChange: (e) => setSelectedGeo(e.target.value),
+                value: selectedNetwork,
+                onChange: (e) => handleNetworkChange(e.target.value),
                 className: "w-full px-3.5 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]",
                 style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" },
-                children: GEO_PRESETS.map((geo) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: geo.code, children: [
-                  geo.flag,
-                  " ",
-                  geo.name
-                ] }, geo.code))
+                children: CPA_NETWORKS.map((net) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: net.id, children: net.name }, net.id))
               }
             )
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.payout", "Default Payout") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.apiKey", "API Key / Client Token") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                value: apiKey,
+                onChange: (e) => handleApiKeyChange(e.target.value),
+                placeholder: t("leadforge.apiKeyPlaceholder", "Paste CPA network API Key / Token…"),
+                className: "w-full px-3.5 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]",
+                style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] text-[var(--color-text-muted)]", children: t("leadforge.apiKeyNote", "Saved automatically per network in browser storage.") })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.offerId", "Offer ID / Flow Token") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                value: offerId,
+                onChange: (e) => setOfferId(e.target.value),
+                placeholder: CPA_NETWORKS.find((n) => n.id === selectedNetwork)?.placeholder || "Offer ID / Stream Token",
+                className: "w-full px-3.5 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]",
+                style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.targetGeo", "Target GEO") }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
+                "select",
                 {
-                  type: "number",
-                  step: "0.1",
-                  value: payout,
-                  onChange: (e) => setPayout(e.target.value),
-                  className: "w-full px-3 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]",
-                  style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  type: "text",
-                  value: currency,
-                  onChange: (e) => setCurrency(e.target.value.toUpperCase()),
-                  className: "w-16 px-2 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-bold text-center focus:outline-none",
-                  style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
+                  value: selectedGeo,
+                  onChange: (e) => setSelectedGeo(e.target.value),
+                  className: "w-full px-3.5 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]",
+                  style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" },
+                  children: GEO_PRESETS.map((geo) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: geo.code, children: [
+                    geo.flag,
+                    " ",
+                    geo.name
+                  ] }, geo.code))
                 }
               )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.payout", "Default Payout") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "number",
+                    step: "0.1",
+                    value: payout,
+                    onChange: (e) => setPayout(e.target.value),
+                    className: "w-full px-3 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]",
+                    style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "text",
+                    value: currency,
+                    onChange: (e) => setCurrency(e.target.value.toUpperCase()),
+                    className: "w-16 px-2 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-bold text-center focus:outline-none",
+                    style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
+                  }
+                )
+              ] })
             ] })
+          ] }),
+          landingGroups.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.landingGroup", "Landing Group") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "select",
+              {
+                value: selectedGroupId,
+                onChange: (e) => setSelectedGroupId(e.target.value),
+                className: "w-full px-3.5 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-medium focus:outline-none",
+                style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("leadforge.noGroup", "No Group") }),
+                  landingGroups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g.id, children: g.name }, g.id))
+                ]
+              }
+            )
           ] })
         ] }),
-        landingGroups.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("leadforge.landingGroup", "Landing Group") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 pt-3 border-t border-[var(--color-border)]", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)]", children: t("leadforge.safetyTitle", "Lead Safety") }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "select",
+            "label",
             {
-              value: selectedGroupId,
-              onChange: (e) => setSelectedGroupId(e.target.value),
-              className: "w-full px-3.5 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-medium focus:outline-none",
-              style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" },
+              className: `flex items-start gap-3 cursor-pointer text-xs select-none rounded-xl p-3 border transition ${!isRaw ? "bg-[var(--color-bg-main)]" : "opacity-50 cursor-not-allowed"}`,
+              style: {
+                borderColor: !isRaw && crmEnabled ? "color-mix(in srgb, var(--color-primary) 45%, transparent)" : "var(--color-border)",
+                boxShadow: !isRaw && crmEnabled ? "inset 3px 0 0 var(--color-primary)" : "none"
+              },
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: "No Group" }),
-                landingGroups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g.id, children: g.name }, g.id))
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "checkbox",
+                    checked: !isRaw && crmEnabled,
+                    disabled: isRaw,
+                    onChange: (e) => setCrmEnabled(e.target.checked),
+                    className: "mt-0.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-bold flex items-center gap-1.5", style: { color: "var(--color-text-primary)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Wifi, { size: 13 }),
+                    " ",
+                    t("leadforge.crmSync", "CRM sync")
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block mt-0.5 text-[var(--color-text-secondary)] leading-relaxed", children: crmEnabled && !isRaw ? t("leadforge.crmSyncOn", "On — send every lead to the CRM vault and keep the local failsafe log (raw phone, network request/response).") : t("leadforge.crmSyncOff", "Off — the lead goes to the CPA network only; the tracker gets the standard conversion pixel.") })
+                ] })
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "label",
+            {
+              className: `flex items-start gap-3 cursor-pointer text-xs select-none rounded-xl p-3 border transition ${!isRaw ? "bg-[var(--color-bg-main)]" : "opacity-50 cursor-not-allowed"}`,
+              style: {
+                borderColor: !isRaw && autoQa ? "color-mix(in srgb, var(--color-primary) 45%, transparent)" : "var(--color-border)",
+                boxShadow: !isRaw && autoQa ? "inset 3px 0 0 var(--color-primary)" : "none"
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "checkbox",
+                    checked: !isRaw && autoQa,
+                    disabled: isRaw,
+                    onChange: (e) => setAutoQa(e.target.checked),
+                    className: "mt-0.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-bold flex items-center gap-1.5", style: { color: "var(--color-text-primary)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldCheck, { size: 13 }),
+                    " ",
+                    t("leadforge.autoQa", "Auto QA")
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block mt-0.5 text-[var(--color-text-secondary)] leading-relaxed", children: autoQa && !isRaw ? t("leadforge.autoQaOn", "On — after each build a QA-Test-Lead is posted end-to-end (order.php → vault → thank-you) and scored 0–100%.") : t("leadforge.autoQaOff", "Off — build first, verify manually.") })
+                ] })
               ]
             }
           )
@@ -94401,29 +94746,31 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-primary)" }, children: t("leadforge.optPhoneMask", "Add GEO Phone Mask & Real-time Regex Validator") })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-start gap-2.5 cursor-pointer text-xs select-none", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "checkbox",
-                checked: options.generateThankYou,
-                onChange: (e) => setOptions2({ ...options, generateThankYou: e.target.checked }),
-                className: "mt-0.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-primary)" }, children: t("leadforge.optThankYou", "Generate Universal Localized Thank You Page") })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-start gap-2.5 cursor-pointer text-xs select-none", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "checkbox",
-                checked: options.generateOrderPhp,
-                onChange: (e) => setOptions2({ ...options, generateOrderPhp: e.target.checked }),
-                className: "mt-0.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-primary)" }, children: t("leadforge.optOrderPhp", "Generate Secure order.php CPA API Bridge") })
+          !isRaw && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-start gap-2.5 cursor-pointer text-xs select-none", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "checkbox",
+                  checked: options.generateThankYou,
+                  onChange: (e) => setOptions2({ ...options, generateThankYou: e.target.checked }),
+                  className: "mt-0.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-primary)" }, children: t("leadforge.optThankYou", "Generate Universal Localized Thank You Page") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-start gap-2.5 cursor-pointer text-xs select-none", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "checkbox",
+                  checked: options.generateOrderPhp,
+                  onChange: (e) => setOptions2({ ...options, generateOrderPhp: e.target.checked }),
+                  className: "mt-0.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-primary)" }, children: t("leadforge.optOrderPhp", "Generate Secure order.php CPA API Bridge") })
+            ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-start gap-2.5 cursor-pointer text-xs select-none", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -94436,66 +94783,38 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-primary)" }, children: t("leadforge.optSaveTracker", "Auto-save to Tracker Landings library") })
+          ] }),
+          options.autoSaveTracker && /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-start gap-2.5 cursor-pointer text-xs select-none", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "checkbox",
+                checked: options.autoCreateOffer,
+                onChange: (e) => setOptions2({ ...options, autoCreateOffer: e.target.checked }),
+                className: "mt-0.5 rounded border-gray-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-primary)" }, children: t("leadforge.optCreateOffer", "Auto-create a matching offer in the tracker") })
           ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pt-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            type: "button",
-            disabled: queue.length === 0 || isProcessing,
-            onClick: handleStartForge,
-            className: `w-full py-3.5 px-6 rounded-xl font-bold text-sm text-white shadow-lg flex items-center justify-center gap-2 transition cursor-pointer ${queue.length === 0 || isProcessing ? "opacity-50 cursor-not-allowed bg-gray-500" : "bg-gradient-to-r from-orange-500 via-amber-500 to-amber-600 hover:opacity-95 shadow-orange-500/20 active:scale-[0.98]"}`,
-            children: isProcessing ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 18, className: "animate-spin" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-                t("leadforge.forging", "⚡ Forging Landings..."),
-                " (",
-                progress.current,
-                "/",
-                progress.total,
-                ")"
-              ] })
-            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 18, className: "fill-white" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-                t("leadforge.forgeButton", "⚡ Forge & Save to Tracker"),
-                " (",
-                queue.length,
-                ")"
-              ] })
-            ] })
-          }
-        ) })
+        ] })
       ] }) })
     ] }),
-    (logs.length > 0 || isProcessing) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-slate-950 text-slate-200 border border-slate-800 rounded-2xl p-5 font-mono text-xs shadow-xl space-y-3", children: [
+    (logs.length > 0 || analyzing || building) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-slate-950 text-slate-200 border border-slate-800 rounded-2xl p-5 font-mono text-xs shadow-xl space-y-3", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between border-b border-slate-800 pb-3 text-slate-400", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Terminal, { size: 15, className: "text-amber-400" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Terminal, { size: 15, style: { color: "var(--color-primary)" }, className: "brightness-150" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold text-slate-200", children: t("leadforge.consoleTitle", "LeadForge Execution Console") })
         ] }),
-        isProcessing && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-[11px] text-amber-400 font-bold", children: [
-            progress.percent,
-            "%"
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-32 h-2 bg-slate-800 rounded-full overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "div",
-            {
-              className: "h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-300",
-              style: { width: `${progress.percent}%` }
-            }
-          ) })
-        ] })
+        (analyzing || building) && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] font-bold animate-pulse", style: { color: "var(--color-primary)" }, children: analyzing ? t("leadforge.analyzing", "Analyzing…") : t("leadforge.building", "Building…") })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-h-64 overflow-y-auto space-y-1 pr-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-h-72 overflow-y-auto space-y-1 pr-2", children: [
         logs.map((log) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-slate-500 shrink-0", children: [
             "[",
             log.time,
             "]"
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `break-all ${log.type === "error" ? "text-rose-400 font-semibold" : log.type === "success" ? "text-emerald-400 font-semibold" : log.type === "step" ? "text-amber-300" : "text-slate-300"}`, children: log.msg })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `break-all whitespace-pre-wrap ${log.type === "error" ? "text-rose-400 font-semibold" : log.type === "success" ? "text-emerald-400 font-semibold" : log.type === "step" ? "text-amber-300" : "text-slate-300"}`, children: log.msg })
         ] }, log.id)),
         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { ref: consoleEndRef })
       ] })
@@ -94511,16 +94830,39 @@ const STATUS_CONFIG = {
   rejected: { label: "Rejected", color: "bg-rose-100 text-rose-800 dark:bg-rose-950/80 dark:text-rose-300 border-rose-300 dark:border-rose-800", icon: CircleX },
   trash: { label: "Trash / Spam", color: "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 border-slate-300 dark:border-slate-700", icon: TriangleAlert }
 };
+const TABS = [
+  { id: "all", label: "crm.tabAll" },
+  { id: "processing", label: "crm.inProcess" },
+  { id: "approved", label: "crm.approved" },
+  { id: "rejected", label: "crm.rejected" },
+  { id: "trash", label: "crm.trash" },
+  { id: "qa", label: "crm.tabQa" },
+  { id: "suspect", label: "crm.tabSuspect" },
+  { id: "lost", label: "crm.tabLost" }
+];
+const prettyJson = (raw) => {
+  if (!raw) return "{}";
+  try {
+    const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+    return JSON.stringify(parsed, null, 2);
+  } catch (e) {
+    return String(raw);
+  }
+};
 const CRMPage = ({ setActiveTab, user }) => {
   const { t } = useLanguage();
   const [leads, setLeads] = reactExports.useState([]);
+  const [kpi, setKpi] = reactExports.useState({ total: 0, approved: 0, processing: 0, rejected: 0, trash: 0, qa: 0, suspects: 0, duplicates: 0, lost: 0, revenue: 0 });
   const [loading, setLoading] = reactExports.useState(true);
   const [campaigns, setCampaigns] = reactExports.useState([]);
   const [search, setSearch] = reactExports.useState("");
+  const [searchInput, setSearchInput] = reactExports.useState("");
   const [statusFilter, setStatusFilter] = reactExports.useState("all");
   const [campaignFilter, setCampaignFilter] = reactExports.useState("all");
-  const [dateRange, setDateRange] = reactExports.useState("all");
   const [selectedLead, setSelectedLead] = reactExports.useState(null);
+  const [inspectorTab, setInspectorTab] = reactExports.useState("raw");
+  const [savingStatus, setSavingStatus] = reactExports.useState(false);
+  const [manualStatus, setManualStatus] = reactExports.useState("lead");
   const [showNewLeadModal, setShowNewLeadModal] = reactExports.useState(false);
   const [newLeadData, setNewLeadData] = reactExports.useState({
     name: "",
@@ -94531,15 +94873,19 @@ const CRMPage = ({ setActiveTab, user }) => {
     payout: "25",
     currency: "USD"
   });
-  const fetchLeads = async () => {
+  const fetchLeads = reactExports.useCallback(async () => {
     setLoading(true);
     try {
-      const [convRes, campRes] = await Promise.all([
-        axios.get(`${API_URL$1}?action=conversions&per_page=200`).catch(() => ({ data: { status: "error", data: [] } })),
+      const params = new URLSearchParams({ action: "crm_leads", per_page: "200", status: statusFilter });
+      if (search) params.set("search", search);
+      if (campaignFilter !== "all") params.set("campaign_id", campaignFilter);
+      const [leadsRes, campRes] = await Promise.all([
+        axios.get(`${API_URL$1}?${params.toString()}`).catch(() => ({ data: { status: "error", data: [] } })),
         axios.get(`${API_URL$1}?action=campaigns`).catch(() => ({ data: { status: "error", data: [] } }))
       ]);
-      if (convRes.data?.status === "success") {
-        setLeads((convRes.data.data || []).map((c) => ({ ...c, subid: c.subid || c.click_id })));
+      if (leadsRes.data?.status === "success") {
+        setLeads(leadsRes.data.data || []);
+        if (leadsRes.data.kpi) setKpi(leadsRes.data.kpi);
       }
       if (campRes.data?.status === "success") {
         setCampaigns(campRes.data.data || []);
@@ -94549,67 +94895,28 @@ const CRMPage = ({ setActiveTab, user }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter, search, campaignFilter]);
   reactExports.useEffect(() => {
     fetchLeads();
-  }, []);
-  const filteredLeads = reactExports.useMemo(() => {
-    return leads.filter((lead) => {
-      if (statusFilter !== "all") {
-        const normStatus = (lead.status || "").toLowerCase();
-        if (statusFilter === "approved" && !["sale", "approved"].includes(normStatus)) return false;
-        if (statusFilter === "processing" && !["lead", "processing"].includes(normStatus)) return false;
-        if (statusFilter === "rejected" && normStatus !== "rejected") return false;
-        if (statusFilter === "trash" && normStatus !== "trash") return false;
-      }
-      if (campaignFilter !== "all" && String(lead.campaign_id) !== String(campaignFilter)) {
-        return false;
-      }
-      if (search) {
-        const q = search.toLowerCase();
-        const matchSub = (lead.subid || "").toLowerCase().includes(q);
-        const matchCamp = (lead.campaign_name || "").toLowerCase().includes(q);
-        const matchOffer = (lead.offer_name || "").toLowerCase().includes(q);
-        const matchTid = (lead.tid || "").toLowerCase().includes(q);
-        if (!matchSub && !matchCamp && !matchOffer && !matchTid) return false;
-      }
-      return true;
-    });
-  }, [leads, statusFilter, campaignFilter, search]);
-  const metrics = reactExports.useMemo(() => {
-    const total = leads.length;
-    let approved = 0;
-    let processing = 0;
-    let rejected = 0;
-    let trash = 0;
-    let revenue = 0;
-    leads.forEach((l) => {
-      const st = (l.status || "").toLowerCase();
-      const p = parseFloat(l.payout || 0);
-      if (["sale", "approved"].includes(st)) {
-        approved++;
-        revenue += p;
-      } else if (["lead", "processing"].includes(st)) {
-        processing++;
-      } else if (st === "rejected") {
-        rejected++;
-      } else if (st === "trash") {
-        trash++;
-      }
-    });
-    const approvalRate = total > 0 ? Math.round(approved / total * 100) : 0;
-    return { total, approved, processing, rejected, trash, revenue: revenue.toFixed(2), approvalRate };
-  }, [leads]);
+  }, [fetchLeads]);
+  reactExports.useEffect(() => {
+    const timer = setTimeout(() => setSearch(searchInput.trim()), 450);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
   const handleCreateLead = async (e) => {
     e.preventDefault();
     try {
       const subid = (newLeadData.subid || "").trim() || `crm_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
       const res = await axios.post(`${API_URL$1}?action=crm_lead`, {
         subid,
+        customer_name: newLeadData.name || "",
+        raw_phone: newLeadData.phone || "",
+        geo: "",
         status: newLeadData.status,
         payout: parseFloat(newLeadData.payout) || 0,
         currency: newLeadData.currency || "USD",
-        campaign_id: newLeadData.campaign_id || null
+        campaign_id: newLeadData.campaign_id || null,
+        network: "manual"
       });
       if (res.data?.status !== "success") {
         alert(res.data?.message || t("common.error", "Failed to save lead"));
@@ -94623,16 +94930,49 @@ const CRMPage = ({ setActiveTab, user }) => {
       alert(t("common.error", "Failed to save lead"));
     }
   };
+  const openInspector = (lead) => {
+    setSelectedLead(lead);
+    setManualStatus((lead.status || "lead").toLowerCase());
+    setInspectorTab("raw");
+  };
+  const handleSaveStatus = async () => {
+    if (!selectedLead) return;
+    setSavingStatus(true);
+    try {
+      const res = await axios.post(`${API_URL$1}?action=crm_lead_update`, {
+        id: selectedLead.id,
+        status: manualStatus
+      });
+      if (res.data?.status === "success") {
+        setSelectedLead((prev) => prev ? { ...prev, status: manualStatus } : prev);
+        fetchLeads();
+      } else {
+        alert(res.data?.message || t("common.error", "Failed to save"));
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || err.message);
+    } finally {
+      setSavingStatus(false);
+    }
+  };
   const handleExportCsv = () => {
-    if (filteredLeads.length === 0) return;
-    const headers = ["ID", "Date", "SubID", "Campaign", "Offer", "Status", "Payout", "Currency"];
-    const rows = filteredLeads.map((l) => [
-      l.id || l.tid || "",
-      l.created_at || l.time || "",
-      l.subid || "",
+    if (leads.length === 0) return;
+    const headers = ["ID", "Date", "SubID", "Customer", "Raw Phone", "E.164 Phone", "Network", "Network Lead", "Campaign", "Status", "S2S", "Suspect", "Duplicate", "QA", "Payout", "Currency"];
+    const rows = leads.map((l) => [
+      l.id || "",
+      l.created_at || "",
+      l.click_id || "",
+      `"${(l.customer_name || "").replace(/"/g, '""')}"`,
+      `"${(l.raw_phone || "").replace(/"/g, '""')}"`,
+      l.clean_phone || "",
+      l.network || "",
+      l.network_lead_id || "",
       `"${(l.campaign_name || "").replace(/"/g, '""')}"`,
-      `"${(l.offer_name || "").replace(/"/g, '""')}"`,
       l.status || "",
+      l.s2s_postback_status || "",
+      l.shave_suspect ? 1 : 0,
+      l.is_duplicate ? 1 : 0,
+      l.is_qa_test ? 1 : 0,
       l.payout || "0",
       l.currency || "USD"
     ]);
@@ -94646,15 +94986,23 @@ const CRMPage = ({ setActiveTab, user }) => {
     document.body.removeChild(link);
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6 max-w-7xl mx-auto pb-12", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl border bg-[var(--color-bg-card)] border-[var(--color-border)] shadow-sm", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl border bg-[var(--color-bg-card)] border-[var(--color-border)]", style: { boxShadow: "var(--shadow-main)" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-14 h-14 rounded-2xl flex items-center justify-center bg-gradient-to-br from-indigo-500 to-blue-600 text-white shadow-lg shadow-blue-500/20", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Layers, { size: 28 }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "w-14 h-14 rounded-2xl flex items-center justify-center shrink-0",
+            style: {
+              background: "color-mix(in srgb, var(--color-primary) 14%, transparent)",
+              color: "var(--color-primary)",
+              boxShadow: "inset 0 0 0 1px color-mix(in srgb, var(--color-primary) 22%, transparent)"
+            },
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Layers, { size: 26 })
+          }
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-2xl font-bold tracking-tight", style: { color: "var(--color-text-primary)" }, children: "CRM — Order & Lead Pipeline" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300 border border-blue-200 dark:border-blue-800", children: "3-in-1 Suite Module" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mt-0.5", style: { color: "var(--color-text-secondary)" }, children: t("crm.subtitle", "Track, filter and manage all customer leads and orders in real time") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-2xl font-bold tracking-tight", style: { color: "var(--color-text-primary)" }, children: t("crm.title2", "CRM — Orders & Anti-Shaving Vault") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mt-0.5", style: { color: "var(--color-text-secondary)" }, children: t("crm.subtitle2", "Every lead with the exact phone delivered to the network, the raw API exchange, and S2S reconciliation") })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
@@ -94665,7 +95013,7 @@ const CRMPage = ({ setActiveTab, user }) => {
             onClick: fetchLeads,
             disabled: loading,
             className: "p-2.5 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-bg-hover)] text-[var(--color-text-primary)] transition cursor-pointer",
-            title: "Refresh leads",
+            title: t("crm.refresh", "Refresh leads"),
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: loading ? "animate-spin" : "" })
           }
         ),
@@ -94674,9 +95022,8 @@ const CRMPage = ({ setActiveTab, user }) => {
           {
             type: "button",
             onClick: handleExportCsv,
-            disabled: filteredLeads.length === 0,
-            className: "px-4 py-2 rounded-xl text-sm font-medium border flex items-center gap-2 hover:bg-[var(--color-bg-hover)] transition cursor-pointer disabled:opacity-50",
-            style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" },
+            disabled: leads.length === 0,
+            className: "btn-secondary !py-2 !px-4 text-sm flex items-center gap-2 disabled:opacity-50 cursor-pointer",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 16 }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("crm.exportCsv", "Export CSV") })
@@ -94688,7 +95035,7 @@ const CRMPage = ({ setActiveTab, user }) => {
           {
             type: "button",
             onClick: () => setShowNewLeadModal(true),
-            className: "px-4 py-2 rounded-xl text-sm font-semibold text-white flex items-center gap-2 bg-[var(--color-primary)] hover:opacity-90 transition shadow-sm cursor-pointer",
+            className: "btn-primary !py-2.5 !px-4 text-sm flex items-center gap-2 cursor-pointer",
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("crm.newLead", "+ New Lead") })
@@ -94700,32 +95047,36 @@ const CRMPage = ({ setActiveTab, user }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-4 shadow-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold text-[var(--color-text-secondary)]", children: t("crm.totalLeads", "Total Leads") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold mt-1", style: { color: "var(--color-text-primary)" }, children: metrics.total })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold mt-1", style: { color: "var(--color-text-primary)" }, children: kpi.total })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-4 shadow-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold text-amber-600 dark:text-amber-400", children: t("crm.inProcess", "Hold / Processing") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold mt-1 text-amber-600 dark:text-amber-400", children: metrics.processing })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold mt-1 text-amber-600 dark:text-amber-400", children: kpi.processing })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-4 shadow-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold text-emerald-600 dark:text-emerald-400", children: t("crm.approved", "Approved Sales") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-400", children: metrics.approved })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-400", children: kpi.approved })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-4 shadow-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold text-rose-600 dark:text-rose-400", children: t("crm.rejected", "Rejected") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold mt-1 text-rose-600 dark:text-rose-400", children: metrics.rejected })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold mt-1 text-rose-600 dark:text-rose-400", children: kpi.rejected })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-4 shadow-sm", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold text-[var(--color-text-secondary)]", children: t("crm.approvalRate", "Approval Rate") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-2xl font-bold mt-1 text-blue-600 dark:text-blue-400", children: [
-          metrics.approvalRate,
-          "%"
-        ] })
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-rose-300 dark:border-rose-900 rounded-2xl p-4 shadow-sm", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-semibold text-rose-600 dark:text-rose-400 flex items-center gap-1.5", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldAlert, { size: 13 }),
+          " ",
+          t("crm.suspects", "Shave Suspects")
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold mt-1 text-rose-600 dark:text-rose-400", children: kpi.suspects }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] text-[var(--color-text-muted)]", children: kpi.lost > 0 ? `${kpi.lost} ${t("crm.lostWord", "lost in transit")}` : `${t("crm.approvalRate", "Approval Rate")}: ${kpi.total > 0 ? Math.round(kpi.approved / Math.max(1, kpi.total - kpi.qa) * 100) : 0}%` })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-4 shadow-sm", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold text-[var(--color-text-secondary)]", children: t("crm.revenue", "Earned Revenue") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-400", children: [
-          "$",
-          metrics.revenue
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-400", children: kpi.revenue ? `$${Number(kpi.revenue).toFixed(2)}` : "—" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-[10px] text-[var(--color-text-muted)]", children: [
+          t("crm.qaCount", "QA tests"),
+          ": ",
+          kpi.qa
         ] })
       ] })
     ] }),
@@ -94736,28 +95087,23 @@ const CRMPage = ({ setActiveTab, user }) => {
           "input",
           {
             type: "text",
-            value: search,
-            onChange: (e) => setSearch(e.target.value),
-            placeholder: t("crm.searchPlaceholder", "Search by SubID, Campaign, Offer..."),
+            value: searchInput,
+            onChange: (e) => setSearchInput(e.target.value),
+            placeholder: t("crm.searchPlaceholder", "Search by name, phone, SubID, network lead…"),
             className: "w-full pl-10 pr-4 py-2 rounded-xl border bg-[var(--color-bg-main)] text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]",
             style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
           }
         )
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 w-full md:w-auto overflow-x-auto", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "inline-flex p-1 rounded-xl border items-center gap-1 bg-[var(--color-bg-main)]", style: { borderColor: "var(--color-border)" }, children: [
-          { id: "all", label: "All" },
-          { id: "processing", label: "Hold" },
-          { id: "approved", label: "Approved" },
-          { id: "rejected", label: "Rejected" },
-          { id: "trash", label: "Trash" }
-        ].map((st) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "inline-flex p-1 rounded-xl border items-center gap-1 bg-[var(--color-bg-main)]", style: { borderColor: "var(--color-border)" }, children: TABS.map((st) => /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
             type: "button",
             onClick: () => setStatusFilter(st.id),
-            className: `px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${statusFilter === st.id ? "bg-[var(--color-primary)] text-white shadow-sm" : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"}`,
-            children: st.label
+            className: `px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer whitespace-nowrap ${statusFilter === st.id ? "bg-[var(--color-primary)] shadow-sm" : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"}`,
+            style: statusFilter === st.id ? { color: "var(--color-text-inverse, white)" } : void 0,
+            children: t(st.label, st.id)
           },
           st.id
         )) }),
@@ -94766,10 +95112,10 @@ const CRMPage = ({ setActiveTab, user }) => {
           {
             value: campaignFilter,
             onChange: (e) => setCampaignFilter(e.target.value),
-            className: "px-3 py-1.5 rounded-xl border bg-[var(--color-bg-main)] text-xs font-medium focus:outline-none",
+            className: "px-3 py-1.5 rounded-xl border bg-[var(--color-bg-main)] text-xs font-medium focus:outline-none whitespace-nowrap",
             style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" },
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "all", children: "All Campaigns" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "all", children: t("crm.allCampaigns", "All Campaigns") }),
               campaigns.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: c.id, children: c.name }, c.id))
             ]
           }
@@ -94778,101 +95124,249 @@ const CRMPage = ({ setActiveTab, user }) => {
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl shadow-sm overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-left text-xs", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "bg-[var(--color-bg-main)] border-b border-[var(--color-border)] uppercase tracking-wider font-semibold text-[var(--color-text-muted)]", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3.5", children: "ID / ClickID" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3.5", children: t("crm.date", "Date / Time") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3.5", children: "Campaign" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3.5", children: "Offer" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3.5", children: t("crm.status", "Status") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3.5 text-right", children: t("crm.payout", "Payout") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3.5 text-center", children: t("crm.actions", "Actions") })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3.5 whitespace-nowrap", children: "SubID / ClickID" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3.5 whitespace-nowrap", children: t("crm.customer", "Customer") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3.5 whitespace-nowrap", children: t("crm.phoneCol", "Phone (raw → E.164)") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3.5 whitespace-nowrap", children: t("crm.networkCol", "Network") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3.5 whitespace-nowrap", children: t("crm.date", "Date / Time") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3.5 whitespace-nowrap", children: t("crm.status", "Status") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3.5 whitespace-nowrap", children: "S2S" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3.5 text-right whitespace-nowrap", children: t("crm.payout", "Payout") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-4 py-3.5 text-center whitespace-nowrap", children: t("crm.actions", "Actions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { className: "divide-y divide-[var(--color-border)]", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { colSpan: 7, className: "py-12 text-center text-sm", style: { color: "var(--color-text-muted)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { className: "divide-y divide-[var(--color-border)]", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { colSpan: 9, className: "py-12 text-center text-sm", style: { color: "var(--color-text-muted)" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 20, className: "animate-spin mx-auto mb-2" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Loading orders and leads..." })
-      ] }) }) : filteredLeads.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { colSpan: 7, className: "py-12 text-center text-sm", style: { color: "var(--color-text-muted)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("crm.loading", "Loading orders and leads…") })
+      ] }) }) : leads.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { colSpan: 9, className: "py-12 text-center text-sm", style: { color: "var(--color-text-muted)" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Layers, { size: 28, className: "mx-auto mb-2 opacity-40" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("crm.noLeads", "No leads found matching current filters.") })
-      ] }) }) : filteredLeads.map((lead, idx) => {
+      ] }) }) : leads.map((lead, idx) => {
         const stKey = (lead.status || "lead").toLowerCase();
         const stInfo = STATUS_CONFIG[stKey] || STATUS_CONFIG.lead;
-        const StIcon = stInfo.icon;
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "hover:bg-[var(--color-bg-hover)] transition", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 font-mono font-medium", style: { color: "var(--color-text-primary)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-1.5", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: lead.subid || lead.tid || `LEAD-${idx + 1}` }) }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-[var(--color-text-secondary)] whitespace-nowrap", children: lead.created_at || lead.time || "Just now" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 font-medium", style: { color: "var(--color-text-primary)" }, children: lead.campaign_name || "Direct / Generic" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-[var(--color-text-secondary)]", children: lead.offer_name || "LeadForge Lander" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: `inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border ${stInfo.color}`, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(StIcon, { size: 12 }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: stInfo.label })
-          ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "px-4 py-3 text-right font-bold text-emerald-600 dark:text-emerald-400", children: [
-            "$",
-            parseFloat(lead.payout || 0).toFixed(2)
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              type: "button",
-              onClick: () => setSelectedLead(lead),
-              className: "p-1.5 rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-bg-hover)] text-[var(--color-text-primary)] transition cursor-pointer",
-              title: "View Lead Details",
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { size: 13 })
-            }
-          ) })
-        ] }, lead.id || lead.tid || idx);
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "tr",
+          {
+            className: `hover:bg-[var(--color-bg-hover)] transition ${lead.shave_suspect || lead.lost_in_transit ? "bg-rose-50 dark:bg-rose-950/20" : ""}`,
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "px-4 py-3 font-mono font-medium whitespace-nowrap", style: { color: "var(--color-text-primary)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-1.5", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate max-w-[160px]", title: lead.click_id, children: lead.click_id }) }),
+                lead.campaign_name && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] text-[var(--color-text-muted)] truncate max-w-[160px]", children: lead.campaign_name })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "px-4 py-3 whitespace-nowrap", style: { color: "var(--color-text-primary)" }, children: [
+                lead.customer_name || "—",
+                lead.product && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] text-[var(--color-text-muted)] truncate max-w-[120px]", children: lead.product })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "px-4 py-3 whitespace-nowrap", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", style: { color: "var(--color-text-primary)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Phone, { size: 12, className: "text-[var(--color-text-muted)]" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono", children: lead.raw_phone || "—" })
+                ] }),
+                lead.clean_phone && lead.clean_phone !== lead.raw_phone && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-[10px] font-mono text-emerald-600 dark:text-emerald-400", children: [
+                  "→ ",
+                  lead.clean_phone
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "px-4 py-3 whitespace-nowrap", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-950/70 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800", children: lead.network || "custom" }),
+                lead.network_lead_id && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] font-mono text-[var(--color-text-muted)] mt-0.5 truncate max-w-[110px]", title: lead.network_lead_id, children: lead.network_lead_id })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-[var(--color-text-secondary)] whitespace-nowrap", children: lead.created_at || "—" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 whitespace-nowrap", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-1", children: [
+                lead.is_qa_test ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border bg-sky-100 text-sky-800 dark:bg-sky-950/70 dark:text-sky-300 border-sky-300 dark:border-sky-800", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat2, { size: 12 }),
+                  " ",
+                  t("crm.qaTest", "QA-Test")
+                ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: `inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border ${stInfo.color}`, children: [
+                  (() => {
+                    const I = stInfo.icon;
+                    return /* @__PURE__ */ jsxRuntimeExports.jsx(I, { size: 12 });
+                  })(),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: stInfo.label })
+                ] }),
+                lead.shave_suspect ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border bg-rose-100 text-rose-800 dark:bg-rose-950/70 dark:text-rose-300 border-rose-300 dark:border-rose-800", title: t("crm.suspectHint", "Rejected with a provably valid E.164 phone after the network answered 200 — open a ticket with the evidence below"), children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldAlert, { size: 11 }),
+                  " ",
+                  t("crm.suspectBadge", "Suspected Shave")
+                ] }) : null,
+                lead.lost_in_transit ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border bg-orange-100 text-orange-800 dark:bg-orange-950/70 dark:text-orange-300 border-orange-300 dark:border-orange-800", title: t("crm.lostHint2", "Network answered 200 but no S2S postback arrived within 24h"), children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(WifiOff, { size: 11 }),
+                  " ",
+                  t("crm.lostBadge", "Missing Network ACK")
+                ] }) : null,
+                lead.is_duplicate ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-300 dark:border-slate-600", title: t("crm.duplicateHint", "Same E.164 phone on the same network within 30 days"), children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Repeat2, { size: 11 }),
+                  " ",
+                  t("crm.duplicateBadge", "Duplicate")
+                ] }) : null
+              ] }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "px-4 py-3 whitespace-nowrap", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `text-[11px] font-semibold ${(lead.s2s_postback_status || "pending") === "pending" ? "text-[var(--color-text-muted)]" : lead.s2s_postback_status === "sale" || lead.s2s_postback_status === "approved" ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`, children: lead.s2s_postback_status || "pending" }),
+                lead.status_reason && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] text-[var(--color-text-muted)] truncate max-w-[100px]", title: lead.status_reason, children: lead.status_reason })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-right font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap", children: lead.payout ? `$${parseFloat(lead.payout).toFixed(2)}` : "—" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => openInspector(lead),
+                  className: "p-1.5 rounded-lg border border-[var(--color-border)] hover:bg-[var(--color-bg-hover)] text-[var(--color-text-primary)] transition cursor-pointer",
+                  title: t("crm.inspect", "Inspect Lead Evidence"),
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { size: 13 })
+                }
+              ) })
+            ]
+          },
+          lead.id || idx
+        );
       }) })
     ] }) }) }),
-    selectedLead && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black/50 z-[2000] flex items-center justify-center p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between pb-3 border-b border-[var(--color-border)]", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-base font-bold", style: { color: "var(--color-text-primary)" }, children: t("crm.leadDetails", "Lead Details") }),
+    selectedLead && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black/50 z-[2000] flex items-center justify-center p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between p-5 pb-3 border-b border-[var(--color-border)]", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-base font-bold", style: { color: "var(--color-text-primary)" }, children: t("crm.inspectorTitle", "Lead Inspector") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-[11px] font-mono text-[var(--color-text-secondary)] mt-0.5", children: [
+            selectedLead.click_id,
+            " · ",
+            selectedLead.network,
+            " · ",
+            selectedLead.created_at
+          ] })
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
             type: "button",
             onClick: () => setSelectedLead(null),
-            className: "p-1 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]",
+            className: "p-1 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer",
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 18 })
           }
         )
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3 text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3 rounded-xl bg-[var(--color-bg-main)] border border-[var(--color-border)] space-y-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: "SubID / Click ID:" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono font-bold", style: { color: "var(--color-text-primary)" }, children: selectedLead.subid || selectedLead.tid })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex gap-1 px-5 pt-3 border-b border-[var(--color-border)]", children: [
+        { id: "raw", label: t("crm.tabRaw", "Raw Lead Data"), icon: FileSearch },
+        { id: "network", label: t("crm.tabNetwork", "Network Transaction"), icon: Network },
+        { id: "tracking", label: t("crm.tabTracking", "Tracking Attribution"), icon: Crosshair }
+      ].map((tab) => {
+        const Icon2 = tab.icon;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => setInspectorTab(tab.id),
+            className: `flex items-center gap-1.5 px-3 py-2 text-xs font-semibold border-b-2 -mb-px transition cursor-pointer ${inspectorTab === tab.id ? "border-[var(--color-primary)] text-[var(--color-primary)]" : "border-transparent text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"}`,
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { size: 14 }),
+              tab.label
+            ]
+          },
+          tab.id
+        );
+      }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-y-auto p-5 space-y-4", children: [
+        inspectorTab === "raw" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs", children: [
+            [t("crm.fCustomer", "Customer name"), selectedLead.customer_name || "—"],
+            [t("crm.fProduct", "Product"), selectedLead.product || "—"],
+            [t("crm.fRawPhone", "Raw phone (as typed)"), selectedLead.raw_phone || "—"],
+            [t("crm.fCleanPhone", "E.164 delivered to network"), selectedLead.clean_phone || "—"],
+            [t("crm.fPrice", "Price"), selectedLead.price ? `${selectedLead.price} ${selectedLead.currency || ""}` : "—"],
+            [t("crm.fPayout", "Payout"), selectedLead.payout ? `${selectedLead.payout} ${selectedLead.currency || ""}` : "—"],
+            [t("crm.fGeo", "GEO"), selectedLead.geo || "—"],
+            [t("crm.fIp", "IP"), selectedLead.ip || "—"],
+            [t("crm.fCreatedAt", "Submitted at"), selectedLead.created_at || "—"],
+            [t("crm.fLeadId", "Vault row"), `#${selectedLead.id}`]
+          ].map(([label, value]) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3 rounded-xl bg-[var(--color-bg-main)] border border-[var(--color-border)]", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] uppercase tracking-wide text-[var(--color-text-muted)] font-semibold", children: label }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono mt-1 break-all", style: { color: "var(--color-text-primary)" }, children: value })
+          ] }, label)) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] uppercase tracking-wide text-[var(--color-text-muted)] font-semibold mb-1.5", children: t("crm.fUserAgent", "User Agent") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "p-3 rounded-xl bg-slate-950 text-slate-300 text-[10px] overflow-x-auto whitespace-pre-wrap break-all border border-slate-800", children: selectedLead.user_agent || "—" })
+          ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: "Date:" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-primary)" }, children: selectedLead.created_at || selectedLead.time })
+        inspectorTab === "network" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-2 text-xs", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2.5 py-1 rounded-full font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-950/70 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800", children: selectedLead.network || "custom" }),
+            selectedLead.network_lead_id && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2.5 py-1 rounded-full font-mono bg-[var(--color-bg-main)] border border-[var(--color-border)]", style: { color: "var(--color-text-primary)" }, children: selectedLead.network_lead_id })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] uppercase tracking-wide text-[var(--color-text-muted)] font-semibold mb-1.5", children: t("crm.fNetRequest", "Network request (exactly what we sent)") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "p-3 rounded-xl bg-slate-950 text-sky-300 text-[10px] overflow-x-auto whitespace-pre-wrap break-all border border-slate-800", children: prettyJson(selectedLead.network_request_json) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] uppercase tracking-wide text-[var(--color-text-muted)] font-semibold mb-1.5", children: t("crm.fNetResponse", "Network response (exactly what came back)") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: `p-3 rounded-xl text-[10px] overflow-x-auto whitespace-pre-wrap break-all border ${(() => {
+              try {
+                const r2 = JSON.parse(selectedLead.network_response_json || "{}");
+                return (r2.http_code || 0) === 200 ? "bg-slate-950 text-emerald-300 border-slate-800" : "bg-slate-950 text-rose-300 border-slate-800";
+              } catch (e) {
+                return "bg-slate-950 text-slate-300 border-slate-800";
+              }
+            })()}`, children: prettyJson(selectedLead.network_response_json) })
+          ] }),
+          (selectedLead.shave_suspect || selectedLead.lost_in_transit) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3 rounded-xl border border-rose-300 dark:border-rose-900 bg-rose-50 dark:bg-rose-950/30 text-xs text-rose-800 dark:text-rose-300 leading-relaxed", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "font-bold flex items-center gap-1.5 mb-1", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldAlert, { size: 14 }),
+              " ",
+              t("crm.evidenceTitle", "Anti-shaving evidence pack")
+            ] }),
+            t("crm.evidenceText", "This lead was delivered with a valid E.164 phone and the network accepted it with HTTP 200, yet the S2S verdict is negative or missing. Export this row (CSV) and open a ticket with the network support quoting the SubID and the network lead id.")
+          ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: "Campaign:" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", style: { color: "var(--color-text-primary)" }, children: selectedLead.campaign_name || "N/A" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: "Offer:" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", style: { color: "var(--color-text-primary)" }, children: selectedLead.offer_name || "N/A" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: "Status:" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-bold uppercase text-emerald-600 dark:text-emerald-400", children: selectedLead.status })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-secondary)]", children: "Payout:" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-bold text-emerald-600 dark:text-emerald-400", children: [
-            "$",
-            selectedLead.payout || "0.00"
+        inspectorTab === "tracking" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs", children: [
+            ["SubID / Click ID", selectedLead.click_id],
+            ["Campaign", selectedLead.campaign_name || `#${selectedLead.campaign_id || 0}`],
+            ["Landing", selectedLead.landing_name || (selectedLead.lander_id ? `#${selectedLead.lander_id}` : "—")],
+            ["Offer", selectedLead.offer_id || "—"],
+            ["utm_source", selectedLead.utm_source || "—"],
+            ["utm_campaign", selectedLead.utm_campaign || "—"],
+            ["utm_placement", selectedLead.utm_placement || "—"],
+            ["adset_id / adset_name", [selectedLead.adset_id, selectedLead.adset_name].filter(Boolean).join(" / ") || "—"],
+            ["ad_id / ad_name", [selectedLead.ad_id, selectedLead.ad_name].filter(Boolean).join(" / ") || "—"],
+            ["S2S postback", selectedLead.s2s_postback_status || "pending"],
+            ["Status source", selectedLead.status_source || "form_submit"],
+            ["Rejection reason", selectedLead.status_reason || "—"]
+          ].map(([label, value]) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3 rounded-xl bg-[var(--color-bg-main)] border border-[var(--color-border)]", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] uppercase tracking-wide text-[var(--color-text-muted)] font-semibold", children: label }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono mt-1 break-all", style: { color: "var(--color-text-primary)" }, children: value })
+          ] }, label)) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] uppercase tracking-wide text-[var(--color-text-muted)] font-semibold mb-1.5", children: t("crm.fSubParams", "Sub parameters carried by the click") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "p-3 rounded-xl bg-slate-950 text-amber-300 text-[10px] overflow-x-auto whitespace-pre-wrap break-all border border-slate-800", children: prettyJson(selectedLead.sub_data_json) })
           ] })
         ] })
-      ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          type: "button",
-          onClick: () => setSelectedLead(null),
-          className: "w-full py-2.5 rounded-xl font-bold bg-[var(--color-bg-hover)] text-[var(--color-text-primary)] hover:opacity-80 transition cursor-pointer",
-          children: "Close"
-        }
-      )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 border-t border-[var(--color-border)] flex flex-col sm:flex-row items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-1 w-full", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-semibold text-[var(--color-text-secondary)] whitespace-nowrap", children: t("crm.setStatus", "Set status") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "select",
+            {
+              value: manualStatus,
+              onChange: (e) => setManualStatus(e.target.value),
+              className: "flex-1 px-3 py-2 rounded-xl border bg-[var(--color-bg-main)] text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]",
+              style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "lead", children: "Lead / Hold" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "sale", children: "Approved / Sale" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "rejected", children: "Rejected" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "trash", children: "Trash" })
+              ]
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: handleSaveStatus,
+            disabled: savingStatus,
+            className: "btn-primary !py-2.5 !px-5 !text-xs w-full sm:w-auto disabled:opacity-50 cursor-pointer",
+            children: savingStatus ? t("crm.saving", "Saving…") : t("crm.saveStatus", "Save status")
+          }
+        )
+      ] })
     ] }) }),
     showNewLeadModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-black/50 z-[2000] flex items-center justify-center p-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleCreateLead, className: "bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between pb-3 border-b border-[var(--color-border)]", children: [
@@ -94882,28 +95376,28 @@ const CRMPage = ({ setActiveTab, user }) => {
           {
             type: "button",
             onClick: () => setShowNewLeadModal(false),
-            className: "p-1 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]",
+            className: "p-1 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer",
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 18 })
           }
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 text-xs", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "font-semibold text-[var(--color-text-secondary)]", children: "Customer Name" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "font-semibold text-[var(--color-text-secondary)]", children: t("crm.customer", "Customer name") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
               type: "text",
               value: newLeadData.name,
               onChange: (e) => setNewLeadData({ ...newLeadData, name: e.target.value }),
-              placeholder: "e.g. Marco Rossi",
+              placeholder: "e.g. Mario Rossi",
               className: "w-full px-3 py-2 rounded-xl border bg-[var(--color-bg-main)] text-sm focus:outline-none",
               style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
             }
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "font-semibold text-[var(--color-text-secondary)]", children: "Phone Number" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "font-semibold text-[var(--color-text-secondary)]", children: t("crm.phone", "Phone number") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
@@ -94914,21 +95408,52 @@ const CRMPage = ({ setActiveTab, user }) => {
               className: "w-full px-3 py-2 rounded-xl border bg-[var(--color-bg-main)] text-sm focus:outline-none",
               style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
             }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[10px] text-[var(--color-text-muted)]", children: t("crm.phoneNote", "Stored raw and normalized to E.164 in the vault.") })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "font-semibold text-[var(--color-text-secondary)]", children: "SubID" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              value: newLeadData.subid,
+              onChange: (e) => setNewLeadData({ ...newLeadData, subid: e.target.value }),
+              placeholder: "auto",
+              className: "w-full px-3 py-2 rounded-xl border bg-[var(--color-bg-main)] text-sm font-mono focus:outline-none",
+              style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
+            }
           )
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "font-semibold text-[var(--color-text-secondary)]", children: "Initial Status" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "font-semibold text-[var(--color-text-secondary)]", children: t("crm.campaign", "Campaign") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "select",
+            {
+              value: newLeadData.campaign_id,
+              onChange: (e) => setNewLeadData({ ...newLeadData, campaign_id: e.target.value }),
+              className: "w-full px-3 py-2 rounded-xl border bg-[var(--color-bg-main)] text-xs font-semibold focus:outline-none",
+              style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("crm.noCampaign", "No campaign") }),
+                campaigns.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: c.id, children: c.name }, c.id))
+              ]
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-3 gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1 col-span-1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "font-semibold text-[var(--color-text-secondary)]", children: t("crm.status", "Status") }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "select",
               {
                 value: newLeadData.status,
                 onChange: (e) => setNewLeadData({ ...newLeadData, status: e.target.value }),
-                className: "w-full px-3 py-2 rounded-xl border bg-[var(--color-bg-main)] text-xs font-semibold focus:outline-none",
+                className: "w-full px-2 py-2 rounded-xl border bg-[var(--color-bg-main)] text-xs font-semibold focus:outline-none",
                 style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" },
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "lead", children: "Lead / Processing" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "sale", children: "Approved / Sale" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "lead", children: "Hold" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "sale", children: "Sale" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "rejected", children: "Rejected" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "trash", children: "Trash" })
                 ]
@@ -94936,14 +95461,27 @@ const CRMPage = ({ setActiveTab, user }) => {
             )
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "font-semibold text-[var(--color-text-secondary)]", children: "Payout ($)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "font-semibold text-[var(--color-text-secondary)]", children: t("crm.payout", "Payout") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "input",
               {
                 type: "number",
                 value: newLeadData.payout,
                 onChange: (e) => setNewLeadData({ ...newLeadData, payout: e.target.value }),
-                className: "w-full px-3 py-2 rounded-xl border bg-[var(--color-bg-main)] text-sm font-semibold focus:outline-none",
+                className: "w-full px-2 py-2 rounded-xl border bg-[var(--color-bg-main)] text-sm font-semibold focus:outline-none",
+                style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-1", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "font-semibold text-[var(--color-text-secondary)]", children: t("crm.currency", "Currency") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                value: newLeadData.currency,
+                onChange: (e) => setNewLeadData({ ...newLeadData, currency: e.target.value.toUpperCase() }),
+                className: "w-full px-2 py-2 rounded-xl border bg-[var(--color-bg-main)] text-sm font-bold text-center focus:outline-none",
                 style: { borderColor: "var(--color-border)", color: "var(--color-text-primary)" }
               }
             )
@@ -94956,16 +95494,16 @@ const CRMPage = ({ setActiveTab, user }) => {
           {
             type: "button",
             onClick: () => setShowNewLeadModal(false),
-            className: "flex-1 py-2.5 rounded-xl font-medium border border-[var(--color-border)] hover:bg-[var(--color-bg-hover)] text-xs text-[var(--color-text-primary)]",
-            children: "Cancel"
+            className: "flex-1 py-2.5 rounded-xl font-medium border border-[var(--color-border)] hover:bg-[var(--color-bg-hover)] text-xs text-[var(--color-text-primary)] cursor-pointer",
+            children: t("common.cancel", "Cancel")
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
             type: "submit",
-            className: "flex-1 py-2.5 rounded-xl font-bold bg-[var(--color-primary)] text-white text-xs hover:opacity-90 transition shadow-sm",
-            children: "Save Lead"
+            className: "btn-primary flex-1 !text-xs cursor-pointer",
+            children: t("crm.saveLead", "Save Lead")
           }
         )
       ] })

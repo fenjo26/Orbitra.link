@@ -51,7 +51,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 27;
+    $LATEST_SCHEMA_VERSION = 29;
 
     $schemaVersion = 0;
     try {
@@ -1562,6 +1562,146 @@ try {
                     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_clicks_created_at ON clicks(created_at)");
                 } catch (\Throwable $e) {
                     // Table absent on an older install.
+                }
+            }
+
+            if ($schemaVersion < 28) {
+                // Migration 28: LeadForge 2.0 / CRM Anti-Shaving Vault.
+                //
+                // crm_leads is the full-fidelity lead snapshot: raw vs E.164
+                // phone, every tracking sub-param and UTM/ad attribution field,
+                // and the exact network request/response dump. It exists so a
+                // network rejecting a lead as "invalid number" can be disproved
+                // with the payload that was actually sent. Rejected-with-valid-
+                // phone rows are shave suspects; 24h-silent rows are
+                // "lost in transit" (computed at read time, not stored).
+                try {
+                    $pdo->exec("CREATE TABLE IF NOT EXISTS crm_leads (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        click_id VARCHAR(64) NOT NULL,
+                        campaign_id INTEGER DEFAULT 0,
+                        lander_id INTEGER DEFAULT 0,
+                        offer_id VARCHAR(64) DEFAULT '',
+                        network VARCHAR(32) NOT NULL DEFAULT 'custom',
+                        network_lead_id VARCHAR(128) DEFAULT NULL,
+                        product VARCHAR(128) DEFAULT '',
+                        customer_name VARCHAR(255) DEFAULT '',
+                        raw_phone VARCHAR(64) NOT NULL,
+                        clean_phone VARCHAR(64) NOT NULL,
+                        price DECIMAL(10, 2) DEFAULT 0.00,
+                        payout DECIMAL(10, 2) DEFAULT 0.00,
+                        currency VARCHAR(3) DEFAULT 'USD',
+                        geo VARCHAR(8) DEFAULT '',
+                        ip VARCHAR(45) DEFAULT '',
+                        user_agent TEXT DEFAULT '',
+                        utm_source VARCHAR(128) DEFAULT '',
+                        utm_campaign VARCHAR(128) DEFAULT '',
+                        utm_placement VARCHAR(128) DEFAULT '',
+                        adset_id VARCHAR(64) DEFAULT '',
+                        adset_name VARCHAR(128) DEFAULT '',
+                        ad_id VARCHAR(64) DEFAULT '',
+                        ad_name VARCHAR(128) DEFAULT '',
+                        sub_data_json TEXT DEFAULT '{}',
+                        network_request_json TEXT DEFAULT '{}',
+                        network_response_json TEXT DEFAULT '{}',
+                        status VARCHAR(32) DEFAULT 'lead',
+                        status_reason TEXT DEFAULT '',
+                        status_source VARCHAR(32) DEFAULT 'form_submit',
+                        s2s_postback_status VARCHAR(32) DEFAULT 'pending',
+                        is_qa_test INTEGER DEFAULT 0,
+                        is_duplicate INTEGER DEFAULT 0,
+                        shave_suspect INTEGER DEFAULT 0,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    )");
+                } catch (\Throwable $e) {
+                }
+                // leadforge_profiles: per-network send presets. api_key stays
+                // empty in seeds — the operator fills it per install, and the
+                // generated order.php embeds it at build time anyway.
+                try {
+                    $pdo->exec("CREATE TABLE IF NOT EXISTS leadforge_profiles (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name VARCHAR(128) NOT NULL,
+                        network_key VARCHAR(32) NOT NULL,
+                        api_endpoint VARCHAR(255) NOT NULL,
+                        api_key VARCHAR(255) DEFAULT '',
+                        offer_id VARCHAR(64) DEFAULT '',
+                        geo VARCHAR(8) DEFAULT '',
+                        payout DECIMAL(10, 2) DEFAULT 0.00,
+                        currency VARCHAR(3) DEFAULT 'USD',
+                        click_id_field VARCHAR(32) DEFAULT 'sub1',
+                        custom_headers_json TEXT DEFAULT '{}',
+                        payload_template TEXT NOT NULL DEFAULT '{}',
+                        api_key_required INTEGER DEFAULT 1,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    )");
+                } catch (\Throwable $e) {
+                }
+                foreach ([
+                    "CREATE INDEX IF NOT EXISTS idx_crm_leads_click_id ON crm_leads(click_id)",
+                    "CREATE INDEX IF NOT EXISTS idx_crm_leads_network_lead ON crm_leads(network_lead_id)",
+                    "CREATE INDEX IF NOT EXISTS idx_crm_leads_clean_phone ON crm_leads(clean_phone)",
+                    "CREATE INDEX IF NOT EXISTS idx_crm_leads_status ON crm_leads(status)",
+                    "CREATE INDEX IF NOT EXISTS idx_crm_leads_campaign ON crm_leads(campaign_id)",
+                    "CREATE INDEX IF NOT EXISTS idx_crm_leads_shave ON crm_leads(shave_suspect)",
+                    "CREATE INDEX IF NOT EXISTS idx_crm_leads_created ON crm_leads(created_at)",
+                    "CREATE INDEX IF NOT EXISTS idx_leadforge_profiles_network ON leadforge_profiles(network_key)",
+                ] as $sql28) {
+                    try {
+                        $pdo->exec($sql28);
+                    } catch (\Throwable $e) {
+                    }
+                }
+                // Seed the networks whose endpoints the generator already
+                // speaks, so the table ships populated and Cross mode can show
+                // where a detected network would route.
+                try {
+                    $seed28 = $pdo->prepare("INSERT INTO leadforge_profiles (name, network_key, api_endpoint, click_id_field, api_key_required)
+                                             VALUES (?, ?, ?, ?, 1)");
+                    foreach ([
+                        ['Dr.Cash', 'drcash', 'https://affiliate.dr.cash/api/order/create', 'sub1'],
+                        ['LemonAD', 'lemonad', 'https://lemonad.com/api/v2/lead/create', 'click_id'],
+                        ['Webvork', 'webvork', 'https://api.webvork.com/v1/lead', 'utm_campaign'],
+                        ['Leadbit', 'leadbit', 'http://leadbit.com/api/new-order', 'sub1'],
+                        ['Everad', 'everad', 'https://api.everad.com/campaigns/{offer_id}/order', 'sid1'],
+                        ['Custom Webhook', 'custom', '', 'subid'],
+                    ] as $seedRow28) {
+                        try {
+                            $seed28->execute($seedRow28);
+                        } catch (\Throwable $e) {
+                        }
+                    }
+                } catch (\Throwable $e) {
+                }
+            }
+
+            if ($schemaVersion < 29) {
+                // Migration 29: per-type label colors for conversion types.
+                //
+                // color drives the status badge in the conversions log and the
+                // column marker in reports. Empty string = "not customized" —
+                // the frontend then falls back to the built-in palette, so the
+                // migration UPDATEs only seed the standard names that exist.
+                try {
+                    $pdo->exec("ALTER TABLE conversion_types ADD COLUMN color TEXT DEFAULT ''");
+                } catch (\Throwable $e) {
+                    // Column already present (partial install) — colors keep working.
+                }
+                $defaultTypeColors = [
+                    'lead' => '#0ea5e9',
+                    'sale' => '#10b981',
+                    'rejected' => '#ef4444',
+                    'trash' => '#6b7280',
+                    'registration' => '#8b5cf6',
+                    'deposit' => '#f59e0b',
+                ];
+                try {
+                    $stmt29 = $pdo->prepare("UPDATE conversion_types SET color = ? WHERE LOWER(name) = ? AND (color IS NULL OR color = '')");
+                    foreach ($defaultTypeColors as $typeName => $color) {
+                        $stmt29->execute([$color, $typeName]);
+                    }
+                } catch (\Throwable $e) {
                 }
             }
 
