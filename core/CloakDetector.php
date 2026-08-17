@@ -12,6 +12,8 @@
 //    opt-in second step, not a hard gate.
 //  * All layers are individually toggleable per stream via schema_custom_json config.
 
+require_once __DIR__ . '/Device.php';
+
 class CloakDetector
 {
     /**
@@ -26,6 +28,17 @@ class CloakDetector
         }
         $parsed = filter_var($config[$key], FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
         return $parsed ?? $default;
+    }
+
+    /**
+     * Whether a visitor sent to a cloak stream's Safe Page should bypass the
+     * clicks table. The editor exposes this as an opt-out checkbox, so missing
+     * values from older streams use the privacy/clean-report default (enabled),
+     * while an explicitly stored false restores normal click logging.
+     */
+    public static function shouldSkipSafePageClick(array $config, bool $showSafe): bool
+    {
+        return $showSafe && self::configBool($config, 'dont_record_safe_clicks', true);
     }
 
     /**
@@ -141,7 +154,7 @@ class CloakDetector
      *                          default true), custom_bot_isps (comma-separated
      *                          local override of the global list)
      * @param string $countryCode    visitor country, e.g. 'US' (or 'Unknown')
-     * @param string $deviceType     'Mobile'|'Desktop' (case-insensitive)
+     * @param string $deviceType     Mobile/Tablet/Desktop or a known alias
      * @param string $ispHaystack    visitor "isp asn" string, any case
      * @param string $globalBotIspList comma-separated keywords from settings.bot_isp_list
      * @return array reason codes: geo_country / device_type / bot_isp (may be empty)
@@ -165,12 +178,14 @@ class CloakDetector
             }
         }
 
-        // 2. Device types: allow = only the selected types, deny = none of them.
-        // The tracker's device model is Mobile/Desktop (getDeviceType()), so the
-        // cloak card offers exactly those two.
-        $devices = array_map('strtolower', $normalize($targeting['devices'] ?? ''));
+        // 2. Device types: normalize imported/granular aliases before applying
+        // allow/deny so e.g. smartphone and phablet satisfy a mobile filter.
+        $rawDevices = $targeting['devices'] ?? '';
+        $devices = is_array($rawDevices) ? $rawDevices : explode(',', (string) $rawDevices);
+        $devices = array_map(static fn ($device) => strtolower(trim((string) $device)), $devices);
+        $devices = array_values(array_filter($devices, static fn ($device) => $device !== ''));
         if (!empty($devices)) {
-            $inList = in_array(strtolower(trim($deviceType)), $devices, true);
+            $inList = orbitraDeviceGroupMatches($deviceType, $devices);
             $deny = ($targeting['device_mode'] ?? 'allow') === 'deny';
             if ($deny ? $inList : !$inList) {
                 $reasons[] = 'device_type';

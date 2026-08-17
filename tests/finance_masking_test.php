@@ -35,6 +35,7 @@ $keyVectors = [
     'costs'                 => [true,  false, false],
     'spend'                 => [true,  false, false],
     'cpc'                   => [true,  false, false],
+    'cpv'                   => [true,  false, false],
     'cpa'                   => [true,  false, false],
     'cost_value'            => [true,  false, false],
     'cost_model (label)'    => [false, false, false],

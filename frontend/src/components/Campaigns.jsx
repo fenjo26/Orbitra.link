@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Plus, Trash2, Edit3, Settings2, DollarSign, XCircle, ChevronUp, ChevronDown, ChevronsUpDown, Filter, RefreshCw, X, Copy, BarChart2, SlidersHorizontal, GripVertical } from 'lucide-react';
+import { Plus, Trash2, Edit3, Settings2, DollarSign, XCircle, ChevronUp, ChevronDown, ChevronsUpDown, Filter, RefreshCw, X, Copy, BarChart2, SlidersHorizontal, GripVertical, MoreVertical } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import GroupsModal from './GroupsModal';
 import CampaignReports from './CampaignReports';
@@ -22,6 +22,79 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     const [refreshing, setRefreshing] = useState(false);
     const [showGroupsModal, setShowGroupsModal] = useState(false);
     const [showGlobalReports, setShowGlobalReports] = useState(false);
+
+    // One-click pause: flips campaigns.state; a disabled campaign stops serving
+    // immediately (index.php answers 503). Optimistic — reverts on failure.
+    const [campaignStateOverrides, setCampaignStateOverrides] = useState({});
+
+    // Row action dropdown (⋮): one menu replaces the four always-visible
+    // buttons that multiplied visual noise across 50–100 rows.
+    const [openMenuId, setOpenMenuId] = useState(null);
+
+    // Pagination for high-volume lists. "All" restores the previous behaviour.
+    const [rowsPerPage, setRowsPerPage] = useState(50);
+    const [page, setPage] = useState(0);
+
+    useEffect(() => {
+        const close = () => setOpenMenuId(null);
+        document.addEventListener('click', close);
+        return () => document.removeEventListener('click', close);
+    }, []);
+
+    // Any narrowing of the list must drop the user back to the first page,
+    // or page 3 of yesterday's filter shows an empty slice.
+    useEffect(() => {
+        setPage(0);
+    }, [search, rowsPerPage]);
+    const [togglingCampaignIds, setTogglingCampaignIds] = useState(new Set());
+
+    const campaignEnabled = (camp) => (campaignStateOverrides[camp.id] ?? camp.state ?? 'active') !== 'disabled';
+
+    const handleCopyCampaignLink = async (camp) => {
+        const url = `${window.location.origin}/${camp.alias}`;
+        try {
+            await navigator.clipboard.writeText(url);
+            alert(`${t('common.copied')}: ${url}`);
+        } catch (e) {
+            alert(url);
+        }
+    };
+
+    const handleDuplicateCampaign = async (camp) => {
+        try {
+            const res = await axios.post(`${API_URL}?action=copy_campaign`, { id: camp.id });
+            if (res.data.status === 'success') {
+                fetchCampaigns();
+                if (refreshData) refreshData();
+            } else {
+                alert(res.data.message || t('common.error'));
+            }
+        } catch (e) {
+            alert(t('common.networkError'));
+        }
+    };
+
+    const handleToggleCampaignState = async (camp) => {
+        if (togglingCampaignIds.has(camp.id)) return;
+        const target = campaignEnabled(camp) ? 'PAUSED' : 'ACTIVE';
+        setTogglingCampaignIds(prev => new Set(prev).add(camp.id));
+        try {
+            const res = await axios.post('/api.php?action=ad_entity_toggle_status', {
+                entity_type: 'campaign',
+                entity_id: String(camp.id),
+                target_status: target
+            });
+            if (res.data.status === 'success') {
+                setCampaignStateOverrides(prev => ({ ...prev, [camp.id]: target === 'ACTIVE' ? 'active' : 'disabled' }));
+            } else {
+                alert(res.data.message || t('automation.statusUpdateError'));
+            }
+        } catch (e) {
+            alert(t('automation.statusUpdateError'));
+        } finally {
+            setTogglingCampaignIds(prev => { const s = new Set(prev); s.delete(camp.id); return s; });
+        }
+    };
 
     // Date & Timezone Range Picker State
     const todayPreset = getPresetDates('today');
@@ -210,6 +283,16 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             .map(x => x.camp);
     }, [filteredCampaigns, sortBy]);
 
+    // The paged slice the table renders. Totals stay computed over the whole
+    // filtered list — paging must not quietly change the numbers in TOTAL.
+    const pagedCampaigns = useMemo(() => {
+        if (rowsPerPage === 'All') return visibleCampaigns;
+        const start = page * rowsPerPage;
+        return visibleCampaigns.slice(start, start + rowsPerPage);
+    }, [visibleCampaigns, page, rowsPerPage]);
+
+    const totalPages = rowsPerPage === 'All' ? 1 : Math.max(1, Math.ceil(visibleCampaigns.length / rowsPerPage));
+
     // Grand Totals Calculation across all visible campaigns
     const grandTotals = useMemo(() => {
         const t0 = {
@@ -269,6 +352,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         const uepc = t0.unique_clicks > 0 ? t0.revenue / t0.unique_clicks : 0;
         const cpc = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
         const ucpc = t0.unique_clicks > 0 ? t0.cost / t0.unique_clicks : 0;
+        const cpv = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
         const cpa = t0.conversions > 0 ? t0.cost / t0.conversions : 0;
         const earnings_per_conv = t0.conversions > 0 ? t0.revenue / t0.conversions : 0;
 
@@ -287,6 +371,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             uepc,
             cpc,
             ucpc,
+            cpv,
             cpa,
             earnings_per_conv
         };
@@ -501,8 +586,6 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             case 'earnings_per_conv':
             case 'ec_all':
             case 'ec_confirmed':
-                return `$${num.toFixed(2)}`;
-
             case 'epc':
             case 'epc_all':
             case 'uepc':
@@ -515,7 +598,8 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             case 'uepc_registration':
             case 'cpc':
             case 'ucpc':
-                return `$${num.toFixed(4)}`;
+            case 'cpv':
+                return `$${num.toFixed(2)}`;
 
             default:
                 return val !== undefined && val !== null ? String(val) : '-';
@@ -688,8 +772,8 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             )}
 
             {/* Main Campaigns Data Table */}
-            <div className="overflow-x-auto">
-                <table className="page-table" style={{ fontVariantNumeric: 'tabular-nums' }}>
+            <div className="tracker-table-container">
+                <table className="page-table tracker-table" style={{ fontVariantNumeric: 'tabular-nums' }}>
                     <thead>
                         <tr>
                             <th className="w-8" style={{ textAlign: 'left' }}>
@@ -743,7 +827,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                 </td>
                             </tr>
                         ) : (
-                            visibleCampaigns.map((camp) => (
+                            pagedCampaigns.map((camp) => (
                                 <tr key={camp.id}>
                                     <td>
                                         <input
@@ -758,15 +842,38 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                         <span title={camp.keitaro_id ? `Keitaro ID: ${camp.keitaro_id}` : ''}>{camp.id}</span>
                                     </td>
                                     <td>
-                                        <div className="flex flex-col">
+                                        {/* One line: switch, name, alias — a second line for the
+                                            alias halved how many campaigns fit on screen. */}
+                                        <div className="flex items-center gap-2" style={{ maxWidth: 300 }}>
+                                            <button
+                                                type="button"
+                                                disabled={togglingCampaignIds.has(camp.id)}
+                                                onClick={() => handleToggleCampaignState(camp)}
+                                                className="relative inline-flex h-4 w-7 flex-shrink-0 items-center rounded-full transition-colors"
+                                                style={{
+                                                    background: campaignEnabled(camp) ? 'var(--color-success, #10b981)' : 'var(--color-border)',
+                                                    opacity: togglingCampaignIds.has(camp.id) ? 0.5 : 1,
+                                                    cursor: 'pointer'
+                                                }}
+                                                title={campaignEnabled(camp) ? t('automation.clickToPause') : t('automation.clickToResume')}
+                                            >
+                                                <span className="inline-block h-3 w-3 transform rounded-full bg-white shadow transition-transform" style={{ transform: campaignEnabled(camp) ? 'translateX(12px)' : 'translateX(2px)' }} />
+                                            </button>
                                             <span
-                                                className="font-semibold cursor-pointer hover:underline"
-                                                style={{ color: 'var(--color-primary)' }}
+                                                className="font-medium text-xs truncate cursor-pointer hover:underline"
+                                                style={{ color: 'var(--color-text-primary)' }}
                                                 onClick={() => handleEdit(camp.id)}
+                                                title={camp.name}
                                             >
                                                 {camp.name}
                                             </span>
-                                            <span style={{ color: 'var(--color-text-muted)', fontSize: '11px' }}>{camp.alias}</span>
+                                            <span
+                                                className="text-[10px] font-mono px-1 rounded border flex-shrink-0"
+                                                style={{ color: 'var(--color-text-muted)', borderColor: 'var(--color-border)' }}
+                                                title={camp.alias}
+                                            >
+                                                {camp.alias}
+                                            </span>
                                         </div>
                                     </td>
                                     <td style={{ color: 'var(--color-text-secondary)' }}>{camp.group_name || '-'}</td>
@@ -779,19 +886,48 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                     ))}
 
                                     <td style={{ textAlign: 'right' }}>
-                                        <div className="action-buttons justify-end">
-                                            <button onClick={() => handleEdit(camp.id)} className="action-btn text-blue" title={t('common.edit')}>
-                                                <Edit3 className="w-3.5 h-3.5" />
+                                        <div className="relative inline-block text-left" onClick={(e) => e.stopPropagation()}>
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setOpenMenuId(openMenuId === camp.id ? null : camp.id);
+                                                }}
+                                                className="p-1 rounded transition-colors"
+                                                style={{ color: 'var(--color-text-muted)' }}
+                                                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-text-primary)')}
+                                                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--color-text-muted)')}
+                                                title={t('table.actions')}
+                                            >
+                                                <MoreVertical className="w-4 h-4" />
                                             </button>
-                                            <button onClick={() => setActionModal({ type: 'update_costs', campaignId: camp.id })} className="action-btn text-green" title={t('campaigns.updateCosts')}>
-                                                <DollarSign className="w-3.5 h-3.5" />
-                                            </button>
-                                            <button onClick={() => setActionModal({ type: 'clear_stats', campaignId: camp.id })} className="action-btn text-orange" title={t('common.clearStats')}>
-                                                <XCircle className="w-3.5 h-3.5" />
-                                            </button>
-                                            <button onClick={() => handleDelete(camp.id)} className="action-btn text-red" title={t('common.delete')}>
-                                                <Trash2 className="w-3.5 h-3.5" />
-                                            </button>
+
+                                            {openMenuId === camp.id && (
+                                                <div
+                                                    className="absolute right-0 mt-1 w-44 rounded-xl shadow-xl z-50 py-1 text-xs border"
+                                                    style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}
+                                                >
+                                                    <button onClick={() => { setOpenMenuId(null); handleEdit(camp.id); }} className="w-full text-left px-3 py-1.5 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+                                                        <Edit3 className="w-3.5 h-3.5" /> {t('common.edit')}
+                                                    </button>
+                                                    <button onClick={() => { setOpenMenuId(null); setActionModal({ type: 'update_costs', campaignId: camp.id }); }} className="w-full text-left px-3 py-1.5 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+                                                        <DollarSign className="w-3.5 h-3.5" /> {t('campaigns.updateCosts')}
+                                                    </button>
+                                                    <button onClick={() => { setOpenMenuId(null); handleCopyCampaignLink(camp); }} className="w-full text-left px-3 py-1.5 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+                                                        <Copy className="w-3.5 h-3.5" /> {t('table.copyLink')}
+                                                    </button>
+                                                    <button onClick={() => { setOpenMenuId(null); handleDuplicateCampaign(camp); }} className="w-full text-left px-3 py-1.5 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+                                                        <ChevronsUpDown className="w-3.5 h-3.5 rotate-90" /> {t('table.duplicate')}
+                                                    </button>
+                                                    <button onClick={() => { setOpenMenuId(null); setActionModal({ type: 'clear_stats', campaignId: camp.id }); }} className="w-full text-left px-3 py-1.5 flex items-center gap-2" style={{ color: 'var(--color-warning, #f59e0b)' }}>
+                                                        <XCircle className="w-3.5 h-3.5" /> {t('common.clearStats')}
+                                                    </button>
+                                                    <div className="my-1 border-t" style={{ borderColor: 'var(--color-border)' }}></div>
+                                                    <button onClick={() => { setOpenMenuId(null); handleDelete(camp.id); }} className="w-full text-left px-3 py-1.5 flex items-center gap-2 text-red-500">
+                                                        <Trash2 className="w-3.5 h-3.5" /> {t('common.delete')}
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>
@@ -818,6 +954,47 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                     )}
                 </table>
             </div>
+
+            {/* Pagination toolbar: page through 50–100+ campaigns without
+                losing the TOTAL row (totals stay over the whole filter). */}
+            {visibleCampaigns.length > 0 && (
+                <div className="flex items-center justify-between gap-3 mt-3 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                    <div className="flex items-center gap-2">
+                        <span>{t('table.perPage')}</span>
+                        <select
+                            className="form-select text-xs"
+                            style={{ width: 'auto', padding: '2px 6px' }}
+                            value={String(rowsPerPage)}
+                            onChange={(e) => setRowsPerPage(e.target.value === 'All' ? 'All' : Number(e.target.value))}
+                        >
+                            {[25, 50, 100].map((n) => <option key={n} value={n}>{n}</option>)}
+                            <option value="All">{t('table.all')}</option>
+                        </select>
+                        <span>· {visibleCampaigns.length}</span>
+                    </div>
+                    {rowsPerPage !== 'All' && totalPages > 1 && (
+                        <div className="flex items-center gap-2">
+                            <button
+                                type="button"
+                                className="btn btn-secondary text-xs py-1 px-2"
+                                disabled={page === 0}
+                                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                            >
+                                ← {t('table.prev')}
+                            </button>
+                            <span>{page + 1} / {totalPages}</span>
+                            <button
+                                type="button"
+                                className="btn btn-secondary text-xs py-1 px-2"
+                                disabled={page >= totalPages - 1}
+                                onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                            >
+                                {t('table.next')} →
+                            </button>
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Columns Customizer Modal [ ☵ ] */}
             <ReportCustomizerModal

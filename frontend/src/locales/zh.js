@@ -1,7 +1,7 @@
 export default {
     "streams": {
-        "desktop": "电脑",
-        "mobile": "手机",
+        "desktop": "桌面端",
+        "mobile": "移动端",
         "tablet": "平板"
     },
     "parameters": {
@@ -18,10 +18,15 @@ export default {
         "externalId": "外部 ID",
         "creativeId": "素材 ID",
         "adCampaignId": "广告系列 ID",
-        "source": "来源"
+        "source": "来源",
+        "enterParamKey": "输入参数键（例如 utm_placement、placement、custom_id）：",
+        "addParam": "添加参数",
+        "additionalSubIds": "附加子 ID (sub_id_1 .. sub_id_30)",
+        "placement": "版位 (utm_placement)"
     },
     "costModels": {
         "cpc": "CPC — 按点击付费",
+        "cpv": "CPV — 每次访问费用",
         "cpuc": "CPuC — 按独立点击付费",
         "cpm": "CPM — 按千次展示付费",
         "cpa": "CPA — 按行动付费",
@@ -294,7 +299,10 @@ export default {
         "confirmPassword": "确认密码",
         "confirmPasswordPlaceholder": "重复新密码",
         "passwordsNotMatch": "密码不匹配",
-        "saveSuccess": "设置保存成功"
+        "saveSuccess": "设置保存成功",
+        "stayInEditorAfterSave": "保存后停留在编辑器中",
+        "stayInEditorHint": "点击保存后保持广告系列、落地页和优惠处于打开状态，而不是返回列表。",
+        "saveAndClose": "保存并关闭"
     },
     "setup": {
         "title": "初始设置",
@@ -377,6 +385,9 @@ export default {
         "recentClicksLog": "最近的点击（日志）",
         "colDirection": "方向",
         "noLogs": "无日志",
+        "showMoreLogs": "显示更多 (+10)",
+        "showLess": "收起",
+        "last10Logs": "最近 10 次点击 (点击展开)",
         "viewFullLogs": "查看完整日志"
     },
     "metrics": {
@@ -388,6 +399,7 @@ export default {
         "profit": "利润",
         "roi": "ROI",
         "cpc": "CPC",
+        "cpv": "CPV — 每次访问费用",
         "cpa": "CPA",
         "ctr": "CTR",
         "visits": "访问量",
@@ -423,6 +435,9 @@ export default {
         "copyErrors": "错误"
     },
     "editor": {
+        "collectClicks": "收集点击",
+        "collectClicksHint": "为此分流记录点击到统计和报告。关闭时访客仍会到达目标页，但不写入点击行 — 此分流的转化将无法关联到点击。",
+        "collectClicksDisabledNote": "此分流的点击不会记录在统计中",
         "showText": "显示文本 / 空白",
         "toCampaign": "发送到其他活动",
         "selectCampaign": "— 选择活动 —",
@@ -643,6 +658,13 @@ export default {
         "step4": "确保通过“优惠参数”将 subid 传递给优惠",
         "step5": "在“转化”标签中检查传入转化",
         "examplePostback": "回发 URL 示例"
+    },
+    "affiliateNetworks": {
+        "postbackUrl": "Postback 回调 URL",
+        "offerParams": "优惠参数",
+        "useNetworkTemplate": "联盟网络模板",
+        "useGenericTemplate": "通用 Postback",
+        "resetToTemplate": "重置为联盟模板"
     },
     "components": {
         "aliasName": "别名/姓名",
@@ -1814,7 +1836,51 @@ export default {
         "system": "系统",
         "privacy": "隐私"
     },
+    "table": {
+        "copyLink": "复制链接",
+        "duplicate": "复制副本",
+        "perPage": "每页",
+        "prev": "上一页",
+        "next": "下一页",
+        "all": "全部",
+        "total": "总计",
+        "name": "名称",
+        "group": "分组",
+        "actions": "操作",
+        "selectAll": "全选所有行",
+    },
+
+    "extension": {
+        "title": "Orbitra 广告管理工具悬浮层",
+        "last3Days": "最近 3 天",
+        "last4Days": "最近 4 天",
+        "today": "今天",
+        "yesterday": "昨天",
+        "overview": "概览",
+        "dailyHistory": "每日历史",
+        "landingsAndOffers": "落地页与优惠",
+        "pixelAccuracy": "像素与 CAPI 准确度",
+        "winner": "盈利优秀 (WINNER)",
+        "spend": "消耗",
+        "revenue": "收入",
+        "profit": "利润",
+        "roi": "ROI",
+        "cpa": "CPA",
+        "cpl": "CPL",
+        "cps": "CPS",
+    },
+
     "automation": {
+        "status": "状态",
+        "active": "已启用",
+        "paused": "已暂停",
+        "clickToPause": "点击暂停广告/广告系列",
+        "clickToResume": "点击启用广告/广告系列",
+        "statusUpdated": "状态更新成功",
+        "statusUpdateError": "在广告网络上更新状态失败",
+        "noConnection": "未找到 Facebook API 连接 — 请先在成本导入中绑定广告账户",
+        "unsupportedNetwork": "暂不支持该广告网络",
+        "invalidId": "无效的对象 ID",
         "title": "计划与自动化",
         "backorderCronTitle": "延期交货：计划的域名检查",
         "backorderCronDesc": "域可用性检查由单独的 cron 脚本执行，每次运行处理 1 个域。您可以在此处启用/禁用执行并复制现成的 cron 命令。",
@@ -2052,6 +2118,15 @@ export default {
         "groupSites": "网站与落地页",
         "groupTools": "工具",
         "groupOther": "其他",
+        "chromeExtension": "Chrome 与防关联浏览器插件",
+        "chromeExtDesc": "在 AdsPower、Dolphin{anty} 和 Chrome 中直接将实时追踪数据叠加在 Facebook 广告管理工具中。",
+        "extTemplate1": "模板 1：CPA / 漏斗模型 (CPA、消耗、收入、ROI、利润)",
+        "extTemplate2": "模板 2：COD / 货到付款 (CPL、CPS、消耗、确认收入、确认 ROI、利润)",
+        "downloadExtension": "下载插件 (.ZIP)",
+        "antidetectInstallGuide": "防关联浏览器安装指南",
+        "adspowerGuide": "AdsPower：打开应用中心 → 上传自定义应用 → 选择解压后的文件夹。",
+        "dolphinGuide": "Dolphin{anty}：转到设置 → 插件 → 添加插件或直接拖入 ZIP 压缩包。",
+        "chromeGuide": "Google Chrome：打开 chrome://extensions → 开启开发者模式 → 点击“加载已解压的扩展程序”。",
         "howItWorks": "集成如何运作",
         "introText": "使用以下方法之一将 Orbitra 与您的外部登录页面或应用程序集成。这使您可以跟踪标准跟踪链接之外的流量，同时将数据集中在 Orbitra 数据库中。",
         "usageExamples": "用法示例：",
@@ -2330,6 +2405,8 @@ export default {
         "safeLandingNone": "— 无 —",
         "safeUrl": "安全 URL",
         "safeHtml": "安全 HTML（内联）",
+        "dontRecordSafeClicks": "不记录安全页（Safe Page）的点击",
+        "dontRecordSafeClicksHint": "路由到安全页的机器人、爬虫和审核人员将不会记录在数据库或广告报告中。",
         "moneyPage": "盈利页面（面向访客）",
         "moneyPageHint": "展示给真实访客。行为与落地页+offer 模式相同。"
     },

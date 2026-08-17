@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { X, GripVertical, ChevronUp, ChevronDown, Plus, Trash2, Search, SlidersHorizontal, Layers, Filter as FilterIcon, RotateCcw, Star, Pencil, Save } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
-// Exact 64 Keitaro Metrics List.
+// Exact 65 Keitaro-compatible Metrics List.
 // `label` — full description (columns modal, header tooltips);
 // `shortLabel` — compact table-header abbreviation (nowrap <th>).
 export const ALL_REPORT_METRICS = [
@@ -58,6 +58,7 @@ export const ALL_REPORT_METRICS = [
     { id: 'cpa', label: 'CPA — Cost per conversion', shortLabel: 'CPA' },
     { id: 'cpc', label: 'CPC — Cost per click', shortLabel: 'CPC' },
     { id: 'ucpc', label: 'uCPC — Cost per unique click', shortLabel: 'uCPC' },
+    { id: 'cpv', label: 'CPV — Cost per visit', shortLabel: 'CPV' },
     { id: 'ecpc', label: 'eCPC — Cost per 1000 clicks', shortLabel: 'eCPC' },
     { id: 'ecpm_all', label: 'eCPM (all) — Profit per 1k clicks', shortLabel: 'eCPM' },
     { id: 'ecpm_confirmed', label: 'eCPM (confirmed) — Profit per 1k clicks', shortLabel: 'eCPM (conf)' },

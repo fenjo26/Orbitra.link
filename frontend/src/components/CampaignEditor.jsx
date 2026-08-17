@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import GeoSelector from './GeoSelector';
 import HelpTooltip from './HelpTooltip';
 import { ArrowLeft, Plus, Check, Link, Copy, Settings, Trash2, ChevronDown, ChevronUp, AlertCircle, X, Shield, Globe, MousePointerClick, TrendingUp, Activity, BarChart2, BarChart3, DollarSign, RefreshCw, FileText, MoreVertical, Play, Code, Edit3, Eye, Info } from 'lucide-react';
@@ -12,7 +12,10 @@ import TrafficSourceEditor from './TrafficSourceEditor';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 import { cachedGet, cachedPost, invalidateCache } from '../utils/apiCache';
+import { getStayInEditorAfterSave } from '../utils/editorPreferences';
 import { buildSnippet, COUNTDOWN_THEMES, EXIT_BUTTON_COLORS, METHOD_INSTALL_HINTS } from '../utils/integrationSnippets';
+
+const CAMPAIGN_SUB_ID_KEYS = Array.from({ length: 30 }, (_, index) => `sub_id_${index + 1}`);
 
 /**
  * Keitaro-style split button: the main part opens the entity picker, the
@@ -277,6 +280,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         challenge_type: 'none',
         challenge_custom_code: ''
     });
+    const activeCampaignId = formData.id || campaignId;
 
     // Stream Expansion state
     const [expandedStream, setExpandedStream] = useState(null);
@@ -360,30 +364,92 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         { value: 'RevShare', label: t('costModels.revShare') }
     ];
 
-    // Available parameters
-    const availableParameters = [
-        { key: 'ad_id', label: t('parameters.adId', 'Ad ID') },
-        { key: 'adset_id', label: t('parameters.adsetId', 'Adset ID') },
-        { key: 'campaign_id', label: t('parameters.campaignId', 'Campaign ID') },
-        { key: 'ad_name', label: t('parameters.adName', 'Ad name') },
-        { key: 'adset_name', label: t('parameters.adsetName', 'Adset name') },
-        { key: 'campaign_name', label: t('parameters.campaignName', 'Campaign name') },
-        { key: 'site', label: t('parameters.site', 'Site') },
-        { key: 'ttclid', label: 'ttclid (TikTok)' },
-        { key: 'utm_source', label: 'utm_source' },
-        { key: 'utm_medium', label: 'utm_medium' },
-        { key: 'utm_campaign', label: 'utm_campaign' },
-        { key: 'utm_content', label: 'utm_content' },
-        { key: 'utm_term', label: 'utm_term' },
-        { key: 'keyword', label: t('parameters.keyword') },
-        { key: 'cost', label: t('parameters.cost') },
-        { key: 'currency', label: t('parameters.currency') },
-        { key: 'external_id', label: t('parameters.externalId') },
-        { key: 'creative_id', label: t('parameters.creativeId') },
-        { key: 'ad_campaign_id', label: t('parameters.adCampaignId') },
-        { key: 'source', label: t('parameters.source') },
-        ...Array.from({ length: 30 }, (_, i) => ({ key: 'sub_id_' + (i + 1), label: 'Sub ID ' + (i + 1) }))
-    ];
+    const activeSource = sources.find(source => source.id == formData.source_id);
+    const displayParameters = useMemo(() => {
+        const standardParameters = [
+            { key: 'utm_placement', label: t('parameters.placement', 'Placement (utm_placement)') },
+            { key: 'ad_id', label: t('parameters.adId', 'Ad ID') },
+            { key: 'adset_id', label: t('parameters.adsetId', 'Adset ID') },
+            { key: 'campaign_id', label: t('parameters.campaignId', 'Campaign ID') },
+            { key: 'ad_name', label: t('parameters.adName', 'Ad name') },
+            { key: 'adset_name', label: t('parameters.adsetName', 'Adset name') },
+            { key: 'campaign_name', label: t('parameters.campaignName', 'Campaign name') },
+            { key: 'source', label: t('parameters.source', 'Source') },
+            { key: 'site', label: t('parameters.site', 'Site') },
+            { key: 'keyword', label: t('parameters.keyword', 'Keyword') },
+            { key: 'cost', label: t('parameters.cost', 'Cost') },
+            { key: 'currency', label: t('parameters.currency', 'Currency') },
+            { key: 'external_id', label: t('parameters.externalId', 'External ID') },
+            { key: 'creative_id', label: t('parameters.creativeId', 'Creative ID') },
+            { key: 'ad_campaign_id', label: t('parameters.adCampaignId', 'Ad campaign ID') },
+            { key: 'ttclid', label: 'ttclid (TikTok)' },
+            { key: 'utm_source', label: 'utm_source' },
+            { key: 'utm_medium', label: 'utm_medium' },
+            { key: 'utm_campaign', label: 'utm_campaign' },
+            { key: 'utm_content', label: 'utm_content' },
+            { key: 'utm_term', label: 'utm_term' },
+        ];
+        const standardByKey = new Map(standardParameters.map(parameter => [parameter.key, parameter]));
+        const list = [];
+        const seenKeys = new Set();
+
+        if (activeSource && Array.isArray(activeSource.parameters)) {
+            activeSource.parameters.forEach(parameter => {
+                const key = String(parameter?.param || '').trim();
+                if (!key || seenKeys.has(key) || CAMPAIGN_SUB_ID_KEYS.includes(key)) return;
+                seenKeys.add(key);
+                list.push({
+                    key,
+                    label: standardByKey.get(key)?.label || parameter.alias || key,
+                    isFromSource: true,
+                    isCustom: false,
+                });
+            });
+        }
+
+        Object.keys(formData.parameters || {}).forEach(key => {
+            if (seenKeys.has(key) || CAMPAIGN_SUB_ID_KEYS.includes(key)) return;
+            const standard = standardByKey.get(key);
+            seenKeys.add(key);
+            list.push({
+                key,
+                label: standard?.label || key,
+                isFromSource: false,
+                isCustom: !standard,
+            });
+        });
+
+        standardParameters.forEach(parameter => {
+            if (seenKeys.has(parameter.key)) return;
+            seenKeys.add(parameter.key);
+            list.push({ ...parameter, isFromSource: false, isCustom: false });
+        });
+
+        return list;
+    }, [activeSource, formData.parameters, t]);
+
+    const addCustomParameter = () => {
+        const rawKey = window.prompt(t('parameters.enterParamKey', 'Enter parameter key (e.g. utm_placement, placement, custom_id):'));
+        if (!rawKey) return;
+        const cleanKey = rawKey.trim().replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 100);
+        if (!cleanKey) return;
+
+        setFormData(prev => {
+            if (Object.prototype.hasOwnProperty.call(prev.parameters || {}, cleanKey)) return prev;
+            return {
+                ...prev,
+                parameters: { ...(prev.parameters || {}), [cleanKey]: '' }
+            };
+        });
+    };
+
+    const clearParameter = (key) => {
+        setFormData(prev => {
+            const parameters = { ...(prev.parameters || {}) };
+            delete parameters[key];
+            return { ...prev, parameters };
+        });
+    };
 
     // Pixel platforms
     const pixelPlatforms = [
@@ -443,8 +509,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
     // Called after a source created from the editor's "+" button is saved:
     // refresh the list and select the new source with its parameters applied.
-    const handleSourceCreated = async (saved) => {
-        setShowSourceEditor(false);
+    const handleSourceCreated = async (saved, shouldClose = true) => {
+        if (shouldClose) setShowSourceEditor(false);
         invalidateCache('traffic_sources');
         try {
             const res = await cachedGet('traffic_sources', {}, 300000);
@@ -540,9 +606,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
     // Fetch click logs
     const fetchClickLogs = async () => {
-        if (!campaignId) return;
+        if (!activeCampaignId) return;
         try {
-            const { data } = await cachedGet('campaign_logs', { campaign_id: campaignId });
+            const { data } = await cachedGet('campaign_logs', { campaign_id: activeCampaignId });
             if (data.status === 'success') {
                 setClickLogs(data.data);
             }
@@ -653,7 +719,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     // Cost Sync (campaign's Integrations tab): the spend connections that can
     // feed this campaign + whether its clicks carry the IDs they match on.
     useEffect(() => {
-        if (!campaignId) return;
+        if (!activeCampaignId) return;
         axios.get('/api.php?action=aggregator_connections')
             .then(res => {
                 if (res.data.status === 'success') {
@@ -661,10 +727,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 }
             })
             .catch(() => {});
-        cachedGet('campaign_cost_match', { campaign_id: campaignId }, 60000)
+        cachedGet('campaign_cost_match', { campaign_id: activeCampaignId }, 60000)
             .then(({ data }) => { if (data.status === 'success') setCostMatch(data.data); })
             .catch(() => {});
-    }, [campaignId]);
+    }, [activeCampaignId]);
 
     // Manual 7-day spend pull for one connection — the same action the
     // Integrations page's "Update spend" button runs.
@@ -679,7 +745,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 const d = res.data.data || {};
                 setSyncResult(`✓ ${t('costSync.synced', 'Synced')}: fetched ${d.fetched ?? 0}, matched ${d.matched ?? 0}, new ${d.new ?? 0}`);
                 invalidateCache('campaign_cost_match');
-                cachedGet('campaign_cost_match', { campaign_id: campaignId }, 60000)
+                cachedGet('campaign_cost_match', { campaign_id: activeCampaignId }, 60000)
                     .then(({ data }) => { if (data.status === 'success') setCostMatch(data.data); })
                     .catch(() => {});
             } else {
@@ -715,14 +781,14 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     };
 
     const fetchPixels = async () => {
-        if (!campaignId) return;
+        if (!activeCampaignId) return;
         try {
-            const { data } = await cachedGet('campaign_pixels', { campaign_id: campaignId });
+            const { data } = await cachedGet('campaign_pixels', { campaign_id: activeCampaignId });
             if (data.status === 'success') setPixels(data.data || []);
         } catch (err) { console.error(err); }
     };
 
-    useEffect(() => { if (campaignId) fetchPixels(); }, [campaignId]);
+    useEffect(() => { if (activeCampaignId) fetchPixels(); }, [activeCampaignId]);
 
     // Status→event map and the Meta event list come from the backend so the two
     // cannot drift: FacebookConversions.php is the single source of truth.
@@ -759,7 +825,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         try {
             const { data } = await cachedPost('facebook_capi_test', {
                 id: pixelForm.id,
-                campaign_id: campaignId,
+                campaign_id: activeCampaignId,
                 pixel_id: pixelForm.pixel_id,
                 token: pixelForm.token,
                 test_event_code: pixelForm.test_event_code,
@@ -775,7 +841,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         }
     };
 
-    const handleSave = async () => {
+    const handleSave = async (forceClose = false) => {
+        if (loading || saveSuccess) return;
         if (!formData.name || !formData.alias) {
             alert(t('editor.fillNameAndAlias'));
             return;
@@ -788,10 +855,22 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             delete payload.token;
             const res = await cachedPost('save_campaign', payload);
             if (res.data.status === 'success') {
+                const saved = res.data.data || {};
+                const nextFormData = {
+                    ...formData,
+                    id: saved.id || formData.id || campaignId,
+                    token: saved.token || formData.token,
+                    rotation_type: saved.rotation_type || formData.rotation_type
+                };
+                setFormData(nextFormData);
+                baselineRef.current = JSON.stringify(nextFormData);
+                setIsDirty(false);
                 setSaveSuccess(true);
                 setTimeout(() => {
                     setSaveSuccess(false);
-                    closeEditor(true);
+                    if (forceClose || !getStayInEditorAfterSave()) {
+                        closeEditor(true);
+                    }
                 }, 1000);
             } else {
                 alert(`${t('common.error')}: ${res.data.message}`);
@@ -847,7 +926,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     };
 
     const regenerateToken = async () => {
-        const id = formData.id || campaignId;
+        const id = activeCampaignId;
         if (!id) return;
         if (!window.confirm(t('editor.regenerateTokenConfirm'))) return;
         try {
@@ -870,10 +949,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     };
 
     const clearStats = async () => {
-        if (!campaignId) return;
+        if (!activeCampaignId) return;
         if (!window.confirm(t('campaigns.clearStatsWarning'))) return;
         try {
-            const res = await cachedPost('clear_campaign_stats', { campaign_id: campaignId });
+            const res = await cachedPost('clear_campaign_stats', { campaign_id: activeCampaignId });
             if (res.data.status === 'success') {
                 alert(t('editor.saved'));
                 setShowClearModal(false);
@@ -896,12 +975,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     };
 
     const runTrafficSimulation = async () => {
-        if (!campaignId) return;
+        if (!activeCampaignId) return;
         setTrafficSimLoading(true);
         setTrafficSimResult(null);
         try {
             const res = await cachedPost('simulate_traffic', {
-                campaign_id: campaignId,
+                campaign_id: activeCampaignId,
                 ...trafficSimForm
             });
             setTrafficSimResult(res.data);
@@ -920,6 +999,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             name: t('editor.newStream'),
             position: formData.streams.length + 1,
             is_active: 1,
+            collect_clicks: 1,
             schema_type: 'redirect',
             offer_id: 0,
             action_payload: '',
@@ -1306,7 +1386,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             <ArrowLeft className="w-5 h-5" />
                         </button>
                         <h2 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
-                            {campaignId ? `${t('editor.campaign')}: ${formData.name}` : t('editor.createCampaign')}
+                            {activeCampaignId ? `${t('editor.campaign')}: ${formData.name}` : t('editor.createCampaign')}
                         </h2>
                         {formData.alias && (
                             <span className="text-sm font-mono px-2 py-1 rounded-lg" style={{ color: 'var(--color-text-muted)', backgroundColor: 'var(--color-bg-hover)' }}>
@@ -1316,10 +1396,20 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     </div>
 
                     <div className="flex items-center space-x-2">
+                        <button
+                            type="button"
+                            onClick={() => handleSave(true)}
+                            disabled={loading || saveSuccess}
+                            className="btn btn-secondary"
+                        >
+                            {t('profile.saveAndClose')}
+                        </button>
+
                         {/* Save button */}
                         <button
-                            onClick={handleSave}
-                            disabled={loading}
+                            type="button"
+                            onClick={() => handleSave(false)}
+                            disabled={loading || saveSuccess}
                             className="btn btn-primary"
                             style={saveSuccess ? { backgroundColor: 'var(--color-success)' } : {}}
                         >
@@ -1526,7 +1616,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                 type="button"
                                                                 className="btn btn-secondary btn-icon"
                                                                 onClick={regenerateToken}
-                                                                disabled={tokenBusy || !(formData.id || campaignId)}
+                                                                disabled={tokenBusy || !activeCampaignId}
                                                                 title={t('editor.regenerateToken') || t('common.refresh')}
                                                             >
                                                                 <RefreshCw className={`w-4 h-4 ${tokenBusy ? 'animate-spin' : ''}`} />
@@ -1789,24 +1879,97 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
                                     {/* Parameters Tab */}
                                     {activeTab === 'params' && (
-                                        <div className="space-y-2">
-                                            <p className="text-xs mb-4" style={{ color: 'var(--color-text-secondary)' }}>{t('editor.setupParams')}</p>
-                                            {availableParameters.map(param => (
-                                                <div key={param.key} className="flex items-center gap-2">
-                                                    <span className="w-24 text-xs truncate" style={{ color: 'var(--color-text-secondary)' }}>{param.label}</span>
-                                                    <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{param.key}</span>
-                                                    <input
-                                                        type="text"
-                                                        placeholder="="
-                                                        value={formData.parameters[param.key] || ''}
-                                                        onChange={e => setFormData({
-                                                            ...formData,
-                                                            parameters: { ...formData.parameters, [param.key]: e.target.value }
-                                                        })}
-                                                        className="form-input text-xs"
-                                                    />
+                                        <div className="space-y-4">
+                                            <div className="flex flex-wrap items-start justify-between gap-3">
+                                                <div>
+                                                    <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>{t('editor.setupParams')}</p>
+                                                    {activeSource && (
+                                                        <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
+                                                            {t('editor.trafficSource')}: <span style={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>{activeSource.name}</span>
+                                                        </p>
+                                                    )}
                                                 </div>
-                                            ))}
+                                                <button
+                                                    type="button"
+                                                    onClick={addCustomParameter}
+                                                    className="btn btn-secondary text-xs py-1 px-2.5 rounded-xl font-medium"
+                                                >
+                                                    <Plus className="w-3.5 h-3.5" />
+                                                    {t('parameters.addParam', 'Add Parameter')}
+                                                </button>
+                                            </div>
+
+                                            <div className="hidden sm:grid grid-cols-12 gap-2 px-2 text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--color-text-muted)' }}>
+                                                <span className="col-span-3">{t('sourceEditor.alias')}</span>
+                                                <span className="col-span-3">{t('sourceEditor.param')}</span>
+                                                <span className="col-span-6">{t('sourceEditor.sourceMacro')}</span>
+                                            </div>
+
+                                            <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
+                                                {displayParameters.map(param => {
+                                                    const hasMapping = Object.prototype.hasOwnProperty.call(formData.parameters || {}, param.key);
+                                                    return (
+                                                        <div key={param.key} className="grid grid-cols-1 sm:grid-cols-12 items-center gap-2 p-2 rounded-xl transition-colors" style={{ backgroundColor: 'var(--color-bg-soft)' }}>
+                                                            <span className="sm:col-span-3 text-xs font-medium truncate" style={{ color: 'var(--color-text-primary)' }} title={param.label}>
+                                                                {param.label}
+                                                            </span>
+                                                            <code className="sm:col-span-3 text-xs px-2 py-1 rounded-lg border truncate" style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }} title={param.key}>
+                                                                {param.key}
+                                                            </code>
+                                                            <div className="sm:col-span-6 flex items-center gap-2 min-w-0">
+                                                                <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>=</span>
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="{{macro}} or {keyword}"
+                                                                    value={formData.parameters?.[param.key] ?? ''}
+                                                                    onChange={event => setFormData(prev => ({
+                                                                        ...prev,
+                                                                        parameters: { ...(prev.parameters || {}), [param.key]: event.target.value }
+                                                                    }))}
+                                                                    className="form-input text-xs font-mono flex-1 min-w-0 py-1.5 rounded-xl"
+                                                                />
+                                                                {hasMapping && (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => clearParameter(param.key)}
+                                                                        className="btn btn-ghost btn-icon btn-sm flex-shrink-0"
+                                                                        title={t('common.clear')}
+                                                                        aria-label={`${t('common.clear')}: ${param.key}`}
+                                                                    >
+                                                                        <X className="w-3.5 h-3.5" />
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+
+                                            <details
+                                                className="pt-3"
+                                                style={{ borderTop: '1px solid var(--color-border)' }}
+                                            >
+                                                <summary className="text-xs font-semibold cursor-pointer select-none" style={{ color: 'var(--color-text-secondary)' }}>
+                                                    {t('parameters.additionalSubIds', 'Sub IDs (sub_id_1 .. sub_id_30)')}
+                                                </summary>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-3 max-h-60 overflow-y-auto pr-1">
+                                                    {CAMPAIGN_SUB_ID_KEYS.map(subKey => (
+                                                        <div key={subKey} className="flex items-center gap-2">
+                                                            <code className="text-xs w-20 flex-shrink-0" style={{ color: 'var(--color-text-muted)' }}>{subKey}</code>
+                                                            <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>=</span>
+                                                            <input
+                                                                type="text"
+                                                                value={formData.parameters?.[subKey] ?? ''}
+                                                                onChange={event => setFormData(prev => ({
+                                                                    ...prev,
+                                                                    parameters: { ...(prev.parameters || {}), [subKey]: event.target.value }
+                                                                }))}
+                                                                className="form-input text-xs font-mono py-1 rounded-lg flex-1 min-w-0"
+                                                            />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </details>
                                         </div>
                                     )}
 
@@ -1920,7 +2083,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                         Dolphin / Fbtool — {t('costSync.pushHint', 'cost push URL for this campaign (API key: Users page, write permissions)')}
                                                     </div>
                                                     <code className="text-xs" style={{ color: 'var(--color-text-secondary)', wordBreak: 'break-all' }}>
-                                                        POST {trackerUrl}/admin_api/v1/campaigns/{formData.id || campaignId}/update_costs
+                                                        POST {trackerUrl}/admin_api/v1/campaigns/{activeCampaignId}/update_costs
                                                     </code>
                                                 </div>
                                             </div>
@@ -2101,7 +2264,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                     if (!pixelForm.pixel_id) return;
                                                                     try {
                                                                         await cachedPost('save_campaign_pixel', {
-                                                                            campaign_id: campaignId,
+                                                                            campaign_id: activeCampaignId,
                                                                             ...pixelForm,
                                                                             mapping_json: JSON.stringify(pixelForm.mapping || {}),
                                                                         });
@@ -2650,6 +2813,19 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                         />
                                                         {t('editor.on')}
                                                     </label>
+                                                    <label
+                                                        className="flex items-center gap-2 text-sm cursor-pointer"
+                                                        style={{ color: (stream.collect_clicks ?? 1) == 1 ? 'var(--color-text-primary)' : 'var(--color-text-muted)' }}
+                                                        title={t('editor.collectClicksHint')}
+                                                    >
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={(stream.collect_clicks ?? 1) == 1}
+                                                            onChange={e => updateStream(idx, 'collect_clicks', e.target.checked ? 1 : 0)}
+                                                            className="rounded"
+                                                        />
+                                                        {t('editor.collectClicks')}
+                                                    </label>
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     <button
@@ -2687,6 +2863,17 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                             </div>
 
                                             <div className="p-4 space-y-4">
+                                                {(stream.collect_clicks ?? 1) == 0 && (
+                                                    <div className="rounded-2xl px-3 py-2 flex items-center gap-2" style={{
+                                                        backgroundColor: 'color-mix(in srgb, var(--color-warning, #f59e0b) 10%, transparent)',
+                                                        border: '1px solid var(--color-warning, #f59e0b)'
+                                                    }}>
+                                                        <span className="text-sm" style={{ color: 'var(--color-warning, #f59e0b)' }}>ℹ️</span>
+                                                        <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                                                            {t('editor.collectClicksDisabledNote')}
+                                                        </span>
+                                                    </div>
+                                                )}
                                                 {/* Stream Weight (only relevant for regular streams and only when campaign rotation is weighted) */}
                                                 {formData.rotation_type === 'weight' && stream.type === 'regular' && (
                                                     <div className="rounded-2xl p-3" style={{ border: '1px solid var(--color-border)', backgroundColor: 'rgba(59, 130, 246, 0.05)' }}>
@@ -2783,7 +2970,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                 >
                                                                     <option value="">{t('editor.selectCampaign')}</option>
                                                                     {allCampaigns
-                                                                        .filter(c => String(c.id) !== String(formData.id || campaignId || ''))
+                                                                        .filter(c => String(c.id) !== String(activeCampaignId || ''))
                                                                         .map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                                                                 </select>
                                                             )}
@@ -2977,7 +3164,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                     />
                                                                 </div>
 
-                                                                {/* Device types — the tracker's device model is Mobile/Desktop */}
+                                                                {/* Canonical device groups shared by routing and cloaking */}
                                                                 <div>
                                                                     <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
                                                                         <label className="text-xs font-semibold" style={{ color: 'var(--color-text-secondary)' }}>
@@ -2999,11 +3186,15 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                             ))}
                                                                         </div>
                                                                     </div>
-                                                                    <div className="grid grid-cols-2 gap-2">
-                                                                        {['mobile', 'desktop'].map(dev => {
+                                                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                                                        {[
+                                                                            { id: 'mobile', label: t('streams.mobile', 'Mobile') },
+                                                                            { id: 'tablet', label: t('streams.tablet', 'Tablet') },
+                                                                            { id: 'desktop', label: t('streams.desktop', 'Desktop') }
+                                                                        ].map(({ id: dev, label }) => {
                                                                             const currentDevs = typeof sc.devices === 'string' && sc.devices.trim() !== ''
                                                                                 ? sc.devices.split(',').map(d => d.trim().toLowerCase()).filter(Boolean)
-                                                                                : ['mobile', 'desktop'];
+                                                                                : ['mobile', 'tablet', 'desktop'];
                                                                             const isSelected = currentDevs.includes(dev);
                                                                             return (
                                                                                 <label
@@ -3027,7 +3218,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                                         className="w-3.5 h-3.5 rounded"
                                                                                         style={{ accentColor: 'var(--color-primary)' }}
                                                                                     />
-                                                                                    <span className="capitalize">{dev}</span>
+                                                                                    <span>{label}</span>
                                                                                 </label>
                                                                             );
                                                                         })}
@@ -3134,6 +3325,26 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                         />
                                                                     </div>
                                                                 )}
+
+                                                                <div className="pt-2" style={{ borderTop: '1px solid var(--color-border)' }}>
+                                                                    <label className="flex items-start gap-2 cursor-pointer select-none">
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            checked={sc.dont_record_safe_clicks !== false}
+                                                                            onChange={e => setCloakField('dont_record_safe_clicks', e.target.checked)}
+                                                                            className="w-4 h-4 rounded mt-0.5"
+                                                                            style={{ accentColor: 'var(--color-primary)' }}
+                                                                        />
+                                                                        <span>
+                                                                            <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                                                                                🚫 {t('cloaking.dontRecordSafeClicks', 'Do not record clicks for Safe Page')}
+                                                                            </span>
+                                                                            <span className="block text-[11px]" style={{ color: 'var(--color-text-muted)', lineHeight: 1.4 }}>
+                                                                                {t('cloaking.dontRecordSafeClicksHint', 'Bots, crawlers, and reviewers routed to the Safe Page will not be saved in database logs or counted in campaign reports.')}
+                                                                            </span>
+                                                                        </span>
+                                                                    </label>
+                                                                </div>
                                                             </div>
 
                                                             {/* Money Page Section */}
@@ -3665,15 +3876,15 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 </div>
             )}
 
-            {showReports && campaignId && (
+            {showReports && activeCampaignId && (
                 <CampaignReports
-                    campaignId={campaignId}
+                    campaignId={activeCampaignId}
                     campaignName={formData.name}
                     onClose={() => setShowReports(false)}
                 />
             )}
 
-            {showConversionsLog && campaignId && (
+            {showConversionsLog && activeCampaignId && (
                 <div className="modal-overlay" style={{ zIndex: 1100, top: '88px', height: 'calc(100vh - 88px)' }}>
                     <div className="modal-content" style={{ maxWidth: '1200px', maxHeight: '100%', overflow: 'auto' }}>
                         <div className="flex items-center justify-between mb-4">
@@ -3683,7 +3894,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             </button>
                         </div>
                         <ConversionsLog
-                            campaignId={campaignId}
+                            campaignId={activeCampaignId}
                             onClose={() => setShowConversionsLog(false)}
                         />
                     </div>

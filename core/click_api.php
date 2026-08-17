@@ -11,6 +11,7 @@
 // This intentionally does NOT attempt to fully implement Keitaro's uniqueness_cookie flow yet.
 
 require_once __DIR__ . '/geo_databases.php';
+require_once __DIR__ . '/Device.php';
 require_once __DIR__ . '/CloakDetector.php';
 require_once __DIR__ . '/StreamFilters.php';
 
@@ -146,11 +147,7 @@ function orbitraClickApiExtractLanguageCodes(string $headerValue): array
 
 function orbitraClickApiGetDeviceType(string $ua): string
 {
-    $mobileAgents = '/(android|bb\\d+|meego).+mobile|avantgo|bada\\/+|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\\/+|plucker|pocket|psp|series(4|6)0|symbian|treo|up\\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i';
-    if (preg_match($mobileAgents, strtolower($ua))) {
-        return 'Mobile';
-    }
-    return 'Desktop';
+    return orbitraDetectDeviceType($ua);
 }
 
 function orbitraClickApiNormalizeGeoString($value, string $default = ''): string
@@ -405,7 +402,7 @@ function orbitraClickApiStreamMatchesFilters(array $stream, string $ip, string $
                 $matched = in_array($country, $payload, true);
                 break;
             case 'Device':
-                $matched = in_array($deviceType, $payload, true);
+                $matched = orbitraDeviceGroupMatches($deviceType, $payload);
                 break;
             case 'Language':
                 $normalizedPayload = [];
@@ -612,15 +609,108 @@ function orbitraClickApiV3(PDO $pdo): void
     $landingType = null;
     $landingUrl = null;
     $landingAction = null;
+    $landingActionType = '';
     $offerUrl = null;
     $finalUrl = null;
+    $skipClickLogging = false;
     // Action landing (Keitaro «Показать как HTML/текст»): the stream's content —
     // a banner, a text block — is delivered as the response body for the client
     // (banner.js / KClient JS/PHP) to inject into the site, instead of a redirect.
     $actionBody = null;
     $actionContentType = 'text/html; charset=utf-8';
 
-    if ($schemaType === 'landing_offer') {
+    $routeSchemaType = $schemaType;
+    if ($schemaType === 'cloak') {
+        $cloakConfig = [
+            'detect_datacenter' => $customSchema['detect_datacenter'] ?? true,
+            'detect_vpn' => $customSchema['detect_vpn'] ?? true,
+            'detect_bots' => $customSchema['detect_bots'] ?? true,
+            'detect_ua' => $customSchema['detect_ua'] ?? true,
+            'sensitivity' => $customSchema['sensitivity'] ?? 'medium',
+        ];
+        $cloakVisitor = [
+            'ip' => $ip,
+            'user_agent' => $userAgent,
+            'asn' => $geoData['asn'] ?? '',
+            'isp' => $geoData['isp'] ?? '',
+            'is_proxy' => $geoData['is_proxy'] ?? 0,
+            'proxy_type' => $geoData['proxy_type'] ?? '',
+            'proxy_threat' => $geoData['proxy_threat'] ?? '',
+            'proxy_provider' => $geoData['proxy_provider'] ?? '',
+            'proxy_fraud_score' => $geoData['proxy_fraud_score'] ?? null,
+            'accept_language' => $acceptLanguageRaw,
+            'pdo' => $pdo,
+        ];
+        $verdict = CloakDetector::detect($cloakVisitor, $cloakConfig);
+        $cloakShowSafe = (bool) ($verdict['is_suspicious'] ?? false);
+
+        if (!$cloakShowSafe) {
+            $targetingReasons = CloakDetector::targetingReasons(
+                $customSchema,
+                $country,
+                $deviceType,
+                ($geoData['isp'] ?? '') . ' ' . ($geoData['asn'] ?? ''),
+                (string) ($settings['bot_isp_list'] ?? '')
+            );
+            $cloakShowSafe = !empty($targetingReasons);
+        }
+
+        if (!$cloakShowSafe
+            && filter_var($customSchema['js_challenge'] ?? false, FILTER_VALIDATE_BOOL)
+            && (string) ($_GET['_ocjf'] ?? '') === 'webdriver') {
+            $cloakShowSafe = true;
+        }
+
+        $skipClickLogging = CloakDetector::shouldSkipSafePageClick($customSchema, $cloakShowSafe);
+        $routeSchemaType = $cloakShowSafe ? 'cloak_safe' : 'landing_offer';
+        if ($wantLog) {
+            $log[] = $cloakShowSafe
+                ? 'Cloak decision: Safe Page' . ($skipClickLogging ? ' (click logging skipped)' : '')
+                : 'Cloak decision: Money Page';
+        }
+    }
+
+    if ($routeSchemaType === 'cloak_safe') {
+        $safeLandingId = (int) ($customSchema['safe_landing_id'] ?? 0);
+        $safeMode = (string) ($customSchema['safe_mode'] ?? '');
+        if (!in_array($safeMode, ['landing', 'url', 'html'], true)) {
+            $safeMode = $safeLandingId > 0
+                ? 'landing'
+                : (!empty($customSchema['safe_url']) ? 'url' : 'html');
+        }
+
+        if ($safeMode === 'landing' && $safeLandingId > 0) {
+            $stmtL = $pdo->prepare("SELECT type, url, action_payload, action_type, slug FROM landings WHERE id = ?");
+            $stmtL->execute([$safeLandingId]);
+            $land = $stmtL->fetch(PDO::FETCH_ASSOC);
+            if ($land) {
+                $landingIdToLog = $safeLandingId;
+                $landingType = $land['type'] ?? null;
+                $landingUrl = $land['url'] ?? null;
+                $landingAction = $land['action_payload'] ?? null;
+                $landingActionType = (string) ($land['action_type'] ?? '');
+                if (in_array($landingType, ['redirect', 'preload'], true) && $landingUrl) {
+                    $finalUrl = $landingUrl;
+                } elseif ($landingType === 'local' && !empty($land['slug'])) {
+                    $finalUrl = '/lander/' . rawurlencode((string) $land['slug']) . '/';
+                } elseif ($landingType === 'action'
+                    && in_array($landingActionType, ['show_html', 'show_text'], true)) {
+                    $actionBody = (string) $landingAction;
+                    $actionContentType = $landingActionType === 'show_text'
+                        ? 'text/plain; charset=utf-8'
+                        : 'text/html; charset=utf-8';
+                }
+            } else {
+                $actionBody = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Welcome</title></head><body><h1>Page</h1><p>Content is loading.</p></body></html>';
+            }
+        } elseif ($safeMode === 'url' && !empty($customSchema['safe_url'])) {
+            $finalUrl = (string) $customSchema['safe_url'];
+        } else {
+            $actionBody = !empty($customSchema['safe_html'])
+                ? (string) $customSchema['safe_html']
+                : '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Welcome</title></head><body><h1>Page</h1><p>Content is loading.</p></body></html>';
+        }
+    } elseif ($routeSchemaType === 'landing_offer') {
         $pickedLanding = orbitraClickApiSelectWeightedItem($customSchema['landings'] ?? []);
         $pickedOffer = orbitraClickApiSelectWeightedItem($customSchema['offers'] ?? []);
         if ($pickedLanding) $landingIdToLog = (int) ($pickedLanding['id'] ?? 0) ?: null;
@@ -665,7 +755,7 @@ function orbitraClickApiV3(PDO $pdo): void
         } else if ($offerUrl) {
             $finalUrl = $offerUrl;
         }
-    } else if ($schemaType === 'action') {
+    } else if ($routeSchemaType === 'action') {
         // Click API cannot "render" local/preload/action streams reliably.
         $finalUrl = null;
     } else {
@@ -688,10 +778,16 @@ function orbitraClickApiV3(PDO $pdo): void
         }
     }
 
+    // Stream-level "Collect clicks" (see index.php): a no-collect stream is
+    // answered without a clicks row — the returned URL carries a sub_id that
+    // will not resolve, by design.
+    $streamCollectsClicks = !$selectedStream || (int) ($selectedStream['collect_clicks'] ?? 1) === 1;
+
     // Log click (if stats are enabled; a prefetch hit is answered but skipped).
     $statsEnabled = ($settings['stats_enabled'] ?? '1') !== '0';
-    if ($statsEnabled && !$prefetchSkipClick) {
+    if ($statsEnabled && !$prefetchSkipClick && !$skipClickLogging && $streamCollectsClicks) {
         try {
+            $offerIdForDb = $offerIdToLog > 0 ? $offerIdToLog : null;
             $insertStmt = $pdo->prepare("
                 INSERT INTO clicks
                 (
@@ -704,7 +800,7 @@ function orbitraClickApiV3(PDO $pdo): void
             $insertStmt->execute([
                 $clickId,
                 $campaignId,
-                $offerIdToLog,
+                $offerIdForDb,
                 $streamId,
                 $campaign['source_id'] ?? null,
                 $landingIdToLog,

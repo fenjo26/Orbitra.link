@@ -51,7 +51,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 23;
+    $LATEST_SCHEMA_VERSION = 24;
 
     $schemaVersion = 0;
     try {
@@ -289,6 +289,7 @@ try {
         action_payload TEXT,
         schema_custom_json TEXT,
         offer_selection TEXT DEFAULT 'before',
+        collect_clicks INTEGER DEFAULT 1,                   -- 0: serve the stream without a clicks row (no stats, no sub_id)
         FOREIGN KEY (campaign_id) REFERENCES campaigns(id) ON DELETE CASCADE,
         FOREIGN KEY (offer_id) REFERENCES offers(id) ON DELETE SET NULL
     );
@@ -1454,6 +1455,19 @@ try {
                         }
                     } catch (\Throwable $e2) {}
                     try { $pdo->exec("PRAGMA foreign_keys = ON"); } catch (\Throwable $e2) {}
+                }
+            }
+
+            if ($schemaVersion < 24) {
+                // Migration 24: stream-level "Collect clicks". A stream with
+                // collect_clicks=0 still serves its destination, but the visit
+                // is never inserted into clicks — white-page fallbacks stop
+                // polluting CR/CPA. Default 1 keeps every existing stream
+                // counted exactly as before.
+                try {
+                    $pdo->exec("ALTER TABLE streams ADD COLUMN collect_clicks INTEGER DEFAULT 1");
+                } catch (\Throwable $e) {
+                    // Column already present on a half-migrated DB.
                 }
             }
 

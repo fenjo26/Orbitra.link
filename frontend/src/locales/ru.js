@@ -1,8 +1,8 @@
 export default {
     "streams": {
-        "desktop": "Компьютер",
-        "mobile": "Телефон",
-        "tablet": "Планшет"
+        "desktop": "Десктоп",
+        "mobile": "Мобильные",
+        "tablet": "Планшеты"
     },
     "parameters": {
         "adId": "ID объявления",
@@ -18,10 +18,15 @@ export default {
         "externalId": "Внешний ID",
         "creativeId": "ID креатива",
         "adCampaignId": "ID рекламной кампании",
-        "source": "Источник"
+        "source": "Источник",
+        "enterParamKey": "Введите ключ параметра (например, utm_placement, placement, custom_id):",
+        "addParam": "Добавить параметр",
+        "additionalSubIds": "Дополнительные Sub ID (sub_id_1 .. sub_id_30)",
+        "placement": "Плейсмент (utm_placement)"
     },
     "costModels": {
         "cpc": "CPC — оплата за клик",
+        "cpv": "CPV — стоимость за визит",
         "cpuc": "CPuC — оплата за уникальный клик",
         "cpm": "CPM — оплата за 1000 показов",
         "cpa": "CPA — оплата за действие",
@@ -294,7 +299,10 @@ export default {
         "confirmPassword": "Подтверждение пароля",
         "confirmPasswordPlaceholder": "Повторите новый пароль",
         "passwordsNotMatch": "Пароли не совпадают",
-        "saveSuccess": "Настройки успешно сохранены"
+        "saveSuccess": "Настройки успешно сохранены",
+        "stayInEditorAfterSave": "Оставаться в редакторе после сохранения",
+        "stayInEditorHint": "Не закрывать кампании, лендинги и офферы после нажатия кнопки «Сохранить».",
+        "saveAndClose": "Сохранить и закрыть"
     },
     "setup": {
         "title": "Первоначальная настройка",
@@ -377,6 +385,9 @@ export default {
         "recentClicksLog": "Последние Клики (Логи)",
         "colDirection": "Направление",
         "noLogs": "Нет логов",
+        "showMoreLogs": "Показать больше (+10)",
+        "showLess": "Свернуть",
+        "last10Logs": "Последние 10 кликов (нажмите, чтобы развернуть)",
         "viewFullLogs": "Смотреть полные логи"
     },
     "metrics": {
@@ -388,6 +399,7 @@ export default {
         "profit": "Прибыль",
         "roi": "ROI",
         "cpc": "CPC",
+        "cpv": "CPV — стоимость за визит",
         "cpa": "CPA",
         "ctr": "CTR",
         "visits": "Визиты",
@@ -423,6 +435,9 @@ export default {
         "copyErrors": "Ошибок"
     },
     "editor": {
+        "collectClicks": "Собирать клики",
+        "collectClicksHint": "Записывать клики в статистику и отчеты для этого потока. Выключено: посетитель всё равно получает направление, но строка клика не пишется — конверсии с этого потока не к чему привязать.",
+        "collectClicksDisabledNote": "Клики для этого потока не записываются в статистику",
         "showText": "Показать текст / пусто",
         "toCampaign": "Отправить в кампанию",
         "selectCampaign": "— выберите кампанию —",
@@ -643,6 +658,13 @@ export default {
         "step4": "Убедитесь, что subid передается в оффер через \"Параметры оффера\"",
         "step5": "Проверьте получение конверсий во вкладке \"Конверсии\"",
         "examplePostback": "Пример Postback URL"
+    },
+    "affiliateNetworks": {
+        "postbackUrl": "Postback URL",
+        "offerParams": "Параметры оффера",
+        "useNetworkTemplate": "Шаблон партнерки",
+        "useGenericTemplate": "Стандартный Postback",
+        "resetToTemplate": "Сбросить к шаблону сети"
     },
     "components": {
         "aliasName": "Алиас/Название",
@@ -1789,7 +1811,51 @@ export default {
         "system": "Система",
         "privacy": "Приватность"
     },
+    "table": {
+        "copyLink": "Копировать ссылку",
+        "duplicate": "Дублировать",
+        "perPage": "На странице",
+        "prev": "Назад",
+        "next": "Вперёд",
+        "all": "Все",
+        "total": "ИТОГО",
+        "name": "Название",
+        "group": "Группа",
+        "actions": "Действия",
+        "selectAll": "Выбрать все строки",
+    },
+
+    "extension": {
+        "title": "Оверлей Orbitra для Ads Manager",
+        "last3Days": "Последние 3 дня",
+        "last4Days": "Последние 4 дня",
+        "today": "Сегодня",
+        "yesterday": "Вчера",
+        "overview": "Обзор",
+        "dailyHistory": "История по дням",
+        "landingsAndOffers": "Лендинги и Офферы",
+        "pixelAccuracy": "Точность Pixel и CAPI",
+        "winner": "ТОП / WINNER",
+        "spend": "Расход",
+        "revenue": "Доход",
+        "profit": "Прибыль",
+        "roi": "ROI",
+        "cpa": "CPA",
+        "cpl": "CPL",
+        "cps": "CPS",
+    },
+
     "automation": {
+        "status": "Статус",
+        "active": "Активно",
+        "paused": "Приостановлено",
+        "clickToPause": "Нажмите, чтобы остановить",
+        "clickToResume": "Нажмите, чтобы запустить",
+        "statusUpdated": "Статус успешно обновлен",
+        "statusUpdateError": "Не удалось обновить статус в рекламной сети",
+        "noConnection": "API-подключение Facebook не найдено — сначала подключите рекламный кабинет в импорте расходов",
+        "unsupportedNetwork": "Эта рекламная сеть пока не поддерживается",
+        "invalidId": "Неверный id сущности",
         "title": "Cron и автоматические задачи",
         "backorderCronTitle": "Backorder: автоматическая проверка доменов",
         "backorderCronDesc": "Проверка доступности доменов запускается отдельным cron-скриптом и обрабатывает 1 домен за запуск. Здесь можно включить/выключить выполнение и получить готовую команду.",
@@ -2027,6 +2093,15 @@ export default {
         "groupSites": "Сайты и лендинги",
         "groupTools": "Инструменты",
         "groupOther": "Другое",
+        "chromeExtension": "Расширение Chrome и Антидетект",
+        "chromeExtDesc": "Отображение статистики трекера в реальном времени прямо в Facebook Ads Manager внутри AdsPower, Dolphin{anty} и Chrome.",
+        "extTemplate1": "Шаблон 1: CPA / Воронка (CPA, Спенд, Доход, ROI, Профит)",
+        "extTemplate2": "Шаблон 2: COD / Нутра (CPL, CPS, Спенд, Подтвержд. доход, ROI conf, Профит)",
+        "downloadExtension": "Скачать расширение (.ZIP)",
+        "antidetectInstallGuide": "Инструкция по установке в антидетект-браузеры",
+        "adspowerGuide": "AdsPower: откройте Центр приложений → Загрузить расширение → выберите распакованную папку.",
+        "dolphinGuide": "Dolphin{anty}: перейдите в Настройки → Расширения → Добавить расширение или перетащите ZIP-архив.",
+        "chromeGuide": "Google Chrome: откройте chrome://extensions → включите Режим разработчика → Загрузить распакованное.",
         "howItWorks": "Как работают интеграции",
         "introText": "Это различные способы подключения трекера к сторонним сайтам, используя внутренние скрипты Orbitra. Скрипты передают трекеру информацию и выполняют функции трекера на сторонних сайтах.",
         "usageExamples": "Примеры использования:",
@@ -2330,6 +2405,8 @@ export default {
         "safeLandingNone": "— нет —",
         "safeUrl": "Белый URL",
         "safeHtml": "Белый HTML (встроенный)",
+        "dontRecordSafeClicks": "Не записывать клики на Safe Page",
+        "dontRecordSafeClicksHint": "Боты, модераторы и парсеры, попавшие на Safe Page, не будут записываться в базу кликов и не попадут в отчеты.",
         "moneyPage": "Денежная страница (для посетителей)",
         "moneyPageHint": "Показывается реальным посетителям. Работает как схема лендинг+оффер."
     },

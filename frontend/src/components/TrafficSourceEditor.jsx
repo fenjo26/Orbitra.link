@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { X, Save, Plus, Trash2, Info } from 'lucide-react';
+import { X, Save, Plus, Trash2, Info, Check } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getStayInEditorAfterSave } from '../utils/editorPreferences';
 
 const API_URL = '/api.php';
 
 const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     const { t, language } = useLanguage();
     const [loading, setLoading] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [saveSuccess, setSaveSuccess] = useState(false);
+    const [savedId, setSavedId] = useState(null);
+    const currentId = id || savedId;
     const [showEspHints, setShowEspHints] = useState(false);
     const [templates, setTemplates] = useState([]);
     const [formData, setFormData] = useState({
@@ -94,14 +99,16 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
         setFormData(prev => ({ ...prev, parameters: newParams }));
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (forceClose = false) => {
+        if (loading || saving || saveSuccess) return;
         if (!formData.name) {
             alert(t('botSettings.fillName'));
             return;
         }
 
         try {
-            const payload = { ...formData, id };
+            setSaving(true);
+            const payload = { ...formData, id: currentId };
             const res = await axios.post(`${API_URL}?action=traffic_sources`, payload);
             if (res.data.status !== 'success') {
                 alert(res.data.message || t('common.error'));
@@ -109,10 +116,20 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
             }
             // Pass {id} so callers (e.g. the campaign editor's "+") can select
             // the freshly created source instead of guessing by name.
-            onSave(res.data.data || {});
+            const saved = res.data.data || {};
+            if (!currentId && saved.id) setSavedId(saved.id);
+            const shouldClose = forceClose || !getStayInEditorAfterSave();
+            if (onSave) onSave(saved, false);
+            setSaveSuccess(true);
+            setTimeout(() => {
+                setSaveSuccess(false);
+                if (shouldClose && onClose) onClose();
+            }, 1000);
         } catch (error) {
             console.error('Error saving traffic source:', error);
             alert(t('common.error'));
+        } finally {
+            setSaving(false);
         }
     };
 
@@ -148,7 +165,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
                 {/* Header */}
                 <div className="modal-header">
                     <h2 className="modal-title">
-                        {id ? t('sources.title') : t('sources.title')}
+                        {currentId ? t('sources.title') : t('sources.title')}
                     </h2>
                     <button onClick={onClose} className="action-btn">
                         <X size={20} />
@@ -404,9 +421,23 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
                     <button onClick={onClose} className="btn btn-secondary">
                         {t('common.cancel')}
                     </button>
-                    <button onClick={handleSubmit} className="btn btn-primary">
-                        <Save size={18} />
-                        <span>{t('common.save')}</span>
+                    <button
+                        type="button"
+                        onClick={() => handleSubmit(true)}
+                        disabled={loading || saving || saveSuccess}
+                        className="btn btn-secondary"
+                    >
+                        {t('profile.saveAndClose')}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => handleSubmit(false)}
+                        disabled={loading || saving || saveSuccess}
+                        className="btn btn-primary"
+                        style={saveSuccess ? { backgroundColor: 'var(--color-success)' } : {}}
+                    >
+                        {saveSuccess ? <Check size={18} /> : <Save size={18} />}
+                        <span>{saveSuccess ? t('editor.saved') : (saving ? t('common.saving') : t('common.save'))}</span>
                     </button>
                 </div>
             </div>

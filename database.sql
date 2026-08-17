@@ -437,6 +437,7 @@ CREATE TABLE streams (
         schema_type TEXT DEFAULT 'redirect',
         action_payload TEXT,
         schema_custom_json TEXT,
+        collect_clicks INTEGER DEFAULT 1,                   -- 0: serve the stream without a clicks row
         FOREIGN KEY (campaign_id) REFERENCES campaigns(id) ON DELETE CASCADE,
         FOREIGN KEY (offer_id) REFERENCES offers(id) ON DELETE SET NULL
     );

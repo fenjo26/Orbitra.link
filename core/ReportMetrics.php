@@ -66,9 +66,9 @@ if (!function_exists('orbitraConversionStatusGroups')) {
      * Full offers list with per-status conversion counters, money and cost,
      * ready to prepare/execute. The offers table page runs this and then feeds
      * each row through orbitraComputeDerivedMetrics(), so its numbers are the
-     * verified 64-metric math by construction, not a near copy.
+     * verified 65-metric math by construction, not a near copy.
      *
-     * Row extras after compute: cr, epc_confirmed, cpc, profit_confirmed,
+     * Row extras after compute: cr, epc_confirmed, cpc/cpv, profit_confirmed,
      * roi_confirmed (plus raw sales/leads/rejected/trash/revenue_confirmed/cost
      * and lp_clicks — clicks that reached the offer through a landing).
      */
@@ -121,7 +121,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
      * with prelander_clicks = clicks (every click row bound to a landing is one
      * landing view), so landing numbers are the same verified math as offers.
      *
-     * Row extras after compute: lp_ctr, cr, approve_rate, epc/epv family, cpc,
+     * Row extras after compute: lp_ctr, cr, approve_rate, epc/epv family, cpc/cpv,
      * profit, roi (plus raw sales/leads/rejected/trash/revenue_confirmed/cost).
      */
     function orbitraLandingsWithStatsSql(string $joinCondition, ?string $valueColumn): string
@@ -297,6 +297,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
 
             'cpc'                     => $clicks > 0 ? round($cost / $clicks, 4) : 0,
             'ucpc'                    => $uniqueClicks > 0 ? round($cost / $uniqueClicks, 4) : 0,
+            'cpv'                     => $clicks > 0 ? round($cost / $clicks, 4) : 0,
             // EPV — earnings per visit. At campaign/landing/offer scope a visit
             // is one click row (the LP→offer transition updates the row rather
             // than inserting one), so the denominator is clicks and EPV equals

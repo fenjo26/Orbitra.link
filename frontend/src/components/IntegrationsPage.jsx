@@ -11,6 +11,14 @@ const IntegrationsPage = () => {
     const [activeTab, setActiveTab] = useState('kclient_php');
     const [copied, setCopied] = useState('');
 
+    // Ads Manager browser-extension state. The key is dedicated, read-only,
+    // and belongs to the currently signed-in user.
+    const [extTemplate, setExtTemplate] = useState('cpa');
+    const [extGuide, setExtGuide] = useState('adspower');
+    const [extApiKey, setExtApiKey] = useState('');
+    const [extKeyLoading, setExtKeyLoading] = useState(false);
+    const [extKeyError, setExtKeyError] = useState('');
+
     // Telegram state
     const [tgToken, setTgToken] = useState('');
     const [tgShowToken, setTgShowToken] = useState(false);
@@ -104,6 +112,26 @@ const IntegrationsPage = () => {
 
     const trackerUrl = window.location.origin;
 
+    const loadExtensionCredentials = useCallback(async () => {
+        setExtKeyLoading(true);
+        setExtKeyError('');
+        try {
+            let res = await axios.get(`${API_URL}?action=extension_credentials`);
+            if (res.data.status === 'success' && !res.data.data?.api_key) {
+                res = await axios.post(`${API_URL}?action=extension_credentials`, {});
+            }
+            if (res.data.status === 'success' && res.data.data?.api_key) {
+                setExtApiKey(res.data.data.api_key);
+            } else {
+                setExtKeyError(res.data.message || 'Unable to create a read API key.');
+            }
+        } catch (err) {
+            setExtKeyError(err.response?.data?.message || err.message || 'Unable to create a read API key.');
+        } finally {
+            setExtKeyLoading(false);
+        }
+    }, []);
+
     const fetchTelegramSettings = useCallback(async () => {
         setTgLoading(true);
         try {
@@ -161,7 +189,10 @@ const IntegrationsPage = () => {
         if (activeTab === 'recaptcha') {
             fetchRcSettings();
         }
-    }, [activeTab, fetchTelegramSettings, fetchRcSettings]);
+        if (activeTab === 'chrome_extension' && !extApiKey) {
+            loadExtensionCredentials();
+        }
+    }, [activeTab, fetchTelegramSettings, fetchRcSettings, loadExtensionCredentials, extApiKey]);
 
     const handleTelegramConnect = async () => {
         if (!tgToken.trim()) return;
@@ -1091,6 +1122,12 @@ const IntegrationsPage = () => {
             description: t('fbConv.description'),
             isFacebookConversions: true
         },
+        chrome_extension: {
+            title: t('integrations.chromeExtension', 'Chrome & Antidetect Extension'),
+            icon: <Monitor className="w-5 h-5" />,
+            description: t('integrations.chromeExtDesc', 'Overlay real-time tracker analytics directly inside Facebook Ads Manager.'),
+            isChromeExtension: true
+        },
         dolphin_fbtool: {
             title: t('extCosts.title', 'Dolphin / Fbtool — Keitaro API'),
             icon: <DollarSign className="w-5 h-5" />,
@@ -1178,6 +1215,203 @@ const IntegrationsPage = () => {
     };
 
     const activeObj = scripts[activeTab];
+
+    const renderChromeExtensionPanel = () => {
+        const guideTabs = [
+            { id: 'adspower', label: 'AdsPower', text: t('integrations.adspowerGuide') },
+            { id: 'dolphin', label: 'Dolphin{anty}', text: t('integrations.dolphinGuide') },
+            { id: 'chrome', label: 'Google Chrome', text: t('integrations.chromeGuide') },
+        ];
+        const preview = extTemplate === 'cod'
+            ? [
+                ['CPL', '$8.33'], ['CPS', '$15.00'], ['SPENT', '$150.00'],
+                ['REV (CONF)', '$280.00'], ['ROI (CONF)', '+86.7%'], ['PROFIT', '+$130.00'],
+            ]
+            : [
+                ['CPA', '$12.50'], ['SPENT', '$150.00'], ['REV', '$320.00'],
+                ['ROI', '+113.3%'], ['PROFIT', '+$170.00'],
+            ];
+
+        return (
+            <div style={{ padding: '24px', flex: 1, overflow: 'auto' }}>
+                <div style={{ maxWidth: '920px' }} className="space-y-6">
+                    <div style={{
+                        padding: '26px',
+                        borderRadius: '18px',
+                        background: 'linear-gradient(135deg, #21143d 0%, #4c1d95 52%, #1d4ed8 100%)',
+                        color: '#fff',
+                        boxShadow: '0 18px 45px rgba(76, 29, 149, .22)'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '20px', flexWrap: 'wrap' }}>
+                            <div style={{ maxWidth: '650px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                                    <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(255,255,255,.15)', display: 'grid', placeItems: 'center' }}>
+                                        <Monitor size={23} />
+                                    </div>
+                                    <h3 style={{ fontSize: '21px', fontWeight: 700, margin: 0 }}>
+                                        Orbitra {t('integrations.chromeExtension')} (Ads Manager Overlay)
+                                    </h3>
+                                </div>
+                                <p style={{ margin: 0, color: '#ede9fe', fontSize: '14px', lineHeight: 1.6 }}>
+                                    {t('integrations.chromeExtDesc')}
+                                </p>
+                            </div>
+                            <a
+                                href="/data/orbitra-extension.zip"
+                                download="orbitra-extension.zip"
+                                className="btn"
+                                style={{ background: '#fff', color: '#4c1d95', borderColor: '#fff', fontWeight: 700, flexShrink: 0 }}
+                            >
+                                <Download size={18} />
+                                {t('integrations.downloadExtension')}
+                            </a>
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '20px' }}>
+                            {['AdsPower', 'Dolphin{anty}', 'Octo Browser', 'Google Chrome', 'Multilogin'].map(browser => (
+                                <span key={browser} style={{ padding: '5px 10px', borderRadius: '999px', background: 'rgba(255,255,255,.12)', border: '1px solid rgba(255,255,255,.2)', fontSize: '12px', fontWeight: 600 }}>
+                                    {browser}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div style={{ padding: '20px', borderRadius: '16px', background: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap' }}>
+                            <div>
+                                <h4 style={{ margin: 0, color: 'var(--color-text-primary)', fontSize: '15px', fontWeight: 650 }}>
+                                    {t('integrations.connectionCredentials', 'Connection credentials')}
+                                </h4>
+                                <p style={{ margin: '4px 0 0', color: 'var(--color-text-muted)', fontSize: '12px' }}>
+                                    {t('integrations.readKeyOnly', 'A dedicated read-only key is generated for this extension.')}
+                                </p>
+                            </div>
+                            <span style={{ padding: '4px 9px', borderRadius: '999px', background: 'rgba(34,197,94,.12)', color: '#16a34a', fontSize: '11px', fontWeight: 700 }}>
+                                READ ONLY
+                            </span>
+                        </div>
+
+                        <div style={{ display: 'grid', gap: '12px' }}>
+                            {[
+                                { label: t('integrations.trackerApiUrl', 'Tracker API URL'), value: `${trackerUrl}/api.php`, copyId: 'extension_url' },
+                                { label: t('integrations.apiKey', 'API Key'), value: extKeyLoading ? t('common.loading', 'Loading…') : extApiKey, copyId: 'extension_key', secret: true },
+                            ].map(field => (
+                                <div key={field.copyId} style={{ padding: '12px 14px', background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', borderRadius: '11px' }}>
+                                    <div style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '.05em' }}>
+                                        {field.label}
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <code style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: field.secret ? 'var(--color-text-primary)' : 'var(--color-primary)', fontSize: '12px' }}>
+                                            {field.value || '—'}
+                                        </code>
+                                        <button
+                                            type="button"
+                                            onClick={() => field.value && copyToClipboard(field.value, field.copyId)}
+                                            disabled={!field.value || extKeyLoading}
+                                            className="btn btn-secondary btn-sm"
+                                        >
+                                            {copied === field.copyId ? <CheckCircle2 size={14} /> : <Copy size={14} />}
+                                            {copied === field.copyId ? t('integrations.copied') : t('integrations.copyCode', 'Copy')}
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        {extKeyError && (
+                            <div style={{ marginTop: '12px', padding: '10px 12px', borderRadius: '9px', background: 'var(--color-danger-bg, #fee2e2)', color: '#b91c1c', fontSize: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+                                <span>{extKeyError}</span>
+                                <button type="button" className="btn btn-secondary btn-sm" onClick={loadExtensionCredentials}>
+                                    <RefreshCw size={13} /> {t('common.retry', 'Retry')}
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+                    <div style={{ padding: '20px', borderRadius: '16px', background: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}>
+                        <h4 style={{ margin: '0 0 14px', color: 'var(--color-text-primary)', fontSize: '15px', fontWeight: 650 }}>
+                            {t('integrations.templatePreview', 'Metric template & live preview')}
+                        </h4>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(270px, 1fr))', gap: '10px' }}>
+                            {[
+                                { id: 'cpa', text: t('integrations.extTemplate1') },
+                                { id: 'cod', text: t('integrations.extTemplate2') },
+                            ].map(template => (
+                                <button
+                                    key={template.id}
+                                    type="button"
+                                    onClick={() => setExtTemplate(template.id)}
+                                    style={{
+                                        padding: '13px 14px', textAlign: 'left', borderRadius: '11px', cursor: 'pointer',
+                                        border: `1px solid ${extTemplate === template.id ? 'var(--color-primary)' : 'var(--color-border)'}`,
+                                        background: extTemplate === template.id ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
+                                        color: 'var(--color-text-primary)', fontSize: '12px', lineHeight: 1.45,
+                                        boxShadow: extTemplate === template.id ? '0 0 0 2px rgba(124,58,237,.10)' : 'none'
+                                    }}
+                                >
+                                    <span style={{ display: 'inline-grid', placeItems: 'center', width: '16px', height: '16px', marginRight: '8px', borderRadius: '50%', border: '1px solid var(--color-primary)', color: 'var(--color-primary)', fontSize: '10px' }}>
+                                        {extTemplate === template.id ? '●' : ''}
+                                    </span>
+                                    {template.text}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div style={{ marginTop: '16px', padding: '14px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #dbe3ee' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '9px', color: '#1e293b', fontSize: '12px', fontWeight: 650 }}>
+                                <span style={{ width: '14px', height: '14px', borderRadius: '3px', border: '1px solid #94a3b8', background: '#fff' }} />
+                                Summer Scale Campaign <span style={{ color: '#94a3b8', fontWeight: 500 }}>1203849102948</span>
+                            </div>
+                            <div style={{ display: 'inline-flex', flexWrap: 'wrap', alignItems: 'center', gap: '5px', padding: '6px 8px', marginLeft: '24px', borderRadius: '8px', background: 'linear-gradient(135deg,#151322,#211a38)', border: '1px solid rgba(139,92,246,.45)', boxShadow: '0 4px 14px rgba(15,23,42,.18)' }}>
+                                <span style={{ color: '#c4b5fd', fontSize: '10px', fontWeight: 700 }}>Orbitra</span>
+                                {preview.map(([label, value], index) => (
+                                    <React.Fragment key={label}>
+                                        {index > 0 && <span style={{ color: '#64748b', fontSize: '10px' }}>|</span>}
+                                        <span style={{ color: '#e2e8f0', fontSize: '10px', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                                            {label}: <strong style={{ color: label.includes('ROI') || label === 'PROFIT' ? '#4ade80' : '#fff' }}>{value}</strong>
+                                        </span>
+                                    </React.Fragment>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style={{ padding: '20px', borderRadius: '16px', background: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '14px' }}>
+                            <h4 style={{ margin: 0, color: 'var(--color-text-primary)', fontSize: '15px', fontWeight: 650 }}>
+                                {t('integrations.antidetectInstallGuide')}
+                            </h4>
+                            <a href="/data/orbitra-extension.zip" download="orbitra-extension.zip" className="btn btn-primary btn-sm">
+                                <Download size={15} /> {t('integrations.downloadExtension')}
+                            </a>
+                        </div>
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '14px' }}>
+                            {guideTabs.map(guide => (
+                                <button
+                                    key={guide.id}
+                                    type="button"
+                                    onClick={() => setExtGuide(guide.id)}
+                                    className="btn btn-sm"
+                                    style={{
+                                        background: extGuide === guide.id ? 'var(--color-primary)' : 'var(--color-bg-card)',
+                                        color: extGuide === guide.id ? '#fff' : 'var(--color-text-secondary)',
+                                        border: `1px solid ${extGuide === guide.id ? 'var(--color-primary)' : 'var(--color-border)'}`
+                                    }}
+                                >
+                                    {guide.label}
+                                </button>
+                            ))}
+                        </div>
+                        <div style={{ display: 'flex', gap: '12px', padding: '14px', borderRadius: '11px', background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', color: 'var(--color-text-secondary)', fontSize: '13px', lineHeight: 1.6 }}>
+                            <span style={{ display: 'grid', placeItems: 'center', flexShrink: 0, width: '24px', height: '24px', borderRadius: '50%', background: 'var(--color-primary-light)', color: 'var(--color-primary)', fontWeight: 700 }}>1</span>
+                            <span>{guideTabs.find(guide => guide.id === extGuide)?.text}</span>
+                        </div>
+                        <p style={{ margin: '12px 0 0', color: 'var(--color-text-muted)', fontSize: '12px', lineHeight: 1.5 }}>
+                            {t('integrations.extensionPopupHint', 'After installation, open the extension popup and paste the Tracker API URL and read API key shown above.')}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        );
+    };
 
     // WordPress Plugin Generator
     const generateWpPlugin = () => {
@@ -2062,7 +2296,7 @@ global \$wpdb;
                                 // listed falls into a trailing group so a new entry can
                                 // never silently disappear from the menu.
                                 const groups = [
-                                    { label: t('integrations.groupAds', 'Ad networks'), ids: ['facebook_costs', 'facebook_conversions', 'dolphin_fbtool'] },
+                                    { label: t('integrations.groupAds', 'Ad networks'), ids: ['facebook_costs', 'facebook_conversions', 'dolphin_fbtool', 'chrome_extension'] },
                                     { label: t('integrations.groupDomains', 'Domains & SSL'), ids: ['cloudflare', 'namecheap'] },
                                     { label: t('integrations.groupSites', 'Sites & landings'), ids: ['kclient_php', 'kclient_js', 'tracking_pixel', 'js_banner', 'wordpress', 'wordpress_plugin', 'static_site', 'geo_redirect', 'device_redirect'] },
                                     { label: t('integrations.groupTools', 'Tools'), ids: ['countdown_timer', 'back_button_trap', 'exit_popup', 'app_config', 'recaptcha', 'telegram'] },
@@ -2630,7 +2864,7 @@ global \$wpdb;
                                     )}
                                 </div>
                             </div>
-                        ) : activeObj.isTelegram ? renderTelegramPanel() : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isFacebookCosts ? renderFacebookCostsPanel() : activeObj.isFacebookConversions ? renderFacebookConversionsPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : (
+                        ) : activeObj.isTelegram ? renderTelegramPanel() : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isFacebookCosts ? renderFacebookCostsPanel() : activeObj.isFacebookConversions ? renderFacebookConversionsPanel() : activeObj.isChromeExtension ? renderChromeExtensionPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : (
                             <div style={{ padding: '20px 24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                                     <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--color-text-primary)' }}>

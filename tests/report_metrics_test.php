@@ -1,7 +1,7 @@
 <?php
 // tests/report_metrics_test.php
 //
-// End-to-end math check for the 64-metric set: seeds a reference dataset
+// End-to-end math check for the 65-metric set: seeds a reference dataset
 // (clicks with costs, landings/offers paths, conversions in every status,
 // aggregator revenue) into a throwaway SQLite file, runs the shared
 // conversion-aggregate SQL and orbitraComputeDerivedMetrics(), and asserts
@@ -74,7 +74,7 @@ $expected = [
     'epc' => 13.9167, 'uepc' => 16.7, 'epc_confirmed' => 7.5, 'uepc_confirmed' => 9,
     'epv' => 13.9167, 'epv_confirmed' => 7.5,
     'cps' => 7, 'cpl' => 21, 'cpr' => 21, 'cpd' => 21, 'cpa' => 2.63,
-    'cpc' => 3.5, 'ucpc' => 4.2, 'ecpc' => 3.5,
+    'cpc' => 3.5, 'ucpc' => 4.2, 'cpv' => 3.5, 'ecpc' => 3.5,
     'ecpm_all' => 10416.67, 'ecpm_confirmed' => 4000,
     'earnings_per_conv' => 10.44, 'ec_confirmed' => 15,
     'real_profit' => 19, 'real_roi' => 90.48,
@@ -130,7 +130,7 @@ $pdo->exec('INSERT INTO offers (id, name) VALUES (7,"of7"), (8,"of8"), (9,"of9")
 $deriveRow = function (array $row): array {
     $row['prelander_clicks'] = $row['clicks'];
     $m = orbitraComputeDerivedMetrics($row);
-    foreach (['lp_ctr', 'cr', 'approve_rate', 'epc', 'epc_confirmed', 'epv', 'cpc',
+    foreach (['lp_ctr', 'cr', 'approve_rate', 'epc', 'epc_confirmed', 'epv', 'cpc', 'cpv',
         'profit', 'profit_confirmed', 'roi', 'roi_confirmed'] as $k) {
         $row[$k] = $m[$k];
     }
@@ -163,6 +163,7 @@ $assert('L1 epc', $lp[1]['epc'], 26);
 $assert('L1 epv (equals epc: one row = one visit)', $lp[1]['epv'], 26);
 $assert('L1 epc_confirmed', $lp[1]['epc_confirmed'], 15);
 $assert('L1 cpc', $lp[1]['cpc'], 5.3333);
+$assert('L1 cpv', $lp[1]['cpv'], 5.3333);
 $assert('L1 profit', $lp[1]['profit'], 62);
 $assert('L1 profit_confirmed', $lp[1]['profit_confirmed'], 29);
 $assert('L1 roi', $lp[1]['roi'], 387.5);
@@ -178,6 +179,7 @@ $assert('L2 roi_confirmed', $lp[2]['roi_confirmed'], -100);
 // Landing 3: no clicks at all — zero counters, ratios 0, ROI a dash.
 $assert('L3 clicks', $lp[3]['clicks'], 0, 0);
 $assert('L3 lp_ctr', $lp[3]['lp_ctr'], 0);
+$assert('L3 cpv', $lp[3]['cpv'], 0);
 $assert('L3 roi null', $lp[3]['roi'], null);
 
 $of = [];

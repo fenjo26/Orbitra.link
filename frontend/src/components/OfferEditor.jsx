@@ -7,6 +7,7 @@ import GroupsModal from './GroupsModal';
 import AffiliateNetworkEditor from './AffiliateNetworkEditor';
 import { useLanguage } from '../contexts/LanguageContext';
 import { cachedGet } from '../utils/apiCache';
+import { getStayInEditorAfterSave } from '../utils/editorPreferences';
 
 const API_URL = '/api.php';
 
@@ -46,7 +47,10 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
     const [uploadingZip, setUploadingZip] = useState(false);
     const [pendingZip, setPendingZip] = useState(null);
     const [offerFiles, setOfferFiles] = useState([]);
-    const [savedLocalId, setSavedLocalId] = useState(null);
+    const [savedOfferId, setSavedOfferId] = useState(null);
+    const [savedSomething, setSavedSomething] = useState(false);
+    const [saveSuccess, setSaveSuccess] = useState(false);
+    const currentOfferId = offerId || savedOfferId;
     const offerZipInputRef = useRef(null);
     const fileInputRef = useRef(null);
 
@@ -86,12 +90,12 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
     };
 
     useEffect(() => {
-        const id = offerId || savedLocalId;
+        const id = currentOfferId;
         if (formData.is_local && id) {
             fetchOfferFiles(id);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [formData.is_local, offerId, savedLocalId]);
+    }, [formData.is_local, offerId, savedOfferId]);
 
     useEffect(() => {
         const fetchDeps = async () => {
@@ -142,7 +146,8 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
         }
     }, [offerId]);
 
-    const handleSave = async () => {
+    const handleSave = async (forceClose = false) => {
+        if (loading || uploadingZip || saveSuccess) return;
         if (!formData.name) {
             alert(t('offerEditor.fillName'));
             return;
@@ -155,27 +160,30 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
         try {
             setLoading(true);
             const payload = { ...formData };
-            if (offerId) payload.id = offerId;
+            if (currentOfferId) payload.id = currentOfferId;
 
-                const res = await axios.post(`${API_URL}?action=save_offer`, payload);
-                if (res.data.status === 'success') {
-                    // Fires once, on the save that creates the offer, so a caller
-                    // embedding this editor (the campaign stream) can wire the new
-                    // id into its rotation — mirroring LandingEditor's onSaved.
-                    const newId = res.data.data?.id || offerId;
-                    if (!offerId && onCreated) onCreated(newId);
-                    // A local offer picked its archive before the offer existed —
-                    // upload needs an id, so send it as soon as one exists. Keep the
-                    // editor open afterwards, same as local landings do, because the
-                    // file panel is only useful on a saved offer.
-                    if (formData.is_local && pendingZip && newId) {
+            const res = await axios.post(`${API_URL}?action=save_offer`, payload);
+            if (res.data.status === 'success') {
+                const newId = res.data.data?.id || currentOfferId;
+                setSavedSomething(true);
+                if (!currentOfferId && newId) {
+                    setSavedOfferId(newId);
+                    if (onCreated) onCreated(newId);
+                }
+
+                if (formData.is_local && pendingZip && newId) {
                     const zip = pendingZip;
                     setPendingZip(null);
                     await uploadOfferZip(newId, zip);
-                    if (!offerId) setSavedLocalId(newId);
-                    return;
                 }
-                onClose(true);
+
+                setSaveSuccess(true);
+                setTimeout(() => {
+                    setSaveSuccess(false);
+                    if (forceClose || !getStayInEditorAfterSave()) {
+                        onClose(true);
+                    }
+                }, 1000);
             } else {
                 alert(t('offerEditor.saveError') + " " + res.data.message);
             }
@@ -219,8 +227,8 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
     const deleteOfferFile = async (path) => {
         if (!window.confirm(`${t('common.delete')} ${path}?`)) return;
         try {
-            await axios.post(`${API_URL}?action=offer_file_op`, { id: offerId || savedLocalId, path, op: 'delete' });
-            fetchOfferFiles(offerId || savedLocalId);
+            await axios.post(`${API_URL}?action=offer_file_op`, { id: currentOfferId, path, op: 'delete' });
+            fetchOfferFiles(currentOfferId);
         } catch (err) {
             alert(t('common.deleteError'));
         }
@@ -280,9 +288,9 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
             <div className="modal-content" style={{ maxWidth: '800px', width: '100%' }}>
                 <div className="modal-header">
                     <h2 className="modal-title">
-                        {offerId ? `${t('offers.titleSingular')}: ${formData.name}` : t('offers.createOffer')}
+                        {currentOfferId ? `${t('offers.titleSingular')}: ${formData.name}` : t('offers.createOffer')}
                     </h2>
-                    <button onClick={() => onClose(false)} className="action-btn">
+                    <button onClick={() => onClose(savedSomething)} className="action-btn">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
@@ -465,7 +473,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
                                         {t('offerEditor.localArchive', 'Local offer files')}
                                     </div>
 
-                                    {!(offerId || savedLocalId) ? (
+                                    {!currentOfferId ? (
                                         <>
                                             <input
                                                 type="file"
@@ -486,7 +494,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
                                                 className="hidden"
                                                 onChange={e => {
                                                     const f = e.target.files[0];
-                                                    if (f) uploadOfferZip(offerId || savedLocalId, f);
+                                                    if (f) uploadOfferZip(currentOfferId, f);
                                                     e.target.value = null;
                                                 }}
                                             />
@@ -771,12 +779,32 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
 
                 {/* Footer */}
                 <div className="modal-footer">
-                    <button onClick={() => onClose(false)} className="btn btn-secondary">
+                    <button onClick={() => onClose(savedSomething)} className="btn btn-secondary">
                         {t('common.cancel')}
                     </button>
-                    <button onClick={handleSave} disabled={loading || uploadingZip} className="btn btn-primary">
+                    <button
+                        type="button"
+                        onClick={() => handleSave(true)}
+                        disabled={loading || uploadingZip || saveSuccess}
+                        className="btn btn-secondary"
+                    >
+                        {t('profile.saveAndClose')}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => handleSave(false)}
+                        disabled={loading || uploadingZip || saveSuccess}
+                        className="btn btn-primary"
+                        style={saveSuccess ? { backgroundColor: 'var(--color-success)' } : {}}
+                    >
                         <Check className="w-4 h-4 mr-1.5" />
-                        {uploadingZip ? t('landingEditor.uploadingZip') : (offerId ? t('common.save') : t('offers.createOffer'))}
+                        {saveSuccess
+                            ? t('editor.saved')
+                            : loading
+                                ? t('common.saving')
+                                : uploadingZip
+                                ? t('landingEditor.uploadingZip')
+                                : (currentOfferId ? t('common.save') : t('offers.createOffer'))}
                     </button>
                 </div>
             </div>

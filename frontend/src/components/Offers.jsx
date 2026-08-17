@@ -11,7 +11,7 @@ const API_URL = '/api.php';
 
 // Every column the offers table can show. Status counters and money come from
 // the report engine's status groups (leads = hold group, sales = sale group,
-// "confirmed" = sale group), so the labels match the 64-metric reports.
+// "confirmed" = sale group), so the labels match the 65-metric reports.
 export const ALL_OFFER_COLUMNS = [
     { id: 'id', label: 'ID' },
     { id: 'name', label: 'Name', required: true },
@@ -41,6 +41,7 @@ export const ALL_OFFER_COLUMNS = [
     { id: 'epc_confirmed', label: 'EPC (confirmed)', alignRight: true },
     { id: 'epv', label: 'EPV', alignRight: true },
     { id: 'cpc', label: 'CPC', alignRight: true },
+    { id: 'cpv', label: 'CPV', alignRight: true },
     { id: 'profit', label: 'Profit', alignRight: true },
     { id: 'profit_confirmed', label: 'P/L (confirmed)', alignRight: true },
     { id: 'roi', label: 'ROI', alignRight: true },
@@ -135,6 +136,7 @@ const Offers = ({ offers, refreshData }) => {
                 case 'epc_confirmed': return Number(o.epc_confirmed) || 0;
                 case 'epv': return Number(o.epv) || 0;
                 case 'cpc': return Number(o.cpc) || 0;
+                case 'cpv': return Number(o.cpv) || 0;
                 case 'profit': return Number(o.profit) || 0;
                 case 'profit_confirmed': return Number(o.profit_confirmed) || 0;
                 case 'roi': return Number(o.roi) || 0;
@@ -146,7 +148,7 @@ const Offers = ({ offers, refreshData }) => {
         const isNumeric = ['id', 'payout', 'clicks', 'unique_clicks', 'visits', 'unique_visits',
             'lp_clicks', 'lp_ctr', 'conversions', 'leads', 'sales', 'rejected', 'trash',
             'approve_rate', 'revenue', 'revenue_confirmed', 'cost', 'cr', 'epc', 'epc_confirmed',
-            'epv', 'cpc', 'profit', 'profit_confirmed', 'roi', 'roi_confirmed'].includes(sortBy.key);
+            'epv', 'cpc', 'cpv', 'profit', 'profit_confirmed', 'roi', 'roi_confirmed'].includes(sortBy.key);
 
         return filteredOffers
             .map((offer, idx) => ({ offer, idx }))
@@ -316,6 +318,7 @@ const Offers = ({ offers, refreshData }) => {
             case 'epc_confirmed': return totals.clicks > 0 ? `$${(totals.revenue_confirmed / totals.clicks).toFixed(2)}` : '$0';
             case 'epv': return totals.clicks > 0 ? `$${(totals.revenue / totals.clicks).toFixed(2)}` : '$0';
             case 'cpc': return totals.clicks > 0 ? `$${(totals.cost / totals.clicks).toFixed(2)}` : '$0';
+            case 'cpv': return totals.clicks > 0 ? `$${(totals.cost / totals.clicks).toFixed(2)}` : '$0.00';
             case 'roi': return totals.cost > 0 ? `${((totalsProfit / totals.cost) * 100).toFixed(2)}%` : '—';
             case 'roi_confirmed': return totals.cost > 0 ? `${((totalsProfitConfirmed / totals.cost) * 100).toFixed(2)}%` : '—';
             default: return null;
@@ -351,6 +354,7 @@ const Offers = ({ offers, refreshData }) => {
         epc_confirmed: t('offerColumns.epcConfirmed'),
         epv: t('metrics.epv'),
         cpc: t('offerColumns.cpc'),
+        cpv: t('metrics.cpv', 'CPV'),
         profit: t('metrics.profit'),
         profit_confirmed: t('offerColumns.profitConfirmed'),
         roi: t('metrics.roi'),
@@ -359,7 +363,7 @@ const Offers = ({ offers, refreshData }) => {
 
     const localizedColumns = ALL_OFFER_COLUMNS.map(c => ({ ...c, label: columnLabel(c.id) }));
 
-    const money = (v) => `$${(parseFloat(v) || 0).toFixed(2)}`;
+    const money = (v, precision = 2) => `$${(parseFloat(v) || 0).toFixed(precision)}`;
 
     const renderOfferCell = (offer, colId) => {
         const tdCls = ALL_OFFER_COLUMNS.find(c => c.id === colId)?.alignRight ? 'text-right' : '';
@@ -473,6 +477,8 @@ const Offers = ({ offers, refreshData }) => {
                 return <td key={colId} className={tdCls}>{money(offer.epv)}</td>;
             case 'cpc':
                 return <td key={colId} className={tdCls}>{`$${(parseFloat(offer.cpc) || 0).toFixed(2)}`}</td>;
+            case 'cpv':
+                return <td key={colId} className={tdCls}>{money(offer.cpv)}</td>;
             default:
                 return <td key={colId} className={tdCls}>{offer[colId] || 0}</td>;
         }
@@ -680,8 +686,8 @@ const Offers = ({ offers, refreshData }) => {
             )}
 
             {/* Table */}
-            <div className="overflow-x-auto">
-                <table className="page-table">
+            <div className="tracker-table-container">
+                <table className="page-table tracker-table">
                     <thead>
                         <tr>
                             <th className="w-10">

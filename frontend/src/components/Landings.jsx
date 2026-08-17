@@ -38,6 +38,7 @@ export const ALL_LANDING_COLUMNS = [
     { id: 'profit', label: 'Profit', alignRight: true },
     { id: 'profit_confirmed', label: 'Profit (conf)', alignRight: true },
     { id: 'cpc', label: 'CPC', alignRight: true },
+    { id: 'cpv', label: 'CPV', alignRight: true },
     { id: 'epc', label: 'EPC', alignRight: true },
     { id: 'epc_confirmed', label: 'EPC (conf)', alignRight: true },
     { id: 'epv', label: 'EPV', alignRight: true },
@@ -235,6 +236,7 @@ const Landings = ({ landings, refreshData }) => {
         profit: t('metrics.profit'),
         profit_confirmed: t('offerColumns.profitConfirmed'),
         cpc: t('metrics.cpc'),
+        cpv: t('metrics.cpv', 'CPV'),
         epc: t('metrics.epc'),
         epc_confirmed: t('offerColumns.epcConfirmed'),
         epv: t('metrics.epv'),
@@ -256,7 +258,60 @@ const Landings = ({ landings, refreshData }) => {
         return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
     };
 
-    const money = (v) => `$${(parseFloat(v) || 0).toFixed(2)}`;
+    const money = (v, precision = 2) => `$${(parseFloat(v) || 0).toFixed(precision)}`;
+
+    const totals = visibleLandings.reduce((acc, landing) => {
+        acc.clicks += Number(landing.clicks) || 0;
+        acc.unique_clicks += Number(landing.unique_clicks) || 0;
+        acc.visits += Number(landing.visits) || 0;
+        acc.unique_visits += Number(landing.unique_visits) || 0;
+        acc.lp_clicks += Number(landing.lp_clicks) || 0;
+        acc.conversions += Number(landing.conversions) || 0;
+        acc.leads += Number(landing.leads) || 0;
+        acc.sales += Number(landing.sales) || 0;
+        acc.rejected += Number(landing.rejected) || 0;
+        acc.trash += Number(landing.trash) || 0;
+        acc.revenue += Number(landing.revenue) || 0;
+        acc.revenue_confirmed += Number(landing.revenue_confirmed) || 0;
+        acc.cost += Number(landing.cost) || 0;
+        return acc;
+    }, { clicks: 0, unique_clicks: 0, visits: 0, unique_visits: 0, lp_clicks: 0,
+        conversions: 0, leads: 0, sales: 0, rejected: 0, trash: 0,
+        revenue: 0, revenue_confirmed: 0, cost: 0 });
+
+    const totalsProfit = totals.revenue - totals.cost;
+    const totalsProfitConfirmed = totals.revenue_confirmed - totals.cost;
+    const totalsApproveDenom = totals.sales + totals.leads + totals.rejected + totals.trash;
+    const renderTotalCell = (colId) => {
+        switch (colId) {
+            case 'clicks': return totals.clicks.toLocaleString();
+            case 'unique_clicks': return totals.unique_clicks.toLocaleString();
+            case 'visits': return totals.visits.toLocaleString();
+            case 'unique_visits': return totals.unique_visits.toLocaleString();
+            case 'lp_clicks': return totals.lp_clicks.toLocaleString();
+            case 'conversions': return totals.conversions.toLocaleString();
+            case 'leads': return totals.leads.toLocaleString();
+            case 'sales': return totals.sales.toLocaleString();
+            case 'rejected': return totals.rejected.toLocaleString();
+            case 'trash': return totals.trash.toLocaleString();
+            case 'approve_rate': return totalsApproveDenom > 0 ? `${((totals.sales / totalsApproveDenom) * 100).toFixed(2)}%` : '0%';
+            case 'lp_ctr': return totals.clicks > 0 ? `${((totals.lp_clicks / totals.clicks) * 100).toFixed(2)}%` : '0%';
+            case 'revenue': return money(totals.revenue);
+            case 'revenue_confirmed': return money(totals.revenue_confirmed);
+            case 'cost': return money(totals.cost);
+            case 'profit': return money(totalsProfit);
+            case 'profit_confirmed': return money(totalsProfitConfirmed);
+            case 'cr': return totals.clicks > 0 ? `${((totals.conversions / totals.clicks) * 100).toFixed(2)}%` : '0%';
+            case 'epc': return totals.clicks > 0 ? money(totals.revenue / totals.clicks) : '$0.00';
+            case 'epc_confirmed': return totals.clicks > 0 ? money(totals.revenue_confirmed / totals.clicks) : '$0.00';
+            case 'epv': return totals.clicks > 0 ? money(totals.revenue / totals.clicks) : '$0.00';
+            case 'cpc': return totals.clicks > 0 ? money(totals.cost / totals.clicks) : '$0.00';
+            case 'cpv': return totals.clicks > 0 ? money(totals.cost / totals.clicks) : '$0.00';
+            case 'roi': return totals.cost > 0 ? `${((totalsProfit / totals.cost) * 100).toFixed(2)}%` : '—';
+            case 'roi_confirmed': return totals.cost > 0 ? `${((totalsProfitConfirmed / totals.cost) * 100).toFixed(2)}%` : '—';
+            default: return null;
+        }
+    };
 
     const renderLandingCell = (landing, colId) => {
         const tdCls = ALL_LANDING_COLUMNS.find(c => c.id === colId)?.alignRight ? 'text-right' : '';
@@ -317,6 +372,7 @@ const Landings = ({ landings, refreshData }) => {
                 );
             }
             case 'cpc':
+            case 'cpv':
             case 'epc':
             case 'epc_confirmed':
             case 'epv':
@@ -450,8 +506,8 @@ const Landings = ({ landings, refreshData }) => {
                 </div>
             )}
 
-            <div className="overflow-x-auto">
-                <table className="page-table">
+            <div className="tracker-table-container">
+                <table className="page-table tracker-table">
                     <thead>
                         <tr>
                             <th className="w-10">
@@ -505,6 +561,24 @@ const Landings = ({ landings, refreshData }) => {
                             ))
                         )}
                     </tbody>
+                    {visibleLandings.length > 0 && (
+                        <tfoot style={{ background: 'var(--color-bg-soft)' }}>
+                            <tr className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                                <td className="px-4 py-3"></td>
+                                {chosenColumns.map((colId) => {
+                                    if (colId === 'name') {
+                                        return <td key={colId} className="px-4 py-3">{t('campaignReports.total', 'Total')} ({visibleLandings.length})</td>;
+                                    }
+                                    const val = renderTotalCell(colId);
+                                    const alignRight = ALL_LANDING_COLUMNS.find(c => c.id === colId)?.alignRight;
+                                    const isNegativeProfit = (colId === 'profit' && totalsProfit < 0)
+                                        || (colId === 'profit_confirmed' && totalsProfitConfirmed < 0);
+                                    return <td key={colId} className={`px-4 py-3 ${alignRight ? 'text-right' : ''}`} style={{ color: isNegativeProfit ? 'var(--color-danger)' : undefined }}>{val ?? ''}</td>;
+                                })}
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    )}
                 </table>
             </div>
 

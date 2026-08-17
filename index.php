@@ -17,6 +17,7 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
 }
 require_once __DIR__ . '/core/geo_databases.php';
+require_once __DIR__ . '/core/Device.php';
 // Cloaking detector (datacenter/VPN ASN + UA heuristics + bot blocklists). Lazy: only
 // consulted when a stream with schema_type='cloak' is selected.
 require_once __DIR__ . '/core/CloakDetector.php';
@@ -272,14 +273,10 @@ function getGeoData($ip)
     return $geo;
 }
 
-// Определение типа устройства (упрощенно)
+// Canonical device taxonomy shared with click.php and the Click API.
 function getDeviceType($userAgent)
 {
-    $mobileAgents = '/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i';
-    if (preg_match($mobileAgents, strtolower($userAgent))) {
-        return 'Mobile';
-    }
-    return 'Desktop';
+    return orbitraDetectDeviceType((string) $userAgent);
 }
 
 function detectOs($userAgent)
@@ -1768,6 +1765,14 @@ if (!$campaign) {
     die("Campaign not found.");
 }
 
+// A campaign paused from the panel (state='disabled') stops serving right
+// away — same visibility to a visitor as a deleted campaign, reversible from
+// the campaigns table toggle.
+if (strtolower((string) ($campaign['state'] ?? 'active')) === 'disabled') {
+    http_response_code(503);
+    die("Campaign is disabled.");
+}
+
 $campaignId = $campaign['id'];
 
 // 2. Сбор данных
@@ -2006,12 +2011,7 @@ function streamMatchesFilters($stream, $visitor, $pdo)
                 }
                 break;
             case 'Device':
-                foreach ($payload as $item) {
-                    if (filterTokenEquals($item, $deviceType)) {
-                        $matched = true;
-                        break;
-                    }
-                }
+                $matched = orbitraDeviceGroupMatches((string) $deviceType, $payload);
                 break;
             case 'OS':
                 foreach ($payload as $item) {
@@ -2269,6 +2269,8 @@ $finalUrl = '';
 $offerRedirectType = 'redirect';
 $landingRedirectType = 'redirect';
 $actionToPerfrom = null;
+$skipClickLogging = false;
+$deferredSafeHtml = null;
 
 if ($selectedStream) {
     $schemaType = $selectedStream['schema_type'] ?? 'redirect';
@@ -2440,13 +2442,19 @@ if ($selectedStream) {
             }
         }
 
+        $skipClickLogging = CloakDetector::shouldSkipSafePageClick($customSchema, $cloakShowSafe);
+
         if ($cloakShowSafe) {
             // --- Safe page ---
-            // Priority: explicit safe_landing_id (a managed landing), then inline safe_url,
-            // then inline safe_html. If none configured, serve a generic blank page so a
-            // misconfigured cloak stream never leaks the money page.
             $safeLandingId = (int) ($customSchema['safe_landing_id'] ?? 0);
-            if ($safeLandingId > 0) {
+            $safeMode = (string) ($customSchema['safe_mode'] ?? '');
+            if (!in_array($safeMode, ['landing', 'url', 'html'], true)) {
+                $safeMode = $safeLandingId > 0
+                    ? 'landing'
+                    : (!empty($customSchema['safe_url']) ? 'url' : 'html');
+            }
+
+            if ($safeMode === 'landing' && $safeLandingId > 0) {
                 $stmt = $pdo->prepare("SELECT type, url, action_payload, action_type, redirect_type FROM landings WHERE id = ?");
                 $stmt->execute([$safeLandingId]);
                 $safeLand = $stmt->fetch();
@@ -2462,15 +2470,18 @@ if ($selectedStream) {
                         $offerRedirectType = $landingRedirectType;
                     }
                 }
-            } elseif (!empty($customSchema['safe_url'])) {
+                if (!$safeLand) {
+                    $deferredSafeHtml = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Welcome</title></head><body><h1>Page</h1><p>Content is loading.</p></body></html>';
+                }
+            } elseif ($safeMode === 'url' && !empty($customSchema['safe_url'])) {
                 $finalUrl = (string) $customSchema['safe_url'];
             } else {
-                // Inline HTML fallback — neutral, indexable-looking page.
-                header('Content-Type: text/html; charset=utf-8');
-                echo isset($customSchema['safe_html']) && $customSchema['safe_html'] !== ''
+                // Defer output until after the optional click insert. Enabled
+                // no-log streams skip that insert; an explicit false keeps the
+                // checkbox reversible even for inline HTML safe pages.
+                $deferredSafeHtml = isset($customSchema['safe_html']) && $customSchema['safe_html'] !== ''
                     ? $customSchema['safe_html']
                     : '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Welcome</title></head><body><h1>Page</h1><p>Content is loading.</p></body></html>';
-                exit;
             }
         } else {
             // --- Money page --- behaves like the landing_offer schema: a weighted landing
@@ -2567,8 +2578,14 @@ if ($stmtDebounce->fetch()) {
     $isDebounced = true;
 }
 
+// Stream-level "Collect clicks": the stream still serves its destination,
+// but the visit never reaches the stats — the same skip path prefetch and the
+// cloak safe page use. No clicks row also means no sub_id: conversions from
+// this stream have nothing to attach to, which is the point for white pages.
+$streamCollectsClicks = !$selectedStream || (int) ($selectedStream['collect_clicks'] ?? 1) === 1;
+
 // A prefetch hit serves the campaign but never reaches the stats.
-if ($statsEnabled && !$isDebounced && !$isPrefetchRequest) {
+if ($statsEnabled && !$isDebounced && !$isPrefetchRequest && !$skipClickLogging && $streamCollectsClicks) {
     // No offer (e.g. landing-only stream) must be logged as NULL, not 0, to
     // avoid the offers(id) foreign-key violation.
     $offerIdForDb = !empty($offerIdToLog) ? $offerIdToLog : null;
@@ -2620,6 +2637,12 @@ if ($statsEnabled && !$isDebounced && !$isPrefetchRequest) {
 
 if (!$selectedStream) {
     die("Do nothing.");
+}
+
+if ($deferredSafeHtml !== null) {
+    header('Content-Type: text/html; charset=utf-8');
+    echo $deferredSafeHtml;
+    exit;
 }
 
 // 6. Редирект или Выполнение действия

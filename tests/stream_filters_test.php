@@ -71,4 +71,18 @@ $assert("visitor IN/mobile, logic OR -> accepted", $or3, true);
 $legacy = orbitraClickApiStreamMatchesFilters(['filters_json' => $filtersJson], '1.2.3.4', 'IN', 'desktop', [], 'UA', [], 'en', $stubPdo);
 $assert("legacy stream (no filters_logic) stays AND", $legacy, false);
 
+// Device aliases are grouped before matching, including imported granular
+// values that predate the canonical Mobile/Tablet/Desktop taxonomy.
+$mobileStream = ['filters_json' => json_encode([
+    ['name' => 'Device', 'mode' => 'include', 'payload' => ['mobile']],
+])];
+$tabletStream = ['filters_json' => json_encode([
+    ['name' => 'Device', 'mode' => 'include', 'payload' => ['tablet']],
+])];
+$assert("mobile filter accepts smartphone alias", orbitraClickApiStreamMatchesFilters($mobileStream, '1.2.3.4', 'US', 'smartphone', [], 'UA', [], 'en', $stubPdo), true);
+$assert("mobile filter accepts feature-phone alias", orbitraClickApiStreamMatchesFilters($mobileStream, '1.2.3.4', 'US', 'feature phone', [], 'UA', [], 'en', $stubPdo), true);
+$assert("mobile filter rejects tablet", orbitraClickApiStreamMatchesFilters($mobileStream, '1.2.3.4', 'US', 'iPad', [], 'UA', [], 'en', $stubPdo), false);
+$assert("tablet filter accepts iPad alias", orbitraClickApiStreamMatchesFilters($tabletStream, '1.2.3.4', 'US', 'iPad', [], 'UA', [], 'en', $stubPdo), true);
+$assert("tablet filter rejects desktop", orbitraClickApiStreamMatchesFilters($tabletStream, '1.2.3.4', 'US', 'desktop', [], 'UA', [], 'en', $stubPdo), false);
+
 echo "stream_filters_test: all assertions passed\n";

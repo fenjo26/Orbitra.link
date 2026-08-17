@@ -34,7 +34,7 @@ $pdo->exec('CREATE TABLE conversions (id INTEGER PRIMARY KEY, click_id TEXT, tid
 //   sales=2, leads=1, rejected=1, trash=1
 //   revenue=67.5, revenue_confirmed=30, cost=1.5
 //   cr=6/3*100=200 (multi-conversion clicks may exceed 100% — same as reports)
-//   epc_confirmed=30/3=10, cpc=1.5/3=0.5
+//   epc_confirmed=30/3=10, cpc=cpv=1.5/3=0.5
 //   profit_confirmed=30-1.5=28.5, roi_confirmed=28.5/1.5*100=1900
 // Offer 2 (no traffic): everything zero, ratios 0 / roi null — LEFT JOIN must
 // not fabricate rows or divide by zero.
@@ -87,6 +87,7 @@ $m = orbitraComputeDerivedMetrics($a);
 $assert('A cr', $m['cr'], 200);
 $assert('A epc_confirmed', $m['epc_confirmed'], 10);
 $assert('A cpc', $m['cpc'], 0.5);
+$assert('A cpv', $m['cpv'], 0.5);
 $assert('A profit_confirmed', $m['profit_confirmed'], 28.5);
 $assert('A roi_confirmed', $m['roi_confirmed'], 1900);
 
@@ -100,6 +101,7 @@ $mB = orbitraComputeDerivedMetrics($b);
 $assert('B cr', $mB['cr'], 0);
 $assert('B epc_confirmed', $mB['epc_confirmed'], 0);
 $assert('B cpc', $mB['cpc'], 0);
+$assert('B cpv', $mB['cpv'], 0);
 $assert('B profit_confirmed', $mB['profit_confirmed'], 0);
 $assert('B roi_confirmed (null = no cost)', $mB['roi_confirmed'], null);
 

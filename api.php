@@ -21,6 +21,7 @@ if (!is_dir(__DIR__ . '/var/logs')) {
 // api.php - JSON API для React Dashboard
 require_once 'config.php';
 require_once __DIR__ . '/core/ReportMetrics.php';
+require_once __DIR__ . '/core/ExtensionAdsStats.php';
 require_once 'version.php';
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
@@ -353,6 +354,27 @@ if ($hdrAuth !== '' && preg_match('/Bearer\s+(\S+)/i', $hdrAuth, $mAuth)) {
     $apiKeyProvided = trim($_SERVER['HTTP_X_API_KEY']);
 }
 
+// The browser-extension contract also accepts api_key as a GET/POST parameter.
+// Prefer the header in the bundled extension so credentials do not end up in
+// access logs, while keeping the documented query/form interface available to
+// third-party antidetect integrations.
+$extensionRequestData = [];
+$extensionReadOnlyActions = ['extension_ads_stats', 'extension_deep_stats'];
+if (in_array($action, $extensionReadOnlyActions, true)) {
+    $decodedExtensionBody = json_decode(orbitraRequestBody(), true);
+    if (is_array($decodedExtensionBody)) {
+        $extensionRequestData = $decodedExtensionBody;
+    }
+    if ($apiKeyProvided === '') {
+        $apiKeyProvided = trim((string) (
+            $_GET['api_key']
+            ?? $_POST['api_key']
+            ?? $extensionRequestData['api_key']
+            ?? ''
+        ));
+    }
+}
+
 $apiKeyAuth = null; // ['id','user_id','permissions','role'] when authenticated via API key
 if ($apiKeyProvided !== '' && !isset($_SESSION['user_id'])) {
     try {
@@ -441,7 +463,9 @@ if (!in_array($action, $publicActions)) {
         // permission scope instead: read-only keys cannot perform write actions.
         if ($apiKeyAuth !== null) {
             $keyPerm = strtolower((string) ($apiKeyAuth['permissions'] ?? 'read'));
-            if ($keyPerm !== 'write' && $keyPerm !== 'full') {
+            // Extension reporting actions are reads with a POST transport so
+            // long ID lists need not be put in a URL. Read keys may call them.
+            if (!in_array($action, $extensionReadOnlyActions, true) && $keyPerm !== 'write' && $keyPerm !== 'full') {
                 http_response_code(403);
                 echo json_encode(['status' => 'error', 'message' => 'API key is read-only (write permission required)']);
                 exit;
@@ -1134,6 +1158,95 @@ function extractBrowserLanguageCodes($headerValue)
 
 try {
     switch ($action) {
+        case 'extension_credentials':
+            // Integration-page helper: expose/create one dedicated read key for
+            // the signed-in user. An API key cannot use this endpoint to reveal
+            // another credential, even though both resolve to a user session.
+            if (($_SESSION['auth_via'] ?? '') === 'api_key') {
+                http_response_code(403);
+                echo json_encode(['status' => 'error', 'message' => 'A browser session is required']);
+                break;
+            }
+            $extensionUserId = (int) ($_SESSION['user_id'] ?? 0);
+            $stmtExtensionKey = $pdo->prepare(
+                "SELECT id, api_key, created_at
+                 FROM user_api_keys
+                 WHERE user_id = ? AND key_name = 'Orbitra Ads Manager Extension' AND permissions = 'read'
+                 ORDER BY id DESC LIMIT 1"
+            );
+            $stmtExtensionKey->execute([$extensionUserId]);
+            $extensionKey = $stmtExtensionKey->fetch(PDO::FETCH_ASSOC) ?: null;
+
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && $extensionKey === null) {
+                $newExtensionKey = bin2hex(random_bytes(32));
+                $pdo->prepare(
+                    "INSERT INTO user_api_keys (user_id, key_name, api_key, permissions)
+                     VALUES (?, 'Orbitra Ads Manager Extension', ?, 'read')"
+                )->execute([$extensionUserId, $newExtensionKey]);
+                $extensionKey = [
+                    'id' => (int) $pdo->lastInsertId(),
+                    'api_key' => $newExtensionKey,
+                    'created_at' => date('Y-m-d H:i:s'),
+                ];
+            }
+
+            echo json_encode([
+                'status' => 'success',
+                'data' => [
+                    'api_key' => $extensionKey['api_key'] ?? null,
+                    'key_id' => isset($extensionKey['id']) ? (int) $extensionKey['id'] : null,
+                    'permissions' => 'read',
+                    'created_at' => $extensionKey['created_at'] ?? null,
+                ],
+            ]);
+            break;
+
+        case 'extension_ads_stats':
+            // GET and POST are both read-only. The service worker uses POST with
+            // X-Api-Key so large row batches remain out of URLs and access logs.
+            $extensionInput = array_merge($_GET, $_POST, $extensionRequestData);
+            $extensionDate = orbitraExtensionAdsResolveDate($extensionInput['date'] ?? 'today');
+            if ($extensionDate === null) {
+                http_response_code(400);
+                echo json_encode(['status' => 'error', 'message' => 'date must be today or YYYY-MM-DD']);
+                break;
+            }
+
+            $extensionStats = orbitraExtensionAdsStats(
+                $pdo,
+                $extensionDate,
+                [
+                    'campaign_ids' => $extensionInput['campaign_ids'] ?? '',
+                    'adset_ids' => $extensionInput['adset_ids'] ?? '',
+                    'ad_ids' => $extensionInput['ad_ids'] ?? '',
+                ],
+                $dbTzOffset,
+                getConversionsValueColumn($pdo)
+            );
+            $extensionFinanceFlags = orbitraRequestFinanceFlags();
+            if (!orbitraAllFinanceVisible($extensionFinanceFlags)) {
+                $extensionStats = orbitraMaskFinance($extensionStats, $extensionFinanceFlags);
+                if (empty($extensionFinanceFlags['costs'])) {
+                    foreach ($extensionStats as &$extensionLevelRows) {
+                        foreach ($extensionLevelRows as &$extensionRow) {
+                            $extensionRow['cpl'] = null;
+                            $extensionRow['cps'] = null;
+                        }
+                        unset($extensionRow);
+                    }
+                    unset($extensionLevelRows);
+                }
+            }
+            // Keep the documented map shape even when no Ads Manager rows have
+            // Orbitra traffic for the selected date (`{}` rather than `[]`).
+            foreach (['campaigns', 'adsets', 'ads'] as $extensionLevelName) {
+                if (empty($extensionStats[$extensionLevelName])) {
+                    $extensionStats[$extensionLevelName] = new stdClass();
+                }
+            }
+            echo json_encode(['status' => 'success', 'data' => $extensionStats]);
+            break;
+
         case 'metrics':
             // 7 Stat Cards
             $metrics = [];
@@ -1884,8 +1997,8 @@ try {
                     $pdo->prepare("DELETE FROM streams WHERE campaign_id = ?")->execute([$id]);
 
                     $stmtStream = $pdo->prepare("
-                        INSERT INTO streams (campaign_id, offer_id, weight, is_active, type, position, filters_json, filters_logic, schema_type, action_payload, schema_custom_json, offer_selection, name)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        INSERT INTO streams (campaign_id, offer_id, weight, is_active, type, position, filters_json, filters_logic, schema_type, action_payload, schema_custom_json, offer_selection, name, collect_clicks)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ");
                     foreach ($streams as $str) {
                         // Convert offer_id = 0 to NULL to avoid FOREIGN KEY constraint error
@@ -1907,6 +2020,9 @@ try {
                                 ? $str['offer_selection']
                                 : 'before',
                             $str['name'] ?? null,
+                            // Absent key (older payloads, imports) keeps counting —
+                            // only an explicit 0 opts a stream out of the stats.
+                            (int) ($str['collect_clicks'] ?? 1) === 0 ? 0 : 1,
                         ]);
                     }
 
@@ -2118,8 +2234,8 @@ try {
                         $stmt = $pdo->prepare("
                             INSERT INTO streams (
                                 campaign_id, offer_id, weight, is_active, type,
-                                position, filters_json, filters_logic, schema_type, action_payload, schema_custom_json, name
-                            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                position, filters_json, filters_logic, schema_type, action_payload, schema_custom_json, name, collect_clicks
+                            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         ");
                         $stmt->execute([
                             $newCampaignId, $stream['offer_id'], $stream['weight'],
@@ -2128,7 +2244,8 @@ try {
                             (($stream['filters_logic'] ?? 'and') === 'or') ? 'or' : 'and',
                             $stream['schema_type'],
                             $stream['action_payload'], $stream['schema_custom_json'],
-                            $stream['name'] ?? ''
+                            $stream['name'] ?? '',
+                            (int) ($stream['collect_clicks'] ?? 1) === 0 ? 0 : 1
                         ]);
                     }
 
@@ -2680,7 +2797,7 @@ try {
                 $lRow['prelander_clicks'] = $lRow['clicks'];
                 $m = orbitraComputeDerivedMetrics($lRow);
                 foreach (['lp_ctr', 'cr', 'approve_rate', 'epc', 'epc_confirmed', 'epv',
-                    'cpc', 'profit', 'profit_confirmed', 'roi', 'roi_confirmed'] as $k) {
+                    'cpc', 'cpv', 'profit', 'profit_confirmed', 'roi', 'roi_confirmed'] as $k) {
                     $lRow[$k] = $m[$k];
                 }
                 // A click row IS a landing visit: the LP→offer click-through
@@ -3636,7 +3753,7 @@ try {
                 $oRow['prelander_clicks'] = $oRow['clicks'];
                 $m = orbitraComputeDerivedMetrics($oRow);
                 foreach (['cr', 'approve_rate', 'lp_ctr', 'epc', 'epc_confirmed', 'epv',
-                    'cpc', 'profit', 'profit_confirmed', 'roi', 'roi_confirmed'] as $k) {
+                    'cpc', 'cpv', 'profit', 'profit_confirmed', 'roi', 'roi_confirmed'] as $k) {
                     $oRow[$k] = $m[$k];
                 }
                 $oRow['visits'] = $m['clicks'];
@@ -3969,6 +4086,161 @@ try {
             }
             break;
 
+        case 'ad_entity_toggle_status':
+            // RedTrack-style play/pause from the tracker tables. Two very
+            // different targets share the endpoint: an internal campaign
+            // (state drives serving, index.php refuses disabled campaigns)
+            // and an ad-network entity (ad / adset / ad campaign from the
+            // report's click-parameter dimensions) — a command to the
+            // network's API, not a local status.
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST method required']);
+                break;
+            }
+            $data = json_decode(orbitraRequestBody(), true);
+            $type = (string) ($data['entity_type'] ?? 'campaign');
+            $entityId = trim((string) ($data['entity_id'] ?? ''));
+            $targetStatus = strtoupper((string) ($data['target_status'] ?? 'PAUSED')) === 'ACTIVE' ? 'ACTIVE' : 'PAUSED';
+
+            if ($entityId === '' || $entityId === 'Unknown' || !ctype_digit($entityId)) {
+                echo json_encode(['status' => 'error', 'code' => 'invalid_id', 'message' => 'Numeric entity ID required']);
+                break;
+            }
+
+            if ($type === 'campaign') {
+                $newState = $targetStatus === 'ACTIVE' ? 'active' : 'disabled';
+                $stmt = $pdo->prepare("UPDATE campaigns SET state = ? WHERE id = ?");
+                $stmt->execute([$newState, (int) $entityId]);
+                logAudit($pdo, 'UPDATE', 'Campaign', (int) $entityId, "State: $newState (panel toggle)");
+                echo json_encode(['status' => 'success', 'new_status' => $targetStatus, 'source' => 'internal']);
+                break;
+            }
+
+            if (!in_array($type, ['ad', 'adset', 'ad_campaign'], true)) {
+                echo json_encode(['status' => 'error', 'code' => 'unsupported_network', 'message' => 'Unsupported entity type']);
+                break;
+            }
+
+            // Facebook only for now: the connection that owns the entity is
+            // the one whose cost records mention its id; without a cost
+            // record, an unambiguous single connected account still works.
+            $stmt = $pdo->prepare("
+                SELECT cr.connection_id FROM cost_records cr
+                JOIN aggregator_connections ac ON ac.id = cr.connection_id
+                WHERE ac.engine = 'facebook' AND ac.is_active = 1
+                  AND (cr.ad_id = ? OR cr.adset_id = ? OR cr.source_campaign_id = ?)
+                ORDER BY cr.id DESC LIMIT 1");
+            $stmt->execute([$entityId, $entityId, $entityId]);
+            $connId = $stmt->fetchColumn();
+            if (!$connId) {
+                $fbIds = $pdo->query("SELECT id FROM aggregator_connections WHERE engine = 'facebook' AND is_active = 1 ORDER BY id LIMIT 2")->fetchAll(PDO::FETCH_COLUMN);
+                if (count($fbIds) === 1) {
+                    $connId = $fbIds[0];
+                }
+            }
+            if (!$connId) {
+                echo json_encode(['status' => 'error', 'code' => 'no_connection', 'message' => 'No Facebook API connection found for this entity']);
+                break;
+            }
+
+            $stmt = $pdo->prepare("SELECT credentials_json FROM aggregator_connections WHERE id = ?");
+            $stmt->execute([(int) $connId]);
+            $credentials = json_decode((string) $stmt->fetchColumn(), true);
+            if (!is_array($credentials)) {
+                $credentials = [];
+            }
+
+            require_once __DIR__ . '/aggregator_engines/FacebookAdsEngine.php';
+            $res = FacebookAdsEngine::updateEntityStatus($credentials, $entityId, $targetStatus);
+            if (!empty($res['success'])) {
+                logAudit($pdo, 'UPDATE', 'AdEntity', (int) $connId, "Facebook $type $entityId → $targetStatus");
+                echo json_encode(['status' => 'success', 'new_status' => $targetStatus, 'network' => 'facebook']);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => $res['message'] ?? 'Failed to update status on Facebook']);
+            }
+            break;
+
+        case 'extension_deep_stats':
+            // Ads Manager overlay extension endpoint. Authenticated by a
+            // personal API key (Authorization: Bearer, X-Api-Key or the
+            // body's api_key — a content script cannot set headers), never
+            // by session: it is called from the browser extension context.
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST method required']);
+                break;
+            }
+            $data = json_decode(orbitraRequestBody(), true);
+            if (!is_array($data)) {
+                $data = [];
+            }
+            $extKey = '';
+            $hdrAuth = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+            if (preg_match('/Bearer\s+(\S+)/i', (string) $hdrAuth, $mExt)) {
+                $extKey = trim($mExt[1]);
+            } elseif (!empty($_SERVER['HTTP_X_API_KEY'])) {
+                $extKey = trim((string) $_SERVER['HTTP_X_API_KEY']);
+            } elseif (!empty($data['api_key'])) {
+                $extKey = trim((string) $data['api_key']);
+            }
+            if ($extKey === '') {
+                echo json_encode(['status' => 'error', 'message' => 'API key required']);
+                break;
+            }
+            try {
+                $stmtKey = $pdo->prepare(
+                    "SELECT k.id FROM user_api_keys k JOIN users u ON u.id = k.user_id
+                     WHERE k.api_key = ? AND u.is_active = 1 LIMIT 1"
+                );
+                $stmtKey->execute([$extKey]);
+                $keyOk = $stmtKey->fetchColumn();
+            } catch (\Exception $e) {
+                $keyOk = false;
+            }
+            if (!$keyOk) {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid API key']);
+                break;
+            }
+
+            $dateFrom = preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) ($data['date_from'] ?? '')) ? $data['date_from'] : date('Y-m-d', strtotime('-2 days'));
+            $dateTo = preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) ($data['date_to'] ?? '')) ? $data['date_to'] : date('Y-m-d');
+            $entities = [];
+            foreach ((array) ($data['entities'] ?? []) as $e) {
+                $entityType = is_array($e) ? (string) ($e['type'] ?? '') : '';
+                $entityId = is_array($e) ? trim((string) ($e['id'] ?? '')) : '';
+                if (in_array($entityType, ['ad', 'adset', 'campaign'], true) && preg_match('/^\d{1,32}$/', $entityId)) {
+                    $entities[] = ['type' => $entityType, 'id' => $entityId];
+                    if (count($entities) >= 50) {
+                        break;
+                    }
+                }
+            }
+            if (!$entities) {
+                echo json_encode(['status' => 'error', 'message' => 'entities required']);
+                break;
+            }
+
+            require_once __DIR__ . '/core/ExtensionStats.php';
+            $result = ExtensionStats::deepStats($pdo, getConversionsValueColumn($pdo), $dateFrom, $dateTo, $entities);
+            $deepFinanceFlags = orbitraRequestFinanceFlags();
+            if (!orbitraAllFinanceVisible($deepFinanceFlags)) {
+                $result = orbitraMaskFinance($result, $deepFinanceFlags);
+                if (empty($deepFinanceFlags['costs'])) {
+                    foreach (['totals'] as $deepRowKey) {
+                        if (isset($result[$deepRowKey]) && is_array($result[$deepRowKey])) {
+                            $result[$deepRowKey]['cpl'] = null;
+                            $result[$deepRowKey]['cps'] = null;
+                        }
+                    }
+                    foreach (($result['entities'] ?? []) as &$deepEntityRow) {
+                        $deepEntityRow['cpl'] = null;
+                        $deepEntityRow['cps'] = null;
+                    }
+                    unset($deepEntityRow);
+                }
+            }
+            echo json_encode(['status' => 'success', 'data' => $result]);
+            break;
+
         case 'delete_offer_group':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);
@@ -4122,22 +4394,22 @@ try {
             $templates = [
                 [
                     'name' => 'generic',
-                    'display_name' => 'Generic',
+                    'display_name' => 'Generic Postback',
                     'offer_params_template' => '&subid={subid}',
-                    'postback_url_template' => ''
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={subid}&status={status}&payout={payout}&tid={tid}'
                 ],
                 // --- Platform-level templates: work with ANY network running on these platforms ---
                 [
                     'name' => 'everflow',
                     'display_name' => 'Everflow (platform)',
                     'offer_params_template' => '&sub1={subid}',
-                    'postback_url_template' => ''
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={sub1}&payout={amount}&status={status}&currency={currency}&from=Everflow'
                 ],
                 [
                     'name' => 'cake',
                     'display_name' => 'CAKE (platform)',
                     'offer_params_template' => '&s1={subid}',
-                    'postback_url_template' => ''
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid=#s1#&payout=#payout#&status=#status#&from=CAKE'
                 ],
                 [
                     'name' => 'hitpath',
@@ -4149,13 +4421,13 @@ try {
                     'name' => 'affise',
                     'display_name' => 'Affise (platform)',
                     'offer_params_template' => '&sub1={subid}',
-                    'postback_url_template' => ''
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={sub1}&payout={sum}&status={status}&currency={currency}&from=Affise'
                 ],
                 [
                     'name' => 'tune',
                     'display_name' => 'TUNE / HasOffers (platform)',
                     'offer_params_template' => '&aff_sub={subid}',
-                    'postback_url_template' => ''
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={aff_sub}&payout={payout}&status={status}&currency={currency}&from=TUNE'
                 ],
                 [
                     'name' => 'onewin',
@@ -4365,14 +4637,32 @@ try {
                 [
                     'name' => 'drcash',
                     'display_name' => 'Dr.Cash',
-                    'offer_params_template' => '&subid={subid}',
-                    'postback_url_template' => ''
+                    'offer_params_template' => '&sub1={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={sub1}&payout={payment}&status={status}&lead_status=pending&sale_status=approved&rejected_status=rejected,trash&currency=USD&from=drcash'
+                ],
+                [
+                    'name' => 'webvork',
+                    'display_name' => 'Webvork',
+                    'offer_params_template' => '&utm_campaign={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={utm_campaign}&payout={price}&status={status}&lead_status=pending&sale_status=approved&rejected_status=rejected,trash&currency=EUR&from=webvork'
                 ],
                 [
                     'name' => 'adcombo',
                     'display_name' => 'AdCombo',
-                    'offer_params_template' => '&subid={subid}',
-                    'postback_url_template' => ''
+                    'offer_params_template' => '&subacc={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={subacc}&payout={revenue}&status={status}&lead_status=hold&sale_status=confirmed&rejected_status=rejected,trash&currency=USD&from=adcombo'
+                ],
+                [
+                    'name' => 'kma',
+                    'display_name' => 'KMA.biz',
+                    'offer_params_template' => '&data1={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={data1}&payout={sum}&status={status}&lead_status=pending&sale_status=accepted&rejected_status=declined,trash&currency=rub&from=kma.biz'
+                ],
+                [
+                    'name' => 'everad',
+                    'display_name' => 'Everad',
+                    'offer_params_template' => '&sid1={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={sid1}&payout={payout}&status={status}&lead_status=new&sale_status=approved&rejected_status=rejected,trash&currency=USD&from=everad'
                 ],
                 [
                     'name' => 'partners1xbet',
@@ -4384,13 +4674,13 @@ try {
                     'name' => 'traffic_light',
                     'display_name' => 'Traffic Light',
                     'offer_params_template' => '&subid={subid}',
-                    'postback_url_template' => ''
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={subid}&payout={payout}&status={status}&lead_status=1&sale_status=2&rejected_status=3,4&currency=rub&from=TrafficLight'
                 ],
                 [
                     'name' => 'lemonad',
-                    'display_name' => 'LemonAD',
-                    'offer_params_template' => '&subid={subid}',
-                    'postback_url_template' => ''
+                    'display_name' => 'LemonAD.com',
+                    'offer_params_template' => '&clickid={subid}',
+                    'postback_url_template' => 'http://{domain}/{postback_key}/postback?subid={clickid}&payout={payout}&status={status}&lead_status=lead&sale_status=sale&rejected_status=rejected,trash&currency=USD&from=LemonAD.com'
                 ],
                 [
                     'name' => 'custom',
@@ -7374,14 +7664,20 @@ try {
             $out = [];
             foreach ($rows as $r) {
                 $dims = [];
+                $dimIds = [];
                 foreach ($layers as $i => $layer) {
                     $v = (string) ($r['dim_' . ($i + 1)] ?? 'Unknown');
+                    // dim_ids keeps the raw grouping value (internal campaign id,
+                    // ad network ad/adset id from click parameters) — dims may
+                    // replace it with a display name, but actions like the
+                    // play/pause toggle need the id itself.
+                    $dimIds[] = $v;
                     if (isset($nameMaps[$layer][$v])) {
                         $v = (string) $nameMaps[$layer][$v];
                     }
                     $dims[] = $v;
                 }
-                $out[] = array_merge(['dims' => $dims], orbitraComputeDerivedMetrics($r));
+                $out[] = array_merge(['dims' => $dims, 'dim_ids' => $dimIds], orbitraComputeDerivedMetrics($r));
             }
 
             $financeFlags = orbitraRequestFinanceFlags();

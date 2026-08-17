@@ -1,8 +1,8 @@
 export default {
     "streams": {
-        "desktop": "Комп'ютер",
-        "mobile": "Телефон",
-        "tablet": "Планшет"
+        "desktop": "Десктоп",
+        "mobile": "Мобільні",
+        "tablet": "Планшети"
     },
     "parameters": {
         "adId": "ID оголошення",
@@ -18,10 +18,15 @@ export default {
         "externalId": "Зовнішній ID",
         "creativeId": "ID креативу",
         "adCampaignId": "ID рекламної кампанії",
-        "source": "Джерело"
+        "source": "Джерело",
+        "enterParamKey": "Введіть ключ параметра (наприклад, utm_placement, placement, custom_id):",
+        "addParam": "Додати параметр",
+        "additionalSubIds": "Додаткові Sub ID (sub_id_1 .. sub_id_30)",
+        "placement": "Плейсмент (utm_placement)"
     },
     "costModels": {
         "cpc": "CPC — оплата за клік",
+        "cpv": "CPV — вартість за візит",
         "cpuc": "CPuC — оплата за унікальний клік",
         "cpm": "CPM — оплата за 1000 показів",
         "cpa": "CPA — оплата за дію",
@@ -294,7 +299,10 @@ export default {
         "confirmPassword": "Підтвердьте пароль",
         "confirmPasswordPlaceholder": "Повторіть новий пароль",
         "passwordsNotMatch": "Паролі не збігаються",
-        "saveSuccess": "Налаштування успішно збережено"
+        "saveSuccess": "Налаштування успішно збережено",
+        "stayInEditorAfterSave": "Залишатися в редакторі після збереження",
+        "stayInEditorHint": "Не закривати кампанії, лендінги та офери після натискання кнопки «Зберегти».",
+        "saveAndClose": "Зберегти та закрити"
     },
     "setup": {
         "title": "Початкове налаштування",
@@ -377,6 +385,9 @@ export default {
         "recentClicksLog": "Останні кліки (журнали)",
         "colDirection": "Напрямок",
         "noLogs": "Без журналів",
+        "showMoreLogs": "Показати більше (+10)",
+        "showLess": "Згорнути",
+        "last10Logs": "Останні 10 кліків (натисніть, щоб розгорнути)",
         "viewFullLogs": "Переглянути повні журнали"
     },
     "metrics": {
@@ -388,6 +399,7 @@ export default {
         "profit": "Прибуток",
         "roi": "ROI",
         "cpc": "CPC",
+        "cpv": "CPV — вартість за візит",
         "cpa": "CPA",
         "ctr": "CTR",
         "visits": "Візити",
@@ -423,6 +435,9 @@ export default {
         "copyErrors": "Помилки"
     },
     "editor": {
+        "collectClicks": "Збирати кліки",
+        "collectClicksHint": "Записувати кліки в статистику та звіти для цього потоку. Вимкнено: відвідувач одержує напрямок, але рядок кліку не пишеться — конверсії з цього потоку нічого прив’язати.",
+        "collectClicksDisabledNote": "Кліки для цього потоку не записуються в статистику",
         "showText": "Показати текст / порожньо",
         "toCampaign": "Надіслати в кампанію",
         "selectCampaign": "— оберіть кампанію —",
@@ -643,6 +658,13 @@ export default {
         "step4": "Переконайтеся, що subid передається в пропозицію через «Параметри пропозиції»",
         "step5": "Перевірте вхідні конверсії на вкладці «Конверсії».",
         "examplePostback": "Приклад зворотної URL-адреси"
+    },
+    "affiliateNetworks": {
+        "postbackUrl": "Postback URL",
+        "offerParams": "Параметри оффера",
+        "useNetworkTemplate": "Шаблон партнерки",
+        "useGenericTemplate": "Стандартний Postback",
+        "resetToTemplate": "Скинути до шаблону мережі"
     },
     "components": {
         "aliasName": "Псевдонім / Ім'я",
@@ -1814,7 +1836,51 @@ export default {
         "system": "система",
         "privacy": "Конфіденційність"
     },
+    "table": {
+        "copyLink": "Копіювати посилання",
+        "duplicate": "Дублювати",
+        "perPage": "На сторінці",
+        "prev": "Назад",
+        "next": "Далі",
+        "all": "Усі",
+        "total": "РАЗОМ",
+        "name": "Назва",
+        "group": "Група",
+        "actions": "Дії",
+        "selectAll": "Обрати всі рядки",
+    },
+
+    "extension": {
+        "title": "Оверлей Orbitra для Ads Manager",
+        "last3Days": "Останні 3 дні",
+        "last4Days": "Останні 4 дні",
+        "today": "Сьогодні",
+        "yesterday": "Вчора",
+        "overview": "Огляд",
+        "dailyHistory": "Історія по днях",
+        "landingsAndOffers": "Лендінги та Офери",
+        "pixelAccuracy": "Точність Pixel та CAPI",
+        "winner": "ТОП / WINNER",
+        "spend": "Витрати",
+        "revenue": "Дохід",
+        "profit": "Прибуток",
+        "roi": "ROI",
+        "cpa": "CPA",
+        "cpl": "CPL",
+        "cps": "CPS",
+    },
+
     "automation": {
+        "status": "Статус",
+        "active": "Активно",
+        "paused": "Призупинено",
+        "clickToPause": "Натисніть, щоб зупинити",
+        "clickToResume": "Натисніть, щоб запустити",
+        "statusUpdated": "Статус успішно оновлено",
+        "statusUpdateError": "Не вдалося оновити статус у рекламній мережі",
+        "noConnection": "API-підключення Facebook не знайдено — спочатку підключіть рекламний кабінет в імпорті витрат",
+        "unsupportedNetwork": "Ця рекламна мережа ще не підтримується",
+        "invalidId": "Невірний id сутності",
         "title": "Cron і автоматизація",
         "backorderCronTitle": "Замовлення: заплановані перевірки домену",
         "backorderCronDesc": "Перевірка доступності домену виконується окремим сценарієм cron і обробляє 1 домен за один запуск. Тут ви можете ввімкнути/вимкнути виконання та скопіювати готову до використання команду cron.",
@@ -2052,6 +2118,15 @@ export default {
         "groupSites": "Сайти та лендінги",
         "groupTools": "Інструменти",
         "groupOther": "Інше",
+        "chromeExtension": "Розширення Chrome та Антидетект",
+        "chromeExtDesc": "Відображення статистики трекера в реальному часі прямо у Facebook Ads Manager всередині AdsPower, Dolphin{anty} та Chrome.",
+        "extTemplate1": "Шаблон 1: CPA / Воронка (CPA, Спенд, Дохід, ROI, Профіт)",
+        "extTemplate2": "Шаблон 2: COD / Нутра (CPL, CPS, Спенд, Підтвердж. дохід, ROI conf, Профіт)",
+        "downloadExtension": "Завантажити розширення (.ZIP)",
+        "antidetectInstallGuide": "Інструкція з встановлення в антидетект-браузери",
+        "adspowerGuide": "AdsPower: відкрийте Центр додатків → Завантажити розширення → оберіть розпаковану папку.",
+        "dolphinGuide": "Dolphin{anty}: перейдіть у Налаштування → Розширення → Додати розширення або перетягніть ZIP-архів.",
+        "chromeGuide": "Google Chrome: відкрийте chrome://extensions → увімкніть Режим розробника → Завантажити розпаковане.",
         "howItWorks": "Як працюють інтеграції",
         "introText": "Інтегруйте Orbitra зі своїми зовнішніми цільовими сторінками або програмами за допомогою одного з цих методів. Це дозволяє відстежувати трафік поза стандартними посиланнями відстеження, централізуючи дані у вашій базі даних Orbitra.",
         "usageExamples": "Приклади використання:",
@@ -2330,6 +2405,8 @@ export default {
         "safeLandingNone": "— немає —",
         "safeUrl": "Безпечний URL",
         "safeHtml": "Безпечний HTML (вбудований)",
+        "dontRecordSafeClicks": "Не записувати кліки на Safe Page",
+        "dontRecordSafeClicksHint": "Боти, модератори та парсери, що потрапили на Safe Page, не записуватимуться в базу кліків і не потраплять у звіти.",
         "moneyPage": "Грошова сторінка (для відвідувачів)",
         "moneyPageHint": "Показується реальним відвідувачам. Працює як схема лендинг+оффер."
     },

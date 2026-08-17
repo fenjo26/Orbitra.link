@@ -163,6 +163,60 @@ class FacebookAdsEngine
         return $records;
     }
 
+    /**
+     * Пауза/запуск объявления, адсета или кампании Meta прямо из трекера.
+     * Трекер — не источник правды о состоянии в сети, поэтому это команда:
+     * подтвердили ответ Graph API и всё, UI ведёт свою оптимистичную отметку.
+     *
+     * @param array $credentials credentials_json подключения (token, api_version, proxy_url)
+     * @param string $entityId   числовой id объекта Graph API (ad / adset / campaign)
+     * @param string $status     'ACTIVE' | 'PAUSED'
+     * @return array{success:bool,message:string}
+     */
+    public static function updateEntityStatus(array $credentials, string $entityId, string $status): array
+    {
+        $token = trim((string) ($credentials['token'] ?? ''));
+        $entityId = trim($entityId);
+        if ($token === '' || $entityId === '' || !ctype_digit($entityId)) {
+            return ['success' => false, 'message' => 'Facebook: entity id and Access Token are required.'];
+        }
+        $status = strtoupper($status) === 'ACTIVE' ? 'ACTIVE' : 'PAUSED';
+
+        $ch = curl_init(self::apiBase($credentials) . '/' . $entityId);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query(['status' => $status, 'access_token' => $token]));
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+        self::applyProxy($ch, $credentials);
+
+        $body = curl_exec($ch);
+        $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlErr = curl_error($ch);
+        curl_close($ch);
+
+        if ($curlErr !== '') {
+            return ['success' => false, 'message' => 'HTTP transport error: ' . $curlErr];
+        }
+        if (!is_string($body)) {
+            return ['success' => false, 'message' => 'Empty response from Facebook API.'];
+        }
+        $decoded = json_decode($body, true);
+        if ($code < 200 || $code >= 300) {
+            $fbError = is_array($decoded) ? ($decoded['error'] ?? null) : null;
+            if (is_array($fbError)) {
+                $msg = $fbError['message'] ?? 'unknown error';
+                return ['success' => false, 'message' => "HTTP $code: $msg"];
+            }
+            return ['success' => false, 'message' => "HTTP $code: " . substr($body, 0, 300)];
+        }
+        if (!is_array($decoded) || empty($decoded['success'])) {
+            return ['success' => false, 'message' => 'Facebook did not confirm the status change.'];
+        }
+        return ['success' => true, 'message' => $status];
+    }
+
     /** Базовый URL с версией из настроек подключения. */
     private static function apiBase(array $credentials): string
     {

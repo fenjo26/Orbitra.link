@@ -69,6 +69,13 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
         }
     };
 
+    const getGenericPostbackUrl = () => {
+        const protocol = window.location.protocol;
+        const host = window.location.host;
+        const key = postbackKey || 'fd12e72';
+        return `${protocol}//${host}/${key}/postback?subid={subid}&status={status}&payout={payout}&tid={tid}`;
+    };
+
     const buildPostbackUrl = (templateObj) => {
         const protocol = window.location.protocol;
         const host = window.location.host;
@@ -76,11 +83,11 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
         const tpl = templateObj?.postback_url_template;
         if (tpl) {
             return tpl
-                .replace('http://{domain}', `${protocol}//${host}`)
+                .replace(/^https?:\/\/\{domain\}/, `${protocol}//${host}`)
                 .replace(/\{domain\}/g, host)
                 .replace(/\{postback_key\}/g, key);
         }
-        return `${protocol}//${host}/${key}/postback?subid={subid}&status={status}&payout={payout}&tid={tid}`;
+        return getGenericPostbackUrl();
     };
 
     const handleTemplateChange = (templateName) => {
@@ -94,6 +101,25 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
                 notes: (template.notes_template && template.notes_template.startsWith('tpl.')) ? t(template.notes_template) : (template.notes_template || '')
             });
         }
+    };
+
+    const useNetworkTemplate = () => {
+        const template = templates.find(t => t.name === formData.template);
+        if (!template) return;
+
+        setFormData(prev => ({
+            ...prev,
+            postback_url: buildPostbackUrl(template),
+            offer_params: template.offer_params_template || prev.offer_params
+        }));
+    };
+
+    const useGenericTemplate = () => {
+        setFormData(prev => ({
+            ...prev,
+            postback_url: getGenericPostbackUrl(),
+            offer_params: '&subid={subid}'
+        }));
     };
 
     const handleSave = async () => {
@@ -115,17 +141,11 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
             } else {
                 alert(t('offerEditor.saveError') + ' ' + res.data.message);
             }
-        } catch (err) {
+        } catch {
             alert(t('offerEditor.networkError'));
         } finally {
             setSaving(false);
         }
-    };
-
-    const getPostbackUrl = () => {
-        const protocol = window.location.protocol;
-        const host = window.location.host;
-        return `${protocol}//${host}/${postbackKey}/postback`;
     };
 
     const copyToClipboard = async (text) => {
@@ -225,7 +245,30 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
                                 background: 'color-mix(in srgb, var(--color-primary) 8%, transparent)',
                                 borderColor: 'color-mix(in srgb, var(--color-primary) 30%, transparent)'
                             }}>
-                                <h3 className="font-medium" style={{ color: 'var(--color-primary)' }}>Postback URL</h3>
+                                <div className="flex items-center justify-between gap-3">
+                                    <h3 className="font-medium" style={{ color: 'var(--color-primary)' }}>
+                                        {t('affiliateNetworks.postbackUrl', 'Postback URL')}
+                                    </h3>
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={useNetworkTemplate}
+                                            className="text-[11px] font-medium text-[var(--color-primary)] hover:underline"
+                                            title={t('affiliateNetworks.resetToTemplate', 'Reset to Network Template')}
+                                        >
+                                            ↻ {t('affiliateNetworks.useNetworkTemplate', 'Network Template')}
+                                        </button>
+                                        <span className="text-[11px]" style={{ color: 'var(--color-text-muted)' }}>|</span>
+                                        <button
+                                            type="button"
+                                            onClick={useGenericTemplate}
+                                            className="text-[11px] font-medium hover:underline"
+                                            style={{ color: 'var(--color-text-secondary)' }}
+                                        >
+                                            {t('affiliateNetworks.useGenericTemplate', 'Generic Postback')}
+                                        </button>
+                                    </div>
+                                </div>
                                 <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                                     {t('networkEditor.postbackHint')}
                                 </p>
@@ -235,10 +278,16 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
                                         value={formData.postback_url}
                                         onChange={(e) => setFormData({ ...formData, postback_url: e.target.value })}
                                         className="form-input font-mono"
-                                        placeholder={getPostbackUrl()}
+                                        placeholder={getGenericPostbackUrl()}
                                         spellCheck="false"
                                     />
-                                    <button onClick={() => copyToClipboard(formData.postback_url || getPostbackUrl())} className="btn btn-secondary btn-icon">
+                                    <button
+                                        type="button"
+                                        onClick={() => copyToClipboard(formData.postback_url || getGenericPostbackUrl())}
+                                        className="btn btn-secondary btn-icon"
+                                        title={t('common.copy')}
+                                        aria-label={t('common.copy')}
+                                    >
                                         {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                                     </button>
                                 </div>
@@ -255,7 +304,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
 
                             {/* Offer Parameters */}
                             <div className="p-4 rounded border space-y-4" style={{ background: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}>
-                                <h3 className="font-medium pb-2" style={{ color: 'var(--color-text-primary)', borderBottom: '1px solid var(--color-border)' }}>{t('networkEditor.offerParams')}</h3>
+                                <h3 className="font-medium pb-2" style={{ color: 'var(--color-text-primary)', borderBottom: '1px solid var(--color-border)' }}>{t('affiliateNetworks.offerParams', 'Offer Parameters')}</h3>
                                 <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                                     {t('networkEditor.offerParamsDesc')}
                                 </p>
@@ -290,7 +339,6 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
                                                     border: '1px solid var(--color-border)'
                                                 }}
                                                 onClick={() => {
-                                                    const input = document.querySelector('input[value="' + formData.offer_params + '"]');
                                                     navigator.clipboard.writeText(m.macro);
                                                 }}
                                             >

@@ -159,8 +159,8 @@ const TrafficSources = ({ refreshData }) => {
         setShowEditor(true);
     };
 
-    const handleEditorSave = () => {
-        setShowEditor(false);
+    const handleEditorSave = (_saved, shouldClose = true) => {
+        if (shouldClose) setShowEditor(false);
         fetchSources();
         refreshData && refreshData();
     };

@@ -3,6 +3,7 @@ import { Save, X, Upload, FileText, Code, Check, Plus, Eye, ExternalLink } from 
 import axios from 'axios';
 import GroupsModal from './GroupsModal';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getStayInEditorAfterSave } from '../utils/editorPreferences';
 import { translateLandingError, translateLandingRequestError } from '../utils/landingErrors';
 
 const API_URL = '/api.php';
@@ -68,6 +69,8 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
     });
     const [groups, setGroups] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [saveSuccess, setSaveSuccess] = useState(false);
     // Quick-create group from the "+" next to the group select, same as the offer editor.
     const [showGroupsModal, setShowGroupsModal] = useState(false);
     // Only needed by the "send to campaign" action, so it is fetched on demand.
@@ -161,9 +164,11 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
         }
     };
 
-    const handleFormSubmit = async (e) => {
-        e.preventDefault();
+    const handleSave = async (forceClose = false) => {
+        if (loading || saving || uploadingZip || saveSuccess) return;
+
         try {
+            setSaving(true);
             const payload = { ...landing };
             if (landingId) payload.id = landingId;
 
@@ -172,25 +177,23 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                 setSavedSomething(true);
                 const newId = res.data.data?.id;
                 if (onSaved) onSaved(newId || landingId);
+                if (!landingId && newId) setLandingId(newId);
 
-                // A local landing that has just been created keeps the modal open
-                // and switches to edit mode: the archive panel needs an id, and
-                // closing the window right after saying "now you can upload files"
-                // is what forced the trip back through the list.
                 if (!landingId && newId && landing.type === 'local') {
-                    setLandingId(newId);
                     if (pendingZip) {
                         const zip = pendingZip;
                         setPendingZip(null);
                         await uploadZip(newId, zip);
-                    } else {
-                        alert(t('landingEditor.savedFiles'));
                     }
-                    return;
                 }
 
-                alert(t('landingEditor.savedSuccess'));
-                onClose(true);
+                setSaveSuccess(true);
+                setTimeout(() => {
+                    setSaveSuccess(false);
+                    if (forceClose || !getStayInEditorAfterSave()) {
+                        onClose(true);
+                    }
+                }, 1000);
             } else {
                 alert(translateLandingError(t, res.data.message, res.data.detail) || t('landingEditor.saveError'));
             }
@@ -198,7 +201,14 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
             // The server's own message is far more useful than "network error" —
             // a rejected slug and an unreachable host used to read the same.
             alert(translateLandingRequestError(t, error));
+        } finally {
+            setSaving(false);
         }
+    };
+
+    const handleFormSubmit = (event) => {
+        event.preventDefault();
+        handleSave(false);
     };
 
     // File operations inside the landing folder. The server re-checks every path
@@ -887,15 +897,30 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                         {t('common.cancel')}
                     </button>
                     <button
+                        type="button"
+                        onClick={() => handleSave(true)}
+                        disabled={loading || saving || uploadingZip || saveSuccess}
+                        className="btn btn-secondary"
+                    >
+                        {t('profile.saveAndClose')}
+                    </button>
+                    <button
                         type="submit"
                         form="landing-form"
                         className="btn btn-primary"
                         // The archive upload must finish before the campaign link
                         // is worth testing — the first click used to race it.
-                        disabled={uploadingZip}
+                        disabled={loading || saving || uploadingZip || saveSuccess}
+                        style={saveSuccess ? { backgroundColor: 'var(--color-success)' } : {}}
                     >
                         <Check className="w-4 h-4 mr-1.5" />
-                        {uploadingZip ? t('landingEditor.uploadingZip') : (landingId ? t('landingEditor.saveChanges') : t('landingEditor.createLanding'))}
+                        {saveSuccess
+                            ? t('editor.saved')
+                            : saving
+                                ? t('common.saving')
+                                : uploadingZip
+                                ? t('landingEditor.uploadingZip')
+                                : (landingId ? t('landingEditor.saveChanges') : t('landingEditor.createLanding'))}
                     </button>
                 </div>
             </div>

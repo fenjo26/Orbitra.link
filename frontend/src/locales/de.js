@@ -18,10 +18,15 @@ export default {
         "externalId": "Externe ID",
         "creativeId": "Creative-ID",
         "adCampaignId": "Werbekampagnen-ID",
-        "source": "Quelle"
+        "source": "Quelle",
+        "enterParamKey": "Parameterschlüssel eingeben (z. B. utm_placement, placement, custom_id):",
+        "addParam": "Parameter hinzufügen",
+        "additionalSubIds": "Zusätzliche Sub-IDs (sub_id_1 .. sub_id_30)",
+        "placement": "Platzierung (utm_placement)"
     },
     "costModels": {
         "cpc": "CPC — Kosten pro Klick",
+        "cpv": "CPV — Kosten pro Besuch",
         "cpuc": "CPuC — Kosten pro eindeutigem Klick",
         "cpm": "CPM — Kosten pro 1000 Impressionen",
         "cpa": "CPA — Kosten pro Aktion",
@@ -294,7 +299,10 @@ export default {
         "confirmPassword": "Passwort bestätigen",
         "confirmPasswordPlaceholder": "Neues Passwort wiederholen",
         "passwordsNotMatch": "Passwörter stimmen nicht überein",
-        "saveSuccess": "Einstellungen erfolgreich gespeichert"
+        "saveSuccess": "Einstellungen erfolgreich gespeichert",
+        "stayInEditorAfterSave": "Nach dem Speichern im Editor bleiben",
+        "stayInEditorHint": "Kampagnen, Landingpages und Angebote nach dem Klicken auf Speichern geöffnet lassen.",
+        "saveAndClose": "Speichern & Schließen"
     },
     "setup": {
         "title": "Ersteinrichtung",
@@ -377,6 +385,9 @@ export default {
         "recentClicksLog": "Recent Clicks (Logs)",
         "colDirection": "Direction",
         "noLogs": "No logs",
+        "showMoreLogs": "Mehr anzeigen (+10)",
+        "showLess": "Weniger anzeigen",
+        "last10Logs": "Letzte 10 Klicks (zum Erweitern klicken)",
         "viewFullLogs": "View full logs"
     },
     "metrics": {
@@ -388,6 +399,7 @@ export default {
         "profit": "Gewinn",
         "roi": "ROI",
         "cpc": "CPC",
+        "cpv": "CPV — Kosten pro Besuch",
         "cpa": "CPA",
         "ctr": "CTR",
         "visits": "Besuche",
@@ -423,6 +435,9 @@ export default {
         "copyErrors": "Fehler"
     },
     "editor": {
+        "collectClicks": "Klicks erfassen",
+        "collectClicksHint": "Klicks in Statistiken und Berichten für diesen Stream aufzeichnen. Aus: der Besucher bekommt das Ziel weiterhin, aber es wird keine Klick-Zeile geschrieben — Konversionen aus diesem Stream haben keinen Anknüpfungspunkt.",
+        "collectClicksDisabledNote": "Klicks für diesen Stream werden nicht aufgezeichnet",
         "showText": "Text zeigen / leer",
         "toCampaign": "An Kampagne senden",
         "selectCampaign": "— Kampagne wählen —",
@@ -643,6 +658,13 @@ export default {
         "step4": "Stellen Sie sicher, dass subid über „Angebotsparameter“ an das Angebot übergeben wird",
         "step5": "Überprüfen Sie auf der Registerkarte „Conversions“ nach eingehenden Conversions",
         "examplePostback": "Beispiel-Postback-URL"
+    },
+    "affiliateNetworks": {
+        "postbackUrl": "Postback-URL",
+        "offerParams": "Angebots-Parameter",
+        "useNetworkTemplate": "Netzwerk-Vorlage",
+        "useGenericTemplate": "Standard-Postback",
+        "resetToTemplate": "Auf Netzwerk-Vorlage zurücksetzen"
     },
     "components": {
         "aliasName": "Alias/Name",
@@ -1814,7 +1836,51 @@ export default {
         "system": "System",
         "privacy": "Datenschutz"
     },
+    "table": {
+        "copyLink": "Link kopieren",
+        "duplicate": "Duplizieren",
+        "perPage": "Pro Seite",
+        "prev": "Zurück",
+        "next": "Weiter",
+        "all": "Alle",
+        "total": "GESAMT",
+        "name": "Name",
+        "group": "Gruppe",
+        "actions": "Aktionen",
+        "selectAll": "Alle Zeilen auswählen",
+    },
+
+    "extension": {
+        "title": "Orbitra Ads Manager Overlay",
+        "last3Days": "Letzte 3 Tage",
+        "last4Days": "Letzte 4 Tage",
+        "today": "Heute",
+        "yesterday": "Gestern",
+        "overview": "Übersicht",
+        "dailyHistory": "Tagesverlauf",
+        "landingsAndOffers": "Landingpages & Angebote",
+        "pixelAccuracy": "Pixel- & CAPI-Genauigkeit",
+        "winner": "GEWINNER",
+        "spend": "Ausgaben",
+        "revenue": "Umsatz",
+        "profit": "Gewinn",
+        "roi": "ROI",
+        "cpa": "CPA",
+        "cpl": "CPL",
+        "cps": "CPS",
+    },
+
     "automation": {
+        "status": "Status",
+        "active": "Aktiv",
+        "paused": "Pausiert",
+        "clickToPause": "Klicken, um Anzeige/Kampagne zu pausieren",
+        "clickToResume": "Klicken, um Anzeige/Kampagne zu aktivieren",
+        "statusUpdated": "Status erfolgreich aktualisiert",
+        "statusUpdateError": "Statusaktualisierung im Werbenetzwerk fehlgeschlagen",
+        "noConnection": "Keine Facebook-API-Verbindung gefunden — zuerst das Werbekonto im Kostenimport verbinden",
+        "unsupportedNetwork": "Dieses Werbenetzwerk wird noch nicht unterstützt",
+        "invalidId": "Ungültige Entitäts-ID",
         "title": "Cron & Automatisierung",
         "backorderCronTitle": "Backorder: geplante Domain-Prüfungen",
         "backorderCronDesc": "Domain-Verfügbarkeitsprüfungen werden von einem ausgeführt Separates Cron-Skript und Verarbeitung einer Domäne pro Lauf. Hier können Sie die Ausführung aktivieren/deaktivieren und einen gebrauchsfertigen Cron-Befehl kopieren.",
@@ -2052,6 +2118,15 @@ export default {
         "groupSites": "Websites & Landings",
         "groupTools": "Tools",
         "groupOther": "Weitere",
+        "chromeExtension": "Chrome- & Antidetect-Erweiterung",
+        "chromeExtDesc": "Echtzeit-Tracker-Analysen direkt im Facebook Ads Manager in AdsPower, Dolphin{anty} und Chrome einblenden.",
+        "extTemplate1": "Vorlage 1: CPA / Funnel (CPA, Ausgaben, Umsatz, ROI, Gewinn)",
+        "extTemplate2": "Vorlage 2: COD / Nutra (CPL, CPS, Ausgaben, Bestätigter Umsatz, ROI conf, Gewinn)",
+        "downloadExtension": "Erweiterung herunterladen (.ZIP)",
+        "antidetectInstallGuide": "Installationsanleitung für Antidetect-Browser",
+        "adspowerGuide": "AdsPower: App Center öffnen → Eigene Erweiterung hochladen → Entpackten Ordner auswählen.",
+        "dolphinGuide": "Dolphin{anty}: Einstellungen → Erweiterungen → Erweiterung hinzufügen oder ZIP-Datei hineinziehen.",
+        "chromeGuide": "Google Chrome: chrome://extensions öffnen → Entwicklermodus aktivieren → 'Entpackte Erweiterung laden' wählen.",
         "howItWorks": "So funktionieren Integrationen",
         "introText": "Integrieren Sie Orbitra mit Ihren externen Landingpages oder Apps mit einer dieser Methoden. Dadurch können Sie den Datenverkehr außerhalb von Standard-Tracking-Links verfolgen und gleichzeitig die Daten in Ihrer Orbitra-Datenbank zentralisieren.",
         "usageExamples": "Verwendungsbeispiele:",
@@ -2330,6 +2405,8 @@ export default {
         "safeLandingNone": "— keines —",
         "safeUrl": "Sichere URL",
         "safeHtml": "Sicheres HTML (Inline)",
+        "dontRecordSafeClicks": "Klicks für Safe Page nicht aufzeichnen",
+        "dontRecordSafeClicksHint": "Bots, Crawler und Prüfer, die zur Safe Page weitergeleitet werden, werden nicht in Berichten erfasst.",
         "moneyPage": "Money-Page (für Besucher)",
         "moneyPageHint": "Wird echten Besuchern gezeigt. Verhält sich wie das Landing+Angebot-Schema."
     },

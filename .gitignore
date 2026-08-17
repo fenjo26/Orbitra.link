@@ -56,3 +56,6 @@ yarn-error.log
 
 # We are NOT ignoring frontend/dist/ because our install.sh script expects 
 # the compiled frontend to be downloaded directly from GitHub.
+
+# Runtime state (sessions, locks, caches)
+var/

@@ -16030,9 +16030,9 @@ const __iconNode = [
 const Zap = createLucideIcon("zap", __iconNode);
 const ru = {
   "streams": {
-    "desktop": "Компьютер",
-    "mobile": "Телефон",
-    "tablet": "Планшет"
+    "desktop": "Десктоп",
+    "mobile": "Мобильные",
+    "tablet": "Планшеты"
   },
   "parameters": {
     "adId": "ID объявления",
@@ -16048,10 +16048,15 @@ const ru = {
     "externalId": "Внешний ID",
     "creativeId": "ID креатива",
     "adCampaignId": "ID рекламной кампании",
-    "source": "Источник"
+    "source": "Источник",
+    "enterParamKey": "Введите ключ параметра (например, utm_placement, placement, custom_id):",
+    "addParam": "Добавить параметр",
+    "additionalSubIds": "Дополнительные Sub ID (sub_id_1 .. sub_id_30)",
+    "placement": "Плейсмент (utm_placement)"
   },
   "costModels": {
     "cpc": "CPC — оплата за клик",
+    "cpv": "CPV — стоимость за визит",
     "cpuc": "CPuC — оплата за уникальный клик",
     "cpm": "CPM — оплата за 1000 показов",
     "cpa": "CPA — оплата за действие",
@@ -16324,7 +16329,10 @@ const ru = {
     "confirmPassword": "Подтверждение пароля",
     "confirmPasswordPlaceholder": "Повторите новый пароль",
     "passwordsNotMatch": "Пароли не совпадают",
-    "saveSuccess": "Настройки успешно сохранены"
+    "saveSuccess": "Настройки успешно сохранены",
+    "stayInEditorAfterSave": "Оставаться в редакторе после сохранения",
+    "stayInEditorHint": "Не закрывать кампании, лендинги и офферы после нажатия кнопки «Сохранить».",
+    "saveAndClose": "Сохранить и закрыть"
   },
   "setup": {
     "title": "Первоначальная настройка",
@@ -16407,6 +16415,9 @@ const ru = {
     "recentClicksLog": "Последние Клики (Логи)",
     "colDirection": "Направление",
     "noLogs": "Нет логов",
+    "showMoreLogs": "Показать больше (+10)",
+    "showLess": "Свернуть",
+    "last10Logs": "Последние 10 кликов (нажмите, чтобы развернуть)",
     "viewFullLogs": "Смотреть полные логи"
   },
   "metrics": {
@@ -16418,6 +16429,7 @@ const ru = {
     "profit": "Прибыль",
     "roi": "ROI",
     "cpc": "CPC",
+    "cpv": "CPV — стоимость за визит",
     "cpa": "CPA",
     "ctr": "CTR",
     "visits": "Визиты",
@@ -16453,6 +16465,9 @@ const ru = {
     "copyErrors": "Ошибок"
   },
   "editor": {
+    "collectClicks": "Собирать клики",
+    "collectClicksHint": "Записывать клики в статистику и отчеты для этого потока. Выключено: посетитель всё равно получает направление, но строка клика не пишется — конверсии с этого потока не к чему привязать.",
+    "collectClicksDisabledNote": "Клики для этого потока не записываются в статистику",
     "showText": "Показать текст / пусто",
     "toCampaign": "Отправить в кампанию",
     "selectCampaign": "— выберите кампанию —",
@@ -16674,6 +16689,13 @@ const ru = {
     "step5": 'Проверьте получение конверсий во вкладке "Конверсии"',
     "examplePostback": "Пример Postback URL"
   },
+  "affiliateNetworks": {
+    "postbackUrl": "Postback URL",
+    "offerParams": "Параметры оффера",
+    "useNetworkTemplate": "Шаблон партнерки",
+    "useGenericTemplate": "Стандартный Postback",
+    "resetToTemplate": "Сбросить к шаблону сети"
+  },
   "components": {
     "aliasName": "Алиас/Название",
     "group": "Группа",
@@ -16689,6 +16711,29 @@ const ru = {
     "paused": "Остановлен"
   },
   "domains": {
+    "group": "Группа",
+    "noGroup": "Без группы",
+    "createGroup": "Создать",
+    "adminDashboard": "Админ-панель",
+    "allowAccess": "Разрешить",
+    "denyAccess": "Запретить",
+    "allowRobotsShort": "Разрешить",
+    "disallowShort": "Запретить",
+    "on": "Вкл",
+    "off": "Выкл",
+    "httpsOnlyShort": "Только HTTPS",
+    "cloudflareProxy": "Прокси Cloudflare",
+    "registrar": "Регистратор",
+    "optional": "Опционально",
+    "dnsProvider": "DNS провайдер",
+    "statusOk": "OK",
+    "statusActive": "Активен",
+    "statusDisabled": "Отключен",
+    "addMore": "Добавить ещё",
+    "savedAddMore": "Сохранено — можно вводить следующий домен",
+    "domainBulkHelper": "Чтобы добавить несколько доменов, введите список через запятую. HTTP(S) очищается автоматически.",
+    "adminAccessHint": "При отказе в доступе админ-панель и API на этом домене возвращают 404. Панель остаётся доступной через другие домены и по IP сервера.",
+    "cfProxyHint": "Домен проксируется через Cloudflare — SSL выдаёт edge Cloudflare, выпуск Let’s Encrypt пропускается.",
     "title": "Припаркованные домены",
     "serverIp": "IP Сервера:",
     "searchPlaceholder": "Поиск по доменам...",
@@ -17589,6 +17634,7 @@ const ru = {
     "delete": "Удалить"
   },
   "groupsModal": {
+    "domainGroups": "Группы доменов",
     "offerGroups": "Группы офферов",
     "landingGroups": "Группы лендингов",
     "campaignGroups": "Группы кампаний",
@@ -17795,7 +17841,49 @@ const ru = {
     "system": "Система",
     "privacy": "Приватность"
   },
+  "table": {
+    "copyLink": "Копировать ссылку",
+    "duplicate": "Дублировать",
+    "perPage": "На странице",
+    "prev": "Назад",
+    "next": "Вперёд",
+    "all": "Все",
+    "total": "ИТОГО",
+    "name": "Название",
+    "group": "Группа",
+    "actions": "Действия",
+    "selectAll": "Выбрать все строки"
+  },
+  "extension": {
+    "title": "Оверлей Orbitra для Ads Manager",
+    "last3Days": "Последние 3 дня",
+    "last4Days": "Последние 4 дня",
+    "today": "Сегодня",
+    "yesterday": "Вчера",
+    "overview": "Обзор",
+    "dailyHistory": "История по дням",
+    "landingsAndOffers": "Лендинги и Офферы",
+    "pixelAccuracy": "Точность Pixel и CAPI",
+    "winner": "ТОП / WINNER",
+    "spend": "Расход",
+    "revenue": "Доход",
+    "profit": "Прибыль",
+    "roi": "ROI",
+    "cpa": "CPA",
+    "cpl": "CPL",
+    "cps": "CPS"
+  },
   "automation": {
+    "status": "Статус",
+    "active": "Активно",
+    "paused": "Приостановлено",
+    "clickToPause": "Нажмите, чтобы остановить",
+    "clickToResume": "Нажмите, чтобы запустить",
+    "statusUpdated": "Статус успешно обновлен",
+    "statusUpdateError": "Не удалось обновить статус в рекламной сети",
+    "noConnection": "API-подключение Facebook не найдено — сначала подключите рекламный кабинет в импорте расходов",
+    "unsupportedNetwork": "Эта рекламная сеть пока не поддерживается",
+    "invalidId": "Неверный id сущности",
     "title": "Cron и автоматические задачи",
     "backorderCronTitle": "Backorder: автоматическая проверка доменов",
     "backorderCronDesc": "Проверка доступности доменов запускается отдельным cron-скриптом и обрабатывает 1 домен за запуск. Здесь можно включить/выключить выполнение и получить готовую команду.",
@@ -18033,6 +18121,15 @@ const ru = {
     "groupSites": "Сайты и лендинги",
     "groupTools": "Инструменты",
     "groupOther": "Другое",
+    "chromeExtension": "Расширение Chrome и Антидетект",
+    "chromeExtDesc": "Отображение статистики трекера в реальном времени прямо в Facebook Ads Manager внутри AdsPower, Dolphin{anty} и Chrome.",
+    "extTemplate1": "Шаблон 1: CPA / Воронка (CPA, Спенд, Доход, ROI, Профит)",
+    "extTemplate2": "Шаблон 2: COD / Нутра (CPL, CPS, Спенд, Подтвержд. доход, ROI conf, Профит)",
+    "downloadExtension": "Скачать расширение (.ZIP)",
+    "antidetectInstallGuide": "Инструкция по установке в антидетект-браузеры",
+    "adspowerGuide": "AdsPower: откройте Центр приложений → Загрузить расширение → выберите распакованную папку.",
+    "dolphinGuide": "Dolphin{anty}: перейдите в Настройки → Расширения → Добавить расширение или перетащите ZIP-архив.",
+    "chromeGuide": "Google Chrome: откройте chrome://extensions → включите Режим разработчика → Загрузить распакованное.",
     "howItWorks": "Как работают интеграции",
     "introText": "Это различные способы подключения трекера к сторонним сайтам, используя внутренние скрипты Orbitra. Скрипты передают трекеру информацию и выполняют функции трекера на сторонних сайтах.",
     "usageExamples": "Примеры использования:",
@@ -18336,6 +18433,8 @@ const ru = {
     "safeLandingNone": "— нет —",
     "safeUrl": "Белый URL",
     "safeHtml": "Белый HTML (встроенный)",
+    "dontRecordSafeClicks": "Не записывать клики на Safe Page",
+    "dontRecordSafeClicksHint": "Боты, модераторы и парсеры, попавшие на Safe Page, не будут записываться в базу кликов и не попадут в отчеты.",
     "moneyPage": "Денежная страница (для посетителей)",
     "moneyPageHint": "Показывается реальным посетителям. Работает как схема лендинг+оффер."
   },
@@ -18752,10 +18851,15 @@ const en = {
     "externalId": "External ID",
     "creativeId": "Creative ID",
     "adCampaignId": "Ad campaign ID",
-    "source": "Source"
+    "source": "Source",
+    "enterParamKey": "Enter parameter key (e.g. utm_placement, placement, custom_id):",
+    "addParam": "Add Parameter",
+    "additionalSubIds": "Sub IDs (sub_id_1 .. sub_id_30)",
+    "placement": "Placement (utm_placement)"
   },
   "costModels": {
     "cpc": "CPC — cost per click",
+    "cpv": "CPV — cost per visit",
     "cpuc": "CPuC — cost per unique click",
     "cpm": "CPM — cost per 1000 impressions",
     "cpa": "CPA — cost per action",
@@ -19028,7 +19132,10 @@ const en = {
     "confirmPassword": "Confirm Password",
     "confirmPasswordPlaceholder": "Repeat new password",
     "passwordsNotMatch": "Passwords do not match",
-    "saveSuccess": "Settings saved successfully"
+    "saveSuccess": "Settings saved successfully",
+    "stayInEditorAfterSave": "Stay in editor after saving",
+    "stayInEditorHint": "Keep campaigns, landings, and offers open after clicking Save instead of returning to the list.",
+    "saveAndClose": "Save & Close"
   },
   "setup": {
     "title": "Initial Setup",
@@ -19111,6 +19218,9 @@ const en = {
     "recentClicksLog": "Recent Clicks (Logs)",
     "colDirection": "Direction",
     "noLogs": "No logs",
+    "showMoreLogs": "Show more (+10)",
+    "showLess": "Show less",
+    "last10Logs": "Last 10 clicks (click to expand)",
     "viewFullLogs": "View full logs"
   },
   "metrics": {
@@ -19122,6 +19232,7 @@ const en = {
     "profit": "Profit",
     "roi": "ROI",
     "cpc": "CPC",
+    "cpv": "CPV — cost per visit",
     "cpa": "CPA",
     "ctr": "CTR",
     "visits": "Visits",
@@ -19157,6 +19268,9 @@ const en = {
     "copyErrors": "Errors"
   },
   "editor": {
+    "collectClicks": "Collect clicks",
+    "collectClicksHint": "Record clicks in statistics and reports for this stream. When off, visitors still get the destination, but no click row is written — conversions from this stream have no click to attach to.",
+    "collectClicksDisabledNote": "Clicks are not being recorded for this stream",
     "showText": "Show text / blank",
     "toCampaign": "Send to campaign",
     "selectCampaign": "— select campaign —",
@@ -19378,6 +19492,13 @@ const en = {
     "step5": "Check for incoming conversions in the 'Conversions' tab",
     "examplePostback": "Example Postback URL"
   },
+  "affiliateNetworks": {
+    "postbackUrl": "Postback URL",
+    "offerParams": "Offer Parameters",
+    "useNetworkTemplate": "Network Template",
+    "useGenericTemplate": "Generic Postback",
+    "resetToTemplate": "Reset to Network Template"
+  },
   "components": {
     "aliasName": "Alias / Name",
     "group": "Group",
@@ -19393,6 +19514,29 @@ const en = {
     "paused": "Paused"
   },
   "domains": {
+    "group": "Group",
+    "noGroup": "No group",
+    "createGroup": "Create",
+    "adminDashboard": "Admin dashboard",
+    "allowAccess": "Allow access",
+    "denyAccess": "Deny access",
+    "allowRobotsShort": "Allow",
+    "disallowShort": "Disallow",
+    "on": "On",
+    "off": "Off",
+    "httpsOnlyShort": "HTTPS-only",
+    "cloudflareProxy": "Cloudflare Proxy",
+    "registrar": "Registrar",
+    "optional": "Optional",
+    "dnsProvider": "DNS Provider",
+    "statusOk": "OK",
+    "statusActive": "Active",
+    "statusDisabled": "Disabled",
+    "addMore": "Add more",
+    "savedAddMore": "Saved — ready for the next domain",
+    "domainBulkHelper": "To add multiple domains, type a list separated by commas. HTTP(S) is cleaned automatically.",
+    "adminAccessHint": "With access denied, the admin panel and the API return 404 on this domain. The panel stays reachable via other hosts and the server IP.",
+    "cfProxyHint": "The domain is proxied through Cloudflare — SSL is served by the Cloudflare edge and Let's Encrypt issuance is skipped.",
     "title": "Parked Domains",
     "serverIp": "Server IP:",
     "searchPlaceholder": "Search domains...",
@@ -20293,6 +20437,7 @@ const en = {
     "delete": "Delete"
   },
   "groupsModal": {
+    "domainGroups": "Domain Groups",
     "offerGroups": "Offer Groups",
     "landingGroups": "Landing Groups",
     "campaignGroups": "Campaign Groups",
@@ -20524,7 +20669,49 @@ const en = {
     "system": "System",
     "privacy": "Privacy"
   },
+  "table": {
+    "copyLink": "Copy link",
+    "duplicate": "Duplicate",
+    "perPage": "Per page",
+    "prev": "Prev",
+    "next": "Next",
+    "all": "All",
+    "total": "TOTAL",
+    "name": "Name",
+    "group": "Group",
+    "actions": "Actions",
+    "selectAll": "Select all rows"
+  },
+  "extension": {
+    "title": "Orbitra Ads Manager Overlay",
+    "last3Days": "Last 3 Days",
+    "last4Days": "Last 4 Days",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "overview": "Overview",
+    "dailyHistory": "Daily History",
+    "landingsAndOffers": "Landings & Offers",
+    "pixelAccuracy": "Pixel & CAPI Accuracy",
+    "winner": "WINNER",
+    "spend": "Spend",
+    "revenue": "Revenue",
+    "profit": "Profit",
+    "roi": "ROI",
+    "cpa": "CPA",
+    "cpl": "CPL",
+    "cps": "CPS"
+  },
   "automation": {
+    "status": "Status",
+    "active": "Active",
+    "paused": "Paused",
+    "clickToPause": "Click to pause ad / campaign",
+    "clickToResume": "Click to activate ad / campaign",
+    "statusUpdated": "Status updated successfully",
+    "statusUpdateError": "Failed to update status on ad network",
+    "noConnection": "No Facebook API connection found — connect the ad account in Cost Import first",
+    "unsupportedNetwork": "This ad network is not supported yet",
+    "invalidId": "Invalid entity id",
     "title": "Cron & Automation",
     "backorderCronTitle": "Backorder: scheduled domain checks",
     "backorderCronDesc": "Domain availability checks are executed by a separate cron script and process 1 domain per run. Here you can enable/disable execution and copy a ready-to-use cron command.",
@@ -20762,6 +20949,15 @@ const en = {
     "groupSites": "Sites & landings",
     "groupTools": "Tools",
     "groupOther": "Other",
+    "chromeExtension": "Chrome & Antidetect Extension",
+    "chromeExtDesc": "Overlay real-time tracker analytics directly inside Facebook Ads Manager in AdsPower, Dolphin{anty}, and Chrome.",
+    "extTemplate1": "Template 1: CPA / Funnel (CPA, Spent, Rev, ROI, Profit)",
+    "extTemplate2": "Template 2: COD / Nutra (CPL, CPS, Spent, Rev Conf, ROI Conf, Profit)",
+    "downloadExtension": "Download Extension (.ZIP)",
+    "antidetectInstallGuide": "Installation Guide for Antidetect Browsers",
+    "adspowerGuide": "AdsPower: Open App Center → Upload Custom Extension → Select the unzipped folder.",
+    "dolphinGuide": "Dolphin{anty}: Go to Settings → Extensions → Add extension or drag-and-drop the ZIP archive.",
+    "chromeGuide": "Google Chrome: Open chrome://extensions → Enable Developer mode → Click 'Load unpacked'.",
     "howItWorks": "How Integrations Work",
     "introText": "Integrate Orbitra with your external landing pages or apps using one of these methods. This allows you to track traffic outside standard tracking links while centralizing data in your Orbitra database.",
     "usageExamples": "Usage Examples:",
@@ -21040,6 +21236,8 @@ const en = {
     "safeLandingNone": "— none —",
     "safeUrl": "Safe URL",
     "safeHtml": "Safe HTML (inline)",
+    "dontRecordSafeClicks": "Do not record clicks for Safe Page",
+    "dontRecordSafeClicksHint": "Bots, crawlers, and reviewers routed to the Safe Page will not be saved in database logs or counted in campaign reports.",
     "moneyPage": "Money page (for visitors)",
     "moneyPageHint": "Shown to real visitors. Behaves like the landing+offer schema."
   },
@@ -21438,9 +21636,9 @@ const en = {
 };
 const uk = {
   "streams": {
-    "desktop": "Комп'ютер",
-    "mobile": "Телефон",
-    "tablet": "Планшет"
+    "desktop": "Десктоп",
+    "mobile": "Мобільні",
+    "tablet": "Планшети"
   },
   "parameters": {
     "adId": "ID оголошення",
@@ -21456,10 +21654,15 @@ const uk = {
     "externalId": "Зовнішній ID",
     "creativeId": "ID креативу",
     "adCampaignId": "ID рекламної кампанії",
-    "source": "Джерело"
+    "source": "Джерело",
+    "enterParamKey": "Введіть ключ параметра (наприклад, utm_placement, placement, custom_id):",
+    "addParam": "Додати параметр",
+    "additionalSubIds": "Додаткові Sub ID (sub_id_1 .. sub_id_30)",
+    "placement": "Плейсмент (utm_placement)"
   },
   "costModels": {
     "cpc": "CPC — оплата за клік",
+    "cpv": "CPV — вартість за візит",
     "cpuc": "CPuC — оплата за унікальний клік",
     "cpm": "CPM — оплата за 1000 показів",
     "cpa": "CPA — оплата за дію",
@@ -21732,7 +21935,10 @@ const uk = {
     "confirmPassword": "Підтвердьте пароль",
     "confirmPasswordPlaceholder": "Повторіть новий пароль",
     "passwordsNotMatch": "Паролі не збігаються",
-    "saveSuccess": "Налаштування успішно збережено"
+    "saveSuccess": "Налаштування успішно збережено",
+    "stayInEditorAfterSave": "Залишатися в редакторі після збереження",
+    "stayInEditorHint": "Не закривати кампанії, лендінги та офери після натискання кнопки «Зберегти».",
+    "saveAndClose": "Зберегти та закрити"
   },
   "setup": {
     "title": "Початкове налаштування",
@@ -21815,6 +22021,9 @@ const uk = {
     "recentClicksLog": "Останні кліки (журнали)",
     "colDirection": "Напрямок",
     "noLogs": "Без журналів",
+    "showMoreLogs": "Показати більше (+10)",
+    "showLess": "Згорнути",
+    "last10Logs": "Останні 10 кліків (натисніть, щоб розгорнути)",
     "viewFullLogs": "Переглянути повні журнали"
   },
   "metrics": {
@@ -21826,6 +22035,7 @@ const uk = {
     "profit": "Прибуток",
     "roi": "ROI",
     "cpc": "CPC",
+    "cpv": "CPV — вартість за візит",
     "cpa": "CPA",
     "ctr": "CTR",
     "visits": "Візити",
@@ -21861,6 +22071,9 @@ const uk = {
     "copyErrors": "Помилки"
   },
   "editor": {
+    "collectClicks": "Збирати кліки",
+    "collectClicksHint": "Записувати кліки в статистику та звіти для цього потоку. Вимкнено: відвідувач одержує напрямок, але рядок кліку не пишеться — конверсії з цього потоку нічого прив’язати.",
+    "collectClicksDisabledNote": "Кліки для цього потоку не записуються в статистику",
     "showText": "Показати текст / порожньо",
     "toCampaign": "Надіслати в кампанію",
     "selectCampaign": "— оберіть кампанію —",
@@ -22082,6 +22295,13 @@ const uk = {
     "step5": "Перевірте вхідні конверсії на вкладці «Конверсії».",
     "examplePostback": "Приклад зворотної URL-адреси"
   },
+  "affiliateNetworks": {
+    "postbackUrl": "Postback URL",
+    "offerParams": "Параметри оффера",
+    "useNetworkTemplate": "Шаблон партнерки",
+    "useGenericTemplate": "Стандартний Postback",
+    "resetToTemplate": "Скинути до шаблону мережі"
+  },
   "components": {
     "aliasName": "Псевдонім / Ім'я",
     "group": "Група",
@@ -22097,6 +22317,29 @@ const uk = {
     "paused": "Призупинено"
   },
   "domains": {
+    "group": "Група",
+    "noGroup": "Без групи",
+    "createGroup": "Створити",
+    "adminDashboard": "Адмін-панель",
+    "allowAccess": "Дозволити",
+    "denyAccess": "Заборонити",
+    "allowRobotsShort": "Дозволити",
+    "disallowShort": "Заборонити",
+    "on": "Увімк",
+    "off": "Вимк",
+    "httpsOnlyShort": "Лише HTTPS",
+    "cloudflareProxy": "Проксі Cloudflare",
+    "registrar": "Реєстратор",
+    "optional": "Опціонально",
+    "dnsProvider": "DNS-провайдер",
+    "statusOk": "OK",
+    "statusActive": "Активний",
+    "statusDisabled": "Вимкнено",
+    "addMore": "Додати ще",
+    "savedAddMore": "Збережено — можна вводити наступний домен",
+    "domainBulkHelper": "Щоб додати кілька доменів, введіть список через кому. HTTP(S) очищається автоматично.",
+    "adminAccessHint": "Якщо доступ заборонено, адмін-панель і API на цьому домені повертають 404. Панель залишається доступною через інші домени та по IP сервера.",
+    "cfProxyHint": "Домен проксується через Cloudflare — SSL видає edge Cloudflare, випуск Let’s Encrypt пропускається.",
     "title": "Парковані домени",
     "serverIp": "IP сервера:",
     "searchPlaceholder": "Пошук доменів...",
@@ -22997,6 +23240,7 @@ const uk = {
     "delete": "Видалити"
   },
   "groupsModal": {
+    "domainGroups": "Групи доменів",
     "offerGroups": "Групи пропозицій",
     "landingGroups": "Посадкові групи",
     "campaignGroups": "Групи кампаній",
@@ -23228,7 +23472,49 @@ const uk = {
     "system": "система",
     "privacy": "Конфіденційність"
   },
+  "table": {
+    "copyLink": "Копіювати посилання",
+    "duplicate": "Дублювати",
+    "perPage": "На сторінці",
+    "prev": "Назад",
+    "next": "Далі",
+    "all": "Усі",
+    "total": "РАЗОМ",
+    "name": "Назва",
+    "group": "Група",
+    "actions": "Дії",
+    "selectAll": "Обрати всі рядки"
+  },
+  "extension": {
+    "title": "Оверлей Orbitra для Ads Manager",
+    "last3Days": "Останні 3 дні",
+    "last4Days": "Останні 4 дні",
+    "today": "Сьогодні",
+    "yesterday": "Вчора",
+    "overview": "Огляд",
+    "dailyHistory": "Історія по днях",
+    "landingsAndOffers": "Лендінги та Офери",
+    "pixelAccuracy": "Точність Pixel та CAPI",
+    "winner": "ТОП / WINNER",
+    "spend": "Витрати",
+    "revenue": "Дохід",
+    "profit": "Прибуток",
+    "roi": "ROI",
+    "cpa": "CPA",
+    "cpl": "CPL",
+    "cps": "CPS"
+  },
   "automation": {
+    "status": "Статус",
+    "active": "Активно",
+    "paused": "Призупинено",
+    "clickToPause": "Натисніть, щоб зупинити",
+    "clickToResume": "Натисніть, щоб запустити",
+    "statusUpdated": "Статус успішно оновлено",
+    "statusUpdateError": "Не вдалося оновити статус у рекламній мережі",
+    "noConnection": "API-підключення Facebook не знайдено — спочатку підключіть рекламний кабінет в імпорті витрат",
+    "unsupportedNetwork": "Ця рекламна мережа ще не підтримується",
+    "invalidId": "Невірний id сутності",
     "title": "Cron і автоматизація",
     "backorderCronTitle": "Замовлення: заплановані перевірки домену",
     "backorderCronDesc": "Перевірка доступності домену виконується окремим сценарієм cron і обробляє 1 домен за один запуск. Тут ви можете ввімкнути/вимкнути виконання та скопіювати готову до використання команду cron.",
@@ -23466,6 +23752,15 @@ const uk = {
     "groupSites": "Сайти та лендінги",
     "groupTools": "Інструменти",
     "groupOther": "Інше",
+    "chromeExtension": "Розширення Chrome та Антидетект",
+    "chromeExtDesc": "Відображення статистики трекера в реальному часі прямо у Facebook Ads Manager всередині AdsPower, Dolphin{anty} та Chrome.",
+    "extTemplate1": "Шаблон 1: CPA / Воронка (CPA, Спенд, Дохід, ROI, Профіт)",
+    "extTemplate2": "Шаблон 2: COD / Нутра (CPL, CPS, Спенд, Підтвердж. дохід, ROI conf, Профіт)",
+    "downloadExtension": "Завантажити розширення (.ZIP)",
+    "antidetectInstallGuide": "Інструкція з встановлення в антидетект-браузери",
+    "adspowerGuide": "AdsPower: відкрийте Центр додатків → Завантажити розширення → оберіть розпаковану папку.",
+    "dolphinGuide": "Dolphin{anty}: перейдіть у Налаштування → Розширення → Додати розширення або перетягніть ZIP-архів.",
+    "chromeGuide": "Google Chrome: відкрийте chrome://extensions → увімкніть Режим розробника → Завантажити розпаковане.",
     "howItWorks": "Як працюють інтеграції",
     "introText": "Інтегруйте Orbitra зі своїми зовнішніми цільовими сторінками або програмами за допомогою одного з цих методів. Це дозволяє відстежувати трафік поза стандартними посиланнями відстеження, централізуючи дані у вашій базі даних Orbitra.",
     "usageExamples": "Приклади використання:",
@@ -23744,6 +24039,8 @@ const uk = {
     "safeLandingNone": "— немає —",
     "safeUrl": "Безпечний URL",
     "safeHtml": "Безпечний HTML (вбудований)",
+    "dontRecordSafeClicks": "Не записувати кліки на Safe Page",
+    "dontRecordSafeClicksHint": "Боти, модератори та парсери, що потрапили на Safe Page, не записуватимуться в базу кліків і не потраплять у звіти.",
     "moneyPage": "Грошова сторінка (для відвідувачів)",
     "moneyPageHint": "Показується реальним відвідувачам. Працює як схема лендинг+оффер."
   },
@@ -24160,10 +24457,15 @@ const es = {
     "externalId": "ID externo",
     "creativeId": "ID de creatividad",
     "adCampaignId": "ID de campaña publicitaria",
-    "source": "Fuente"
+    "source": "Fuente",
+    "enterParamKey": "Ingrese la clave del parámetro (ej. utm_placement, placement, custom_id):",
+    "addParam": "Añadir parámetro",
+    "additionalSubIds": "Sub IDs adicionales (sub_id_1 .. sub_id_30)",
+    "placement": "Ubicación (utm_placement)"
   },
   "costModels": {
     "cpc": "CPC — coste por clic",
+    "cpv": "CPV — coste por visita",
     "cpuc": "CPuC — coste por clic único",
     "cpm": "CPM — coste por 1000 impresiones",
     "cpa": "CPA — coste por acción",
@@ -24436,7 +24738,10 @@ const es = {
     "confirmPassword": "Confirmar contraseña",
     "confirmPasswordPlaceholder": "Repetir nueva contraseña",
     "passwordsNotMatch": "Las contraseñas no coinciden",
-    "saveSuccess": "Configuración guardada exitosamente"
+    "saveSuccess": "Configuración guardada exitosamente",
+    "stayInEditorAfterSave": "Permanecer en el editor después de guardar",
+    "stayInEditorHint": "Mantener abiertas las campañas, páginas de destino y ofertas después de hacer clic en Guardar.",
+    "saveAndClose": "Guardar y cerrar"
   },
   "setup": {
     "title": "Configuración inicial",
@@ -24519,6 +24824,9 @@ const es = {
     "recentClicksLog": "Clics recientes (registros)",
     "colDirection": "Dirección",
     "noLogs": "Sin registros",
+    "showMoreLogs": "Mostrar más (+10)",
+    "showLess": "Mostrar menos",
+    "last10Logs": "Últimos 10 clics (haga clic para expandir)",
     "viewFullLogs": "Ver registros completos"
   },
   "metrics": {
@@ -24530,6 +24838,7 @@ const es = {
     "profit": "Beneficio",
     "roi": "ROI",
     "cpc": "CPC",
+    "cpv": "CPV — coste por visita",
     "cpa": "CPA",
     "ctr": "CTR",
     "visits": "Visitas",
@@ -24565,6 +24874,9 @@ const es = {
     "copyErrors": "Errores"
   },
   "editor": {
+    "collectClicks": "Recopilar clics",
+    "collectClicksHint": "Registrar clics en estadísticas e informes para este flujo. Desactivado: el visitante recibe el destino igualmente, pero no se escribe ninguna fila de clic — las conversiones de este flujo no tienen clic al que adjuntarse.",
+    "collectClicksDisabledNote": "Los clics de este flujo no se registran",
     "showText": "Mostrar texto / blanco",
     "toCampaign": "Enviar a campaña",
     "selectCampaign": "— elige campaña —",
@@ -24786,6 +25098,13 @@ const es = {
     "step5": "Verifique las conversiones entrantes en la pestaña 'Conversiones'",
     "examplePostback": "URL de devolución de datos de ejemplo"
   },
+  "affiliateNetworks": {
+    "postbackUrl": "URL de Postback",
+    "offerParams": "Parámetros de oferta",
+    "useNetworkTemplate": "Plantilla de red",
+    "useGenericTemplate": "Postback genérico",
+    "resetToTemplate": "Restablecer a plantilla de red"
+  },
   "components": {
     "aliasName": "Alias/Nombre",
     "group": "grupo",
@@ -24801,6 +25120,29 @@ const es = {
     "paused": "En pausa"
   },
   "domains": {
+    "group": "Grupo",
+    "noGroup": "Sin grupo",
+    "createGroup": "Crear",
+    "adminDashboard": "Panel de administración",
+    "allowAccess": "Permitir",
+    "denyAccess": "Denegar",
+    "allowRobotsShort": "Permitir",
+    "disallowShort": "Prohibir",
+    "on": "Activado",
+    "off": "Desactivado",
+    "httpsOnlyShort": "Solo HTTPS",
+    "cloudflareProxy": "Proxy de Cloudflare",
+    "registrar": "Registrador",
+    "optional": "Opcional",
+    "dnsProvider": "Proveedor de DNS",
+    "statusOk": "OK",
+    "statusActive": "Activo",
+    "statusDisabled": "Deshabilitado",
+    "addMore": "Añadir más",
+    "savedAddMore": "Guardado — listo para el siguiente dominio",
+    "domainBulkHelper": "Para agregar múltiples dominios, ingrese una lista separada por comas. HTTP(S) se limpia automáticamente.",
+    "adminAccessHint": "Con el acceso denegado, el panel de administración y la API devuelven 404 en este dominio. El panel sigue disponible en otros hosts y mediante la IP del servidor.",
+    "cfProxyHint": "El dominio pasa por el proxy de Cloudflare — el SSL lo sirve el edge de Cloudflare y se omite la emisión de Let’s Encrypt.",
     "title": "Dominios estacionados",
     "serverIp": "IP del servidor:",
     "searchPlaceholder": "Buscar dominios...",
@@ -25701,6 +26043,7 @@ const es = {
     "delete": "Eliminar"
   },
   "groupsModal": {
+    "domainGroups": "Grupos de dominios",
     "offerGroups": "Grupos de oferta",
     "landingGroups": "Grupos de aterrizaje",
     "campaignGroups": "Grupos de campaña",
@@ -25932,7 +26275,49 @@ const es = {
     "system": "Sistema",
     "privacy": "Privacidad"
   },
+  "table": {
+    "copyLink": "Copiar enlace",
+    "duplicate": "Duplicar",
+    "perPage": "Por página",
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "all": "Todos",
+    "total": "TOTAL",
+    "name": "Nombre",
+    "group": "Grupo",
+    "actions": "Acciones",
+    "selectAll": "Seleccionar todas las filas"
+  },
+  "extension": {
+    "title": "Superposición de Orbitra para Ads Manager",
+    "last3Days": "Últimos 3 días",
+    "last4Days": "Últimos 4 días",
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "overview": "Resumen",
+    "dailyHistory": "Historial diario",
+    "landingsAndOffers": "Páginas de destino y ofertas",
+    "pixelAccuracy": "Precisión de Pixel y CAPI",
+    "winner": "GANADOR",
+    "spend": "Gasto",
+    "revenue": "Ingresos",
+    "profit": "Beneficio",
+    "roi": "ROI",
+    "cpa": "CPA",
+    "cpl": "CPL",
+    "cps": "CPS"
+  },
   "automation": {
+    "status": "Estado",
+    "active": "Activo",
+    "paused": "Pausado",
+    "clickToPause": "Haga clic para pausar anuncio/campaña",
+    "clickToResume": "Haga clic para activar anuncio/campaña",
+    "statusUpdated": "Estado actualizado con éxito",
+    "statusUpdateError": "Error al actualizar el estado en la red publicitaria",
+    "noConnection": "No se encontró conexión a la API de Facebook — conecte primero la cuenta publicitaria en la importación de costos",
+    "unsupportedNetwork": "Esta red publicitaria aún no es compatible",
+    "invalidId": "ID de entidad no válido",
     "title": "Cron y automatización",
     "backorderCronTitle": "Pedido pendiente: comprobaciones de dominio programadas",
     "backorderCronDesc": "Las comprobaciones de disponibilidad de dominio se ejecutan mediante un script cron independiente y procesan 1 dominio por ejecución. Aquí puede habilitar/deshabilitar la ejecución y copiar un comando cron listo para usar.",
@@ -26170,6 +26555,15 @@ const es = {
     "groupSites": "Sitios y landings",
     "groupTools": "Herramientas",
     "groupOther": "Otros",
+    "chromeExtension": "Extensión para Chrome y Antidetect",
+    "chromeExtDesc": "Superponga análisis del rastreador en tiempo real directamente en Facebook Ads Manager en AdsPower, Dolphin{anty} y Chrome.",
+    "extTemplate1": "Plantilla 1: CPA / Embudo (CPA, Gasto, Ingresos, ROI, Beneficio)",
+    "extTemplate2": "Plantilla 2: COD / Nutra (CPL, CPS, Gasto, Ingresos conf., ROI conf., Beneficio)",
+    "downloadExtension": "Descargar extensión (.ZIP)",
+    "antidetectInstallGuide": "Guía de instalación para navegadores Antidetect",
+    "adspowerGuide": "AdsPower: abra Centro de aplicaciones → Cargar extensión personalizada → Seleccione la carpeta descomprimida.",
+    "dolphinGuide": "Dolphin{anty}: vaya a Configuración → Extensiones → Agregar extensión o arrastre el archivo ZIP.",
+    "chromeGuide": "Google Chrome: abra chrome://extensions → active Modo de desarrollador → Cargar descomprimida.",
     "howItWorks": "Cómo funcionan las integraciones",
     "introText": "Integre Orbitra con sus páginas de destino o aplicaciones externas utilizando uno de estos métodos. Esto le permite rastrear el tráfico fuera de los enlaces de seguimiento estándar mientras centraliza los datos en su base de datos de Orbitra.",
     "usageExamples": "Ejemplos de uso:",
@@ -26448,6 +26842,8 @@ const es = {
     "safeLandingNone": "— ninguno —",
     "safeUrl": "URL segura",
     "safeHtml": "HTML seguro (en línea)",
+    "dontRecordSafeClicks": "No registrar clics para la página segura (Safe Page)",
+    "dontRecordSafeClicksHint": "Los bots, rastreadores y revisores dirigidos a la página segura no se guardarán en los registros de informes.",
     "moneyPage": "Página monetaria (para visitantes)",
     "moneyPageHint": "Se muestra a visitantes reales. Se comporta como el esquema landing+oferta."
   },
@@ -26846,8 +27242,8 @@ const es = {
 };
 const zh = {
   "streams": {
-    "desktop": "电脑",
-    "mobile": "手机",
+    "desktop": "桌面端",
+    "mobile": "移动端",
     "tablet": "平板"
   },
   "parameters": {
@@ -26864,10 +27260,15 @@ const zh = {
     "externalId": "外部 ID",
     "creativeId": "素材 ID",
     "adCampaignId": "广告系列 ID",
-    "source": "来源"
+    "source": "来源",
+    "enterParamKey": "输入参数键（例如 utm_placement、placement、custom_id）：",
+    "addParam": "添加参数",
+    "additionalSubIds": "附加子 ID (sub_id_1 .. sub_id_30)",
+    "placement": "版位 (utm_placement)"
   },
   "costModels": {
     "cpc": "CPC — 按点击付费",
+    "cpv": "CPV — 每次访问费用",
     "cpuc": "CPuC — 按独立点击付费",
     "cpm": "CPM — 按千次展示付费",
     "cpa": "CPA — 按行动付费",
@@ -27140,7 +27541,10 @@ const zh = {
     "confirmPassword": "确认密码",
     "confirmPasswordPlaceholder": "重复新密码",
     "passwordsNotMatch": "密码不匹配",
-    "saveSuccess": "设置保存成功"
+    "saveSuccess": "设置保存成功",
+    "stayInEditorAfterSave": "保存后停留在编辑器中",
+    "stayInEditorHint": "点击保存后保持广告系列、落地页和优惠处于打开状态，而不是返回列表。",
+    "saveAndClose": "保存并关闭"
   },
   "setup": {
     "title": "初始设置",
@@ -27223,6 +27627,9 @@ const zh = {
     "recentClicksLog": "最近的点击（日志）",
     "colDirection": "方向",
     "noLogs": "无日志",
+    "showMoreLogs": "显示更多 (+10)",
+    "showLess": "收起",
+    "last10Logs": "最近 10 次点击 (点击展开)",
     "viewFullLogs": "查看完整日志"
   },
   "metrics": {
@@ -27234,6 +27641,7 @@ const zh = {
     "profit": "利润",
     "roi": "ROI",
     "cpc": "CPC",
+    "cpv": "CPV — 每次访问费用",
     "cpa": "CPA",
     "ctr": "CTR",
     "visits": "访问量",
@@ -27269,6 +27677,9 @@ const zh = {
     "copyErrors": "错误"
   },
   "editor": {
+    "collectClicks": "收集点击",
+    "collectClicksHint": "为此分流记录点击到统计和报告。关闭时访客仍会到达目标页，但不写入点击行 — 此分流的转化将无法关联到点击。",
+    "collectClicksDisabledNote": "此分流的点击不会记录在统计中",
     "showText": "显示文本 / 空白",
     "toCampaign": "发送到其他活动",
     "selectCampaign": "— 选择活动 —",
@@ -27490,6 +27901,13 @@ const zh = {
     "step5": "在“转化”标签中检查传入转化",
     "examplePostback": "回发 URL 示例"
   },
+  "affiliateNetworks": {
+    "postbackUrl": "Postback 回调 URL",
+    "offerParams": "优惠参数",
+    "useNetworkTemplate": "联盟网络模板",
+    "useGenericTemplate": "通用 Postback",
+    "resetToTemplate": "重置为联盟模板"
+  },
   "components": {
     "aliasName": "别名/姓名",
     "group": "集团",
@@ -27505,6 +27923,29 @@ const zh = {
     "paused": "已暂停"
   },
   "domains": {
+    "group": "分组",
+    "noGroup": "无分组",
+    "createGroup": "创建",
+    "adminDashboard": "管理后台",
+    "allowAccess": "允许",
+    "denyAccess": "拒绝",
+    "allowRobotsShort": "允许",
+    "disallowShort": "禁止",
+    "on": "开启",
+    "off": "关闭",
+    "httpsOnlyShort": "仅限 HTTPS",
+    "cloudflareProxy": "Cloudflare 代理",
+    "registrar": "域名注册商",
+    "optional": "可选",
+    "dnsProvider": "DNS 提供商",
+    "statusOk": "OK",
+    "statusActive": "活跃",
+    "statusDisabled": "已禁用",
+    "addMore": "继续添加",
+    "savedAddMore": "已保存 — 可继续添加下一个域名",
+    "domainBulkHelper": "要添加多个域名，请使用逗号分隔列表。HTTP(S) 将自动清除。",
+    "adminAccessHint": "拒绝访问时，此域名上的管理面板和 API 返回 404。面板仍可通过其他主机和服务器 IP 访问。",
+    "cfProxyHint": "域名通过 Cloudflare 代理 — SSL 由 Cloudflare 边缘节点提供，跳过 Let’s Encrypt 签发。",
     "title": "停放域名",
     "serverIp": "服务器IP：",
     "searchPlaceholder": "搜索域...",
@@ -28405,6 +28846,7 @@ const zh = {
     "delete": "删除"
   },
   "groupsModal": {
+    "domainGroups": "域名分组",
     "offerGroups": "优惠组",
     "landingGroups": "登陆组",
     "campaignGroups": "活动组",
@@ -28636,7 +29078,49 @@ const zh = {
     "system": "系统",
     "privacy": "隐私"
   },
+  "table": {
+    "copyLink": "复制链接",
+    "duplicate": "复制副本",
+    "perPage": "每页",
+    "prev": "上一页",
+    "next": "下一页",
+    "all": "全部",
+    "total": "总计",
+    "name": "名称",
+    "group": "分组",
+    "actions": "操作",
+    "selectAll": "全选所有行"
+  },
+  "extension": {
+    "title": "Orbitra 广告管理工具悬浮层",
+    "last3Days": "最近 3 天",
+    "last4Days": "最近 4 天",
+    "today": "今天",
+    "yesterday": "昨天",
+    "overview": "概览",
+    "dailyHistory": "每日历史",
+    "landingsAndOffers": "落地页与优惠",
+    "pixelAccuracy": "像素与 CAPI 准确度",
+    "winner": "盈利优秀 (WINNER)",
+    "spend": "消耗",
+    "revenue": "收入",
+    "profit": "利润",
+    "roi": "ROI",
+    "cpa": "CPA",
+    "cpl": "CPL",
+    "cps": "CPS"
+  },
   "automation": {
+    "status": "状态",
+    "active": "已启用",
+    "paused": "已暂停",
+    "clickToPause": "点击暂停广告/广告系列",
+    "clickToResume": "点击启用广告/广告系列",
+    "statusUpdated": "状态更新成功",
+    "statusUpdateError": "在广告网络上更新状态失败",
+    "noConnection": "未找到 Facebook API 连接 — 请先在成本导入中绑定广告账户",
+    "unsupportedNetwork": "暂不支持该广告网络",
+    "invalidId": "无效的对象 ID",
     "title": "计划与自动化",
     "backorderCronTitle": "延期交货：计划的域名检查",
     "backorderCronDesc": "域可用性检查由单独的 cron 脚本执行，每次运行处理 1 个域。您可以在此处启用/禁用执行并复制现成的 cron 命令。",
@@ -28874,6 +29358,15 @@ const zh = {
     "groupSites": "网站与落地页",
     "groupTools": "工具",
     "groupOther": "其他",
+    "chromeExtension": "Chrome 与防关联浏览器插件",
+    "chromeExtDesc": "在 AdsPower、Dolphin{anty} 和 Chrome 中直接将实时追踪数据叠加在 Facebook 广告管理工具中。",
+    "extTemplate1": "模板 1：CPA / 漏斗模型 (CPA、消耗、收入、ROI、利润)",
+    "extTemplate2": "模板 2：COD / 货到付款 (CPL、CPS、消耗、确认收入、确认 ROI、利润)",
+    "downloadExtension": "下载插件 (.ZIP)",
+    "antidetectInstallGuide": "防关联浏览器安装指南",
+    "adspowerGuide": "AdsPower：打开应用中心 → 上传自定义应用 → 选择解压后的文件夹。",
+    "dolphinGuide": "Dolphin{anty}：转到设置 → 插件 → 添加插件或直接拖入 ZIP 压缩包。",
+    "chromeGuide": "Google Chrome：打开 chrome://extensions → 开启开发者模式 → 点击“加载已解压的扩展程序”。",
     "howItWorks": "集成如何运作",
     "introText": "使用以下方法之一将 Orbitra 与您的外部登录页面或应用程序集成。这使您可以跟踪标准跟踪链接之外的流量，同时将数据集中在 Orbitra 数据库中。",
     "usageExamples": "用法示例：",
@@ -29152,6 +29645,8 @@ const zh = {
     "safeLandingNone": "— 无 —",
     "safeUrl": "安全 URL",
     "safeHtml": "安全 HTML（内联）",
+    "dontRecordSafeClicks": "不记录安全页（Safe Page）的点击",
+    "dontRecordSafeClicksHint": "路由到安全页的机器人、爬虫和审核人员将不会记录在数据库或广告报告中。",
     "moneyPage": "盈利页面（面向访客）",
     "moneyPageHint": "展示给真实访客。行为与落地页+offer 模式相同。"
   },
@@ -29568,10 +30063,15 @@ const fr = {
     "externalId": "ID externe",
     "creativeId": "ID de créa",
     "adCampaignId": "ID de campagne publicitaire",
-    "source": "Source"
+    "source": "Source",
+    "enterParamKey": "Entrez la clé du paramètre (ex. utm_placement, placement, custom_id) :",
+    "addParam": "Ajouter un paramètre",
+    "additionalSubIds": "Sub ID supplémentaires (sub_id_1 .. sub_id_30)",
+    "placement": "Emplacement (utm_placement)"
   },
   "costModels": {
     "cpc": "CPC — coût par clic",
+    "cpv": "CPV — coût par visite",
     "cpuc": "CPuC — coût par clic unique",
     "cpm": "CPM — coût pour 1000 impressions",
     "cpa": "CPA — coût par action",
@@ -29844,7 +30344,10 @@ const fr = {
     "confirmPassword": "Confirmer le mot de passe",
     "confirmPasswordPlaceholder": "Répéter le nouveau mot de passe",
     "passwordsNotMatch": "Les mots de passe ne correspondent pas",
-    "saveSuccess": "Paramètres enregistrés avec succès"
+    "saveSuccess": "Paramètres enregistrés avec succès",
+    "stayInEditorAfterSave": "Rester dans l'éditeur après l'enregistrement",
+    "stayInEditorHint": "Garder les campagnes, pages d'atterrissage et offres ouvertes après avoir cliqué sur Enregistrer.",
+    "saveAndClose": "Enregistrer et fermer"
   },
   "setup": {
     "title": "Configuration initiale",
@@ -29927,6 +30430,9 @@ const fr = {
     "recentClicksLog": "Clics récents (journaux)",
     "colDirection": "Direction",
     "noLogs": "Aucun journal",
+    "showMoreLogs": "Afficher plus (+10)",
+    "showLess": "Afficher moins",
+    "last10Logs": "10 derniers clics (cliquer pour agrandir)",
     "viewFullLogs": "Afficher les journaux complets"
   },
   "metrics": {
@@ -29938,6 +30444,7 @@ const fr = {
     "profit": "Bénéfice",
     "roi": "ROI",
     "cpc": "CPC",
+    "cpv": "CPV — coût par visite",
     "cpa": "CPA",
     "ctr": "CTR",
     "visits": "Visites",
@@ -29973,6 +30480,9 @@ const fr = {
     "copyErrors": "Erreurs"
   },
   "editor": {
+    "collectClicks": "Collecter les clics",
+    "collectClicksHint": "Enregistrer les clics dans les statistiques et rapports pour ce flux. Désactivé — le visiteur reçoit la destination, mais aucune ligne de clic n’est écrite ; les conversions de ce flux n’ont aucun clic auquel s’attacher.",
+    "collectClicksDisabledNote": "Les clics pour ce flux ne sont pas enregistrés",
     "showText": "Afficher texte / blanc",
     "toCampaign": "Envoyer vers une campagne",
     "selectCampaign": "— choisir une campagne —",
@@ -30194,6 +30704,13 @@ const fr = {
     "step5": `Vérifiez les conversions entrantes dans l'onglet "Conversions"`,
     "examplePostback": "Exemple d'URL de publication"
   },
+  "affiliateNetworks": {
+    "postbackUrl": "URL de Postback",
+    "offerParams": "Paramètres de l'offre",
+    "useNetworkTemplate": "Modèle de réseau",
+    "useGenericTemplate": "Postback générique",
+    "resetToTemplate": "Réinitialiser au modèle de réseau"
+  },
   "components": {
     "aliasName": "Alias / Nom",
     "group": "Groupe",
@@ -30209,6 +30726,29 @@ const fr = {
     "paused": "En pause"
   },
   "domains": {
+    "group": "Groupe",
+    "noGroup": "Aucun groupe",
+    "createGroup": "Créer",
+    "adminDashboard": "Panneau d’administration",
+    "allowAccess": "Autoriser",
+    "denyAccess": "Refuser",
+    "allowRobotsShort": "Autoriser",
+    "disallowShort": "Interdire",
+    "on": "Activé",
+    "off": "Désactivé",
+    "httpsOnlyShort": "HTTPS uniquement",
+    "cloudflareProxy": "Proxy Cloudflare",
+    "registrar": "Bureau d’enregistrement",
+    "optional": "Optionnel",
+    "dnsProvider": "Fournisseur DNS",
+    "statusOk": "OK",
+    "statusActive": "Actif",
+    "statusDisabled": "Désactivé",
+    "addMore": "Ajouter d’autres",
+    "savedAddMore": "Enregistré — prêt pour le domaine suivant",
+    "domainBulkHelper": "Pour ajouter plusieurs domaines, saisissez une liste séparée par des virgules. HTTP(S) est nettoyé automatiquement.",
+    "adminAccessHint": "Si l’accès est refusé, le panneau d’administration et l’API renvoient 404 sur ce domaine. Le panneau reste accessible via les autres hôtes et l’IP du serveur.",
+    "cfProxyHint": "Le domaine passe par le proxy Cloudflare — le SSL est servi par l’edge Cloudflare et l’émission Let’s Encrypt est ignorée.",
     "title": "Domaines parqués",
     "serverIp": "IP du serveur :",
     "searchPlaceholder": "Rechercher des domaines...",
@@ -31109,6 +31649,7 @@ const fr = {
     "delete": "Supprimer"
   },
   "groupsModal": {
+    "domainGroups": "Groupes de domaines",
     "offerGroups": "Groupes d'offres",
     "landingGroups": "Groupes de destination",
     "campaignGroups": "Groupes de campagne",
@@ -31340,7 +31881,49 @@ const fr = {
     "system": "Système",
     "privacy": "Confidentialité"
   },
+  "table": {
+    "copyLink": "Copier le lien",
+    "duplicate": "Dupliquer",
+    "perPage": "Par page",
+    "prev": "Préc.",
+    "next": "Suiv.",
+    "all": "Tous",
+    "total": "TOTAL",
+    "name": "Nom",
+    "group": "Groupe",
+    "actions": "Actions",
+    "selectAll": "Sélectionner toutes les lignes"
+  },
+  "extension": {
+    "title": "Superposition Orbitra pour Ads Manager",
+    "last3Days": "3 derniers jours",
+    "last4Days": "4 derniers jours",
+    "today": "Aujourd’hui",
+    "yesterday": "Hier",
+    "overview": "Aperçu",
+    "dailyHistory": "Historique quotidien",
+    "landingsAndOffers": "Pages d’atterrissage et offres",
+    "pixelAccuracy": "Précision Pixel et CAPI",
+    "winner": "GAGNANT",
+    "spend": "Dépenses",
+    "revenue": "Revenus",
+    "profit": "Bénéfice",
+    "roi": "ROI",
+    "cpa": "CPA",
+    "cpl": "CPL",
+    "cps": "CPS"
+  },
   "automation": {
+    "status": "Statut",
+    "active": "Actif",
+    "paused": "En pause",
+    "clickToPause": "Cliquer pour mettre en pause la publicité/campagne",
+    "clickToResume": "Cliquer pour activer la publicité/campagne",
+    "statusUpdated": "Statut mis à jour avec succès",
+    "statusUpdateError": "Échec de la mise à jour du statut sur le réseau publicitaire",
+    "noConnection": "Aucune connexion à l’API Facebook trouvée — connectez d’abord le compte publicitaire dans l’import de coûts",
+    "unsupportedNetwork": "Ce réseau publicitaire n’est pas encore pris en charge",
+    "invalidId": "Identifiant d’entité non valide",
     "title": "Cron et automatisation",
     "backorderCronTitle": "Recommandation : vérifications de domaines planifiées",
     "backorderCronDesc": "Les vérifications de disponibilité des domaines sont exécutées par un Séparez le script cron et traitez 1 domaine par exécution. Ici, vous pouvez activer/désactiver l'exécution et copier une commande cron prête à l'emploi.",
@@ -31578,6 +32161,15 @@ const fr = {
     "groupSites": "Sites & landings",
     "groupTools": "Outils",
     "groupOther": "Autres",
+    "chromeExtension": "Extension Chrome et Antidétect",
+    "chromeExtDesc": "Affichez les statistiques du tracker en temps réel directement dans Facebook Ads Manager dans AdsPower, Dolphin{anty} et Chrome.",
+    "extTemplate1": "Modèle 1 : CPA / Entonnoir (CPA, Dépenses, Revenus, ROI, Bénéfice)",
+    "extTemplate2": "Modèle 2 : COD / Nutra (CPL, CPS, Dépenses, Revenus conf., ROI conf., Bénéfice)",
+    "downloadExtension": "Télécharger l'extension (.ZIP)",
+    "antidetectInstallGuide": "Guide d'installation pour navigateurs Antidétect",
+    "adspowerGuide": "AdsPower : Ouvrez le Centre d'applications → Téléverser une extension personnalisée → Sélectionnez le dossier décompressé.",
+    "dolphinGuide": "Dolphin{anty} : Paramètres → Extensions → Ajouter une extension ou glisser-déposer l'archive ZIP.",
+    "chromeGuide": "Google Chrome : Ouvrez chrome://extensions → Activez le Mode développeur → Charger l'extension non empaquetée.",
     "howItWorks": "Fonctionnement des intégrations",
     "introText": "Intégrez Orbitra à vos pages de destination ou applications externes en utilisant l'une de ces méthodes. Cela vous permet de suivre le trafic en dehors des liens de suivi standard tout en centralisant les données dans votre base de données Orbitra.",
     "usageExamples": "Exemples d'utilisation :",
@@ -31858,6 +32450,8 @@ const fr = {
     "safeLandingNone": "— aucun —",
     "safeUrl": "URL sécurisée",
     "safeHtml": "HTML sécurisé (en ligne)",
+    "dontRecordSafeClicks": "Ne pas enregistrer les clics pour la Safe Page",
+    "dontRecordSafeClicksHint": "Les robots, crawlers et modérateurs redirigés vers la Safe Page ne seront pas enregistrés dans les rapports.",
     "moneyPage": "Page monétisée (pour les visiteurs)",
     "moneyPageHint": "Affichée aux vrais visiteurs. Se comporte comme le schéma landing+offre."
   },
@@ -32274,10 +32868,15 @@ const de = {
     "externalId": "Externe ID",
     "creativeId": "Creative-ID",
     "adCampaignId": "Werbekampagnen-ID",
-    "source": "Quelle"
+    "source": "Quelle",
+    "enterParamKey": "Parameterschlüssel eingeben (z. B. utm_placement, placement, custom_id):",
+    "addParam": "Parameter hinzufügen",
+    "additionalSubIds": "Zusätzliche Sub-IDs (sub_id_1 .. sub_id_30)",
+    "placement": "Platzierung (utm_placement)"
   },
   "costModels": {
     "cpc": "CPC — Kosten pro Klick",
+    "cpv": "CPV — Kosten pro Besuch",
     "cpuc": "CPuC — Kosten pro eindeutigem Klick",
     "cpm": "CPM — Kosten pro 1000 Impressionen",
     "cpa": "CPA — Kosten pro Aktion",
@@ -32550,7 +33149,10 @@ const de = {
     "confirmPassword": "Passwort bestätigen",
     "confirmPasswordPlaceholder": "Neues Passwort wiederholen",
     "passwordsNotMatch": "Passwörter stimmen nicht überein",
-    "saveSuccess": "Einstellungen erfolgreich gespeichert"
+    "saveSuccess": "Einstellungen erfolgreich gespeichert",
+    "stayInEditorAfterSave": "Nach dem Speichern im Editor bleiben",
+    "stayInEditorHint": "Kampagnen, Landingpages und Angebote nach dem Klicken auf Speichern geöffnet lassen.",
+    "saveAndClose": "Speichern & Schließen"
   },
   "setup": {
     "title": "Ersteinrichtung",
@@ -32633,6 +33235,9 @@ const de = {
     "recentClicksLog": "Recent Clicks (Logs)",
     "colDirection": "Direction",
     "noLogs": "No logs",
+    "showMoreLogs": "Mehr anzeigen (+10)",
+    "showLess": "Weniger anzeigen",
+    "last10Logs": "Letzte 10 Klicks (zum Erweitern klicken)",
     "viewFullLogs": "View full logs"
   },
   "metrics": {
@@ -32644,6 +33249,7 @@ const de = {
     "profit": "Gewinn",
     "roi": "ROI",
     "cpc": "CPC",
+    "cpv": "CPV — Kosten pro Besuch",
     "cpa": "CPA",
     "ctr": "CTR",
     "visits": "Besuche",
@@ -32679,6 +33285,9 @@ const de = {
     "copyErrors": "Fehler"
   },
   "editor": {
+    "collectClicks": "Klicks erfassen",
+    "collectClicksHint": "Klicks in Statistiken und Berichten für diesen Stream aufzeichnen. Aus: der Besucher bekommt das Ziel weiterhin, aber es wird keine Klick-Zeile geschrieben — Konversionen aus diesem Stream haben keinen Anknüpfungspunkt.",
+    "collectClicksDisabledNote": "Klicks für diesen Stream werden nicht aufgezeichnet",
     "showText": "Text zeigen / leer",
     "toCampaign": "An Kampagne senden",
     "selectCampaign": "— Kampagne wählen —",
@@ -32900,6 +33509,13 @@ const de = {
     "step5": "Überprüfen Sie auf der Registerkarte „Conversions“ nach eingehenden Conversions",
     "examplePostback": "Beispiel-Postback-URL"
   },
+  "affiliateNetworks": {
+    "postbackUrl": "Postback-URL",
+    "offerParams": "Angebots-Parameter",
+    "useNetworkTemplate": "Netzwerk-Vorlage",
+    "useGenericTemplate": "Standard-Postback",
+    "resetToTemplate": "Auf Netzwerk-Vorlage zurücksetzen"
+  },
   "components": {
     "aliasName": "Alias/Name",
     "group": "Gruppe",
@@ -32915,6 +33531,29 @@ const de = {
     "paused": "Pausiert"
   },
   "domains": {
+    "group": "Gruppe",
+    "noGroup": "Keine Gruppe",
+    "createGroup": "Erstellen",
+    "adminDashboard": "Admin-Dashboard",
+    "allowAccess": "Erlauben",
+    "denyAccess": "Verweigern",
+    "allowRobotsShort": "Erlauben",
+    "disallowShort": "Verbieten",
+    "on": "Ein",
+    "off": "Aus",
+    "httpsOnlyShort": "Nur HTTPS",
+    "cloudflareProxy": "Cloudflare-Proxy",
+    "registrar": "Registrar",
+    "optional": "Optional",
+    "dnsProvider": "DNS-Anbieter",
+    "statusOk": "OK",
+    "statusActive": "Aktiv",
+    "statusDisabled": "Deaktiviert",
+    "addMore": "Weitere hinzufügen",
+    "savedAddMore": "Gespeichert — bereit für die nächste Domain",
+    "domainBulkHelper": "Um mehrere Domains hinzuzufügen, geben Sie eine durch Kommas getrennte Liste ein. HTTP(S) wird automatisch bereinigt.",
+    "adminAccessHint": "Bei verweigertem Zugriff liefern Admin-Panel und API auf dieser Domain ein 404. Das Panel bleibt über andere Hosts und die Server-IP erreichbar.",
+    "cfProxyHint": "Die Domain läuft über den Cloudflare-Proxy — das SSL liefert die Cloudflare-Edge, die Let’s-Encrypt-Ausstellung wird übersprungen.",
     "title": "Geparkte Domains",
     "serverIp": "Server-IP:",
     "searchPlaceholder": "Domänen durchsuchen...",
@@ -33815,6 +34454,7 @@ const de = {
     "delete": "Löschen"
   },
   "groupsModal": {
+    "domainGroups": "Domain-Gruppen",
     "offerGroups": "Angebotsgruppen",
     "landingGroups": "Landing-Gruppen",
     "campaignGroups": "Kampagnengruppen",
@@ -34046,7 +34686,49 @@ const de = {
     "system": "System",
     "privacy": "Datenschutz"
   },
+  "table": {
+    "copyLink": "Link kopieren",
+    "duplicate": "Duplizieren",
+    "perPage": "Pro Seite",
+    "prev": "Zurück",
+    "next": "Weiter",
+    "all": "Alle",
+    "total": "GESAMT",
+    "name": "Name",
+    "group": "Gruppe",
+    "actions": "Aktionen",
+    "selectAll": "Alle Zeilen auswählen"
+  },
+  "extension": {
+    "title": "Orbitra Ads Manager Overlay",
+    "last3Days": "Letzte 3 Tage",
+    "last4Days": "Letzte 4 Tage",
+    "today": "Heute",
+    "yesterday": "Gestern",
+    "overview": "Übersicht",
+    "dailyHistory": "Tagesverlauf",
+    "landingsAndOffers": "Landingpages & Angebote",
+    "pixelAccuracy": "Pixel- & CAPI-Genauigkeit",
+    "winner": "GEWINNER",
+    "spend": "Ausgaben",
+    "revenue": "Umsatz",
+    "profit": "Gewinn",
+    "roi": "ROI",
+    "cpa": "CPA",
+    "cpl": "CPL",
+    "cps": "CPS"
+  },
   "automation": {
+    "status": "Status",
+    "active": "Aktiv",
+    "paused": "Pausiert",
+    "clickToPause": "Klicken, um Anzeige/Kampagne zu pausieren",
+    "clickToResume": "Klicken, um Anzeige/Kampagne zu aktivieren",
+    "statusUpdated": "Status erfolgreich aktualisiert",
+    "statusUpdateError": "Statusaktualisierung im Werbenetzwerk fehlgeschlagen",
+    "noConnection": "Keine Facebook-API-Verbindung gefunden — zuerst das Werbekonto im Kostenimport verbinden",
+    "unsupportedNetwork": "Dieses Werbenetzwerk wird noch nicht unterstützt",
+    "invalidId": "Ungültige Entitäts-ID",
     "title": "Cron & Automatisierung",
     "backorderCronTitle": "Backorder: geplante Domain-Prüfungen",
     "backorderCronDesc": "Domain-Verfügbarkeitsprüfungen werden von einem ausgeführt Separates Cron-Skript und Verarbeitung einer Domäne pro Lauf. Hier können Sie die Ausführung aktivieren/deaktivieren und einen gebrauchsfertigen Cron-Befehl kopieren.",
@@ -34284,6 +34966,15 @@ const de = {
     "groupSites": "Websites & Landings",
     "groupTools": "Tools",
     "groupOther": "Weitere",
+    "chromeExtension": "Chrome- & Antidetect-Erweiterung",
+    "chromeExtDesc": "Echtzeit-Tracker-Analysen direkt im Facebook Ads Manager in AdsPower, Dolphin{anty} und Chrome einblenden.",
+    "extTemplate1": "Vorlage 1: CPA / Funnel (CPA, Ausgaben, Umsatz, ROI, Gewinn)",
+    "extTemplate2": "Vorlage 2: COD / Nutra (CPL, CPS, Ausgaben, Bestätigter Umsatz, ROI conf, Gewinn)",
+    "downloadExtension": "Erweiterung herunterladen (.ZIP)",
+    "antidetectInstallGuide": "Installationsanleitung für Antidetect-Browser",
+    "adspowerGuide": "AdsPower: App Center öffnen → Eigene Erweiterung hochladen → Entpackten Ordner auswählen.",
+    "dolphinGuide": "Dolphin{anty}: Einstellungen → Erweiterungen → Erweiterung hinzufügen oder ZIP-Datei hineinziehen.",
+    "chromeGuide": "Google Chrome: chrome://extensions öffnen → Entwicklermodus aktivieren → 'Entpackte Erweiterung laden' wählen.",
     "howItWorks": "So funktionieren Integrationen",
     "introText": "Integrieren Sie Orbitra mit Ihren externen Landingpages oder Apps mit einer dieser Methoden. Dadurch können Sie den Datenverkehr außerhalb von Standard-Tracking-Links verfolgen und gleichzeitig die Daten in Ihrer Orbitra-Datenbank zentralisieren.",
     "usageExamples": "Verwendungsbeispiele:",
@@ -34562,6 +35253,8 @@ const de = {
     "safeLandingNone": "— keines —",
     "safeUrl": "Sichere URL",
     "safeHtml": "Sicheres HTML (Inline)",
+    "dontRecordSafeClicks": "Klicks für Safe Page nicht aufzeichnen",
+    "dontRecordSafeClicksHint": "Bots, Crawler und Prüfer, die zur Safe Page weitergeleitet werden, werden nicht in Berichten erfasst.",
     "moneyPage": "Money-Page (für Besucher)",
     "moneyPageHint": "Wird echten Besuchern gezeigt. Verhält sich wie das Landing+Angebot-Schema."
   },
@@ -35095,7 +35788,7 @@ const canAccessTab = (user, tab) => {
 };
 const firstAllowedTab = (user) => ["campaigns", "offers", "landings", "sources", "networks", "domains", "dashboard"].find((tab) => canAccessTab(user, tab)) || "dashboard";
 const FINANCE_SEGMENTS = {
-  costs: [/^cost/, "cpc", "cpa", "cps", "spend"],
+  costs: [/^cost/, "cpc", "cpv", "cpa", "cps", "spend"],
   revenue: [/^profit/, "revenue", "roi", "epc", "uepc"],
   payout: [/^payout/]
 };
@@ -48220,6 +48913,7 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
     ] })
   );
 };
+const INITIAL_LIMIT = 10;
 const getDeviceIcon = (deviceType) => {
   switch (deviceType?.toLowerCase()) {
     case "mobile":
@@ -48234,6 +48928,25 @@ const RecentClicks = ({ logs, preferences, onShowAll }) => {
   const { t } = useLanguage();
   const isVisible = (col) => !preferences || !preferences.click_columns || preferences.click_columns.includes(col);
   const [selectedClickId, setSelectedClickId] = reactExports.useState(null);
+  const [isExpanded, setIsExpanded] = reactExports.useState(false);
+  const [tableHeight, setTableHeight] = reactExports.useState(null);
+  const tableContainerRef = reactExports.useRef(null);
+  const loadedLogs = Array.isArray(logs) ? logs : [];
+  const displayedLogs = isExpanded ? loadedLogs : loadedLogs.slice(0, INITIAL_LIMIT);
+  const hiddenLogCount = Math.max(loadedLogs.length - INITIAL_LIMIT, 0);
+  const showMoreLabel = t("dashboard.showMoreLogs").replace("10", String(hiddenLogCount));
+  reactExports.useLayoutEffect(() => {
+    const tableContainer = tableContainerRef.current;
+    if (!tableContainer) return void 0;
+    const updateHeight = () => {
+      setTableHeight(tableContainer.getBoundingClientRect().height);
+    };
+    updateHeight();
+    if (typeof ResizeObserver === "undefined") return void 0;
+    const resizeObserver = new ResizeObserver(updateHeight);
+    resizeObserver.observe(tableContainer);
+    return () => resizeObserver.disconnect();
+  }, [displayedLogs.length, preferences]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "card shadow-sm overflow-hidden mb-8", style: { backgroundColor: "var(--color-bg-card)", color: "var(--color-text-primary)" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "px-5 py-4 border-b flex justify-between items-center", style: { borderColor: "var(--color-border)" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-sm font-semibold uppercase tracking-wide", style: { color: "var(--color-text-primary)" }, children: t("dashboard.recentClicksLog") }),
@@ -48242,39 +48955,63 @@ const RecentClicks = ({ logs, preferences, onShowAll }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "Live" })
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-left text-sm", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "border-b", style: { backgroundColor: "var(--color-bg-hover)", borderColor: "var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        isVisible("created_at") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold w-48", style: { color: "var(--color-text-secondary)" }, children: t("dashboard.colDate") }),
-        isVisible("campaign_name") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold w-48", style: { color: "var(--color-text-secondary)" }, children: t("dashboard.colCampaign") }),
-        isVisible("country_code") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold w-16 text-center", style: { color: "var(--color-text-secondary)" }, children: t("dashboard.colGeo") }),
-        isVisible("device_type") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold w-16 text-center", style: { color: "var(--color-text-secondary)" }, children: t("dashboard.colOs") }),
-        isVisible("ip") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold w-32", style: { color: "var(--color-text-secondary)" }, children: t("dashboard.colIp") }),
-        isVisible("user_agent") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold max-w-xs", style: { color: "var(--color-text-secondary)" }, children: t("dashboard.colUa") }),
-        isVisible("redirect_url") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("dashboard.colDirection") })
-      ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { style: { divideColor: "var(--color-border)" }, children: [
-        (!logs || logs.length === 0) && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "6", className: "px-5 py-12 text-center", style: { color: "var(--color-text-muted)" }, children: t("dashboard.noLogs") }) }),
-        logs && logs.slice(0, 20).map((log) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "hover:bg-blue-50/10 transition", children: [
-          isVisible("created_at") && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 font-mono text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setSelectedClickId(log.click_id || log.id), className: "text-blue-500 hover:text-blue-700 hover:underline font-medium text-left", children: log.created_at }) }),
-          isVisible("campaign_name") && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 font-medium", style: { color: "var(--color-text-primary)" }, children: log.campaign_name }),
-          isVisible("country_code") && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "td",
-            {
-              className: "px-5 py-3 text-center text-xs font-mono align-middle",
-              title: [log.country_code, log.region, log.city, log.geo_timezone].filter(Boolean).join(" / "),
-              children: log.country_code || "-"
-            }
-          ),
-          isVisible("device_type") && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-center align-middle", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center", children: getDeviceIcon(log.device_type) }) }),
-          isVisible("ip") && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 font-mono text-xs align-middle", style: { color: "var(--color-text-secondary)" }, children: log.ip }),
-          isVisible("user_agent") && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-xs truncate max-w-[200px]", title: log.user_agent, style: { color: "var(--color-text-muted)" }, children: log.user_agent || "-" }),
-          isVisible("redirect_url") && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2 text-xs", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 14, className: "text-gray-400" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: log.redirect_url, className: "text-blue-500 hover:underline truncate max-w-[250px] inline-block", target: "_blank", rel: "noreferrer", title: log.redirect_url, children: log.redirect_url })
-          ] }) })
-        ] }, log.id))
-      ] })
-    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        id: "recent-clicks-table",
+        className: "overflow-hidden transition-[height] duration-300 ease-in-out motion-reduce:transition-none",
+        style: { height: tableHeight === null ? "auto" : `${tableHeight}px` },
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { ref: tableContainerRef, className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "w-full text-left text-sm", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { className: "border-b", style: { backgroundColor: "var(--color-bg-hover)", borderColor: "var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+            isVisible("created_at") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold w-48", style: { color: "var(--color-text-secondary)" }, children: t("dashboard.colDate") }),
+            isVisible("campaign_name") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold w-48", style: { color: "var(--color-text-secondary)" }, children: t("dashboard.colCampaign") }),
+            isVisible("country_code") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold w-16 text-center", style: { color: "var(--color-text-secondary)" }, children: t("dashboard.colGeo") }),
+            isVisible("device_type") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold w-16 text-center", style: { color: "var(--color-text-secondary)" }, children: t("dashboard.colOs") }),
+            isVisible("ip") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold w-32", style: { color: "var(--color-text-secondary)" }, children: t("dashboard.colIp") }),
+            isVisible("user_agent") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold max-w-xs", style: { color: "var(--color-text-secondary)" }, children: t("dashboard.colUa") }),
+            isVisible("redirect_url") && /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "px-5 py-3 font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("dashboard.colDirection") })
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("tbody", { style: { divideColor: "var(--color-border)" }, children: [
+            loadedLogs.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "7", className: "px-5 py-12 text-center", style: { color: "var(--color-text-muted)" }, children: t("dashboard.noLogs") }) }),
+            displayedLogs.map((log) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "hover:bg-blue-50/10 transition", children: [
+              isVisible("created_at") && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 font-mono text-xs", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setSelectedClickId(log.click_id || log.id), className: "text-blue-500 hover:text-blue-700 hover:underline font-medium text-left", children: log.created_at }) }),
+              isVisible("campaign_name") && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 font-medium", style: { color: "var(--color-text-primary)" }, children: log.campaign_name }),
+              isVisible("country_code") && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "td",
+                {
+                  className: "px-5 py-3 text-center text-xs font-mono align-middle",
+                  title: [log.country_code, log.region, log.city, log.geo_timezone].filter(Boolean).join(" / "),
+                  children: log.country_code || "-"
+                }
+              ),
+              isVisible("device_type") && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-center align-middle", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center", children: getDeviceIcon(log.device_type) }) }),
+              isVisible("ip") && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 font-mono text-xs align-middle", style: { color: "var(--color-text-secondary)" }, children: log.ip }),
+              isVisible("user_agent") && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3 text-xs truncate max-w-[200px]", title: log.user_agent, style: { color: "var(--color-text-muted)" }, children: log.user_agent || "-" }),
+              isVisible("redirect_url") && /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-5 py-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2 text-xs", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 14, className: "text-gray-400" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: log.redirect_url, className: "text-blue-500 hover:underline truncate max-w-[250px] inline-block", target: "_blank", rel: "noreferrer", title: log.redirect_url, children: log.redirect_url })
+              ] }) })
+            ] }, log.id))
+          ] })
+        ] }) })
+      }
+    ),
+    hiddenLogCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-5 py-2.5 border-t flex justify-center", style: { borderColor: "var(--color-border)", backgroundColor: "var(--color-bg-soft)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "button",
+      {
+        type: "button",
+        onClick: () => setIsExpanded((expanded) => !expanded),
+        "aria-controls": "recent-clicks-table",
+        "aria-expanded": isExpanded,
+        title: isExpanded ? t("dashboard.showLess") : t("dashboard.last10Logs"),
+        className: "text-xs font-medium flex items-center gap-1.5 transition-colors hover:underline",
+        style: { color: "var(--color-primary)" },
+        children: [
+          isExpanded ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { size: 14 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { size: 14 }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: isExpanded ? t("dashboard.showLess") : showMoreLabel })
+        ]
+      }
+    ) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-5 py-3 border-t flex justify-center", style: { backgroundColor: "var(--color-bg-hover)", borderColor: "var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "button",
       {
@@ -48525,6 +49262,131 @@ const HelpTooltip = ({ textKey, text, position = "top", size = 15, style = {} })
   ] });
 };
 const API_URL$A = "/api.php";
+const GroupsModal = ({ type, onClose, onGroupCreated }) => {
+  const { t } = useLanguage();
+  const [groups, setGroups] = reactExports.useState([]);
+  const [loading, setLoading] = reactExports.useState(true);
+  const [newGroupName, setNewGroupName] = reactExports.useState("");
+  const getEndpoint = () => {
+    switch (type) {
+      case "offer":
+        return "offer_groups";
+      case "landing":
+        return "landing_groups";
+      case "campaign":
+        return "campaign_groups";
+      case "domain":
+        return "domain_groups";
+      default:
+        return "offer_groups";
+    }
+  };
+  const getDeleteEndpoint = () => {
+    switch (type) {
+      case "offer":
+        return "delete_offer_group";
+      case "landing":
+        return "delete_landing_group";
+      case "campaign":
+        return "delete_campaign_group";
+      case "domain":
+        return "delete_domain_group";
+      default:
+        return "delete_offer_group";
+    }
+  };
+  const getTitle = () => {
+    switch (type) {
+      case "offer":
+        return t("groupsModal.offerGroups");
+      case "landing":
+        return t("groupsModal.landingGroups");
+      case "campaign":
+        return t("groupsModal.campaignGroups");
+      case "domain":
+        return t("groupsModal.domainGroups");
+      default:
+        return t("groupsModal.groups");
+    }
+  };
+  const endpoint = getEndpoint();
+  reactExports.useEffect(() => {
+    fetchGroups();
+  }, [endpoint]);
+  const fetchGroups = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`${API_URL$A}?action=${endpoint}`);
+      if (res.data.status === "success") setGroups(res.data.data);
+    } catch (err) {
+      console.error("Error fetching groups:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleCreate = async () => {
+    if (!newGroupName.trim()) return;
+    try {
+      const res = await axios.post(`${API_URL$A}?action=${endpoint}`, { name: newGroupName.trim() });
+      if (res.data.status === "success") {
+        const created = { id: res.data.data?.id, name: newGroupName.trim() };
+        setNewGroupName("");
+        fetchGroups();
+        if (onGroupCreated) onGroupCreated(created);
+      } else alert(res.data.message || t("groupsModal.createError"));
+    } catch {
+      alert(t("groupsModal.networkError"));
+    }
+  };
+  const handleDelete = async (id) => {
+    if (!window.confirm(t("groupsModal.deleteConfirm"))) return;
+    try {
+      await axios.post(`${API_URL$A}?action=${getDeleteEndpoint()}`, { id });
+      fetchGroups();
+    } catch {
+      alert(t("groupsModal.deleteError"));
+    }
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "480px" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: getTitle() }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 border-b", style: { borderColor: "var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          type: "text",
+          value: newGroupName,
+          onChange: (e) => setNewGroupName(e.target.value),
+          onKeyPress: (e) => e.key === "Enter" && handleCreate(),
+          placeholder: t("groups.placeholder"),
+          className: "form-input text-sm",
+          autoFocus: true
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleCreate, disabled: !newGroupName.trim(), className: "btn btn-primary whitespace-nowrap", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }),
+        t("groupsModal.add")
+      ] })
+    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "max-h-80 overflow-y-auto", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-8 text-center", style: { color: "var(--color-text-muted)" }, children: t("groupsModal.loading") }) : groups.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-8 text-center", style: { color: "var(--color-text-muted)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("groupsModal.noGroups") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mt-1", children: t("groupsModal.createFirst") })
+    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y", style: { borderColor: "var(--color-border)" }, children: groups.map((group) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center justify-between px-6 py-3 transition", style: { borderColor: "var(--color-border)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium", style: { color: "var(--color-text-primary)" }, children: group.name }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: [
+          "ID: ",
+          group.id
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(group.id), className: "action-btn", title: t("groups.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4", style: { color: "var(--color-text-muted)" } }) })
+    ] }, group.id)) }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-6 py-4 border-t flex justify-end", style: { borderColor: "var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "btn btn-secondary", children: t("groupsModal.close") }) })
+  ] }) });
+};
+const API_URL$z = "/api.php";
 const cache = /* @__PURE__ */ new Map();
 const CACHE_TTL = 3e4;
 function getCacheKey(action, params = {}) {
@@ -48541,7 +49403,7 @@ async function cachedGet(action, params = {}, ttl = CACHE_TTL) {
   if (cached && isCacheValid(cached)) {
     return { data: cached.data, fromCache: true };
   }
-  const response = await axios.get(API_URL$A, { params: { action, ...params } });
+  const response = await axios.get(API_URL$z, { params: { action, ...params } });
   if (response.data?.status === "success") {
     cache.set(cacheKey, {
       data: response.data,
@@ -48563,12 +49425,29 @@ function invalidateCache(pattern) {
   }
 }
 async function cachedPost(action, data = {}, params = {}) {
-  const response = await axios.post(API_URL$A, data, { params: { action, ...params } });
+  const response = await axios.post(API_URL$z, data, { params: { action, ...params } });
   if (response.data?.status === "success") {
     cache.clear();
   }
   return response;
 }
+const cleanNameInput = (v) => v.toLowerCase().replace(/^https?:\/\//, "").replace(/\/+$/, "").replace(/\s+/g, "");
+const ToggleGroup = ({ value, options, onChange }) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex rounded-lg overflow-hidden", style: { border: "1px solid var(--color-border)" }, children: options.map((opt, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+  "button",
+  {
+    type: "button",
+    onClick: () => onChange(opt.value),
+    className: "flex-1 text-xs font-medium py-1.5 px-2 transition",
+    style: {
+      background: value === opt.value ? "var(--color-primary)" : "var(--color-bg-soft)",
+      color: value === opt.value ? "var(--color-text-inverse, #fff)" : "var(--color-text-secondary)",
+      borderRight: i < options.length - 1 ? "1px solid var(--color-border)" : "none",
+      cursor: "pointer"
+    },
+    children: opt.label
+  },
+  opt.value
+)) });
 const Domains = ({ campaigns }) => {
   const { t } = useLanguage();
   const [domains, setDomains] = reactExports.useState([]);
@@ -48584,17 +49463,28 @@ const Domains = ({ campaigns }) => {
   const [forceChecking, setForceChecking] = reactExports.useState(false);
   const [sslRunning, setSslRunning] = reactExports.useState(false);
   const [sslEnv, setSslEnv] = reactExports.useState(null);
-  const [showModal, setShowModal] = reactExports.useState(false);
-  const [formData, setFormData] = reactExports.useState({
+  const defaultFormData = {
     id: null,
     name: "",
+    group_id: "",
     index_campaign_id: "",
     catch_404: false,
-    group_id: "",
     is_noindex: true,
-    https_only: false
-  });
+    admin_access: false,
+    https_only: true,
+    cloudflare_proxy: false,
+    registrar: "",
+    dns_provider: "",
+    status: "OK"
+  };
+  const [showModal, setShowModal] = reactExports.useState(false);
+  const [formData, setFormData] = reactExports.useState(defaultFormData);
   const [error, setError] = reactExports.useState("");
+  const [domainGroups, setDomainGroups] = reactExports.useState([]);
+  const [showGroupsModal, setShowGroupsModal] = reactExports.useState(false);
+  const [addMore, setAddMore] = reactExports.useState(false);
+  const [saveNotice, setSaveNotice] = reactExports.useState("");
+  const nameInputRef = reactExports.useRef(null);
   const [showDnsModal, setShowDnsModal] = reactExports.useState(false);
   const [ncConnected, setNcConnected] = reactExports.useState(false);
   const [showRegister, setShowRegister] = reactExports.useState(false);
@@ -48610,6 +49500,16 @@ const Domains = ({ campaigns }) => {
       if (data.status === "success") setNcConnected(!!data.data.connected);
     }).catch(() => {
     });
+  }, []);
+  const fetchDomainGroups = async () => {
+    try {
+      const { data } = await cachedGet("domain_groups");
+      if (data.status === "success") setDomainGroups(data.data || []);
+    } catch (e) {
+    }
+  };
+  reactExports.useEffect(() => {
+    fetchDomainGroups();
   }, []);
   const checkNcDomain = async () => {
     const domain = regDomain.trim().toLowerCase();
@@ -48738,11 +49638,17 @@ const Domains = ({ campaigns }) => {
       name: domain.name,
       index_campaign_id: domain.index_campaign_id || "",
       catch_404: domain.catch_404 === 1,
-      group_id: domain.group_id || "",
+      group_id: domain.group_id ? String(domain.group_id) : "",
       is_noindex: domain.is_noindex === 1,
-      https_only: domain.https_only === 1
+      admin_access: Number(domain.admin_access ?? 1) === 1,
+      https_only: domain.https_only === 1,
+      cloudflare_proxy: Number(domain.cloudflare_proxy ?? 0) === 1,
+      registrar: domain.registrar || "",
+      dns_provider: domain.dns_provider || "",
+      status: domain.status || "OK"
     });
     setError("");
+    setSaveNotice("");
     setShowModal(true);
   };
   const forceCheckAllDns = async () => {
@@ -48870,14 +49776,21 @@ ${t("domains.serverIp")}: ${parsed.expected || "—"}`;
     try {
       const res = await cachedPost("save_domain", formData);
       if (res.data.status === "success") {
-        setShowModal(false);
-        setFormData({ id: null, name: "", index_campaign_id: "", catch_404: false, group_id: "", is_noindex: true, https_only: false });
         fetchDomains();
         const parked = (res.data.domains || []).filter((d) => d.namecheap).map((d) => `${d.name}: ${d.namecheap}`);
         if (parked.length) {
           alert(`✓ ${t("namecheap.parkedOk")}:
 ${parked.join("\n")}`);
         }
+        if (!formData.id && addMore) {
+          setFormData((prev) => ({ ...defaultFormData, group_id: prev.group_id, index_campaign_id: prev.index_campaign_id, catch_404: prev.catch_404, is_noindex: prev.is_noindex, admin_access: prev.admin_access, https_only: prev.https_only, cloudflare_proxy: prev.cloudflare_proxy, registrar: prev.registrar, dns_provider: prev.dns_provider, status: prev.status }));
+          setSaveNotice(t("domains.savedAddMore", "Saved — ready for the next domain"));
+          setTimeout(() => setSaveNotice(""), 3e3);
+          nameInputRef.current?.focus();
+          return;
+        }
+        setShowModal(false);
+        setFormData(defaultFormData);
       } else {
         setError(res.data.message || t("common.error"));
       }
@@ -48995,7 +49908,9 @@ ${parked.join("\n")}`);
           "button",
           {
             onClick: () => {
-              setFormData({ id: null, name: "", index_campaign_id: "", catch_404: false, group_id: "", is_noindex: true, https_only: false });
+              setFormData(defaultFormData);
+              setError("");
+              setSaveNotice("");
               setShowModal(true);
             },
             className: "btn btn-primary",
@@ -49023,6 +49938,7 @@ ${parked.join("\n")}`);
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("domains.domain") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("domains.group") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("domains.status") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("domains.indexPage") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-center", children: t("domains.https") }),
@@ -49030,12 +49946,17 @@ ${parked.join("\n")}`);
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("domains.dateAdded") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("domains.actions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "7", className: "text-center py-8", children: t("domains.loading") }) }) : filteredDomains.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "7", className: "text-center py-8", style: { color: "var(--color-text-muted)" }, children: t("domains.noDomains") }) }) : filteredDomains.map((domain) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "8", className: "text-center py-8", children: t("domains.loading") }) }) : filteredDomains.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "8", className: "text-center py-8", style: { color: "var(--color-text-muted)" }, children: t("domains.noDomains") }) }) : filteredDomains.map((domain) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-medium", style: { color: "var(--color-text-primary)" }, children: domain.name }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: ignoreDnsUi || domain.status === "active" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "badge badge-success", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: domain.group_name ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "badge", style: { background: "color-mix(in srgb, var(--color-primary) 10%, transparent)", color: "var(--color-primary)" }, children: domain.group_name }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: "—" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: String(domain.status) === "Disabled" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "badge badge-danger", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }),
+          " ",
+          t("domains.statusDisabled")
+        ] }) : ignoreDnsUi || domain.dns_state === "active" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "badge badge-success", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14 }),
           " ",
-          t("domains.ok")
+          String(domain.status) === "Active" ? t("domains.statusActive") : t("domains.ok")
         ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
@@ -49060,7 +49981,7 @@ ${describeSslError(domain.ssl_error)}` }) : domain.ssl_status === "pending" ? /*
         ] }) })
       ] }, domain.id)) })
     ] }) }),
-    showModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content w-full max-w-md", style: { padding: "24px" }, children: [
+    showModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content w-full max-w-2xl", style: { padding: "24px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: formData.id ? t("domains.editDomain") : t("domains.addDomainTitle") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setShowModal(false), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
@@ -49069,29 +49990,127 @@ ${describeSslError(domain.ssl_error)}` }) : domain.ssl_status === "pending" ? /*
         /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16 }),
         error
       ] }),
+      saveNotice && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "alert alert-success mb-4 flex items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16 }),
+        saveNotice
+      ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-sm font-medium mb-1", children: [
-            t("domains.domainName"),
-            " ",
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-normal", style: { color: "var(--color-text-muted)" }, children: [
-              "(",
-              t("domains.bulkHint"),
-              ")"
-            ] })
-          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium mb-1", children: t("domains.domainName") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "textarea",
+            "input",
             {
+              ref: nameInputRef,
+              type: "text",
               required: true,
-              rows: 3,
+              autoFocus: !formData.id,
               className: "form-input w-full",
               placeholder: t("domains.bulkPlaceholder"),
               value: formData.name,
-              onChange: (e) => setFormData({ ...formData, name: e.target.value.toLowerCase() })
+              onChange: (e) => setFormData({ ...formData, name: cleanNameInput(e.target.value) })
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-secondary)" }, children: t("domains.bulkExample") })
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs mt-1", style: { color: "var(--color-text-secondary)" }, children: [
+            t("domains.domainBulkHelper"),
+            " ",
+            t("domains.bulkExample")
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium mb-1", children: t("domains.group") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "select",
+              {
+                className: "form-select w-full",
+                value: formData.group_id,
+                onChange: (e) => setFormData({ ...formData, group_id: e.target.value }),
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("domains.noGroup") }),
+                  domainGroups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g.id, children: g.name }, g.id))
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                className: "btn btn-secondary whitespace-nowrap",
+                onClick: () => setShowGroupsModal(true),
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 14 }),
+                  " ",
+                  t("domains.createGroup")
+                ]
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 sm:grid-cols-3 gap-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-medium mb-1.5", children: t("domains.searchRobots") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              ToggleGroup,
+              {
+                value: formData.is_noindex ? "disallow" : "allow",
+                onChange: (v) => setFormData({ ...formData, is_noindex: v === "disallow" }),
+                options: [
+                  { value: "allow", label: t("domains.allowRobotsShort") },
+                  { value: "disallow", label: t("domains.disallowShort") }
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-medium mb-1.5", children: t("domains.adminDashboard") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              ToggleGroup,
+              {
+                value: formData.admin_access ? "allow" : "deny",
+                onChange: (v) => setFormData({ ...formData, admin_access: v === "allow" }),
+                options: [
+                  { value: "allow", label: t("domains.allowAccess") },
+                  { value: "deny", label: t("domains.denyAccess") }
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-xs font-medium mb-1.5 flex items-center gap-1", children: [
+              t("domains.httpsOnlyShort"),
+              " ",
+              /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.httpsTooltip" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              ToggleGroup,
+              {
+                value: formData.https_only ? "on" : "off",
+                onChange: (v) => setFormData({ ...formData, https_only: v === "on" }),
+                options: [
+                  { value: "on", label: t("domains.on") },
+                  { value: "off", label: t("domains.off") }
+                ]
+              }
+            )
+          ] })
+        ] }),
+        !formData.admin_access && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs -mt-2", style: { color: "var(--color-text-secondary)" }, children: t("domains.adminAccessHint") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-4 p-3 rounded-lg", style: { background: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium", children: t("domains.cloudflareProxy") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-0.5", style: { color: "var(--color-text-secondary)" }, children: t("domains.cfProxyHint") })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { minWidth: "140px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            ToggleGroup,
+            {
+              value: formData.cloudflare_proxy ? "on" : "off",
+              onChange: (v) => setFormData({ ...formData, cloudflare_proxy: v === "on" }),
+              options: [
+                { value: "on", label: t("domains.on") },
+                { value: "off", label: t("domains.off") }
+              ]
+            }
+          ) })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-sm font-medium mb-1", children: [
@@ -49099,80 +50118,114 @@ ${describeSslError(domain.ssl_error)}` }) : domain.ssl_status === "pending" ? /*
             " ",
             /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.indexCampaignTooltip" })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "select",
-            {
-              className: "form-select w-full",
-              value: formData.index_campaign_id,
-              onChange: (e) => setFormData({ ...formData, index_campaign_id: e.target.value }),
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "", children: [
-                  "-- ",
-                  t("domains.notSelected"),
-                  " --"
-                ] }),
-                campaigns.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: c.id, children: [
-                  c.name,
-                  " (",
-                  c.alias,
-                  ")"
-                ] }, c.id))
-              ]
-            }
-          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "select",
+              {
+                className: "form-select flex-1",
+                value: formData.index_campaign_id,
+                onChange: (e) => setFormData({ ...formData, index_campaign_id: e.target.value }),
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "", children: [
+                    "-- ",
+                    t("domains.notSelected"),
+                    " --"
+                  ] }),
+                  campaigns.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: c.id, children: [
+                    c.name,
+                    " (",
+                    c.alias,
+                    ")"
+                  ] }, c.id))
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "inline-flex items-center gap-2 text-sm font-medium whitespace-nowrap cursor-pointer", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "checkbox",
+                  checked: formData.catch_404,
+                  onChange: (e) => setFormData({ ...formData, catch_404: e.target.checked })
+                }
+              ),
+              t("domains.catch404")
+            ] })
+          ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-secondary)" }, children: t("domains.indexPageHint") })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mt-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              type: "checkbox",
-              id: "catch404",
-              checked: formData.catch_404,
-              onChange: (e) => setFormData({ ...formData, catch_404: e.target.checked })
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "catch404", className: "text-sm font-medium cursor-pointer", children: t("domains.catch404") })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("hr", { className: "my-3", style: { borderColor: "var(--color-border)" } }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium mb-1", children: t("domains.searchRobots") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "select",
-            {
-              className: "form-select w-full",
-              value: formData.is_noindex ? "1" : "0",
-              onChange: (e) => setFormData({ ...formData, is_noindex: e.target.value === "1" }),
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "1", children: t("domains.disallowRobots") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "0", children: t("domains.allowRobots") })
-              ]
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-secondary)" }, children: t("domains.robotsHint") })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 pt-2", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              type: "checkbox",
-              id: "https_only",
-              checked: formData.https_only,
-              onChange: (e) => setFormData({ ...formData, https_only: e.target.checked })
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { htmlFor: "https_only", className: "text-sm font-medium cursor-pointer", children: [
-            t("domains.httpsOnly"),
-            " ",
-            /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.httpsTooltip" })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 sm:grid-cols-3 gap-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-medium mb-1.5", children: t("domains.registrar") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                className: "form-input w-full",
+                placeholder: t("domains.optional"),
+                value: formData.registrar,
+                onChange: (e) => setFormData({ ...formData, registrar: e.target.value })
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-medium mb-1.5", children: t("domains.dnsProvider") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "text",
+                className: "form-input w-full",
+                placeholder: "Cloudflare",
+                value: formData.dns_provider,
+                onChange: (e) => setFormData({ ...formData, dns_provider: e.target.value })
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-medium mb-1.5", children: t("domains.status") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "select",
+              {
+                className: "form-select w-full",
+                value: formData.status,
+                onChange: (e) => setFormData({ ...formData, status: e.target.value }),
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "OK", children: t("domains.statusOk") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Active", children: t("domains.statusActive") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Disabled", children: t("domains.statusDisabled") })
+                ]
+              }
+            )
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer mt-6", children: [
+          !formData.id && /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "inline-flex items-center gap-2 text-sm font-medium cursor-pointer mr-auto", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "checkbox",
+                checked: addMore,
+                onChange: (e) => setAddMore(e.target.checked)
+              }
+            ),
+            t("domains.addMore")
+          ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setShowModal(false), className: "btn btn-secondary", children: t("common.cancel") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "submit", className: "btn btn-primary", children: t("common.save") })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "submit", className: "btn btn-primary", children: formData.id ? t("common.save") : t("common.add") })
         ] })
       ] })
     ] }) }),
+    showGroupsModal && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      GroupsModal,
+      {
+        type: "domain",
+        onClose: setShowGroupsModal,
+        onGroupCreated: (g) => {
+          fetchDomainGroups();
+          if (g && g.id) setFormData((f) => ({ ...f, group_id: String(g.id) }));
+        }
+      }
+    ),
     showRegister && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content w-full max-w-md", style: { padding: "24px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "modal-title flex items-center gap-2", children: [
@@ -49350,7 +50403,7 @@ ${describeSslError(domain.ssl_error)}` }) : domain.ssl_status === "pending" ? /*
     ] }) })
   ] });
 };
-const API_URL$z = "/api.php";
+const API_URL$y = "/api.php";
 const statusMeta = (t, status) => {
   switch (status) {
     case "available":
@@ -49411,7 +50464,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
   const fetchRows = async ({ silent = false } = {}) => {
     if (!silent) setLoading(true);
     try {
-      const res = await axios.get(`${API_URL$z}?action=backorder_domains`);
+      const res = await axios.get(`${API_URL$y}?action=backorder_domains`);
       if (res.data.status === "success") {
         setRows(res.data.data || []);
       }
@@ -49441,7 +50494,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     if (runStartedAt && Number(runStartedAt) > 0) {
       payload.run_started_at = Number(runStartedAt);
     }
-    const res = await axios.post(`${API_URL$z}?action=backorder_check_batch`, payload);
+    const res = await axios.post(`${API_URL$y}?action=backorder_check_batch`, payload);
     if (res.data.status !== "success") {
       const msg = res.data.message || t("common.error");
       throw new Error(msg);
@@ -49578,7 +50631,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
   const deleteOne = async (id) => {
     if (!window.confirm(t("common.deleteConfirm"))) return;
     try {
-      await axios.post(`${API_URL$z}?action=backorder_delete`, { id });
+      await axios.post(`${API_URL$y}?action=backorder_delete`, { id });
       setSelectedIds((prev) => {
         const n = new Set(prev);
         n.delete(id);
@@ -49594,7 +50647,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     if (ids.length === 0) return;
     if (!window.confirm(t("backorder.deleteSelectedConfirm").replace("{count}", String(ids.length)))) return;
     try {
-      await axios.post(`${API_URL$z}?action=backorder_delete_selected`, { ids });
+      await axios.post(`${API_URL$y}?action=backorder_delete_selected`, { ids });
       setSelectedIds(/* @__PURE__ */ new Set());
       fetchRows();
     } catch (e) {
@@ -49624,7 +50677,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
         ahrefs_ur: editForm.ahrefs_ur,
         ahrefs_ref_domains: editForm.ahrefs_ref_domains
       };
-      const res = await axios.post(`${API_URL$z}?action=backorder_update`, payload);
+      const res = await axios.post(`${API_URL$y}?action=backorder_update`, payload);
       if (res.data.status === "success") {
         setShowEdit(false);
         fetchRows();
@@ -49637,7 +50690,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
   };
   const checkNow = async (id) => {
     try {
-      await axios.post(`${API_URL$z}?action=backorder_check_now`, { id });
+      await axios.post(`${API_URL$y}?action=backorder_check_now`, { id });
       fetchRows();
     } catch (e) {
       console.error(e);
@@ -49648,7 +50701,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     setImportError("");
     setImportResult(null);
     try {
-      const res = await axios.post(`${API_URL$z}?action=backorder_import`, { domains_text: importText });
+      const res = await axios.post(`${API_URL$y}?action=backorder_import`, { domains_text: importText });
       if (res.data.status === "success") {
         setImportResult(res.data.data);
         fetchRows();
@@ -50018,125 +51071,6 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
       ] })
     ] }) })
   ] });
-};
-const API_URL$y = "/api.php";
-const GroupsModal = ({ type, onClose, onGroupCreated }) => {
-  const { t } = useLanguage();
-  const [groups, setGroups] = reactExports.useState([]);
-  const [loading, setLoading] = reactExports.useState(true);
-  const [newGroupName, setNewGroupName] = reactExports.useState("");
-  const getEndpoint = () => {
-    switch (type) {
-      case "offer":
-        return "offer_groups";
-      case "landing":
-        return "landing_groups";
-      case "campaign":
-        return "campaign_groups";
-      default:
-        return "offer_groups";
-    }
-  };
-  const getDeleteEndpoint = () => {
-    switch (type) {
-      case "offer":
-        return "delete_offer_group";
-      case "landing":
-        return "delete_landing_group";
-      case "campaign":
-        return "delete_campaign_group";
-      default:
-        return "delete_offer_group";
-    }
-  };
-  const getTitle = () => {
-    switch (type) {
-      case "offer":
-        return t("groupsModal.offerGroups");
-      case "landing":
-        return t("groupsModal.landingGroups");
-      case "campaign":
-        return t("groupsModal.campaignGroups");
-      default:
-        return t("groupsModal.groups");
-    }
-  };
-  const endpoint = getEndpoint();
-  reactExports.useEffect(() => {
-    fetchGroups();
-  }, [endpoint]);
-  const fetchGroups = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get(`${API_URL$y}?action=${endpoint}`);
-      if (res.data.status === "success") setGroups(res.data.data);
-    } catch (err) {
-      console.error("Error fetching groups:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-  const handleCreate = async () => {
-    if (!newGroupName.trim()) return;
-    try {
-      const res = await axios.post(`${API_URL$y}?action=${endpoint}`, { name: newGroupName.trim() });
-      if (res.data.status === "success") {
-        const created = { id: res.data.data?.id, name: newGroupName.trim() };
-        setNewGroupName("");
-        fetchGroups();
-        if (onGroupCreated) onGroupCreated(created);
-      } else alert(res.data.message || t("groupsModal.createError"));
-    } catch {
-      alert(t("groupsModal.networkError"));
-    }
-  };
-  const handleDelete = async (id) => {
-    if (!window.confirm(t("groupsModal.deleteConfirm"))) return;
-    try {
-      await axios.post(`${API_URL$y}?action=${getDeleteEndpoint()}`, { id });
-      fetchGroups();
-    } catch {
-      alert(t("groupsModal.deleteError"));
-    }
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "480px" }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: getTitle() }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 border-b", style: { borderColor: "var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "input",
-        {
-          type: "text",
-          value: newGroupName,
-          onChange: (e) => setNewGroupName(e.target.value),
-          onKeyPress: (e) => e.key === "Enter" && handleCreate(),
-          placeholder: t("groups.placeholder"),
-          className: "form-input text-sm",
-          autoFocus: true
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleCreate, disabled: !newGroupName.trim(), className: "btn btn-primary whitespace-nowrap", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }),
-        t("groupsModal.add")
-      ] })
-    ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "max-h-80 overflow-y-auto", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-8 text-center", style: { color: "var(--color-text-muted)" }, children: t("groupsModal.loading") }) : groups.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-8 text-center", style: { color: "var(--color-text-muted)" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("groupsModal.noGroups") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mt-1", children: t("groupsModal.createFirst") })
-    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y", style: { borderColor: "var(--color-border)" }, children: groups.map((group) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center justify-between px-6 py-3 transition", style: { borderColor: "var(--color-border)" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium", style: { color: "var(--color-text-primary)" }, children: group.name }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: [
-          "ID: ",
-          group.id
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(group.id), className: "action-btn", title: t("groups.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4", style: { color: "var(--color-text-muted)" } }) })
-    ] }, group.id)) }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-6 py-4 border-t flex justify-end", style: { borderColor: "var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "btn btn-secondary", children: t("groupsModal.close") }) })
-  ] }) });
 };
 const TIMEZONES = [
   { value: "UTC", label: "UTC (UTC+00:00)" },
@@ -50609,6 +51543,7 @@ const ALL_REPORT_METRICS = [
   { id: "cpa", label: "CPA — Cost per conversion", shortLabel: "CPA" },
   { id: "cpc", label: "CPC — Cost per click", shortLabel: "CPC" },
   { id: "ucpc", label: "uCPC — Cost per unique click", shortLabel: "uCPC" },
+  { id: "cpv", label: "CPV — Cost per visit", shortLabel: "CPV" },
   { id: "ecpc", label: "eCPC — Cost per 1000 clicks", shortLabel: "eCPC" },
   { id: "ecpm_all", label: "eCPM (all) — Profit per 1k clicks", shortLabel: "eCPM" },
   { id: "ecpm_confirmed", label: "eCPM (confirmed) — Profit per 1k clicks", shortLabel: "eCPM (conf)" },
@@ -51514,6 +52449,42 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
   const [loading, setLoading] = reactExports.useState(true);
   const [rows, setRows] = reactExports.useState([]);
   const [layerKeys, setLayerKeys] = reactExports.useState([]);
+  const [entityStatus, setEntityStatus] = reactExports.useState({});
+  const [togglingIds, setTogglingIds] = reactExports.useState(/* @__PURE__ */ new Set());
+  const [toggleNotice, setToggleNotice] = reactExports.useState(null);
+  const handleToggleEntityStatus = async (dimKey, row) => {
+    const id = row.dimId;
+    if (!id || id === "Unknown" || id === "none" || togglingIds.has(id)) return;
+    const typeByDim = { campaign_id: "campaign", ad_id: "ad", adset_id: "adset", ad_campaign_id: "ad_campaign" };
+    const entityType = typeByDim[dimKey];
+    if (!entityType) return;
+    const next = (entityStatus[id] || "ACTIVE") === "ACTIVE" ? "PAUSED" : "ACTIVE";
+    setTogglingIds((prev) => new Set(prev).add(id));
+    try {
+      const res = await axios.post(`${API_URL$x}?action=ad_entity_toggle_status`, {
+        entity_type: entityType,
+        entity_id: id,
+        target_status: next
+      });
+      if (res.data.status === "success") {
+        setEntityStatus((prev) => ({ ...prev, [id]: next }));
+        setToggleNotice({ type: "success", text: t("automation.statusUpdated") });
+      } else {
+        const codeMap = { no_connection: "automation.noConnection", unsupported_network: "automation.unsupportedNetwork", invalid_id: "automation.invalidId" };
+        const text = res.data.code && t(codeMap[res.data.code]) || res.data.message || t("automation.statusUpdateError");
+        setToggleNotice({ type: "error", text });
+      }
+    } catch (e) {
+      setToggleNotice({ type: "error", text: t("automation.statusUpdateError") });
+    } finally {
+      setTogglingIds((prev) => {
+        const s = new Set(prev);
+        s.delete(id);
+        return s;
+      });
+      setTimeout(() => setToggleNotice(null), 4e3);
+    }
+  };
   const defaultLayers = ["country"];
   const [layers, setLayers] = reactExports.useState(defaultLayers);
   const [filters, setFilters] = reactExports.useState([]);
@@ -51657,6 +52628,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       node.uepc = node.unique_clicks > 0 ? node.revenue / node.unique_clicks : 0;
       node.cpc = node.clicks > 0 ? node.cost / node.clicks : 0;
       node.ucpc = node.unique_clicks > 0 ? node.cost / node.unique_clicks : 0;
+      node.cpv = node.clicks > 0 ? node.cost / node.clicks : 0;
       node.cpa = node.conversions > 0 ? node.cost / node.conversions : 0;
       node.earnings_per_conv = node.conversions > 0 ? node.revenue / node.conversions : 0;
     };
@@ -51665,10 +52637,11 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       let node = root;
       addRow(root, row);
       const dims = row.dims || [];
-      dims.forEach((dimValue) => {
+      const dimIds = row.dim_ids || dims;
+      dims.forEach((dimValue, i) => {
         const key = dimValue !== void 0 && dimValue !== null && dimValue !== "" ? String(dimValue) : "none";
         if (!node.children.has(key)) {
-          node.children.set(key, { ...createEmptyAgg(), children: /* @__PURE__ */ new Map() });
+          node.children.set(key, { ...createEmptyAgg(), children: /* @__PURE__ */ new Map(), dimId: String(dimIds[i] ?? dimValue) });
         }
         node = node.children.get(key);
         addRow(node, row);
@@ -51681,6 +52654,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       out.push({
         name,
         depth,
+        dimId: node.dimId,
         subtotal: depth < layers.length - 1 || children.length > 0,
         ...node,
         childrenCount: children.length
@@ -51745,6 +52719,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     const uepc = t0.unique_clicks > 0 ? t0.revenue / t0.unique_clicks : 0;
     const cpc = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
     const ucpc = t0.unique_clicks > 0 ? t0.cost / t0.unique_clicks : 0;
+    const cpv = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
     const cpa = t0.conversions > 0 ? t0.cost / t0.conversions : 0;
     const earnings_per_conv = t0.conversions > 0 ? t0.revenue / t0.conversions : 0;
     return {
@@ -51762,6 +52737,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       uepc,
       cpc,
       ucpc,
+      cpv,
       cpa,
       earnings_per_conv
     };
@@ -51855,7 +52831,6 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       case "earnings_per_conv":
       case "ec_all":
       case "ec_confirmed":
-        return `$${num.toFixed(2)}`;
       case "epc":
       case "epc_all":
       case "uepc":
@@ -51868,7 +52843,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       case "uepc_registration":
       case "cpc":
       case "ucpc":
-        return `$${num.toFixed(4)}`;
+      case "cpv":
+        return `$${num.toFixed(2)}`;
       default:
         return val !== void 0 && val !== null ? String(val) : "-";
     }
@@ -51888,7 +52864,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         `"${"  ".repeat(r2.depth)}${String(r2.name).replace(/"/g, '""')}"`,
         ...chosenColumns.map((cId) => {
           const v = r2[cId];
-          return typeof v === "number" ? v.toFixed(2) : String(v || "");
+          if (typeof v !== "number") return String(v || "");
+          return v.toFixed(2);
         })
       ].join(","))
     ].join("\n");
@@ -52018,86 +52995,118 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
           ]
         }
       ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-auto p-6", style: { color: "var(--color-text-primary)" }, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center items-center h-64", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-10 w-10 border-b-2", style: { borderColor: "var(--color-primary)" } }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", style: { padding: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { overflowX: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", style: { fontVariantNumeric: "tabular-nums", minWidth: "100%", width: "max-content" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: {
-            minWidth: "240px",
-            textAlign: "left",
-            position: "sticky",
-            left: 0,
-            zIndex: 3,
-            backgroundColor: "var(--color-bg-card)"
-          }, children: layerKeys.join(" → ") }),
-          chosenColumns.map((colId, colIdx) => {
-            const def = ALL_REPORT_METRICS.find((m) => m.id === colId);
-            const isDragOver = thDragOverIdx === colIdx && thDragIdx !== null && thDragIdx !== colIdx;
-            return /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "th",
-              {
-                draggable: true,
-                onDragStart: () => handleThDragStart(colIdx),
-                onDragOver: (e) => handleThDragOver(e, colIdx),
-                onDrop: (e) => handleThDrop(e, colIdx),
-                onDragEnd: handleThDragEnd,
-                title: def?.label,
-                style: {
-                  textAlign: "right",
-                  cursor: "grab",
-                  userSelect: "none",
-                  whiteSpace: "nowrap",
-                  boxShadow: isDragOver ? "inset 2px 0 0 var(--color-primary)" : "none",
-                  backgroundColor: isDragOver ? "var(--color-bg-soft)" : void 0
-                },
-                children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "inline-flex items-center justify-end gap-1 w-full", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3 h-3 opacity-30 -ml-1" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: def?.shortLabel || def?.label || colId })
-                ] })
-              },
-              colId
-            );
-          })
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: rows.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 1 + chosenColumns.length, className: "text-center p-8", style: { color: "var(--color-text-muted)" }, children: t("campaignReports.noDataFilters", "No report data found for this period and grouping.") }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "text-xs", style: { backgroundColor: "var(--color-bg-soft)", position: "sticky", top: 0, fontWeight: 700, borderBottom: "2px solid var(--color-border)" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-bold", style: { position: "sticky", left: 0, zIndex: 2, backgroundColor: "var(--color-bg-soft)" }, children: t("campaignReports.total", "Totals") }),
-            chosenColumns.map((cId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }, children: formatMetricCell(cId, grandTotal, true) }, cId))
-          ] }),
-          displayRows.map((r2, idx) => {
-            const isSubtotal = r2.depth < layers.length - 1;
-            return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "tr",
-              {
-                className: "text-xs transition-colors",
-                style: {
-                  backgroundColor: isSubtotal ? "color-mix(in srgb, var(--color-bg-soft) 40%, transparent)" : void 0
-                },
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: {
-                    paddingLeft: `${12 + r2.depth * 20}px`,
-                    fontWeight: isSubtotal ? 600 : 400,
-                    color: isSubtotal ? "var(--color-text-primary)" : "var(--color-text-secondary)",
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-auto p-6", style: { color: "var(--color-text-primary)" }, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center items-center h-64", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-10 w-10 border-b-2", style: { borderColor: "var(--color-primary)" } }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", style: { padding: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { overflowX: "auto" }, children: [
+        toggleNotice && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `alert ${toggleNotice.type === "error" ? "alert-danger" : "alert-success"} mb-3 flex items-center gap-2`, children: [
+          toggleNotice.type === "error" ? /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChartColumn, { size: 14 }),
+          toggleNotice.text
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", style: { fontVariantNumeric: "tabular-nums", minWidth: "100%", width: "max-content" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: {
+              minWidth: "240px",
+              textAlign: "left",
+              position: "sticky",
+              left: 0,
+              zIndex: 3,
+              backgroundColor: "var(--color-bg-card)"
+            }, children: layerKeys.join(" → ") }),
+            chosenColumns.map((colId, colIdx) => {
+              const def = ALL_REPORT_METRICS.find((m) => m.id === colId);
+              const isDragOver = thDragOverIdx === colIdx && thDragIdx !== null && thDragIdx !== colIdx;
+              return /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "th",
+                {
+                  draggable: true,
+                  onDragStart: () => handleThDragStart(colIdx),
+                  onDragOver: (e) => handleThDragOver(e, colIdx),
+                  onDrop: (e) => handleThDrop(e, colIdx),
+                  onDragEnd: handleThDragEnd,
+                  title: def?.label,
+                  style: {
+                    textAlign: "right",
+                    cursor: "grab",
+                    userSelect: "none",
                     whiteSpace: "nowrap",
-                    position: "sticky",
-                    left: 0,
-                    zIndex: 2,
-                    backgroundColor: isSubtotal ? "color-mix(in srgb, var(--color-bg-soft) 55%, transparent)" : "var(--color-bg-card)"
-                  }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "inline-flex items-center gap-1.5", children: [
-                    isSubtotal && /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "w-3 h-3 inline", style: { color: "var(--color-primary)" } }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: r2.name }),
-                    isSubtotal && r2.childrenCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)", fontSize: "11px" }, children: [
-                      "(",
-                      r2.childrenCount,
-                      ")"
-                    ] })
-                  ] }) }),
-                  chosenColumns.map((cId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }, children: formatMetricCell(cId, r2, isSubtotal) }, cId))
-                ]
-              },
-              idx
-            );
-          })
-        ] }) })
-      ] }) }) }) })
+                    boxShadow: isDragOver ? "inset 2px 0 0 var(--color-primary)" : "none",
+                    backgroundColor: isDragOver ? "var(--color-bg-soft)" : void 0
+                  },
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "inline-flex items-center justify-end gap-1 w-full", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3 h-3 opacity-30 -ml-1" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: def?.shortLabel || def?.label || colId })
+                  ] })
+                },
+                colId
+              );
+            })
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: rows.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 1 + chosenColumns.length, className: "text-center p-8", style: { color: "var(--color-text-muted)" }, children: t("campaignReports.noDataFilters", "No report data found for this period and grouping.") }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "text-xs", style: { backgroundColor: "var(--color-bg-soft)", position: "sticky", top: 0, fontWeight: 700, borderBottom: "2px solid var(--color-border)" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-bold", style: { position: "sticky", left: 0, zIndex: 2, backgroundColor: "var(--color-bg-soft)" }, children: t("campaignReports.total", "Totals") }),
+              chosenColumns.map((cId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }, children: formatMetricCell(cId, grandTotal, true) }, cId))
+            ] }),
+            displayRows.map((r2, idx) => {
+              const isSubtotal = r2.depth < layers.length - 1;
+              return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "tr",
+                {
+                  className: "text-xs transition-colors",
+                  style: {
+                    backgroundColor: isSubtotal ? "color-mix(in srgb, var(--color-bg-soft) 40%, transparent)" : void 0
+                  },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: {
+                      paddingLeft: `${12 + r2.depth * 20}px`,
+                      fontWeight: isSubtotal ? 600 : 400,
+                      color: isSubtotal ? "var(--color-text-primary)" : "var(--color-text-secondary)",
+                      whiteSpace: "nowrap",
+                      position: "sticky",
+                      left: 0,
+                      zIndex: 2,
+                      backgroundColor: isSubtotal ? "color-mix(in srgb, var(--color-bg-soft) 55%, transparent)" : "var(--color-bg-card)"
+                    }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "inline-flex items-center gap-1.5", children: [
+                      isSubtotal && /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "w-3 h-3 inline", style: { color: "var(--color-primary)" } }),
+                      (() => {
+                        const dimKey = layers[r2.depth];
+                        const toggleDims = ["campaign_id", "ad_id", "adset_id", "ad_campaign_id"];
+                        if (!toggleDims.includes(dimKey) || !r2.dimId || r2.dimId === "Unknown" || r2.dimId === "none") return null;
+                        const paused = entityStatus[r2.dimId] === "PAUSED";
+                        const busy = togglingIds.has(r2.dimId);
+                        return /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "button",
+                          {
+                            type: "button",
+                            disabled: busy,
+                            onClick: (e) => {
+                              e.stopPropagation();
+                              handleToggleEntityStatus(dimKey, r2);
+                            },
+                            className: "relative inline-flex h-4 w-7 flex-shrink-0 items-center rounded-full transition-colors",
+                            style: {
+                              background: paused || busy ? "var(--color-border)" : "var(--color-success, #10b981)",
+                              opacity: busy ? 0.5 : 1,
+                              cursor: "pointer"
+                            },
+                            title: `${dimKey === "campaign_id" ? "" : "Facebook · "}${paused ? t("automation.clickToResume") : t("automation.clickToPause")}`,
+                            children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "inline-block h-3 w-3 transform rounded-full bg-white shadow transition-transform", style: { transform: paused ? "translateX(2px)" : "translateX(12px)" } })
+                          }
+                        );
+                      })(),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: r2.name }),
+                      isSubtotal && r2.childrenCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)", fontSize: "11px" }, children: [
+                        "(",
+                        r2.childrenCount,
+                        ")"
+                      ] })
+                    ] }) }),
+                    chosenColumns.map((cId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }, children: formatMetricCell(cId, r2, isSubtotal) }, cId))
+                  ]
+                },
+                idx
+              );
+            })
+          ] }) })
+        ] })
+      ] }) }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       ReportCustomizerModal,
@@ -52127,6 +53136,67 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
   const [refreshing, setRefreshing] = reactExports.useState(false);
   const [showGroupsModal, setShowGroupsModal] = reactExports.useState(false);
   const [showGlobalReports, setShowGlobalReports] = reactExports.useState(false);
+  const [campaignStateOverrides, setCampaignStateOverrides] = reactExports.useState({});
+  const [openMenuId, setOpenMenuId] = reactExports.useState(null);
+  const [rowsPerPage, setRowsPerPage] = reactExports.useState(50);
+  const [page, setPage] = reactExports.useState(0);
+  reactExports.useEffect(() => {
+    const close = () => setOpenMenuId(null);
+    document.addEventListener("click", close);
+    return () => document.removeEventListener("click", close);
+  }, []);
+  reactExports.useEffect(() => {
+    setPage(0);
+  }, [search, rowsPerPage]);
+  const [togglingCampaignIds, setTogglingCampaignIds] = reactExports.useState(/* @__PURE__ */ new Set());
+  const campaignEnabled = (camp) => (campaignStateOverrides[camp.id] ?? camp.state ?? "active") !== "disabled";
+  const handleCopyCampaignLink = async (camp) => {
+    const url = `${window.location.origin}/${camp.alias}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      alert(`${t("common.copied")}: ${url}`);
+    } catch (e) {
+      alert(url);
+    }
+  };
+  const handleDuplicateCampaign = async (camp) => {
+    try {
+      const res = await axios.post(`${API_URL$w}?action=copy_campaign`, { id: camp.id });
+      if (res.data.status === "success") {
+        fetchCampaigns();
+        if (refreshData) refreshData();
+      } else {
+        alert(res.data.message || t("common.error"));
+      }
+    } catch (e) {
+      alert(t("common.networkError"));
+    }
+  };
+  const handleToggleCampaignState = async (camp) => {
+    if (togglingCampaignIds.has(camp.id)) return;
+    const target = campaignEnabled(camp) ? "PAUSED" : "ACTIVE";
+    setTogglingCampaignIds((prev) => new Set(prev).add(camp.id));
+    try {
+      const res = await axios.post("/api.php?action=ad_entity_toggle_status", {
+        entity_type: "campaign",
+        entity_id: String(camp.id),
+        target_status: target
+      });
+      if (res.data.status === "success") {
+        setCampaignStateOverrides((prev) => ({ ...prev, [camp.id]: target === "ACTIVE" ? "active" : "disabled" }));
+      } else {
+        alert(res.data.message || t("automation.statusUpdateError"));
+      }
+    } catch (e) {
+      alert(t("automation.statusUpdateError"));
+    } finally {
+      setTogglingCampaignIds((prev) => {
+        const s = new Set(prev);
+        s.delete(camp.id);
+        return s;
+      });
+    }
+  };
   const todayPreset = getPresetDates("today");
   const [dateFrom, setDateFrom] = reactExports.useState(todayPreset?.from || formatDate$1(/* @__PURE__ */ new Date()));
   const [dateTo, setDateTo] = reactExports.useState(todayPreset?.to || formatDate$1(/* @__PURE__ */ new Date()));
@@ -52278,6 +53348,12 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
       return a.idx - b.idx;
     }).map((x) => x.camp);
   }, [filteredCampaigns, sortBy]);
+  const pagedCampaigns = reactExports.useMemo(() => {
+    if (rowsPerPage === "All") return visibleCampaigns;
+    const start = page * rowsPerPage;
+    return visibleCampaigns.slice(start, start + rowsPerPage);
+  }, [visibleCampaigns, page, rowsPerPage]);
+  const totalPages = rowsPerPage === "All" ? 1 : Math.max(1, Math.ceil(visibleCampaigns.length / rowsPerPage));
   const grandTotals = reactExports.useMemo(() => {
     const t0 = {
       clicks: 0,
@@ -52333,6 +53409,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     const uepc = t0.unique_clicks > 0 ? t0.revenue / t0.unique_clicks : 0;
     const cpc = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
     const ucpc = t0.unique_clicks > 0 ? t0.cost / t0.unique_clicks : 0;
+    const cpv = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
     const cpa = t0.conversions > 0 ? t0.cost / t0.conversions : 0;
     const earnings_per_conv = t0.conversions > 0 ? t0.revenue / t0.conversions : 0;
     return {
@@ -52350,6 +53427,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
       uepc,
       cpc,
       ucpc,
+      cpv,
       cpa,
       earnings_per_conv
     };
@@ -52547,7 +53625,6 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
       case "earnings_per_conv":
       case "ec_all":
       case "ec_confirmed":
-        return `$${num.toFixed(2)}`;
       case "epc":
       case "epc_all":
       case "uepc":
@@ -52560,7 +53637,8 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
       case "uepc_registration":
       case "cpc":
       case "ucpc":
-        return `$${num.toFixed(4)}`;
+      case "cpv":
+        return `$${num.toFixed(2)}`;
       default:
         return val !== void 0 && val !== null ? String(val) : "-";
     }
@@ -52720,7 +53798,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         t("common.clear")
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", style: { fontVariantNumeric: "tabular-nums" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tracker-table-container", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table tracker-table", style: { fontVariantNumeric: "tabular-nums" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-8", style: { textAlign: "left" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
@@ -52763,7 +53841,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
       /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleCampaigns.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 5 + visibleColumns.length, className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("campaigns.noCampaignsCreated") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("campaigns.createFirstCampaign") })
-      ] }) }) }) : visibleCampaigns.map((camp) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+      ] }) }) }) : pagedCampaigns.map((camp) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
           {
@@ -52775,25 +53853,120 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
           }
         ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-medium", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { title: camp.keitaro_id ? `Keitaro ID: ${camp.keitaro_id}` : "", children: camp.id }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", style: { maxWidth: 300 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              disabled: togglingCampaignIds.has(camp.id),
+              onClick: () => handleToggleCampaignState(camp),
+              className: "relative inline-flex h-4 w-7 flex-shrink-0 items-center rounded-full transition-colors",
+              style: {
+                background: campaignEnabled(camp) ? "var(--color-success, #10b981)" : "var(--color-border)",
+                opacity: togglingCampaignIds.has(camp.id) ? 0.5 : 1,
+                cursor: "pointer"
+              },
+              title: campaignEnabled(camp) ? t("automation.clickToPause") : t("automation.clickToResume"),
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "inline-block h-3 w-3 transform rounded-full bg-white shadow transition-transform", style: { transform: campaignEnabled(camp) ? "translateX(12px)" : "translateX(2px)" } })
+            }
+          ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "span",
             {
-              className: "font-semibold cursor-pointer hover:underline",
-              style: { color: "var(--color-primary)" },
+              className: "font-medium text-xs truncate cursor-pointer hover:underline",
+              style: { color: "var(--color-text-primary)" },
               onClick: () => handleEdit(camp.id),
+              title: camp.name,
               children: camp.name
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)", fontSize: "11px" }, children: camp.alias })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "span",
+            {
+              className: "text-[10px] font-mono px-1 rounded border flex-shrink-0",
+              style: { color: "var(--color-text-muted)", borderColor: "var(--color-border)" },
+              title: camp.alias,
+              children: camp.alias
+            }
+          )
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: camp.group_name || "-" }),
         visibleColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums" }, children: formatMetricCell(colId, camp) }, colId)),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "action-buttons justify-end", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(camp.id), className: "action-btn text-blue", title: t("common.edit"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-3.5 h-3.5" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setActionModal({ type: "update_costs", campaignId: camp.id }), className: "action-btn text-green", title: t("campaigns.updateCosts"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { className: "w-3.5 h-3.5" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setActionModal({ type: "clear_stats", campaignId: camp.id }), className: "action-btn text-orange", title: t("common.clearStats"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleX, { className: "w-3.5 h-3.5" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(camp.id), className: "action-btn text-red", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-3.5 h-3.5" }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative inline-block text-left", onClick: (e) => e.stopPropagation(), children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: (e) => {
+                e.stopPropagation();
+                setOpenMenuId(openMenuId === camp.id ? null : camp.id);
+              },
+              className: "p-1 rounded transition-colors",
+              style: { color: "var(--color-text-muted)" },
+              onMouseEnter: (e) => e.currentTarget.style.color = "var(--color-text-primary)",
+              onMouseLeave: (e) => e.currentTarget.style.color = "var(--color-text-muted)",
+              title: t("table.actions"),
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(EllipsisVertical, { className: "w-4 h-4" })
+            }
+          ),
+          openMenuId === camp.id && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              className: "absolute right-0 mt-1 w-44 rounded-xl shadow-xl z-50 py-1 text-xs border",
+              style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)" },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                  setOpenMenuId(null);
+                  handleEdit(camp.id);
+                }, className: "w-full text-left px-3 py-1.5 flex items-center gap-2", style: { color: "var(--color-text-primary)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-3.5 h-3.5" }),
+                  " ",
+                  t("common.edit")
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                  setOpenMenuId(null);
+                  setActionModal({ type: "update_costs", campaignId: camp.id });
+                }, className: "w-full text-left px-3 py-1.5 flex items-center gap-2", style: { color: "var(--color-text-primary)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { className: "w-3.5 h-3.5" }),
+                  " ",
+                  t("campaigns.updateCosts")
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                  setOpenMenuId(null);
+                  handleCopyCampaignLink(camp);
+                }, className: "w-full text-left px-3 py-1.5 flex items-center gap-2", style: { color: "var(--color-text-primary)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-3.5 h-3.5" }),
+                  " ",
+                  t("table.copyLink")
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                  setOpenMenuId(null);
+                  handleDuplicateCampaign(camp);
+                }, className: "w-full text-left px-3 py-1.5 flex items-center gap-2", style: { color: "var(--color-text-primary)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 rotate-90" }),
+                  " ",
+                  t("table.duplicate")
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                  setOpenMenuId(null);
+                  setActionModal({ type: "clear_stats", campaignId: camp.id });
+                }, className: "w-full text-left px-3 py-1.5 flex items-center gap-2", style: { color: "var(--color-warning, #f59e0b)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(CircleX, { className: "w-3.5 h-3.5" }),
+                  " ",
+                  t("common.clearStats")
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "my-1 border-t", style: { borderColor: "var(--color-border)" } }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                  setOpenMenuId(null);
+                  handleDelete(camp.id);
+                }, className: "w-full text-left px-3 py-1.5 flex items-center gap-2 text-red-500", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-3.5 h-3.5" }),
+                  " ",
+                  t("common.delete")
+                ] })
+              ]
+            }
+          )
         ] }) })
       ] }, camp.id)) }),
       visibleCampaigns.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tfoot", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { style: { backgroundColor: "var(--color-bg-soft)", borderTop: "2px solid var(--color-border)", fontWeight: 700 }, children: [
@@ -52810,6 +53983,61 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", {})
       ] }) })
     ] }) }),
+    visibleCampaigns.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-3 mt-3 text-xs", style: { color: "var(--color-text-secondary)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("table.perPage") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "select",
+          {
+            className: "form-select text-xs",
+            style: { width: "auto", padding: "2px 6px" },
+            value: String(rowsPerPage),
+            onChange: (e) => setRowsPerPage(e.target.value === "All" ? "All" : Number(e.target.value)),
+            children: [
+              [25, 50, 100].map((n) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: n, children: n }, n)),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "All", children: t("table.all") })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+          "· ",
+          visibleCampaigns.length
+        ] })
+      ] }),
+      rowsPerPage !== "All" && totalPages > 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            className: "btn btn-secondary text-xs py-1 px-2",
+            disabled: page === 0,
+            onClick: () => setPage((p) => Math.max(0, p - 1)),
+            children: [
+              "← ",
+              t("table.prev")
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+          page + 1,
+          " / ",
+          totalPages
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            className: "btn btn-secondary text-xs py-1 px-2",
+            disabled: page >= totalPages - 1,
+            onClick: () => setPage((p) => Math.min(totalPages - 1, p + 1)),
+            children: [
+              t("table.next"),
+              " →"
+            ]
+          }
+        )
+      ] })
+    ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       ReportCustomizerModal,
       {
@@ -53056,6 +54284,23 @@ const TrafficSimulation = () => {
     ] })
   ] });
 };
+const EDITOR_STAY_AFTER_SAVE_KEY = "orbitra_editor_stay_after_save";
+const getStayInEditorAfterSave = () => {
+  if (typeof window === "undefined") return true;
+  try {
+    const stored = window.localStorage.getItem(EDITOR_STAY_AFTER_SAVE_KEY);
+    return stored === null ? true : stored !== "false";
+  } catch {
+    return true;
+  }
+};
+const setStayInEditorAfterSave = (enabled) => {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(EDITOR_STAY_AFTER_SAVE_KEY, String(Boolean(enabled)));
+  } catch {
+  }
+};
 const SLUG_ERROR_KEYS = {
   landing_slug_invalid: "landingEditor.slugInvalid",
   landing_slug_reserved: "landingEditor.slugReserved",
@@ -53150,6 +54395,8 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
   });
   const [groups, setGroups] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(false);
+  const [saving, setSaving] = reactExports.useState(false);
+  const [saveSuccess, setSaveSuccess] = reactExports.useState(false);
   const [showGroupsModal, setShowGroupsModal] = reactExports.useState(false);
   const [campaigns, setCampaigns] = reactExports.useState([]);
   const [postbackKey, setPostbackKey] = reactExports.useState("");
@@ -53223,9 +54470,10 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
       console.error(error);
     }
   };
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
+  const handleSave = async (forceClose = false) => {
+    if (loading || saving || uploadingZip || saveSuccess) return;
     try {
+      setSaving(true);
       const payload = { ...landing };
       if (landingId) payload.id = landingId;
       const res = await axios.post(`${API_URL$u}?action=save_landing`, payload);
@@ -53233,25 +54481,33 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
         setSavedSomething(true);
         const newId = res.data.data?.id;
         if (onSaved) onSaved(newId || landingId);
+        if (!landingId && newId) setLandingId(newId);
         if (!landingId && newId && landing.type === "local") {
-          setLandingId(newId);
           if (pendingZip) {
             const zip = pendingZip;
             setPendingZip(null);
             await uploadZip(newId, zip);
-          } else {
-            alert(t("landingEditor.savedFiles"));
           }
-          return;
         }
-        alert(t("landingEditor.savedSuccess"));
-        onClose(true);
+        setSaveSuccess(true);
+        setTimeout(() => {
+          setSaveSuccess(false);
+          if (forceClose || !getStayInEditorAfterSave()) {
+            onClose(true);
+          }
+        }, 1e3);
       } else {
         alert(translateLandingError(t, res.data.message, res.data.detail) || t("landingEditor.saveError"));
       }
     } catch (error) {
       alert(translateLandingRequestError(t, error));
+    } finally {
+      setSaving(false);
     }
+  };
+  const handleFormSubmit = (event) => {
+    event.preventDefault();
+    handleSave(false);
   };
   const fileOp = async (payload, okMessage) => {
     try {
@@ -53839,16 +55095,27 @@ ${file}`)) return;
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(savedSomething), type: "button", className: "btn btn-secondary", children: t("common.cancel") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => handleSave(true),
+            disabled: loading || saving || uploadingZip || saveSuccess,
+            className: "btn btn-secondary",
+            children: t("profile.saveAndClose")
+          }
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
             type: "submit",
             form: "landing-form",
             className: "btn btn-primary",
-            disabled: uploadingZip,
+            disabled: loading || saving || uploadingZip || saveSuccess,
+            style: saveSuccess ? { backgroundColor: "var(--color-success)" } : {},
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4 mr-1.5" }),
-              uploadingZip ? t("landingEditor.uploadingZip") : landingId ? t("landingEditor.saveChanges") : t("landingEditor.createLanding")
+              saveSuccess ? t("editor.saved") : saving ? t("common.saving") : uploadingZip ? t("landingEditor.uploadingZip") : landingId ? t("landingEditor.saveChanges") : t("landingEditor.createLanding")
             ]
           }
         )
@@ -54170,6 +55437,7 @@ const ALL_LANDING_COLUMNS = [
   { id: "profit", label: "Profit", alignRight: true },
   { id: "profit_confirmed", label: "Profit (conf)", alignRight: true },
   { id: "cpc", label: "CPC", alignRight: true },
+  { id: "cpv", label: "CPV", alignRight: true },
   { id: "epc", label: "EPC", alignRight: true },
   { id: "epc_confirmed", label: "EPC (conf)", alignRight: true },
   { id: "epv", label: "EPV", alignRight: true },
@@ -54354,6 +55622,7 @@ const Landings = ({ landings, refreshData }) => {
     profit: t("metrics.profit"),
     profit_confirmed: t("offerColumns.profitConfirmed"),
     cpc: t("metrics.cpc"),
+    cpv: t("metrics.cpv", "CPV"),
     epc: t("metrics.epc"),
     epc_confirmed: t("offerColumns.epcConfirmed"),
     epv: t("metrics.epv"),
@@ -54370,7 +55639,96 @@ const Landings = ({ landings, refreshData }) => {
     const p = (n) => String(n).padStart(2, "0");
     return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
   };
-  const money = (v) => `$${(parseFloat(v) || 0).toFixed(2)}`;
+  const money = (v, precision = 2) => `$${(parseFloat(v) || 0).toFixed(precision)}`;
+  const totals = visibleLandings.reduce((acc, landing) => {
+    acc.clicks += Number(landing.clicks) || 0;
+    acc.unique_clicks += Number(landing.unique_clicks) || 0;
+    acc.visits += Number(landing.visits) || 0;
+    acc.unique_visits += Number(landing.unique_visits) || 0;
+    acc.lp_clicks += Number(landing.lp_clicks) || 0;
+    acc.conversions += Number(landing.conversions) || 0;
+    acc.leads += Number(landing.leads) || 0;
+    acc.sales += Number(landing.sales) || 0;
+    acc.rejected += Number(landing.rejected) || 0;
+    acc.trash += Number(landing.trash) || 0;
+    acc.revenue += Number(landing.revenue) || 0;
+    acc.revenue_confirmed += Number(landing.revenue_confirmed) || 0;
+    acc.cost += Number(landing.cost) || 0;
+    return acc;
+  }, {
+    clicks: 0,
+    unique_clicks: 0,
+    visits: 0,
+    unique_visits: 0,
+    lp_clicks: 0,
+    conversions: 0,
+    leads: 0,
+    sales: 0,
+    rejected: 0,
+    trash: 0,
+    revenue: 0,
+    revenue_confirmed: 0,
+    cost: 0
+  });
+  const totalsProfit = totals.revenue - totals.cost;
+  const totalsProfitConfirmed = totals.revenue_confirmed - totals.cost;
+  const totalsApproveDenom = totals.sales + totals.leads + totals.rejected + totals.trash;
+  const renderTotalCell = (colId) => {
+    switch (colId) {
+      case "clicks":
+        return totals.clicks.toLocaleString();
+      case "unique_clicks":
+        return totals.unique_clicks.toLocaleString();
+      case "visits":
+        return totals.visits.toLocaleString();
+      case "unique_visits":
+        return totals.unique_visits.toLocaleString();
+      case "lp_clicks":
+        return totals.lp_clicks.toLocaleString();
+      case "conversions":
+        return totals.conversions.toLocaleString();
+      case "leads":
+        return totals.leads.toLocaleString();
+      case "sales":
+        return totals.sales.toLocaleString();
+      case "rejected":
+        return totals.rejected.toLocaleString();
+      case "trash":
+        return totals.trash.toLocaleString();
+      case "approve_rate":
+        return totalsApproveDenom > 0 ? `${(totals.sales / totalsApproveDenom * 100).toFixed(2)}%` : "0%";
+      case "lp_ctr":
+        return totals.clicks > 0 ? `${(totals.lp_clicks / totals.clicks * 100).toFixed(2)}%` : "0%";
+      case "revenue":
+        return money(totals.revenue);
+      case "revenue_confirmed":
+        return money(totals.revenue_confirmed);
+      case "cost":
+        return money(totals.cost);
+      case "profit":
+        return money(totalsProfit);
+      case "profit_confirmed":
+        return money(totalsProfitConfirmed);
+      case "cr":
+        return totals.clicks > 0 ? `${(totals.conversions / totals.clicks * 100).toFixed(2)}%` : "0%";
+      case "epc":
+        return totals.clicks > 0 ? money(totals.revenue / totals.clicks) : "$0.00";
+      case "epc_confirmed":
+        return totals.clicks > 0 ? money(totals.revenue_confirmed / totals.clicks) : "$0.00";
+      case "epv":
+        return totals.clicks > 0 ? money(totals.revenue / totals.clicks) : "$0.00";
+      case "cpc":
+        return totals.clicks > 0 ? money(totals.cost / totals.clicks) : "$0.00";
+      case "cpv":
+        return totals.clicks > 0 ? money(totals.cost / totals.clicks) : "$0.00";
+      case "roi":
+        return totals.cost > 0 ? `${(totalsProfit / totals.cost * 100).toFixed(2)}%` : "—";
+      case "roi_confirmed":
+        return totals.cost > 0 ? `${(totalsProfitConfirmed / totals.cost * 100).toFixed(2)}%` : "—";
+      default:
+        return null;
+    }
+  };
   const renderLandingCell = (landing, colId) => {
     const tdCls = ALL_LANDING_COLUMNS.find((c) => c.id === colId)?.alignRight ? "text-right" : "";
     switch (colId) {
@@ -54410,6 +55768,7 @@ const Landings = ({ landings, refreshData }) => {
         return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: v > 0 ? "var(--color-success)" : v < 0 ? "var(--color-danger)" : "var(--color-text-secondary)" }, children: money(v) }, colId);
       }
       case "cpc":
+      case "cpv":
       case "epc":
       case "epc_confirmed":
       case "epv":
@@ -54545,7 +55904,7 @@ const Landings = ({ landings, refreshData }) => {
         t("common.clear")
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tracker-table-container", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table tracker-table", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
@@ -54578,7 +55937,25 @@ const Landings = ({ landings, refreshData }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(landing.id), className: "action-btn text-blue", title: t("common.edit") || t("components.edit"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-4 h-4" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(landing.id), className: "action-btn text-red", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }) })
         ] }) })
-      ] }, landing.id)) })
+      ] }, landing.id)) }),
+      visibleLandings.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tfoot", { style: { background: "var(--color-bg-soft)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "font-semibold", style: { color: "var(--color-text-primary)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3" }),
+        chosenColumns.map((colId) => {
+          if (colId === "name") {
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "px-4 py-3", children: [
+              t("campaignReports.total", "Total"),
+              " (",
+              visibleLandings.length,
+              ")"
+            ] }, colId);
+          }
+          const val = renderTotalCell(colId);
+          const alignRight = ALL_LANDING_COLUMNS.find((c) => c.id === colId)?.alignRight;
+          const isNegativeProfit = colId === "profit" && totalsProfit < 0 || colId === "profit_confirmed" && totalsProfitConfirmed < 0;
+          return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `px-4 py-3 ${alignRight ? "text-right" : ""}`, style: { color: isNegativeProfit ? "var(--color-danger)" : void 0 }, children: val ?? "" }, colId);
+        }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", {})
+      ] }) })
     ] }) }),
     isEditorOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(
       LandingEditor,
@@ -54948,15 +56325,21 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
       setLoading(false);
     }
   };
+  const getGenericPostbackUrl = () => {
+    const protocol = window.location.protocol;
+    const host = window.location.host;
+    const key = postbackKey || "fd12e72";
+    return `${protocol}//${host}/${key}/postback?subid={subid}&status={status}&payout={payout}&tid={tid}`;
+  };
   const buildPostbackUrl = (templateObj) => {
     const protocol = window.location.protocol;
     const host = window.location.host;
     const key = postbackKey || "fd12e72";
     const tpl = templateObj?.postback_url_template;
     if (tpl) {
-      return tpl.replace("http://{domain}", `${protocol}//${host}`).replace(/\{domain\}/g, host).replace(/\{postback_key\}/g, key);
+      return tpl.replace(/^https?:\/\/\{domain\}/, `${protocol}//${host}`).replace(/\{domain\}/g, host).replace(/\{postback_key\}/g, key);
     }
-    return `${protocol}//${host}/${key}/postback?subid={subid}&status={status}&payout={payout}&tid={tid}`;
+    return getGenericPostbackUrl();
   };
   const handleTemplateChange = (templateName) => {
     const template = templates.find((t2) => t2.name === templateName);
@@ -54969,6 +56352,22 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
         notes: template.notes_template && template.notes_template.startsWith("tpl.") ? t(template.notes_template) : template.notes_template || ""
       });
     }
+  };
+  const useNetworkTemplate = () => {
+    const template = templates.find((t2) => t2.name === formData.template);
+    if (!template) return;
+    setFormData((prev) => ({
+      ...prev,
+      postback_url: buildPostbackUrl(template),
+      offer_params: template.offer_params_template || prev.offer_params
+    }));
+  };
+  const useGenericTemplate = () => {
+    setFormData((prev) => ({
+      ...prev,
+      postback_url: getGenericPostbackUrl(),
+      offer_params: "&subid={subid}"
+    }));
   };
   const handleSave = async () => {
     if (!formData.name) {
@@ -54987,16 +56386,11 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
       } else {
         alert(t("offerEditor.saveError") + " " + res.data.message);
       }
-    } catch (err) {
+    } catch {
       alert(t("offerEditor.networkError"));
     } finally {
       setSaving(false);
     }
-  };
-  const getPostbackUrl = () => {
-    const protocol = window.location.protocol;
-    const host = window.location.host;
-    return `${protocol}//${host}/${postbackKey}/postback`;
   };
   const copyToClipboard = async (text) => {
     try {
@@ -55075,7 +56469,35 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
         background: "color-mix(in srgb, var(--color-primary) 8%, transparent)",
         borderColor: "color-mix(in srgb, var(--color-primary) 30%, transparent)"
       }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium", style: { color: "var(--color-primary)" }, children: "Postback URL" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium", style: { color: "var(--color-primary)" }, children: t("affiliateNetworks.postbackUrl", "Postback URL") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: useNetworkTemplate,
+                className: "text-[11px] font-medium text-[var(--color-primary)] hover:underline",
+                title: t("affiliateNetworks.resetToTemplate", "Reset to Network Template"),
+                children: [
+                  "↻ ",
+                  t("affiliateNetworks.useNetworkTemplate", "Network Template")
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px]", style: { color: "var(--color-text-muted)" }, children: "|" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                type: "button",
+                onClick: useGenericTemplate,
+                className: "text-[11px] font-medium hover:underline",
+                style: { color: "var(--color-text-secondary)" },
+                children: t("affiliateNetworks.useGenericTemplate", "Generic Postback")
+              }
+            )
+          ] })
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: t("networkEditor.postbackHint") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -55085,11 +56507,21 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
               value: formData.postback_url,
               onChange: (e) => setFormData({ ...formData, postback_url: e.target.value }),
               className: "form-input font-mono",
-              placeholder: getPostbackUrl(),
+              placeholder: getGenericPostbackUrl(),
               spellCheck: "false"
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => copyToClipboard(formData.postback_url || getPostbackUrl()), className: "btn btn-secondary btn-icon", children: copied ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" }) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: () => copyToClipboard(formData.postback_url || getGenericPostbackUrl()),
+              className: "btn btn-secondary btn-icon",
+              title: t("common.copy"),
+              "aria-label": t("common.copy"),
+              children: copied ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" })
+            }
+          )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t("networkEditor.postbackMacros") }),
@@ -55101,7 +56533,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded border space-y-4", style: { background: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium pb-2", style: { color: "var(--color-text-primary)", borderBottom: "1px solid var(--color-border)" }, children: t("networkEditor.offerParams") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-medium pb-2", style: { color: "var(--color-text-primary)", borderBottom: "1px solid var(--color-border)" }, children: t("affiliateNetworks.offerParams", "Offer Parameters") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: t("networkEditor.offerParamsDesc") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("networkEditor.offerParamsLabel") }),
@@ -55134,7 +56566,6 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
                 border: "1px solid var(--color-border)"
               },
               onClick: () => {
-                document.querySelector('input[value="' + formData.offer_params + '"]');
                 navigator.clipboard.writeText(m.macro);
               },
               children: [
@@ -55197,7 +56628,10 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
   const [uploadingZip, setUploadingZip] = reactExports.useState(false);
   const [pendingZip, setPendingZip] = reactExports.useState(null);
   const [offerFiles, setOfferFiles] = reactExports.useState([]);
-  const [savedLocalId, setSavedLocalId] = reactExports.useState(null);
+  const [savedOfferId, setSavedOfferId] = reactExports.useState(null);
+  const [savedSomething, setSavedSomething] = reactExports.useState(false);
+  const [saveSuccess, setSaveSuccess] = reactExports.useState(false);
+  const currentOfferId = offerId || savedOfferId;
   const offerZipInputRef = reactExports.useRef(null);
   reactExports.useRef(null);
   const [showCapping, setShowCapping] = reactExports.useState(false);
@@ -55233,11 +56667,11 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
     }
   };
   reactExports.useEffect(() => {
-    const id = offerId || savedLocalId;
+    const id = currentOfferId;
     if (formData.is_local && id) {
       fetchOfferFiles(id);
     }
-  }, [formData.is_local, offerId, savedLocalId]);
+  }, [formData.is_local, offerId, savedOfferId]);
   reactExports.useEffect(() => {
     const fetchDeps = async () => {
       try {
@@ -55283,7 +56717,8 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
       }).finally(() => setLoading(false));
     }
   }, [offerId]);
-  const handleSave = async () => {
+  const handleSave = async (forceClose = false) => {
+    if (loading || uploadingZip || saveSuccess) return;
     if (!formData.name) {
       alert(t("offerEditor.fillName"));
       return;
@@ -55295,19 +56730,27 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
     try {
       setLoading(true);
       const payload = { ...formData };
-      if (offerId) payload.id = offerId;
+      if (currentOfferId) payload.id = currentOfferId;
       const res = await axios.post(`${API_URL$r}?action=save_offer`, payload);
       if (res.data.status === "success") {
-        const newId = res.data.data?.id || offerId;
-        if (!offerId && onCreated) onCreated(newId);
+        const newId = res.data.data?.id || currentOfferId;
+        setSavedSomething(true);
+        if (!currentOfferId && newId) {
+          setSavedOfferId(newId);
+          if (onCreated) onCreated(newId);
+        }
         if (formData.is_local && pendingZip && newId) {
           const zip = pendingZip;
           setPendingZip(null);
           await uploadOfferZip(newId, zip);
-          if (!offerId) setSavedLocalId(newId);
-          return;
         }
-        onClose(true);
+        setSaveSuccess(true);
+        setTimeout(() => {
+          setSaveSuccess(false);
+          if (forceClose || !getStayInEditorAfterSave()) {
+            onClose(true);
+          }
+        }, 1e3);
       } else {
         alert(t("offerEditor.saveError") + " " + res.data.message);
       }
@@ -55349,8 +56792,8 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
   const deleteOfferFile = async (path) => {
     if (!window.confirm(`${t("common.delete")} ${path}?`)) return;
     try {
-      await axios.post(`${API_URL$r}?action=offer_file_op`, { id: offerId || savedLocalId, path, op: "delete" });
-      fetchOfferFiles(offerId || savedLocalId);
+      await axios.post(`${API_URL$r}?action=offer_file_op`, { id: currentOfferId, path, op: "delete" });
+      fetchOfferFiles(currentOfferId);
     } catch (err) {
       alert(t("common.deleteError"));
     }
@@ -55399,8 +56842,8 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-overlay", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "800px", width: "100%" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: offerId ? `${t("offers.titleSingular")}: ${formData.name}` : t("offers.createOffer") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: currentOfferId ? `${t("offers.titleSingular")}: ${formData.name}` : t("offers.createOffer") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(savedSomething), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex px-5 pt-1 gap-6", style: { borderBottom: "1px solid var(--color-border)" }, children: ["general", "settings", "notes"].map((tab) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "button",
@@ -55576,7 +57019,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
           ] }),
           formData.is_local && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded-2xl", style: { border: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-soft)" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold mb-2 text-sm", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.localArchive", "Local offer files") }),
-            !(offerId || savedLocalId) ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            !currentOfferId ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "input",
                 {
@@ -55597,7 +57040,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
                   className: "hidden",
                   onChange: (e) => {
                     const f = e.target.files[0];
-                    if (f) uploadOfferZip(offerId || savedLocalId, f);
+                    if (f) uploadOfferZip(currentOfferId, f);
                     e.target.value = null;
                   }
                 }
@@ -55874,11 +57317,31 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "btn btn-secondary", children: t("common.cancel") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleSave, disabled: loading || uploadingZip, className: "btn btn-primary", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4 mr-1.5" }),
-          uploadingZip ? t("landingEditor.uploadingZip") : offerId ? t("common.save") : t("offers.createOffer")
-        ] })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(savedSomething), className: "btn btn-secondary", children: t("common.cancel") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => handleSave(true),
+            disabled: loading || uploadingZip || saveSuccess,
+            className: "btn btn-secondary",
+            children: t("profile.saveAndClose")
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => handleSave(false),
+            disabled: loading || uploadingZip || saveSuccess,
+            className: "btn btn-primary",
+            style: saveSuccess ? { backgroundColor: "var(--color-success)" } : {},
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4 mr-1.5" }),
+              saveSuccess ? t("editor.saved") : loading ? t("common.saving") : uploadingZip ? t("landingEditor.uploadingZip") : currentOfferId ? t("common.save") : t("offers.createOffer")
+            ]
+          }
+        )
       ] })
     ] }),
     showGroupsModal && /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -55939,6 +57402,7 @@ const ALL_OFFER_COLUMNS = [
   { id: "epc_confirmed", label: "EPC (confirmed)", alignRight: true },
   { id: "epv", label: "EPV", alignRight: true },
   { id: "cpc", label: "CPC", alignRight: true },
+  { id: "cpv", label: "CPV", alignRight: true },
   { id: "profit", label: "Profit", alignRight: true },
   { id: "profit_confirmed", label: "P/L (confirmed)", alignRight: true },
   { id: "roi", label: "ROI", alignRight: true },
@@ -56063,6 +57527,8 @@ const Offers = ({ offers, refreshData }) => {
           return Number(o.epv) || 0;
         case "cpc":
           return Number(o.cpc) || 0;
+        case "cpv":
+          return Number(o.cpv) || 0;
         case "profit":
           return Number(o.profit) || 0;
         case "profit_confirmed":
@@ -56098,6 +57564,7 @@ const Offers = ({ offers, refreshData }) => {
       "epc_confirmed",
       "epv",
       "cpc",
+      "cpv",
       "profit",
       "profit_confirmed",
       "roi",
@@ -56283,6 +57750,8 @@ const Offers = ({ offers, refreshData }) => {
         return totals.clicks > 0 ? `$${(totals.revenue / totals.clicks).toFixed(2)}` : "$0";
       case "cpc":
         return totals.clicks > 0 ? `$${(totals.cost / totals.clicks).toFixed(2)}` : "$0";
+      case "cpv":
+        return totals.clicks > 0 ? `$${(totals.cost / totals.clicks).toFixed(2)}` : "$0.00";
       case "roi":
         return totals.cost > 0 ? `${(totalsProfit / totals.cost * 100).toFixed(2)}%` : "—";
       case "roi_confirmed":
@@ -56320,13 +57789,14 @@ const Offers = ({ offers, refreshData }) => {
     epc_confirmed: t("offerColumns.epcConfirmed"),
     epv: t("metrics.epv"),
     cpc: t("offerColumns.cpc"),
+    cpv: t("metrics.cpv", "CPV"),
     profit: t("metrics.profit"),
     profit_confirmed: t("offerColumns.profitConfirmed"),
     roi: t("metrics.roi"),
     roi_confirmed: t("offerColumns.roiConfirmed")
   })[colId] || colId;
   const localizedColumns = ALL_OFFER_COLUMNS.map((c) => ({ ...c, label: columnLabel(c.id) }));
-  const money = (v) => `$${(parseFloat(v) || 0).toFixed(2)}`;
+  const money = (v, precision = 2) => `$${(parseFloat(v) || 0).toFixed(precision)}`;
   const renderOfferCell = (offer, colId) => {
     const tdCls = ALL_OFFER_COLUMNS.find((c) => c.id === colId)?.alignRight ? "text-right" : "";
     switch (colId) {
@@ -56393,6 +57863,8 @@ const Offers = ({ offers, refreshData }) => {
         return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: money(offer.epv) }, colId);
       case "cpc":
         return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: `$${(parseFloat(offer.cpc) || 0).toFixed(2)}` }, colId);
+      case "cpv":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: money(offer.cpv) }, colId);
       default:
         return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: offer[colId] || 0 }, colId);
     }
@@ -56606,7 +58078,7 @@ const Offers = ({ offers, refreshData }) => {
         t("common.clear")
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tracker-table-container", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table tracker-table", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
@@ -56715,6 +58187,10 @@ const API_URL$p = "/api.php";
 const TrafficSourceEditor = ({ id, onClose, onSave }) => {
   const { t, language } = useLanguage();
   const [loading, setLoading] = reactExports.useState(false);
+  const [saving, setSaving] = reactExports.useState(false);
+  const [saveSuccess, setSaveSuccess] = reactExports.useState(false);
+  const [savedId, setSavedId] = reactExports.useState(null);
+  const currentId = id || savedId;
   const [showEspHints, setShowEspHints] = reactExports.useState(false);
   const [templates, setTemplates] = reactExports.useState([]);
   const [formData, setFormData] = reactExports.useState({
@@ -56792,22 +58268,34 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     const newParams = formData.parameters.filter((_, i) => i !== index2);
     setFormData((prev) => ({ ...prev, parameters: newParams }));
   };
-  const handleSubmit = async () => {
+  const handleSubmit = async (forceClose = false) => {
+    if (loading || saving || saveSuccess) return;
     if (!formData.name) {
       alert(t("botSettings.fillName"));
       return;
     }
     try {
-      const payload = { ...formData, id };
+      setSaving(true);
+      const payload = { ...formData, id: currentId };
       const res = await axios.post(`${API_URL$p}?action=traffic_sources`, payload);
       if (res.data.status !== "success") {
         alert(res.data.message || t("common.error"));
         return;
       }
-      onSave(res.data.data || {});
+      const saved = res.data.data || {};
+      if (!currentId && saved.id) setSavedId(saved.id);
+      const shouldClose = forceClose || !getStayInEditorAfterSave();
+      if (onSave) onSave(saved, false);
+      setSaveSuccess(true);
+      setTimeout(() => {
+        setSaveSuccess(false);
+        if (shouldClose && onClose) onClose();
+      }, 1e3);
     } catch (error) {
       console.error("Error saving traffic source:", error);
       alert(t("common.error"));
+    } finally {
+      setSaving(false);
     }
   };
   const statusOptions = ["lead", "sale", "rejected", "rebill", "trash"];
@@ -56835,7 +58323,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "800px" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: id ? t("sources.title") : t("sources.title") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: currentId ? t("sources.title") : t("sources.title") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto p-6", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-8", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2", style: { borderColor: "var(--color-primary)" } }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
@@ -57055,10 +58543,30 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "btn btn-secondary", children: t("common.cancel") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleSubmit, className: "btn btn-primary", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 18 }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("common.save") })
-      ] })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          onClick: () => handleSubmit(true),
+          disabled: loading || saving || saveSuccess,
+          className: "btn btn-secondary",
+          children: t("profile.saveAndClose")
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          type: "button",
+          onClick: () => handleSubmit(false),
+          disabled: loading || saving || saveSuccess,
+          className: "btn btn-primary",
+          style: saveSuccess ? { backgroundColor: "var(--color-success)" } : {},
+          children: [
+            saveSuccess ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 18 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { size: 18 }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: saveSuccess ? t("editor.saved") : saving ? t("common.saving") : t("common.save") })
+          ]
+        }
+      )
     ] })
   ] }) });
 };
@@ -57331,8 +58839,8 @@ const TrafficSources = ({ refreshData }) => {
     setEditId(null);
     setShowEditor(true);
   };
-  const handleEditorSave = () => {
-    setShowEditor(false);
+  const handleEditorSave = (_saved, shouldClose = true) => {
+    if (shouldClose) setShowEditor(false);
     fetchSources();
     refreshData && refreshData();
   };
@@ -60301,6 +61809,7 @@ const ProfileSettings = () => {
   const [loading, setLoading] = reactExports.useState(true);
   const [saving, setSaving] = reactExports.useState(false);
   const [message2, setMessage] = reactExports.useState({ text: "", type: "" });
+  const [stayInEditor, setStayInEditor] = reactExports.useState(getStayInEditorAfterSave);
   const currentUser = JSON.parse(localStorage.getItem("orbitra_user") || "{}");
   const [profile, setProfile] = reactExports.useState({
     language: currentLanguage,
@@ -60457,6 +61966,25 @@ const ProfileSettings = () => {
           ] })
         ] })
       ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: "24px", paddingTop: "20px", borderTop: "1px solid var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-start gap-3", style: { cursor: "pointer" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: stayInEditor,
+            onChange: (event) => {
+              const enabled = event.target.checked;
+              setStayInEditor(enabled);
+              setStayInEditorAfterSave(enabled);
+            },
+            style: { marginTop: "3px" }
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 600, color: "var(--color-text-primary)" }, children: t("profile.stayInEditorAfterSave") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "4px", lineHeight: 1.55 }, children: t("profile.stayInEditorHint") })
+        ] })
+      ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "32px", paddingTop: "24px", borderTop: "1px solid var(--color-border)" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 500, marginBottom: "16px", color: "var(--color-text-primary)" }, children: t("profile.changePassword") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "20px" }, children: [
@@ -62468,6 +63996,11 @@ const IntegrationsPage = () => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = reactExports.useState("kclient_php");
   const [copied, setCopied] = reactExports.useState("");
+  const [extTemplate, setExtTemplate] = reactExports.useState("cpa");
+  const [extGuide, setExtGuide] = reactExports.useState("adspower");
+  const [extApiKey, setExtApiKey] = reactExports.useState("");
+  const [extKeyLoading, setExtKeyLoading] = reactExports.useState(false);
+  const [extKeyError, setExtKeyError] = reactExports.useState("");
   const [tgToken, setTgToken] = reactExports.useState("");
   const [tgShowToken, setTgShowToken] = reactExports.useState(false);
   const [tgLoading, setTgLoading] = reactExports.useState(false);
@@ -62546,6 +64079,25 @@ const IntegrationsPage = () => {
     setTimeout(() => setCopied(""), 2e3);
   };
   const trackerUrl = window.location.origin;
+  const loadExtensionCredentials = reactExports.useCallback(async () => {
+    setExtKeyLoading(true);
+    setExtKeyError("");
+    try {
+      let res = await axios.get(`${API_URL$9}?action=extension_credentials`);
+      if (res.data.status === "success" && !res.data.data?.api_key) {
+        res = await axios.post(`${API_URL$9}?action=extension_credentials`, {});
+      }
+      if (res.data.status === "success" && res.data.data?.api_key) {
+        setExtApiKey(res.data.data.api_key);
+      } else {
+        setExtKeyError(res.data.message || "Unable to create a read API key.");
+      }
+    } catch (err) {
+      setExtKeyError(err.response?.data?.message || err.message || "Unable to create a read API key.");
+    } finally {
+      setExtKeyLoading(false);
+    }
+  }, []);
   const fetchTelegramSettings = reactExports.useCallback(async () => {
     setTgLoading(true);
     try {
@@ -62600,7 +64152,10 @@ const IntegrationsPage = () => {
     if (activeTab === "recaptcha") {
       fetchRcSettings();
     }
-  }, [activeTab, fetchTelegramSettings, fetchRcSettings]);
+    if (activeTab === "chrome_extension" && !extApiKey) {
+      loadExtensionCredentials();
+    }
+  }, [activeTab, fetchTelegramSettings, fetchRcSettings, loadExtensionCredentials, extApiKey]);
   const handleTelegramConnect = async () => {
     if (!tgToken.trim()) return;
     setTgSaving(true);
@@ -63668,6 +65223,12 @@ $client->execute();
       description: t("fbConv.description"),
       isFacebookConversions: true
     },
+    chrome_extension: {
+      title: t("integrations.chromeExtension", "Chrome & Antidetect Extension"),
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Monitor, { className: "w-5 h-5" }),
+      description: t("integrations.chromeExtDesc", "Overlay real-time tracker analytics directly inside Facebook Ads Manager."),
+      isChromeExtension: true
+    },
     dolphin_fbtool: {
       title: t("extCosts.title", "Dolphin / Fbtool — Keitaro API"),
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { className: "w-5 h-5" }),
@@ -64013,6 +65574,181 @@ add_action('wp_head', 'ltt_webview_redirect');
     }
   };
   const activeObj = scripts[activeTab];
+  const renderChromeExtensionPanel = () => {
+    const guideTabs = [
+      { id: "adspower", label: "AdsPower", text: t("integrations.adspowerGuide") },
+      { id: "dolphin", label: "Dolphin{anty}", text: t("integrations.dolphinGuide") },
+      { id: "chrome", label: "Google Chrome", text: t("integrations.chromeGuide") }
+    ];
+    const preview = extTemplate === "cod" ? [
+      ["CPL", "$8.33"],
+      ["CPS", "$15.00"],
+      ["SPENT", "$150.00"],
+      ["REV (CONF)", "$280.00"],
+      ["ROI (CONF)", "+86.7%"],
+      ["PROFIT", "+$130.00"]
+    ] : [
+      ["CPA", "$12.50"],
+      ["SPENT", "$150.00"],
+      ["REV", "$320.00"],
+      ["ROI", "+113.3%"],
+      ["PROFIT", "+$170.00"]
+    ];
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: "920px" }, className: "space-y-6", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+        padding: "26px",
+        borderRadius: "18px",
+        background: "linear-gradient(135deg, #21143d 0%, #4c1d95 52%, #1d4ed8 100%)",
+        color: "#fff",
+        boxShadow: "0 18px 45px rgba(76, 29, 149, .22)"
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "20px", flexWrap: "wrap" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: "650px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "42px", height: "42px", borderRadius: "12px", background: "rgba(255,255,255,.15)", display: "grid", placeItems: "center" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Monitor, { size: 23 }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { style: { fontSize: "21px", fontWeight: 700, margin: 0 }, children: [
+                "Orbitra ",
+                t("integrations.chromeExtension"),
+                " (Ads Manager Overlay)"
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, color: "#ede9fe", fontSize: "14px", lineHeight: 1.6 }, children: t("integrations.chromeExtDesc") })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "a",
+            {
+              href: "/data/orbitra-extension.zip",
+              download: "orbitra-extension.zip",
+              className: "btn",
+              style: { background: "#fff", color: "#4c1d95", borderColor: "#fff", fontWeight: 700, flexShrink: 0 },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 18 }),
+                t("integrations.downloadExtension")
+              ]
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "20px" }, children: ["AdsPower", "Dolphin{anty}", "Octo Browser", "Google Chrome", "Multilogin"].map((browser) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { padding: "5px 10px", borderRadius: "999px", background: "rgba(255,255,255,.12)", border: "1px solid rgba(255,255,255,.2)", fontSize: "12px", fontWeight: 600 }, children: browser }, browser)) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "20px", borderRadius: "16px", background: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", gap: "12px", alignItems: "center", marginBottom: "16px", flexWrap: "wrap" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { margin: 0, color: "var(--color-text-primary)", fontSize: "15px", fontWeight: 650 }, children: t("integrations.connectionCredentials", "Connection credentials") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: "4px 0 0", color: "var(--color-text-muted)", fontSize: "12px" }, children: t("integrations.readKeyOnly", "A dedicated read-only key is generated for this extension.") })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { padding: "4px 9px", borderRadius: "999px", background: "rgba(34,197,94,.12)", color: "#16a34a", fontSize: "11px", fontWeight: 700 }, children: "READ ONLY" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gap: "12px" }, children: [
+          { label: t("integrations.trackerApiUrl", "Tracker API URL"), value: `${trackerUrl}/api.php`, copyId: "extension_url" },
+          { label: t("integrations.apiKey", "API Key"), value: extKeyLoading ? t("common.loading", "Loading…") : extApiKey, copyId: "extension_key", secret: true }
+        ].map((field) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "12px 14px", background: "var(--color-bg-card)", border: "1px solid var(--color-border)", borderRadius: "11px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "11px", color: "var(--color-text-muted)", marginBottom: "6px", textTransform: "uppercase", letterSpacing: ".05em" }, children: field.label }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: { flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: field.secret ? "var(--color-text-primary)" : "var(--color-primary)", fontSize: "12px" }, children: field.value || "—" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: () => field.value && copyToClipboard(field.value, field.copyId),
+                disabled: !field.value || extKeyLoading,
+                className: "btn btn-secondary btn-sm",
+                children: [
+                  copied === field.copyId ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 14 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 14 }),
+                  copied === field.copyId ? t("integrations.copied") : t("integrations.copyCode", "Copy")
+                ]
+              }
+            )
+          ] })
+        ] }, field.copyId)) }),
+        extKeyError && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "12px", padding: "10px 12px", borderRadius: "9px", background: "var(--color-danger-bg, #fee2e2)", color: "#b91c1c", fontSize: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: extKeyError }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", className: "btn btn-secondary btn-sm", onClick: loadExtensionCredentials, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 13 }),
+            " ",
+            t("common.retry", "Retry")
+          ] })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "20px", borderRadius: "16px", background: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { margin: "0 0 14px", color: "var(--color-text-primary)", fontSize: "15px", fontWeight: 650 }, children: t("integrations.templatePreview", "Metric template & live preview") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(270px, 1fr))", gap: "10px" }, children: [
+          { id: "cpa", text: t("integrations.extTemplate1") },
+          { id: "cod", text: t("integrations.extTemplate2") }
+        ].map((template) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => setExtTemplate(template.id),
+            style: {
+              padding: "13px 14px",
+              textAlign: "left",
+              borderRadius: "11px",
+              cursor: "pointer",
+              border: `1px solid ${extTemplate === template.id ? "var(--color-primary)" : "var(--color-border)"}`,
+              background: extTemplate === template.id ? "var(--color-primary-light)" : "var(--color-bg-card)",
+              color: "var(--color-text-primary)",
+              fontSize: "12px",
+              lineHeight: 1.45,
+              boxShadow: extTemplate === template.id ? "0 0 0 2px rgba(124,58,237,.10)" : "none"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { display: "inline-grid", placeItems: "center", width: "16px", height: "16px", marginRight: "8px", borderRadius: "50%", border: "1px solid var(--color-primary)", color: "var(--color-primary)", fontSize: "10px" }, children: extTemplate === template.id ? "●" : "" }),
+              template.text
+            ]
+          },
+          template.id
+        )) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "16px", padding: "14px", borderRadius: "12px", background: "#f8fafc", border: "1px solid #dbe3ee" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "9px", color: "#1e293b", fontSize: "12px", fontWeight: 650 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: "14px", height: "14px", borderRadius: "3px", border: "1px solid #94a3b8", background: "#fff" } }),
+            "Summer Scale Campaign ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "#94a3b8", fontWeight: 500 }, children: "1203849102948" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "inline-flex", flexWrap: "wrap", alignItems: "center", gap: "5px", padding: "6px 8px", marginLeft: "24px", borderRadius: "8px", background: "linear-gradient(135deg,#151322,#211a38)", border: "1px solid rgba(139,92,246,.45)", boxShadow: "0 4px 14px rgba(15,23,42,.18)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "#c4b5fd", fontSize: "10px", fontWeight: 700 }, children: "Orbitra" }),
+            preview.map(([label, value], index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(React.Fragment, { children: [
+              index2 > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "#64748b", fontSize: "10px" }, children: "|" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "#e2e8f0", fontSize: "10px", fontWeight: 600, whiteSpace: "nowrap" }, children: [
+                label,
+                ": ",
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { style: { color: label.includes("ROI") || label === "PROFIT" ? "#4ade80" : "#fff" }, children: value })
+              ] })
+            ] }, label))
+          ] })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "20px", borderRadius: "16px", background: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", flexWrap: "wrap", marginBottom: "14px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { margin: 0, color: "var(--color-text-primary)", fontSize: "15px", fontWeight: 650 }, children: t("integrations.antidetectInstallGuide") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("a", { href: "/data/orbitra-extension.zip", download: "orbitra-extension.zip", className: "btn btn-primary btn-sm", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 15 }),
+            " ",
+            t("integrations.downloadExtension")
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "14px" }, children: guideTabs.map((guide) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => setExtGuide(guide.id),
+            className: "btn btn-sm",
+            style: {
+              background: extGuide === guide.id ? "var(--color-primary)" : "var(--color-bg-card)",
+              color: extGuide === guide.id ? "#fff" : "var(--color-text-secondary)",
+              border: `1px solid ${extGuide === guide.id ? "var(--color-primary)" : "var(--color-border)"}`
+            },
+            children: guide.label
+          },
+          guide.id
+        )) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "12px", padding: "14px", borderRadius: "11px", background: "var(--color-bg-card)", border: "1px solid var(--color-border)", color: "var(--color-text-secondary)", fontSize: "13px", lineHeight: 1.6 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { display: "grid", placeItems: "center", flexShrink: 0, width: "24px", height: "24px", borderRadius: "50%", background: "var(--color-primary-light)", color: "var(--color-primary)", fontWeight: 700 }, children: "1" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: guideTabs.find((guide) => guide.id === extGuide)?.text })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: "12px 0 0", color: "var(--color-text-muted)", fontSize: "12px", lineHeight: 1.5 }, children: t("integrations.extensionPopupHint", "After installation, open the extension popup and paste the Tracker API URL and read API key shown above.") })
+      ] })
+    ] }) });
+  };
   const generateWpPlugin = () => {
     const pluginPhp = `<?php
 /**
@@ -64812,7 +66548,7 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
         borderRadius: "24px 0 0 24px"
       }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("nav", { style: { padding: "8px", overflowY: "auto" }, children: (() => {
         const groups = [
-          { label: t("integrations.groupAds", "Ad networks"), ids: ["facebook_costs", "facebook_conversions", "dolphin_fbtool"] },
+          { label: t("integrations.groupAds", "Ad networks"), ids: ["facebook_costs", "facebook_conversions", "dolphin_fbtool", "chrome_extension"] },
           { label: t("integrations.groupDomains", "Domains & SSL"), ids: ["cloudflare", "namecheap"] },
           { label: t("integrations.groupSites", "Sites & landings"), ids: ["kclient_php", "kclient_js", "tracking_pixel", "js_banner", "wordpress", "wordpress_plugin", "static_site", "geo_redirect", "device_redirect"] },
           { label: t("integrations.groupTools", "Tools"), ids: ["countdown_timer", "back_button_trap", "exit_popup", "app_config", "recaptcha", "telegram"] }
@@ -65388,7 +67124,7 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
               children: rcMessage.text
             }
           )
-        ] }) }) : activeObj.isTelegram ? renderTelegramPanel() : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isFacebookCosts ? renderFacebookCostsPanel() : activeObj.isFacebookConversions ? renderFacebookConversionsPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "20px 24px", flex: 1, display: "flex", flexDirection: "column" }, children: [
+        ] }) }) : activeObj.isTelegram ? renderTelegramPanel() : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isFacebookCosts ? renderFacebookCostsPanel() : activeObj.isFacebookConversions ? renderFacebookConversionsPanel() : activeObj.isChromeExtension ? renderChromeExtensionPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "20px 24px", flex: 1, display: "flex", flexDirection: "column" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)" }, children: t("integrations.codeToInsert") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -69732,6 +71468,7 @@ function wordpressSnippet({ campaign }) {
 <!-- Конверсия со страницы «Спасибо» (Contact Form 7 и т.п.): -->
 [send_postback]`;
 }
+const CAMPAIGN_SUB_ID_KEYS = Array.from({ length: 30 }, (_, index2) => `sub_id_${index2 + 1}`);
 const AddDropdownButton = ({ label, createLabel, onMain, onCreate }) => {
   const [open, setOpen] = reactExports.useState(false);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative inline-block", children: [
@@ -69953,6 +71690,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     challenge_type: "none",
     challenge_custom_code: ""
   });
+  const activeCampaignId = formData.id || campaignId;
   const [expandedStream, setExpandedStream] = reactExports.useState(null);
   const [isDirty, setIsDirty] = reactExports.useState(false);
   const baselineRef = reactExports.useRef(null);
@@ -70009,29 +71747,85 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     { value: "CPS", label: t("costModels.cps") },
     { value: "RevShare", label: t("costModels.revShare") }
   ];
-  const availableParameters = [
-    { key: "ad_id", label: t("parameters.adId", "Ad ID") },
-    { key: "adset_id", label: t("parameters.adsetId", "Adset ID") },
-    { key: "campaign_id", label: t("parameters.campaignId", "Campaign ID") },
-    { key: "ad_name", label: t("parameters.adName", "Ad name") },
-    { key: "adset_name", label: t("parameters.adsetName", "Adset name") },
-    { key: "campaign_name", label: t("parameters.campaignName", "Campaign name") },
-    { key: "site", label: t("parameters.site", "Site") },
-    { key: "ttclid", label: "ttclid (TikTok)" },
-    { key: "utm_source", label: "utm_source" },
-    { key: "utm_medium", label: "utm_medium" },
-    { key: "utm_campaign", label: "utm_campaign" },
-    { key: "utm_content", label: "utm_content" },
-    { key: "utm_term", label: "utm_term" },
-    { key: "keyword", label: t("parameters.keyword") },
-    { key: "cost", label: t("parameters.cost") },
-    { key: "currency", label: t("parameters.currency") },
-    { key: "external_id", label: t("parameters.externalId") },
-    { key: "creative_id", label: t("parameters.creativeId") },
-    { key: "ad_campaign_id", label: t("parameters.adCampaignId") },
-    { key: "source", label: t("parameters.source") },
-    ...Array.from({ length: 30 }, (_, i) => ({ key: "sub_id_" + (i + 1), label: "Sub ID " + (i + 1) }))
-  ];
+  const activeSource = sources.find((source) => source.id == formData.source_id);
+  const displayParameters = reactExports.useMemo(() => {
+    const standardParameters = [
+      { key: "utm_placement", label: t("parameters.placement", "Placement (utm_placement)") },
+      { key: "ad_id", label: t("parameters.adId", "Ad ID") },
+      { key: "adset_id", label: t("parameters.adsetId", "Adset ID") },
+      { key: "campaign_id", label: t("parameters.campaignId", "Campaign ID") },
+      { key: "ad_name", label: t("parameters.adName", "Ad name") },
+      { key: "adset_name", label: t("parameters.adsetName", "Adset name") },
+      { key: "campaign_name", label: t("parameters.campaignName", "Campaign name") },
+      { key: "source", label: t("parameters.source", "Source") },
+      { key: "site", label: t("parameters.site", "Site") },
+      { key: "keyword", label: t("parameters.keyword", "Keyword") },
+      { key: "cost", label: t("parameters.cost", "Cost") },
+      { key: "currency", label: t("parameters.currency", "Currency") },
+      { key: "external_id", label: t("parameters.externalId", "External ID") },
+      { key: "creative_id", label: t("parameters.creativeId", "Creative ID") },
+      { key: "ad_campaign_id", label: t("parameters.adCampaignId", "Ad campaign ID") },
+      { key: "ttclid", label: "ttclid (TikTok)" },
+      { key: "utm_source", label: "utm_source" },
+      { key: "utm_medium", label: "utm_medium" },
+      { key: "utm_campaign", label: "utm_campaign" },
+      { key: "utm_content", label: "utm_content" },
+      { key: "utm_term", label: "utm_term" }
+    ];
+    const standardByKey = new Map(standardParameters.map((parameter) => [parameter.key, parameter]));
+    const list = [];
+    const seenKeys = /* @__PURE__ */ new Set();
+    if (activeSource && Array.isArray(activeSource.parameters)) {
+      activeSource.parameters.forEach((parameter) => {
+        const key = String(parameter?.param || "").trim();
+        if (!key || seenKeys.has(key) || CAMPAIGN_SUB_ID_KEYS.includes(key)) return;
+        seenKeys.add(key);
+        list.push({
+          key,
+          label: standardByKey.get(key)?.label || parameter.alias || key,
+          isFromSource: true,
+          isCustom: false
+        });
+      });
+    }
+    Object.keys(formData.parameters || {}).forEach((key) => {
+      if (seenKeys.has(key) || CAMPAIGN_SUB_ID_KEYS.includes(key)) return;
+      const standard = standardByKey.get(key);
+      seenKeys.add(key);
+      list.push({
+        key,
+        label: standard?.label || key,
+        isFromSource: false,
+        isCustom: !standard
+      });
+    });
+    standardParameters.forEach((parameter) => {
+      if (seenKeys.has(parameter.key)) return;
+      seenKeys.add(parameter.key);
+      list.push({ ...parameter, isFromSource: false, isCustom: false });
+    });
+    return list;
+  }, [activeSource, formData.parameters, t]);
+  const addCustomParameter = () => {
+    const rawKey = window.prompt(t("parameters.enterParamKey", "Enter parameter key (e.g. utm_placement, placement, custom_id):"));
+    if (!rawKey) return;
+    const cleanKey = rawKey.trim().replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 100);
+    if (!cleanKey) return;
+    setFormData((prev) => {
+      if (Object.prototype.hasOwnProperty.call(prev.parameters || {}, cleanKey)) return prev;
+      return {
+        ...prev,
+        parameters: { ...prev.parameters || {}, [cleanKey]: "" }
+      };
+    });
+  };
+  const clearParameter = (key) => {
+    setFormData((prev) => {
+      const parameters = { ...prev.parameters || {} };
+      delete parameters[key];
+      return { ...prev, parameters };
+    });
+  };
   const pixelPlatforms = [
     { id: "facebook", name: "Facebook Pixel", icon: "📘", placeholder: "123456789012345" },
     { id: "google_ads", name: "Google Ads", icon: "🔎", placeholder: "AW-123456789" },
@@ -70067,8 +71861,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       parameters: source ? sourceToParameters(source) : {}
     }));
   };
-  const handleSourceCreated = async (saved) => {
-    setShowSourceEditor(false);
+  const handleSourceCreated = async (saved, shouldClose = true) => {
+    if (shouldClose) setShowSourceEditor(false);
     invalidateCache("traffic_sources");
     try {
       const res = await cachedGet("traffic_sources", {}, 3e5);
@@ -70160,9 +71954,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     }
   };
   const fetchClickLogs = async () => {
-    if (!campaignId) return;
+    if (!activeCampaignId) return;
     try {
-      const { data } = await cachedGet("campaign_logs", { campaign_id: campaignId });
+      const { data } = await cachedGet("campaign_logs", { campaign_id: activeCampaignId });
       if (data.status === "success") {
         setClickLogs(data.data);
       }
@@ -70256,18 +72050,18 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     });
   }, [sources, formData.source_id]);
   reactExports.useEffect(() => {
-    if (!campaignId) return;
+    if (!activeCampaignId) return;
     axios.get("/api.php?action=aggregator_connections").then((res) => {
       if (res.data.status === "success") {
         setCostConns((res.data.data || []).filter((c) => ["facebook", "google_ads", "tiktok"].includes(c.engine)));
       }
     }).catch(() => {
     });
-    cachedGet("campaign_cost_match", { campaign_id: campaignId }, 6e4).then(({ data }) => {
+    cachedGet("campaign_cost_match", { campaign_id: activeCampaignId }, 6e4).then(({ data }) => {
       if (data.status === "success") setCostMatch(data.data);
     }).catch(() => {
     });
-  }, [campaignId]);
+  }, [activeCampaignId]);
   const syncCostConnection = async (connId) => {
     setSyncingConnId(connId);
     setSyncResult(null);
@@ -70279,7 +72073,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         const d = res.data.data || {};
         setSyncResult(`✓ ${t("costSync.synced", "Synced")}: fetched ${d.fetched ?? 0}, matched ${d.matched ?? 0}, new ${d.new ?? 0}`);
         invalidateCache("campaign_cost_match");
-        cachedGet("campaign_cost_match", { campaign_id: campaignId }, 6e4).then(({ data }) => {
+        cachedGet("campaign_cost_match", { campaign_id: activeCampaignId }, 6e4).then(({ data }) => {
           if (data.status === "success") setCostMatch(data.data);
         }).catch(() => {
         });
@@ -70314,17 +72108,17 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     }
   };
   const fetchPixels = async () => {
-    if (!campaignId) return;
+    if (!activeCampaignId) return;
     try {
-      const { data } = await cachedGet("campaign_pixels", { campaign_id: campaignId });
+      const { data } = await cachedGet("campaign_pixels", { campaign_id: activeCampaignId });
       if (data.status === "success") setPixels(data.data || []);
     } catch (err) {
       console.error(err);
     }
   };
   reactExports.useEffect(() => {
-    if (campaignId) fetchPixels();
-  }, [campaignId]);
+    if (activeCampaignId) fetchPixels();
+  }, [activeCampaignId]);
   reactExports.useEffect(() => {
     cachedGet("facebook_capi_meta").then(({ data }) => {
       if (data.status === "success") setCapiMeta(data.data);
@@ -70361,7 +72155,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     try {
       const { data } = await cachedPost("facebook_capi_test", {
         id: pixelForm.id,
-        campaign_id: campaignId,
+        campaign_id: activeCampaignId,
         pixel_id: pixelForm.pixel_id,
         token: pixelForm.token,
         test_event_code: pixelForm.test_event_code,
@@ -70376,7 +72170,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       setCapiTesting(false);
     }
   };
-  const handleSave = async () => {
+  const handleSave = async (forceClose = false) => {
+    if (loading || saveSuccess) return;
     if (!formData.name || !formData.alias) {
       alert(t("editor.fillNameAndAlias"));
       return;
@@ -70387,10 +72182,22 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       delete payload.token;
       const res = await cachedPost("save_campaign", payload);
       if (res.data.status === "success") {
+        const saved = res.data.data || {};
+        const nextFormData = {
+          ...formData,
+          id: saved.id || formData.id || campaignId,
+          token: saved.token || formData.token,
+          rotation_type: saved.rotation_type || formData.rotation_type
+        };
+        setFormData(nextFormData);
+        baselineRef.current = JSON.stringify(nextFormData);
+        setIsDirty(false);
         setSaveSuccess(true);
         setTimeout(() => {
           setSaveSuccess(false);
-          closeEditor(true);
+          if (forceClose || !getStayInEditorAfterSave()) {
+            closeEditor(true);
+          }
         }, 1e3);
       } else {
         alert(`${t("common.error")}: ${res.data.message}`);
@@ -70440,7 +72247,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     }
   };
   const regenerateToken = async () => {
-    const id = formData.id || campaignId;
+    const id = activeCampaignId;
     if (!id) return;
     if (!window.confirm(t("editor.regenerateTokenConfirm"))) return;
     try {
@@ -70460,10 +72267,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     }
   };
   const clearStats = async () => {
-    if (!campaignId) return;
+    if (!activeCampaignId) return;
     if (!window.confirm(t("campaigns.clearStatsWarning"))) return;
     try {
-      const res = await cachedPost("clear_campaign_stats", { campaign_id: campaignId });
+      const res = await cachedPost("clear_campaign_stats", { campaign_id: activeCampaignId });
       if (res.data.status === "success") {
         alert(t("editor.saved"));
         setShowClearModal(false);
@@ -70483,12 +72290,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     setTrafficSimResult(null);
   };
   const runTrafficSimulation = async () => {
-    if (!campaignId) return;
+    if (!activeCampaignId) return;
     setTrafficSimLoading(true);
     setTrafficSimResult(null);
     try {
       const res = await cachedPost("simulate_traffic", {
-        campaign_id: campaignId,
+        campaign_id: activeCampaignId,
         ...trafficSimForm
       });
       setTrafficSimResult(res.data);
@@ -70505,6 +72312,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       name: t("editor.newStream"),
       position: formData.streams.length + 1,
       is_active: 1,
+      collect_clicks: 1,
       schema_type: "redirect",
       offer_id: 0,
       action_payload: "",
@@ -70827,18 +72635,29 @@ const CampaignEditor = ({ campaignId, onClose }) => {
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { className: "w-5 h-5" })
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-bold", style: { color: "var(--color-text-primary)" }, children: campaignId ? `${t("editor.campaign")}: ${formData.name}` : t("editor.createCampaign") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-bold", style: { color: "var(--color-text-primary)" }, children: activeCampaignId ? `${t("editor.campaign")}: ${formData.name}` : t("editor.createCampaign") }),
           formData.alias && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm font-mono px-2 py-1 rounded-lg", style: { color: "var(--color-text-muted)", backgroundColor: "var(--color-bg-hover)" }, children: [
             "/",
             formData.alias
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: () => handleSave(true),
+              disabled: loading || saveSuccess,
+              className: "btn btn-secondary",
+              children: t("profile.saveAndClose")
+            }
+          ),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
             {
-              onClick: handleSave,
-              disabled: loading,
+              type: "button",
+              onClick: () => handleSave(false),
+              disabled: loading || saveSuccess,
               className: "btn btn-primary",
               style: saveSuccess ? { backgroundColor: "var(--color-success)" } : {},
               children: [
@@ -71084,7 +72903,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                           type: "button",
                           className: "btn btn-secondary btn-icon",
                           onClick: regenerateToken,
-                          disabled: tokenBusy || !(formData.id || campaignId),
+                          disabled: tokenBusy || !activeCampaignId,
                           title: t("editor.regenerateToken") || t("common.refresh"),
                           children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: `w-4 h-4 ${tokenBusy ? "animate-spin" : ""}` })
                         }
@@ -71342,25 +73161,94 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 )
               ] })
             ] }),
-            activeTab === "params" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mb-4", style: { color: "var(--color-text-secondary)" }, children: t("editor.setupParams") }),
-              availableParameters.map((param) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-24 text-xs truncate", style: { color: "var(--color-text-secondary)" }, children: param.label }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: param.key }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
+            activeTab === "params" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-start justify-between gap-3", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: t("editor.setupParams") }),
+                  activeSource && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: [
+                    t("editor.trafficSource"),
+                    ": ",
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-primary)", fontWeight: 600 }, children: activeSource.name })
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "button",
                   {
-                    type: "text",
-                    placeholder: "=",
-                    value: formData.parameters[param.key] || "",
-                    onChange: (e) => setFormData({
-                      ...formData,
-                      parameters: { ...formData.parameters, [param.key]: e.target.value }
-                    }),
-                    className: "form-input text-xs"
+                    type: "button",
+                    onClick: addCustomParameter,
+                    className: "btn btn-secondary text-xs py-1 px-2.5 rounded-xl font-medium",
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3.5 h-3.5" }),
+                      t("parameters.addParam", "Add Parameter")
+                    ]
                   }
                 )
-              ] }, param.key))
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden sm:grid grid-cols-12 gap-2 px-2 text-[11px] font-semibold uppercase tracking-wide", style: { color: "var(--color-text-muted)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "col-span-3", children: t("sourceEditor.alias") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "col-span-3", children: t("sourceEditor.param") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "col-span-6", children: t("sourceEditor.sourceMacro") })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2 max-h-[420px] overflow-y-auto pr-1", children: displayParameters.map((param) => {
+                const hasMapping = Object.prototype.hasOwnProperty.call(formData.parameters || {}, param.key);
+                return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 sm:grid-cols-12 items-center gap-2 p-2 rounded-xl transition-colors", style: { backgroundColor: "var(--color-bg-soft)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "sm:col-span-3 text-xs font-medium truncate", style: { color: "var(--color-text-primary)" }, title: param.label, children: param.label }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "sm:col-span-3 text-xs px-2 py-1 rounded-lg border truncate", style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)", color: "var(--color-text-muted)" }, title: param.key, children: param.key }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "sm:col-span-6 flex items-center gap-2 min-w-0", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "=" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        type: "text",
+                        placeholder: "{{macro}} or {keyword}",
+                        value: formData.parameters?.[param.key] ?? "",
+                        onChange: (event) => setFormData((prev) => ({
+                          ...prev,
+                          parameters: { ...prev.parameters || {}, [param.key]: event.target.value }
+                        })),
+                        className: "form-input text-xs font-mono flex-1 min-w-0 py-1.5 rounded-xl"
+                      }
+                    ),
+                    hasMapping && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: () => clearParameter(param.key),
+                        className: "btn btn-ghost btn-icon btn-sm flex-shrink-0",
+                        title: t("common.clear"),
+                        "aria-label": `${t("common.clear")}: ${param.key}`,
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-3.5 h-3.5" })
+                      }
+                    )
+                  ] })
+                ] }, param.key);
+              }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "details",
+                {
+                  className: "pt-3",
+                  style: { borderTop: "1px solid var(--color-border)" },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { className: "text-xs font-semibold cursor-pointer select-none", style: { color: "var(--color-text-secondary)" }, children: t("parameters.additionalSubIds", "Sub IDs (sub_id_1 .. sub_id_30)") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-2 mt-3 max-h-60 overflow-y-auto pr-1", children: CAMPAIGN_SUB_ID_KEYS.map((subKey) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "text-xs w-20 flex-shrink-0", style: { color: "var(--color-text-muted)" }, children: subKey }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "=" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "input",
+                        {
+                          type: "text",
+                          value: formData.parameters?.[subKey] ?? "",
+                          onChange: (event) => setFormData((prev) => ({
+                            ...prev,
+                            parameters: { ...prev.parameters || {}, [subKey]: event.target.value }
+                          })),
+                          className: "form-input text-xs font-mono py-1 rounded-lg flex-1 min-w-0"
+                        }
+                      )
+                    ] }, subKey)) })
+                  ]
+                }
+              )
             ] }),
             activeTab === "integrations" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
@@ -71467,7 +73355,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     "POST ",
                     trackerUrl,
                     "/admin_api/v1/campaigns/",
-                    formData.id || campaignId,
+                    activeCampaignId,
                     "/update_costs"
                   ] })
                 ] })
@@ -71661,7 +73549,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                           if (!pixelForm.pixel_id) return;
                           try {
                             await cachedPost("save_campaign_pixel", {
-                              campaign_id: campaignId,
+                              campaign_id: activeCampaignId,
                               ...pixelForm,
                               mapping_json: JSON.stringify(pixelForm.mapping || {})
                             });
@@ -72153,18 +74041,40 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                   }
                 )
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-4", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-sm cursor-pointer", style: { color: "var(--color-text-primary)" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-sm cursor-pointer", style: { color: "var(--color-text-primary)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      type: "checkbox",
+                      checked: stream.is_active,
+                      onChange: (e) => updateStream(idx, "is_active", e.target.checked ? 1 : 0),
+                      className: "rounded"
+                    }
+                  ),
+                  t("editor.on")
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "label",
                   {
-                    type: "checkbox",
-                    checked: stream.is_active,
-                    onChange: (e) => updateStream(idx, "is_active", e.target.checked ? 1 : 0),
-                    className: "rounded"
+                    className: "flex items-center gap-2 text-sm cursor-pointer",
+                    style: { color: (stream.collect_clicks ?? 1) == 1 ? "var(--color-text-primary)" : "var(--color-text-muted)" },
+                    title: t("editor.collectClicksHint"),
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "input",
+                        {
+                          type: "checkbox",
+                          checked: (stream.collect_clicks ?? 1) == 1,
+                          onChange: (e) => updateStream(idx, "collect_clicks", e.target.checked ? 1 : 0),
+                          className: "rounded"
+                        }
+                      ),
+                      t("editor.collectClicks")
+                    ]
                   }
-                ),
-                t("editor.on")
-              ] }) }),
+                )
+              ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "button",
@@ -72200,6 +74110,13 @@ const CampaignEditor = ({ campaignId, onClose }) => {
               ] })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 space-y-4", children: [
+              (stream.collect_clicks ?? 1) == 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-2xl px-3 py-2 flex items-center gap-2", style: {
+                backgroundColor: "color-mix(in srgb, var(--color-warning, #f59e0b) 10%, transparent)",
+                border: "1px solid var(--color-warning, #f59e0b)"
+              }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", style: { color: "var(--color-warning, #f59e0b)" }, children: "ℹ️" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: t("editor.collectClicksDisabledNote") })
+              ] }),
               formData.rotation_type === "weight" && stream.type === "regular" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "rounded-2xl p-3", style: { border: "1px solid var(--color-border)", backgroundColor: "rgba(59, 130, 246, 0.05)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-3", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx(TrendingUp, { className: "w-4 h-4", style: { color: "var(--color-primary)" } }),
@@ -72290,7 +74207,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                       onChange: (e) => setAction("to_campaign", e.target.value),
                       children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("editor.selectCampaign") }),
-                        allCampaigns.filter((c) => String(c.id) !== String(formData.id || campaignId || "")).map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: c.id, children: c.name }, c.id))
+                        allCampaigns.filter((c) => String(c.id) !== String(activeCampaignId || "")).map((c) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: c.id, children: c.name }, c.id))
                       ]
                     }
                   )
@@ -72487,8 +74404,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label })
                         ] }, mode)) })
                       ] }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-2", children: ["mobile", "desktop"].map((dev) => {
-                        const currentDevs = typeof sc.devices === "string" && sc.devices.trim() !== "" ? sc.devices.split(",").map((d) => d.trim().toLowerCase()).filter(Boolean) : ["mobile", "desktop"];
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-1 sm:grid-cols-3 gap-2", children: [
+                        { id: "mobile", label: t("streams.mobile", "Mobile") },
+                        { id: "tablet", label: t("streams.tablet", "Tablet") },
+                        { id: "desktop", label: t("streams.desktop", "Desktop") }
+                      ].map(({ id: dev, label }) => {
+                        const currentDevs = typeof sc.devices === "string" && sc.devices.trim() !== "" ? sc.devices.split(",").map((d) => d.trim().toLowerCase()).filter(Boolean) : ["mobile", "tablet", "desktop"];
                         const isSelected = currentDevs.includes(dev);
                         return /* @__PURE__ */ jsxRuntimeExports.jsxs(
                           "label",
@@ -72513,7 +74434,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                   style: { accentColor: "var(--color-primary)" }
                                 }
                               ),
-                              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "capitalize", children: dev })
+                              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label })
                             ]
                           },
                           dev
@@ -72619,7 +74540,26 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         rows: 3,
                         placeholder: "<!DOCTYPE html><html><body><h1>Welcome</h1></body></html>"
                       }
-                    ) })
+                    ) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-start gap-2 cursor-pointer select-none", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "input",
+                        {
+                          type: "checkbox",
+                          checked: sc.dont_record_safe_clicks !== false,
+                          onChange: (e) => setCloakField("dont_record_safe_clicks", e.target.checked),
+                          className: "w-4 h-4 rounded mt-0.5",
+                          style: { accentColor: "var(--color-primary)" }
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: [
+                          "🚫 ",
+                          t("cloaking.dontRecordSafeClicks", "Do not record clicks for Safe Page")
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-[11px]", style: { color: "var(--color-text-muted)", lineHeight: 1.4 }, children: t("cloaking.dontRecordSafeClicksHint", "Bots, crawlers, and reviewers routed to the Safe Page will not be saved in database logs or counted in campaign reports.") })
+                      ] })
+                    ] }) })
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3.5 rounded-xl space-y-3", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-bold uppercase tracking-wider block", style: { color: "var(--color-text-primary)" }, children: [
@@ -73067,15 +75007,15 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: clearStats, className: "btn btn-danger", children: t("common.clear") })
       ] })
     ] }) }),
-    showReports && campaignId && /* @__PURE__ */ jsxRuntimeExports.jsx(
+    showReports && activeCampaignId && /* @__PURE__ */ jsxRuntimeExports.jsx(
       CampaignReports,
       {
-        campaignId,
+        campaignId: activeCampaignId,
         campaignName: formData.name,
         onClose: () => setShowReports(false)
       }
     ),
-    showConversionsLog && campaignId && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", style: { zIndex: 1100, top: "88px", height: "calc(100vh - 88px)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "1200px", maxHeight: "100%", overflow: "auto" }, children: [
+    showConversionsLog && activeCampaignId && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", style: { zIndex: 1100, top: "88px", height: "calc(100vh - 88px)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "1200px", maxHeight: "100%", overflow: "auto" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("editor.conversionsLog") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowConversionsLog(false), className: "btn btn-ghost btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
@@ -73083,7 +75023,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         ConversionsLog,
         {
-          campaignId,
+          campaignId: activeCampaignId,
           onClose: () => setShowConversionsLog(false)
         }
       )

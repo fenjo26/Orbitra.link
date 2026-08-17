@@ -18,10 +18,15 @@ export default {
         "externalId": "ID externo",
         "creativeId": "ID de creatividad",
         "adCampaignId": "ID de campaña publicitaria",
-        "source": "Fuente"
+        "source": "Fuente",
+        "enterParamKey": "Ingrese la clave del parámetro (ej. utm_placement, placement, custom_id):",
+        "addParam": "Añadir parámetro",
+        "additionalSubIds": "Sub IDs adicionales (sub_id_1 .. sub_id_30)",
+        "placement": "Ubicación (utm_placement)"
     },
     "costModels": {
         "cpc": "CPC — coste por clic",
+        "cpv": "CPV — coste por visita",
         "cpuc": "CPuC — coste por clic único",
         "cpm": "CPM — coste por 1000 impresiones",
         "cpa": "CPA — coste por acción",
@@ -294,7 +299,10 @@ export default {
         "confirmPassword": "Confirmar contraseña",
         "confirmPasswordPlaceholder": "Repetir nueva contraseña",
         "passwordsNotMatch": "Las contraseñas no coinciden",
-        "saveSuccess": "Configuración guardada exitosamente"
+        "saveSuccess": "Configuración guardada exitosamente",
+        "stayInEditorAfterSave": "Permanecer en el editor después de guardar",
+        "stayInEditorHint": "Mantener abiertas las campañas, páginas de destino y ofertas después de hacer clic en Guardar.",
+        "saveAndClose": "Guardar y cerrar"
     },
     "setup": {
         "title": "Configuración inicial",
@@ -377,6 +385,9 @@ export default {
         "recentClicksLog": "Clics recientes (registros)",
         "colDirection": "Dirección",
         "noLogs": "Sin registros",
+        "showMoreLogs": "Mostrar más (+10)",
+        "showLess": "Mostrar menos",
+        "last10Logs": "Últimos 10 clics (haga clic para expandir)",
         "viewFullLogs": "Ver registros completos"
     },
     "metrics": {
@@ -388,6 +399,7 @@ export default {
         "profit": "Beneficio",
         "roi": "ROI",
         "cpc": "CPC",
+        "cpv": "CPV — coste por visita",
         "cpa": "CPA",
         "ctr": "CTR",
         "visits": "Visitas",
@@ -423,6 +435,9 @@ export default {
         "copyErrors": "Errores"
     },
     "editor": {
+        "collectClicks": "Recopilar clics",
+        "collectClicksHint": "Registrar clics en estadísticas e informes para este flujo. Desactivado: el visitante recibe el destino igualmente, pero no se escribe ninguna fila de clic — las conversiones de este flujo no tienen clic al que adjuntarse.",
+        "collectClicksDisabledNote": "Los clics de este flujo no se registran",
         "showText": "Mostrar texto / blanco",
         "toCampaign": "Enviar a campaña",
         "selectCampaign": "— elige campaña —",
@@ -643,6 +658,13 @@ export default {
         "step4": "Asegúrese de que la oferta se pase a la oferta a través de 'Parámetros de oferta'",
         "step5": "Verifique las conversiones entrantes en la pestaña 'Conversiones'",
         "examplePostback": "URL de devolución de datos de ejemplo"
+    },
+    "affiliateNetworks": {
+        "postbackUrl": "URL de Postback",
+        "offerParams": "Parámetros de oferta",
+        "useNetworkTemplate": "Plantilla de red",
+        "useGenericTemplate": "Postback genérico",
+        "resetToTemplate": "Restablecer a plantilla de red"
     },
     "components": {
         "aliasName": "Alias/Nombre",
@@ -1814,7 +1836,51 @@ export default {
         "system": "Sistema",
         "privacy": "Privacidad"
     },
+    "table": {
+        "copyLink": "Copiar enlace",
+        "duplicate": "Duplicar",
+        "perPage": "Por página",
+        "prev": "Anterior",
+        "next": "Siguiente",
+        "all": "Todos",
+        "total": "TOTAL",
+        "name": "Nombre",
+        "group": "Grupo",
+        "actions": "Acciones",
+        "selectAll": "Seleccionar todas las filas",
+    },
+
+    "extension": {
+        "title": "Superposición de Orbitra para Ads Manager",
+        "last3Days": "Últimos 3 días",
+        "last4Days": "Últimos 4 días",
+        "today": "Hoy",
+        "yesterday": "Ayer",
+        "overview": "Resumen",
+        "dailyHistory": "Historial diario",
+        "landingsAndOffers": "Páginas de destino y ofertas",
+        "pixelAccuracy": "Precisión de Pixel y CAPI",
+        "winner": "GANADOR",
+        "spend": "Gasto",
+        "revenue": "Ingresos",
+        "profit": "Beneficio",
+        "roi": "ROI",
+        "cpa": "CPA",
+        "cpl": "CPL",
+        "cps": "CPS",
+    },
+
     "automation": {
+        "status": "Estado",
+        "active": "Activo",
+        "paused": "Pausado",
+        "clickToPause": "Haga clic para pausar anuncio/campaña",
+        "clickToResume": "Haga clic para activar anuncio/campaña",
+        "statusUpdated": "Estado actualizado con éxito",
+        "statusUpdateError": "Error al actualizar el estado en la red publicitaria",
+        "noConnection": "No se encontró conexión a la API de Facebook — conecte primero la cuenta publicitaria en la importación de costos",
+        "unsupportedNetwork": "Esta red publicitaria aún no es compatible",
+        "invalidId": "ID de entidad no válido",
         "title": "Cron y automatización",
         "backorderCronTitle": "Pedido pendiente: comprobaciones de dominio programadas",
         "backorderCronDesc": "Las comprobaciones de disponibilidad de dominio se ejecutan mediante un script cron independiente y procesan 1 dominio por ejecución. Aquí puede habilitar/deshabilitar la ejecución y copiar un comando cron listo para usar.",
@@ -2052,6 +2118,15 @@ export default {
         "groupSites": "Sitios y landings",
         "groupTools": "Herramientas",
         "groupOther": "Otros",
+        "chromeExtension": "Extensión para Chrome y Antidetect",
+        "chromeExtDesc": "Superponga análisis del rastreador en tiempo real directamente en Facebook Ads Manager en AdsPower, Dolphin{anty} y Chrome.",
+        "extTemplate1": "Plantilla 1: CPA / Embudo (CPA, Gasto, Ingresos, ROI, Beneficio)",
+        "extTemplate2": "Plantilla 2: COD / Nutra (CPL, CPS, Gasto, Ingresos conf., ROI conf., Beneficio)",
+        "downloadExtension": "Descargar extensión (.ZIP)",
+        "antidetectInstallGuide": "Guía de instalación para navegadores Antidetect",
+        "adspowerGuide": "AdsPower: abra Centro de aplicaciones → Cargar extensión personalizada → Seleccione la carpeta descomprimida.",
+        "dolphinGuide": "Dolphin{anty}: vaya a Configuración → Extensiones → Agregar extensión o arrastre el archivo ZIP.",
+        "chromeGuide": "Google Chrome: abra chrome://extensions → active Modo de desarrollador → Cargar descomprimida.",
         "howItWorks": "Cómo funcionan las integraciones",
         "introText": "Integre Orbitra con sus páginas de destino o aplicaciones externas utilizando uno de estos métodos. Esto le permite rastrear el tráfico fuera de los enlaces de seguimiento estándar mientras centraliza los datos en su base de datos de Orbitra.",
         "usageExamples": "Ejemplos de uso:",
@@ -2330,6 +2405,8 @@ export default {
         "safeLandingNone": "— ninguno —",
         "safeUrl": "URL segura",
         "safeHtml": "HTML seguro (en línea)",
+        "dontRecordSafeClicks": "No registrar clics para la página segura (Safe Page)",
+        "dontRecordSafeClicksHint": "Los bots, rastreadores y revisores dirigidos a la página segura no se guardarán en los registros de informes.",
         "moneyPage": "Página monetaria (para visitantes)",
         "moneyPageHint": "Se muestra a visitantes reales. Se comporta como el esquema landing+oferta."
     },

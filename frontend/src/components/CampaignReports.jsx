@@ -13,6 +13,44 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     const [rows, setRows] = useState([]);
     const [layerKeys, setLayerKeys] = useState([]);
 
+    // Play/pause toggles (campaign_id layer = internal campaign state,
+    // ad_id / adset_id / ad_campaign_id = a command to the ad network).
+    // The tracker is not the source of truth for network state, so the mark
+    // is optimistic: it flips on click and the notice carries the verdict.
+    const [entityStatus, setEntityStatus] = useState({});
+    const [togglingIds, setTogglingIds] = useState(new Set());
+    const [toggleNotice, setToggleNotice] = useState(null);
+
+    const handleToggleEntityStatus = async (dimKey, row) => {
+        const id = row.dimId;
+        if (!id || id === 'Unknown' || id === 'none' || togglingIds.has(id)) return;
+        const typeByDim = { campaign_id: 'campaign', ad_id: 'ad', adset_id: 'adset', ad_campaign_id: 'ad_campaign' };
+        const entityType = typeByDim[dimKey];
+        if (!entityType) return;
+        const next = (entityStatus[id] || 'ACTIVE') === 'ACTIVE' ? 'PAUSED' : 'ACTIVE';
+        setTogglingIds(prev => new Set(prev).add(id));
+        try {
+            const res = await axios.post(`${API_URL}?action=ad_entity_toggle_status`, {
+                entity_type: entityType,
+                entity_id: id,
+                target_status: next
+            });
+            if (res.data.status === 'success') {
+                setEntityStatus(prev => ({ ...prev, [id]: next }));
+                setToggleNotice({ type: 'success', text: t('automation.statusUpdated') });
+            } else {
+                const codeMap = { no_connection: 'automation.noConnection', unsupported_network: 'automation.unsupportedNetwork', invalid_id: 'automation.invalidId' };
+                const text = (res.data.code && t(codeMap[res.data.code])) || res.data.message || t('automation.statusUpdateError');
+                setToggleNotice({ type: 'error', text });
+            }
+        } catch (e) {
+            setToggleNotice({ type: 'error', text: t('automation.statusUpdateError') });
+        } finally {
+            setTogglingIds(prev => { const s = new Set(prev); s.delete(id); return s; });
+            setTimeout(() => setToggleNotice(null), 4000);
+        }
+    };
+
     // A flat, single-dimension report by default — the multi-level drill-down is
     // an opt-in via the layer builder. Starting layered made every report look
     // like duplicated subtotal rows.
@@ -179,6 +217,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             node.uepc = node.unique_clicks > 0 ? node.revenue / node.unique_clicks : 0;
             node.cpc = node.clicks > 0 ? node.cost / node.clicks : 0;
             node.ucpc = node.unique_clicks > 0 ? node.cost / node.unique_clicks : 0;
+            node.cpv = node.clicks > 0 ? node.cost / node.clicks : 0;
             node.cpa = node.conversions > 0 ? node.cost / node.conversions : 0;
             node.earnings_per_conv = node.conversions > 0 ? node.revenue / node.conversions : 0;
         };
@@ -188,10 +227,13 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             let node = root;
             addRow(root, row);
             const dims = row.dims || [];
-            dims.forEach((dimValue) => {
+            const dimIds = row.dim_ids || dims;
+            dims.forEach((dimValue, i) => {
                 const key = dimValue !== undefined && dimValue !== null && dimValue !== '' ? String(dimValue) : 'none';
                 if (!node.children.has(key)) {
-                    node.children.set(key, { ...createEmptyAgg(), children: new Map() });
+                    // dimId: the raw grouping value (internal/network id) the
+                    // play-pause toggle sends; `name` may be a display name.
+                    node.children.set(key, { ...createEmptyAgg(), children: new Map(), dimId: String(dimIds[i] ?? dimValue) });
                 }
                 node = node.children.get(key);
                 addRow(node, row);
@@ -205,6 +247,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             out.push({
                 name,
                 depth,
+                dimId: node.dimId,
                 subtotal: depth < layers.length - 1 || children.length > 0,
                 ...node,
                 childrenCount: children.length
@@ -273,6 +316,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         const uepc = t0.unique_clicks > 0 ? t0.revenue / t0.unique_clicks : 0;
         const cpc = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
         const ucpc = t0.unique_clicks > 0 ? t0.cost / t0.unique_clicks : 0;
+        const cpv = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
         const cpa = t0.conversions > 0 ? t0.cost / t0.conversions : 0;
         const earnings_per_conv = t0.conversions > 0 ? t0.revenue / t0.conversions : 0;
 
@@ -291,6 +335,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             uepc,
             cpc,
             ucpc,
+            cpv,
             cpa,
             earnings_per_conv
         };
@@ -391,8 +436,6 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             case 'earnings_per_conv':
             case 'ec_all':
             case 'ec_confirmed':
-                return `$${num.toFixed(2)}`;
-
             case 'epc':
             case 'epc_all':
             case 'uepc':
@@ -405,7 +448,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             case 'uepc_registration':
             case 'cpc':
             case 'ucpc':
-                return `$${num.toFixed(4)}`;
+            case 'cpv':
+                return `$${num.toFixed(2)}`;
 
             default:
                 return val !== undefined && val !== null ? String(val) : '-';
@@ -428,7 +472,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                 `"${'  '.repeat(r.depth)}${String(r.name).replace(/"/g, '""')}"`,
                 ...chosenColumns.map(cId => {
                     const v = r[cId];
-                    return typeof v === 'number' ? v.toFixed(2) : String(v || '');
+                    if (typeof v !== 'number') return String(v || '');
+                    return v.toFixed(2);
                 })
             ].join(','))
         ].join('\n');
@@ -555,11 +600,18 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                         </div>
                     ) : (
                         <div className="page-card" style={{ padding: 0 }}>
-                            {/* Horizontal scroll for wide column sets (all 64 metrics
+                            {/* Horizontal scroll for wide column sets (all 65 metrics
                                 used to be clipped by overflow:hidden — looked like
                                 "selecting columns does nothing"). The name column
                                 stays pinned while scrolling. */}
                             <div style={{ overflowX: 'auto' }}>
+                    {toggleNotice && (
+                        <div className={`alert ${toggleNotice.type === 'error' ? 'alert-danger' : 'alert-success'} mb-3 flex items-center gap-2`}>
+                            {toggleNotice.type === 'error' ? <X size={14} /> : <BarChart3 size={14} />}
+                            {toggleNotice.text}
+                        </div>
+                    )}
+
                             <table className="page-table" style={{ fontVariantNumeric: 'tabular-nums', minWidth: '100%', width: 'max-content' }}>
                                 <thead>
                                     <tr>
@@ -642,6 +694,29 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                         }}>
                                                             <div className="inline-flex items-center gap-1.5">
                                                                 {isSubtotal && <ChevronRight className="w-3 h-3 inline" style={{ color: 'var(--color-primary)' }} />}
+                                                                {(() => {
+                                                                    const dimKey = layers[r.depth];
+                                                                    const toggleDims = ['campaign_id', 'ad_id', 'adset_id', 'ad_campaign_id'];
+                                                                    if (!toggleDims.includes(dimKey) || !r.dimId || r.dimId === 'Unknown' || r.dimId === 'none') return null;
+                                                                    const paused = entityStatus[r.dimId] === 'PAUSED';
+                                                                    const busy = togglingIds.has(r.dimId);
+                                                                    return (
+                                                                        <button
+                                                                            type="button"
+                                                                            disabled={busy}
+                                                                            onClick={(e) => { e.stopPropagation(); handleToggleEntityStatus(dimKey, r); }}
+                                                                            className="relative inline-flex h-4 w-7 flex-shrink-0 items-center rounded-full transition-colors"
+                                                                            style={{
+                                                                                background: paused || busy ? 'var(--color-border)' : 'var(--color-success, #10b981)',
+                                                                                opacity: busy ? 0.5 : 1,
+                                                                                cursor: 'pointer'
+                                                                            }}
+                                                                            title={`${dimKey === 'campaign_id' ? '' : 'Facebook · '}${paused ? t('automation.clickToResume') : t('automation.clickToPause')}`}
+                                                                        >
+                                                                            <span className="inline-block h-3 w-3 transform rounded-full bg-white shadow transition-transform" style={{ transform: paused ? 'translateX(2px)' : 'translateX(12px)' }} />
+                                                                        </button>
+                                                                    );
+                                                                })()}
                                                                 <span>{r.name}</span>
                                                                 {isSubtotal && r.childrenCount > 0 && (
                                                                     <span style={{ color: 'var(--color-text-muted)', fontSize: '11px' }}>({r.childrenCount})</span>

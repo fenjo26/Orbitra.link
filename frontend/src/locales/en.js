@@ -18,10 +18,15 @@ export default {
         "externalId": "External ID",
         "creativeId": "Creative ID",
         "adCampaignId": "Ad campaign ID",
-        "source": "Source"
+        "source": "Source",
+        "enterParamKey": "Enter parameter key (e.g. utm_placement, placement, custom_id):",
+        "addParam": "Add Parameter",
+        "additionalSubIds": "Sub IDs (sub_id_1 .. sub_id_30)",
+        "placement": "Placement (utm_placement)"
     },
     "costModels": {
         "cpc": "CPC — cost per click",
+        "cpv": "CPV — cost per visit",
         "cpuc": "CPuC — cost per unique click",
         "cpm": "CPM — cost per 1000 impressions",
         "cpa": "CPA — cost per action",
@@ -294,7 +299,10 @@ export default {
         "confirmPassword": "Confirm Password",
         "confirmPasswordPlaceholder": "Repeat new password",
         "passwordsNotMatch": "Passwords do not match",
-        "saveSuccess": "Settings saved successfully"
+        "saveSuccess": "Settings saved successfully",
+        "stayInEditorAfterSave": "Stay in editor after saving",
+        "stayInEditorHint": "Keep campaigns, landings, and offers open after clicking Save instead of returning to the list.",
+        "saveAndClose": "Save & Close"
     },
     "setup": {
         "title": "Initial Setup",
@@ -377,6 +385,9 @@ export default {
         "recentClicksLog": "Recent Clicks (Logs)",
         "colDirection": "Direction",
         "noLogs": "No logs",
+        "showMoreLogs": "Show more (+10)",
+        "showLess": "Show less",
+        "last10Logs": "Last 10 clicks (click to expand)",
         "viewFullLogs": "View full logs"
     },
     "metrics": {
@@ -388,6 +399,7 @@ export default {
         "profit": "Profit",
         "roi": "ROI",
         "cpc": "CPC",
+        "cpv": "CPV — cost per visit",
         "cpa": "CPA",
         "ctr": "CTR",
         "visits": "Visits",
@@ -423,6 +435,9 @@ export default {
         "copyErrors": "Errors"
     },
     "editor": {
+        "collectClicks": "Collect clicks",
+        "collectClicksHint": "Record clicks in statistics and reports for this stream. When off, visitors still get the destination, but no click row is written — conversions from this stream have no click to attach to.",
+        "collectClicksDisabledNote": "Clicks are not being recorded for this stream",
         "showText": "Show text / blank",
         "toCampaign": "Send to campaign",
         "selectCampaign": "— select campaign —",
@@ -643,6 +658,13 @@ export default {
         "step4": "Make sure subid is passed to the offer via 'Offer Parameters'",
         "step5": "Check for incoming conversions in the 'Conversions' tab",
         "examplePostback": "Example Postback URL"
+    },
+    "affiliateNetworks": {
+        "postbackUrl": "Postback URL",
+        "offerParams": "Offer Parameters",
+        "useNetworkTemplate": "Network Template",
+        "useGenericTemplate": "Generic Postback",
+        "resetToTemplate": "Reset to Network Template"
     },
     "components": {
         "aliasName": "Alias / Name",
@@ -1814,7 +1836,51 @@ export default {
         "system": "System",
         "privacy": "Privacy"
     },
+    "table": {
+        "copyLink": "Copy link",
+        "duplicate": "Duplicate",
+        "perPage": "Per page",
+        "prev": "Prev",
+        "next": "Next",
+        "all": "All",
+        "total": "TOTAL",
+        "name": "Name",
+        "group": "Group",
+        "actions": "Actions",
+        "selectAll": "Select all rows",
+    },
+
+    "extension": {
+        "title": "Orbitra Ads Manager Overlay",
+        "last3Days": "Last 3 Days",
+        "last4Days": "Last 4 Days",
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "overview": "Overview",
+        "dailyHistory": "Daily History",
+        "landingsAndOffers": "Landings & Offers",
+        "pixelAccuracy": "Pixel & CAPI Accuracy",
+        "winner": "WINNER",
+        "spend": "Spend",
+        "revenue": "Revenue",
+        "profit": "Profit",
+        "roi": "ROI",
+        "cpa": "CPA",
+        "cpl": "CPL",
+        "cps": "CPS",
+    },
+
     "automation": {
+        "status": "Status",
+        "active": "Active",
+        "paused": "Paused",
+        "clickToPause": "Click to pause ad / campaign",
+        "clickToResume": "Click to activate ad / campaign",
+        "statusUpdated": "Status updated successfully",
+        "statusUpdateError": "Failed to update status on ad network",
+        "noConnection": "No Facebook API connection found — connect the ad account in Cost Import first",
+        "unsupportedNetwork": "This ad network is not supported yet",
+        "invalidId": "Invalid entity id",
         "title": "Cron & Automation",
         "backorderCronTitle": "Backorder: scheduled domain checks",
         "backorderCronDesc": "Domain availability checks are executed by a separate cron script and process 1 domain per run. Here you can enable/disable execution and copy a ready-to-use cron command.",
@@ -2052,6 +2118,15 @@ export default {
         "groupSites": "Sites & landings",
         "groupTools": "Tools",
         "groupOther": "Other",
+        "chromeExtension": "Chrome & Antidetect Extension",
+        "chromeExtDesc": "Overlay real-time tracker analytics directly inside Facebook Ads Manager in AdsPower, Dolphin{anty}, and Chrome.",
+        "extTemplate1": "Template 1: CPA / Funnel (CPA, Spent, Rev, ROI, Profit)",
+        "extTemplate2": "Template 2: COD / Nutra (CPL, CPS, Spent, Rev Conf, ROI Conf, Profit)",
+        "downloadExtension": "Download Extension (.ZIP)",
+        "antidetectInstallGuide": "Installation Guide for Antidetect Browsers",
+        "adspowerGuide": "AdsPower: Open App Center → Upload Custom Extension → Select the unzipped folder.",
+        "dolphinGuide": "Dolphin{anty}: Go to Settings → Extensions → Add extension or drag-and-drop the ZIP archive.",
+        "chromeGuide": "Google Chrome: Open chrome://extensions → Enable Developer mode → Click 'Load unpacked'.",
         "howItWorks": "How Integrations Work",
         "introText": "Integrate Orbitra with your external landing pages or apps using one of these methods. This allows you to track traffic outside standard tracking links while centralizing data in your Orbitra database.",
         "usageExamples": "Usage Examples:",
@@ -2330,6 +2405,8 @@ export default {
         "safeLandingNone": "— none —",
         "safeUrl": "Safe URL",
         "safeHtml": "Safe HTML (inline)",
+        "dontRecordSafeClicks": "Do not record clicks for Safe Page",
+        "dontRecordSafeClicksHint": "Bots, crawlers, and reviewers routed to the Safe Page will not be saved in database logs or counted in campaign reports.",
         "moneyPage": "Money page (for visitors)",
         "moneyPageHint": "Shown to real visitors. Behaves like the landing+offer schema."
     },

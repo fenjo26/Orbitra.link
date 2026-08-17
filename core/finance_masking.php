@@ -43,7 +43,7 @@ function orbitraAllFinanceVisible(array $flags): bool
 /**
  * Does this row/array key belong to a hidden family?
  *
- * Cost family: cost, click_cost, costs, spend, cpc, cpa, cost_value — but NOT
+ * Cost family: cost, click_cost, costs, spend, cpc, cpv, cpa, cost_value — but NOT
  * cost_model (a CPC/CPM label, not an amount).
  * Revenue family: any prefix chain ending in revenue / profit / roi / epc
  * (revenue_confirmed, real_revenue, click_sale_revenue, real_roi, ...).
@@ -57,7 +57,7 @@ function orbitraFinanceKeyMasked(string $key, array $flags): bool
     $k = strtolower(trim($key));
     if (!$flags['costs'] && (
         preg_match('/^(?:[a-z]+_)*cost$/', $k)
-        || in_array($k, ['costs', 'spend', 'cpc', 'cpa', 'cost_value'], true)
+        || in_array($k, ['costs', 'spend', 'cpc', 'cpv', 'cpa', 'cost_value'], true)
     )) {
         return true;
     }

@@ -507,7 +507,7 @@ function orbitraKeitaroMapDeviceValue(string $v): string
     $v = strtolower(trim($v));
     if ($v === 'mobile' || $v === 'm') return 'Mobile';
     if ($v === 'desktop' || $v === 'd' || $v === 'pc') return 'Desktop';
-    // Keep as-is; Orbitra matcher uses exact strings.
+    // Preserve granular aliases; the routing matcher normalizes their group.
     return $v !== '' ? ucfirst($v) : '';
 }
 

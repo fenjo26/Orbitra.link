@@ -698,6 +698,71 @@ code {
   border-bottom: none;
 }
 
+/* High-Density Tracker Data Table — layered on top of .page-table for the
+   analytical tables (Campaigns / Landers / Offers): compact 38px rows,
+   tabular-nums digits and a bold TOTAL footer. Defined after .page-table so
+   these overrides win without touching every other page's tables. */
+.tracker-table-container {
+  overflow: auto;
+  max-height: max(360px, calc(100vh - 320px));
+  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-bg-card);
+}
+
+.tracker-table {
+  font-variant-numeric: tabular-nums;
+  min-width: 100%;
+  width: max-content;
+}
+
+.tracker-table th {
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  user-select: none;
+  /* The container is the vertical scroll context, so sticky actually pins —
+     with page-level scroll an overflow-x wrapper would silently not stick. */
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: var(--color-bg-soft);
+  box-shadow: 0 1px 0 var(--color-border);
+}
+
+.tracker-table td {
+  padding: 7px 12px;
+  font-size: 12.5px;
+  height: 38px;
+  white-space: nowrap;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent);
+}
+
+.tracker-table tfoot td {
+  padding: 9px 12px;
+  background-color: var(--color-bg-soft);
+  font-weight: 700;
+  font-size: 12px;
+  border-top: 2px solid var(--color-border);
+  border-bottom: none;
+  white-space: nowrap;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+}
+
+/* Zebra striping for scanning wide rows; the hover rule must come after it
+   (equal specificity — later wins) or hover dies on even rows. */
+.tracker-table tbody tr:nth-child(even) {
+  background-color: color-mix(in srgb, var(--color-text-primary) 2.5%, transparent);
+}
+
+.tracker-table tbody tr:hover {
+  background-color: var(--color-bg-hover);
+}
+
 /* ========================================
    Form Elements
    ======================================== */

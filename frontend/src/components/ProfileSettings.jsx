@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Save, Globe, Clock, Calendar, Lock, KeyRound } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getStayInEditorAfterSave, setStayInEditorAfterSave } from '../utils/editorPreferences';
 
 const API_URL = '/api.php';
 
@@ -9,6 +10,7 @@ const ProfileSettings = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState({ text: '', type: '' });
+    const [stayInEditor, setStayInEditor] = useState(getStayInEditorAfterSave);
 
     const currentUser = JSON.parse(localStorage.getItem('orbitra_user') || '{}');
 
@@ -182,6 +184,29 @@ const ProfileSettings = () => {
                             </select>
                         </div>
                     </div>
+                </div>
+
+                <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid var(--color-border)' }}>
+                    <label className="flex items-start gap-3" style={{ cursor: 'pointer' }}>
+                        <input
+                            type="checkbox"
+                            checked={stayInEditor}
+                            onChange={(event) => {
+                                const enabled = event.target.checked;
+                                setStayInEditor(enabled);
+                                setStayInEditorAfterSave(enabled);
+                            }}
+                            style={{ marginTop: '3px' }}
+                        />
+                        <span>
+                            <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                                {t('profile.stayInEditorAfterSave')}
+                            </span>
+                            <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '4px', lineHeight: 1.55 }}>
+                                {t('profile.stayInEditorHint')}
+                            </p>
+                        </span>
+                    </label>
                 </div>
 
                 <div style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid var(--color-border)' }}>

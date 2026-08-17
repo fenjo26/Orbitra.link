@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Orbitra Overlay</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    * { box-sizing: border-box; }
+    body { width: 370px; margin: 0; background: #0f0d18; color: #f8fafc; }
+    header { padding: 18px 18px 14px; background: linear-gradient(135deg, #4c1d95, #7c3aed 58%, #2563eb); }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand img { width: 32px; height: 32px; filter: invert(1); }
+    h1 { margin: 0; font-size: 17px; }
+    header p { margin: 7px 0 0; color: #ede9fe; font-size: 12px; line-height: 1.45; }
+    main { padding: 16px 18px 18px; }
+    label { display: block; margin: 0 0 6px; color: #cbd5e1; font-size: 12px; font-weight: 650; }
+    .field { margin-bottom: 14px; }
+    input, select { width: 100%; padding: 10px 11px; border: 1px solid #3f3a51; border-radius: 8px; outline: none; background: #191625; color: #fff; font-size: 13px; }
+    input:focus, select:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139, 92, 246, .16); }
+    .key-wrap { display: flex; gap: 7px; }
+    .key-wrap input { flex: 1; }
+    button { border: 0; border-radius: 8px; cursor: pointer; font-weight: 700; }
+    .icon-btn { width: 42px; background: #282338; color: #ddd6fe; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 16px; }
+    .primary { padding: 10px 12px; background: #7c3aed; color: #fff; }
+    .secondary { padding: 10px 12px; background: #282338; color: #ddd6fe; }
+    button:disabled { opacity: .55; cursor: wait; }
+    #status { min-height: 18px; margin-top: 11px; font-size: 12px; line-height: 1.4; color: #94a3b8; }
+    #status.ok { color: #4ade80; }
+    #status.error { color: #fb7185; }
+    .hint { margin-top: -7px; color: #7f8da3; font-size: 11px; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <img src="icons/icon48.png" alt="" style="filter:none">
+      <h1>Orbitra Ads Manager Overlay</h1>
+    </div>
+    <p>Connect this browser profile to Orbitra and show live economics beside campaigns, ad sets, and ads.</p>
+  </header>
+  <main>
+    <div class="field">
+      <label for="trackerUrl">Tracker API URL</label>
+      <input id="trackerUrl" type="url" placeholder="https://tracker.example.com/api.php" autocomplete="url">
+    </div>
+    <div class="field">
+      <label for="apiKey">Read API key</label>
+      <div class="key-wrap">
+        <input id="apiKey" type="password" placeholder="Paste the key from Orbitra" autocomplete="off">
+        <button id="toggleKey" class="icon-btn" type="button" aria-label="Show API key">Show</button>
+      </div>
+    </div>
+    <div class="field">
+      <label for="template">Metric template</label>
+      <select id="template">
+        <option value="cpa">Template 1 — CPA / Funnel</option>
+        <option value="cod">Template 2 — COD / Nutra</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="pollingInterval">Refresh interval</label>
+      <select id="pollingInterval">
+        <option value="15">15 seconds</option>
+        <option value="30">30 seconds</option>
+        <option value="60">60 seconds</option>
+        <option value="120">2 minutes</option>
+      </select>
+    </div>
+    <p class="hint">Saving asks Chrome to allow requests only to your tracker host. The key stays in this browser profile via Chrome Sync storage.</p>
+    <div class="actions">
+      <button id="save" class="primary" type="button">Save settings</button>
+      <button id="test" class="secondary" type="button">Test connection</button>
+    </div>
+    <div id="status" role="status" aria-live="polite"></div>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>
