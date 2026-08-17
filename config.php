@@ -51,7 +51,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 29;
+    $LATEST_SCHEMA_VERSION = 30;
 
     $schemaVersion = 0;
     try {
@@ -1702,6 +1702,21 @@ try {
                     foreach ($defaultTypeColors as $typeName => $color) {
                         $stmt29->execute([$color, $typeName]);
                     }
+                } catch (\Throwable $e) {
+                }
+            }
+
+            if ($schemaVersion < 30) {
+                // Migration 30: seed the PHP-landing settings rows on databases
+                // that were already at schema 29 when v1.0.4 introduced them.
+                // The default-rows block above only runs behind this closure's
+                // version guard, so an install updated 1.0.2 -> 1.0.4 skipped it
+                // and LeadForge builds failed with php_landings_disabled.
+                // INSERT OR IGNORE keeps an explicit '0' (admin turned it off).
+                try {
+                    $seed30 = $pdo->prepare("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)");
+                    $seed30->execute(['allow_php_landings', '1']);
+                    $seed30->execute(['php_landing_timeout', '3']);
                 } catch (\Throwable $e) {
                 }
             }

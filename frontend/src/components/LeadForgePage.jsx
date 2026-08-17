@@ -201,7 +201,8 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
         axios.get(`${API_URL}?action=global_settings`)
             .then(res => {
                 if (res.data?.status === 'success') {
-                    setPhpLandingsEnabled(String(res.data.data?.allow_php_landings) === '1');
+                    // Missing row = the on-by-default backend semantics (v1.0.4).
+                    setPhpLandingsEnabled(String(res.data.data?.allow_php_landings ?? '1') === '1');
                 }
             })
             .catch(() => {});

@@ -13,7 +13,7 @@ const GeneralSettings = () => {
     const [settings, setSettings] = useState({
         postback_key: '',
         currency: 'USD',
-        allow_php_landings: '0',
+        allow_php_landings: '1',
         php_landing_timeout: '3',
     });
 

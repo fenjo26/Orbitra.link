@@ -10,7 +10,7 @@
  * defeats every one of them.
  *
  * What actually contains the risk:
- *   - the feature is off unless an admin turns it on;
+ *   - the feature is on by default (since v1.0.4) and an admin can turn it off;
  *   - only signed-in users can upload a landing at all;
  *   - the real boundary is php.ini's disable_functions and open_basedir, which
  *     the deployment controls, not this file.
@@ -135,9 +135,11 @@ class PhpLanding
     {
         try {
             $value = $pdo->query("SELECT value FROM settings WHERE key = 'allow_php_landings' LIMIT 1")->fetchColumn();
-            return $value === '1';
+            // On by default since v1.0.4 (LeadForge bundles are unusable without
+            // it), so a missing row means enabled — only an explicit '0' is off.
+            return $value !== '0';
         } catch (\Throwable $e) {
-            return false;
+            return true;
         }
     }
 
