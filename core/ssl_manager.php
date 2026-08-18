@@ -27,6 +27,7 @@
 
 require_once __DIR__ . '/nginx_config.php';
 require_once __DIR__ . '/shell.php';
+require_once __DIR__ . '/CloudDetector.php';
 
 /**
  * Make sure the certificate worker is scheduled, without needing a reinstall.
@@ -99,12 +100,15 @@ function orbitraSslEnvironment(): array
     $certbot = $shell && orbitraCommandExists('certbot');
     $nginxConfig = file_exists(ORBITRA_NGINX_CONFIG_PATH);
     $acmeWritable = is_dir(ORBITRA_ACME_WEBROOT) && is_writable(ORBITRA_ACME_WEBROOT);
+    $sudoCertbot = $certbot && orbitraSudoCertbotAvailable()['ok'];
 
     $problems = [];
     if (!$shell) {
         $problems[] = 'php_no_shell';
     } elseif (!$certbot) {
         $problems[] = 'no_certbot';
+    } elseif (!$sudoCertbot) {
+        $problems[] = 'no_sudo_certbot';
     }
     if (!$nginxConfig) {
         $problems[] = 'no_nginx_config';
@@ -114,16 +118,52 @@ function orbitraSslEnvironment(): array
     }
 
     return [
-        // Issuing needs a shell and Certbot; wiring the result into the web
-        // server needs the nginx config. Without the first two nothing can be
-        // obtained at all, which is the distinction the panel shows.
-        'can_issue' => $shell && $certbot,
+        // Issuing needs a shell, Certbot, and sudo access to Certbot; wiring the result into the web
+        // server needs the nginx config. Without these, nothing can be obtained at all.
+        'can_issue' => $shell && $certbot && $sudoCertbot,
         'shell' => $shell,
         'certbot' => $certbot,
+        'sudo_certbot' => $sudoCertbot,
         'nginx_config' => $nginxConfig,
         'acme_writable' => $acmeWritable,
         'problems' => $problems,
     ];
+}
+
+/**
+ * Can the web user run sudo certbot?
+ *
+ * Certbot needs root to write into /etc/letsencrypt. This checks whether sudo
+ * is available and whether the web server user can run certbot without a password
+ * (as install.sh configures with a sudoers entry). Returns the reason if not.
+ *
+ * @return array{ok: bool, reason: string}
+ */
+function orbitraSudoCertbotAvailable(): array
+{
+    $shell = orbitraShellAvailable();
+    if (!$shell) {
+        return ['ok' => false, 'reason' => 'php_no_shell'];
+    }
+
+    $sudo = orbitraCommandExists('sudo');
+    if (!$sudo) {
+        return ['ok' => false, 'reason' => 'no_sudo'];
+    }
+
+    // Test if we can run certbot with sudo
+    // Using sudo -n (non-interactive) to check if passwordless access is configured
+    $test = orbitraShell('sudo -n certbot --help 2>&1');
+    if ($test === null) {
+        return ['ok' => false, 'reason' => 'sudo_failed'];
+    }
+
+    // Check if output contains expected certbot help
+    if (stripos($test, 'certbot') === false && stripos($test, 'usage') === false) {
+        return ['ok' => false, 'reason' => 'sudo_no_password'];
+    }
+
+    return ['ok' => true, 'reason' => ''];
 }
 
 /**
@@ -270,13 +310,156 @@ function orbitraDomainPointsHere(string $domain): array
 }
 
 /**
+ * Pre-flight DNS validation before Certbot execution.
+ *
+ * Performs comprehensive DNS checks and returns detailed error information
+ * when DNS is not properly configured. Use this before calling Certbot to
+ * avoid wasting rate limit attempts on domains that cannot validate.
+ *
+ * @return array{valid: bool, error_code: string|null, error_message: string|null, details: array}
+ *   Returns validation result with specific error codes:
+ *   - 'dns_not_resolved': Domain has no DNS records
+ *   - 'dns_mismatch': DNS exists but points to wrong IP(s)
+ *   - 'server_ip_unknown': Could not determine server IP
+ *   - null when validation passes
+ */
+function orbitraDnsPreflightCheck(string $domain): array
+{
+    $serverIp = orbitraServerIp();
+
+    // Cannot validate if we don't know the server's IP
+    if ($serverIp === '') {
+        return [
+            'valid' => false,
+            'error_code' => 'server_ip_unknown',
+            'error_message' => 'Cannot determine this server IP address. DNS validation requires knowing the expected address.',
+            'details' => [
+                'server_ip' => null,
+            ],
+        ];
+    }
+
+    $ips = [];
+    $hasRecords = false;
+
+    // Try to get A and AAAA records
+    foreach ([DNS_A, DNS_AAAA] as $type) {
+        $records = @dns_get_record($domain, $type);
+        if (is_array($records) && count($records) > 0) {
+            $hasRecords = true;
+            foreach ($records as $r) {
+                if (!empty($r['ip'])) {
+                    $ips[] = $r['ip'];
+                } elseif (!empty($r['ipv6'])) {
+                    $ips[] = $r['ipv6'];
+                }
+            }
+        }
+    }
+
+    // Fallback to gethostbyname if dns_get_record returned nothing
+    if (!$hasRecords) {
+        $resolved = @gethostbyname($domain);
+        if (is_string($resolved) && $resolved !== $domain && filter_var($resolved, FILTER_VALIDATE_IP)) {
+            $ips[] = $resolved;
+            $hasRecords = true;
+        }
+    }
+
+    $ips = array_values(array_unique($ips));
+
+    // No DNS records found
+    if (!$hasRecords || empty($ips)) {
+        return [
+            'valid' => false,
+            'error_code' => 'dns_not_resolved',
+            'error_message' => sprintf(
+                "Domain '%s' does not resolve to any IP address. Please check your DNS configuration and ensure an A record points to this server (%s).",
+                $domain,
+                $serverIp
+            ),
+            'details' => [
+                'domain' => $domain,
+                'server_ip' => $serverIp,
+                'resolved_ips' => [],
+            ],
+        ];
+    }
+
+    // DNS exists but doesn't point to this server
+    if (!in_array($serverIp, $ips, true)) {
+        $ipList = implode(', ', $ips);
+        return [
+            'valid' => false,
+            'error_code' => 'dns_mismatch',
+            'error_message' => sprintf(
+                "Domain '%s' resolves to %s, but this server expects %s. Please update your DNS A record to point to the correct IP address.",
+                $domain,
+                $ipList,
+                $serverIp
+            ),
+            'details' => [
+                'domain' => $domain,
+                'server_ip' => $serverIp,
+                'resolved_ips' => $ips,
+                'mismatch' => true,
+            ],
+        ];
+    }
+
+    // All checks passed
+    return [
+        'valid' => true,
+        'error_code' => null,
+        'error_message' => null,
+        'details' => [
+            'domain' => $domain,
+            'server_ip' => $serverIp,
+            'resolved_ips' => $ips,
+        ],
+    ];
+}
+
+/**
+ * Quick DNS validation helper for immediate user feedback.
+ *
+ * Use this when saving a domain or checking its configuration to give the user
+ * instant feedback about whether the domain is ready for certificate issuance.
+ *
+ * @return array{ready: bool, message: string, error_code: string|null}
+ *   Returns a simple result suitable for API responses or UI display.
+ */
+function orbitraValidateDomainForSsl(string $domain): array
+{
+    $check = orbitraDnsPreflightCheck($domain);
+
+    if ($check['valid']) {
+        return [
+            'ready' => true,
+            'message' => sprintf(
+                "Domain '%s' correctly points to this server (%s). Ready for certificate issuance.",
+                $domain,
+                $check['details']['server_ip']
+            ),
+            'error_code' => null,
+        ];
+    }
+
+    return [
+        'ready' => false,
+        'message' => $check['error_message'],
+        'error_code' => $check['error_code'],
+    ];
+}
+
+/**
  * Work the certificate queue once. Safe to call from cron every few minutes.
  *
  * @return array{checked: int, issued: int, waiting: int, failed: int, synced: bool}
  */
 function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
 {
-    $result = ['checked' => 0, 'issued' => 0, 'waiting' => 0, 'failed' => 0, 'synced' => false, 'can_issue' => false];
+    $result = ['checked' => 0, 'issued' => 0, 'waiting' => 0, 'failed' => 0, 'synced' => false, 'can_issue' => false, 'cloudflare' => 0];
 
     try {
         // Every parked domain, not only the HTTPS-only ones: parking a domain is
@@ -308,9 +491,21 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
 
         $id = (int) $row['id'];
 
-        // Proxied through Cloudflare (flagged manually or detected by the
-        // integration): the edge certificate is the one visitors get.
-        if ((int) ($row['cloudflare_proxy'] ?? 0) === 1 || ($row['ssl_status'] ?? '') === 'cloudflare') {
+        // Auto-detect Cloudflare proxy if not manually set
+        $currentFlag = (int) ($row['cloudflare_proxy'] ?? 0);
+        $sslStatus = (string) ($row['ssl_status'] ?? '');
+
+        // Skip if already marked as Cloudflare (manually or previously detected)
+        if ($currentFlag === 1 || $sslStatus === 'cloudflare') {
+            continue;
+        }
+
+        // Auto-detect Cloudflare proxy to avoid Certbot failures
+        // Cloudflare-proxied domains resolve to CF IPs and can't validate through the edge
+        if (CloudDetector::isCloudflareProxied($domain)) {
+            $pdo->prepare("UPDATE domains SET cloudflare_proxy = 1, ssl_status = 'cloudflare', ssl_error = NULL WHERE id = ?")
+                ->execute([$id]);
+            $result['cloudflare']++;
             continue;
         }
 
@@ -359,15 +554,13 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
         // DNS gate. A domain that does not point here cannot validate, so asking
         // Let's Encrypt would only spend one of the five failures it allows per
         // hostname per hour.
-        $dns = orbitraDomainPointsHere($domain);
-        if (!$dns['ok']) {
-            // A code, not a sentence. This string is shown in a panel that speaks
-            // seven languages, so the wording belongs in the locale files; what
-            // the backend knows is the fact and the two addresses involved.
+        $dnsCheck = orbitraDnsPreflightCheck($domain);
+        if (!$dnsCheck['valid']) {
+            // Store structured error with code and details for UI rendering
             $detail = json_encode([
-                'code' => 'dns_mismatch',
-                'seen' => $dns['ips'],
-                'expected' => $dns['server_ip'],
+                'code' => $dnsCheck['error_code'],
+                'message' => $dnsCheck['error_message'],
+                'details' => $dnsCheck['details'],
             ], JSON_UNESCAPED_UNICODE);
             $pdo->prepare("UPDATE domains SET ssl_status = 'waiting_dns', ssl_error = ? WHERE id = ?")
                 ->execute([$detail, $id]);

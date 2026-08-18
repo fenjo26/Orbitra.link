@@ -148,6 +148,13 @@ function orbitraNginxCommonBody(string $fpmSocket): string
     $b .= "    }\n";
     $b .= "    location ~ /\\. {\n";
     $b .= "        deny all;\n";
+    $b .= "    }\n\n";
+
+    $b .= "    # Deny access to log files, environment files, and sensitive data\n";
+    $b .= "    # Must come before PHP handler to take precedence\n";
+    $b .= "    location ~* \\.(log|txt|json|env|git|bak|sql)\$ {\n";
+    $b .= "        deny all;\n";
+    $b .= "        return 404;\n";
     $b .= "    }\n";
 
     return $b;
@@ -195,11 +202,13 @@ function orbitraBuildNginxConfig(array $domains, bool $withDefaultServer = true)
 
     // HTTPS catch-all, so that https://<ip>/admin.php opens the panel behind a
     // self-signed warning instead of presenting some parked domain's certificate.
+    // Note: default_server is NOT used here to avoid collisions with other vhosts.
+    // Being the first server block in the config makes this the default for port 443.
     if (file_exists(ORBITRA_SELF_SIGNED_CERT) && file_exists(ORBITRA_SELF_SIGNED_KEY)) {
         $c .= "# HTTPS catch-all with a self-signed certificate. Let's Encrypt does not\n";
         $c .= "# issue for bare IPs, so the browser will warn — the panel still opens.\n";
         $c .= "server {\n";
-        $c .= "    listen 443 ssl{$default};\n";
+        $c .= "    listen 443 ssl;\n";
         $c .= "    server_name _;\n\n";
         $c .= "    ssl_certificate " . ORBITRA_SELF_SIGNED_CERT . ";\n";
         $c .= "    ssl_certificate_key " . ORBITRA_SELF_SIGNED_KEY . ";\n\n";

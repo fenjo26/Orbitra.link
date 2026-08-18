@@ -50,6 +50,7 @@ const Domains = ({ campaigns }) => {
     const [copiedIp, setCopiedIp] = useState(false);
     const [forceChecking, setForceChecking] = useState(false);
     const [sslRunning, setSslRunning] = useState(false);
+    const [reissuingSsl, setReissuingSsl] = useState(null); // Track which domain is being re-issued
     // What this server can actually do about certificates. Fetched once: a host
     // that cannot run external commands will never issue anything, and leaving
     // the operator to work that out from a permanent "waiting" status is the
@@ -86,6 +87,10 @@ const Domains = ({ campaigns }) => {
 
     // DNS Warning Modal State
     const [showDnsModal, setShowDnsModal] = useState(false);
+
+    // SSL Error Modal State
+    const [showSslErrorModal, setShowSslErrorModal] = useState(false);
+    const [sslErrorDomain, setSslErrorDomain] = useState(null);
 
     // Namecheap integration: when connected, "Register Domain" and
     // "Import from Namecheap" appear, and adding domains auto-parks their DNS.
@@ -211,18 +216,26 @@ const Domains = ({ campaigns }) => {
     const openImport = async (accountId) => {
         const accId = accountId ?? activeNcAccount?.id ?? null;
         setShowImport(true);
-        setNcImport({ loading: true, domains: [], selected: {}, importing: false, message: '' });
+        setNcImport({ loading: true, domains: [], selected: {}, importing: false, message: '', ipHint: '' });
         try {
             const [{ data: listRes }] = await Promise.all([cachedPost('namecheap_domains', accId ? { account_id: accId } : {})]);
             if (listRes.status !== 'success') {
-                setNcImport(s => ({ ...s, loading: false, message: listRes.message || t('common.error') }));
+                let errorMsg = listRes.message || t('common.error');
+                // Add IP whitelist hint if Namecheap returned one
+                const detectedIp = listRes.detail?.ip || '';
+                if (detectedIp) {
+                    errorMsg = t('namecheap.errConnection') + '. ' + t('namecheap.whitelistError', 'Server IP must be whitelisted').replace('{ip}', detectedIp);
+                    setNcImport(s => ({ ...s, loading: false, message: errorMsg, ipHint: detectedIp }));
+                } else {
+                    setNcImport(s => ({ ...s, loading: false, message: errorMsg }));
+                }
                 return;
             }
             const have = new Set(domains.map(d => d.name.toLowerCase()));
             const fresh = (listRes.data.domains || []).filter(d => !have.has(d));
             const selected = {};
             fresh.forEach(d => { selected[d] = true; });
-            setNcImport({ loading: false, domains: listRes.data.domains || [], selected, importing: false, message: '' });
+            setNcImport({ loading: false, domains: listRes.data.domains || [], selected, importing: false, message: '', ipHint: '' });
         } catch (e) {
             setNcImport(s => ({ ...s, loading: false, message: t('common.networkError') }));
         }
@@ -416,6 +429,28 @@ const Domains = ({ campaigns }) => {
             alert(`${t('domains.sslRunError')}: ${e.response?.data?.message || e.message}`);
         } finally {
             setSslRunning(false);
+        }
+    };
+
+    /**
+     * Re-issue SSL certificate for a specific domain.
+     * This forces a new certificate to be issued, replacing any existing one.
+     */
+    const reissueSsl = async (domainId, domainName) => {
+        if (!window.confirm(`${t('domains.reissueConfirm', 'Are you sure you want to re-issue the SSL certificate for')} ${domainName}?`)) return;
+        setReissuingSsl(domainId);
+        try {
+            const { data } = await cachedPost('reissue_ssl', { id: domainId });
+            if (data.status === 'success') {
+                alert(data.message || t('domains.sslIssued', 'SSL certificate issued successfully'));
+                fetchDomains();
+            } else {
+                alert(data.message || t('domains.sslError', 'Failed to issue SSL certificate'));
+            }
+        } catch (e) {
+            alert(`${t('domains.sslError')}: ${e.response?.data?.message || e.message}`);
+        } finally {
+            setReissuingSsl(null);
         }
     };
 
@@ -684,15 +719,36 @@ const Domains = ({ campaigns }) => {
                                         {domain.ssl_status === 'cloudflare' ? (
                                             <Cloud size={16} className="mx-auto" style={{ color: 'var(--color-primary)' }} title={t('domains.sslCloudflare', 'SSL от Cloudflare (проксированный домен)')} />
                                         ) : domain.ssl_status === 'installed' && domain.https_active === false ? (
-                                            <AlertCircle size={16} className="text-orange-500 mx-auto" title={t('domains.sslNotWired')} />
+                                            <button
+                                                onClick={() => { setSslErrorDomain(domain); setShowSslErrorModal(true); }}
+                                                className="mx-auto hover:text-orange-400 transition"
+                                                style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                                                title={t('domains.sslNotWired')}
+                                            >
+                                                <AlertCircle size={16} className="text-orange-500" />
+                                            </button>
                                         ) : domain.ssl_status === 'installed' ? (
                                             <Check size={16} className="text-green-500 mx-auto" title={t('domains.sslInstalled')} />
                                         ) : domain.ssl_status === 'installing' ? (
                                             <RefreshCw size={16} className="text-blue-500 mx-auto animate-spin" title={t('domains.sslInstalling')} />
                                         ) : domain.ssl_status === 'waiting_dns' ? (
-                                            <Clock size={16} className="text-yellow-500 mx-auto" title={describeSslError(domain.ssl_error) || t('domains.sslWaitingDns')} />
+                                            <button
+                                                onClick={() => { setSslErrorDomain(domain); setShowSslErrorModal(true); }}
+                                                className="mx-auto hover:text-yellow-400 transition"
+                                                style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                                                title={describeSslError(domain.ssl_error) || t('domains.sslWaitingDns')}
+                                            >
+                                                <Clock size={16} className="text-yellow-500" />
+                                            </button>
                                         ) : domain.ssl_status === 'failed' ? (
-                                            <AlertCircle size={16} className="text-red-500 mx-auto" title={`${t('domains.sslRetrying')}\n\n${describeSslError(domain.ssl_error)}`} />
+                                            <button
+                                                onClick={() => { setSslErrorDomain(domain); setShowSslErrorModal(true); }}
+                                                className="mx-auto hover:text-red-400 transition"
+                                                style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                                                title={`${t('domains.sslRetrying')}\n\n${describeSslError(domain.ssl_error)}`}
+                                            >
+                                                <AlertCircle size={16} className="text-red-500" />
+                                            </button>
                                         ) : domain.ssl_status === 'pending' ? (
                                             <Clock size={16} className="text-yellow-500 mx-auto" title={t('domains.sslPending')} />
                                         ) : (
@@ -702,6 +758,15 @@ const Domains = ({ campaigns }) => {
                                     <td className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>{domain.created_at}</td>
                                     <td className="text-right">
                                         <div className="flex items-center justify-end gap-2">
+                                            <button
+                                                onClick={() => reissueSsl(domain.id, domain.name)}
+                                                disabled={reissuingSsl === domain.id}
+                                                className={`hover:text-[var(--color-primary)] transition ${reissuingSsl === domain.id ? 'text-blue-500' : ''}`}
+                                                style={{ color: reissuingSsl === domain.id ? 'var(--color-primary)' : 'var(--color-text-muted)', cursor: reissuingSsl === domain.id ? 'wait' : 'pointer' }}
+                                                title={t('domains.reissueSsl', 'Re-issue SSL certificate')}
+                                            >
+                                                <RefreshCw size={16} className={reissuingSsl === domain.id ? 'animate-spin' : ''} />
+                                            </button>
                                             <button onClick={() => handleEdit(domain)} className="hover:text-[var(--color-primary)] transition" style={{ color: 'var(--color-text-muted)' }} title={t('components.edit')}>
                                                 <Edit2 size={16} />
                                             </button>
@@ -1134,7 +1199,34 @@ const Domains = ({ campaigns }) => {
                                         )}
                                     </div>
                                     {ncImport.message && (
-                                        <div className="alert alert-danger flex items-center gap-2"><AlertCircle size={16} />{ncImport.message}</div>
+                                        <div className="alert alert-danger flex items-start gap-2">
+                                            <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />
+                                            <div className="flex-1">
+                                                <div>{ncImport.message}</div>
+                                                {ncImport.ipHint && (
+                                                    <div className="mt-2 flex items-center gap-2 text-xs">
+                                                        <span style={{ color: 'var(--color-text-secondary)' }}>
+                                                            {t('namecheap.whitelistIp', 'Whitelist IP')}:
+                                                        </span>
+                                                        <code className="px-2 py-0.5 rounded font-mono" style={{ background: 'var(--color-bg-soft)', color: 'var(--color-primary)' }}>
+                                                            {ncImport.ipHint}
+                                                        </code>
+                                                        <button
+                                                            onClick={() => {
+                                                                navigator.clipboard?.writeText(ncImport.ipHint);
+                                                                setCopiedIp(true);
+                                                                setTimeout(() => setCopiedIp(false), 2000);
+                                                            }}
+                                                            className="hover:text-[var(--color-primary)] transition"
+                                                            style={{ color: 'var(--color-text-secondary)' }}
+                                                            title={t('common.copy')}
+                                                        >
+                                                            {copiedIp ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
                                     )}
                                     <div className="modal-footer">
                                         <button type="button" className="btn btn-secondary" onClick={() => setShowImport(false)}>{t('common.cancel')}</button>
@@ -1185,6 +1277,106 @@ const Domains = ({ campaigns }) => {
                         </div>
                         <div className="modal-footer">
                             <button onClick={() => setShowDnsModal(false)} className="btn btn-secondary">{t('common.close')}</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* SSL Error Modal */}
+            {showSslErrorModal && sslErrorDomain && (
+                <div className="modal-overlay">
+                    <div className="modal-content w-full max-w-lg" style={{ padding: 0 }}>
+                        <div className="modal-header">
+                            <h3 className="modal-title flex items-center gap-2">
+                                <ShieldAlert className="text-red-500" /> {t('domains.sslErrorTitle', 'SSL Certificate Error')}
+                            </h3>
+                            <button onClick={() => setShowSslErrorModal(false)} className="btn btn-ghost btn-icon">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="p-6">
+                            <div className="mb-4 pb-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
+                                <div className="text-xs uppercase tracking-wider font-semibold mb-1" style={{ color: 'var(--color-text-secondary)' }}>
+                                    {t('domains.domain', 'Domain')}
+                                </div>
+                                <div className="font-mono text-sm" style={{ color: 'var(--color-text-primary)' }}>
+                                    {sslErrorDomain.name}
+                                </div>
+                            </div>
+
+                            <div className="mb-4">
+                                <div className="text-xs uppercase tracking-wider font-semibold mb-2 flex items-center gap-2" style={{ color: 'var(--color-text-secondary)' }}>
+                                    <ShieldAlert size={14} className="text-red-500" />
+                                    {t('domains.sslStatus', 'SSL Status')}
+                                </div>
+                                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium" style={{
+                                    background: sslErrorDomain.ssl_status === 'failed'
+                                        ? 'color-mix(in srgb, #ef4444 15%, transparent)'
+                                        : sslErrorDomain.ssl_status === 'waiting_dns'
+                                            ? 'color-mix(in srgb, #eab308 15%, transparent)'
+                                            : 'color-mix(in srgb, #f97316 15%, transparent)',
+                                    color: sslErrorDomain.ssl_status === 'failed'
+                                        ? '#ef4444'
+                                        : sslErrorDomain.ssl_status === 'waiting_dns'
+                                            ? '#eab308'
+                                            : '#f97316'
+                                }}>
+                                    {sslErrorDomain.ssl_status === 'failed' && <X size={12} />}
+                                    {sslErrorDomain.ssl_status === 'waiting_dns' && <Clock size={12} />}
+                                    {sslErrorDomain.ssl_status === 'failed' ? t('domains.sslFailed', 'Failed') : sslErrorDomain.ssl_status === 'waiting_dns' ? t('domains.sslWaitingDns', 'Waiting for DNS') : t('domains.sslNotWired', 'Not Wired')}
+                                </div>
+                            </div>
+
+                            {sslErrorDomain.ssl_error && (
+                                <div>
+                                    <div className="text-xs uppercase tracking-wider font-semibold mb-2 flex items-center gap-2" style={{ color: 'var(--color-text-secondary)' }}>
+                                        <AlertCircle size={14} className="text-red-500" />
+                                        {t('domains.errorDetails', 'Error Details')}
+                                    </div>
+                                    <div className="rounded p-4 text-sm whitespace-pre-wrap font-mono" style={{
+                                        background: 'var(--color-bg-soft)',
+                                        border: '1px solid var(--color-border)',
+                                        color: 'var(--color-text-primary)'
+                                    }}>
+                                        {describeSslError(sslErrorDomain.ssl_error)}
+                                    </div>
+                                </div>
+                            )}
+
+                            {sslErrorDomain.ssl_status === 'waiting_dns' && (
+                                <div className="mt-4 p-3 rounded text-xs" style={{
+                                    background: 'color-mix(in srgb, #eab308 10%, transparent)',
+                                    border: '1px solid color-mix(in srgb, #eab308 25%, transparent)',
+                                    color: 'var(--color-text-primary)'
+                                }}>
+                                    <div className="font-medium mb-1" style={{ color: '#eab308' }}>
+                                        {t('domains.sslWaitingDns', 'Waiting for DNS')}
+                                    </div>
+                                    <div style={{ color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
+                                        {t('domains.sslWaitingDnsHint', 'The certificate will be issued automatically once DNS propagates. This usually takes 1-5 minutes, but can take up to 24 hours.')}
+                                    </div>
+                                </div>
+                            )}
+
+                            {sslErrorDomain.ssl_status === 'failed' && (
+                                <div className="mt-4 p-3 rounded text-xs" style={{
+                                    background: 'color-mix(in srgb, #ef4444 10%, transparent)',
+                                    border: '1px solid color-mix(in srgb, #ef4444 25%, transparent)',
+                                    color: 'var(--color-text-primary)'
+                                }}>
+                                    <div className="font-medium mb-1" style={{ color: '#ef4444' }}>
+                                        {t('domains.sslAutoRetry', 'Automatic Retry')}
+                                    </div>
+                                    <div style={{ color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
+                                        {t('domains.sslAutoRetryHint', 'The system will automatically retry issuing the certificate. Check back in a few minutes or click "Issue SSL" to force an immediate attempt.')}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        <div className="modal-footer">
+                            <button onClick={() => setShowSslErrorModal(false)} className="btn btn-secondary">
+                                {t('common.close', 'Close')}
+                            </button>
                         </div>
                     </div>
                 </div>
