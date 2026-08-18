@@ -1,4 +1,4 @@
-# Orbitra v1.0.6 Tracker
+# Orbitra v1.0.7 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -422,14 +422,15 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.0.6 (2026-08-18)
-- ☁️ **Cloudflare & Namecheap multi-account** (migrations 31–32) — several registrar/DNS accounts side by side: the legacy token becomes account #1, domains pick their Cloudflare account (`dns_account_id`), Integrations manages accounts with live Namecheap balance checks
-- 🔐 **OAuth preflight everywhere** — TikTok and Google Ads join Facebook's `<engine>_oauth_status`: no configured app → disabled 1-Click with an amber card; direct token connection is the default mode
-- 🛡️ **Delete guard** — deleting a landing/offer still used by an active campaign is refused with the campaign list; the refusal is localized in the UI instead of a silent failure
-- 🔒 **Upload hardening** — local offer archives pass a tiered PHP scan (namespaced-call hole closed) and land via stage-then-swap with realpath containment; the order.php bridge route got the same containment check
-- ⏱️ **Sub-hour cost sync**, 🎨 custom-theme contrast pick, 📋 in-modal copy feedback for API keys (the old toast rendered behind the modal overlay)
+### Current release — v1.0.7 (2026-08-18)
+- 🗂️ **Modern Integrations Card Hub** — Complete UI overhaul of the Integrations page (`IntegrationsPage.jsx`) into a dual-mode Grid/Card Hub. Replaces the cramped nested sidebar with a spacious responsive catalog featuring 25 categorized services across `Ads & Costs`, `Domains & SSL`, `Tracking & Sites`, and `Tools & API`
+- ⚡ **Real-Time Live Status & Metrics** — Dynamic pulsing status pills display live connected account counts, real-time Namecheap balances, Cloudflare zone counts, and API tokens with parallel prefetching on page load
+- 🖥️ **100% Full-Width Detail Configuration View** — Dedicated configuration view for selected integrations without sidebar compression, with breadcrumbs and `← Back to all integrations` navigation
+- 💻 **In-Browser IDE & File Manager for Local Offers** — `OfferEditor.jsx` now provides a full in-browser IDE for direct local offers (`is_local=1`): interactive file tree with syntax icons, Monaco-style editor for HTML/CSS/JS/PHP/JSON, Find & Replace, beautification, live multi-device preview (desktop/mobile iframe), asset preview, file upload/replace/delete, and ZIP extraction
+- 🛡️ **Secure Backend File Operations API** — Endpoints in `api.php` (`offer_files`, `offer_file_content`, `save_offer_file`, `offer_file_op`, `upload_offer_file`) equipped with tiered PHP security scanning, strict `realpath` containment to prevent path traversal, and automated test coverage (`tests/offer_file_ops_test.php`)
+- 🌐 **Full 7-Locale Parity** — All hub titles, filters, actions, and status texts localized across English, Russian, German, Spanish, French, Ukrainian, and Chinese
 
-Previous release — v1.0.5: Safe Page white pages (grouped selects, single-select search picker, Local Offer safe destination via the public `/offers/<id>/` route); direct local offer "URL not found." fix; allow_php_landings upgrade seed.
+Previous release — v1.0.6: Cloudflare & Namecheap multi-account (migrations 31–32); OAuth preflight for TikTok and Google Ads; delete guard for active landings/offers; local offer upload hardening and sub-hour cost sync.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

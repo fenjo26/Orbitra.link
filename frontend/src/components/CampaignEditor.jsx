@@ -2523,8 +2523,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                     }}
                                                 >
                                                     <optgroup label={t('tracking.groupSite', 'Sites')}>
-                                                        <option value="kclient_js">KClient JS</option>
-                                                        <option value="kclient_php">KClient PHP</option>
+                                                        <option value="kclient_js">Tracking Client (JS)</option>
+                                                        <option value="kclient_php">Tracking Client (PHP)</option>
                                                         <option value="tracking_script">{t('tracking.trackingScript', 'Tracking Script')}</option>
                                                     </optgroup>
                                                     <optgroup label={t('tracking.groupBanners', 'Banner blocks')}>

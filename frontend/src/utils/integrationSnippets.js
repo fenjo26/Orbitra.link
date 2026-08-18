@@ -110,7 +110,7 @@ export function obfuscateBase64(code) {
 // ————————————————————————————————————————————————————————————————
 
 function kclientJs({ trackerUrl, campaign }, opts = {}) {
-    let code = `<!-- Orbitra KClient JS — в <head> сайта на стороннем хосте -->\n<script>\n  var orbitra_db_url = '${trackerUrl}';\n  var orbitra_campaign_token = '${campaign.token}';\n</script>\n<script src="${trackerUrl}/kclient.js"></script>\n<noscript><img src="${trackerUrl}/pixel.gif?token=${campaign.token}" alt="" /></noscript>`;
+    let code = `<!-- Orbitra Tracking Client JS — в <head> сайта на стороннем хосте -->\n<script>\n  var orbitra_db_url = '${trackerUrl}';\n  var orbitra_campaign_token = '${campaign.token}';\n</script>\n<script src="${trackerUrl}/kclient.js"></script>\n<noscript><img src="${trackerUrl}/pixel.gif?token=${campaign.token}" alt="" /></noscript>`;
     if (opts.base64) {
         code = obfuscateBase64(code.replace(/<!--.*?-->\n?/gs, ''));
     }

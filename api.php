@@ -813,11 +813,30 @@ function orbitraNamecheapGlobals(PDO $pdo): array
         if ($out['server_ip'] === '') {
             $out['server_ip'] = $cfIp;
         }
+
+        // Автоопределение внешнего IP из заголовков запроса, когда ни
+        // nc_server_ip, ни cf_server_ip ещё не сохранены (чистая установка).
+        if ($out['server_ip'] === '') {
+            $host = parse_url('http://' . ($_SERVER['HTTP_HOST'] ?? ''), PHP_URL_HOST) ?? '';
+            $serverAddr = (string) ($_SERVER['SERVER_ADDR'] ?? '');
+
+            if (filter_var($host, FILTER_VALIDATE_IP)) {
+                $out['server_ip'] = $host;
+            } elseif (filter_var($serverAddr, FILTER_VALIDATE_IP)) {
+                $out['server_ip'] = $serverAddr;
+            } elseif ($host !== '') {
+                $out['server_ip'] = $host;
+            }
+        }
+
         // ClientIP должен совпадать с исходящим адресом сервера: реальный адрес
         // Namecheap сам называет в whitelist-ошибке — ему и верим.
         $out['client_ip'] = $detected !== '' ? $detected : $cfIp;
         if ($out['client_ip'] === '') {
             $out['client_ip'] = (string) ($_SERVER['SERVER_ADDR'] ?? '');
+        }
+        if ($out['client_ip'] === '') {
+            $out['client_ip'] = $out['server_ip'];
         }
         $out['detected_ip'] = $detected;
     } catch (\Throwable $e) {
@@ -1392,6 +1411,69 @@ function orbitraLandingEditableExtensions(): array
     return ['html', 'htm', 'css', 'js', 'mjs', 'json', 'txt', 'md', 'xml', 'svg',
             'jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'ico', 'bmp',
             'woff', 'woff2', 'ttf', 'otf', 'eot', 'mp4', 'webm', 'mp3', 'ogg', 'wav'];
+}
+
+/**
+ * Validates and resolves a path relative to an offer's folder (offers/<id>/).
+ *
+ * @param bool $mustExist false when creating, where only the parent can be resolved
+ * @return string|null absolute path, guaranteed to sit inside offers/<id>/
+ */
+function orbitraOfferFilePath($id, $relPath, bool $mustExist = true): ?string
+{
+    $id = (int) $id;
+    if ($id <= 0) {
+        return null;
+    }
+    $resolved = __DIR__ . '/offers/' . $id;
+    if (!is_dir($resolved) && !$mustExist) {
+        @mkdir($resolved, 0775, true);
+    }
+    $root = realpath($resolved);
+    if ($root === false) {
+        return null;
+    }
+
+    $segments = [];
+    foreach (explode('/', str_replace('\\', '/', (string) $relPath)) as $segment) {
+        if ($segment === '' || $segment === '.') {
+            continue;
+        }
+        if ($segment === '..') {
+            return null; // no climbing out, at any depth
+        }
+        $segments[] = $segment;
+    }
+    if (!$segments) {
+        return null;
+    }
+    $target = $root . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $segments);
+
+    $real = realpath($target);
+    if ($real === false) {
+        return $mustExist ? null : $target;
+    }
+    return ($real === $root || strpos($real, $root . DIRECTORY_SEPARATOR) === 0) ? $real : null;
+}
+
+/** Extensions the offer editor may write. Allows PHP when enabled in tracker settings. */
+function orbitraOfferEditableExtensions(): array
+{
+    global $pdo;
+    $list = [
+        'html', 'htm', 'css', 'js', 'mjs', 'json', 'txt', 'md', 'xml', 'svg',
+        'jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'ico', 'bmp',
+        'woff', 'woff2', 'ttf', 'otf', 'eot', 'mp4', 'webm', 'mp3', 'ogg', 'wav'
+    ];
+    if ($pdo instanceof PDO) {
+        require_once __DIR__ . '/core/PhpLanding.php';
+        if (PhpLanding::enabled($pdo)) {
+            $list[] = 'php';
+        }
+    } else {
+        $list[] = 'php';
+    }
+    return $list;
 }
 
 /**
@@ -4601,41 +4683,274 @@ try {
             }
             break;
 
-        // Delete one file inside a local offer's folder. Containment via realpath
-        // against offers/<id>/ — the same guarantee landing file ops give.
-        case 'offer_file_op':
+        case 'offer_file_content':
+        case 'get_offer_file':
+            $id = (int) ($_GET['id'] ?? 0);
+            $path = (string) ($_GET['path'] ?? '');
+            if ($id > 0 && $path !== '') {
+                $file = orbitraOfferFilePath($id, $path);
+                if ($file === null) {
+                    echo json_encode(['status' => 'error', 'message' => 'Access denied']);
+                    break;
+                }
+                if (file_exists($file) && is_file($file)) {
+                    $content = file_get_contents($file);
+                    echo json_encode(['status' => 'success', 'data' => $content]);
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'File not found']);
+                }
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Missing ID or path']);
+            }
+            break;
+
+        case 'offer_save_file':
+        case 'save_offer_file':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);
                 $id = (int) ($data['id'] ?? 0);
                 $path = (string) ($data['path'] ?? '');
-                $op = (string) ($data['op'] ?? 'delete');
-                if ($id <= 0 || $path === '' || $op !== 'delete') {
-                    echo json_encode(['status' => 'error', 'message' => 'Missing ID, path or unsupported op']);
-                    break;
-                }
-                $root = realpath(__DIR__ . '/offers/' . $id);
-                if ($root === false) {
-                    echo json_encode(['status' => 'error', 'message' => 'Offer folder not found']);
-                    break;
-                }
-                $file = realpath($root . '/' . ltrim($path, '/'));
-                if ($file === false || !is_file($file) || strpos($file, $root . DIRECTORY_SEPARATOR) !== 0) {
-                    echo json_encode(['status' => 'error', 'message' => 'Access denied']);
-                    break;
-                }
-                $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-                if (!in_array($ext, ['html', 'css', 'js', 'json', 'txt', 'md', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'ico', 'woff', 'woff2', 'ttf', 'otf', 'eot', 'mp4', 'webm', 'mp3', 'pdf'], true)) {
-                    echo json_encode(['status' => 'error', 'message' => 'File type not allowed']);
-                    break;
-                }
-                if (@unlink($file)) {
-                    echo json_encode(['status' => 'success']);
+                $content = (string) ($data['content'] ?? '');
+
+                if ($id > 0 && $path !== '') {
+                    $file = orbitraOfferFilePath($id, $path);
+                    if ($file === null) {
+                        echo json_encode(['status' => 'error', 'message' => 'Access denied']);
+                        break;
+                    }
+                    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                    if (!in_array($ext, orbitraOfferEditableExtensions(), true)) {
+                        echo json_encode(['status' => 'error', 'message' => 'This file type cannot be edited: .' . $ext]);
+                        break;
+                    }
+
+                    if (file_exists($file) && is_file($file)) {
+                        file_put_contents($file, $content);
+                        echo json_encode(['status' => 'success']);
+                    } else {
+                        echo json_encode(['status' => 'error', 'message' => 'File not found']);
+                    }
                 } else {
-                    echo json_encode(['status' => 'error', 'message' => 'Delete failed']);
+                    echo json_encode(['status' => 'error', 'message' => 'Missing ID or path']);
                 }
             } else {
                 echo json_encode(['status' => 'error', 'message' => 'POST required']);
             }
+            break;
+
+        case 'offer_create_file':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $data = json_decode(orbitraRequestBody(), true);
+                $id = (int) ($data['id'] ?? 0);
+                $path = (string) ($data['path'] ?? '');
+                $content = (string) ($data['content'] ?? '');
+                if ($id <= 0 || $path === '') {
+                    echo json_encode(['status' => 'error', 'message' => 'Missing ID or path']);
+                    break;
+                }
+                $target = orbitraOfferFilePath($id, $path, false);
+                if ($target === null) {
+                    echo json_encode(['status' => 'error', 'message' => 'Access denied']);
+                    break;
+                }
+                $ext = strtolower(pathinfo($target, PATHINFO_EXTENSION));
+                if (!in_array($ext, orbitraOfferEditableExtensions(), true)) {
+                    echo json_encode(['status' => 'error', 'message' => 'This file type is not allowed: .' . $ext]);
+                    break;
+                }
+                if (file_exists($target)) {
+                    echo json_encode(['status' => 'error', 'message' => 'A file with that name already exists']);
+                    break;
+                }
+                @mkdir(dirname($target), 0775, true);
+                file_put_contents($target, $content);
+                echo json_encode(['status' => 'success']);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+            }
+            break;
+
+        case 'offer_delete_file':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $data = json_decode(orbitraRequestBody(), true);
+                $id = (int) ($data['id'] ?? 0);
+                $path = (string) ($data['path'] ?? '');
+                if ($id <= 0 || $path === '') {
+                    echo json_encode(['status' => 'error', 'message' => 'Missing ID or path']);
+                    break;
+                }
+                $target = orbitraOfferFilePath($id, $path);
+                if ($target === null || !is_file($target)) {
+                    echo json_encode(['status' => 'error', 'message' => 'File not found']);
+                    break;
+                }
+                echo json_encode(@unlink($target)
+                    ? ['status' => 'success']
+                    : ['status' => 'error', 'message' => 'Could not delete the file (check permissions)']);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+            }
+            break;
+
+        case 'offer_rename_file':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $data = json_decode(orbitraRequestBody(), true);
+                $id = (int) ($data['id'] ?? 0);
+                $path = (string) ($data['path'] ?? '');
+                $to = (string) ($data['to'] ?? '');
+                if ($id <= 0 || $path === '' || $to === '') {
+                    echo json_encode(['status' => 'error', 'message' => 'Missing ID, path or new name']);
+                    break;
+                }
+                $from = orbitraOfferFilePath($id, $path);
+                $toTarget = orbitraOfferFilePath($id, $to, false);
+                if ($from === null || !is_file($from)) {
+                    echo json_encode(['status' => 'error', 'message' => 'File not found']);
+                    break;
+                }
+                if ($toTarget === null) {
+                    echo json_encode(['status' => 'error', 'message' => 'Access denied']);
+                    break;
+                }
+                $ext = strtolower(pathinfo($toTarget, PATHINFO_EXTENSION));
+                if (!in_array($ext, orbitraOfferEditableExtensions(), true)) {
+                    echo json_encode(['status' => 'error', 'message' => 'This file type is not allowed: .' . $ext]);
+                    break;
+                }
+                if (file_exists($toTarget)) {
+                    echo json_encode(['status' => 'error', 'message' => 'A file with that name already exists']);
+                    break;
+                }
+                @mkdir(dirname($toTarget), 0775, true);
+                echo json_encode(@rename($from, $toTarget)
+                    ? ['status' => 'success']
+                    : ['status' => 'error', 'message' => 'Could not move the file (check permissions)']);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+            }
+            break;
+
+        // Create, delete, rename, move inside an offer's folder (mirrors landing_file_op)
+        case 'offer_file_op':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            $data = json_decode(orbitraRequestBody(), true);
+            if (!is_array($data)) {
+                $data = [];
+            }
+            $op = (string) ($data['op'] ?? '');
+            $offerId = (int) ($data['id'] ?? 0);
+            if ($offerId <= 0) {
+                echo json_encode(['status' => 'error', 'message' => 'Missing offer id']);
+                break;
+            }
+            $offerRoot = __DIR__ . '/offers/' . $offerId;
+            if (!is_dir($offerRoot)) {
+                @mkdir($offerRoot, 0775, true);
+            }
+
+            $checkWritable = function ($path) {
+                $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                return in_array($ext, orbitraOfferEditableExtensions(), true) ? '' : $ext;
+            };
+
+            if ($op === 'create') {
+                $target = orbitraOfferFilePath($offerId, $data['path'] ?? '', false);
+                if ($target === null) {
+                    echo json_encode(['status' => 'error', 'message' => 'Access denied']);
+                    break;
+                }
+                if (($bad = $checkWritable($target)) !== '') {
+                    echo json_encode(['status' => 'error', 'message' => 'This file type is not allowed: .' . $bad]);
+                    break;
+                }
+                if (file_exists($target)) {
+                    echo json_encode(['status' => 'error', 'message' => 'A file with that name already exists']);
+                    break;
+                }
+                @mkdir(dirname($target), 0775, true);
+                file_put_contents($target, (string) ($data['content'] ?? ''));
+                echo json_encode(['status' => 'success']);
+                break;
+            }
+
+            if ($op === 'delete') {
+                $target = orbitraOfferFilePath($offerId, $data['path'] ?? '');
+                if ($target === null || !is_file($target)) {
+                    echo json_encode(['status' => 'error', 'message' => 'File not found']);
+                    break;
+                }
+                echo json_encode(@unlink($target)
+                    ? ['status' => 'success']
+                    : ['status' => 'error', 'message' => 'Could not delete the file (check permissions)']);
+                break;
+            }
+
+            if ($op === 'rename' || $op === 'move') {
+                $from = orbitraOfferFilePath($offerId, $data['path'] ?? '');
+                $to = orbitraOfferFilePath($offerId, $data['to'] ?? '', false);
+                if ($from === null || !is_file($from)) {
+                    echo json_encode(['status' => 'error', 'message' => 'File not found']);
+                    break;
+                }
+                if ($to === null) {
+                    echo json_encode(['status' => 'error', 'message' => 'Access denied']);
+                    break;
+                }
+                if (($bad = $checkWritable($to)) !== '') {
+                    echo json_encode(['status' => 'error', 'message' => 'This file type is not allowed: .' . $bad]);
+                    break;
+                }
+                if (file_exists($to)) {
+                    echo json_encode(['status' => 'error', 'message' => 'A file with that name already exists']);
+                    break;
+                }
+                @mkdir(dirname($to), 0775, true);
+                echo json_encode(@rename($from, $to)
+                    ? ['status' => 'success']
+                    : ['status' => 'error', 'message' => 'Could not move the file (check permissions)']);
+                break;
+            }
+
+            echo json_encode(['status' => 'error', 'message' => 'Unknown operation: ' . $op]);
+            break;
+
+        case 'upload_offer_file':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            $offerId = (int) ($_POST['id'] ?? 0);
+            $destDir = trim((string) ($_POST['dir'] ?? ''), '/');
+            if ($offerId <= 0 || !isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
+                echo json_encode(['status' => 'error', 'message' => 'Missing offer id or file']);
+                break;
+            }
+            if ($_FILES['file']['size'] > 50 * 1024 * 1024) {
+                echo json_encode(['status' => 'error', 'message' => 'File too large (max 50MB)']);
+                break;
+            }
+            $safeName = basename(str_replace('\\', '/', (string) $_FILES['file']['name']));
+            $replacementPath = trim((string) ($_POST['path'] ?? ''), '/');
+            $relative = $replacementPath !== ''
+                ? $replacementPath
+                : (($destDir !== '' ? $destDir . '/' : '') . $safeName);
+            $target = orbitraOfferFilePath($offerId, $relative, false);
+            if ($target === null) {
+                echo json_encode(['status' => 'error', 'message' => 'Access denied']);
+                break;
+            }
+            $uploadExt = strtolower(pathinfo($target, PATHINFO_EXTENSION));
+            if (!in_array($uploadExt, orbitraOfferEditableExtensions(), true)) {
+                echo json_encode(['status' => 'error', 'message' => 'This file type is not allowed: .' . $uploadExt]);
+                break;
+            }
+            @mkdir(dirname($target), 0775, true);
+            echo json_encode(move_uploaded_file($_FILES['file']['tmp_name'], $target)
+                ? ['status' => 'success', 'data' => ['path' => $relative]]
+                : ['status' => 'error', 'message' => 'Could not store the file (check permissions)']);
             break;
 
         case 'landing_files':

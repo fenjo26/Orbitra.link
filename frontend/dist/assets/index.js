@@ -15111,7 +15111,7 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$28 = [
+const __iconNode$29 = [
   [
     "path",
     {
@@ -15120,31 +15120,31 @@ const __iconNode$28 = [
     }
   ]
 ];
-const Activity = createLucideIcon("activity", __iconNode$28);
-const __iconNode$27 = [
+const Activity = createLucideIcon("activity", __iconNode$29);
+const __iconNode$28 = [
   ["rect", { width: "20", height: "5", x: "2", y: "3", rx: "1", key: "1wp1u1" }],
   ["path", { d: "M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8", key: "1s80jp" }],
   ["path", { d: "M10 12h4", key: "a56b0p" }]
 ];
-const Archive = createLucideIcon("archive", __iconNode$27);
-const __iconNode$26 = [
+const Archive = createLucideIcon("archive", __iconNode$28);
+const __iconNode$27 = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$26);
-const __iconNode$25 = [
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$27);
+const __iconNode$26 = [
   ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
   ["path", { d: "M20 7H4", key: "zbl0bi" }],
   ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
   ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$25);
-const __iconNode$24 = [
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$26);
+const __iconNode$25 = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$24);
-const __iconNode$23 = [
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$25);
+const __iconNode$24 = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15156,8 +15156,8 @@ const __iconNode$23 = [
   ["path", { d: "m2 2 20 20", key: "1ooewy" }],
   ["path", { d: "M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05", key: "1hqiys" }]
 ];
-const BellOff = createLucideIcon("bell-off", __iconNode$23);
-const __iconNode$22 = [
+const BellOff = createLucideIcon("bell-off", __iconNode$24);
+const __iconNode$23 = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15167,28 +15167,28 @@ const __iconNode$22 = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$22);
-const __iconNode$21 = [
+const Bell = createLucideIcon("bell", __iconNode$23);
+const __iconNode$22 = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const Calendar$1 = createLucideIcon("calendar", __iconNode$21);
-const __iconNode$20 = [
+const Calendar$1 = createLucideIcon("calendar", __iconNode$22);
+const __iconNode$21 = [
   ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
   ["path", { d: "M18 17V9", key: "2bz60n" }],
   ["path", { d: "M13 17V5", key: "1frdt8" }],
   ["path", { d: "M8 17v-3", key: "17ska0" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$20);
-const __iconNode$1$ = [
+const ChartColumn = createLucideIcon("chart-column", __iconNode$21);
+const __iconNode$20 = [
   ["path", { d: "M5 21v-6", key: "1hz6c0" }],
   ["path", { d: "M12 21V3", key: "1lcnhd" }],
   ["path", { d: "M19 21V9", key: "unv183" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$1$);
-const __iconNode$1_ = [
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$20);
+const __iconNode$1$ = [
   [
     "path",
     {
@@ -15198,39 +15198,39 @@ const __iconNode$1_ = [
   ],
   ["path", { d: "M21.21 15.89A10 10 0 1 1 8 2.83", key: "k2fpak" }]
 ];
-const ChartPie = createLucideIcon("chart-pie", __iconNode$1_);
-const __iconNode$1Z = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$1Z);
-const __iconNode$1Y = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$1Y);
-const __iconNode$1X = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1X);
-const __iconNode$1W = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$1W);
-const __iconNode$1V = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$1V);
-const __iconNode$1U = [
+const ChartPie = createLucideIcon("chart-pie", __iconNode$1$);
+const __iconNode$1_ = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$1_);
+const __iconNode$1Z = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$1Z);
+const __iconNode$1Y = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1Y);
+const __iconNode$1X = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$1X);
+const __iconNode$1W = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$1W);
+const __iconNode$1V = [
   ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
   ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
 ];
-const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1U);
-const __iconNode$1T = [
+const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1V);
+const __iconNode$1U = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$1T);
-const __iconNode$1S = [
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$1U);
+const __iconNode$1T = [
   ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1S);
-const __iconNode$1R = [
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1T);
+const __iconNode$1S = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$1R);
-const __iconNode$1Q = [
+const CircleCheck = createLucideIcon("circle-check", __iconNode$1S);
+const __iconNode$1R = [
   [
     "path",
     {
@@ -15240,50 +15240,50 @@ const __iconNode$1Q = [
   ],
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
 ];
-const CirclePlay = createLucideIcon("circle-play", __iconNode$1Q);
-const __iconNode$1P = [
+const CirclePlay = createLucideIcon("circle-play", __iconNode$1R);
+const __iconNode$1Q = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1P);
-const __iconNode$1O = [
+const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1Q);
+const __iconNode$1P = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   ["path", { d: "m9 9 6 6", key: "z0biqf" }]
 ];
-const CircleX = createLucideIcon("circle-x", __iconNode$1O);
-const __iconNode$1N = [
+const CircleX = createLucideIcon("circle-x", __iconNode$1P);
+const __iconNode$1O = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 6v6l4 2", key: "mmk7yg" }]
 ];
-const Clock = createLucideIcon("clock", __iconNode$1N);
-const __iconNode$1M = [
+const Clock = createLucideIcon("clock", __iconNode$1O);
+const __iconNode$1N = [
   ["path", { d: "M12 13v8", key: "1l5pq0" }],
   ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
   ["path", { d: "m8 17 4-4 4 4", key: "1quai1" }]
 ];
-const CloudUpload = createLucideIcon("cloud-upload", __iconNode$1M);
-const __iconNode$1L = [
+const CloudUpload = createLucideIcon("cloud-upload", __iconNode$1N);
+const __iconNode$1M = [
   ["path", { d: "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z", key: "p7xjir" }]
 ];
-const Cloud = createLucideIcon("cloud", __iconNode$1L);
-const __iconNode$1K = [
+const Cloud = createLucideIcon("cloud", __iconNode$1M);
+const __iconNode$1L = [
   ["path", { d: "m16 18 6-6-6-6", key: "eg8j8" }],
   ["path", { d: "m8 6-6 6 6 6", key: "ppft3o" }]
 ];
-const Code = createLucideIcon("code", __iconNode$1K);
-const __iconNode$1J = [
+const Code = createLucideIcon("code", __iconNode$1L);
+const __iconNode$1K = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M12 3v18", key: "108xh3" }]
 ];
-const Columns2 = createLucideIcon("columns-2", __iconNode$1J);
-const __iconNode$1I = [
+const Columns2 = createLucideIcon("columns-2", __iconNode$1K);
+const __iconNode$1J = [
   ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
   ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-const Copy = createLucideIcon("copy", __iconNode$1I);
-const __iconNode$1H = [
+const Copy = createLucideIcon("copy", __iconNode$1J);
+const __iconNode$1I = [
   ["path", { d: "M12 20v2", key: "1lh1kg" }],
   ["path", { d: "M12 2v2", key: "tus03m" }],
   ["path", { d: "M17 20v2", key: "1rnc9c" }],
@@ -15299,33 +15299,33 @@ const __iconNode$1H = [
   ["rect", { x: "4", y: "4", width: "16", height: "16", rx: "2", key: "1vbyd7" }],
   ["rect", { x: "8", y: "8", width: "8", height: "8", rx: "1", key: "z9xiuo" }]
 ];
-const Cpu = createLucideIcon("cpu", __iconNode$1H);
-const __iconNode$1G = [
+const Cpu = createLucideIcon("cpu", __iconNode$1I);
+const __iconNode$1H = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "22", x2: "18", y1: "12", y2: "12", key: "l9bcsi" }],
   ["line", { x1: "6", x2: "2", y1: "12", y2: "12", key: "13hhkx" }],
   ["line", { x1: "12", x2: "12", y1: "6", y2: "2", key: "10w3f3" }],
   ["line", { x1: "12", x2: "12", y1: "22", y2: "18", key: "15g9kq" }]
 ];
-const Crosshair = createLucideIcon("crosshair", __iconNode$1G);
-const __iconNode$1F = [
+const Crosshair = createLucideIcon("crosshair", __iconNode$1H);
+const __iconNode$1G = [
   ["ellipse", { cx: "12", cy: "5", rx: "9", ry: "3", key: "msslwz" }],
   ["path", { d: "M3 5V19A9 3 0 0 0 21 19V5", key: "1wlel7" }],
   ["path", { d: "M3 12A9 3 0 0 0 21 12", key: "mv7ke4" }]
 ];
-const Database = createLucideIcon("database", __iconNode$1F);
-const __iconNode$1E = [
+const Database = createLucideIcon("database", __iconNode$1G);
+const __iconNode$1F = [
   ["line", { x1: "12", x2: "12", y1: "2", y2: "22", key: "7eqyqh" }],
   ["path", { d: "M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", key: "1b0p4s" }]
 ];
-const DollarSign = createLucideIcon("dollar-sign", __iconNode$1E);
-const __iconNode$1D = [
+const DollarSign = createLucideIcon("dollar-sign", __iconNode$1F);
+const __iconNode$1E = [
   ["path", { d: "M12 15V3", key: "m9g1x1" }],
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["path", { d: "m7 10 5 5 5-5", key: "brsn70" }]
 ];
-const Download = createLucideIcon("download", __iconNode$1D);
-const __iconNode$1C = [
+const Download = createLucideIcon("download", __iconNode$1E);
+const __iconNode$1D = [
   [
     "path",
     {
@@ -15334,20 +15334,20 @@ const __iconNode$1C = [
     }
   ]
 ];
-const Droplet = createLucideIcon("droplet", __iconNode$1C);
-const __iconNode$1B = [
+const Droplet = createLucideIcon("droplet", __iconNode$1D);
+const __iconNode$1C = [
   ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
   ["circle", { cx: "12", cy: "5", r: "1", key: "gxeob9" }],
   ["circle", { cx: "12", cy: "19", r: "1", key: "lyex9k" }]
 ];
-const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1B);
-const __iconNode$1A = [
+const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1C);
+const __iconNode$1B = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "M10 14 21 3", key: "gplh6r" }],
   ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
 ];
-const ExternalLink = createLucideIcon("external-link", __iconNode$1A);
-const __iconNode$1z = [
+const ExternalLink = createLucideIcon("external-link", __iconNode$1B);
+const __iconNode$1A = [
   [
     "path",
     {
@@ -15365,8 +15365,8 @@ const __iconNode$1z = [
   ],
   ["path", { d: "m2 2 20 20", key: "1ooewy" }]
 ];
-const EyeOff = createLucideIcon("eye-off", __iconNode$1z);
-const __iconNode$1y = [
+const EyeOff = createLucideIcon("eye-off", __iconNode$1A);
+const __iconNode$1z = [
   [
     "path",
     {
@@ -15376,8 +15376,8 @@ const __iconNode$1y = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Eye = createLucideIcon("eye", __iconNode$1y);
-const __iconNode$1x = [
+const Eye = createLucideIcon("eye", __iconNode$1z);
+const __iconNode$1y = [
   [
     "path",
     {
@@ -15391,8 +15391,8 @@ const __iconNode$1x = [
   ["path", { d: "M8 7V6", key: "1nbb54" }],
   ["circle", { cx: "8", cy: "20", r: "2", key: "ckkr5m" }]
 ];
-const FileArchive = createLucideIcon("file-archive", __iconNode$1x);
-const __iconNode$1w = [
+const FileArchive = createLucideIcon("file-archive", __iconNode$1y);
+const __iconNode$1x = [
   [
     "path",
     {
@@ -15404,8 +15404,8 @@ const __iconNode$1w = [
   ["path", { d: "M10 12.5 8 15l2 2.5", key: "1tg20x" }],
   ["path", { d: "m14 12.5 2 2.5-2 2.5", key: "yinavb" }]
 ];
-const FileCode = createLucideIcon("file-code", __iconNode$1w);
-const __iconNode$1v = [
+const FileCode = createLucideIcon("file-code", __iconNode$1x);
+const __iconNode$1w = [
   [
     "path",
     {
@@ -15417,8 +15417,8 @@ const __iconNode$1v = [
   ["circle", { cx: "11.5", cy: "14.5", r: "2.5", key: "1bq0ko" }],
   ["path", { d: "M13.3 16.3 15 18", key: "2quom7" }]
 ];
-const FileSearch = createLucideIcon("file-search", __iconNode$1v);
-const __iconNode$1u = [
+const FileSearch = createLucideIcon("file-search", __iconNode$1w);
+const __iconNode$1v = [
   ["path", { d: "M11 21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1", key: "likhh7" }],
   ["path", { d: "M16 16a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1", key: "17ky3x" }],
   [
@@ -15429,8 +15429,8 @@ const __iconNode$1u = [
     }
   ]
 ];
-const FileStack = createLucideIcon("file-stack", __iconNode$1u);
-const __iconNode$1t = [
+const FileStack = createLucideIcon("file-stack", __iconNode$1v);
+const __iconNode$1u = [
   [
     "path",
     {
@@ -15443,8 +15443,8 @@ const __iconNode$1t = [
   ["path", { d: "M16 13H8", key: "t4e002" }],
   ["path", { d: "M16 17H8", key: "z1uh3a" }]
 ];
-const FileText = createLucideIcon("file-text", __iconNode$1t);
-const __iconNode$1s = [
+const FileText = createLucideIcon("file-text", __iconNode$1u);
+const __iconNode$1t = [
   [
     "path",
     {
@@ -15453,22 +15453,22 @@ const __iconNode$1s = [
     }
   ]
 ];
-const Funnel = createLucideIcon("funnel", __iconNode$1s);
-const __iconNode$1r = [
+const Funnel = createLucideIcon("funnel", __iconNode$1t);
+const __iconNode$1s = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20", key: "13o1zl" }],
   ["path", { d: "M2 12h20", key: "9i4pu4" }]
 ];
-const Globe = createLucideIcon("globe", __iconNode$1r);
-const __iconNode$1q = [
+const Globe = createLucideIcon("globe", __iconNode$1s);
+const __iconNode$1r = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M3 9h18", key: "1pudct" }],
   ["path", { d: "M3 15h18", key: "5xshup" }],
   ["path", { d: "M9 3v18", key: "fh3hqa" }],
   ["path", { d: "M15 3v18", key: "14nvp0" }]
 ];
-const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$1q);
-const __iconNode$1p = [
+const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$1r);
+const __iconNode$1q = [
   ["circle", { cx: "9", cy: "12", r: "1", key: "1vctgf" }],
   ["circle", { cx: "9", cy: "5", r: "1", key: "hp0tcf" }],
   ["circle", { cx: "9", cy: "19", r: "1", key: "fkjjf6" }],
@@ -15476,8 +15476,8 @@ const __iconNode$1p = [
   ["circle", { cx: "15", cy: "5", r: "1", key: "19l28e" }],
   ["circle", { cx: "15", cy: "19", r: "1", key: "f4zoj3" }]
 ];
-const GripVertical = createLucideIcon("grip-vertical", __iconNode$1p);
-const __iconNode$1o = [
+const GripVertical = createLucideIcon("grip-vertical", __iconNode$1q);
+const __iconNode$1p = [
   ["path", { d: "M10 16h.01", key: "1bzywj" }],
   [
     "path",
@@ -15489,8 +15489,8 @@ const __iconNode$1o = [
   ["path", { d: "M21.946 12.013H2.054", key: "zqlbp7" }],
   ["path", { d: "M6 16h.01", key: "1pmjb7" }]
 ];
-const HardDrive = createLucideIcon("hard-drive", __iconNode$1o);
-const __iconNode$1n = [
+const HardDrive = createLucideIcon("hard-drive", __iconNode$1p);
+const __iconNode$1o = [
   [
     "path",
     {
@@ -15499,20 +15499,20 @@ const __iconNode$1n = [
     }
   ]
 ];
-const Heart = createLucideIcon("heart", __iconNode$1n);
-const __iconNode$1m = [
+const Heart = createLucideIcon("heart", __iconNode$1o);
+const __iconNode$1n = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
   ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
   ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
 ];
-const Image = createLucideIcon("image", __iconNode$1m);
-const __iconNode$1l = [
+const Image = createLucideIcon("image", __iconNode$1n);
+const __iconNode$1m = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
 ];
-const Info = createLucideIcon("info", __iconNode$1l);
-const __iconNode$1k = [
+const Info = createLucideIcon("info", __iconNode$1m);
+const __iconNode$1l = [
   [
     "path",
     {
@@ -15522,14 +15522,14 @@ const __iconNode$1k = [
   ],
   ["circle", { cx: "16.5", cy: "7.5", r: ".5", fill: "currentColor", key: "w0ekpg" }]
 ];
-const KeyRound = createLucideIcon("key-round", __iconNode$1k);
-const __iconNode$1j = [
+const KeyRound = createLucideIcon("key-round", __iconNode$1l);
+const __iconNode$1k = [
   ["path", { d: "m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4", key: "g0fldk" }],
   ["path", { d: "m21 2-9.6 9.6", key: "1j0ho8" }],
   ["circle", { cx: "7.5", cy: "15.5", r: "5.5", key: "yqb3hr" }]
 ];
-const Key = createLucideIcon("key", __iconNode$1j);
-const __iconNode$1i = [
+const Key = createLucideIcon("key", __iconNode$1k);
+const __iconNode$1j = [
   [
     "path",
     {
@@ -15552,28 +15552,28 @@ const __iconNode$1i = [
     }
   ]
 ];
-const Layers = createLucideIcon("layers", __iconNode$1i);
-const __iconNode$1h = [
+const Layers = createLucideIcon("layers", __iconNode$1j);
+const __iconNode$1i = [
   ["rect", { width: "7", height: "9", x: "3", y: "3", rx: "1", key: "10lvy0" }],
   ["rect", { width: "7", height: "5", x: "14", y: "3", rx: "1", key: "16une8" }],
   ["rect", { width: "7", height: "9", x: "14", y: "12", rx: "1", key: "1hutg5" }],
   ["rect", { width: "7", height: "5", x: "3", y: "16", rx: "1", key: "ldoo1y" }]
 ];
-const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$1h);
-const __iconNode$1g = [
+const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$1i);
+const __iconNode$1h = [
   ["rect", { width: "7", height: "7", x: "3", y: "3", rx: "1", key: "1g98yp" }],
   ["rect", { width: "7", height: "7", x: "14", y: "3", rx: "1", key: "6d4xhi" }],
   ["rect", { width: "7", height: "7", x: "14", y: "14", rx: "1", key: "nxv5o0" }],
   ["rect", { width: "7", height: "7", x: "3", y: "14", rx: "1", key: "1bb6yr" }]
 ];
-const LayoutGrid = createLucideIcon("layout-grid", __iconNode$1g);
-const __iconNode$1f = [
+const LayoutGrid = createLucideIcon("layout-grid", __iconNode$1h);
+const __iconNode$1g = [
   ["rect", { width: "18", height: "7", x: "3", y: "3", rx: "1", key: "f1a2em" }],
   ["rect", { width: "9", height: "7", x: "3", y: "14", rx: "1", key: "jqznyg" }],
   ["rect", { width: "5", height: "7", x: "16", y: "14", rx: "1", key: "q5h2i8" }]
 ];
-const LayoutTemplate = createLucideIcon("layout-template", __iconNode$1f);
-const __iconNode$1e = [
+const LayoutTemplate = createLucideIcon("layout-template", __iconNode$1g);
+const __iconNode$1f = [
   [
     "path",
     {
@@ -15584,19 +15584,19 @@ const __iconNode$1e = [
   ["path", { d: "M9 18h6", key: "x1upvd" }],
   ["path", { d: "M10 22h4", key: "ceow96" }]
 ];
-const Lightbulb = createLucideIcon("lightbulb", __iconNode$1e);
-const __iconNode$1d = [
+const Lightbulb = createLucideIcon("lightbulb", __iconNode$1f);
+const __iconNode$1e = [
   ["path", { d: "M9 17H7A5 5 0 0 1 7 7h2", key: "8i5ue5" }],
   ["path", { d: "M15 7h2a5 5 0 1 1 0 10h-2", key: "1b9ql8" }],
   ["line", { x1: "8", x2: "16", y1: "12", y2: "12", key: "1jonct" }]
 ];
-const Link2 = createLucideIcon("link-2", __iconNode$1d);
-const __iconNode$1c = [
+const Link2 = createLucideIcon("link-2", __iconNode$1e);
+const __iconNode$1d = [
   ["path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71", key: "1cjeqo" }],
   ["path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71", key: "19qd67" }]
 ];
-const Link = createLucideIcon("link", __iconNode$1c);
-const __iconNode$1b = [
+const Link = createLucideIcon("link", __iconNode$1d);
+const __iconNode$1c = [
   ["path", { d: "M12 2v4", key: "3427ic" }],
   ["path", { d: "m16.2 7.8 2.9-2.9", key: "r700ao" }],
   ["path", { d: "M18 12h4", key: "wj9ykh" }],
@@ -15606,24 +15606,24 @@ const __iconNode$1b = [
   ["path", { d: "M2 12h4", key: "j09sii" }],
   ["path", { d: "m4.9 4.9 2.9 2.9", key: "giyufr" }]
 ];
-const Loader = createLucideIcon("loader", __iconNode$1b);
-const __iconNode$1a = [
+const Loader = createLucideIcon("loader", __iconNode$1c);
+const __iconNode$1b = [
   ["rect", { width: "18", height: "11", x: "3", y: "11", rx: "2", ry: "2", key: "1w4ew1" }],
   ["path", { d: "M7 11V7a5 5 0 0 1 10 0v4", key: "fwvmzm" }]
 ];
-const Lock = createLucideIcon("lock", __iconNode$1a);
-const __iconNode$19 = [
+const Lock = createLucideIcon("lock", __iconNode$1b);
+const __iconNode$1a = [
   ["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }],
   ["path", { d: "M21 12H9", key: "dn1m92" }],
   ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]
 ];
-const LogOut = createLucideIcon("log-out", __iconNode$19);
-const __iconNode$18 = [
+const LogOut = createLucideIcon("log-out", __iconNode$1a);
+const __iconNode$19 = [
   ["path", { d: "m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7", key: "132q7q" }],
   ["rect", { x: "2", y: "4", width: "20", height: "16", rx: "2", key: "izxlao" }]
 ];
-const Mail = createLucideIcon("mail", __iconNode$18);
-const __iconNode$17 = [
+const Mail = createLucideIcon("mail", __iconNode$19);
+const __iconNode$18 = [
   [
     "path",
     {
@@ -15633,8 +15633,8 @@ const __iconNode$17 = [
   ],
   ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }]
 ];
-const MapPin = createLucideIcon("map-pin", __iconNode$17);
-const __iconNode$16 = [
+const MapPin = createLucideIcon("map-pin", __iconNode$18);
+const __iconNode$17 = [
   [
     "path",
     {
@@ -15645,21 +15645,21 @@ const __iconNode$16 = [
   ["path", { d: "M15 5.764v15", key: "1pn4in" }],
   ["path", { d: "M9 3.236v15", key: "1uimfh" }]
 ];
-const Map$1 = createLucideIcon("map", __iconNode$16);
-const __iconNode$15 = [
+const Map$1 = createLucideIcon("map", __iconNode$17);
+const __iconNode$16 = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "m21 3-7 7", key: "1l2asr" }],
   ["path", { d: "m3 21 7-7", key: "tjx5ai" }],
   ["path", { d: "M9 21H3v-6", key: "wtvkvv" }]
 ];
-const Maximize2 = createLucideIcon("maximize-2", __iconNode$15);
-const __iconNode$14 = [
+const Maximize2 = createLucideIcon("maximize-2", __iconNode$16);
+const __iconNode$15 = [
   ["path", { d: "M4 5h16", key: "1tepv9" }],
   ["path", { d: "M4 12h16", key: "1lakjw" }],
   ["path", { d: "M4 19h16", key: "1djgab" }]
 ];
-const Menu = createLucideIcon("menu", __iconNode$14);
-const __iconNode$13 = [
+const Menu = createLucideIcon("menu", __iconNode$15);
+const __iconNode$14 = [
   [
     "path",
     {
@@ -15668,8 +15668,8 @@ const __iconNode$13 = [
     }
   ]
 ];
-const MessageCircle = createLucideIcon("message-circle", __iconNode$13);
-const __iconNode$12 = [
+const MessageCircle = createLucideIcon("message-circle", __iconNode$14);
+const __iconNode$13 = [
   [
     "path",
     {
@@ -15678,21 +15678,21 @@ const __iconNode$12 = [
     }
   ]
 ];
-const MessageSquare = createLucideIcon("message-square", __iconNode$12);
-const __iconNode$11 = [
+const MessageSquare = createLucideIcon("message-square", __iconNode$13);
+const __iconNode$12 = [
   ["path", { d: "m14 10 7-7", key: "oa77jy" }],
   ["path", { d: "M20 10h-6V4", key: "mjg0md" }],
   ["path", { d: "m3 21 7-7", key: "tjx5ai" }],
   ["path", { d: "M4 14h6v6", key: "rmj7iw" }]
 ];
-const Minimize2 = createLucideIcon("minimize-2", __iconNode$11);
-const __iconNode$10 = [
+const Minimize2 = createLucideIcon("minimize-2", __iconNode$12);
+const __iconNode$11 = [
   ["rect", { width: "20", height: "14", x: "2", y: "3", rx: "2", key: "48i651" }],
   ["line", { x1: "8", x2: "16", y1: "21", y2: "21", key: "1svkeh" }],
   ["line", { x1: "12", x2: "12", y1: "17", y2: "21", key: "vw1qmm" }]
 ];
-const Monitor = createLucideIcon("monitor", __iconNode$10);
-const __iconNode$$ = [
+const Monitor = createLucideIcon("monitor", __iconNode$11);
+const __iconNode$10 = [
   [
     "path",
     {
@@ -15701,21 +15701,21 @@ const __iconNode$$ = [
     }
   ]
 ];
-const Moon = createLucideIcon("moon", __iconNode$$);
-const __iconNode$_ = [
+const Moon = createLucideIcon("moon", __iconNode$10);
+const __iconNode$$ = [
   ["circle", { cx: "8", cy: "18", r: "4", key: "1fc0mg" }],
   ["path", { d: "M12 18V2l7 4", key: "g04rme" }]
 ];
-const Music2 = createLucideIcon("music-2", __iconNode$_);
-const __iconNode$Z = [
+const Music2 = createLucideIcon("music-2", __iconNode$$);
+const __iconNode$_ = [
   ["rect", { x: "16", y: "16", width: "6", height: "6", rx: "1", key: "4q2zg0" }],
   ["rect", { x: "2", y: "16", width: "6", height: "6", rx: "1", key: "8cvhb9" }],
   ["rect", { x: "9", y: "2", width: "6", height: "6", rx: "1", key: "1egb70" }],
   ["path", { d: "M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3", key: "1jsf9p" }],
   ["path", { d: "M12 12V8", key: "2874zd" }]
 ];
-const Network = createLucideIcon("network", __iconNode$Z);
-const __iconNode$Y = [
+const Network = createLucideIcon("network", __iconNode$_);
+const __iconNode$Z = [
   ["path", { d: "M12 22v-9", key: "x3hkom" }],
   [
     "path",
@@ -15739,8 +15739,8 @@ const __iconNode$Y = [
     }
   ]
 ];
-const PackageOpen = createLucideIcon("package-open", __iconNode$Y);
-const __iconNode$X = [
+const PackageOpen = createLucideIcon("package-open", __iconNode$Z);
+const __iconNode$Y = [
   [
     "path",
     {
@@ -15753,8 +15753,8 @@ const __iconNode$X = [
   ["line", { x1: "12", x2: "12", y1: "22", y2: "12", key: "a4e8g8" }],
   ["path", { d: "m17 13 5 5m-5 0 5-5", key: "im3w4b" }]
 ];
-const PackageX = createLucideIcon("package-x", __iconNode$X);
-const __iconNode$W = [
+const PackageX = createLucideIcon("package-x", __iconNode$Y);
+const __iconNode$X = [
   [
     "path",
     {
@@ -15767,8 +15767,8 @@ const __iconNode$W = [
   ["circle", { cx: "6.5", cy: "12.5", r: ".5", fill: "currentColor", key: "qy21gx" }],
   ["circle", { cx: "8.5", cy: "7.5", r: ".5", fill: "currentColor", key: "fotxhn" }]
 ];
-const Palette = createLucideIcon("palette", __iconNode$W);
-const __iconNode$V = [
+const Palette = createLucideIcon("palette", __iconNode$X);
+const __iconNode$W = [
   ["path", { d: "M13 21h8", key: "1jsn5i" }],
   [
     "path",
@@ -15778,8 +15778,8 @@ const __iconNode$V = [
     }
   ]
 ];
-const PenLine = createLucideIcon("pen-line", __iconNode$V);
-const __iconNode$U = [
+const PenLine = createLucideIcon("pen-line", __iconNode$W);
+const __iconNode$V = [
   [
     "path",
     {
@@ -15788,8 +15788,8 @@ const __iconNode$U = [
     }
   ]
 ];
-const Pen = createLucideIcon("pen", __iconNode$U);
-const __iconNode$T = [
+const Pen = createLucideIcon("pen", __iconNode$V);
+const __iconNode$U = [
   [
     "path",
     {
@@ -15799,8 +15799,8 @@ const __iconNode$T = [
   ],
   ["path", { d: "m15 5 4 4", key: "1mk7zo" }]
 ];
-const Pencil = createLucideIcon("pencil", __iconNode$T);
-const __iconNode$S = [
+const Pencil = createLucideIcon("pencil", __iconNode$U);
+const __iconNode$T = [
   [
     "path",
     {
@@ -15809,8 +15809,8 @@ const __iconNode$S = [
     }
   ]
 ];
-const Phone = createLucideIcon("phone", __iconNode$S);
-const __iconNode$R = [
+const Phone = createLucideIcon("phone", __iconNode$T);
+const __iconNode$S = [
   [
     "path",
     {
@@ -15827,8 +15827,8 @@ const __iconNode$R = [
   ],
   ["path", { d: "m2 22 .414-.414", key: "jhxm08" }]
 ];
-const Pipette = createLucideIcon("pipette", __iconNode$R);
-const __iconNode$Q = [
+const Pipette = createLucideIcon("pipette", __iconNode$S);
+const __iconNode$R = [
   [
     "path",
     {
@@ -15837,8 +15837,8 @@ const __iconNode$Q = [
     }
   ]
 ];
-const Play = createLucideIcon("play", __iconNode$Q);
-const __iconNode$P = [
+const Play = createLucideIcon("play", __iconNode$R);
+const __iconNode$Q = [
   ["path", { d: "M12 22v-5", key: "1ega77" }],
   ["path", { d: "M15 8V2", key: "18g5xt" }],
   [
@@ -15847,39 +15847,39 @@ const __iconNode$P = [
   ],
   ["path", { d: "M9 8V2", key: "14iosj" }]
 ];
-const Plug = createLucideIcon("plug", __iconNode$P);
-const __iconNode$O = [
+const Plug = createLucideIcon("plug", __iconNode$Q);
+const __iconNode$P = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "M12 5v14", key: "s699le" }]
 ];
-const Plus = createLucideIcon("plus", __iconNode$O);
-const __iconNode$N = [
+const Plus = createLucideIcon("plus", __iconNode$P);
+const __iconNode$O = [
   ["path", { d: "M12 2v10", key: "mnfbl" }],
   ["path", { d: "M18.4 6.6a9 9 0 1 1-12.77.04", key: "obofu9" }]
 ];
-const Power = createLucideIcon("power", __iconNode$N);
-const __iconNode$M = [
+const Power = createLucideIcon("power", __iconNode$O);
+const __iconNode$N = [
   ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
   ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
   ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
   ["path", { d: "M8 16H3v5", key: "1cv678" }]
 ];
-const RefreshCw = createLucideIcon("refresh-cw", __iconNode$M);
-const __iconNode$L = [
+const RefreshCw = createLucideIcon("refresh-cw", __iconNode$N);
+const __iconNode$M = [
   ["path", { d: "m2 9 3-3 3 3", key: "1ltn5i" }],
   ["path", { d: "M13 18H7a2 2 0 0 1-2-2V6", key: "1r6tfw" }],
   ["path", { d: "m22 15-3 3-3-3", key: "4rnwn2" }],
   ["path", { d: "M11 6h6a2 2 0 0 1 2 2v10", key: "2f72bc" }]
 ];
-const Repeat2 = createLucideIcon("repeat-2", __iconNode$L);
-const __iconNode$K = [
+const Repeat2 = createLucideIcon("repeat-2", __iconNode$M);
+const __iconNode$L = [
   ["path", { d: "m17 2 4 4-4 4", key: "nntrym" }],
   ["path", { d: "M3 11v-1a4 4 0 0 1 4-4h14", key: "84bu3i" }],
   ["path", { d: "m7 22-4-4 4-4", key: "1wqhfi" }],
   ["path", { d: "M21 13v1a4 4 0 0 1-4 4H3", key: "1rx37r" }]
 ];
-const Repeat = createLucideIcon("repeat", __iconNode$K);
-const __iconNode$J = [
+const Repeat = createLucideIcon("repeat", __iconNode$L);
+const __iconNode$K = [
   ["path", { d: "M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5", key: "qeys4" }],
   [
     "path",
@@ -15897,12 +15897,17 @@ const __iconNode$J = [
   ],
   ["path", { d: "M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05", key: "92ym6u" }]
 ];
-const Rocket = createLucideIcon("rocket", __iconNode$J);
-const __iconNode$I = [
+const Rocket = createLucideIcon("rocket", __iconNode$K);
+const __iconNode$J = [
   ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
   ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
 ];
-const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$I);
+const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$J);
+const __iconNode$I = [
+  ["path", { d: "M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8", key: "1p45f6" }],
+  ["path", { d: "M21 3v5h-5", key: "1q7to0" }]
+];
+const RotateCw = createLucideIcon("rotate-cw", __iconNode$I);
 const __iconNode$H = [
   [
     "path",
@@ -17832,6 +17837,10 @@ const ru = {
     "roiConfirmed": "ROI (подтв.)"
   },
   "offerEditor": {
+    "title": "Редактор оффера",
+    "savedOffer": "Сохранённый оффер",
+    "desktop": "Десктоп",
+    "mobile": "Мобильный (375px)",
     "urlTemplate": "URL оффера",
     "localArchive": "Файлы локального оффера",
     "uploadZip": "Загрузить ZIP",
@@ -18499,6 +18508,36 @@ const ru = {
     "checkError": "Не удалось проверить обновления"
   },
   "integrations": {
+    "hubTitle": "Центр интеграций",
+    "hubSubtitle": "Подключайте расходы на трафик, Conversion API, домены и инструменты трекинга в едином хабе.",
+    "connectionsLive": "Активных подключений",
+    "filterAll": "Все",
+    "filterAds": "Реклама и Расходы",
+    "filterDomains": "Домены и SSL",
+    "filterSites": "Трекинг и Сайты",
+    "filterTools": "Инструменты и API",
+    "searchPlaceholder": "Поиск интеграций, рекламных сетей, доменов, скриптов...",
+    "noResults": "Интеграции не найдены",
+    "noResultsDesc": "Попробуйте изменить поисковый запрос или переключить категорию.",
+    "resetFilters": "Сбросить фильтры",
+    "backToAll": "Назад ко всем интеграциям",
+    "configure": "Настроить",
+    "connectModeManual": "Ручной токен",
+    "connectModeOauth": "1-Click OAuth",
+    "manageAccounts": "Управление аккаунтами",
+    "manageCapi": "Управление CAPI",
+    "manageVault": "Открыть хранилище",
+    "viewApiKeys": "API Ключи",
+    "manageDns": "Управление DNS",
+    "openRegistrar": "Открыть регистратор",
+    "getCode": "Получить код",
+    "getScript": "Получить скрипт",
+    "getPixel": "Получить пиксель",
+    "downloadPlugin": "Скачать плагин",
+    "configureBot": "Настроить бота",
+    "manageConfigs": "Управление конфигами",
+    "configureKeys": "Настроить ключи",
+    "getWidget": "Получить виджет",
     "groupAds": "Рекламные сети",
     "groupDomains": "Домены и SSL",
     "groupSites": "Сайты и лендинги",
@@ -18620,7 +18659,7 @@ const ru = {
     "postbackBanner": "Постбек (S2S Postback) — это HTTP-запрос от партнёрской сети к вашему трекеру при конверсии. URL содержит ID клика (subid), статус и сумму выплаты. Трекер сопоставляет его с исходным кликом и записывает конверсию.",
     "postbackMacros": "Доступные макросы: {subid} — ID клика, {status} — статус конверсии, {payout} — сумма, {tid} — ID транзакции, {currency} — код валюты.",
     "integrationsBannerTitle": "Как интегрировать?",
-    "integrationsBanner": "Выберите метод интеграции по вашим техническим возможностям. KClient PHP — полный серверный функционал (клоакинг, фильтрация ботов). KClient JS — проще в установке. Tracking Pixel — для базового отслеживания показов и конверсий.",
+    "integrationsBanner": "Выберите метод интеграции по вашим техническим возможностям. Tracking Client (PHP) — полный серверный функционал (клоакинг, фильтрация ботов). Tracking Client (JS) — проще в установке. Tracking Pixel — для базового отслеживания показов и конверсий.",
     "conversionsBannerTitle": "Статусы конверсий",
     "conversionsBanner": "У каждой конверсии есть статус: lead — новый лид, sale — подтверждённая покупка, rejected — отклонено рекламодателем, deposit — первый депозит (гемблинг), registration — регистрация. Кастомные статусы настраиваются в разделе Настройки.",
     "trendsBannerTitle": "Как пользоваться аналитикой",
@@ -18888,10 +18927,10 @@ const ru = {
     "queueStale": "Воркер доставки давно не отмечался. Установите cron, чтобы включить повторы."
   },
   "extCosts": {
-    "title": "Dolphin / Fbtool — Keitaro API",
-    "description": "Приём расходов из Dolphin и Fbtool.pro через Keitaro-совместимый Admin API endpoint",
+    "title": "Dolphin / FBTool API",
+    "description": "Приём расходов из Dolphin и Fbtool.pro через Orbitra Automation API endpoint",
     "step1": "1. Создайте API-ключ с правами write: Пользователи → ваш профиль → сгенерировать ключ (permissions: write)",
-    "step2": "2. Скопируйте в Dolphin (Настройки → Экспорт расходов → Keitaro) или Fbtool (Расходы → Keitaro):",
+    "step2": "2. Скопируйте в Dolphin (Настройки → Экспорт расходов → Tracker API) или Fbtool (Расходы → Tracker API):",
     "step3": "3. Endpoint, который вызывают сервисы (совместим с Keitaro Admin API v1):",
     "hint": "Фильтры матчатся по параметрам клика: sub_id_4 = ad_id, sub_id_3 = adset_id (дефолты шаблона Facebook), либо любое имя параметра напрямую (ad_id, adset_id, campaign_id...). Расход делится поровну между совпавшими кликами за период; повторная отправка перезаписывает, а не суммирует."
   },
@@ -19240,7 +19279,7 @@ const ru = {
     "customApp": "Собственное Meta App (опционально)",
     "customAppHint": "Нужно только для продления токена и редких апп-специфичных сетапов — общему приложению инстанса или готовому долгоживущему токену ничего не требуется.",
     "oauthNotConfiguredTitle": "1-Click OAuth не настроен",
-    "oauthNotConfiguredHint": "Задайте ORBITRA_META_APP_ID и ORBITRA_META_APP_SECRET на сервере либо раскройте «Собственное Meta App» ниже и сохраните App ID / App Secret. А можно вообще обойтись без 1-Click — подключитесь вручную по Access Token в форме ниже, как в Keitaro.",
+    "oauthNotConfiguredHint": "Задайте ORBITRA_META_APP_ID и ORBITRA_META_APP_SECRET на сервере либо раскройте «Собственное Meta App» ниже и сохраните App ID / App Secret. А можно вообще обойтись без 1-Click — подключитесь вручную по Access Token в форме ниже, классическим способом.",
     "tokenHowTo": "Как получить Access Token",
     "tokenHowToHint": "1. Откройте Meta for Developers → ваше приложение или Business Settings → System Users.\n2. Создайте системного пользователя с админ-доступом к вашему Business Manager.\n3. Сгенерируйте токен с правами ads_read и ads_management.\n4. Вставьте его выше вместе с ID рекламного кабинета (act_…).",
     "advancedHint": "Нужно, только если трафик идёт через приложение, которое перепаковывает макросы Facebook в sub ID. Оставьте пустым, чтобы использовать стандартные ad_id / adset_id / campaign_id.",
@@ -21168,6 +21207,10 @@ const en = {
     "roiConfirmed": "ROI (confirmed)"
   },
   "offerEditor": {
+    "title": "Offer Editor",
+    "savedOffer": "Saved offer",
+    "desktop": "Desktop",
+    "mobile": "Mobile (375px)",
     "urlTemplate": "Offer URL",
     "localArchive": "Local offer files",
     "uploadZip": "Upload ZIP",
@@ -21739,7 +21782,7 @@ const en = {
     "postbackBanner": "A postback (S2S Postback) is an HTTP request from the affiliate network to your tracker when a conversion occurs. The URL contains the click ID (subid), status, and payout. The tracker matches it to the original click and records the conversion.",
     "postbackMacros": "Available macros: {subid} — click ID, {status} — conversion status, {payout} — amount, {tid} — transaction ID, {currency} — currency code.",
     "integrationsBannerTitle": "How to Integrate?",
-    "integrationsBanner": "Choose an integration method based on your technical setup. KClient PHP provides full server-side features (cloaking, bot filtering). KClient JS is simpler to install. Tracking Pixel works for basic impression and conversion tracking.",
+    "integrationsBanner": "Choose an integration method based on your technical setup. Tracking Client (PHP) provides full server-side features (cloaking, bot filtering). Tracking Client (JS) is simpler to install. Tracking Pixel works for basic impression and conversion tracking.",
     "conversionsBannerTitle": "Conversion Statuses",
     "conversionsBanner": "Each conversion has a status: lead — a new lead, sale — confirmed purchase, rejected — declined by advertiser, deposit — first deposit (gambling), registration — user sign-up. You can configure custom statuses in Settings.",
     "trendsBannerTitle": "How to Use Analytics",
@@ -21901,6 +21944,36 @@ const en = {
     "saveSettings": "Save Settings"
   },
   "integrations": {
+    "hubTitle": "Integrations Hub",
+    "hubSubtitle": "Connect traffic costs, conversion APIs, domains and tracking tools from one hub.",
+    "connectionsLive": "Active Connections",
+    "filterAll": "All",
+    "filterAds": "Ads & Costs",
+    "filterDomains": "Domains & SSL",
+    "filterSites": "Tracking & Sites",
+    "filterTools": "Tools & API",
+    "searchPlaceholder": "Search integrations, ad networks, domains, scripts...",
+    "noResults": "No integrations found",
+    "noResultsDesc": "Try searching for a different keyword or switch the category filter.",
+    "resetFilters": "Reset filters",
+    "backToAll": "Back to all integrations",
+    "configure": "Configure",
+    "connectModeManual": "Direct Token",
+    "connectModeOauth": "1-Click OAuth",
+    "manageAccounts": "Manage Accounts",
+    "manageCapi": "Manage CAPI",
+    "manageVault": "Manage Vault",
+    "viewApiKeys": "View API Keys",
+    "manageDns": "Manage DNS",
+    "openRegistrar": "Open Registrar",
+    "getCode": "Get Code",
+    "getScript": "Get Script",
+    "getPixel": "Get Pixel",
+    "downloadPlugin": "Download Plugin",
+    "configureBot": "Configure Bot",
+    "manageConfigs": "Manage Configs",
+    "configureKeys": "Configure Keys",
+    "getWidget": "Get Widget",
     "groupAds": "Ad networks",
     "groupDomains": "Domains & SSL",
     "groupSites": "Sites & landings",
@@ -22224,11 +22297,11 @@ const en = {
     "queueStale": "Delivery worker has not pinged recently. Install the cron to enable retries."
   },
   "extCosts": {
-    "title": "Dolphin / Fbtool — Keitaro API",
-    "description": "Receive spend from Dolphin and Fbtool.pro via a Keitaro-compatible Admin API endpoint",
+    "title": "Dolphin / FBTool API",
+    "description": "Receive spend from Dolphin and Fbtool.pro via Orbitra Automation API endpoint",
     "step1": "1. Create a write-permission API key: Users → your profile → generate key (permissions: write)",
-    "step2": "2. Paste into Dolphin (Settings → Cost export → Keitaro) or Fbtool (Costs → Keitaro):",
-    "step3": "3. The endpoint the services call (Keitaro Admin API v1 compatible):",
+    "step2": "2. Paste into Dolphin (Settings → Cost export → Tracker API) or Fbtool (Costs → Tracker API):",
+    "step3": "3. The endpoint the services call (compatible with Keitaro Admin API v1):",
     "hint": "Filters match click parameters: sub_id_4 = ad_id, sub_id_3 = adset_id (Facebook template defaults), or any parameter name directly (ad_id, adset_id, campaign_id...). Spend is split evenly across matched clicks for the period; re-sending overwrites instead of accumulating."
   },
   "tracking": {
@@ -22576,7 +22649,7 @@ const en = {
     "customApp": "Custom Meta App (Optional)",
     "customAppHint": "Only needed for token extension and rare app-scoped setups — the shared instance app or a ready long-lived token needs nothing here.",
     "oauthNotConfiguredTitle": "1-Click OAuth is not configured",
-    "oauthNotConfiguredHint": "Set ORBITRA_META_APP_ID and ORBITRA_META_APP_SECRET on the server, or expand “Custom Meta App” below and save an App ID / App Secret. You can also skip 1-Click entirely: connect manually with an Access Token in the form below — the Keitaro way.",
+    "oauthNotConfiguredHint": "Set ORBITRA_META_APP_ID and ORBITRA_META_APP_SECRET on the server, or expand “Custom Meta App” below and save an App ID / App Secret. You can also skip 1-Click entirely: connect manually with an Access Token in the form below — the classic way.",
     "tokenHowTo": "How to get an Access Token",
     "tokenHowToHint": "1. Open Meta for Developers → your app, or Business Settings → System Users.\n2. Create a System User with admin access to your Business Manager.\n3. Generate an access token with the ads_read and ads_management permissions.\n4. Paste it above together with your Ad Account ID (act_…).",
     "advancedHint": "Only needed when traffic passes through an app that repacks the Facebook macros into sub IDs. Leave empty to use the standard ad_id / adset_id / campaign_id.",
@@ -24504,6 +24577,10 @@ const uk = {
     "roiConfirmed": "ROI (підтв.)"
   },
   "offerEditor": {
+    "title": "Редактор оферу",
+    "savedOffer": "Збережений офер",
+    "desktop": "Десктоп",
+    "mobile": "Мобільний (375px)",
     "urlTemplate": "URL офера",
     "localArchive": "Файли локального оффера",
     "uploadZip": "Завантажити ZIP",
@@ -25075,7 +25152,7 @@ const uk = {
     "postbackBanner": "Повернення (S2S Postback) — це HTTP-запит від афілійованої мережі до вашого трекера, коли відбувається конверсія. URL-адреса містить ідентифікатор кліку (підідентифікатор), статус і виплату. Трекер зіставляє його з оригінальним кліком і записує конверсію.",
     "postbackMacros": "Доступні макроси: {subid} — ідентифікатор кліку, {status} — статус конверсії, {payout} — сума, {tid} — ідентифікатор транзакції, {currency} — код валюти.",
     "integrationsBannerTitle": "Як інтегрувати?",
-    "integrationsBanner": "Виберіть метод інтеграції на основі ваших технічних налаштувань. KClient PHP надає всі можливості на стороні сервера (маскування, фільтрація ботів). KClient JS простіше встановити. Піксель відстеження працює для базового відстеження показів і конверсій.",
+    "integrationsBanner": "Виберіть метод інтеграції на основі ваших технічних налаштувань. Tracking Client (PHP) надає всі можливості на стороні сервера (маскування, фільтрація ботів). Tracking Client (JS) простіше встановити. Піксель відстеження працює для базового відстеження показів і конверсій.",
     "conversionsBannerTitle": "Статуси перетворення",
     "conversionsBanner": "Кожна конверсія має статус: лід — новий лід, продаж — підтверджена покупка, відхилено — відхилено рекламодавцем, депозит — перший депозит (азартні ігри), реєстрація — реєстрація користувача. Ви можете налаштувати власні статуси в налаштуваннях.",
     "trendsBannerTitle": "Як використовувати Analytics",
@@ -25237,6 +25314,36 @@ const uk = {
     "saveSettings": "Зберегти налаштування"
   },
   "integrations": {
+    "hubTitle": "Центр інтеграцій",
+    "hubSubtitle": "Підключайте витрати на трафік, Conversion API, домени та інструменти трекінгу в єдиному хабі.",
+    "connectionsLive": "Активних підключень",
+    "filterAll": "Всі",
+    "filterAds": "Реклама та Витрати",
+    "filterDomains": "Домени та SSL",
+    "filterSites": "Трекінг та Сайти",
+    "filterTools": "Інструменти та API",
+    "searchPlaceholder": "Пошук інтеграцій, рекламних мереж, доменів, скриптів...",
+    "noResults": "Інтеграцій не знайдено",
+    "noResultsDesc": "Спробуйте інший пошуковий запит або змініть категорію.",
+    "resetFilters": "Скинути фільтри",
+    "backToAll": "Назад до всіх інтеграцій",
+    "configure": "Налаштувати",
+    "connectModeManual": "Прямий токен",
+    "connectModeOauth": "1-Клік OAuth",
+    "manageAccounts": "Керування акаунтами",
+    "manageCapi": "Керування CAPI",
+    "manageVault": "Відкрити сховище",
+    "viewApiKeys": "API Ключі",
+    "manageDns": "Керування DNS",
+    "openRegistrar": "Відкрити реєстратор",
+    "getCode": "Отримати код",
+    "getScript": "Отримати скрипт",
+    "getPixel": "Отримати піксель",
+    "downloadPlugin": "Завантажити плагін",
+    "configureBot": "Налаштувати бота",
+    "manageConfigs": "Керування конфігами",
+    "configureKeys": "Налаштувати ключі",
+    "getWidget": "Отримати віджет",
     "groupAds": "Рекламні мережі",
     "groupDomains": "Домени та SSL",
     "groupSites": "Сайти та лендінги",
@@ -25560,10 +25667,10 @@ const uk = {
     "queueStale": "Воркер доставки давно не відзначався. Встановіть cron, щоб увімкнути повтори."
   },
   "extCosts": {
-    "title": "Dolphin / Fbtool — Keitaro API",
-    "description": "Приймання витрат із Dolphin та Fbtool.pro через Keitaro-сумісний Admin API endpoint",
+    "title": "Dolphin / FBTool API",
+    "description": "Приймання витрат із Dolphin та Fbtool.pro через Orbitra Automation API endpoint",
     "step1": "1. Створіть API-ключ із правами write: Користувачі → ваш профіль → згенерувати ключ (permissions: write)",
-    "step2": "2. Скопіюйте в Dolphin (Налаштування → Експорт витрат → Keitaro) або Fbtool (Витрати → Keitaro):",
+    "step2": "2. Скопіюйте в Dolphin (Налаштування → Експорт витрат → Tracker API) або Fbtool (Витрати → Tracker API):",
     "step3": "3. Endpoint, який викликають сервіси (сумісний із Keitaro Admin API v1):",
     "hint": "Фільтри матчаться за параметрами кліку: sub_id_4 = ad_id, sub_id_3 = adset_id (дефолти шаблону Facebook), або будь-яке ім’я параметра напряму (ad_id, adset_id, campaign_id...). Витрата ділиться порівну між кліками, що збіглися, за період; повторне надсилання перезаписує, а не сумує."
   },
@@ -25912,7 +26019,7 @@ const uk = {
     "customApp": "Власний Meta App (опційно)",
     "customAppHint": "Потрібно лише для продовження токена та рідкісних апп-специфічних налаштувань — спільному застосунку інстанса або готовому довгоживучому токену нічого не потрібно.",
     "oauthNotConfiguredTitle": "1-Click OAuth не налаштовано",
-    "oauthNotConfiguredHint": "Задайте ORBITRA_META_APP_ID і ORBITRA_META_APP_SECRET на сервері або розкрийте «Власний Meta App» нижче та збережіть App ID / App Secret. А можна взагалі обійтися без 1-Click — підключіться вручну через Access Token у формі нижче, як у Keitaro.",
+    "oauthNotConfiguredHint": "Задайте ORBITRA_META_APP_ID і ORBITRA_META_APP_SECRET на сервері або розкрийте «Власний Meta App» нижче та збережіть App ID / App Secret. А можна взагалі обійтися без 1-Click — підключіться вручну через Access Token у формі нижче, класичним способом.",
     "tokenHowTo": "Як отримати Access Token",
     "tokenHowToHint": "1. Відкрийте Meta for Developers → ваш застосунок або Business Settings → System Users.\n2. Створіть системного користувача з адмін-доступом до вашого Business Manager.\n3. Згенеруйте токен із правами ads_read і ads_management.\n4. Вставте його вище разом із ID рекламного кабінету (act_…).",
     "advancedHint": "Потрібно лише якщо трафік іде через застосунок, який перепаковує макроси Facebook у sub ID. Залиште порожнім, щоб використовувати стандартні ad_id / adset_id / campaign_id.",
@@ -27840,6 +27947,10 @@ const es = {
     "roiConfirmed": "ROI (confirmado)"
   },
   "offerEditor": {
+    "title": "Editor de ofertas",
+    "savedOffer": "Oferta guardada",
+    "desktop": "Escritorio",
+    "mobile": "Móvil (375px)",
     "urlTemplate": "URL de la oferta",
     "localArchive": "Archivos del offer local",
     "uploadZip": "Subir ZIP",
@@ -28411,7 +28522,7 @@ const es = {
     "postbackBanner": "Una devolución de datos (S2S Postback) es una solicitud HTTP de la red de afiliados a su rastreador cuando se produce una conversión. La URL contiene el ID de clic (subid), el estado y el pago. El rastreador lo compara con el clic original y registra la conversión.",
     "postbackMacros": "Macros disponibles: {subid}: ID de clic, {status}: estado de conversión, {payout}: monto, {tid}: ID de transacción, {currency}: código de moneda.",
     "integrationsBannerTitle": "¿Cómo integrar?",
-    "integrationsBanner": "Elija un método de integración según su configuración técnica. KClient PHP proporciona funciones completas del lado del servidor (encubrimiento, filtrado de bots). KClient JS es más sencillo de instalar. Tracking Pixel funciona para el seguimiento básico de impresiones y conversiones.",
+    "integrationsBanner": "Elija un método de integración según su configuración técnica. Tracking Client (PHP) proporciona funciones completas del lado del servidor (encubrimiento, filtrado de bots). Tracking Client (JS) es más sencillo de instalar. Tracking Pixel funciona para el seguimiento básico de impresiones y conversiones.",
     "conversionsBannerTitle": "Estados de conversión",
     "conversionsBanner": "Cada conversión tiene un estado: cliente potencial: un nuevo cliente potencial, venta: compra confirmada, rechazado: rechazado por el anunciante, depósito: primer depósito (apuestas), registro: registro de usuario. Puede configurar estados personalizados en Configuración.",
     "trendsBannerTitle": "Cómo utilizar análisis",
@@ -28573,6 +28684,36 @@ const es = {
     "saveSettings": "Guardar configuración"
   },
   "integrations": {
+    "hubTitle": "Centro de Integraciones",
+    "hubSubtitle": "Conecte costos de tráfico, APIs de conversión, dominios y herramientas de seguimiento en un solo lugar.",
+    "connectionsLive": "Conexiones activas",
+    "filterAll": "Todo",
+    "filterAds": "Redes de anuncios",
+    "filterDomains": "Dominios y SSL",
+    "filterSites": "Sitios y landings",
+    "filterTools": "Herramientas y API",
+    "searchPlaceholder": "Buscar integraciones, redes, dominios, scripts...",
+    "noResults": "No se encontraron integraciones",
+    "noResultsDesc": "Intente con otra palabra clave o cambie el filtro de categoría.",
+    "resetFilters": "Restablecer filtros",
+    "backToAll": "Volver a todas las integraciones",
+    "configure": "Configurar",
+    "connectModeManual": "Token directo",
+    "connectModeOauth": "1-Clic OAuth",
+    "manageAccounts": "Gestionar cuentas",
+    "manageCapi": "Gestionar CAPI",
+    "manageVault": "Abrir Pixel Vault",
+    "viewApiKeys": "Claves API",
+    "manageDns": "Gestionar DNS",
+    "openRegistrar": "Abrir registrador",
+    "getCode": "Obtener código",
+    "getScript": "Obtener script",
+    "getPixel": "Obtener píxel",
+    "downloadPlugin": "Descargar plugin",
+    "configureBot": "Configurar bot",
+    "manageConfigs": "Gestionar configs",
+    "configureKeys": "Configurar claves",
+    "getWidget": "Obtener widget",
     "groupAds": "Redes de anuncios",
     "groupDomains": "Dominios y SSL",
     "groupSites": "Sitios y landings",
@@ -28896,10 +29037,10 @@ const es = {
     "queueStale": "El worker de envío no ha reportado recientemente. Instala el cron para habilitar reintentos."
   },
   "extCosts": {
-    "title": "Dolphin / Fbtool — Keitaro API",
-    "description": "Recibir gastos de Dolphin y Fbtool.pro mediante un endpoint compatible con Keitaro Admin API",
+    "title": "Dolphin / FBTool API",
+    "description": "Recibir gastos de Dolphin y Fbtool.pro mediante un endpoint compatible con Orbitra Automation API",
     "step1": "1. Crea una clave API con permisos de escritura: Usuarios → tu perfil → generar clave (permissions: write)",
-    "step2": "2. Pégalo en Dolphin (Ajustes → Exportar gastos → Keitaro) o Fbtool (Gastos → Keitaro):",
+    "step2": "2. Pégalo en Dolphin (Ajustes → Exportar gastos → Tracker API) o Fbtool (Gastos → Tracker API):",
     "step3": "3. El endpoint al que llaman los servicios (compatible con Keitaro Admin API v1):",
     "hint": "Los filtros coinciden con parámetros del clic: sub_id_4 = ad_id, sub_id_3 = adset_id (valores por defecto de la plantilla de Facebook), o cualquier nombre de parámetro directamente (ad_id, adset_id, campaign_id...). El gasto se reparte a partes iguales entre los clics coincidentes del periodo; reenviar sobrescribe en vez de acumular."
   },
@@ -29248,7 +29389,7 @@ const es = {
     "customApp": "Meta App personalizada (Opcional)",
     "customAppHint": "Solo necesario para extender tokens y configuraciones raras por app — la app compartida de la instancia o un token de larga duración listo no necesita nada aquí.",
     "oauthNotConfiguredTitle": "1-Click OAuth no está configurado",
-    "oauthNotConfiguredHint": "Configure ORBITRA_META_APP_ID y ORBITRA_META_APP_SECRET en el servidor, o despliegue «Meta App personalizada» abajo y guarde un App ID / App Secret. También puede omitir el 1-Click por completo: conéctese manualmente con un Access Token en el formulario de abajo — como en Keitaro.",
+    "oauthNotConfiguredHint": "Configure ORBITRA_META_APP_ID y ORBITRA_META_APP_SECRET en el servidor, o despliegue «Meta App personalizada» abajo y guarde un App ID / App Secret. También puede omitir el 1-Click por completo: conéctese manualmente con un Access Token en el formulario de abajo — de la forma clásica.",
     "tokenHowTo": "Cómo obtener un Access Token",
     "tokenHowToHint": "1. Abra Meta for Developers → su aplicación, o Business Settings → System Users.\n2. Cree un usuario del sistema con acceso de administrador a su Business Manager.\n3. Genere un token con los permisos ads_read y ads_management.\n4. Péguelo arriba junto con el ID de su cuenta publicitaria (act_…).",
     "advancedHint": "Solo necesario cuando el tráfico pasa por una app que reempaqueta las macros de Facebook en sub IDs. Déjalo vacío para usar ad_id / adset_id / campaign_id estándar.",
@@ -31176,6 +31317,10 @@ const zh = {
     "roiConfirmed": "ROI（已确认）"
   },
   "offerEditor": {
+    "title": "Offer 编辑器",
+    "savedOffer": "已保存 Offer",
+    "desktop": "桌面",
+    "mobile": "移动端 (375px)",
     "urlTemplate": "Offer URL",
     "localArchive": "本地 offer 文件",
     "uploadZip": "上传 ZIP",
@@ -31747,7 +31892,7 @@ const zh = {
     "postbackBanner": "回发（S2S 回发）是发生转化时从联属网络向您的跟踪器发出的 HTTP 请求。 URL 包含点击 ID (subid)、状态和付款。跟踪器将其与原始点击进行匹配并记录转化。",
     "postbackMacros": "可用的宏：{subid} — 点击 ID、{status} — 转化状态、{payout} — 金额、{tid} — 交易 ID、{currency} — 货币代码。",
     "integrationsBannerTitle": "如何整合？",
-    "integrationsBanner": "根据您的技术设置选择集成方法。 KClient PHP 提供完整的服务器端功能（伪装、机器人过滤）。 KClient JS 安装起来更简单。跟踪像素适用于基本展示和转化跟踪。",
+    "integrationsBanner": "根据您的技术设置选择集成方法。 Tracking Client (PHP) 提供完整的服务器端功能（伪装、机器人过滤）。 Tracking Client (JS) 安装起来更简单。跟踪像素适用于基本展示和转化跟踪。",
     "conversionsBannerTitle": "转换状态",
     "conversionsBanner": "每次转化都有一个状态：潜在客户 - 一个新的潜在客户，销售 - 确认购买，拒绝 - 被广告商拒绝，存款 - 首次存款（赌博），注册 - 用户注册。您可以在“设置”中配置自定义状态。",
     "trendsBannerTitle": "如何使用分析",
@@ -31909,6 +32054,36 @@ const zh = {
     "saveSettings": "保存设置"
   },
   "integrations": {
+    "hubTitle": "集成中心",
+    "hubSubtitle": "在一个中心连接流量消耗、转化 API、域名和追踪工具。",
+    "connectionsLive": "活跃连接",
+    "filterAll": "全部",
+    "filterAds": "广告网络",
+    "filterDomains": "域名与 SSL",
+    "filterSites": "网站与落地页",
+    "filterTools": "工具与 API",
+    "searchPlaceholder": "搜索集成、广告网络、域名、脚本...",
+    "noResults": "未找到相关集成",
+    "noResultsDesc": "尝试搜索其他关键词或切换分类筛选器。",
+    "resetFilters": "重置筛选",
+    "backToAll": "返回所有集成",
+    "configure": "配置",
+    "connectModeManual": "直接 Token",
+    "connectModeOauth": "一键 OAuth",
+    "manageAccounts": "管理账户",
+    "manageCapi": "管理 CAPI",
+    "manageVault": "打开 Pixel Vault",
+    "viewApiKeys": "API 密钥",
+    "manageDns": "管理 DNS",
+    "openRegistrar": "打开域名注册商",
+    "getCode": "获取代码",
+    "getScript": "获取脚本",
+    "getPixel": "获取 Pixel",
+    "downloadPlugin": "下载插件",
+    "configureBot": "配置机器人",
+    "manageConfigs": "管理配置",
+    "configureKeys": "配置密钥",
+    "getWidget": "获取小部件",
     "groupAds": "广告网络",
     "groupDomains": "域名与 SSL",
     "groupSites": "网站与落地页",
@@ -32232,10 +32407,10 @@ const zh = {
     "queueStale": "投递 worker 已较长时间未报告。请安装 cron 以启用重试。"
   },
   "extCosts": {
-    "title": "Dolphin / Fbtool — Keitaro API",
-    "description": "通过兼容 Keitaro Admin API 的端点接收 Dolphin 和 Fbtool.pro 的花费",
+    "title": "Dolphin / FBTool API",
+    "description": "通过 Orbitra Automation API 端点接收 Dolphin 和 Fbtool.pro 的花费",
     "step1": "1. 创建具有 write 权限的 API 密钥：用户 → 你的资料 → 生成密钥（permissions: write）",
-    "step2": "2. 粘贴到 Dolphin（设置 → 花费导出 → Keitaro）或 Fbtool（花费 → Keitaro）：",
+    "step2": "2. 粘贴到 Dolphin（设置 → 花费导出 → Tracker API）或 Fbtool（花费 → Tracker API）：",
     "step3": "3. 服务调用的端点（兼容 Keitaro Admin API v1）：",
     "hint": "过滤器按点击参数匹配：sub_id_4 = ad_id、sub_id_3 = adset_id（Facebook 模板默认值），也可直接使用任意参数名（ad_id、adset_id、campaign_id...）。花费在周期内匹配的点击之间平均分配；重复发送会覆盖而不是累加。"
   },
@@ -32584,7 +32759,7 @@ const zh = {
     "customApp": "自定义 Meta App 应用 (选填)",
     "customAppHint": "仅在延长 Token 或少数按应用配置的场景需要 — 使用实例共享应用或现成的长期 Token 时无需填写。",
     "oauthNotConfiguredTitle": "1-Click OAuth 未配置",
-    "oauthNotConfiguredHint": "在服务器上设置 ORBITRA_META_APP_ID 和 ORBITRA_META_APP_SECRET，或在下方展开「自定义 Meta App」并保存 App ID / App Secret。也可以完全跳过 1-Click：使用 Access Token 在下方表单手动连接 — 与 Keitaro 相同。",
+    "oauthNotConfiguredHint": "在服务器上设置 ORBITRA_META_APP_ID 和 ORBITRA_META_APP_SECRET，或在下方展开「自定义 Meta App」并保存 App ID / App Secret。也可以完全跳过 1-Click：使用 Access Token 在下方表单手动连接 — 传统方式。",
     "tokenHowTo": "如何获取 Access Token",
     "tokenHowToHint": "1. 打开 Meta for Developers → 你的应用，或 Business Settings → System Users。\n2. 创建一个对 Business Manager 拥有管理员权限的系统用户。\n3. 生成包含 ads_read 和 ads_management 权限的访问令牌。\n4. 将其与广告账户 ID（act_…）一起粘贴到上方。",
     "advancedHint": "仅当流量经过将 Facebook 宏重新打包为 sub ID 的应用时才需要。留空则使用标准的 ad_id / adset_id / campaign_id。",
@@ -34512,6 +34687,10 @@ const fr = {
     "roiConfirmed": "ROI (confirmé)"
   },
   "offerEditor": {
+    "title": "Éditeur d'offres",
+    "savedOffer": "Offre enregistrée",
+    "desktop": "Bureau",
+    "mobile": "Mobile (375px)",
     "urlTemplate": "URL de l'offre",
     "localArchive": "Fichiers de l’offre locale",
     "uploadZip": "Téléverser le ZIP",
@@ -35083,7 +35262,7 @@ const fr = {
     "postbackBanner": "Une publication (S2S Postback) est une requête HTTP du réseau d'affiliation à votre tracker lorsqu'une conversion se produit. L'URL contient l'ID de clic (subid), le statut et le paiement. Le tracker le fait correspondre au clic d'origine et enregistre la conversion.",
     "postbackMacros": "Macros disponibles : {subid} – ID de clic, {status} – état de la conversion, {payout} – montant, {tid} – ID de transaction, {currency} – code de devise.",
     "integrationsBannerTitle": "Comment intégrer ?",
-    "integrationsBanner": "Choisissez une méthode d'intégration en fonction de votre configuration technique. KClient PHP fournit des fonctionnalités complètes côté serveur (cloaking, filtrage des robots). KClient JS est plus simple à installer. Le pixel de suivi fonctionne pour le suivi de base des impressions et des conversions.",
+    "integrationsBanner": "Choisissez une méthode d'intégration en fonction de votre configuration technique. Tracking Client (PHP) fournit des fonctionnalités complètes côté serveur (cloaking, filtrage des robots). Tracking Client (JS) est plus simple à installer. Le pixel de suivi fonctionne pour le suivi de base des impressions et des conversions.",
     "conversionsBannerTitle": "Statuts de conversion",
     "conversionsBanner": "Chaque conversion a un statut : prospect – un nouveau prospect, vente – achat confirmé, rejeté – refusé par l'annonceur, dépôt – premier dépôt (jeu), inscription – inscription de l'utilisateur. Vous pouvez configurer des statuts personnalisés dans Paramètres.",
     "trendsBannerTitle": "Comment utiliser Analytics",
@@ -35245,6 +35424,36 @@ const fr = {
     "saveSettings": "Enregistrer les paramètres"
   },
   "integrations": {
+    "hubTitle": "Centre d'intégrations",
+    "hubSubtitle": "Connectez les coûts de trafic, APIs de conversion, domaines et outils de tracking en un seul hub.",
+    "connectionsLive": "Connexions actives",
+    "filterAll": "Tous",
+    "filterAds": "Réseaux publicitaires",
+    "filterDomains": "Domaines & SSL",
+    "filterSites": "Sites & landings",
+    "filterTools": "Outils & API",
+    "searchPlaceholder": "Rechercher des intégrations, réseaux, domaines, scripts...",
+    "noResults": "Aucune intégration trouvée",
+    "noResultsDesc": "Essayez un autre mot-clé ou modifiez le filtre de catégorie.",
+    "resetFilters": "Réinitialiser les filtres",
+    "backToAll": "Retour à toutes les intégrations",
+    "configure": "Configurer",
+    "connectModeManual": "Jeton direct",
+    "connectModeOauth": "1-Clic OAuth",
+    "manageAccounts": "Gérer les comptes",
+    "manageCapi": "Gérer CAPI",
+    "manageVault": "Ouvrir Pixel Vault",
+    "viewApiKeys": "Clés API",
+    "manageDns": "Gérer DNS",
+    "openRegistrar": "Ouvrir le bureau d'enregistrement",
+    "getCode": "Obtenir le code",
+    "getScript": "Obtenir le script",
+    "getPixel": "Obtenir le pixel",
+    "downloadPlugin": "Télécharger le plugin",
+    "configureBot": "Configurer le bot",
+    "manageConfigs": "Gérer les configurations",
+    "configureKeys": "Configurer les clés",
+    "getWidget": "Obtenir le widget",
     "groupAds": "Réseaux publicitaires",
     "groupDomains": "Domaines & SSL",
     "groupSites": "Sites & landings",
@@ -35570,10 +35779,10 @@ const fr = {
     "queueStale": "Le worker de livraison n'a pas signalé récemment. Installez le cron pour activer les réessais."
   },
   "extCosts": {
-    "title": "Dolphin / Fbtool — Keitaro API",
-    "description": "Recevoir les dépenses de Dolphin et Fbtool.pro via un endpoint compatible Keitaro Admin API",
+    "title": "Dolphin / FBTool API",
+    "description": "Recevoir les dépenses de Dolphin et Fbtool.pro via un endpoint compatible Orbitra Automation API",
     "step1": "1. Créez une clé API en écriture : Utilisateurs → votre profil → générer une clé (permissions : write)",
-    "step2": "2. Collez dans Dolphin (Paramètres → Export des dépenses → Keitaro) ou Fbtool (Dépenses → Keitaro) :",
+    "step2": "2. Collez dans Dolphin (Paramètres → Export des dépenses → Tracker API) ou Fbtool (Dépenses → Tracker API) :",
     "step3": "3. L’endpoint appelé par les services (compatible Keitaro Admin API v1) :",
     "hint": "Les filtres correspondent aux paramètres du clic : sub_id_4 = ad_id, sub_id_3 = adset_id (valeurs par défaut du template Facebook), ou tout nom de paramètre directement (ad_id, adset_id, campaign_id...). La dépense est répartie également entre les clics correspondants de la période ; un renvoi remplace au lieu de s’additionner."
   },
@@ -35922,7 +36131,7 @@ const fr = {
     "customApp": "Meta App personnalisée (Optionnel)",
     "customAppHint": "Utile seulement pour prolonger un token et de rares configurations par application — l'application partagée de l'instance ou un token longue durée prêt à l'emploi n'a rien besoin ici.",
     "oauthNotConfiguredTitle": "Le 1-Click OAuth n'est pas configuré",
-    "oauthNotConfiguredHint": "Définissez ORBITRA_META_APP_ID et ORBITRA_META_APP_SECRET sur le serveur, ou dépliez « Meta App personnalisée » ci-dessous et enregistrez un App ID / App Secret. Vous pouvez aussi passer le 1-Click : connectez-vous manuellement avec un Access Token dans le formulaire ci-dessous — comme dans Keitaro.",
+    "oauthNotConfiguredHint": "Définissez ORBITRA_META_APP_ID et ORBITRA_META_APP_SECRET sur le serveur, ou dépliez « Meta App personnalisée » ci-dessous et enregistrez un App ID / App Secret. Vous pouvez aussi passer le 1-Click : connectez-vous manuellement avec un Access Token dans le formulaire ci-dessous — de façon classique.",
     "tokenHowTo": "Comment obtenir un Access Token",
     "tokenHowToHint": "1. Ouvrez Meta for Developers → votre application, ou Business Settings → System Users.\n2. Créez un utilisateur système avec un accès administrateur à votre Business Manager.\n3. Générez un token avec les permissions ads_read et ads_management.\n4. Collez-le ci-dessus avec l'ID de votre compte publicitaire (act_…).",
     "advancedHint": "Nécessaire uniquement si le trafic passe par une application qui réencapsule les macros Facebook dans des sub ID. Laissez vide pour utiliser ad_id / adset_id / campaign_id.",
@@ -37850,6 +38059,10 @@ const de = {
     "roiConfirmed": "ROI (bestätigt)"
   },
   "offerEditor": {
+    "title": "Angebots-Editor",
+    "savedOffer": "Gespeichertes Angebot",
+    "desktop": "Desktop",
+    "mobile": "Mobil (375px)",
     "urlTemplate": "Angebots-URL",
     "localArchive": "Dateien des lokalen Offers",
     "uploadZip": "ZIP hochladen",
@@ -38421,7 +38634,7 @@ const de = {
     "postbackBanner": "Ein Postback (S2S-Postback) ist eine HTTP-Anfrage vom Affiliate-Netzwerk an Ihren Tracker, wenn eine Konvertierung stattfindet. Die URL enthält die Klick-ID (Subid), den Status und die Auszahlung. Der Tracker ordnet es dem ursprünglichen Klick zu und zeichnet die Conversion auf.",
     "postbackMacros": "Verfügbare Makros: {subid} – Klick-ID, {status} – Conversion-Status, {payout} – Betrag, {tid} – Transaktions-ID, {currency} – Währungscode.",
     "integrationsBannerTitle": "Wie erfolgt die Integration?",
-    "integrationsBanner": "Wählen Sie eine Integrationsmethode basierend auf Ihrem technischen Setup. KClient PHP bietet vollständige serverseitige Funktionen (Cloaking, Bot-Filterung). KClient JS ist einfacher zu installieren. Das Tracking-Pixel dient der grundlegenden Impressions- und Conversion-Verfolgung.",
+    "integrationsBanner": "Wählen Sie eine Integrationsmethode basierend auf Ihrem technischen Setup. Tracking Client (PHP) bietet vollständige serverseitige Funktionen (Cloaking, Bot-Filterung). Tracking Client (JS) ist einfacher zu installieren. Das Tracking-Pixel dient der grundlegenden Impressions- und Conversion-Verfolgung.",
     "conversionsBannerTitle": "Conversion-Status",
     "conversionsBanner": "Jede Conversion hat einen Status: Lead – ein neuer Lead, Verkauf – bestätigter Kauf, abgelehnt – vom Werbetreibenden abgelehnt, Anzahlung – erste Einzahlung (Glücksspiel), Registrierung – Benutzeranmeldung. Sie können benutzerdefinierte Status in den Einstellungen konfigurieren.",
     "trendsBannerTitle": "So verwenden Sie Analytics",
@@ -38583,6 +38796,36 @@ const de = {
     "saveSettings": "Einstellungen speichern"
   },
   "integrations": {
+    "hubTitle": "Integrations-Hub",
+    "hubSubtitle": "Verbinden Sie Werbeausgaben, Conversion-APIs, Domains und Tracking-Tools an einem Ort.",
+    "connectionsLive": "Aktive Verbindungen",
+    "filterAll": "Alle",
+    "filterAds": "Werbenetzwerke",
+    "filterDomains": "Domains & SSL",
+    "filterSites": "Websites & Landings",
+    "filterTools": "Tools & API",
+    "searchPlaceholder": "Integrationen, Werbenetzwerke, Domains, Skripte suchen...",
+    "noResults": "Keine Integrationen gefunden",
+    "noResultsDesc": "Versuchen Sie es mit einem anderen Suchbegriff oder wechseln Sie die Kategorie.",
+    "resetFilters": "Filter zurücksetzen",
+    "backToAll": "Zurück zu allen Integrationen",
+    "configure": "Konfigurieren",
+    "connectModeManual": "Direkt-Token",
+    "connectModeOauth": "1-Klick OAuth",
+    "manageAccounts": "Konten verwalten",
+    "manageCapi": "CAPI verwalten",
+    "manageVault": "Pixel-Vault öffnen",
+    "viewApiKeys": "API-Schlüssel",
+    "manageDns": "DNS verwalten",
+    "openRegistrar": "Registrar öffnen",
+    "getCode": "Code abrufen",
+    "getScript": "Skript abrufen",
+    "getPixel": "Pixel abrufen",
+    "downloadPlugin": "Plugin herunterladen",
+    "configureBot": "Bot konfigurieren",
+    "manageConfigs": "Konfigurationen verwalten",
+    "configureKeys": "Schlüssel konfigurieren",
+    "getWidget": "Widget abrufen",
     "groupAds": "Werbenetzwerke",
     "groupDomains": "Domains & SSL",
     "groupSites": "Websites & Landings",
@@ -38906,10 +39149,10 @@ const de = {
     "queueStale": "Zustellungs-Worker hat sich lange nicht gemeldet. Installieren Sie den Cron, um Wiederholungen zu aktivieren."
   },
   "extCosts": {
-    "title": "Dolphin / Fbtool — Keitaro API",
-    "description": "Ausgaben aus Dolphin und Fbtool.pro über einen Keitaro-kompatiblen Admin-API-Endpunkt empfangen",
+    "title": "Dolphin / FBTool API",
+    "description": "Ausgaben aus Dolphin und Fbtool.pro über den Orbitra Automation API-Endpunkt empfangen",
     "step1": "1. API-Schlüssel mit Schreibrechten erstellen: Benutzer → Profil → Schlüssel generieren (permissions: write)",
-    "step2": "2. In Dolphin (Einstellungen → Kostenexport → Keitaro) oder Fbtool (Kosten → Keitaro) eintragen:",
+    "step2": "2. In Dolphin (Einstellungen → Kostenexport → Tracker API) oder Fbtool (Kosten → Tracker API) eintragen:",
     "step3": "3. Endpunkt, den die Dienste aufrufen (kompatibel mit Keitaro Admin API v1):",
     "hint": "Filter matchen Klick-Parameter: sub_id_4 = ad_id, sub_id_3 = adset_id (Facebook-Template-Defaults) oder jeder Parametername direkt (ad_id, adset_id, campaign_id...). Ausgaben werden gleichmäßig auf die passenden Klicks des Zeitraums verteilt; erneutes Senden überschreibt statt zu addieren."
   },
@@ -39258,7 +39501,7 @@ const de = {
     "customApp": "Benutzerdefinierte Meta App (Optional)",
     "customAppHint": "Nur für die Token-Verlängerung und seltene App-Setups nötig — die geteilte Instanz-App oder ein fertiges Langzeit-Token braucht hier nichts.",
     "oauthNotConfiguredTitle": "1-Click-OAuth ist nicht konfiguriert",
-    "oauthNotConfiguredHint": "Setzen Sie ORBITRA_META_APP_ID und ORBITRA_META_APP_SECRET auf dem Server, oder klappen Sie unten „Benutzerdefinierte Meta App“ aus und speichern Sie App ID / App Secret. Sie können 1-Click auch komplett überspringen: Verbinden Sie sich unten manuell mit einem Access Token — wie in Keitaro.",
+    "oauthNotConfiguredHint": "Setzen Sie ORBITRA_META_APP_ID und ORBITRA_META_APP_SECRET auf dem Server, oder klappen Sie unten „Benutzerdefinierte Meta App“ aus und speichern Sie App ID / App Secret. Sie können 1-Click auch komplett überspringen: Verbinden Sie sich unten manuell mit einem Access Token — der klassische Weg.",
     "tokenHowTo": "So erhalten Sie einen Access Token",
     "tokenHowToHint": "1. Öffnen Sie Meta for Developers → Ihre App, oder Business Settings → System Users.\n2. Erstellen Sie einen System-Benutzer mit Admin-Zugriff auf Ihren Business Manager.\n3. Erzeugen Sie einen Token mit den Rechten ads_read und ads_management.\n4. Fügen Sie ihn oben zusammen mit Ihrer Werbekonto-ID (act_…) ein.",
     "advancedHint": "Nur nötig, wenn der Traffic über eine App läuft, die die Facebook-Makros in Sub-IDs umpackt. Leer lassen für die Standardwerte ad_id / adset_id / campaign_id.",
@@ -59357,7 +59600,7 @@ const CodeSnippetCard = ({
 const INDENT = "  ";
 const LINE_HEIGHT = 21;
 const FIND_MATCH_CAP = 9999;
-const VOID_HTML_TAGS$1 = /* @__PURE__ */ new Set([
+const VOID_HTML_TAGS$2 = /* @__PURE__ */ new Set([
   "area",
   "base",
   "br",
@@ -59380,7 +59623,7 @@ const shouldIndentNextLine = (line, language) => {
   if (language !== "html") return false;
   const match2 = trimmed.match(/<([a-z][\w:-]*)(?:\s[^>]*)?>$/i);
   if (!match2 || trimmed.endsWith("/>")) return false;
-  return !VOID_HTML_TAGS$1.has(match2[1].toLowerCase());
+  return !VOID_HTML_TAGS$2.has(match2[1].toLowerCase());
 };
 const buildFindRegex = (query, { matchCase, wholeWord, useRegex }) => {
   if (!query) return null;
@@ -59938,16 +60181,16 @@ function translateLandingRequestError(t, error) {
   return t("landingEditor.networkError");
 }
 const API_URL$x = "/api.php";
-const IMAGE_EXTENSIONS = /* @__PURE__ */ new Set(["png", "jpg", "jpeg", "gif", "webp", "svg", "avif", "ico", "bmp"]);
-const VOID_HTML_TAGS = /* @__PURE__ */ new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]);
-const JUNK_FILE_NAMES = /* @__PURE__ */ new Set(["__MACOSX", ".DS_Store", "Thumbs.db", ".git"]);
-const fileExtension = (path = "") => String(path).split(".").pop()?.toLowerCase() || "";
-const normalizedImageExtension = (path) => fileExtension(path).replace("jpeg", "jpg");
-const isImageFile = (path) => IMAGE_EXTENSIONS.has(fileExtension(path));
-const isJunkFile = (path) => String(path).replace(/\\/g, "/").split("/").some((part) => JUNK_FILE_NAMES.has(part));
-const encodeAssetPath = (path = "") => String(path).split("/").map(encodeURIComponent).join("/");
-const editorLanguage = (path) => {
-  const ext = fileExtension(path);
+const IMAGE_EXTENSIONS$1 = /* @__PURE__ */ new Set(["png", "jpg", "jpeg", "gif", "webp", "svg", "avif", "ico", "bmp"]);
+const VOID_HTML_TAGS$1 = /* @__PURE__ */ new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]);
+const JUNK_FILE_NAMES$1 = /* @__PURE__ */ new Set(["__MACOSX", ".DS_Store", "Thumbs.db", ".git"]);
+const fileExtension$1 = (path = "") => String(path).split(".").pop()?.toLowerCase() || "";
+const normalizedImageExtension$1 = (path) => fileExtension$1(path).replace("jpeg", "jpg");
+const isImageFile$1 = (path) => IMAGE_EXTENSIONS$1.has(fileExtension$1(path));
+const isJunkFile$1 = (path) => String(path).replace(/\\/g, "/").split("/").some((part) => JUNK_FILE_NAMES$1.has(part));
+const encodeAssetPath$1 = (path = "") => String(path).split("/").map(encodeURIComponent).join("/");
+const editorLanguage$1 = (path) => {
+  const ext = fileExtension$1(path);
   if (["html", "htm", "php"].includes(ext)) return "html";
   if (ext === "css") return "css";
   if (["js", "mjs"].includes(ext)) return "javascript";
@@ -59955,15 +60198,15 @@ const editorLanguage = (path) => {
   if (ext === "xml" || ext === "svg") return "xml";
   return "text";
 };
-const fileAppearance = (path) => {
-  const ext = fileExtension(path);
+const fileAppearance$1 = (path) => {
+  const ext = fileExtension$1(path);
   if (["html", "htm", "php"].includes(ext)) return { Icon: Code, color: "#f97316" };
   if (ext === "css") return { Icon: Palette, color: "#3b82f6" };
   if (["js", "mjs"].includes(ext)) return { Icon: FileCode, color: "#eab308" };
-  if (IMAGE_EXTENSIONS.has(ext)) return { Icon: Image, color: "#a855f7" };
+  if (IMAGE_EXTENSIONS$1.has(ext)) return { Icon: Image, color: "#a855f7" };
   return { Icon: FileText, color: "var(--color-text-muted)" };
 };
-const beautifyCode = (source, language) => {
+const beautifyCode$1 = (source, language) => {
   const normalized = String(source || "").replace(/\r\n?/g, "\n");
   const inputLines = language === "html" ? normalized.replace(/>\s*</g, ">\n<").split("\n") : normalized.split("\n");
   let depth = 0;
@@ -59976,7 +60219,7 @@ const beautifyCode = (source, language) => {
     if (language === "html") {
       const opening = line.match(/^<([a-z][\w:-]*)(?:\s[^>]*)?>/i);
       const sameLineClose = opening && new RegExp(`<\\/${opening[1]}\\s*>`, "i").test(line);
-      if (opening && !sameLineClose && !line.endsWith("/>") && !VOID_HTML_TAGS.has(opening[1].toLowerCase())) {
+      if (opening && !sameLineClose && !line.endsWith("/>") && !VOID_HTML_TAGS$1.has(opening[1].toLowerCase())) {
         depth += 1;
       }
     } else {
@@ -60040,14 +60283,14 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
   const replaceAssetInputRef = reactExports.useRef(null);
   const codeEditorRef = reactExports.useRef(null);
   const visibleFiles = reactExports.useMemo(
-    () => files.filter((file) => !isJunkFile(file)).sort((a, b) => a.localeCompare(b, void 0, { numeric: true, sensitivity: "base" })),
+    () => files.filter((file) => !isJunkFile$1(file)).sort((a, b) => a.localeCompare(b, void 0, { numeric: true, sensitivity: "base" })),
     [files]
   );
-  const selectedIsImage = Boolean(selectedFile && isImageFile(selectedFile));
-  const selectedLanguage = editorLanguage(selectedFile);
+  const selectedIsImage = Boolean(selectedFile && isImageFile$1(selectedFile));
+  const selectedLanguage = editorLanguage$1(selectedFile);
   const canInsertHtmlSnippets = selectedLanguage === "html";
-  const selectedImageAccept = normalizedImageExtension(selectedFile) === "jpg" ? ".jpg,.jpeg" : `.${fileExtension(selectedFile)}`;
-  const selectedAssetUrl = selectedFile && landing.slug ? `/lander/${encodeURIComponent(landing.slug)}/${encodeAssetPath(selectedFile)}?_asset=${assetNonce}` : "";
+  const selectedImageAccept = normalizedImageExtension$1(selectedFile) === "jpg" ? ".jpg,.jpeg" : `.${fileExtension$1(selectedFile)}`;
+  const selectedAssetUrl = selectedFile && landing.slug ? `/lander/${encodeURIComponent(landing.slug)}/${encodeAssetPath$1(selectedFile)}?_asset=${assetNonce}` : "";
   reactExports.useEffect(() => {
     if (!editorFullscreen) return void 0;
     const handleEscape = (event) => {
@@ -60272,7 +60515,7 @@ ${note}` : t("landingEditor.archiveUploaded"));
   const loadFileContent = async (path) => {
     setImageDimensions(null);
     setImageLoadError(false);
-    if (isImageFile(path)) {
+    if (isImageFile$1(path)) {
       setSelectedFile(path);
       setFileContent("");
       return;
@@ -60314,7 +60557,7 @@ ${note}` : t("landingEditor.archiveUploaded"));
     const replacement = event.target.files?.[0];
     event.target.value = "";
     if (!replacement || !selectedFile || !landingId) return;
-    if (normalizedImageExtension(replacement.name) !== normalizedImageExtension(selectedFile)) {
+    if (normalizedImageExtension$1(replacement.name) !== normalizedImageExtension$1(selectedFile)) {
       alert(t("landingEditor.replaceImageTypeError", "Choose an image with the same file type so existing landing links keep working."));
       return;
     }
@@ -60362,7 +60605,7 @@ ${note}` : t("landingEditor.archiveUploaded"));
 })();
 <\/script>`;
   const handleBeautify = () => {
-    const formatted = beautifyCode(fileContent, selectedLanguage);
+    const formatted = beautifyCode$1(fileContent, selectedLanguage);
     setFileContent(formatted);
     window.requestAnimationFrame(() => codeEditorRef.current?.setSelection(0, 0));
   };
@@ -60922,7 +61165,7 @@ ${note}` : t("landingEditor.archiveUploaded"));
                         /* @__PURE__ */ jsxRuntimeExports.jsx("input", { ref: assetInputRef, type: "file", className: "hidden", onChange: uploadFile })
                       ] }),
                       visibleFiles.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 text-center text-sm italic", style: { color: "var(--color-text-muted)" }, children: t("landingEditor.selectFile") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "py-2", children: visibleFiles.map((file) => {
-                        const { Icon: Icon2, color: color2 } = fileAppearance(file);
+                        const { Icon: Icon2, color: color2 } = fileAppearance$1(file);
                         return /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "group flex items-start", children: [
                           /* @__PURE__ */ jsxRuntimeExports.jsxs(
                             "button",
@@ -62763,6 +63006,62 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
   ) });
 };
 const API_URL$u = "/api.php";
+const IMAGE_EXTENSIONS = /* @__PURE__ */ new Set(["png", "jpg", "jpeg", "gif", "webp", "svg", "avif", "ico", "bmp"]);
+const VOID_HTML_TAGS = /* @__PURE__ */ new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]);
+const JUNK_FILE_NAMES = /* @__PURE__ */ new Set(["__MACOSX", ".DS_Store", "Thumbs.db", ".git"]);
+const fileExtension = (path = "") => String(path).split(".").pop()?.toLowerCase() || "";
+const normalizedImageExtension = (path) => fileExtension(path).replace("jpeg", "jpg");
+const isImageFile = (path) => IMAGE_EXTENSIONS.has(fileExtension(path));
+const isJunkFile = (path) => String(path).replace(/\\/g, "/").split("/").some((part) => JUNK_FILE_NAMES.has(part));
+const encodeAssetPath = (path = "") => String(path).split("/").map(encodeURIComponent).join("/");
+const editorLanguage = (path) => {
+  const ext = fileExtension(path);
+  if (["html", "htm", "php"].includes(ext)) return "html";
+  if (ext === "css") return "css";
+  if (["js", "mjs"].includes(ext)) return "javascript";
+  if (ext === "json") return "json";
+  if (ext === "xml" || ext === "svg") return "xml";
+  return "text";
+};
+const fileAppearance = (path) => {
+  const ext = fileExtension(path);
+  if (["html", "htm", "php"].includes(ext)) return { Icon: Code, color: "#f97316" };
+  if (ext === "css") return { Icon: Palette, color: "#3b82f6" };
+  if (["js", "mjs"].includes(ext)) return { Icon: FileCode, color: "#eab308" };
+  if (IMAGE_EXTENSIONS.has(ext)) return { Icon: Image, color: "#a855f7" };
+  return { Icon: FileText, color: "var(--color-text-muted)" };
+};
+const beautifyCode = (source, language) => {
+  const normalized = String(source || "").replace(/\r\n?/g, "\n");
+  const inputLines = language === "html" ? normalized.replace(/>\s*</g, ">\n<").split("\n") : normalized.split("\n");
+  let depth = 0;
+  return inputLines.map((rawLine) => {
+    const line = rawLine.trim();
+    if (!line) return "";
+    const closesBlock = language === "html" ? /^<\//.test(line) : /^[}\])]/.test(line);
+    if (closesBlock) depth = Math.max(0, depth - 1);
+    const formatted = `${"  ".repeat(depth)}${line}`;
+    if (language === "html") {
+      const opening = line.match(/^<([a-z][\w:-]*)(?:\s[^>]*)?>/i);
+      const sameLineClose = opening && new RegExp(`<\\/${opening[1]}\\s*>`, "i").test(line);
+      if (opening && !sameLineClose && !line.endsWith("/>") && !VOID_HTML_TAGS.has(opening[1].toLowerCase())) {
+        depth += 1;
+      }
+    } else {
+      const openCount = (line.match(/[{[(]/g) || []).length;
+      const closeCount = (line.match(/[}\])]/g) || []).length;
+      depth = Math.max(0, depth + openCount - closeCount + (closesBlock ? 1 : 0));
+    }
+    return formatted;
+  }).join("\n").replace(/\n{3,}/g, "\n\n").trim() + "\n";
+};
+const previewOfferDocument = (html, offerId) => {
+  if (!html || !offerId) return "";
+  const base = `<base href="/offers/${encodeURIComponent(offerId)}/">`;
+  return /<head(?:\s[^>]*)?>/i.test(html) ? html.replace(/<head(?:\s[^>]*)?>/i, (match2) => `${match2}
+${base}`) : `${base}
+${html}`;
+};
 const OfferEditor = ({ offerId, onClose, onCreated }) => {
   const { t } = useLanguage();
   const [loading, setLoading] = reactExports.useState(false);
@@ -62798,10 +63097,50 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
   const [saveSuccess, setSaveSuccess] = reactExports.useState(false);
   const currentOfferId = offerId || savedOfferId;
   const [copiedSnippet, setCopiedSnippet] = reactExports.useState("");
+  const [selectedFile, setSelectedFile] = reactExports.useState(null);
+  const [fileContent, setFileContent] = reactExports.useState("");
+  const [savingFile, setSavingFile] = reactExports.useState(false);
+  const [viewMode, setViewMode] = reactExports.useState("split");
+  const [deviceMode, setDeviceMode] = reactExports.useState("desktop");
+  const [previewNonce, setPreviewNonce] = reactExports.useState(0);
+  const [livePreviewHtml, setLivePreviewHtml] = reactExports.useState("");
+  const [imageDimensions, setImageDimensions] = reactExports.useState(null);
+  const [imageLoadError, setImageLoadError] = reactExports.useState(false);
+  const [assetNonce, setAssetNonce] = reactExports.useState(0);
+  const [editorFullscreen, setEditorFullscreen] = reactExports.useState(false);
+  const assetInputRef = reactExports.useRef(null);
+  const replaceAssetInputRef = reactExports.useRef(null);
+  const codeEditorRef = reactExports.useRef(null);
   const [showCapping, setShowCapping] = reactExports.useState(false);
   const [showGroupsModal, setShowGroupsModal] = reactExports.useState(false);
   const [showNetworkEditor, setShowNetworkEditor] = reactExports.useState(false);
   const [postbackKey, setPostbackKey] = reactExports.useState("");
+  const visibleFiles = reactExports.useMemo(
+    () => offerFiles.filter((file) => !isJunkFile(file)).sort((a, b) => a.localeCompare(b, void 0, { numeric: true, sensitivity: "base" })),
+    [offerFiles]
+  );
+  const selectedIsImage = Boolean(selectedFile && isImageFile(selectedFile));
+  const selectedLanguage = editorLanguage(selectedFile);
+  const selectedImageAccept = normalizedImageExtension(selectedFile) === "jpg" ? ".jpg,.jpeg" : `.${fileExtension(selectedFile)}`;
+  const selectedAssetUrl = selectedFile && currentOfferId ? `/offers/${encodeURIComponent(currentOfferId)}/${encodeAssetPath(selectedFile)}?_asset=${assetNonce}` : "";
+  reactExports.useEffect(() => {
+    if (!editorFullscreen) return void 0;
+    const handleEscape = (event) => {
+      if (event.key === "Escape") setEditorFullscreen(false);
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [editorFullscreen]);
+  reactExports.useEffect(() => {
+    if (!selectedFile || selectedIsImage || selectedLanguage !== "html" || !currentOfferId) {
+      setLivePreviewHtml("");
+      return void 0;
+    }
+    const timer = window.setTimeout(() => {
+      setLivePreviewHtml(previewOfferDocument(fileContent, currentOfferId));
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [fileContent, currentOfferId, selectedFile, selectedIsImage, selectedLanguage]);
   reactExports.useEffect(() => {
     cachedGet("settings").then(({ data }) => {
       if (data.status === "success") setPostbackKey(data.data.postback_key || "");
@@ -62877,6 +63216,9 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
             state: data.state || "active"
           });
           if (data.capping_limit > 0) setShowCapping(true);
+          if (data.is_local) {
+            fetchOfferFiles(offerId);
+          }
         }
       }).finally(() => setLoading(false));
     }
@@ -62884,10 +63226,12 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
   const handleSave = async (forceClose = false) => {
     if (loading || uploadingZip || saveSuccess) return;
     if (!formData.name) {
+      setActiveTab("general");
       alert(t("offerEditor.fillName"));
       return;
     }
     if (!formData.is_local && !formData.url) {
+      setActiveTab("general");
       alert(t("offerEditor.fillUrl"));
       return;
     }
@@ -62925,6 +63269,159 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
       setLoading(false);
     }
   };
+  const handleFormSubmit = (event) => {
+    event.preventDefault();
+    handleSave(false);
+  };
+  const fetchOfferFiles = async (id) => {
+    if (!id) return;
+    try {
+      const res = await axios.get(`${API_URL$u}?action=offer_files`, { params: { id } });
+      if (res.data.status === "success") {
+        const list = res.data.data || [];
+        setOfferFiles(list);
+        if (list.length > 0 && !selectedFile) {
+          const defaultFile = list.includes("index.html") ? "index.html" : list.includes("index.php") ? "index.php" : list[0];
+          loadFileContent(defaultFile, id);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  const loadFileContent = async (path, idOverride = null) => {
+    const id = idOverride || currentOfferId;
+    if (!id || !path) return;
+    setImageDimensions(null);
+    setImageLoadError(false);
+    if (isImageFile(path)) {
+      setSelectedFile(path);
+      setFileContent("");
+      return;
+    }
+    try {
+      const res = await axios.get(`${API_URL$u}?action=offer_file_content&id=${id}&path=${encodeURIComponent(path)}`);
+      if (res.data.status === "success") {
+        setSelectedFile(path);
+        setFileContent(res.data.data ?? "");
+      } else {
+        alert(res.data.message || t("landingEditor.fileReadError", "File read error"));
+      }
+    } catch (error) {
+      alert(`${t("landingEditor.fileReadError", "File read error")}: ${translateLandingRequestError(t, error)}`);
+    }
+  };
+  const saveFileContent = async () => {
+    if (!selectedFile || selectedIsImage || !currentOfferId) return;
+    setSavingFile(true);
+    try {
+      const res = await axios.post(`${API_URL$u}?action=offer_save_file`, {
+        id: currentOfferId,
+        path: selectedFile,
+        content: fileContent
+      });
+      if (res.data.status === "success") {
+        setSavedSomething(true);
+        setPreviewNonce(Date.now());
+      } else {
+        alert(res.data.message || t("landingEditor.fileSaveError", "Could not save file"));
+      }
+    } catch (error) {
+      alert(`${t("landingEditor.fileSaveError2", "Error while saving")}: ${translateLandingRequestError(t, error)}`);
+    } finally {
+      setSavingFile(false);
+    }
+  };
+  const fileOp = async (payload, okMessage) => {
+    if (!currentOfferId) return false;
+    try {
+      const res = await axios.post(`${API_URL$u}?action=offer_file_op`, { id: currentOfferId, ...payload });
+      if (res.data.status !== "success") throw new Error(res.data.message || "failed");
+      fetchOfferFiles(currentOfferId);
+      if (okMessage) ;
+      return true;
+    } catch (e) {
+      alert(`${t("landingEditor.fileOpError", "Operation failed")}: ${e.response?.data?.message || e.message}`);
+      return false;
+    }
+  };
+  const createFile = async () => {
+    const path = window.prompt(t("landingEditor.fileNewPrompt", "File name, e.g. page2.html or css/style.css"), "page2.html");
+    if (!path) return;
+    const success = await fileOp({ op: "create", path, content: "" });
+    if (success) {
+      loadFileContent(path);
+    }
+  };
+  const renameFile = async (file) => {
+    const to2 = window.prompt(t("landingEditor.fileRenamePrompt", "New name or path"), file);
+    if (!to2 || to2 === file) return;
+    if (await fileOp({ op: "rename", path: file, to: to2 }) && selectedFile === file) {
+      setSelectedFile(to2);
+      loadFileContent(to2);
+    }
+  };
+  const deleteFile = async (file) => {
+    if (!window.confirm(`${t("landingEditor.fileDeleteConfirm", "Delete this file?")}
+
+${file}`)) return;
+    if (await fileOp({ op: "delete", path: file }) && selectedFile === file) {
+      setSelectedFile(null);
+      setFileContent("");
+    }
+  };
+  const uploadFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !currentOfferId) return;
+    const dir = window.prompt(t("landingEditor.fileUploadDirPrompt", "Folder to upload into (leave empty for the root)"), "") ?? "";
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("id", currentOfferId);
+    fd.append("dir", dir);
+    try {
+      const res = await axios.post(`${API_URL$u}?action=upload_offer_file`, fd, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      if (res.data.status !== "success") throw new Error(res.data.message || "failed");
+      fetchOfferFiles(currentOfferId);
+    } catch (err) {
+      alert(`${t("landingEditor.fileOpError", "Operation failed")}: ${err.response?.data?.message || err.message}`);
+    } finally {
+      e.target.value = "";
+    }
+  };
+  const replaceSelectedImage = async (event) => {
+    const replacement = event.target.files?.[0];
+    event.target.value = "";
+    if (!replacement || !selectedFile || !currentOfferId) return;
+    if (normalizedImageExtension(replacement.name) !== normalizedImageExtension(selectedFile)) {
+      alert(t("landingEditor.replaceImageTypeError", "Choose an image with the same file type so existing landing links keep working."));
+      return;
+    }
+    const fd = new FormData();
+    fd.append("file", replacement);
+    fd.append("id", currentOfferId);
+    fd.append("path", selectedFile);
+    try {
+      const res = await axios.post(`${API_URL$u}?action=upload_offer_file`, fd, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      if (res.data.status !== "success") throw new Error(res.data.message || "failed");
+      setAssetNonce(Date.now());
+      setPreviewNonce(Date.now());
+      setImageDimensions(null);
+      setImageLoadError(false);
+      setSavedSomething(true);
+      fetchOfferFiles(currentOfferId);
+    } catch (error) {
+      alert(`${t("landingEditor.fileOpError", "Operation failed")}: ${error.response?.data?.message || error.message}`);
+    }
+  };
+  const handleBeautify = () => {
+    const formatted = beautifyCode(fileContent, selectedLanguage);
+    setFileContent(formatted);
+    window.requestAnimationFrame(() => codeEditorRef.current?.setSelection(0, 0));
+  };
   const uploadOfferZip = async (id, file) => {
     if (!id || !file) return;
     setUploadingZip(true);
@@ -62941,6 +63438,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
         const note = describeSanitized(t, res.data.sanitized);
         if (note) alert(note);
         fetchOfferFiles(id);
+        setPreviewNonce(Date.now());
       }
     } catch (err) {
       alert(`${t("offerEditor.zipError", "ZIP upload error")}: ${err.response?.data?.message || err.message}`);
@@ -62960,23 +63458,6 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
     if (!await copyToClipboard(text)) return;
     setCopiedSnippet(id);
     setTimeout(() => setCopiedSnippet(""), 1800);
-  };
-  const fetchOfferFiles = async (id) => {
-    try {
-      const res = await axios.get(`${API_URL$u}?action=offer_files`, { params: { id } });
-      if (res.data.status === "success") setOfferFiles(res.data.data || []);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-  const deleteOfferFile = async (path) => {
-    if (!window.confirm(`${t("common.delete")} ${path}?`)) return;
-    try {
-      await axios.post(`${API_URL$u}?action=offer_file_op`, { id: currentOfferId, path, op: "delete" });
-      fetchOfferFiles(currentOfferId);
-    } catch {
-      alert(t("common.deleteError"));
-    }
   };
   const addValue = () => {
     if (formData.values.length >= 10) {
@@ -63016,517 +63497,849 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
     "America/Sao_Paulo"
   ];
   const offerType = formData.is_local ? "local" : ["preload", "action"].includes(formData.redirect_type) ? formData.redirect_type : "redirect";
+  const isLocal = formData.is_local;
+  const showFileEditor = activeTab === "general" && isLocal && Boolean(currentOfferId);
   const tabs = [
     { id: "general", label: t("editor.general") },
     { id: "integration", label: `${t("editor.integrations")} & ${t("landingEditor.viewCode")}` },
     { id: "details", label: `${t("editor.notes")} & ${t("editor.params")}` }
   ];
+  const renderOfferPreview = (split = false) => {
+    const useLiveDocument = Boolean(livePreviewHtml && selectedLanguage === "html" && !selectedIsImage);
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex h-full min-h-0 flex-col overflow-hidden", style: { backgroundColor: "#fff" }, children: [
+      split ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between border-b px-3 py-2 text-xs font-semibold", style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)", color: "var(--color-text-secondary)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-1.5", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { className: "w-3.5 h-3.5" }),
+          " ",
+          t("landingEditor.livePreview", "Live preview")
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-normal", style: { color: "var(--color-text-muted)" }, children: useLiveDocument ? t("landingEditor.unsavedPreview", "Unsaved HTML") : t("offerEditor.savedOffer", t("landingEditor.savedPreview", "Saved offer")) })
+      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2 border-b px-3 py-2 text-xs font-semibold", style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center gap-1.5", style: { color: "var(--color-text-secondary)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Eye, { className: "w-3.5 h-3.5" }),
+            " ",
+            t("landingEditor.livePreview", "Live preview")
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-normal text-[11px]", style: { color: "var(--color-text-muted)" }, children: [
+            "(",
+            useLiveDocument ? t("landingEditor.unsavedPreview", "Unsaved HTML") : t("offerEditor.savedOffer", "Saved offer"),
+            ")"
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex overflow-hidden rounded-lg", style: { border: "1px solid var(--color-border)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: () => setDeviceMode("desktop"),
+                className: "flex items-center gap-1 px-2.5 py-1 text-xs transition",
+                style: {
+                  backgroundColor: deviceMode === "desktop" ? "var(--color-primary-light)" : "var(--color-bg-card)",
+                  color: deviceMode === "desktop" ? "var(--color-primary)" : "var(--color-text-primary)",
+                  borderRight: "1px solid var(--color-border)"
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Monitor, { className: "w-3.5 h-3.5" }),
+                  t("offerEditor.desktop", "Desktop")
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: () => setDeviceMode("mobile"),
+                className: "flex items-center gap-1 px-2.5 py-1 text-xs transition",
+                style: {
+                  backgroundColor: deviceMode === "mobile" ? "var(--color-primary-light)" : "var(--color-bg-card)",
+                  color: deviceMode === "mobile" ? "var(--color-primary)" : "var(--color-text-primary)"
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Smartphone, { className: "w-3.5 h-3.5" }),
+                  t("offerEditor.mobile", "Mobile (375px)")
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: () => setPreviewNonce(Date.now()),
+              className: "btn btn-ghost btn-sm p-1.5",
+              title: t("common.refresh", "Refresh"),
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCw, { className: "w-3.5 h-3.5" })
+            }
+          ),
+          currentOfferId && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "a",
+            {
+              href: `/offers/${currentOfferId}/`,
+              target: "_blank",
+              rel: "noopener noreferrer",
+              className: "btn btn-secondary btn-sm",
+              title: `/offers/${currentOfferId}/`,
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ExternalLink, { className: "h-3.5 w-3.5" }),
+                t("landingEditor.openInTab", "Open in tab")
+              ]
+            }
+          )
+        ] })
+      ] }),
+      currentOfferId ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex h-full min-h-0 w-full flex-1 items-center justify-center overflow-auto p-0", style: { backgroundColor: deviceMode === "mobile" && !split ? "var(--color-bg-soft)" : "#fff" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "div",
+        {
+          className: `h-full transition-all ${deviceMode === "mobile" && !split ? "w-[375px] my-3 border rounded-2xl shadow-lg overflow-hidden" : "w-full"}`,
+          style: {
+            borderColor: "var(--color-border)",
+            backgroundColor: "#fff",
+            height: deviceMode === "mobile" && !split ? "calc(100% - 24px)" : "100%"
+          },
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "iframe",
+            {
+              src: useLiveDocument ? void 0 : `/offers/${currentOfferId}/?_preview=${previewNonce}`,
+              srcDoc: useLiveDocument ? livePreviewHtml : void 0,
+              title: t("landingEditor.viewPreview", "Preview"),
+              className: "h-full min-h-0 w-full flex-1",
+              style: { border: "none", minHeight: split ? "320px" : "400px" }
+            },
+            `${previewNonce}-${useLiveDocument ? "live" : "saved"}`
+          )
+        }
+      ) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex h-full items-center justify-center p-6 text-center", style: { color: "var(--color-text-muted)" }, children: t("offerEditor.saveFirst", "Save the offer settings first to preview.") })
+    ] });
+  };
+  const renderSelectedAsset = () => {
+    if (!selectedFile) {
+      return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex h-full items-center justify-center", style: { color: "var(--color-text-muted)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "mx-auto mb-3 h-12 w-12 opacity-20" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("landingEditor.selectFile", "Select file to edit") })
+      ] }) });
+    }
+    if (selectedIsImage) {
+      return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex h-full min-h-0 items-center justify-center overflow-auto p-5", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex max-w-full flex-col items-center gap-4 rounded-2xl border p-4 shadow-sm", style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)" }, children: [
+        imageLoadError ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex min-h-48 min-w-64 items-center justify-center rounded-xl border p-6 text-center", style: { borderColor: "var(--color-border)", color: "var(--color-danger)" }, children: t("landingEditor.imageLoadError", "Could not load this image") }) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "img",
+          {
+            src: selectedAssetUrl,
+            alt: selectedFile,
+            className: "max-h-[52vh] max-w-full rounded-xl object-contain",
+            onLoad: (event) => setImageDimensions({ width: event.currentTarget.naturalWidth, height: event.currentTarget.naturalHeight }),
+            onError: () => setImageLoadError(true)
+          },
+          assetNonce
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex w-full flex-wrap items-center justify-between gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 text-xs", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "break-all font-semibold", style: { color: "var(--color-text-primary)" }, children: selectedFile }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { color: "var(--color-text-muted)" }, children: imageDimensions ? `${imageDimensions.width} × ${imageDimensions.height}px` : t("common.loading") })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", className: "btn btn-secondary btn-sm", onClick: () => replaceAssetInputRef.current?.click(), children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "h-3.5 w-3.5" }),
+            t("landingEditor.replaceImage", "Replace image")
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              ref: replaceAssetInputRef,
+              type: "file",
+              accept: selectedImageAccept,
+              className: "hidden",
+              onChange: replaceSelectedImage
+            }
+          )
+        ] })
+      ] }) });
+    }
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-full min-h-0 p-2", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      CodeEditor,
+      {
+        ref: codeEditorRef,
+        value: fileContent,
+        onChange: setFileContent,
+        onSave: saveFileContent,
+        language: selectedLanguage,
+        ariaLabel: `${t("offerEditor.title", "Offer Editor")}: ${selectedFile}`
+      }
+    ) });
+  };
   if (loading && offerId && !formData.name) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-content", style: { maxWidth: "300px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-6", style: { color: "var(--color-text-muted)" }, children: t("common.loading") }) }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-overlay", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "880px", width: "100%", display: "flex", flexDirection: "column", overflow: "hidden", padding: 0 }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header px-6 pt-5", style: { marginBottom: 0, borderBottom: "none", flexShrink: 0 }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 min-w-0", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0", style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(PackageOpen, { className: "w-5 h-5" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title truncate", children: currentOfferId ? `${t("offers.titleSingular")}: ${formData.name}` : t("offers.createOffer") })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => onClose(savedSomething), className: "action-btn", "aria-label": t("common.close", "Close"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex px-6 pt-1 gap-7 overflow-x-auto", style: { borderBottom: "1px solid var(--color-border)", flexShrink: 0 }, children: tabs.map((tab) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          type: "button",
-          className: "pb-3 px-1 font-semibold text-sm transition border-b-2 whitespace-nowrap",
-          style: {
-            borderColor: activeTab === tab.id ? "var(--color-primary)" : "transparent",
-            color: activeTab === tab.id ? "var(--color-primary)" : "var(--color-text-secondary)"
-          },
-          onClick: () => setActiveTab(tab.id),
-          children: tab.label
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "modal-content",
+        style: {
+          maxWidth: showFileEditor ? "1500px" : "880px",
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+          padding: 0
         },
-        tab.id
-      )) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-y-auto p-6", children: [
-        activeTab === "general" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-              t("offerEditor.nameLabel"),
-              " ",
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-danger)" }, children: "*" })
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header px-6 pt-5", style: { marginBottom: 0, borderBottom: "none", flexShrink: 0 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 min-w-0", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0", style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(PackageOpen, { className: "w-5 h-5" }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title truncate", children: currentOfferId ? `${t("offers.titleSingular")}: ${formData.name}` : t("offers.createOffer") })
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "text",
-                required: true,
-                value: formData.name,
-                onChange: (e) => setFormData({ ...formData, name: e.target.value }),
-                className: "form-input",
-                placeholder: t("offerEditor.namePlaceholder")
-              }
-            )
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => onClose(savedSomething), className: "action-btn", "aria-label": t("common.close", "Close"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-4", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.group") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "select",
-                  {
-                    value: formData.group_id,
-                    onChange: (e) => setFormData({ ...formData, group_id: e.target.value }),
-                    className: "form-select rounded-r-none",
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("offerEditor.noGroup") }),
-                      groups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g.id, children: g.name }, g.id))
-                    ]
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary rounded-l-none border-l-0", onClick: () => setShowGroupsModal(true), title: t("groupsModal.offerGroups"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }) })
-              ] })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.status") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "select",
-                {
-                  value: formData.state,
-                  onChange: (e) => setFormData({ ...formData, state: e.target.value }),
-                  className: "form-select",
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t("landingEditor.active") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "paused", children: t("landingEditor.paused") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "archived", children: t("landingEditor.archived") })
-                  ]
-                }
-              )
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-              t("offerEditor.affiliateNetwork"),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-1 relative group cursor-pointer inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold rounded-full", style: { color: "var(--color-text-muted)", border: "1px solid var(--color-border)" }, children: [
-                "?",
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "absolute bottom-full mb-2 hidden group-hover:block w-48 rounded-xl p-2 z-10 shadow-lg text-xs", style: { backgroundColor: "var(--color-bg-card)", color: "var(--color-text-primary)", border: "1px solid var(--color-border)" }, children: t("offerEditor.networkTooltip") })
-              ] })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "select",
-                {
-                  value: formData.affiliate_network_id,
-                  onChange: (e) => setFormData({ ...formData, affiliate_network_id: e.target.value }),
-                  className: "form-select rounded-r-none",
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("offerEditor.noNetwork") }),
-                    affiliateNetworks.map((an) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: an.id, children: an.name }, an.id))
-                  ]
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary rounded-l-none border-l-0", onClick: () => setShowNetworkEditor(true), title: t("networks.title"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }) })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-              t("offerEditor.redirectType"),
-              " ",
-              /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.redirectTypeTooltip" })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-              SegmentedControl,
-              {
-                ariaLabel: t("offerEditor.redirectType"),
-                value: offerType,
-                onChange: (type) => setFormData({
-                  ...formData,
-                  redirect_type: type,
-                  is_local: type === "local"
-                }),
-                options: [
-                  { value: "local", label: t("offers.local"), icon: HardDrive },
-                  { value: "redirect", label: t("offers.redirect"), icon: ExternalLink },
-                  { value: "preload", label: t("landingEditor.typePreload"), icon: Layers },
-                  { value: "action", label: t("editor.action"), icon: Zap }
-                ]
-              }
-            ) }),
-            offerType === "redirect" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "select",
-                {
-                  value: formData.redirect_type,
-                  onChange: (e) => setFormData({ ...formData, redirect_type: e.target.value }),
-                  className: "form-select",
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t("offerEditor.httpRedirect") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "js", children: t("redirectTypes.jsName") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "meta_refresh", children: t("redirectTypes.metaName") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "frame", children: t("redirectTypes.iframeName") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "form_submit", children: t("redirectTypes.formName") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "preload", children: t("offerEditor.preloadCurl") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "curl_proxy", children: t("redirectTypes.curlProxyName") })
-                  ]
-                }
-              ),
-              (() => {
-                const descKey = {
-                  redirect: "redirectTypes.redirectDesc",
-                  js: "redirectTypes.jsDesc",
-                  meta_refresh: "redirectTypes.metaDesc",
-                  frame: "redirectTypes.iframeDesc",
-                  form_submit: "redirectTypes.formDesc",
-                  preload: "redirectTypes.preloadDesc",
-                  curl_proxy: "redirectTypes.curlProxyDesc"
-                }[formData.redirect_type];
-                return descKey ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "form-hint", children: t(descKey) }) : null;
-              })()
-            ] })
-          ] }),
-          formData.is_local && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded-2xl", style: { border: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-soft)" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold mb-2 text-sm", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.localArchive", "Local offer files") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              FileDropzone,
-              {
-                file: pendingZip || lastZip,
-                onFileSelect: selectOfferZip,
-                disabled: uploadingZip,
-                label: uploadingZip ? t("landingEditor.uploadingZip") : t("offerEditor.uploadZip", "Upload ZIP Archive"),
-                emptyHint: t("landingEditor.zipDropHint", "Drag & drop .zip here or click to browse files"),
-                replaceHint: t("landingEditor.zipReplaceHint", "Click to replace")
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2 text-xs", style: { color: "var(--color-text-muted)", lineHeight: 1.5 }, children: !currentOfferId ? t("offerEditor.zipOnCreateHint", "The archive uploads right after the offer is created (an upload needs the offer id). index.html becomes the offer page.") : offerFiles.length > 0 ? `${t("offerEditor.filesLabel", "files")}: ${offerFiles.length}` : t("offerEditor.noFiles", "No files yet") }),
-            currentOfferId && offerFiles.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "space-y-1 max-h-40 overflow-y-auto mt-3", children: offerFiles.map((f) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center justify-between gap-2 text-xs px-2 py-1.5 rounded-lg", style: { background: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "truncate font-mono", style: { color: "var(--color-text-secondary)" }, children: f }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
-                {
-                  type: "button",
-                  className: "action-btn",
-                  onClick: () => deleteOfferFile(f),
-                  title: t("common.delete"),
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-3.5 h-3.5" })
-                }
-              )
-            ] }, f)) })
-          ] }),
-          !formData.is_local && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-              "URL ",
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-danger)" }, children: "*" })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "url",
-                required: true,
-                value: formData.url,
-                onChange: (e) => setFormData({ ...formData, url: e.target.value }),
-                className: "form-input",
-                placeholder: "https://offer.example.com/?subid={subid}"
-              }
-            )
-          ] })
-        ] }),
-        activeTab === "integration" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            CodeSnippetCard,
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex px-6 pt-1 gap-7 overflow-x-auto", style: { borderBottom: "1px solid var(--color-border)", flexShrink: 0 }, children: tabs.map((tab) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
             {
-              title: t("landingEditor.offerLinkTitle"),
-              description: t("landingEditor.offerLinkHint"),
-              code: "{offer}",
-              copyId: "offer-macro",
-              onCopy: copySnippet,
-              copied: copiedSnippet,
-              copyLabel: t("landingEditor.copyCode"),
-              copiedLabel: t("landingEditor.codeCopied")
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            CodeSnippetCard,
-            {
-              title: formData.is_local ? t("offerEditor.localArchive", "Local offer files") : t("offerEditor.urlTemplate", "Offer URL"),
-              description: formData.is_local ? t("offerEditor.zipOnCreateHint", "index.html becomes the local offer page.") : t("offerEditor.networkTooltip"),
-              code: formData.is_local ? "index.html" : formData.url || "https://offer.example.com/?subid={subid}",
-              copyId: "offer-url-template",
-              onCopy: copySnippet,
-              copied: copiedSnippet,
-              copyLabel: t("landingEditor.copyCode"),
-              copiedLabel: t("landingEditor.codeCopied")
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            CodeSnippetCard,
-            {
-              title: t("sourceEditor.availableMacros"),
-              description: t("offerEditor.valuesDesc"),
-              code: ["{subid}", ...formData.values.filter((value) => value.name).map((value) => `{offer_value:${value.name}}`)].join("\n"),
-              copyId: "offer-available-macros",
-              onCopy: copySnippet,
-              copied: copiedSnippet,
-              copyLabel: t("landingEditor.copyCode"),
-              copiedLabel: t("landingEditor.codeCopied"),
-              muted: true
-            }
-          )
-        ] }),
-        activeTab === "details" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.countries") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              GeoSelector,
-              {
-                value: formData.geo,
-                onChange: (geo) => setFormData({ ...formData, geo }),
-                placeholder: t("offerEditor.countriesPlaceholder")
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold mb-3", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.payouts") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4 mb-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
-                  {
-                    type: "radio",
-                    name: "payout_type",
-                    value: "cpa",
-                    checked: formData.payout_type === "cpa",
-                    onChange: () => setFormData({ ...formData, payout_type: "cpa" }),
-                    style: { accentColor: "var(--color-primary)" }
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", style: { color: "var(--color-text-primary)" }, children: "CPA" })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
-                  {
-                    type: "radio",
-                    name: "payout_type",
-                    value: "cpc",
-                    checked: formData.payout_type === "cpc",
-                    onChange: () => setFormData({ ...formData, payout_type: "cpc" }),
-                    style: { accentColor: "var(--color-primary)" }
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", style: { color: "var(--color-text-primary)" }, children: "CPC" })
-              ] })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4 items-center", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 max-w-[200px] relative", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
-                  {
-                    type: "number",
-                    step: "0.01",
-                    value: formData.payout_value,
-                    onChange: (e) => setFormData({ ...formData, payout_value: parseFloat(e.target.value) || 0 }),
-                    className: "form-input pr-8",
-                    disabled: formData.payout_auto
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "absolute right-3 top-2", style: { color: "var(--color-text-muted)" }, children: "$" })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 cursor-pointer", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
-                  {
-                    type: "checkbox",
-                    checked: formData.payout_auto,
-                    onChange: (e) => setFormData({ ...formData, payout_auto: e.target.checked }),
-                    className: "rounded"
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.payoutByParam") })
-              ] })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2 flex items-center justify-between", style: { borderTop: "1px solid var(--color-border)" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.rebills") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "relative inline-flex items-center cursor-pointer", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  type: "checkbox",
-                  className: "sr-only peer",
-                  checked: formData.allow_rebills,
-                  onChange: (e) => setFormData({ ...formData, allow_rebills: e.target.checked })
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-9 h-5 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:rounded-full after:h-4 after:w-4 after:transition-all", style: { backgroundColor: formData.allow_rebills ? "var(--color-primary)" : "var(--color-bg-hover)", "--tw-bg-opacity": 1, after: { backgroundColor: "white" } }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-[2px] left-[2px] w-4 h-4 rounded-full transition-transform", style: { backgroundColor: "white", transform: formData.allow_rebills ? "translateX(16px)" : "translateX(0)" } }) })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.conversionCap") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "relative inline-flex items-center cursor-pointer", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
-                  {
-                    type: "checkbox",
-                    className: "sr-only peer",
-                    checked: showCapping,
-                    onChange: () => setShowCapping(!showCapping)
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-9 h-5 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:rounded-full after:h-4 after:w-4 after:transition-all", style: { backgroundColor: showCapping ? "var(--color-primary)" : "var(--color-bg-hover)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-[2px] left-[2px] w-4 h-4 rounded-full transition-transform", style: { backgroundColor: "white", transform: showCapping ? "translateX(16px)" : "translateX(0)" } }) })
-              ] })
-            ] }),
-            showCapping && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 p-4 rounded-xl", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.dailyLimit") }),
+              type: "button",
+              className: "pb-3 px-1 font-semibold text-sm transition border-b-2 whitespace-nowrap",
+              style: {
+                borderColor: activeTab === tab.id ? "var(--color-primary)" : "transparent",
+                color: activeTab === tab.id ? "var(--color-primary)" : "var(--color-text-secondary)"
+              },
+              onClick: () => setActiveTab(tab.id),
+              children: tab.label
+            },
+            tab.id
+          )) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 overflow-y-auto p-0 flex flex-col md:flex-row", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `p-6 ${showFileEditor ? "md:w-[28%]" : "w-full"} flex flex-col pt-4`, style: { borderRight: showFileEditor ? "1px solid var(--color-border)" : "none" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { id: "offer-form", onSubmit: handleFormSubmit, className: "space-y-4", children: [
+              activeTab === "general" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+                    t("offerEditor.nameLabel"),
+                    " ",
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-danger)" }, children: "*" })
+                  ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx(
                     "input",
                     {
-                      type: "number",
-                      min: "0",
-                      value: formData.capping_limit,
-                      onChange: (e) => setFormData({ ...formData, capping_limit: parseInt(e.target.value) || 0 }),
-                      className: "form-input"
+                      type: "text",
+                      required: true,
+                      value: formData.name,
+                      onChange: (e) => setFormData({ ...formData, name: e.target.value }),
+                      className: "form-input",
+                      placeholder: t("offerEditor.namePlaceholder")
                     }
                   )
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.timezone") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "select",
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.group") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "select",
+                        {
+                          value: formData.group_id,
+                          onChange: (e) => setFormData({ ...formData, group_id: e.target.value }),
+                          className: "form-select rounded-r-none",
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("offerEditor.noGroup") }),
+                            groups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g.id, children: g.name }, g.id))
+                          ]
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary rounded-l-none border-l-0", onClick: () => setShowGroupsModal(true), title: t("groupsModal.offerGroups"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }) })
+                    ] })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.status") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "select",
+                      {
+                        value: formData.state,
+                        onChange: (e) => setFormData({ ...formData, state: e.target.value }),
+                        className: "form-select",
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "active", children: t("landingEditor.active") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "paused", children: t("landingEditor.paused") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "archived", children: t("landingEditor.archived") })
+                        ]
+                      }
+                    )
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+                    t("offerEditor.affiliateNetwork"),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-1 relative group cursor-pointer inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold rounded-full", style: { color: "var(--color-text-muted)", border: "1px solid var(--color-border)" }, children: [
+                      "?",
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "absolute bottom-full mb-2 hidden group-hover:block w-48 rounded-xl p-2 z-10 shadow-lg text-xs", style: { backgroundColor: "var(--color-bg-card)", color: "var(--color-text-primary)", border: "1px solid var(--color-border)" }, children: t("offerEditor.networkTooltip") })
+                    ] })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "select",
+                      {
+                        value: formData.affiliate_network_id,
+                        onChange: (e) => setFormData({ ...formData, affiliate_network_id: e.target.value }),
+                        className: "form-select rounded-r-none",
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("offerEditor.noNetwork") }),
+                          affiliateNetworks.map((an) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: an.id, children: an.name }, an.id))
+                        ]
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary rounded-l-none border-l-0", onClick: () => setShowNetworkEditor(true), title: t("networks.title"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }) })
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+                    t("offerEditor.redirectType"),
+                    " ",
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.redirectTypeTooltip" })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    SegmentedControl,
                     {
-                      value: formData.capping_timezone,
-                      onChange: (e) => setFormData({ ...formData, capping_timezone: e.target.value }),
-                      className: "form-select",
-                      children: timezones.map((tz) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: tz, children: tz }, tz))
+                      ariaLabel: t("offerEditor.redirectType"),
+                      value: offerType,
+                      onChange: (type) => setFormData({
+                        ...formData,
+                        redirect_type: type,
+                        is_local: type === "local"
+                      }),
+                      options: [
+                        { value: "local", label: t("offers.local"), icon: HardDrive },
+                        { value: "redirect", label: t("offers.redirect"), icon: ExternalLink },
+                        { value: "preload", label: t("landingEditor.typePreload"), icon: Layers },
+                        { value: "action", label: t("editor.action"), icon: Zap }
+                      ]
+                    }
+                  ) }),
+                  offerType === "redirect" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "select",
+                      {
+                        value: formData.redirect_type,
+                        onChange: (e) => setFormData({ ...formData, redirect_type: e.target.value }),
+                        className: "form-select",
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t("offerEditor.httpRedirect") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "js", children: t("redirectTypes.jsName") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "meta_refresh", children: t("redirectTypes.metaName") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "frame", children: t("redirectTypes.iframeName") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "form_submit", children: t("redirectTypes.formName") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "preload", children: t("offerEditor.preloadCurl") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "curl_proxy", children: t("redirectTypes.curlProxyName") })
+                        ]
+                      }
+                    ),
+                    (() => {
+                      const descKey = {
+                        redirect: "redirectTypes.redirectDesc",
+                        js: "redirectTypes.jsDesc",
+                        meta_refresh: "redirectTypes.metaDesc",
+                        frame: "redirectTypes.iframeDesc",
+                        form_submit: "redirectTypes.formDesc",
+                        preload: "redirectTypes.preloadDesc",
+                        curl_proxy: "redirectTypes.curlProxyDesc"
+                      }[formData.redirect_type];
+                      return descKey ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "form-hint", children: t(descKey) }) : null;
+                    })()
+                  ] })
+                ] }),
+                formData.is_local && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded-2xl", style: { border: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-soft)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold mb-2 text-sm", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.uploadZip", "Upload ZIP") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    FileDropzone,
+                    {
+                      file: pendingZip || lastZip,
+                      onFileSelect: selectOfferZip,
+                      disabled: uploadingZip,
+                      label: uploadingZip ? t("landingEditor.uploadingZip") : t("offerEditor.uploadZip", "Upload ZIP"),
+                      emptyHint: t("landingEditor.zipDropHint", "Drag & drop .zip here or click to browse files"),
+                      replaceHint: t("landingEditor.zipReplaceHint", "Click to replace")
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-2 text-xs", style: { color: "var(--color-text-muted)", lineHeight: 1.5 }, children: !currentOfferId ? t("offerEditor.zipOnCreateHint", "The archive uploads right after the offer is created (an upload needs the offer id). index.html becomes the offer page.") : `${visibleFiles.length} ${t("offerEditor.filesLabel", "files")}` })
+                ] }),
+                !formData.is_local && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+                    "URL ",
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-danger)" }, children: "*" })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      type: "url",
+                      required: true,
+                      value: formData.url,
+                      onChange: (e) => setFormData({ ...formData, url: e.target.value }),
+                      className: "form-input",
+                      placeholder: "https://offer.example.com/?subid={subid}"
                     }
                   )
                 ] })
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.altOffer") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "select",
+              activeTab === "integration" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  CodeSnippetCard,
                   {
-                    value: formData.alt_offer_id,
-                    onChange: (e) => setFormData({ ...formData, alt_offer_id: e.target.value }),
-                    className: "form-select",
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("offerEditor.notSelected") }),
-                      allOffers.map((o) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: o.id, children: o.name }, o.id))
-                    ]
+                    title: t("landingEditor.offerLinkTitle"),
+                    description: t("landingEditor.offerLinkHint"),
+                    code: "{offer}",
+                    copyId: "offer-macro",
+                    onCopy: copySnippet,
+                    copied: copiedSnippet,
+                    copyLabel: t("landingEditor.copyCode"),
+                    copiedLabel: t("landingEditor.codeCopied")
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  CodeSnippetCard,
+                  {
+                    title: formData.is_local ? t("offerEditor.localArchive", "Local offer files") : t("offerEditor.urlTemplate", "Offer URL"),
+                    description: formData.is_local ? t("offerEditor.zipOnCreateHint", "index.html becomes the local offer page.") : t("offerEditor.networkTooltip"),
+                    code: formData.is_local ? "index.html" : formData.url || "https://offer.example.com/?subid={subid}",
+                    copyId: "offer-url-template",
+                    onCopy: copySnippet,
+                    copied: copiedSnippet,
+                    copyLabel: t("landingEditor.copyCode"),
+                    copiedLabel: t("landingEditor.codeCopied")
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  CodeSnippetCard,
+                  {
+                    title: t("sourceEditor.availableMacros"),
+                    description: t("offerEditor.valuesDesc"),
+                    code: ["{subid}", ...formData.values.filter((value) => value.name).map((value) => `{offer_value:${value.name}}`)].join("\n"),
+                    copyId: "offer-available-macros",
+                    onCopy: copySnippet,
+                    copied: copiedSnippet,
+                    copyLabel: t("landingEditor.copyCode"),
+                    copiedLabel: t("landingEditor.codeCopied"),
+                    muted: true
                   }
                 )
-              ] })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.valuesTitle") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: t("offerEditor.valuesDesc") })
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "button",
-                {
-                  onClick: addValue,
-                  disabled: formData.values.length >= 10,
-                  className: "btn btn-secondary btn-sm",
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3.5 h-3.5" }),
-                    t("offerEditor.add")
-                  ]
-                }
-              )
-            ] }),
-            formData.values.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-8 rounded-xl border-2 border-dashed", style: { color: "var(--color-text-muted)", backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", children: t("offerEditor.noValues") }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: formData.values.map((val, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  type: "text",
-                  value: val.name,
-                  onChange: (e) => updateValue(idx, "name", e.target.value),
-                  className: "form-input",
-                  placeholder: t("offerEditor.paramNamePlaceholder")
-                }
-              ) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-[2]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  type: "text",
-                  value: val.value,
-                  onChange: (e) => updateValue(idx, "value", e.target.value),
-                  className: "form-input",
-                  placeholder: t("offerEditor.paramValuePlaceholder")
-                }
-              ) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
-                {
-                  onClick: () => removeValue(idx),
-                  className: "action-btn text-red",
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" })
-                }
-              )
-            ] }, idx)) }),
-            formData.values.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 pt-4", style: { borderTop: "1px solid var(--color-border)" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "font-semibold text-xs mb-2", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.usageExamples") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "text-xs space-y-1 font-mono p-3 rounded-xl", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)", color: "var(--color-text-secondary)" }, children: formData.values.filter((v) => v.name).map((v, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
-                `{offer_value:${v.name}}`,
-                " → ",
-                v.value || t("offerEditor.empty")
-              ] }, idx)) })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.notes") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "textarea",
+              activeTab === "details" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-5", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.countries") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    GeoSelector,
+                    {
+                      value: formData.geo,
+                      onChange: (geo) => setFormData({ ...formData, geo }),
+                      placeholder: t("offerEditor.countriesPlaceholder")
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold mb-3", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.payouts") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4 mb-3", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "input",
+                        {
+                          type: "radio",
+                          name: "payout_type",
+                          value: "cpa",
+                          checked: formData.payout_type === "cpa",
+                          onChange: () => setFormData({ ...formData, payout_type: "cpa" }),
+                          style: { accentColor: "var(--color-primary)" }
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", style: { color: "var(--color-text-primary)" }, children: "CPA" })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "input",
+                        {
+                          type: "radio",
+                          name: "payout_type",
+                          value: "cpc",
+                          checked: formData.payout_type === "cpc",
+                          onChange: () => setFormData({ ...formData, payout_type: "cpc" }),
+                          style: { accentColor: "var(--color-primary)" }
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", style: { color: "var(--color-text-primary)" }, children: "CPC" })
+                    ] })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4 items-center", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 max-w-[200px] relative", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "input",
+                        {
+                          type: "number",
+                          step: "0.01",
+                          value: formData.payout_value,
+                          onChange: (e) => setFormData({ ...formData, payout_value: parseFloat(e.target.value) || 0 }),
+                          className: "form-input pr-8",
+                          disabled: formData.payout_auto
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "absolute right-3 top-2", style: { color: "var(--color-text-muted)" }, children: "$" })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 cursor-pointer", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "input",
+                        {
+                          type: "checkbox",
+                          checked: formData.payout_auto,
+                          onChange: (e) => setFormData({ ...formData, payout_auto: e.target.checked }),
+                          className: "rounded"
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.payoutByParam") })
+                    ] })
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2 flex items-center justify-between", style: { borderTop: "1px solid var(--color-border)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.rebills") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "relative inline-flex items-center cursor-pointer", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        type: "checkbox",
+                        className: "sr-only peer",
+                        checked: formData.allow_rebills,
+                        onChange: (e) => setFormData({ ...formData, allow_rebills: e.target.checked })
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-9 h-5 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:rounded-full after:h-4 after:w-4 after:transition-all", style: { backgroundColor: formData.allow_rebills ? "var(--color-primary)" : "var(--color-bg-hover)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-[2px] left-[2px] w-4 h-4 rounded-full transition-transform", style: { backgroundColor: "white", transform: formData.allow_rebills ? "translateX(16px)" : "translateX(0)" } }) })
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-3", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.conversionCap") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "relative inline-flex items-center cursor-pointer", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "input",
+                        {
+                          type: "checkbox",
+                          className: "sr-only peer",
+                          checked: showCapping,
+                          onChange: () => setShowCapping(!showCapping)
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-9 h-5 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:rounded-full after:h-4 after:w-4 after:transition-all", style: { backgroundColor: showCapping ? "var(--color-primary)" : "var(--color-bg-hover)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "absolute top-[2px] left-[2px] w-4 h-4 rounded-full transition-transform", style: { backgroundColor: "white", transform: showCapping ? "translateX(16px)" : "translateX(0)" } }) })
+                    ] })
+                  ] }),
+                  showCapping && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 p-4 rounded-xl", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.dailyLimit") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "input",
+                          {
+                            type: "number",
+                            min: "0",
+                            value: formData.capping_limit,
+                            onChange: (e) => setFormData({ ...formData, capping_limit: parseInt(e.target.value) || 0 }),
+                            className: "form-input"
+                          }
+                        )
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.timezone") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "select",
+                          {
+                            value: formData.capping_timezone,
+                            onChange: (e) => setFormData({ ...formData, capping_timezone: e.target.value }),
+                            className: "form-select",
+                            children: timezones.map((tz) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: tz, children: tz }, tz))
+                          }
+                        )
+                      ] })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.altOffer") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "select",
+                        {
+                          value: formData.alt_offer_id,
+                          onChange: (e) => setFormData({ ...formData, alt_offer_id: e.target.value }),
+                          className: "form-select",
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("offerEditor.notSelected") }),
+                            allOffers.map((o) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: o.id, children: o.name }, o.id))
+                          ]
+                        }
+                      )
+                    ] })
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-3", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-sm font-bold", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.valuesTitle") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: t("offerEditor.valuesDesc") })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: addValue,
+                        disabled: formData.values.length >= 10,
+                        className: "btn btn-secondary btn-sm",
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3.5 h-3.5" }),
+                          t("offerEditor.add")
+                        ]
+                      }
+                    )
+                  ] }),
+                  formData.values.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-8 rounded-xl border-2 border-dashed", style: { color: "var(--color-text-muted)", backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", children: t("offerEditor.noValues") }) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-2", children: formData.values.map((val, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        type: "text",
+                        value: val.name,
+                        onChange: (e) => updateValue(idx, "name", e.target.value),
+                        className: "form-input",
+                        placeholder: t("offerEditor.paramNamePlaceholder")
+                      }
+                    ) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-[2]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        type: "text",
+                        value: val.value,
+                        onChange: (e) => updateValue(idx, "value", e.target.value),
+                        className: "form-input",
+                        placeholder: t("offerEditor.paramValuePlaceholder")
+                      }
+                    ) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: () => removeValue(idx),
+                        className: "action-btn text-red",
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" })
+                      }
+                    )
+                  ] }, idx)) }),
+                  formData.values.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 pt-4", style: { borderTop: "1px solid var(--color-border)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "font-semibold text-xs mb-2", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.usageExamples") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "text-xs space-y-1 font-mono p-3 rounded-xl", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)", color: "var(--color-text-secondary)" }, children: formData.values.filter((v) => v.name).map((v, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
+                      `{offer_value:${v.name}}`,
+                      " → ",
+                      v.value || t("offerEditor.empty")
+                    ] }, idx)) })
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.notes") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "textarea",
+                    {
+                      rows: 6,
+                      value: formData.notes,
+                      onChange: (e) => setFormData({ ...formData, notes: e.target.value }),
+                      className: "form-input resize-none",
+                      placeholder: t("offerEditor.notesPlaceholder")
+                    }
+                  )
+                ] })
+              ] })
+            ] }) }),
+            showFileEditor && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "div",
               {
-                rows: 6,
-                value: formData.notes,
-                onChange: (e) => setFormData({ ...formData, notes: e.target.value }),
-                className: "form-input resize-none",
-                placeholder: t("offerEditor.notesPlaceholder")
+                className: "flex min-h-[400px] flex-1 flex-col overflow-hidden",
+                style: {
+                  backgroundColor: "var(--color-bg-soft)",
+                  ...editorFullscreen ? {
+                    position: "fixed",
+                    inset: "12px",
+                    zIndex: 1400,
+                    border: "1px solid var(--color-border)",
+                    borderRadius: "16px",
+                    boxShadow: "0 24px 80px rgba(0,0,0,.45)"
+                  } : {}
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2 p-3", style: { borderBottom: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("h4", { className: "flex min-w-0 items-center font-semibold", style: { color: "var(--color-text-primary)" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "mr-2 h-4 w-4 flex-shrink-0", style: { color: "var(--color-accent-purple)" } }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("offerEditor.title", "Offer Editor") }),
+                      selectedFile && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ml-2 break-all text-xs font-normal", style: { color: "var(--color-text-muted)" }, children: [
+                        "· ",
+                        selectedFile
+                      ] })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-end gap-2", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex overflow-hidden rounded-lg", style: { border: "1px solid var(--color-border)" }, children: [
+                        { value: "code", label: t("landingEditor.viewCode", "Code"), icon: Code },
+                        { value: "split", label: t("landingEditor.viewSplit", "Split"), icon: Columns2 },
+                        { value: "preview", label: t("landingEditor.viewPreview", "Preview"), icon: Eye }
+                      ].map((opt, index2) => {
+                        const active = viewMode === opt.value;
+                        const Icon2 = opt.icon;
+                        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                          "button",
+                          {
+                            type: "button",
+                            onClick: () => {
+                              if (opt.value !== "code") setPreviewNonce(Date.now());
+                              setViewMode(opt.value);
+                            },
+                            className: "flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition",
+                            style: {
+                              backgroundColor: active ? "var(--color-primary-light)" : "var(--color-bg-card)",
+                              color: active ? "var(--color-primary)" : "var(--color-text-primary)",
+                              borderRight: index2 < 2 ? "1px solid var(--color-border)" : "none"
+                            },
+                            children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "h-3.5 w-3.5" }),
+                              opt.label
+                            ]
+                          },
+                          opt.value
+                        );
+                      }) }),
+                      viewMode !== "code" && currentOfferId && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "a",
+                        {
+                          href: `/offers/${currentOfferId}/`,
+                          target: "_blank",
+                          rel: "noopener noreferrer",
+                          className: "btn btn-secondary btn-sm",
+                          title: `/offers/${currentOfferId}/`,
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(ExternalLink, { className: "h-4 w-4" }),
+                            t("landingEditor.openInTab", "Open in tab")
+                          ]
+                        }
+                      ),
+                      viewMode !== "preview" && selectedFile && !selectedIsImage && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "button",
+                        {
+                          type: "button",
+                          onClick: saveFileContent,
+                          disabled: savingFile,
+                          className: "btn btn-primary btn-sm",
+                          title: "Ctrl/Cmd+S",
+                          children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { className: "h-4 w-4" }),
+                            savingFile ? t("common.saving") : t("landingEditor.save", "Save")
+                          ]
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "button",
+                        {
+                          type: "button",
+                          onClick: () => setEditorFullscreen((value) => !value),
+                          className: "btn btn-ghost btn-sm",
+                          title: editorFullscreen ? t("landingEditor.exitFullscreen", "Exit fullscreen") : t("landingEditor.fullscreen", "Fullscreen"),
+                          children: editorFullscreen ? /* @__PURE__ */ jsxRuntimeExports.jsx(Minimize2, { className: "h-4 w-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Maximize2, { className: "h-4 w-4" })
+                        }
+                      )
+                    ] })
+                  ] }),
+                  viewMode !== "preview" && selectedFile && !selectedIsImage && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-1.5 border-b px-3 py-2", style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", className: "btn btn-secondary btn-sm", onClick: handleBeautify, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(WandSparkles, { className: "h-3.5 w-3.5" }),
+                      " ",
+                      t("landingEditor.formatCode", "Format")
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "button",
+                      {
+                        type: "button",
+                        className: "btn btn-secondary btn-sm",
+                        onClick: () => codeEditorRef.current?.openFind(),
+                        title: "Ctrl/Cmd+F · Ctrl/Cmd+H",
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "h-3.5 w-3.5" }),
+                          " ",
+                          t("landingEditor.findReplace", "Find & Replace")
+                        ]
+                      }
+                    )
+                  ] }),
+                  viewMode === "preview" ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-0 flex-1 overflow-hidden", children: renderOfferPreview(false) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-h-0 flex-1 overflow-hidden", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `${viewMode === "split" ? "w-[20%]" : "w-1/4"} min-w-[150px] overflow-y-auto`, style: { borderRight: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 px-2 py-2", style: { borderBottom: "1px solid var(--color-border)" }, children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "mr-auto text-[10px] font-bold uppercase tracking-wider", style: { color: "var(--color-text-muted)" }, children: [
+                          t("landingEditor.filesTitle", "Files"),
+                          " (",
+                          visibleFiles.length,
+                          ")"
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: createFile, className: "btn btn-ghost btn-sm", title: t("landingEditor.fileNew", "New file"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "h-3.5 w-3.5" }) }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => assetInputRef.current?.click(), className: "btn btn-ghost btn-sm", title: t("landingEditor.fileUpload", "Upload a file"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "h-3.5 w-3.5" }) }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("input", { ref: assetInputRef, type: "file", className: "hidden", onChange: uploadFile })
+                      ] }),
+                      visibleFiles.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-4 text-center text-sm italic", style: { color: "var(--color-text-muted)" }, children: t("offerEditor.noFiles", "No files yet") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "py-2", children: visibleFiles.map((file) => {
+                        const { Icon: Icon2, color: color2 } = fileAppearance(file);
+                        return /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "group flex items-start", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                            "button",
+                            {
+                              type: "button",
+                              onClick: () => loadFileContent(file),
+                              className: `flex min-w-0 flex-1 items-start px-3 py-2 text-left text-sm transition ${selectedFile === file ? "font-medium" : ""}`,
+                              style: {
+                                backgroundColor: selectedFile === file ? "var(--color-primary-light)" : "transparent",
+                                color: selectedFile === file ? "var(--color-primary)" : "var(--color-text-primary)",
+                                borderRight: selectedFile === file ? "2px solid var(--color-primary)" : "none"
+                              },
+                              children: [
+                                /* @__PURE__ */ jsxRuntimeExports.jsx(Icon2, { className: "mr-2 mt-0.5 h-3.5 w-3.5 flex-shrink-0", style: { color: color2 } }),
+                                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "break-all whitespace-normal", title: file, children: file })
+                              ]
+                            }
+                          ),
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-shrink-0 items-center pt-1.5 opacity-50 transition group-hover:opacity-100", children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => renameFile(file), className: "action-btn text-blue", title: t("landingEditor.fileRename", "Rename"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(FileCode, { className: "h-3.5 w-3.5" }) }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => deleteFile(file), className: "action-btn text-red", title: t("common.delete", "Delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-3.5 w-3.5" }) })
+                          ] })
+                        ] }, file);
+                      }) })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `${viewMode === "split" ? "w-[40%]" : "flex-1"} min-w-0 min-h-0`, style: { backgroundColor: "var(--color-bg-card)" }, children: renderSelectedAsset() }),
+                    viewMode === "split" && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-0 w-[40%] min-w-[280px] overflow-hidden border-l", style: { borderColor: "var(--color-border)" }, children: renderOfferPreview(true) })
+                  ] })
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer px-6 pb-5", style: { marginTop: 0, flexShrink: 0 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: () => onClose(savedSomething), className: "btn btn-secondary rounded-xl", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-4 h-4" }),
+              t("common.cancel")
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: () => handleSave(true),
+                disabled: loading || uploadingZip || saveSuccess,
+                className: "btn btn-secondary rounded-xl",
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { className: "w-4 h-4" }),
+                  t("profile.saveAndClose")
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "submit",
+                form: "offer-form",
+                disabled: loading || uploadingZip || saveSuccess,
+                className: "btn btn-primary rounded-xl",
+                style: saveSuccess ? { backgroundColor: "var(--color-success)" } : {},
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4 mr-1.5" }),
+                  saveSuccess ? t("editor.saved") : loading ? t("common.saving") : uploadingZip ? t("landingEditor.uploadingZip") : currentOfferId ? t("landingEditor.saveChanges", "Save Changes") : t("offers.createOffer")
+                ]
               }
             )
           ] })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer px-6 pb-5", style: { marginTop: 0, flexShrink: 0 }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: () => onClose(savedSomething), className: "btn btn-secondary rounded-xl", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-4 h-4" }),
-          t("common.cancel")
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            type: "button",
-            onClick: () => handleSave(true),
-            disabled: loading || uploadingZip || saveSuccess,
-            className: "btn btn-secondary rounded-xl",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Save, { className: "w-4 h-4" }),
-              t("profile.saveAndClose")
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            type: "button",
-            onClick: () => handleSave(false),
-            disabled: loading || uploadingZip || saveSuccess,
-            className: "btn btn-primary rounded-xl",
-            style: saveSuccess ? { backgroundColor: "var(--color-success)" } : {},
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4 mr-1.5" }),
-              saveSuccess ? t("editor.saved") : loading ? t("common.saving") : uploadingZip ? t("landingEditor.uploadingZip") : currentOfferId ? t("common.save") : t("offers.createOffer")
-            ]
-          }
-        )
-      ] })
-    ] }),
+        ]
+      }
+    ),
     showGroupsModal && /* @__PURE__ */ jsxRuntimeExports.jsx(
       GroupsModal,
       {
@@ -71045,6 +71858,124 @@ const PixelPicker = ({ label, value, profileId, trafficSource, resolveServerSide
     ] }) })
   ] });
 };
+const IntegrationCard = ({ item, onSelect }) => {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      onClick: () => onSelect(item.id),
+      role: "button",
+      tabIndex: 0,
+      onKeyDown: (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect(item.id);
+        }
+      },
+      className: "group relative flex flex-col justify-between p-5 rounded-2xl border transition-all duration-200 cursor-pointer hover:shadow-lg hover:-translate-y-1 select-none",
+      style: {
+        background: "var(--color-bg-card)",
+        borderColor: "var(--color-border)"
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-2 mb-4", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "span",
+              {
+                className: "text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shrink-0",
+                style: {
+                  background: item.badgeBg || "rgba(99, 102, 241, 0.12)",
+                  color: item.badgeColor || "var(--color-primary)"
+                },
+                children: item.badge
+              }
+            ),
+            item.isConnected ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-500 shrink-0", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "relative flex h-2 w-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "relative inline-flex rounded-full h-2 w-2 bg-emerald-500" })
+              ] }),
+              "Active"
+            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] font-medium text-slate-400 dark:text-slate-500 shrink-0", children: "Available" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3.5 mb-2.5", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "div",
+              {
+                className: "w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0 transition-transform duration-200 group-hover:scale-105",
+                style: {
+                  background: item.iconBg || "var(--color-bg-soft)",
+                  color: item.iconColor || "var(--color-primary)",
+                  border: "1px solid var(--color-border)"
+                },
+                children: item.icon
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 flex-1", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "h4",
+                {
+                  className: "font-semibold text-[15px] leading-snug truncate group-hover:text-[var(--color-primary)] transition-colors",
+                  style: { color: "var(--color-text-primary)" },
+                  children: item.title
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "p",
+                {
+                  className: "text-xs truncate mt-0.5",
+                  style: { color: "var(--color-text-muted)" },
+                  children: item.subtitle
+                }
+              )
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "p",
+            {
+              className: "text-xs line-clamp-2 mt-2 leading-relaxed",
+              style: { color: "var(--color-text-secondary)" },
+              children: item.description
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            className: "mt-5 pt-3.5 border-t flex items-center justify-between gap-2 text-xs",
+            style: { borderColor: "var(--color-border)" },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5 min-w-0 flex-1", children: [
+                item.isConnected && /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 13, className: "text-emerald-500 shrink-0" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "span",
+                  {
+                    className: "font-medium truncate",
+                    style: {
+                      color: item.isConnected ? "var(--color-text-primary)" : "var(--color-text-muted)"
+                    },
+                    children: item.statText || "Click to configure"
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "div",
+                {
+                  className: "flex items-center gap-1 font-semibold shrink-0 transition-transform duration-200 group-hover:translate-x-1",
+                  style: { color: "var(--color-primary)" },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: item.ctaText || "Configure" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 13 })
+                  ]
+                }
+              )
+            ]
+          }
+        )
+      ]
+    }
+  );
+};
 const API_URL$b = "/api.php";
 const SYNC_INTERVAL_OPTIONS = [
   { value: 0.333, label: "20 min" },
@@ -71060,7 +71991,10 @@ const IntegrationsPage = () => {
   const { t } = useLanguage();
   const translationRef = reactExports.useRef(t);
   translationRef.current = t;
-  const [activeTab, setActiveTab] = reactExports.useState("kclient_php");
+  const [activeView, setActiveView] = reactExports.useState("grid");
+  const [activeCategory, setActiveCategory] = reactExports.useState("all");
+  const [searchQuery, setSearchQuery] = reactExports.useState("");
+  const [activeTab, setActiveTab] = reactExports.useState("google_ads_costs");
   const [copied, setCopied] = reactExports.useState("");
   const [extTemplate, setExtTemplate] = reactExports.useState("cpa");
   const [extGuide, setExtGuide] = reactExports.useState("adspower");
@@ -71692,7 +72626,55 @@ const IntegrationsPage = () => {
       setPixelProfilesLoading(false);
     }
   }, []);
+  const loadOverviewData = reactExports.useCallback(() => {
+    fetchFbConnections();
+    fetchFbFields();
+    fetchFbOauthStatus();
+    fetchTtConnections();
+    fetchTtFields();
+    fetchTtOauthStatus();
+    fetchGaConnections();
+    fetchGaFields();
+    fetchGaOauthStatus();
+    fetchCapiPixels();
+    fetchCapiMeta();
+    fetchCampaigns();
+    fetchPixelProfiles();
+    fetchTelegramSettings();
+    fetchRcSettings();
+    fetchConfigs();
+    loadExtensionCredentials();
+    axios.get(`${API_URL$b}?action=cloudflare_status`).then((res) => {
+      if (res.data?.status === "success") {
+        setCfStatus(res.data.data);
+        setCfAccounts(res.data.data.accounts || []);
+        setCfServerIp(res.data.data.server_ip || "");
+      }
+    }).catch(() => {
+    });
+    axios.get(`${API_URL$b}?action=namecheap_accounts_list`).then((res) => {
+      if (res.data?.status === "success") {
+        setNcAccounts(res.data.data.accounts || []);
+        setNcIps({ server_ip: res.data.data.server_ip || "", detected_ip: res.data.data.detected_ip || "" });
+        (res.data.data.accounts || []).forEach((acc) => {
+          axios.post(`${API_URL$b}?action=namecheap_account_balance`, { account_id: acc.id }).then((b) => {
+            if (b.data?.status === "success" && b.data.data?.balance !== void 0) {
+              setNcAccounts((list) => list.map((a) => a.id === acc.id ? { ...a, last_balance: b.data.data.balance || a.last_balance } : a));
+            }
+          }).catch(() => {
+          });
+        });
+      }
+    }).catch(() => {
+    });
+  }, [fetchFbConnections, fetchFbFields, fetchFbOauthStatus, fetchTtConnections, fetchTtFields, fetchTtOauthStatus, fetchGaConnections, fetchGaFields, fetchGaOauthStatus, fetchCapiPixels, fetchCapiMeta, fetchCampaigns, fetchPixelProfiles, fetchTelegramSettings, fetchRcSettings, fetchConfigs, loadExtensionCredentials]);
   reactExports.useEffect(() => {
+    loadOverviewData();
+  }, [loadOverviewData]);
+  reactExports.useEffect(() => {
+    if (activeTab === "telegram") fetchTelegramSettings();
+    if (activeTab === "recaptcha") fetchRcSettings();
+    if (activeTab === "chrome_extension" && !extApiKey) loadExtensionCredentials();
     if (activeTab === "facebook_costs") {
       fetchFbConnections();
       fetchFbFields();
@@ -71716,7 +72698,7 @@ const IntegrationsPage = () => {
     if (activeTab === "pixel_vault") fetchPixelProfiles();
     if (activeTab === "cloudflare") {
       axios.get(`${API_URL$b}?action=cloudflare_status`).then((res) => {
-        if (res.data.status === "success") {
+        if (res.data?.status === "success") {
           setCfStatus(res.data.data);
           setCfAccounts(res.data.data.accounts || []);
           setCfServerIp(res.data.data.server_ip || "");
@@ -71726,12 +72708,12 @@ const IntegrationsPage = () => {
     }
     if (activeTab === "namecheap") {
       axios.get(`${API_URL$b}?action=namecheap_accounts_list`).then((res) => {
-        if (res.data.status === "success") {
+        if (res.data?.status === "success") {
           setNcAccounts(res.data.data.accounts || []);
           setNcIps({ server_ip: res.data.data.server_ip || "", detected_ip: res.data.data.detected_ip || "" });
           (res.data.data.accounts || []).forEach((acc) => {
             axios.post(`${API_URL$b}?action=namecheap_account_balance`, { account_id: acc.id }).then((b) => {
-              if (b.data.status === "success" && b.data.data?.balance !== void 0) {
+              if (b.data?.status === "success" && b.data.data?.balance !== void 0) {
                 setNcAccounts((list) => list.map((a) => a.id === acc.id ? { ...a, last_balance: b.data.data.balance || a.last_balance } : a));
               }
             }).catch(() => {
@@ -71741,7 +72723,7 @@ const IntegrationsPage = () => {
       }).catch(() => {
       });
     }
-  }, [activeTab, fetchFbConnections, fetchFbFields, fetchTtConnections, fetchTtFields, fetchGaConnections, fetchGaFields, fetchCapiPixels, fetchCapiMeta, fetchCampaigns, fetchPixelProfiles]);
+  }, [activeTab, fetchFbConnections, fetchFbFields, fetchFbOauthStatus, fetchTtConnections, fetchTtFields, fetchTtOauthStatus, fetchGaConnections, fetchGaFields, fetchGaOauthStatus, fetchCapiPixels, fetchCapiMeta, fetchCampaigns, fetchPixelProfiles, fetchTelegramSettings, fetchRcSettings, loadExtensionCredentials, extApiKey]);
   const openNcAccountModal = async (acc = null) => {
     setNcAccMessage(null);
     setNcAccAddresses([]);
@@ -74612,10 +75594,188 @@ const IntegrationsPage = () => {
     ] });
   };
   const scripts = {
+    google_ads_costs: {
+      category: "ads",
+      badge: "LIVE",
+      badgeBg: "rgba(59, 130, 246, 0.15)",
+      badgeColor: "#2563eb",
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "w-5 h-5" }),
+      iconBg: "rgba(59, 130, 246, 0.1)",
+      iconColor: "#3b82f6",
+      title: t("googleAdsCosts.title", "Google Ads Costs"),
+      subtitle: "Cost + Conversions",
+      description: t("googleAdsCosts.description"),
+      isConnected: gaConnections.length > 0,
+      statText: gaConnections.length ? `${gaConnections.length} accounts connected` : "Auto-import ad spend",
+      ctaText: t("integrations.manageAccounts", "Manage Accounts"),
+      isGoogleAdsCosts: true
+    },
+    tiktok_costs: {
+      category: "ads",
+      badge: "LIVE",
+      badgeBg: "rgba(236, 72, 153, 0.15)",
+      badgeColor: "#db2777",
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Music2, { className: "w-5 h-5" }),
+      iconBg: "rgba(236, 72, 153, 0.1)",
+      iconColor: "#ec4899",
+      title: t("tiktokCosts.title", "TikTok Costs"),
+      subtitle: "Cost + Events API",
+      description: t("tiktokCosts.description"),
+      isConnected: ttConnections.length > 0,
+      statText: ttConnections.length ? `${ttConnections.length} accounts connected` : "Auto-import ad spend",
+      ctaText: t("integrations.manageAccounts", "Manage Accounts"),
+      isTikTokCosts: true
+    },
+    facebook_costs: {
+      category: "ads",
+      badge: "COST",
+      badgeBg: "rgba(37, 99, 235, 0.15)",
+      badgeColor: "#1d4ed8",
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { className: "w-5 h-5" }),
+      iconBg: "rgba(37, 99, 235, 0.1)",
+      iconColor: "#2563eb",
+      title: t("fbCosts.title"),
+      subtitle: "Auto-import ad spend",
+      description: t("fbCosts.description"),
+      isConnected: fbConnections.length > 0,
+      statText: fbConnections.length ? `${fbConnections.length} accounts connected` : "Auto-import ad spend",
+      ctaText: t("integrations.manageAccounts", "Manage Accounts"),
+      isFacebookCosts: true
+    },
+    facebook_conversions: {
+      category: "ads",
+      badge: "CONVERSIONS",
+      badgeBg: "rgba(147, 51, 234, 0.15)",
+      badgeColor: "#7c3aed",
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { className: "w-5 h-5" }),
+      iconBg: "rgba(147, 51, 234, 0.1)",
+      iconColor: "#8b5cf6",
+      title: t("fbConv.title"),
+      subtitle: "Server-side pixel vault",
+      description: t("fbConv.description"),
+      isConnected: capiPixels.length > 0,
+      statText: capiPixels.length ? `${capiPixels.length} active pixels` : "Server-side CAPI",
+      ctaText: t("integrations.manageCapi", "Manage CAPI"),
+      isFacebookConversions: true
+    },
+    pixel_vault: {
+      category: "ads",
+      badge: "VAULT",
+      badgeBg: "rgba(79, 70, 229, 0.15)",
+      badgeColor: "#4f46e5",
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { className: "w-5 h-5" }),
+      iconBg: "rgba(79, 70, 229, 0.1)",
+      iconColor: "#6366f1",
+      title: t("pixelVault.pixelVaultTitle"),
+      subtitle: "Multi-source pixel vault",
+      description: t("pixelVault.description"),
+      isConnected: pixelProfiles.length > 0,
+      statText: pixelProfiles.length ? `${pixelProfiles.length} profiles stored` : "Pixel repository",
+      ctaText: t("integrations.manageVault", "Manage Vault"),
+      isPixelVault: true
+    },
+    dolphin_fbtool: {
+      category: "ads",
+      badge: "AUTOMATION",
+      badgeBg: "rgba(245, 158, 11, 0.15)",
+      badgeColor: "#d97706",
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { className: "w-5 h-5" }),
+      iconBg: "rgba(245, 158, 11, 0.1)",
+      iconColor: "#f59e0b",
+      title: t("extCosts.title", "Dolphin / FBTool API"),
+      subtitle: "External upload & costs",
+      description: t("extCosts.description", "Приём расходов из Dolphin и Fbtool.pro через Orbitra Automation API endpoint"),
+      isConnected: true,
+      statText: "Admin API endpoint",
+      ctaText: t("integrations.viewApiKeys", "View API Keys"),
+      code: `# ${t("extCosts.step1", "1. Создайте API-ключ с правами write: Пользователи → ваш профиль → сгенерировать ключ (permissions: write)")}
+
+# ${t("extCosts.step2", "2. Скопируйте в Dolphin (Настройки → Экспорт расходов → Tracker API) или Fbtool (Расходы → Tracker API):")}
+#    Tracker URL:  ${trackerUrl}
+#    Admin API key: <ваш ключ>
+
+# ${t("extCosts.step3", "3. Endpoint, который вызывают сервисы (совместим с Keitaro Admin API v1):")}
+# POST ${trackerUrl}/admin_api/v1/campaigns/CAMPAIGN_ID/update_costs
+# Authorization: Bearer <API_KEY>
+{
+  "start_date": "2026-08-15",
+  "end_date": "2026-08-15",
+  "cost": 12.34,
+  "currency": "USD",
+  "timezone": "Europe/Berlin",
+  "filters": { "sub_id_4": "120212558973560058" }
+}
+
+# ${t("extCosts.hint", "Фильтры матчатся по параметрам клика: sub_id_4 = ad_id, sub_id_3 = adset_id (дефолты шаблона Facebook), либо любое имя параметра напрямую (ad_id, adset_id, campaign_id...). Расход делится поровну между совпавшими кликами за период; повторная отправка перезаписывает, а не суммирует.")}`
+    },
+    chrome_extension: {
+      category: "ads",
+      badge: "EXTENSION",
+      badgeBg: "rgba(16, 185, 129, 0.15)",
+      badgeColor: "#059669",
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Monitor, { className: "w-5 h-5" }),
+      iconBg: "rgba(16, 185, 129, 0.1)",
+      iconColor: "#10b981",
+      title: t("integrations.chromeExtension", "Chrome & Antidetect Extension"),
+      subtitle: "Ads Manager overlay",
+      description: t("integrations.chromeExtDesc", "Overlay real-time tracker analytics directly inside Facebook Ads Manager."),
+      isConnected: !!extApiKey,
+      statText: extApiKey ? "Ready · Key active" : "Download & install",
+      ctaText: t("integrations.configure", "Configure"),
+      isChromeExtension: true
+    },
+    cloudflare: {
+      category: "domains",
+      badge: "DOMAIN",
+      badgeBg: "rgba(249, 115, 22, 0.15)",
+      badgeColor: "#ea580c",
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Cloud, { className: "w-5 h-5" }),
+      iconBg: "rgba(249, 115, 22, 0.1)",
+      iconColor: "#f97316",
+      title: t("cloudflare.title", "Cloudflare"),
+      subtitle: "DNS, Proxy & Free SSL",
+      description: t("cloudflare.description", "Управление DNS доменов трекера через Cloudflare API: A-записи прописываются сами, SSL — краем CF"),
+      isConnected: cfAccounts.length > 0,
+      statText: cfAccounts.length ? `${cfAccounts.length} accounts · ${cfStatus?.managed_domains || 0} zones` : "Auto-DNS & Edge SSL",
+      ctaText: t("integrations.manageDns", "Manage DNS"),
+      isCloudflare: true
+    },
+    namecheap: {
+      category: "domains",
+      badge: "DOMAIN",
+      badgeBg: "rgba(225, 29, 72, 0.15)",
+      badgeColor: "#e11d48",
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { className: "w-5 h-5" }),
+      iconBg: "rgba(225, 29, 72, 0.1)",
+      iconColor: "#f43f5e",
+      title: t("namecheap.title", "Namecheap"),
+      subtitle: (() => {
+        const b = ncAccounts.find((a) => a.last_balance)?.last_balance;
+        return b ? `Balance: ${b}` : "Buy & Park Domains";
+      })(),
+      description: t("namecheap.description", "Автопарковка DNS доменов из аккаунта Namecheap, покупка новых доменов и выпуск SSL — прямо из трекера"),
+      isConnected: ncAccounts.length > 0,
+      statText: (() => {
+        const b = ncAccounts.find((a) => a.last_balance)?.last_balance;
+        return b ? `Balance: ${b}` : ncAccounts.length ? `${ncAccounts.length} accounts connected` : "Auto-DNS & Buy domains";
+      })(),
+      ctaText: t("integrations.openRegistrar", "Open Registrar"),
+      isNamecheap: true
+    },
     kclient_php: {
-      title: "KClient PHP",
+      category: "sites",
+      badge: "TRACKING",
+      badgeBg: "rgba(14, 165, 233, 0.15)",
+      badgeColor: "#0284c7",
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Terminal, { className: "w-5 h-5" }),
+      iconBg: "rgba(14, 165, 233, 0.1)",
+      iconColor: "#0ea5e9",
+      title: "Tracking Client (PHP)",
+      subtitle: "Server-side cloak code",
       description: t("integrations.kclientPhpDesc"),
+      isConnected: true,
+      statText: "Full server-side execution",
+      ctaText: t("integrations.getCode", "Get Code"),
       code: `<?php
 // ${t("integrations.codeToInsert")}
 // kclient.php: ${trackerUrl}/kclient.php?download=1
@@ -74626,9 +75786,19 @@ $client->execute();
 ?>`
     },
     kclient_js: {
-      title: "KClient JS",
+      category: "sites",
+      badge: "TRACKING",
+      badgeBg: "rgba(234, 179, 8, 0.15)",
+      badgeColor: "#ca8a04",
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { className: "w-5 h-5" }),
+      iconBg: "rgba(234, 179, 8, 0.1)",
+      iconColor: "#eab308",
+      title: "Tracking Client (JS)",
+      subtitle: "Single page / Tilda / WP",
       description: t("integrations.kclientJsDesc"),
+      isConnected: true,
+      statText: "Client-side async script",
+      ctaText: t("integrations.getScript", "Get Script"),
       code: `<script type="application/javascript">
   var orbitra_db_url = '${trackerUrl}';
   var orbitra_campaign_token = 'CAMPAIGN_TOKEN';
@@ -74636,21 +75806,20 @@ $client->execute();
 <script src="${trackerUrl}/kclient.js"><\/script>
 <noscript><img src="${trackerUrl}/pixel.gif?token=CAMPAIGN_TOKEN" alt="" /></noscript>`
     },
-    js_banner: {
-      title: t("integrations.jsBannerTitle"),
-      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "w-5 h-5" }),
-      description: t("integrations.jsBannerDesc"),
-      code: `<div id="orbitra-banner" style="width:300px;height:250px;overflow:hidden"></div>
-<script>
-  var orbitra_db_url = '${trackerUrl}';
-  var orbitra_campaign_token = 'CAMPAIGN_TOKEN';
-<\/script>
-<script src="${trackerUrl}/banner.js" async><\/script>`
-    },
     tracking_pixel: {
-      title: "Tracking Pixel",
+      category: "sites",
+      badge: "PIXEL",
+      badgeBg: "rgba(168, 85, 247, 0.15)",
+      badgeColor: "#9333ea",
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Image, { className: "w-5 h-5" }),
+      iconBg: "rgba(168, 85, 247, 0.1)",
+      iconColor: "#a855f7",
+      title: "Tracking Pixel",
+      subtitle: "Email & basic HTML tracker",
       description: t("integrations.pixelDesc"),
+      isConnected: true,
+      statText: "1x1 transparent tracker",
+      ctaText: t("integrations.getPixel", "Get Pixel"),
       code: `<!-- Tracking impressions -->
 <img src="${trackerUrl}/pixel.gif?campaign_id=YOUR_ID" width="1" height="1" border="0" alt="" />
 
@@ -74658,9 +75827,19 @@ $client->execute();
 <img src="${trackerUrl}/pixel.gif?action=conversion&subid={subid}&status=lead" width="1" height="1" border="0" alt="" />`
     },
     tiktok_pixel: {
-      title: t("integrations.tiktokPixelTitle", "TikTok Pixel"),
+      category: "sites",
+      badge: "PIXEL",
+      badgeBg: "rgba(236, 72, 153, 0.15)",
+      badgeColor: "#db2777",
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Music2, { className: "w-5 h-5" }),
+      iconBg: "rgba(236, 72, 153, 0.1)",
+      iconColor: "#ec4899",
+      title: t("integrations.tiktokPixelTitle", "TikTok Pixel"),
+      subtitle: "Cookie bridge & local landers",
       description: t("integrations.tiktokPixelDesc", "Browser TikTok Pixel on local landings. The pixel id arrives in the {pixel} campaign parameter from the TikTok source template and is stored in a cookie for the thank-you page."),
+      isConnected: true,
+      statText: "Client-side TikTok pixel",
+      ctaText: t("integrations.getScript", "Get Script"),
       code: `<!-- 1. Landing <head>: store the pixel id from the campaign parameter.
         The TikTok source template fills {pixel} = __PIXEL__; replace "pixel"
         if your campaign passes it under another name. -->
@@ -74711,100 +75890,41 @@ var pixel = matches ? decodeURIComponent(matches[1]) : undefined;
 <!-- No access to the landing code (offer redirect)? Use the server-side
         TikTok Conversions API instead: Pixel Vault -> Connect TikTok. -->`
     },
-    facebook_costs: {
-      title: t("fbCosts.title"),
-      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { className: "w-5 h-5" }),
-      description: t("fbCosts.description"),
-      isFacebookCosts: true
-    },
-    tiktok_costs: {
-      title: t("tiktokCosts.title", "TikTok Costs"),
-      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Music2, { className: "w-5 h-5" }),
-      description: t("tiktokCosts.description"),
-      isTikTokCosts: true
-    },
-    google_ads_costs: {
-      title: t("googleAdsCosts.title", "Google Ads Costs"),
-      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "w-5 h-5" }),
-      description: t("googleAdsCosts.description"),
-      isGoogleAdsCosts: true
-    },
-    facebook_conversions: {
-      title: t("fbConv.title"),
-      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { className: "w-5 h-5" }),
-      description: t("fbConv.description"),
-      isFacebookConversions: true
-    },
-    pixel_vault: {
-      title: t("pixelVault.pixelVaultTitle"),
-      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Database, { className: "w-5 h-5" }),
-      description: t("pixelVault.description"),
-      isPixelVault: true
-    },
-    chrome_extension: {
-      title: t("integrations.chromeExtension", "Chrome & Antidetect Extension"),
-      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Monitor, { className: "w-5 h-5" }),
-      description: t("integrations.chromeExtDesc", "Overlay real-time tracker analytics directly inside Facebook Ads Manager."),
-      isChromeExtension: true
-    },
-    dolphin_fbtool: {
-      title: t("extCosts.title", "Dolphin / Fbtool — Keitaro API"),
-      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { className: "w-5 h-5" }),
-      description: t("extCosts.description", "Приём расходов из Dolphin и Fbtool.pro через Keitaro-совместимый Admin API endpoint"),
-      code: `# ${t("extCosts.step1", "1. Создайте API-ключ с правами write: Пользователи → ваш профиль → сгенерировать ключ (permissions: write)")}
-
-# ${t("extCosts.step2", "2. Скопируйте в Dolphin (Настройки → Экспорт расходов → Keitaro) или Fbtool (Расходы → Keitaro):")}
-#    Tracker URL:  ${trackerUrl}
-#    Admin API key: <ваш ключ>
-
-# ${t("extCosts.step3", "3. Endpoint, который вызывают сервисы (совместим с Keitaro Admin API v1):")}
-# POST ${trackerUrl}/admin_api/v1/campaigns/CAMPAIGN_ID/update_costs
-# Authorization: Bearer <API_KEY>
-{
-  "start_date": "2026-08-15",
-  "end_date": "2026-08-15",
-  "cost": 12.34,
-  "currency": "USD",
-  "timezone": "Europe/Berlin",
-  "filters": { "sub_id_4": "120212558973560058" }
-}
-
-# ${t("extCosts.hint", "Фильтры матчатся по параметрам клика: sub_id_4 = ad_id, sub_id_3 = adset_id (дефолты шаблона Facebook), либо любое имя параметра напрямую (ad_id, adset_id, campaign_id...). Расход делится поровну между совпавшими кликами за период; повторная отправка перезаписывает, а не суммирует.")}`
-    },
-    cloudflare: {
-      title: t("cloudflare.title", "Cloudflare"),
-      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Cloud, { className: "w-5 h-5" }),
-      description: t("cloudflare.description", "Управление DNS доменов трекера через Cloudflare API: A-записи прописываются сами, SSL — краем CF"),
-      isCloudflare: true
-    },
-    namecheap: {
-      title: t("namecheap.title", "Namecheap"),
-      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { className: "w-5 h-5" }),
-      description: t("namecheap.description", "Автопарковка DNS доменов из аккаунта Namecheap, покупка новых доменов и выпуск SSL — прямо из трекера"),
-      isNamecheap: true
-    },
-    recaptcha: {
-      title: t("recaptcha.tabTitle"),
-      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { className: "w-5 h-5" }),
-      description: t("recaptcha.tabDesc"),
-      isRecaptcha: true
-    },
-    telegram: {
-      title: "Telegram Bot",
-      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Send, { className: "w-5 h-5" }),
-      description: t("telegram.description"),
-      isTelegram: true
-    },
-    app_config: {
-      title: t("appConfig.title"),
-      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { className: "w-5 h-5" }),
-      description: t("appConfig.subtitle"),
-      isAppConfig: true
+    js_banner: {
+      category: "sites",
+      badge: "BANNER",
+      badgeBg: "rgba(20, 184, 166, 0.15)",
+      badgeColor: "#0d9488",
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "w-5 h-5" }),
+      iconBg: "rgba(20, 184, 166, 0.1)",
+      iconColor: "#14b8a6",
+      title: t("integrations.jsBannerTitle"),
+      subtitle: "Dynamic banner widget",
+      description: t("integrations.jsBannerDesc"),
+      isConnected: true,
+      statText: "Ad block & split-testing",
+      ctaText: t("integrations.getCode", "Get Code"),
+      code: `<div id="orbitra-banner" style="width:300px;height:250px;overflow:hidden"></div>
+<script>
+  var orbitra_db_url = '${trackerUrl}';
+  var orbitra_campaign_token = 'CAMPAIGN_TOKEN';
+<\/script>
+<script src="${trackerUrl}/banner.js" async><\/script>`
     },
     wordpress: {
-      title: t("wordpress.title"),
+      category: "sites",
+      badge: "INTEGRATION",
+      badgeBg: "rgba(59, 130, 246, 0.15)",
+      badgeColor: "#2563eb",
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { className: "w-5 h-5" }),
+      iconBg: "rgba(59, 130, 246, 0.1)",
+      iconColor: "#3b82f6",
+      title: t("wordpress.title"),
+      subtitle: "functions.php remote config",
       description: t("wordpress.description"),
+      isConnected: true,
+      statText: "WordPress shortcodes",
+      ctaText: t("integrations.getCode", "Get Code"),
       code: `<?php
 // ${t("wordpress.instruction")}
 function ltt_check_remote_config() {
@@ -74840,10 +75960,36 @@ function ltt_webview_redirect() {
 add_action('wp_head', 'ltt_webview_redirect');
 ?>`
     },
+    wordpress_plugin: {
+      category: "sites",
+      badge: "PLUGIN",
+      badgeBg: "rgba(30, 64, 175, 0.15)",
+      badgeColor: "#1d4ed8",
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "w-5 h-5" }),
+      iconBg: "rgba(30, 64, 175, 0.1)",
+      iconColor: "#2563eb",
+      title: t("integrations.wpPluginTitle"),
+      subtitle: "Ready-to-use WP plugin",
+      description: t("integrations.wpPluginDesc"),
+      isConnected: true,
+      statText: "Downloadable ZIP archive",
+      ctaText: t("integrations.downloadPlugin", "Download Plugin"),
+      isWpPlugin: true
+    },
     static_site: {
-      title: t("staticSite.title"),
+      category: "sites",
+      badge: "SCRIPT",
+      badgeBg: "rgba(100, 116, 139, 0.15)",
+      badgeColor: "#475569",
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { className: "w-5 h-5" }),
+      iconBg: "rgba(100, 116, 139, 0.1)",
+      iconColor: "#64748b",
+      title: t("staticSite.title"),
+      subtitle: "HTML/JS remote control",
       description: t("staticSite.description"),
+      isConnected: true,
+      statText: "WebView & stub toggle",
+      ctaText: t("integrations.getScript", "Get Script"),
       code: `<script>
 // ${t("staticSite.instruction")}
 (async function() {
@@ -74880,9 +76026,19 @@ add_action('wp_head', 'ltt_webview_redirect');
 <\/script>`
     },
     geo_redirect: {
-      title: t("integrations.geoRedirectTitle"),
+      category: "sites",
+      badge: "REDIRECT",
+      badgeBg: "rgba(16, 185, 129, 0.15)",
+      badgeColor: "#059669",
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { className: "w-5 h-5" }),
+      iconBg: "rgba(16, 185, 129, 0.1)",
+      iconColor: "#10b981",
+      title: t("integrations.geoRedirectTitle"),
+      subtitle: "Country-based redirection",
       description: t("integrations.geoRedirectDesc"),
+      isConnected: true,
+      statText: "Dynamic Geo-IP routing",
+      ctaText: t("integrations.getScript", "Get Script"),
       code: `<script>
 // Geo Redirect Script - redirect users based on country
 (function() {
@@ -74919,9 +76075,19 @@ add_action('wp_head', 'ltt_webview_redirect');
 <\/script>`
     },
     device_redirect: {
-      title: t("integrations.deviceRedirectTitle"),
+      category: "sites",
+      badge: "REDIRECT",
+      badgeBg: "rgba(99, 102, 241, 0.15)",
+      badgeColor: "#4f46e5",
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Smartphone, { className: "w-5 h-5" }),
+      iconBg: "rgba(99, 102, 241, 0.1)",
+      iconColor: "#6366f1",
+      title: t("integrations.deviceRedirectTitle"),
+      subtitle: "Device type routing",
       description: t("integrations.deviceRedirectDesc"),
+      isConnected: true,
+      statText: "Mobile / Tablet / PC",
+      ctaText: t("integrations.getScript", "Get Script"),
       code: `<script>
 // Device Redirect Script - redirect based on device type
 (function() {
@@ -74953,10 +76119,68 @@ add_action('wp_head', 'ltt_webview_redirect');
 })();
 <\/script>`
     },
+    telegram: {
+      category: "tools",
+      badge: "ALERTS",
+      badgeBg: "rgba(14, 165, 233, 0.15)",
+      badgeColor: "#0284c7",
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Send, { className: "w-5 h-5" }),
+      iconBg: "rgba(14, 165, 233, 0.1)",
+      iconColor: "#0ea5e9",
+      title: "Telegram Bot",
+      subtitle: "Conversion alerts & digests",
+      description: t("telegram.description"),
+      isConnected: !!tgSettings?.token_set,
+      statText: tgSettings?.token_set ? `Connected: @${tgSettings.bot_username || "Bot"}` : "Instant notifications",
+      ctaText: t("integrations.configureBot", "Configure Bot"),
+      isTelegram: true
+    },
+    app_config: {
+      category: "tools",
+      badge: "REMOTE",
+      badgeBg: "rgba(245, 158, 11, 0.15)",
+      badgeColor: "#d97706",
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$1, { className: "w-5 h-5" }),
+      iconBg: "rgba(245, 158, 11, 0.1)",
+      iconColor: "#f59e0b",
+      title: t("appConfig.title"),
+      subtitle: "Dynamic WebView JSON API",
+      description: t("appConfig.subtitle"),
+      isConnected: configs.length > 0,
+      statText: configs.length ? `${configs.length} active configs` : "Mobile apps & WebViews",
+      ctaText: t("integrations.manageConfigs", "Manage Configs"),
+      isAppConfig: true
+    },
+    recaptcha: {
+      category: "tools",
+      badge: "SECURITY",
+      badgeBg: "rgba(16, 185, 129, 0.15)",
+      badgeColor: "#059669",
+      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Shield, { className: "w-5 h-5" }),
+      iconBg: "rgba(16, 185, 129, 0.1)",
+      iconColor: "#10b981",
+      title: t("recaptcha.tabTitle"),
+      subtitle: "reCAPTCHA v2/v3 & Turnstile",
+      description: t("recaptcha.tabDesc"),
+      isConnected: !!(rcSettings.recaptcha_v2_site_key || rcSettings.recaptcha_v3_site_key || rcSettings.turnstile_site_key),
+      statText: rcSettings.recaptcha_v2_site_key || rcSettings.turnstile_site_key ? "Protection configured" : "Anti-bot challenge",
+      ctaText: t("integrations.configureKeys", "Configure Keys"),
+      isRecaptcha: true
+    },
     countdown_timer: {
-      title: t("integrations.countdownTitle"),
+      category: "tools",
+      badge: "WIDGET",
+      badgeBg: "rgba(236, 72, 153, 0.15)",
+      badgeColor: "#db2777",
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Timer, { className: "w-5 h-5" }),
+      iconBg: "rgba(236, 72, 153, 0.1)",
+      iconColor: "#ec4899",
+      title: t("integrations.countdownTitle"),
+      subtitle: "Offer expiration urgency",
       description: t("integrations.countdownDesc"),
+      isConnected: true,
+      statText: "Self-contained countdown",
+      ctaText: t("integrations.getWidget", "Get Widget"),
       code: `<div id="ltt-countdown" style="font-family:sans-serif;text-align:center;padding:20px;
     background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border-radius:12px;max-width:400px;
     margin:0 auto;box-shadow:0 10px 40px rgba(0,0,0,0.2);">
@@ -75008,9 +76232,19 @@ add_action('wp_head', 'ltt_webview_redirect');
 <\/script>`
     },
     back_button_trap: {
-      title: t("integrations.backButtonTitle"),
+      category: "tools",
+      badge: "CONVERSION",
+      badgeBg: "rgba(239, 68, 68, 0.15)",
+      badgeColor: "#dc2626",
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { className: "w-5 h-5" }),
+      iconBg: "rgba(239, 68, 68, 0.1)",
+      iconColor: "#ef4444",
+      title: t("integrations.backButtonTitle"),
+      subtitle: "Intercept exit & rebound",
       description: t("integrations.backButtonDesc"),
+      isConnected: true,
+      statText: "Browser history handler",
+      ctaText: t("integrations.getScript", "Get Script"),
       code: `<script>
 // Back Button Trap - intercept browser back button
 (function() {
@@ -75037,9 +76271,19 @@ add_action('wp_head', 'ltt_webview_redirect');
 <\/script>`
     },
     exit_popup: {
-      title: t("integrations.exitPopupTitle"),
+      category: "tools",
+      badge: "CONVERSION",
+      badgeBg: "rgba(168, 85, 247, 0.15)",
+      badgeColor: "#9333ea",
       icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ExternalLink, { className: "w-5 h-5" }),
+      iconBg: "rgba(168, 85, 247, 0.1)",
+      iconColor: "#a855f7",
+      title: t("integrations.exitPopupTitle"),
+      subtitle: "Exit-intent modal overlay",
       description: t("integrations.exitPopupDesc"),
+      isConnected: true,
+      statText: "Mouse leave detector",
+      ctaText: t("integrations.getScript", "Get Script"),
       code: `<style>
 .ltt-exit-popup { display:none; position:fixed; top:0; left:0; width:100%; height:100%;
     background:rgba(0,0,0,0.7); z-index:99999; justify-content:center; align-items:center; }
@@ -75083,15 +76327,46 @@ add_action('wp_head', 'ltt_webview_redirect');
     });
 })();
 <\/script>`
-    },
-    wordpress_plugin: {
-      title: t("integrations.wpPluginTitle"),
-      icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "w-5 h-5" }),
-      description: t("integrations.wpPluginDesc"),
-      isWpPlugin: true
     }
   };
-  const activeObj = scripts[activeTab];
+  const categories = [
+    { id: "all", label: t("integrations.filterAll", "All"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Grid3x3, { size: 14 }) },
+    { id: "ads", label: t("integrations.filterAds", "Ads & Costs"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { size: 14 }) },
+    { id: "domains", label: t("integrations.filterDomains", "Domains & SSL"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 14 }) },
+    { id: "sites", label: t("integrations.filterSites", "Tracking & Sites"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Code, { size: 14 }) },
+    { id: "tools", label: t("integrations.filterTools", "Tools & API"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 14 }) }
+  ];
+  const catalogList = reactExports.useMemo(() => {
+    return Object.entries(scripts).map(([id, item]) => ({
+      id,
+      ...item
+    }));
+  }, [scripts]);
+  const filteredItems = reactExports.useMemo(() => {
+    return catalogList.filter((item) => {
+      const matchesCategory = activeCategory === "all" || item.category === activeCategory;
+      if (!matchesCategory) return false;
+      if (!searchQuery.trim()) return true;
+      const q = searchQuery.toLowerCase();
+      return item.title?.toLowerCase().includes(q) || item.subtitle?.toLowerCase().includes(q) || item.description?.toLowerCase().includes(q) || item.badge?.toLowerCase().includes(q);
+    });
+  }, [catalogList, activeCategory, searchQuery]);
+  const liveCount = reactExports.useMemo(() => {
+    let count2 = 0;
+    if (gaConnections.length > 0) count2 += gaConnections.length;
+    if (ttConnections.length > 0) count2 += ttConnections.length;
+    if (fbConnections.length > 0) count2 += fbConnections.length;
+    if (capiPixels.length > 0) count2 += capiPixels.length;
+    if (pixelProfiles.length > 0) count2 += pixelProfiles.length;
+    if (cfAccounts.length > 0) count2 += cfAccounts.length;
+    if (ncAccounts.length > 0) count2 += ncAccounts.length;
+    if (tgSettings?.token_set) count2 += 1;
+    if (configs.length > 0) count2 += configs.length;
+    if (rcSettings.recaptcha_v2_site_key || rcSettings.turnstile_site_key) count2 += 1;
+    if (extApiKey) count2 += 1;
+    return count2;
+  }, [gaConnections, ttConnections, fbConnections, capiPixels, pixelProfiles, cfAccounts, ncAccounts, tgSettings, configs, rcSettings, extApiKey]);
+  const activeObj = scripts[activeTab] || scripts.google_ads_costs;
   const renderChromeExtensionPanel = () => {
     const guideTabs = [
       { id: "adspower", label: "AdsPower", text: t("integrations.adspowerGuide") },
@@ -76019,1001 +77294,1079 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
       ] }, cmd)) })
     ] })
   ] }) });
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_integrations", title: t("help.integrationsBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("help.integrationsBanner") }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 18, style: { color: "var(--color-primary)" } }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t("integrations.howItWorks") })
-      ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "20px" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-secondary)", lineHeight: 1.6, marginBottom: "16px" }, children: t("integrations.introText") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
-          background: "var(--color-primary-light)",
-          borderLeft: `4px solid var(--color - primary)`,
-          padding: "16px",
-          borderRadius: "0 12px 12px 0"
-        }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 500, marginBottom: "8px", color: "var(--color-text-primary)" }, children: t("integrations.usageExamples") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { style: { listStyle: "disc", marginLeft: "20px", fontSize: "14px", color: "var(--color-text-secondary)" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("li", { style: { marginBottom: "4px" }, children: t("integrations.usageList1") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("li", { style: { marginBottom: "4px" }, children: t("integrations.usageList2") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t("integrations.usageList3") })
-          ] })
+  if (activeView === "grid") {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-6", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_integrations", title: t("help.integrationsBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("help.integrationsBanner") }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col md:flex-row md:items-center justify-between gap-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("h2", { className: "text-2xl font-bold tracking-tight text-[var(--color-text-primary)] flex items-center gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { className: "w-6 h-6 text-[var(--color-primary)]" }),
+            t("integrations.hubTitle", "Integrations Hub")
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-[var(--color-text-secondary)] mt-1", children: t("integrations.hubSubtitle", "Connect traffic costs, conversion APIs, domains and tracking tools from one hub.") })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { color: "var(--color-text-secondary)", lineHeight: 1.6, marginTop: "16px", fontSize: "14px" }, children: [
-          t("integrations.introFooter"),
-          " ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "KClient PHP" }),
-          " ",
-          t("integrations.kclientPhpIntro"),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: " KClient JS" }),
-          " ",
-          t("integrations.kclientJsIntro"),
-          " ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t("integrations.jsBannerTitle") }),
-          " ",
-          t("integrations.jsBannerIntro")
-        ] })
-      ] })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", style: { padding: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "row" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
-        width: "240px",
-        flexShrink: 0,
-        borderRight: "1px solid var(--color-border)",
-        background: "var(--color-bg-soft)",
-        borderRadius: "24px 0 0 24px"
-      }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("nav", { style: { padding: "8px", overflowY: "auto" }, children: (() => {
-        const groups = [
-          { label: t("integrations.groupAds", "Ad networks"), ids: ["pixel_vault", "facebook_costs", "tiktok_costs", "google_ads_costs", "facebook_conversions", "dolphin_fbtool", "chrome_extension"] },
-          { label: t("integrations.groupDomains", "Domains & SSL"), ids: ["cloudflare", "namecheap"] },
-          { label: t("integrations.groupSites", "Sites & landings"), ids: ["kclient_php", "kclient_js", "tracking_pixel", "tiktok_pixel", "js_banner", "wordpress", "wordpress_plugin", "static_site", "geo_redirect", "device_redirect"] },
-          { label: t("integrations.groupTools", "Tools"), ids: ["countdown_timer", "back_button_trap", "exit_popup", "app_config", "recaptcha", "telegram"] }
-        ];
-        const grouped = new Set(groups.flatMap((g) => g.ids));
-        const rest = Object.keys(scripts).filter((id) => !grouped.has(id));
-        if (rest.length) {
-          groups.push({ label: t("integrations.groupOther", "Other"), ids: rest });
-        }
-        const renderBtn = (id) => {
-          const script = scripts[id];
-          if (!script) return null;
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-3", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--color-bg-card)] border border-[var(--color-border)] shadow-xs", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "relative flex h-2 w-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "relative inline-flex rounded-full h-2 w-2 bg-emerald-500" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-semibold text-[var(--color-text-primary)]", children: [
+            liveCount,
+            " ",
+            t("integrations.connectionsLive", "Active Connections")
+          ] })
+        ] }) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-1.5 p-1 rounded-xl bg-[var(--color-bg-soft)] border border-[var(--color-border)] overflow-x-auto", children: categories.map((cat) => {
+          const isActive = activeCategory === cat.id;
           return /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
             {
-              onClick: () => setActiveTab(id),
-              style: {
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                width: "100%",
-                padding: "10px 16px",
-                textAlign: "left",
-                border: "none",
-                background: activeTab === id ? "var(--color-bg-card)" : "transparent",
-                color: activeTab === id ? "var(--color-primary)" : "var(--color-text-secondary)",
-                fontWeight: activeTab === id ? 500 : 400,
-                borderRadius: "12px",
-                cursor: "pointer",
-                marginBottom: "2px",
-                transition: "all 0.2s ease",
-                boxShadow: activeTab === id ? "var(--shadow-soft)" : "none"
-              },
+              type: "button",
+              onClick: () => setActiveCategory(cat.id),
+              className: `flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-150 ${isActive ? "bg-[var(--color-bg-card)] text-[var(--color-primary)] shadow-sm" : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-card)]/50"}`,
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "12px" }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: activeTab === id ? "var(--color-primary)" : "var(--color-text-muted)" }, children: script.icon }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "13.5px" }, children: script.title })
-                ] }),
-                id === "telegram" && tgSettings?.token_set && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
-                  width: "8px",
-                  height: "8px",
-                  borderRadius: "50%",
-                  background: tgSettings.webhook_set ? "#22c55e" : "#ef4444"
-                } })
+                cat.icon,
+                cat.label
               ]
             },
-            id
+            cat.id
           );
-        };
-        return groups.map((group, gi) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: gi > 0 ? { marginTop: "10px" } : void 0, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
-            fontSize: "11px",
-            fontWeight: 600,
-            textTransform: "uppercase",
-            letterSpacing: "0.08em",
-            color: "var(--color-text-muted)",
-            padding: "6px 16px 4px"
-          }, children: group.label }),
-          group.ids.map(renderBtn)
-        ] }, group.label));
-      })() }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1, display: "flex", flexDirection: "column" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
-          padding: "20px 24px",
-          borderBottom: "1px solid var(--color-border)",
-          background: "var(--color-bg-soft)",
-          display: "flex",
-          justifyContent: "space-between",
-          gap: "16px",
-          alignItems: "center",
-          flexWrap: "wrap"
-        }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { style: {
-              fontSize: "16px",
-              fontWeight: 600,
-              color: "var(--color-text-primary)",
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              margin: 0
-            }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-primary)" }, children: activeObj.icon }),
-              activeObj.title
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
-              fontSize: "14px",
-              color: "var(--color-text-secondary)",
-              lineHeight: 1.5,
-              margin: "8px 0 0 0"
-            }, children: activeObj.description })
-          ] }),
-          activeObj.isPixelVault && !pixelProfileEditing && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", gap: "8px", flexWrap: "wrap" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative min-w-[240px] sm:w-72", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-muted)] pointer-events-none" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              value: searchQuery,
+              onChange: (e) => setSearchQuery(e.target.value),
+              placeholder: t("integrations.searchPlaceholder", "Search integrations, ad networks, scripts..."),
+              className: "w-full pl-9 pr-8 py-2 rounded-xl bg-[var(--color-bg-card)] border border-[var(--color-border)] text-xs text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] transition-all shadow-xs"
+            }
+          ),
+          searchQuery && /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
-              className: "btn btn-primary",
-              onClick: () => {
-                setPixelProfileForm(emptyPixelProfileForm);
-                setPixelProfileEditing("new");
-                setPixelProfileMessage(null);
-              },
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
-                " ",
-                t("pixelVault.addNewPixel")
-              ]
+              type: "button",
+              onClick: () => setSearchQuery(""),
+              className: "absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-md text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 13 })
             }
-          ) })
+          )
+        ] })
+      ] }),
+      filteredItems.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4", children: filteredItems.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        IntegrationCard,
+        {
+          item,
+          onClick: () => {
+            setActiveTab(item.id);
+            setActiveView("detail");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+        },
+        item.id
+      )) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card text-center py-16", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-12 h-12 rounded-2xl bg-[var(--color-bg-soft)] border border-[var(--color-border)] flex items-center justify-center mx-auto mb-3 text-[var(--color-text-muted)]", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 22 }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-base font-semibold text-[var(--color-text-primary)] mb-1", children: t("integrations.noResults", "No integrations found") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-[var(--color-text-secondary)] max-w-sm mx-auto mb-4", children: t("integrations.noResultsDesc", "Try searching for a different keyword or switch the category filter.") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => {
+              setActiveCategory("all");
+              setSearchQuery("");
+            },
+            className: "btn btn-secondary text-xs",
+            children: t("integrations.resetFilters", "Reset filters")
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-header", style: { borderBottom: "none", paddingBottom: 0, marginBottom: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 18, style: { color: "var(--color-primary)" } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t("integrations.howItWorks") })
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "20px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-secondary)", lineHeight: 1.6, marginBottom: "16px" }, children: t("integrations.introText") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+            background: "var(--color-primary-light)",
+            borderLeft: `4px solid var(--color-primary)`,
+            padding: "16px",
+            borderRadius: "0 12px 12px 0"
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 500, marginBottom: "8px", color: "var(--color-text-primary)" }, children: t("integrations.usageExamples") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { style: { listStyle: "disc", marginLeft: "20px", fontSize: "14px", color: "var(--color-text-secondary)" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("li", { style: { marginBottom: "4px" }, children: t("integrations.usageList1") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("li", { style: { marginBottom: "4px" }, children: t("integrations.usageList2") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: t("integrations.usageList3") })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { style: { color: "var(--color-text-secondary)", lineHeight: 1.6, marginTop: "16px", fontSize: "14px" }, children: [
+            t("integrations.introFooter"),
+            " ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Tracking Client (PHP)" }),
+            " ",
+            t("integrations.kclientPhpIntro"),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: " Tracking Client (JS)" }),
+            " ",
+            t("integrations.kclientJsIntro"),
+            " ",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t("integrations.jsBannerTitle") }),
+            " ",
+            t("integrations.jsBannerIntro")
+          ] })
+        ] })
+      ] })
+    ] });
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_integrations", title: t("help.integrationsBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("help.integrationsBanner") }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[var(--color-border)]", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2.5 flex-wrap", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => setActiveView("grid"),
+            className: "inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[var(--color-bg-card)] border border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-primary)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-all shadow-xs cursor-pointer",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { size: 14 }),
+              t("integrations.backToAll", "Back to all integrations")
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-muted)]", children: "/" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs uppercase tracking-wider font-semibold text-[var(--color-text-muted)]", children: categories.find((c) => c.id === activeObj.category)?.label || activeObj.category }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[var(--color-text-muted)]", children: "/" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold text-[var(--color-text-primary)]", children: activeObj.title })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+        activeObj.isConnected && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs font-medium", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" }),
+          activeObj.statText || "Active"
         ] }),
-        activeObj.isCloudflare ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: "680px", display: "flex", flexDirection: "column", gap: "20px" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "24px", border: "1px solid var(--color-border)" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)", marginBottom: "16px", lineHeight: 1.6 }, children: t("cloudflare.howTo", "Создайте токен: Cloudflare → My Profile → API Tokens → Create Token → шаблон «Edit zone DNS» → Permissions: Zone·DNS·Edit + Zone·Zone·Edit → Zone Resources: All zones. Домены, чья зона есть в аккаунте, при парковке получают A-запись автоматически; при включённом прокси SSL выдаётся краем Cloudflare мгновенно.") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "1fr auto", gap: "12px", alignItems: "end", marginBottom: "20px" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("cloudflare.serverIp", "IP сервера (A-запись)") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
-                  {
-                    type: "text",
-                    className: "form-input",
-                    style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" },
-                    value: cfServerIp,
-                    onChange: (e) => setCfServerIp(e.target.value),
-                    placeholder: cfStatus?.server_ip || "auto"
-                  }
-                )
-              ] }),
+        activeObj.isPixelVault && !pixelProfileEditing && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            className: "btn btn-primary btn-sm text-xs",
+            onClick: () => {
+              setPixelProfileForm(emptyPixelProfileForm);
+              setPixelProfileEditing("new");
+              setPixelProfileMessage(null);
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 14 }),
+              " ",
+              t("pixelVault.addNewPixel")
+            ]
+          }
+        )
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card p-0 overflow-hidden", style: { borderRadius: "24px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { minWidth: 0, display: "flex", flexDirection: "column" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+        padding: "20px 24px",
+        borderBottom: "1px solid var(--color-border)",
+        background: "var(--color-bg-soft)",
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "16px",
+        alignItems: "center",
+        flexWrap: "wrap"
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { style: {
+            fontSize: "16px",
+            fontWeight: 600,
+            color: "var(--color-text-primary)",
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            margin: 0
+          }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-primary)" }, children: activeObj.icon }),
+            activeObj.title
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: {
+            fontSize: "14px",
+            color: "var(--color-text-secondary)",
+            lineHeight: 1.5,
+            margin: "8px 0 0 0"
+          }, children: activeObj.description })
+        ] }),
+        activeObj.isPixelVault && !pixelProfileEditing && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", gap: "8px", flexWrap: "wrap" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            className: "btn btn-primary",
+            onClick: () => {
+              setPixelProfileForm(emptyPixelProfileForm);
+              setPixelProfileEditing("new");
+              setPixelProfileMessage(null);
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
+              " ",
+              t("pixelVault.addNewPixel")
+            ]
+          }
+        ) })
+      ] }),
+      activeObj.isCloudflare ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: "680px", display: "flex", flexDirection: "column", gap: "20px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "24px", border: "1px solid var(--color-border)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)", marginBottom: "16px", lineHeight: 1.6 }, children: t("cloudflare.howTo", "Создайте токен: Cloudflare → My Profile → API Tokens → Create Token → шаблон «Edit zone DNS» → Permissions: Zone·DNS·Edit + Zone·Zone·Edit → Zone Resources: All zones. Домены, чья зона есть в аккаунте, при парковке получают A-запись автоматически; при включённом прокси SSL выдаётся краем Cloudflare мгновенно.") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "1fr auto", gap: "12px", alignItems: "end", marginBottom: "20px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("cloudflare.serverIp", "IP сервера (A-запись)") }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "text",
+                  className: "form-input",
+                  style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" },
+                  value: cfServerIp,
+                  onChange: (e) => setCfServerIp(e.target.value),
+                  placeholder: cfStatus?.server_ip || "auto"
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                className: "btn btn-secondary",
+                disabled: cfBusy,
+                onClick: async () => {
+                  setCfBusy(true);
+                  setCfMessage(null);
+                  try {
+                    const res = await axios.post(`${API_URL$b}?action=cloudflare_options_save`, { server_ip: cfServerIp });
+                    setCfMessage(res.data.status === "success" ? "✓ " + t("cloudflare.saved", "Сохранено") : "⚠ " + (res.data.message || t("common.error")));
+                  } catch (err) {
+                    setCfMessage("⚠ " + t("common.networkError"));
+                  } finally {
+                    setCfBusy(false);
+                  }
+                },
+                children: t("common.save")
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-3", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontWeight: 600, color: "var(--color-text-primary)", fontSize: "14px" }, children: [
+              t("cloudflare.accounts", "Аккаунты"),
+              " (",
+              cfAccounts.length,
+              ")"
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+              cfAccounts.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "button",
                 {
                   className: "btn btn-secondary",
                   disabled: cfBusy,
                   onClick: async () => {
+                    if (!window.confirm(t("cloudflare.syncAllConfirm", "Переписать A-записи всех доменов, чьи зоны есть в аккаунтах Cloudflare, на текущий IP сервера?"))) return;
                     setCfBusy(true);
                     setCfMessage(null);
                     try {
-                      const res = await axios.post(`${API_URL$b}?action=cloudflare_options_save`, { server_ip: cfServerIp });
-                      setCfMessage(res.data.status === "success" ? "✓ " + t("cloudflare.saved", "Сохранено") : "⚠ " + (res.data.message || t("common.error")));
+                      const res = await axios.post(`${API_URL$b}?action=cloudflare_sync_all`, {});
+                      if (res.data.status === "success") {
+                        const d = res.data.data;
+                        setCfMessage(`✓ ${t("cloudflare.syncedCount", "перепарковано")}: ${d.synced.length}` + (d.failed.length ? ` · ⚠ ${d.failed.length}: ${d.failed.slice(0, 3).join("; ")}` : ""));
+                      } else {
+                        setCfMessage("⚠ " + (res.data.message || t("common.error")));
+                      }
                     } catch (err) {
                       setCfMessage("⚠ " + t("common.networkError"));
                     } finally {
                       setCfBusy(false);
                     }
                   },
-                  children: t("common.save")
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-4 h-4" }),
+                    t("cloudflare.syncAll", "Перепарковать все домены")
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  className: "btn btn-primary",
+                  onClick: () => setCfAccModal({ id: null, name: "", api_token: "", ssl_mode: "flexible", proxied: true }),
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
+                    " ",
+                    t("cloudflare.addAccount", "Добавить аккаунт")
+                  ]
+                }
+              )
+            ] })
+          ] }),
+          cfMessage && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)", marginTop: "12px" }, children: cfMessage })
+        ] }),
+        cfAccounts.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px", border: "1px dashed var(--color-border)", borderRadius: "12px" }, children: t("cloudflare.noAccounts", "Нет подключённых аккаунтов — добавьте первый, чтобы парковать зоны в один клик.") }),
+        cfAccounts.map((acc) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "18px 20px", border: "1px solid var(--color-border)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-3", style: { marginBottom: "10px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", style: { minWidth: 0 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 8, height: 8, borderRadius: "50%", background: "#10b981", flexShrink: 0 }, title: "Active" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 600, color: "var(--color-text-primary)", fontSize: "14px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }, children: acc.name }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs", style: { color: "var(--color-text-muted)", whiteSpace: "nowrap" }, children: [
+                "· ",
+                t("cloudflare.zonesCount", "зон"),
+                ": ",
+                acc.zones_count ?? "—"
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  className: "btn btn-secondary btn-icon",
+                  disabled: cfBusy,
+                  title: t("cloudflare.importZones", "Import & Auto-DNS — подтянуть зоны аккаунта и припарковать их в трекер с A-записью"),
+                  onClick: async () => {
+                    setCfZones({ accountId: acc.id, accountName: acc.name, loading: true, zones: [], selected: {}, importing: false, message: "" });
+                    try {
+                      const res = await axios.post(`${API_URL$b}?action=cloudflare_account_zones`, { id: acc.id });
+                      if (res.data.status === "success") {
+                        const zones = res.data.data.zones || [];
+                        const selected = {};
+                        zones.forEach((z) => {
+                          if (!z.in_tracker) selected[z.name] = true;
+                        });
+                        setCfZones({ accountId: acc.id, accountName: acc.name, loading: false, zones, selected, importing: false, message: "" });
+                      } else {
+                        setCfZones({ accountId: acc.id, accountName: acc.name, loading: false, zones: [], selected: {}, importing: false, message: res.data.message || t("common.error") });
+                      }
+                    } catch (err) {
+                      setCfZones({ accountId: acc.id, accountName: acc.name, loading: false, zones: [], selected: {}, importing: false, message: t("common.networkError") });
+                    }
+                  },
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "w-4 h-4" })
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  className: "btn btn-secondary btn-icon",
+                  disabled: cfBusy,
+                  title: t("cloudflare.repoint", "Перепрописать A-записи доменов этого аккаунта на IP сервера"),
+                  onClick: async () => {
+                    if (!window.confirm(t("cloudflare.repointConfirm", "Переписать A-записи всех доменов, чьи зоны есть в этом аккаунте Cloudflare, на текущий IP сервера?"))) return;
+                    setCfBusy(true);
+                    setCfMessage(null);
+                    try {
+                      const res = await axios.post(`${API_URL$b}?action=cloudflare_account_repoint`, { id: acc.id });
+                      if (res.data.status === "success") {
+                        const d = res.data.data;
+                        setCfMessage(`✓ ${acc.name}: ${t("cloudflare.syncedCount", "перепарковано")}: ${d.synced.length}` + (d.failed.length ? ` · ⚠ ${d.failed.length}: ${d.failed.slice(0, 3).join("; ")}` : ""));
+                      } else {
+                        setCfMessage("⚠ " + (res.data.message || t("common.error")));
+                      }
+                    } catch (err) {
+                      setCfMessage("⚠ " + t("common.networkError"));
+                    } finally {
+                      setCfBusy(false);
+                    }
+                  },
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-4 h-4" })
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  className: "btn btn-secondary btn-icon",
+                  title: t("common.edit"),
+                  onClick: () => setCfAccModal({ id: acc.id, name: acc.name, api_token: "", ssl_mode: acc.ssl_mode || "flexible", proxied: !!acc.proxied }),
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { className: "w-4 h-4" })
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  className: "btn btn-secondary btn-icon",
+                  title: t("common.delete"),
+                  onClick: async () => {
+                    if (!window.confirm(t("cloudflare.deleteConfirm", "Удалить аккаунт из трекера? Домены останутся, их A-записи больше не будут обновляться через этот аккаунт."))) return;
+                    setCfBusy(true);
+                    setCfMessage(null);
+                    try {
+                      const res = await axios.post(`${API_URL$b}?action=cloudflare_account_delete`, { id: acc.id });
+                      if (res.data.status === "success") {
+                        const st = await axios.get(`${API_URL$b}?action=cloudflare_status`);
+                        if (st.data.status === "success") {
+                          setCfStatus(st.data.data);
+                          setCfAccounts(st.data.data.accounts || []);
+                        }
+                      } else {
+                        setCfMessage("⚠ " + (res.data.message || t("common.error")));
+                      }
+                    } catch (err) {
+                      setCfMessage("⚠ " + t("common.networkError"));
+                    } finally {
+                      setCfBusy(false);
+                    }
+                  },
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" })
+                }
+              )
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 flex-wrap text-xs", style: { color: "var(--color-text-secondary)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+              "SSL: ",
+              acc.ssl_mode
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+              "· Cloudflare Proxy: ",
+              acc.proxied ? t("domains.on") : t("domains.off")
+            ] })
+          ] })
+        ] }, acc.id)),
+        cfStatus?.managed_domains > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: [
+          t("cloudflare.managedDomains", "Доменов под управлением Cloudflare"),
+          ": ",
+          cfStatus.managed_domains
+        ] }),
+        cfAccModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content w-full max-w-md", style: { padding: "24px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "modal-title flex items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Cloud, { size: 18 }),
+              cfAccModal.id ? t("cloudflare.editAccount", "Редактировать аккаунт") : t("cloudflare.addAccount", "Добавить аккаунт")
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setCfAccModal(null), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("cloudflare.accountLabel", "Название аккаунта") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "text",
+                  className: "form-input",
+                  style: { width: "100%" },
+                  placeholder: t("cloudflare.accountLabelPlaceholder", "Buyer 1 — Main CF"),
+                  value: cfAccModal.name,
+                  onChange: (e) => setCfAccModal({ ...cfAccModal, name: e.target.value })
                 }
               )
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontWeight: 600, color: "var(--color-text-primary)", fontSize: "14px" }, children: [
-                t("cloudflare.accounts", "Аккаунты"),
-                " (",
-                cfAccounts.length,
-                ")"
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
-                cfAccounts.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "button",
-                  {
-                    className: "btn btn-secondary",
-                    disabled: cfBusy,
-                    onClick: async () => {
-                      if (!window.confirm(t("cloudflare.syncAllConfirm", "Переписать A-записи всех доменов, чьи зоны есть в аккаунтах Cloudflare, на текущий IP сервера?"))) return;
-                      setCfBusy(true);
-                      setCfMessage(null);
-                      try {
-                        const res = await axios.post(`${API_URL$b}?action=cloudflare_sync_all`, {});
-                        if (res.data.status === "success") {
-                          const d = res.data.data;
-                          setCfMessage(`✓ ${t("cloudflare.syncedCount", "перепарковано")}: ${d.synced.length}` + (d.failed.length ? ` · ⚠ ${d.failed.length}: ${d.failed.slice(0, 3).join("; ")}` : ""));
-                        } else {
-                          setCfMessage("⚠ " + (res.data.message || t("common.error")));
-                        }
-                      } catch (err) {
-                        setCfMessage("⚠ " + t("common.networkError"));
-                      } finally {
-                        setCfBusy(false);
-                      }
-                    },
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-4 h-4" }),
-                      t("cloudflare.syncAll", "Перепарковать все домены")
-                    ]
-                  }
-                ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: "API Token" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "password",
+                  className: "form-input",
+                  style: { width: "100%", fontFamily: "monospace" },
+                  placeholder: cfAccModal.id ? t("cloudflare.tokenSaved", "токен сохранён — введите новый, чтобы заменить") : "",
+                  value: cfAccModal.api_token,
+                  onChange: (e) => setCfAccModal({ ...cfAccModal, api_token: e.target.value })
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("cloudflare.sslMode", "SSL режим зоны") }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "button",
+                  "select",
                   {
-                    className: "btn btn-primary",
-                    onClick: () => setCfAccModal({ id: null, name: "", api_token: "", ssl_mode: "flexible", proxied: true }),
+                    className: "form-select",
+                    style: { width: "100%" },
+                    value: cfAccModal.ssl_mode,
+                    onChange: (e) => setCfAccModal({ ...cfAccModal, ssl_mode: e.target.value }),
                     children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
-                      " ",
-                      t("cloudflare.addAccount", "Добавить аккаунт")
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "flexible", children: [
+                        "Flexible — ",
+                        t("cloudflare.sslFlexible", "SSL сразу, сервер по HTTP")
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "full", children: [
+                        "Full — ",
+                        t("cloudflare.sslFull", "нужен сертификат на сервере")
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "strict", children: "Strict" })
                     ]
                   }
                 )
-              ] })
-            ] }),
-            cfMessage && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)", marginTop: "12px" }, children: cfMessage })
-          ] }),
-          cfAccounts.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px", border: "1px dashed var(--color-border)", borderRadius: "12px" }, children: t("cloudflare.noAccounts", "Нет подключённых аккаунтов — добавьте первый, чтобы парковать зоны в один клик.") }),
-          cfAccounts.map((acc) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "18px 20px", border: "1px solid var(--color-border)" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-3", style: { marginBottom: "10px" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", style: { minWidth: 0 }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 8, height: 8, borderRadius: "50%", background: "#10b981", flexShrink: 0 }, title: "Active" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 600, color: "var(--color-text-primary)", fontSize: "14px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }, children: acc.name }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs", style: { color: "var(--color-text-muted)", whiteSpace: "nowrap" }, children: [
-                  "· ",
-                  t("cloudflare.zonesCount", "зон"),
-                  ": ",
-                  acc.zones_count ?? "—"
-                ] })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "button",
-                  {
-                    className: "btn btn-secondary btn-icon",
-                    disabled: cfBusy,
-                    title: t("cloudflare.importZones", "Import & Auto-DNS — подтянуть зоны аккаунта и припарковать их в трекер с A-записью"),
-                    onClick: async () => {
-                      setCfZones({ accountId: acc.id, accountName: acc.name, loading: true, zones: [], selected: {}, importing: false, message: "" });
-                      try {
-                        const res = await axios.post(`${API_URL$b}?action=cloudflare_account_zones`, { id: acc.id });
-                        if (res.data.status === "success") {
-                          const zones = res.data.data.zones || [];
-                          const selected = {};
-                          zones.forEach((z) => {
-                            if (!z.in_tracker) selected[z.name] = true;
-                          });
-                          setCfZones({ accountId: acc.id, accountName: acc.name, loading: false, zones, selected, importing: false, message: "" });
-                        } else {
-                          setCfZones({ accountId: acc.id, accountName: acc.name, loading: false, zones: [], selected: {}, importing: false, message: res.data.message || t("common.error") });
-                        }
-                      } catch (err) {
-                        setCfZones({ accountId: acc.id, accountName: acc.name, loading: false, zones: [], selected: {}, importing: false, message: t("common.networkError") });
-                      }
-                    },
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "w-4 h-4" })
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "button",
-                  {
-                    className: "btn btn-secondary btn-icon",
-                    disabled: cfBusy,
-                    title: t("cloudflare.repoint", "Перепрописать A-записи доменов этого аккаунта на IP сервера"),
-                    onClick: async () => {
-                      if (!window.confirm(t("cloudflare.repointConfirm", "Переписать A-записи всех доменов, чьи зоны есть в этом аккаунте Cloudflare, на текущий IP сервера?"))) return;
-                      setCfBusy(true);
-                      setCfMessage(null);
-                      try {
-                        const res = await axios.post(`${API_URL$b}?action=cloudflare_account_repoint`, { id: acc.id });
-                        if (res.data.status === "success") {
-                          const d = res.data.data;
-                          setCfMessage(`✓ ${acc.name}: ${t("cloudflare.syncedCount", "перепарковано")}: ${d.synced.length}` + (d.failed.length ? ` · ⚠ ${d.failed.length}: ${d.failed.slice(0, 3).join("; ")}` : ""));
-                        } else {
-                          setCfMessage("⚠ " + (res.data.message || t("common.error")));
-                        }
-                      } catch (err) {
-                        setCfMessage("⚠ " + t("common.networkError"));
-                      } finally {
-                        setCfBusy(false);
-                      }
-                    },
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-4 h-4" })
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "button",
-                  {
-                    className: "btn btn-secondary btn-icon",
-                    title: t("common.edit"),
-                    onClick: () => setCfAccModal({ id: acc.id, name: acc.name, api_token: "", ssl_mode: acc.ssl_mode || "flexible", proxied: !!acc.proxied }),
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { className: "w-4 h-4" })
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "button",
-                  {
-                    className: "btn btn-secondary btn-icon",
-                    title: t("common.delete"),
-                    onClick: async () => {
-                      if (!window.confirm(t("cloudflare.deleteConfirm", "Удалить аккаунт из трекера? Домены останутся, их A-записи больше не будут обновляться через этот аккаунт."))) return;
-                      setCfBusy(true);
-                      setCfMessage(null);
-                      try {
-                        const res = await axios.post(`${API_URL$b}?action=cloudflare_account_delete`, { id: acc.id });
-                        if (res.data.status === "success") {
-                          const st = await axios.get(`${API_URL$b}?action=cloudflare_status`);
-                          if (st.data.status === "success") {
-                            setCfStatus(st.data.data);
-                            setCfAccounts(st.data.data.accounts || []);
-                          }
-                        } else {
-                          setCfMessage("⚠ " + (res.data.message || t("common.error")));
-                        }
-                      } catch (err) {
-                        setCfMessage("⚠ " + t("common.networkError"));
-                      } finally {
-                        setCfBusy(false);
-                      }
-                    },
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" })
-                  }
-                )
-              ] })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 flex-wrap text-xs", style: { color: "var(--color-text-secondary)" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-                "SSL: ",
-                acc.ssl_mode
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-                "· Cloudflare Proxy: ",
-                acc.proxied ? t("domains.on") : t("domains.off")
-              ] })
-            ] })
-          ] }, acc.id)),
-          cfStatus?.managed_domains > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: [
-            t("cloudflare.managedDomains", "Доменов под управлением Cloudflare"),
-            ": ",
-            cfStatus.managed_domains
-          ] }),
-          cfAccModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content w-full max-w-md", style: { padding: "24px" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "modal-title flex items-center gap-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Cloud, { size: 18 }),
-                cfAccModal.id ? t("cloudflare.editAccount", "Редактировать аккаунт") : t("cloudflare.addAccount", "Добавить аккаунт")
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setCfAccModal(null), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("cloudflare.accountLabel", "Название аккаунта") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
-                  {
-                    type: "text",
-                    className: "form-input",
-                    style: { width: "100%" },
-                    placeholder: t("cloudflare.accountLabelPlaceholder", "Buyer 1 — Main CF"),
-                    value: cfAccModal.name,
-                    onChange: (e) => setCfAccModal({ ...cfAccModal, name: e.target.value })
-                  }
-                )
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: "API Token" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
-                  {
-                    type: "password",
-                    className: "form-input",
-                    style: { width: "100%", fontFamily: "monospace" },
-                    placeholder: cfAccModal.id ? t("cloudflare.tokenSaved", "токен сохранён — введите новый, чтобы заменить") : "",
-                    value: cfAccModal.api_token,
-                    onChange: (e) => setCfAccModal({ ...cfAccModal, api_token: e.target.value })
-                  }
-                )
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("cloudflare.sslMode", "SSL режим зоны") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "select",
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: "Cloudflare Proxy" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", style: { padding: "10px 0", color: "var(--color-text-primary)", fontSize: "14px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
                     {
-                      className: "form-select",
-                      style: { width: "100%" },
-                      value: cfAccModal.ssl_mode,
-                      onChange: (e) => setCfAccModal({ ...cfAccModal, ssl_mode: e.target.value }),
-                      children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "flexible", children: [
-                          "Flexible — ",
-                          t("cloudflare.sslFlexible", "SSL сразу, сервер по HTTP")
-                        ] }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "full", children: [
-                          "Full — ",
-                          t("cloudflare.sslFull", "нужен сертификат на сервере")
-                        ] }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "strict", children: "Strict" })
-                      ]
+                      type: "checkbox",
+                      checked: cfAccModal.proxied,
+                      onChange: (e) => setCfAccModal({ ...cfAccModal, proxied: e.target.checked })
                     }
-                  )
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: "Cloudflare Proxy" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", style: { padding: "10px 0", color: "var(--color-text-primary)", fontSize: "14px" }, children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "input",
-                      {
-                        type: "checkbox",
-                        checked: cfAccModal.proxied,
-                        onChange: (e) => setCfAccModal({ ...cfAccModal, proxied: e.target.checked })
-                      }
-                    ),
-                    t("cloudflare.proxied", "оранжевое облако (SSL от CF)")
-                  ] })
+                  ),
+                  t("cloudflare.proxied", "оранжевое облако (SSL от CF)")
                 ] })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 justify-end", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary", onClick: () => setCfAccModal(null), children: t("common.cancel") }),
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 justify-end", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary", onClick: () => setCfAccModal(null), children: t("common.cancel") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  type: "button",
+                  className: "btn btn-primary",
+                  disabled: cfBusy || !cfAccModal.id && !cfAccModal.api_token.trim(),
+                  onClick: async () => {
+                    setCfBusy(true);
+                    setCfMessage(null);
+                    try {
+                      const res = await axios.post(`${API_URL$b}?action=cloudflare_account_save`, cfAccModal);
+                      if (res.data.status === "success") {
+                        setCfAccModal(null);
+                        setCfMessage("✓ " + t("cloudflare.saved", "Сохранено"));
+                        const st = await axios.get(`${API_URL$b}?action=cloudflare_status`);
+                        if (st.data.status === "success") {
+                          setCfStatus(st.data.data);
+                          setCfAccounts(st.data.data.accounts || []);
+                          setCfServerIp(st.data.data.server_ip || "");
+                        }
+                      } else {
+                        setCfMessage("⚠ " + (res.data.message || t("common.error")) + (res.data.detail?.error ? `: ${res.data.detail.error}` : ""));
+                      }
+                    } catch (err) {
+                      setCfMessage("⚠ " + t("common.networkError"));
+                    } finally {
+                      setCfBusy(false);
+                    }
+                  },
+                  children: cfBusy ? t("common.saving") : t("cloudflare.testAndSave", "Проверить и сохранить")
+                }
+              )
+            ] })
+          ] })
+        ] }) }),
+        cfZones && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content w-full max-w-lg", style: { padding: "24px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "modal-title flex items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 18 }),
+              " ",
+              t("cloudflare.importTitle", "Import & Auto-DNS"),
+              " — ",
+              cfZones.accountName
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setCfZones(null), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: t("cloudflare.importHint", "Зоны аккаунта Cloudflare. Отмеченные добавляются в трекер: A-запись на IP сервера прописывается автоматически, проксированные получают SSL краем CF.") }),
+            cfZones.loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-8", style: { color: "var(--color-text-muted)" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 20, className: "animate-spin mx-auto mb-2" }),
+              t("common.loading")
+            ] }) : cfZones.zones.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-8", style: { color: "var(--color-text-muted)" }, children: cfZones.message || t("cloudflare.noZones", "В аккаунте нет зон") }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-y-auto rounded-2xl", style: { maxHeight: "320px", border: "1px solid var(--color-border)" }, children: cfZones.zones.map((z) => {
+                const isSel = !!cfZones.selected[z.name];
+                return /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-3 px-4 py-2.5", style: { borderTop: "1px solid var(--color-border)", cursor: z.in_tracker ? "default" : "pointer", opacity: z.in_tracker ? 0.55 : 1 }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      type: "checkbox",
+                      disabled: z.in_tracker,
+                      checked: isSel,
+                      onChange: (e) => setCfZones({ ...cfZones, selected: { ...cfZones.selected, [z.name]: e.target.checked } })
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono text-sm", style: { color: "var(--color-text-primary)", flex: 1 }, children: z.name }),
+                  z.in_tracker ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "badge badge-success text-xs", children: t("cloudflare.inTracker", "уже в трекере") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: z.status })
+                ] }, z.name);
+              }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-3", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: [
+                  t("cloudflare.selectedCount", "выбрано"),
+                  ": ",
+                  Object.values(cfZones.selected).filter(Boolean).length
+                ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "button",
                   {
                     type: "button",
                     className: "btn btn-primary",
-                    disabled: cfBusy || !cfAccModal.id && !cfAccModal.api_token.trim(),
+                    disabled: cfZones.importing || Object.values(cfZones.selected).filter(Boolean).length === 0,
                     onClick: async () => {
-                      setCfBusy(true);
-                      setCfMessage(null);
+                      const zones = Object.keys(cfZones.selected).filter((k) => cfZones.selected[k]);
+                      setCfZones({ ...cfZones, importing: true, message: "" });
                       try {
-                        const res = await axios.post(`${API_URL$b}?action=cloudflare_account_save`, cfAccModal);
+                        const res = await axios.post(`${API_URL$b}?action=cloudflare_account_import`, { id: cfZones.accountId, zones });
                         if (res.data.status === "success") {
-                          setCfAccModal(null);
-                          setCfMessage("✓ " + t("cloudflare.saved", "Сохранено"));
-                          const st = await axios.get(`${API_URL$b}?action=cloudflare_status`);
-                          if (st.data.status === "success") {
-                            setCfStatus(st.data.data);
-                            setCfAccounts(st.data.data.accounts || []);
-                            setCfServerIp(st.data.data.server_ip || "");
-                          }
+                          const d = res.data.data;
+                          setCfZones(null);
+                          const lines = [`${t("cloudflare.importedCount", "добавлено")}: ${d.added.length}`];
+                          if (d.parked.length) lines.push(`✓ ${t("cloudflare.parkedOk", "A-записи прописаны")}: ${d.parked.join(", ")}`);
+                          if (d.duplicates.length) lines.push(`• ${t("cloudflare.duplicatesSkipped", "уже были в трекере")}: ${d.duplicates.join(", ")}`);
+                          if (d.errors.length) lines.push(`⚠ ${d.errors.slice(0, 3).join("; ")}`);
+                          setCfMessage(lines.join("\n"));
                         } else {
-                          setCfMessage("⚠ " + (res.data.message || t("common.error")) + (res.data.detail?.error ? `: ${res.data.detail.error}` : ""));
+                          setCfZones({ ...cfZones, importing: false, message: res.data.message || t("common.error") });
                         }
                       } catch (err) {
-                        setCfMessage("⚠ " + t("common.networkError"));
-                      } finally {
-                        setCfBusy(false);
+                        setCfZones({ ...cfZones, importing: false, message: t("common.networkError") });
                       }
                     },
-                    children: cfBusy ? t("common.saving") : t("cloudflare.testAndSave", "Проверить и сохранить")
+                    children: cfZones.importing ? t("cloudflare.importing", "Импортируем…") : `${t("cloudflare.importBtn", "Импортировать")} (${Object.values(cfZones.selected).filter(Boolean).length})`
                   }
                 )
-              ] })
-            ] })
-          ] }) }),
-          cfZones && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content w-full max-w-lg", style: { padding: "24px" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "modal-title flex items-center gap-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 18 }),
-                " ",
-                t("cloudflare.importTitle", "Import & Auto-DNS"),
-                " — ",
-                cfZones.accountName
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setCfZones(null), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: t("cloudflare.importHint", "Зоны аккаунта Cloudflare. Отмеченные добавляются в трекер: A-запись на IP сервера прописывается автоматически, проксированные получают SSL краем CF.") }),
-              cfZones.loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-8", style: { color: "var(--color-text-muted)" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 20, className: "animate-spin mx-auto mb-2" }),
-                t("common.loading")
-              ] }) : cfZones.zones.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-8", style: { color: "var(--color-text-muted)" }, children: cfZones.message || t("cloudflare.noZones", "В аккаунте нет зон") }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-y-auto rounded-2xl", style: { maxHeight: "320px", border: "1px solid var(--color-border)" }, children: cfZones.zones.map((z) => {
-                  const isSel = !!cfZones.selected[z.name];
-                  return /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-3 px-4 py-2.5", style: { borderTop: "1px solid var(--color-border)", cursor: z.in_tracker ? "default" : "pointer", opacity: z.in_tracker ? 0.55 : 1 }, children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "input",
-                      {
-                        type: "checkbox",
-                        disabled: z.in_tracker,
-                        checked: isSel,
-                        onChange: (e) => setCfZones({ ...cfZones, selected: { ...cfZones.selected, [z.name]: e.target.checked } })
-                      }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono text-sm", style: { color: "var(--color-text-primary)", flex: 1 }, children: z.name }),
-                    z.in_tracker ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "badge badge-success text-xs", children: t("cloudflare.inTracker", "уже в трекере") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: z.status })
-                  ] }, z.name);
-                }) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-3", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: [
-                    t("cloudflare.selectedCount", "выбрано"),
-                    ": ",
-                    Object.values(cfZones.selected).filter(Boolean).length
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "button",
-                    {
-                      type: "button",
-                      className: "btn btn-primary",
-                      disabled: cfZones.importing || Object.values(cfZones.selected).filter(Boolean).length === 0,
-                      onClick: async () => {
-                        const zones = Object.keys(cfZones.selected).filter((k) => cfZones.selected[k]);
-                        setCfZones({ ...cfZones, importing: true, message: "" });
-                        try {
-                          const res = await axios.post(`${API_URL$b}?action=cloudflare_account_import`, { id: cfZones.accountId, zones });
-                          if (res.data.status === "success") {
-                            const d = res.data.data;
-                            setCfZones(null);
-                            const lines = [`${t("cloudflare.importedCount", "добавлено")}: ${d.added.length}`];
-                            if (d.parked.length) lines.push(`✓ ${t("cloudflare.parkedOk", "A-записи прописаны")}: ${d.parked.join(", ")}`);
-                            if (d.duplicates.length) lines.push(`• ${t("cloudflare.duplicatesSkipped", "уже были в трекере")}: ${d.duplicates.join(", ")}`);
-                            if (d.errors.length) lines.push(`⚠ ${d.errors.slice(0, 3).join("; ")}`);
-                            setCfMessage(lines.join("\n"));
-                          } else {
-                            setCfZones({ ...cfZones, importing: false, message: res.data.message || t("common.error") });
-                          }
-                        } catch (err) {
-                          setCfZones({ ...cfZones, importing: false, message: t("common.networkError") });
-                        }
-                      },
-                      children: cfZones.importing ? t("cloudflare.importing", "Импортируем…") : `${t("cloudflare.importBtn", "Импортировать")} (${Object.values(cfZones.selected).filter(Boolean).length})`
-                    }
-                  )
-                ] }),
-                cfZones.message && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "alert alert-danger", children: cfZones.message })
-              ] })
+              cfZones.message && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "alert alert-danger", children: cfZones.message })
             ] })
-          ] }) })
-        ] }) }) : activeObj.isNamecheap ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: "680px", display: "flex", flexDirection: "column", gap: "20px" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "24px", border: "1px solid var(--color-border)" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)", marginBottom: "16px", lineHeight: 1.6 }, children: t("namecheap.howTo", "Включите API-доступ: Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access. Исходящий IP сервера добавьте в Whitelisted IPs. Домены, зарегистрированные в аккаунте, при парковке получают A-запись автоматически; SSL Let's Encrypt выпускается сразу после того, как DNS обновится.") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "12px", borderRadius: "8px", border: "1px dashed var(--color-border)", background: "var(--color-bg-soft)" }, children: [
+          ] })
+        ] }) })
+      ] }) }) : activeObj.isNamecheap ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: "680px", display: "flex", flexDirection: "column", gap: "20px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "24px", border: "1px solid var(--color-border)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)", marginBottom: "16px", lineHeight: 1.6 }, children: t("namecheap.howTo", "Включите API-доступ: Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access. Исходящий IP сервера добавьте в Whitelisted IPs. Домены, зарегистрированные в аккаунте, при парковке получают A-запись автоматически; SSL Let's Encrypt выпускается сразу после того, как DNS обновится.") }),
+            (() => {
+              const activeServerIp = ncIps.detected_ip || ncIps.server_ip || window.location.hostname || "—";
+              return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "12px", borderRadius: "8px", border: "1px dashed var(--color-border)", background: "var(--color-bg-soft)" }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-2", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)" }, children: t("namecheap.whitelistIp", "IP сервера для Whitelisted IPs") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono", style: { fontSize: "15px", color: "var(--color-text-primary)" }, children: ncIps.detected_ip || ncIps.server_ip || "—" })
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono font-semibold", style: { fontSize: "15px", color: "var(--color-text-primary)" }, children: activeServerIp })
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx(
                     "button",
                     {
                       className: "btn btn-secondary btn-icon",
-                      onClick: () => copyToClipboard$1(ncIps.detected_ip || ncIps.server_ip || "", "nc-ip"),
+                      onClick: () => {
+                        const ip = activeServerIp !== "—" ? activeServerIp : "";
+                        if (ip) copyToClipboard$1(ip, "nc-ip");
+                      },
                       title: t("common.copy"),
                       children: copied === "nc-ip" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "w-4 h-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" })
                     }
                   )
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { margin: "8px 0 0", color: "var(--color-text-muted)" }, children: t("namecheap.whitelistHint", "Добавьте этот IP в Namecheap: Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. Если показан неверный адрес — Namecheap сам назовёт IP, с которого пришли запросы, при первой попытке подключения.") })
-              ] })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { style: { fontSize: "16px", fontWeight: 600, color: "var(--color-text-primary)", display: "flex", alignItems: "center", gap: "8px" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { className: "w-4 h-4" }),
-                t("namecheap.accounts", "Аккаунты Namecheap")
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-primary", onClick: () => openNcAccountModal(), children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }),
-                t("namecheap.addAccount", "Добавить аккаунт")
-              ] })
-            ] }),
-            !ncAccounts.length && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "32px 24px", border: "1px dashed var(--color-border)", textAlign: "center" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(User, { className: "w-8 h-8 mx-auto mb-3", style: { color: "var(--color-text-muted)" } }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: t("namecheap.noAccounts", "Аккаунтов пока нет — добавьте первый, чтобы парковать и покупать домены прямо из трекера.") })
-            ] }),
-            ncAccounts.map((acc) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "20px 24px", border: "1px solid var(--color-border)" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start justify-between gap-4", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 min-w-0", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center", style: { width: "38px", height: "38px", borderRadius: "10px", background: "var(--color-bg-soft)", flexShrink: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(User, { className: "w-5 h-5", style: { color: "var(--color-text-secondary)" } }) }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "15px", fontWeight: 600, color: "var(--color-text-primary)" }, children: acc.name }),
-                      acc.sandbox && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "badge badge-warning text-xs", children: "Sandbox" })
-                    ] }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs font-mono truncate", style: { color: "var(--color-text-muted)" }, children: [
-                      "@",
-                      acc.username
-                    ] })
-                  ] })
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-right", style: { flexShrink: 0 }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs", style: { color: "var(--color-text-secondary)", marginBottom: "2px" }, children: t("namecheap.balance", "баланс") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono", style: { fontSize: "17px", fontWeight: 600, color: acc.last_balance ? "var(--color-text-primary)" : "var(--color-text-muted)" }, children: acc.last_balance || "—" })
-                ] })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs", style: { color: "var(--color-text-muted)", margin: "10px 0 14px" }, children: [
-                t("namecheap.domainsInAccount", "Доменов в аккаунте"),
-                ": ",
-                acc.domains_count ?? "—"
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium", onClick: () => openNcDialog(acc.id, "register"), title: t("namecheap.registerHint"), children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(ShoppingCart, { className: "w-4 h-4" }),
-                  t("namecheap.buyDomain", "Купить домен")
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium", onClick: () => openNcDialog(acc.id, "import"), title: t("namecheap.importHint"), children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "w-4 h-4" }),
-                  t("namecheap.importPark", "Импорт и парковка")
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "button",
-                  {
-                    className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium",
-                    disabled: ncBalanceBusy === acc.id,
-                    onClick: () => refreshNcBalance(acc),
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-4 h-4" + (ncBalanceBusy === acc.id ? " animate-spin" : "") }),
-                      t("namecheap.refreshBalance", "Обновить баланс")
-                    ]
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium", onClick: () => openNcAccountModal(acc), children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { className: "w-4 h-4" }),
-                  t("common.edit")
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium", onClick: () => deleteNcAccount(acc), children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }),
-                  t("common.delete")
-                ] })
-              ] })
-            ] }, acc.id))
+              ] });
+            })()
           ] }),
-          ncAccModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content w-full max-w-md", style: { padding: "24px" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "modal-title flex items-center gap-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18 }),
-                ncAccModal.id ? t("namecheap.editAccount", "Редактировать аккаунт") : t("namecheap.addAccount", "Добавить аккаунт")
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setNcAccModal(null), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { style: { fontSize: "16px", fontWeight: 600, color: "var(--color-text-primary)", display: "flex", alignItems: "center", gap: "8px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { className: "w-4 h-4" }),
+              t("namecheap.accounts", "Аккаунты Namecheap")
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("namecheap.accountLabel", "Название аккаунта") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
-                  {
-                    type: "text",
-                    className: "form-input",
-                    style: { width: "100%" },
-                    placeholder: t("namecheap.accountLabelPlaceholder", "Buyer 1 — Main"),
-                    value: ncAccModal.name,
-                    onChange: (e) => setNcAccModal({ ...ncAccModal, name: e.target.value })
-                  }
-                )
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-primary", onClick: () => openNcAccountModal(), children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }),
+              t("namecheap.addAccount", "Добавить аккаунт")
+            ] })
+          ] }),
+          !ncAccounts.length && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "32px 24px", border: "1px dashed var(--color-border)", textAlign: "center" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(User, { className: "w-8 h-8 mx-auto mb-3", style: { color: "var(--color-text-muted)" } }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: t("namecheap.noAccounts", "Аккаунтов пока нет — добавьте первый, чтобы парковать и покупать домены прямо из трекера.") })
+          ] }),
+          ncAccounts.map((acc) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "20px 24px", border: "1px solid var(--color-border)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start justify-between gap-4", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 min-w-0", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center", style: { width: "38px", height: "38px", borderRadius: "10px", background: "var(--color-bg-soft)", flexShrink: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(User, { className: "w-5 h-5", style: { color: "var(--color-text-secondary)" } }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "15px", fontWeight: 600, color: "var(--color-text-primary)" }, children: acc.name }),
+                    acc.sandbox && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "badge badge-warning text-xs", children: "Sandbox" })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs font-mono truncate", style: { color: "var(--color-text-muted)" }, children: [
+                    "@",
+                    acc.username
+                  ] })
+                ] })
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: "Username" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
-                  {
-                    type: "text",
-                    className: "form-input",
-                    style: { width: "100%" },
-                    placeholder: "namecheap-login",
-                    value: ncAccModal.username,
-                    onChange: (e) => setNcAccModal({ ...ncAccModal, username: e.target.value })
-                  }
-                )
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-right", style: { flexShrink: 0 }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs", style: { color: "var(--color-text-secondary)", marginBottom: "2px" }, children: t("namecheap.balance", "баланс") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono", style: { fontSize: "17px", fontWeight: 600, color: acc.last_balance ? "var(--color-text-primary)" : "var(--color-text-muted)" }, children: acc.last_balance || "—" })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs", style: { color: "var(--color-text-muted)", margin: "10px 0 14px" }, children: [
+              t("namecheap.domainsInAccount", "Доменов в аккаунте"),
+              ": ",
+              acc.domains_count ?? "—"
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium", onClick: () => openNcDialog(acc.id, "register"), title: t("namecheap.registerHint"), children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ShoppingCart, { className: "w-4 h-4" }),
+                t("namecheap.buyDomain", "Купить домен")
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: "API Key" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
-                  {
-                    type: "password",
-                    className: "form-input",
-                    style: { width: "100%", fontFamily: "monospace" },
-                    value: ncAccModal.api_key,
-                    onChange: (e) => setNcAccModal({ ...ncAccModal, api_key: e.target.value }),
-                    placeholder: ncAccModal.id ? t("namecheap.keySaved", "ключ сохранён — введите новый, чтобы заменить") : ""
-                  }
-                )
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium", onClick: () => openNcDialog(acc.id, "import"), title: t("namecheap.importHint"), children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "w-4 h-4" }),
+                t("namecheap.importPark", "Импорт и парковка")
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "12px", borderRadius: "8px", border: "1px dashed var(--color-border)", background: "var(--color-bg-soft)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium",
+                  disabled: ncBalanceBusy === acc.id,
+                  onClick: () => refreshNcBalance(acc),
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-4 h-4" + (ncBalanceBusy === acc.id ? " animate-spin" : "") }),
+                    t("namecheap.refreshBalance", "Обновить баланс")
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium", onClick: () => openNcAccountModal(acc), children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { className: "w-4 h-4" }),
+                t("common.edit")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium", onClick: () => deleteNcAccount(acc), children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }),
+                t("common.delete")
+              ] })
+            ] })
+          ] }, acc.id))
+        ] }),
+        ncAccModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content w-full max-w-md", style: { padding: "24px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "modal-title flex items-center gap-2", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18 }),
+              ncAccModal.id ? t("namecheap.editAccount", "Редактировать аккаунт") : t("namecheap.addAccount", "Добавить аккаунт")
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setNcAccModal(null), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("namecheap.accountLabel", "Название аккаунта") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "text",
+                  className: "form-input",
+                  style: { width: "100%" },
+                  placeholder: t("namecheap.accountLabelPlaceholder", "Buyer 1 — Main"),
+                  value: ncAccModal.name,
+                  onChange: (e) => setNcAccModal({ ...ncAccModal, name: e.target.value })
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: "Username" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "text",
+                  className: "form-input",
+                  style: { width: "100%" },
+                  placeholder: "namecheap-login",
+                  value: ncAccModal.username,
+                  onChange: (e) => setNcAccModal({ ...ncAccModal, username: e.target.value })
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: "API Key" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "password",
+                  className: "form-input",
+                  style: { width: "100%", fontFamily: "monospace" },
+                  value: ncAccModal.api_key,
+                  onChange: (e) => setNcAccModal({ ...ncAccModal, api_key: e.target.value }),
+                  placeholder: ncAccModal.id ? t("namecheap.keySaved", "ключ сохранён — введите новый, чтобы заменить") : ""
+                }
+              )
+            ] }),
+            (() => {
+              const activeServerIp = ncIps.detected_ip || ncIps.server_ip || window.location.hostname || "—";
+              return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "12px", borderRadius: "8px", border: "1px dashed var(--color-border)", background: "var(--color-bg-soft)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-2", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)" }, children: t("namecheap.whitelistIp", "IP сервера для Whitelisted IPs") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono", style: { fontSize: "15px", color: "var(--color-text-primary)" }, children: ncIps.detected_ip || ncIps.server_ip || "—" })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono font-semibold", style: { fontSize: "15px", color: "var(--color-text-primary)" }, children: activeServerIp })
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "button",
                   {
                     className: "btn btn-secondary btn-icon",
-                    onClick: () => copyToClipboard$1(ncIps.detected_ip || ncIps.server_ip || "", "nc-ip-modal"),
+                    onClick: () => {
+                      const ip = activeServerIp !== "—" ? activeServerIp : "";
+                      if (ip) copyToClipboard$1(ip, "nc-ip-modal");
+                    },
                     title: t("common.copy"),
                     children: copied === "nc-ip-modal" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "w-4 h-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" })
                   }
                 )
-              ] }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("namecheap.addressBook", "Профиль контакта (Address Book) для новых доменов") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "select",
-                    {
-                      className: "form-select",
-                      style: { flex: 1 },
-                      value: ncAccModal.contact_id,
-                      onChange: (e) => setNcAccModal({ ...ncAccModal, contact_id: e.target.value }),
-                      children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("namecheap.addressPlaceholder", "— не выбран —") }),
-                        ncAccAddresses.map((a) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: a.id, children: [
-                          a.name,
-                          a.is_default ? " ✓" : ""
-                        ] }, a.id))
-                      ]
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "button",
-                    {
-                      type: "button",
-                      className: "btn btn-secondary btn-icon",
-                      disabled: ncAccBusy,
-                      onClick: refreshNcAddresses,
-                      title: t("namecheap.addressRefresh", "Обновить список из Address Book"),
-                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-4 h-4" })
-                    }
-                  )
-                ] }),
-                !ncAccAddresses.length && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { margin: "6px 0 0", color: "var(--color-text-muted)" }, children: t("namecheap.addressHintNew", "Профили подтягиваются из Address Book этого аккаунта — они нужны для регистрации новых доменов.") })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("namecheap.environment", "Окружение") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", style: { color: "var(--color-text-primary)", fontSize: "14px" }, children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "radio", name: "nc-acc-env", checked: !ncAccModal.sandbox, onChange: () => setNcAccModal({ ...ncAccModal, sandbox: false }) }),
-                    t("namecheap.production", "Production")
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", style: { color: "var(--color-text-primary)", fontSize: "14px" }, children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "radio", name: "nc-acc-env", checked: ncAccModal.sandbox, onChange: () => setNcAccModal({ ...ncAccModal, sandbox: true }) }),
-                    t("namecheap.sandbox", "Sandbox")
-                  ] })
-                ] })
-              ] }),
-              ncAccMessage && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)", whiteSpace: "pre-wrap" }, children: ncAccMessage }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary", disabled: ncAccBusy, onClick: () => setNcAccModal(null), children: t("common.cancel") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", className: "btn btn-primary", disabled: ncAccBusy, onClick: saveNcAccount, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { className: "w-4 h-4" }),
-                  ncAccBusy ? t("common.saving") : t("namecheap.testAndSave", "Проверить и сохранить")
-                ] })
-              ] })
-            ] })
-          ] }) })
-        ] }) : activeObj.isRecaptcha ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: "600px", display: "flex", flexDirection: "column", gap: "24px" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "24px", border: "1px solid var(--color-border)" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "16px" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { fontSize: "16px", fontWeight: "600", color: "var(--color-text-primary)", marginBottom: "4px" }, children: t("recaptcha.v2Title") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "13px", color: "var(--color-text-muted)" }, children: t("recaptcha.v2Desc") })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "12px" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("recaptcha.siteKey") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
+              ] }) });
+            })(),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("namecheap.addressBook", "Профиль контакта (Address Book) для новых доменов") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "select",
                   {
-                    type: "text",
-                    value: rcSettings.recaptcha_v2_site_key,
-                    onChange: (e) => setRcSettings((s) => ({ ...s, recaptcha_v2_site_key: e.target.value })),
-                    placeholder: t("recaptcha.siteKeyPlaceholder"),
-                    style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" }
-                  }
-                )
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("recaptcha.secretKey") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
-                  {
-                    type: "password",
-                    value: rcSettings.recaptcha_v2_secret_key,
-                    onChange: (e) => setRcSettings((s) => ({ ...s, recaptcha_v2_secret_key: e.target.value })),
-                    placeholder: t("recaptcha.secretKeyPlaceholder"),
-                    style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" }
-                  }
-                )
-              ] })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "24px", border: "1px solid var(--color-border)" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "16px" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { fontSize: "16px", fontWeight: "600", color: "var(--color-text-primary)", marginBottom: "4px" }, children: t("recaptcha.v3Title") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "13px", color: "var(--color-text-muted)" }, children: t("recaptcha.v3Desc") })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "12px" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("recaptcha.siteKey") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
-                  {
-                    type: "text",
-                    value: rcSettings.recaptcha_v3_site_key,
-                    onChange: (e) => setRcSettings((s) => ({ ...s, recaptcha_v3_site_key: e.target.value })),
-                    placeholder: t("recaptcha.siteKeyPlaceholder"),
-                    style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" }
-                  }
-                )
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("recaptcha.secretKey") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
-                  {
-                    type: "password",
-                    value: rcSettings.recaptcha_v3_secret_key,
-                    onChange: (e) => setRcSettings((s) => ({ ...s, recaptcha_v3_secret_key: e.target.value })),
-                    placeholder: t("recaptcha.secretKeyPlaceholder"),
-                    style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" }
-                  }
-                )
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("recaptcha.v3Threshold") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
-                  {
-                    type: "number",
-                    min: "0",
-                    max: "1",
-                    step: "0.1",
-                    value: rcSettings.recaptcha_v3_threshold,
-                    onChange: (e) => setRcSettings((s) => ({ ...s, recaptcha_v3_threshold: e.target.value })),
-                    style: { width: "160px", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px" }
+                    className: "form-select",
+                    style: { flex: 1 },
+                    value: ncAccModal.contact_id,
+                    onChange: (e) => setNcAccModal({ ...ncAccModal, contact_id: e.target.value }),
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("namecheap.addressPlaceholder", "— не выбран —") }),
+                      ncAccAddresses.map((a) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: a.id, children: [
+                        a.name,
+                        a.is_default ? " ✓" : ""
+                      ] }, a.id))
+                    ]
                   }
                 ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "6px" }, children: t("recaptcha.v3ThresholdDesc") })
-              ] })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "24px", border: "1px solid var(--color-border)" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "16px" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { fontSize: "16px", fontWeight: "600", color: "var(--color-text-primary)", marginBottom: "4px" }, children: t("recaptcha.turnstileTitle") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "13px", color: "var(--color-text-muted)" }, children: t("recaptcha.turnstileDesc") })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "12px" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("recaptcha.siteKey") }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
+                  "button",
                   {
-                    type: "text",
-                    value: rcSettings.turnstile_site_key,
-                    onChange: (e) => setRcSettings((s) => ({ ...s, turnstile_site_key: e.target.value })),
-                    placeholder: "0x4AAAAAAA...",
-                    style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" }
+                    type: "button",
+                    className: "btn btn-secondary btn-icon",
+                    disabled: ncAccBusy,
+                    onClick: refreshNcAddresses,
+                    title: t("namecheap.addressRefresh", "Обновить список из Address Book"),
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-4 h-4" })
                   }
                 )
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("recaptcha.secretKey") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
-                  {
-                    type: "password",
-                    value: rcSettings.turnstile_secret_key,
-                    onChange: (e) => setRcSettings((s) => ({ ...s, turnstile_secret_key: e.target.value })),
-                    placeholder: "0x4AAAAAAA...",
-                    style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" }
-                  }
-                )
+              !ncAccAddresses.length && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { margin: "6px 0 0", color: "var(--color-text-muted)" }, children: t("namecheap.addressHintNew", "Профили подтягиваются из Address Book этого аккаунта — они нужны для регистрации новых доменов.") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("namecheap.environment", "Окружение") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", style: { color: "var(--color-text-primary)", fontSize: "14px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "radio", name: "nc-acc-env", checked: !ncAccModal.sandbox, onChange: () => setNcAccModal({ ...ncAccModal, sandbox: false }) }),
+                  t("namecheap.production", "Production")
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", style: { color: "var(--color-text-primary)", fontSize: "14px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "radio", name: "nc-acc-env", checked: ncAccModal.sandbox, onChange: () => setNcAccModal({ ...ncAccModal, sandbox: true }) }),
+                  t("namecheap.sandbox", "Sandbox")
+                ] })
+              ] })
+            ] }),
+            ncAccMessage && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)", whiteSpace: "pre-wrap" }, children: ncAccMessage }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary", disabled: ncAccBusy, onClick: () => setNcAccModal(null), children: t("common.cancel") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", className: "btn btn-primary", disabled: ncAccBusy, onClick: saveNcAccount, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { className: "w-4 h-4" }),
+                ncAccBusy ? t("common.saving") : t("namecheap.testAndSave", "Проверить и сохранить")
               ] })
             ] })
+          ] })
+        ] }) })
+      ] }) : activeObj.isRecaptcha ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: "600px", display: "flex", flexDirection: "column", gap: "24px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "24px", border: "1px solid var(--color-border)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "16px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { fontSize: "16px", fontWeight: "600", color: "var(--color-text-primary)", marginBottom: "4px" }, children: t("recaptcha.v2Title") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "13px", color: "var(--color-text-muted)" }, children: t("recaptcha.v2Desc") })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                onClick: saveRcSettings,
-                disabled: rcSaving,
-                style: { padding: "10px 24px", background: "var(--color-primary)", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "600", fontSize: "14px", cursor: "pointer" },
-                children: rcSaving ? t("common.saving") : t("common.save")
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "a",
-              {
-                href: "https://www.google.com/recaptcha/admin",
-                target: "_blank",
-                rel: "noreferrer",
-                style: { fontSize: "13px", color: "var(--color-primary)", textDecoration: "none", display: "flex", alignItems: "center", gap: "4px" },
-                children: [
-                  t("recaptcha.adminConsoleLink"),
-                  " ↗"
-                ]
-              }
-            )
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "12px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("recaptcha.siteKey") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "text",
+                  value: rcSettings.recaptcha_v2_site_key,
+                  onChange: (e) => setRcSettings((s) => ({ ...s, recaptcha_v2_site_key: e.target.value })),
+                  placeholder: t("recaptcha.siteKeyPlaceholder"),
+                  style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" }
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("recaptcha.secretKey") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "password",
+                  value: rcSettings.recaptcha_v2_secret_key,
+                  onChange: (e) => setRcSettings((s) => ({ ...s, recaptcha_v2_secret_key: e.target.value })),
+                  placeholder: t("recaptcha.secretKeyPlaceholder"),
+                  style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" }
+                }
+              )
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "24px", border: "1px solid var(--color-border)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "16px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { fontSize: "16px", fontWeight: "600", color: "var(--color-text-primary)", marginBottom: "4px" }, children: t("recaptcha.v3Title") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "13px", color: "var(--color-text-muted)" }, children: t("recaptcha.v3Desc") })
           ] }),
-          rcMessage && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "div",
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "12px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("recaptcha.siteKey") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "text",
+                  value: rcSettings.recaptcha_v3_site_key,
+                  onChange: (e) => setRcSettings((s) => ({ ...s, recaptcha_v3_site_key: e.target.value })),
+                  placeholder: t("recaptcha.siteKeyPlaceholder"),
+                  style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" }
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("recaptcha.secretKey") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "password",
+                  value: rcSettings.recaptcha_v3_secret_key,
+                  onChange: (e) => setRcSettings((s) => ({ ...s, recaptcha_v3_secret_key: e.target.value })),
+                  placeholder: t("recaptcha.secretKeyPlaceholder"),
+                  style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" }
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("recaptcha.v3Threshold") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "number",
+                  min: "0",
+                  max: "1",
+                  step: "0.1",
+                  value: rcSettings.recaptcha_v3_threshold,
+                  onChange: (e) => setRcSettings((s) => ({ ...s, recaptcha_v3_threshold: e.target.value })),
+                  style: { width: "160px", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px" }
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "6px" }, children: t("recaptcha.v3ThresholdDesc") })
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "24px", border: "1px solid var(--color-border)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "16px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { fontSize: "16px", fontWeight: "600", color: "var(--color-text-primary)", marginBottom: "4px" }, children: t("recaptcha.turnstileTitle") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "13px", color: "var(--color-text-muted)" }, children: t("recaptcha.turnstileDesc") })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "12px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("recaptcha.siteKey") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "text",
+                  value: rcSettings.turnstile_site_key,
+                  onChange: (e) => setRcSettings((s) => ({ ...s, turnstile_site_key: e.target.value })),
+                  placeholder: "0x4AAAAAAA...",
+                  style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" }
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: "500", color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("recaptcha.secretKey") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  type: "password",
+                  value: rcSettings.turnstile_secret_key,
+                  onChange: (e) => setRcSettings((s) => ({ ...s, turnstile_secret_key: e.target.value })),
+                  placeholder: "0x4AAAAAAA...",
+                  style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" }
+                }
+              )
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
             {
-              style: {
-                padding: "12px 16px",
-                borderRadius: "8px",
-                fontSize: "14px",
-                background: rcMessage.type === "success" ? "var(--color-success-bg, #dcfce7)" : "var(--color-error-bg, #fee2e2)",
-                color: rcMessage.type === "success" ? "var(--color-success, #16a34a)" : "var(--color-error, #dc2626)"
-              },
-              children: rcMessage.text
+              onClick: saveRcSettings,
+              disabled: rcSaving,
+              style: { padding: "10px 24px", background: "var(--color-primary)", color: "#fff", border: "none", borderRadius: "8px", fontWeight: "600", fontSize: "14px", cursor: "pointer" },
+              children: rcSaving ? t("common.saving") : t("common.save")
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "a",
+            {
+              href: "https://www.google.com/recaptcha/admin",
+              target: "_blank",
+              rel: "noreferrer",
+              style: { fontSize: "13px", color: "var(--color-primary)", textDecoration: "none", display: "flex", alignItems: "center", gap: "4px" },
+              children: [
+                t("recaptcha.adminConsoleLink"),
+                " ↗"
+              ]
             }
           )
-        ] }) }) : activeObj.isTelegram ? renderTelegramPanel() : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isPixelVault ? renderPixelVaultPanel() : activeObj.isFacebookCosts ? renderFacebookCostsPanel() : activeObj.isTikTokCosts ? renderTikTokCostsPanel() : activeObj.isGoogleAdsCosts ? renderGoogleAdsCostsPanel() : activeObj.isFacebookConversions ? renderFacebookConversionsPanel() : activeObj.isChromeExtension ? renderChromeExtensionPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "20px 24px", flex: 1, display: "flex", flexDirection: "column" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)" }, children: t("integrations.codeToInsert") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                onClick: () => copyToClipboard$1(activeObj.code, activeTab),
-                className: "btn btn-secondary btn-sm",
-                children: copied === activeTab ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 16, style: { color: "var(--color-success)" } }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-success)" }, children: t("integrations.copied") })
-                ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 16 }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("integrations.copyCode") })
-                ] })
-              }
-            )
-          ] }),
+        ] }),
+        rcMessage && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            style: {
+              padding: "12px 16px",
+              borderRadius: "8px",
+              fontSize: "14px",
+              background: rcMessage.type === "success" ? "var(--color-success-bg, #dcfce7)" : "var(--color-error-bg, #fee2e2)",
+              color: rcMessage.type === "success" ? "var(--color-success, #16a34a)" : "var(--color-error, #dc2626)"
+            },
+            children: rcMessage.text
+          }
+        )
+      ] }) }) : activeObj.isTelegram ? renderTelegramPanel() : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isPixelVault ? renderPixelVaultPanel() : activeObj.isFacebookCosts ? renderFacebookCostsPanel() : activeObj.isTikTokCosts ? renderTikTokCostsPanel() : activeObj.isGoogleAdsCosts ? renderGoogleAdsCostsPanel() : activeObj.isFacebookConversions ? renderFacebookConversionsPanel() : activeObj.isChromeExtension ? renderChromeExtensionPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "20px 24px", flex: 1, display: "flex", flexDirection: "column" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "14px", fontWeight: 500, color: "var(--color-text-primary)" }, children: t("integrations.codeToInsert") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: () => copyToClipboard$1(activeObj.code, activeTab),
+              className: "btn btn-secondary btn-sm",
+              children: copied === activeTab ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 16, style: { color: "var(--color-success)" } }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-success)" }, children: t("integrations.copied") })
+              ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 16 }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("integrations.copyCode") })
+              ] })
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+          flex: 1,
+          minHeight: "280px",
+          background: "#1e1e2e",
+          borderRadius: "16px",
+          overflow: "hidden",
+          boxShadow: "inset 0 2px 8px rgba(0,0,0,0.3)"
+        }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
-            flex: 1,
-            minHeight: "280px",
-            background: "#1e1e2e",
-            borderRadius: "16px",
-            overflow: "hidden",
-            boxShadow: "inset 0 2px 8px rgba(0,0,0,0.3)"
-          }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
-              height: "36px",
-              background: "#2d2d3f",
-              display: "flex",
-              alignItems: "center",
-              padding: "0 16px"
-            }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "12px", height: "12px", borderRadius: "50%", background: "#ff5f57", marginRight: "8px" } }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "12px", height: "12px", borderRadius: "50%", background: "#febc2e", marginRight: "8px" } }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "12px", height: "12px", borderRadius: "50%", background: "#28c840" } })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { style: {
-              padding: "16px 20px",
-              margin: 0,
-              overflow: "auto",
-              height: "calc(100% - 36px)",
-              fontSize: "13px",
-              fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
-              color: "#cdd6f4",
-              lineHeight: 1.6
-            }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: activeObj.code }) })
-          ] }),
-          activeTab === "kclient_php" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
-            marginTop: "16px",
-            padding: "12px 16px",
-            background: "var(--color-warning-bg)",
-            border: "1px solid var(--color-warning)",
-            borderRadius: "12px",
+            height: "36px",
+            background: "#2d2d3f",
             display: "flex",
-            alignItems: "flex-start",
-            gap: "10px"
+            alignItems: "center",
+            padding: "0 16px"
           }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Server, { size: 18, style: { color: "var(--color-warning)", flexShrink: 0, marginTop: "2px" } }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "14px", color: "#92400e" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t("integrations.important") }),
-              " ",
-              t("integrations.phpWarning")
-            ] })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "12px", height: "12px", borderRadius: "50%", background: "#ff5f57", marginRight: "8px" } }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "12px", height: "12px", borderRadius: "50%", background: "#febc2e", marginRight: "8px" } }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "12px", height: "12px", borderRadius: "50%", background: "#28c840" } })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { style: {
+            padding: "16px 20px",
+            margin: 0,
+            overflowX: "auto",
+            maxWidth: "100%",
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+            height: "calc(100% - 36px)",
+            fontSize: "13px",
+            fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+            color: "#cdd6f4",
+            lineHeight: 1.6
+          }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: activeObj.code }) })
+        ] }),
+        activeTab === "kclient_php" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+          marginTop: "16px",
+          padding: "12px 16px",
+          background: "var(--color-warning-bg)",
+          border: "1px solid var(--color-warning)",
+          borderRadius: "12px",
+          display: "flex",
+          alignItems: "flex-start",
+          gap: "10px"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Server, { size: 18, style: { color: "var(--color-warning)", flexShrink: 0, marginTop: "2px" } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "14px", color: "#92400e" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: t("integrations.important") }),
+            " ",
+            t("integrations.phpWarning")
           ] })
         ] })
       ] })
@@ -81060,7 +82413,7 @@ function obfuscateBase64(code) {
   }
 }
 function kclientJs({ trackerUrl, campaign }, opts = {}) {
-  let code = `<!-- Orbitra KClient JS — в <head> сайта на стороннем хосте -->
+  let code = `<!-- Orbitra Tracking Client JS — в <head> сайта на стороннем хосте -->
 <script>
   var orbitra_db_url = '${trackerUrl}';
   var orbitra_campaign_token = '${campaign.token}';
@@ -83624,8 +84977,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     },
                     children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("optgroup", { label: t("tracking.groupSite", "Sites"), children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "kclient_js", children: "KClient JS" }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "kclient_php", children: "KClient PHP" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "kclient_js", children: "Tracking Client (JS)" }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "kclient_php", children: "Tracking Client (PHP)" }),
                         /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "tracking_script", children: t("tracking.trackingScript", "Tracking Script") })
                       ] }),
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("optgroup", { label: t("tracking.groupBanners", "Banner blocks"), children: [

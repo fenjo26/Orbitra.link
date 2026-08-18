@@ -7,6 +7,19 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0.7] — 2026-08-18
+
+Modern Integrations Card Hub architecture, in-browser IDE & File Manager for local offers, and secure file operations API.
+
+### Added
+- 🗂️ **Modern Integrations Card Hub** — complete UI redesign of the Integrations page (`IntegrationsPage.jsx`) into a dual-mode Grid/Card Hub (Vercel & Stripe style). Replaces the old nested 240px double sidebar with a spacious responsive catalog. 25 integration services are organized across 4 categories (`Ads & Costs`, `Domains & SSL`, `Tracking & Sites`, `Tools & API`).
+- ⚡ **Real-Time Live Status & Metrics** — dynamic pulsing status indicators on integration tiles display live connected account counts, real-time Namecheap balances, Cloudflare zone totals, Telegram bot connection state, and active API keys. Parallel data prefetching on mount (`loadOverviewData`) keeps every tile fresh immediately.
+- 🔎 **Instant Hub Search & Category Filtering** — interactive category pills and real-time search filtering by title, subtitle, description, and keywords.
+- 🖥️ **100% Full-Width Detail Configuration View** — opening any integration provides full screen width for complex forms, tables, and code snippets, complete with top breadcrumbs and `← Back to all integrations` navigation.
+- 💻 **In-Browser IDE & File Manager for Local Offers** — `OfferEditor.jsx` now provides a full-featured code editor and asset manager for direct local offers (`is_local=1`): interactive file tree with file type icons, Monaco-style editor for HTML, CSS, JavaScript, PHP, JSON, XML with syntax highlighting, search & replace, code beautification, live multi-device preview (desktop/mobile iframe toggle), image preview, direct upload, replace, delete, download, and ZIP extraction with validation.
+- 🛡️ **Secure Backend File Operations API** — new endpoints in `api.php` (`offer_files`, `offer_file_content`, `save_offer_file`, `offer_file_op`, `upload_offer_file`) equipped with tiered PHP security scanning, strict `realpath` containment to prevent path traversal, file whitelist validation, and automated test suite (`tests/offer_file_ops_test.php`).
+- 🌐 **Full 7-Locale Parity** — all new hub headings, category filters, action buttons, and status texts localized across English (`en`), Russian (`ru`), German (`de`), Spanish (`es`), French (`fr`), Ukrainian (`uk`), and Chinese (`zh`).
+
 ## [1.0.6] — 2026-08-18
 
 Multi-accounting for the DNS/registrar layer, delete safety for serving entities, and upload hardening — plus in-modal copy feedback the tester could actually see.

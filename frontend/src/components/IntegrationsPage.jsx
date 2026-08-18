@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import axios from 'axios';
-import { Terminal, Code, Image as ImageIcon, Copy, CheckCircle2, Server, Globe, Zap, Send, Eye, EyeOff, RefreshCw, Trash2, MessageCircle, Bell, BellOff, Clock, Users, Download, Settings, Plus, Edit2, Power, X, ArrowRight, Smartphone, Monitor, Timer, ArrowLeft, Palette, ExternalLink, Shield, DollarSign, Cloud, Database, Tag, Music2, Search, KeyRound, ShoppingCart, User } from 'lucide-react';
+import { Terminal, Code, Image as ImageIcon, Copy, CheckCircle2, Server, Globe, Zap, Send, Eye, EyeOff, RefreshCw, Trash2, MessageCircle, Bell, BellOff, Clock, Users, Download, Settings, Plus, Edit2, Power, X, ArrowRight, Smartphone, Monitor, Timer, ArrowLeft, Palette, ExternalLink, Shield, DollarSign, Cloud, Database, Tag, Music2, Search, KeyRound, ShoppingCart, User, Grid, ChevronRight, Sparkles, Filter, Check } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard as copyUtil } from '../utils/clipboard';
 import ProxyInput from './common/ProxyInput';
 import PixelPicker from './common/PixelPicker';
+import IntegrationCard from './IntegrationCard';
 
 const API_URL = '/api.php';
 
@@ -27,7 +28,10 @@ const IntegrationsPage = () => {
     const { t } = useLanguage();
     const translationRef = useRef(t);
     translationRef.current = t;
-    const [activeTab, setActiveTab] = useState('kclient_php');
+    const [activeView, setActiveView] = useState('grid'); // 'grid' | 'detail'
+    const [activeCategory, setActiveCategory] = useState('all'); // 'all' | 'ads' | 'domains' | 'sites' | 'tools'
+    const [searchQuery, setSearchQuery] = useState('');
+    const [activeTab, setActiveTab] = useState('google_ads_costs');
     const [copied, setCopied] = useState('');
 
     // Ads Manager browser-extension state. The key is dedicated, read-only,
@@ -686,7 +690,62 @@ const IntegrationsPage = () => {
         finally { setPixelProfilesLoading(false); }
     }, []);
 
+    // Prefetch all overview and connection data on mount so Grid Hub cards
+    // show real-time live connection counts, balances, and active badges immediately.
+    const loadOverviewData = useCallback(() => {
+        fetchFbConnections();
+        fetchFbFields();
+        fetchFbOauthStatus();
+        fetchTtConnections();
+        fetchTtFields();
+        fetchTtOauthStatus();
+        fetchGaConnections();
+        fetchGaFields();
+        fetchGaOauthStatus();
+        fetchCapiPixels();
+        fetchCapiMeta();
+        fetchCampaigns();
+        fetchPixelProfiles();
+        fetchTelegramSettings();
+        fetchRcSettings();
+        fetchConfigs();
+        loadExtensionCredentials();
+        axios.get(`${API_URL}?action=cloudflare_status`)
+            .then(res => {
+                if (res.data?.status === 'success') {
+                    setCfStatus(res.data.data);
+                    setCfAccounts(res.data.data.accounts || []);
+                    setCfServerIp(res.data.data.server_ip || '');
+                }
+            })
+            .catch(() => {});
+        axios.get(`${API_URL}?action=namecheap_accounts_list`)
+            .then(res => {
+                if (res.data?.status === 'success') {
+                    setNcAccounts(res.data.data.accounts || []);
+                    setNcIps({ server_ip: res.data.data.server_ip || '', detected_ip: res.data.data.detected_ip || '' });
+                    (res.data.data.accounts || []).forEach(acc => {
+                        axios.post(`${API_URL}?action=namecheap_account_balance`, { account_id: acc.id })
+                            .then(b => {
+                                if (b.data?.status === 'success' && b.data.data?.balance !== undefined) {
+                                    setNcAccounts(list => list.map(a => a.id === acc.id ? { ...a, last_balance: b.data.data.balance || a.last_balance } : a));
+                                }
+                            })
+                            .catch(() => {});
+                    });
+                }
+            })
+            .catch(() => {});
+    }, [fetchFbConnections, fetchFbFields, fetchFbOauthStatus, fetchTtConnections, fetchTtFields, fetchTtOauthStatus, fetchGaConnections, fetchGaFields, fetchGaOauthStatus, fetchCapiPixels, fetchCapiMeta, fetchCampaigns, fetchPixelProfiles, fetchTelegramSettings, fetchRcSettings, fetchConfigs, loadExtensionCredentials]);
+
     useEffect(() => {
+        loadOverviewData();
+    }, [loadOverviewData]);
+
+    useEffect(() => {
+        if (activeTab === 'telegram') fetchTelegramSettings();
+        if (activeTab === 'recaptcha') fetchRcSettings();
+        if (activeTab === 'chrome_extension' && !extApiKey) loadExtensionCredentials();
         if (activeTab === 'facebook_costs') { fetchFbConnections(); fetchFbFields(); fetchFbOauthStatus(); }
         if (activeTab === 'tiktok_costs') { fetchTtConnections(); fetchTtFields(); fetchTtOauthStatus(); }
         if (activeTab === 'google_ads_costs') { fetchGaConnections(); fetchGaFields(); fetchGaOauthStatus(); }
@@ -695,7 +754,7 @@ const IntegrationsPage = () => {
         if (activeTab === 'cloudflare') {
             axios.get(`${API_URL}?action=cloudflare_status`)
                 .then(res => {
-                    if (res.data.status === 'success') {
+                    if (res.data?.status === 'success') {
                         setCfStatus(res.data.data);
                         setCfAccounts(res.data.data.accounts || []);
                         setCfServerIp(res.data.data.server_ip || '');
@@ -704,19 +763,15 @@ const IntegrationsPage = () => {
                 .catch(() => {});
         }
         if (activeTab === 'namecheap') {
-            // Stored list first (fast), then one live balance probe per
-            // account — the browser fires them in parallel and each card
-            // updates as its reply lands, so an N-account panel never waits
-            // on N sequential Namecheap round-trips.
             axios.get(`${API_URL}?action=namecheap_accounts_list`)
                 .then(res => {
-                    if (res.data.status === 'success') {
+                    if (res.data?.status === 'success') {
                         setNcAccounts(res.data.data.accounts || []);
                         setNcIps({ server_ip: res.data.data.server_ip || '', detected_ip: res.data.data.detected_ip || '' });
                         (res.data.data.accounts || []).forEach(acc => {
                             axios.post(`${API_URL}?action=namecheap_account_balance`, { account_id: acc.id })
                                 .then(b => {
-                                    if (b.data.status === 'success' && b.data.data?.balance !== undefined) {
+                                    if (b.data?.status === 'success' && b.data.data?.balance !== undefined) {
                                         setNcAccounts(list => list.map(a => a.id === acc.id ? { ...a, last_balance: b.data.data.balance || a.last_balance } : a));
                                     }
                                 })
@@ -726,7 +781,7 @@ const IntegrationsPage = () => {
                 })
                 .catch(() => {});
         }
-    }, [activeTab, fetchFbConnections, fetchFbFields, fetchTtConnections, fetchTtFields, fetchGaConnections, fetchGaFields, fetchCapiPixels, fetchCapiMeta, fetchCampaigns, fetchPixelProfiles]);
+    }, [activeTab, fetchFbConnections, fetchFbFields, fetchFbOauthStatus, fetchTtConnections, fetchTtFields, fetchTtOauthStatus, fetchGaConnections, fetchGaFields, fetchGaOauthStatus, fetchCapiPixels, fetchCapiMeta, fetchCampaigns, fetchPixelProfiles, fetchTelegramSettings, fetchRcSettings, loadExtensionCredentials, extApiKey]);
 
     // === Namecheap multi-account hub ===
 
@@ -3293,159 +3348,461 @@ const IntegrationsPage = () => {
     };
 
     const scripts = {
-        kclient_php: {
-            title: 'KClient PHP',
-            icon: <Terminal className="w-5 h-5" />,
-            description: t('integrations.kclientPhpDesc'),
-            code: `<?php\n// ${t('integrations.codeToInsert')}\n// kclient.php: ${trackerUrl}/kclient.php?download=1\nrequire_once dirname(__FILE__) . '/kclient.php';\n$client = new KClickClient('${trackerUrl}', 'CAMPAIGN_TOKEN');\n$client->sendAllParams();\n$client->execute(); \n?>`
-        },
-        kclient_js: {
-            title: 'KClient JS',
-            icon: <Globe className="w-5 h-5" />,
-            description: t('integrations.kclientJsDesc'),
-            code: `<script type="application/javascript">\n  var orbitra_db_url = '${trackerUrl}';\n  var orbitra_campaign_token = 'CAMPAIGN_TOKEN';\n</script>\n<script src="${trackerUrl}/kclient.js"></script>\n<noscript><img src="${trackerUrl}/pixel.gif?token=CAMPAIGN_TOKEN" alt="" /></noscript>`
-        },
-        js_banner: {
-            title: t('integrations.jsBannerTitle'),
-            icon: <Code className="w-5 h-5" />,
-            description: t('integrations.jsBannerDesc'),
-            code: `<div id="orbitra-banner" style="width:300px;height:250px;overflow:hidden"></div>\n<script>\n  var orbitra_db_url = '${trackerUrl}';\n  var orbitra_campaign_token = 'CAMPAIGN_TOKEN';\n</script>\n<script src="${trackerUrl}/banner.js" async></script>`
-        },
-        tracking_pixel: {
-            title: 'Tracking Pixel',
-            icon: <ImageIcon className="w-5 h-5" />,
-            description: t('integrations.pixelDesc'),
-            code: `<!-- Tracking impressions -->\n<img src="${trackerUrl}/pixel.gif?campaign_id=YOUR_ID" width="1" height="1" border="0" alt="" />\n\n<!-- Tracking conversions (place on Thank You page) -->\n<img src="${trackerUrl}/pixel.gif?action=conversion&subid={subid}&status=lead" width="1" height="1" border="0" alt="" />`
-        },
-        tiktok_pixel: {
-            title: t('integrations.tiktokPixelTitle', 'TikTok Pixel'),
-            icon: <Music2 className="w-5 h-5" />,
-            description: t('integrations.tiktokPixelDesc', 'Browser TikTok Pixel on local landings. The pixel id arrives in the {pixel} campaign parameter from the TikTok source template and is stored in a cookie for the thank-you page.'),
-            code: `<!-- 1. Landing <head>: store the pixel id from the campaign parameter.\n        The TikTok source template fills {pixel} = __PIXEL__; replace "pixel"\n        if your campaign passes it under another name. -->\n<script>\nvar date = new Date();\ndate.setTime(date.getTime() + (5 * 24 * 60 * 60 * 1000));\nif (!'{pixel}'.match('{')) {\n  document.cookie = "pixel={pixel}; " + "expires=" + date.toUTCString() + "";\n}\n</script>\n\n<!-- 2. Where events fire (landing or thank-you page): read the cookie\n        and boot the pixel with it. -->\n<script>\nvar matches = document.cookie.match(new RegExp("(?:^|; )" + 'pixel' + "=([^;]*)"));\nvar pixel = matches ? decodeURIComponent(matches[1]) : undefined;\n</script>\n\n<!-- TikTok Pixel Code Start -->\n<script>\n    !function (w, d, t) {\n      w.TiktokAnalyticsObject = t;\n      var ttq = w[t] = w[t] = [];\n      ttq.methods = ["page", "track", "identify", "instances", "debug", "on", "off", "once", "ready", "alias", "group", "enableCookie", "disableCookie"],\n        ttq.setAndDefer = function (t, e) {\n          t[e] = function () {\n            t.push([e].concat(Array.prototype.slice.call(arguments, 0)))\n          }\n        };\n      for (var i = 0; i < ttq.methods.length; i++) ttq.setAndDefer(ttq, ttq.methods[i]);\n      ttq.instance = function (t) {\n        for (var e = ttq._i[t] || [], n = 0; n < ttq.methods.length; n++) ttq.setAndDefer(e, ttq.methods[n]);\n        return e\n      }, ttq.load = function (e, n) {\n        var i = "https://analytics.tiktok.com/i18n/pixel/events.js";\n        ttq._i = ttq._i || {}, ttq._i[e] = [], ttq._i[e]._u = i, ttq._t = ttq._t || {}, ttq._t[e] = +new Date, ttq._o = ttq._o || {}, ttq._o[e] = n || {};\n        var o = document.createElement("script");\n        o.type = "text/javascript", o.async = !0, o.src = i + "?sdkid=" + e + "&lib=" + t;\n        var a = document.getElementsByTagName("script")[0];\n        a.parentNode.insertBefore(o, a)\n      };\n      ttq.load(pixel);\n      ttq.page();\n    }(window, document, 'ttq');\n</script>\n<!-- TikTok Pixel Code End -->\n\n<!-- No access to the landing code (offer redirect)? Use the server-side\n        TikTok Conversions API instead: Pixel Vault -> Connect TikTok. -->`
-        },
-        facebook_costs: {
-            title: t('fbCosts.title'),
-            icon: <DollarSign className="w-5 h-5" />,
-            description: t('fbCosts.description'),
-            isFacebookCosts: true
-        },
-        tiktok_costs: {
-            title: t('tiktokCosts.title', 'TikTok Costs'),
-            icon: <Music2 className="w-5 h-5" />,
-            description: t('tiktokCosts.description'),
-            isTikTokCosts: true
-        },
         google_ads_costs: {
-            title: t('googleAdsCosts.title', 'Google Ads Costs'),
+            category: 'ads',
+            badge: 'LIVE',
+            badgeBg: 'rgba(59, 130, 246, 0.15)',
+            badgeColor: '#2563eb',
             icon: <Search className="w-5 h-5" />,
+            iconBg: 'rgba(59, 130, 246, 0.1)',
+            iconColor: '#3b82f6',
+            title: t('googleAdsCosts.title', 'Google Ads Costs'),
+            subtitle: 'Cost + Conversions',
             description: t('googleAdsCosts.description'),
+            isConnected: gaConnections.length > 0,
+            statText: gaConnections.length ? `${gaConnections.length} accounts connected` : 'Auto-import ad spend',
+            ctaText: t('integrations.manageAccounts', 'Manage Accounts'),
             isGoogleAdsCosts: true
         },
+        tiktok_costs: {
+            category: 'ads',
+            badge: 'LIVE',
+            badgeBg: 'rgba(236, 72, 153, 0.15)',
+            badgeColor: '#db2777',
+            icon: <Music2 className="w-5 h-5" />,
+            iconBg: 'rgba(236, 72, 153, 0.1)',
+            iconColor: '#ec4899',
+            title: t('tiktokCosts.title', 'TikTok Costs'),
+            subtitle: 'Cost + Events API',
+            description: t('tiktokCosts.description'),
+            isConnected: ttConnections.length > 0,
+            statText: ttConnections.length ? `${ttConnections.length} accounts connected` : 'Auto-import ad spend',
+            ctaText: t('integrations.manageAccounts', 'Manage Accounts'),
+            isTikTokCosts: true
+        },
+        facebook_costs: {
+            category: 'ads',
+            badge: 'COST',
+            badgeBg: 'rgba(37, 99, 235, 0.15)',
+            badgeColor: '#1d4ed8',
+            icon: <DollarSign className="w-5 h-5" />,
+            iconBg: 'rgba(37, 99, 235, 0.1)',
+            iconColor: '#2563eb',
+            title: t('fbCosts.title'),
+            subtitle: 'Auto-import ad spend',
+            description: t('fbCosts.description'),
+            isConnected: fbConnections.length > 0,
+            statText: fbConnections.length ? `${fbConnections.length} accounts connected` : 'Auto-import ad spend',
+            ctaText: t('integrations.manageAccounts', 'Manage Accounts'),
+            isFacebookCosts: true
+        },
         facebook_conversions: {
-            title: t('fbConv.title'),
+            category: 'ads',
+            badge: 'CONVERSIONS',
+            badgeBg: 'rgba(147, 51, 234, 0.15)',
+            badgeColor: '#7c3aed',
             icon: <ArrowRight className="w-5 h-5" />,
+            iconBg: 'rgba(147, 51, 234, 0.1)',
+            iconColor: '#8b5cf6',
+            title: t('fbConv.title'),
+            subtitle: 'Server-side pixel vault',
             description: t('fbConv.description'),
+            isConnected: capiPixels.length > 0,
+            statText: capiPixels.length ? `${capiPixels.length} active pixels` : 'Server-side CAPI',
+            ctaText: t('integrations.manageCapi', 'Manage CAPI'),
             isFacebookConversions: true
         },
         pixel_vault: {
-            title: t('pixelVault.pixelVaultTitle'),
+            category: 'ads',
+            badge: 'VAULT',
+            badgeBg: 'rgba(79, 70, 229, 0.15)',
+            badgeColor: '#4f46e5',
             icon: <Database className="w-5 h-5" />,
+            iconBg: 'rgba(79, 70, 229, 0.1)',
+            iconColor: '#6366f1',
+            title: t('pixelVault.pixelVaultTitle'),
+            subtitle: 'Multi-source pixel vault',
             description: t('pixelVault.description'),
+            isConnected: pixelProfiles.length > 0,
+            statText: pixelProfiles.length ? `${pixelProfiles.length} profiles stored` : 'Pixel repository',
+            ctaText: t('integrations.manageVault', 'Manage Vault'),
             isPixelVault: true
         },
+        dolphin_fbtool: {
+            category: 'ads',
+            badge: 'AUTOMATION',
+            badgeBg: 'rgba(245, 158, 11, 0.15)',
+            badgeColor: '#d97706',
+            icon: <Zap className="w-5 h-5" />,
+            iconBg: 'rgba(245, 158, 11, 0.1)',
+            iconColor: '#f59e0b',
+            title: t('extCosts.title', 'Dolphin / FBTool API'),
+            subtitle: 'External upload & costs',
+            description: t('extCosts.description', 'Приём расходов из Dolphin и Fbtool.pro через Orbitra Automation API endpoint'),
+            isConnected: true,
+            statText: 'Admin API endpoint',
+            ctaText: t('integrations.viewApiKeys', 'View API Keys'),
+            code: `# ${t('extCosts.step1', '1. Создайте API-ключ с правами write: Пользователи → ваш профиль → сгенерировать ключ (permissions: write)')}\n\n# ${t('extCosts.step2', '2. Скопируйте в Dolphin (Настройки → Экспорт расходов → Tracker API) или Fbtool (Расходы → Tracker API):')}\n#    Tracker URL:  ${trackerUrl}\n#    Admin API key: <ваш ключ>\n\n# ${t('extCosts.step3', '3. Endpoint, который вызывают сервисы (совместим с Keitaro Admin API v1):')}\n# POST ${trackerUrl}/admin_api/v1/campaigns/CAMPAIGN_ID/update_costs\n# Authorization: Bearer <API_KEY>\n{\n  "start_date": "2026-08-15",\n  "end_date": "2026-08-15",\n  "cost": 12.34,\n  "currency": "USD",\n  "timezone": "Europe/Berlin",\n  "filters": { "sub_id_4": "120212558973560058" }\n}\n\n# ${t('extCosts.hint', 'Фильтры матчатся по параметрам клика: sub_id_4 = ad_id, sub_id_3 = adset_id (дефолты шаблона Facebook), либо любое имя параметра напрямую (ad_id, adset_id, campaign_id...). Расход делится поровну между совпавшими кликами за период; повторная отправка перезаписывает, а не суммирует.')}`
+        },
         chrome_extension: {
-            title: t('integrations.chromeExtension', 'Chrome & Antidetect Extension'),
+            category: 'ads',
+            badge: 'EXTENSION',
+            badgeBg: 'rgba(16, 185, 129, 0.15)',
+            badgeColor: '#059669',
             icon: <Monitor className="w-5 h-5" />,
+            iconBg: 'rgba(16, 185, 129, 0.1)',
+            iconColor: '#10b981',
+            title: t('integrations.chromeExtension', 'Chrome & Antidetect Extension'),
+            subtitle: 'Ads Manager overlay',
             description: t('integrations.chromeExtDesc', 'Overlay real-time tracker analytics directly inside Facebook Ads Manager.'),
+            isConnected: !!extApiKey,
+            statText: extApiKey ? 'Ready · Key active' : 'Download & install',
+            ctaText: t('integrations.configure', 'Configure'),
             isChromeExtension: true
         },
-        dolphin_fbtool: {
-            title: t('extCosts.title', 'Dolphin / Fbtool — Keitaro API'),
-            icon: <DollarSign className="w-5 h-5" />,
-            description: t('extCosts.description', 'Приём расходов из Dolphin и Fbtool.pro через Keitaro-совместимый Admin API endpoint'),
-            code: `# ${t('extCosts.step1', '1. Создайте API-ключ с правами write: Пользователи → ваш профиль → сгенерировать ключ (permissions: write)')}\n\n# ${t('extCosts.step2', '2. Скопируйте в Dolphin (Настройки → Экспорт расходов → Keitaro) или Fbtool (Расходы → Keitaro):')}\n#    Tracker URL:  ${trackerUrl}\n#    Admin API key: <ваш ключ>\n\n# ${t('extCosts.step3', '3. Endpoint, который вызывают сервисы (совместим с Keitaro Admin API v1):')}\n# POST ${trackerUrl}/admin_api/v1/campaigns/CAMPAIGN_ID/update_costs\n# Authorization: Bearer <API_KEY>\n{\n  "start_date": "2026-08-15",\n  "end_date": "2026-08-15",\n  "cost": 12.34,\n  "currency": "USD",\n  "timezone": "Europe/Berlin",\n  "filters": { "sub_id_4": "120212558973560058" }\n}\n\n# ${t('extCosts.hint', 'Фильтры матчатся по параметрам клика: sub_id_4 = ad_id, sub_id_3 = adset_id (дефолты шаблона Facebook), либо любое имя параметра напрямую (ad_id, adset_id, campaign_id...). Расход делится поровну между совпавшими кликами за период; повторная отправка перезаписывает, а не суммирует.')}`
-        },
         cloudflare: {
-            title: t('cloudflare.title', 'Cloudflare'),
+            category: 'domains',
+            badge: 'DOMAIN',
+            badgeBg: 'rgba(249, 115, 22, 0.15)',
+            badgeColor: '#ea580c',
             icon: <Cloud className="w-5 h-5" />,
+            iconBg: 'rgba(249, 115, 22, 0.1)',
+            iconColor: '#f97316',
+            title: t('cloudflare.title', 'Cloudflare'),
+            subtitle: 'DNS, Proxy & Free SSL',
             description: t('cloudflare.description', 'Управление DNS доменов трекера через Cloudflare API: A-записи прописываются сами, SSL — краем CF'),
+            isConnected: cfAccounts.length > 0,
+            statText: cfAccounts.length ? `${cfAccounts.length} accounts · ${cfStatus?.managed_domains || 0} zones` : 'Auto-DNS & Edge SSL',
+            ctaText: t('integrations.manageDns', 'Manage DNS'),
             isCloudflare: true
         },
         namecheap: {
-            title: t('namecheap.title', 'Namecheap'),
+            category: 'domains',
+            badge: 'DOMAIN',
+            badgeBg: 'rgba(225, 29, 72, 0.15)',
+            badgeColor: '#e11d48',
             icon: <Globe className="w-5 h-5" />,
+            iconBg: 'rgba(225, 29, 72, 0.1)',
+            iconColor: '#f43f5e',
+            title: t('namecheap.title', 'Namecheap'),
+            subtitle: (() => {
+                const b = ncAccounts.find(a => a.last_balance)?.last_balance;
+                return b ? `Balance: ${b}` : 'Buy & Park Domains';
+            })(),
             description: t('namecheap.description', 'Автопарковка DNS доменов из аккаунта Namecheap, покупка новых доменов и выпуск SSL — прямо из трекера'),
+            isConnected: ncAccounts.length > 0,
+            statText: (() => {
+                const b = ncAccounts.find(a => a.last_balance)?.last_balance;
+                return b ? `Balance: ${b}` : (ncAccounts.length ? `${ncAccounts.length} accounts connected` : 'Auto-DNS & Buy domains');
+            })(),
+            ctaText: t('integrations.openRegistrar', 'Open Registrar'),
             isNamecheap: true
         },
-        recaptcha: {
-            title: t('recaptcha.tabTitle'),
-            icon: <Shield className="w-5 h-5" />,
-            description: t('recaptcha.tabDesc'),
-            isRecaptcha: true
+        kclient_php: {
+            category: 'sites',
+            badge: 'TRACKING',
+            badgeBg: 'rgba(14, 165, 233, 0.15)',
+            badgeColor: '#0284c7',
+            icon: <Terminal className="w-5 h-5" />,
+            iconBg: 'rgba(14, 165, 233, 0.1)',
+            iconColor: '#0ea5e9',
+            title: 'Tracking Client (PHP)',
+            subtitle: 'Server-side cloak code',
+            description: t('integrations.kclientPhpDesc'),
+            isConnected: true,
+            statText: 'Full server-side execution',
+            ctaText: t('integrations.getCode', 'Get Code'),
+            code: `<?php\n// ${t('integrations.codeToInsert')}\n// kclient.php: ${trackerUrl}/kclient.php?download=1\nrequire_once dirname(__FILE__) . '/kclient.php';\n$client = new KClickClient('${trackerUrl}', 'CAMPAIGN_TOKEN');\n$client->sendAllParams();\n$client->execute(); \n?>`
         },
-        telegram: {
-            title: 'Telegram Bot',
-            icon: <Send className="w-5 h-5" />,
-            description: t('telegram.description'),
-            isTelegram: true
+        kclient_js: {
+            category: 'sites',
+            badge: 'TRACKING',
+            badgeBg: 'rgba(234, 179, 8, 0.15)',
+            badgeColor: '#ca8a04',
+            icon: <Globe className="w-5 h-5" />,
+            iconBg: 'rgba(234, 179, 8, 0.1)',
+            iconColor: '#eab308',
+            title: 'Tracking Client (JS)',
+            subtitle: 'Single page / Tilda / WP',
+            description: t('integrations.kclientJsDesc'),
+            isConnected: true,
+            statText: 'Client-side async script',
+            ctaText: t('integrations.getScript', 'Get Script'),
+            code: `<script type="application/javascript">\n  var orbitra_db_url = '${trackerUrl}';\n  var orbitra_campaign_token = 'CAMPAIGN_TOKEN';\n</script>\n<script src="${trackerUrl}/kclient.js"></script>\n<noscript><img src="${trackerUrl}/pixel.gif?token=CAMPAIGN_TOKEN" alt="" /></noscript>`
         },
-        app_config: {
-            title: t('appConfig.title'),
-            icon: <Settings className="w-5 h-5" />,
-            description: t('appConfig.subtitle'),
-            isAppConfig: true
+        tracking_pixel: {
+            category: 'sites',
+            badge: 'PIXEL',
+            badgeBg: 'rgba(168, 85, 247, 0.15)',
+            badgeColor: '#9333ea',
+            icon: <ImageIcon className="w-5 h-5" />,
+            iconBg: 'rgba(168, 85, 247, 0.1)',
+            iconColor: '#a855f7',
+            title: 'Tracking Pixel',
+            subtitle: 'Email & basic HTML tracker',
+            description: t('integrations.pixelDesc'),
+            isConnected: true,
+            statText: '1x1 transparent tracker',
+            ctaText: t('integrations.getPixel', 'Get Pixel'),
+            code: `<!-- Tracking impressions -->\n<img src="${trackerUrl}/pixel.gif?campaign_id=YOUR_ID" width="1" height="1" border="0" alt="" />\n\n<!-- Tracking conversions (place on Thank You page) -->\n<img src="${trackerUrl}/pixel.gif?action=conversion&subid={subid}&status=lead" width="1" height="1" border="0" alt="" />`
+        },
+        tiktok_pixel: {
+            category: 'sites',
+            badge: 'PIXEL',
+            badgeBg: 'rgba(236, 72, 153, 0.15)',
+            badgeColor: '#db2777',
+            icon: <Music2 className="w-5 h-5" />,
+            iconBg: 'rgba(236, 72, 153, 0.1)',
+            iconColor: '#ec4899',
+            title: t('integrations.tiktokPixelTitle', 'TikTok Pixel'),
+            subtitle: 'Cookie bridge & local landers',
+            description: t('integrations.tiktokPixelDesc', 'Browser TikTok Pixel on local landings. The pixel id arrives in the {pixel} campaign parameter from the TikTok source template and is stored in a cookie for the thank-you page.'),
+            isConnected: true,
+            statText: 'Client-side TikTok pixel',
+            ctaText: t('integrations.getScript', 'Get Script'),
+            code: `<!-- 1. Landing <head>: store the pixel id from the campaign parameter.\n        The TikTok source template fills {pixel} = __PIXEL__; replace "pixel"\n        if your campaign passes it under another name. -->\n<script>\nvar date = new Date();\ndate.setTime(date.getTime() + (5 * 24 * 60 * 60 * 1000));\nif (!'{pixel}'.match('{')) {\n  document.cookie = "pixel={pixel}; " + "expires=" + date.toUTCString() + "";\n}\n</script>\n\n<!-- 2. Where events fire (landing or thank-you page): read the cookie\n        and boot the pixel with it. -->\n<script>\nvar matches = document.cookie.match(new RegExp("(?:^|; )" + 'pixel' + "=([^;]*)"));\nvar pixel = matches ? decodeURIComponent(matches[1]) : undefined;\n</script>\n\n<!-- TikTok Pixel Code Start -->\n<script>\n    !function (w, d, t) {\n      w.TiktokAnalyticsObject = t;\n      var ttq = w[t] = w[t] = [];\n      ttq.methods = ["page", "track", "identify", "instances", "debug", "on", "off", "once", "ready", "alias", "group", "enableCookie", "disableCookie"],\n        ttq.setAndDefer = function (t, e) {\n          t[e] = function () {\n            t.push([e].concat(Array.prototype.slice.call(arguments, 0)))\n          }\n        };\n      for (var i = 0; i < ttq.methods.length; i++) ttq.setAndDefer(ttq, ttq.methods[i]);\n      ttq.instance = function (t) {\n        for (var e = ttq._i[t] || [], n = 0; n < ttq.methods.length; n++) ttq.setAndDefer(e, ttq.methods[n]);\n        return e\n      }, ttq.load = function (e, n) {\n        var i = "https://analytics.tiktok.com/i18n/pixel/events.js";\n        ttq._i = ttq._i || {}, ttq._i[e] = [], ttq._i[e]._u = i, ttq._t = ttq._t || {}, ttq._t[e] = +new Date, ttq._o = ttq._o || {}, ttq._o[e] = n || {};\n        var o = document.createElement("script");\n        o.type = "text/javascript", o.async = !0, o.src = i + "?sdkid=" + e + "&lib=" + t;\n        var a = document.getElementsByTagName("script")[0];\n        a.parentNode.insertBefore(o, a)\n      };\n      ttq.load(pixel);\n      ttq.page();\n    }(window, document, 'ttq');\n</script>\n<!-- TikTok Pixel Code End -->\n\n<!-- No access to the landing code (offer redirect)? Use the server-side\n        TikTok Conversions API instead: Pixel Vault -> Connect TikTok. -->`
+        },
+        js_banner: {
+            category: 'sites',
+            badge: 'BANNER',
+            badgeBg: 'rgba(20, 184, 166, 0.15)',
+            badgeColor: '#0d9488',
+            icon: <Code className="w-5 h-5" />,
+            iconBg: 'rgba(20, 184, 166, 0.1)',
+            iconColor: '#14b8a6',
+            title: t('integrations.jsBannerTitle'),
+            subtitle: 'Dynamic banner widget',
+            description: t('integrations.jsBannerDesc'),
+            isConnected: true,
+            statText: 'Ad block & split-testing',
+            ctaText: t('integrations.getCode', 'Get Code'),
+            code: `<div id="orbitra-banner" style="width:300px;height:250px;overflow:hidden"></div>\n<script>\n  var orbitra_db_url = '${trackerUrl}';\n  var orbitra_campaign_token = 'CAMPAIGN_TOKEN';\n</script>\n<script src="${trackerUrl}/banner.js" async></script>`
         },
         wordpress: {
-            title: t('wordpress.title'),
+            category: 'sites',
+            badge: 'INTEGRATION',
+            badgeBg: 'rgba(59, 130, 246, 0.15)',
+            badgeColor: '#2563eb',
             icon: <Globe className="w-5 h-5" />,
+            iconBg: 'rgba(59, 130, 246, 0.1)',
+            iconColor: '#3b82f6',
+            title: t('wordpress.title'),
+            subtitle: 'functions.php remote config',
             description: t('wordpress.description'),
+            isConnected: true,
+            statText: 'WordPress shortcodes',
+            ctaText: t('integrations.getCode', 'Get Code'),
             code: `<?php\n// ${t('wordpress.instruction')}\nfunction ltt_check_remote_config() {\n    $config_url = '${trackerUrl}/api.php?action=app_config&key=CONFIG_KEY';\n    $response = wp_remote_get($config_url, ['timeout' => 5]);\n    \n    if (is_wp_error($response)) return null;\n    \n    $body = wp_remote_retrieve_body($response);\n    return json_decode($body, true);\n}\n\n// Example: Conditionally show content based on remote config\nfunction ltt_conditional_content($atts, $content = null) {\n    $config = ltt_check_remote_config();\n    if (!$config || !isset($config['stub'])) return $content;\n    \n    if ($config['stub']['enabled']) {\n        return '<div class="ltt-stub">' . esc_html($config['stub']['message']) . '</div>';\n    }\n    return $content;\n}\nadd_shortcode('ltt_content', 'ltt_conditional_content');\n\n// Example: WebView redirect\nfunction ltt_webview_redirect() {\n    $config = ltt_check_remote_config();\n    if ($config && isset($config['webview']) && $config['webview']['enabled']) {\n        $url = esc_url($config['webview']['url']);\n        echo '<script>if(/Android|iPhone/i.test(navigator.userAgent)){window.location="' . $url . '"}</script>';\n    }\n}\nadd_action('wp_head', 'ltt_webview_redirect');\n?>`
         },
+        wordpress_plugin: {
+            category: 'sites',
+            badge: 'PLUGIN',
+            badgeBg: 'rgba(30, 64, 175, 0.15)',
+            badgeColor: '#1d4ed8',
+            icon: <Download className="w-5 h-5" />,
+            iconBg: 'rgba(30, 64, 175, 0.1)',
+            iconColor: '#2563eb',
+            title: t('integrations.wpPluginTitle'),
+            subtitle: 'Ready-to-use WP plugin',
+            description: t('integrations.wpPluginDesc'),
+            isConnected: true,
+            statText: 'Downloadable ZIP archive',
+            ctaText: t('integrations.downloadPlugin', 'Download Plugin'),
+            isWpPlugin: true
+        },
         static_site: {
-            title: t('staticSite.title'),
+            category: 'sites',
+            badge: 'SCRIPT',
+            badgeBg: 'rgba(100, 116, 139, 0.15)',
+            badgeColor: '#475569',
             icon: <Code className="w-5 h-5" />,
+            iconBg: 'rgba(100, 116, 139, 0.1)',
+            iconColor: '#64748b',
+            title: t('staticSite.title'),
+            subtitle: 'HTML/JS remote control',
             description: t('staticSite.description'),
+            isConnected: true,
+            statText: 'WebView & stub toggle',
+            ctaText: t('integrations.getScript', 'Get Script'),
             code: `<script>\n// ${t('staticSite.instruction')}\n(async function() {\n    const CONFIG_URL = '${trackerUrl}/api.php?action=app_config&key=CONFIG_KEY';\n    try {\n        const res = await fetch(CONFIG_URL);\n        const config = await res.json();\n        \n        // WebView: redirect mobile users\n        if (config.webview?.enabled && /Android|iPhone/i.test(navigator.userAgent)) {\n            window.location.href = config.webview.url;\n            return;\n        }\n        \n        // Banner: show/hide banner element\n        if (config.banner?.enabled) {\n            const banner = document.getElementById('ltt-banner');\n            if (banner) {\n                banner.style.display = 'block';\n                banner.innerHTML = '<a href="' + config.banner.click_url + '">' +\n                    '<img src="' + config.banner.image_url + '" alt="banner" />' +\n                '</a>';\n            }\n        }\n        \n        // Stub: show maintenance page\n        if (config.stub?.enabled) {\n            document.body.innerHTML = '<div style="display:flex;align-items:center;' +\n                'justify-content:center;min-height:100vh;font-family:sans-serif;' +\n                'background:#f5f5f5"><h1>' + config.stub.message + '</h1></div>';\n        }\n    } catch (e) { console.error('Config error:', e); }\n})();\n</script>`
         },
         geo_redirect: {
-            title: t('integrations.geoRedirectTitle'),
+            category: 'sites',
+            badge: 'REDIRECT',
+            badgeBg: 'rgba(16, 185, 129, 0.15)',
+            badgeColor: '#059669',
             icon: <Globe className="w-5 h-5" />,
+            iconBg: 'rgba(16, 185, 129, 0.1)',
+            iconColor: '#10b981',
+            title: t('integrations.geoRedirectTitle'),
+            subtitle: 'Country-based redirection',
             description: t('integrations.geoRedirectDesc'),
+            isConnected: true,
+            statText: 'Dynamic Geo-IP routing',
+            ctaText: t('integrations.getScript', 'Get Script'),
             code: `<script>\n// Geo Redirect Script - redirect users based on country\n(function() {\n    var trackerUrl = '${trackerUrl}';\n    var campaignId = 'YOUR_CAMPAIGN_ID';\n    \n    // Mapping: country code -> offer URL\n    var geoOffers = {\n        'RU': 'https://offer1.com',\n        'DE': 'https://offer2.com',\n        'ES': 'https://offer3.com',\n        'US': 'https://offer4.com',\n        'DEFAULT': 'https://default-offer.com'\n    };\n    \n    fetch(trackerUrl + '/api.php?action=detect_geo')\n        .then(r => r.json())\n        .then(data => {\n            var country = data.country || 'DEFAULT';\n            var url = geoOffers[country] || geoOffers['DEFAULT'];\n            \n            // Track click and redirect\n            var clickUrl = trackerUrl + '/click.php?campaign_id=' + campaignId + \n                '&sub1=' + country + '&redirect=0';\n            \n            fetch(clickUrl).finally(() => {\n                window.location.href = url;\n            });\n        })\n        .catch(() => {\n            window.location.href = geoOffers['DEFAULT'];\n        });\n})();\n</script>`
         },
         device_redirect: {
-            title: t('integrations.deviceRedirectTitle'),
+            category: 'sites',
+            badge: 'REDIRECT',
+            badgeBg: 'rgba(99, 102, 241, 0.15)',
+            badgeColor: '#4f46e5',
             icon: <Smartphone className="w-5 h-5" />,
+            iconBg: 'rgba(99, 102, 241, 0.1)',
+            iconColor: '#6366f1',
+            title: t('integrations.deviceRedirectTitle'),
+            subtitle: 'Device type routing',
             description: t('integrations.deviceRedirectDesc'),
+            isConnected: true,
+            statText: 'Mobile / Tablet / PC',
+            ctaText: t('integrations.getScript', 'Get Script'),
             code: `<script>\n// Device Redirect Script - redirect based on device type\n(function() {\n    var trackerUrl = '${trackerUrl}';\n    var campaignId = 'YOUR_CAMPAIGN_ID';\n    \n    var mobileUrl = 'https://mobile-offer.com';\n    var desktopUrl = 'https://desktop-offer.com';\n    var tabletUrl = 'https://tablet-offer.com';\n    \n    function getDeviceType() {\n        var ua = navigator.userAgent;\n        if (/tablet|ipad/i.test(ua)) return 'tablet';\n        if (/mobile|iphone|ipod|android|blackberry|opera mini|iemobile/i.test(ua)) return 'mobile';\n        return 'desktop';\n    }\n    \n    var device = getDeviceType();\n    var targetUrl = device === 'mobile' ? mobileUrl : \n                    device === 'tablet' ? tabletUrl : desktopUrl;\n    \n    // Track click and redirect\n    var clickUrl = trackerUrl + '/click.php?campaign_id=' + campaignId + \n        '&sub1=' + device + '&redirect=0';\n    \n    fetch(clickUrl).finally(() => {\n        window.location.href = targetUrl;\n    });\n})();\n</script>`
         },
+        telegram: {
+            category: 'tools',
+            badge: 'ALERTS',
+            badgeBg: 'rgba(14, 165, 233, 0.15)',
+            badgeColor: '#0284c7',
+            icon: <Send className="w-5 h-5" />,
+            iconBg: 'rgba(14, 165, 233, 0.1)',
+            iconColor: '#0ea5e9',
+            title: 'Telegram Bot',
+            subtitle: 'Conversion alerts & digests',
+            description: t('telegram.description'),
+            isConnected: !!tgSettings?.token_set,
+            statText: tgSettings?.token_set ? `Connected: @${tgSettings.bot_username || 'Bot'}` : 'Instant notifications',
+            ctaText: t('integrations.configureBot', 'Configure Bot'),
+            isTelegram: true
+        },
+        app_config: {
+            category: 'tools',
+            badge: 'REMOTE',
+            badgeBg: 'rgba(245, 158, 11, 0.15)',
+            badgeColor: '#d97706',
+            icon: <Settings className="w-5 h-5" />,
+            iconBg: 'rgba(245, 158, 11, 0.1)',
+            iconColor: '#f59e0b',
+            title: t('appConfig.title'),
+            subtitle: 'Dynamic WebView JSON API',
+            description: t('appConfig.subtitle'),
+            isConnected: configs.length > 0,
+            statText: configs.length ? `${configs.length} active configs` : 'Mobile apps & WebViews',
+            ctaText: t('integrations.manageConfigs', 'Manage Configs'),
+            isAppConfig: true
+        },
+        recaptcha: {
+            category: 'tools',
+            badge: 'SECURITY',
+            badgeBg: 'rgba(16, 185, 129, 0.15)',
+            badgeColor: '#059669',
+            icon: <Shield className="w-5 h-5" />,
+            iconBg: 'rgba(16, 185, 129, 0.1)',
+            iconColor: '#10b981',
+            title: t('recaptcha.tabTitle'),
+            subtitle: 'reCAPTCHA v2/v3 & Turnstile',
+            description: t('recaptcha.tabDesc'),
+            isConnected: !!(rcSettings.recaptcha_v2_site_key || rcSettings.recaptcha_v3_site_key || rcSettings.turnstile_site_key),
+            statText: (rcSettings.recaptcha_v2_site_key || rcSettings.turnstile_site_key) ? 'Protection configured' : 'Anti-bot challenge',
+            ctaText: t('integrations.configureKeys', 'Configure Keys'),
+            isRecaptcha: true
+        },
         countdown_timer: {
-            title: t('integrations.countdownTitle'),
+            category: 'tools',
+            badge: 'WIDGET',
+            badgeBg: 'rgba(236, 72, 153, 0.15)',
+            badgeColor: '#db2777',
             icon: <Timer className="w-5 h-5" />,
+            iconBg: 'rgba(236, 72, 153, 0.1)',
+            iconColor: '#ec4899',
+            title: t('integrations.countdownTitle'),
+            subtitle: 'Offer expiration urgency',
             description: t('integrations.countdownDesc'),
+            isConnected: true,
+            statText: 'Self-contained countdown',
+            ctaText: t('integrations.getWidget', 'Get Widget'),
             code: `<div id="ltt-countdown" style="font-family:sans-serif;text-align:center;padding:20px;\n    background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border-radius:12px;max-width:400px;\n    margin:0 auto;box-shadow:0 10px 40px rgba(0,0,0,0.2);">\n    <div style="font-size:14px;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">\n        OFFER EXPIRES IN\n    </div>\n    <div id="ltt-timer" style="font-size:48px;font-weight:bold;">\n        <span id="ltt-hours">00</span>:<span id="ltt-minutes">00</span>:<span id="ltt-seconds">00</span>\n    </div>\n    <a id="ltt-cta" href="#" style="display:inline-block;margin-top:20px;padding:14px 40px;\n        background:#22c55e;color:white;text-decoration:none;border-radius:8px;font-weight:600;\n        font-size:16px;transition:transform 0.2s;">\n        GET OFFER NOW\n    </a>\n</div>\n\n<script>\n(function() {\n    var trackerUrl = '${trackerUrl}';\n    var campaignId = 'YOUR_CAMPAIGN_ID';\n    var redirectUrl = 'https://your-offer.com';\n    var hoursFromNow = 2; // Countdown duration\n    \n    var endTime = new Date().getTime() + (hoursFromNow * 60 * 60 * 1000);\n    \n    document.getElementById('ltt-cta').href = trackerUrl + '/click.php?campaign_id=' + campaignId + '&url=' + encodeURIComponent(redirectUrl);\n    \n    function updateTimer() {\n        var now = new Date().getTime();\n        var distance = endTime - now;\n        \n        if (distance < 0) {\n            document.getElementById('ltt-countdown').innerHTML = '<h2>OFFER EXPIRED</h2>';\n            return;\n        }\n        \n        var hours = Math.floor(distance / (1000 * 60 * 60));\n        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));\n        var seconds = Math.floor((distance % (1000 * 60)) / 1000);\n        \n        document.getElementById('ltt-hours').textContent = String(hours).padStart(2, '0');\n        document.getElementById('ltt-minutes').textContent = String(minutes).padStart(2, '0');\n        document.getElementById('ltt-seconds').textContent = String(seconds).padStart(2, '0');\n    }\n    \n    updateTimer();\n    setInterval(updateTimer, 1000);\n})();\n</script>`
         },
         back_button_trap: {
-            title: t('integrations.backButtonTitle'),
+            category: 'tools',
+            badge: 'CONVERSION',
+            badgeBg: 'rgba(239, 68, 68, 0.15)',
+            badgeColor: '#dc2626',
             icon: <ArrowLeft className="w-5 h-5" />,
+            iconBg: 'rgba(239, 68, 68, 0.1)',
+            iconColor: '#ef4444',
+            title: t('integrations.backButtonTitle'),
+            subtitle: 'Intercept exit & rebound',
             description: t('integrations.backButtonDesc'),
+            isConnected: true,
+            statText: 'Browser history handler',
+            ctaText: t('integrations.getScript', 'Get Script'),
             code: `<script>\n// Back Button Trap - intercept browser back button\n(function() {\n    var trackerUrl = '${trackerUrl}';\n    var campaignId = 'YOUR_CAMPAIGN_ID';\n    var trapUrl = 'https://your-special-offer.com';\n    \n    // Push a state to intercept back button\n    history.pushState({ trap: true }, '', location.href);\n    \n    window.addEventListener('popstate', function(e) {\n        if (e.state && e.state.trap) {\n            // Track the back button click\n            var clickUrl = trackerUrl + '/click.php?campaign_id=' + campaignId + \n                '&sub1=back_button&redirect=0';\n            \n            fetch(clickUrl).finally(() => {\n                // Redirect to special offer\n                window.location.href = trapUrl;\n            });\n        }\n    });\n})();\n</script>`
         },
         exit_popup: {
-            title: t('integrations.exitPopupTitle'),
+            category: 'tools',
+            badge: 'CONVERSION',
+            badgeBg: 'rgba(168, 85, 247, 0.15)',
+            badgeColor: '#9333ea',
             icon: <ExternalLink className="w-5 h-5" />,
+            iconBg: 'rgba(168, 85, 247, 0.1)',
+            iconColor: '#a855f7',
+            title: t('integrations.exitPopupTitle'),
+            subtitle: 'Exit-intent modal overlay',
             description: t('integrations.exitPopupDesc'),
+            isConnected: true,
+            statText: 'Mouse leave detector',
+            ctaText: t('integrations.getScript', 'Get Script'),
             code: `<style>\n.ltt-exit-popup { display:none; position:fixed; top:0; left:0; width:100%; height:100%;\n    background:rgba(0,0,0,0.7); z-index:99999; justify-content:center; align-items:center; }\n.ltt-exit-popup.show { display:flex; }\n.ltt-exit-content { background:white; padding:40px; border-radius:16px; max-width:500px;\n    text-align:center; position:relative; box-shadow:0 20px 60px rgba(0,0,0,0.3); }\n.ltt-exit-close { position:absolute; top:15px; right:20px; font-size:24px; cursor:pointer;\n    color:#999; border:none; background:none; }\n.ltt-exit-close:hover { color:#333; }\n.ltt-exit-btn { display:inline-block; margin-top:20px; padding:16px 40px; background:#22c55e;\n    color:white; text-decoration:none; border-radius:8px; font-weight:600; font-size:18px; }\n</style>\n\n<div id="ltt-exit-popup" class="ltt-exit-popup">\n    <div class="ltt-exit-content">\n        <button class="ltt-exit-close" onclick="document.getElementById('ltt-exit-popup').classList.remove('show')">&times;</button>\n        <h2 style="margin:0 0 15px;font-size:28px;">Wait! Special Offer!</h2>\n        <p style="font-size:16px;color:#666;margin-bottom:10px;">Don't miss this exclusive deal just for you!</p>\n        <a id="ltt-exit-cta" href="#" class="ltt-exit-btn">CLAIM OFFER</a>\n    </div>\n</div>\n\n<script>\n(function() {\n    var trackerUrl = '${trackerUrl}';\n    var campaignId = 'YOUR_CAMPAIGN_ID';\n    var offerUrl = 'https://your-offer.com';\n    var shown = false;\n    \n    document.getElementById('ltt-exit-cta').href = trackerUrl + '/click.php?campaign_id=' + campaignId + '&url=' + encodeURIComponent(offerUrl);\n    \n    document.addEventListener('mouseout', function(e) {\n        if (shown) return;\n        if (e.clientY < 10 && e.relatedTarget === null) {\n            shown = true;\n            document.getElementById('ltt-exit-popup').classList.add('show');\n            \n            // Track exit intent\n            fetch(trackerUrl + '/click.php?campaign_id=' + campaignId + '&sub1=exit_popup&redirect=0');\n        }\n    });\n})();\n</script>`
-        },
-        wordpress_plugin: {
-            title: t('integrations.wpPluginTitle'),
-            icon: <Download className="w-5 h-5" />,
-            description: t('integrations.wpPluginDesc'),
-            isWpPlugin: true
         }
     };
 
-    const activeObj = scripts[activeTab];
+    const categories = [
+        { id: 'all', label: t('integrations.filterAll', 'All'), icon: <Grid size={14} /> },
+        { id: 'ads', label: t('integrations.filterAds', 'Ads & Costs'), icon: <DollarSign size={14} /> },
+        { id: 'domains', label: t('integrations.filterDomains', 'Domains & SSL'), icon: <Globe size={14} /> },
+        { id: 'sites', label: t('integrations.filterSites', 'Tracking & Sites'), icon: <Code size={14} /> },
+        { id: 'tools', label: t('integrations.filterTools', 'Tools & API'), icon: <Zap size={14} /> },
+    ];
+
+    const catalogList = useMemo(() => {
+        return Object.entries(scripts).map(([id, item]) => ({
+            id,
+            ...item
+        }));
+    }, [scripts]);
+
+    const filteredItems = useMemo(() => {
+        return catalogList.filter(item => {
+            const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
+            if (!matchesCategory) return false;
+            if (!searchQuery.trim()) return true;
+            const q = searchQuery.toLowerCase();
+            return (
+                item.title?.toLowerCase().includes(q) ||
+                item.subtitle?.toLowerCase().includes(q) ||
+                item.description?.toLowerCase().includes(q) ||
+                item.badge?.toLowerCase().includes(q)
+            );
+        });
+    }, [catalogList, activeCategory, searchQuery]);
+
+    const liveCount = useMemo(() => {
+        let count = 0;
+        if (gaConnections.length > 0) count += gaConnections.length;
+        if (ttConnections.length > 0) count += ttConnections.length;
+        if (fbConnections.length > 0) count += fbConnections.length;
+        if (capiPixels.length > 0) count += capiPixels.length;
+        if (pixelProfiles.length > 0) count += pixelProfiles.length;
+        if (cfAccounts.length > 0) count += cfAccounts.length;
+        if (ncAccounts.length > 0) count += ncAccounts.length;
+        if (tgSettings?.token_set) count += 1;
+        if (configs.length > 0) count += configs.length;
+        if (rcSettings.recaptcha_v2_site_key || rcSettings.turnstile_site_key) count += 1;
+        if (extApiKey) count += 1;
+        return count;
+    }, [gaConnections, ttConnections, fbConnections, capiPixels, pixelProfiles, cfAccounts, ncAccounts, tgSettings, configs, rcSettings, extApiKey]);
+
+    const activeObj = scripts[activeTab] || scripts.google_ads_costs;
 
     const renderChromeExtensionPanel = () => {
         const guideTabs = [
@@ -4466,142 +4823,214 @@ global \$wpdb;
         </div>
     );
 
+    if (activeView === 'grid') {
+        return (
+            <div className="space-y-6">
+                <InfoBanner storageKey="help_integrations" title={t('help.integrationsBannerTitle')}>
+                    <p>{t('help.integrationsBanner')}</p>
+                </InfoBanner>
+
+                {/* Hub Header & Live Metrics */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h2 className="text-2xl font-bold tracking-tight text-[var(--color-text-primary)] flex items-center gap-2">
+                            <Zap className="w-6 h-6 text-[var(--color-primary)]" />
+                            {t('integrations.hubTitle', 'Integrations Hub')}
+                        </h2>
+                        <p className="text-sm text-[var(--color-text-secondary)] mt-1">
+                            {t('integrations.hubSubtitle', 'Connect traffic costs, conversion APIs, domains and tracking tools from one hub.')}
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--color-bg-card)] border border-[var(--color-border)] shadow-xs">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </span>
+                            <span className="text-xs font-semibold text-[var(--color-text-primary)]">
+                                {liveCount} {t('integrations.connectionsLive', 'Active Connections')}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Filter Tabs & Search Controls */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                    {/* Category Pills */}
+                    <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[var(--color-bg-soft)] border border-[var(--color-border)] overflow-x-auto">
+                        {categories.map(cat => {
+                            const isActive = activeCategory === cat.id;
+                            return (
+                                <button
+                                    key={cat.id}
+                                    type="button"
+                                    onClick={() => setActiveCategory(cat.id)}
+                                    className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-150 ${
+                                        isActive
+                                            ? 'bg-[var(--color-bg-card)] text-[var(--color-primary)] shadow-sm'
+                                            : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-card)]/50'
+                                    }`}
+                                >
+                                    {cat.icon}
+                                    {cat.label}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {/* Search Bar */}
+                    <div className="relative min-w-[240px] sm:w-72">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-muted)] pointer-events-none" />
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder={t('integrations.searchPlaceholder', 'Search integrations, ad networks, scripts...')}
+                            className="w-full pl-9 pr-8 py-2 rounded-xl bg-[var(--color-bg-card)] border border-[var(--color-border)] text-xs text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:border-[var(--color-primary)] transition-all shadow-xs"
+                        />
+                        {searchQuery && (
+                            <button
+                                type="button"
+                                onClick={() => setSearchQuery('')}
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-md text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors"
+                            >
+                                <X size={13} />
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                {/* Cards Grid */}
+                {filteredItems.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+                        {filteredItems.map(item => (
+                            <IntegrationCard
+                                key={item.id}
+                                item={item}
+                                onClick={() => {
+                                    setActiveTab(item.id);
+                                    setActiveView('detail');
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }}
+                            />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="page-card text-center py-16">
+                        <div className="w-12 h-12 rounded-2xl bg-[var(--color-bg-soft)] border border-[var(--color-border)] flex items-center justify-center mx-auto mb-3 text-[var(--color-text-muted)]">
+                            <Search size={22} />
+                        </div>
+                        <h4 className="text-base font-semibold text-[var(--color-text-primary)] mb-1">
+                            {t('integrations.noResults', 'No integrations found')}
+                        </h4>
+                        <p className="text-xs text-[var(--color-text-secondary)] max-w-sm mx-auto mb-4">
+                            {t('integrations.noResultsDesc', 'Try searching for a different keyword or switch the category filter.')}
+                        </p>
+                        <button
+                            type="button"
+                            onClick={() => { setActiveCategory('all'); setSearchQuery(''); }}
+                            className="btn btn-secondary text-xs"
+                        >
+                            {t('integrations.resetFilters', 'Reset filters')}
+                        </button>
+                    </div>
+                )}
+
+                {/* Info Card / Documentation Accordion */}
+                <div className="page-card">
+                    <div className="page-header" style={{ borderBottom: 'none', paddingBottom: 0, marginBottom: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Zap size={18} style={{ color: 'var(--color-primary)' }} />
+                            <h3 className="page-title" style={{ margin: 0 }}>{t('integrations.howItWorks')}</h3>
+                        </div>
+                    </div>
+
+                    <div style={{ marginTop: '20px' }}>
+                        <p style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6, marginBottom: '16px' }}>
+                            {t('integrations.introText')}
+                        </p>
+
+                        <div style={{
+                            background: 'var(--color-primary-light)',
+                            borderLeft: `4px solid var(--color-primary)`,
+                            padding: '16px',
+                            borderRadius: '0 12px 12px 0'
+                        }}>
+                            <h4 style={{ fontWeight: 500, marginBottom: '8px', color: 'var(--color-text-primary)' }}>
+                                {t('integrations.usageExamples')}
+                            </h4>
+                            <ul style={{ listStyle: 'disc', marginLeft: '20px', fontSize: '14px', color: 'var(--color-text-secondary)' }}>
+                                <li style={{ marginBottom: '4px' }}>{t('integrations.usageList1')}</li>
+                                <li style={{ marginBottom: '4px' }}>{t('integrations.usageList2')}</li>
+                                <li>{t('integrations.usageList3')}</li>
+                            </ul>
+                        </div>
+
+                        <p style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6, marginTop: '16px', fontSize: '14px' }}>
+                            {t('integrations.introFooter')}
+                            {' '}<strong>Tracking Client (PHP)</strong> {t('integrations.kclientPhpIntro')}
+                            <strong> Tracking Client (JS)</strong> {t('integrations.kclientJsIntro')}
+                            {' '}<strong>{t('integrations.jsBannerTitle')}</strong> {t('integrations.jsBannerIntro')}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Detail View: 100% full-width page card without inner sidebar
     return (
         <div className="space-y-4">
             <InfoBanner storageKey="help_integrations" title={t('help.integrationsBannerTitle')}>
                 <p>{t('help.integrationsBanner')}</p>
             </InfoBanner>
-            {/* Info Card */}
-            <div className="page-card">
-                <div className="page-header" style={{ borderBottom: 'none', paddingBottom: 0, marginBottom: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Zap size={18} style={{ color: 'var(--color-primary)' }} />
-                        <h3 className="page-title" style={{ margin: 0 }}>{t('integrations.howItWorks')}</h3>
-                    </div>
+
+            {/* Top Navigation Bar: Back Button + Breadcrumbs + Status */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[var(--color-border)]">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                    <button
+                        type="button"
+                        onClick={() => setActiveView('grid')}
+                        className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[var(--color-bg-card)] border border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-primary)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-all shadow-xs cursor-pointer"
+                    >
+                        <ArrowLeft size={14} />
+                        {t('integrations.backToAll', 'Back to all integrations')}
+                    </button>
+                    <span className="text-[var(--color-text-muted)]">/</span>
+                    <span className="text-xs uppercase tracking-wider font-semibold text-[var(--color-text-muted)]">
+                        {categories.find(c => c.id === activeObj.category)?.label || activeObj.category}
+                    </span>
+                    <span className="text-[var(--color-text-muted)]">/</span>
+                    <span className="text-xs font-semibold text-[var(--color-text-primary)]">
+                        {activeObj.title}
+                    </span>
                 </div>
 
-                <div style={{ marginTop: '20px' }}>
-                    <p style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6, marginBottom: '16px' }}>
-                        {t('integrations.introText')}
-                    </p>
-
-                    <div style={{
-                        background: 'var(--color-primary-light)',
-                        borderLeft: `4px solid var(--color - primary)`,
-                        padding: '16px',
-                        borderRadius: '0 12px 12px 0'
-                    }}>
-                        <h4 style={{ fontWeight: 500, marginBottom: '8px', color: 'var(--color-text-primary)' }}>
-                            {t('integrations.usageExamples')}
-                        </h4>
-                        <ul style={{ listStyle: 'disc', marginLeft: '20px', fontSize: '14px', color: 'var(--color-text-secondary)' }}>
-                            <li style={{ marginBottom: '4px' }}>{t('integrations.usageList1')}</li>
-                            <li style={{ marginBottom: '4px' }}>{t('integrations.usageList2')}</li>
-                            <li>{t('integrations.usageList3')}</li>
-                        </ul>
-                    </div>
-
-                    <p style={{ color: 'var(--color-text-secondary)', lineHeight: 1.6, marginTop: '16px', fontSize: '14px' }}>
-                        {t('integrations.introFooter')}
-                        {' '}<strong>KClient PHP</strong> {t('integrations.kclientPhpIntro')}
-                        <strong> KClient JS</strong> {t('integrations.kclientJsIntro')}
-                        {' '}<strong>{t('integrations.jsBannerTitle')}</strong> {t('integrations.jsBannerIntro')}
-                    </p>
+                <div className="flex items-center gap-2">
+                    {activeObj.isConnected && (
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs font-medium">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            {activeObj.statText || 'Active'}
+                        </div>
+                    )}
+                    {activeObj.isPixelVault && !pixelProfileEditing && (
+                        <button
+                            className="btn btn-primary btn-sm text-xs"
+                            onClick={() => {
+                                setPixelProfileForm(emptyPixelProfileForm);
+                                setPixelProfileEditing('new');
+                                setPixelProfileMessage(null);
+                            }}
+                        >
+                            <Plus size={14} /> {t('pixelVault.addNewPixel')}
+                        </button>
+                    )}
                 </div>
             </div>
 
-            {/* Main Content */}
-            <div className="page-card" style={{ padding: 0 }}>
-                <div style={{ display: 'flex', flexDirection: 'row' }}>
-                    {/* Sidebar */}
-                    <div style={{
-                        width: '240px',
-                        flexShrink: 0,
-                        borderRight: '1px solid var(--color-border)',
-                        background: 'var(--color-bg-soft)',
-                        borderRadius: '24px 0 0 24px'
-                    }}>
-                        <nav style={{ padding: '8px', overflowY: 'auto' }}>
-                            {(() => {
-                                // The page grew one flat list at a time; grouping it the
-                                // way Keitaro does (ad networks / sites / tools) makes the
-                                // entry a user looks for findable again. Anything not
-                                // listed falls into a trailing group so a new entry can
-                                // never silently disappear from the menu.
-                                const groups = [
-                                    { label: t('integrations.groupAds', 'Ad networks'), ids: ['pixel_vault', 'facebook_costs', 'tiktok_costs', 'google_ads_costs', 'facebook_conversions', 'dolphin_fbtool', 'chrome_extension'] },
-                                    { label: t('integrations.groupDomains', 'Domains & SSL'), ids: ['cloudflare', 'namecheap'] },
-                                    { label: t('integrations.groupSites', 'Sites & landings'), ids: ['kclient_php', 'kclient_js', 'tracking_pixel', 'tiktok_pixel', 'js_banner', 'wordpress', 'wordpress_plugin', 'static_site', 'geo_redirect', 'device_redirect'] },
-                                    { label: t('integrations.groupTools', 'Tools'), ids: ['countdown_timer', 'back_button_trap', 'exit_popup', 'app_config', 'recaptcha', 'telegram'] },
-                                ];
-                                const grouped = new Set(groups.flatMap(g => g.ids));
-                                const rest = Object.keys(scripts).filter(id => !grouped.has(id));
-                                if (rest.length) {
-                                    groups.push({ label: t('integrations.groupOther', 'Other'), ids: rest });
-                                }
-
-                                const renderBtn = (id) => {
-                                    const script = scripts[id];
-                                    if (!script) return null;
-                                    return (
-                                        <button
-                                            key={id}
-                                            onClick={() => setActiveTab(id)}
-                                            style={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'space-between',
-                                                width: '100%',
-                                                padding: '10px 16px',
-                                                textAlign: 'left',
-                                                border: 'none',
-                                                background: activeTab === id ? 'var(--color-bg-card)' : 'transparent',
-                                                color: activeTab === id ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                                                fontWeight: activeTab === id ? 500 : 400,
-                                                borderRadius: '12px',
-                                                cursor: 'pointer',
-                                                marginBottom: '2px',
-                                                transition: 'all 0.2s ease',
-                                                boxShadow: activeTab === id ? 'var(--shadow-soft)' : 'none'
-                                            }}
-                                        >
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                <span style={{ color: activeTab === id ? 'var(--color-primary)' : 'var(--color-text-muted)' }}>
-                                                    {script.icon}
-                                                </span>
-                                                <span style={{ fontSize: '13.5px' }}>{script.title}</span>
-                                            </div>
-                                            {id === 'telegram' && tgSettings?.token_set && (
-                                                <div style={{
-                                                    width: '8px', height: '8px', borderRadius: '50%',
-                                                    background: tgSettings.webhook_set ? '#22c55e' : '#ef4444'
-                                                }} />
-                                            )}
-                                        </button>
-                                    );
-                                };
-
-                                return groups.map((group, gi) => (
-                                    <div key={group.label} style={gi > 0 ? { marginTop: '10px' } : undefined}>
-                                        <div style={{
-                                            fontSize: '11px',
-                                            fontWeight: 600,
-                                            textTransform: 'uppercase',
-                                            letterSpacing: '0.08em',
-                                            color: 'var(--color-text-muted)',
-                                            padding: '6px 16px 4px'
-                                        }}>
-                                            {group.label}
-                                        </div>
-                                        {group.ids.map(renderBtn)}
-                                    </div>
-                                ));
-                            })()}
-                        </nav>
-                    </div>
-
-                    {/* Content Area */}
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            {/* 100% Full-Width Detail Container */}
+            <div className="page-card p-0 overflow-hidden" style={{ borderRadius: '24px' }}>
+                <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column' }}>
                         {/* Header */}
                         <div style={{
                             padding: '20px 24px',
@@ -5047,28 +5476,36 @@ global \$wpdb;
                                         {/* Whitelisted IP: Namecheap rejects calls from unlisted IPs, and the
                                             real outgoing address usually differs from what the admin expects.
                                             The IP belongs to the server, so it is shared by every account. */}
-                                        <div style={{ padding: '12px', borderRadius: '8px', border: '1px dashed var(--color-border)', background: 'var(--color-bg-soft)' }}>
-                                            <div className="flex items-center justify-between gap-2">
-                                                <div>
-                                                    <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)' }}>
-                                                        {t('namecheap.whitelistIp', 'IP сервера для Whitelisted IPs')}
+                                        {(() => {
+                                            const activeServerIp = ncIps.detected_ip || ncIps.server_ip || window.location.hostname || '—';
+                                            return (
+                                                <div style={{ padding: '12px', borderRadius: '8px', border: '1px dashed var(--color-border)', background: 'var(--color-bg-soft)' }}>
+                                                    <div className="flex items-center justify-between gap-2">
+                                                        <div>
+                                                            <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)' }}>
+                                                                {t('namecheap.whitelistIp', 'IP сервера для Whitelisted IPs')}
+                                                            </div>
+                                                            <div className="font-mono font-semibold" style={{ fontSize: '15px', color: 'var(--color-text-primary)' }}>
+                                                                {activeServerIp}
+                                                            </div>
+                                                        </div>
+                                                        <button
+                                                            className="btn btn-secondary btn-icon"
+                                                            onClick={() => {
+                                                                const ip = activeServerIp !== '—' ? activeServerIp : '';
+                                                                if (ip) copyToClipboard(ip, 'nc-ip');
+                                                            }}
+                                                            title={t('common.copy')}
+                                                        >
+                                                            {copied === 'nc-ip' ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                                        </button>
                                                     </div>
-                                                    <div className="font-mono" style={{ fontSize: '15px', color: 'var(--color-text-primary)' }}>
-                                                        {ncIps.detected_ip || ncIps.server_ip || '—'}
-                                                    </div>
+                                                    <p className="text-xs" style={{ margin: '8px 0 0', color: 'var(--color-text-muted)' }}>
+                                                        {t('namecheap.whitelistHint', 'Добавьте этот IP в Namecheap: Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. Если показан неверный адрес — Namecheap сам назовёт IP, с которого пришли запросы, при первой попытке подключения.')}
+                                                    </p>
                                                 </div>
-                                                <button
-                                                    className="btn btn-secondary btn-icon"
-                                                    onClick={() => copyToClipboard(ncIps.detected_ip || ncIps.server_ip || '', 'nc-ip')}
-                                                    title={t('common.copy')}
-                                                >
-                                                    {copied === 'nc-ip' ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                                                </button>
-                                            </div>
-                                            <p className="text-xs" style={{ margin: '8px 0 0', color: 'var(--color-text-muted)' }}>
-                                                {t('namecheap.whitelistHint', 'Добавьте этот IP в Namecheap: Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. Если показан неверный адрес — Namecheap сам назовёт IP, с которого пришли запросы, при первой попытке подключения.')}
-                                            </p>
-                                        </div>
+                                            );
+                                        })()}
                                     </div>
 
                                     <div className="flex items-center justify-between">
@@ -5207,25 +5644,33 @@ global \$wpdb;
                                                     />
                                                 </div>
 
-                                                <div style={{ padding: '12px', borderRadius: '8px', border: '1px dashed var(--color-border)', background: 'var(--color-bg-soft)' }}>
-                                                    <div className="flex items-center justify-between gap-2">
-                                                        <div>
-                                                            <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)' }}>
-                                                                {t('namecheap.whitelistIp', 'IP сервера для Whitelisted IPs')}
-                                                            </div>
-                                                            <div className="font-mono" style={{ fontSize: '15px', color: 'var(--color-text-primary)' }}>
-                                                                {ncIps.detected_ip || ncIps.server_ip || '—'}
+                                                {(() => {
+                                                    const activeServerIp = ncIps.detected_ip || ncIps.server_ip || window.location.hostname || '—';
+                                                    return (
+                                                        <div style={{ padding: '12px', borderRadius: '8px', border: '1px dashed var(--color-border)', background: 'var(--color-bg-soft)' }}>
+                                                            <div className="flex items-center justify-between gap-2">
+                                                                <div>
+                                                                    <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)' }}>
+                                                                        {t('namecheap.whitelistIp', 'IP сервера для Whitelisted IPs')}
+                                                                    </div>
+                                                                    <div className="font-mono font-semibold" style={{ fontSize: '15px', color: 'var(--color-text-primary)' }}>
+                                                                        {activeServerIp}
+                                                                    </div>
+                                                                </div>
+                                                                <button
+                                                                    className="btn btn-secondary btn-icon"
+                                                                    onClick={() => {
+                                                                        const ip = activeServerIp !== '—' ? activeServerIp : '';
+                                                                        if (ip) copyToClipboard(ip, 'nc-ip-modal');
+                                                                    }}
+                                                                    title={t('common.copy')}
+                                                                >
+                                                                    {copied === 'nc-ip-modal' ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                                                </button>
                                                             </div>
                                                         </div>
-                                                        <button
-                                                            className="btn btn-secondary btn-icon"
-                                                            onClick={() => copyToClipboard(ncIps.detected_ip || ncIps.server_ip || '', 'nc-ip-modal')}
-                                                            title={t('common.copy')}
-                                                        >
-                                                            {copied === 'nc-ip-modal' ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                                                        </button>
-                                                    </div>
-                                                </div>
+                                                    );
+                                                })()}
 
                                                 <div>
                                                     <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
@@ -5494,7 +5939,10 @@ global \$wpdb;
                                     <pre style={{
                                         padding: '16px 20px',
                                         margin: 0,
-                                        overflow: 'auto',
+                                        overflowX: 'auto',
+                                        maxWidth: '100%',
+                                        whiteSpace: 'pre-wrap',
+                                        wordBreak: 'break-word',
                                         height: 'calc(100% - 36px)',
                                         fontSize: '13px',
                                         fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
@@ -5528,8 +5976,7 @@ global \$wpdb;
                     </div>
                 </div>
             </div>
-        </div>
-    );
-};
+        );
+    };
 
 export default IntegrationsPage;
