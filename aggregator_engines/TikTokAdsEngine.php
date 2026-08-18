@@ -32,6 +32,14 @@ class TikTokAdsEngine
     public static $testRefreshHandler = null;
 
     /**
+     * Test seam: callable(string $method, string $url, ?array $payload, array $credentials): array{body:string,error:?string},
+     * подменяющий сетевой слой httpGet()/httpJson(). Production никогда его не
+     * ставит; тесты через него проверяют, что именно уходит в TikTok.
+     * @var callable|null
+     */
+    public static $testHttpHandler = null;
+
+    /**
      * Поля формы подключения. `label_key` — ключ локализации, `label` — английский
      * фолбэк: фронтенд рендерит t(field.label_key, field.label).
      *
@@ -42,7 +50,7 @@ class TikTokAdsEngine
     public static function getRequiredFields(): array
     {
         return [
-            ['key' => 'access_token', 'label_key' => 'costImport.fields.ttToken', 'label' => 'Access Token', 'type' => 'password', 'required' => true, 'placeholder' => '9c1f...'],
+            ['key' => 'access_token', 'label_key' => 'costImport.fields.ttToken', 'label' => 'Access Token (Marketing API — Ads Management / Reporting; an Events Manager token will not work)', 'type' => 'password', 'required' => true, 'placeholder' => '9c1f...'],
             ['key' => 'advertiser_id', 'label_key' => 'costImport.fields.ttAdvertiser', 'label' => 'Advertiser ID', 'type' => 'text', 'required' => true, 'placeholder' => '1234567890'],
             ['key' => 'app_id', 'label_key' => 'costImport.fields.ttAppId', 'label' => 'App ID (optional, keeps OAuth auto-refresh working)', 'type' => 'text', 'required' => false, 'placeholder' => ''],
             ['key' => 'app_secret', 'label_key' => 'costImport.fields.ttAppSecret', 'label' => 'App Secret (optional)', 'type' => 'password', 'required' => false, 'placeholder' => ''],
@@ -128,7 +136,7 @@ class TikTokAdsEngine
                 throw new \RuntimeException('TikTok: unreadable API response.');
             }
             if ((int) ($decoded['code'] ?? -1) !== 0) {
-                throw new \RuntimeException('TikTok: ' . (string) ($decoded['message'] ?? 'API error') . ' (code ' . $decoded['code'] . ')');
+                throw new \RuntimeException('TikTok: ' . self::describeApiError($decoded));
             }
 
             $list = $decoded['data']['list'] ?? [];
@@ -299,21 +307,53 @@ class TikTokAdsEngine
         return $missing;
     }
 
+    /**
+     * Канонический id кабинета: только цифры, иначе пустая строка.
+     *
+     * Пробелы, кавычки и невидимые символы из копипаста снимаются, а вот просто
+     * вычистить буквы нельзя: «act_12ab» молча превратился бы в кабинет «12», и
+     * подключение уехало бы в чужой аккаунт вместо понятной ошибки ввода.
+     */
     private static function advertiserId(array $credentials): string
     {
-        // Пользователи иногда копируют id с пробелами или ведущими нулями-кавычками.
-        return preg_replace('/[^0-9]/', '', (string) ($credentials['advertiser_id'] ?? ''));
+        $raw = (string) ($credentials['advertiser_id'] ?? '');
+        $cleaned = preg_replace('/[\s"\x{2018}\x{2019}\x{201C}\x{201D}\x{200B}-\x{200D}\x{FEFF}\']+/u', '', $raw);
+        if (!is_string($cleaned)) {
+            $cleaned = preg_replace('/[\s"\']+/', '', $raw); // невалидный UTF-8: разбираем побайтово
+        }
+        return is_string($cleaned) && $cleaned !== '' && ctype_digit($cleaned) ? $cleaned : '';
     }
 
     /**
      * GET /advertiser/info/ — имя и валюта кабинета; лёгкий запрос для
      * проверки токена и источник валюты для fetchRecords().
+     *
+     * ВАЖНО: v1.3 знает только параметр `advertiser_ids` — JSON-массив в query
+     * (?advertiser_ids=["123"]). Одиночный `advertiser_id` эндпоинт не читает
+     * вовсе и отвечает 40002 «advertiser_ids: Missing data for required field»,
+     * то есть запрос падает на валидации параметров ДО проверки токена — по
+     * такой ошибке нельзя судить ни об id кабинета, ни о правах токена.
+     *
+     * `fields` намеренно не передаётся: без него TikTok отдаёт набор по
+     * умолчанию (в нём есть name/currency/timezone), а любое опечатанное имя
+     * поля в `fields` вернуло бы ровно такой же 40002.
+     *
+     * Ответ — data.list[]: по объекту на каждый запрошенный кабинет.
+     *
      * @return array{data:array,error:?string}
      */
     private static function advertiserInfo(array $credentials): array
     {
-        $url = self::API_BASE . '/advertiser/info/?advertiser_id=' . urlencode(self::advertiserId($credentials));
-        $response = self::httpGet($url, $credentials, 15);
+        $advertiserId = self::advertiserId($credentials);
+        if ($advertiserId === '') {
+            return ['data' => [], 'error' => 'Advertiser ID must be numeric — copy it from TikTok Ads Manager (top-right account menu → Advertiser ID).'];
+        }
+
+        $query = http_build_query([
+            'advertiser_ids' => json_encode([$advertiserId]),
+        ], '', '&', PHP_QUERY_RFC3986);
+
+        $response = self::httpGet(self::API_BASE . '/advertiser/info/?' . $query, $credentials, 15);
         if ($response['error'] !== null) {
             return ['data' => [], 'error' => $response['error']];
         }
@@ -323,13 +363,53 @@ class TikTokAdsEngine
             return ['data' => [], 'error' => 'Unreadable advertiser info response.'];
         }
         if ((int) ($decoded['code'] ?? -1) !== 0) {
-            return ['data' => [], 'error' => (string) ($decoded['message'] ?? 'API error') . ' (code ' . $decoded['code'] . ')'];
-        }
-        if (empty($decoded['data'])) {
-            return ['data' => [], 'error' => 'Advertiser not found — check the Advertiser ID.'];
+            return ['data' => [], 'error' => self::describeApiError($decoded)];
         }
 
-        return ['data' => $decoded['data'], 'error' => null];
+        // v1.3 — data.list[]; одиночный объект оставлен как запасной разбор,
+        // чтобы ответ старой формы не выглядел как «кабинет не найден».
+        $row = $decoded['data']['list'][0] ?? null;
+        if (!is_array($row) && isset($decoded['data']['advertiser_id'])) {
+            $row = $decoded['data'];
+        }
+        if (!is_array($row) || $row === []) {
+            return ['data' => [], 'error' => 'Advertiser ' . $advertiserId . ' is not available to this token — check the Advertiser ID, and that the token was issued for this ad account.'];
+        }
+
+        return ['data' => $row, 'error' => null];
+    }
+
+    /**
+     * Человекочитаемая ошибка TikTok API: код + подсказка, что с ней делать.
+     *
+     * Самая частая причина отказа — токен не того типа: токен из Events Manager
+     * («Events API») открывает только /event/track/ и не видит ни кабинетов, ни
+     * отчётов, а расход читается именно ими. Сырой код 40105 в UI об этом не
+     * говорит ничего, поэтому подсказка добавляется здесь, а не во фронтенде.
+     */
+    private static function describeApiError(array $decoded): string
+    {
+        $code = (int) ($decoded['code'] ?? -1);
+        $message = trim((string) ($decoded['message'] ?? '')) ?: 'API error';
+        $lower = strtolower($message);
+
+        // 40001/40002 у TikTok — «ошибка параметров», а не прав, поэтому они
+        // разбираются ниже отдельно и подсказку про скоуп не получают.
+        $authCodes = [40100, 40101, 40102, 40104, 40105, 40110, 40113];
+        $looksAuth = in_array($code, $authCodes, true)
+            || strpos($lower, 'permission') !== false
+            || strpos($lower, 'scope') !== false
+            || strpos($lower, 'not authorized') !== false
+            || strpos($lower, 'access token') !== false;
+
+        $hint = '';
+        if ($looksAuth) {
+            $hint = ' — cost sync needs a Marketing API token with Ads Management / Reporting access (TikTok For Business → Developers → your app, or the 1-click Connect button). An Events Manager / Events API token cannot read ad accounts or spend.';
+        } elseif ($code === 40001 || $code === 40002) {
+            $hint = ' — TikTok rejected the request parameters; please report this, it is an Orbitra bug rather than a credentials problem.';
+        }
+
+        return $message . ' (code ' . $code . ')' . $hint;
     }
 
     /**
@@ -338,6 +418,10 @@ class TikTokAdsEngine
      */
     private static function httpGet(string $url, array $credentials, int $timeout): array
     {
+        if (is_callable(self::$testHttpHandler)) {
+            return call_user_func(self::$testHttpHandler, 'GET', $url, null, $credentials);
+        }
+
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
@@ -362,6 +446,10 @@ class TikTokAdsEngine
      */
     private static function httpJson(string $url, array $credentials, array $payload, int $timeout): array
     {
+        if (is_callable(self::$testHttpHandler)) {
+            return call_user_func(self::$testHttpHandler, 'POST', $url, $payload, $credentials);
+        }
+
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
@@ -404,7 +492,15 @@ class TikTokAdsEngine
         return ['body' => $body, 'error' => null];
     }
 
-    /** @param resource|\CurlHandle $ch */
+    /**
+     * Прокси на запрос.
+     *
+     * Нераспознанный proxy_url — это ошибка, а не «поедем напрямую»: тихий
+     * фолбэк отправил бы запрос с IP сервера, и подключение то работало бы, то
+     * нет, в зависимости от гео-ограничений кабинета.
+     *
+     * @param resource|\CurlHandle $ch
+     */
     private static function applyProxy($ch, array $credentials): void
     {
         $proxy = trim((string) ($credentials['proxy_url'] ?? ''));
@@ -412,12 +508,12 @@ class TikTokAdsEngine
             return;
         }
 
-        $parts = parse_url($proxy);
-        if (!is_array($parts) || empty($parts['host'])) {
-            return;
+        $parts = self::parseProxyUrl($proxy);
+        if ($parts === null) {
+            throw new \RuntimeException('Proxy URL is not valid — expected scheme://user:pass@host:port, got "' . $proxy . '".');
         }
 
-        $scheme = strtolower($parts['scheme'] ?? 'http');
+        $scheme = $parts['scheme'];
         $type = CURLPROXY_HTTP;
         if ($scheme === 'socks5' || $scheme === 'socks5h') {
             $type = CURLPROXY_SOCKS5_HOSTNAME;
@@ -425,7 +521,7 @@ class TikTokAdsEngine
             $type = CURLPROXY_SOCKS4;
         }
 
-        $host = $parts['host'] . (isset($parts['port']) ? ':' . $parts['port'] : '');
+        $host = $parts['host'] . ($parts['port'] !== null ? ':' . $parts['port'] : '');
         curl_setopt($ch, CURLOPT_PROXY, $host);
         curl_setopt($ch, CURLOPT_PROXYTYPE, $type);
 
@@ -433,5 +529,63 @@ class TikTokAdsEngine
             $auth = urldecode($parts['user']) . ':' . urldecode($parts['pass'] ?? '');
             curl_setopt($ch, CURLOPT_PROXYUSERPWD, $auth);
         }
+    }
+
+    /**
+     * Разбор proxy_url. parse_url() спотыкается о незакодированные спецсимволы
+     * в пароле (`@`, `/`, `#` в выданных провайдером паролях — обычное дело),
+     * поэтому credentials отрезаются вручную по ПОСЛЕДНЕЙ `@`.
+     *
+     * @return array{scheme:string,host:string,port:?int,user:?string,pass:?string}|null
+     */
+    private static function parseProxyUrl(string $proxy): ?array
+    {
+        $scheme = 'http';
+        if (preg_match('~^([a-z0-9+.-]+)://~i', $proxy, $m)) {
+            $scheme = strtolower($m[1]);
+            $proxy = substr($proxy, strlen($m[0]));
+        }
+        $proxy = trim($proxy, '/');
+        if ($proxy === '') {
+            return null;
+        }
+
+        $user = null;
+        $pass = null;
+        $at = strrpos($proxy, '@');
+        if ($at !== false) {
+            $credentials = substr($proxy, 0, $at);
+            $proxy = substr($proxy, $at + 1);
+            $colon = strpos($credentials, ':');
+            $user = $colon === false ? $credentials : substr($credentials, 0, $colon);
+            $pass = $colon === false ? '' : substr($credentials, $colon + 1);
+            if ($user === '') {
+                return null;
+            }
+        }
+
+        $port = null;
+        // IPv6 в скобках: [::1]:8080.
+        if (preg_match('~^\[([^\]]+)\](?::(\d+))?$~', $proxy, $m)) {
+            $host = $m[1];
+            $port = isset($m[2]) ? (int) $m[2] : null;
+        } else {
+            $colon = strrpos($proxy, ':');
+            if ($colon !== false && ctype_digit(substr($proxy, $colon + 1))) {
+                $host = substr($proxy, 0, $colon);
+                $port = (int) substr($proxy, $colon + 1);
+            } else {
+                $host = $proxy;
+            }
+        }
+
+        if ($host === '' || strpbrk($host, ' /?#') !== false) {
+            return null;
+        }
+        if ($port !== null && ($port < 1 || $port > 65535)) {
+            return null;
+        }
+
+        return ['scheme' => $scheme, 'host' => $host, 'port' => $port, 'user' => $user, 'pass' => $pass];
     }
 }

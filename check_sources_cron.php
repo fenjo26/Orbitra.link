@@ -32,6 +32,11 @@ function checkUrlAvailability($url)
         $url = 'https://' . $url;
     }
 
+    // Check if running in development environment
+    $isDev = (getenv('ORBITRA_ENV') === 'development') ||
+             (getenv('ORBITRA_SKIP_SSL_VERIFY') === '1') ||
+             (getenv('APP_ENV') === 'local');
+
     $ch = curl_init();
     curl_setopt_array($ch, [
         CURLOPT_URL => $url,
@@ -41,8 +46,8 @@ function checkUrlAvailability($url)
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_TIMEOUT => 10,
         CURLOPT_CONNECTTIMEOUT => 5,
-        CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_SSL_VERIFYHOST => false,
+        CURLOPT_SSL_VERIFYPEER => !$isDev,
+        CURLOPT_SSL_VERIFYHOST => $isDev ? 0 : 2,
         CURLOPT_USERAGENT => 'Mozilla/5.0 (compatible; Orbitra/1.0; +https://orbitra.io)',
     ]);
 
