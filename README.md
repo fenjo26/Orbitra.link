@@ -18,6 +18,11 @@ Orbitra is a modern traffic management and conversion tracking system. A simpler
 - **Case-insensitive status matching** — a network sending `Approved` or `PENDING` used to be counted as a conversion that belonged to no status group, which is how a campaign could show `Conversions: 1` with Sales, Leads, Rejected and Trash all at 0. The status vocabulary also covers `approve/accepted/paid`, `new/wait/processing`, `reject/decline/cancelled` and `spam/duplicate`.
 - **`subid` stays out of the Sub1 dimension** — the incoming `subid` is the tracker's Click ID; the sub dimensions are read from the click's own parameters, so Sub1 reports group by ad set instead of degenerating to one row per click.
 - **CSV conversion import is attributed too**, and a status's own `*_status` rule now wins over another type that happens to list the same value.
+- **Conversion failure monitoring** — failures to create a conversion (unknown click, database error) are logged with context, exposed through `api.php?action=conversion_monitoring`, and alerted on via Telegram by `conversion_monitor_cron.php` once the failure rate crosses a threshold.
+- **Cloud-aware SSL provisioning** — Cloudflare-proxied domains are detected and skipped by Certbot, DNS and sudo prerequisites are checked before a certificate is requested, and Domains gained a reissue action that reports why issuance failed.
+- **Outbound TLS verification restored** — Telegram, postback-queue and LeadForge cURL calls no longer accept any certificate; verification is relaxed only in an explicitly local environment.
+- **TikTok cost connection fixed for API v1.3** — correct `advertiser_ids` request format, digits-only Advertiser ID parsing, and errors that name the cause. A Marketing API token is required; an Events Manager token will not work.
+- **Google Ads 1-click OAuth setup guide** — in-panel walkthrough plus a `check_google_ads_oauth.php` preflight, with `.env.example` documenting the variables.
 
 ## 🖥 Live Demo
 

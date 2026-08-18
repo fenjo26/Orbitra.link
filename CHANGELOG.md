@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [1.1.0] — 2026-08-18
 
-Conversion attribution fix for affiliate-network postbacks (Dr. Cash and every other `?subid=` integration), and the report query that had stopped parsing.
+Conversion attribution for affiliate-network postbacks (Dr. Cash and every other `?subid=` integration) and the report query that had stopped parsing, plus conversion-failure monitoring, cloud-aware SSL provisioning, a Google Ads OAuth walkthrough, TikTok cost-connection fixes, and outbound TLS verification restored.
 
 ### Fixed
 - 🚨 **Grouped reports returned a SQL error** — the `campaign_report` statement carried a `//` comment inside the SQL string. SQLite only understands `--` and `/* */`, so it rejected the whole statement and *every* layered report (Sub1…Sub30, Country, Day, Campaign, Offer…) failed instead of rendering. The guard it was attached to is now `HAVING COUNT(click_id) > 0`, and `tests/postback_attribution_test.php` fails if a `//` comment reappears there.
@@ -20,7 +20,16 @@ Conversion attribution fix for affiliate-network postbacks (Dr. Cash and every o
 - 📥 **CSV conversion import attributes rows too**, so a manual import cannot reintroduce unlinked records.
 - 🧹 **Migration 33 backfills history** — existing conversions get `campaign_id`/`offer_id`/`sub_id_1..5`/`ip`/`user_agent` copied from their click. Rows whose click no longer exists are left untouched.
 
+- 🔐 **Outbound TLS certificate verification restored** — `telegram_notify.php`, `telegram_bot.php`, `postback_queue_cron.php` and `core/LeadForge.php` issued cURL requests with `CURLOPT_SSL_VERIFYPEER => false`, accepting any certificate. Verification is now on by default and relaxed only when the environment explicitly says it is local (`APP_ENV=local`, `ORBITRA_ENV=dev`, `ORBITRA_SKIP_SSL_VERIFY=1`).
+- 📊 **TikTok cost connection against API v1.3** — `advertiser/info/` is called with the `advertiser_ids` JSON array the current API expects, the Advertiser ID is accepted only as digits (smart quotes, zero-width characters and stray spaces from copy-paste are stripped), and failures name the cause instead of surfacing a bare code. The token field states that a **Marketing API** token with Ads Management / Reporting scope is required — an Events Manager token will not work.
+- 🧯 **`core/SslConfig.php` did not parse** — it declared `private const` at file scope, outside any class, so the file was a syntax error from the moment it was added. Nothing required it yet, so the panel was unaffected, but it would have taken down any request that loaded it.
+
 ### Added
+- 📡 **Conversion failure monitoring** — `core/ConversionMonitor.php` records why a conversion could not be created (unknown click, database error) to `var/logs/conversion_failures.log`, `api.php?action=conversion_monitoring` reports failure counts and rates over a window, and `conversion_monitor_cron.php` alerts through Telegram once the failure rate crosses a threshold. Run it every 5–15 minutes.
+- 🔒 **Cloud-aware SSL provisioning** — `core/CloudDetector.php` recognises Cloudflare-proxied domains by IP range and response headers so Certbot is skipped where it cannot validate through the edge, `core/ssl_manager.php` checks DNS and passwordless-sudo prerequisites before requesting a certificate, and Domains gained a reissue action that reports why issuance failed. See `CERTBOT_SETUP.md` and `SECURITY_OPERATIONS_CHECKLIST.md`.
+- 🛡 **`core/SslConfig.php`** — locates the system CA bundle across Debian, RedHat, Alpine and macOS layouts and builds stream contexts from it, for hosts whose PHP ships without a usable default.
+- 🔑 **Google Ads 1-click OAuth setup guide** — an in-panel walkthrough for the Cloud project, redirect URI and developer token, plus `check_google_ads_oauth.php` as a CLI preflight that names the missing credentials. `.env.example` documents the variables.
+- 🌐 **Locale coverage for the above** — SSL, Namecheap whitelist, TikTok token and Google Ads setup strings added across all seven languages.
 - 🧪 **`tests/postback_attribution_test.php`** — the Dr. Cash path end to end: attribution payload, non-destructive re-postback, backfill, one-group-per-status, mixed-case status counting, and a Sub1 report row that carries clicks and conversions together.
 
 ## [1.0.9] — 2026-08-18
