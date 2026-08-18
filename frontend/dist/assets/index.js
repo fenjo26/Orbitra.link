@@ -71858,17 +71858,24 @@ const PixelPicker = ({ label, value, profileId, trafficSource, resolveServerSide
     ] }) })
   ] });
 };
-const IntegrationCard = ({ item, onSelect }) => {
+const IntegrationCard = ({ item, onSelect, onClick }) => {
+  const handleAction = () => {
+    if (typeof onSelect === "function") {
+      onSelect(item?.id);
+    } else if (typeof onClick === "function") {
+      onClick(item?.id);
+    }
+  };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
-      onClick: () => onSelect(item.id),
+      onClick: handleAction,
       role: "button",
       tabIndex: 0,
       onKeyDown: (e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          onSelect(item.id);
+          handleAction();
         }
       },
       className: "group relative flex flex-col justify-between p-5 rounded-2xl border transition-all duration-200 cursor-pointer hover:shadow-lg hover:-translate-y-1 select-none",
@@ -77361,6 +77368,11 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
         IntegrationCard,
         {
           item,
+          onSelect: (id) => {
+            setActiveTab(id || item.id);
+            setActiveView("detail");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          },
           onClick: () => {
             setActiveTab(item.id);
             setActiveView("detail");

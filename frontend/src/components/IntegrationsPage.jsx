@@ -4907,6 +4907,11 @@ global \$wpdb;
                             <IntegrationCard
                                 key={item.id}
                                 item={item}
+                                onSelect={(id) => {
+                                    setActiveTab(id || item.id);
+                                    setActiveView('detail');
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }}
                                 onClick={() => {
                                     setActiveTab(item.id);
                                     setActiveView('detail');
