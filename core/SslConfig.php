@@ -15,7 +15,10 @@
  *
  * Ordered by likelihood of existence. The first found path will be used.
  */
-private const CA_CERTIFICATE_PATHS = [
+// File-scope const, not a class member: these helpers are plain functions,
+// so `private const` (and the matching `self::`) was a parse error and the
+// file could not be loaded at all.
+const CA_CERTIFICATE_PATHS = [
     // Debian/Ubuntu
     '/etc/ssl/certs/ca-certificates.crt',
     // RedHat/CentOS/Fedora
@@ -64,7 +67,7 @@ function orbitraGetSystemCaBundle(): ?string
     }
 
     // Probe known system paths
-    foreach (self::CA_CERTIFICATE_PATHS as $path) {
+    foreach (CA_CERTIFICATE_PATHS as $path) {
         if (@is_file($path) && @is_readable($path)) {
             return $cached = $path;
         }
