@@ -3,16 +3,35 @@ require_once 'config.php';
 require_once 'telegram_notify.php';
 require_once __DIR__ . '/core/PostbackMacros.php';
 require_once __DIR__ . '/core/CrmVault.php';
+require_once __DIR__ . '/core/ConversionAttribution.php';
 
+/**
+ * Resolve the network's status word into one of the tracker's own status names.
+ *
+ * Matching is case-insensitive throughout: networks are inconsistent about it
+ * (Dr. Cash sends "approved", others "Approved"/"APPROVED"), and a status that
+ * differs only in case used to fall through to 'custom' — the conversion was
+ * stored, but landed in none of the Sales/Leads/Rejected/Trash buckets, which is
+ * exactly the "conversion recorded, every campaign counter still 0" symptom.
+ */
 function mapStatus($pdo, $status, $params)
 {
     if (!$status)
         return null;
 
+    $needle = strtolower(trim((string) $status));
+    if ($needle === '')
+        return null;
+
+    $lowerList = static fn($csv) => array_map(
+        static fn($v) => strtolower(trim((string) $v)),
+        explode(',', (string) $csv)
+    );
+
     $stmt = $pdo->query("SELECT name, status_values FROM conversion_types");
     $db_types = [];
     foreach ($stmt->fetchAll() as $row) {
-        $db_types[$row['name']] = array_map('trim', explode(',', $row['status_values']));
+        $db_types[$row['name']] = $lowerList($row['status_values']);
     }
 
     $known_types = ['lead', 'sale', 'rejected', 'registration', 'deposit', 'trash'];
@@ -20,20 +39,33 @@ function mapStatus($pdo, $status, $params)
 
     // Сначала ищем по значениям статусов из БД
     foreach ($db_types as $typeName => $values) {
-        if (in_array($status, $values)) {
+        if (in_array($needle, $values, true)) {
             return $typeName;
         }
     }
 
     // Если статус уже является встроенным типом, и нет переопределений, возвращаем его
-    $mapped_status = in_array($status, $all_known) ? $status : 'custom';
-
-    // Проверяем правила маппинга в параметрах
+    $self = null;
     foreach ($all_known as $type) {
+        if (strtolower((string) $type) === $needle) {
+            $self = $type;
+            break;
+        }
+    }
+    $mapped_status = $self ?? 'custom';
+
+    // Проверяем правила маппинга в параметрах.
+    // Своё собственное правило имеет приоритет: с trash_status=trash и
+    // rejected_status=rejected,trash статус "trash" должен остаться trash,
+    // а не достаться первому типу, чей список его упоминает.
+    $ordered = $self !== null
+        ? array_merge([$self], array_diff($all_known, [$self]))
+        : $all_known;
+
+    foreach ($ordered as $type) {
         $param_name = $type . '_status';
         if (!empty($params[$param_name])) {
-            $mapped_values = array_map('trim', explode(',', $params[$param_name]));
-            if (in_array($status, $mapped_values)) {
+            if (in_array($needle, $lowerList($params[$param_name]), true)) {
                 return $type; // Нашли совпадение
             }
         }
@@ -42,7 +74,12 @@ function mapStatus($pdo, $status, $params)
     return $mapped_status;
 }
 
-$clickId = $_GET['subid'] ?? $_GET['clickid'] ?? null;
+// subid is the tracker's own click id, handed to the network in the offer URL
+// (&sub1={subid} for Dr. Cash) and handed back here. Networks vary on the
+// parameter name and some append whitespace when the macro is unresolved, so
+// the aliases are accepted and the value is trimmed before it becomes a lookup key.
+$clickId = trim((string) ($_GET['subid'] ?? $_GET['clickid'] ?? $_GET['click_id'] ?? $_GET['sub_id'] ?? ''));
+$clickId = $clickId !== '' ? $clickId : null;
 $originalStatus = $_GET['status'] ?? $_GET['type'] ?? null;
 $payout = $_GET['payout'] ?? $_GET['revenue'] ?? $_GET['profit'] ?? 0.00;
 $currency = $_GET['currency'] ?? 'USD';
@@ -61,14 +98,25 @@ if (!$originalStatus) {
     die("Ignored: Missing status.");
 }
 
-// Проверяем существование клика
-$stmt = $pdo->prepare("SELECT id, campaign_id FROM clicks WHERE id = ?");
+// Проверяем существование клика.
+// The whole row, not just the campaign: the conversion is stamped with the
+// click's own dimensions (campaign, offer, sub_id_1..5, ip, ua) so that the
+// conversions log and its campaign/offer filters see a linked record instead of
+// a naked click_id. Nothing is created when the subid matches no click — an
+// orphaned conversion is worse than a rejected postback.
+$stmt = $pdo->prepare("
+    SELECT id, campaign_id, offer_id, source_id, landing_id, ip, user_agent, parameters_json
+    FROM clicks WHERE id = ? LIMIT 1
+");
 $stmt->execute([$clickId]);
 $clickData = $stmt->fetch();
 if (!$clickData) {
     die("Click ID not found in database.");
 }
 $campaignId = $clickData['campaign_id'];
+// sub_id_1..5 here are the CLICK's parameters. $clickId (the incoming subid) is
+// deliberately not among them — it is the tracker's key, not a sub dimension.
+$clickAttribution = orbitraClickAttributionFromRow($clickData);
 
 // Маппинг статуса
 $internalStatus = mapStatus($pdo, $originalStatus, $_GET);
@@ -118,6 +166,24 @@ try {
             ");
             $insertStmt->execute([$clickId, $internalStatus, $originalStatus, $payout, $currency]);
         }
+    }
+
+    // Ссылка на только что записанную конверсию. Одна выборка на весь запрос:
+    // раньше её повторяли отдельно для S2S и отдельно для CAPI.
+    if ($tid) {
+        $cidStmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid = ? ORDER BY id DESC LIMIT 1");
+        $cidStmt->execute([$clickId, $tid]);
+    } else {
+        $cidStmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid IS NULL ORDER BY id DESC LIMIT 1");
+        $cidStmt->execute([$clickId]);
+    }
+    $conversionId = (int) ($cidStmt->fetchColumn() ?: 0) ?: null;
+
+    // Перенос измерений клика на конверсию. Уже заполненные колонки не трогаем:
+    // повторный постбек со сменой статуса не должен переписывать атрибуцию,
+    // сделанную в момент создания конверсии.
+    if ($conversionId !== null) {
+        orbitraApplyConversionAttribution($pdo, $conversionId, $clickAttribution);
     }
 
     // Для совместимости обновляем общую revenue и is_conversion в таблице clicks
@@ -191,16 +257,8 @@ try {
         $clickRevenue = (float) ($cpRow['revenue'] ?? 0);
         $clickOfferId = (string) ($cpRow['offer_id'] ?? '');
 
-        // Определяем conversion_id для связи логов очереди с конверсией.
-        $convId = null;
-        if ($tid) {
-            $cidStmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid = ? ORDER BY id DESC LIMIT 1");
-            $cidStmt->execute([$clickId, $tid]);
-        } else {
-            $cidStmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid IS NULL ORDER BY id DESC LIMIT 1");
-            $cidStmt->execute([$clickId]);
-        }
-        $convId = (int) ($cidStmt->fetchColumn() ?: 0) ?: null;
+        // conversion_id для связи логов очереди с конверсией — уже определён выше.
+        $convId = $conversionId;
 
         $enqueueStmt = $pdo->prepare("
             INSERT INTO s2s_postbacks_log
@@ -293,16 +351,9 @@ try {
                     $clickParamsForCapi = [];
                 }
 
-                // conversion_id определяем так же, как для S2S — по нему в логах
-                // очереди видно, какая конверсия породила событие.
-                if ($tid) {
-                    $capiConvStmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid = ? ORDER BY id DESC LIMIT 1");
-                    $capiConvStmt->execute([$clickId, $tid]);
-                } else {
-                    $capiConvStmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid IS NULL ORDER BY id DESC LIMIT 1");
-                    $capiConvStmt->execute([$clickId]);
-                }
-                $capiConversionId = (int) ($capiConvStmt->fetchColumn() ?: 0) ?: null;
+                // conversion_id тот же, что для S2S — по нему в логах очереди
+                // видно, какая конверсия породила событие.
+                $capiConversionId = $conversionId;
 
                 // Макросы {campaign_url}/{landing_url} для event_source_url пикселя:
                 // трекинговый URL кампании (домен + алиас) и фактический URL лендинга

@@ -51,7 +51,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 32;
+    $LATEST_SCHEMA_VERSION = 33;
 
     $schemaVersion = 0;
     try {
@@ -1798,6 +1798,27 @@ try {
                         ]);
                     }
                 } catch (\Throwable $e) {
+                }
+            }
+
+            if ($schemaVersion < 33) {
+                // Migration 33: attribute historical conversions to their click.
+                //
+                // conversions has carried campaign_id / offer_id / sub_id_1..5 /
+                // ip / user_agent since the beginning, but the postback handler
+                // never filled them, so every conversion ingested from an
+                // affiliate network sat in the log as an unlinked row: the
+                // conversions log showed no campaign or offer, and its
+                // campaign/offer filters matched nothing. postback.php stamps new
+                // conversions now; this copies the same dimensions onto the rows
+                // written before it did. Conversions whose click no longer exists
+                // are left alone — there is nothing to attribute them to.
+                try {
+                    require_once __DIR__ . '/core/ConversionAttribution.php';
+                    orbitraBackfillConversionAttribution($pdo);
+                } catch (\Throwable $e) {
+                    // A failed backfill costs history, not new data — never block
+                    // the schema bump (and therefore every request) on it.
                 }
             }
 

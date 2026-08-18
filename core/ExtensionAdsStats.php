@@ -82,12 +82,9 @@ if (!function_exists('orbitraExtensionAdsStats')) {
             array_push($params, ...$filterIds);
         }
 
-        $statusGroups = orbitraConversionStatusGroups();
-        $sqlStatusList = static function (array $statuses): string {
-            return "'" . implode("','", array_map(static fn ($status) => str_replace("'", "''", $status), $statuses)) . "'";
-        };
-        $saleStatuses = $sqlStatusList($statusGroups['sale']);
-        $leadStatuses = $sqlStatusList($statusGroups['hold']);
+        // Case-insensitive group matching, shared with the reports (ReportMetrics).
+        $saleMatch = orbitraConversionStatusMatchSql('cv.status', 'sale');
+        $leadMatch = orbitraConversionStatusMatchSql('cv.status', 'hold');
         $valueExpr = $conversionValueColumn !== null && preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $conversionValueColumn)
             ? 'cv.' . $conversionValueColumn
             : '0';
@@ -110,10 +107,10 @@ if (!function_exists('orbitraExtensionAdsStats')) {
                     rc.click_cost,
                     rc.entity_id,
                     COUNT(cv.id) AS conversions,
-                    SUM(CASE WHEN cv.status IN ($leadStatuses) THEN 1 ELSE 0 END) AS leads,
-                    SUM(CASE WHEN cv.status IN ($saleStatuses) THEN 1 ELSE 0 END) AS sales,
+                    SUM(CASE WHEN $leadMatch THEN 1 ELSE 0 END) AS leads,
+                    SUM(CASE WHEN $saleMatch THEN 1 ELSE 0 END) AS sales,
                     COALESCE(SUM($valueExpr), 0) AS revenue,
-                    COALESCE(SUM(CASE WHEN cv.status IN ($saleStatuses) THEN $valueExpr ELSE 0 END), 0) AS revenue_confirmed
+                    COALESCE(SUM(CASE WHEN $saleMatch THEN $valueExpr ELSE 0 END), 0) AS revenue_confirmed
                 FROM relevant_clicks rc
                 LEFT JOIN conversions cv ON cv.click_id = rc.click_id
                 GROUP BY rc.click_id, rc.click_cost, rc.entity_id

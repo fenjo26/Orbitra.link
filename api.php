@@ -21,6 +21,7 @@ if (!is_dir(__DIR__ . '/var/logs')) {
 // api.php - JSON API для React Dashboard
 require_once 'config.php';
 require_once __DIR__ . '/core/ReportMetrics.php';
+require_once __DIR__ . '/core/ConversionAttribution.php';
 require_once __DIR__ . '/core/ExtensionAdsStats.php';
 require_once 'version.php';
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
@@ -9899,6 +9900,13 @@ try {
                     WHERE $where
                 )
                 GROUP BY " . implode(', ', $dimGroupBy) . "
+                -- Traffic and conversions share one grouping key by construction:
+                -- the inner select is driven by `clicks` and the conversion
+                -- aggregate is LEFT JOINed onto it, so every row that carries a
+                -- conversion also carries its click's dimensions and click count.
+                -- (SQL comments here are `--`; a `//` comment made SQLite reject
+                -- the whole statement, so every grouped report returned an error.)
+                HAVING COUNT(click_id) > 0
                 ORDER BY clicks DESC
                 LIMIT 2000
             ";
@@ -12201,8 +12209,16 @@ try {
                 $successCount = 0;
                 $errors = [];
 
-                $clickStmt = $pdo->prepare("SELECT id FROM clicks WHERE id = ?");
+                // The whole click row: an imported conversion is stamped with the
+                // same dimensions a postback-ingested one gets, so CSV imports do
+                // not reintroduce the unlinked rows migration 33 cleaned up.
+                $clickStmt = $pdo->prepare("
+                    SELECT id, campaign_id, offer_id, ip, user_agent, parameters_json
+                    FROM clicks WHERE id = ? LIMIT 1
+                ");
                 $findTidNullStmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid IS NULL");
+                $findConvIdTidStmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid = ? ORDER BY id DESC LIMIT 1");
+                $findConvIdNoTidStmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid IS NULL ORDER BY id DESC LIMIT 1");
 
                 $insertStmt = $pdo->prepare("INSERT INTO conversions (click_id, tid, status, original_status, payout, currency) VALUES (?, ?, ?, ?, ?, ?)");
                 $updateTidStmt = $pdo->prepare("UPDATE conversions SET status = ?, original_status = ?, payout = ?, currency = ? WHERE click_id = ? AND tid = ?");
@@ -12237,7 +12253,8 @@ try {
                     $status = $parts[3] ?? 'lead';
 
                     $clickStmt->execute([$subid]);
-                    if (!$clickStmt->fetch()) {
+                    $clickRowForImport = $clickStmt->fetch(PDO::FETCH_ASSOC);
+                    if (!$clickRowForImport) {
                         $errors[] = "Строка " . ($index + 1) . ": subid не найден ($subid)";
                         continue;
                     }
@@ -12273,6 +12290,22 @@ try {
                         } else {
                             $insertStmt->execute([$subid, null, $internalStatus, $status, $payout, 'USD']);
                         }
+                    }
+
+                    // Attribute the row to its click (campaign/offer/sub_id_1..5).
+                    if ($tid) {
+                        $findConvIdTidStmt->execute([$subid, $tid]);
+                        $importedConvId = (int) ($findConvIdTidStmt->fetchColumn() ?: 0);
+                    } else {
+                        $findConvIdNoTidStmt->execute([$subid]);
+                        $importedConvId = (int) ($findConvIdNoTidStmt->fetchColumn() ?: 0);
+                    }
+                    if ($importedConvId > 0) {
+                        orbitraApplyConversionAttribution(
+                            $pdo,
+                            $importedConvId,
+                            orbitraClickAttributionFromRow($clickRowForImport)
+                        );
                     }
 
                     // Recalculate click stats

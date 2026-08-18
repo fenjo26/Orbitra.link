@@ -21,20 +21,48 @@ if (!function_exists('self_fmtLpSeconds')) {
 
 if (!function_exists('orbitraConversionStatusGroups')) {
 
-    /** Status vocabulary the tracker groups conversions by. */
+    /**
+     * Status vocabulary the tracker groups conversions by.
+     *
+     * Values are lowercase and every comparison built from them lowercases the
+     * column (see orbitraConversionStatusMatchSql): affiliate networks are
+     * careless about case, and a stored "Approved" that matched no group was
+     * counted in `conversions` while Sales/Leads/Rejected/Trash all stayed 0.
+     *
+     * A status may appear in exactly one group — the groups are summed
+     * independently, so a duplicate would be counted twice.
+     */
     function orbitraConversionStatusGroups(): array
     {
         return [
             // 'deposit' deliberately NOT in the sale group: it has its own column,
             // and listing it in both counted every deposit twice (as a sale and
             // again as a deposit) in revenue and approve-rate math.
-            'sale'          => ['sale', 'confirmed', 'approved', 'purchase'],
-            'hold'          => ['lead', 'hold', 'pending'],
-            'rejected'      => ['rejected', 'declined'],
-            'trash'         => ['trash', 'junk'],
+            'sale'          => ['sale', 'confirmed', 'approved', 'approve', 'accepted', 'purchase', 'paid'],
+            'hold'          => ['lead', 'hold', 'pending', 'new', 'wait', 'waiting', 'processing', 'in_work'],
+            'rejected'      => ['rejected', 'reject', 'declined', 'decline', 'cancelled', 'canceled', 'cancel'],
+            'trash'         => ['trash', 'junk', 'spam', 'duplicate', 'dupe'],
             'registration'  => ['registration', 'reg'],
             'deposit'       => ['deposit', 'dep'],
         ];
+    }
+
+    /**
+     * `LOWER(col) IN (...)` for one status group, ready to drop into a CASE WHEN.
+     *
+     * @param string $column already-qualified column expression, e.g. "cv.status"
+     */
+    function orbitraConversionStatusMatchSql(string $column, string $group): string
+    {
+        $statuses = orbitraConversionStatusGroups()[$group] ?? [];
+        if (!$statuses) {
+            return '0';
+        }
+        $list = "'" . implode("', '", array_map(
+            static fn($s) => str_replace("'", "''", strtolower($s)),
+            $statuses
+        )) . "'";
+        return "LOWER($column) IN ($list)";
     }
 
     /**
@@ -47,10 +75,10 @@ if (!function_exists('orbitraConversionStatusGroups')) {
         // (0/1), so it undercounts every click with several conversions and
         // capped CR at 100% — Keitaro's CR may exceed it, and ours now may too.
         $parts = ["COUNT(*) AS cnt_any", "SUM($value) AS rev_all"];
-        foreach (orbitraConversionStatusGroups() as $group => $statuses) {
-            $list = "'" . implode("', '", $statuses) . "'";
-            $parts[] = "SUM(CASE WHEN status IN ($list) THEN $value ELSE 0 END) AS rev_$group";
-            $parts[] = "SUM(CASE WHEN status IN ($list) THEN 1 ELSE 0 END) AS cnt_$group";
+        foreach (array_keys(orbitraConversionStatusGroups()) as $group) {
+            $match = orbitraConversionStatusMatchSql('status', $group);
+            $parts[] = "SUM(CASE WHEN $match THEN $value ELSE 0 END) AS rev_$group";
+            $parts[] = "SUM(CASE WHEN $match THEN 1 ELSE 0 END) AS cnt_$group";
         }
         return "(SELECT click_id, " . implode(', ', $parts) . " FROM conversions GROUP BY click_id)";
     }
