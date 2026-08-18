@@ -121,6 +121,8 @@ export default {
         "importBtn": "Importieren"
     },
     "common": {
+        "hide": "Ausblenden",
+        "showDetails": "Details anzeigen",
         "copied": "Kopiert",
         "selectAll": "Alle auswählen",
         "orManual": "Oder manuell konfigurieren",
@@ -778,7 +780,6 @@ export default {
         "notSelected": "Nicht ausgewählt",
         "loading": "Laden...",
         "noDomains": "Keine hinzugefügten Domänen",
-        "whitelistError": "Namecheap API Error: Server IP ({ip}) is not whitelisted in your Namecheap account. Add it in Profile → Tools → Business & Dev Tools → Namecheap API Access → Whitelisted IPs.",
         "editDomain": "Domäne bearbeiten",
         "addDomainTitle": "Domäne hinzufügen",
         "domainName": "Domänenname",
@@ -812,6 +813,10 @@ export default {
         "sslCertbotNoOutput": "Certbot hat nichts zurückgegeben — prüfen Sie, ob es installiert und für den Webserver per sudo erreichbar ist.",
         "sslIncompleteChain": "In der Zertifikatsdatei fehlt das Intermediate — die Seite öffnet sich in Firefox, aber nicht in Chrome. Stellen Sie das Zertifikat neu aus.",
         "sslDnsMismatch": "Domain zeigt nicht auf diesen Server. Zertifikat kann nicht ausgestellt werden, bis DNS verteilt ist.",
+        "reissueSsl": "SSL-Zertifikat neu ausstellen",
+        "reissueConfirm": "Möchten Sie das SSL-Zertifikat wirklich neu ausstellen für",
+        "sslIssued": "SSL-Zertifikat erfolgreich ausgestellt",
+        "sslError": "SSL-Zertifikat konnte nicht ausgestellt werden",
         "sslDnsSeen": "A-Eintrag der Domain",
         "sslNoARecord": "kein A-Eintrag",
         "sslPending": "Warten auf Installation",
@@ -2749,6 +2754,7 @@ export default {
         "managedDomains": "Von Cloudflare verwaltete Domains"
     },
     "namecheap": {
+        "whitelistError": "Namecheap-API-Fehler: Die Server-IP ({ip}) steht nicht auf der Whitelist Ihres Namecheap-Kontos. Fügen Sie sie unter Profile → Tools → Business & Dev Tools → Namecheap API Access → Whitelisted IPs hinzu.",
         "title": "Namecheap",
         "description": "Auto-DNS-Parking für Domains aus Ihrem Namecheap-Konto, Domain-Kauf und kostenloses Let's-Encrypt-SSL — direkt aus dem Tracker",
         "howTo": "API-Zugriff aktivieren: Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access, und die ausgehende Server-IP zu Whitelisted IPs hinzufügen. Im Konto registrierte Domains erhalten beim Parken automatisch einen A-Record; das Let's-Encrypt-Zertifikat wird ausgestellt, sobald DNS propagiert.",

@@ -121,6 +121,8 @@ export default {
         "importBtn": "Importer"
     },
     "common": {
+        "hide": "Masquer",
+        "showDetails": "Afficher les détails",
         "copied": "Copié",
         "selectAll": "Tout sélectionner",
         "orManual": "Ou configurer manuellement",
@@ -778,7 +780,6 @@ export default {
         "notSelected": "Non sélectionné",
         "loading": "Chargement en cours...",
         "noDomains": "Aucun domaine ajouté",
-        "whitelistError": "Namecheap API Error: Server IP ({ip}) is not whitelisted in your Namecheap account. Add it in Profile → Tools → Business & Dev Tools → Namecheap API Access → Whitelisted IPs.",
         "editDomain": "Modifier le domaine",
         "addDomainTitle": "Ajouter un domaine",
         "domainName": "Nom de domaine",
@@ -812,6 +813,10 @@ export default {
         "sslCertbotNoOutput": "Certbot n'a rien renvoyé — vérifiez qu'il est installé et accessible au serveur web via sudo.",
         "sslIncompleteChain": "Il manque l'intermédiaire dans le fichier de certificat — le site s'ouvre dans Firefox mais pas dans Chrome. Réémettez le certificat.",
         "sslDnsMismatch": "Le domaine ne pointe pas vers ce serveur. Le certificat ne peut pas être émis tant que le DNS n'est pas propagé.",
+        "reissueSsl": "Réémettre le certificat SSL",
+        "reissueConfirm": "Voulez-vous vraiment réémettre le certificat SSL pour",
+        "sslIssued": "Certificat SSL émis avec succès",
+        "sslError": "Échec de l'émission du certificat SSL",
         "sslDnsSeen": "Enregistrement A du domaine",
         "sslNoARecord": "aucun enregistrement A",
         "sslPending": "En attente d'installation",
@@ -2749,6 +2754,7 @@ export default {
         "managedDomains": "Domaines gérés par Cloudflare"
     },
     "namecheap": {
+        "whitelistError": "Erreur de l'API Namecheap : l'IP du serveur ({ip}) n'est pas dans la liste blanche de votre compte Namecheap. Ajoutez-la dans Profile → Tools → Business & Dev Tools → Namecheap API Access → Whitelisted IPs.",
         "title": "Namecheap",
         "description": "Stationnement DNS automatique des domaines de votre compte Namecheap, achat de domaines et SSL Let's Encrypt gratuit — directement depuis le tracker",
         "howTo": "Activez l'accès API : Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access, puis ajoutez l'IP sortante du serveur aux Whitelisted IPs. Les domaines enregistrés dans le compte reçoivent leur enregistrement A automatiquement au stationnement ; le certificat Let's Encrypt est émis dès que le DNS se propage.",

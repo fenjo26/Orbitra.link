@@ -121,6 +121,8 @@ export default {
         "importBtn": "进口"
     },
     "common": {
+        "hide": "隐藏",
+        "showDetails": "显示详情",
         "copied": "已复制",
         "selectAll": "全选",
         "orManual": "或手动填写 Token",
@@ -778,7 +780,6 @@ export default {
         "notSelected": "未选择",
         "loading": "正在加载...",
         "noDomains": "没有添加域名",
-        "whitelistError": "Namecheap API Error: Server IP ({ip}) is not whitelisted in your Namecheap account. Add it in Profile → Tools → Business & Dev Tools → Namecheap API Access → Whitelisted IPs.",
         "editDomain": "编辑域名",
         "addDomainTitle": "添加域名",
         "domainName": "域名",
@@ -812,6 +813,10 @@ export default {
         "sslCertbotNoOutput": "Certbot 没有任何输出 —— 请确认已安装且 Web 服务器可通过 sudo 调用。",
         "sslIncompleteChain": "证书文件缺少中间证书 —— 网站在 Firefox 能打开但在 Chrome 失败。请重新签发证书。",
         "sslDnsMismatch": "域名未指向此服务器。在 DNS 传播之前无法签发证书。",
+        "reissueSsl": "重新签发 SSL 证书",
+        "reissueConfirm": "确定要为该域名重新签发 SSL 证书吗：",
+        "sslIssued": "SSL 证书签发成功",
+        "sslError": "SSL 证书签发失败",
         "sslDnsSeen": "域名的 A 记录",
         "sslNoARecord": "无 A 记录",
         "sslPending": "Awaiting installation",
@@ -2749,6 +2754,7 @@ export default {
         "managedDomains": "由 Cloudflare 管理的域名"
     },
     "namecheap": {
+        "whitelistError": "Namecheap API 错误：服务器 IP ({ip}) 不在您的 Namecheap 账户白名单中。请在 Profile → Tools → Business & Dev Tools → Namecheap API Access → Whitelisted IPs 中添加。",
         "title": "Namecheap",
         "description": "自动为 Namecheap 账户中的域名停放 DNS、直接从追踪器购买域名并免费签发 Let's Encrypt SSL",
         "howTo": "启用 API 访问：Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access，并将服务器出口 IP 添加到 Whitelisted IPs。账户中注册的域名在停放时自动获得 A 记录；DNS 生效后自动签发 Let's Encrypt 证书。",

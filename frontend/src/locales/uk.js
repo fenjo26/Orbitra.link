@@ -121,6 +121,8 @@ export default {
         "importBtn": "Імпорт"
     },
     "common": {
+        "hide": "Сховати",
+        "showDetails": "Показати деталі",
         "copied": "Скопійовано",
         "selectAll": "Вибрати все",
         "orManual": "Або налаштувати вручну",
@@ -778,7 +780,6 @@ export default {
         "notSelected": "Не вибрано",
         "loading": "Завантаження...",
         "noDomains": "Немає доданих доменів",
-        "whitelistError": "Namecheap API Error: Server IP ({ip}) is not whitelisted in your Namecheap account. Add it in Profile → Tools → Business & Dev Tools → Namecheap API Access → Whitelisted IPs.",
         "editDomain": "Редагувати домен",
         "addDomainTitle": "Додати домен",
         "domainName": "Доменне ім'я",
@@ -812,6 +813,10 @@ export default {
         "sslCertbotNoOutput": "Certbot нічого не відповів — перевірте, що він встановлений і доступний вебсерверу через sudo.",
         "sslIncompleteChain": "У файлі сертифіката немає проміжного — сайт відкривається у Firefox, але не в Chrome. Перевипустіть сертифікат.",
         "sslDnsMismatch": "Домен не вказує на цей сервер. Сертифікат не може бути випущений, поки DNS не пошириться.",
+        "reissueSsl": "Перевипустити SSL-сертифікат",
+        "reissueConfirm": "Ви впевнені, що хочете перевипустити SSL-сертифікат для",
+        "sslIssued": "SSL-сертифікат успішно випущено",
+        "sslError": "Не вдалося випустити SSL-сертифікат",
         "sslDnsSeen": "A-запис домену",
         "sslNoARecord": "A-запису немає",
         "sslPending": "Awaiting installation",
@@ -2749,6 +2754,7 @@ export default {
         "managedDomains": "Доменів під керуванням Cloudflare"
     },
     "namecheap": {
+        "whitelistError": "Помилка Namecheap API: IP сервера ({ip}) не додано до білого списку вашого акаунта Namecheap. Додайте його в Profile → Tools → Business & Dev Tools → Namecheap API Access → Whitelisted IPs.",
         "title": "Namecheap",
         "description": "Автопаркування DNS доменів з акаунта Namecheap, купівля нових доменів і SSL Let's Encrypt — прямо з трекера",
         "howTo": "Увімкніть API-доступ: Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access і додайте вихідну IP сервера до Whitelisted IPs. Домени, зареєстровані в акаунті, при паркуванні отримують A-запис автоматично; сертифікат Let's Encrypt випускається, щойно DNS оновиться.",

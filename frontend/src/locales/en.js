@@ -121,6 +121,8 @@ export default {
         "importBtn": "Import"
     },
     "common": {
+        "hide": "Hide",
+        "showDetails": "Show details",
         "copied": "Copied",
         "selectAll": "Select all",
         "orManual": "Or configure manually",

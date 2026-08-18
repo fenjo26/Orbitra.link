@@ -121,6 +121,8 @@ export default {
         "importBtn": "Импортировать"
     },
     "common": {
+        "hide": "Скрыть",
+        "showDetails": "Показать детали",
         "copied": "Скопировано",
         "selectAll": "Выбрать все",
         "orManual": "Или настроить вручную",
@@ -778,7 +780,6 @@ export default {
         "notSelected": "Не выбрана",
         "loading": "Загрузка...",
         "noDomains": "Нет добавленных доменов",
-        "whitelistError": "Namecheap API Error: Server IP ({ip}) is not whitelisted in your Namecheap account. Add it in Profile → Tools → Business & Dev Tools → Namecheap API Access → Whitelisted IPs.",
         "editDomain": "Редактирование домена",
         "addDomainTitle": "Добавление домена",
         "domainName": "Имя домена",
@@ -2753,6 +2754,7 @@ export default {
         "managedDomains": "Доменов под управлением Cloudflare"
     },
     "namecheap": {
+        "whitelistError": "Ошибка Namecheap API: IP сервера ({ip}) не добавлен в белый список вашего аккаунта Namecheap. Добавьте его в Profile → Tools → Business & Dev Tools → Namecheap API Access → Whitelisted IPs.",
         "title": "Namecheap",
         "description": "Автопарковка DNS доменов из аккаунта Namecheap, покупка новых доменов и SSL Let's Encrypt — прямо из трекера",
         "howTo": "Включите API-доступ: Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access, и добавьте исходящий IP сервера в Whitelisted IPs. Домены, зарегистрированные в аккаунте, при парковке получают A-запись автоматически; сертификат Let's Encrypt выпускается, как только DNS обновится.",
