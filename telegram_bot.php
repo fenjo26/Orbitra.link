@@ -783,6 +783,9 @@ function checkSourceUrlInline($url)
         return ['status' => 'error', 'message' => 'Invalid URL'];
     }
 
+    // SSL verification: only disable in local development
+    $isLocalDev = (getenv('APP_ENV') === 'local') || (getenv('ORBITRA_ENV') === 'dev') || (php_uname('n') === 'localhost');
+
     $ch = curl_init();
     curl_setopt_array($ch, [
         CURLOPT_URL => $url,
@@ -792,8 +795,8 @@ function checkSourceUrlInline($url)
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_TIMEOUT => 10,
         CURLOPT_CONNECTTIMEOUT => 5,
-        CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_SSL_VERIFYHOST => false,
+        CURLOPT_SSL_VERIFYPEER => $isLocalDev ? false : true,
+        CURLOPT_SSL_VERIFYHOST => $isLocalDev ? false : 2,
         CURLOPT_USERAGENT => 'Mozilla/5.0 (compatible; Orbitra/1.0)',
     ]);
 

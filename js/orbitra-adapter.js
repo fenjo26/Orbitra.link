@@ -123,7 +123,19 @@
         if (!subid && !token) return;
 
         var carry = {};
-        if (subid) carry._subid = subid;
+        if (subid) {
+            carry._subid = subid;
+            // Compatibility with order.php expectations
+            carry.subid = subid;
+            carry.sub1 = subid;
+            carry.sub2 = subid;
+            carry.sub3 = subid;
+            carry.sub4 = subid;
+            carry.sub5 = subid;
+            carry.sub_id = subid;
+            carry.click_id = subid;
+            carry.clickid = subid;
+        }
         if (token) carry._token = token;
 
         Array.prototype.forEach.call(document.querySelectorAll('a[href]'), function (link) {

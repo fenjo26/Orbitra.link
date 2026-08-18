@@ -220,6 +220,18 @@ try {
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
 
+        // SSL verification: strict in production, relaxed for local development only
+        $isLocalEnv = defined('ORBITRA_ENV') && ORBITRA_ENV === 'local';
+        if ($isLocalEnv) {
+            // Local development: allow self-signed certs (e.g. localhost testing)
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        } else {
+            // Production: enforce strict SSL verification
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        }
+
         // Some rows carry their own egress proxy (Facebook CAPI, when Meta blocks the
         // tracker's own IP range). Applied before the body so a transport failure is
         // attributed to the proxy, not to the payload.

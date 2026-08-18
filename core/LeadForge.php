@@ -808,8 +808,8 @@ class LeadForge
                 CURLOPT_FOLLOWLOCATION => false,
                 CURLOPT_TIMEOUT => 15,
                 CURLOPT_COOKIE => $isOffer ? 'orbitra_lo=' . $entityId : 'orbitra_lp=' . $landingId,
-                CURLOPT_SSL_VERIFYPEER => false,
-                CURLOPT_SSL_VERIFYHOST => 0,
+                CURLOPT_SSL_VERIFYPEER => !(isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'local') && !(isset($_ENV['ORBITRA_ENV']) && $_ENV['ORBITRA_ENV'] === 'dev'),
+                CURLOPT_SSL_VERIFYHOST => (isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'local') || (isset($_ENV['ORBITRA_ENV']) && $_ENV['ORBITRA_ENV'] === 'dev') ? 0 : 2,
             ]);
             $raw = curl_exec($ch);
             $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -1109,8 +1109,8 @@ function lf_http_call(string $url, $payload, array $headers, bool $asJson): arra
         CURLOPT_POSTFIELDS => $asJson ? (is_string($payload) ? $payload : json_encode($payload)) : (is_array($payload) ? http_build_query($payload) : $payload),
         CURLOPT_HTTPHEADER => $headers,
         CURLOPT_TIMEOUT => 20,
-        CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_SSL_VERIFYHOST => 0,
+        CURLOPT_SSL_VERIFYPEER => !(isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'local') && !(isset($_ENV['ORBITRA_ENV']) && $_ENV['ORBITRA_ENV'] === 'dev'),
+        CURLOPT_SSL_VERIFYHOST => (isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'local') || (isset($_ENV['ORBITRA_ENV']) && $_ENV['ORBITRA_ENV'] === 'dev') ? 0 : 2,
     ]);
     $body = curl_exec($ch);
     $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
