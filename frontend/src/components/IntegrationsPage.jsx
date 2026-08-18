@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import axios from 'axios';
-import { Terminal, Code, Image as ImageIcon, Copy, CheckCircle2, Server, Globe, Zap, Send, Eye, EyeOff, RefreshCw, Trash2, MessageCircle, Bell, BellOff, Clock, Users, Download, Settings, Plus, Edit2, Power, X, ArrowRight, Smartphone, Monitor, Timer, ArrowLeft, Palette, ExternalLink, Shield, DollarSign, Cloud, Database, Tag, Music2, Search, KeyRound, ShoppingCart, User, Grid, ChevronRight, Sparkles, Filter, Check } from 'lucide-react';
+import { Terminal, Code, Image as ImageIcon, Copy, CheckCircle2, Server, Globe, Zap, Send, Eye, EyeOff, RefreshCw, Trash2, MessageCircle, Bell, BellOff, Clock, Users, Download, Settings, Plus, Edit2, Power, X, ArrowRight, Smartphone, Monitor, Timer, ArrowLeft, Palette, ExternalLink, Shield, DollarSign, Cloud, Database, Tag, Music2, Search, KeyRound, ShoppingCart, User, Grid, ChevronRight, ChevronUp, ChevronDown, Info, Sparkles, Filter, Check } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard as copyUtil } from '../utils/clipboard';
@@ -173,7 +173,8 @@ const IntegrationsPage = () => {
     // keeps its old behaviour instead of locking users out of the popup.
     const [gaOauthConfigured, setGaOauthConfigured] = useState(null);
     const [gaShowHowTo, setGaShowHowTo] = useState(false);
-    const [gaAddMode, setGaAddMode] = useState('manual');
+    const [gaShowSetupGuide, setGaShowSetupGuide] = useState(false);
+    const [gaAddMode, setGaAddMode] = useState('oauth');
 
     // Facebook Conversions state — campaign_pixels rows of type 'facebook' that
     // carry a Conversions API token.
@@ -2761,7 +2762,7 @@ const IntegrationsPage = () => {
                             resetGoogleAdsOAuth();
                             setGaSyncInterval(2);
                             setGaMessage(null);
-                            setGaAddMode('manual');
+                            setGaAddMode('oauth');
                             setGaEditing('new');
                         }} className="btn btn-primary">
                             <Plus size={16} /> {t('googleAdsCosts.addAccount')}
@@ -2770,6 +2771,149 @@ const IntegrationsPage = () => {
                             placeholder={t('googleAdsCosts.findAccount')} value={gaSearch}
                             onChange={e => setGaSearch(e.target.value)} />
                     </div>
+
+                    {/* OAuth Setup Guide - shown when not configured and no connections exist */}
+                    {!gaEditing && gaOauthConfigured === false && visible.length === 0 && (
+                        <div style={{
+                            padding: '20px',
+                            borderRadius: '16px',
+                            border: '1px solid var(--color-warning)',
+                            background: 'var(--color-warning-bg)',
+                            marginBottom: '20px'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '16px' }}>
+                                <div style={{
+                                    width: '32px',
+                                    height: '32px',
+                                    borderRadius: '8px',
+                                    background: 'rgba(66, 133, 244, 0.12)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    flexShrink: 0
+                                }}>
+                                    <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#4285F4' }}>G</span>
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <h4 style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                                        {t('googleAdsCosts.setupGuideTitle', '🔧 Enable 1-Click Google Ads Connection')}
+                                    </h4>
+                                    <p style={{ margin: 0, fontSize: '12px', color: 'var(--color-text-muted)' }}>
+                                        {t('googleAdsCosts.setupGuideSubtitle', 'Configure OAuth credentials on your server to enable seamless 1-Click connection. Or use Direct Token Connection below.')}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                                <button
+                                    onClick={() => setGaShowSetupGuide(!gaShowSetupGuide)}
+                                    className="btn btn-secondary btn-sm"
+                                    style={{ fontSize: '11px' }}
+                                >
+                                    {gaShowSetupGuide ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                                    {gaShowSetupGuide ? t('common.hide') : t('common.showDetails')}
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setGaForm(emptyGaForm);
+                                        setGaTest(null);
+                                        resetGoogleAdsOAuth();
+                                        setGaSyncInterval(2);
+                                        setGaMessage(null);
+                                        setGaAddMode('manual');
+                                        setGaEditing('new');
+                                    }}
+                                    className="btn btn-primary btn-sm"
+                                    style={{ fontSize: '11px' }}
+                                >
+                                    <KeyRound size={12} /> {t('googleAdsCosts.useManualMode', 'Use Manual Token Mode')}
+                                </button>
+                            </div>
+
+                            {gaShowSetupGuide && (
+                                <div style={{ background: 'var(--color-bg-card)', borderRadius: '12px', padding: '16px', marginTop: '12px' }}>
+                                    <div style={{ fontSize: '12px', marginBottom: '12px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                                        {t('googleAdsCosts.setupStepsTitle', '📋 Quick Setup Steps')}
+                                    </div>
+                                    <ol style={{ margin: 0, paddingLeft: '18px', fontSize: '11px', color: 'var(--color-text-secondary)', lineHeight: '1.8' }}>
+                                        <li style={{ marginBottom: '8px' }}>
+                                            <strong style={{ color: 'var(--color-text-primary)' }}>{t('googleAdsCosts.step1Title', '1. Create Google Cloud Project')}</strong>
+                                            <br />{t('googleAdsCosts.step1Desc', 'Go to console.cloud.google.com, create a project, and enable Google Ads API.')}
+                                            <br /><a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" style={{ color: '#4285F4', textDecoration: 'underline' }}>
+                                                https://console.cloud.google.com/
+                                            </a>
+                                        </li>
+                                        <li style={{ marginBottom: '8px' }}>
+                                            <strong style={{ color: 'var(--color-text-primary)' }}>{t('googleAdsCosts.step2Title', '2. Create OAuth 2.0 Credentials')}</strong>
+                                            <br />{t('googleAdsCosts.step2Desc', 'APIs & Services → Credentials → Create OAuth 2.0 Client ID (Web application)')}
+                                        </li>
+                                        <li style={{ marginBottom: '8px' }}>
+                                            <strong style={{ color: 'var(--color-text-primary)' }}>{t('googleAdsCosts.step3Title', '3. Add Redirect URI')}</strong>
+                                            <br />{t('googleAdsCosts.step3Desc', 'Add this URI to Authorized redirect URIs:')}
+                                            <div style={{ marginTop: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <code style={{
+                                                    flex: 1,
+                                                    fontSize: '10px',
+                                                    fontFamily: 'monospace',
+                                                    color: 'var(--color-text-primary)',
+                                                    background: 'var(--color-bg-soft)',
+                                                    border: '1px solid var(--color-border)',
+                                                    borderRadius: '6px',
+                                                    padding: '6px 10px',
+                                                    wordBreak: 'break-all'
+                                                }}>
+                                                    {trackerUrl}/api.php?action=google_ads_oauth_callback
+                                                </code>
+                                                <button
+                                                    onClick={() => copyToClipboard(`${trackerUrl}/api.php?action=google_ads_oauth_callback`, 'ga_setup_cb')}
+                                                    className="btn btn-secondary btn-sm"
+                                                    style={{ fontSize: '10px', flexShrink: 0 }}
+                                                >
+                                                    {copied === 'ga_setup_cb' ? <CheckCircle2 size={12} style={{ color: 'var(--color-success)' }} /> : <Copy size={12} />}
+                                                </button>
+                                            </div>
+                                        </li>
+                                        <li style={{ marginBottom: '8px' }}>
+                                            <strong style={{ color: 'var(--color-text-primary)' }}>{t('googleAdsCosts.step4Title', '4. Get Developer Token')}</strong>
+                                            <br />{t('googleAdsCosts.step4Desc', 'Go to Google Ads API Center and apply for Developer Token.')}
+                                            <br /><a href="https://ads.google.com/aw/apicenter" target="_blank" rel="noopener noreferrer" style={{ color: '#4285F4', textDecoration: 'underline' }}>
+                                                https://ads.google.com/aw/apicenter
+                                            </a>
+                                        </li>
+                                        <li style={{ marginBottom: '8px' }}>
+                                            <strong style={{ color: 'var(--color-text-primary)' }}>{t('googleAdsCosts.step5Title', '5. Configure Environment Variables')}</strong>
+                                            <br />{t('googleAdsCosts.step5Desc', 'Add these to your server environment or .env file:')}
+                                            <div style={{
+                                                marginTop: '8px',
+                                                background: '#1e1e1e',
+                                                borderRadius: '8px',
+                                                padding: '12px',
+                                                fontSize: '10px',
+                                                fontFamily: 'monospace',
+                                                color: '#d4d4d4',
+                                                overflow: 'auto'
+                                            }}>
+                                                <div>ORBITRA_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com</div>
+                                                <div>ORBITRA_GOOGLE_CLIENT_SECRET=your-client-secret</div>
+                                                <div>ORBITRA_GOOGLE_DEVELOPER_TOKEN=your-developer-token</div>
+                                            </div>
+                                        </li>
+                                    </ol>
+                                    <div style={{
+                                        marginTop: '12px',
+                                        padding: '10px',
+                                        background: 'rgba(66, 133, 244, 0.08)',
+                                        borderRadius: '8px',
+                                        fontSize: '11px',
+                                        color: 'var(--color-text-secondary)'
+                                    }}>
+                                        <Info size={14} style={{ verticalAlign: 'middle', marginRight: '6px', color: '#4285F4' }} />
+                                        {t('googleAdsCosts.setupNote', 'After configuration, reload this page and the "Sign in with Google" button will work instantly.')}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 )}
 
                 {gaLoading ? (
