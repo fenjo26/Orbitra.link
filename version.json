@@ -1,6 +1,6 @@
 {
-    "version": "1.0.9",
-    "release_notes": "LeadForge 2.0 Reference Synchronization, 150-GEO Validation Engine, Local PHP Landings Macro Resolution & Complete Integration Guides. Integrates the 150-country GEO validation dataset with mobile operator prefixes and 33-language localized messages; universal order.php handler supporting 10 CPA networks and automated E.164 phone normalization; output buffering macro substitution for local PHP landings and offers ({subid}, {sub1}, {click_id}); comprehensive localized setup guides and copyable redirect URIs for Google Ads, TikTok, and Facebook integrations across all 7 supported languages.",
+    "version": "1.1.0",
+    "release_notes": "Conversion attribution fix for affiliate-network postbacks. Restores every layered report (a stray // comment made SQLite reject the campaign_report statement, so Sub1..Sub30, Country, Day and Campaign views all errored out); stamps each postback conversion with its click's campaign, offer, sub_id_1..5, IP and user agent so the conversions log and its campaign/offer filters stop showing unlinked rows; keeps the incoming subid out of the sub1 dimension; matches network status words case-insensitively (an 'Approved' that belonged to no status group is why campaigns could show Conversions: 1 with Sales/Leads/Rejected/Trash all 0) and covers approve/accepted/paid, new/waiting/processing, reject/decline/cancelled and spam/duplicate; attributes CSV-imported conversions as well; migration 33 backfills historical rows from their clicks.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-08-18"
 }

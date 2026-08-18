@@ -7,6 +7,33 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.1.0] — 2026-08-18
+
+Conversion attribution fix for affiliate-network postbacks (Dr. Cash and every other `?subid=` integration), and the report query that had stopped parsing.
+
+### Fixed
+- 🚨 **Grouped reports returned a SQL error** — the `campaign_report` statement carried a `//` comment inside the SQL string. SQLite only understands `--` and `/* */`, so it rejected the whole statement and *every* layered report (Sub1…Sub30, Country, Day, Campaign, Offer…) failed instead of rendering. The guard it was attached to is now `HAVING COUNT(click_id) > 0`, and `tests/postback_attribution_test.php` fails if a `//` comment reappears there.
+- 🔗 **Postback conversions were stored unlinked** — `postback.php` wrote only `click_id`/`status`/`payout`, leaving `conversions.campaign_id`, `offer_id`, `sub_id_1..5`, `ip` and `user_agent` NULL even though the matched click had all of them. The conversions log showed no campaign or offer, and its campaign/offer filters matched nothing. Every conversion is now stamped with its click's dimensions at ingestion (`core/ConversionAttribution.php`), and a repeat postback that only changes the status no longer rewrites the original attribution.
+- 🎯 **`sub_id_1` is the click's own sub1, never the postback's `subid`** — `subid` is the tracker's click id (Dr. Cash carries it in `&sub1={subid}`); copying it into the sub1 dimension would give every conversion a unique Sub1 value. The sub dimensions are read from the click's `parameters_json`.
+- 🔤 **Status words are matched case-insensitively** — a network sending `Approved` or `PENDING` used to be recorded as a conversion that belonged to no status group, which is how a campaign could show `Conversions: 1` with `Sales`, `Leads`, `Rejected` and `Trash` all at 0. Both `mapStatus()` and the report aggregates now lowercase before comparing, and the groups additionally cover `approve/accepted/paid`, `new/wait/waiting/processing`, `reject/decline/cancelled` and `spam/duplicate`.
+- ↔️ **A status's own mapping rule wins** — with `trash_status=trash` *and* `rejected_status=rejected,trash` in the same postback URL, `status=trash` now stays Trash instead of going to whichever type happened to list it first.
+- 📥 **CSV conversion import attributes rows too**, so a manual import cannot reintroduce unlinked records.
+- 🧹 **Migration 33 backfills history** — existing conversions get `campaign_id`/`offer_id`/`sub_id_1..5`/`ip`/`user_agent` copied from their click. Rows whose click no longer exists are left untouched.
+
+### Added
+- 🧪 **`tests/postback_attribution_test.php`** — the Dr. Cash path end to end: attribution payload, non-destructive re-postback, backfill, one-group-per-status, mixed-case status counting, and a Sub1 report row that carries clicks and conversions together.
+
+## [1.0.9] — 2026-08-18
+
+LeadForge 2.0 Reference Synchronization, 150-GEO validation engine, local PHP landing macro resolution, and complete OAuth setup guides.
+
+### Added
+- 🌍 **LeadForge 2.0 Reference Sync & 150-GEO Validation Engine** — validation rules for 150 countries with mobile operator prefixes, dynamic country switcher, live input digit-counter badges, Unicode name sanitation, and haptic feedback on mobile.
+- 🔤 **Local PHP Landings & Offers Macro Resolution** — output-buffering macro substitution (`{subid}`, `{sub1}`, `{click_id}`, `{{subid}}`, `{data1}`, …) with cross-page Click ID hydration via cookies and sessions.
+- 🌉 **Fail-Safe CPA Order Bridge (`order.php`)** — native support for 10 CPA networks (Dr.Cash, Webvork, Lucky.online, KMA.biz, TerraLeads, Leadbit, LemonAD, Everad, Ezaff, Custom Webhooks) with E.164 phone normalization, dual CRM logging, and multi-source Click ID resolution.
+- 📖 **Setup guides & keys reference** — in-UI step-by-step instructions for **Google Ads**, **TikTok for Business** and **Facebook / Meta**, with 1-click copyable Authorized Redirect URIs and a Direct Token connection fallback.
+- 🌐 **100% multilingual coverage** — translation parity across all 7 supported languages (EN, RU, UK, DE, ES, FR, ZH).
+
 ## [1.0.8] — 2026-08-18
 
 LeadForge 2.0 Reference Synchronization, complete 150-GEO validation engine, dynamic country switching, interactive live counter badges, and universal multi-network CPA order bridge.

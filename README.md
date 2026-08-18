@@ -1,4 +1,4 @@
-# Orbitra v1.0.9 Tracker
+# Orbitra v1.1.0 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,13 +11,13 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.0.9
+## 🆕 What's New in v1.1.0
 
-- **LeadForge 2.0 Reference Sync & 150-GEO Validation Engine** — complete integration of validation rules for 150 countries with mobile operator prefixes, dynamic country switcher, live input digit counter badges, Unicode name sanitation, and haptic feedback.
-- **Local PHP Landings & Offers Macro Resolution** — output buffering macro substitution (`{subid}`, `{sub1}`, `{click_id}`, `{{subid}}`, `{data1}`, etc.) with cross-page Click ID hydration via cookies and sessions.
-- **Fail-Safe CPA Order Bridge (`order.php`)** — native support for 10 CPA networks (Dr.Cash, Webvork, Lucky.online, KMA.biz, TerraLeads, Leadbit, LemonAD, Everad, Ezaff, Custom Webhooks) with E.164 phone normalization, dual CRM logging, and multi-source Click ID resolution.
-- **Comprehensive Setup Guides & Keys Reference** — in-UI step-by-step instructions for **Google Ads**, **TikTok for Business**, and **Facebook / Meta** with interactive 1-click copyable Authorized Redirect URIs and seamless Direct Token connection fallback.
-- **100% Multilingual Coverage** — full translation parity across all 7 supported languages (EN, RU, UK, DE, ES, FR, ZH).
+- **Conversion attribution for affiliate-network postbacks** — every conversion ingested through `postback.php` is now stamped with its click's campaign, offer, `sub_id_1..5`, IP and user agent, so the Conversions log and its campaign/offer filters stop showing unlinked rows. Migration 33 backfills existing records from their clicks.
+- **Layered reports restored** — a stray `//` comment inside the `campaign_report` SQL made SQLite reject the whole statement, so every grouped view (Sub1…Sub30, Country, Day, Campaign, Offer) returned an error instead of rendering.
+- **Case-insensitive status matching** — a network sending `Approved` or `PENDING` used to be counted as a conversion that belonged to no status group, which is how a campaign could show `Conversions: 1` with Sales, Leads, Rejected and Trash all at 0. The status vocabulary also covers `approve/accepted/paid`, `new/wait/processing`, `reject/decline/cancelled` and `spam/duplicate`.
+- **`subid` stays out of the Sub1 dimension** — the incoming `subid` is the tracker's Click ID; the sub dimensions are read from the click's own parameters, so Sub1 reports group by ad set instead of degenerating to one row per click.
+- **CSV conversion import is attributed too**, and a status's own `*_status` rule now wins over another type that happens to list the same value.
 
 ## 🖥 Live Demo
 
@@ -401,6 +401,64 @@ scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz .
 4. Choose what to import (campaigns, offers, domains, etc.)
 5. Click "Show preview" to verify
 6. Click "Import Into Orbitra" for the real import
+
+## 🔐 Google Ads 1-Click OAuth Setup
+
+Orbitra supports seamless 1-Click Google Ads connection (similar to Keitaro tracker UX). To enable this feature, configure the following environment variables on your server:
+
+### Server Configuration
+
+Add these environment variables to your server configuration (e.g., in `/etc/environment`, systemd service file, or `.env` file):
+
+```bash
+# Google OAuth2 Client ID (Web application)
+ORBITRA_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+
+# Google OAuth2 Client Secret
+ORBITRA_GOOGLE_CLIENT_SECRET=your-client-secret-here
+
+# Google Ads API Developer Token
+ORBITRA_GOOGLE_DEVELOPER_TOKEN=your-developer-token
+```
+
+### How to Obtain Google Ads API Credentials
+
+1. **Create Google Cloud Project:**
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Create a new project or select existing one
+   - Enable the **Google Ads API** in the API Library
+
+2. **Create OAuth 2.0 Credentials:**
+   - Navigate to **APIs & Services → Credentials**
+   - Click **Create Credentials → OAuth 2.0 Client ID**
+   - Application type: **Web application**
+   - Add this redirect URI (replace with your domain):
+     ```
+     https://your-domain.com/api.php?action=google_ads_oauth_callback
+     ```
+   - Copy the **Client ID** and **Client Secret**
+
+3. **Get Developer Token:**
+   - Go to [Google Ads API Center](https://ads.google.com/aw/apicenter)
+   - Apply for or copy your existing Developer Token
+   - Paste it into the configuration
+
+### User Experience
+
+Once configured, users can:
+1. Click **"Sign in with Google"** button in **Integrations → Google Ads Costs**
+2. Select their Google account from the account chooser (all logged-in Gmail profiles appear)
+3. Automatically discover all accessible Google Ads accounts (including MCC hierarchies)
+4. Select which accounts to connect and save
+
+### Fallback: Manual Token Connection
+
+If server-level OAuth credentials are not configured, the UI automatically shows the **"Direct Token Connection"** tab where users can manually enter:
+- Developer Token
+- OAuth2 Client ID
+- OAuth2 Client Secret
+- OAuth2 Refresh Token
+- Customer ID
 
 ## 🎨 Customization
 
