@@ -223,29 +223,64 @@ function orbitraCrmRecordLead(PDO $pdo, array $lead, bool $allowCreateClick = fa
 
     // The tracker-side conversion. QA leads stay out of analytics entirely.
     $madeConversion = false;
+    $conversionError = null;
     if (!$isQa) {
         try {
-            $stmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid IS NULL");
-            $stmt->execute([$clickId]);
-            $existing = $stmt->fetchColumn();
-            if ($existing) {
-                $pdo->prepare("UPDATE conversions SET status = ?, payout = ?, currency = ?, updated_at = datetime('now') WHERE id = ?")
-                    ->execute([$status, $payout, $currency, (int) $existing]);
-                $madeConversion = true;
+            // Verify the click exists before creating a conversion (prevents FK violations)
+            $clickCheck = $pdo->prepare("SELECT id, campaign_id FROM clicks WHERE id = ? LIMIT 1");
+            $clickCheck->execute([$clickId]);
+            $clickRow = $clickCheck->fetch(PDO::FETCH_ASSOC);
+
+            if (!$clickRow) {
+                $conversionError = 'Click not found in database';
+                // Log to conversion failures log for monitoring
+                if (function_exists('orbitraLogConversionFailure')) {
+                    orbitraLogConversionFailure($clickId, $conversionError, [
+                        'campaign_id' => $campaignId,
+                        'ip' => substr((string) ($lead['ip'] ?? ''), 0, 45)
+                    ]);
+                }
             } else {
-                $pdo->prepare("INSERT INTO conversions (click_id, status, payout, currency, campaign_id, ip, created_at, updated_at)
-                               VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))")
-                    ->execute([$clickId, $status, $payout, $currency, $campaignId, substr((string) ($lead['ip'] ?? ''), 0, 45)]);
-                $madeConversion = true;
+                // Use the click's campaign_id for proper attribution
+                if ((int) $clickRow['campaign_id'] > 0) {
+                    $campaignId = (int) $clickRow['campaign_id'];
+                }
+
+                $stmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid IS NULL");
+                $stmt->execute([$clickId]);
+                $existing = $stmt->fetchColumn();
+
+                if ($existing) {
+                    $pdo->prepare("UPDATE conversions SET status = ?, payout = ?, currency = ?, updated_at = datetime('now') WHERE id = ?")
+                        ->execute([$status, $payout, $currency, (int) $existing]);
+                    $madeConversion = true;
+                } else {
+                    $pdo->prepare("INSERT INTO conversions (click_id, status, payout, currency, campaign_id, ip, created_at, updated_at)
+                                   VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))")
+                        ->execute([$clickId, $status, $payout, $currency, $campaignId, substr((string) ($lead['ip'] ?? ''), 0, 45)]);
+                    $madeConversion = true;
+                }
             }
         } catch (\Throwable $e) {
+            // Log the error for debugging while keeping the vault row as evidence
+            $conversionError = $e->getMessage();
+
+            // Log to conversion failures log for monitoring
+            if (function_exists('orbitraLogConversionFailure')) {
+                orbitraLogConversionFailure($clickId, $conversionError, [
+                    'campaign_id' => $campaignId,
+                    'status' => $status,
+                    'payout' => $payout
+                ]);
+            }
+
             // The vault row is the evidence of record; a failed conversion
             // counter must not fail the lead. The thank-you pixel's postback
             // will retry the same upsert.
         }
     }
 
-    return ['ok' => true, 'message' => 'stored', 'lead_id' => $leadRowId, 'conversion' => $madeConversion, 'is_duplicate' => (bool) $isDuplicate];
+    return ['ok' => true, 'message' => 'stored', 'lead_id' => $leadRowId, 'conversion' => $madeConversion, 'is_duplicate' => (bool) $isDuplicate, 'conversion_error' => $conversionError];
 }
 
 /**

@@ -35,6 +35,7 @@ require_once __DIR__ . '/core/CloakDetector.php';
 require_once __DIR__ . '/core/geo_databases.php';
 require_once __DIR__ . '/core/LeadForge.php';
 require_once __DIR__ . '/core/CrmVault.php';
+require_once __DIR__ . '/core/CloudDetector.php';
 
 // CORS Headers
 $allowedOrigins = ['https://tracker.yourdomain.com', 'http://127.0.0.1:8000', 'http://localhost:8080', 'http://localhost:5173', 'http://localhost']; // Add real domains here
@@ -1968,6 +1969,8 @@ function checkUrlAvailability($url)
     }
 
     $ch = curl_init();
+    // Detect local development environment
+    $isLocal = in_array($_SERVER['HTTP_HOST'] ?? '', ['localhost', '127.0.0.1', 'localhost:8080', 'localhost:5173', 'localhost:8000'], true);
     curl_setopt_array($ch, [
         CURLOPT_URL => $url,
         CURLOPT_RETURNTRANSFER => true,
@@ -1976,8 +1979,8 @@ function checkUrlAvailability($url)
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_TIMEOUT => 10,
         CURLOPT_CONNECTTIMEOUT => 5,
-        CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_SSL_VERIFYHOST => false,
+        CURLOPT_SSL_VERIFYPEER => !$isLocal,
+        CURLOPT_SSL_VERIFYHOST => !$isLocal ? 2 : 0,
         CURLOPT_USERAGENT => 'Mozilla/5.0 (compatible; Orbitra/1.0; +https://orbitra.io)',
     ]);
 
@@ -6598,6 +6601,76 @@ try {
             ]]);
             break;
 
+        // Check Cloudflare proxy status for a domain
+        case 'check_cloudflare_status':
+            $domainId = $_GET['id'] ?? $_POST['id'] ?? null;
+            $domainName = $_GET['domain'] ?? $_POST['domain'] ?? null;
+
+            if (!$domainId && !$domainName) {
+                echo json_encode(['status' => 'error', 'message' => 'Missing domain ID or name']);
+                break;
+            }
+
+            // Get domain info if ID provided
+            $domain = null;
+            if ($domainId) {
+                $stmt = $pdo->prepare("SELECT id, name, cloudflare_proxy, ssl_status FROM domains WHERE id = ?");
+                $stmt->execute([$domainId]);
+                $domain = $stmt->fetch(PDO::FETCH_ASSOC);
+            } elseif ($domainName) {
+                $stmt = $pdo->prepare("SELECT id, name, cloudflare_proxy, ssl_status FROM domains WHERE name = ?");
+                $stmt->execute([$domainName]);
+                $domain = $stmt->fetch(PDO::FETCH_ASSOC);
+            }
+
+            if (!$domain && $domainName) {
+                // Domain not in database, check directly
+                $isProxied = CloudDetector::isCloudflareProxied($domainName);
+                echo json_encode([
+                    'status' => 'success',
+                    'data' => [
+                        'name' => $domainName,
+                        'cloudflare_proxy' => $isProxied ? 1 : 0,
+                        'detected' => $isProxied,
+                        'message' => $isProxied ? 'Cloudflare detected' : 'Not proxied through Cloudflare'
+                    ]
+                ]);
+                break;
+            }
+
+            if (!$domain) {
+                echo json_encode(['status' => 'error', 'message' => 'Domain not found']);
+                break;
+            }
+
+            // Check Cloudflare status
+            $isProxied = CloudDetector::isCloudflareProxied($domain['name']);
+            $currentlyFlagged = (int) ($domain['cloudflare_proxy'] ?? 0);
+
+            $result = [
+                'id' => $domain['id'],
+                'name' => $domain['name'],
+                'cloudflare_proxy' => $currentlyFlagged,
+                'detected' => $isProxied,
+                'ssl_status' => $domain['ssl_status'] ?? ''
+            ];
+
+            // If detected and not already flagged, offer to update
+            if ($isProxied && !$currentlyFlagged) {
+                $result['suggested_action'] = 'enable_cloudflare';
+                $result['message'] = 'Cloudflare detected but not flagged - SSL should use Cloudflare edge certificate';
+            } elseif ($isProxied && $currentlyFlagged) {
+                $result['message'] = 'Correctly flagged as Cloudflare proxied';
+            } elseif (!$isProxied && $currentlyFlagged) {
+                $result['suggested_action'] = 'review_cloudflare';
+                $result['message'] = 'Flagged as Cloudflare but DNS does not resolve to Cloudflare IPs';
+            } else {
+                $result['message'] = 'Not proxied through Cloudflare - local SSL certificate required';
+            }
+
+            echo json_encode(['status' => 'success', 'data' => $result]);
+            break;
+
         // Force DNS check for ALL domains (no limits)
         case 'force_check_all_dns':
             // Try multiple methods to get server IP
@@ -7950,6 +8023,168 @@ try {
             }
             break;
 
+        case 'reissue_ssl':
+            // Re-issue SSL certificate for a specific domain.
+            // This allows forcing a certificate renewal or retry for a single domain
+            // instead of running the full queue worker.
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            if (($_SESSION['role'] ?? '') !== 'admin') {
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+            try {
+                require_once __DIR__ . '/core/ssl_manager.php';
+
+                $input = json_decode((string) file_get_contents('php://input'), true);
+                $domainId = (int) ($input['id'] ?? 0);
+
+                if ($domainId <= 0) {
+                    echo json_encode(['status' => 'error', 'message' => 'Invalid domain ID']);
+                    break;
+                }
+
+                // Fetch the domain
+                $stmt = $pdo->prepare("SELECT id, name, cloudflare_proxy, ssl_status FROM domains WHERE id = ?");
+                $stmt->execute([$domainId]);
+                $domain = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if (!$domain) {
+                    echo json_encode(['status' => 'error', 'message' => 'Domain not found']);
+                    break;
+                }
+
+                $domainName = (string) $domain['name'];
+                $cfProxy = (int) ($domain['cloudflare_proxy'] ?? 0);
+
+                // Skip Cloudflare-proxied domains - they use CF edge certificates
+                if ($cfProxy === 1 || $domain['ssl_status'] === 'cloudflare') {
+                    echo json_encode(['status' => 'error', 'message' => 'Cannot issue certificate for Cloudflare-proxied domains']);
+                    break;
+                }
+
+                // PRE-FLIGHT CHECKS (before any state changes)
+
+                // Check environment: certbot, sudo, etc.
+                $env = orbitraSslEnvironment();
+                if (!$env['can_issue']) {
+                    // Provide specific, actionable error messages
+                    $message = 'Cannot issue certificates on this server';
+                    $detail = '';
+
+                    if (in_array('php_no_shell', $env['problems'])) {
+                        $detail = 'PHP cannot run external commands on this server. shell_exec is disabled or in disable_functions.';
+                    } elseif (in_array('no_certbot', $env['problems'])) {
+                        $detail = 'Certbot is not installed. Install it with: apt install certbot (Debian/Ubuntu) or yum install certbot (RHEL/CentOS)';
+                    } elseif (in_array('no_sudo_certbot', $env['problems'])) {
+                        $detail = 'The web server user cannot run sudo certbot without a password. Configure passwordless sudo for certbot or add the web user to sudoers.';
+                    } elseif (in_array('no_nginx_config', $env['problems'])) {
+                        $detail = 'nginx config not found. This server does not appear to run nginx.';
+                    } elseif (in_array('acme_not_writable', $env['problems'])) {
+                        $detail = 'The Let\'s Encrypt challenge directory is not writable. Domain validation will fail.';
+                    }
+
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => $message,
+                        'detail' => $detail,
+                        'data' => ['problems' => $env['problems'], 'environment' => $env]
+                    ]);
+                    break;
+                }
+
+                // DNS pre-flight check: verify domain points here before any state changes
+                $dns = orbitraDomainPointsHere($domainName);
+                if (!$dns['ok']) {
+                    $seen = !empty($dns['ips']) ? implode(', ', $dns['ips']) : 'no A record';
+                    $expected = $dns['server_ip'] ?: 'this server';
+                    $detail = "Expected: $expected, Seen: $seen";
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'Domain does not point to this server',
+                        'detail' => 'Certificate cannot be issued until DNS propagates. Point your domain A record to this server IP and retry.',
+                        'data' => ['dns' => $dns]
+                    ]);
+                    break;
+                }
+
+                // PRE-FLIGHT CHECKS PASSED - Now we can make state changes
+
+                // Reset SSL status to trigger re-issuance
+                $pdo->prepare("UPDATE domains SET ssl_status = 'pending', ssl_error = NULL, ssl_attempts = 0, ssl_last_attempt = NULL WHERE id = ?")
+                    ->execute([$domainId]);
+
+                // Set status to installing and attempt issuance
+                $pdo->prepare("UPDATE domains SET ssl_status = 'installing' WHERE id = ?")->execute([$domainId]);
+
+                $certFile = ORBITRA_LETSENCRYPT_DIR . "/live/$domainName/fullchain.pem";
+
+                // Delete existing certificate if it exists to force re-issuance
+                if (is_dir(ORBITRA_LETSENCRYPT_DIR . "/live/$domainName")) {
+                    orbitraShell('rm -rf ' . escapeshellarg(ORBITRA_LETSENCRYPT_DIR . "/live/$domainName") . ' 2>&1');
+                }
+                if (is_dir(ORBITRA_LETSENCRYPT_DIR . "/archive/$domainName")) {
+                    orbitraShell('rm -rf ' . escapeshellarg(ORBITRA_LETSENCRYPT_DIR . "/archive/$domainName") . ' 2>&1');
+                }
+                // Also remove any renewal config
+                orbitraShell('rm -f ' . escapeshellarg(ORBITRA_LETSENCRYPT_DIR . "/renewal/$domainName.conf") . ' 2>&1');
+
+                $output = (string) orbitraShell(orbitraCertbotCertonlyCommand($domainName) . ' 2>&1');
+
+                if (orbitraCertbotSucceeded($output, $domainName)) {
+                    // Verify certificate chain
+                    $chain = orbitraCertificateChainComplete($certFile);
+                    if (!$chain['ok']) {
+                        $error = json_encode([
+                            'code' => 'incomplete_chain',
+                            'count' => $chain['count'],
+                            'path' => $certFile,
+                        ], JSON_UNESCAPED_UNICODE);
+                        $pdo->prepare("UPDATE domains SET ssl_status = 'failed', ssl_error = ?, ssl_attempts = ssl_attempts + 1, ssl_last_attempt = datetime('now') WHERE id = ?")
+                            ->execute([$error, $domainId]);
+                        echo json_encode([
+                            'status' => 'error',
+                            'message' => 'Certificate issued but chain is incomplete',
+                            'data' => ['chain' => $chain]
+                        ]);
+                        break;
+                    }
+
+                    $pdo->prepare("UPDATE domains SET ssl_status = 'installed', ssl_error = NULL, ssl_attempts = 0, ssl_last_attempt = datetime('now') WHERE id = ?")
+                        ->execute([$domainId]);
+
+                    // Sync nginx config
+                    try {
+                        orbitraSyncNginx($pdo);
+                    } catch (\Throwable $e) {
+                        // Non-fatal: the certificate exists
+                    }
+
+                    echo json_encode([
+                        'status' => 'success',
+                        'message' => 'SSL certificate issued successfully',
+                        'data' => ['domain' => $domainName, 'ssl_status' => 'installed']
+                    ]);
+                } else {
+                    $error = trim($output) !== ''
+                        ? substr(trim($output), -500)
+                        : json_encode(['code' => 'certbot_no_output'], JSON_UNESCAPED_UNICODE);
+                    $pdo->prepare("UPDATE domains SET ssl_status = 'failed', ssl_error = ?, ssl_attempts = ssl_attempts + 1, ssl_last_attempt = datetime('now') WHERE id = ?")
+                        ->execute([$error, $domainId]);
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'Failed to issue SSL certificate',
+                        'data' => ['error' => $error]
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                error_log('reissue_ssl failed: ' . $e->getMessage());
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
         // === Cloudflare integration ===
         // One account (API token in settings), Keitaro-style: domains parked in
         // the tracker get their A record managed in Cloudflare automatically, and
@@ -8680,7 +8915,15 @@ try {
                         // tell them apart so the dialog can show the API error.
                         $probe = NamecheapClient::verifyConnection($cfgNc);
                         if (!$probe['ok']) {
-                            echo json_encode(['status' => 'error', 'message' => $probe['message']]);
+                            // Return the IP hint so the import modal can show the whitelist instructions
+                            if ($probe['ip_hint'] !== '') {
+                                orbitraNamecheapRememberIp($pdo, $probe['ip_hint']);
+                            }
+                            echo json_encode([
+                                'status' => 'error',
+                                'message' => $probe['message'],
+                                'detail' => ['ip' => $probe['ip_hint']]
+                            ]);
                             break;
                         }
                     }
@@ -9423,6 +9666,38 @@ try {
                     'page' => $page,
                     'per_page' => $perPage,
                     'total_pages' => ceil($total / $perPage)
+                ]
+            ]);
+            break;
+
+        // === Conversion Monitoring ===
+        case 'conversion_monitoring':
+            require_once __DIR__ . '/core/ConversionMonitor.php';
+
+            $hours = (int) ($_GET['hours'] ?? 24);
+            $threshold = (int) ($_GET['alert_threshold'] ?? 10);
+
+            // Get failure statistics
+            $stats = orbitraGetConversionFailureStats($pdo, $hours);
+
+            // Check if alert threshold is exceeded
+            $metrics = orbitraCheckConversionAlertThreshold($pdo, $threshold, 60);
+
+            // Send alert if threshold exceeded and this is an active check
+            $alertTriggered = false;
+            if (!empty($_GET['check_alert']) && $metrics['alert']) {
+                $alertTriggered = orbitraSendConversionAlert($metrics);
+            }
+
+            echo json_encode([
+                'status' => 'success',
+                'data' => [
+                    'stats' => $stats,
+                    'alert_metrics' => $metrics,
+                    'alert_threshold' => $threshold,
+                    'alert_triggered' => $alertTriggered,
+                    'log_file_exists' => file_exists(__DIR__ . '/../var/logs/conversion_failures.log'),
+                    'alert_log_exists' => file_exists(__DIR__ . '/../var/logs/conversion_alerts.log')
                 ]
             ]);
             break;
@@ -10510,12 +10785,15 @@ try {
 
             // Try to fetch latest version from remote server
             if (function_exists('curl_init')) {
+                // Detect local development environment
+                $isLocal = in_array($_SERVER['HTTP_HOST'] ?? '', ['localhost', '127.0.0.1', 'localhost:8080', 'localhost:5173', 'localhost:8000'], true);
                 $ch = curl_init($versionCheckUrl);
                 curl_setopt_array($ch, [
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_TIMEOUT => 10,
                     CURLOPT_FOLLOWLOCATION => true,
-                    CURLOPT_SSL_VERIFYPEER => false,
+                    CURLOPT_SSL_VERIFYPEER => !$isLocal,
+                    CURLOPT_SSL_VERIFYHOST => !$isLocal ? 2 : 0,
                     CURLOPT_USERAGENT => 'Orbitra-Tracker/' . $currentVersion
                 ]);
                 $response = curl_exec($ch);
@@ -11066,12 +11344,15 @@ try {
 
             // Helper function to download file using cURL
             $downloadFile = function ($url) {
+                // Detect local development environment
+                $isLocal = in_array($_SERVER['HTTP_HOST'] ?? '', ['localhost', '127.0.0.1', 'localhost:8080', 'localhost:5173', 'localhost:8000'], true);
                 $ch = curl_init($url);
                 curl_setopt_array($ch, [
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_FOLLOWLOCATION => true,
                     CURLOPT_TIMEOUT => 120,
-                    CURLOPT_SSL_VERIFYPEER => false,
+                    CURLOPT_SSL_VERIFYPEER => !$isLocal,
+                    CURLOPT_SSL_VERIFYHOST => !$isLocal ? 2 : 0,
                     CURLOPT_USERAGENT => 'Orbitra/1.0'
                 ]);
                 $data = curl_exec($ch);
@@ -14671,7 +14952,7 @@ try {
                 'response_type' => 'code',
                 'scope' => 'https://www.googleapis.com/auth/adwords',
                 'access_type' => 'offline',
-                'prompt' => 'consent',
+                'prompt' => 'consent select_account',
                 'state' => $state,
             ], '', '&', PHP_QUERY_RFC3986);
             header('Cache-Control: no-store');

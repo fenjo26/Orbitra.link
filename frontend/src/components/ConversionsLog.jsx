@@ -5,6 +5,7 @@ import InfoBanner from './InfoBanner';
 import { useLanguage } from '../contexts/LanguageContext';
 import ClickDetailsModal from './ClickDetailsModal';
 import { resolveConversionColor } from '../utils/conversionColors';
+import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 
 const API_URL = '/api.php';
 
@@ -20,8 +21,13 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
     // Filters
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
-    const [dateFrom, setDateFrom] = useState('');
-    const [dateTo, setDateTo] = useState('');
+
+    // Date Range & Timezone State - initialize with "today" preset for consistency
+    const todayPreset = getPresetDates('today');
+    const [dateFrom, setDateFrom] = useState(todayPreset?.from || formatDate(new Date()));
+    const [dateTo, setDateTo] = useState(todayPreset?.to || formatDate(new Date()));
+    const [timezone, setTimezone] = useState(() => localStorage.getItem('orbitra_tz') || 'UTC');
+
     const [internalCampaignId, setInternalCampaignId] = useState('');
 
     // Use prop campaignId if provided, otherwise use internal state
@@ -181,24 +187,17 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
                             <option value="trash">{t('conversions.trash')}</option>
                         </select>
                     </div>
-                    <div>
-                        <label className="form-label">{t('conversions.dateFrom')}</label>
-                        <input
-                            type="date"
-                            value={dateFrom}
-                            onChange={(e) => setDateFrom(e.target.value)}
-                            className="form-input"
-                        />
-                    </div>
-                    <div>
-                        <label className="form-label">{t('conversions.dateTo')}</label>
-                        <input
-                            type="date"
-                            value={dateTo}
-                            onChange={(e) => setDateTo(e.target.value)}
-                            className="form-input"
-                        />
-                    </div>
+                    {/* Shared DateRangePicker with i18n, theme tokens, and presets */}
+                    <DateRangePicker
+                        dateFrom={dateFrom}
+                        dateTo={dateTo}
+                        onChange={(from, to) => {
+                            setDateFrom(from);
+                            setDateTo(to);
+                        }}
+                        selectedTimezone={timezone}
+                        onTimezoneChange={setTimezone}
+                    />
                     <div style={{ display: 'flex', gap: '8px' }}>
                         <button
                             onClick={() => fetchConversions(pagination.page)}
