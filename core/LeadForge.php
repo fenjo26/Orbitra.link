@@ -154,6 +154,22 @@ class LeadForge
         ];
     }
 
+    /**
+     * html lang attribute codes that are LANGUAGE codes, not the ISO country
+     * code the mask table is keyed by. Without the mapping a Hindi landing
+     * (lang="hi") votes for "HI", which matches nothing, and detection
+     * silently fails — leaving the GEO selector on whatever was selected
+     * before. Only unambiguous languages whose country has a mask are listed.
+     */
+    private const LANG_GEO = [
+        'HI' => 'IN', 'TA' => 'IN', 'TE' => 'IN', 'ML' => 'IN', 'KN' => 'IN', 'MR' => 'IN', 'GU' => 'IN', 'PA' => 'IN', 'AS' => 'IN', 'OR' => 'IN',
+        'BN' => 'BD', 'UR' => 'PK',
+        'UK' => 'UA', 'EL' => 'GR', 'CS' => 'CZ', 'HE' => 'IL', 'JA' => 'JP', 'KO' => 'KR',
+        'ZH' => 'CN', 'VI' => 'VN', 'MS' => 'MY', 'TL' => 'PH', 'SW' => 'KE',
+        'SV' => 'SE', 'DA' => 'DK', 'NO' => 'NO', 'NB' => 'NO', 'NN' => 'NO',
+        'ET' => 'EE', 'SL' => 'SI', 'SR' => 'RS', 'KK' => 'KZ',
+    ];
+
     // ==================================================================
     // Analyze
     // ==================================================================
@@ -292,10 +308,18 @@ class LeadForge
                 }
             }
 
-            // GEO: the html lang attribute gets one vote per file.
+            // GEO: the html lang attribute gets one vote per file. Language
+            // codes that differ from the country code (hi, el, uk...) are
+            // mapped first; Devanagari script content votes IN so lang-less
+            // Hindi pages still detect. Invalid UTF-8 makes the /u pattern
+            // fail cleanly — no vote, never a false one.
             if (in_array($ext, ['html', 'htm', 'php'], true) && preg_match('/<html[^>]+lang=["\']([a-zA-Z]{2})/i', $content, $m)) {
                 $geoKey = strtoupper($m[1]);
+                $geoKey = self::LANG_GEO[$geoKey] ?? $geoKey;
                 $geoVotes[$geoKey] = ($geoVotes[$geoKey] ?? 0) + 1;
+            }
+            if (in_array($ext, ['html', 'htm', 'php'], true) && preg_match('/[\x{0900}-\x{097F}]/u', $content)) {
+                $geoVotes['IN'] = ($geoVotes['IN'] ?? 0) + 1;
             }
 
             if (in_array($ext, ['html', 'htm', 'php'], true)) {
@@ -649,8 +673,11 @@ class LeadForge
 
         // --- Auto QA ------------------------------------------------------
         $qa = ['performed' => false];
-        if (!empty($opts['auto_qa']) && $generateOrder && $landingId) {
-            $qa = self::runQa($pdo, $landingId, $slug, [
+        $qaTargetId = (int) ($landingId ?: $offerId);
+        if (!empty($opts['auto_qa']) && $generateOrder && $qaTargetId > 0) {
+            $qa = self::runQa($pdo, (int) ($landingId ?? 0), $slug, [
+                'type' => $landingId ? 'landing' : 'offer',
+                'offer_id' => (int) $offerId,
                 'geo' => $geo,
                 'crm_enabled' => $crmEnabled,
                 'base_url' => (string) ($opts['base_url'] ?? ''),
@@ -664,9 +691,7 @@ class LeadForge
                 ? "[QA PASS] confidence {$qa['confidence']}% (" . implode(', ', array_keys(array_filter(array_map(fn($c) => $c['passed'], $qa['checks'])))) . ')'
                 : "[QA FAIL: " . ($qa['fail_reason'] ?? 'checks failed') . "] confidence {$qa['confidence']}%");
         } elseif (!empty($opts['auto_qa'])) {
-            $log($targetType === 'offer'
-                ? 'Auto QA skipped: direct local offers have no landing record to QA'
-                : 'Auto QA skipped: needs order.php and auto-save to tracker');
+            $log('Auto QA skipped: needs order.php and a save target (lander or local offer)');
         }
 
         self::rrmdir($tempDir);
@@ -695,8 +720,14 @@ class LeadForge
 
     /**
      * Live Auto QA: POST a QA lead through the real /order.php route (the
-     * in-process bridge index.php exposes for orbitra_lp cookies), verify the
-     * CRM vault row / conversion and the thank-you redirect, and score it.
+     * in-process bridge index.php exposes for orbitra_lp/orbitra_lo cookies),
+     * verify the CRM vault row / conversion and the thank-you redirect, and
+     * score it.
+     *
+     * Works for saved landings (orbitra_lp cookie) and direct local offers
+     * (orbitra_lo cookie — the bridge resolves offers/<id> the same way). The
+     * rerun endpoint only ever passes landings; the build engine passes
+     * type=offer for Direct Local Offer bundles.
      *
      * Confidence: 25 points per passed check — HTML/form structure, order.php
      * bridge response, dual logging (vault or pixel), thank-you redirect.
@@ -704,13 +735,18 @@ class LeadForge
     public static function runQa(PDO $pdo, int $landingId, string $slug, array $opts): array
     {
         require_once __DIR__ . '/PhpLanding.php';
+        $isOffer = (($opts['type'] ?? 'landing') === 'offer') && (int) ($opts['offer_id'] ?? 0) > 0;
+        $entityId = $isOffer ? (int) $opts['offer_id'] : $landingId;
+        $entityLabel = $isOffer ? "local offer #{$entityId}" : "landing #{$landingId}";
         $qa = [
             'performed' => true,
             'job_id' => 'job_lf_' . bin2hex(random_bytes(4)),
             'confidence' => 0,
             'passed' => false,
             'fail_reason' => '',
-            'hosted_preview_url' => $slug !== '' ? '/lander/' . $slug . '/' : null,
+            'hosted_preview_url' => $isOffer
+                ? ($entityId > 0 ? '/offers/' . $entityId . '/' : null)
+                : ($slug !== '' ? '/lander/' . $slug . '/' : null),
             'checks' => [
                 'form_elements' => ['passed' => false, 'details' => ''],
                 'network_bridge' => ['passed' => false, 'details' => ''],
@@ -747,7 +783,11 @@ class LeadForge
         $geo = strtoupper((string) ($opts['geo'] ?? 'IT'));
         $mask = self::geoMasks()[$geo] ?? ['code' => '+1', 'pattern' => '', 'min' => 9, 'max' => 15];
         $dial = ltrim($mask['code'], '+');
-        $qaPhone = '+' . $dial . '3330001122';   // IT → +393330001122
+        // National part sized to the mask so the strict national-length lock
+        // in order.php accepts the QA lead in every GEO (SI wants 8 digits,
+        // CN wants 11) — the old fixed 10-digit tail failed both edges.
+        $qaLen = max((int) $mask['min'], min((int) $mask['max'], 10));
+        $qaPhone = '+' . $dial . substr(str_pad('3330001122', $qaLen, '2'), 0, $qaLen);
         $qaClick = 'qa_test_' . time() . '_' . bin2hex(random_bytes(3));
 
         $campaignId = 0;
@@ -772,7 +812,9 @@ class LeadForge
         }
 
         // The loopback request: same host the panel runs on, cookie steering
-        // the /order.php bridge to the landing we just saved.
+        // the /order.php bridge to the page we just saved — orbitra_lp for a
+        // landing, orbitra_lo for a direct local offer (index.php's bridge
+        // resolves the offer's own directory from it).
         $host = (string) ($_SERVER['HTTP_HOST'] ?? '');
         $base = (string) ($opts['base_url'] ?? '');
         if ($base !== '' && strpos($base, '://') !== false) {
@@ -783,7 +825,7 @@ class LeadForge
         } else {
             $qaUrl = 'http://127.0.0.1/order.php';
         }
-        $say("QA: posting test lead to {$qaUrl} (subid {$qaClick})");
+        $say("QA: posting test lead to {$qaUrl} for {$entityLabel} (subid {$qaClick})");
 
         $post = http_build_query([
             'name' => 'QA-Test-Lead',
@@ -805,7 +847,7 @@ class LeadForge
                 CURLOPT_HEADER => true,
                 CURLOPT_FOLLOWLOCATION => false,
                 CURLOPT_TIMEOUT => 15,
-                CURLOPT_COOKIE => 'orbitra_lp=' . $landingId,
+                CURLOPT_COOKIE => $isOffer ? 'orbitra_lo=' . $entityId : 'orbitra_lp=' . $landingId,
                 CURLOPT_SSL_VERIFYPEER => false, // loopback self-signed installs
                 CURLOPT_SSL_VERIFYHOST => 0,
             ]);
@@ -991,7 +1033,24 @@ class LeadForge
         var phoneInputs = document.querySelectorAll(
             'input[type="tel"], input[name*="phone"], input[name*="tel"], input[name="phone_number"]'
         );
+        var nameFields = 'input[name="name"], input[name="fio"], input[name="client"]';
         var digitsOf = function(s) { return (s || '').replace(/\D+/g, ''); };
+        var codeDigits = PHONE_CODE.replace(/\D+/g, '');
+        // Count digits the way order.php does: a leading 00 or country code is
+        // not part of the national number the min/max bounds describe.
+        var nationalDigits = function(s) {
+            var d = digitsOf(s);
+            if (d.indexOf('00') === 0 && d.length > 2) d = d.slice(2);
+            if (codeDigits && d.indexOf(codeDigits) === 0 && d.length > codeDigits.length) d = d.slice(codeDigits.length);
+            return d;
+        };
+        // A name needs at least one letter of some alphabet — digits-only and
+        // symbol-only input is trash the CPA network will reject anyway.
+        var LF_NAME_LETTER = /[A-Za-z\u00C0-\u024F\u0370-\u03FF\u0400-\u04FF\u0530-\u058F\u0600-\u06FF\u0900-\u097F\u4E00-\u9FFF\u3040-\u30FF\uAC00-\uD7AF]/;
+        var isValidName = function(v) {
+            var s = (v || '').trim();
+            return s.length >= 2 && LF_NAME_LETTER.test(s);
+        };
 
         Array.prototype.forEach.call(phoneInputs, function(input) {
             input.setAttribute('autocomplete', 'tel');
@@ -999,9 +1058,16 @@ class LeadForge
             input.addEventListener('input', function() {
                 // Allow the mask's punctuation only; letters are dropped.
                 this.value = this.value.replace(/[^0-9+()\- ]/g, '');
+                // Phone lock: past the mask's national maximum further digits
+                // are dropped (country code included when one was typed).
+                var cap = (codeDigits && digitsOf(this.value).indexOf(codeDigits) === 0)
+                    ? codeDigits.length + PHONE_MAX : PHONE_MAX;
+                while (digitsOf(this.value).length > cap && this.value.length > 0) {
+                    this.value = this.value.slice(0, -1);
+                }
             });
             input.addEventListener('blur', function() {
-                var d = digitsOf(this.value).length;
+                var d = nationalDigits(this.value).length;
                 var bad = d !== 0 && (d < PHONE_MIN || d > PHONE_MAX);
                 this.classList.toggle('orbitra-phone-invalid', bad);
             });
@@ -1009,25 +1075,44 @@ class LeadForge
             if (form && !form.getAttribute('data-orbitra-mask')) {
                 form.setAttribute('data-orbitra-mask', '1');
                 form.addEventListener('submit', function(e) {
-                    var bad = Array.prototype.some.call(
+                    var badPhone = Array.prototype.some.call(
                         this.querySelectorAll('input[type="tel"], input[name*="phone"], input[name*="tel"], input[name="phone_number"]'),
                         function(el) {
-                            var d = digitsOf(el.value).length;
-                            if (d === 0 || d < PHONE_MIN || d > PHONE_MAX) {
+                            var d = nationalDigits(el.value).length;
+                            if (d < PHONE_MIN || d > PHONE_MAX) {
                                 el.classList.add('orbitra-phone-invalid');
                                 return true;
                             }
                             return false;
                         }
                     );
-                    if (bad) {
+                    // Names: empty stays allowed (order.php defaults it), but
+                    // digits-only or too-short input blocks the submit.
+                    var badName = Array.prototype.some.call(
+                        this.querySelectorAll(nameFields),
+                        function(el) {
+                            var v = (el.value || '').trim();
+                            if (v === '') return false;
+                            var bad = !isValidName(v);
+                            el.classList.toggle('orbitra-name-invalid', bad);
+                            return bad;
+                        }
+                    );
+                    if (badPhone || badName) {
                         e.preventDefault();
-                        if (!document.getElementById('orbitra-phone-err')) {
+                        if (badPhone && !document.getElementById('orbitra-phone-err')) {
                             var div = document.createElement('div');
                             div.id = 'orbitra-phone-err';
                             div.style.cssText = 'color:#e11d48;font-size:12px;margin-top:6px';
                             div.textContent = 'Please enter a valid phone number for your country (' + PHONE_PATTERN + ')';
                             (this.parentNode || document.body).appendChild(div);
+                        }
+                        if (badName && !document.getElementById('orbitra-name-err')) {
+                            var ndiv = document.createElement('div');
+                            ndiv.id = 'orbitra-name-err';
+                            ndiv.style.cssText = 'color:#e11d48;font-size:12px;margin-top:6px';
+                            ndiv.textContent = 'Please enter your real name (letters, at least 2 characters)';
+                            (this.parentNode || document.body).appendChild(ndiv);
                         }
                     }
                 });
@@ -1035,7 +1120,7 @@ class LeadForge
         });
 
         var style = document.createElement('style');
-        style.textContent = '.orbitra-phone-invalid{border-color:#e11d48 !important;box-shadow:0 0 0 1px #e11d48}';
+        style.textContent = '.orbitra-phone-invalid,.orbitra-name-invalid{border-color:#e11d48 !important;box-shadow:0 0 0 1px #e11d48}';
         document.head.appendChild(style);
     });
 })();
@@ -1109,6 +1194,13 @@ if ($rawPhone === '') {
     die('Error: Phone number is required.');
 }
 
+// Name backstop: an empty name stays allowed (order.php defaults it), but a
+// filled name with no letters at all — digits ("22"), symbols — is trash the
+// CPA network will reject, so it dies here instead of being sent.
+if ($name !== '' && !preg_match('/\\p{L}/u', $name)) {
+    die('Error: Please enter a valid customer name (digits only is not a name).');
+}
+
 $isQa = (($_POST['orbitra_qa'] ?? '') === '1') || (strpos($subid, 'qa_test_') === 0);
 
 // E.164 normalization — the raw input is preserved untouched alongside it.
@@ -1124,6 +1216,21 @@ if ($lfDigits !== '' && strlen($lfDigits) >= 4) {
     } else {
         $cleanPhone = '+' . ($LF['dial_code'] !== '' ? $LF['dial_code'] . $lfDigits : $lfDigits);
     }
+}
+
+// National length lock — the same rule the client-side mask enforces. The
+// count starts after a leading 00 / country code, exactly like the E.164
+// block above, so "+91 98765 43210" and "9876543210" both measure 10.
+$lfNational = $lfDigits;
+if (strncmp($lfNational, '00', 2) === 0) {
+    $lfNational = substr($lfNational, 2);
+}
+if ($LF['dial_code'] !== '' && strncmp($lfNational, $LF['dial_code'], strlen($LF['dial_code'])) === 0 && strlen($lfNational) > strlen($LF['dial_code'])) {
+    $lfNational = substr($lfNational, strlen($LF['dial_code']));
+}
+if (strlen($lfNational) < @@PHONE_MIN@@ || strlen($lfNational) > @@PHONE_MAX@@) {
+    $lfLenMsg = (@@PHONE_MIN@@ === @@PHONE_MAX@@) ? 'exactly ' . @@PHONE_MIN@@ : @@PHONE_MIN@@ . '-' . @@PHONE_MAX@@;
+    die('Error: Phone number must have ' . $lfLenMsg . ' digits for this country.');
 }
 
 // Sub/attribution params carried by the adapter's hidden fields.
@@ -1374,6 +1481,8 @@ PHP;
             '@@BASE_URL@@'     => var_export(rtrim((string) ($o['base_url'] ?? ''), '/'), true),
             '@@LANDING_NAME@@' => var_export((string) ($o['landing_name'] ?? 'Landing'), true),
             '@@DIAL_CODE@@'    => var_export($dial, true),
+            '@@PHONE_MIN@@'    => (int) $mask['min'],
+            '@@PHONE_MAX@@'    => (int) $mask['max'],
         ];
         return strtr($tpl, $replacements);
     }

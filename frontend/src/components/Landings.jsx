@@ -8,6 +8,7 @@ import PaginationToolbar from './common/PaginationToolbar';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
+import { entityDeleteErrorText } from '../utils/entityInUseError';
 
 const API_URL = '/api.php';
 
@@ -142,7 +143,7 @@ const Landings = ({ landings, refreshData }) => {
             try {
                 const res = await axios.post(`${API_URL}?action=delete_landing`, { id });
                 if (res?.data?.status !== 'success') {
-                    alert(res?.data?.message || t('common.error'));
+                    alert(entityDeleteErrorText(t, res?.data));
                     return;
                 }
                 await Promise.all([
@@ -150,7 +151,7 @@ const Landings = ({ landings, refreshData }) => {
                     Promise.resolve(refreshData?.()),
                 ]);
             } catch (err) {
-                alert(err?.response?.data?.message || err?.message || t('common.error'));
+                alert(entityDeleteErrorText(t, null, err));
             }
         }
     };
@@ -250,14 +251,20 @@ const Landings = ({ landings, refreshData }) => {
         const msg = (t('common.deleteSelectedConfirm') || t('common.deleteConfirm')).replace('{count}', String(ids.length));
         if (!window.confirm(msg)) return;
         try {
-            await axios.post(`${API_URL}?action=bulk_delete_landings`, { ids });
+            const res = await axios.post(`${API_URL}?action=bulk_delete_landings`, { ids });
+            // Same 200-with-error refusal as the single delete: a blocked
+            // batch must not look like it went through.
+            if (res?.data?.status !== 'success') {
+                alert(entityDeleteErrorText(t, res?.data));
+                return;
+            }
             setSelectedLandingIds(new Set());
             await Promise.all([
                 fetchLandings(),
                 Promise.resolve(refreshData?.()),
             ]);
-        } catch {
-            alert(t('common.error'));
+        } catch (err) {
+            alert(entityDeleteErrorText(t, null, err));
         }
     };
 
@@ -628,7 +635,7 @@ const Landings = ({ landings, refreshData }) => {
                         style={{
                             backgroundColor: 'var(--color-primary)',
                             borderColor: 'var(--color-primary)',
-                            color: '#ffffff',
+                            color: 'var(--color-text-inverse)',
                         }}
                         title={t('common.refresh', 'Refresh')}
                     >
@@ -686,14 +693,14 @@ const Landings = ({ landings, refreshData }) => {
                             className="px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5"
                             style={{
                                 backgroundColor: active ? 'var(--color-primary)' : 'var(--color-bg-card)',
-                                color: active ? '#ffffff' : 'var(--color-text-secondary)',
+                                color: active ? 'var(--color-text-inverse)' : 'var(--color-text-secondary)',
                                 border: `1px solid ${active ? 'var(--color-primary)' : 'var(--color-border)'}`,
                                 cursor: 'pointer'
                             }}
                         >
                             {tab.icon && <span>{tab.icon}</span>}
                             <span>{tab.label}</span>
-                            <span className="text-[10px] px-1.5 rounded-full" style={{ backgroundColor: active ? 'rgba(255,255,255,0.25)' : 'var(--color-bg-soft)' }}>
+                            <span className="text-[10px] px-1.5 rounded-full" style={{ backgroundColor: active ? 'color-mix(in srgb, var(--color-text-inverse) 15%, transparent)' : 'var(--color-bg-soft)', color: 'inherit' }}>
                                 {tab.count}
                             </span>
                         </button>

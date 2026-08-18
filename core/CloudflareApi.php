@@ -189,4 +189,38 @@ class CloudflareApi
         }
         return ['ok' => true, 'count' => count((array) $resp['result']), 'message' => ''];
     }
+
+    /**
+     * Все зоны аккаунта с именами — источник для «Import & Auto-DNS»: зоны
+     * отмечаются в диалоге и паркуются в трекер с A-записью. Пагинация —
+     * страницами по 50, пока CF не вернёт короткую (последнюю) страницу;
+     * страховочный потолок 10 страниц = 500 зон.
+     * @return array{ok:bool,zones:array<int,array{id:string,name:string,status:string}>,count:int,message:string}
+     */
+    public static function listZonesDetailed(string $token): array
+    {
+        $zones = [];
+        $page = 1;
+        while ($page <= 10) {
+            $resp = self::request($token, 'GET', '/zones?per_page=50&page=' . $page);
+            if (!$resp['ok']) {
+                return ['ok' => false, 'zones' => [], 'count' => 0, 'message' => $resp['errors']];
+            }
+            $batch = is_array($resp['result']) ? $resp['result'] : [];
+            foreach ($batch as $z) {
+                if (!empty($z['name'])) {
+                    $zones[] = [
+                        'id' => (string) ($z['id'] ?? ''),
+                        'name' => strtolower((string) $z['name']),
+                        'status' => (string) ($z['status'] ?? ''),
+                    ];
+                }
+            }
+            if (count($batch) < 50) {
+                break;
+            }
+            $page++;
+        }
+        return ['ok' => true, 'zones' => $zones, 'count' => count($zones), 'message' => ''];
+    }
 }

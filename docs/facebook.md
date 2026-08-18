@@ -99,10 +99,10 @@ otherwise hide a dead token.
 - Spend is fetched at **ad level** with `time_increment=1`, so every row is one
   ad on one day.
 
-Cron:
+Cron — sub-hour sync intervals (20/30 min) need the cron itself to run every few minutes; due-checking is per connection, so frequent runs are cheap:
 
 ```cron
-0 */2 * * * php /var/www/orbitra/aggregator_cron.php >> /var/log/orbitra_aggregator.log 2>&1
+*/5 * * * * php /var/www/orbitra/aggregator_cron.php >> /var/log/orbitra_aggregator.log 2>&1
 ```
 
 Useful flags: `--force` (ignore the interval), `--connection=5`, `--days=30`.

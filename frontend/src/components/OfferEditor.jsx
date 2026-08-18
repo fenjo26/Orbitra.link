@@ -12,6 +12,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { cachedGet } from '../utils/apiCache';
 import { getStayInEditorAfterSave } from '../utils/editorPreferences';
 import { copyToClipboard as copyUtil } from '../utils/clipboard';
+import { translateLandingError, describeSanitized } from '../utils/landingErrors';
 
 const API_URL = '/api.php';
 
@@ -210,8 +211,12 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             if (res.data.status !== 'success') {
-                alert(`${t('offerEditor.zipError', 'ZIP upload error')}: ${res.data.message || ''} ${res.data.detail ? JSON.stringify(res.data.detail) : ''}`.trim());
+                // Same code-to-locale mapping the landing editor uses — the API
+                // answers with codes, and this panel speaks seven languages.
+                alert(translateLandingError(t, res.data.message, res.data.detail) || t('offerEditor.zipError', 'ZIP upload error'));
             } else {
+                const note = describeSanitized(t, res.data.sanitized);
+                if (note) alert(note);
                 fetchOfferFiles(id);
             }
         } catch (err) {

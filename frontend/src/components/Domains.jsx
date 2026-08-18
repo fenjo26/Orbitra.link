@@ -71,6 +71,7 @@ const Domains = ({ campaigns }) => {
         cloudflare_proxy: false,
         registrar: '',
         dns_provider: '',
+        dns_account_id: null,
         status: 'OK'
     };
     const [showModal, setShowModal] = useState(false);
@@ -88,7 +89,12 @@ const Domains = ({ campaigns }) => {
 
     // Namecheap integration: when connected, "Register Domain" and
     // "Import from Namecheap" appear, and adding domains auto-parks their DNS.
+    // Buyers keep several Namecheap accounts — both dialogs pick the one to
+    // act through (namecheap_status returns them with balances).
     const [ncConnected, setNcConnected] = useState(false);
+    const [ncAccounts, setNcAccounts] = useState([]);
+    const [ncAccountId, setNcAccountId] = useState(null);
+    const [ncIntent, setNcIntent] = useState(null); // deep-link from Integrations cards
     const [showRegister, setShowRegister] = useState(false);
     const [regDomain, setRegDomain] = useState('');
     const [regChecking, setRegChecking] = useState(false);
@@ -97,11 +103,36 @@ const Domains = ({ campaigns }) => {
     const [regMessage, setRegMessage] = useState('');
     const [showImport, setShowImport] = useState(false);
     const [ncImport, setNcImport] = useState({ loading: false, domains: [], selected: {}, importing: false, message: '' });
+    // Cloudflare side of the multi-account DNS pin («manage via» in the
+    // Add/Edit modal); the Namecheap side reuses ncAccounts below.
+    const [cfAccounts, setCfAccounts] = useState([]);
 
     useEffect(() => {
-        cachedGet('namecheap_status')
-            .then(({ data }) => { if (data.status === 'success') setNcConnected(!!data.data.connected); })
+        cachedGet('cloudflare_accounts_list', { _: Date.now() }, 0)
+            .then(({ data }) => { if (data.status === 'success') setCfAccounts(data.data.accounts || []); })
             .catch(() => {});
+        // ttl=0: the account list must be fresh — a just-added account would
+        // otherwise stay invisible for the cache window.
+        cachedGet('namecheap_status', {}, 0)
+            .then(({ data }) => {
+                if (data.status !== 'success') return;
+                const accounts = data.data.accounts || [];
+                setNcAccounts(accounts);
+                setNcConnected(!!data.data.connected);
+                if (accounts.length) setNcAccountId(a => a || accounts[0].id);
+            })
+            .catch(() => {});
+        // Deep-link request from an Integrations account card (Buy / Import):
+        // read once; the dialog opens from the effect below once the domain
+        // list is loaded — the import dialog needs it to tell fresh domains
+        // from already-tracked ones.
+        try {
+            const raw = localStorage.getItem('orbitra_nc_intent');
+            if (raw) {
+                localStorage.removeItem('orbitra_nc_intent');
+                setNcIntent(JSON.parse(raw));
+            }
+        } catch (e) { /* malformed intent — ignore */ }
     }, []);
 
     const fetchDomainGroups = async () => {
@@ -115,12 +146,31 @@ const Domains = ({ campaigns }) => {
         fetchDomainGroups();
     }, []);
 
+    // The account a dialog acts through: explicit choice, else the first one.
+    const activeNcAccount = ncAccounts.find(a => a.id === ncAccountId) || ncAccounts[0] || null;
+
+    // Deep-link from Integrations: fire once the domain list is ready (and an
+    // account actually exists — the card pointed at one).
+    useEffect(() => {
+        if (!ncIntent || loading || !ncAccounts.length) return;
+        const target = ncAccounts.find(a => a.id === ncIntent.account_id);
+        setNcIntent(null);
+        if (!target) return;
+        setNcAccountId(target.id);
+        if (ncIntent.mode === 'import') {
+            openImport(target.id);
+        } else {
+            setShowRegister(true); setRegResult(null); setRegMessage('');
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [loading, ncAccounts, ncIntent]);
+
     const checkNcDomain = async () => {
         const domain = regDomain.trim().toLowerCase();
         if (!domain) return;
         setRegChecking(true); setRegResult(null); setRegMessage('');
         try {
-            const { data } = await cachedPost('namecheap_check_domain', { domain });
+            const { data } = await cachedPost('namecheap_check_domain', { domain, account_id: activeNcAccount?.id });
             if (data.status === 'success') {
                 setRegResult(data.data);
             } else {
@@ -139,7 +189,7 @@ const Domains = ({ campaigns }) => {
         if (!window.confirm(`${t('namecheap.buyConfirm')}: ${domain}${priceNote}?`)) return;
         setRegBuying(true); setRegMessage('');
         try {
-            const { data } = await cachedPost('namecheap_register_domain', { domain });
+            const { data } = await cachedPost('namecheap_register_domain', { domain, account_id: activeNcAccount?.id });
             if (data.status === 'success') {
                 setShowRegister(false);
                 setRegDomain(''); setRegResult(null);
@@ -158,11 +208,12 @@ const Domains = ({ campaigns }) => {
         }
     };
 
-    const openImport = async () => {
+    const openImport = async (accountId) => {
+        const accId = accountId ?? activeNcAccount?.id ?? null;
         setShowImport(true);
         setNcImport({ loading: true, domains: [], selected: {}, importing: false, message: '' });
         try {
-            const [{ data: listRes }] = await Promise.all([cachedPost('namecheap_domains', {})]);
+            const [{ data: listRes }] = await Promise.all([cachedPost('namecheap_domains', accId ? { account_id: accId } : {})]);
             if (listRes.status !== 'success') {
                 setNcImport(s => ({ ...s, loading: false, message: listRes.message || t('common.error') }));
                 return;
@@ -182,7 +233,14 @@ const Domains = ({ campaigns }) => {
         if (!names.length) return;
         setNcImport(s => ({ ...s, importing: true, message: '' }));
         try {
-            const { data } = await cachedPost('save_domain', { name: names.join(', ') });
+            const payload = { name: names.join(', ') };
+            if (activeNcAccount?.id) {
+                // Park through the account whose list is on screen, not the
+                // default one.
+                payload.dns_provider = 'namecheap';
+                payload.dns_account_id = activeNcAccount.id;
+            }
+            const { data } = await cachedPost('save_domain', payload);
             if (data.status === 'success') {
                 setShowImport(false);
                 fetchDomains();
@@ -253,6 +311,7 @@ const Domains = ({ campaigns }) => {
             cloudflare_proxy: Number(domain.cloudflare_proxy ?? 0) === 1,
             registrar: domain.registrar || '',
             dns_provider: domain.dns_provider || '',
+            dns_account_id: domain.dns_account_id || null,
             status: domain.status || 'OK'
         });
         setError('');
@@ -426,7 +485,7 @@ const Domains = ({ campaigns }) => {
                     // Keep the chosen group and settings — the point of the
                     // checkbox is parking a batch into the same configuration —
                     // and clear only the name for the next entry.
-                    setFormData(prev => ({ ...defaultFormData, group_id: prev.group_id, index_campaign_id: prev.index_campaign_id, catch_404: prev.catch_404, is_noindex: prev.is_noindex, admin_access: prev.admin_access, https_only: prev.https_only, cloudflare_proxy: prev.cloudflare_proxy, registrar: prev.registrar, dns_provider: prev.dns_provider, status: prev.status }));
+                    setFormData(prev => ({ ...defaultFormData, group_id: prev.group_id, index_campaign_id: prev.index_campaign_id, catch_404: prev.catch_404, is_noindex: prev.is_noindex, admin_access: prev.admin_access, https_only: prev.https_only, cloudflare_proxy: prev.cloudflare_proxy, registrar: prev.registrar, dns_provider: prev.dns_provider, dns_account_id: prev.dns_account_id, status: prev.status }));
                     setSaveNotice(t('domains.savedAddMore', 'Saved — ready for the next domain'));
                     setTimeout(() => setSaveNotice(''), 3000);
                     nameInputRef.current?.focus();
@@ -660,8 +719,8 @@ const Domains = ({ campaigns }) => {
 
             {showModal && (
                 <div className="modal-overlay">
-                    <div className="modal-content w-full max-w-2xl" style={{ padding: '24px' }}>
-                        <div className="modal-header">
+                    <div className="modal-content w-full max-w-3xl" style={{ padding: '20px 24px' }}>
+                        <div className="modal-header" style={{ paddingBottom: '10px', marginBottom: '14px' }}>
                             <h3 className="modal-title">{formData.id ? t('domains.editDomain') : t('domains.addDomainTitle')}</h3>
                             <button type="button" className="btn btn-ghost btn-icon" onClick={() => setShowModal(false)}>
                                 <X size={20} />
@@ -673,132 +732,141 @@ const Domains = ({ campaigns }) => {
                         )}
 
                         <form onSubmit={handleSubmit} className="space-y-4">
-                            {/* Domain */}
-                            <div>
-                                <label className="block text-sm font-medium mb-1">{t('domains.domainName')}</label>
-                                <input
-                                    ref={nameInputRef}
-                                    type="text"
-                                    required
-                                    autoFocus={!formData.id}
-                                    className="form-input w-full"
-                                    placeholder={t('domains.bulkPlaceholder')}
-                                    value={formData.name}
-                                    onChange={e => setFormData({ ...formData, name: cleanNameInput(e.target.value) })}
-                                />
-                                <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-                                    {t('domains.domainBulkHelper')} {t('domains.bulkExample')}
-                                </p>
-                            </div>
-
-                            {/* Group */}
-                            <div>
-                                <label className="block text-sm font-medium mb-1">{t('domains.group')}</label>
-                                <div className="flex gap-2">
-                                    <select
-                                        className="form-select w-full"
-                                        value={formData.group_id}
-                                        onChange={e => setFormData({ ...formData, group_id: e.target.value })}
-                                    >
-                                        <option value="">{t('domains.noGroup')}</option>
-                                        {domainGroups.map(g => (
-                                            <option key={g.id} value={g.id}>{g.name}</option>
-                                        ))}
-                                    </select>
-                                    <button
-                                        type="button"
-                                        className="btn btn-secondary whitespace-nowrap"
-                                        onClick={() => setShowGroupsModal(true)}
-                                    >
-                                        <Plus size={14} /> {t('domains.createGroup')}
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Control toggles */}
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                <div>
-                                    <label className="block text-xs font-medium mb-1.5">{t('domains.searchRobots')}</label>
-                                    <ToggleGroup
-                                        value={formData.is_noindex ? 'disallow' : 'allow'}
-                                        onChange={v => setFormData({ ...formData, is_noindex: v === 'disallow' })}
-                                        options={[
-                                            { value: 'allow', label: t('domains.allowRobotsShort') },
-                                            { value: 'disallow', label: t('domains.disallowShort') }
-                                        ]}
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-medium mb-1.5">{t('domains.adminDashboard')}</label>
-                                    <ToggleGroup
-                                        value={formData.admin_access ? 'allow' : 'deny'}
-                                        onChange={v => setFormData({ ...formData, admin_access: v === 'allow' })}
-                                        options={[
-                                            { value: 'allow', label: t('domains.allowAccess') },
-                                            { value: 'deny', label: t('domains.denyAccess') }
-                                        ]}
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-medium mb-1.5 flex items-center gap-1">
-                                        {t('domains.httpsOnlyShort')} <HelpTooltip textKey="help.httpsTooltip" />
-                                    </label>
-                                    <ToggleGroup
-                                        value={formData.https_only ? 'on' : 'off'}
-                                        onChange={v => setFormData({ ...formData, https_only: v === 'on' })}
-                                        options={[
-                                            { value: 'on', label: t('domains.on') },
-                                            { value: 'off', label: t('domains.off') }
-                                        ]}
-                                    />
-                                </div>
-                            </div>
-                            {!formData.admin_access && (
-                                <p className="text-xs -mt-2" style={{ color: 'var(--color-text-secondary)' }}>{t('domains.adminAccessHint')}</p>
-                            )}
-
-                            {/* Cloudflare Proxy */}
-                            <div className="flex items-center justify-between gap-4 p-3 rounded-lg" style={{ background: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}>
-                                <div>
-                                    <label className="block text-sm font-medium">{t('domains.cloudflareProxy')}</label>
-                                    <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{t('domains.cfProxyHint')}</p>
-                                </div>
-                                <div style={{ minWidth: '140px' }}>
-                                    <ToggleGroup
-                                        value={formData.cloudflare_proxy ? 'on' : 'off'}
-                                        onChange={v => setFormData({ ...formData, cloudflare_proxy: v === 'on' })}
-                                        options={[
-                                            { value: 'on', label: t('domains.on') },
-                                            { value: 'off', label: t('domains.off') }
-                                        ]}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Index page */}
-                            <div>
-                                <label className="block text-sm font-medium mb-1">{t('domains.indexPageLabel')} <HelpTooltip textKey="help.indexCampaignTooltip" /></label>
-                                <div className="flex items-center gap-3">
-                                    <select
-                                        className="form-select flex-1"
-                                        value={formData.index_campaign_id}
-                                        onChange={e => setFormData({ ...formData, index_campaign_id: e.target.value })}
-                                    >
-                                        <option value="">-- {t('domains.notSelected')} --</option>
-                                        {campaigns.map(c => (
-                                            <option key={c.id} value={c.id}>{c.name} ({c.alias})</option>
-                                        ))}
-                                    </select>
-                                    <label className="inline-flex items-center gap-2 text-sm font-medium whitespace-nowrap cursor-pointer">
+                            {/* Two columns — identity/traffic on the left, access/security
+                                on the right — so the footer stays on screen without inner
+                                scrolling: the former single stack was ~850px tall. */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+                                {/* Left column: name, group, index page */}
+                                <div className="space-y-4">
+                                    {/* Domain */}
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">{t('domains.domainName')}</label>
                                         <input
-                                            type="checkbox"
-                                            checked={formData.catch_404}
-                                            onChange={e => setFormData({ ...formData, catch_404: e.target.checked })}
+                                            ref={nameInputRef}
+                                            type="text"
+                                            required
+                                            autoFocus={!formData.id}
+                                            className="form-input w-full"
+                                            placeholder={t('domains.bulkPlaceholder')}
+                                            value={formData.name}
+                                            onChange={e => setFormData({ ...formData, name: cleanNameInput(e.target.value) })}
                                         />
-                                        {t('domains.catch404')}
-                                    </label>
+                                        <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+                                            {t('domains.domainBulkHelper')} {t('domains.bulkExample')}
+                                        </p>
+                                    </div>
+
+                                    {/* Group */}
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">{t('domains.group')}</label>
+                                        <div className="flex gap-2">
+                                            <select
+                                                className="form-select flex-1"
+                                                value={formData.group_id}
+                                                onChange={e => setFormData({ ...formData, group_id: e.target.value })}
+                                            >
+                                                <option value="">{t('domains.noGroup')}</option>
+                                                {domainGroups.map(g => (
+                                                    <option key={g.id} value={g.id}>{g.name}</option>
+                                                ))}
+                                            </select>
+                                            <button
+                                                type="button"
+                                                className="btn btn-secondary whitespace-nowrap"
+                                                onClick={() => setShowGroupsModal(true)}
+                                            >
+                                                <Plus size={14} /> {t('domains.createGroup')}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Index page */}
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">{t('domains.indexPageLabel')} <HelpTooltip textKey="help.indexCampaignTooltip" /></label>
+                                        <select
+                                            className="form-select w-full"
+                                            value={formData.index_campaign_id}
+                                            onChange={e => setFormData({ ...formData, index_campaign_id: e.target.value })}
+                                        >
+                                            <option value="">-- {t('domains.notSelected')} --</option>
+                                            {campaigns.map(c => (
+                                                <option key={c.id} value={c.id}>{c.name} ({c.alias})</option>
+                                            ))}
+                                        </select>
+                                        <label className="inline-flex items-center gap-2 text-sm font-medium cursor-pointer mt-2">
+                                            <input
+                                                type="checkbox"
+                                                checked={formData.catch_404}
+                                                onChange={e => setFormData({ ...formData, catch_404: e.target.checked })}
+                                            />
+                                            {t('domains.catch404')}
+                                        </label>
+                                        <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>{t('domains.indexPageHint')}</p>
+                                    </div>
                                 </div>
-                                <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>{t('domains.indexPageHint')}</p>
+
+                                {/* Right column: access & security toggles. Stacked
+                                    label-above-control — the short pill labels are long in
+                                    ru/de/fr/es, so three side-by-side toggles don't fit a
+                                    half-width column. */}
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-xs font-medium mb-1.5">{t('domains.searchRobots')}</label>
+                                        <ToggleGroup
+                                            value={formData.is_noindex ? 'disallow' : 'allow'}
+                                            onChange={v => setFormData({ ...formData, is_noindex: v === 'disallow' })}
+                                            options={[
+                                                { value: 'allow', label: t('domains.allowRobotsShort') },
+                                                { value: 'disallow', label: t('domains.disallowShort') }
+                                            ]}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium mb-1.5">{t('domains.adminDashboard')}</label>
+                                        <ToggleGroup
+                                            value={formData.admin_access ? 'allow' : 'deny'}
+                                            onChange={v => setFormData({ ...formData, admin_access: v === 'allow' })}
+                                            options={[
+                                                { value: 'allow', label: t('domains.allowAccess') },
+                                                { value: 'deny', label: t('domains.denyAccess') }
+                                            ]}
+                                        />
+                                        {!formData.admin_access && (
+                                            <p className="text-xs mt-1.5" style={{ color: 'var(--color-text-secondary)' }}>{t('domains.adminAccessHint')}</p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium mb-1.5 flex items-center gap-1">
+                                            {t('domains.httpsOnlyShort')} <HelpTooltip textKey="help.httpsTooltip" />
+                                        </label>
+                                        <ToggleGroup
+                                            value={formData.https_only ? 'on' : 'off'}
+                                            onChange={v => setFormData({ ...formData, https_only: v === 'on' })}
+                                            options={[
+                                                { value: 'on', label: t('domains.on') },
+                                                { value: 'off', label: t('domains.off') }
+                                            ]}
+                                        />
+                                    </div>
+
+                                    {/* Cloudflare Proxy */}
+                                    <div className="flex items-center justify-between gap-4 p-3 rounded-lg" style={{ background: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}>
+                                        <div>
+                                            <label className="block text-sm font-medium">{t('domains.cloudflareProxy')}</label>
+                                            <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{t('domains.cfProxyHint')}</p>
+                                        </div>
+                                        <div style={{ minWidth: '150px' }}>
+                                            <ToggleGroup
+                                                value={formData.cloudflare_proxy ? 'on' : 'off'}
+                                                onChange={v => setFormData({ ...formData, cloudflare_proxy: v === 'on' })}
+                                                options={[
+                                                    { value: 'on', label: t('domains.on') },
+                                                    { value: 'off', label: t('domains.off') }
+                                                ]}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             {/* Metadata */}
@@ -814,14 +882,53 @@ const Domains = ({ campaigns }) => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-medium mb-1.5">{t('domains.dnsProvider')}</label>
-                                    <input
-                                        type="text"
-                                        className="form-input w-full"
-                                        placeholder="Cloudflare"
-                                        value={formData.dns_provider}
-                                        onChange={e => setFormData({ ...formData, dns_provider: e.target.value })}
-                                    />
+                                    <label className="block text-xs font-medium mb-1.5">{t('domains.manageVia', 'Управлять DNS через')}</label>
+                                    <select
+                                        className="form-select w-full"
+                                        value={
+                                            formData.dns_provider === 'cloudflare' && formData.dns_account_id ? `cloudflare:${formData.dns_account_id}`
+                                                : formData.dns_provider === 'namecheap' && formData.dns_account_id ? `namecheap:${formData.dns_account_id}`
+                                                    : (formData.dns_provider || '')
+                                        }
+                                        onChange={e => {
+                                            const v = e.target.value;
+                                            if (v === '') {
+                                                setFormData({ ...formData, dns_provider: '', dns_account_id: null });
+                                            } else if (v.includes(':')) {
+                                                const [prov, id] = v.split(':');
+                                                setFormData({ ...formData, dns_provider: prov, dns_account_id: Number(id) || null });
+                                            } else {
+                                                setFormData({ ...formData, dns_provider: v, dns_account_id: null });
+                                            }
+                                        }}
+                                    >
+                                        <option value="">{t('domains.manageViaNone', '— аккаунт по умолчанию —')}</option>
+                                        {cfAccounts.length > 0 && (
+                                            <optgroup label="Cloudflare">
+                                                {cfAccounts.map(a => (
+                                                    <option key={`cf-${a.id}`} value={`cloudflare:${a.id}`}>{a.name}</option>
+                                                ))}
+                                            </optgroup>
+                                        )}
+                                        {ncAccounts.length > 0 && (
+                                            <optgroup label="Namecheap">
+                                                {ncAccounts.map(a => (
+                                                    <option key={`nc-${a.id}`} value={`namecheap:${a.id}`}>{a.name}</option>
+                                                ))}
+                                            </optgroup>
+                                        )}
+                                        {/* A legacy free-text provider that is not a pinned
+                                            account — keep it selectable so saving does not
+                                            silently wipe it. */}
+                                        {formData.dns_provider
+                                            && !((formData.dns_provider === 'cloudflare' || formData.dns_provider === 'namecheap') && formData.dns_account_id)
+                                            && (
+                                                <option value={formData.dns_provider}>{formData.dns_provider}</option>
+                                            )}
+                                    </select>
+                                    <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+                                        {t('domains.manageViaHint', 'Аккаунт, через который парковается A-запись домена при добавлении и синхронизации.')}
+                                    </p>
                                 </div>
                                 <div>
                                     <label className="block text-xs font-medium mb-1.5">{t('domains.status')}</label>
@@ -837,7 +944,7 @@ const Domains = ({ campaigns }) => {
                                 </div>
                             </div>
 
-                            <div className="modal-footer mt-6">
+                            <div className="modal-footer">
                                 {!formData.id && (
                                     <label className="inline-flex items-center gap-2 text-sm font-medium cursor-pointer mr-auto">
                                         <input
@@ -884,6 +991,23 @@ const Domains = ({ campaigns }) => {
                             <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
                                 {t('namecheap.registerHintLong', 'Домен регистрируется через баланс вашего аккаунта Namecheap: сразу после покупки A-запись указывает на этот сервер, и SSL Let\'s Encrypt выпускается автоматически.')}
                             </p>
+                            {ncAccounts.length > 1 && (
+                                <div>
+                                    <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                        {t('namecheap.chooseAccount', 'Аккаунт Namecheap')}
+                                    </label>
+                                    <select
+                                        className="form-select"
+                                        style={{ width: '100%' }}
+                                        value={activeNcAccount?.id ?? ''}
+                                        onChange={e => { setNcAccountId(Number(e.target.value)); setRegResult(null); setRegMessage(''); }}
+                                    >
+                                        {ncAccounts.map(a => (
+                                            <option key={a.id} value={a.id}>{a.name} ({a.last_balance || '—'})</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
                             <div className="flex gap-2">
                                 <input
                                     type="text"
@@ -963,6 +1087,24 @@ const Domains = ({ campaigns }) => {
                             <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
                                 {t('namecheap.importHintLong', 'Все домены аккаунта Namecheap. Отмеченные добавляются в трекер: A-запись и SSL настраиваются автоматически.')}
                             </p>
+                            {ncAccounts.length > 1 && (
+                                <div>
+                                    <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                        {t('namecheap.chooseAccount', 'Аккаунт Namecheap')}
+                                    </label>
+                                    <select
+                                        className="form-select"
+                                        style={{ width: '100%' }}
+                                        value={activeNcAccount?.id ?? ''}
+                                        onChange={e => { setNcAccountId(Number(e.target.value)); openImport(Number(e.target.value)); }}
+                                        disabled={ncImport.loading}
+                                    >
+                                        {ncAccounts.map(a => (
+                                            <option key={a.id} value={a.id}>{a.name} ({a.last_balance || '—'})</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
                             {ncImport.loading ? (
                                 <div className="text-center py-8" style={{ color: 'var(--color-text-muted)' }}>
                                     <RefreshCw size={20} className="animate-spin mx-auto mb-2" />

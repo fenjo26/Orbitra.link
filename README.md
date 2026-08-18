@@ -1,4 +1,4 @@
-# Orbitra v1.0.5 Tracker
+# Orbitra v1.0.6 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -422,13 +422,14 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.0.5 (2026-08-17)
-- 🛡️ **Safe Page: grouped white-page selects** — the "Tracker Landing" picker groups landings by their group (alphabetical, "No group" last); a 🔍 button opens the search picker in a one-click single-select mode
-- 📦 **Safe Page: Local Offer mode** — a LeadForge direct local offer can now be the white page: bots get its files inline (index.php) or via the new public `/offers/<id>/` address (click.php, Click API)
-- 🚨 **Fix: direct local offer streams** — an offer-only local destination died with "URL not found." instead of serving the uploaded page; the Click API now answers with its `/offers/<id>/` address
-- ⚙️ **Fix: allow_php_landings on upgrades** — databases updated 1.0.2 → 1.0.4 never got the seed rows (LeadForge failed with `php_landings_disabled`); migration 30 inserts them, a missing row means enabled
+### Current release — v1.0.6 (2026-08-18)
+- ☁️ **Cloudflare & Namecheap multi-account** (migrations 31–32) — several registrar/DNS accounts side by side: the legacy token becomes account #1, domains pick their Cloudflare account (`dns_account_id`), Integrations manages accounts with live Namecheap balance checks
+- 🔐 **OAuth preflight everywhere** — TikTok and Google Ads join Facebook's `<engine>_oauth_status`: no configured app → disabled 1-Click with an amber card; direct token connection is the default mode
+- 🛡️ **Delete guard** — deleting a landing/offer still used by an active campaign is refused with the campaign list; the refusal is localized in the UI instead of a silent failure
+- 🔒 **Upload hardening** — local offer archives pass a tiered PHP scan (namespaced-call hole closed) and land via stage-then-swap with realpath containment; the order.php bridge route got the same containment check
+- ⏱️ **Sub-hour cost sync**, 🎨 custom-theme contrast pick, 📋 in-modal copy feedback for API keys (the old toast rendered behind the modal overlay)
 
-Previous release — v1.0.4: LeadForge tracker destinations (lander / direct local offer / pair) with on-the-fly groups; opt-in fixed payout; calendar viewport fix; Facebook OAuth preflight; PHP landings on by default.
+Previous release — v1.0.5: Safe Page white pages (grouped selects, single-select search picker, Local Offer safe destination via the public `/offers/<id>/` route); direct local offer "URL not found." fix; allow_php_landings upgrade seed.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

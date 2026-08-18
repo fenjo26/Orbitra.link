@@ -77,6 +77,86 @@ function orbitraRequestBody()
     return (string) file_get_contents('php://input');
 }
 
+/**
+ * Names of serving campaigns that still reference the given landing(s)/offer(s).
+ *
+ * A "delete" is an archive (is_archived = 1), and the serving path stops
+ * resolving archived entities — a landing or offer archived while traffic runs
+ * breaks the stream mid-flight. Guard: only campaigns that actually serve
+ * (state 'active', not archived) via an enabled stream block the delete; a
+ * paused or archived campaign does not.
+ *
+ * References covered, matching what CampaignEditor writes:
+ *   offers:  streams.offer_id (direct), schema_custom.offers[].id, schema_custom.safe_offer_id
+ *   landings: schema_custom.landings[].id, schema_custom.safe_landing_id
+ *
+ * @param string $type 'landing'|'offer'
+ * @param int[] $ids entity ids about to be archived
+ * @return string[] unique campaign names (empty array = safe to delete)
+ */
+function orbitraActiveCampaignsUsingEntity(PDO $pdo, string $type, array $ids): array
+{
+    if (empty($ids)) {
+        return [];
+    }
+    $stmt = $pdo->query("
+        SELECT c.id AS campaign_id, c.name AS campaign_name, s.offer_id, s.schema_custom_json
+        FROM streams s
+        JOIN campaigns c ON s.campaign_id = c.id
+        WHERE c.is_archived = 0
+          AND c.state = 'active'
+          AND s.is_active = 1
+    ");
+    $idMap = array_flip(array_map('intval', $ids));
+    $blocking = [];
+    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $stream) {
+        $used = false;
+        if ($type === 'offer'
+            && $stream['offer_id'] !== null
+            && isset($idMap[(int) $stream['offer_id']])) {
+            $used = true;
+        }
+        if (!$used) {
+            $custom = json_decode((string) ($stream['schema_custom_json'] ?? ''), true);
+            if (is_array($custom)) {
+                if ($type === 'offer') {
+                    foreach (($custom['offers'] ?? []) as $o) {
+                        if (isset($idMap[(int) ($o['id'] ?? 0)])) { $used = true; break; }
+                    }
+                    if (!$used && isset($idMap[(int) ($custom['safe_offer_id'] ?? 0)])) {
+                        $used = true;
+                    }
+                } else {
+                    foreach (($custom['landings'] ?? []) as $l) {
+                        if (isset($idMap[(int) ($l['id'] ?? 0)])) { $used = true; break; }
+                    }
+                    if (!$used && isset($idMap[(int) ($custom['safe_landing_id'] ?? 0)])) {
+                        $used = true;
+                    }
+                }
+            }
+        }
+        if ($used) {
+            $blocking[(int) $stream['campaign_id']] = $stream['campaign_name'] !== ''
+                ? (string) $stream['campaign_name']
+                : ('Campaign #' . $stream['campaign_id']);
+        }
+    }
+    return array_values($blocking);
+}
+
+/** Uniform ENTITY_IN_USE error payload shared by the landing/offer delete guards. */
+function orbitraEntityInUseError(string $type, array $campaigns): array
+{
+    return [
+        'status' => 'error',
+        'code' => 'entity_in_use',
+        'message' => 'Cannot delete this ' . $type . ': it is used by active campaign(s): "'
+            . implode('", "', $campaigns) . '". Remove it from the stream or archive the campaign first.',
+        'campaigns' => $campaigns,
+    ];
+}
+
 // === Facebook Costs OAuth helpers ===
 
 /** Marketing API version shared with FacebookAdsEngine's current default. */
@@ -492,32 +572,148 @@ function orbitraGoogleAdsGaql(string $accessToken, string $developerToken, strin
 
 // === Cloudflare integration helpers ===
 
-/** Connection config from settings; server_ip falls back to the web-facing address. */
+/**
+ * Server-wide value shared by every Cloudflare account: the A-record target
+ * (the tracker's own IP). It belongs to the server, not to an account, so it
+ * stays global in multi-account mode — same convention as Namecheap's globals.
+ */
+function orbitraCloudflareGlobals(PDO $pdo): array
+{
+    static $out = null;
+    if ($out !== null) {
+        return $out;
+    }
+    $out = ['server_ip' => ''];
+    try {
+        $stmt = $pdo->query("SELECT value FROM settings WHERE key = 'cf_server_ip' LIMIT 1");
+        $out['server_ip'] = (string) $stmt->fetchColumn();
+    } catch (\Throwable $e) {
+        // Defaults degrade into "unknown IP".
+    }
+    if ($out['server_ip'] === '') {
+        $out['server_ip'] = (string) ($_SERVER['SERVER_ADDR'] ?? '');
+    }
+    return $out;
+}
+
+/** Active cloudflare_accounts rows (schema 32+); the seed migration turns the legacy token into row #1. */
+function orbitraCloudflareAccountRows(PDO $pdo): array
+{
+    static $rows = null;
+    if ($rows !== null) {
+        return $rows;
+    }
+    $rows = [];
+    try {
+        $rows = $pdo->query("SELECT * FROM cloudflare_accounts WHERE is_active = 1 ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
+    } catch (\Throwable $e) {
+        // Table not migrated yet — behaves as "no accounts".
+    }
+    return $rows;
+}
+
+/** Client config for one account row, with the server-wide IP merged in. */
+function orbitraCloudflareAccountCfg(PDO $pdo, array $row): array
+{
+    return [
+        'token' => (string) ($row['api_token'] ?? ''),
+        'proxied' => (int) ($row['proxied'] ?? 1) === 1,
+        'ssl_mode' => in_array((string) ($row['ssl_mode'] ?? ''), ['flexible', 'full', 'strict'], true) ? (string) $row['ssl_mode'] : 'flexible',
+        'account_id' => (int) ($row['id'] ?? 0),
+        'account_name' => (string) ($row['name'] ?? ''),
+        'server_ip' => orbitraCloudflareGlobals($pdo)['server_ip'],
+    ];
+}
+
+/** Legacy single-token shape from settings (pre-multi-account installs and the old cloudflare_save action). */
+function orbitraCloudflareLegacyCfg(PDO $pdo): array
+{
+    static $cfg = null;
+    if ($cfg !== null) {
+        return $cfg;
+    }
+    $cfg = ['token' => '', 'proxied' => true, 'ssl_mode' => 'flexible', 'account_id' => 0, 'account_name' => '', 'server_ip' => orbitraCloudflareGlobals($pdo)['server_ip']];
+    try {
+        $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('cf_api_token','cf_proxied','cf_ssl_mode')");
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            if ($row['key'] === 'cf_api_token') {
+                $cfg['token'] = (string) $row['value'];
+            } elseif ($row['key'] === 'cf_proxied') {
+                $cfg['proxied'] = ((string) $row['value']) !== '0';
+            } elseif ($row['key'] === 'cf_ssl_mode') {
+                $cfg['ssl_mode'] = (string) $row['value'];
+            }
+        }
+    } catch (\Throwable $e) {
+        // Defaults above degrade into "not connected".
+    }
+    return $cfg;
+}
+
+/**
+ * "The" Cloudflare connection: the first active account, falling back to the
+ * legacy settings row. This is what account-less callers mean by "the
+ * connected account".
+ */
 function orbitraCloudflareConfig(PDO $pdo): array
 {
     static $cfg = null;
     if ($cfg !== null) {
         return $cfg;
     }
-    $out = ['token' => '', 'proxied' => true, 'ssl_mode' => 'flexible', 'server_ip' => ''];
-    try {
-        $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('cf_api_token','cf_proxied','cf_ssl_mode','cf_server_ip')");
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            switch ($row['key']) {
-                case 'cf_api_token': $out['token'] = (string) $row['value']; break;
-                case 'cf_proxied': $out['proxied'] = ((string) $row['value']) !== '0'; break;
-                case 'cf_ssl_mode': $out['ssl_mode'] = (string) $row['value']; break;
-                case 'cf_server_ip': $out['server_ip'] = (string) $row['value']; break;
-            }
-        }
-    } catch (\Throwable $e) {
-        // Defaults above degrade into "not connected".
-    }
-    if ($out['server_ip'] === '') {
-        $out['server_ip'] = (string) ($_SERVER['SERVER_ADDR'] ?? '');
-    }
-    $cfg = $out;
+    $rows = orbitraCloudflareAccountRows($pdo);
+    $cfg = count($rows) > 0 ? orbitraCloudflareAccountCfg($pdo, $rows[0]) : orbitraCloudflareLegacyCfg($pdo);
     return $cfg;
+}
+
+/** Account config for an explicit account_id (any state); null when the row is gone. */
+function orbitraCloudflareAccountCfgById(PDO $pdo, int $accountId): ?array
+{
+    if ($accountId <= 0) {
+        return null;
+    }
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM cloudflare_accounts WHERE id = ? LIMIT 1");
+        $stmt->execute([$accountId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ? orbitraCloudflareAccountCfg($pdo, $row) : null;
+    } catch (\Throwable $e) {
+        return null;
+    }
+}
+
+/** Active cloudflare_accounts rows as panel payload (never the api_token secret). */
+function orbitraCloudflareAccountsPayload(PDO $pdo): array
+{
+    $out = [];
+    foreach (orbitraCloudflareAccountRows($pdo) as $row) {
+        $out[] = [
+            'id' => (int) $row['id'],
+            'name' => (string) $row['name'],
+            'ssl_mode' => in_array((string) ($row['ssl_mode'] ?? ''), ['flexible', 'full', 'strict'], true) ? (string) $row['ssl_mode'] : 'flexible',
+            'proxied' => (int) ($row['proxied'] ?? 1) === 1,
+            'zones_count' => $row['zones_count'] !== null ? (int) $row['zones_count'] : null,
+            'created_at' => (string) ($row['created_at'] ?? ''),
+        ];
+    }
+    return $out;
+}
+
+/**
+ * Cloudflare config for the account pinned to a domain row (dns_provider =
+ * 'cloudflare' + dns_account_id), falling back to the default connection.
+ * A pin whose account was deleted must not break parking — it degrades to
+ * the default account instead of erroring out.
+ */
+function orbitraCloudflareCfgForDomain(PDO $pdo, array $domain): array
+{
+    if (strcasecmp((string) ($domain['dns_provider'] ?? ''), 'cloudflare') === 0 && !empty($domain['dns_account_id'])) {
+        $cfg = orbitraCloudflareAccountCfgById($pdo, (int) $domain['dns_account_id']);
+        if ($cfg !== null && $cfg['token'] !== '') {
+            return $cfg;
+        }
+    }
+    return orbitraCloudflareConfig($pdo);
 }
 
 /**
@@ -529,7 +725,9 @@ function orbitraCloudflareConfig(PDO $pdo): array
 function orbitraCloudflareSyncDomain(PDO $pdo, array $domain, ?array $cfg = null): array
 {
     require_once __DIR__ . '/core/CloudflareApi.php';
-    $cfg = $cfg ?? orbitraCloudflareConfig($pdo);
+    // No explicit cfg: the account pinned to the domain wins, then the default
+    // connection — with several CF accounts the zone may live in any of them.
+    $cfg = $cfg ?? orbitraCloudflareCfgForDomain($pdo, $domain);
     if ($cfg['token'] === '') {
         return ['ok' => false, 'message' => 'Cloudflare is not connected'];
     }
@@ -564,29 +762,50 @@ function orbitraCloudflareSyncDomain(PDO $pdo, array $domain, ?array $cfg = null
 
 // === Namecheap integration helpers ===
 
-/** Connection config from settings; client_ip is the whitelisted outgoing IP. */
-function orbitraNamecheapConfig(PDO $pdo): array
+/** Active namecheap_accounts rows as panel payload (never the api_key secret). */
+function orbitraNamecheapAccountsPayload(PDO $pdo): array
 {
-    static $cfg = null;
-    if ($cfg !== null) {
-        return $cfg;
+    $out = [];
+    foreach (orbitraNamecheapAccountRows($pdo) as $row) {
+        $out[] = [
+            'id' => (int) $row['id'],
+            'name' => (string) $row['name'],
+            'username' => (string) $row['username'],
+            'contact_id' => (string) ($row['contact_id'] ?? ''),
+            'sandbox' => !empty($row['sandbox']),
+            'last_balance' => (string) ($row['last_balance'] ?? ''),
+            'domains_count' => $row['domains_count'] !== null ? (int) $row['domains_count'] : null,
+            'created_at' => (string) ($row['created_at'] ?? ''),
+        ];
     }
-    $out = ['api_key' => '', 'username' => '', 'sandbox' => false, 'address_id' => '', 'server_ip' => '', 'client_ip' => ''];
+    return $out;
+}
+
+/**
+ * Server-wide values shared by every Namecheap account: the A-record target
+ * (server_ip, shared with the Cloudflare integration) and the outgoing IP
+ * Namecheap must see in its whitelist (detected_ip with fallbacks). The
+ * outgoing address belongs to the server, not to an account, so it stays
+ * global even in multi-account mode.
+ */
+function orbitraNamecheapGlobals(PDO $pdo): array
+{
+    static $out = null;
+    if ($out !== null) {
+        return $out;
+    }
+    $out = ['server_ip' => '', 'client_ip' => '', 'detected_ip' => ''];
     try {
-        $keys = ['nc_api_key', 'nc_username', 'nc_sandbox', 'nc_address_id', 'nc_server_ip', 'nc_detected_ip', 'cf_server_ip'];
-        $in = "'" . implode("','", $keys) . "'";
-        $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ($in)");
+        $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('nc_server_ip','nc_detected_ip','cf_server_ip')");
         $detected = '';
         $cfIp = '';
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            switch ($row['key']) {
-                case 'nc_api_key': $out['api_key'] = (string) $row['value']; break;
-                case 'nc_username': $out['username'] = (string) $row['value']; break;
-                case 'nc_sandbox': $out['sandbox'] = ((string) $row['value']) === '1'; break;
-                case 'nc_address_id': $out['address_id'] = (string) $row['value']; break;
-                case 'nc_server_ip': $out['server_ip'] = (string) $row['value']; break;
-                case 'nc_detected_ip': $detected = (string) $row['value']; break;
-                case 'cf_server_ip': $cfIp = (string) $row['value']; break;
+            if ($row['key'] === 'nc_server_ip') {
+                $out['server_ip'] = (string) $row['value'];
+            } elseif ($row['key'] === 'nc_detected_ip') {
+                $detected = (string) $row['value'];
+            } elseif ($row['key'] === 'cf_server_ip') {
+                $cfIp = (string) $row['value'];
             }
         }
         // A-запись пишем на тот же IP сервера, что и Cloudflare-интеграция —
@@ -604,8 +823,129 @@ function orbitraNamecheapConfig(PDO $pdo): array
     } catch (\Throwable $e) {
         // Defaults above degrade into "not connected".
     }
-    $cfg = $out;
+    return $out;
+}
+
+/** Active namecheap_accounts rows (schema 31+); the seed migration turns the legacy single connection into row #1. */
+function orbitraNamecheapAccountRows(PDO $pdo): array
+{
+    static $rows = null;
+    if ($rows !== null) {
+        return $rows;
+    }
+    $rows = [];
+    try {
+        $rows = $pdo->query("SELECT * FROM namecheap_accounts WHERE is_active = 1 ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
+    } catch (\Throwable $e) {
+        // Table not migrated yet — behaves as "no accounts".
+    }
+    return $rows;
+}
+
+/** Client config for one account row, with the server-wide IPs merged in. */
+function orbitraNamecheapAccountCfg(PDO $pdo, array $row): array
+{
+    $g = orbitraNamecheapGlobals($pdo);
+    return [
+        'api_key' => (string) ($row['api_key'] ?? ''),
+        'username' => (string) ($row['username'] ?? ''),
+        'sandbox' => !empty($row['sandbox']),
+        'address_id' => (string) ($row['contact_id'] ?? ''),
+        'account_id' => (int) ($row['id'] ?? 0),
+        'server_ip' => $g['server_ip'],
+        'client_ip' => $g['client_ip'],
+        'detected_ip' => $g['detected_ip'],
+    ];
+}
+
+/** Legacy single-connection shape from settings (pre-multi-account installs and the old namecheap_save action). */
+function orbitraNamecheapLegacyCfg(PDO $pdo): array
+{
+    static $cfg = null;
+    if ($cfg !== null) {
+        return $cfg;
+    }
+    $g = orbitraNamecheapGlobals($pdo);
+    $cfg = ['api_key' => '', 'username' => '', 'sandbox' => false, 'address_id' => '', 'account_id' => 0] + $g;
+    try {
+        $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('nc_api_key','nc_username','nc_sandbox','nc_address_id')");
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            if ($row['key'] === 'nc_api_key') {
+                $cfg['api_key'] = (string) $row['value'];
+            } elseif ($row['key'] === 'nc_username') {
+                $cfg['username'] = (string) $row['value'];
+            } elseif ($row['key'] === 'nc_sandbox') {
+                $cfg['sandbox'] = ((string) $row['value']) === '1';
+            } elseif ($row['key'] === 'nc_address_id') {
+                $cfg['address_id'] = (string) $row['value'];
+            }
+        }
+    } catch (\Throwable $e) {
+    }
     return $cfg;
+}
+
+/**
+ * "The" Namecheap connection: the first active account, falling back to the
+ * legacy settings row. This is what account-less callers (auto-parking on
+ * domain save, the old endpoints) mean by "the connected account".
+ */
+function orbitraNamecheapConfig(PDO $pdo): array
+{
+    static $cfg = null;
+    if ($cfg !== null) {
+        return $cfg;
+    }
+    $rows = orbitraNamecheapAccountRows($pdo);
+    $cfg = count($rows) > 0 ? orbitraNamecheapAccountCfg($pdo, $rows[0]) : orbitraNamecheapLegacyCfg($pdo);
+    return $cfg;
+}
+
+/**
+ * Account domain list, memoized per request: bulk imports and the
+ * multi-account parking loop must not re-fetch the same account's list for
+ * every domain.
+ * @return string[]
+ */
+function orbitraNamecheapAccountDomainList(array $cfg): array
+{
+    static $memo = [];
+    require_once __DIR__ . '/core/NamecheapClient.php';
+    $key = md5(($cfg['username'] ?? '') . '|' . ($cfg['api_key'] ?? '') . '|' . (!empty($cfg['sandbox']) ? '1' : '0'));
+    if (!array_key_exists($key, $memo)) {
+        $memo[$key] = NamecheapClient::listDomains($cfg);
+    }
+    return $memo[$key];
+}
+
+/** Longest registered zone of $host inside one account's (memoized) domain list. */
+function orbitraNamecheapFindRegistered(array $cfg, string $host): ?string
+{
+    $host = strtolower(trim($host));
+    $best = null;
+    foreach (orbitraNamecheapAccountDomainList($cfg) as $registered) {
+        if ($host === $registered || str_ends_with($host, '.' . $registered)) {
+            if ($best === null || strlen($registered) > strlen($best)) {
+                $best = $registered;
+            }
+        }
+    }
+    return $best;
+}
+
+/** Account row for an explicit account_id, or the default connection (first account / legacy). */
+function orbitraNamecheapCfgForRequest(PDO $pdo, array $body): array
+{
+    $accountId = (int) ($body['account_id'] ?? 0);
+    if ($accountId > 0) {
+        foreach (orbitraNamecheapAccountRows($pdo) as $row) {
+            if ((int) $row['id'] === $accountId) {
+                return orbitraNamecheapAccountCfg($pdo, $row);
+            }
+        }
+        return ['api_key' => '', 'username' => ''];
+    }
+    return orbitraNamecheapConfig($pdo);
 }
 
 /** Remember the outgoing IP Namecheap complained about — it goes into the whitelist hint. */
@@ -624,14 +964,28 @@ function orbitraNamecheapRememberIp(PDO $pdo, string $ip): void
 /**
  * Point a parked domain at the tracker through Namecheap: find the registered
  * zone in the account, write the A record for the host (or @+www for a root
- * domain). Unlike Cloudflare there is no edge SSL, so the domain stays in the
- * certbot queue and gets its Let's Encrypt certificate once DNS resolves.
+ * domain). Without an explicit $cfg every connected account is tried — a
+ * buyer's domains live in several Namecheap accounts, and the one holding the
+ * registered zone is the one allowed to write its DNS. Unlike Cloudflare there
+ * is no edge SSL, so the domain stays in the certbot queue and gets its
+ * Let's Encrypt certificate once DNS resolves.
  * @return array{ok:bool,message:string}
  */
 function orbitraNamecheapSyncDomain(PDO $pdo, array $domain, ?array $cfg = null): array
 {
     require_once __DIR__ . '/core/NamecheapClient.php';
-    $cfg = $cfg ?? orbitraNamecheapConfig($pdo);
+    $host = strtolower(trim((string) $domain['name']));
+
+    if ($cfg === null) {
+        foreach (orbitraNamecheapAccountRows($pdo) as $row) {
+            $accountCfg = orbitraNamecheapAccountCfg($pdo, $row);
+            if (orbitraNamecheapFindRegistered($accountCfg, $host) !== null) {
+                return orbitraNamecheapSyncDomain($pdo, $domain, $accountCfg);
+            }
+        }
+        $cfg = orbitraNamecheapConfig($pdo); // legacy settings fallback (no account rows)
+    }
+
     if ($cfg['api_key'] === '' || $cfg['username'] === '') {
         return ['ok' => false, 'message' => 'Namecheap is not connected'];
     }
@@ -639,8 +993,7 @@ function orbitraNamecheapSyncDomain(PDO $pdo, array $domain, ?array $cfg = null)
         return ['ok' => false, 'message' => 'Server IP is unknown — set it in the Namecheap integration'];
     }
 
-    $host = strtolower(trim((string) $domain['name']));
-    $registered = NamecheapClient::findRegisteredDomain($cfg, $host);
+    $registered = orbitraNamecheapFindRegistered($cfg, $host);
     if ($registered === null) {
         return ['ok' => false, 'message' => 'Domain not found in Namecheap account'];
     }
@@ -3515,6 +3868,11 @@ try {
                     break;
                 }
                 try {
+                    $blocking = orbitraActiveCampaignsUsingEntity($pdo, 'landing', [(int) $id]);
+                    if ($blocking) {
+                        echo json_encode(orbitraEntityInUseError('landing', $blocking));
+                        break;
+                    }
                     $stmt = $pdo->prepare("UPDATE landings SET is_archived = 1, archived_at = datetime('now') WHERE id = ?");
                     $stmt->execute([$id]);
                     $updated = $stmt->rowCount();
@@ -3548,6 +3906,12 @@ try {
             }
             try {
                 $pdo->beginTransaction();
+                $blocking = orbitraActiveCampaignsUsingEntity($pdo, 'landing', $ids);
+                if ($blocking) {
+                    $pdo->rollBack();
+                    echo json_encode(orbitraEntityInUseError('landing', $blocking));
+                    break;
+                }
                 $placeholders = implode(',', array_fill(0, count($ids), '?'));
                 $stmt = $pdo->prepare("UPDATE landings SET is_archived = 1, archived_at = datetime('now') WHERE id IN ($placeholders)");
                 $stmt->execute($ids);
@@ -3696,86 +4060,33 @@ try {
                     }
 
                     if ($safeToExtract) {
-                        // extractTo returns false on a write failure. The old code
-                        // discarded that and reported success regardless, so a
-                        // permissions problem looked like a working upload until
-                        // the landing turned out to be empty.
-                        if (!$zip->extractTo($uploadDir)) {
-                            // A ZIP can be readable and still be unextractable: the
-                            // "maximum compression" preset in 7-Zip and WinRAR writes
-                            // LZMA, BZip2 or PPMd entries, and libzip is normally
-                            // built with Store and Deflate only. The archive opens,
-                            // the file list reads fine, and extraction just fails —
-                            // so check the methods before blaming permissions.
-                            $badMethods = [];
-                            for ($i = 0; $i < $zip->numFiles; $i++) {
-                                $stat = $zip->statIndex($i);
-                                $method = $stat['comp_method'] ?? 8;
-                                if (!in_array((int) $method, [0, 8], true)) {
-                                    $badMethods[(int) $method] = true;
-                                }
+                        // Stage-then-swap through the shared helper: a replacement
+                        // archive no longer merges with the files the previous
+                        // upload left behind, a rejected one leaves the old
+                        // landing intact, and the tree is PHP-scanned and
+                        // sanitized before it is swapped in.
+                        $extracted = orbitraExtractArchiveSwap($zip, rtrim($uploadDir, '/'), $pdo);
+                        if (!$extracted['ok']) {
+                            $err = $extracted['error'];
+                            $resp = ['status' => 'error', 'message' => $err['message']];
+                            if (!empty($err['detail'])) {
+                                $resp['detail'] = $err['detail'];
                             }
-                            $zip->close();
-                            if ($badMethods) {
-                                $methodNames = [
-                                    9 => 'Deflate64', 12 => 'BZip2', 14 => 'LZMA',
-                                    93 => 'Zstandard', 95 => 'XZ', 98 => 'PPMd',
-                                ];
-                                $named = [];
-                                foreach (array_keys($badMethods) as $m) {
-                                    $named[] = $methodNames[$m] ?? ('метод ' . $m);
-                                }
-                                echo json_encode([
-                                    'status' => 'error',
-                                    'message' => 'zip_unsupported_compression',
-                                    'detail' => ['methods' => $named],
-                                ]);
-                                break;
-                            }
-                            echo json_encode([
-                                'status' => 'error',
-                                'message' => 'zip_extract_failed',
-                                'detail' => ['path' => $uploadDir],
-                            ]);
+                            echo json_encode($resp);
                             break;
                         }
 
-                        // Single-nested-folder archives ("zip -r folder/") land one
-                        // level down and would never serve; lift them to the root
-                        // before anything inspects the layout.
-                        orbitraFlattenSingleNestedDir($uploadDir);
-
-                        // Names alone cannot tell whether the PHP inside is acceptable,
-                        // so the check happens on the extracted source — and a failing
-                        // archive is removed rather than left half-installed.
-                        require_once __DIR__ . '/core/PhpLanding.php';
-                        $phpProblems = PhpLanding::scanDirectory($uploadDir);
-                        if ($phpProblems) {
-                            $lines = [];
-                            foreach ($phpProblems as $file => $names) {
-                                $lines[] = $file . ': ' . implode(', ', $names);
-                            }
-                            $it = new RecursiveIteratorIterator(
-                                new RecursiveDirectoryIterator($uploadDir, RecursiveDirectoryIterator::SKIP_DOTS),
-                                RecursiveIteratorIterator::CHILD_FIRST
-                            );
-                            foreach ($it as $entry) {
-                                $entry->isDir() ? @rmdir($entry->getPathname()) : @unlink($entry->getPathname());
-                            }
-                            echo json_encode([
-                                'status' => 'error',
-                                'message' => 'This landing uses calls that are not allowed in a PHP landing — '
-                                    . implode(' | ', $lines)
-                            ]);
-                            $zip->close();
-                            break;
+                        $resp = ['status' => 'success', 'message' => 'Files extracted successfully'];
+                        // What the sanitizer stripped, so the operator can see the
+                        // template was rewritten, not silently altered.
+                        if (!empty($extracted['sanitized'])) {
+                            $resp['sanitized'] = $extracted['sanitized'];
                         }
-
-                        echo json_encode(['status' => 'success', 'message' => 'Files extracted successfully']);
+                        echo json_encode($resp);
                     } else {
+                        $zip->close();
                         echo json_encode(['status' => 'error', 'message' => $errorMsg]);
                     }
-                    $zip->close();
                 } else {
                     echo json_encode(['status' => 'error', 'message' => 'zip_open_failed']);
                 }
@@ -4210,69 +4521,31 @@ try {
                     }
 
                     if ($safeToExtract) {
-                        if (!$zip->extractTo($uploadDir)) {
-                            $badMethods = [];
-                            for ($i = 0; $i < $zip->numFiles; $i++) {
-                                $stat = $zip->statIndex($i);
-                                $method = $stat['comp_method'] ?? 8;
-                                if (!in_array((int) $method, [0, 8], true)) {
-                                    $badMethods[(int) $method] = true;
-                                }
+                        // Same stage-then-swap as landings — a replacement
+                        // archive replaces, and a rejected one leaves the
+                        // previously uploaded files standing.
+                        $extracted = orbitraExtractArchiveSwap($zip, $uploadDir, $pdo);
+                        if (!$extracted['ok']) {
+                            $err = $extracted['error'];
+                            $resp = ['status' => 'error', 'message' => $err['message']];
+                            if (!empty($err['detail'])) {
+                                $resp['detail'] = $err['detail'];
                             }
-                            $zip->close();
-                            if ($badMethods) {
-                                $methodNames = [9 => 'Deflate64', 12 => 'BZip2', 14 => 'LZMA', 93 => 'Zstandard', 95 => 'XZ', 98 => 'PPMd'];
-                                $named = [];
-                                foreach (array_keys($badMethods) as $m) {
-                                    $named[] = $methodNames[$m] ?? ('метод ' . $m);
-                                }
-                                echo json_encode([
-                                    'status' => 'error',
-                                    'message' => 'zip_unsupported_compression',
-                                    'detail' => ['methods' => $named],
-                                ]);
-                                break;
-                            }
-                            echo json_encode([
-                                'status' => 'error',
-                                'message' => 'zip_extract_failed',
-                                'detail' => ['path' => $uploadDir],
-                            ]);
+                            echo json_encode($resp);
                             break;
                         }
 
-                        // Same nested-folder flattening as landings — offer archives
-                        // come from the same zip tools.
-                        orbitraFlattenSingleNestedDir($uploadDir);
-
-                        require_once __DIR__ . '/core/PhpLanding.php';
-                        $phpProblems = PhpLanding::scanDirectory($uploadDir);
-                        if ($phpProblems) {
-                            $lines = [];
-                            foreach ($phpProblems as $file => $names) {
-                                $lines[] = $file . ': ' . implode(', ', $names);
-                            }
-                            $it = new RecursiveIteratorIterator(
-                                new RecursiveDirectoryIterator($uploadDir, RecursiveDirectoryIterator::SKIP_DOTS),
-                                RecursiveIteratorIterator::CHILD_FIRST
-                            );
-                            foreach ($it as $entry) {
-                                $entry->isDir() ? @rmdir($entry->getPathname()) : @unlink($entry->getPathname());
-                            }
-                            echo json_encode([
-                                'status' => 'error',
-                                'message' => 'This offer uses calls that are not allowed in a PHP offer — '
-                                    . implode(' | ', $lines)
-                            ]);
-                            $zip->close();
-                            break;
+                        $resp = ['status' => 'success', 'message' => 'Files extracted successfully'];
+                        // What the sanitizer stripped, so the operator can see the
+                        // template was rewritten, not silently altered.
+                        if (!empty($extracted['sanitized'])) {
+                            $resp['sanitized'] = $extracted['sanitized'];
                         }
-
-                        echo json_encode(['status' => 'success', 'message' => 'Files extracted successfully']);
+                        echo json_encode($resp);
                     } else {
+                        $zip->close();
                         echo json_encode(['status' => 'error', 'message' => $errorMsg]);
                     }
-                    $zip->close();
                 } else {
                     echo json_encode(['status' => 'error', 'message' => 'zip_open_failed']);
                 }
@@ -4651,7 +4924,7 @@ try {
                 FROM offers o
                 LEFT JOIN offer_groups og ON og.id = o.group_id
                 LEFT JOIN affiliate_networks an ON an.id = o.affiliate_network_id
-                WHERE o.state = 'active'
+                WHERE o.is_archived = 0 AND o.state = 'active'
                 ORDER BY o.name ASC
             ");
             $offersList = $stmt->fetchAll();
@@ -4787,6 +5060,11 @@ try {
                 $id = $data['id'] ?? null;
                 if ($id) {
                     try {
+                        $blocking = orbitraActiveCampaignsUsingEntity($pdo, 'offer', [(int) $id]);
+                        if ($blocking) {
+                            echo json_encode(orbitraEntityInUseError('offer', $blocking));
+                            break;
+                        }
                         $pdo->prepare("UPDATE offers SET is_archived = 1, archived_at = datetime('now') WHERE id = ?")->execute([$id]);
                         echo json_encode(['status' => 'success']);
                     } catch (\Exception $e) {
@@ -4820,6 +5098,12 @@ try {
             }
             try {
                 $pdo->beginTransaction();
+                $blocking = orbitraActiveCampaignsUsingEntity($pdo, 'offer', $ids);
+                if ($blocking) {
+                    $pdo->rollBack();
+                    echo json_encode(orbitraEntityInUseError('offer', $blocking));
+                    break;
+                }
                 $placeholders = implode(',', array_fill(0, count($ids), '?'));
                 $stmt = $pdo->prepare("UPDATE offers SET is_archived = 1, archived_at = datetime('now') WHERE id IN ($placeholders)");
                 $stmt->execute($ids);
@@ -7070,6 +7354,30 @@ try {
                 $cfProxy = !empty($data['cloudflare_proxy']) ? 1 : 0;
                 $registrar = mb_substr(trim((string)($data['registrar'] ?? '')), 0, 120);
                 $dnsProvider = mb_substr(trim((string)($data['dns_provider'] ?? '')), 0, 120);
+                // Multi-account DNS: the pin (dns_provider + dns_account_id)
+                // routes parking through the right CF/NC account. A pin that
+                // no longer resolves is dropped, not fatal.
+                $dnsAccountId = !empty($data['dns_account_id']) ? (int) $data['dns_account_id'] : null;
+                if ($dnsAccountId !== null) {
+                    if ($dnsProvider === 'cloudflare') {
+                        if (orbitraCloudflareAccountCfgById($pdo, $dnsAccountId) === null) {
+                            $dnsAccountId = null;
+                        }
+                    } elseif ($dnsProvider === 'namecheap') {
+                        $pinFound = false;
+                        foreach (orbitraNamecheapAccountRows($pdo) as $rowNcPin) {
+                            if ((int) $rowNcPin['id'] === $dnsAccountId) {
+                                $pinFound = true;
+                                break;
+                            }
+                        }
+                        if (!$pinFound) {
+                            $dnsAccountId = null;
+                        }
+                    } else {
+                        $dnsAccountId = null;
+                    }
+                }
                 $statusMap = ['ok' => 'OK', 'active' => 'Active', 'disabled' => 'Disabled'];
                 $statusKey = strtolower(trim((string)($data['status'] ?? 'OK')));
                 $domainStatus = $statusMap[$statusKey] ?? 'OK';
@@ -7082,8 +7390,8 @@ try {
                 try {
                     // EDIT MODE: Update existing domain
                     if ($id) {
-                        $stmt = $pdo->prepare("UPDATE domains SET name=?, index_campaign_id=?, catch_404=?, group_id=?, is_noindex=?, https_only=?, admin_access=?, cloudflare_proxy=?, registrar=?, dns_provider=?, status=? WHERE id=?");
-                        $stmt->execute([$name, $indexCampId, $catch404, $groupId, $isNoindex, $httpsOnly, $adminAccess, $cfProxy, $registrar, $dnsProvider, $domainStatus, $id]);
+                        $stmt = $pdo->prepare("UPDATE domains SET name=?, index_campaign_id=?, catch_404=?, group_id=?, is_noindex=?, https_only=?, admin_access=?, cloudflare_proxy=?, registrar=?, dns_provider=?, dns_account_id=?, status=? WHERE id=?");
+                        $stmt->execute([$name, $indexCampId, $catch404, $groupId, $isNoindex, $httpsOnly, $adminAccess, $cfProxy, $registrar, $dnsProvider, $dnsAccountId, $domainStatus, $id]);
                         logAudit($pdo, 'UPDATE', 'Domain', $id, "Name: $name");
 
                         // Every parked domain wants a certificate, whether or not
@@ -7155,8 +7463,8 @@ try {
                             $sslStatus = $cfProxy ? 'cloudflare' : 'pending';
 
                             try {
-                                $stmt = $pdo->prepare("INSERT INTO domains (name, index_campaign_id, catch_404, group_id, is_noindex, https_only, ssl_status, admin_access, cloudflare_proxy, registrar, dns_provider, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                                $stmt->execute([$domainName, $indexCampId, $catch404, $groupId, $isNoindex, $httpsOnly, $sslStatus, $adminAccess, $cfProxy, $registrar, $dnsProvider, $domainStatus]);
+                                $stmt = $pdo->prepare("INSERT INTO domains (name, index_campaign_id, catch_404, group_id, is_noindex, https_only, ssl_status, admin_access, cloudflare_proxy, registrar, dns_provider, dns_account_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                $stmt->execute([$domainName, $indexCampId, $catch404, $groupId, $isNoindex, $httpsOnly, $sslStatus, $adminAccess, $cfProxy, $registrar, $dnsProvider, $dnsAccountId, $domainStatus]);
                                 $newId = $pdo->lastInsertId();
                                 $results[] = ['id' => $newId, 'name' => $domainName];
 
@@ -7164,7 +7472,9 @@ try {
                                 // domain's zone is in the account, the A record is written
                                 // right here — and a proxied domain takes its SSL from the
                                 // CF edge, leaving the certbot queue (ssl_status=cloudflare).
-                                $cfCfg = orbitraCloudflareConfig($pdo);
+                                $cfCfg = ($dnsProvider === 'cloudflare' && $dnsAccountId !== null)
+                                    ? (orbitraCloudflareAccountCfgById($pdo, $dnsAccountId) ?? orbitraCloudflareConfig($pdo))
+                                    : orbitraCloudflareConfig($pdo);
                                 if ($cfCfg['token'] !== '') {
                                     $cfSync = orbitraCloudflareSyncDomain($pdo, ['id' => $newId, 'name' => $domainName], $cfCfg);
                                     $results[count($results) - 1]['cloudflare'] = $cfSync['ok']
@@ -7172,14 +7482,28 @@ try {
                                         : null; // zone not in the account is not an error
                                 }
 
-                                // Namecheap: same zero-config parking — when the domain
-                                // (or its registered root) lives in the connected account,
-                                // its A record is written through the API right here. SSL
-                                // stays with certbot: the LE certificate is issued as soon
+                                // Namecheap: same zero-config parking — when the
+                                // domain (or its registered root) lives in any
+                                // connected account, its A record is written
+                                // through the API right here. SSL stays with
+                                // certbot: the LE certificate is issued as soon
                                 // as the fresh DNS record resolves.
                                 $ncCfg = orbitraNamecheapConfig($pdo);
-                                if ($ncCfg['api_key'] !== '') {
-                                    $ncSync = orbitraNamecheapSyncDomain($pdo, ['id' => $newId, 'name' => $domainName], $ncCfg);
+                                // A pinned Namecheap account parks through that
+                                // one directly; without a pin SyncDomain tries
+                                // every connected account and parks through the
+                                // one that owns the domain's zone.
+                                $ncPinCfg = null;
+                                if ($dnsProvider === 'namecheap' && $dnsAccountId !== null) {
+                                    foreach (orbitraNamecheapAccountRows($pdo) as $rowNcPin) {
+                                        if ((int) $rowNcPin['id'] === $dnsAccountId) {
+                                            $ncPinCfg = orbitraNamecheapAccountCfg($pdo, $rowNcPin);
+                                            break;
+                                        }
+                                    }
+                                }
+                                if ($ncPinCfg !== null || $ncCfg['api_key'] !== '') {
+                                    $ncSync = orbitraNamecheapSyncDomain($pdo, ['id' => $newId, 'name' => $domainName], $ncPinCfg);
                                     $results[count($results) - 1]['namecheap'] = $ncSync['ok']
                                         ? $ncSync['message']
                                         : null; // domain not in the account is not an error
@@ -7318,11 +7642,15 @@ try {
         case 'cloudflare_status':
             try {
                 $cfgCf = orbitraCloudflareConfig($pdo);
+                $accountsCf = orbitraCloudflareAccountsPayload($pdo);
                 echo json_encode(['status' => 'success', 'data' => [
-                    'connected' => $cfgCf['token'] !== '',
+                    // connected = any active account, or the legacy single
+                    // token on installs that never re-saved after 1.0.5.
+                    'connected' => count($accountsCf) > 0 || $cfgCf['token'] !== '',
                     'proxied' => $cfgCf['proxied'],
                     'ssl_mode' => $cfgCf['ssl_mode'],
-                    'server_ip' => $cfgCf['server_ip'],
+                    'server_ip' => orbitraCloudflareGlobals($pdo)['server_ip'],
+                    'accounts' => $accountsCf,
                     'managed_domains' => (int) $pdo->query("SELECT COUNT(*) FROM domains WHERE ssl_status = 'cloudflare'")->fetchColumn(),
                 ]]);
             } catch (\Exception $e) {
@@ -7355,13 +7683,27 @@ try {
                         }
                     }
 
-                    foreach ([
-                        ['cf_api_token', $token],
-                        ['cf_proxied', $proxied ? '1' : '0'],
-                        ['cf_ssl_mode', $sslMode],
-                        ['cf_server_ip', $serverIp],
-                    ] as [$keyCf, $valueCf]) {
-                        $pdo->prepare("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value")->execute([$keyCf, $valueCf]);
+                    if ($serverIp !== '') {
+                        $pdo->prepare("INSERT INTO settings (key, value) VALUES ('cf_server_ip', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value")->execute([$serverIp]);
+                    }
+
+                    // Account hub: the legacy form writes the default (first
+                    // active) account, so old callers keep changing what the
+                    // panel shows. The legacy settings rows stay untouched for
+                    // downgrade safety.
+                    $defaultRow = null;
+                    foreach (orbitraCloudflareAccountRows($pdo) as $row) {
+                        $defaultRow = $row;
+                        break;
+                    }
+                    if ($defaultRow !== null) {
+                        $pdo->prepare("UPDATE cloudflare_accounts SET api_token = ?, proxied = ?, ssl_mode = ? WHERE id = ?")
+                            ->execute([$token, $proxied ? 1 : 0, $sslMode, (int) $defaultRow['id']]);
+                    } elseif ($token !== '') {
+                        $pdo->prepare("INSERT INTO cloudflare_accounts (name, api_token, ssl_mode, proxied) VALUES ('Cloudflare', ?, ?, ?)")
+                            ->execute([$token, $sslMode, $proxied ? 1 : 0]);
+                    } else {
+                        $pdo->prepare("INSERT INTO settings (key, value) VALUES ('cf_api_token', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value")->execute([$token]);
                     }
 
                     echo json_encode(['status' => 'success', 'data' => ['connected' => $token !== '']]);
@@ -7397,7 +7739,7 @@ try {
                 $dataCf = json_decode(orbitraRequestBody(), true);
                 $idCf = (int) ($dataCf['id'] ?? 0);
                 try {
-                    $stmtCf = $pdo->prepare("SELECT id, name FROM domains WHERE id = ? LIMIT 1");
+                    $stmtCf = $pdo->prepare("SELECT id, name, dns_provider, dns_account_id FROM domains WHERE id = ? LIMIT 1");
                     $stmtCf->execute([$idCf]);
                     $domainCf = $stmtCf->fetch(PDO::FETCH_ASSOC);
                     if (!$domainCf) {
@@ -7425,8 +7767,11 @@ try {
                     }
                     $synced = [];
                     $failed = [];
-                    foreach ($pdo->query("SELECT id, name FROM domains WHERE is_archived = 0") as $domainCf) {
-                        $resultCf = orbitraCloudflareSyncDomain($pdo, $domainCf, $cfgCf);
+                    foreach ($pdo->query("SELECT id, name, dns_provider, dns_account_id FROM domains WHERE is_archived = 0") as $domainCf) {
+                        // Per-domain resolution: with several accounts the zone
+                        // may live in any of them — a domain pinned to another
+                        // account must not be forced through the default one.
+                        $resultCf = orbitraCloudflareSyncDomain($pdo, $domainCf);
                         if ($resultCf['ok']) {
                             $synced[] = $domainCf['name'];
                         } elseif (strpos($resultCf['message'], 'Zone not found') === false) {
@@ -7441,20 +7786,474 @@ try {
             }
             break;
 
-        // === Namecheap: zero-config DNS parking, domain purchasing, import ===
+        // === Cloudflare multi-account hub ===
+
+        // The A-record target is server-wide, not per account — a small
+        // dedicated action so the shared field saves without touching any
+        // account's token.
+        case 'cloudflare_options_save':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $dataCf = json_decode(orbitraRequestBody(), true);
+                try {
+                    $serverIp = trim((string) ($dataCf['server_ip'] ?? ''));
+                    if ($serverIp !== '' && filter_var($serverIp, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
+                        echo json_encode(['status' => 'error', 'message' => 'Invalid server IP']);
+                        break;
+                    }
+                    $pdo->prepare("INSERT INTO settings (key, value) VALUES ('cf_server_ip', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value")->execute([$serverIp]);
+                    echo json_encode(['status' => 'success', 'data' => ['server_ip' => $serverIp]]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        // Stored state only — zones refresh through cloudflare_account_zones,
+        // so an N-account list never stacks N live API calls.
+        case 'cloudflare_accounts_list':
+            try {
+                echo json_encode(['status' => 'success', 'data' => [
+                    'accounts' => orbitraCloudflareAccountsPayload($pdo),
+                    'server_ip' => orbitraCloudflareGlobals($pdo)['server_ip'],
+                ]]);
+            } catch (\Exception $e) {
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
+        // Test Connection & Save: the token is verified live before the row is
+        // stored, and the zone count snapshot comes from that same probe.
+        case 'cloudflare_account_save':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $dataCf = json_decode(orbitraRequestBody(), true);
+                try {
+                    $idCf = (int) ($dataCf['id'] ?? 0);
+                    $name = mb_substr(trim((string) ($dataCf['name'] ?? '')) ?: 'Cloudflare', 0, 120);
+                    $token = trim((string) ($dataCf['api_token'] ?? ''));
+                    $sslMode = in_array(($dataCf['ssl_mode'] ?? ''), ['flexible', 'full', 'strict'], true) ? $dataCf['ssl_mode'] : 'flexible';
+                    $proxied = !empty($dataCf['proxied']);
+                    $serverIp = trim((string) ($dataCf['server_ip'] ?? ''));
+
+                    $existingCf = null;
+                    if ($idCf > 0) {
+                        $stmtCf = $pdo->prepare("SELECT * FROM cloudflare_accounts WHERE id = ? LIMIT 1");
+                        $stmtCf->execute([$idCf]);
+                        $existingCf = $stmtCf->fetch(PDO::FETCH_ASSOC);
+                        if (!$existingCf) {
+                            echo json_encode(['status' => 'error', 'message' => 'cloudflare_account_not_found']);
+                            break;
+                        }
+                        // Empty token field = keep the stored secret, same as
+                        // every other credential form in the panel.
+                        if ($token === '') {
+                            $token = (string) $existingCf['api_token'];
+                        }
+                    }
+
+                    if ($token === '') {
+                        echo json_encode(['status' => 'error', 'message' => 'cloudflare_token_required']);
+                        break;
+                    }
+
+                    require_once __DIR__ . '/core/CloudflareApi.php';
+                    $verify = CloudflareApi::verifyToken($token);
+                    if (!$verify['ok']) {
+                        echo json_encode(['status' => 'error', 'message' => 'cloudflare_token_invalid', 'detail' => ['error' => $verify['message']]]);
+                        break;
+                    }
+                    $zones = CloudflareApi::listZones($token);
+                    $zonesCount = $zones['ok'] ? $zones['count'] : ($existingCf !== null ? $existingCf['zones_count'] : null);
+
+                    if ($serverIp !== '') {
+                        $pdo->prepare("INSERT INTO settings (key, value) VALUES ('cf_server_ip', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value")->execute([$serverIp]);
+                    }
+
+                    if ($existingCf) {
+                        $pdo->prepare("UPDATE cloudflare_accounts SET name = ?, api_token = ?, ssl_mode = ?, proxied = ?, zones_count = ? WHERE id = ?")
+                            ->execute([$name, $token, $sslMode, $proxied ? 1 : 0, $zonesCount, $idCf]);
+                        logAudit($pdo, 'UPDATE', 'CloudflareAccount', $idCf, "Name: $name");
+                    } else {
+                        $pdo->prepare("INSERT INTO cloudflare_accounts (name, api_token, ssl_mode, proxied, zones_count) VALUES (?, ?, ?, ?, ?)")
+                            ->execute([$name, $token, $sslMode, $proxied ? 1 : 0, $zonesCount]);
+                        $idCf = (int) $pdo->lastInsertId();
+                        logAudit($pdo, 'CREATE', 'CloudflareAccount', $idCf, "Name: $name");
+                    }
+
+                    echo json_encode(['status' => 'success', 'data' => ['account' => [
+                        'id' => $idCf,
+                        'name' => $name,
+                        'ssl_mode' => $sslMode,
+                        'proxied' => $proxied,
+                        'zones_count' => $zonesCount !== null ? (int) $zonesCount : null,
+                    ]]]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        case 'cloudflare_account_delete':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $dataCf = json_decode(orbitraRequestBody(), true);
+                try {
+                    $idCf = (int) ($dataCf['id'] ?? 0);
+                    $stmtCf = $pdo->prepare("SELECT name FROM cloudflare_accounts WHERE id = ? LIMIT 1");
+                    $stmtCf->execute([$idCf]);
+                    $rowCf = $stmtCf->fetch(PDO::FETCH_ASSOC);
+                    if (!$rowCf) {
+                        echo json_encode(['status' => 'error', 'message' => 'cloudflare_account_not_found']);
+                        break;
+                    }
+                    $pdo->prepare("DELETE FROM cloudflare_accounts WHERE id = ?")->execute([$idCf]);
+                    // Domains pinned to the deleted account degrade to the
+                    // default connection — CfgForDomain ignores ids that no
+                    // longer resolve, so nothing else needs cleaning here.
+                    logAudit($pdo, 'DELETE', 'CloudflareAccount', $idCf, "Name: {$rowCf['name']}");
+                    echo json_encode(['status' => 'success']);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        // Zones of one account for the Import & Auto-DNS dialog; each zone is
+        // marked with whether the tracker already parks it.
+        case 'cloudflare_account_zones':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $dataCf = json_decode(orbitraRequestBody(), true);
+                try {
+                    $cfgCf = null;
+                    $idCf = (int) ($dataCf['id'] ?? 0);
+                    foreach (orbitraCloudflareAccountRows($pdo) as $row) {
+                        if ((int) $row['id'] === $idCf) {
+                            $cfgCf = orbitraCloudflareAccountCfg($pdo, $row);
+                            break;
+                        }
+                    }
+                    if ($idCf <= 0 || $cfgCf === null || $cfgCf['token'] === '') {
+                        echo json_encode(['status' => 'error', 'message' => 'cloudflare_not_connected']);
+                        break;
+                    }
+                    require_once __DIR__ . '/core/CloudflareApi.php';
+                    $zones = CloudflareApi::listZonesDetailed($cfgCf['token']);
+                    if (!$zones['ok']) {
+                        echo json_encode(['status' => 'error', 'message' => $zones['message']]);
+                        break;
+                    }
+                    $pdo->prepare("UPDATE cloudflare_accounts SET zones_count = ? WHERE id = ?")->execute([$zones['count'], $idCf]);
+                    $have = [];
+                    foreach ($pdo->query("SELECT lower(name) AS n FROM domains") as $domCf) {
+                        $have[(string) $domCf['n']] = true;
+                    }
+                    $out = [];
+                    foreach ($zones['zones'] as $z) {
+                        $z['in_tracker'] = isset($have[$z['name']]);
+                        $out[] = $z;
+                    }
+                    echo json_encode(['status' => 'success', 'data' => ['zones' => $out, 'count' => $zones['count']]]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        // Import & Auto-DNS: park the selected zones into the tracker through
+        // THIS account — domain row + A record at the server IP in one click.
+        case 'cloudflare_account_import':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $dataCf = json_decode(orbitraRequestBody(), true);
+                try {
+                    $cfgCf = null;
+                    $idCf = (int) ($dataCf['id'] ?? 0);
+                    foreach (orbitraCloudflareAccountRows($pdo) as $row) {
+                        if ((int) $row['id'] === $idCf) {
+                            $cfgCf = orbitraCloudflareAccountCfg($pdo, $row);
+                            break;
+                        }
+                    }
+                    if ($idCf <= 0 || $cfgCf === null || $cfgCf['token'] === '') {
+                        echo json_encode(['status' => 'error', 'message' => 'cloudflare_not_connected']);
+                        break;
+                    }
+                    $zonesIn = array_slice((array) ($dataCf['zones'] ?? []), 0, 200);
+                    if (!$zonesIn) {
+                        echo json_encode(['status' => 'error', 'message' => 'No zones selected']);
+                        break;
+                    }
+
+                    $added = [];
+                    $parked = [];
+                    $duplicates = [];
+                    $errors = [];
+                    $sslQueued = false;
+                    foreach ($zonesIn as $zoneRaw) {
+                        $zoneName = strtolower(trim((string) $zoneRaw));
+                        if ($zoneName === '' || !preg_match('/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9]))+$/', $zoneName)) {
+                            $errors[] = "Invalid zone: $zoneRaw";
+                            continue;
+                        }
+                        $stmtCf = $pdo->prepare("SELECT id FROM domains WHERE name = ? LIMIT 1");
+                        $stmtCf->execute([$zoneName]);
+                        if ($stmtCf->fetchColumn()) {
+                            $duplicates[] = $zoneName;
+                            continue;
+                        }
+                        // Same semantics as the normal save flow: a proxied
+                        // domain takes SSL from the CF edge and leaves certbot.
+                        $sslStatus = !empty($cfgCf['proxied']) ? 'cloudflare' : 'pending';
+                        try {
+                            $pdo->prepare("INSERT INTO domains (name, index_campaign_id, catch_404, group_id, is_noindex, https_only, ssl_status, admin_access, cloudflare_proxy, registrar, dns_provider, dns_account_id, status) VALUES (?, NULL, 1, NULL, 1, 0, ?, 1, ?, 'cloudflare', 'cloudflare', ?, 'OK')")
+                                ->execute([$zoneName, $sslStatus, !empty($cfgCf['proxied']) ? 1 : 0, $idCf]);
+                            $newId = (int) $pdo->lastInsertId();
+                            logAudit($pdo, 'CREATE', 'Domain', $newId, "Cloudflare import: $zoneName");
+                            $added[] = $zoneName;
+
+                            $sync = orbitraCloudflareSyncDomain($pdo, ['id' => $newId, 'name' => $zoneName, 'dns_provider' => 'cloudflare', 'dns_account_id' => $idCf], $cfgCf);
+                            if ($sync['ok']) {
+                                $parked[] = $zoneName;
+                            } else {
+                                $errors[] = "$zoneName: " . $sync['message'];
+                            }
+                            if ($sslStatus === 'pending') {
+                                $sslQueued = true;
+                            }
+                        } catch (\Exception $e) {
+                            $errors[] = "$zoneName: " . $e->getMessage();
+                        }
+                    }
+
+                    $nginxResult = updateNginxConfig($pdo);
+                    if ($sslQueued) {
+                        $cliPath = __DIR__ . '/cli/ssl_installer.php';
+                        if (file_exists($cliPath)) {
+                            orbitraShell("php " . escapeshellarg($cliPath) . " > /dev/null 2>&1 &");
+                        }
+                    }
+
+                    echo json_encode(['status' => 'success', 'data' => [
+                        'added' => $added,
+                        'parked' => $parked,
+                        'duplicates' => $duplicates,
+                        'errors' => $errors,
+                        'nginx' => $nginxResult,
+                    ]]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        // Re-point All: rewrite the A records of every domain whose zone lives
+        // in THIS account at the current server IP — the per-account version
+        // of cloudflare_sync_all for the "moved to a new server" case.
+        case 'cloudflare_account_repoint':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $dataCf = json_decode(orbitraRequestBody(), true);
+                try {
+                    $cfgCf = null;
+                    $idCf = (int) ($dataCf['id'] ?? 0);
+                    foreach (orbitraCloudflareAccountRows($pdo) as $row) {
+                        if ((int) $row['id'] === $idCf) {
+                            $cfgCf = orbitraCloudflareAccountCfg($pdo, $row);
+                            break;
+                        }
+                    }
+                    if ($idCf <= 0 || $cfgCf === null || $cfgCf['token'] === '') {
+                        echo json_encode(['status' => 'error', 'message' => 'cloudflare_not_connected']);
+                        break;
+                    }
+                    $synced = [];
+                    $failed = [];
+                    // The account that holds the zone becomes the domain's
+                    // manager for future one-click syncs.
+                    $stmtPin = $pdo->prepare("UPDATE domains SET dns_provider = 'cloudflare', dns_account_id = ? WHERE id = ?");
+                    foreach ($pdo->query("SELECT id, name FROM domains WHERE is_archived = 0") as $domainCf) {
+                        $resultCf = orbitraCloudflareSyncDomain($pdo, $domainCf, $cfgCf);
+                        if ($resultCf['ok']) {
+                            $synced[] = $domainCf['name'];
+                            $stmtPin->execute([$idCf, (int) $domainCf['id']]);
+                        } elseif (strpos($resultCf['message'], 'Zone not found') === false) {
+                            // A domain outside this CF account is not an error.
+                            $failed[] = $domainCf['name'] . ': ' . $resultCf['message'];
+                        }
+                    }
+                    echo json_encode(['status' => 'success', 'data' => ['synced' => $synced, 'failed' => $failed]]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        // === Namecheap: multi-account hub, zero-config DNS parking, purchasing, import ===
         case 'namecheap_status':
             try {
                 $cfgNc = orbitraNamecheapConfig($pdo);
+                $accountsNc = orbitraNamecheapAccountsPayload($pdo);
                 echo json_encode(['status' => 'success', 'data' => [
-                    'connected' => $cfgNc['api_key'] !== '' && $cfgNc['username'] !== '',
+                    // connected = any active account, or the legacy single
+                    // connection on installs that never re-saved after 1.0.5.
+                    'connected' => count($accountsNc) > 0 || ($cfgNc['api_key'] !== '' && $cfgNc['username'] !== ''),
                     'username' => $cfgNc['username'],
                     'sandbox' => $cfgNc['sandbox'],
                     'address_id' => $cfgNc['address_id'],
                     'server_ip' => $cfgNc['server_ip'],
                     'detected_ip' => $cfgNc['detected_ip'],
+                    'accounts' => $accountsNc,
                 ]]);
             } catch (\Exception $e) {
                 echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
+        // Account hub: stored state only — balances refresh through
+        // namecheap_account_balance so an N-account list never stacks N
+        // sequential API round-trips into one panel request.
+        case 'namecheap_accounts_list':
+            try {
+                $gNc = orbitraNamecheapGlobals($pdo);
+                echo json_encode(['status' => 'success', 'data' => [
+                    'accounts' => orbitraNamecheapAccountsPayload($pdo),
+                    'server_ip' => $gNc['server_ip'],
+                    'detected_ip' => $gNc['detected_ip'],
+                ]]);
+            } catch (\Exception $e) {
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
+        // Test Connection & Save: the connection is verified live before the
+        // row is stored, and the balance snapshot comes from that same probe.
+        case 'namecheap_account_save':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $dataNc = json_decode(orbitraRequestBody(), true);
+                try {
+                    $idNc = (int) ($dataNc['id'] ?? 0);
+                    $username = trim((string) ($dataNc['username'] ?? ''));
+                    $apiKey = trim((string) ($dataNc['api_key'] ?? ''));
+                    $name = mb_substr(trim((string) ($dataNc['name'] ?? '')) ?: $username, 0, 120);
+                    $contactId = trim((string) ($dataNc['contact_id'] ?? ''));
+                    $sandbox = !empty($dataNc['sandbox']);
+
+                    $existingNc = null;
+                    if ($idNc > 0) {
+                        $stmtNc = $pdo->prepare("SELECT * FROM namecheap_accounts WHERE id = ? LIMIT 1");
+                        $stmtNc->execute([$idNc]);
+                        $existingNc = $stmtNc->fetch(PDO::FETCH_ASSOC);
+                        if (!$existingNc) {
+                            echo json_encode(['status' => 'error', 'message' => 'namecheap_account_not_found']);
+                            break;
+                        }
+                        // Empty key field = keep the stored secret, same as
+                        // every other credential form in the panel.
+                        if ($apiKey === '') {
+                            $apiKey = (string) $existingNc['api_key'];
+                        }
+                    }
+
+                    if ($apiKey === '' || $username === '') {
+                        echo json_encode(['status' => 'error', 'message' => 'namecheap_username_and_key_required']);
+                        break;
+                    }
+
+                    require_once __DIR__ . '/core/NamecheapClient.php';
+                    $gNc = orbitraNamecheapGlobals($pdo);
+                    $cfgProbe = ['api_key' => $apiKey, 'username' => $username, 'client_ip' => $gNc['client_ip'], 'sandbox' => $sandbox];
+                    $verify = NamecheapClient::verifyConnection($cfgProbe);
+                    if (!$verify['ok']) {
+                        if ($verify['ip_hint'] !== '') {
+                            orbitraNamecheapRememberIp($pdo, $verify['ip_hint']);
+                        }
+                        echo json_encode(['status' => 'error', 'message' => 'namecheap_connection_failed', 'detail' => ['error' => $verify['message'], 'ip' => $verify['ip_hint']]]);
+                        break;
+                    }
+
+                    if ($existingNc) {
+                        $pdo->prepare("UPDATE namecheap_accounts SET name = ?, username = ?, api_key = ?, contact_id = ?, sandbox = ?, last_balance = ? WHERE id = ?")
+                            ->execute([$name, $username, $apiKey, $contactId, $sandbox ? 1 : 0, (string) ($verify['balance'] ?? ''), $idNc]);
+                        logAudit($pdo, 'UPDATE', 'NamecheapAccount', $idNc, "Name: $name");
+                    } else {
+                        $pdo->prepare("INSERT INTO namecheap_accounts (name, username, api_key, contact_id, sandbox, last_balance) VALUES (?, ?, ?, ?, ?, ?)")
+                            ->execute([$name, $username, $apiKey, $contactId, $sandbox ? 1 : 0, (string) ($verify['balance'] ?? '')]);
+                        $idNc = (int) $pdo->lastInsertId();
+                        logAudit($pdo, 'CREATE', 'NamecheapAccount', $idNc, "Name: $name");
+                    }
+
+                    $savedNc = null;
+                    foreach (orbitraNamecheapAccountRows($pdo) as $row) {
+                        if ((int) $row['id'] === $idNc) {
+                            $savedNc = $row;
+                            break;
+                        }
+                    }
+                    echo json_encode(['status' => 'success', 'data' => ['account' => [
+                        'id' => $idNc,
+                        'name' => $name,
+                        'username' => $username,
+                        'contact_id' => $contactId,
+                        'sandbox' => $sandbox,
+                        'last_balance' => (string) ($verify['balance'] ?? ''),
+                        'domains_count' => $savedNc !== null && $savedNc['domains_count'] !== null ? (int) $savedNc['domains_count'] : null,
+                    ]]]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        case 'namecheap_account_delete':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $dataNc = json_decode(orbitraRequestBody(), true);
+                try {
+                    $idNc = (int) ($dataNc['id'] ?? 0);
+                    $stmtNc = $pdo->prepare("SELECT name FROM namecheap_accounts WHERE id = ? LIMIT 1");
+                    $stmtNc->execute([$idNc]);
+                    $nameNc = $stmtNc->fetchColumn();
+                    if ($nameNc === false) {
+                        echo json_encode(['status' => 'error', 'message' => 'namecheap_account_not_found']);
+                        break;
+                    }
+                    $pdo->prepare("DELETE FROM namecheap_accounts WHERE id = ?")->execute([$idNc]);
+                    logAudit($pdo, 'DELETE', 'NamecheapAccount', $idNc, "Name: " . (string) $nameNc);
+                    echo json_encode(['status' => 'success']);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        // Live balance for one card (namecheap.users.getBalances); the stored
+        // snapshot updates so the next cold list shows a fresh number.
+        case 'namecheap_account_balance':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $dataNc = json_decode(orbitraRequestBody(), true);
+                try {
+                    $cfgNc = orbitraNamecheapCfgForRequest($pdo, $dataNc);
+                    if ($cfgNc['api_key'] === '' || $cfgNc['username'] === '') {
+                        echo json_encode(['status' => 'error', 'message' => 'namecheap_not_connected']);
+                        break;
+                    }
+                    require_once __DIR__ . '/core/NamecheapClient.php';
+                    $balances = NamecheapClient::getBalances($cfgNc);
+                    if (!$balances['ok']) {
+                        if ($balances['ip_hint'] !== '') {
+                            orbitraNamecheapRememberIp($pdo, $balances['ip_hint']);
+                        }
+                        echo json_encode(['status' => 'error', 'message' => $balances['errors'], 'detail' => ['ip' => $balances['ip_hint']]]);
+                        break;
+                    }
+                    $balanceStr = $balances['available'] !== null ? $balances['currency'] . ' ' . $balances['available'] : '';
+                    if (!empty($cfgNc['account_id'])) {
+                        $pdo->prepare("UPDATE namecheap_accounts SET last_balance = ? WHERE id = ?")->execute([$balanceStr, $cfgNc['account_id']]);
+                    }
+                    echo json_encode(['status' => 'success', 'data' => [
+                        'balance' => $balanceStr,
+                        'currency' => $balances['currency'],
+                        'available' => $balances['available'],
+                        'account_balance' => $balances['account'],
+                    ]]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
             }
             break;
 
@@ -7534,8 +8333,9 @@ try {
 
         case 'namecheap_addresses':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $dataNc = json_decode(orbitraRequestBody(), true);
                 try {
-                    $cfgNc = orbitraNamecheapConfig($pdo);
+                    $cfgNc = orbitraNamecheapCfgForRequest($pdo, is_array($dataNc) ? $dataNc : []);
                     require_once __DIR__ . '/core/NamecheapClient.php';
                     $addresses = NamecheapClient::listAddresses($cfgNc);
                     echo json_encode(['status' => 'success', 'data' => ['addresses' => $addresses]]);
@@ -7550,8 +8350,9 @@ try {
         // flow, so parking + SSL come along for free.
         case 'namecheap_domains':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $dataNc = json_decode(orbitraRequestBody(), true);
                 try {
-                    $cfgNc = orbitraNamecheapConfig($pdo);
+                    $cfgNc = orbitraNamecheapCfgForRequest($pdo, is_array($dataNc) ? $dataNc : []);
                     if ($cfgNc['api_key'] === '') {
                         echo json_encode(['status' => 'error', 'message' => 'namecheap_not_connected']);
                         break;
@@ -7567,6 +8368,11 @@ try {
                             break;
                         }
                     }
+                    // The card's "domains in account" number stays fresh —
+                    // this listing is exactly what it counts.
+                    if (!empty($cfgNc['account_id'])) {
+                        $pdo->prepare("UPDATE namecheap_accounts SET domains_count = ? WHERE id = ?")->execute([count($names), $cfgNc['account_id']]);
+                    }
                     echo json_encode(['status' => 'success', 'data' => ['domains' => array_values($names)]]);
                 } catch (\Exception $e) {
                     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
@@ -7578,8 +8384,8 @@ try {
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $dataNc = json_decode(orbitraRequestBody(), true);
                 try {
-                    $cfgNc = orbitraNamecheapConfig($pdo);
-                    $domain = strtolower(trim((string) ($dataNc['domain'] ?? '')));
+                    $cfgNc = orbitraNamecheapCfgForRequest($pdo, is_array($dataNc) ? $dataNc : []);
+                    $domain = strtolower(trim((string) (($dataNc ?? [])['domain'] ?? '')));
                     if ($domain === '' || !preg_match('/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)+$/', $domain)) {
                         echo json_encode(['status' => 'error', 'message' => 'Invalid domain name']);
                         break;
@@ -7593,18 +8399,19 @@ try {
             }
             break;
 
-        // Buy & Park: register through the account balance, point the fresh
-        // domain at this server, then hand it to the normal domain flow
-        // (nginx config + background Let's Encrypt certificate).
+        // Buy & Park: register through the selected account's balance, point
+        // the fresh domain at this server, then hand it to the normal domain
+        // flow (nginx config + background Let's Encrypt certificate).
         case 'namecheap_register_domain':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $dataNc = json_decode(orbitraRequestBody(), true);
                 try {
-                    $cfgNc = orbitraNamecheapConfig($pdo);
+                    $cfgNc = orbitraNamecheapCfgForRequest($pdo, is_array($dataNc) ? $dataNc : []);
                     if ($cfgNc['api_key'] === '' || $cfgNc['username'] === '') {
                         echo json_encode(['status' => 'error', 'message' => 'namecheap_not_connected']);
                         break;
                     }
+                    $dataNc = is_array($dataNc) ? $dataNc : [];
                     $domain = strtolower(trim((string) ($dataNc['domain'] ?? '')));
                     $years = max(1, min(10, (int) ($dataNc['years'] ?? 1)));
                     $addressId = trim((string) ($dataNc['address_id'] ?? '')) ?: $cfgNc['address_id'];
@@ -7632,6 +8439,16 @@ try {
                         break;
                     }
 
+                    // The card's balance snapshot is now stale — the purchase
+                    // just spent real money from this account.
+                    if (!empty($cfgNc['account_id'])) {
+                        $fresh = NamecheapClient::getBalances($cfgNc);
+                        if ($fresh['ok'] && $fresh['available'] !== null) {
+                            $pdo->prepare("UPDATE namecheap_accounts SET last_balance = ? WHERE id = ?")
+                                ->execute([$fresh['currency'] . ' ' . $fresh['available'], $cfgNc['account_id']]);
+                        }
+                    }
+
                     $exists = $pdo->prepare("SELECT id FROM domains WHERE name = ? LIMIT 1");
                     $exists->execute([$domain]);
                     if ($exists->fetchColumn()) {
@@ -7639,7 +8456,11 @@ try {
                         break;
                     }
 
-                    $pdo->prepare("INSERT INTO domains (name, index_campaign_id, catch_404, group_id, is_noindex, https_only, ssl_status) VALUES (?, NULL, 1, NULL, 1, 0, 'pending')")->execute([$domain]);
+                    // The purchase pins the domain to the account it was
+                    // bought through — later one-click syncs hit it directly
+                    // instead of searching every account.
+                    $pdo->prepare("INSERT INTO domains (name, index_campaign_id, catch_404, group_id, is_noindex, https_only, ssl_status, admin_access, registrar, dns_provider, dns_account_id) VALUES (?, NULL, 1, NULL, 1, 0, 'pending', 1, 'namecheap', 'namecheap', ?)")
+                        ->execute([$domain, !empty($cfgNc['account_id']) ? (int) $cfgNc['account_id'] : null]);
                     $newId = (int) $pdo->lastInsertId();
                     logAudit($pdo, 'CREATE', 'Domain', $newId, "Namecheap purchase: $domain");
 
@@ -7667,14 +8488,25 @@ try {
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $dataNc = json_decode(orbitraRequestBody(), true);
                 try {
-                    $stmtNc = $pdo->prepare("SELECT id, name FROM domains WHERE id = ? LIMIT 1");
+                    $stmtNc = $pdo->prepare("SELECT id, name, dns_provider, dns_account_id FROM domains WHERE id = ? LIMIT 1");
                     $stmtNc->execute([(int) ($dataNc['id'] ?? 0)]);
                     $domainNc = $stmtNc->fetch(PDO::FETCH_ASSOC);
                     if (!$domainNc) {
                         echo json_encode(['status' => 'error', 'message' => 'Domain not found']);
                         break;
                     }
-                    $resultNc = orbitraNamecheapSyncDomain($pdo, $domainNc);
+                    // A pinned account skips the try-all-accounts search; a
+                    // dangling pin falls back to it on purpose.
+                    $cfgNcPin = null;
+                    if (strcasecmp((string) ($domainNc['dns_provider'] ?? ''), 'namecheap') === 0 && !empty($domainNc['dns_account_id'])) {
+                        foreach (orbitraNamecheapAccountRows($pdo) as $rowNcPin) {
+                            if ((int) $rowNcPin['id'] === (int) $domainNc['dns_account_id']) {
+                                $cfgNcPin = orbitraNamecheapAccountCfg($pdo, $rowNcPin);
+                                break;
+                            }
+                        }
+                    }
+                    $resultNc = orbitraNamecheapSyncDomain($pdo, $domainNc, $cfgNcPin);
                     echo json_encode(['status' => $resultNc['ok'] ? 'success' : 'error', 'message' => $resultNc['message']]);
                 } catch (\Exception $e) {
                     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
@@ -12698,6 +13530,31 @@ try {
             ]);
             break;
 
+        // Same preflight for the TikTok popup: the Integrations UI disables the
+        // 1-Click button and shows a hint instead of opening a popup that is
+        // guaranteed to fall through with "not configured".
+        case 'tiktok_oauth_status':
+            $ttOauthCreds = orbitraTikTokOAuthCredentials($pdo);
+            echo json_encode([
+                'status' => 'success',
+                'data' => [
+                    'configured' => $ttOauthCreds['app_id'] !== '' && $ttOauthCreds['app_secret'] !== '',
+                ],
+            ]);
+            break;
+
+        // Same preflight for the Google Ads popup; all three credentials are
+        // required to build the consent URL.
+        case 'google_ads_oauth_status':
+            $gaOauthCreds = orbitraGoogleAdsOAuthCredentials($pdo);
+            echo json_encode([
+                'status' => 'success',
+                'data' => [
+                    'configured' => $gaOauthCreds['client_id'] !== '' && $gaOauthCreds['client_secret'] !== '' && $gaOauthCreds['developer_token'] !== '',
+                ],
+            ]);
+            break;
+
         // Begin a popup-based Facebook Login flow for automatic ad-account discovery.
         case 'facebook_oauth_start':
             if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
@@ -12957,7 +13814,7 @@ try {
                 break;
             }
 
-            $syncInterval = max(1, min(168, (int) ($data['sync_interval_hours'] ?? 2)));
+            $syncInterval = max(0.333, min(168.0, (float) ($data['sync_interval_hours'] ?? 2)));
             $created = 0;
             $updated = 0;
             try {
@@ -13297,7 +14154,7 @@ try {
                 break;
             }
 
-            $syncInterval = max(1, min(168, (int) ($data['sync_interval_hours'] ?? 2)));
+            $syncInterval = max(0.333, min(168.0, (float) ($data['sync_interval_hours'] ?? 2)));
             $importPixels = !array_key_exists('import_pixels', $data) || filter_var($data['import_pixels'], FILTER_VALIDATE_BOOLEAN);
             $token = trim((string) ($flow['access_token'] ?? ''));
             if ($token === '' || strlen($token) > 8192) {
@@ -13725,7 +14582,7 @@ try {
                 break;
             }
 
-            $syncInterval = max(1, min(168, (int) ($data['sync_interval_hours'] ?? 2)));
+            $syncInterval = max(0.333, min(168.0, (float) ($data['sync_interval_hours'] ?? 2)));
             $refreshToken = trim((string) ($flow['refresh_token'] ?? ''));
             if ($refreshToken === '' || strlen($refreshToken) > 8192) {
                 echo json_encode(['status' => 'error', 'message' => 'A valid Google Ads refresh token is required.']);
@@ -14192,7 +15049,7 @@ try {
                             $baseline = $data['baseline'] ?? 0;
                             $clickIdParam = $data['click_id_param'] ?? 'sub_id';
                             $fieldMappingJson = isset($data['field_mapping']) ? json_encode($data['field_mapping']) : null;
-                            $syncInterval = $data['sync_interval_hours'] ?? 2;
+                            $syncInterval = max(0.333, min(168.0, (float) ($data['sync_interval_hours'] ?? 2)));
                             $isActive = isset($data['is_active']) ? (int) $data['is_active'] : 1;
 
                             if ($id) {

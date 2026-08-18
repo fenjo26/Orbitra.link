@@ -28,11 +28,11 @@ function check(string $name, bool $condition, string $detail = ''): void
 
 /** @var array<string,string> $fixtures command => XML body */
 $fixtures = [
-    'namecheap.users.getBalance' => <<<'XML'
+    'namecheap.users.getBalances' => <<<'XML'
 <?xml version="1.0" encoding="utf-8"?>
 <ApiResponse Status="OK" xmlns="http://api.namecheap.com/xml.response">
-  <CommandResponse Type="namecheap.users.getBalance">
-    <UserGetBalanceResult Currency="USD" Balance="142.35" AvailableBalance="142.35" AccountType="RESELLER"/>
+  <CommandResponse Type="namecheap.users.getBalances">
+    <UserGetBalancesResult Currency="USD" AccountBalance="142.35" AvailableBalance="138.10" EarnedAmount="0.00" WithdrawableAmount="138.10"/>
   </CommandResponse>
 </ApiResponse>
 XML,
@@ -100,9 +100,11 @@ $whitelistError = <<<'XML'
 XML;
 
 $capturedSetHosts = null;
-NamecheapClient::$http = function (string $url) use ($fixtures, $whitelistError, &$capturedSetHosts): array {
+$capturedCommands = [];
+NamecheapClient::$http = function (string $url) use ($fixtures, $whitelistError, &$capturedSetHosts, &$capturedCommands): array {
     parse_str(parse_url($url, PHP_URL_QUERY) ?? '', $q);
     $command = (string) ($q['Command'] ?? '');
+    $capturedCommands[] = $command;
     if ($command === 'namecheap.domains.dns.setHosts') {
         $capturedSetHosts = $q;
         return ['body' => '<ApiResponse Status="OK" xmlns="http://api.namecheap.com/xml.response"><CommandResponse Type="namecheap.domains.dns.setHosts"><DomainDNSSetHostsResult IsSuccess="true"/></CommandResponse></ApiResponse>', 'err' => ''];
@@ -119,7 +121,12 @@ $cfg = ['api_key' => 'k' . str_repeat('e', 24), 'username' => 'owner', 'client_i
 echo "== request / verifyConnection ==\n";
 $balance = NamecheapClient::verifyConnection($cfg);
 check('balance ok', $balance['ok']);
-check('balance amount parsed', $balance['balance'] === 'USD 142.35', $balance['balance'] ?? 'null');
+// The command must be the documented plural form — the singular one is what
+// Namecheap answers with "Parameter Command is Invalid".
+check('command is namecheap.users.getBalances (plural)', end($capturedCommands) === 'namecheap.users.getBalances', end($capturedCommands) ?: 'none');
+check('balance amount parsed (AvailableBalance)', $balance['balance'] === 'USD 138.10', $balance['balance'] ?? 'null');
+$rawBalances = NamecheapClient::getBalances($cfg);
+check('getBalances splits currency/available/account', $rawBalances['currency'] === 'USD' && $rawBalances['available'] === '138.10' && $rawBalances['account'] === '142.35', json_encode($rawBalances));
 
 $bad = NamecheapClient::verifyConnection(['api_key' => 'badkey', 'username' => 'owner', 'client_ip' => '', 'sandbox' => false]);
 check('error not ok', !$bad['ok']);

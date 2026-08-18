@@ -8,7 +8,7 @@ import CodeSnippetCard from './common/CodeSnippetCard';
 import CodeEditor from './common/CodeEditor';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getStayInEditorAfterSave } from '../utils/editorPreferences';
-import { translateLandingError, translateLandingRequestError } from '../utils/landingErrors';
+import { translateLandingError, translateLandingRequestError, describeSanitized } from '../utils/landingErrors';
 import { copyToClipboard as copyUtil } from '../utils/clipboard';
 
 const API_URL = '/api.php';
@@ -393,7 +393,10 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             if (res.data.status === 'success') {
-                alert(t('landingEditor.archiveUploaded'));
+                // The sanitizer note is facts, not an error: the archive is in,
+                // but the operator should know which calls were stripped.
+                const note = describeSanitized(t, res.data.sanitized);
+                alert(note ? `${t('landingEditor.archiveUploaded')}\n\n${note}` : t('landingEditor.archiveUploaded'));
                 fetchLandingFiles(id);
                 return true;
             }

@@ -19,7 +19,7 @@ export const SegmentedControl = ({ options, value, onChange, ariaLabel }) => (
                     className="flex-1 py-2 px-3 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5"
                     style={{
                         backgroundColor: isActive ? 'var(--color-primary)' : 'transparent',
-                        color: isActive ? '#ffffff' : 'var(--color-text-secondary)',
+                        color: isActive ? 'var(--color-text-inverse)' : 'var(--color-text-secondary)',
                         boxShadow: isActive ? '0 2px 8px rgba(0, 0, 0, 0.15)' : 'none'
                     }}
                 >

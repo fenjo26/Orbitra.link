@@ -37,6 +37,13 @@ const SLUG_ERROR_KEYS = {
     zip_extract_failed: 'landingEditor.zipExtractFailed',
     zip_open_failed: 'landingEditor.zipOpenFailed',
     upload_failed: 'landingEditor.uploadFailed',
+    // Stage-then-swap extraction. php_scan_failed is the hard tier of the PHP
+    // scan (shell/eval/symlink); the runtime-limit trio never reaches here —
+    // it is stripped on the way in and reported through `sanitized` instead.
+    php_scan_failed: 'landingEditor.phpScanFailed',
+    stage_dir_not_created: 'landingEditor.stageDirNotCreated',
+    dest_dir_not_cleared: 'landingEditor.destDirNotCleared',
+    dest_dir_swap_failed: 'landingEditor.destDirSwapFailed',
 };
 
 /**
@@ -56,6 +63,20 @@ export function translateLandingError(t, message, detail) {
         ? Object.values(detail).filter(v => v !== null && v !== undefined && v !== '').join(', ')
         : '';
     return facts ? `${text} (${facts})` : text;
+}
+
+/**
+ * Phrase the sanitizer report the upload response carries in `sanitized`:
+ * which file lost which calls. Same facts-not-interpolation style as the
+ * errors above — the locale carries the sentence, the server the names.
+ */
+export function describeSanitized(t, sanitized) {
+    if (!sanitized || typeof sanitized !== 'object') return '';
+    const lines = Object.entries(sanitized)
+        .map(([file, names]) => `${file}: ${Array.isArray(names) ? names.join(', ') : names}`)
+        .filter(l => !l.endsWith(': '));
+    if (!lines.length) return '';
+    return `${t('landingEditor.archiveSanitized')}\n${lines.join('\n')}`;
 }
 
 /**

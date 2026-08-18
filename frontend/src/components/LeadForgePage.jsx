@@ -6,6 +6,7 @@ import {
     Wifi, ShieldCheck, Scissors, Repeat, Tag, Link2, Plus, Check, PackageX
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { invalidateCache } from '../utils/apiCache';
 
 const API_URL = '/api.php';
 
@@ -447,6 +448,11 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
                     : b)));
             });
             addLog(t('leadforge.logBuildDone', '🎉 Build pass finished. Landings are in the library, ready for campaigns.'), 'success');
+            // The build may have created landings/offers; the campaign editor
+            // caches those dropdown lists for 5 minutes — drop them so its
+            // picker doesn't serve a list from before the build.
+            invalidateCache('all_offers');
+            invalidateCache('landings_simple');
             if (refreshData) refreshData();
         } catch (err) {
             addLog(`❌ ${err.response?.data?.message || err.message}`, 'error');

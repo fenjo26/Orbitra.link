@@ -229,5 +229,41 @@ $assert('analyze inputs', in_array('phone', $card['detected_inputs'], true), tru
 $assert('analyze cta', $card['cta_links_count'] >= 1, true);
 LeadForge::rrmdir($dir);
 
+// ------------------------------------------- lead validation (phone lock)
+$assertTrue('order.php national length lock', strpos($orderSrc, 'lfNational') !== false);
+$assertTrue('order.php name letter check', strpos($orderSrc, 'valid customer name') !== false);
+$assertTrue('order.php phone markers all replaced', strpos($orderSrc, '@@PHONE') === false);
+$assertTrue('order.php IT range message', strpos($orderSrc, "9 . '-' . 11") !== false);
+$orderIn = LeadForge::orderPhp([
+    'network' => 'drcash', 'api_key' => 'k', 'offer_id' => 'abc',
+    'geo' => 'IN', 'payout' => 25, 'currency' => 'INR', 'crm_enabled' => true,
+    'base_url' => 'https://track.example.com', 'landing_name' => 'IN Land',
+]);
+$assertTrue('order.php IN exact-10 message', strpos($orderIn, "'exactly ' . 10") !== false);
+$assertTrue('order.php IN passes scan', empty(PhpLanding::scan($orderIn)));
+
+$assertTrue('adapter name validation', strpos($adapter, 'orbitra-name-invalid') !== false);
+$assertTrue('adapter national digit count', strpos($adapter, 'nationalDigits') !== false);
+$assertTrue('adapter phone input lock', strpos($adapter, ': PHONE_MAX;') !== false);
+
+// --------------------------------------------------- GEO language aliases
+$dir = sys_get_temp_dir() . '/lf2_geo_' . uniqid();
+@mkdir($dir, 0775, true);
+file_put_contents($dir . '/index.html',
+    '<html lang="hi"><head></head><body>नमस्ते ऑर्डर करें'
+    . '<form action="/send.php"><input name="name"><input name="phone"></form></body></html>');
+$card = LeadForge::analyzeDir($dir);
+$assert('analyze hindi lang maps to IN', $card['detected_geo'], 'IN');
+LeadForge::rrmdir($dir);
+
+$dir = sys_get_temp_dir() . '/lf2_geo2_' . uniqid();
+@mkdir($dir, 0775, true);
+file_put_contents($dir . '/index.html',
+    '<html><head></head><body>नमस्ते कृपया ऑर्डर करें'
+    . '<form action="/send.php"><input name="name"><input name="phone"></form></body></html>');
+$card = LeadForge::analyzeDir($dir);
+$assert('analyze devanagari script votes IN', $card['detected_geo'], 'IN');
+LeadForge::rrmdir($dir);
+
 @unlink($tmpDb);
 echo "ALL LEADFORGE2 TESTS PASSED\n";

@@ -7,6 +7,7 @@ import ColumnsOrderModal from './ColumnsOrderModal';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
+import { entityDeleteErrorText } from '../utils/entityInUseError';
 import PaginationToolbar from './common/PaginationToolbar';
 
 const API_URL = '/api.php';
@@ -261,10 +262,17 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
     const handleDelete = async (id) => {
         if (window.confirm(t('common.deleteConfirm'))) {
             try {
-                await axios.post(`${API_URL}?action=delete_offer`, { id });
+                const res = await axios.post(`${API_URL}?action=delete_offer`, { id });
+                // The API refuses with HTTP 200 + status:'error' when the offer
+                // is live in a serving campaign — axios does not throw, so the
+                // body has to be read or the refusal looks like a success.
+                if (res?.data?.status !== 'success') {
+                    alert(entityDeleteErrorText(t, res?.data));
+                    return;
+                }
                 await refreshOfferData();
-            } catch {
-                alert(t('common.error'));
+            } catch (err) {
+                alert(entityDeleteErrorText(t, null, err));
             }
         }
     };
@@ -299,11 +307,17 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
         const msg = (t('common.deleteSelectedConfirm') || t('common.deleteConfirm')).replace('{count}', String(ids.length));
         if (!window.confirm(msg)) return;
         try {
-            await axios.post(`${API_URL}?action=bulk_delete_offers`, { ids });
+            const res = await axios.post(`${API_URL}?action=bulk_delete_offers`, { ids });
+            // Same 200-with-error refusal as the single delete: a blocked
+            // batch must not look like it went through.
+            if (res?.data?.status !== 'success') {
+                alert(entityDeleteErrorText(t, res?.data));
+                return;
+            }
             setSelectedOfferIds(new Set());
             await refreshOfferData();
-        } catch {
-            alert(t('common.error'));
+        } catch (err) {
+            alert(entityDeleteErrorText(t, null, err));
         }
     };
 
@@ -830,14 +844,14 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                             className="px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5"
                             style={{
                                 backgroundColor: activePill ? 'var(--color-primary)' : 'var(--color-bg-card)',
-                                color: activePill ? '#ffffff' : 'var(--color-text-secondary)',
+                                color: activePill ? 'var(--color-text-inverse)' : 'var(--color-text-secondary)',
                                 border: `1px solid ${activePill ? 'var(--color-primary)' : 'var(--color-border)'}`,
                                 cursor: 'pointer'
                             }}
                         >
                             {tab.icon && <span>{tab.icon}</span>}
                             <span>{tab.label}</span>
-                            <span className="text-[10px] px-1.5 rounded-full" style={{ backgroundColor: activePill ? 'rgba(255,255,255,0.25)' : 'var(--color-bg-soft)' }}>
+                            <span className="text-[10px] px-1.5 rounded-full" style={{ backgroundColor: activePill ? 'color-mix(in srgb, var(--color-text-inverse) 15%, transparent)' : 'var(--color-bg-soft)', color: 'inherit' }}>
                                 {tab.count}
                             </span>
                         </button>

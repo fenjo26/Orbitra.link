@@ -394,7 +394,7 @@ const DateRangePicker = ({
 
                                     if (isStart || isEnd) {
                                         bg = 'var(--color-primary)';
-                                        textColor = '#ffffff';
+                                        textColor = 'var(--color-text-inverse)';
                                     } else if (isInRange) {
                                         bg = 'var(--color-primary-light)';
                                         textColor = 'var(--color-primary)';

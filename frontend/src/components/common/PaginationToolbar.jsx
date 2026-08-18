@@ -107,7 +107,7 @@ const PaginationToolbar = ({
                                     className="min-w-[28px] h-7 px-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center"
                                     style={{
                                         backgroundColor: isActive ? 'var(--color-primary)' : 'var(--color-bg-card)',
-                                        color: isActive ? '#ffffff' : 'var(--color-text-primary)',
+                                        color: isActive ? 'var(--color-text-inverse)' : 'var(--color-text-primary)',
                                         border: `1px solid ${isActive ? 'var(--color-primary)' : 'var(--color-border)'}`
                                     }}
                                 >

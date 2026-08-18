@@ -82,7 +82,7 @@ export const ProxyInput = ({ value, onChange, label }) => {
                         onClick={() => setMode('string')}
                         className="px-2 py-0.5 rounded-md font-medium transition"
                         style={mode === 'string'
-                            ? { backgroundColor: 'var(--color-primary)', color: '#ffffff' }
+                            ? { backgroundColor: 'var(--color-primary)', color: 'var(--color-text-inverse)' }
                             : { color: 'var(--color-text-muted)' }}
                     >
                         {t('proxy.singleString', 'Single string')}
@@ -92,7 +92,7 @@ export const ProxyInput = ({ value, onChange, label }) => {
                         onClick={() => setMode('blocks')}
                         className="px-2 py-0.5 rounded-md font-medium transition"
                         style={mode === 'blocks'
-                            ? { backgroundColor: 'var(--color-primary)', color: '#ffffff' }
+                            ? { backgroundColor: 'var(--color-primary)', color: 'var(--color-text-inverse)' }
                             : { color: 'var(--color-text-muted)' }}
                     >
                         {t('proxy.separateFields', 'Separate fields')}

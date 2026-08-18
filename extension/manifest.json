@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Orbitra Ads Manager Overlay",
   "description": "Show Orbitra CPA, revenue, ROI and profit next to Facebook Ads Manager rows.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "permissions": [
     "storage"
   ],

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { Plus, Edit2, Trash2, Key, Copy, Shield, User, Globe, Lock, Link2 } from 'lucide-react';
+import { Plus, Edit2, Trash2, Key, Copy, Check, Shield, User, Globe, Lock, Link2 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ROLE_TEMPLATES, templatePermissions, detectTemplate } from '../utils/roleTemplates';
+import { copyToClipboard } from '../utils/clipboard';
 
 const API_URL = '/api.php';
 
@@ -257,7 +258,7 @@ const UsersPage = () => {
                 permissions
             });
             if (res.data.status === 'success') {
-                showSuccess(t('common.success'));
+                notifyModal(t('common.success'));
                 openApiKeysModal(currentUser);
             }
         } catch (err) {
@@ -269,16 +270,11 @@ const UsersPage = () => {
         if (!window.confirm(t('common.deleteConfirm'))) return;
         try {
             await axios.post(`${API_URL}?action=delete_api_key`, { id: keyId });
-            showSuccess(t('common.success'));
+            notifyModal(t('common.success'));
             openApiKeysModal(currentUser);
         } catch (err) {
             setError(t('common.error'));
         }
-    };
-
-    const copyToClipboard = (text) => {
-        navigator.clipboard.writeText(text);
-        showSuccess(t('common.copy'));
     };
 
     // Ready-to-paste Claude Desktop config for the Orbitra MCP server.
@@ -298,6 +294,33 @@ const UsersPage = () => {
                 }
             }
         }, null, 2);
+    };
+
+    // The util falls back to execCommand on plain-HTTP origins where the
+    // Clipboard API is blocked, so these work outside HTTPS/localhost too.
+    // Page-level alerts render behind the API-keys modal overlay, so feedback
+    // for actions inside that modal must live in the modal itself.
+    const [copiedKeyTarget, setCopiedKeyTarget] = useState(null);
+    const [modalNotice, setModalNotice] = useState('');
+    const notifyModal = (msg) => {
+        setModalNotice(msg);
+        setTimeout(() => setModalNotice(''), 2000);
+    };
+    const handleCopyKeyItem = async (text, targetId, noticeText) => {
+        if (await copyToClipboard(text)) {
+            setCopiedKeyTarget(targetId);
+            notifyModal(noticeText);
+            // Guarded so a second copy within 2s isn't cleared by the first timer.
+            setTimeout(() => setCopiedKeyTarget(current => (current === targetId ? null : current)), 2000);
+        }
+    };
+
+    const [copiedMcp, setCopiedMcp] = useState(false);
+    const handleCopyMcp = async () => {
+        if (await copyToClipboard(buildMcpConfig())) {
+            setCopiedMcp(true);
+            setTimeout(() => setCopiedMcp(false), 2000);
+        }
     };
 
     const resources = [
@@ -669,6 +692,12 @@ const UsersPage = () => {
                             </div>
 
                             <div className="space-y-3" style={{ marginBottom: '16px' }}>
+                                {modalNotice && (
+                                    <div className="alert alert-success flex items-center gap-2" style={{ padding: '8px 12px', fontSize: '13px' }}>
+                                        <Check size={14} className="text-emerald-500" />
+                                        <span>{modalNotice}</span>
+                                    </div>
+                                )}
                                 {(currentUser.api_keys || []).map((key) => (
                                     <div key={key.id} className="flex items-center justify-between" style={{ padding: '12px', background: 'var(--color-bg-soft)', borderRadius: '12px' }}>
                                         <div>
@@ -689,18 +718,34 @@ const UsersPage = () => {
                                                 it over ready-made — the connector dialog has no key field and
                                                 assembling this by hand is where people get stuck. */}
                                             <button
-                                                onClick={() => copyToClipboard(`${window.location.origin}/mcp.php?k=${key.api_key}`)}
+                                                onClick={() => handleCopyKeyItem(
+                                                    `${window.location.origin}/mcp.php?k=${key.api_key}`,
+                                                    `url-${key.id}`,
+                                                    t('users.urlCopied', 'MCP Connector URL copied to clipboard!')
+                                                )}
                                                 className="action-btn text-blue"
                                                 title={t('users.copyMcpUrl', 'Copy connector URL (for Claude → Add custom connector)')}
                                             >
-                                                <Link2 size={16} />
+                                                {copiedKeyTarget === `url-${key.id}` ? (
+                                                    <Check size={16} className="text-emerald-500" />
+                                                ) : (
+                                                    <Link2 size={16} />
+                                                )}
                                             </button>
                                             <button
-                                                onClick={() => copyToClipboard(key.api_key)}
+                                                onClick={() => handleCopyKeyItem(
+                                                    key.api_key,
+                                                    `key-${key.id}`,
+                                                    t('users.keyCopied', 'API Key copied to clipboard!')
+                                                )}
                                                 className="action-btn text-blue"
                                                 title={t('common.copy')}
                                             >
-                                                <Copy size={16} />
+                                                {copiedKeyTarget === `key-${key.id}` ? (
+                                                    <Check size={16} className="text-emerald-500" />
+                                                ) : (
+                                                    <Copy size={16} />
+                                                )}
                                             </button>
                                             <button
                                                 onClick={() => deleteApiKey(key.id)}
@@ -752,12 +797,22 @@ const UsersPage = () => {
                                         {t('users.mcpTitle', 'Connect an AI assistant (MCP)')}
                                     </div>
                                     <button
-                                        onClick={() => copyToClipboard(buildMcpConfig())}
+                                        type="button"
+                                        onClick={handleCopyMcp}
                                         className="btn btn-secondary"
                                         style={{ padding: '4px 10px', fontSize: '12px' }}
                                     >
-                                        <Copy size={14} />
-                                        {t('users.mcpCopyConfig', 'Copy config')}
+                                        {copiedMcp ? (
+                                            <>
+                                                <Check size={14} className="text-emerald-500" />
+                                                <span className="text-emerald-500 font-semibold">{t('common.copied')}</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Copy size={14} />
+                                                <span>{t('users.mcpCopyConfig', 'Copy config')}</span>
+                                            </>
+                                        )}
                                     </button>
                                 </div>
                                 <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '10px', lineHeight: 1.5 }}>

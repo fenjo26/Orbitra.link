@@ -16433,6 +16433,8 @@ const ru = {
     "copied": "Скопировано",
     "selectAll": "Выбрать все",
     "orManual": "Или настроить вручную",
+    "connectModeManual": "Прямое подключение (токен)",
+    "connectModeOauth": "1-Click OAuth",
     "edit": "Изменить",
     "status": "Статус",
     "size": "Размер",
@@ -16459,6 +16461,7 @@ const ru = {
     "deleteConfirm": "Удалить? Отменить действие невозможно.",
     "deleteSelected": "Удалить выбранные",
     "deleteSelectedConfirm": "Удалить выбранные ({count})? Отменить действие невозможно.",
+    "entityInUse": "Нельзя удалить: используется в активных кампаниях: {campaigns}. Уберите его из потока или заархивируйте кампанию.",
     "sort": "Сортировать",
     "settings": "Настройки",
     "exportCsv": "Экспорт CSV",
@@ -16836,6 +16839,10 @@ const ru = {
     "name": "Название *",
     "alias": "Алиас *",
     "generateRandom": "Сгенерировать случайный",
+    "autoFormat": "Автоформат",
+    "autoFormatHint": "Собрать название из оффера первого потока, источника трафика и ГЕО оффера: Название - Источник - [GEO]",
+    "nameFormatPrefix": "Шаблон:",
+    "nameSourceOrganic": "Органика",
     "noGroup": "-- Без группы --",
     "domain": "Домен",
     "indexDomain": "-- Индексный домен --",
@@ -17052,6 +17059,9 @@ const ru = {
     "registrar": "Регистратор",
     "optional": "Опционально",
     "dnsProvider": "DNS провайдер",
+    "manageVia": "Управлять DNS через",
+    "manageViaNone": "— аккаунт по умолчанию —",
+    "manageViaHint": "Аккаунт, через который парковается A-запись домена при добавлении и синхронизации.",
     "statusOk": "OK",
     "statusActive": "Активен",
     "statusDisabled": "Отключен",
@@ -17603,6 +17613,8 @@ const ru = {
     "mcpCopyConfig": "Скопировать конфиг",
     "apiKeyHint": "Ключи «read» дают только аналитику. Ключи «write» также позволяют управлять кампаниями, офферами и доменами — их использует MCP-сервер Orbitra для нейросетей (см. mcp/README.md).",
     "copyMcpUrl": "Скопировать URL коннектора (для Claude → Add custom connector)",
+    "urlCopied": "URL коннектора MCP скопирован в буфер обмена!",
+    "keyCopied": "API-ключ скопирован в буфер обмена!",
     "newReadKey": "Ключ чтения",
     "newWriteKey": "Ключ записи",
     "title": "Пользователи",
@@ -17687,6 +17699,11 @@ const ru = {
     "zipExtractFailed": "Архив открылся, но распаковать не вышло — проверьте права и место на диске",
     "zipOpenFailed": "Не удалось открыть ZIP-архив: файл повреждён или это не ZIP",
     "uploadFailed": "Не удалось загрузить архив",
+    "phpScanFailed": "PHP в архиве вызывает запрещённые функции (запуск команд, eval, симлинки) — уберите их или загрузите архив без них",
+    "stageDirNotCreated": "Не удалось создать временную папку для распаковки — проверьте права",
+    "destDirNotCleared": "Не удалось очистить предыдущие файлы перед установкой нового архива",
+    "destDirSwapFailed": "Не удалось перенести распакованные файлы на место — проверьте права",
+    "archiveSanitized": "Эти PHP-вызовы удалены автоматически — они могут снять ограничения времени исполнения трекера:",
     "archiveUploaded": "Архив успешно загружен и распакован.",
     "archiveError": "Ошибка загрузки ZIP",
     "fileUploadError": "Не удалось загрузить файл.",
@@ -18962,6 +18979,28 @@ const ru = {
     "pushHint": "URL пуша расходов для этой кампании (API-ключ: страница Пользователи, права write)"
   },
   "cloudflare": {
+    "accounts": "Аккаунты",
+    "addAccount": "Добавить аккаунт",
+    "editAccount": "Редактировать аккаунт",
+    "accountLabel": "Название аккаунта",
+    "accountLabelPlaceholder": "Buyer 1 — Main CF",
+    "zonesCount": "зон",
+    "importZones": "Import & Auto-DNS — подтянуть зоны аккаунта и припарковать их в трекер с A-записью",
+    "importTitle": "Import & Auto-DNS",
+    "importHint": "Зоны аккаунта Cloudflare. Отмеченные добавляются в трекер: A-запись на IP сервера прописывается автоматически, проксированные получают SSL краем CF.",
+    "inTracker": "уже в трекере",
+    "noZones": "В аккаунте нет зон",
+    "selectedCount": "выбрано",
+    "importBtn": "Импортировать",
+    "importing": "Импортируем…",
+    "importedCount": "Доменов добавлено",
+    "parkedOk": "A-записи прописаны",
+    "duplicatesSkipped": "уже были в трекере",
+    "repoint": "Перепрописать A-записи доменов этого аккаунта на IP сервера",
+    "repointConfirm": "Переписать A-записи всех доменов, чьи зоны есть в этом аккаунте Cloudflare, на текущий IP сервера?",
+    "deleteConfirm": "Удалить аккаунт из трекера? Домены останутся, их A-записи больше не будут обновляться через этот аккаунт.",
+    "noAccounts": "Нет подключённых аккаунтов — добавьте первый, чтобы парковать зоны в один клик.",
+    "testAndSave": "Проверить и сохранить",
     "title": "Cloudflare",
     "description": "Управление DNS доменов трекера через Cloudflare API: A-записи прописываются сами, SSL — краем CF",
     "howTo": "Создайте токен: Cloudflare → My Profile → API Tokens → Create Token → шаблон «Edit zone DNS» → Permissions: Zone·DNS·Edit + Zone·Zone·Edit → Zone Resources: All zones. Домены, чья зона есть в аккаунте, при парковке получают A-запись автоматически; при включённом прокси SSL выдаётся краем Cloudflare мгновенно.",
@@ -18986,7 +19025,7 @@ const ru = {
     "username": "Username",
     "keySaved": "ключ сохранён — введите новый, чтобы заменить",
     "whitelistIp": "IP сервера для Whitelisted IPs",
-    "whitelistHint": "Добавьте этот IP в Namecheap: Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. Если показан неверный адрес — нажмите «Проверить»: Namecheap сам назовёт IP, с которого пришли запросы.",
+    "whitelistHint": "Добавьте этот IP в Namecheap: Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. Если показан неверный адрес — не страшно: при первой попытке подключения Namecheap сам назовёт IP, с которого пришли запросы.",
     "addressBook": "Профиль контакта (Address Book) для новых доменов",
     "addressPlaceholder": "— не выбран —",
     "addressRefresh": "Обновить список из Address Book",
@@ -19022,7 +19061,22 @@ const ru = {
     "importing": "Импортируем…",
     "importedCount": "Доменов добавлено",
     "inTracker": "уже в трекере",
-    "noDomains": "В аккаунте нет доменов"
+    "noDomains": "В аккаунте нет доменов",
+    "accounts": "Аккаунты Namecheap",
+    "addAccount": "Добавить аккаунт Namecheap",
+    "editAccount": "Редактировать аккаунт",
+    "accountLabel": "Название аккаунта",
+    "accountLabelPlaceholder": "Buyer 1 — основной",
+    "testAndSave": "Проверить и сохранить",
+    "errUserKeyRequired": "Укажите username и API key",
+    "noAccounts": "Аккаунтов пока нет — добавьте первый, чтобы парковать и покупать домены прямо из трекера.",
+    "domainsInAccount": "Доменов в аккаунте",
+    "buyDomain": "Купить домен",
+    "importPark": "Импорт и парковка",
+    "refreshBalance": "Обновить баланс",
+    "chooseAccount": "Аккаунт Namecheap",
+    "deleteConfirm": "Удалить аккаунт",
+    "addressHintNew": "Профили подтягиваются из Address Book этого аккаунта — они нужны для регистрации новых доменов."
   },
   "ipranges": {
     "title": "IP-диапазоны датацентров (клокинг)",
@@ -19100,7 +19154,11 @@ const ru = {
     "error": "Ошибка",
     "ok": "Работает",
     "neverSynced": "Ещё не синхронизировано",
-    "noAccounts": "Кабинеты TikTok не подключены. Добавьте аккаунт, чтобы импортировать расход из TikTok."
+    "noAccounts": "Кабинеты TikTok не подключены. Добавьте аккаунт, чтобы импортировать расход из TikTok.",
+    "oauthNotConfiguredTitle": "1-Click OAuth не настроен",
+    "oauthNotConfiguredHint": "Задайте ORBITRA_TIKTOK_APP_ID и ORBITRA_TIKTOK_APP_SECRET на сервере или сохраните App ID и App Secret в ручном подключении TikTok — они переиспользуются для 1-Click. Или пропустите 1-Click: подключитесь напрямую по Access Token и Advertiser ID ниже.",
+    "tokenHowTo": "Как получить токен TikTok за 1 минуту",
+    "tokenHowToHint": "1. Войдите в TikTok for Business (ads.tiktok.com) и откройте Business Center.\n2. Скопируйте Advertiser ID рекламного кабинета — числовой ID в переключателе аккаунтов.\n3. В Business Center → Приложения создайте Long-term Access Token со скоупом Advertising Read.\n4. Вставьте токен и Advertiser ID выше и нажмите «Сохранить»."
   },
   "googleAdsCosts": {
     "title": "Google Ads Costs",
@@ -19119,6 +19177,11 @@ const ru = {
     "connectedAccounts": "Подключено аккаунтов Google Ads: {n}.",
     "oauthFailed": "Не удалось подключить Google Ads. Попробуйте ещё раз.",
     "popupBlocked": "Окно входа Google заблокировано. Разрешите всплывающие окна для Orbitra и попробуйте снова.",
+    "oauthNotConfiguredTitle": "1-Click OAuth не настроен",
+    "oauthNotConfiguredHint": "Задайте ORBITRA_GOOGLE_CLIENT_ID, ORBITRA_GOOGLE_CLIENT_SECRET и ORBITRA_GOOGLE_DEVELOPER_TOKEN на сервере либо заполните Developer Token, Client ID и Client Secret в ручной форме ниже — они переиспользуются для 1-Click. Можно также подключиться полностью вручную через Refresh Token (см. инструкцию).",
+    "howTo": "Как подключить Google Ads за 3 шага",
+    "howToHint": "1. Developer Token: Google Ads → ваш аккаунт MCC → Инструменты и настройки → Центр API — скопируйте токен.\n2. Client ID и Secret: Google Cloud Console (console.cloud.google.com) → APIs & Services → Credentials → Create Credentials → идентификатор OAuth 2.0 (Веб-приложение).\nРазрешённый URI перенаправления (Authorized redirect URI) для Google Cloud Console:",
+    "howToStep3": "3. Вставьте Developer Token, Client ID и Client Secret в форму ниже (для полностью ручного подключения также нужны Refresh Token и Customer ID) и нажмите «Проверить» / «Сохранить». После сохранения ключи переиспользуются для 1-Click, а крон и кнопка «Sync Now» подтягивают реальные расходы Google Ads.",
     "noDiscoveredAccounts": "Вход в Google выполнен, но доступных рекламных аккаунтов не найдено.",
     "addAccount": "Добавить аккаунт Google Ads",
     "editAccount": "Редактировать аккаунт",
@@ -19706,6 +19769,8 @@ const en = {
     "copied": "Copied",
     "selectAll": "Select all",
     "orManual": "Or configure manually",
+    "connectModeManual": "Direct connection (token)",
+    "connectModeOauth": "1-Click OAuth",
     "edit": "Edit",
     "status": "Status",
     "size": "Size",
@@ -19732,6 +19797,7 @@ const en = {
     "deleteConfirm": "Delete? This action cannot be undone.",
     "deleteSelected": "Delete selected",
     "deleteSelectedConfirm": "Delete selected ({count})? This action cannot be undone.",
+    "entityInUse": "Cannot delete: it is used by active campaign(s): {campaigns}. Remove it from the stream or archive the campaign first.",
     "sort": "Sort",
     "settings": "Settings",
     "exportCsv": "Export CSV",
@@ -20109,6 +20175,10 @@ const en = {
     "name": "Name *",
     "alias": "Alias *",
     "generateRandom": "Generate random",
+    "autoFormat": "Auto-format",
+    "autoFormatHint": "Build the name from the first stream's offer, the traffic source and the offer GEO: Name - Source - [GEO]",
+    "nameFormatPrefix": "Format:",
+    "nameSourceOrganic": "Organic",
     "noGroup": "-- No group --",
     "domain": "Domain",
     "indexDomain": "-- Index domain --",
@@ -20325,6 +20395,9 @@ const en = {
     "registrar": "Registrar",
     "optional": "Optional",
     "dnsProvider": "DNS Provider",
+    "manageVia": "Manage DNS via",
+    "manageViaNone": "— default account —",
+    "manageViaHint": "The account this domain's A record is parked and synced through.",
     "statusOk": "OK",
     "statusActive": "Active",
     "statusDisabled": "Disabled",
@@ -20876,6 +20949,8 @@ const en = {
     "mcpCopyConfig": "Copy config",
     "apiKeyHint": "Read keys allow analytics only. Write keys also allow managing campaigns, offers and domains — used by the Orbitra MCP server for AI assistants (see mcp/README.md).",
     "copyMcpUrl": "Copy connector URL (for Claude → Add custom connector)",
+    "urlCopied": "MCP Connector URL copied to clipboard!",
+    "keyCopied": "API Key copied to clipboard!",
     "newReadKey": "Read key",
     "newWriteKey": "Write key",
     "title": "Users",
@@ -20960,6 +21035,11 @@ const en = {
     "zipExtractFailed": "The archive opened but could not be extracted — check permissions and free disk space",
     "zipOpenFailed": "Could not open the ZIP archive: it is corrupt or not a ZIP",
     "uploadFailed": "Could not upload the archive",
+    "phpScanFailed": "The PHP in this archive calls functions that are not allowed (shell access, eval, symlinks) — remove them or upload an archive without them",
+    "stageDirNotCreated": "Could not create the staging directory for extraction — check permissions",
+    "destDirNotCleared": "Could not clear the previous files before installing the new archive",
+    "destDirSwapFailed": "Could not move the extracted files into place — check permissions",
+    "archiveSanitized": "These PHP calls were removed automatically because they can lift the tracker's execution limits:",
     "archiveUploaded": "Archive successfully uploaded and extracted.",
     "archiveError": "ZIP upload error",
     "fileUploadError": "Could not upload file.",
@@ -22235,6 +22315,28 @@ const en = {
     "pushHint": "cost push URL for this campaign (API key: Users page, write permissions)"
   },
   "cloudflare": {
+    "accounts": "Accounts",
+    "addAccount": "Add account",
+    "editAccount": "Edit account",
+    "accountLabel": "Account name",
+    "accountLabelPlaceholder": "Buyer 1 — Main CF",
+    "zonesCount": "zones",
+    "importZones": "Import & Auto-DNS — pull this account's zones and park them into the tracker with an A record",
+    "importTitle": "Import & Auto-DNS",
+    "importHint": "Zones of the Cloudflare account. The checked ones are added to the tracker: the A record pointing at the server IP is written automatically; proxied zones get SSL at the CF edge.",
+    "inTracker": "already in the tracker",
+    "noZones": "No zones in this account",
+    "selectedCount": "selected",
+    "importBtn": "Import",
+    "importing": "Importing…",
+    "importedCount": "Domains added",
+    "parkedOk": "A records written",
+    "duplicatesSkipped": "already in the tracker",
+    "repoint": "Re-point this account's domains at the server IP",
+    "repointConfirm": "Rewrite the A records of every domain whose zone lives in this Cloudflare account at the current server IP?",
+    "deleteConfirm": "Delete this account from the tracker? The domains stay, but their A records will no longer be updated through this account.",
+    "noAccounts": "No connected accounts — add the first one to park zones in one click.",
+    "testAndSave": "Test & Save",
     "title": "Cloudflare",
     "description": "Manage tracker domains' DNS via the Cloudflare API: A-records are written automatically, SSL comes from the CF edge",
     "howTo": 'Create a token: Cloudflare → My Profile → API Tokens → Create Token → "Edit zone DNS" template → Permissions: Zone·DNS·Edit + Zone·Zone·Edit → Zone Resources: All zones. Domains whose zone is in the account get their A record automatically on parking; with the proxy on, SSL is issued at the Cloudflare edge instantly.',
@@ -22259,7 +22361,7 @@ const en = {
     "username": "Username",
     "keySaved": "key saved — enter a new one to replace",
     "whitelistIp": "Server IP for Whitelisted IPs",
-    "whitelistHint": "Add this IP in Namecheap: Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. If the shown address is wrong, press Test — Namecheap names the IP your requests actually came from.",
+    "whitelistHint": "Add this IP in Namecheap: Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. If the shown address is wrong, don't worry — on the first connection attempt Namecheap itself names the IP your requests actually came from.",
     "addressBook": "Contact profile (Address Book) for new domains",
     "addressPlaceholder": "— not selected —",
     "addressRefresh": "Reload the Address Book list",
@@ -22295,7 +22397,22 @@ const en = {
     "importing": "Importing…",
     "importedCount": "Domains added",
     "inTracker": "already in the tracker",
-    "noDomains": "No domains in the account"
+    "noDomains": "No domains in the account",
+    "accounts": "Namecheap Accounts",
+    "addAccount": "Add Namecheap Account",
+    "editAccount": "Edit Account",
+    "accountLabel": "Account Label",
+    "accountLabelPlaceholder": "Buyer 1 — Main",
+    "testAndSave": "Test Connection & Save",
+    "errUserKeyRequired": "Enter the username and API key",
+    "noAccounts": "No accounts yet — add the first one to park and buy domains right from the tracker.",
+    "domainsInAccount": "Domains in account",
+    "buyDomain": "Buy Domain",
+    "importPark": "Import & Park",
+    "refreshBalance": "Refresh Balance",
+    "chooseAccount": "Namecheap account",
+    "deleteConfirm": "Delete account",
+    "addressHintNew": "Profiles are pulled from this account's Namecheap Address Book — they are required to register new domains."
   },
   "ipranges": {
     "title": "Datacenter IP ranges (cloaking)",
@@ -22373,7 +22490,11 @@ const en = {
     "error": "Error",
     "ok": "OK",
     "neverSynced": "Never synced",
-    "noAccounts": "No TikTok ad accounts connected. Add an account to import spend from TikTok."
+    "noAccounts": "No TikTok ad accounts connected. Add an account to import spend from TikTok.",
+    "oauthNotConfiguredTitle": "1-Click OAuth is not configured",
+    "oauthNotConfiguredHint": "Set ORBITRA_TIKTOK_APP_ID and ORBITRA_TIKTOK_APP_SECRET on the server, or save App ID and App Secret in a manual TikTok connection — they are reused for 1-Click. You can also skip 1-Click: connect directly with an Access Token and Advertiser ID below.",
+    "tokenHowTo": "How to get a TikTok token in 1 minute",
+    "tokenHowToHint": "1. Log in to TikTok for Business (ads.tiktok.com) and open your Business Center.\n2. Copy the Advertiser ID of your ad account — the numeric ID in the account switcher.\n3. Under Business Center → Apps, generate a Long-term Access Token with the Advertising Read scope.\n4. Paste the token and Advertiser ID above and press Save."
   },
   "googleAdsCosts": {
     "title": "Google Ads Costs",
@@ -22392,6 +22513,11 @@ const en = {
     "connectedAccounts": "Connected Google Ads accounts: {n}.",
     "oauthFailed": "Google Ads connection failed. Please try again.",
     "popupBlocked": "The Google login window was blocked. Allow popups for Orbitra and try again.",
+    "oauthNotConfiguredTitle": "1-Click OAuth is not configured",
+    "oauthNotConfiguredHint": "Set ORBITRA_GOOGLE_CLIENT_ID, ORBITRA_GOOGLE_CLIENT_SECRET and ORBITRA_GOOGLE_DEVELOPER_TOKEN on the server, or fill in Developer Token, Client ID and Client Secret in the manual form below — they are reused for 1-Click. You can also connect fully manually with a Refresh Token (see the guide).",
+    "howTo": "How to connect Google Ads in 3 steps",
+    "howToHint": "1. Developer Token: Google Ads → your MCC account → Tools & Settings → API Center — copy the token.\n2. Client ID & Secret: Google Cloud Console (console.cloud.google.com) → APIs & Services → Credentials → Create Credentials → OAuth 2.0 Client ID (Web application).\nAuthorized redirect URI to add in Google Cloud Console:",
+    "howToStep3": "3. Paste the Developer Token, Client ID and Client Secret into the form below (a fully manual connection also needs a Refresh Token and Customer ID) and press Test / Save. Once saved, the app credentials are reused for 1-Click, and the cron plus “Sync Now” pull real Google Ads spend.",
     "noDiscoveredAccounts": "Google login succeeded, but no accessible ad accounts were found.",
     "addAccount": "Add Google Ads Account",
     "editAccount": "Edit Account",
@@ -22979,6 +23105,8 @@ const uk = {
     "copied": "Скопійовано",
     "selectAll": "Вибрати все",
     "orManual": "Або налаштувати вручну",
+    "connectModeManual": "Пряме підключення (токен)",
+    "connectModeOauth": "1-Click OAuth",
     "edit": "Змінити",
     "status": "Статус",
     "size": "Розмір",
@@ -23005,6 +23133,7 @@ const uk = {
     "deleteConfirm": "Видалити? Цю дію не можна скасувати.",
     "deleteSelected": "Видалити вибране",
     "deleteSelectedConfirm": "Видалити вибране ({count})? Цю дію не можна скасувати.",
+    "entityInUse": "Не можна видалити: використовується в активних кампаніях: {campaigns}. Приберіть його з потоку або заархівуйте кампанію.",
     "sort": "Сортувати",
     "settings": "Налаштування",
     "exportCsv": "Експорт CSV",
@@ -23382,6 +23511,10 @@ const uk = {
     "name": "Ім'я *",
     "alias": "псевдонім *",
     "generateRandom": "Генерувати випадкові",
+    "autoFormat": "Автоформат",
+    "autoFormatHint": "Зібрати назву з оферу першого потоку, джерела трафіку та GEO оферу: Назва - Джерело - [GEO]",
+    "nameFormatPrefix": "Шаблон:",
+    "nameSourceOrganic": "Органіка",
     "noGroup": "-- Немає групи --",
     "domain": "Домен",
     "indexDomain": "-- Індексний домен --",
@@ -23598,6 +23731,9 @@ const uk = {
     "registrar": "Реєстратор",
     "optional": "Опціонально",
     "dnsProvider": "DNS-провайдер",
+    "manageVia": "Керувати DNS через",
+    "manageViaNone": "— акаунт за замовчуванням —",
+    "manageViaHint": "Акаунт, через який паркується та синхронізується A-запис цього домену.",
     "statusOk": "OK",
     "statusActive": "Активний",
     "statusDisabled": "Вимкнено",
@@ -24149,6 +24285,8 @@ const uk = {
     "mcpCopyConfig": "Скопіювати конфіг",
     "apiKeyHint": "Ключі «read» дають лише аналітику. Ключі «write» також дозволяють керувати кампаніями, оферами й доменами — їх використовує MCP-сервер Orbitra для нейромереж (див. mcp/README.md).",
     "copyMcpUrl": "Скопіювати URL конектора (для Claude → Add custom connector)",
+    "urlCopied": "URL коннектора MCP скопійовано в буфер обміну!",
+    "keyCopied": "API-ключ скопійовано в буфер обміну!",
     "newReadKey": "Ключ читання",
     "newWriteKey": "Ключ запису",
     "title": "Користувачі",
@@ -24233,6 +24371,11 @@ const uk = {
     "zipExtractFailed": "Архів відкрився, але розпакувати не вдалося — перевірте права та місце на диску",
     "zipOpenFailed": "Не вдалося відкрити ZIP-архів: файл пошкоджено або це не ZIP",
     "uploadFailed": "Не вдалося завантажити архів",
+    "phpScanFailed": "PHP в архіві викликає заборонені функції (запуск команд, eval, симлінки) — приберіть їх або завантажте архів без них",
+    "stageDirNotCreated": "Не вдалося створити тимчасову папку для розпакування — перевірте права",
+    "destDirNotCleared": "Не вдалося очистити попередні файли перед встановленням нового архіву",
+    "destDirSwapFailed": "Не вдалося перенести розпаковані файли на місце — перевірте права",
+    "archiveSanitized": "Ці PHP-виклики видалено автоматично — вони можуть зняти обмеження часу виконання трекера:",
     "archiveUploaded": "Архів успішно завантажено та розпаковано.",
     "archiveError": "Помилка завантаження ZIP",
     "fileUploadError": "Не вдалося завантажити файл.",
@@ -25508,6 +25651,28 @@ const uk = {
     "pushHint": "URL пушу витрат для цієї кампанії (API-ключ: сторінка Користувачі, права write)"
   },
   "cloudflare": {
+    "accounts": "Акаунти",
+    "addAccount": "Додати акаунт",
+    "editAccount": "Редагувати акаунт",
+    "accountLabel": "Назва акаунта",
+    "accountLabelPlaceholder": "Buyer 1 — Main CF",
+    "zonesCount": "зон",
+    "importZones": "Import & Auto-DNS — підтягнути зони акаунта й припаркувати їх у трекер з A-записом",
+    "importTitle": "Import & Auto-DNS",
+    "importHint": "Зони акаунта Cloudflare. Відмічені додаються в трекер: A-запис на IP сервера прописується автоматично, проксовані отримують SSL на краї CF.",
+    "inTracker": "вже в трекері",
+    "noZones": "В акаунті немає зон",
+    "selectedCount": "вибрано",
+    "importBtn": "Імпортувати",
+    "importing": "Імпортуємо…",
+    "importedCount": "Доменів додано",
+    "parkedOk": "A-записи прописані",
+    "duplicatesSkipped": "вже були в трекері",
+    "repoint": "Перепрописати A-записи доменів цього акаунта на IP сервера",
+    "repointConfirm": "Переписати A-записи всіх доменів, чиї зони є в цьому акаунті Cloudflare, на поточний IP сервера?",
+    "deleteConfirm": "Видалити акаунт із трекера? Домени залишаться, але їхні A-записи більше не оновлюватимуться через цей акаунт.",
+    "noAccounts": "Немає підключених акаунтів — додайте перший, щоб паркувати зони в один клік.",
+    "testAndSave": "Перевірити й зберегти",
     "title": "Cloudflare",
     "description": "Керування DNS доменів трекера через Cloudflare API: A-записи проставляються самі, SSL — краєм CF",
     "howTo": "Створіть токен: Cloudflare → My Profile → API Tokens → Create Token → шаблон «Edit zone DNS» → Permissions: Zone·DNS·Edit + Zone·Zone·Edit → Zone Resources: All zones. Домени, чия зона є в акаунті, при паркуванні отримують A-запис автоматично; при ввімкненому проксі SSL видається краєм Cloudflare миттєво.",
@@ -25532,7 +25697,7 @@ const uk = {
     "username": "Username",
     "keySaved": "ключ збережено — введіть новий, щоб замінити",
     "whitelistIp": "IP сервера для Whitelisted IPs",
-    "whitelistHint": "Додайте цю IP у Namecheap: Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. Якщо показана хибна адреса — натисніть «Перевірити»: Namecheap сам назве IP, з якої прийшли запити.",
+    "whitelistHint": "Додайте цю IP у Namecheap: Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. Якщо показана хибна адреса — не страшно: при першій спробі підключення Namecheap сам назве IP, з якої прийшли запити.",
     "addressBook": "Профіль контакту (Address Book) для нових доменів",
     "addressPlaceholder": "— не обрано —",
     "addressRefresh": "Оновити список з Address Book",
@@ -25568,7 +25733,22 @@ const uk = {
     "importing": "Імпортуємо…",
     "importedCount": "Доменів додано",
     "inTracker": "вже в трекері",
-    "noDomains": "В акаунті немає доменів"
+    "noDomains": "В акаунті немає доменів",
+    "accounts": "Аккаунти Namecheap",
+    "addAccount": "Додати аккаунт Namecheap",
+    "editAccount": "Редагувати аккаунт",
+    "accountLabel": "Назва аккаунта",
+    "accountLabelPlaceholder": "Buyer 1 — основний",
+    "testAndSave": "Перевірити й зберегти",
+    "errUserKeyRequired": "Вкажіть username та API key",
+    "noAccounts": "Аккаунтів ще немає — додайте перший, щоб паркувати й купувати домени прямо з трекера.",
+    "domainsInAccount": "Доменів в аккаунті",
+    "buyDomain": "Купити домен",
+    "importPark": "Імпорт і парковка",
+    "refreshBalance": "Оновити баланс",
+    "chooseAccount": "Аккаунт Namecheap",
+    "deleteConfirm": "Видалити аккаунт",
+    "addressHintNew": "Профілі підтягуються з Address Book цього аккаунта — вони потрібні для реєстрації нових доменів."
   },
   "ipranges": {
     "title": "IP-діапазони датацентрів (клокінг)",
@@ -25646,7 +25826,11 @@ const uk = {
     "error": "Помилка",
     "ok": "Працює",
     "neverSynced": "Ще не синхронізовано",
-    "noAccounts": "Кабінети TikTok не підключено. Додайте аккаунт, щоб імпортувати витрати з TikTok."
+    "noAccounts": "Кабінети TikTok не підключено. Додайте аккаунт, щоб імпортувати витрати з TikTok.",
+    "oauthNotConfiguredTitle": "1-Click OAuth не налаштовано",
+    "oauthNotConfiguredHint": "Задайте ORBITRA_TIKTOK_APP_ID та ORBITRA_TIKTOK_APP_SECRET на сервері або збережіть App ID і App Secret у ручному підключенні TikTok — вони використовуються для 1-Click. Або пропустіть 1-Click і підключіться нижче напряму за Access Token та Advertiser ID.",
+    "tokenHowTo": "Як отримати токен TikTok за 1 хвилину",
+    "tokenHowToHint": "1. Увійдіть у TikTok for Business (ads.tiktok.com) та відкрийте Business Center.\n2. Скопіюйте Advertiser ID рекламного кабінету — числовий ID у перемикачі акаунтів.\n3. У Business Center → Застосунки створіть Long-term Access Token зі скоупом Advertising Read.\n4. Вставте токен та Advertiser ID вище і натисніть «Зберегти»."
   },
   "googleAdsCosts": {
     "title": "Google Ads Costs",
@@ -25665,6 +25849,11 @@ const uk = {
     "connectedAccounts": "Підключено аккаунтів Google Ads: {n}.",
     "oauthFailed": "Не вдалося підключити Google Ads. Спробуйте ще раз.",
     "popupBlocked": "Вікно входу Google заблоковано. Дозвольте спливаючі вікна для Orbitra і спробуйте ще раз.",
+    "oauthNotConfiguredTitle": "1-Click OAuth не налаштовано",
+    "oauthNotConfiguredHint": "Задайте ORBITRA_GOOGLE_CLIENT_ID, ORBITRA_GOOGLE_CLIENT_SECRET і ORBITRA_GOOGLE_DEVELOPER_TOKEN на сервері або заповніть Developer Token, Client ID і Client Secret у ручній формі нижче — вони використовуються для 1-Click. Можна також підключитися повністю вручну через Refresh Token (див. інструкцію).",
+    "howTo": "Як підключити Google Ads за 3 кроки",
+    "howToHint": "1. Developer Token: Google Ads → ваш аккаунт MCC → Інструменти та налаштування → Центр API — скопіюйте токен.\n2. Client ID і Secret: Google Cloud Console (console.cloud.google.com) → APIs & Services → Credentials → Create Credentials → ідентифікатор OAuth 2.0 (Веб-застосунок).\nДозволений URI перенаправлення (Authorized redirect URI) для Google Cloud Console:",
+    "howToStep3": "3. Вставте Developer Token, Client ID і Client Secret у форму нижче (для повністю ручного підключення також потрібні Refresh Token і Customer ID) і натисніть «Перевірити» / «Зберегти». Після збереження ключі використовуються для 1-Click, а крон і кнопка «Sync Now» підтягують реальні витрати Google Ads.",
     "noDiscoveredAccounts": "Вхід у Google виконано, але доступних рекламних аккаунтів не знайдено.",
     "addAccount": "Додати аккаунт Google Ads",
     "editAccount": "Редагувати аккаунт",
@@ -26252,6 +26441,8 @@ const es = {
     "copied": "Copiado",
     "selectAll": "Seleccionar todo",
     "orManual": "O configurar manualmente",
+    "connectModeManual": "Conexión directa (token)",
+    "connectModeOauth": "1-Click OAuth",
     "edit": "Editar",
     "status": "Estado",
     "size": "Tamaño",
@@ -26278,6 +26469,7 @@ const es = {
     "deleteConfirm": "¿Eliminar? Esta acción no se puede deshacer.",
     "deleteSelected": "Eliminar seleccionado",
     "deleteSelectedConfirm": "¿Eliminar seleccionados ({count})? Esta acción no se puede deshacer.",
+    "entityInUse": "No se puede eliminar: está en uso en campaña(s) activa(s): {campaigns}. Quita el elemento del stream o archiva la campaña.",
     "sort": "ordenar",
     "settings": "Configuración",
     "exportCsv": "Exportar CSV",
@@ -26655,6 +26847,10 @@ const es = {
     "name": "Nombre *",
     "alias": "Alias *",
     "generateRandom": "Generar aleatorio",
+    "autoFormat": "Autoformato",
+    "autoFormatHint": "Construye el nombre con la oferta del primer stream, la fuente de tráfico y el GEO de la oferta: Nombre - Fuente - [GEO]",
+    "nameFormatPrefix": "Formato:",
+    "nameSourceOrganic": "Orgánico",
     "noGroup": "-- Ningún grupo --",
     "domain": "Dominio",
     "indexDomain": "-- Dominio de índice --",
@@ -26871,6 +27067,9 @@ const es = {
     "registrar": "Registrador",
     "optional": "Opcional",
     "dnsProvider": "Proveedor de DNS",
+    "manageVia": "Gestionar DNS mediante",
+    "manageViaNone": "— cuenta predeterminada —",
+    "manageViaHint": "La cuenta mediante la cual se aparca y sincroniza el registro A de este dominio.",
     "statusOk": "OK",
     "statusActive": "Activo",
     "statusDisabled": "Deshabilitado",
@@ -27422,6 +27621,8 @@ const es = {
     "mcpCopyConfig": "Copiar configuración",
     "apiKeyHint": "Las claves «read» solo permiten análisis. Las claves «write» también permiten gestionar campañas, ofertas y dominios — las usa el servidor MCP de Orbitra para asistentes de IA (ver mcp/README.md).",
     "copyMcpUrl": "Copiar URL del conector (para Claude → Add custom connector)",
+    "urlCopied": "¡URL del conector MCP copiada al portapapeles!",
+    "keyCopied": "¡Clave de API copiada al portapapeles!",
     "newReadKey": "Clave de lectura",
     "newWriteKey": "Clave de escritura",
     "title": "Usuarios",
@@ -27506,6 +27707,11 @@ const es = {
     "zipExtractFailed": "El archivo se abrió pero no se pudo extraer: revise permisos y espacio en disco",
     "zipOpenFailed": "No se pudo abrir el ZIP: está dañado o no es un ZIP",
     "uploadFailed": "No se pudo subir el archivo",
+    "phpScanFailed": "El PHP de este archivo llama a funciones no permitidas (acceso a shell, eval, symlinks) — quítalas o sube un archivo sin ellas",
+    "stageDirNotCreated": "No se pudo crear el directorio temporal para descomprimir — revisa los permisos",
+    "destDirNotCleared": "No se pudieron limpiar los archivos anteriores antes de instalar el nuevo archivo",
+    "destDirSwapFailed": "No se pudieron mover los archivos extraídos a su lugar — revisa los permisos",
+    "archiveSanitized": "Estas llamadas de PHP se eliminaron automáticamente porque pueden anular los límites de ejecución del tracker:",
     "archiveUploaded": "Archivo cargado y extraído correctamente.",
     "archiveError": "Error al subir el ZIP",
     "fileUploadError": "No se pudo cargar el archivo.",
@@ -28781,6 +28987,28 @@ const es = {
     "pushHint": "URL de envío de costos para esta campaña (clave API: página Usuarios, permisos write)"
   },
   "cloudflare": {
+    "accounts": "Cuentas",
+    "addAccount": "Añadir cuenta",
+    "editAccount": "Editar cuenta",
+    "accountLabel": "Nombre de la cuenta",
+    "accountLabelPlaceholder": "Buyer 1 — Main CF",
+    "zonesCount": "zonas",
+    "importZones": "Import & Auto-DNS: carga las zonas de esta cuenta y las aparca en el tracker con registro A",
+    "importTitle": "Import & Auto-DNS",
+    "importHint": "Zonas de la cuenta de Cloudflare. Las marcadas se añaden al tracker: el registro A hacia la IP del servidor se escribe automáticamente; las zonas con proxy reciben SSL en el borde de CF.",
+    "inTracker": "ya en el tracker",
+    "noZones": "No hay zonas en esta cuenta",
+    "selectedCount": "seleccionadas",
+    "importBtn": "Importar",
+    "importing": "Importando…",
+    "importedCount": "Dominios añadidos",
+    "parkedOk": "Registros A escritos",
+    "duplicatesSkipped": "ya estaban en el tracker",
+    "repoint": "Reencaminar los dominios de esta cuenta a la IP del servidor",
+    "repointConfirm": "¿Reescribir los registros A de todos los dominios cuya zona esté en esta cuenta de Cloudflare a la IP actual del servidor?",
+    "deleteConfirm": "¿Eliminar esta cuenta del tracker? Los dominios se quedan, pero sus registros A ya no se actualizarán a través de esta cuenta.",
+    "noAccounts": "No hay cuentas conectadas: añade la primera para aparcar zonas en un clic.",
+    "testAndSave": "Probar y guardar",
     "title": "Cloudflare",
     "description": "Gestiona el DNS de los dominios del tracker vía la API de Cloudflare: registros A automáticos, SSL desde el borde de CF",
     "howTo": "Crea un token: Cloudflare → My Profile → API Tokens → Create Token → plantilla «Edit zone DNS» → Permissions: Zone·DNS·Edit + Zone·Zone·Edit → Zone Resources: All zones. Los dominios cuya zona esté en la cuenta reciben su registro A automáticamente al estacionarlos; con el proxy activado, SSL se emite al instante en el borde de Cloudflare.",
@@ -28805,7 +29033,7 @@ const es = {
     "username": "Username",
     "keySaved": "clave guardada — introduzca una nueva para reemplazarla",
     "whitelistIp": "IP del servidor para Whitelisted IPs",
-    "whitelistHint": "Añada esta IP en Namecheap: Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. Si la dirección mostrada es incorrecta, pulse Probar: Namecheap indicará la IP desde la que llegaron las peticiones.",
+    "whitelistHint": "Añada esta IP en Namecheap: Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. Si la dirección mostrada es incorrecta, no pasa nada — en el primer intento de conexión Namecheap indicará la IP desde la que llegaron las peticiones.",
     "addressBook": "Perfil de contacto (Address Book) para nuevos dominios",
     "addressPlaceholder": "— sin seleccionar —",
     "addressRefresh": "Recargar la lista del Address Book",
@@ -28841,7 +29069,22 @@ const es = {
     "importing": "Importando…",
     "importedCount": "Dominios añadidos",
     "inTracker": "ya en el tracker",
-    "noDomains": "No hay dominios en la cuenta"
+    "noDomains": "No hay dominios en la cuenta",
+    "accounts": "Cuentas de Namecheap",
+    "addAccount": "Añadir cuenta de Namecheap",
+    "editAccount": "Editar cuenta",
+    "accountLabel": "Etiqueta de la cuenta",
+    "accountLabelPlaceholder": "Buyer 1 — Principal",
+    "testAndSave": "Probar conexión y guardar",
+    "errUserKeyRequired": "Introduzca el usuario y la API key",
+    "noAccounts": "Aún no hay cuentas — añada la primera para aparcar y comprar dominios directamente desde el tracker.",
+    "domainsInAccount": "Dominios en la cuenta",
+    "buyDomain": "Comprar dominio",
+    "importPark": "Importar y aparcar",
+    "refreshBalance": "Actualizar saldo",
+    "chooseAccount": "Cuenta de Namecheap",
+    "deleteConfirm": "Eliminar cuenta",
+    "addressHintNew": "Los perfiles se cargan de la libreta de direcciones de esta cuenta — son necesarios para registrar nuevos dominios."
   },
   "ipranges": {
     "title": "Rangos IP de datacenters (cloaking)",
@@ -28919,7 +29162,11 @@ const es = {
     "error": "Error",
     "ok": "Funciona",
     "neverSynced": "Nunca sincronizado",
-    "noAccounts": "No hay cuentas de TikTok conectadas. Añade una cuenta para importar el gasto de TikTok."
+    "noAccounts": "No hay cuentas de TikTok conectadas. Añade una cuenta para importar el gasto de TikTok.",
+    "oauthNotConfiguredTitle": "1-Click OAuth no está configurado",
+    "oauthNotConfiguredHint": "Configura ORBITRA_TIKTOK_APP_ID y ORBITRA_TIKTOK_APP_SECRET en el servidor, o guarda App ID y App Secret en una conexión manual de TikTok — se reutilizan para 1-Click. También puedes omitir el 1-Click y conectarte abajo directamente con un Access Token y el Advertiser ID.",
+    "tokenHowTo": "Cómo obtener un token de TikTok en 1 minuto",
+    "tokenHowToHint": "1. Inicia sesión en TikTok for Business (ads.tiktok.com) y abre tu Business Center.\n2. Copia el Advertiser ID de tu cuenta publicitaria — el ID numérico en el selector de cuentas.\n3. En Business Center → Apps, genera un Long-term Access Token con el permiso Advertising Read.\n4. Pega el token y el Advertiser ID arriba y pulsa Guardar."
   },
   "googleAdsCosts": {
     "title": "Google Ads Costs",
@@ -28938,6 +29185,11 @@ const es = {
     "connectedAccounts": "Cuentas de Google Ads conectadas: {n}.",
     "oauthFailed": "No se pudo conectar Google Ads. Inténtalo de nuevo.",
     "popupBlocked": "La ventana de inicio de sesión de Google fue bloqueada. Permite las ventanas emergentes para Orbitra e inténtalo de nuevo.",
+    "oauthNotConfiguredTitle": "1-Click OAuth no está configurado",
+    "oauthNotConfiguredHint": "Configura ORBITRA_GOOGLE_CLIENT_ID, ORBITRA_GOOGLE_CLIENT_SECRET y ORBITRA_GOOGLE_DEVELOPER_TOKEN en el servidor, o rellena Developer Token, Client ID y Client Secret en el formulario manual de abajo — se reutilizan para 1-Click. También puedes conectarte totalmente manual con un Refresh Token (ver la guía).",
+    "howTo": "Cómo conectar Google Ads en 3 pasos",
+    "howToHint": "1. Developer Token: Google Ads → tu cuenta MCC → Herramientas y configuración → Centro de API — copia el token.\n2. Client ID y Secret: Google Cloud Console (console.cloud.google.com) → APIs y servicios → Credenciales → Crear credenciales → ID de cliente OAuth 2.0 (Aplicación web).\nURI de redirección autorizado para añadir en Google Cloud Console:",
+    "howToStep3": "3. Pega el Developer Token, Client ID y Client Secret en el formulario de abajo (una conexión totalmente manual también necesita Refresh Token y Customer ID) y pulsa Probar / Guardar. Tras guardar, las credenciales se reutilizan para 1-Click, y el cron y el botón «Sync Now» descargan el gasto real de Google Ads.",
     "noDiscoveredAccounts": "El inicio de sesión en Google funcionó, pero no se encontraron cuentas publicitarias accesibles.",
     "addAccount": "Añadir cuenta de Google Ads",
     "editAccount": "Editar cuenta",
@@ -29525,6 +29777,8 @@ const zh = {
     "copied": "已复制",
     "selectAll": "全选",
     "orManual": "或手动填写 Token",
+    "connectModeManual": "直接连接（令牌）",
+    "connectModeOauth": "1-Click OAuth",
     "edit": "编辑",
     "status": "状态",
     "size": "大小",
@@ -29551,6 +29805,7 @@ const zh = {
     "deleteConfirm": "删除？此操作无法撤消。",
     "deleteSelected": "删除所选内容",
     "deleteSelectedConfirm": "删除选定的（{count}）个？此操作无法撤消。",
+    "entityInUse": "无法删除：正被活跃广告系列使用：{campaigns}。请先将其从流中移除，或将广告系列归档。",
     "sort": "排序",
     "settings": "设置",
     "exportCsv": "导出 CSV",
@@ -29928,6 +30183,10 @@ const zh = {
     "name": "姓名 *",
     "alias": "别名 *",
     "generateRandom": "生成随机数",
+    "autoFormat": "自动格式化",
+    "autoFormatHint": "根据首个流量的offer、流量来源和offer的GEO生成名称：名称 - 来源 - [GEO]",
+    "nameFormatPrefix": "格式：",
+    "nameSourceOrganic": "自然流量",
     "noGroup": "-- 没有组 --",
     "domain": "域名",
     "indexDomain": "-- 索引域 --",
@@ -30144,6 +30403,9 @@ const zh = {
     "registrar": "域名注册商",
     "optional": "可选",
     "dnsProvider": "DNS 提供商",
+    "manageVia": "DNS 管理账户",
+    "manageViaNone": "— 默认账户 —",
+    "manageViaHint": "添加和同步时用于停泊该域名 A 记录的账户。",
     "statusOk": "OK",
     "statusActive": "活跃",
     "statusDisabled": "已禁用",
@@ -30695,6 +30957,8 @@ const zh = {
     "mcpCopyConfig": "复制配置",
     "apiKeyHint": "只读密钥仅用于分析。写入密钥还可管理广告系列、报价和域名 —— 供面向 AI 助手的 Orbitra MCP 服务器使用（见 mcp/README.md）。",
     "copyMcpUrl": "复制连接器网址（用于 Claude → Add custom connector）",
+    "urlCopied": "已复制 MCP 连接器网址！",
+    "keyCopied": "已复制 API 密钥！",
     "newReadKey": "只读密钥",
     "newWriteKey": "写入密钥",
     "title": "用户",
@@ -30779,6 +31043,11 @@ const zh = {
     "zipExtractFailed": "压缩包已打开但解压失败 —— 请检查权限和磁盘空间",
     "zipOpenFailed": "无法打开 ZIP 压缩包：文件已损坏或不是 ZIP",
     "uploadFailed": "无法上传压缩包",
+    "phpScanFailed": "压缩包中的 PHP 调用了不允许的函数（执行命令、eval、符号链接）— 请移除或改用不含它们的压缩包",
+    "stageDirNotCreated": "无法创建解压用的临时目录 — 请检查权限",
+    "destDirNotCleared": "安装新压缩包前无法清空旧文件",
+    "destDirSwapFailed": "解压后的文件无法就位 — 请检查权限",
+    "archiveSanitized": "以下 PHP 调用已被自动移除，因为它们可能解除追踪器的执行时间限制：",
     "archiveUploaded": "存档已成功上传并提取。",
     "archiveError": "ZIP 上传错误",
     "fileUploadError": "无法上传文件。",
@@ -32054,6 +32323,28 @@ const zh = {
     "pushHint": "此活动的花费推送 URL（API 密钥：用户页面，write 权限）"
   },
   "cloudflare": {
+    "accounts": "账户",
+    "addAccount": "添加账户",
+    "editAccount": "编辑账户",
+    "accountLabel": "账户名称",
+    "accountLabelPlaceholder": "Buyer 1 — Main CF",
+    "zonesCount": "个区域",
+    "importZones": "导入 & 自动 DNS — 拉取该账户的区域并附 A 记录停泊到跟踪器",
+    "importTitle": "导入 & 自动 DNS",
+    "importHint": "Cloudflare 账户的区域。勾选的区域会加入跟踪器：指向服务器 IP 的 A 记录自动写入，开启代理的区域由 CF 边缘提供 SSL。",
+    "inTracker": "已在跟踪器中",
+    "noZones": "该账户没有区域",
+    "selectedCount": "已选",
+    "importBtn": "导入",
+    "importing": "正在导入…",
+    "importedCount": "已添加域名",
+    "parkedOk": "A 记录已写入",
+    "duplicatesSkipped": "已在跟踪器中",
+    "repoint": "将该账户域名的 A 记录重指到服务器 IP",
+    "repointConfirm": "把该 Cloudflare 账户中所有区域对应域名的 A 记录重写为当前服务器 IP？",
+    "deleteConfirm": "从跟踪器删除该账户？域名会保留，但其 A 记录不再通过该账户更新。",
+    "noAccounts": "还没有连接的账户 — 添加第一个，一键停泊区域。",
+    "testAndSave": "测试并保存",
     "title": "Cloudflare",
     "description": "通过 Cloudflare API 管理跟踪器域名的 DNS：A 记录自动写入，SSL 由 CF 边缘提供",
     "howTo": "创建令牌：Cloudflare → My Profile → API Tokens → Create Token → 模板「Edit zone DNS」→ Permissions：Zone·DNS·Edit + Zone·Zone·Edit → Zone Resources：All zones。域名所在区域位于账号中时，停靠即自动获得 A 记录；开启代理后，SSL 由 Cloudflare 边缘即时颁发。",
@@ -32078,7 +32369,7 @@ const zh = {
     "username": "Username",
     "keySaved": "密钥已保存 — 输入新密钥以替换",
     "whitelistIp": "用于 Whitelisted IPs 的服务器 IP",
-    "whitelistHint": "在 Namecheap 中添加此 IP：Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs。如果显示的地址不对，点击「测试」— Namecheap 会指出请求实际来源 IP。",
+    "whitelistHint": "在 Namecheap 中添加此 IP：Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs。如果显示的地址不对也没关系 — 首次连接尝试时 Namecheap 会指出请求实际来源 IP。",
     "addressBook": "新域名的联系人资料（Address Book）",
     "addressPlaceholder": "— 未选择 —",
     "addressRefresh": "重新加载 Address Book 列表",
@@ -32114,7 +32405,22 @@ const zh = {
     "importing": "导入中…",
     "importedCount": "已添加域名",
     "inTracker": "已在追踪器中",
-    "noDomains": "账户中没有域名"
+    "noDomains": "账户中没有域名",
+    "accounts": "Namecheap 账户",
+    "addAccount": "添加 Namecheap 账户",
+    "editAccount": "编辑账户",
+    "accountLabel": "账户名称",
+    "accountLabelPlaceholder": "买量 1 — 主账户",
+    "testAndSave": "测试连接并保存",
+    "errUserKeyRequired": "请输入用户名和 API key",
+    "noAccounts": "还没有账户 — 添加第一个，即可直接在追踪器中停放和购买域名。",
+    "domainsInAccount": "账户中的域名",
+    "buyDomain": "购买域名",
+    "importPark": "导入并停放",
+    "refreshBalance": "刷新余额",
+    "chooseAccount": "Namecheap 账户",
+    "deleteConfirm": "删除账户",
+    "addressHintNew": "联系人资料从该账户的 Namecheap Address Book 拉取 — 注册新域名时需要。"
   },
   "ipranges": {
     "title": "数据中心 IP 段（隐匿分流）",
@@ -32192,7 +32498,11 @@ const zh = {
     "error": "错误",
     "ok": "正常",
     "neverSynced": "从未同步",
-    "noAccounts": "尚未连接 TikTok 广告账户。添加账户以从 TikTok 导入消耗。"
+    "noAccounts": "尚未连接 TikTok 广告账户。添加账户以从 TikTok 导入消耗。",
+    "oauthNotConfiguredTitle": "1-Click OAuth 未配置",
+    "oauthNotConfiguredHint": "在服务器上设置 ORBITRA_TIKTOK_APP_ID 和 ORBITRA_TIKTOK_APP_SECRET，或在手动 TikTok 连接中保存 App ID 和 App Secret — 它们会被 1-Click 复用。也可以跳过 1-Click，直接在下方使用 Access Token 和广告主 ID（Advertiser ID）连接。",
+    "tokenHowTo": "如何在一分钟内获取 TikTok 令牌",
+    "tokenHowToHint": "1. 登录 TikTok for Business（ads.tiktok.com）并打开你的 Business Center。\n2. 复制广告账户的 Advertiser ID — 账户切换器中显示的数字 ID。\n3. 在 Business Center → 应用 下生成具有 Advertising Read 权限的 Long-term Access Token。\n4. 将令牌和 Advertiser ID 粘贴到上方，然后点击保存。"
   },
   "googleAdsCosts": {
     "title": "Google Ads Costs",
@@ -32211,6 +32521,11 @@ const zh = {
     "connectedAccounts": "已连接 Google Ads 账户：{n}。",
     "oauthFailed": "Google Ads 连接失败，请重试。",
     "popupBlocked": "Google 登录窗口被拦截。请允许 Orbitra 的弹窗后重试。",
+    "oauthNotConfiguredTitle": "1-Click OAuth 未配置",
+    "oauthNotConfiguredHint": "请在服务器上设置 ORBITRA_GOOGLE_CLIENT_ID、ORBITRA_GOOGLE_CLIENT_SECRET 和 ORBITRA_GOOGLE_DEVELOPER_TOKEN，或在下方手动表单中填写 Developer Token、Client ID 和 Client Secret——它们会被 1-Click 复用。也可以使用 Refresh Token 完全手动接入（见教程）。",
+    "howTo": "3 步接入 Google Ads",
+    "howToHint": "1. Developer Token：Google Ads → 你的 MCC 账户 → 工具与设置 → API 中心——复制令牌。\n2. Client ID 和 Secret：Google Cloud Console（console.cloud.google.com）→ APIs & Services → 凭据 → 创建凭据 → OAuth 2.0 客户端 ID（Web 应用）。\n需要在 Google Cloud Console 中添加的授权重定向 URI：",
+    "howToStep3": "3. 将 Developer Token、Client ID 和 Client Secret 粘贴到下方表单（完全手动接入还需要 Refresh Token 和 Customer ID），点击「测试」/「保存」。保存后凭据会被 1-Click 复用，定时任务和「Sync Now」按钮会拉取真实的 Google Ads 消耗。",
     "noDiscoveredAccounts": "Google 登录成功，但未找到可访问的广告账户。",
     "addAccount": "添加 Google Ads 账户",
     "editAccount": "编辑账户",
@@ -32720,7 +33035,7 @@ const fr = {
     "nodePathHint2": "(macOS/Linux) ou",
     "nodePathHint3": "(Windows) et reportez le résultat dans « command ». Un simple « node » ne marche que s'il est dans le PATH du système.",
     "step2Title": "Installer le serveur",
-    "step2Desc": "Sur la machine exécutant votre assistant IA, installez les dépendances une fois dans le dossier du tracker :",
+    "step2Desc": "Sur la machine exécutant votre assistant IA, installez les dépendances une fois dans le dossier du tracker :",
     "step3Title": "Ajouter à Claude Desktop",
     "step3Desc": "Dans Claude Desktop, ouvrez Settings → Developer → Edit Config et collez ceci, puis remplacez le chemin par le chemin absolu vers mcp/src/index.js et ORBITRA_API_KEY par la clé de l'étape 1. Quittez complètement l'application et rouvrez-la : fermer la fenêtre ne suffit pas.",
     "copyConfig": "Copier la config",
@@ -32798,6 +33113,8 @@ const fr = {
     "copied": "Copié",
     "selectAll": "Tout sélectionner",
     "orManual": "Ou configurer manuellement",
+    "connectModeManual": "Connexion directe (token)",
+    "connectModeOauth": "1-Click OAuth",
     "edit": "Modifier",
     "status": "Statut",
     "size": "Taille",
@@ -32824,6 +33141,7 @@ const fr = {
     "deleteConfirm": "Supprimer ? Cette action ne peut pas être annulée.",
     "deleteSelected": "Supprimer la sélection",
     "deleteSelectedConfirm": "Supprimer la sélection ({count}) ? Cette action ne peut pas être annulée.",
+    "entityInUse": "Suppression impossible : en cours d'utilisation dans la/les campagne(s) active(s) : {campaigns}. Retirez l'élément du stream ou archivez la campagne.",
     "sort": "Tri",
     "settings": "Paramètres",
     "exportCsv": "Exporter au format CSV",
@@ -33201,6 +33519,10 @@ const fr = {
     "name": "Nom *",
     "alias": "Alias *",
     "generateRandom": "Générer aléatoire",
+    "autoFormat": "Auto-format",
+    "autoFormatHint": "Construit le nom avec l'offre du premier flux, la source de trafic et le GEO de l'offre : Nom - Source - [GEO]",
+    "nameFormatPrefix": "Format :",
+    "nameSourceOrganic": "Organique",
     "noGroup": "-- Aucun groupe --",
     "domain": "Domaine",
     "indexDomain": "-- Domaine d'indexation --",
@@ -33417,6 +33739,9 @@ const fr = {
     "registrar": "Bureau d’enregistrement",
     "optional": "Optionnel",
     "dnsProvider": "Fournisseur DNS",
+    "manageVia": "Gérer le DNS via",
+    "manageViaNone": "— compte par défaut —",
+    "manageViaHint": "Le compte via lequel l’enregistrement A de ce domaine est garé et synchronisé.",
     "statusOk": "OK",
     "statusActive": "Actif",
     "statusDisabled": "Désactivé",
@@ -33968,6 +34293,8 @@ const fr = {
     "mcpCopyConfig": "Copier la configuration",
     "apiKeyHint": "Les clés « read » ne donnent accès qu'aux analyses. Les clés « write » permettent aussi de gérer les campagnes, offres et domaines — utilisées par le serveur MCP d'Orbitra pour les assistants IA (voir mcp/README.md).",
     "copyMcpUrl": "Copier l'URL du connecteur (pour Claude → Add custom connector)",
+    "urlCopied": "URL du connecteur MCP copiée dans le presse-papiers !",
+    "keyCopied": "Clé API copiée dans le presse-papiers !",
     "newReadKey": "Clé de lecture",
     "newWriteKey": "Clé d'écriture",
     "title": "Utilisateurs",
@@ -34052,6 +34379,11 @@ const fr = {
     "zipExtractFailed": "L'archive s'est ouverte mais n'a pas pu être extraite — vérifiez les droits et l'espace disque",
     "zipOpenFailed": "Impossible d'ouvrir l'archive ZIP : elle est corrompue ou ce n'est pas un ZIP",
     "uploadFailed": "Impossible d'envoyer l'archive",
+    "phpScanFailed": "Le PHP de cette archive appelle des fonctions interdites (accès shell, eval, liens symboliques) — retirez-les ou envoyez une archive sans elles",
+    "stageDirNotCreated": "Impossible de créer le répertoire temporaire d'extraction — vérifiez les permissions",
+    "destDirNotCleared": "Impossible de vider les anciens fichiers avant d'installer la nouvelle archive",
+    "destDirSwapFailed": "Impossible de placer les fichiers extraits — vérifiez les permissions",
+    "archiveSanitized": "Ces appels PHP ont été retirés automatiquement car ils peuvent lever les limites d'exécution du tracker :",
     "archiveUploaded": "Archive téléchargée et extraite avec succès.",
     "archiveError": "Erreur de téléchargement ZIP",
     "fileUploadError": "Impossible de télécharger le fichier.",
@@ -35329,6 +35661,28 @@ const fr = {
     "pushHint": "URL de push des coûts pour cette campagne (clé API : page Utilisateurs, droits write)"
   },
   "cloudflare": {
+    "accounts": "Comptes",
+    "addAccount": "Ajouter un compte",
+    "editAccount": "Modifier le compte",
+    "accountLabel": "Nom du compte",
+    "accountLabelPlaceholder": "Buyer 1 — Main CF",
+    "zonesCount": "zones",
+    "importZones": "Import & Auto-DNS — récupère les zones de ce compte et les gare dans le tracker avec un enregistrement A",
+    "importTitle": "Import & Auto-DNS",
+    "importHint": "Zones du compte Cloudflare. Les zones cochées sont ajoutées au tracker : l’enregistrement A vers l’IP du serveur est écrit automatiquement ; les zones proxifiées reçoivent le SSL au bord CF.",
+    "inTracker": "déjà dans le tracker",
+    "noZones": "Aucune zone dans ce compte",
+    "selectedCount": "sélectionnées",
+    "importBtn": "Importer",
+    "importing": "Importation…",
+    "importedCount": "Domaines ajoutés",
+    "parkedOk": "Enregistrements A écrits",
+    "duplicatesSkipped": "déjà dans le tracker",
+    "repoint": "Repointer les domaines de ce compte vers l’IP du serveur",
+    "repointConfirm": "Réécrire les enregistrements A de tous les domaines dont la zone est dans ce compte Cloudflare vers l’IP actuelle du serveur ?",
+    "deleteConfirm": "Supprimer ce compte du tracker ? Les domaines restent, mais leurs enregistrements A ne seront plus mis à jour via ce compte.",
+    "noAccounts": "Aucun compte connecté — ajoutez le premier pour garer des zones en un clic.",
+    "testAndSave": "Tester et enregistrer",
     "title": "Cloudflare",
     "description": "Gérez le DNS des domaines du tracker via l’API Cloudflare : enregistrements A automatiques, SSL depuis l’edge CF",
     "howTo": "Créez un token : Cloudflare → My Profile → API Tokens → Create Token → modèle « Edit zone DNS » → Permissions : Zone·DNS·Edit + Zone·Zone·Edit → Zone Resources : All zones. Les domaines dont la zone est dans le compte reçoivent leur enregistrement A automatiquement au parking ; avec le proxy activé, le SSL est émis instantanément à l’edge Cloudflare.",
@@ -35353,7 +35707,7 @@ const fr = {
     "username": "Username",
     "keySaved": "clé enregistrée — saisissez-en une nouvelle pour remplacer",
     "whitelistIp": "IP du serveur pour les Whitelisted IPs",
-    "whitelistHint": "Ajoutez cette IP dans Namecheap : Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. Si l'adresse affichée est incorrecte, appuyez sur Tester : Namecheap nomme l'IP d'où viennent réellement les requêtes.",
+    "whitelistHint": "Ajoutez cette IP dans Namecheap (Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs). Si l'adresse affichée est incorrecte, pas d'inquiétude — au premier essai de connexion, Namecheap nommera lui-même l'IP d'où viennent réellement les requêtes.",
     "addressBook": "Profil de contact (Address Book) pour les nouveaux domaines",
     "addressPlaceholder": "— non sélectionné —",
     "addressRefresh": "Recharger la liste du Address Book",
@@ -35389,7 +35743,22 @@ const fr = {
     "importing": "Import en cours…",
     "importedCount": "Domaines ajoutés",
     "inTracker": "déjà dans le tracker",
-    "noDomains": "Aucun domaine dans le compte"
+    "noDomains": "Aucun domaine dans le compte",
+    "accounts": "Comptes Namecheap",
+    "addAccount": "Ajouter un compte Namecheap",
+    "editAccount": "Modifier le compte",
+    "accountLabel": "Nom du compte",
+    "accountLabelPlaceholder": "Buyer 1 — Principal",
+    "testAndSave": "Tester et enregistrer",
+    "errUserKeyRequired": "Indiquez le nom d'utilisateur et la clé API",
+    "noAccounts": "Aucun compte pour l'instant — ajoutez le premier pour parquer et acheter des domaines directement depuis le tracker.",
+    "domainsInAccount": "Domaines dans le compte",
+    "buyDomain": "Acheter un domaine",
+    "importPark": "Importer et parquer",
+    "refreshBalance": "Actualiser le solde",
+    "chooseAccount": "Compte Namecheap",
+    "deleteConfirm": "Supprimer le compte",
+    "addressHintNew": "Les profils sont chargés depuis le carnet d'adresses de ce compte — ils sont requis pour enregistrer de nouveaux domaines."
   },
   "ipranges": {
     "title": "Plages IP des datacenters (cloaking)",
@@ -35467,7 +35836,11 @@ const fr = {
     "error": "Erreur",
     "ok": "Actif",
     "neverSynced": "Jamais synchronisé",
-    "noAccounts": "Aucun compte TikTok connecté. Ajoutez un compte pour importer les dépenses de TikTok."
+    "noAccounts": "Aucun compte TikTok connecté. Ajoutez un compte pour importer les dépenses de TikTok.",
+    "oauthNotConfiguredTitle": "1-Click OAuth n’est pas configuré",
+    "oauthNotConfiguredHint": "Définissez ORBITRA_TIKTOK_APP_ID et ORBITRA_TIKTOK_APP_SECRET sur le serveur, ou enregistrez App ID et App Secret dans une connexion TikTok manuelle — ils sont réutilisés pour le 1-Click. Vous pouvez aussi passer le 1-Click et vous connecter ci-dessous directement avec un Access Token et un Advertiser ID.",
+    "tokenHowTo": "Comment obtenir un token TikTok en 1 minute",
+    "tokenHowToHint": "1. Connectez-vous à TikTok for Business (ads.tiktok.com) et ouvrez votre Business Center.\n2. Copiez l’Advertiser ID de votre compte publicitaire — l’ID numérique dans le sélecteur de comptes.\n3. Dans Business Center → Applications, générez un Long-term Access Token avec le périmètre Advertising Read.\n4. Collez le token et l’Advertiser ID ci-dessus, puis cliquez sur Enregistrer."
   },
   "googleAdsCosts": {
     "title": "Google Ads Costs",
@@ -35486,6 +35859,11 @@ const fr = {
     "connectedAccounts": "Comptes Google Ads connectés : {n}.",
     "oauthFailed": "Échec de la connexion Google Ads. Veuillez réessayer.",
     "popupBlocked": "La fenêtre de connexion Google a été bloquée. Autorisez les popups pour Orbitra et réessayez.",
+    "oauthNotConfiguredTitle": "1-Click OAuth n’est pas configuré",
+    "oauthNotConfiguredHint": "Définissez ORBITRA_GOOGLE_CLIENT_ID, ORBITRA_GOOGLE_CLIENT_SECRET et ORBITRA_GOOGLE_DEVELOPER_TOKEN sur le serveur, ou renseignez Developer Token, Client ID et Client Secret dans le formulaire manuel ci-dessous — ils sont réutilisés pour le 1-Click. Vous pouvez aussi vous connecter entièrement manuellement avec un Refresh Token (voir le guide).",
+    "howTo": "Comment connecter Google Ads en 3 étapes",
+    "howToHint": "1. Developer Token : Google Ads → votre compte MCC → Outils et paramètres → Centre API — copiez le token.\n2. Client ID et Secret : Google Cloud Console (console.cloud.google.com) → APIs et services → Identifiants → Créer des identifiants → ID client OAuth 2.0 (Application Web).\nURI de redirection autorisé à ajouter dans Google Cloud Console :",
+    "howToStep3": "3. Collez le Developer Token, le Client ID et le Client Secret dans le formulaire ci-dessous (une connexion entièrement manuelle nécessite aussi un Refresh Token et un Customer ID) puis cliquez sur Tester / Enregistrer. Une fois enregistré, les identifiants sont réutilisés pour le 1-Click, et le cron ainsi que le bouton « Sync Now » importent les dépenses réelles Google Ads.",
     "noDiscoveredAccounts": "Connexion Google réussie, mais aucun compte publicitaire accessible n’a été trouvé.",
     "addAccount": "Ajouter un compte Google Ads",
     "editAccount": "Modifier le compte",
@@ -36073,6 +36451,8 @@ const de = {
     "copied": "Kopiert",
     "selectAll": "Alle auswählen",
     "orManual": "Oder manuell konfigurieren",
+    "connectModeManual": "Direkte Verbindung (Token)",
+    "connectModeOauth": "1-Click OAuth",
     "edit": "Bearbeiten",
     "status": "Status",
     "size": "Größe",
@@ -36099,6 +36479,7 @@ const de = {
     "deleteConfirm": "Löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
     "deleteSelected": "Ausgewählte löschen",
     "deleteSelectedConfirm": "Ausgewählte löschen ({count})? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "entityInUse": "Löschen nicht möglich: wird von aktiven Kampagne(n) verwendet: {campaigns}. Entferne es aus dem Stream oder archiviere die Kampagne.",
     "sort": "Sortieren",
     "settings": "Einstellungen",
     "exportCsv": "CSV exportieren",
@@ -36476,6 +36857,10 @@ const de = {
     "name": "Name *",
     "alias": "Alias *",
     "generateRandom": "Zufällig generieren",
+    "autoFormat": "Auto-Format",
+    "autoFormatHint": "Name aus dem Offer des ersten Streams, der Traffic-Quelle und dem Offer-GEO aufbauen: Name - Quelle - [GEO]",
+    "nameFormatPrefix": "Format:",
+    "nameSourceOrganic": "Organisch",
     "noGroup": "-- Keine Gruppe --",
     "domain": "Domäne",
     "indexDomain": "-- Indexdomäne --",
@@ -36692,6 +37077,9 @@ const de = {
     "registrar": "Registrar",
     "optional": "Optional",
     "dnsProvider": "DNS-Anbieter",
+    "manageVia": "DNS verwalten über",
+    "manageViaNone": "— Standardkonto —",
+    "manageViaHint": "Das Konto, über dessen A-Record diese Domäne geparkt und synchronisiert wird.",
     "statusOk": "OK",
     "statusActive": "Aktiv",
     "statusDisabled": "Deaktiviert",
@@ -37243,6 +37631,8 @@ const de = {
     "mcpCopyConfig": "Konfiguration kopieren",
     "apiKeyHint": "Read-Schlüssel erlauben nur Analysen. Write-Schlüssel erlauben zusätzlich die Verwaltung von Kampagnen, Angeboten und Domains — verwendet vom Orbitra-MCP-Server für KI-Assistenten (siehe mcp/README.md).",
     "copyMcpUrl": "Connector-URL kopieren (für Claude → Add custom connector)",
+    "urlCopied": "MCP-Connector-URL in die Zwischenablage kopiert!",
+    "keyCopied": "API-Schlüssel in die Zwischenablage kopiert!",
     "newReadKey": "Read-Schlüssel",
     "newWriteKey": "Write-Schlüssel",
     "title": "Benutzer",
@@ -37327,6 +37717,11 @@ const de = {
     "zipExtractFailed": "Das Archiv ließ sich öffnen, aber nicht entpacken — Rechte und freien Speicher prüfen",
     "zipOpenFailed": "Das ZIP-Archiv ließ sich nicht öffnen: beschädigt oder kein ZIP",
     "uploadFailed": "Das Archiv konnte nicht hochgeladen werden",
+    "phpScanFailed": "Das PHP in diesem Archiv ruft nicht erlaubte Funktionen auf (Shell-Zugriff, eval, Symlinks) — entfernen Sie sie oder laden Sie ein Archiv ohne sie hoch",
+    "stageDirNotCreated": "Temporäres Verzeichnis für das Entpacken konnte nicht erstellt werden — Berechtigungen prüfen",
+    "destDirNotCleared": "Die bisherigen Dateien konnten vor der Installation des neuen Archivs nicht geleert werden",
+    "destDirSwapFailed": "Die entpackten Dateien konnten nicht an ihren Platz verschoben werden — Berechtigungen prüfen",
+    "archiveSanitized": "Diese PHP-Aufrufe wurden automatisch entfernt, da sie die Ausführungszeitgrenzen des Trackers aufheben können:",
     "archiveUploaded": "Archiv erfolgreich hochgeladen und extrahiert.",
     "archiveError": "ZIP-Upload-Fehler",
     "fileUploadError": "Datei konnte nicht hochgeladen werden.",
@@ -38602,6 +38997,28 @@ const de = {
     "pushHint": "Kosten-Push-URL für diese Kampagne (API-Schlüssel: Seite Benutzer, Schreibrechte)"
   },
   "cloudflare": {
+    "accounts": "Konten",
+    "addAccount": "Konto hinzufügen",
+    "editAccount": "Konto bearbeiten",
+    "accountLabel": "Kontoname",
+    "accountLabelPlaceholder": "Buyer 1 — Main CF",
+    "zonesCount": "Zonen",
+    "importZones": "Import & Auto-DNS — Zonen dieses Kontos laden und mit A-Record in den Tracker parken",
+    "importTitle": "Import & Auto-DNS",
+    "importHint": "Zonen des Cloudflare-Kontos. Markierte Zonen werden in den Tracker aufgenommen: der A-Record auf die Server-IP wird automatisch gesetzt; proximte Zonen erhalten SSL am CF-Edge.",
+    "inTracker": "bereits im Tracker",
+    "noZones": "Keine Zonen in diesem Konto",
+    "selectedCount": "ausgewählt",
+    "importBtn": "Importieren",
+    "importing": "Importiere…",
+    "importedCount": "Domänen hinzugefügt",
+    "parkedOk": "A-Records gesetzt",
+    "duplicatesSkipped": "bereits im Tracker",
+    "repoint": "A-Records der Domänen dieses Kontos auf die Server-IP umschreiben",
+    "repointConfirm": "A-Records aller Domänen, deren Zone in diesem Cloudflare-Konto liegt, auf die aktuelle Server-IP umschreiben?",
+    "deleteConfirm": "Dieses Konto aus dem Tracker löschen? Die Domänen bleiben, ihre A-Records werden aber nicht mehr über dieses Konto aktualisiert.",
+    "noAccounts": "Keine Konten verbunden — fügen Sie das erste hinzu, um Zonen mit einem Klick zu parken.",
+    "testAndSave": "Testen & speichern",
     "title": "Cloudflare",
     "description": "DNS der Tracker-Domains über die Cloudflare-API verwalten: A-Records automatisch, SSL von der CF-Edge",
     "howTo": "Token anlegen: Cloudflare → My Profile → API Tokens → Create Token → Vorlage „Edit zone DNS“ → Permissions: Zone·DNS·Edit + Zone·Zone·Edit → Zone Resources: All zones. Domains, deren Zone im Konto liegt, bekommen beim Parken automatisch den A-Record; mit aktiviertem Proxy kommt SSL sofort von der Cloudflare-Edge.",
@@ -38626,7 +39043,7 @@ const de = {
     "username": "Username",
     "keySaved": "Schlüssel gespeichert — neuen eingeben, um zu ersetzen",
     "whitelistIp": "Server-IP für Whitelisted IPs",
-    "whitelistHint": "Diese IP in Namecheap hinzufügen: Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. Wenn die angezeigte Adresse falsch ist, drücken Sie Testen — Namecheap nennt die IP, von der die Anfragen tatsächlich kamen.",
+    "whitelistHint": "Diese IP in Namecheap hinzufügen: Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. Ist die angezeigte Adresse falsch, kein Problem — beim ersten Verbindungsversuch nennt Namecheap selbst die IP, von der die Anfragen tatsächlich kamen.",
     "addressBook": "Kontaktprofil (Address Book) für neue Domains",
     "addressPlaceholder": "— nicht ausgewählt —",
     "addressRefresh": "Address-Book-Liste neu laden",
@@ -38662,7 +39079,22 @@ const de = {
     "importing": "Import läuft…",
     "importedCount": "Domains hinzugefügt",
     "inTracker": "bereits im Tracker",
-    "noDomains": "Keine Domains im Konto"
+    "noDomains": "Keine Domains im Konto",
+    "accounts": "Namecheap-Konten",
+    "addAccount": "Namecheap-Konto hinzufügen",
+    "editAccount": "Konto bearbeiten",
+    "accountLabel": "Kontobezeichnung",
+    "accountLabelPlaceholder": "Buyer 1 — Main",
+    "testAndSave": "Verbindung testen & speichern",
+    "errUserKeyRequired": "Benutzername und API-Key eingeben",
+    "noAccounts": "Noch keine Konten — fügen Sie das erste hinzu, um Domains direkt im Tracker zu parken und zu kaufen.",
+    "domainsInAccount": "Domains im Konto",
+    "buyDomain": "Domain kaufen",
+    "importPark": "Importieren & parken",
+    "refreshBalance": "Guthaben aktualisieren",
+    "chooseAccount": "Namecheap-Konto",
+    "deleteConfirm": "Konto löschen",
+    "addressHintNew": "Profile werden aus dem Address Book dieses Kontos geladen — sie werden für die Registrierung neuer Domains benötigt."
   },
   "ipranges": {
     "title": "Rechenzentrum-IP-Bereiche (Cloaking)",
@@ -38740,7 +39172,11 @@ const de = {
     "error": "Fehler",
     "ok": "Läuft",
     "neverSynced": "Nie synchronisiert",
-    "noAccounts": "Keine TikTok-Werbekonten verbunden. Fügen Sie ein Konto hinzu, um Ausgaben aus TikTok zu importieren."
+    "noAccounts": "Keine TikTok-Werbekonten verbunden. Fügen Sie ein Konto hinzu, um Ausgaben aus TikTok zu importieren.",
+    "oauthNotConfiguredTitle": "1-Click-OAuth ist nicht konfiguriert",
+    "oauthNotConfiguredHint": "Setzen Sie ORBITRA_TIKTOK_APP_ID und ORBITRA_TIKTOK_APP_SECRET auf dem Server oder speichern Sie App ID und App Secret in einer manuellen TikTok-Verbindung — sie werden für 1-Click wiederverwendet. Alternativ überspringen Sie 1-Click und verbinden sich unten direkt mit Access Token und Advertiser-ID.",
+    "tokenHowTo": "So erhalten Sie in 1 Minute ein TikTok-Token",
+    "tokenHowToHint": "1. Melden Sie sich bei TikTok for Business (ads.tiktok.com) an und öffnen Sie Ihr Business Center.\n2. Kopieren Sie die Advertiser-ID Ihres Werbekontos — die numerische ID im Konto-Umschalter.\n3. Erstellen Sie unter Business Center → Apps einen Long-term Access Token mit dem Scope Advertising Read.\n4. Fügen Sie Token und Advertiser-ID oben ein und klicken Sie auf Speichern."
   },
   "googleAdsCosts": {
     "title": "Google Ads Costs",
@@ -38759,6 +39195,11 @@ const de = {
     "connectedAccounts": "Verbundene Google-Ads-Konten: {n}.",
     "oauthFailed": "Google-Ads-Verbindung fehlgeschlagen. Bitte erneut versuchen.",
     "popupBlocked": "Das Google-Anmeldefenster wurde blockiert. Erlauben Sie Popups für Orbitra und versuchen Sie es erneut.",
+    "oauthNotConfiguredTitle": "1-Click-OAuth ist nicht konfiguriert",
+    "oauthNotConfiguredHint": "Setzen Sie ORBITRA_GOOGLE_CLIENT_ID, ORBITRA_GOOGLE_CLIENT_SECRET und ORBITRA_GOOGLE_DEVELOPER_TOKEN auf dem Server oder tragen Sie Developer Token, Client ID und Client Secret im manuellen Formular unten ein — sie werden für 1-Click wiederverwendet. Sie können sich auch vollständig manuell mit einem Refresh Token verbinden (siehe Anleitung).",
+    "howTo": "So verbinden Sie Google Ads in 3 Schritten",
+    "howToHint": "1. Developer Token: Google Ads → Ihr MCC-Konto → Tools & Einstellungen → API-Center — Token kopieren.\n2. Client ID & Secret: Google Cloud Console (console.cloud.google.com) → APIs & Dienste → Credentials → Credentials erstellen → OAuth 2.0 Client-ID (Webanwendung).\nAutorisierte Redirect-URI zum Eintragen in der Google Cloud Console:",
+    "howToStep3": "3. Fügen Sie Developer Token, Client ID und Client Secret ins Formular unten ein (eine vollständig manuelle Verbindung braucht zusätzlich Refresh Token und Customer ID) und klicken Sie auf Testen / Speichern. Nach dem Speichern werden die App-Zugangsdaten für 1-Click wiederverwendet, und der Cron sowie „Sync Now“ ziehen echte Google-Ads-Kosten.",
     "noDiscoveredAccounts": "Google-Anmeldung erfolgreich, aber keine zugänglichen Werbekonten gefunden.",
     "addAccount": "Google-Ads-Konto hinzufügen",
     "editAccount": "Konto bearbeiten",
@@ -39523,7 +39964,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                   className: "group relative w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer",
                   style: {
                     backgroundColor: isActive ? "var(--color-primary)" : "transparent",
-                    color: isActive ? "#ffffff" : "var(--color-text-muted)",
+                    color: isActive ? "var(--color-text-inverse)" : "var(--color-text-muted)",
                     boxShadow: isActive ? "0 2px 8px rgba(0,0,0,0.18)" : "none"
                   },
                   children: [
@@ -39703,7 +40144,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                       className: "flex-1 py-1.5 rounded-full text-xs font-semibold transition-all text-center cursor-pointer",
                       style: {
                         backgroundColor: isActive ? "var(--color-primary)" : "transparent",
-                        color: isActive ? "#ffffff" : "var(--color-text-secondary)",
+                        color: isActive ? "var(--color-text-inverse)" : "var(--color-text-secondary)",
                         boxShadow: isActive ? "0 2px 8px rgba(0,0,0,0.18)" : "none"
                       },
                       children: mod.label
@@ -53198,6 +53639,7 @@ const Domains = ({ campaigns }) => {
     cloudflare_proxy: false,
     registrar: "",
     dns_provider: "",
+    dns_account_id: null,
     status: "OK"
   };
   const [showModal, setShowModal] = reactExports.useState(false);
@@ -53210,6 +53652,9 @@ const Domains = ({ campaigns }) => {
   const nameInputRef = reactExports.useRef(null);
   const [showDnsModal, setShowDnsModal] = reactExports.useState(false);
   const [ncConnected, setNcConnected] = reactExports.useState(false);
+  const [ncAccounts, setNcAccounts] = reactExports.useState([]);
+  const [ncAccountId, setNcAccountId] = reactExports.useState(null);
+  const [ncIntent, setNcIntent] = reactExports.useState(null);
   const [showRegister, setShowRegister] = reactExports.useState(false);
   const [regDomain, setRegDomain] = reactExports.useState("");
   const [regChecking, setRegChecking] = reactExports.useState(false);
@@ -53218,11 +53663,28 @@ const Domains = ({ campaigns }) => {
   const [regMessage, setRegMessage] = reactExports.useState("");
   const [showImport, setShowImport] = reactExports.useState(false);
   const [ncImport, setNcImport] = reactExports.useState({ loading: false, domains: [], selected: {}, importing: false, message: "" });
+  const [cfAccounts, setCfAccounts] = reactExports.useState([]);
   reactExports.useEffect(() => {
-    cachedGet("namecheap_status").then(({ data }) => {
-      if (data.status === "success") setNcConnected(!!data.data.connected);
+    cachedGet("cloudflare_accounts_list", { _: Date.now() }, 0).then(({ data }) => {
+      if (data.status === "success") setCfAccounts(data.data.accounts || []);
     }).catch(() => {
     });
+    cachedGet("namecheap_status", {}, 0).then(({ data }) => {
+      if (data.status !== "success") return;
+      const accounts = data.data.accounts || [];
+      setNcAccounts(accounts);
+      setNcConnected(!!data.data.connected);
+      if (accounts.length) setNcAccountId((a) => a || accounts[0].id);
+    }).catch(() => {
+    });
+    try {
+      const raw = localStorage.getItem("orbitra_nc_intent");
+      if (raw) {
+        localStorage.removeItem("orbitra_nc_intent");
+        setNcIntent(JSON.parse(raw));
+      }
+    } catch (e) {
+    }
   }, []);
   const fetchDomainGroups = async () => {
     try {
@@ -53234,6 +53696,21 @@ const Domains = ({ campaigns }) => {
   reactExports.useEffect(() => {
     fetchDomainGroups();
   }, []);
+  const activeNcAccount = ncAccounts.find((a) => a.id === ncAccountId) || ncAccounts[0] || null;
+  reactExports.useEffect(() => {
+    if (!ncIntent || loading || !ncAccounts.length) return;
+    const target = ncAccounts.find((a) => a.id === ncIntent.account_id);
+    setNcIntent(null);
+    if (!target) return;
+    setNcAccountId(target.id);
+    if (ncIntent.mode === "import") {
+      openImport(target.id);
+    } else {
+      setShowRegister(true);
+      setRegResult(null);
+      setRegMessage("");
+    }
+  }, [loading, ncAccounts, ncIntent]);
   const checkNcDomain = async () => {
     const domain = regDomain.trim().toLowerCase();
     if (!domain) return;
@@ -53241,7 +53718,7 @@ const Domains = ({ campaigns }) => {
     setRegResult(null);
     setRegMessage("");
     try {
-      const { data } = await cachedPost("namecheap_check_domain", { domain });
+      const { data } = await cachedPost("namecheap_check_domain", { domain, account_id: activeNcAccount?.id });
       if (data.status === "success") {
         setRegResult(data.data);
       } else {
@@ -53260,7 +53737,7 @@ const Domains = ({ campaigns }) => {
     setRegBuying(true);
     setRegMessage("");
     try {
-      const { data } = await cachedPost("namecheap_register_domain", { domain });
+      const { data } = await cachedPost("namecheap_register_domain", { domain, account_id: activeNcAccount?.id });
       if (data.status === "success") {
         setShowRegister(false);
         setRegDomain("");
@@ -53279,11 +53756,12 @@ const Domains = ({ campaigns }) => {
       setRegBuying(false);
     }
   };
-  const openImport = async () => {
+  const openImport = async (accountId) => {
+    const accId = accountId ?? activeNcAccount?.id ?? null;
     setShowImport(true);
     setNcImport({ loading: true, domains: [], selected: {}, importing: false, message: "" });
     try {
-      const [{ data: listRes }] = await Promise.all([cachedPost("namecheap_domains", {})]);
+      const [{ data: listRes }] = await Promise.all([cachedPost("namecheap_domains", accId ? { account_id: accId } : {})]);
       if (listRes.status !== "success") {
         setNcImport((s) => ({ ...s, loading: false, message: listRes.message || t("common.error") }));
         return;
@@ -53304,7 +53782,12 @@ const Domains = ({ campaigns }) => {
     if (!names2.length) return;
     setNcImport((s) => ({ ...s, importing: true, message: "" }));
     try {
-      const { data } = await cachedPost("save_domain", { name: names2.join(", ") });
+      const payload = { name: names2.join(", ") };
+      if (activeNcAccount?.id) {
+        payload.dns_provider = "namecheap";
+        payload.dns_account_id = activeNcAccount.id;
+      }
+      const { data } = await cachedPost("save_domain", payload);
       if (data.status === "success") {
         setShowImport(false);
         fetchDomains();
@@ -53368,6 +53851,7 @@ const Domains = ({ campaigns }) => {
       cloudflare_proxy: Number(domain.cloudflare_proxy ?? 0) === 1,
       registrar: domain.registrar || "",
       dns_provider: domain.dns_provider || "",
+      dns_account_id: domain.dns_account_id || null,
       status: domain.status || "OK"
     });
     setError("");
@@ -53506,7 +53990,7 @@ ${t("domains.serverIp")}: ${parsed.expected || "—"}`;
 ${parked.join("\n")}`);
         }
         if (!formData.id && addMore) {
-          setFormData((prev) => ({ ...defaultFormData, group_id: prev.group_id, index_campaign_id: prev.index_campaign_id, catch_404: prev.catch_404, is_noindex: prev.is_noindex, admin_access: prev.admin_access, https_only: prev.https_only, cloudflare_proxy: prev.cloudflare_proxy, registrar: prev.registrar, dns_provider: prev.dns_provider, status: prev.status }));
+          setFormData((prev) => ({ ...defaultFormData, group_id: prev.group_id, index_campaign_id: prev.index_campaign_id, catch_404: prev.catch_404, is_noindex: prev.is_noindex, admin_access: prev.admin_access, https_only: prev.https_only, cloudflare_proxy: prev.cloudflare_proxy, registrar: prev.registrar, dns_provider: prev.dns_provider, dns_account_id: prev.dns_account_id, status: prev.status }));
           setSaveNotice(t("domains.savedAddMore", "Saved — ready for the next domain"));
           setTimeout(() => setSaveNotice(""), 3e3);
           nameInputRef.current?.focus();
@@ -53701,8 +54185,8 @@ ${describeSslError(domain.ssl_error)}` }) : domain.ssl_status === "pending" ? /*
         ] }) })
       ] }, domain.id)) })
     ] }) }),
-    showModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content w-full max-w-2xl", style: { padding: "24px" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
+    showModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content w-full max-w-3xl", style: { padding: "20px 24px" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", style: { paddingBottom: "10px", marginBottom: "14px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: formData.id ? t("domains.editDomain") : t("domains.addDomainTitle") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setShowModal(false), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
       ] }),
@@ -53715,164 +54199,166 @@ ${describeSslError(domain.ssl_error)}` }) : domain.ssl_status === "pending" ? /*
         saveNotice
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "space-y-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium mb-1", children: t("domains.domainName") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              ref: nameInputRef,
-              type: "text",
-              required: true,
-              autoFocus: !formData.id,
-              className: "form-input w-full",
-              placeholder: t("domains.bulkPlaceholder"),
-              value: formData.name,
-              onChange: (e) => setFormData({ ...formData, name: cleanNameInput(e.target.value) })
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs mt-1", style: { color: "var(--color-text-secondary)" }, children: [
-            t("domains.domainBulkHelper"),
-            " ",
-            t("domains.bulkExample")
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium mb-1", children: t("domains.group") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "select",
-              {
-                className: "form-select w-full",
-                value: formData.group_id,
-                onChange: (e) => setFormData({ ...formData, group_id: e.target.value }),
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("domains.noGroup") }),
-                  domainGroups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g.id, children: g.name }, g.id))
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "button",
-              {
-                type: "button",
-                className: "btn btn-secondary whitespace-nowrap",
-                onClick: () => setShowGroupsModal(true),
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 14 }),
-                  " ",
-                  t("domains.createGroup")
-                ]
-              }
-            )
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 sm:grid-cols-3 gap-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-medium mb-1.5", children: t("domains.searchRobots") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              ToggleGroup,
-              {
-                value: formData.is_noindex ? "disallow" : "allow",
-                onChange: (v) => setFormData({ ...formData, is_noindex: v === "disallow" }),
-                options: [
-                  { value: "allow", label: t("domains.allowRobotsShort") },
-                  { value: "disallow", label: t("domains.disallowShort") }
-                ]
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-medium mb-1.5", children: t("domains.adminDashboard") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              ToggleGroup,
-              {
-                value: formData.admin_access ? "allow" : "deny",
-                onChange: (v) => setFormData({ ...formData, admin_access: v === "allow" }),
-                options: [
-                  { value: "allow", label: t("domains.allowAccess") },
-                  { value: "deny", label: t("domains.denyAccess") }
-                ]
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-xs font-medium mb-1.5 flex items-center gap-1", children: [
-              t("domains.httpsOnlyShort"),
-              " ",
-              /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.httpsTooltip" })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              ToggleGroup,
-              {
-                value: formData.https_only ? "on" : "off",
-                onChange: (v) => setFormData({ ...formData, https_only: v === "on" }),
-                options: [
-                  { value: "on", label: t("domains.on") },
-                  { value: "off", label: t("domains.off") }
-                ]
-              }
-            )
-          ] })
-        ] }),
-        !formData.admin_access && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs -mt-2", style: { color: "var(--color-text-secondary)" }, children: t("domains.adminAccessHint") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-4 p-3 rounded-lg", style: { background: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium", children: t("domains.cloudflareProxy") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-0.5", style: { color: "var(--color-text-secondary)" }, children: t("domains.cfProxyHint") })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { minWidth: "140px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            ToggleGroup,
-            {
-              value: formData.cloudflare_proxy ? "on" : "off",
-              onChange: (v) => setFormData({ ...formData, cloudflare_proxy: v === "on" }),
-              options: [
-                { value: "on", label: t("domains.on") },
-                { value: "off", label: t("domains.off") }
-              ]
-            }
-          ) })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-sm font-medium mb-1", children: [
-            t("domains.indexPageLabel"),
-            " ",
-            /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.indexCampaignTooltip" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "select",
-              {
-                className: "form-select flex-1",
-                value: formData.index_campaign_id,
-                onChange: (e) => setFormData({ ...formData, index_campaign_id: e.target.value }),
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "", children: [
-                    "-- ",
-                    t("domains.notSelected"),
-                    " --"
-                  ] }),
-                  campaigns.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: c.id, children: [
-                    c.name,
-                    " (",
-                    c.alias,
-                    ")"
-                  ] }, c.id))
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "inline-flex items-center gap-2 text-sm font-medium whitespace-nowrap cursor-pointer", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-5 items-start", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium mb-1", children: t("domains.domainName") }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "input",
                 {
-                  type: "checkbox",
-                  checked: formData.catch_404,
-                  onChange: (e) => setFormData({ ...formData, catch_404: e.target.checked })
+                  ref: nameInputRef,
+                  type: "text",
+                  required: true,
+                  autoFocus: !formData.id,
+                  className: "form-input w-full",
+                  placeholder: t("domains.bulkPlaceholder"),
+                  value: formData.name,
+                  onChange: (e) => setFormData({ ...formData, name: cleanNameInput(e.target.value) })
                 }
               ),
-              t("domains.catch404")
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs mt-1", style: { color: "var(--color-text-secondary)" }, children: [
+                t("domains.domainBulkHelper"),
+                " ",
+                t("domains.bulkExample")
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium mb-1", children: t("domains.group") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "select",
+                  {
+                    className: "form-select flex-1",
+                    value: formData.group_id,
+                    onChange: (e) => setFormData({ ...formData, group_id: e.target.value }),
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("domains.noGroup") }),
+                      domainGroups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g.id, children: g.name }, g.id))
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "button",
+                  {
+                    type: "button",
+                    className: "btn btn-secondary whitespace-nowrap",
+                    onClick: () => setShowGroupsModal(true),
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 14 }),
+                      " ",
+                      t("domains.createGroup")
+                    ]
+                  }
+                )
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-sm font-medium mb-1", children: [
+                t("domains.indexPageLabel"),
+                " ",
+                /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.indexCampaignTooltip" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "select",
+                {
+                  className: "form-select w-full",
+                  value: formData.index_campaign_id,
+                  onChange: (e) => setFormData({ ...formData, index_campaign_id: e.target.value }),
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "", children: [
+                      "-- ",
+                      t("domains.notSelected"),
+                      " --"
+                    ] }),
+                    campaigns.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: c.id, children: [
+                      c.name,
+                      " (",
+                      c.alias,
+                      ")"
+                    ] }, c.id))
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "inline-flex items-center gap-2 text-sm font-medium cursor-pointer mt-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "checkbox",
+                    checked: formData.catch_404,
+                    onChange: (e) => setFormData({ ...formData, catch_404: e.target.checked })
+                  }
+                ),
+                t("domains.catch404")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-secondary)" }, children: t("domains.indexPageHint") })
             ] })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-secondary)" }, children: t("domains.indexPageHint") })
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-medium mb-1.5", children: t("domains.searchRobots") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                ToggleGroup,
+                {
+                  value: formData.is_noindex ? "disallow" : "allow",
+                  onChange: (v) => setFormData({ ...formData, is_noindex: v === "disallow" }),
+                  options: [
+                    { value: "allow", label: t("domains.allowRobotsShort") },
+                    { value: "disallow", label: t("domains.disallowShort") }
+                  ]
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-medium mb-1.5", children: t("domains.adminDashboard") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                ToggleGroup,
+                {
+                  value: formData.admin_access ? "allow" : "deny",
+                  onChange: (v) => setFormData({ ...formData, admin_access: v === "allow" }),
+                  options: [
+                    { value: "allow", label: t("domains.allowAccess") },
+                    { value: "deny", label: t("domains.denyAccess") }
+                  ]
+                }
+              ),
+              !formData.admin_access && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1.5", style: { color: "var(--color-text-secondary)" }, children: t("domains.adminAccessHint") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-xs font-medium mb-1.5 flex items-center gap-1", children: [
+                t("domains.httpsOnlyShort"),
+                " ",
+                /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.httpsTooltip" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                ToggleGroup,
+                {
+                  value: formData.https_only ? "on" : "off",
+                  onChange: (v) => setFormData({ ...formData, https_only: v === "on" }),
+                  options: [
+                    { value: "on", label: t("domains.on") },
+                    { value: "off", label: t("domains.off") }
+                  ]
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-4 p-3 rounded-lg", style: { background: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium", children: t("domains.cloudflareProxy") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-0.5", style: { color: "var(--color-text-secondary)" }, children: t("domains.cfProxyHint") })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { minWidth: "150px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                ToggleGroup,
+                {
+                  value: formData.cloudflare_proxy ? "on" : "off",
+                  onChange: (v) => setFormData({ ...formData, cloudflare_proxy: v === "on" }),
+                  options: [
+                    { value: "on", label: t("domains.on") },
+                    { value: "off", label: t("domains.off") }
+                  ]
+                }
+              ) })
+            ] })
+          ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 sm:grid-cols-3 gap-4", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -53889,17 +54375,32 @@ ${describeSslError(domain.ssl_error)}` }) : domain.ssl_status === "pending" ? /*
             )
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-medium mb-1.5", children: t("domains.dnsProvider") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
+            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-medium mb-1.5", children: t("domains.manageVia", "Управлять DNS через") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "select",
               {
-                type: "text",
-                className: "form-input w-full",
-                placeholder: "Cloudflare",
-                value: formData.dns_provider,
-                onChange: (e) => setFormData({ ...formData, dns_provider: e.target.value })
+                className: "form-select w-full",
+                value: formData.dns_provider === "cloudflare" && formData.dns_account_id ? `cloudflare:${formData.dns_account_id}` : formData.dns_provider === "namecheap" && formData.dns_account_id ? `namecheap:${formData.dns_account_id}` : formData.dns_provider || "",
+                onChange: (e) => {
+                  const v = e.target.value;
+                  if (v === "") {
+                    setFormData({ ...formData, dns_provider: "", dns_account_id: null });
+                  } else if (v.includes(":")) {
+                    const [prov, id] = v.split(":");
+                    setFormData({ ...formData, dns_provider: prov, dns_account_id: Number(id) || null });
+                  } else {
+                    setFormData({ ...formData, dns_provider: v, dns_account_id: null });
+                  }
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("domains.manageViaNone", "— аккаунт по умолчанию —") }),
+                  cfAccounts.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("optgroup", { label: "Cloudflare", children: cfAccounts.map((a) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: `cloudflare:${a.id}`, children: a.name }, `cf-${a.id}`)) }),
+                  ncAccounts.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("optgroup", { label: "Namecheap", children: ncAccounts.map((a) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: `namecheap:${a.id}`, children: a.name }, `nc-${a.id}`)) }),
+                  formData.dns_provider && !((formData.dns_provider === "cloudflare" || formData.dns_provider === "namecheap") && formData.dns_account_id) && /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: formData.dns_provider, children: formData.dns_provider })
+                ]
               }
-            )
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-secondary)" }, children: t("domains.manageViaHint", "Аккаунт, через который парковается A-запись домена при добавлении и синхронизации.") })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-medium mb-1.5", children: t("domains.status") }),
@@ -53918,7 +54419,7 @@ ${describeSslError(domain.ssl_error)}` }) : domain.ssl_status === "pending" ? /*
             )
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer mt-6", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
           !formData.id && /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "inline-flex items-center gap-2 text-sm font-medium cursor-pointer mr-auto", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "input",
@@ -53957,6 +54458,28 @@ ${describeSslError(domain.ssl_error)}` }) : domain.ssl_status === "pending" ? /*
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: t("namecheap.registerHintLong", "Домен регистрируется через баланс вашего аккаунта Namecheap: сразу после покупки A-запись указывает на этот сервер, и SSL Let's Encrypt выпускается автоматически.") }),
+        ncAccounts.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("namecheap.chooseAccount", "Аккаунт Namecheap") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "select",
+            {
+              className: "form-select",
+              style: { width: "100%" },
+              value: activeNcAccount?.id ?? "",
+              onChange: (e) => {
+                setNcAccountId(Number(e.target.value));
+                setRegResult(null);
+                setRegMessage("");
+              },
+              children: ncAccounts.map((a) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: a.id, children: [
+                a.name,
+                " (",
+                a.last_balance || "—",
+                ")"
+              ] }, a.id))
+            }
+          )
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
@@ -54043,6 +54566,28 @@ ${describeSslError(domain.ssl_error)}` }) : domain.ssl_status === "pending" ? /*
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: t("namecheap.importHintLong", "Все домены аккаунта Namecheap. Отмеченные добавляются в трекер: A-запись и SSL настраиваются автоматически.") }),
+        ncAccounts.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("namecheap.chooseAccount", "Аккаунт Namecheap") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "select",
+            {
+              className: "form-select",
+              style: { width: "100%" },
+              value: activeNcAccount?.id ?? "",
+              onChange: (e) => {
+                setNcAccountId(Number(e.target.value));
+                openImport(Number(e.target.value));
+              },
+              disabled: ncImport.loading,
+              children: ncAccounts.map((a) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: a.id, children: [
+                a.name,
+                " (",
+                a.last_balance || "—",
+                ")"
+              ] }, a.id))
+            }
+          )
+        ] }),
         ncImport.loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-8", style: { color: "var(--color-text-muted)" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 20, className: "animate-spin mx-auto mb-2" }),
           t("common.loading")
@@ -54879,7 +55424,7 @@ const PaginationToolbar = ({
                   className: "min-w-[28px] h-7 px-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center",
                   style: {
                     backgroundColor: isActive ? "var(--color-primary)" : "var(--color-bg-card)",
-                    color: isActive ? "#ffffff" : "var(--color-text-primary)",
+                    color: isActive ? "var(--color-text-inverse)" : "var(--color-text-primary)",
                     border: `1px solid ${isActive ? "var(--color-primary)" : "var(--color-border)"}`
                   },
                   children: num + 1
@@ -55236,7 +55781,7 @@ const DateRangePicker = ({
                 let borderRadius = "6px";
                 if (isStart || isEnd) {
                   bg = "var(--color-primary)";
-                  textColor = "#ffffff";
+                  textColor = "var(--color-text-inverse)";
                 } else if (isInRange) {
                   bg = "var(--color-primary-light)";
                   textColor = "var(--color-primary)";
@@ -58649,7 +59194,7 @@ const SegmentedControl = ({ options, value, onChange, ariaLabel }) => /* @__PURE
           className: "flex-1 py-2 px-3 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5",
           style: {
             backgroundColor: isActive ? "var(--color-primary)" : "transparent",
-            color: isActive ? "#ffffff" : "var(--color-text-secondary)",
+            color: isActive ? "var(--color-text-inverse)" : "var(--color-text-secondary)",
             boxShadow: isActive ? "0 2px 8px rgba(0, 0, 0, 0.15)" : "none"
           },
           children: [
@@ -59354,7 +59899,14 @@ const SLUG_ERROR_KEYS = {
   zip_unsupported_compression: "landingEditor.zipUnsupportedCompression",
   zip_extract_failed: "landingEditor.zipExtractFailed",
   zip_open_failed: "landingEditor.zipOpenFailed",
-  upload_failed: "landingEditor.uploadFailed"
+  upload_failed: "landingEditor.uploadFailed",
+  // Stage-then-swap extraction. php_scan_failed is the hard tier of the PHP
+  // scan (shell/eval/symlink); the runtime-limit trio never reaches here —
+  // it is stripped on the way in and reported through `sanitized` instead.
+  php_scan_failed: "landingEditor.phpScanFailed",
+  stage_dir_not_created: "landingEditor.stageDirNotCreated",
+  dest_dir_not_cleared: "landingEditor.destDirNotCleared",
+  dest_dir_swap_failed: "landingEditor.destDirSwapFailed"
 };
 function translateLandingError(t, message2, detail) {
   if (!message2) return "";
@@ -59363,6 +59915,13 @@ function translateLandingError(t, message2, detail) {
   const text = t(key);
   const facts = detail && typeof detail === "object" ? Object.values(detail).filter((v) => v !== null && v !== void 0 && v !== "").join(", ") : "";
   return facts ? `${text} (${facts})` : text;
+}
+function describeSanitized(t, sanitized) {
+  if (!sanitized || typeof sanitized !== "object") return "";
+  const lines = Object.entries(sanitized).map(([file, names2]) => `${file}: ${Array.isArray(names2) ? names2.join(", ") : names2}`).filter((l) => !l.endsWith(": "));
+  if (!lines.length) return "";
+  return `${t("landingEditor.archiveSanitized")}
+${lines.join("\n")}`;
 }
 function translateLandingRequestError(t, error) {
   const body = error?.response?.data;
@@ -59681,7 +60240,10 @@ ${file}`)) return;
         headers: { "Content-Type": "multipart/form-data" }
       });
       if (res.data.status === "success") {
-        alert(t("landingEditor.archiveUploaded"));
+        const note = describeSanitized(t, res.data.sanitized);
+        alert(note ? `${t("landingEditor.archiveUploaded")}
+
+${note}` : t("landingEditor.archiveUploaded"));
         fetchLandingFiles(id);
         return true;
       }
@@ -60719,6 +61281,13 @@ const ColumnsOrderModal = ({ columns, selectedIds, defaultIds, onClose, onSave }
     }
   ) });
 };
+const entityDeleteErrorText = (t, data, err = null, fallbackKey = "common.error") => {
+  if (data?.code === "entity_in_use") {
+    const campaigns = Array.isArray(data.campaigns) ? data.campaigns.filter(Boolean) : [];
+    return campaigns.length > 0 ? t("common.entityInUse").replace("{campaigns}", campaigns.join(", ")) : data.message || t("common.entityInUse").replace("{campaigns}", "");
+  }
+  return data?.message || err?.response?.data?.message || err?.message || t(fallbackKey);
+};
 const API_URL$w = "/api.php";
 const ALL_LANDING_COLUMNS = [
   { id: "id", label: "ID" },
@@ -60843,7 +61412,7 @@ const Landings = ({ landings, refreshData }) => {
       try {
         const res = await axios.post(`${API_URL$w}?action=delete_landing`, { id });
         if (res?.data?.status !== "success") {
-          alert(res?.data?.message || t("common.error"));
+          alert(entityDeleteErrorText(t, res?.data));
           return;
         }
         await Promise.all([
@@ -60851,7 +61420,7 @@ const Landings = ({ landings, refreshData }) => {
           Promise.resolve(refreshData?.())
         ]);
       } catch (err) {
-        alert(err?.response?.data?.message || err?.message || t("common.error"));
+        alert(entityDeleteErrorText(t, null, err));
       }
     }
   };
@@ -60932,14 +61501,18 @@ const Landings = ({ landings, refreshData }) => {
     const msg = (t("common.deleteSelectedConfirm") || t("common.deleteConfirm")).replace("{count}", String(ids.length));
     if (!window.confirm(msg)) return;
     try {
-      await axios.post(`${API_URL$w}?action=bulk_delete_landings`, { ids });
+      const res = await axios.post(`${API_URL$w}?action=bulk_delete_landings`, { ids });
+      if (res?.data?.status !== "success") {
+        alert(entityDeleteErrorText(t, res?.data));
+        return;
+      }
       setSelectedLandingIds(/* @__PURE__ */ new Set());
       await Promise.all([
         fetchLandings(),
         Promise.resolve(refreshData?.())
       ]);
-    } catch {
-      alert(t("common.error"));
+    } catch (err) {
+      alert(entityDeleteErrorText(t, null, err));
     }
   };
   const exportVisibleCsv = () => {
@@ -61314,7 +61887,7 @@ const Landings = ({ landings, refreshData }) => {
             style: {
               backgroundColor: "var(--color-primary)",
               borderColor: "var(--color-primary)",
-              color: "#ffffff"
+              color: "var(--color-text-inverse)"
             },
             title: t("common.refresh", "Refresh"),
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 14, className: refreshing ? "animate-spin" : "" })
@@ -61376,14 +61949,14 @@ const Landings = ({ landings, refreshData }) => {
             className: "px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5",
             style: {
               backgroundColor: active ? "var(--color-primary)" : "var(--color-bg-card)",
-              color: active ? "#ffffff" : "var(--color-text-secondary)",
+              color: active ? "var(--color-text-inverse)" : "var(--color-text-secondary)",
               border: `1px solid ${active ? "var(--color-primary)" : "var(--color-border)"}`,
               cursor: "pointer"
             },
             children: [
               tab.icon && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: tab.icon }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: tab.label }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] px-1.5 rounded-full", style: { backgroundColor: active ? "rgba(255,255,255,0.25)" : "var(--color-bg-soft)" }, children: tab.count })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] px-1.5 rounded-full", style: { backgroundColor: active ? "color-mix(in srgb, var(--color-text-inverse) 15%, transparent)" : "var(--color-bg-soft)", color: "inherit" }, children: tab.count })
             ]
           },
           String(tab.key)
@@ -62363,8 +62936,10 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
         headers: { "Content-Type": "multipart/form-data" }
       });
       if (res.data.status !== "success") {
-        alert(`${t("offerEditor.zipError", "ZIP upload error")}: ${res.data.message || ""} ${res.data.detail ? JSON.stringify(res.data.detail) : ""}`.trim());
+        alert(translateLandingError(t, res.data.message, res.data.detail) || t("offerEditor.zipError", "ZIP upload error"));
       } else {
+        const note = describeSanitized(t, res.data.sanitized);
+        if (note) alert(note);
         fetchOfferFiles(id);
       }
     } catch (err) {
@@ -63266,10 +63841,14 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
   const handleDelete = async (id) => {
     if (window.confirm(t("common.deleteConfirm"))) {
       try {
-        await axios.post(`${API_URL$t}?action=delete_offer`, { id });
+        const res = await axios.post(`${API_URL$t}?action=delete_offer`, { id });
+        if (res?.data?.status !== "success") {
+          alert(entityDeleteErrorText(t, res?.data));
+          return;
+        }
         await refreshOfferData();
-      } catch {
-        alert(t("common.error"));
+      } catch (err) {
+        alert(entityDeleteErrorText(t, null, err));
       }
     }
   };
@@ -63300,11 +63879,15 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
     const msg = (t("common.deleteSelectedConfirm") || t("common.deleteConfirm")).replace("{count}", String(ids.length));
     if (!window.confirm(msg)) return;
     try {
-      await axios.post(`${API_URL$t}?action=bulk_delete_offers`, { ids });
+      const res = await axios.post(`${API_URL$t}?action=bulk_delete_offers`, { ids });
+      if (res?.data?.status !== "success") {
+        alert(entityDeleteErrorText(t, res?.data));
+        return;
+      }
       setSelectedOfferIds(/* @__PURE__ */ new Set());
       await refreshOfferData();
-    } catch {
-      alert(t("common.error"));
+    } catch (err) {
+      alert(entityDeleteErrorText(t, null, err));
     }
   };
   const handleBulkCopySelected = async () => {
@@ -63812,14 +64395,14 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
             className: "px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5",
             style: {
               backgroundColor: activePill ? "var(--color-primary)" : "var(--color-bg-card)",
-              color: activePill ? "#ffffff" : "var(--color-text-secondary)",
+              color: activePill ? "var(--color-text-inverse)" : "var(--color-text-secondary)",
               border: `1px solid ${activePill ? "var(--color-primary)" : "var(--color-border)"}`,
               cursor: "pointer"
             },
             children: [
               tab.icon && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: tab.icon }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: tab.label }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] px-1.5 rounded-full", style: { backgroundColor: activePill ? "rgba(255,255,255,0.25)" : "var(--color-bg-soft)" }, children: tab.count })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] px-1.5 rounded-full", style: { backgroundColor: activePill ? "color-mix(in srgb, var(--color-text-inverse) 15%, transparent)" : "var(--color-bg-soft)", color: "inherit" }, children: tab.count })
             ]
           },
           tab.key || "__all__"
@@ -66422,7 +67005,7 @@ const UsersPage = () => {
         permissions: permissions2
       });
       if (res.data.status === "success") {
-        showSuccess(t("common.success"));
+        notifyModal(t("common.success"));
         openApiKeysModal(currentUser);
       }
     } catch (err) {
@@ -66433,15 +67016,11 @@ const UsersPage = () => {
     if (!window.confirm(t("common.deleteConfirm"))) return;
     try {
       await axios.post(`${API_URL$n}?action=delete_api_key`, { id: keyId });
-      showSuccess(t("common.success"));
+      notifyModal(t("common.success"));
       openApiKeysModal(currentUser);
     } catch (err) {
       setError(t("common.error"));
     }
-  };
-  const copyToClipboard2 = (text) => {
-    navigator.clipboard.writeText(text);
-    showSuccess(t("common.copy"));
   };
   const buildMcpConfig = () => {
     const origin2 = typeof window !== "undefined" && window.location && window.location.origin ? window.location.origin : "https://tracker.example.com";
@@ -66457,6 +67036,26 @@ const UsersPage = () => {
         }
       }
     }, null, 2);
+  };
+  const [copiedKeyTarget, setCopiedKeyTarget] = reactExports.useState(null);
+  const [modalNotice, setModalNotice] = reactExports.useState("");
+  const notifyModal = (msg) => {
+    setModalNotice(msg);
+    setTimeout(() => setModalNotice(""), 2e3);
+  };
+  const handleCopyKeyItem = async (text, targetId, noticeText) => {
+    if (await copyToClipboard(text)) {
+      setCopiedKeyTarget(targetId);
+      notifyModal(noticeText);
+      setTimeout(() => setCopiedKeyTarget((current) => current === targetId ? null : current), 2e3);
+    }
+  };
+  const [copiedMcp, setCopiedMcp] = reactExports.useState(false);
+  const handleCopyMcp = async () => {
+    if (await copyToClipboard(buildMcpConfig())) {
+      setCopiedMcp(true);
+      setTimeout(() => setCopiedMcp(false), 2e3);
+    }
   };
   const resources = [
     { key: "campaigns", label: t("nav.campaigns") },
@@ -66789,6 +67388,10 @@ const UsersPage = () => {
         currentUser.username
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", style: { marginBottom: "16px" }, children: [
+        modalNotice && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "alert alert-success flex items-center gap-2", style: { padding: "8px 12px", fontSize: "13px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14, className: "text-emerald-500" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: modalNotice })
+        ] }),
         (currentUser.api_keys || []).map((key) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", style: { padding: "12px", background: "var(--color-bg-soft)", borderRadius: "12px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontWeight: 500, fontSize: "14px" }, children: [
@@ -66811,19 +67414,27 @@ const UsersPage = () => {
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
-                onClick: () => copyToClipboard2(`${window.location.origin}/mcp.php?k=${key.api_key}`),
+                onClick: () => handleCopyKeyItem(
+                  `${window.location.origin}/mcp.php?k=${key.api_key}`,
+                  `url-${key.id}`,
+                  t("users.urlCopied", "MCP Connector URL copied to clipboard!")
+                ),
                 className: "action-btn text-blue",
                 title: t("users.copyMcpUrl", "Copy connector URL (for Claude → Add custom connector)"),
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(Link2, { size: 16 })
+                children: copiedKeyTarget === `url-${key.id}` ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-emerald-500" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Link2, { size: 16 })
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
-                onClick: () => copyToClipboard2(key.api_key),
+                onClick: () => handleCopyKeyItem(
+                  key.api_key,
+                  `key-${key.id}`,
+                  t("users.keyCopied", "API Key copied to clipboard!")
+                ),
                 className: "action-btn text-blue",
                 title: t("common.copy"),
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 16 })
+                children: copiedKeyTarget === `key-${key.id}` ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-emerald-500" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 16 })
               }
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -66878,16 +67489,20 @@ const UsersPage = () => {
       }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", style: { marginBottom: "8px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontWeight: 600, fontSize: "14px" }, children: t("users.mcpTitle", "Connect an AI assistant (MCP)") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
-              onClick: () => copyToClipboard2(buildMcpConfig()),
+              type: "button",
+              onClick: handleCopyMcp,
               className: "btn btn-secondary",
               style: { padding: "4px 10px", fontSize: "12px" },
-              children: [
+              children: copiedMcp ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14, className: "text-emerald-500" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-emerald-500 font-semibold", children: t("common.copied") })
+              ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 14 }),
-                t("users.mcpCopyConfig", "Copy config")
-              ]
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("users.mcpCopyConfig", "Copy config") })
+              ] })
             }
           )
         ] }),
@@ -66906,6 +67521,33 @@ const UsersPage = () => {
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-footer", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowApiKeysModal(false), className: "btn btn-secondary", children: t("common.close") }) })
     ] }) })
   ] });
+};
+const getContrastTextColor = (hex2) => {
+  if (!hex2 || typeof hex2 !== "string") return "#ffffff";
+  let clean = hex2.replace("#", "").trim();
+  if (clean.length === 3) {
+    clean = clean.split("").map((c) => c + c).join("");
+  }
+  if (clean.length !== 6 || /[^0-9a-fA-F]/.test(clean)) return "#ffffff";
+  const r2 = parseInt(clean.slice(0, 2), 16);
+  const g = parseInt(clean.slice(2, 4), 16);
+  const b = parseInt(clean.slice(4, 6), 16);
+  const brightness = (0.299 * r2 + 0.587 * g + 0.114 * b) / 255;
+  return brightness > 0.55 ? "#000000" : "#ffffff";
+};
+const applyCustomThemeVars = (colors2, root = document.documentElement) => {
+  Object.entries(colors2 || {}).forEach(([key, value]) => {
+    root.style.setProperty(key, value);
+  });
+  const primary = colors2 && colors2["--color-primary"];
+  if (primary) {
+    root.style.setProperty("--color-text-inverse", getContrastTextColor(primary));
+  } else {
+    clearInverseText(root);
+  }
+};
+const clearInverseText = (root = document.documentElement) => {
+  root.style.removeProperty("--color-text-inverse");
 };
 const API_URL$m = "/api.php";
 const DEFAULT_CUSTOM_COLORS = {
@@ -66930,17 +67572,11 @@ const BrandingPage = () => {
       }
     }
   }, []);
-  const applyLiveCustomColors = (colors2) => {
-    const root = document.documentElement;
-    Object.entries(colors2).forEach(([key, value]) => {
-      root.style.setProperty(key, value);
-    });
-  };
   const handleModeChange = (newMode) => {
     setMode(newMode);
     localStorage.setItem("orbitra_mode", newMode);
     if (newMode === "custom") {
-      applyLiveCustomColors(customColors);
+      applyCustomThemeVars(customColors);
     }
     window.dispatchEvent(new Event("themeChanged"));
   };
@@ -66948,13 +67584,13 @@ const BrandingPage = () => {
     const newColors = { ...customColors, [key]: value };
     setCustomColors(newColors);
     if (mode === "custom") {
-      applyLiveCustomColors(newColors);
+      applyCustomThemeVars(newColors);
     }
   };
   const resetCustomColors = () => {
     setCustomColors(DEFAULT_CUSTOM_COLORS);
     if (mode === "custom") {
-      applyLiveCustomColors(DEFAULT_CUSTOM_COLORS);
+      applyCustomThemeVars(DEFAULT_CUSTOM_COLORS);
     }
   };
   const handleSave = async () => {
@@ -70032,7 +70668,7 @@ const ProxyInput = ({ value, onChange, label }) => {
             type: "button",
             onClick: () => setMode("string"),
             className: "px-2 py-0.5 rounded-md font-medium transition",
-            style: mode === "string" ? { backgroundColor: "var(--color-primary)", color: "#ffffff" } : { color: "var(--color-text-muted)" },
+            style: mode === "string" ? { backgroundColor: "var(--color-primary)", color: "var(--color-text-inverse)" } : { color: "var(--color-text-muted)" },
             children: t("proxy.singleString", "Single string")
           }
         ),
@@ -70042,7 +70678,7 @@ const ProxyInput = ({ value, onChange, label }) => {
             type: "button",
             onClick: () => setMode("blocks"),
             className: "px-2 py-0.5 rounded-md font-medium transition",
-            style: mode === "blocks" ? { backgroundColor: "var(--color-primary)", color: "#ffffff" } : { color: "var(--color-text-muted)" },
+            style: mode === "blocks" ? { backgroundColor: "var(--color-primary)", color: "var(--color-text-inverse)" } : { color: "var(--color-text-muted)" },
             children: t("proxy.separateFields", "Separate fields")
           }
         )
@@ -70410,6 +71046,16 @@ const PixelPicker = ({ label, value, profileId, trafficSource, resolveServerSide
   ] });
 };
 const API_URL$b = "/api.php";
+const SYNC_INTERVAL_OPTIONS = [
+  { value: 0.333, label: "20 min" },
+  { value: 0.5, label: "30 min" },
+  { value: 1, label: "1 h" },
+  { value: 2, label: "2 h" },
+  { value: 4, label: "4 h" },
+  { value: 6, label: "6 h" },
+  { value: 12, label: "12 h" },
+  { value: 24, label: "24 h" }
+];
 const IntegrationsPage = () => {
   const { t } = useLanguage();
   const translationRef = reactExports.useRef(t);
@@ -70463,6 +71109,7 @@ const IntegrationsPage = () => {
   const [fbOAuthLoading, setFbOAuthLoading] = reactExports.useState(false);
   const [fbOAuthConnecting, setFbOAuthConnecting] = reactExports.useState(false);
   const [fbOauthConfigured, setFbOauthConfigured] = reactExports.useState(null);
+  const [fbAddMode, setFbAddMode] = reactExports.useState("manual");
   const fbOAuthPopupRef = reactExports.useRef(null);
   const fbOAuthPollRef = reactExports.useRef(null);
   const emptyTtForm = {
@@ -70490,6 +71137,9 @@ const IntegrationsPage = () => {
   const [ttImportPixels, setTtImportPixels] = reactExports.useState(true);
   const [ttSyncInterval, setTtSyncInterval] = reactExports.useState(2);
   const [ttMessage, setTtMessage] = reactExports.useState(null);
+  const [ttOauthConfigured, setTtOauthConfigured] = reactExports.useState(null);
+  const [ttShowTokenHowTo, setTtShowTokenHowTo] = reactExports.useState(false);
+  const [ttAddMode, setTtAddMode] = reactExports.useState("manual");
   const ttPopupRef = reactExports.useRef(null);
   const ttPollRef = reactExports.useRef(null);
   const emptyGaForm = {
@@ -70518,6 +71168,9 @@ const IntegrationsPage = () => {
   const [gaSyncInterval, setGaSyncInterval] = reactExports.useState(2);
   const gaPopupRef = reactExports.useRef(null);
   const gaPollRef = reactExports.useRef(null);
+  const [gaOauthConfigured, setGaOauthConfigured] = reactExports.useState(null);
+  const [gaShowHowTo, setGaShowHowTo] = reactExports.useState(false);
+  const [gaAddMode, setGaAddMode] = reactExports.useState("manual");
   const emptyCapiForm = {
     campaign_id: "",
     pixel_profile_id: "",
@@ -70559,15 +71212,20 @@ const IntegrationsPage = () => {
   const [pixelProfileSource, setPixelProfileSource] = reactExports.useState("all");
   const [pixelProfileMessage, setPixelProfileMessage] = reactExports.useState(null);
   const [pixelProfileTesting, setPixelProfileTesting] = reactExports.useState(null);
-  const [cfForm, setCfForm] = reactExports.useState({ api_token: "", proxied: true, ssl_mode: "flexible", server_ip: "" });
   const [cfStatus, setCfStatus] = reactExports.useState(null);
+  const [cfAccounts, setCfAccounts] = reactExports.useState([]);
+  const [cfServerIp, setCfServerIp] = reactExports.useState("");
   const [cfBusy, setCfBusy] = reactExports.useState(false);
   const [cfMessage, setCfMessage] = reactExports.useState(null);
-  const [ncForm, setNcForm] = reactExports.useState({ username: "", api_key: "", sandbox: false, address_id: "", server_ip: "" });
-  const [ncStatus, setNcStatus] = reactExports.useState(null);
-  const [ncBusy, setNcBusy] = reactExports.useState(false);
-  const [ncMessage, setNcMessage] = reactExports.useState(null);
-  const [ncAddresses, setNcAddresses] = reactExports.useState([]);
+  const [cfAccModal, setCfAccModal] = reactExports.useState(null);
+  const [cfZones, setCfZones] = reactExports.useState(null);
+  const [ncAccounts, setNcAccounts] = reactExports.useState([]);
+  const [ncIps, setNcIps] = reactExports.useState({ server_ip: "", detected_ip: "" });
+  const [ncAccModal, setNcAccModal] = reactExports.useState(null);
+  const [ncAccBusy, setNcAccBusy] = reactExports.useState(false);
+  const [ncAccMessage, setNcAccMessage] = reactExports.useState(null);
+  const [ncAccAddresses, setNcAccAddresses] = reactExports.useState([]);
+  const [ncBalanceBusy, setNcBalanceBusy] = reactExports.useState(null);
   const [rcSaving, setRcSaving] = reactExports.useState(false);
   const [rcMessage, setRcMessage] = reactExports.useState(null);
   const [rcSettings, setRcSettings] = reactExports.useState({
@@ -70967,6 +71625,14 @@ const IntegrationsPage = () => {
       console.error(err);
     }
   }, []);
+  const fetchTtOauthStatus = reactExports.useCallback(async () => {
+    try {
+      const res = await axios.get(`${API_URL$b}?action=tiktok_oauth_status`);
+      if (res.data.status === "success") setTtOauthConfigured(!!res.data.data?.configured);
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
   const fetchGaConnections = reactExports.useCallback(async () => {
     setGaLoading(true);
     try {
@@ -70984,6 +71650,14 @@ const IntegrationsPage = () => {
     try {
       const res = await axios.get(`${API_URL$b}?action=aggregator_engine_fields&engine=google_ads`);
       if (res.data.status === "success") setGaFields(res.data.data || []);
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+  const fetchGaOauthStatus = reactExports.useCallback(async () => {
+    try {
+      const res = await axios.get(`${API_URL$b}?action=google_ads_oauth_status`);
+      if (res.data.status === "success") setGaOauthConfigured(!!res.data.data?.configured);
     } catch (err) {
       console.error(err);
     }
@@ -71027,10 +71701,12 @@ const IntegrationsPage = () => {
     if (activeTab === "tiktok_costs") {
       fetchTtConnections();
       fetchTtFields();
+      fetchTtOauthStatus();
     }
     if (activeTab === "google_ads_costs") {
       fetchGaConnections();
       fetchGaFields();
+      fetchGaOauthStatus();
     }
     if (activeTab === "facebook_conversions") {
       fetchCapiPixels();
@@ -71042,36 +71718,109 @@ const IntegrationsPage = () => {
       axios.get(`${API_URL$b}?action=cloudflare_status`).then((res) => {
         if (res.data.status === "success") {
           setCfStatus(res.data.data);
-          setCfForm((f) => ({ ...f, proxied: !!res.data.data.proxied, ssl_mode: res.data.data.ssl_mode || "flexible", server_ip: res.data.data.server_ip || "" }));
+          setCfAccounts(res.data.data.accounts || []);
+          setCfServerIp(res.data.data.server_ip || "");
         }
       }).catch(() => {
       });
     }
     if (activeTab === "namecheap") {
-      const ncAddressRefresh = async () => {
-        try {
-          const res = await axios.post(`${API_URL$b}?action=namecheap_addresses`, {});
-          if (res.data.status === "success") setNcAddresses(res.data.data.addresses || []);
-        } catch (err) {
-          console.error(err);
-        }
-      };
-      axios.get(`${API_URL$b}?action=namecheap_status`).then((res) => {
+      axios.get(`${API_URL$b}?action=namecheap_accounts_list`).then((res) => {
         if (res.data.status === "success") {
-          setNcStatus(res.data.data);
-          setNcForm((f) => ({
-            ...f,
-            username: res.data.data.username || "",
-            sandbox: !!res.data.data.sandbox,
-            address_id: res.data.data.address_id || "",
-            server_ip: res.data.data.server_ip || ""
-          }));
-          if (res.data.data.connected) ncAddressRefresh();
+          setNcAccounts(res.data.data.accounts || []);
+          setNcIps({ server_ip: res.data.data.server_ip || "", detected_ip: res.data.data.detected_ip || "" });
+          (res.data.data.accounts || []).forEach((acc) => {
+            axios.post(`${API_URL$b}?action=namecheap_account_balance`, { account_id: acc.id }).then((b) => {
+              if (b.data.status === "success" && b.data.data?.balance !== void 0) {
+                setNcAccounts((list) => list.map((a) => a.id === acc.id ? { ...a, last_balance: b.data.data.balance || a.last_balance } : a));
+              }
+            }).catch(() => {
+            });
+          });
         }
       }).catch(() => {
       });
     }
   }, [activeTab, fetchFbConnections, fetchFbFields, fetchTtConnections, fetchTtFields, fetchGaConnections, fetchGaFields, fetchCapiPixels, fetchCapiMeta, fetchCampaigns, fetchPixelProfiles]);
+  const openNcAccountModal = async (acc = null) => {
+    setNcAccMessage(null);
+    setNcAccAddresses([]);
+    setNcAccModal(acc ? { id: acc.id, name: acc.name, username: acc.username, api_key: "", contact_id: acc.contact_id || "", sandbox: !!acc.sandbox } : { id: 0, name: "", username: "", api_key: "", contact_id: "", sandbox: false });
+    try {
+      const res = await axios.post(`${API_URL$b}?action=namecheap_addresses`, acc && acc.id ? { account_id: acc.id } : {});
+      if (res.data.status === "success") setNcAccAddresses(res.data.data.addresses || []);
+    } catch (err) {
+    }
+  };
+  const refreshNcAddresses = async () => {
+    try {
+      const res = await axios.post(`${API_URL$b}?action=namecheap_addresses`, ncAccModal?.id ? { account_id: ncAccModal.id } : {});
+      if (res.data.status === "success") setNcAccAddresses(res.data.data.addresses || []);
+    } catch (err) {
+    }
+  };
+  const saveNcAccount = async () => {
+    if (!ncAccModal) return;
+    if (!ncAccModal.username.trim() && !ncAccModal.id) {
+      setNcAccMessage("⚠ " + t("namecheap.errUserKeyRequired", "Укажите username и API key"));
+      return;
+    }
+    setNcAccBusy(true);
+    setNcAccMessage(null);
+    try {
+      const res = await axios.post(`${API_URL$b}?action=namecheap_account_save`, {
+        id: ncAccModal.id || void 0,
+        name: ncAccModal.name,
+        username: ncAccModal.username,
+        api_key: ncAccModal.api_key,
+        contact_id: ncAccModal.contact_id,
+        sandbox: ncAccModal.sandbox
+      });
+      if (res.data.status === "success") {
+        const saved = res.data.data.account;
+        setNcAccModal(null);
+        setNcAccounts((list) => list.some((a) => a.id === saved.id) ? list.map((a) => a.id === saved.id ? { ...a, ...saved } : a) : [...list, saved]);
+      } else if (res.data.message === "namecheap_connection_failed") {
+        setNcAccMessage("⚠ " + t("namecheap.errConnection", "Namecheap отклонил подключение") + (res.data.detail?.error ? `: ${res.data.detail.error}` : ""));
+        if (res.data.detail?.ip) setNcIps((s) => ({ ...s, detected_ip: res.data.detail.ip }));
+      } else {
+        setNcAccMessage("⚠ " + (res.data.message || t("common.error")));
+      }
+    } catch (err) {
+      setNcAccMessage("⚠ " + t("common.networkError"));
+    } finally {
+      setNcAccBusy(false);
+    }
+  };
+  const deleteNcAccount = async (acc) => {
+    if (!window.confirm(`${t("namecheap.deleteConfirm", "Удалить аккаунт")} «${acc.name}»?`)) return;
+    try {
+      const res = await axios.post(`${API_URL$b}?action=namecheap_account_delete`, { id: acc.id });
+      if (res.data.status === "success") {
+        setNcAccounts((list) => list.filter((a) => a.id !== acc.id));
+      }
+    } catch (err) {
+    }
+  };
+  const refreshNcBalance = async (acc) => {
+    setNcBalanceBusy(acc.id);
+    try {
+      const res = await axios.post(`${API_URL$b}?action=namecheap_account_balance`, { account_id: acc.id });
+      if (res.data.status === "success") {
+        setNcAccounts((list) => list.map((a) => a.id === acc.id ? { ...a, last_balance: res.data.data.balance || a.last_balance } : a));
+      }
+    } catch (err) {
+    } finally {
+      setNcBalanceBusy(null);
+    }
+  };
+  const openNcDialog = (accountId, mode) => {
+    try {
+      localStorage.setItem("orbitra_nc_intent", JSON.stringify({ account_id: accountId, mode }));
+    } catch (e) {
+    }
+    window.dispatchEvent(new CustomEvent("orbitra:navigate", { detail: { tab: "domains" } }));
+  };
   reactExports.useEffect(() => {
     const handleFacebookOAuthMessage = (event) => {
       if (event.origin !== window.location.origin || event.data?.type !== "orbitra.facebook_oauth") return;
@@ -71699,6 +72448,7 @@ const IntegrationsPage = () => {
         setGaTest(null);
         resetGoogleAdsOAuth();
         fetchGaConnections();
+        fetchGaOauthStatus();
       }
     } catch (err) {
       setGaMessage({ type: "error", text: err.message });
@@ -71765,6 +72515,7 @@ const IntegrationsPage = () => {
     await axios.post(`${API_URL$b}?action=aggregator_connections`, { action: "delete", id: conn.id });
     setGaMessage({ type: "success", text: t("googleAdsCosts.deleted") });
     fetchGaConnections();
+    fetchGaOauthStatus();
   };
   const costNextUpdate = (conn, prefix) => {
     if (!conn.is_active) return t(`${prefix}.paused`);
@@ -71776,6 +72527,43 @@ const IntegrationsPage = () => {
     const mins = Math.round(diff / 6e4);
     return mins >= 60 ? `${Math.floor(mins / 60)} h ${mins % 60} min` : `${mins} min`;
   };
+  const renderConnectModeToggle = (mode, onModeChange) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex rounded-xl border overflow-hidden", style: { borderColor: "var(--color-border)" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "button",
+      {
+        type: "button",
+        onClick: () => onModeChange("manual"),
+        className: "flex-1 py-2 px-3 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors",
+        style: {
+          borderRight: "1px solid var(--color-border)",
+          backgroundColor: mode === "manual" ? "color-mix(in srgb, var(--color-primary) 12%, transparent)" : "transparent",
+          color: mode === "manual" ? "var(--color-primary)" : "var(--color-text-muted)"
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(KeyRound, { size: 13 }),
+          " ",
+          t("integrations.connectModeManual")
+        ]
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "button",
+      {
+        type: "button",
+        onClick: () => onModeChange("oauth"),
+        className: "flex-1 py-2 px-3 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors",
+        style: {
+          backgroundColor: mode === "oauth" ? "color-mix(in srgb, var(--color-primary) 12%, transparent)" : "transparent",
+          color: mode === "oauth" ? "var(--color-primary)" : "var(--color-text-muted)"
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 13 }),
+          " ",
+          t("integrations.connectModeOauth")
+        ]
+      }
+    )
+  ] });
   const costStatusBadge = (conn, prefix) => {
     if (!conn.is_active) return { label: t(`${prefix}.paused`), bg: "#e5e7eb", fg: "#374151" };
     if (conn.last_sync_status === "error") return { label: t(`${prefix}.error`), bg: "#fee2e2", fg: "#991b1b" };
@@ -71797,7 +72585,8 @@ const IntegrationsPage = () => {
       fbEditing ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { border: "1px solid var(--color-primary)", borderRadius: "16px", padding: "20px", background: "var(--color-bg-card)", maxWidth: "760px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 600, marginBottom: "16px" }, children: fbEditing === "new" ? t("fbCosts.addAccount") : t("fbCosts.editAccount") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
-          fbEditing === "new" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          fbEditing === "new" && renderConnectModeToggle(fbAddMode, setFbAddMode),
+          fbEditing === "new" && fbAddMode === "oauth" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "div",
               {
@@ -71916,226 +72705,220 @@ const IntegrationsPage = () => {
                   )
                 ]
               }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 my-4", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 border-t", style: { borderColor: "var(--color-border)" } }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] uppercase font-bold", style: { color: "var(--color-text-muted)" }, children: t("common.orManual") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 border-t", style: { borderColor: "var(--color-border)" } })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("fbCosts.name") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "text",
-                className: "form-input",
-                value: fbForm.name,
-                onChange: (e) => setFbForm({ ...fbForm, name: e.target.value }),
-                placeholder: "Main ad account"
-              }
             )
           ] }),
-          fbFields.filter((f) => !["app_id", "app_secret"].includes(f.key)).map((field) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: field.key === "proxy_url" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-            ProxyInput,
-            {
-              label: field.label_key ? t(field.label_key, field.label) : field.label,
-              value: fbForm.credentials.proxy_url || "",
-              onChange: (val) => setFbForm({ ...fbForm, credentials: { ...fbForm.credentials, proxy_url: val } })
-            }
-          ) : field.key === "token" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-              field.label_key ? t(field.label_key, field.label) : field.label,
-              field.required && " *"
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+          (fbEditing !== "new" || fbAddMode === "manual") && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("fbCosts.name") }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "input",
                 {
-                  className: "form-input flex-1",
-                  type: "password",
-                  value: fbForm.credentials.token || "",
-                  placeholder: field.placeholder || "",
-                  onChange: (e) => setFbForm({ ...fbForm, credentials: { ...fbForm.credentials, token: e.target.value } })
+                  type: "text",
+                  className: "form-input",
+                  value: fbForm.name,
+                  onChange: (e) => setFbForm({ ...fbForm, name: e.target.value }),
+                  placeholder: "Main ad account"
                 }
-              ),
+              )
+            ] }),
+            fbFields.filter((f) => !["app_id", "app_secret"].includes(f.key)).map((field) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: field.key === "proxy_url" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+              ProxyInput,
+              {
+                label: field.label_key ? t(field.label_key, field.label) : field.label,
+                value: fbForm.credentials.proxy_url || "",
+                onChange: (val) => setFbForm({ ...fbForm, credentials: { ...fbForm.credentials, proxy_url: val } })
+              }
+            ) : field.key === "token" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+                field.label_key ? t(field.label_key, field.label) : field.label,
+                field.required && " *"
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    className: "form-input flex-1",
+                    type: "password",
+                    value: fbForm.credentials.token || "",
+                    placeholder: field.placeholder || "",
+                    onChange: (e) => setFbForm({ ...fbForm, credentials: { ...fbForm.credentials, token: e.target.value } })
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "button",
+                  {
+                    type: "button",
+                    onClick: handleExtendToken,
+                    disabled: fbExtendingToken || !(fbForm.credentials.token || "").trim(),
+                    className: "btn btn-secondary text-xs whitespace-nowrap",
+                    title: t("fbCosts.extendTokenHint", "Exchanges the token for a 60-day long-lived one via the Graph API"),
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 12 }),
+                      " ",
+                      fbExtendingToken ? "…" : t("fbCosts.extendToken")
+                    ]
+                  }
+                )
+              ] })
+            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+                field.label_key ? t(field.label_key, field.label) : field.label,
+                field.required && " *"
+              ] }),
+              field.type === "select" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "select",
+                {
+                  className: "form-select",
+                  value: fbForm.credentials[field.key] || "",
+                  onChange: (e) => setFbForm({ ...fbForm, credentials: { ...fbForm.credentials, [field.key]: e.target.value } }),
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("fbCosts.defaultVersion") }),
+                    (field.options || []).map((o) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: o, children: o }, o))
+                  ]
+                }
+              ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  className: "form-input",
+                  type: field.type === "password" ? "password" : "text",
+                  value: fbForm.credentials[field.key] || "",
+                  placeholder: field.placeholder || "",
+                  onChange: (e) => setFbForm({ ...fbForm, credentials: { ...fbForm.credentials, [field.key]: e.target.value } })
+                }
+              )
+            ] }) }, field.key)),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "button",
                 {
                   type: "button",
-                  onClick: handleExtendToken,
-                  disabled: fbExtendingToken || !(fbForm.credentials.token || "").trim(),
-                  className: "btn btn-secondary text-xs whitespace-nowrap",
-                  title: t("fbCosts.extendTokenHint", "Exchanges the token for a 60-day long-lived one via the Graph API"),
+                  onClick: () => setFbShowTokenHowTo(!fbShowTokenHowTo),
+                  className: "btn btn-secondary btn-sm",
+                  style: { fontSize: "11px" },
                   children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 12 }),
+                    fbShowTokenHowTo ? "−" : "+",
                     " ",
-                    fbExtendingToken ? "…" : t("fbCosts.extendToken")
+                    t("fbCosts.tokenHowTo")
                   ]
                 }
-              )
-            ] })
-          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-              field.label_key ? t(field.label_key, field.label) : field.label,
-              field.required && " *"
+              ),
+              fbShowTokenHowTo && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { border: "1px dashed var(--color-border)", borderRadius: "12px", padding: "14px", marginTop: "8px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", margin: 0, whiteSpace: "pre-line", lineHeight: 1.7 }, children: t("fbCosts.tokenHowToHint") }) })
             ] }),
-            field.type === "select" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "select",
-              {
-                className: "form-select",
-                value: fbForm.credentials[field.key] || "",
-                onChange: (e) => setFbForm({ ...fbForm, credentials: { ...fbForm.credentials, [field.key]: e.target.value } }),
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("fbCosts.defaultVersion") }),
-                  (field.options || []).map((o) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: o, children: o }, o))
-                ]
-              }
-            ) : /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                className: "form-input",
-                type: field.type === "password" ? "password" : "text",
-                value: fbForm.credentials[field.key] || "",
-                placeholder: field.placeholder || "",
-                onChange: (e) => setFbForm({ ...fbForm, credentials: { ...fbForm.credentials, [field.key]: e.target.value } })
-              }
-            )
-          ] }) }, field.key)),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => setFbShowCustomApp(!fbShowCustomApp),
+                  className: "btn btn-secondary btn-sm",
+                  style: { fontSize: "11px" },
+                  children: [
+                    fbShowCustomApp ? "−" : "+",
+                    " ",
+                    t("fbCosts.customApp")
+                  ]
+                }
+              ),
+              fbShowCustomApp && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { border: "1px dashed var(--color-border)", borderRadius: "12px", padding: "14px", marginTop: "8px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", marginBottom: "10px" }, children: t("fbCosts.customAppHint") }),
+                fbFields.filter((f) => ["app_id", "app_secret"].includes(f.key)).map((field) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "8px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", style: { fontSize: "12px" }, children: field.label_key ? t(field.label_key, field.label) : field.label }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      className: "form-input",
+                      type: field.type === "password" ? "password" : "text",
+                      value: fbForm.credentials[field.key] || "",
+                      onChange: (e) => setFbForm({ ...fbForm, credentials: { ...fbForm.credentials, [field.key]: e.target.value } })
+                    }
+                  )
+                ] }, field.key))
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("fbCosts.interval") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "select",
+                {
+                  className: "form-select",
+                  value: fbForm.sync_interval_hours,
+                  onChange: (e) => setFbForm({ ...fbForm, sync_interval_hours: parseFloat(e.target.value) }),
+                  children: SYNC_INTERVAL_OPTIONS.map((o) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: o.value, children: o.label }, o.value))
+                }
+              )
+            ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "button",
               {
                 type: "button",
-                onClick: () => setFbShowTokenHowTo(!fbShowTokenHowTo),
+                onClick: () => setFbShowAdvanced(!fbShowAdvanced),
                 className: "btn btn-secondary btn-sm",
                 style: { fontSize: "11px" },
                 children: [
-                  fbShowTokenHowTo ? "−" : "+",
+                  fbShowAdvanced ? "−" : "+",
                   " ",
-                  t("fbCosts.tokenHowTo")
+                  t("fbCosts.advanced")
                 ]
               }
             ),
-            fbShowTokenHowTo && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { border: "1px dashed var(--color-border)", borderRadius: "12px", padding: "14px", marginTop: "8px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", margin: 0, whiteSpace: "pre-line", lineHeight: 1.7 }, children: t("fbCosts.tokenHowToHint") }) })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "button",
-              {
-                type: "button",
-                onClick: () => setFbShowCustomApp(!fbShowCustomApp),
-                className: "btn btn-secondary btn-sm",
-                style: { fontSize: "11px" },
-                children: [
-                  fbShowCustomApp ? "−" : "+",
-                  " ",
-                  t("fbCosts.customApp")
-                ]
-              }
-            ),
-            fbShowCustomApp && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { border: "1px dashed var(--color-border)", borderRadius: "12px", padding: "14px", marginTop: "8px" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", marginBottom: "10px" }, children: t("fbCosts.customAppHint") }),
-              fbFields.filter((f) => ["app_id", "app_secret"].includes(f.key)).map((field) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "8px" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", style: { fontSize: "12px" }, children: field.label_key ? t(field.label_key, field.label) : field.label }),
+            fbShowAdvanced && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { border: "1px dashed var(--color-border)", borderRadius: "12px", padding: "14px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", marginBottom: "10px" }, children: t("fbCosts.advancedHint") }),
+              ["ad_id_param", "adset_id_param", "campaign_id_param"].map((key) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "8px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", style: { fontSize: "12px" }, children: t(`fbCosts.${key}`) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "input",
                   {
                     className: "form-input",
-                    type: field.type === "password" ? "password" : "text",
-                    value: fbForm.credentials[field.key] || "",
-                    onChange: (e) => setFbForm({ ...fbForm, credentials: { ...fbForm.credentials, [field.key]: e.target.value } })
+                    type: "text",
+                    value: fbForm.field_mapping[key] || "",
+                    placeholder: key === "adset_id_param" ? "sub_id_3" : "",
+                    onChange: (e) => setFbForm({ ...fbForm, field_mapping: { ...fbForm.field_mapping, [key]: e.target.value } })
                   }
                 )
-              ] }, field.key))
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("fbCosts.interval") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "select",
-              {
-                className: "form-select",
-                value: fbForm.sync_interval_hours,
-                onChange: (e) => setFbForm({ ...fbForm, sync_interval_hours: parseInt(e.target.value, 10) }),
-                children: [1, 2, 4, 6, 12, 24].map((h) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: h, children: [
-                  h,
-                  " h"
-                ] }, h))
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              type: "button",
-              onClick: () => setFbShowAdvanced(!fbShowAdvanced),
-              className: "btn btn-secondary btn-sm",
-              style: { fontSize: "11px" },
-              children: [
-                fbShowAdvanced ? "−" : "+",
-                " ",
-                t("fbCosts.advanced")
-              ]
-            }
-          ),
-          fbShowAdvanced && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { border: "1px dashed var(--color-border)", borderRadius: "12px", padding: "14px" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", marginBottom: "10px" }, children: t("fbCosts.advancedHint") }),
-            ["ad_id_param", "adset_id_param", "campaign_id_param"].map((key) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "8px" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", style: { fontSize: "12px" }, children: t(`fbCosts.${key}`) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  className: "form-input",
-                  type: "text",
-                  value: fbForm.field_mapping[key] || "",
-                  placeholder: key === "adset_id_param" ? "sub_id_3" : "",
-                  onChange: (e) => setFbForm({ ...fbForm, field_mapping: { ...fbForm.field_mapping, [key]: e.target.value } })
-                }
-              )
-            ] }, key))
-          ] }),
-          fbTest && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
-            padding: "10px 14px",
-            borderRadius: "10px",
-            fontSize: "13px",
-            background: fbTest.success ? "#dcfce7" : "#fee2e2",
-            color: fbTest.success ? "#166534" : "#991b1b",
-            border: `1px solid ${fbTest.success ? "#86efac" : "#fca5a5"}`
-          }, children: fbTest.message }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px", justifyContent: "space-between" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "button",
-              {
-                onClick: handleFbTest,
-                className: "btn btn-secondary btn-sm",
-                disabled: fbTesting || !fbForm.credentials.token || !fbForm.credentials.ad_account_id,
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 14 }),
-                  " ",
-                  fbTesting ? t("fbCosts.testing") : t("fbCosts.testConnection")
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
-                setFbEditing(null);
-                setFbTest(null);
-                resetFacebookOAuth();
-              }, className: "btn btn-secondary btn-sm", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }),
-                " ",
-                t("common.cancel")
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
+              ] }, key))
+            ] }),
+            fbTest && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              padding: "10px 14px",
+              borderRadius: "10px",
+              fontSize: "13px",
+              background: fbTest.success ? "#dcfce7" : "#fee2e2",
+              color: fbTest.success ? "#166534" : "#991b1b",
+              border: `1px solid ${fbTest.success ? "#86efac" : "#fca5a5"}`
+            }, children: fbTest.message }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px", justifyContent: "space-between" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "button",
                 {
-                  onClick: handleFbSave,
-                  className: "btn btn-primary btn-sm",
-                  disabled: !fbForm.name || !fbForm.credentials.token || !fbForm.credentials.ad_account_id,
-                  children: t("common.save")
+                  onClick: handleFbTest,
+                  className: "btn btn-secondary btn-sm",
+                  disabled: fbTesting || !fbForm.credentials.token || !fbForm.credentials.ad_account_id,
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 14 }),
+                    " ",
+                    fbTesting ? t("fbCosts.testing") : t("fbCosts.testConnection")
+                  ]
                 }
-              )
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                  setFbEditing(null);
+                  setFbTest(null);
+                  resetFacebookOAuth();
+                }, className: "btn btn-secondary btn-sm", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }),
+                  " ",
+                  t("common.cancel")
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    onClick: handleFbSave,
+                    className: "btn btn-primary btn-sm",
+                    disabled: !fbForm.name || !fbForm.credentials.token || !fbForm.credentials.ad_account_id,
+                    children: t("common.save")
+                  }
+                )
+              ] })
             ] })
           ] })
         ] })
@@ -72144,6 +72927,7 @@ const IntegrationsPage = () => {
           setFbForm(emptyFbForm);
           setFbTest(null);
           resetFacebookOAuth();
+          setFbAddMode("manual");
           setFbEditing("new");
         }, className: "btn btn-primary", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
@@ -72242,7 +73026,8 @@ const IntegrationsPage = () => {
       ttEditing ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { border: "1px solid var(--color-primary)", borderRadius: "16px", padding: "20px", background: "var(--color-bg-card)", maxWidth: "760px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 600, marginBottom: "16px" }, children: ttEditing === "new" ? t("tiktokCosts.addAccount") : t("tiktokCosts.editAccount") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
-          ttEditing === "new" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          ttEditing === "new" && renderConnectModeToggle(ttAddMode, setTtAddMode),
+          ttEditing === "new" && ttAddMode === "oauth" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "div",
               {
@@ -72266,12 +73051,23 @@ const IntegrationsPage = () => {
                     {
                       type: "button",
                       onClick: handleStartTikTokOAuth,
-                      disabled: ttOAuthLoading || ttConnecting,
+                      disabled: ttOAuthLoading || ttConnecting || ttOauthConfigured === false,
                       className: "btn py-2.5 px-6 rounded-xl font-bold flex items-center gap-2 transition-transform hover:scale-[1.02]",
-                      style: { backgroundColor: "#FE2C55", color: "#ffffff", boxShadow: "0 4px 14px rgba(254, 44, 85, 0.3)", opacity: ttOAuthLoading ? 0.75 : 1 },
+                      style: { backgroundColor: "#FE2C55", color: "#ffffff", boxShadow: "0 4px 14px rgba(254, 44, 85, 0.3)", opacity: ttOAuthLoading || ttOauthConfigured === false ? 0.75 : 1 },
                       children: [
                         ttOAuthLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Music2, { size: 16 }),
                         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: ttOAuthLoading ? t("tiktokCosts.oauthConnecting") : t("tiktokCosts.loginWithTikTok") })
+                      ]
+                    }
+                  ),
+                  ttOauthConfigured === false && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "div",
+                    {
+                      className: "w-full max-w-md text-left rounded-xl border p-3",
+                      style: { background: "var(--color-warning-bg)", borderColor: "var(--color-warning)" },
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-bold", style: { color: "var(--color-warning)" }, children: t("tiktokCosts.oauthNotConfiguredTitle") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] leading-relaxed mt-1", style: { color: "var(--color-text-secondary)" }, children: t("tiktokCosts.oauthNotConfiguredHint") })
                       ]
                     }
                   )
@@ -72372,11 +73168,8 @@ const IntegrationsPage = () => {
                         className: "form-select text-xs",
                         style: { maxWidth: "120px" },
                         value: ttSyncInterval,
-                        onChange: (e) => setTtSyncInterval(Number(e.target.value)),
-                        children: [1, 2, 6, 12, 24].map((hours) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: hours, children: [
-                          hours,
-                          "h"
-                        ] }, hours))
+                        onChange: (e) => setTtSyncInterval(parseFloat(e.target.value)),
+                        children: SYNC_INTERVAL_OPTIONS.map((o) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: o.value, children: o.label }, o.value))
                       }
                     )
                   ] }),
@@ -72397,108 +73190,119 @@ const IntegrationsPage = () => {
                   )
                 ]
               }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px", margin: "4px 0" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flex: 1, height: "1px", background: "var(--color-border)" } }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "11px", color: "var(--color-text-muted)", whiteSpace: "nowrap" }, children: t("tiktokCosts.manualSection") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flex: 1, height: "1px", background: "var(--color-border)" } })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-              t("tiktokCosts.name"),
-              " *"
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                className: "form-input",
-                type: "text",
-                value: ttForm.name,
-                placeholder: t("tiktokCosts.namePlaceholder", "Cabinet / account name"),
-                onChange: (e) => setTtForm({ ...ttForm, name: e.target.value })
-              }
             )
           ] }),
-          ttFields.map((field) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: field.key === "proxy_url" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-            ProxyInput,
-            {
-              label: field.label_key ? t(field.label_key, field.label) : field.label,
-              value: ttForm.credentials.proxy_url || "",
-              onChange: (val) => setTtForm({ ...ttForm, credentials: { ...ttForm.credentials, proxy_url: val } })
-            }
-          ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-              field.label_key ? t(field.label_key, field.label) : field.label,
-              field.required && " *"
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                className: "form-input",
-                type: field.type === "password" ? "password" : "text",
-                value: ttForm.credentials[field.key] || "",
-                placeholder: field.placeholder || "",
-                onChange: (e) => setTtForm({ ...ttForm, credentials: { ...ttForm.credentials, [field.key]: e.target.value } })
-              }
-            )
-          ] }) }, field.key)),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tiktokCosts.interval") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "select",
-              {
-                className: "form-select",
-                value: ttForm.sync_interval_hours,
-                onChange: (e) => setTtForm({ ...ttForm, sync_interval_hours: parseInt(e.target.value, 10) }),
-                children: [1, 2, 4, 6, 12, 24].map((h) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: h, children: [
-                  h,
-                  " h"
-                ] }, h))
-              }
-            )
-          ] }),
-          ttTest && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
-            padding: "10px 14px",
-            borderRadius: "10px",
-            fontSize: "13px",
-            background: ttTest.success ? "#dcfce7" : "#fee2e2",
-            color: ttTest.success ? "#166534" : "#991b1b",
-            border: `1px solid ${ttTest.success ? "#86efac" : "#fca5a5"}`
-          }, children: ttTest.message }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px", justifyContent: "space-between" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "button",
-              {
-                onClick: handleTtTest,
-                className: "btn btn-secondary btn-sm",
-                disabled: ttTesting || !ttForm.credentials.access_token || !ttForm.credentials.advertiser_id,
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 14 }),
-                  " ",
-                  ttTesting ? t("tiktokCosts.testing") : t("tiktokCosts.testConnection")
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
-                setTtEditing(null);
-                setTtTest(null);
-                resetTikTokOAuth();
-              }, className: "btn btn-secondary btn-sm", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }),
-                " ",
-                t("common.cancel")
+          (ttEditing !== "new" || ttAddMode === "manual") && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+                t("tiktokCosts.name"),
+                " *"
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
+                "input",
                 {
-                  onClick: handleTtSave,
-                  className: "btn btn-primary btn-sm",
-                  disabled: !ttForm.name || !ttForm.credentials.access_token || !ttForm.credentials.advertiser_id,
-                  children: t("common.save")
+                  className: "form-input",
+                  type: "text",
+                  value: ttForm.name,
+                  placeholder: t("tiktokCosts.namePlaceholder", "Cabinet / account name"),
+                  onChange: (e) => setTtForm({ ...ttForm, name: e.target.value })
                 }
               )
+            ] }),
+            ttFields.map((field) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: field.key === "proxy_url" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+              ProxyInput,
+              {
+                label: field.label_key ? t(field.label_key, field.label) : field.label,
+                value: ttForm.credentials.proxy_url || "",
+                onChange: (val) => setTtForm({ ...ttForm, credentials: { ...ttForm.credentials, proxy_url: val } })
+              }
+            ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+                field.label_key ? t(field.label_key, field.label) : field.label,
+                field.required && " *"
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  className: "form-input",
+                  type: field.type === "password" ? "password" : "text",
+                  value: ttForm.credentials[field.key] || "",
+                  placeholder: field.placeholder || "",
+                  onChange: (e) => setTtForm({ ...ttForm, credentials: { ...ttForm.credentials, [field.key]: e.target.value } })
+                }
+              )
+            ] }) }, field.key)),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => setTtShowTokenHowTo(!ttShowTokenHowTo),
+                  className: "btn btn-secondary btn-sm",
+                  style: { fontSize: "11px" },
+                  children: [
+                    ttShowTokenHowTo ? "−" : "+",
+                    " ",
+                    t("tiktokCosts.tokenHowTo")
+                  ]
+                }
+              ),
+              ttShowTokenHowTo && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { border: "1px dashed var(--color-border)", borderRadius: "12px", padding: "14px", marginTop: "8px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", margin: 0, whiteSpace: "pre-line", lineHeight: 1.7 }, children: t("tiktokCosts.tokenHowToHint") }) })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tiktokCosts.interval") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "select",
+                {
+                  className: "form-select",
+                  value: ttForm.sync_interval_hours,
+                  onChange: (e) => setTtForm({ ...ttForm, sync_interval_hours: parseFloat(e.target.value) }),
+                  children: SYNC_INTERVAL_OPTIONS.map((o) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: o.value, children: o.label }, o.value))
+                }
+              )
+            ] }),
+            ttTest && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              padding: "10px 14px",
+              borderRadius: "10px",
+              fontSize: "13px",
+              background: ttTest.success ? "#dcfce7" : "#fee2e2",
+              color: ttTest.success ? "#166534" : "#991b1b",
+              border: `1px solid ${ttTest.success ? "#86efac" : "#fca5a5"}`
+            }, children: ttTest.message }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px", justifyContent: "space-between" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  onClick: handleTtTest,
+                  className: "btn btn-secondary btn-sm",
+                  disabled: ttTesting || !ttForm.credentials.access_token || !ttForm.credentials.advertiser_id,
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 14 }),
+                    " ",
+                    ttTesting ? t("tiktokCosts.testing") : t("tiktokCosts.testConnection")
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                  setTtEditing(null);
+                  setTtTest(null);
+                  resetTikTokOAuth();
+                }, className: "btn btn-secondary btn-sm", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }),
+                  " ",
+                  t("common.cancel")
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    onClick: handleTtSave,
+                    className: "btn btn-primary btn-sm",
+                    disabled: !ttForm.name || !ttForm.credentials.access_token || !ttForm.credentials.advertiser_id,
+                    children: t("common.save")
+                  }
+                )
+              ] })
             ] })
           ] })
         ] })
@@ -72510,6 +73314,7 @@ const IntegrationsPage = () => {
           setTtImportPixels(true);
           setTtSyncInterval(2);
           setTtMessage(null);
+          setTtAddMode("manual");
           setTtEditing("new");
         }, className: "btn btn-primary", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
@@ -72648,7 +73453,8 @@ const IntegrationsPage = () => {
       gaEditing ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { border: "1px solid var(--color-primary)", borderRadius: "16px", padding: "20px", background: "var(--color-bg-card)", maxWidth: "760px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { fontWeight: 600, marginBottom: "16px" }, children: gaEditing === "new" ? t("googleAdsCosts.addAccount") : t("googleAdsCosts.editAccount") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
-          gaEditing === "new" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          gaEditing === "new" && renderConnectModeToggle(gaAddMode, setGaAddMode),
+          gaEditing === "new" && gaAddMode === "oauth" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "div",
               {
@@ -72672,12 +73478,23 @@ const IntegrationsPage = () => {
                     {
                       type: "button",
                       onClick: handleStartGaOAuth,
-                      disabled: gaOAuthLoading || gaConnecting,
+                      disabled: gaOAuthLoading || gaConnecting || gaOauthConfigured === false,
                       className: "btn py-2.5 px-6 rounded-xl font-bold flex items-center gap-2 transition-transform hover:scale-[1.02]",
-                      style: { backgroundColor: "#4285F4", color: "#ffffff", boxShadow: "0 4px 14px rgba(66, 133, 244, 0.3)", opacity: gaOAuthLoading ? 0.75 : 1 },
+                      style: { backgroundColor: "#4285F4", color: "#ffffff", boxShadow: "0 4px 14px rgba(66, 133, 244, 0.3)", opacity: gaOAuthLoading || gaOauthConfigured === false ? 0.75 : 1 },
                       children: [
                         gaOAuthLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 16 }),
                         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: gaOAuthLoading ? t("googleAdsCosts.oauthConnecting") : t("googleAdsCosts.loginWithGoogle") })
+                      ]
+                    }
+                  ),
+                  gaOauthConfigured === false && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "div",
+                    {
+                      className: "w-full max-w-md text-left rounded-xl border p-3",
+                      style: { background: "var(--color-warning-bg)", borderColor: "var(--color-warning)" },
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-bold", style: { color: "var(--color-warning)" }, children: t("googleAdsCosts.oauthNotConfiguredTitle") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] leading-relaxed mt-1", style: { color: "var(--color-text-secondary)" }, children: t("googleAdsCosts.oauthNotConfiguredHint") })
                       ]
                     }
                   )
@@ -72753,11 +73570,8 @@ const IntegrationsPage = () => {
                         className: "form-select text-xs",
                         style: { maxWidth: "120px" },
                         value: gaSyncInterval,
-                        onChange: (e) => setGaSyncInterval(Number(e.target.value)),
-                        children: [1, 2, 6, 12, 24].map((hours) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: hours, children: [
-                          hours,
-                          "h"
-                        ] }, hours))
+                        onChange: (e) => setGaSyncInterval(parseFloat(e.target.value)),
+                        children: SYNC_INTERVAL_OPTIONS.map((o) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: o.value, children: o.label }, o.value))
                       }
                     )
                   ] }),
@@ -72778,100 +73592,147 @@ const IntegrationsPage = () => {
                   )
                 ]
               }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "10px", margin: "4px 0" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flex: 1, height: "1px", background: "var(--color-border)" } }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "11px", color: "var(--color-text-muted)", whiteSpace: "nowrap" }, children: t("googleAdsCosts.manualSection") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flex: 1, height: "1px", background: "var(--color-border)" } })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-              t("googleAdsCosts.name"),
-              " *"
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                className: "form-input",
-                type: "text",
-                value: gaForm.name,
-                placeholder: t("googleAdsCosts.namePlaceholder", "Account name"),
-                onChange: (e) => setGaForm({ ...gaForm, name: e.target.value })
-              }
             )
           ] }),
-          gaFields.map((field) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: field.key === "proxy_url" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
-            ProxyInput,
-            {
-              label: field.label_key ? t(field.label_key, field.label) : field.label,
-              value: gaForm.credentials.proxy_url || "",
-              onChange: (val) => setGaForm({ ...gaForm, credentials: { ...gaForm.credentials, proxy_url: val } })
-            }
-          ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
-              field.label_key ? t(field.label_key, field.label) : field.label,
-              field.required && " *"
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                className: "form-input",
-                type: field.type === "password" ? "password" : "text",
-                value: gaForm.credentials[field.key] || "",
-                placeholder: field.placeholder || "",
-                onChange: (e) => setGaForm({ ...gaForm, credentials: { ...gaForm.credentials, [field.key]: e.target.value } })
-              }
-            )
-          ] }) }, field.key)),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("googleAdsCosts.interval") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "select",
-              {
-                className: "form-select",
-                value: gaForm.sync_interval_hours,
-                onChange: (e) => setGaForm({ ...gaForm, sync_interval_hours: parseInt(e.target.value, 10) }),
-                children: [1, 2, 4, 6, 12, 24].map((h) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: h, children: [
-                  h,
-                  " h"
-                ] }, h))
-              }
-            )
-          ] }),
-          gaTest && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
-            padding: "10px 14px",
-            borderRadius: "10px",
-            fontSize: "13px",
-            background: gaTest.success ? "#dcfce7" : "#fee2e2",
-            color: gaTest.success ? "#166534" : "#991b1b",
-            border: `1px solid ${gaTest.success ? "#86efac" : "#fca5a5"}`
-          }, children: gaTest.message }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px", justifyContent: "space-between" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "button",
-              {
-                onClick: handleGaTest,
-                className: "btn btn-secondary btn-sm",
-                disabled: gaTesting || !gaManualValid(),
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 14 }),
-                  " ",
-                  gaTesting ? t("googleAdsCosts.testing") : t("googleAdsCosts.testConnection")
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
-                setGaEditing(null);
-                setGaTest(null);
-                resetGoogleAdsOAuth();
-              }, className: "btn btn-secondary btn-sm", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }),
-                " ",
-                t("common.cancel")
+          (gaEditing !== "new" || gaAddMode === "manual") && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+                t("googleAdsCosts.name"),
+                " *"
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleGaSave, className: "btn btn-primary btn-sm", disabled: !gaManualValid(), children: t("common.save") })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  className: "form-input",
+                  type: "text",
+                  value: gaForm.name,
+                  placeholder: t("googleAdsCosts.namePlaceholder", "Account name"),
+                  onChange: (e) => setGaForm({ ...gaForm, name: e.target.value })
+                }
+              )
+            ] }),
+            gaFields.map((field) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: field.key === "proxy_url" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+              ProxyInput,
+              {
+                label: field.label_key ? t(field.label_key, field.label) : field.label,
+                value: gaForm.credentials.proxy_url || "",
+                onChange: (val) => setGaForm({ ...gaForm, credentials: { ...gaForm.credentials, proxy_url: val } })
+              }
+            ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "form-label", children: [
+                field.label_key ? t(field.label_key, field.label) : field.label,
+                field.required && " *"
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  className: "form-input",
+                  type: field.type === "password" ? "password" : "text",
+                  value: gaForm.credentials[field.key] || "",
+                  placeholder: field.placeholder || "",
+                  onChange: (e) => setGaForm({ ...gaForm, credentials: { ...gaForm.credentials, [field.key]: e.target.value } })
+                }
+              )
+            ] }) }, field.key)),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => setGaShowHowTo(!gaShowHowTo),
+                  className: "btn btn-secondary btn-sm",
+                  style: { fontSize: "11px" },
+                  children: [
+                    gaShowHowTo ? "−" : "+",
+                    " ",
+                    t("googleAdsCosts.howTo")
+                  ]
+                }
+              ),
+              gaShowHowTo && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { border: "1px dashed var(--color-border)", borderRadius: "12px", padding: "14px", marginTop: "8px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", margin: 0, whiteSpace: "pre-line", lineHeight: 1.7 }, children: t("googleAdsCosts.howToHint") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px", margin: "8px 0" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("code", { style: {
+                    flex: 1,
+                    fontSize: "11px",
+                    fontFamily: "monospace",
+                    color: "var(--color-text-primary)",
+                    wordBreak: "break-all",
+                    background: "var(--color-bg-soft)",
+                    border: "1px solid var(--color-border)",
+                    borderRadius: "8px",
+                    padding: "6px 10px"
+                  }, children: [
+                    trackerUrl,
+                    "/api.php?action=google_ads_oauth_callback"
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      onClick: () => copyToClipboard$1(`${trackerUrl}/api.php?action=google_ads_oauth_callback`, "ga_redirect_uri"),
+                      className: "btn btn-secondary btn-sm",
+                      style: { fontSize: "11px", flexShrink: 0 },
+                      children: copied === "ga_redirect_uri" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 12, style: { color: "var(--color-success)" } }),
+                        " ",
+                        t("integrations.copied")
+                      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 12 }),
+                        " ",
+                        t("integrations.copyCode", "Copy")
+                      ] })
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", margin: 0, whiteSpace: "pre-line", lineHeight: 1.7 }, children: t("googleAdsCosts.howToStep3") })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("googleAdsCosts.interval") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "select",
+                {
+                  className: "form-select",
+                  value: gaForm.sync_interval_hours,
+                  onChange: (e) => setGaForm({ ...gaForm, sync_interval_hours: parseFloat(e.target.value) }),
+                  children: SYNC_INTERVAL_OPTIONS.map((o) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: o.value, children: o.label }, o.value))
+                }
+              )
+            ] }),
+            gaTest && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              padding: "10px 14px",
+              borderRadius: "10px",
+              fontSize: "13px",
+              background: gaTest.success ? "#dcfce7" : "#fee2e2",
+              color: gaTest.success ? "#166534" : "#991b1b",
+              border: `1px solid ${gaTest.success ? "#86efac" : "#fca5a5"}`
+            }, children: gaTest.message }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px", justifyContent: "space-between" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  onClick: handleGaTest,
+                  className: "btn btn-secondary btn-sm",
+                  disabled: gaTesting || !gaManualValid(),
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { size: 14 }),
+                    " ",
+                    gaTesting ? t("googleAdsCosts.testing") : t("googleAdsCosts.testConnection")
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                  setGaEditing(null);
+                  setGaTest(null);
+                  resetGoogleAdsOAuth();
+                }, className: "btn btn-secondary btn-sm", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }),
+                  " ",
+                  t("common.cancel")
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleGaSave, className: "btn btn-primary btn-sm", disabled: !gaManualValid(), children: t("common.save") })
+              ] })
             ] })
           ] })
         ] })
@@ -72882,6 +73743,7 @@ const IntegrationsPage = () => {
           resetGoogleAdsOAuth();
           setGaSyncInterval(2);
           setGaMessage(null);
+          setGaAddMode("manual");
           setGaEditing("new");
         }, className: "btn btn-primary", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
@@ -75314,27 +76176,10 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
             }
           ) })
         ] }),
-        activeObj.isCloudflare ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: "620px", display: "flex", flexDirection: "column", gap: "20px" }, children: [
+        activeObj.isCloudflare ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: "680px", display: "flex", flexDirection: "column", gap: "20px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "24px", border: "1px solid var(--color-border)" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)", marginBottom: "16px", lineHeight: 1.6 }, children: t("cloudflare.howTo", "Создайте токен: Cloudflare → My Profile → API Tokens → Create Token → шаблон «Edit zone DNS» → Permissions: Zone·DNS·Edit + Zone·Zone·Edit → Zone Resources: All zones. Домены, чья зона есть в аккаунте, при парковке получают A-запись автоматически; при включённом прокси SSL выдаётся краем Cloudflare мгновенно.") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "12px" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: [
-                  "API Token ",
-                  cfStatus?.connected ? "✓" : ""
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
-                  {
-                    type: "password",
-                    className: "form-input",
-                    style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" },
-                    value: cfForm.api_token,
-                    onChange: (e) => setCfForm({ ...cfForm, api_token: e.target.value }),
-                    placeholder: cfStatus?.connected ? t("cloudflare.tokenSaved", "токен сохранён — введите новый, чтобы заменить") : ""
-                  }
-                )
-              ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "1fr auto", gap: "12px", alignItems: "end", marginBottom: "20px" }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("cloudflare.serverIp", "IP сервера (A-запись)") }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -75343,22 +76188,257 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
                     type: "text",
                     className: "form-input",
                     style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" },
-                    value: cfForm.server_ip,
-                    onChange: (e) => setCfForm({ ...cfForm, server_ip: e.target.value }),
+                    value: cfServerIp,
+                    onChange: (e) => setCfServerIp(e.target.value),
                     placeholder: cfStatus?.server_ip || "auto"
                   }
                 )
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  className: "btn btn-secondary",
+                  disabled: cfBusy,
+                  onClick: async () => {
+                    setCfBusy(true);
+                    setCfMessage(null);
+                    try {
+                      const res = await axios.post(`${API_URL$b}?action=cloudflare_options_save`, { server_ip: cfServerIp });
+                      setCfMessage(res.data.status === "success" ? "✓ " + t("cloudflare.saved", "Сохранено") : "⚠ " + (res.data.message || t("common.error")));
+                    } catch (err) {
+                      setCfMessage("⚠ " + t("common.networkError"));
+                    } finally {
+                      setCfBusy(false);
+                    }
+                  },
+                  children: t("common.save")
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontWeight: 600, color: "var(--color-text-primary)", fontSize: "14px" }, children: [
+                t("cloudflare.accounts", "Аккаунты"),
+                " (",
+                cfAccounts.length,
+                ")"
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+                cfAccounts.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "button",
+                  {
+                    className: "btn btn-secondary",
+                    disabled: cfBusy,
+                    onClick: async () => {
+                      if (!window.confirm(t("cloudflare.syncAllConfirm", "Переписать A-записи всех доменов, чьи зоны есть в аккаунтах Cloudflare, на текущий IP сервера?"))) return;
+                      setCfBusy(true);
+                      setCfMessage(null);
+                      try {
+                        const res = await axios.post(`${API_URL$b}?action=cloudflare_sync_all`, {});
+                        if (res.data.status === "success") {
+                          const d = res.data.data;
+                          setCfMessage(`✓ ${t("cloudflare.syncedCount", "перепарковано")}: ${d.synced.length}` + (d.failed.length ? ` · ⚠ ${d.failed.length}: ${d.failed.slice(0, 3).join("; ")}` : ""));
+                        } else {
+                          setCfMessage("⚠ " + (res.data.message || t("common.error")));
+                        }
+                      } catch (err) {
+                        setCfMessage("⚠ " + t("common.networkError"));
+                      } finally {
+                        setCfBusy(false);
+                      }
+                    },
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-4 h-4" }),
+                      t("cloudflare.syncAll", "Перепарковать все домены")
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "button",
+                  {
+                    className: "btn btn-primary",
+                    onClick: () => setCfAccModal({ id: null, name: "", api_token: "", ssl_mode: "flexible", proxied: true }),
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
+                      " ",
+                      t("cloudflare.addAccount", "Добавить аккаунт")
+                    ]
+                  }
+                )
+              ] })
+            ] }),
+            cfMessage && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)", marginTop: "12px" }, children: cfMessage })
+          ] }),
+          cfAccounts.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", textAlign: "center", color: "var(--color-text-muted)", fontSize: "13px", border: "1px dashed var(--color-border)", borderRadius: "12px" }, children: t("cloudflare.noAccounts", "Нет подключённых аккаунтов — добавьте первый, чтобы парковать зоны в один клик.") }),
+          cfAccounts.map((acc) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "18px 20px", border: "1px solid var(--color-border)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-3", style: { marginBottom: "10px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", style: { minWidth: 0 }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { width: 8, height: 8, borderRadius: "50%", background: "#10b981", flexShrink: 0 }, title: "Active" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontWeight: 600, color: "var(--color-text-primary)", fontSize: "14px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }, children: acc.name }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs", style: { color: "var(--color-text-muted)", whiteSpace: "nowrap" }, children: [
+                  "· ",
+                  t("cloudflare.zonesCount", "зон"),
+                  ": ",
+                  acc.zones_count ?? "—"
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    className: "btn btn-secondary btn-icon",
+                    disabled: cfBusy,
+                    title: t("cloudflare.importZones", "Import & Auto-DNS — подтянуть зоны аккаунта и припарковать их в трекер с A-записью"),
+                    onClick: async () => {
+                      setCfZones({ accountId: acc.id, accountName: acc.name, loading: true, zones: [], selected: {}, importing: false, message: "" });
+                      try {
+                        const res = await axios.post(`${API_URL$b}?action=cloudflare_account_zones`, { id: acc.id });
+                        if (res.data.status === "success") {
+                          const zones = res.data.data.zones || [];
+                          const selected = {};
+                          zones.forEach((z) => {
+                            if (!z.in_tracker) selected[z.name] = true;
+                          });
+                          setCfZones({ accountId: acc.id, accountName: acc.name, loading: false, zones, selected, importing: false, message: "" });
+                        } else {
+                          setCfZones({ accountId: acc.id, accountName: acc.name, loading: false, zones: [], selected: {}, importing: false, message: res.data.message || t("common.error") });
+                        }
+                      } catch (err) {
+                        setCfZones({ accountId: acc.id, accountName: acc.name, loading: false, zones: [], selected: {}, importing: false, message: t("common.networkError") });
+                      }
+                    },
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "w-4 h-4" })
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    className: "btn btn-secondary btn-icon",
+                    disabled: cfBusy,
+                    title: t("cloudflare.repoint", "Перепрописать A-записи доменов этого аккаунта на IP сервера"),
+                    onClick: async () => {
+                      if (!window.confirm(t("cloudflare.repointConfirm", "Переписать A-записи всех доменов, чьи зоны есть в этом аккаунте Cloudflare, на текущий IP сервера?"))) return;
+                      setCfBusy(true);
+                      setCfMessage(null);
+                      try {
+                        const res = await axios.post(`${API_URL$b}?action=cloudflare_account_repoint`, { id: acc.id });
+                        if (res.data.status === "success") {
+                          const d = res.data.data;
+                          setCfMessage(`✓ ${acc.name}: ${t("cloudflare.syncedCount", "перепарковано")}: ${d.synced.length}` + (d.failed.length ? ` · ⚠ ${d.failed.length}: ${d.failed.slice(0, 3).join("; ")}` : ""));
+                        } else {
+                          setCfMessage("⚠ " + (res.data.message || t("common.error")));
+                        }
+                      } catch (err) {
+                        setCfMessage("⚠ " + t("common.networkError"));
+                      } finally {
+                        setCfBusy(false);
+                      }
+                    },
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-4 h-4" })
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    className: "btn btn-secondary btn-icon",
+                    title: t("common.edit"),
+                    onClick: () => setCfAccModal({ id: acc.id, name: acc.name, api_token: "", ssl_mode: acc.ssl_mode || "flexible", proxied: !!acc.proxied }),
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { className: "w-4 h-4" })
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    className: "btn btn-secondary btn-icon",
+                    title: t("common.delete"),
+                    onClick: async () => {
+                      if (!window.confirm(t("cloudflare.deleteConfirm", "Удалить аккаунт из трекера? Домены останутся, их A-записи больше не будут обновляться через этот аккаунт."))) return;
+                      setCfBusy(true);
+                      setCfMessage(null);
+                      try {
+                        const res = await axios.post(`${API_URL$b}?action=cloudflare_account_delete`, { id: acc.id });
+                        if (res.data.status === "success") {
+                          const st = await axios.get(`${API_URL$b}?action=cloudflare_status`);
+                          if (st.data.status === "success") {
+                            setCfStatus(st.data.data);
+                            setCfAccounts(st.data.data.accounts || []);
+                          }
+                        } else {
+                          setCfMessage("⚠ " + (res.data.message || t("common.error")));
+                        }
+                      } catch (err) {
+                        setCfMessage("⚠ " + t("common.networkError"));
+                      } finally {
+                        setCfBusy(false);
+                      }
+                    },
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" })
+                  }
+                )
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 flex-wrap text-xs", style: { color: "var(--color-text-secondary)" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                "SSL: ",
+                acc.ssl_mode
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                "· Cloudflare Proxy: ",
+                acc.proxied ? t("domains.on") : t("domains.off")
+              ] })
+            ] })
+          ] }, acc.id)),
+          cfStatus?.managed_domains > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: [
+            t("cloudflare.managedDomains", "Доменов под управлением Cloudflare"),
+            ": ",
+            cfStatus.managed_domains
+          ] }),
+          cfAccModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content w-full max-w-md", style: { padding: "24px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "modal-title flex items-center gap-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Cloud, { size: 18 }),
+                cfAccModal.id ? t("cloudflare.editAccount", "Редактировать аккаунт") : t("cloudflare.addAccount", "Добавить аккаунт")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setCfAccModal(null), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("cloudflare.accountLabel", "Название аккаунта") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "text",
+                    className: "form-input",
+                    style: { width: "100%" },
+                    placeholder: t("cloudflare.accountLabelPlaceholder", "Buyer 1 — Main CF"),
+                    value: cfAccModal.name,
+                    onChange: (e) => setCfAccModal({ ...cfAccModal, name: e.target.value })
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: "API Token" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "password",
+                    className: "form-input",
+                    style: { width: "100%", fontFamily: "monospace" },
+                    placeholder: cfAccModal.id ? t("cloudflare.tokenSaved", "токен сохранён — введите новый, чтобы заменить") : "",
+                    value: cfAccModal.api_token,
+                    onChange: (e) => setCfAccModal({ ...cfAccModal, api_token: e.target.value })
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-3", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("cloudflare.sslMode", "SSL режим зоны") }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs(
                     "select",
                     {
                       className: "form-select",
-                      style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px" },
-                      value: cfForm.ssl_mode,
-                      onChange: (e) => setCfForm({ ...cfForm, ssl_mode: e.target.value }),
+                      style: { width: "100%" },
+                      value: cfAccModal.ssl_mode,
+                      onChange: (e) => setCfAccModal({ ...cfAccModal, ssl_mode: e.target.value }),
                       children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "flexible", children: [
                           "Flexible — ",
@@ -75376,27 +76456,40 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: "Cloudflare Proxy" }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", style: { padding: "10px 0", color: "var(--color-text-primary)", fontSize: "14px" }, children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "checkbox", checked: cfForm.proxied, onChange: (e) => setCfForm({ ...cfForm, proxied: e.target.checked }) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        type: "checkbox",
+                        checked: cfAccModal.proxied,
+                        onChange: (e) => setCfAccModal({ ...cfAccModal, proxied: e.target.checked })
+                      }
+                    ),
                     t("cloudflare.proxied", "оранжевое облако (SSL от CF)")
                   ] })
                 ] })
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", style: { marginTop: "4px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2 justify-end", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary", onClick: () => setCfAccModal(null), children: t("common.cancel") }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "button",
                   {
+                    type: "button",
                     className: "btn btn-primary",
-                    disabled: cfBusy,
+                    disabled: cfBusy || !cfAccModal.id && !cfAccModal.api_token.trim(),
                     onClick: async () => {
                       setCfBusy(true);
                       setCfMessage(null);
                       try {
-                        const res = await axios.post(`${API_URL$b}?action=cloudflare_save`, cfForm);
+                        const res = await axios.post(`${API_URL$b}?action=cloudflare_account_save`, cfAccModal);
                         if (res.data.status === "success") {
+                          setCfAccModal(null);
                           setCfMessage("✓ " + t("cloudflare.saved", "Сохранено"));
                           const st = await axios.get(`${API_URL$b}?action=cloudflare_status`);
-                          if (st.data.status === "success") setCfStatus(st.data.data);
-                          setCfForm((f) => ({ ...f, api_token: "" }));
+                          if (st.data.status === "success") {
+                            setCfStatus(st.data.data);
+                            setCfAccounts(st.data.data.accounts || []);
+                            setCfServerIp(st.data.data.server_ip || "");
+                          }
                         } else {
                           setCfMessage("⚠ " + (res.data.message || t("common.error")) + (res.data.detail?.error ? `: ${res.data.detail.error}` : ""));
                         }
@@ -75406,247 +76499,302 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
                         setCfBusy(false);
                       }
                     },
-                    children: cfBusy ? t("common.saving") : t("common.save")
+                    children: cfBusy ? t("common.saving") : t("cloudflare.testAndSave", "Проверить и сохранить")
                   }
-                ),
-                cfStatus?.connected && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                )
+              ] })
+            ] })
+          ] }) }),
+          cfZones && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content w-full max-w-lg", style: { padding: "24px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "modal-title flex items-center gap-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 18 }),
+                " ",
+                t("cloudflare.importTitle", "Import & Auto-DNS"),
+                " — ",
+                cfZones.accountName
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setCfZones(null), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: t("cloudflare.importHint", "Зоны аккаунта Cloudflare. Отмеченные добавляются в трекер: A-запись на IP сервера прописывается автоматически, проксированные получают SSL краем CF.") }),
+              cfZones.loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-8", style: { color: "var(--color-text-muted)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 20, className: "animate-spin mx-auto mb-2" }),
+                t("common.loading")
+              ] }) : cfZones.zones.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-8", style: { color: "var(--color-text-muted)" }, children: cfZones.message || t("cloudflare.noZones", "В аккаунте нет зон") }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-y-auto rounded-2xl", style: { maxHeight: "320px", border: "1px solid var(--color-border)" }, children: cfZones.zones.map((z) => {
+                  const isSel = !!cfZones.selected[z.name];
+                  return /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-3 px-4 py-2.5", style: { borderTop: "1px solid var(--color-border)", cursor: z.in_tracker ? "default" : "pointer", opacity: z.in_tracker ? 0.55 : 1 }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        type: "checkbox",
+                        disabled: z.in_tracker,
+                        checked: isSel,
+                        onChange: (e) => setCfZones({ ...cfZones, selected: { ...cfZones.selected, [z.name]: e.target.checked } })
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono text-sm", style: { color: "var(--color-text-primary)", flex: 1 }, children: z.name }),
+                    z.in_tracker ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "badge badge-success text-xs", children: t("cloudflare.inTracker", "уже в трекере") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: z.status })
+                  ] }, z.name);
+                }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-3", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: [
+                    t("cloudflare.selectedCount", "выбрано"),
+                    ": ",
+                    Object.values(cfZones.selected).filter(Boolean).length
+                  ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx(
                     "button",
                     {
-                      className: "btn btn-secondary",
-                      disabled: cfBusy,
+                      type: "button",
+                      className: "btn btn-primary",
+                      disabled: cfZones.importing || Object.values(cfZones.selected).filter(Boolean).length === 0,
                       onClick: async () => {
-                        setCfBusy(true);
-                        setCfMessage(null);
+                        const zones = Object.keys(cfZones.selected).filter((k) => cfZones.selected[k]);
+                        setCfZones({ ...cfZones, importing: true, message: "" });
                         try {
-                          const res = await axios.post(`${API_URL$b}?action=cloudflare_test`, {});
-                          setCfMessage(res.data.status === "success" ? `✓ ${t("cloudflare.zonesAvailable", "зон в аккаунте")}: ${res.data.data.zones}` : "⚠ " + (res.data.message || t("common.error")));
-                        } catch (err) {
-                          setCfMessage("⚠ " + t("common.networkError"));
-                        } finally {
-                          setCfBusy(false);
-                        }
-                      },
-                      children: t("cloudflare.test", "Проверить")
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "button",
-                    {
-                      className: "btn btn-secondary",
-                      disabled: cfBusy,
-                      onClick: async () => {
-                        if (!window.confirm(t("cloudflare.syncAllConfirm", "Переписать A-записи всех доменов, чьи зоны есть в Cloudflare, на текущий IP сервера?"))) return;
-                        setCfBusy(true);
-                        setCfMessage(null);
-                        try {
-                          const res = await axios.post(`${API_URL$b}?action=cloudflare_sync_all`, {});
+                          const res = await axios.post(`${API_URL$b}?action=cloudflare_account_import`, { id: cfZones.accountId, zones });
                           if (res.data.status === "success") {
                             const d = res.data.data;
-                            setCfMessage(`✓ ${t("cloudflare.syncedCount", "перепарковано")}: ${d.synced.length}` + (d.failed.length ? ` · ⚠ ${d.failed.length}: ${d.failed.slice(0, 3).join("; ")}` : ""));
-                            const st = await axios.get(`${API_URL$b}?action=cloudflare_status`);
-                            if (st.data.status === "success") setCfStatus(st.data.data);
+                            setCfZones(null);
+                            const lines = [`${t("cloudflare.importedCount", "добавлено")}: ${d.added.length}`];
+                            if (d.parked.length) lines.push(`✓ ${t("cloudflare.parkedOk", "A-записи прописаны")}: ${d.parked.join(", ")}`);
+                            if (d.duplicates.length) lines.push(`• ${t("cloudflare.duplicatesSkipped", "уже были в трекере")}: ${d.duplicates.join(", ")}`);
+                            if (d.errors.length) lines.push(`⚠ ${d.errors.slice(0, 3).join("; ")}`);
+                            setCfMessage(lines.join("\n"));
                           } else {
-                            setCfMessage("⚠ " + (res.data.message || t("common.error")));
+                            setCfZones({ ...cfZones, importing: false, message: res.data.message || t("common.error") });
                           }
                         } catch (err) {
-                          setCfMessage("⚠ " + t("common.networkError"));
-                        } finally {
-                          setCfBusy(false);
+                          setCfZones({ ...cfZones, importing: false, message: t("common.networkError") });
                         }
                       },
-                      children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-4 h-4" }),
-                        t("cloudflare.syncAll", "Перепарковать все домены")
-                      ]
+                      children: cfZones.importing ? t("cloudflare.importing", "Импортируем…") : `${t("cloudflare.importBtn", "Импортировать")} (${Object.values(cfZones.selected).filter(Boolean).length})`
                     }
                   )
+                ] }),
+                cfZones.message && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "alert alert-danger", children: cfZones.message })
+              ] })
+            ] })
+          ] }) })
+        ] }) }) : activeObj.isNamecheap ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: "680px", display: "flex", flexDirection: "column", gap: "20px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "24px", border: "1px solid var(--color-border)" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)", marginBottom: "16px", lineHeight: 1.6 }, children: t("namecheap.howTo", "Включите API-доступ: Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access. Исходящий IP сервера добавьте в Whitelisted IPs. Домены, зарегистрированные в аккаунте, при парковке получают A-запись автоматически; SSL Let's Encrypt выпускается сразу после того, как DNS обновится.") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "12px", borderRadius: "8px", border: "1px dashed var(--color-border)", background: "var(--color-bg-soft)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)" }, children: t("namecheap.whitelistIp", "IP сервера для Whitelisted IPs") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono", style: { fontSize: "15px", color: "var(--color-text-primary)" }, children: ncIps.detected_ip || ncIps.server_ip || "—" })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      className: "btn btn-secondary btn-icon",
+                      onClick: () => copyToClipboard$1(ncIps.detected_ip || ncIps.server_ip || "", "nc-ip"),
+                      title: t("common.copy"),
+                      children: copied === "nc-ip" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "w-4 h-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" })
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { margin: "8px 0 0", color: "var(--color-text-muted)" }, children: t("namecheap.whitelistHint", "Добавьте этот IP в Namecheap: Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. Если показан неверный адрес — Namecheap сам назовёт IP, с которого пришли запросы, при первой попытке подключения.") })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { style: { fontSize: "16px", fontWeight: 600, color: "var(--color-text-primary)", display: "flex", alignItems: "center", gap: "8px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { className: "w-4 h-4" }),
+                t("namecheap.accounts", "Аккаунты Namecheap")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-primary", onClick: () => openNcAccountModal(), children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }),
+                t("namecheap.addAccount", "Добавить аккаунт")
+              ] })
+            ] }),
+            !ncAccounts.length && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "32px 24px", border: "1px dashed var(--color-border)", textAlign: "center" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(User, { className: "w-8 h-8 mx-auto mb-3", style: { color: "var(--color-text-muted)" } }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: t("namecheap.noAccounts", "Аккаунтов пока нет — добавьте первый, чтобы парковать и покупать домены прямо из трекера.") })
+            ] }),
+            ncAccounts.map((acc) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "20px 24px", border: "1px solid var(--color-border)" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start justify-between gap-4", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 min-w-0", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center justify-center", style: { width: "38px", height: "38px", borderRadius: "10px", background: "var(--color-bg-soft)", flexShrink: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(User, { className: "w-5 h-5", style: { color: "var(--color-text-secondary)" } }) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "15px", fontWeight: 600, color: "var(--color-text-primary)" }, children: acc.name }),
+                      acc.sandbox && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "badge badge-warning text-xs", children: "Sandbox" })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs font-mono truncate", style: { color: "var(--color-text-muted)" }, children: [
+                      "@",
+                      acc.username
+                    ] })
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-right", style: { flexShrink: 0 }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs", style: { color: "var(--color-text-secondary)", marginBottom: "2px" }, children: t("namecheap.balance", "баланс") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono", style: { fontSize: "17px", fontWeight: 600, color: acc.last_balance ? "var(--color-text-primary)" : "var(--color-text-muted)" }, children: acc.last_balance || "—" })
                 ] })
               ] }),
-              cfMessage && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: cfMessage })
-            ] })
-          ] }),
-          cfStatus?.connected && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: [
-            t("cloudflare.managedDomains", "Доменов под управлением Cloudflare"),
-            ": ",
-            cfStatus.managed_domains
-          ] })
-        ] }) }) : activeObj.isNamecheap ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { maxWidth: "620px", display: "flex", flexDirection: "column", gap: "20px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "24px", border: "1px solid var(--color-border)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)", marginBottom: "16px", lineHeight: 1.6 }, children: t("namecheap.howTo", "Включите API-доступ: Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access. Исходящий IP сервера добавьте в Whitelisted IPs. Домены, зарегистрированные в аккаунте, при парковке получают A-запись автоматически; SSL Let's Encrypt выпускается сразу после того, как DNS обновится.") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "12px" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: [
-                t("namecheap.username", "Username"),
-                " ",
-                ncStatus?.connected ? "✓" : ""
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs", style: { color: "var(--color-text-muted)", margin: "10px 0 14px" }, children: [
+                t("namecheap.domainsInAccount", "Доменов в аккаунте"),
+                ": ",
+                acc.domains_count ?? "—"
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  type: "text",
-                  className: "form-input",
-                  style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px" },
-                  value: ncForm.username,
-                  onChange: (e) => setNcForm({ ...ncForm, username: e.target.value })
-                }
-              )
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: "API Key" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  type: "password",
-                  className: "form-input",
-                  style: { width: "100%", padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px", fontFamily: "monospace" },
-                  value: ncForm.api_key,
-                  onChange: (e) => setNcForm({ ...ncForm, api_key: e.target.value }),
-                  placeholder: ncStatus?.connected ? t("namecheap.keySaved", "ключ сохранён — введите новый, чтобы заменить") : ""
-                }
-              )
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { padding: "12px", borderRadius: "8px", border: "1px dashed var(--color-border)", background: "var(--color-bg-soft)" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)" }, children: t("namecheap.whitelistIp", "IP сервера для Whitelisted IPs") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono", style: { fontSize: "15px", color: "var(--color-text-primary)" }, children: ncStatus?.detected_ip || ncStatus?.server_ip || "—" })
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium", onClick: () => openNcDialog(acc.id, "register"), title: t("namecheap.registerHint"), children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(ShoppingCart, { className: "w-4 h-4" }),
+                  t("namecheap.buyDomain", "Купить домен")
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium", onClick: () => openNcDialog(acc.id, "import"), title: t("namecheap.importHint"), children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { className: "w-4 h-4" }),
+                  t("namecheap.importPark", "Импорт и парковка")
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
                   "button",
                   {
-                    className: "btn btn-secondary btn-icon",
-                    onClick: () => copyToClipboard$1(ncStatus?.detected_ip || ncStatus?.server_ip || "", "nc-ip"),
-                    title: t("common.copy"),
-                    children: copied === "nc-ip" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "w-4 h-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" })
-                  }
-                )
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { margin: "8px 0 0", color: "var(--color-text-muted)" }, children: t("namecheap.whitelistHint", "Добавьте этот IP в Namecheap: Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. Если показан неверный адрес — нажмите «Проверить»: Namecheap сам назовёт IP, с которого пришли запросы.") })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("namecheap.addressBook", "Профиль контакта (Address Book) для новых доменов") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "select",
-                  {
-                    className: "form-select",
-                    style: { flex: 1, padding: "10px 12px", borderRadius: "8px", border: "1px solid var(--color-border)", background: "var(--color-bg-input)", color: "var(--color-text-primary)", fontSize: "14px" },
-                    value: ncForm.address_id,
-                    onChange: (e) => setNcForm({ ...ncForm, address_id: e.target.value }),
+                    className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium",
+                    disabled: ncBalanceBusy === acc.id,
+                    onClick: () => refreshNcBalance(acc),
                     children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("namecheap.addressPlaceholder", "— не выбран —") }),
-                      ncAddresses.map((a) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: a.id, children: [
-                        a.name,
-                        a.is_default ? " ✓" : ""
-                      ] }, a.id))
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-4 h-4" + (ncBalanceBusy === acc.id ? " animate-spin" : "") }),
+                      t("namecheap.refreshBalance", "Обновить баланс")
                     ]
                   }
                 ),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium", onClick: () => openNcAccountModal(acc), children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { className: "w-4 h-4" }),
+                  t("common.edit")
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium", onClick: () => deleteNcAccount(acc), children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }),
+                  t("common.delete")
+                ] })
+              ] })
+            ] }, acc.id))
+          ] }),
+          ncAccModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content w-full max-w-md", style: { padding: "24px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "modal-title flex items-center gap-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18 }),
+                ncAccModal.id ? t("namecheap.editAccount", "Редактировать аккаунт") : t("namecheap.addAccount", "Добавить аккаунт")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setNcAccModal(null), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("namecheap.accountLabel", "Название аккаунта") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "text",
+                    className: "form-input",
+                    style: { width: "100%" },
+                    placeholder: t("namecheap.accountLabelPlaceholder", "Buyer 1 — Main"),
+                    value: ncAccModal.name,
+                    onChange: (e) => setNcAccModal({ ...ncAccModal, name: e.target.value })
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: "Username" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "text",
+                    className: "form-input",
+                    style: { width: "100%" },
+                    placeholder: "namecheap-login",
+                    value: ncAccModal.username,
+                    onChange: (e) => setNcAccModal({ ...ncAccModal, username: e.target.value })
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: "API Key" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "input",
+                  {
+                    type: "password",
+                    className: "form-input",
+                    style: { width: "100%", fontFamily: "monospace" },
+                    value: ncAccModal.api_key,
+                    onChange: (e) => setNcAccModal({ ...ncAccModal, api_key: e.target.value }),
+                    placeholder: ncAccModal.id ? t("namecheap.keySaved", "ключ сохранён — введите новый, чтобы заменить") : ""
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "12px", borderRadius: "8px", border: "1px dashed var(--color-border)", background: "var(--color-bg-soft)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)" }, children: t("namecheap.whitelistIp", "IP сервера для Whitelisted IPs") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono", style: { fontSize: "15px", color: "var(--color-text-primary)" }, children: ncIps.detected_ip || ncIps.server_ip || "—" })
+                ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "button",
                   {
                     className: "btn btn-secondary btn-icon",
-                    disabled: ncBusy,
-                    onClick: async () => {
-                      setNcBusy(true);
-                      try {
-                        const res = await axios.post(`${API_URL$b}?action=namecheap_addresses`, {});
-                        if (res.data.status === "success") {
-                          setNcAddresses(res.data.data.addresses || []);
-                          setNcMessage("✓ " + t("namecheap.addressesLoaded", "профили загружены"));
-                        } else setNcMessage("⚠ " + (res.data.message || t("common.error")));
-                      } catch (err) {
-                        setNcMessage("⚠ " + t("common.networkError"));
-                      } finally {
-                        setNcBusy(false);
-                      }
-                    },
-                    title: t("namecheap.addressRefresh", "Обновить список из Address Book"),
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-4 h-4" })
+                    onClick: () => copyToClipboard$1(ncIps.detected_ip || ncIps.server_ip || "", "nc-ip-modal"),
+                    title: t("common.copy"),
+                    children: copied === "nc-ip-modal" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { className: "w-4 h-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" })
                   }
                 )
-              ] }),
-              !ncAddresses.length && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { margin: "6px 0 0", color: "var(--color-text-muted)" }, children: t("namecheap.addressHint", "Профили подтягиваются из Namecheap Address Book — они нужны для регистрации новых доменов.") })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("namecheap.environment", "Окружение") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", style: { color: "var(--color-text-primary)", fontSize: "14px" }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "radio", name: "nc-env", checked: !ncForm.sandbox, onChange: () => setNcForm({ ...ncForm, sandbox: false }) }),
-                  t("namecheap.production", "Production")
+              ] }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("namecheap.addressBook", "Профиль контакта (Address Book) для новых доменов") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "select",
+                    {
+                      className: "form-select",
+                      style: { flex: 1 },
+                      value: ncAccModal.contact_id,
+                      onChange: (e) => setNcAccModal({ ...ncAccModal, contact_id: e.target.value }),
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("namecheap.addressPlaceholder", "— не выбран —") }),
+                        ncAccAddresses.map((a) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: a.id, children: [
+                          a.name,
+                          a.is_default ? " ✓" : ""
+                        ] }, a.id))
+                      ]
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      type: "button",
+                      className: "btn btn-secondary btn-icon",
+                      disabled: ncAccBusy,
+                      onClick: refreshNcAddresses,
+                      title: t("namecheap.addressRefresh", "Обновить список из Address Book"),
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-4 h-4" })
+                    }
+                  )
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", style: { color: "var(--color-text-primary)", fontSize: "14px" }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "radio", name: "nc-env", checked: ncForm.sandbox, onChange: () => setNcForm({ ...ncForm, sandbox: true }) }),
-                  t("namecheap.sandbox", "Sandbox")
+                !ncAccAddresses.length && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { margin: "6px 0 0", color: "var(--color-text-muted)" }, children: t("namecheap.addressHintNew", "Профили подтягиваются из Address Book этого аккаунта — они нужны для регистрации новых доменов.") })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("namecheap.environment", "Окружение") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", style: { color: "var(--color-text-primary)", fontSize: "14px" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "radio", name: "nc-acc-env", checked: !ncAccModal.sandbox, onChange: () => setNcAccModal({ ...ncAccModal, sandbox: false }) }),
+                    t("namecheap.production", "Production")
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2", style: { color: "var(--color-text-primary)", fontSize: "14px" }, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("input", { type: "radio", name: "nc-acc-env", checked: ncAccModal.sandbox, onChange: () => setNcAccModal({ ...ncAccModal, sandbox: true }) }),
+                    t("namecheap.sandbox", "Sandbox")
+                  ] })
+                ] })
+              ] }),
+              ncAccMessage && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)", whiteSpace: "pre-wrap" }, children: ncAccMessage }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary", disabled: ncAccBusy, onClick: () => setNcAccModal(null), children: t("common.cancel") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", className: "btn btn-primary", disabled: ncAccBusy, onClick: saveNcAccount, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { className: "w-4 h-4" }),
+                  ncAccBusy ? t("common.saving") : t("namecheap.testAndSave", "Проверить и сохранить")
                 ] })
               ] })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", style: { marginTop: "4px" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
-                {
-                  className: "btn btn-primary",
-                  disabled: ncBusy,
-                  onClick: async () => {
-                    setNcBusy(true);
-                    setNcMessage(null);
-                    try {
-                      const res = await axios.post(`${API_URL$b}?action=namecheap_save`, ncForm);
-                      if (res.data.status === "success") {
-                        setNcMessage("✓ " + t("namecheap.saved", "Сохранено"));
-                        const st = await axios.get(`${API_URL$b}?action=namecheap_status`);
-                        if (st.data.status === "success") setNcStatus(st.data.data);
-                        setNcForm((f) => ({ ...f, api_key: "" }));
-                      } else if (res.data.message === "namecheap_connection_failed") {
-                        setNcMessage("⚠ " + t("namecheap.errConnection", "Namecheap отклонил подключение") + (res.data.detail?.error ? `: ${res.data.detail.error}` : ""));
-                        if (res.data.detail?.ip) {
-                          setNcStatus((s) => s ? { ...s, detected_ip: res.data.detail.ip } : s);
-                        }
-                      } else {
-                        setNcMessage("⚠ " + (res.data.message || t("common.error")));
-                      }
-                    } catch (err) {
-                      setNcMessage("⚠ " + t("common.networkError"));
-                    } finally {
-                      setNcBusy(false);
-                    }
-                  },
-                  children: ncBusy ? t("common.saving") : t("common.save")
-                }
-              ),
-              ncStatus?.connected && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "button",
-                {
-                  className: "btn btn-secondary",
-                  disabled: ncBusy,
-                  onClick: async () => {
-                    setNcBusy(true);
-                    setNcMessage(null);
-                    try {
-                      const res = await axios.post(`${API_URL$b}?action=namecheap_test`, {});
-                      if (res.data.status === "success") {
-                        setNcMessage("✓ " + t("namecheap.connected", "Подключено") + (res.data.data?.balance ? ` · ${t("namecheap.balance", "баланс")}: ${res.data.data.balance}` : ""));
-                      } else {
-                        const st = await axios.get(`${API_URL$b}?action=namecheap_status`);
-                        if (st.data.status === "success") setNcStatus(st.data.data);
-                        setNcMessage("⚠ " + (res.data.message || t("common.error")));
-                      }
-                    } catch (err) {
-                      setNcMessage("⚠ " + t("common.networkError"));
-                    } finally {
-                      setNcBusy(false);
-                    }
-                  },
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(Zap, { className: "w-4 h-4" }),
-                    t("namecheap.test", "Проверить")
-                  ]
-                }
-              )
-            ] }),
-            ncMessage && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: ncMessage })
-          ] })
-        ] }) }) }) : activeObj.isRecaptcha ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: "600px", display: "flex", flexDirection: "column", gap: "24px" }, children: [
+            ] })
+          ] }) })
+        ] }) : activeObj.isRecaptcha ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "24px", flex: 1, overflow: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { maxWidth: "600px", display: "flex", flexDirection: "column", gap: "24px" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "24px", border: "1px solid var(--color-border)" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginBottom: "16px" }, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { fontSize: "16px", fontWeight: "600", color: "var(--color-text-primary)", marginBottom: "4px" }, children: t("recaptcha.v2Title") }),
@@ -78144,7 +79292,9 @@ function AggregatorPage() {
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("aggregator.syncInterval") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: "input", value: form.sync_interval_hours, onChange: (e) => setForm({ ...form, sync_interval_hours: parseInt(e.target.value) }), children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("select", { className: "input", value: form.sync_interval_hours, onChange: (e) => setForm({ ...form, sync_interval_hours: parseFloat(e.target.value) }), children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: 0.333, children: "20 min" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: 0.5, children: "30 min" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: 1, children: "1h" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: 2, children: "2h" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: 4, children: "4h" }),
@@ -80455,6 +81605,23 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     { value: "RevShare", label: t("costModels.revShare") }
   ];
   const activeSource = sources.find((source) => source.id == formData.source_id);
+  const buildStandardName = () => {
+    const firstStream = formData.streams?.[0];
+    const offerId = parseInt(firstStream?.schema_custom?.offers?.[0]?.id || firstStream?.offer_id, 10);
+    const offerObj = offerId ? allOffers.find((o) => parseInt(o.id, 10) === offerId) : null;
+    let baseName = (formData.name || "").split(" - ")[0].trim();
+    if (!baseName && offerObj) baseName = offerObj.name.replace(/\s*\[.*?\]\s*/g, "").trim();
+    if (!baseName) baseName = t("editor.newCampaign");
+    const sourceObj = sources.find((s) => s.id == formData.source_id);
+    const sourceName = sourceObj ? sourceObj.name : t("editor.nameSourceOrganic");
+    let geo = offerObj?.geo ? String(offerObj.geo).split(",")[0].trim().toUpperCase() : "";
+    if (!geo) {
+      const countryFilter = (firstStream?.filters || []).find((f) => f.name === "Country" && (f.mode || "include") === "include");
+      geo = String(countryFilter?.payload?.[0] || "").trim().toUpperCase();
+    }
+    return `${baseName} - ${sourceName} - [${geo || "GLOBAL"}]`;
+  };
+  const suggestedName = buildStandardName();
   const displayParameters = reactExports.useMemo(() => {
     const standardParameters = [
       { key: "utm_placement", label: t("parameters.placement", "Placement (utm_placement)") },
@@ -81163,13 +82330,25 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     s[streamIdx].schema_custom[type] = list;
     setFormData({ ...formData, streams: s });
   };
-  const openEntityPicker = (streamIdx, type) => setPickerState({ open: true, streamIdx, type, safeField: null });
-  const openSafePicker = (streamIdx, safeField) => setPickerState({
-    open: true,
-    streamIdx,
-    type: safeField === "safe_offer_id" ? "offers" : "landings",
-    safeField
-  });
+  const refreshEntityList = (type) => {
+    const action = type === "landings" ? "landings_simple" : "all_offers";
+    invalidateCache(action);
+    cachedGet(action, { _: Date.now() }, 0).then(({ data }) => {
+      if (data?.status !== "success") return;
+      if (type === "landings") setAllLandings(data.data);
+      else setAllOffers(data.data);
+    }).catch(() => {
+    });
+  };
+  const openEntityPicker = (streamIdx, type) => {
+    setPickerState({ open: true, streamIdx, type, safeField: null });
+    refreshEntityList(type);
+  };
+  const openSafePicker = (streamIdx, safeField) => {
+    const type = safeField === "safe_offer_id" ? "offers" : "landings";
+    setPickerState({ open: true, streamIdx, type, safeField });
+    refreshEntityList(type);
+  };
   const attachOfferToStream = async (newId) => {
     const id = parseInt(newId, 10);
     if (!id) return;
@@ -81557,7 +82736,23 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-4 py-2", style: { backgroundColor: "var(--color-bg-hover)", borderBottom: "1px solid var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "font-semibold text-sm", style: { color: "var(--color-text-primary)" }, children: t("editor.general") }) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 space-y-4", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("editor.name") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-2 mb-1.5", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", style: { marginBottom: 0 }, children: t("editor.name") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "button",
+                        {
+                          type: "button",
+                          onClick: () => setFormData({ ...formData, name: suggestedName }),
+                          className: "btn btn-secondary text-xs font-medium",
+                          style: { padding: "4px 10px", borderRadius: 10 },
+                          title: t("editor.autoFormatHint"),
+                          children: [
+                            "🪄 ",
+                            t("editor.autoFormat")
+                          ]
+                        }
+                      )
+                    ] }),
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
                       "input",
                       {
@@ -81565,6 +82760,29 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         value: formData.name,
                         onChange: (e) => setFormData({ ...formData, name: e.target.value }),
                         className: "form-input"
+                      }
+                    ),
+                    suggestedName !== formData.name && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "div",
+                      {
+                        className: "flex items-center justify-between gap-2 mt-1.5 pl-3 pr-1.5 py-1.5 rounded-lg text-xs",
+                        style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)", color: "var(--color-text-secondary)" },
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-baseline gap-1.5 min-w-0", children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "shrink-0", style: { color: "var(--color-text-muted)" }, children: t("editor.nameFormatPrefix") }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold truncate", style: { color: "var(--color-text-primary)" }, title: suggestedName, children: suggestedName })
+                          ] }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "button",
+                            {
+                              type: "button",
+                              onClick: () => setFormData({ ...formData, name: suggestedName }),
+                              className: "btn btn-primary text-xs font-medium shrink-0",
+                              style: { padding: "3px 12px", borderRadius: 8 },
+                              children: t("common.apply")
+                            }
+                          )
+                        ]
                       }
                     )
                   ] }),
@@ -83348,7 +84566,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             className: "px-2.5 py-1 text-[11px] font-medium transition",
                             style: {
                               backgroundColor: safeMode === mode ? "var(--color-primary)" : "var(--color-bg-card)",
-                              color: safeMode === mode ? "#ffffff" : "var(--color-text-secondary)"
+                              color: safeMode === mode ? "var(--color-text-inverse)" : "var(--color-text-secondary)"
                             },
                             children: label
                           },
@@ -95240,6 +96458,8 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
         setBundles((prev) => prev.map((b) => b.token === r2.token ? { ...b, status: r2.ok ? "built" : "error", result: r2.result, qa: r2.qa, error: r2.ok ? null : r2.message } : b));
       });
       addLog(t("leadforge.logBuildDone", "🎉 Build pass finished. Landings are in the library, ready for campaigns."), "success");
+      invalidateCache("all_offers");
+      invalidateCache("landings_simple");
       if (refreshData) refreshData();
     } catch (err) {
       addLog(`❌ ${err.response?.data?.message || err.message}`, "error");
@@ -96870,6 +98090,14 @@ function App() {
     };
   }, []);
   reactExports.useEffect(() => {
+    const onNavigate = (e) => {
+      const tab = e?.detail?.tab;
+      if (typeof tab === "string" && tab) setActiveTab(tab);
+    };
+    window.addEventListener("orbitra:navigate", onNavigate);
+    return () => window.removeEventListener("orbitra:navigate", onNavigate);
+  }, []);
+  reactExports.useEffect(() => {
     const applyTheme = () => {
       const savedMode = localStorage.getItem("orbitra_mode") || "light";
       const root = document.documentElement;
@@ -96882,15 +98110,15 @@ function App() {
       }
       if (savedMode === "custom") {
         const customColorsStr = localStorage.getItem("orbitra_custom_colors");
+        let applied = false;
         if (customColorsStr) {
           try {
-            const customColors = JSON.parse(customColorsStr);
-            Object.keys(customColors).forEach((key) => {
-              root.style.setProperty(key, customColors[key]);
-            });
+            applyCustomThemeVars(JSON.parse(customColorsStr), root);
+            applied = true;
           } catch (e) {
           }
         }
+        if (!applied) clearInverseText(root);
       } else {
         root.style.removeProperty("--color-primary");
         root.style.removeProperty("--color-bg-main");
@@ -96898,6 +98126,7 @@ function App() {
         root.style.removeProperty("--color-text-primary");
         root.style.removeProperty("--color-bg-header");
         root.style.removeProperty("--color-text-header");
+        clearInverseText(root);
       }
     };
     applyTheme();

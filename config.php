@@ -51,7 +51,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 30;
+    $LATEST_SCHEMA_VERSION = 32;
 
     $schemaVersion = 0;
     try {
@@ -1717,6 +1717,86 @@ try {
                     $seed30 = $pdo->prepare("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)");
                     $seed30->execute(['allow_php_landings', '1']);
                     $seed30->execute(['php_landing_timeout', '3']);
+                } catch (\Throwable $e) {
+                }
+            }
+
+            if ($schemaVersion < 31) {
+                // Migration 31: Namecheap multi-account. The single legacy
+                // connection (nc_api_key/nc_username in settings) becomes the
+                // first row of namecheap_accounts, so a v1.0.5 install keeps
+                // parking and buying through the same credentials after the
+                // upgrade — the legacy settings rows stay untouched for
+                // downgrade safety.
+                try {
+                    $pdo->exec("CREATE TABLE IF NOT EXISTS namecheap_accounts (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT NOT NULL,
+                        username TEXT NOT NULL,
+                        api_key TEXT NOT NULL,
+                        contact_id TEXT DEFAULT '',
+                        sandbox INTEGER DEFAULT 0,
+                        last_balance TEXT DEFAULT '',
+                        domains_count INTEGER,
+                        is_active INTEGER DEFAULT 1,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    )");
+                    $legacyNc = $pdo->query("SELECT key, value FROM settings WHERE key IN ('nc_api_key','nc_username','nc_sandbox','nc_address_id')");
+                    $legacy = [];
+                    foreach ($legacyNc->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                        $legacy[$row['key']] = (string) $row['value'];
+                    }
+                    if (trim($legacy['nc_api_key'] ?? '') !== '' && trim($legacy['nc_username'] ?? '') !== '') {
+                        $seed31 = $pdo->prepare("INSERT INTO namecheap_accounts (name, username, api_key, contact_id, sandbox) VALUES (?, ?, ?, ?, ?)");
+                        $seed31->execute([
+                            trim($legacy['nc_username']),
+                            trim($legacy['nc_username']),
+                            trim($legacy['nc_api_key']),
+                            (string) ($legacy['nc_address_id'] ?? ''),
+                            ((string) ($legacy['nc_sandbox'] ?? '0')) === '1' ? 1 : 0,
+                        ]);
+                    }
+                } catch (\Throwable $e) {
+                }
+            }
+
+            if ($schemaVersion < 32) {
+                // Migration 32: Cloudflare multi-account — the mirror of
+                // migration 31. The legacy single token (cf_api_token) becomes
+                // row #1 of cloudflare_accounts, and domains get dns_account_id
+                // to pin "which account manages this domain's DNS" (paired with
+                // the existing dns_provider column: 'cloudflare' or
+                // 'namecheap' + the id in that provider's accounts table).
+                try {
+                    $pdo->exec("CREATE TABLE IF NOT EXISTS cloudflare_accounts (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT NOT NULL,
+                        api_token TEXT NOT NULL,
+                        ssl_mode TEXT DEFAULT 'flexible',
+                        proxied INTEGER DEFAULT 1,
+                        zones_count INTEGER,
+                        is_active INTEGER DEFAULT 1,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    )");
+                    try {
+                        $pdo->exec("ALTER TABLE domains ADD COLUMN dns_account_id INTEGER");
+                    } catch (\Throwable $e) {
+                        // Column already present (partial install).
+                    }
+                    $legacyCf = $pdo->query("SELECT key, value FROM settings WHERE key IN ('cf_api_token','cf_proxied','cf_ssl_mode')");
+                    $legacy = [];
+                    foreach ($legacyCf->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                        $legacy[$row['key']] = (string) $row['value'];
+                    }
+                    if (trim($legacy['cf_api_token'] ?? '') !== '') {
+                        $seed32 = $pdo->prepare("INSERT INTO cloudflare_accounts (name, api_token, ssl_mode, proxied) VALUES (?, ?, ?, ?)");
+                        $seed32->execute([
+                            'Cloudflare',
+                            trim($legacy['cf_api_token']),
+                            in_array(($legacy['cf_ssl_mode'] ?? ''), ['flexible', 'full', 'strict'], true) ? $legacy['cf_ssl_mode'] : 'flexible',
+                            (($legacy['cf_proxied'] ?? '1') !== '0') ? 1 : 0,
+                        ]);
+                    }
                 } catch (\Throwable $e) {
                 }
             }

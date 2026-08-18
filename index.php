@@ -661,8 +661,10 @@ function serveLandingAsset($landingId, $uriPath, $baseDir = null)
  *
  * Not a click: nothing is logged, no cookie is set, and {offer} has no stream to
  * resolve against, so it points at the campaign entry Keitaro uses for the same
- * job. PHP landings are not executed here — they need the click context this
- * route deliberately does not have.
+ * job. PHP landing pages are not executed here — they need the click context this
+ * route deliberately does not have. The LeadForge order handlers (order.php,
+ * thank_you.php) are the exception: they are network actors, not click-context
+ * pages, and answer their own POSTs under this URL like they do at the root.
  */
 function orbitraServeLanderPath(PDO $pdo, string $slug, string $rest): void
 {
@@ -688,6 +690,37 @@ function orbitraServeLanderPath(PDO $pdo, string $slug, string $rest): void
     $rest = trim(rawurldecode($rest), '/');
     if ($rest === '') {
         $rest = 'index.html';
+    }
+
+    // LeadForge rewrites a cloned form's action to a relative order.php, which
+    // the <base> injected below resolves right back here: the form's POST URL
+    // is /lander/<slug>/order.php, and the handler redirects to a relative
+    // thank_you.php the same way. The asset whitelist a few lines down
+    // deliberately never serves .php, so these two get the in-process
+    // execution the domain-root bridge gives them (see the order-bridge block
+    // in the main flow), gated by the same switch and budget. The slug in this
+    // URL names the landing, so unlike the root bridge no cookie is involved.
+    $bridgeFile = strtolower(basename($rest));
+    if (in_array($bridgeFile, ['order.php', 'thank_you.php'], true)) {
+        $bridgeRoot = realpath(orbitraLandingContentDir(orbitraLandingDir($pdo, $id)));
+        $bridgeTarget = $bridgeRoot === false ? false : realpath($bridgeRoot . '/' . $rest);
+        if ($bridgeTarget === false || !is_file($bridgeTarget)
+            || strpos($bridgeTarget, $bridgeRoot . DIRECTORY_SEPARATOR) !== 0) {
+            $notFound();
+        }
+        require_once __DIR__ . '/core/PhpLanding.php';
+        if (!PhpLanding::enabled($pdo)) {
+            http_response_code(503);
+            header('Content-Type: text/plain; charset=utf-8');
+            echo 'This page has an order handler written in PHP, which is disabled on this tracker. '
+                . 'Enable it in Settings -> General -> "Allow PHP landings".';
+            exit;
+        }
+        // Same floor the root bridge gives these files: they call the CPA
+        // network (curl, up to ~15s) and the CRM vault before answering.
+        @set_time_limit(max(PhpLanding::timeout($pdo), 25));
+        require $bridgeTarget;
+        exit;
     }
 
     // Anything that is not a page goes through the same extension whitelist and
@@ -959,9 +992,10 @@ function orbitraServeLocalOffer(PDO $pdo, $offerId, $clickId, array $clickParams
  * Cloaked streams that use a local offer as their Safe Page send bots here from
  * click.php and the Click API, which cannot serve the archive themselves. Same
  * rules as the lander route: not a click, nothing logged, PHP indexes are not
- * executed (no click context here). The orbitra_lo cookie is set while serving,
- * so the page's relative assets and the LeadForge order.php bridge keep
- * resolving for a visitor standing on this URL.
+ * executed (no click context here) — except the LeadForge order handlers,
+ * which answer their own POSTs under this URL. The orbitra_lo cookie is set
+ * while serving, so the page's relative assets and the LeadForge order.php
+ * bridge keep resolving for a visitor standing on this URL.
  */
 function orbitraServeOfferPath(PDO $pdo, int $offerId, string $rest): void
 {
@@ -994,6 +1028,31 @@ function orbitraServeOfferPath(PDO $pdo, int $offerId, string $rest): void
     $rest = trim(rawurldecode($rest), '/');
     if ($rest === '') {
         $rest = 'index.html';
+    }
+
+    // Same order-bridge handling as /lander/<slug>/: a LeadForge form on this
+    // page posts to a relative order.php the <base> below resolves to
+    // /offers/<id>/order.php. The domain-root bridge answers that POST when the
+    // orbitra_lo cookie this route sets survives; this branch answers it from
+    // the id in the URL itself, so a cookie-less browser is covered too.
+    $bridgeFile = strtolower(basename($rest));
+    if (in_array($bridgeFile, ['order.php', 'thank_you.php'], true)) {
+        $bridgeTarget = realpath($root . '/' . $rest);
+        if ($bridgeTarget === false || !is_file($bridgeTarget)
+            || strpos($bridgeTarget, $root . DIRECTORY_SEPARATOR) !== 0) {
+            $notFound();
+        }
+        require_once __DIR__ . '/core/PhpLanding.php';
+        if (!PhpLanding::enabled($pdo)) {
+            http_response_code(503);
+            header('Content-Type: text/plain; charset=utf-8');
+            echo 'This page has an order handler written in PHP, which is disabled on this tracker. '
+                . 'Enable it in Settings -> General -> "Allow PHP landings".';
+            exit;
+        }
+        @set_time_limit(max(PhpLanding::timeout($pdo), 25));
+        require $bridgeTarget;
+        exit;
     }
 
     // Anything that is not a page goes through the same extension whitelist
@@ -1700,7 +1759,9 @@ if ($uriPath !== null && preg_match('#^/lander/([A-Za-z0-9][A-Za-z0-9_-]{0,63})(
 // asset passthrough below deliberately never serves .php, so they get the same
 // in-process execution the landing's own index.php gets — gated by the same
 // "Allow PHP landings" switch and execution budget. The cookies say which
-// uploaded page the visitor is actually on (offer wins, as with assets).
+// uploaded page the visitor is actually on (offer wins, as with assets); the
+// Referer is the fallback when no cookie does (blocked cookies, or a form
+// posted absolute from a /lander/<slug>/ preview, which sets no cookies).
 if ($uriPath !== null) {
     $orbitraBridgeFile = strtolower(basename(parse_url($uriPath, PHP_URL_PATH) ?? ''));
     if (in_array($orbitraBridgeFile, ['order.php', 'thank_you.php'], true)) {
@@ -1709,6 +1770,30 @@ if ($uriPath !== null) {
             $orbitraBridgeRoot = orbitraLandingContentDir(orbitraOfferDir((int) $_COOKIE['orbitra_lo']));
         } elseif (!empty($_COOKIE['orbitra_lp'])) {
             $orbitraBridgeRoot = orbitraLandingContentDir(orbitraLandingDir($pdo, (int) $_COOKIE['orbitra_lp']));
+        }
+        // No cookie names the page: cookies are blocked, or a hand-written
+        // landing posted an absolute /order.php straight off its /lander/<slug>/
+        // preview, which deliberately sets none. The Referer still says where
+        // the form lives, and its slug / offer id goes through the same
+        // resolvers the cookie path uses — a Referer is no easier to forge
+        // than a cookie, which was never an auth boundary here either.
+        if ($orbitraBridgeRoot === '' && !empty($_SERVER['HTTP_REFERER'])) {
+            $orbitraRefPath = (string) (parse_url($_SERVER['HTTP_REFERER'], PHP_URL_PATH) ?? '');
+            if (preg_match('#^/lander/([A-Za-z0-9][A-Za-z0-9_-]{0,63})#', $orbitraRefPath, $orbitraRefMatch)) {
+                try {
+                    $orbitraRefStmt = $pdo->prepare("SELECT id, type FROM landings WHERE slug = ? AND is_archived = 0 LIMIT 1");
+                    $orbitraRefStmt->execute([strtolower($orbitraRefMatch[1])]);
+                    $orbitraRefRow = $orbitraRefStmt->fetch(PDO::FETCH_ASSOC);
+                } catch (\Throwable $e) {
+                    $orbitraRefRow = null;
+                }
+                if ($orbitraRefRow && ($orbitraRefRow['type'] ?? '') === 'local') {
+                    $orbitraBridgeRoot = orbitraLandingContentDir(orbitraLandingDir($pdo, (int) $orbitraRefRow['id']));
+                }
+            } elseif (preg_match('#^/offers/(\d+)#', $orbitraRefPath, $orbitraRefMatch)
+                && orbitraOfferIsLocal($pdo, (int) $orbitraRefMatch[1])) {
+                $orbitraBridgeRoot = orbitraLandingContentDir(orbitraOfferDir((int) $orbitraRefMatch[1]));
+            }
         }
         if ($orbitraBridgeRoot !== '' && is_file($orbitraBridgeRoot . '/' . $orbitraBridgeFile)) {
             require_once __DIR__ . '/core/PhpLanding.php';

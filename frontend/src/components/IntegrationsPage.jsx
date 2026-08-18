@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
-import { Terminal, Code, Image as ImageIcon, Copy, CheckCircle2, Server, Globe, Zap, Send, Eye, EyeOff, RefreshCw, Trash2, MessageCircle, Bell, BellOff, Clock, Users, Download, Settings, Plus, Edit2, Power, X, ArrowRight, Smartphone, Monitor, Timer, ArrowLeft, Palette, ExternalLink, Shield, DollarSign, Cloud, Database, Tag, Music2, Search } from 'lucide-react';
+import { Terminal, Code, Image as ImageIcon, Copy, CheckCircle2, Server, Globe, Zap, Send, Eye, EyeOff, RefreshCw, Trash2, MessageCircle, Bell, BellOff, Clock, Users, Download, Settings, Plus, Edit2, Power, X, ArrowRight, Smartphone, Monitor, Timer, ArrowLeft, Palette, ExternalLink, Shield, DollarSign, Cloud, Database, Tag, Music2, Search, KeyRound, ShoppingCart, User } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard as copyUtil } from '../utils/clipboard';
@@ -8,6 +8,20 @@ import ProxyInput from './common/ProxyInput';
 import PixelPicker from './common/PixelPicker';
 
 const API_URL = '/api.php';
+
+// Cost-sync interval options, shared by the FB / TikTok / Google Ads form and
+// one-click selects. Sub-hour entries are fractional hours (0.333 ≈ 20 min) —
+// every onChange must use parseFloat; parseInt would snap 0.333 back to 0.
+const SYNC_INTERVAL_OPTIONS = [
+    { value: 0.333, label: '20 min' },
+    { value: 0.5, label: '30 min' },
+    { value: 1, label: '1 h' },
+    { value: 2, label: '2 h' },
+    { value: 4, label: '4 h' },
+    { value: 6, label: '6 h' },
+    { value: 12, label: '12 h' },
+    { value: 24, label: '24 h' },
+];
 
 const IntegrationsPage = () => {
     const { t } = useLanguage();
@@ -76,6 +90,9 @@ const IntegrationsPage = () => {
     // null = unknown (preflight unfinished or failed): the 1-Click button then
     // keeps its old behaviour instead of locking users out of the popup.
     const [fbOauthConfigured, setFbOauthConfigured] = useState(null);
+    // "new account" tabs: direct token entry (Keitaro style, default) vs the
+    // 1-Click OAuth popup.
+    const [fbAddMode, setFbAddMode] = useState('manual');
     const fbOAuthPopupRef = useRef(null);
     const fbOAuthPollRef = useRef(null);
 
@@ -110,6 +127,11 @@ const IntegrationsPage = () => {
     const [ttImportPixels, setTtImportPixels] = useState(true);
     const [ttSyncInterval, setTtSyncInterval] = useState(2);
     const [ttMessage, setTtMessage] = useState(null);
+    // null = unknown (preflight unfinished or failed): the 1-Click button then
+    // keeps its old behaviour instead of locking users out of the popup.
+    const [ttOauthConfigured, setTtOauthConfigured] = useState(null);
+    const [ttShowTokenHowTo, setTtShowTokenHowTo] = useState(false);
+    const [ttAddMode, setTtAddMode] = useState('manual');
     const ttPopupRef = useRef(null);
     const ttPollRef = useRef(null);
 
@@ -143,6 +165,11 @@ const IntegrationsPage = () => {
     const [gaSyncInterval, setGaSyncInterval] = useState(2);
     const gaPopupRef = useRef(null);
     const gaPollRef = useRef(null);
+    // null = unknown (preflight unfinished or failed): the 1-Click button then
+    // keeps its old behaviour instead of locking users out of the popup.
+    const [gaOauthConfigured, setGaOauthConfigured] = useState(null);
+    const [gaShowHowTo, setGaShowHowTo] = useState(false);
+    const [gaAddMode, setGaAddMode] = useState('manual');
 
     // Facebook Conversions state — campaign_pixels rows of type 'facebook' that
     // carry a Conversions API token.
@@ -177,19 +204,26 @@ const IntegrationsPage = () => {
     const [pixelProfileMessage, setPixelProfileMessage] = useState(null);
     const [pixelProfileTesting, setPixelProfileTesting] = useState(null);
 
-    // Cloudflare state — one account in settings, managed DNS for parked domains.
-    const [cfForm, setCfForm] = useState({ api_token: '', proxied: true, ssl_mode: 'flexible', server_ip: '' });
+    // Cloudflare state — multi-account hub: a card per account, the server IP
+    // is shared by all of them (it is one and the same tracker server).
     const [cfStatus, setCfStatus] = useState(null);
+    const [cfAccounts, setCfAccounts] = useState([]);
+    const [cfServerIp, setCfServerIp] = useState('');
     const [cfBusy, setCfBusy] = useState(false);
     const [cfMessage, setCfMessage] = useState(null);
+    const [cfAccModal, setCfAccModal] = useState(null); // {id?, name, api_token, ssl_mode, proxied}
+    const [cfZones, setCfZones] = useState(null); // Import & Auto-DNS dialog
 
-    // Namecheap state — one account in settings: zero-config DNS parking for
-    // domains from the account + purchasing new domains right from the panel.
-    const [ncForm, setNcForm] = useState({ username: '', api_key: '', sandbox: false, address_id: '', server_ip: '' });
-    const [ncStatus, setNcStatus] = useState(null);
-    const [ncBusy, setNcBusy] = useState(false);
-    const [ncMessage, setNcMessage] = useState(null);
-    const [ncAddresses, setNcAddresses] = useState([]);
+    // Namecheap state — multi-account hub: every buyer account gets its own
+    // card with a live balance; Buy/Import deep-link into the Domains dialogs
+    // with the account preselected.
+    const [ncAccounts, setNcAccounts] = useState([]);
+    const [ncIps, setNcIps] = useState({ server_ip: '', detected_ip: '' });
+    const [ncAccModal, setNcAccModal] = useState(null); // { id?, name, username, api_key, contact_id, sandbox }
+    const [ncAccBusy, setNcAccBusy] = useState(false);
+    const [ncAccMessage, setNcAccMessage] = useState(null);
+    const [ncAccAddresses, setNcAccAddresses] = useState([]);
+    const [ncBalanceBusy, setNcBalanceBusy] = useState(null); // account id being refreshed
 
     // reCAPTCHA state
     const [rcSaving, setRcSaving] = useState(false);
@@ -595,6 +629,13 @@ const IntegrationsPage = () => {
         } catch (err) { console.error(err); }
     }, []);
 
+    const fetchTtOauthStatus = useCallback(async () => {
+        try {
+            const res = await axios.get(`${API_URL}?action=tiktok_oauth_status`);
+            if (res.data.status === 'success') setTtOauthConfigured(!!res.data.data?.configured);
+        } catch (err) { console.error(err); }
+    }, []);
+
     const fetchGaConnections = useCallback(async () => {
         setGaLoading(true);
         try {
@@ -610,6 +651,13 @@ const IntegrationsPage = () => {
         try {
             const res = await axios.get(`${API_URL}?action=aggregator_engine_fields&engine=google_ads`);
             if (res.data.status === 'success') setGaFields(res.data.data || []);
+        } catch (err) { console.error(err); }
+    }, []);
+
+    const fetchGaOauthStatus = useCallback(async () => {
+        try {
+            const res = await axios.get(`${API_URL}?action=google_ads_oauth_status`);
+            if (res.data.status === 'success') setGaOauthConfigured(!!res.data.data?.configured);
         } catch (err) { console.error(err); }
     }, []);
 
@@ -640,8 +688,8 @@ const IntegrationsPage = () => {
 
     useEffect(() => {
         if (activeTab === 'facebook_costs') { fetchFbConnections(); fetchFbFields(); fetchFbOauthStatus(); }
-        if (activeTab === 'tiktok_costs') { fetchTtConnections(); fetchTtFields(); }
-        if (activeTab === 'google_ads_costs') { fetchGaConnections(); fetchGaFields(); }
+        if (activeTab === 'tiktok_costs') { fetchTtConnections(); fetchTtFields(); fetchTtOauthStatus(); }
+        if (activeTab === 'google_ads_costs') { fetchGaConnections(); fetchGaFields(); fetchGaOauthStatus(); }
         if (activeTab === 'facebook_conversions') { fetchCapiPixels(); fetchCapiMeta(); fetchCampaigns(); }
         if (activeTab === 'pixel_vault') fetchPixelProfiles();
         if (activeTab === 'cloudflare') {
@@ -649,35 +697,125 @@ const IntegrationsPage = () => {
                 .then(res => {
                     if (res.data.status === 'success') {
                         setCfStatus(res.data.data);
-                        setCfForm(f => ({ ...f, proxied: !!res.data.data.proxied, ssl_mode: res.data.data.ssl_mode || 'flexible', server_ip: res.data.data.server_ip || '' }));
+                        setCfAccounts(res.data.data.accounts || []);
+                        setCfServerIp(res.data.data.server_ip || '');
                     }
                 })
                 .catch(() => {});
         }
         if (activeTab === 'namecheap') {
-            const ncAddressRefresh = async () => {
-                try {
-                    const res = await axios.post(`${API_URL}?action=namecheap_addresses`, {});
-                    if (res.data.status === 'success') setNcAddresses(res.data.data.addresses || []);
-                } catch (err) { console.error(err); }
-            };
-            axios.get(`${API_URL}?action=namecheap_status`)
+            // Stored list first (fast), then one live balance probe per
+            // account — the browser fires them in parallel and each card
+            // updates as its reply lands, so an N-account panel never waits
+            // on N sequential Namecheap round-trips.
+            axios.get(`${API_URL}?action=namecheap_accounts_list`)
                 .then(res => {
                     if (res.data.status === 'success') {
-                        setNcStatus(res.data.data);
-                        setNcForm(f => ({
-                            ...f,
-                            username: res.data.data.username || '',
-                            sandbox: !!res.data.data.sandbox,
-                            address_id: res.data.data.address_id || '',
-                            server_ip: res.data.data.server_ip || ''
-                        }));
-                        if (res.data.data.connected) ncAddressRefresh();
+                        setNcAccounts(res.data.data.accounts || []);
+                        setNcIps({ server_ip: res.data.data.server_ip || '', detected_ip: res.data.data.detected_ip || '' });
+                        (res.data.data.accounts || []).forEach(acc => {
+                            axios.post(`${API_URL}?action=namecheap_account_balance`, { account_id: acc.id })
+                                .then(b => {
+                                    if (b.data.status === 'success' && b.data.data?.balance !== undefined) {
+                                        setNcAccounts(list => list.map(a => a.id === acc.id ? { ...a, last_balance: b.data.data.balance || a.last_balance } : a));
+                                    }
+                                })
+                                .catch(() => {});
+                        });
                     }
                 })
                 .catch(() => {});
         }
     }, [activeTab, fetchFbConnections, fetchFbFields, fetchTtConnections, fetchTtFields, fetchGaConnections, fetchGaFields, fetchCapiPixels, fetchCapiMeta, fetchCampaigns, fetchPixelProfiles]);
+
+    // === Namecheap multi-account hub ===
+
+    // Add/Edit modal. For an existing account the Address Book select loads
+    // from THAT account; a brand-new one has no credentials stored yet, so its
+    // profiles appear after the first save (Edit reopens with them).
+    const openNcAccountModal = async (acc = null) => {
+        setNcAccMessage(null);
+        setNcAccAddresses([]);
+        setNcAccModal(acc
+            ? { id: acc.id, name: acc.name, username: acc.username, api_key: '', contact_id: acc.contact_id || '', sandbox: !!acc.sandbox }
+            : { id: 0, name: '', username: '', api_key: '', contact_id: '', sandbox: false });
+        try {
+            const res = await axios.post(`${API_URL}?action=namecheap_addresses`, acc && acc.id ? { account_id: acc.id } : {});
+            if (res.data.status === 'success') setNcAccAddresses(res.data.data.addresses || []);
+        } catch (err) { /* the refresh button in the modal retries */ }
+    };
+
+    const refreshNcAddresses = async () => {
+        try {
+            const res = await axios.post(`${API_URL}?action=namecheap_addresses`, ncAccModal?.id ? { account_id: ncAccModal.id } : {});
+            if (res.data.status === 'success') setNcAccAddresses(res.data.data.addresses || []);
+        } catch (err) { /* keep the current list */ }
+    };
+
+    // Test Connection & Save — the backend verifies the credentials live and
+    // stores the balance snapshot from the same probe.
+    const saveNcAccount = async () => {
+        if (!ncAccModal) return;
+        if (!ncAccModal.username.trim() && !ncAccModal.id) {
+            setNcAccMessage('⚠ ' + t('namecheap.errUserKeyRequired', 'Укажите username и API key'));
+            return;
+        }
+        setNcAccBusy(true); setNcAccMessage(null);
+        try {
+            const res = await axios.post(`${API_URL}?action=namecheap_account_save`, {
+                id: ncAccModal.id || undefined,
+                name: ncAccModal.name,
+                username: ncAccModal.username,
+                api_key: ncAccModal.api_key,
+                contact_id: ncAccModal.contact_id,
+                sandbox: ncAccModal.sandbox,
+            });
+            if (res.data.status === 'success') {
+                const saved = res.data.data.account;
+                setNcAccModal(null);
+                setNcAccounts(list => list.some(a => a.id === saved.id)
+                    ? list.map(a => (a.id === saved.id ? { ...a, ...saved } : a))
+                    : [...list, saved]);
+            } else if (res.data.message === 'namecheap_connection_failed') {
+                setNcAccMessage('⚠ ' + t('namecheap.errConnection', 'Namecheap отклонил подключение') + (res.data.detail?.error ? `: ${res.data.detail.error}` : ''));
+                if (res.data.detail?.ip) setNcIps(s => ({ ...s, detected_ip: res.data.detail.ip }));
+            } else {
+                setNcAccMessage('⚠ ' + (res.data.message || t('common.error')));
+            }
+        } catch (err) {
+            setNcAccMessage('⚠ ' + t('common.networkError'));
+        } finally {
+            setNcAccBusy(false);
+        }
+    };
+
+    const deleteNcAccount = async (acc) => {
+        if (!window.confirm(`${t('namecheap.deleteConfirm', 'Удалить аккаунт')} «${acc.name}»?`)) return;
+        try {
+            const res = await axios.post(`${API_URL}?action=namecheap_account_delete`, { id: acc.id });
+            if (res.data.status === 'success') {
+                setNcAccounts(list => list.filter(a => a.id !== acc.id));
+            }
+        } catch (err) { /* the card stays; retry */ }
+    };
+
+    const refreshNcBalance = async (acc) => {
+        setNcBalanceBusy(acc.id);
+        try {
+            const res = await axios.post(`${API_URL}?action=namecheap_account_balance`, { account_id: acc.id });
+            if (res.data.status === 'success') {
+                setNcAccounts(list => list.map(a => (a.id === acc.id ? { ...a, last_balance: res.data.data.balance || a.last_balance } : a)));
+            }
+        } catch (err) { /* keep the stored snapshot */ }
+        finally { setNcBalanceBusy(null); }
+    };
+
+    // Buy & Import live in the Domains dialogs — jump there with this account
+    // preselected (Domains reads orbitra_nc_intent on mount).
+    const openNcDialog = (accountId, mode) => {
+        try { localStorage.setItem('orbitra_nc_intent', JSON.stringify({ account_id: accountId, mode })); } catch (e) { /* storage full/blocked */ }
+        window.dispatchEvent(new CustomEvent('orbitra:navigate', { detail: { tab: 'domains' } }));
+    };
 
     useEffect(() => {
         const handleFacebookOAuthMessage = (event) => {
@@ -1379,6 +1517,9 @@ const IntegrationsPage = () => {
                 setGaTest(null);
                 resetGoogleAdsOAuth();
                 fetchGaConnections();
+                // A manual connection's Client ID / Secret / Developer Token are
+                // reused by the 1-click flow, so the preflight verdict can flip.
+                fetchGaOauthStatus();
             }
         } catch (err) { setGaMessage({ type: 'error', text: err.message }); }
     };
@@ -1452,6 +1593,7 @@ const IntegrationsPage = () => {
         await axios.post(`${API_URL}?action=aggregator_connections`, { action: 'delete', id: conn.id });
         setGaMessage({ type: 'success', text: t('googleAdsCosts.deleted') });
         fetchGaConnections();
+        fetchGaOauthStatus();
     };
 
     // Shared across the Facebook / TikTok / Google Ads cost panels — the row
@@ -1466,6 +1608,31 @@ const IntegrationsPage = () => {
         const mins = Math.round(diff / 60000);
         return mins >= 60 ? `${Math.floor(mins / 60)} h ${mins % 60} min` : `${mins} min`;
     };
+
+    // Shared "new account" mode switch for the FB / TikTok / Google Ads cost
+    // panels: direct token entry (Keitaro style, default) vs 1-Click OAuth.
+    // Same design language as the panels — theme vars only, no brand hex.
+    const renderConnectModeToggle = (mode, onModeChange) => (
+        <div className="flex rounded-xl border overflow-hidden" style={{ borderColor: 'var(--color-border)' }}>
+            <button type="button" onClick={() => onModeChange('manual')}
+                className="flex-1 py-2 px-3 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+                style={{
+                    borderRight: '1px solid var(--color-border)',
+                    backgroundColor: mode === 'manual' ? 'color-mix(in srgb, var(--color-primary) 12%, transparent)' : 'transparent',
+                    color: mode === 'manual' ? 'var(--color-primary)' : 'var(--color-text-muted)'
+                }}>
+                <KeyRound size={13} /> {t('integrations.connectModeManual')}
+            </button>
+            <button type="button" onClick={() => onModeChange('oauth')}
+                className="flex-1 py-2 px-3 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+                style={{
+                    backgroundColor: mode === 'oauth' ? 'color-mix(in srgb, var(--color-primary) 12%, transparent)' : 'transparent',
+                    color: mode === 'oauth' ? 'var(--color-primary)' : 'var(--color-text-muted)'
+                }}>
+                <Zap size={13} /> {t('integrations.connectModeOauth')}
+            </button>
+        </div>
+    );
 
     const costStatusBadge = (conn, prefix) => {
         if (!conn.is_active) return { label: t(`${prefix}.paused`), bg: '#e5e7eb', fg: '#374151' };
@@ -1493,7 +1660,8 @@ const IntegrationsPage = () => {
                             {fbEditing === 'new' ? t('fbCosts.addAccount') : t('fbCosts.editAccount')}
                         </h4>
                         <div className="space-y-3">
-                            {fbEditing === 'new' && (
+                            {fbEditing === 'new' && renderConnectModeToggle(fbAddMode, setFbAddMode)}
+                            {fbEditing === 'new' && fbAddMode === 'oauth' && (
                                 <>
                                     <div
                                         className="p-5 rounded-2xl border text-center flex flex-col items-center gap-3"
@@ -1581,17 +1749,10 @@ const IntegrationsPage = () => {
                                             </button>
                                         </div>
                                     )}
-
-                                    <div className="flex items-center gap-3 my-4">
-                                        <div className="flex-1 border-t" style={{ borderColor: 'var(--color-border)' }}></div>
-                                        <span className="text-[11px] uppercase font-bold" style={{ color: 'var(--color-text-muted)' }}>
-                                            {t('common.orManual')}
-                                        </span>
-                                        <div className="flex-1 border-t" style={{ borderColor: 'var(--color-border)' }}></div>
-                                    </div>
                                 </>
                             )}
 
+                            {(fbEditing !== 'new' || fbAddMode === 'manual') && (<>
                             <div>
                                 <label className="form-label">{t('fbCosts.name')}</label>
                                 <input type="text" className="form-input" value={fbForm.name}
@@ -1686,8 +1847,8 @@ const IntegrationsPage = () => {
                             <div>
                                 <label className="form-label">{t('fbCosts.interval')}</label>
                                 <select className="form-select" value={fbForm.sync_interval_hours}
-                                    onChange={e => setFbForm({ ...fbForm, sync_interval_hours: parseInt(e.target.value, 10) })}>
-                                    {[1, 2, 4, 6, 12, 24].map(h => <option key={h} value={h}>{h} h</option>)}
+                                    onChange={e => setFbForm({ ...fbForm, sync_interval_hours: parseFloat(e.target.value) })}>
+                                    {SYNC_INTERVAL_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                                 </select>
                             </div>
 
@@ -1735,11 +1896,12 @@ const IntegrationsPage = () => {
                                     </button>
                                 </div>
                             </div>
+                            </>)}
                         </div>
                     </div>
                 ) : (
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap' }}>
-                        <button onClick={() => { setFbForm(emptyFbForm); setFbTest(null); resetFacebookOAuth(); setFbEditing('new'); }} className="btn btn-primary">
+                        <button onClick={() => { setFbForm(emptyFbForm); setFbTest(null); resetFacebookOAuth(); setFbAddMode('manual'); setFbEditing('new'); }} className="btn btn-primary">
                             <Plus size={16} /> {t('fbCosts.addAccount')}
                         </button>
                         <input type="text" className="form-input" style={{ maxWidth: '240px' }}
@@ -1845,7 +2007,8 @@ const IntegrationsPage = () => {
                             {ttEditing === 'new' ? t('tiktokCosts.addAccount') : t('tiktokCosts.editAccount')}
                         </h4>
                         <div className="space-y-3">
-                            {ttEditing === 'new' && (
+                            {ttEditing === 'new' && renderConnectModeToggle(ttAddMode, setTtAddMode)}
+                            {ttEditing === 'new' && ttAddMode === 'oauth' && (
                                 <>
                                     <div
                                         className="p-5 rounded-2xl border text-center flex flex-col items-center gap-3"
@@ -1866,13 +2029,24 @@ const IntegrationsPage = () => {
                                         <button
                                             type="button"
                                             onClick={handleStartTikTokOAuth}
-                                            disabled={ttOAuthLoading || ttConnecting}
+                                            disabled={ttOAuthLoading || ttConnecting || ttOauthConfigured === false}
                                             className="btn py-2.5 px-6 rounded-xl font-bold flex items-center gap-2 transition-transform hover:scale-[1.02]"
-                                            style={{ backgroundColor: '#FE2C55', color: '#ffffff', boxShadow: '0 4px 14px rgba(254, 44, 85, 0.3)', opacity: ttOAuthLoading ? 0.75 : 1 }}
+                                            style={{ backgroundColor: '#FE2C55', color: '#ffffff', boxShadow: '0 4px 14px rgba(254, 44, 85, 0.3)', opacity: (ttOAuthLoading || ttOauthConfigured === false) ? 0.75 : 1 }}
                                         >
                                             {ttOAuthLoading ? <RefreshCw size={16} className="animate-spin" /> : <Music2 size={16} />}
                                             <span>{ttOAuthLoading ? t('tiktokCosts.oauthConnecting') : t('tiktokCosts.loginWithTikTok')}</span>
                                         </button>
+                                        {ttOauthConfigured === false && (
+                                            <div className="w-full max-w-md text-left rounded-xl border p-3"
+                                                style={{ background: 'var(--color-warning-bg)', borderColor: 'var(--color-warning)' }}>
+                                                <div className="text-xs font-bold" style={{ color: 'var(--color-warning)' }}>
+                                                    {t('tiktokCosts.oauthNotConfiguredTitle')}
+                                                </div>
+                                                <div className="text-[11px] leading-relaxed mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+                                                    {t('tiktokCosts.oauthNotConfiguredHint')}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {ttDiscoveredAccounts.length > 0 && (
@@ -1944,9 +2118,9 @@ const IntegrationsPage = () => {
                                                     {t('tiktokCosts.syncEvery')}:
                                                 </span>
                                                 <select className="form-select text-xs" style={{ maxWidth: '120px' }}
-                                                    value={ttSyncInterval} onChange={e => setTtSyncInterval(Number(e.target.value))}>
-                                                    {[1, 2, 6, 12, 24].map(hours => (
-                                                        <option key={hours} value={hours}>{hours}h</option>
+                                                    value={ttSyncInterval} onChange={e => setTtSyncInterval(parseFloat(e.target.value))}>
+                                                    {SYNC_INTERVAL_OPTIONS.map(o => (
+                                                        <option key={o.value} value={o.value}>{o.label}</option>
                                                     ))}
                                                 </select>
                                             </div>
@@ -1958,15 +2132,10 @@ const IntegrationsPage = () => {
                                             </button>
                                         </div>
                                     )}
-
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '4px 0' }}>
-                                        <div style={{ flex: 1, height: '1px', background: 'var(--color-border)' }} />
-                                        <span style={{ fontSize: '11px', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>{t('tiktokCosts.manualSection')}</span>
-                                        <div style={{ flex: 1, height: '1px', background: 'var(--color-border)' }} />
-                                    </div>
                                 </>
                             )}
 
+                            {(ttEditing !== 'new' || ttAddMode === 'manual') && (<>
                             <div>
                                 <label className="form-label">{t('tiktokCosts.name')} *</label>
                                 <input className="form-input" type="text"
@@ -1997,11 +2166,27 @@ const IntegrationsPage = () => {
                                 </div>
                             ))}
 
+                            {/* Keitaro-style flow: most users paste a ready
+                                long-term token — show where it comes from. */}
+                            <div>
+                                <button type="button" onClick={() => setTtShowTokenHowTo(!ttShowTokenHowTo)}
+                                    className="btn btn-secondary btn-sm" style={{ fontSize: '11px' }}>
+                                    {ttShowTokenHowTo ? '−' : '+'} {t('tiktokCosts.tokenHowTo')}
+                                </button>
+                                {ttShowTokenHowTo && (
+                                    <div style={{ border: '1px dashed var(--color-border)', borderRadius: '12px', padding: '14px', marginTop: '8px' }}>
+                                        <p style={{ fontSize: '11px', color: 'var(--color-text-muted)', margin: 0, whiteSpace: 'pre-line', lineHeight: 1.7 }}>
+                                            {t('tiktokCosts.tokenHowToHint')}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+
                             <div>
                                 <label className="form-label">{t('tiktokCosts.interval')}</label>
                                 <select className="form-select" value={ttForm.sync_interval_hours}
-                                    onChange={e => setTtForm({ ...ttForm, sync_interval_hours: parseInt(e.target.value, 10) })}>
-                                    {[1, 2, 4, 6, 12, 24].map(h => <option key={h} value={h}>{h} h</option>)}
+                                    onChange={e => setTtForm({ ...ttForm, sync_interval_hours: parseFloat(e.target.value) })}>
+                                    {SYNC_INTERVAL_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                                 </select>
                             </div>
 
@@ -2029,6 +2214,7 @@ const IntegrationsPage = () => {
                                     </button>
                                 </div>
                             </div>
+                            </>)}
                         </div>
                     </div>
                 ) : (
@@ -2040,6 +2226,7 @@ const IntegrationsPage = () => {
                             setTtImportPixels(true);
                             setTtSyncInterval(2);
                             setTtMessage(null);
+                            setTtAddMode('manual');
                             setTtEditing('new');
                         }} className="btn btn-primary">
                             <Plus size={16} /> {t('tiktokCosts.addAccount')}
@@ -2178,7 +2365,8 @@ const IntegrationsPage = () => {
                             {gaEditing === 'new' ? t('googleAdsCosts.addAccount') : t('googleAdsCosts.editAccount')}
                         </h4>
                         <div className="space-y-3">
-                            {gaEditing === 'new' && (
+                            {gaEditing === 'new' && renderConnectModeToggle(gaAddMode, setGaAddMode)}
+                            {gaEditing === 'new' && gaAddMode === 'oauth' && (
                                 <>
                                     <div
                                         className="p-5 rounded-2xl border text-center flex flex-col items-center gap-3"
@@ -2199,13 +2387,24 @@ const IntegrationsPage = () => {
                                         <button
                                             type="button"
                                             onClick={handleStartGaOAuth}
-                                            disabled={gaOAuthLoading || gaConnecting}
+                                            disabled={gaOAuthLoading || gaConnecting || gaOauthConfigured === false}
                                             className="btn py-2.5 px-6 rounded-xl font-bold flex items-center gap-2 transition-transform hover:scale-[1.02]"
-                                            style={{ backgroundColor: '#4285F4', color: '#ffffff', boxShadow: '0 4px 14px rgba(66, 133, 244, 0.3)', opacity: gaOAuthLoading ? 0.75 : 1 }}
+                                            style={{ backgroundColor: '#4285F4', color: '#ffffff', boxShadow: '0 4px 14px rgba(66, 133, 244, 0.3)', opacity: (gaOAuthLoading || gaOauthConfigured === false) ? 0.75 : 1 }}
                                         >
                                             {gaOAuthLoading ? <RefreshCw size={16} className="animate-spin" /> : <Search size={16} />}
                                             <span>{gaOAuthLoading ? t('googleAdsCosts.oauthConnecting') : t('googleAdsCosts.loginWithGoogle')}</span>
                                         </button>
+                                        {gaOauthConfigured === false && (
+                                            <div className="w-full max-w-md text-left rounded-xl border p-3"
+                                                style={{ background: 'var(--color-warning-bg)', borderColor: 'var(--color-warning)' }}>
+                                                <div className="text-xs font-bold" style={{ color: 'var(--color-warning)' }}>
+                                                    {t('googleAdsCosts.oauthNotConfiguredTitle')}
+                                                </div>
+                                                <div className="text-[11px] leading-relaxed mt-1" style={{ color: 'var(--color-text-secondary)' }}>
+                                                    {t('googleAdsCosts.oauthNotConfiguredHint')}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {gaDiscoveredAccounts.length > 0 && (
@@ -2258,9 +2457,9 @@ const IntegrationsPage = () => {
                                                     {t('googleAdsCosts.syncEvery')}:
                                                 </span>
                                                 <select className="form-select text-xs" style={{ maxWidth: '120px' }}
-                                                    value={gaSyncInterval} onChange={e => setGaSyncInterval(Number(e.target.value))}>
-                                                    {[1, 2, 6, 12, 24].map(hours => (
-                                                        <option key={hours} value={hours}>{hours}h</option>
+                                                    value={gaSyncInterval} onChange={e => setGaSyncInterval(parseFloat(e.target.value))}>
+                                                    {SYNC_INTERVAL_OPTIONS.map(o => (
+                                                        <option key={o.value} value={o.value}>{o.label}</option>
                                                     ))}
                                                 </select>
                                             </div>
@@ -2272,15 +2471,10 @@ const IntegrationsPage = () => {
                                             </button>
                                         </div>
                                     )}
-
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '4px 0' }}>
-                                        <div style={{ flex: 1, height: '1px', background: 'var(--color-border)' }} />
-                                        <span style={{ fontSize: '11px', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>{t('googleAdsCosts.manualSection')}</span>
-                                        <div style={{ flex: 1, height: '1px', background: 'var(--color-border)' }} />
-                                    </div>
                                 </>
                             )}
 
+                            {(gaEditing !== 'new' || gaAddMode === 'manual') && (<>
                             <div>
                                 <label className="form-label">{t('googleAdsCosts.name')} *</label>
                                 <input className="form-input" type="text"
@@ -2311,11 +2505,46 @@ const IntegrationsPage = () => {
                                 </div>
                             ))}
 
+                            {/* Keitaro-style guide: where the Developer Token and
+                                the OAuth client actually come from. The redirect
+                                URI is built from the live origin so it always
+                                matches what google_ads_oauth_start registers. */}
+                            <div>
+                                <button type="button" onClick={() => setGaShowHowTo(!gaShowHowTo)}
+                                    className="btn btn-secondary btn-sm" style={{ fontSize: '11px' }}>
+                                    {gaShowHowTo ? '−' : '+'} {t('googleAdsCosts.howTo')}
+                                </button>
+                                {gaShowHowTo && (
+                                    <div style={{ border: '1px dashed var(--color-border)', borderRadius: '12px', padding: '14px', marginTop: '8px' }}>
+                                        <p style={{ fontSize: '11px', color: 'var(--color-text-muted)', margin: 0, whiteSpace: 'pre-line', lineHeight: 1.7 }}>
+                                            {t('googleAdsCosts.howToHint')}
+                                        </p>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '8px 0' }}>
+                                            <code style={{
+                                                flex: 1, fontSize: '11px', fontFamily: 'monospace',
+                                                color: 'var(--color-text-primary)', wordBreak: 'break-all',
+                                                background: 'var(--color-bg-soft)', border: '1px solid var(--color-border)',
+                                                borderRadius: '8px', padding: '6px 10px'
+                                            }}>
+                                                {trackerUrl}/api.php?action=google_ads_oauth_callback
+                                            </code>
+                                            <button onClick={() => copyToClipboard(`${trackerUrl}/api.php?action=google_ads_oauth_callback`, 'ga_redirect_uri')}
+                                                className="btn btn-secondary btn-sm" style={{ fontSize: '11px', flexShrink: 0 }}>
+                                                {copied === 'ga_redirect_uri' ? <><CheckCircle2 size={12} style={{ color: 'var(--color-success)' }} /> {t('integrations.copied')}</> : <><Copy size={12} /> {t('integrations.copyCode', 'Copy')}</>}
+                                            </button>
+                                        </div>
+                                        <p style={{ fontSize: '11px', color: 'var(--color-text-muted)', margin: 0, whiteSpace: 'pre-line', lineHeight: 1.7 }}>
+                                            {t('googleAdsCosts.howToStep3')}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+
                             <div>
                                 <label className="form-label">{t('googleAdsCosts.interval')}</label>
                                 <select className="form-select" value={gaForm.sync_interval_hours}
-                                    onChange={e => setGaForm({ ...gaForm, sync_interval_hours: parseInt(e.target.value, 10) })}>
-                                    {[1, 2, 4, 6, 12, 24].map(h => <option key={h} value={h}>{h} h</option>)}
+                                    onChange={e => setGaForm({ ...gaForm, sync_interval_hours: parseFloat(e.target.value) })}>
+                                    {SYNC_INTERVAL_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                                 </select>
                             </div>
 
@@ -2342,6 +2571,7 @@ const IntegrationsPage = () => {
                                     </button>
                                 </div>
                             </div>
+                            </>)}
                         </div>
                     </div>
                 ) : (
@@ -2352,6 +2582,7 @@ const IntegrationsPage = () => {
                             resetGoogleAdsOAuth();
                             setGaSyncInterval(2);
                             setGaMessage(null);
+                            setGaAddMode('manual');
                             setGaEditing('new');
                         }} className="btn btn-primary">
                             <Plus size={16} /> {t('googleAdsCosts.addAccount')}
@@ -4423,26 +4654,13 @@ global \$wpdb;
                         {/* Content */}
                         {activeObj.isCloudflare ? (
                             <div style={{ padding: '24px', flex: 1, overflow: 'auto' }}>
-                                <div style={{ maxWidth: '620px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                <div style={{ maxWidth: '680px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                                     <div style={{ background: 'var(--color-bg-card)', borderRadius: '12px', padding: '24px', border: '1px solid var(--color-border)' }}>
                                         <p className="text-xs" style={{ color: 'var(--color-text-secondary)', marginBottom: '16px', lineHeight: 1.6 }}>
                                             {t('cloudflare.howTo', 'Создайте токен: Cloudflare → My Profile → API Tokens → Create Token → шаблон «Edit zone DNS» → Permissions: Zone·DNS·Edit + Zone·Zone·Edit → Zone Resources: All zones. Домены, чья зона есть в аккаунте, при парковке получают A-запись автоматически; при включённом прокси SSL выдаётся краем Cloudflare мгновенно.')}
                                         </p>
 
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                            <div>
-                                                <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
-                                                    API Token {cfStatus?.connected ? '✓' : ''}
-                                                </label>
-                                                <input
-                                                    type="password"
-                                                    className="form-input"
-                                                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)', fontSize: '14px', fontFamily: 'monospace' }}
-                                                    value={cfForm.api_token}
-                                                    onChange={e => setCfForm({ ...cfForm, api_token: e.target.value })}
-                                                    placeholder={cfStatus?.connected ? t('cloudflare.tokenSaved', 'токен сохранён — введите новый, чтобы заменить') : ''}
-                                                />
-                                            </div>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px', alignItems: 'end', marginBottom: '20px' }}>
                                             <div>
                                                 <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
                                                     {t('cloudflare.serverIp', 'IP сервера (A-запись)')}
@@ -4451,288 +4669,628 @@ global \$wpdb;
                                                     type="text"
                                                     className="form-input"
                                                     style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)', fontSize: '14px', fontFamily: 'monospace' }}
-                                                    value={cfForm.server_ip}
-                                                    onChange={e => setCfForm({ ...cfForm, server_ip: e.target.value })}
+                                                    value={cfServerIp}
+                                                    onChange={e => setCfServerIp(e.target.value)}
                                                     placeholder={cfStatus?.server_ip || 'auto'}
                                                 />
                                             </div>
-                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                                                <div>
-                                                    <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
-                                                        {t('cloudflare.sslMode', 'SSL режим зоны')}
-                                                    </label>
-                                                    <select
-                                                        className="form-select"
-                                                        style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)', fontSize: '14px' }}
-                                                        value={cfForm.ssl_mode}
-                                                        onChange={e => setCfForm({ ...cfForm, ssl_mode: e.target.value })}
-                                                    >
-                                                        <option value="flexible">Flexible — {t('cloudflare.sslFlexible', 'SSL сразу, сервер по HTTP')}</option>
-                                                        <option value="full">Full — {t('cloudflare.sslFull', 'нужен сертификат на сервере')}</option>
-                                                        <option value="strict">Strict</option>
-                                                    </select>
-                                                </div>
-                                                <div>
-                                                    <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
-                                                        Cloudflare Proxy
-                                                    </label>
-                                                    <label className="flex items-center gap-2" style={{ padding: '10px 0', color: 'var(--color-text-primary)', fontSize: '14px' }}>
-                                                        <input type="checkbox" checked={cfForm.proxied} onChange={e => setCfForm({ ...cfForm, proxied: e.target.checked })} />
-                                                        {t('cloudflare.proxied', 'оранжевое облако (SSL от CF)')}
-                                                    </label>
-                                                </div>
-                                            </div>
+                                            <button
+                                                className="btn btn-secondary"
+                                                disabled={cfBusy}
+                                                onClick={async () => {
+                                                    setCfBusy(true); setCfMessage(null);
+                                                    try {
+                                                        const res = await axios.post(`${API_URL}?action=cloudflare_options_save`, { server_ip: cfServerIp });
+                                                        setCfMessage(res.data.status === 'success' ? '✓ ' + t('cloudflare.saved', 'Сохранено') : '⚠ ' + (res.data.message || t('common.error')));
+                                                    } catch (err) { setCfMessage('⚠ ' + t('common.networkError')); }
+                                                    finally { setCfBusy(false); }
+                                                }}
+                                            >
+                                                {t('common.save')}
+                                            </button>
+                                        </div>
 
-                                            <div className="flex gap-2" style={{ marginTop: '4px' }}>
+                                        <div className="flex items-center justify-between gap-3">
+                                            <div style={{ fontWeight: 600, color: 'var(--color-text-primary)', fontSize: '14px' }}>
+                                                {t('cloudflare.accounts', 'Аккаунты')} ({cfAccounts.length})
+                                            </div>
+                                            <div className="flex gap-2">
+                                                {cfAccounts.length > 0 && (
+                                                    <button
+                                                        className="btn btn-secondary"
+                                                        disabled={cfBusy}
+                                                        onClick={async () => {
+                                                            if (!window.confirm(t('cloudflare.syncAllConfirm', 'Переписать A-записи всех доменов, чьи зоны есть в аккаунтах Cloudflare, на текущий IP сервера?'))) return;
+                                                            setCfBusy(true); setCfMessage(null);
+                                                            try {
+                                                                const res = await axios.post(`${API_URL}?action=cloudflare_sync_all`, {});
+                                                                if (res.data.status === 'success') {
+                                                                    const d = res.data.data;
+                                                                    setCfMessage(`✓ ${t('cloudflare.syncedCount', 'перепарковано')}: ${d.synced.length}` + (d.failed.length ? ` · ⚠ ${d.failed.length}: ${d.failed.slice(0, 3).join('; ')}` : ''));
+                                                                } else {
+                                                                    setCfMessage('⚠ ' + (res.data.message || t('common.error')));
+                                                                }
+                                                            } catch (err) { setCfMessage('⚠ ' + t('common.networkError')); }
+                                                            finally { setCfBusy(false); }
+                                                        }}
+                                                    >
+                                                        <RefreshCw className="w-4 h-4" />
+                                                        {t('cloudflare.syncAll', 'Перепарковать все домены')}
+                                                    </button>
+                                                )}
                                                 <button
                                                     className="btn btn-primary"
-                                                    disabled={cfBusy}
-                                                    onClick={async () => {
-                                                        setCfBusy(true); setCfMessage(null);
-                                                        try {
-                                                            const res = await axios.post(`${API_URL}?action=cloudflare_save`, cfForm);
-                                                            if (res.data.status === 'success') {
-                                                                setCfMessage('✓ ' + t('cloudflare.saved', 'Сохранено'));
-                                                                const st = await axios.get(`${API_URL}?action=cloudflare_status`);
-                                                                if (st.data.status === 'success') setCfStatus(st.data.data);
-                                                                setCfForm(f => ({ ...f, api_token: '' }));
-                                                            } else {
-                                                                setCfMessage('⚠ ' + (res.data.message || t('common.error')) + (res.data.detail?.error ? `: ${res.data.detail.error}` : ''));
-                                                            }
-                                                        } catch (err) { setCfMessage('⚠ ' + t('common.networkError')); }
-                                                        finally { setCfBusy(false); }
-                                                    }}
+                                                    onClick={() => setCfAccModal({ id: null, name: '', api_token: '', ssl_mode: 'flexible', proxied: true })}
                                                 >
-                                                    {cfBusy ? t('common.saving') : t('common.save')}
+                                                    <Plus size={16} /> {t('cloudflare.addAccount', 'Добавить аккаунт')}
                                                 </button>
-                                                {cfStatus?.connected && (
-                                                    <>
-                                                        <button
-                                                            className="btn btn-secondary"
-                                                            disabled={cfBusy}
-                                                            onClick={async () => {
-                                                                setCfBusy(true); setCfMessage(null);
-                                                                try {
-                                                                    const res = await axios.post(`${API_URL}?action=cloudflare_test`, {});
-                                                                    setCfMessage(res.data.status === 'success'
-                                                                        ? `✓ ${t('cloudflare.zonesAvailable', 'зон в аккаунте')}: ${res.data.data.zones}`
-                                                                        : '⚠ ' + (res.data.message || t('common.error')));
-                                                                } catch (err) { setCfMessage('⚠ ' + t('common.networkError')); }
-                                                                finally { setCfBusy(false); }
-                                                            }}
-                                                        >
-                                                            {t('cloudflare.test', 'Проверить')}
+                                            </div>
+                                        </div>
+                                        {cfMessage && <p className="text-xs" style={{ color: 'var(--color-text-secondary)', marginTop: '12px' }}>{cfMessage}</p>}
+                                    </div>
+
+                                    {cfAccounts.length === 0 && (
+                                        <div style={{ padding: '24px', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '13px', border: '1px dashed var(--color-border)', borderRadius: '12px' }}>
+                                            {t('cloudflare.noAccounts', 'Нет подключённых аккаунтов — добавьте первый, чтобы парковать зоны в один клик.')}
+                                        </div>
+                                    )}
+
+                                    {cfAccounts.map(acc => (
+                                        <div key={acc.id} style={{ background: 'var(--color-bg-card)', borderRadius: '12px', padding: '18px 20px', border: '1px solid var(--color-border)' }}>
+                                            <div className="flex items-center justify-between gap-3" style={{ marginBottom: '10px' }}>
+                                                <div className="flex items-center gap-2" style={{ minWidth: 0 }}>
+                                                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981', flexShrink: 0 }} title="Active" />
+                                                    <span style={{ fontWeight: 600, color: 'var(--color-text-primary)', fontSize: '14px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                        {acc.name}
+                                                    </span>
+                                                    <span className="text-xs" style={{ color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>
+                                                        · {t('cloudflare.zonesCount', 'зон')}: {acc.zones_count ?? '—'}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center gap-1.5">
+                                                    <button
+                                                        className="btn btn-secondary btn-icon"
+                                                        disabled={cfBusy}
+                                                        title={t('cloudflare.importZones', 'Import & Auto-DNS — подтянуть зоны аккаунта и припарковать их в трекер с A-записью')}
+                                                        onClick={async () => {
+                                                            setCfZones({ accountId: acc.id, accountName: acc.name, loading: true, zones: [], selected: {}, importing: false, message: '' });
+                                                            try {
+                                                                const res = await axios.post(`${API_URL}?action=cloudflare_account_zones`, { id: acc.id });
+                                                                if (res.data.status === 'success') {
+                                                                    const zones = res.data.data.zones || [];
+                                                                    const selected = {};
+                                                                    zones.forEach(z => { if (!z.in_tracker) selected[z.name] = true; });
+                                                                    setCfZones({ accountId: acc.id, accountName: acc.name, loading: false, zones, selected, importing: false, message: '' });
+                                                                } else {
+                                                                    setCfZones({ accountId: acc.id, accountName: acc.name, loading: false, zones: [], selected: {}, importing: false, message: res.data.message || t('common.error') });
+                                                                }
+                                                            } catch (err) {
+                                                                setCfZones({ accountId: acc.id, accountName: acc.name, loading: false, zones: [], selected: {}, importing: false, message: t('common.networkError') });
+                                                            }
+                                                        }}
+                                                    >
+                                                        <Download className="w-4 h-4" />
+                                                    </button>
+                                                    <button
+                                                        className="btn btn-secondary btn-icon"
+                                                        disabled={cfBusy}
+                                                        title={t('cloudflare.repoint', 'Перепрописать A-записи доменов этого аккаунта на IP сервера')}
+                                                        onClick={async () => {
+                                                            if (!window.confirm(t('cloudflare.repointConfirm', 'Переписать A-записи всех доменов, чьи зоны есть в этом аккаунте Cloudflare, на текущий IP сервера?'))) return;
+                                                            setCfBusy(true); setCfMessage(null);
+                                                            try {
+                                                                const res = await axios.post(`${API_URL}?action=cloudflare_account_repoint`, { id: acc.id });
+                                                                if (res.data.status === 'success') {
+                                                                    const d = res.data.data;
+                                                                    setCfMessage(`✓ ${acc.name}: ${t('cloudflare.syncedCount', 'перепарковано')}: ${d.synced.length}` + (d.failed.length ? ` · ⚠ ${d.failed.length}: ${d.failed.slice(0, 3).join('; ')}` : ''));
+                                                                } else {
+                                                                    setCfMessage('⚠ ' + (res.data.message || t('common.error')));
+                                                                }
+                                                            } catch (err) { setCfMessage('⚠ ' + t('common.networkError')); }
+                                                            finally { setCfBusy(false); }
+                                                        }}
+                                                    >
+                                                        <RefreshCw className="w-4 h-4" />
+                                                    </button>
+                                                    <button
+                                                        className="btn btn-secondary btn-icon"
+                                                        title={t('common.edit')}
+                                                        onClick={() => setCfAccModal({ id: acc.id, name: acc.name, api_token: '', ssl_mode: acc.ssl_mode || 'flexible', proxied: !!acc.proxied })}
+                                                    >
+                                                        <Edit2 className="w-4 h-4" />
+                                                    </button>
+                                                    <button
+                                                        className="btn btn-secondary btn-icon"
+                                                        title={t('common.delete')}
+                                                        onClick={async () => {
+                                                            if (!window.confirm(t('cloudflare.deleteConfirm', 'Удалить аккаунт из трекера? Домены останутся, их A-записи больше не будут обновляться через этот аккаунт.'))) return;
+                                                            setCfBusy(true); setCfMessage(null);
+                                                            try {
+                                                                const res = await axios.post(`${API_URL}?action=cloudflare_account_delete`, { id: acc.id });
+                                                                if (res.data.status === 'success') {
+                                                                    const st = await axios.get(`${API_URL}?action=cloudflare_status`);
+                                                                    if (st.data.status === 'success') {
+                                                                        setCfStatus(st.data.data);
+                                                                        setCfAccounts(st.data.data.accounts || []);
+                                                                    }
+                                                                } else {
+                                                                    setCfMessage('⚠ ' + (res.data.message || t('common.error')));
+                                                                }
+                                                            } catch (err) { setCfMessage('⚠ ' + t('common.networkError')); }
+                                                            finally { setCfBusy(false); }
+                                                        }}
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3 flex-wrap text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                                                <span>SSL: {acc.ssl_mode}</span>
+                                                <span>· Cloudflare Proxy: {acc.proxied ? t('domains.on') : t('domains.off')}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+
+                                    {cfStatus?.managed_domains > 0 && (
+                                        <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                                            {t('cloudflare.managedDomains', 'Доменов под управлением Cloudflare')}: {cfStatus.managed_domains}
+                                        </p>
+                                    )}
+
+                                    {/* Add / edit account: the token is verified live before the row is
+                                        stored — "Test Connection & Save" is a single action. */}
+                                    {cfAccModal && (
+                                        <div className="modal-overlay">
+                                            <div className="modal-content w-full max-w-md" style={{ padding: '24px' }}>
+                                                <div className="modal-header">
+                                                    <h3 className="modal-title flex items-center gap-2">
+                                                        <Cloud size={18} />
+                                                        {cfAccModal.id ? t('cloudflare.editAccount', 'Редактировать аккаунт') : t('cloudflare.addAccount', 'Добавить аккаунт')}
+                                                    </h3>
+                                                    <button type="button" className="btn btn-ghost btn-icon" onClick={() => setCfAccModal(null)}>
+                                                        <X size={20} />
+                                                    </button>
+                                                </div>
+                                                <div className="space-y-4">
+                                                    <div>
+                                                        <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                                            {t('cloudflare.accountLabel', 'Название аккаунта')}
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            className="form-input"
+                                                            style={{ width: '100%' }}
+                                                            placeholder={t('cloudflare.accountLabelPlaceholder', 'Buyer 1 — Main CF')}
+                                                            value={cfAccModal.name}
+                                                            onChange={e => setCfAccModal({ ...cfAccModal, name: e.target.value })}
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                                            API Token
+                                                        </label>
+                                                        <input
+                                                            type="password"
+                                                            className="form-input"
+                                                            style={{ width: '100%', fontFamily: 'monospace' }}
+                                                            placeholder={cfAccModal.id ? t('cloudflare.tokenSaved', 'токен сохранён — введите новый, чтобы заменить') : ''}
+                                                            value={cfAccModal.api_token}
+                                                            onChange={e => setCfAccModal({ ...cfAccModal, api_token: e.target.value })}
+                                                        />
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        <div>
+                                                            <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                                                {t('cloudflare.sslMode', 'SSL режим зоны')}
+                                                            </label>
+                                                            <select
+                                                                className="form-select"
+                                                                style={{ width: '100%' }}
+                                                                value={cfAccModal.ssl_mode}
+                                                                onChange={e => setCfAccModal({ ...cfAccModal, ssl_mode: e.target.value })}
+                                                            >
+                                                                <option value="flexible">Flexible — {t('cloudflare.sslFlexible', 'SSL сразу, сервер по HTTP')}</option>
+                                                                <option value="full">Full — {t('cloudflare.sslFull', 'нужен сертификат на сервере')}</option>
+                                                                <option value="strict">Strict</option>
+                                                            </select>
+                                                        </div>
+                                                        <div>
+                                                            <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                                                Cloudflare Proxy
+                                                            </label>
+                                                            <label className="flex items-center gap-2" style={{ padding: '10px 0', color: 'var(--color-text-primary)', fontSize: '14px' }}>
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={cfAccModal.proxied}
+                                                                    onChange={e => setCfAccModal({ ...cfAccModal, proxied: e.target.checked })}
+                                                                />
+                                                                {t('cloudflare.proxied', 'оранжевое облако (SSL от CF)')}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex gap-2 justify-end">
+                                                        <button type="button" className="btn btn-secondary" onClick={() => setCfAccModal(null)}>
+                                                            {t('common.cancel')}
                                                         </button>
                                                         <button
-                                                            className="btn btn-secondary"
-                                                            disabled={cfBusy}
+                                                            type="button"
+                                                            className="btn btn-primary"
+                                                            disabled={cfBusy || (!cfAccModal.id && !cfAccModal.api_token.trim())}
                                                             onClick={async () => {
-                                                                if (!window.confirm(t('cloudflare.syncAllConfirm', 'Переписать A-записи всех доменов, чьи зоны есть в Cloudflare, на текущий IP сервера?'))) return;
                                                                 setCfBusy(true); setCfMessage(null);
                                                                 try {
-                                                                    const res = await axios.post(`${API_URL}?action=cloudflare_sync_all`, {});
+                                                                    const res = await axios.post(`${API_URL}?action=cloudflare_account_save`, cfAccModal);
                                                                     if (res.data.status === 'success') {
-                                                                        const d = res.data.data;
-                                                                        setCfMessage(`✓ ${t('cloudflare.syncedCount', 'перепарковано')}: ${d.synced.length}` + (d.failed.length ? ` · ⚠ ${d.failed.length}: ${d.failed.slice(0, 3).join('; ')}` : ''));
+                                                                        setCfAccModal(null);
+                                                                        setCfMessage('✓ ' + t('cloudflare.saved', 'Сохранено'));
                                                                         const st = await axios.get(`${API_URL}?action=cloudflare_status`);
-                                                                        if (st.data.status === 'success') setCfStatus(st.data.data);
+                                                                        if (st.data.status === 'success') {
+                                                                            setCfStatus(st.data.data);
+                                                                            setCfAccounts(st.data.data.accounts || []);
+                                                                            setCfServerIp(st.data.data.server_ip || '');
+                                                                        }
                                                                     } else {
-                                                                        setCfMessage('⚠ ' + (res.data.message || t('common.error')));
+                                                                        setCfMessage('⚠ ' + (res.data.message || t('common.error')) + (res.data.detail?.error ? `: ${res.data.detail.error}` : ''));
                                                                     }
                                                                 } catch (err) { setCfMessage('⚠ ' + t('common.networkError')); }
                                                                 finally { setCfBusy(false); }
                                                             }}
                                                         >
-                                                            <RefreshCw className="w-4 h-4" />
-                                                            {t('cloudflare.syncAll', 'Перепарковать все домены')}
+                                                            {cfBusy ? t('common.saving') : t('cloudflare.testAndSave', 'Проверить и сохранить')}
                                                         </button>
-                                                    </>
-                                                )}
+                                                    </div>
+                                                </div>
                                             </div>
-                                            {cfMessage && <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>{cfMessage}</p>}
                                         </div>
-                                    </div>
+                                    )}
 
-                                    {cfStatus?.connected && (
-                                        <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                                            {t('cloudflare.managedDomains', 'Доменов под управлением Cloudflare')}: {cfStatus.managed_domains}
-                                        </p>
+                                    {/* Import & Auto-DNS: zones of one account, the unchecked-in-tracker
+                                        ones preselected; parking writes the domain row + A record. */}
+                                    {cfZones && (
+                                        <div className="modal-overlay">
+                                            <div className="modal-content w-full max-w-lg" style={{ padding: '24px' }}>
+                                                <div className="modal-header">
+                                                    <h3 className="modal-title flex items-center gap-2">
+                                                        <Download size={18} /> {t('cloudflare.importTitle', 'Import & Auto-DNS')} — {cfZones.accountName}
+                                                    </h3>
+                                                    <button type="button" className="btn btn-ghost btn-icon" onClick={() => setCfZones(null)}>
+                                                        <X size={20} />
+                                                    </button>
+                                                </div>
+                                                <div className="space-y-4">
+                                                    <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                                                        {t('cloudflare.importHint', 'Зоны аккаунта Cloudflare. Отмеченные добавляются в трекер: A-запись на IP сервера прописывается автоматически, проксированные получают SSL краем CF.')}
+                                                    </p>
+                                                    {cfZones.loading ? (
+                                                        <div className="text-center py-8" style={{ color: 'var(--color-text-muted)' }}>
+                                                            <RefreshCw size={20} className="animate-spin mx-auto mb-2" />
+                                                            {t('common.loading')}
+                                                        </div>
+                                                    ) : cfZones.zones.length === 0 ? (
+                                                        <div className="text-center py-8" style={{ color: 'var(--color-text-muted)' }}>
+                                                            {cfZones.message || t('cloudflare.noZones', 'В аккаунте нет зон')}
+                                                        </div>
+                                                    ) : (
+                                                        <>
+                                                            <div className="overflow-y-auto rounded-2xl" style={{ maxHeight: '320px', border: '1px solid var(--color-border)' }}>
+                                                                {cfZones.zones.map(z => {
+                                                                    const isSel = !!cfZones.selected[z.name];
+                                                                    return (
+                                                                        <label key={z.name} className="flex items-center gap-3 px-4 py-2.5" style={{ borderTop: '1px solid var(--color-border)', cursor: z.in_tracker ? 'default' : 'pointer', opacity: z.in_tracker ? 0.55 : 1 }}>
+                                                                            <input
+                                                                                type="checkbox"
+                                                                                disabled={z.in_tracker}
+                                                                                checked={isSel}
+                                                                                onChange={e => setCfZones({ ...cfZones, selected: { ...cfZones.selected, [z.name]: e.target.checked } })}
+                                                                            />
+                                                                            <span className="font-mono text-sm" style={{ color: 'var(--color-text-primary)', flex: 1 }}>{z.name}</span>
+                                                                            {z.in_tracker ? (
+                                                                                <span className="badge badge-success text-xs">{t('cloudflare.inTracker', 'уже в трекере')}</span>
+                                                                            ) : (
+                                                                                <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{z.status}</span>
+                                                                            )}
+                                                                        </label>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                            <div className="flex items-center justify-between gap-3">
+                                                                <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                                                                    {t('cloudflare.selectedCount', 'выбрано')}: {Object.values(cfZones.selected).filter(Boolean).length}
+                                                                </span>
+                                                                <button
+                                                                    type="button"
+                                                                    className="btn btn-primary"
+                                                                    disabled={cfZones.importing || Object.values(cfZones.selected).filter(Boolean).length === 0}
+                                                                    onClick={async () => {
+                                                                        const zones = Object.keys(cfZones.selected).filter(k => cfZones.selected[k]);
+                                                                        setCfZones({ ...cfZones, importing: true, message: '' });
+                                                                        try {
+                                                                            const res = await axios.post(`${API_URL}?action=cloudflare_account_import`, { id: cfZones.accountId, zones });
+                                                                            if (res.data.status === 'success') {
+                                                                                const d = res.data.data;
+                                                                                setCfZones(null);
+                                                                                const lines = [`${t('cloudflare.importedCount', 'добавлено')}: ${d.added.length}`];
+                                                                                if (d.parked.length) lines.push(`✓ ${t('cloudflare.parkedOk', 'A-записи прописаны')}: ${d.parked.join(', ')}`);
+                                                                                if (d.duplicates.length) lines.push(`• ${t('cloudflare.duplicatesSkipped', 'уже были в трекере')}: ${d.duplicates.join(', ')}`);
+                                                                                if (d.errors.length) lines.push(`⚠ ${d.errors.slice(0, 3).join('; ')}`);
+                                                                                setCfMessage(lines.join('\n'));
+                                                                            } else {
+                                                                                setCfZones({ ...cfZones, importing: false, message: res.data.message || t('common.error') });
+                                                                            }
+                                                                        } catch (err) {
+                                                                            setCfZones({ ...cfZones, importing: false, message: t('common.networkError') });
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    {cfZones.importing ? t('cloudflare.importing', 'Импортируем…') : `${t('cloudflare.importBtn', 'Импортировать')} (${Object.values(cfZones.selected).filter(Boolean).length})`}
+                                                                </button>
+                                                            </div>
+                                                            {cfZones.message && (
+                                                                <div className="alert alert-danger">{cfZones.message}</div>
+                                                            )}
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
                                     )}
                                 </div>
                             </div>
                         ) : activeObj.isNamecheap ? (
                             <div style={{ padding: '24px', flex: 1, overflow: 'auto' }}>
-                                <div style={{ maxWidth: '620px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                <div style={{ maxWidth: '680px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                                     <div style={{ background: 'var(--color-bg-card)', borderRadius: '12px', padding: '24px', border: '1px solid var(--color-border)' }}>
                                         <p className="text-xs" style={{ color: 'var(--color-text-secondary)', marginBottom: '16px', lineHeight: 1.6 }}>
                                             {t('namecheap.howTo', 'Включите API-доступ: Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access. Исходящий IP сервера добавьте в Whitelisted IPs. Домены, зарегистрированные в аккаунте, при парковке получают A-запись автоматически; SSL Let\'s Encrypt выпускается сразу после того, как DNS обновится.')}
                                         </p>
 
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                            <div>
-                                                <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
-                                                    {t('namecheap.username', 'Username')} {ncStatus?.connected ? '✓' : ''}
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    className="form-input"
-                                                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)', fontSize: '14px' }}
-                                                    value={ncForm.username}
-                                                    onChange={e => setNcForm({ ...ncForm, username: e.target.value })}
-                                                />
-                                            </div>
-                                            <div>
-                                                <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
-                                                    API Key
-                                                </label>
-                                                <input
-                                                    type="password"
-                                                    className="form-input"
-                                                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)', fontSize: '14px', fontFamily: 'monospace' }}
-                                                    value={ncForm.api_key}
-                                                    onChange={e => setNcForm({ ...ncForm, api_key: e.target.value })}
-                                                    placeholder={ncStatus?.connected ? t('namecheap.keySaved', 'ключ сохранён — введите новый, чтобы заменить') : ''}
-                                                />
-                                            </div>
-
-                                            {/* Whitelisted IP: Namecheap rejects calls from unlisted IPs, and the
-                                                real outgoing address usually differs from what the admin expects. */}
-                                            <div style={{ padding: '12px', borderRadius: '8px', border: '1px dashed var(--color-border)', background: 'var(--color-bg-soft)' }}>
-                                                <div className="flex items-center justify-between gap-2">
-                                                    <div>
-                                                        <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)' }}>
-                                                            {t('namecheap.whitelistIp', 'IP сервера для Whitelisted IPs')}
-                                                        </div>
-                                                        <div className="font-mono" style={{ fontSize: '15px', color: 'var(--color-text-primary)' }}>
-                                                            {ncStatus?.detected_ip || ncStatus?.server_ip || '—'}
-                                                        </div>
+                                        {/* Whitelisted IP: Namecheap rejects calls from unlisted IPs, and the
+                                            real outgoing address usually differs from what the admin expects.
+                                            The IP belongs to the server, so it is shared by every account. */}
+                                        <div style={{ padding: '12px', borderRadius: '8px', border: '1px dashed var(--color-border)', background: 'var(--color-bg-soft)' }}>
+                                            <div className="flex items-center justify-between gap-2">
+                                                <div>
+                                                    <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)' }}>
+                                                        {t('namecheap.whitelistIp', 'IP сервера для Whitelisted IPs')}
                                                     </div>
-                                                    <button
-                                                        className="btn btn-secondary btn-icon"
-                                                        onClick={() => copyToClipboard(ncStatus?.detected_ip || ncStatus?.server_ip || '', 'nc-ip')}
-                                                        title={t('common.copy')}
-                                                    >
-                                                        {copied === 'nc-ip' ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                                                    </button>
+                                                    <div className="font-mono" style={{ fontSize: '15px', color: 'var(--color-text-primary)' }}>
+                                                        {ncIps.detected_ip || ncIps.server_ip || '—'}
+                                                    </div>
                                                 </div>
-                                                <p className="text-xs" style={{ margin: '8px 0 0', color: 'var(--color-text-muted)' }}>
-                                                    {t('namecheap.whitelistHint', 'Добавьте этот IP в Namecheap: Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. Если показан неверный адрес — нажмите «Проверить»: Namecheap сам назовёт IP, с которого пришли запросы.')}
-                                                </p>
-                                            </div>
-
-                                            <div>
-                                                <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
-                                                    {t('namecheap.addressBook', 'Профиль контакта (Address Book) для новых доменов')}
-                                                </label>
-                                                <div className="flex gap-2">
-                                                    <select
-                                                        className="form-select"
-                                                        style={{ flex: 1, padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--color-border)', background: 'var(--color-bg-input)', color: 'var(--color-text-primary)', fontSize: '14px' }}
-                                                        value={ncForm.address_id}
-                                                        onChange={e => setNcForm({ ...ncForm, address_id: e.target.value })}
-                                                    >
-                                                        <option value="">{t('namecheap.addressPlaceholder', '— не выбран —')}</option>
-                                                        {ncAddresses.map(a => (
-                                                            <option key={a.id} value={a.id}>{a.name}{a.is_default ? ' ✓' : ''}</option>
-                                                        ))}
-                                                    </select>
-                                                    <button
-                                                        className="btn btn-secondary btn-icon"
-                                                        disabled={ncBusy}
-                                                        onClick={async () => {
-                                                            setNcBusy(true);
-                                                            try {
-                                                                const res = await axios.post(`${API_URL}?action=namecheap_addresses`, {});
-                                                                if (res.data.status === 'success') {
-                                                                    setNcAddresses(res.data.data.addresses || []);
-                                                                    setNcMessage('✓ ' + t('namecheap.addressesLoaded', 'профили загружены'));
-                                                                } else setNcMessage('⚠ ' + (res.data.message || t('common.error')));
-                                                            } catch (err) { setNcMessage('⚠ ' + t('common.networkError')); }
-                                                            finally { setNcBusy(false); }
-                                                        }}
-                                                        title={t('namecheap.addressRefresh', 'Обновить список из Address Book')}
-                                                    >
-                                                        <RefreshCw className="w-4 h-4" />
-                                                    </button>
-                                                </div>
-                                                {!ncAddresses.length && (
-                                                    <p className="text-xs" style={{ margin: '6px 0 0', color: 'var(--color-text-muted)' }}>
-                                                        {t('namecheap.addressHint', 'Профили подтягиваются из Namecheap Address Book — они нужны для регистрации новых доменов.')}
-                                                    </p>
-                                                )}
-                                            </div>
-
-                                            <div>
-                                                <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
-                                                    {t('namecheap.environment', 'Окружение')}
-                                                </label>
-                                                <div className="flex gap-4">
-                                                    <label className="flex items-center gap-2" style={{ color: 'var(--color-text-primary)', fontSize: '14px' }}>
-                                                        <input type="radio" name="nc-env" checked={!ncForm.sandbox} onChange={() => setNcForm({ ...ncForm, sandbox: false })} />
-                                                        {t('namecheap.production', 'Production')}
-                                                    </label>
-                                                    <label className="flex items-center gap-2" style={{ color: 'var(--color-text-primary)', fontSize: '14px' }}>
-                                                        <input type="radio" name="nc-env" checked={ncForm.sandbox} onChange={() => setNcForm({ ...ncForm, sandbox: true })} />
-                                                        {t('namecheap.sandbox', 'Sandbox')}
-                                                    </label>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex gap-2" style={{ marginTop: '4px' }}>
                                                 <button
-                                                    className="btn btn-primary"
-                                                    disabled={ncBusy}
-                                                    onClick={async () => {
-                                                        setNcBusy(true); setNcMessage(null);
-                                                        try {
-                                                            const res = await axios.post(`${API_URL}?action=namecheap_save`, ncForm);
-                                                            if (res.data.status === 'success') {
-                                                                setNcMessage('✓ ' + t('namecheap.saved', 'Сохранено'));
-                                                                const st = await axios.get(`${API_URL}?action=namecheap_status`);
-                                                                if (st.data.status === 'success') setNcStatus(st.data.data);
-                                                                setNcForm(f => ({ ...f, api_key: '' }));
-                                                            } else if (res.data.message === 'namecheap_connection_failed') {
-                                                                setNcMessage('⚠ ' + t('namecheap.errConnection', 'Namecheap отклонил подключение') + (res.data.detail?.error ? `: ${res.data.detail.error}` : ''));
-                                                                if (res.data.detail?.ip) {
-                                                                    setNcStatus(s => s ? { ...s, detected_ip: res.data.detail.ip } : s);
-                                                                }
-                                                            } else {
-                                                                setNcMessage('⚠ ' + (res.data.message || t('common.error')));
-                                                            }
-                                                        } catch (err) { setNcMessage('⚠ ' + t('common.networkError')); }
-                                                        finally { setNcBusy(false); }
-                                                    }}
+                                                    className="btn btn-secondary btn-icon"
+                                                    onClick={() => copyToClipboard(ncIps.detected_ip || ncIps.server_ip || '', 'nc-ip')}
+                                                    title={t('common.copy')}
                                                 >
-                                                    {ncBusy ? t('common.saving') : t('common.save')}
+                                                    {copied === 'nc-ip' ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                                                 </button>
-                                                {ncStatus?.connected && (
-                                                    <button
-                                                        className="btn btn-secondary"
-                                                        disabled={ncBusy}
-                                                        onClick={async () => {
-                                                            setNcBusy(true); setNcMessage(null);
-                                                            try {
-                                                                const res = await axios.post(`${API_URL}?action=namecheap_test`, {});
-                                                                if (res.data.status === 'success') {
-                                                                    setNcMessage('✓ ' + t('namecheap.connected', 'Подключено') + (res.data.data?.balance ? ` · ${t('namecheap.balance', 'баланс')}: ${res.data.data.balance}` : ''));
-                                                                } else {
-                                                                    const st = await axios.get(`${API_URL}?action=namecheap_status`);
-                                                                    if (st.data.status === 'success') setNcStatus(st.data.data);
-                                                                    setNcMessage('⚠ ' + (res.data.message || t('common.error')));
-                                                                }
-                                                            } catch (err) { setNcMessage('⚠ ' + t('common.networkError')); }
-                                                            finally { setNcBusy(false); }
-                                                        }}
-                                                    >
-                                                        <Zap className="w-4 h-4" />
-                                                        {t('namecheap.test', 'Проверить')}
-                                                    </button>
-                                                )}
                                             </div>
-                                            {ncMessage && <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>{ncMessage}</p>}
+                                            <p className="text-xs" style={{ margin: '8px 0 0', color: 'var(--color-text-muted)' }}>
+                                                {t('namecheap.whitelistHint', 'Добавьте этот IP в Namecheap: Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Whitelisted IPs. Если показан неверный адрес — Namecheap сам назовёт IP, с которого пришли запросы, при первой попытке подключения.')}
+                                            </p>
                                         </div>
                                     </div>
+
+                                    <div className="flex items-center justify-between">
+                                        <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <Globe className="w-4 h-4" />
+                                            {t('namecheap.accounts', 'Аккаунты Namecheap')}
+                                        </h3>
+                                        <button className="btn btn-primary" onClick={() => openNcAccountModal()}>
+                                            <Plus className="w-4 h-4" />
+                                            {t('namecheap.addAccount', 'Добавить аккаунт')}
+                                        </button>
+                                    </div>
+
+                                    {!ncAccounts.length && (
+                                        <div style={{ background: 'var(--color-bg-card)', borderRadius: '12px', padding: '32px 24px', border: '1px dashed var(--color-border)', textAlign: 'center' }}>
+                                            <User className="w-8 h-8 mx-auto mb-3" style={{ color: 'var(--color-text-muted)' }} />
+                                            <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                                                {t('namecheap.noAccounts', 'Аккаунтов пока нет — добавьте первый, чтобы парковать и покупать домены прямо из трекера.')}
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {ncAccounts.map(acc => (
+                                        <div key={acc.id} style={{ background: 'var(--color-bg-card)', borderRadius: '12px', padding: '20px 24px', border: '1px solid var(--color-border)' }}>
+                                            <div className="flex items-start justify-between gap-4">
+                                                <div className="flex items-center gap-3 min-w-0">
+                                                    <div className="flex items-center justify-center" style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'var(--color-bg-soft)', flexShrink: 0 }}>
+                                                        <User className="w-5 h-5" style={{ color: 'var(--color-text-secondary)' }} />
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <div className="flex items-center gap-2 flex-wrap">
+                                                            <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--color-text-primary)' }}>{acc.name}</span>
+                                                            {acc.sandbox && <span className="badge badge-warning text-xs">Sandbox</span>}
+                                                        </div>
+                                                        <div className="text-xs font-mono truncate" style={{ color: 'var(--color-text-muted)' }}>
+                                                            @{acc.username}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right" style={{ flexShrink: 0 }}>
+                                                    <div className="text-xs" style={{ color: 'var(--color-text-secondary)', marginBottom: '2px' }}>
+                                                        {t('namecheap.balance', 'баланс')}
+                                                    </div>
+                                                    <div className="font-mono" style={{ fontSize: '17px', fontWeight: 600, color: acc.last_balance ? 'var(--color-text-primary)' : 'var(--color-text-muted)' }}>
+                                                        {acc.last_balance || '—'}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="text-xs" style={{ color: 'var(--color-text-muted)', margin: '10px 0 14px' }}>
+                                                {t('namecheap.domainsInAccount', 'Доменов в аккаунте')}: {acc.domains_count ?? '—'}
+                                            </div>
+
+                                            <div className="flex flex-wrap gap-2">
+                                                <button className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium" onClick={() => openNcDialog(acc.id, 'register')} title={t('namecheap.registerHint')}>
+                                                    <ShoppingCart className="w-4 h-4" />
+                                                    {t('namecheap.buyDomain', 'Купить домен')}
+                                                </button>
+                                                <button className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium" onClick={() => openNcDialog(acc.id, 'import')} title={t('namecheap.importHint')}>
+                                                    <Download className="w-4 h-4" />
+                                                    {t('namecheap.importPark', 'Импорт и парковка')}
+                                                </button>
+                                                <button
+                                                    className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium"
+                                                    disabled={ncBalanceBusy === acc.id}
+                                                    onClick={() => refreshNcBalance(acc)}
+                                                >
+                                                    <RefreshCw className={'w-4 h-4' + (ncBalanceBusy === acc.id ? ' animate-spin' : '')} />
+                                                    {t('namecheap.refreshBalance', 'Обновить баланс')}
+                                                </button>
+                                                <button className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium" onClick={() => openNcAccountModal(acc)}>
+                                                    <Edit2 className="w-4 h-4" />
+                                                    {t('common.edit')}
+                                                </button>
+                                                <button className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium" onClick={() => deleteNcAccount(acc)}>
+                                                    <Trash2 className="w-4 h-4" />
+                                                    {t('common.delete')}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
+
+                                {/* Add / edit account: the connection is verified live before the row is
+                                    stored — "Test Connection & Save" is a single action. */}
+                                {ncAccModal && (
+                                    <div className="modal-overlay">
+                                        <div className="modal-content w-full max-w-md" style={{ padding: '24px' }}>
+                                            <div className="modal-header">
+                                                <h3 className="modal-title flex items-center gap-2">
+                                                    <Globe size={18} />
+                                                    {ncAccModal.id ? t('namecheap.editAccount', 'Редактировать аккаунт') : t('namecheap.addAccount', 'Добавить аккаунт')}
+                                                </h3>
+                                                <button type="button" className="btn btn-ghost btn-icon" onClick={() => setNcAccModal(null)}>
+                                                    <X size={20} />
+                                                </button>
+                                            </div>
+                                            <div className="space-y-4">
+                                                <div>
+                                                    <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                                        {t('namecheap.accountLabel', 'Название аккаунта')}
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-input"
+                                                        style={{ width: '100%' }}
+                                                        placeholder={t('namecheap.accountLabelPlaceholder', 'Buyer 1 — Main')}
+                                                        value={ncAccModal.name}
+                                                        onChange={e => setNcAccModal({ ...ncAccModal, name: e.target.value })}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                                        Username
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        className="form-input"
+                                                        style={{ width: '100%' }}
+                                                        placeholder="namecheap-login"
+                                                        value={ncAccModal.username}
+                                                        onChange={e => setNcAccModal({ ...ncAccModal, username: e.target.value })}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                                        API Key
+                                                    </label>
+                                                    <input
+                                                        type="password"
+                                                        className="form-input"
+                                                        style={{ width: '100%', fontFamily: 'monospace' }}
+                                                        value={ncAccModal.api_key}
+                                                        onChange={e => setNcAccModal({ ...ncAccModal, api_key: e.target.value })}
+                                                        placeholder={ncAccModal.id ? t('namecheap.keySaved', 'ключ сохранён — введите новый, чтобы заменить') : ''}
+                                                    />
+                                                </div>
+
+                                                <div style={{ padding: '12px', borderRadius: '8px', border: '1px dashed var(--color-border)', background: 'var(--color-bg-soft)' }}>
+                                                    <div className="flex items-center justify-between gap-2">
+                                                        <div>
+                                                            <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)' }}>
+                                                                {t('namecheap.whitelistIp', 'IP сервера для Whitelisted IPs')}
+                                                            </div>
+                                                            <div className="font-mono" style={{ fontSize: '15px', color: 'var(--color-text-primary)' }}>
+                                                                {ncIps.detected_ip || ncIps.server_ip || '—'}
+                                                            </div>
+                                                        </div>
+                                                        <button
+                                                            className="btn btn-secondary btn-icon"
+                                                            onClick={() => copyToClipboard(ncIps.detected_ip || ncIps.server_ip || '', 'nc-ip-modal')}
+                                                            title={t('common.copy')}
+                                                        >
+                                                            {copied === 'nc-ip-modal' ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                                        {t('namecheap.addressBook', 'Профиль контакта (Address Book) для новых доменов')}
+                                                    </label>
+                                                    <div className="flex gap-2">
+                                                        <select
+                                                            className="form-select"
+                                                            style={{ flex: 1 }}
+                                                            value={ncAccModal.contact_id}
+                                                            onChange={e => setNcAccModal({ ...ncAccModal, contact_id: e.target.value })}
+                                                        >
+                                                            <option value="">{t('namecheap.addressPlaceholder', '— не выбран —')}</option>
+                                                            {ncAccAddresses.map(a => (
+                                                                <option key={a.id} value={a.id}>{a.name}{a.is_default ? ' ✓' : ''}</option>
+                                                            ))}
+                                                        </select>
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-secondary btn-icon"
+                                                            disabled={ncAccBusy}
+                                                            onClick={refreshNcAddresses}
+                                                            title={t('namecheap.addressRefresh', 'Обновить список из Address Book')}
+                                                        >
+                                                            <RefreshCw className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                    {!ncAccAddresses.length && (
+                                                        <p className="text-xs" style={{ margin: '6px 0 0', color: 'var(--color-text-muted)' }}>
+                                                            {t('namecheap.addressHintNew', 'Профили подтягиваются из Address Book этого аккаунта — они нужны для регистрации новых доменов.')}
+                                                        </p>
+                                                    )}
+                                                </div>
+
+                                                <div>
+                                                    <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                                        {t('namecheap.environment', 'Окружение')}
+                                                    </label>
+                                                    <div className="flex gap-4">
+                                                        <label className="flex items-center gap-2" style={{ color: 'var(--color-text-primary)', fontSize: '14px' }}>
+                                                            <input type="radio" name="nc-acc-env" checked={!ncAccModal.sandbox} onChange={() => setNcAccModal({ ...ncAccModal, sandbox: false })} />
+                                                            {t('namecheap.production', 'Production')}
+                                                        </label>
+                                                        <label className="flex items-center gap-2" style={{ color: 'var(--color-text-primary)', fontSize: '14px' }}>
+                                                            <input type="radio" name="nc-acc-env" checked={ncAccModal.sandbox} onChange={() => setNcAccModal({ ...ncAccModal, sandbox: true })} />
+                                                            {t('namecheap.sandbox', 'Sandbox')}
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                                {ncAccMessage && <p className="text-xs" style={{ color: 'var(--color-text-secondary)', whiteSpace: 'pre-wrap' }}>{ncAccMessage}</p>}
+
+                                                <div className="modal-footer">
+                                                    <button type="button" className="btn btn-secondary" disabled={ncAccBusy} onClick={() => setNcAccModal(null)}>
+                                                        {t('common.cancel')}
+                                                    </button>
+                                                    <button type="button" className="btn btn-primary" disabled={ncAccBusy} onClick={saveNcAccount}>
+                                                        <Zap className="w-4 h-4" />
+                                                        {ncAccBusy ? t('common.saving') : t('namecheap.testAndSave', 'Проверить и сохранить')}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         ) : activeObj.isRecaptcha ? (
                             <div style={{ padding: '24px', flex: 1, overflow: 'auto' }}>

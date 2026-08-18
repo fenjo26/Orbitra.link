@@ -111,15 +111,41 @@ class NamecheapClient
         return '';
     }
 
-    /** Лёгкая проверка доступа: namecheap.users.getBalance. @return array{ok:bool,message:string,balance:?string,ip_hint:string} */
+    /**
+     * Баланс аккаунта: namecheap.users.getBalances (официальная форма,
+     * множественное число; старый единственный getBalance Namecheap больше
+     * не документирует — но ответ старой формы тоже разбираем).
+     * @return array{ok:bool,currency:string,available:?string,account:?string,errors:string,ip_hint:string}
+     */
+    public static function getBalances(array $cfg): array
+    {
+        $resp = self::request($cfg, 'namecheap.users.getBalances');
+        if (!$resp['ok']) {
+            return ['ok' => false, 'currency' => '', 'available' => null, 'account' => null, 'errors' => $resp['errors'], 'ip_hint' => $resp['ip_hint']];
+        }
+        $cr = $resp['data']['CommandResponse'] ?? [];
+        $attr = $cr['UserGetBalancesResult']['@attributes']
+            ?? $cr['GetBalancesResult']['@attributes']
+            ?? $cr['UserGetBalanceResult']['@attributes']
+            ?? [];
+        return [
+            'ok' => true,
+            'currency' => (string) ($attr['Currency'] ?? 'USD'),
+            'available' => isset($attr['AvailableBalance']) ? (string) $attr['AvailableBalance'] : (isset($attr['Balance']) ? (string) $attr['Balance'] : null),
+            'account' => isset($attr['AccountBalance']) ? (string) $attr['AccountBalance'] : null,
+            'errors' => '',
+            'ip_hint' => '',
+        ];
+    }
+
+    /** Лёгкая проверка доступа: namecheap.users.getBalances. @return array{ok:bool,message:string,balance:?string,ip_hint:string} */
     public static function verifyConnection(array $cfg): array
     {
-        $resp = self::request($cfg, 'namecheap.users.getBalance');
+        $resp = self::getBalances($cfg);
         if (!$resp['ok']) {
             return ['ok' => false, 'message' => $resp['errors'], 'balance' => null, 'ip_hint' => $resp['ip_hint']];
         }
-        $attr = $resp['data']['CommandResponse']['UserGetBalanceResult']['@attributes'] ?? [];
-        $balance = isset($attr['Balance']) ? ($attr['Currency'] ?? 'USD') . ' ' . $attr['Balance'] : null;
+        $balance = $resp['available'] !== null ? $resp['currency'] . ' ' . $resp['available'] : null;
         return ['ok' => true, 'message' => 'Connected', 'balance' => $balance, 'ip_hint' => ''];
     }
 

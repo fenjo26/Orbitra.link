@@ -444,7 +444,9 @@ export default function AggregatorPage() {
                                 </div>
                                 <div>
                                     <label className="form-label">{t('aggregator.syncInterval')}</label>
-                                    <select className="input" value={form.sync_interval_hours} onChange={e => setForm({ ...form, sync_interval_hours: parseInt(e.target.value) })}>
+                                    <select className="input" value={form.sync_interval_hours} onChange={e => setForm({ ...form, sync_interval_hours: parseFloat(e.target.value) })}>
+                                        <option value={0.333}>20 min</option>
+                                        <option value={0.5}>30 min</option>
                                         <option value={1}>1h</option>
                                         <option value={2}>2h</option>
                                         <option value={4}>4h</option>

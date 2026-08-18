@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Sun, Moon, Palette, Check, Monitor, Droplet, RefreshCw, Save } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { applyCustomThemeVars } from '../utils/themeContrast';
 
 const API_URL = '/api.php';
 
@@ -30,19 +31,12 @@ const BrandingPage = () => {
         }
     }, []);
 
-    const applyLiveCustomColors = (colors) => {
-        const root = document.documentElement;
-        Object.entries(colors).forEach(([key, value]) => {
-            root.style.setProperty(key, value);
-        });
-    };
-
     const handleModeChange = (newMode) => {
         setMode(newMode);
         localStorage.setItem('orbitra_mode', newMode);
 
         if (newMode === 'custom') {
-            applyLiveCustomColors(customColors);
+            applyCustomThemeVars(customColors);
         }
 
         window.dispatchEvent(new Event('themeChanged'));
@@ -52,14 +46,14 @@ const BrandingPage = () => {
         const newColors = { ...customColors, [key]: value };
         setCustomColors(newColors);
         if (mode === 'custom') {
-            applyLiveCustomColors(newColors);
+            applyCustomThemeVars(newColors);
         }
     };
 
     const resetCustomColors = () => {
         setCustomColors(DEFAULT_CUSTOM_COLORS);
         if (mode === 'custom') {
-            applyLiveCustomColors(DEFAULT_CUSTOM_COLORS);
+            applyCustomThemeVars(DEFAULT_CUSTOM_COLORS);
         }
     };
 

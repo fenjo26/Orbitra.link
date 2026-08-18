@@ -273,6 +273,106 @@ function orbitraFlattenSingleNestedDir(string $dir): void
 }
 
 /**
+ * Delete a directory tree. Best-effort like every other removal here: a stuck
+ * file answers with a false from the caller that needed it gone, not a crash.
+ */
+function orbitraRmdirTree(string $dir): bool
+{
+    if (!is_dir($dir)) {
+        return true;
+    }
+    $ok = true;
+    $it = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::CHILD_FIRST
+    );
+    foreach ($it as $entry) {
+        $entry->isDir() ? ($ok = @rmdir($entry->getPathname()) && $ok) : ($ok = @unlink($entry->getPathname()) && $ok);
+    }
+    return @rmdir($dir) && $ok;
+}
+
+/**
+ * Extract an opened upload archive into $destDir by way of a staging sibling.
+ *
+ * Extracting straight into the destination merges the new archive with whatever
+ * the previous upload left behind — a replaced template kept serving its old
+ * index next to the new files. The stage-then-swap also means a rejected
+ * archive (PHP scan) leaves the previously uploaded files intact, where the
+ * old code deleted the merged directory on failure.
+ *
+ * After extraction the archive is flattened, scanned for forbidden PHP
+ * ( PhpLanding::scanDirectory — hard tier only) and sanitized of the calls that
+ * would lift the runtime limits, so the swap installs a checked tree.
+ *
+ * @param ZipArchive $zip opened for reading; closed here in every path
+ * @param PDO $pdo tracker handle, for the PhpLanding settings
+ * @return array{ok: bool, error?: array{message: string, detail?: array}, sanitized?: array<string,string[]>}
+ */
+function orbitraExtractArchiveSwap(ZipArchive $zip, string $destDir, PDO $pdo): array
+{
+    $stage = $destDir . '.stage-' . bin2hex(random_bytes(4));
+    if (!@mkdir($stage, 0775, true) && !is_dir($stage)) {
+        $zip->close();
+        return ['ok' => false, 'error' => ['message' => 'stage_dir_not_created', 'detail' => ['path' => $stage]]];
+    }
+
+    if (!$zip->extractTo($stage)) {
+        // A ZIP can be readable and still be unextractable: the "maximum
+        // compression" preset in 7-Zip and WinRAR writes LZMA, BZip2 or PPMd
+        // entries, and libzip is normally built with Store and Deflate only.
+        // The archive opens, the file list reads fine, and extraction just
+        // fails — so check the methods before blaming permissions.
+        $badMethods = [];
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $stat = $zip->statIndex($i);
+            $method = $stat['comp_method'] ?? 8;
+            if (!in_array((int) $method, [0, 8], true)) {
+                $badMethods[(int) $method] = true;
+            }
+        }
+        $zip->close();
+        orbitraRmdirTree($stage);
+        if ($badMethods) {
+            $methodNames = [9 => 'Deflate64', 12 => 'BZip2', 14 => 'LZMA', 93 => 'Zstandard', 95 => 'XZ', 98 => 'PPMd'];
+            $named = [];
+            foreach (array_keys($badMethods) as $m) {
+                $named[] = $methodNames[$m] ?? ('метод ' . $m);
+            }
+            return ['ok' => false, 'error' => ['message' => 'zip_unsupported_compression', 'detail' => ['methods' => $named]]];
+        }
+        return ['ok' => false, 'error' => ['message' => 'zip_extract_failed', 'detail' => ['path' => $destDir]]];
+    }
+    $zip->close();
+
+    orbitraFlattenSingleNestedDir($stage);
+
+    require_once __DIR__ . '/PhpLanding.php';
+    $phpProblems = PhpLanding::scanDirectory($stage);
+    if ($phpProblems) {
+        $lines = [];
+        foreach ($phpProblems as $file => $names) {
+            $lines[] = $file . ': ' . implode(', ', $names);
+        }
+        orbitraRmdirTree($stage);
+        return ['ok' => false, 'error' => ['message' => 'php_scan_failed', 'detail' => ['files' => $lines]]];
+    }
+
+    $sanitized = PhpLanding::sanitizeDirectory($stage);
+
+    if (is_dir($destDir) && !orbitraRmdirTree($destDir)) {
+        orbitraRmdirTree($stage);
+        return ['ok' => false, 'error' => ['message' => 'dest_dir_not_cleared', 'detail' => ['path' => $destDir]]];
+    }
+    if (!@rename($stage, $destDir)) {
+        orbitraRmdirTree($stage);
+        return ['ok' => false, 'error' => ['message' => 'dest_dir_swap_failed', 'detail' => ['path' => $destDir]]];
+    }
+
+    return ['ok' => true, 'sanitized' => $sanitized];
+}
+
+/**
  * Root of a local landing's/offer's files, seeing through single-nested-folder
  * archives. New uploads are flattened on the way in (orbitraFlattenSingleNestedDir),
  * but archives uploaded before that keep everything one level down — resolve the

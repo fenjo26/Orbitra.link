@@ -373,6 +373,27 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     ];
 
     const activeSource = sources.find(source => source.id == formData.source_id);
+
+    // Campaign naming convention: {Base name} - {Traffic source} - [GEO]. The
+    // base keeps whatever was typed before the first " - ", so Auto-format on
+    // an already-formatted name only refreshes the source and GEO segments.
+    const buildStandardName = () => {
+        const firstStream = formData.streams?.[0];
+        const offerId = parseInt(firstStream?.schema_custom?.offers?.[0]?.id || firstStream?.offer_id, 10);
+        const offerObj = offerId ? allOffers.find(o => parseInt(o.id, 10) === offerId) : null;
+        let baseName = (formData.name || '').split(' - ')[0].trim();
+        if (!baseName && offerObj) baseName = offerObj.name.replace(/\s*\[.*?\]\s*/g, '').trim();
+        if (!baseName) baseName = t('editor.newCampaign');
+        const sourceObj = sources.find(s => s.id == formData.source_id);
+        const sourceName = sourceObj ? sourceObj.name : t('editor.nameSourceOrganic');
+        let geo = offerObj?.geo ? String(offerObj.geo).split(',')[0].trim().toUpperCase() : '';
+        if (!geo) {
+            const countryFilter = (firstStream?.filters || []).find(f => f.name === 'Country' && (f.mode || 'include') === 'include');
+            geo = String(countryFilter?.payload?.[0] || '').trim().toUpperCase();
+        }
+        return `${baseName} - ${sourceName} - [${geo || 'GLOBAL'}]`;
+    };
+    const suggestedName = buildStandardName();
     const displayParameters = useMemo(() => {
         const standardParameters = [
             { key: 'utm_placement', label: t('parameters.placement', 'Placement (utm_placement)') },
@@ -1174,17 +1195,34 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         setFormData({ ...formData, streams: s });
     };
 
-    const openEntityPicker = (streamIdx, type) => setPickerState({ open: true, streamIdx, type, safeField: null });
+    // The 5-minute dropdown cache predates anything created elsewhere — a
+    // LeadForge build, the Offers screen, a teammate in another tab. The
+    // picker must never serve a stale list, so every open re-fetches it.
+    const refreshEntityList = (type) => {
+        const action = type === 'landings' ? 'landings_simple' : 'all_offers';
+        invalidateCache(action);
+        cachedGet(action, { _: Date.now() }, 0)
+            .then(({ data }) => {
+                if (data?.status !== 'success') return;
+                if (type === 'landings') setAllLandings(data.data);
+                else setAllOffers(data.data);
+            })
+            .catch(() => { /* a stale list is survivable; the picker still opens */ });
+    };
+
+    const openEntityPicker = (streamIdx, type) => {
+        setPickerState({ open: true, streamIdx, type, safeField: null });
+        refreshEntityList(type);
+    };
 
     // The Safe Page block reuses the same picker, but as a single pick that
     // writes one cloak field (safe_landing_id / safe_offer_id) instead of
     // appending to the stream rotation.
-    const openSafePicker = (streamIdx, safeField) => setPickerState({
-        open: true,
-        streamIdx,
-        type: safeField === 'safe_offer_id' ? 'offers' : 'landings',
-        safeField,
-    });
+    const openSafePicker = (streamIdx, safeField) => {
+        const type = safeField === 'safe_offer_id' ? 'offers' : 'landings';
+        setPickerState({ open: true, streamIdx, type, safeField });
+        refreshEntityList(type);
+    };
 
     /**
      * An offer was created inside the stream's embedded OfferEditor — refresh
@@ -1612,13 +1650,43 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                 </div>
                                                 <div className="p-4 space-y-4">
                                                     <div>
-                                                        <label className="form-label">{t('editor.name')}</label>
+                                                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                                                            <label className="form-label" style={{ marginBottom: 0 }}>{t('editor.name')}</label>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setFormData({ ...formData, name: suggestedName })}
+                                                                className="btn btn-secondary text-xs font-medium"
+                                                                style={{ padding: '4px 10px', borderRadius: 10 }}
+                                                                title={t('editor.autoFormatHint')}
+                                                            >
+                                                                🪄 {t('editor.autoFormat')}
+                                                            </button>
+                                                        </div>
                                                         <input
                                                             type="text"
                                                             value={formData.name}
                                                             onChange={e => setFormData({ ...formData, name: e.target.value })}
                                                             className="form-input"
                                                         />
+                                                        {suggestedName !== formData.name && (
+                                                            <div
+                                                                className="flex items-center justify-between gap-2 mt-1.5 pl-3 pr-1.5 py-1.5 rounded-lg text-xs"
+                                                                style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)', color: 'var(--color-text-secondary)' }}
+                                                            >
+                                                                <div className="flex items-baseline gap-1.5 min-w-0">
+                                                                    <span className="shrink-0" style={{ color: 'var(--color-text-muted)' }}>{t('editor.nameFormatPrefix')}</span>
+                                                                    <span className="font-semibold truncate" style={{ color: 'var(--color-text-primary)' }} title={suggestedName}>{suggestedName}</span>
+                                                                </div>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => setFormData({ ...formData, name: suggestedName })}
+                                                                    className="btn btn-primary text-xs font-medium shrink-0"
+                                                                    style={{ padding: '3px 12px', borderRadius: 8 }}
+                                                                >
+                                                                    {t('common.apply')}
+                                                                </button>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                     <div>
                                                         <label className="form-label">{t('editor.alias')} <HelpTooltip textKey="help.aliasTooltip" /></label>
@@ -3438,7 +3506,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                                 className="px-2.5 py-1 text-[11px] font-medium transition"
                                                                                 style={{
                                                                                     backgroundColor: safeMode === mode ? 'var(--color-primary)' : 'var(--color-bg-card)',
-                                                                                    color: safeMode === mode ? '#ffffff' : 'var(--color-text-secondary)'
+                                                                                    color: safeMode === mode ? 'var(--color-text-inverse)' : 'var(--color-text-secondary)'
                                                                                 }}
                                                                             >
                                                                                 {label}

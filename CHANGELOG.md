@@ -7,6 +7,55 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0.6] — 2026-08-18
+
+Multi-accounting for the DNS/registrar layer, delete safety for serving entities, and upload hardening — plus in-modal copy feedback the tester could actually see.
+
+### Added
+- ☁️ **Cloudflare multi-account** (migration 32) — the legacy single token
+  (cf_api_token) becomes account #1 of a new `cloudflare_accounts` table and
+  domains gain `dns_account_id`: the Domains page picks the account per domain,
+  Integrations manages accounts (add / edit / delete, per-account SSL and proxy
+  modes, zone import and repoint via the API).
+- 🌍 **Namecheap multi-account** (migration 31) — the registrar mirror: the
+  legacy `nc_api_key` becomes account #1 of `namecheap_accounts`; Integrations
+  lists accounts with live balance checks plus add / rename / delete.
+- 🔐 **OAuth preflight for TikTok and Google Ads** — `<engine>_oauth_status`
+  joins Facebook's: without a configured app the 1-Click button disables with
+  an amber card instead of dying mid-flow, and each network also takes a direct
+  token connection (manual mode is the default for new credentials).
+- 🛡️ **Delete guard for landings and offers in use** — deleting an entity still
+  referenced by an active campaign stream is refused with `entity_in_use` plus
+  the campaign list; the frontend localizes the refusal
+  (utils/entityInUseError.js) instead of treating the HTTP-200 error body as a
+  silent success.
+- ⏱️ **Sub-hour cost sync** — `sync_interval_hours` accepts fractional values
+  (0.5 / 0.333) for near-realtime aggregator ticks.
+
+### Changed
+- 🎨 **Custom theme contrast** — a picked primary now derives its inverse text
+  colour by perceived brightness (the neon-lime primary gets dark text instead
+  of unreadable white); leaving the custom theme clears the inline override so
+  the built-in themes win again.
+- 📋 **In-modal copy feedback (Users → API keys)** — the connector-URL and
+  API-key copy buttons swap to a green check for 2 s and confirm with a banner
+  inside the modal; the old page-level toast rendered behind the overlay, which
+  read as "the button does nothing". Generate/delete-key notices moved in-modal
+  for the same reason.
+- 🧩 **Chrome extension 1.0.1** — RU/EN localization for the live overlay, a
+  draft badge for campaigns without traffic yet, and the MutationObserver now
+  ignores the extension's own injections so re-rendering stops scheduling
+  refresh loops; rebuilt orbitra-extension.zip.
+
+### Fixed
+- 🔒 **Local offer upload hardening** — uploads pass a tiered PHP scan (hard
+  block for dangerous constructs, soft sanitization for the rest); the
+  `T_NAME_FULLY_QUALIFIED` hole — namespaced function calls invisible to the
+  scanner — is closed, and archives land via stage-then-swap with realpath
+  containment so symlink tricks can't escape the offer directory.
+- 🔗 **order.php / thank_you.php bridge route** — bridge files of a local offer
+  are served through a realpath containment check instead of a bare path join.
+
 ## [1.0.5] — 2026-08-17
 
 Safe Page white pages: grouped selects, a Local Offer safe mode, and a critical fix that made direct local offers unreachable.

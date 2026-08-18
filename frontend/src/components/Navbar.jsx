@@ -159,7 +159,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                                     className="group relative w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer"
                                     style={{
                                         backgroundColor: isActive ? 'var(--color-primary)' : 'transparent',
-                                        color: isActive ? '#ffffff' : 'var(--color-text-muted)',
+                                        color: isActive ? 'var(--color-text-inverse)' : 'var(--color-text-muted)',
                                         boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.18)' : 'none'
                                     }}
                                 >
@@ -366,7 +366,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                                             className="flex-1 py-1.5 rounded-full text-xs font-semibold transition-all text-center cursor-pointer"
                                             style={{
                                                 backgroundColor: isActive ? 'var(--color-primary)' : 'transparent',
-                                                color: isActive ? '#ffffff' : 'var(--color-text-secondary)',
+                                                color: isActive ? 'var(--color-text-inverse)' : 'var(--color-text-secondary)',
                                                 boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.18)' : 'none'
                                             }}
                                         >

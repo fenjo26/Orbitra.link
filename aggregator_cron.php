@@ -10,8 +10,10 @@
 //   php aggregator_cron.php --days=7         — синхронизация за последние 7 дней
 //   php aggregator_cron.php --rematch        — повторный matching для неприкреплённых записей
 //
-// Crontab example:
-//   0 */2 * * * php /var/www/orbitra/aggregator_cron.php >> /var/log/orbitra_aggregator.log 2>&1
+// Crontab example. Sub-hour sync intervals (20/30 min) are supported, but the
+// cron itself must run often enough for them to fire — the per-connection
+// interval check below skips non-due connections cheaply, so */5 is safe:
+//   */5 * * * * php /var/www/orbitra/aggregator_cron.php >> /var/log/orbitra_aggregator.log 2>&1
 
 if (php_sapi_name() !== 'cli') {
     die('This script must be run from the command line.');
@@ -116,7 +118,9 @@ foreach ($connections as $conn) {
     // Проверяем интервал (если не --force)
     if (!$isForce && $conn['last_sync_at']) {
         $lastSync = strtotime($conn['last_sync_at']);
-        $nextSync = $lastSync + ($conn['sync_interval_hours'] * 3600);
+        // sync_interval_hours may be fractional (0.333 = 20 min); an empty or
+        // zero value falls back to the 2-hour default.
+        $nextSync = $lastSync + (int) round(((float) ($conn['sync_interval_hours'] ?: 2)) * 3600);
         if (time() < $nextSync) {
             $remaining = round(($nextSync - time()) / 60);
             cron_log("[$connName] Skipping — next sync in {$remaining}min");

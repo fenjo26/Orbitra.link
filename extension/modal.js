@@ -15,6 +15,7 @@
         cps: 'CPS', cpc: 'CPC', epc: 'EPC', clicks: 'Клики', sales: 'Сейлы', conv: 'Конверсии',
         cr: 'CR', lpCtr: 'LP CTR', capi: 'Точность Pixel и CAPI', capiHint: 'Конверсии трекера против событий, доставленных в Meta через CAPI.',
         date: 'Дата', landing: 'Лендинг', offer: 'Оффер', noData: 'Нет данных за период',
+        noEntities: 'На странице нет опубликованных кампаний с числовым ID. Опубликуйте кампанию — Orbitra покажет статистику, как только пойдёт трафик.',
         loading: 'Загрузка…', error: 'Ошибка', close: 'Закрыть', lastSync: 'Синхронизировано'
       }
     : {
@@ -23,6 +24,7 @@
         cps: 'CPS', cpc: 'CPC', epc: 'EPC', clicks: 'Clicks', sales: 'Sales', conv: 'Conversions',
         cr: 'CR', lpCtr: 'LP CTR', capi: 'Pixel & CAPI accuracy', capiHint: 'Tracker conversions vs events actually delivered to Meta via CAPI.',
         date: 'Date', landing: 'Landing', offer: 'Offer', noData: 'No data for this period',
+        noEntities: 'No published campaigns with numeric IDs on this page yet. Publish the campaign and Orbitra will show stats as soon as traffic flows.',
         loading: 'Loading…', error: 'Error', close: 'Close', lastSync: 'Synced'
       };
 
@@ -130,6 +132,63 @@
     openModal = null;
   }
 
+  // Account-level view: fuse several entities (every campaign detected on
+  // the page) into one — backend totals for the overview, client-side merge
+  // for daily history / landings / offers / CAPI accuracy.
+  function mergeEntities(totals, entities) {
+    const pixel = { tracker_leads: 0, fb_reported: 0 };
+    const daily = new Map();
+    const landings = new Map();
+    const offers = new Map();
+    for (const e of entities) {
+      const pa = e.pixel_accuracy || {};
+      pixel.tracker_leads += Number(pa.tracker_leads) || 0;
+      pixel.fb_reported += Number(pa.fb_reported) || 0;
+      for (const d of (e.daily_history || [])) {
+        const row = daily.get(d.date) || { date: d.date, clicks: 0, spend: 0, revenue: 0, revenue_confirmed: 0, sales: 0 };
+        row.clicks += Number(d.clicks) || 0;
+        row.spend += Number(d.spend) || 0;
+        row.revenue += Number(d.revenue) || 0;
+        row.revenue_confirmed += Number(d.revenue_confirmed) || 0;
+        row.sales += Number(d.sales) || 0;
+        daily.set(d.date, row);
+      }
+      for (const l of (e.landings || [])) {
+        const key = String(l.id ?? l.name);
+        const row = landings.get(key) || { id: l.id, name: l.name, clicks: 0, lp_clicks: 0, spend: 0, revenue: 0 };
+        row.clicks += Number(l.clicks) || 0;
+        row.lp_clicks += Number(l.lp_clicks) || 0;
+        row.spend += Number(l.spend) || 0;
+        row.revenue += Number(l.revenue) || 0;
+        landings.set(key, row);
+      }
+      for (const o of (e.offers || [])) {
+        const key = String(o.id ?? o.name);
+        const row = offers.get(key) || { id: o.id, name: o.name, clicks: 0, conversions: 0, spend: 0, revenue: 0 };
+        row.clicks += Number(o.clicks) || 0;
+        row.conversions += Number(o.conversions) || 0;
+        row.spend += Number(o.spend) || 0;
+        row.revenue += Number(o.revenue) || 0;
+        offers.set(key, row);
+      }
+    }
+    const derive = (row) => {
+      row.profit = row.revenue - row.spend;
+      row.roi = row.spend > 0 ? (row.profit / row.spend) * 100 : 0;
+      return row;
+    };
+    return Object.assign({}, totals, {
+      pixel_accuracy: {
+        tracker_leads: pixel.tracker_leads,
+        fb_reported: pixel.fb_reported,
+        accuracy_pct: pixel.tracker_leads > 0 ? Math.round((pixel.fb_reported / pixel.tracker_leads) * 1000) / 10 : 0
+      },
+      daily_history: [...daily.values()].map(derive).sort((a, b) => String(b.date).localeCompare(String(a.date))),
+      landings: [...landings.values()].map((l) => Object.assign(derive(l), { lp_ctr: l.clicks > 0 ? (l.lp_clicks / l.clicks) * 100 : 0 })),
+      offers: [...offers.values()].map((o) => Object.assign(derive(o), { cr: o.clicks > 0 ? (o.conversions / o.clicks) * 100 : 0 }))
+    });
+  }
+
   document.addEventListener('click', (event) => {
     const pill = event.target.closest?.('[data-orbitra-overlay="ready"]');
     if (!pill) {
@@ -140,15 +199,15 @@
     const level = pill.dataset.orbitraLevel;
     const id = pill.dataset.orbitraId;
     if (!level || !id) return;
-    openDeepStats(level, id);
+    openDeepStats([{ type: level, id }], `${level} · ${id}`);
   }, true);
 
-  async function openDeepStats(level, id) {
+  async function openDeepStats(entities, subtitle = '') {
     closeModal();
     const overlayEl = document.createElement('div');
     overlayEl.className = 'orbitra-modal-overlay';
     overlayEl.innerHTML = `<div class="orbitra-modal">
-      <header><b>${L.title}</b><span class="sub">${esc(level)} · ${esc(id)}</span><button title="${esc(L.close)}">✕</button></header>
+      <header><b>${L.title}</b><span class="sub">${esc(subtitle || L.loading)}</span><button title="${esc(L.close)}">✕</button></header>
       <div class="orbitra-tabs"></div>
       <div class="orbitra-body">${esc(L.loading)}</div>
     </div>`;
@@ -157,29 +216,34 @@
     document.body.appendChild(overlayEl);
     openModal = overlayEl;
 
-    const typeByLevel = { campaign: 'campaign', adset: 'adset', ad: 'ad' };
+    const body = overlayEl.querySelector('.orbitra-body');
+    if (!entities.length) {
+      body.innerHTML = `<div class="orbitra-note">${esc(L.noEntities)}</div>`;
+      return;
+    }
     let resp;
     try {
       resp = await chrome.runtime.sendMessage({
         type: 'ORBITRA_DEEP_STATS',
-        entities: [{ type: typeByLevel[level], id }]
+        entities
       });
     } catch (err) {
       resp = { ok: false, error: err.message };
     }
     if (!openModal) return; // closed while loading
-    const body = overlayEl.querySelector('.orbitra-body');
     const tabsEl = overlayEl.querySelector('.orbitra-tabs');
 
     if (!resp?.ok) {
       body.innerHTML = `<div class="orbitra-warn">${esc(L.error)}: ${esc(resp?.error || '—')}</div>`;
       return;
     }
-    const entity = (resp.data?.entities || {})[id];
-    if (!entity) {
+    const found = Object.values(resp.data?.entities || {});
+    if (!found.length) {
       body.innerHTML = `<div class="orbitra-note">${esc(L.noData)}</div>`;
       return;
     }
+    // One entity → its own full payload; several → the merged account view.
+    const entity = entities.length === 1 ? found[0] : mergeEntities(resp.data?.totals || {}, found);
 
     const tabs = [
       [L.overview, renderOverview],
@@ -187,7 +251,7 @@
       [L.funnel, renderFunnel]
     ];
     const header = overlayEl.querySelector('header .sub');
-    header.textContent = `${level} · ${id} — ${money(entity.profit, true)} (${pct(entity.roi)}) · ${L.lastSync}: ${new Date().toLocaleTimeString()}`;
+    header.textContent = `${subtitle || `${found.length} × ${entities[0].type}`} — ${money(entity.profit, true)} (${pct(entity.roi)}) · ${L.lastSync}: ${new Date().toLocaleTimeString()}`;
     tabsEl.innerHTML = tabs.map(([label], i) => `<button class="${i === 0 ? 'on' : ''}">${esc(label)}</button>`).join('');
     const btns = [...tabsEl.querySelectorAll('button')];
     const show = (i) => {
@@ -199,4 +263,15 @@
   }
 
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+  // Entry point for the floating widget in content.js (same isolated world):
+  // open the detail modal for a batch of entities — e.g. every campaign
+  // detected on the page — or with an empty batch to explain why none were.
+  window.OrbitraModal = {
+    open: (entities, subtitle) => {
+      const valid = (Array.isArray(entities) ? entities : [])
+        .filter(e => e && ['ad', 'adset', 'campaign'].includes(e.type) && /^\d{1,32}$/.test(String(e.id)));
+      openDeepStats(valid, subtitle || '');
+    }
+  };
 })();

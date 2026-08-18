@@ -27,6 +27,7 @@ import DashboardSettingsModal from './components/DashboardSettingsModal';
 import LeadForgePage from './components/LeadForgePage';
 import CRMPage from './components/CRMPage';
 import { canAccessTab, firstAllowedTab } from './utils/permissions';
+import { applyCustomThemeVars, clearInverseText } from './utils/themeContrast';
 
 // In development, Vite runs on port 5173 and the API on 8080.
 // In production they are served from the same domain.
@@ -211,6 +212,18 @@ function App() {
     };
   }, []);
 
+  // Cross-page navigation for components that don't receive setActiveTab as a
+  // prop (Integrations lives inside AdminPage): they dispatch
+  // 'orbitra:navigate' with { tab } instead.
+  useEffect(() => {
+    const onNavigate = (e) => {
+      const tab = e?.detail?.tab;
+      if (typeof tab === 'string' && tab) setActiveTab(tab);
+    };
+    window.addEventListener('orbitra:navigate', onNavigate);
+    return () => window.removeEventListener('orbitra:navigate', onNavigate);
+  }, []);
+
   // Global Theme Manager
   useEffect(() => {
     const applyTheme = () => {
@@ -227,14 +240,16 @@ function App() {
 
       if (savedMode === 'custom') {
         const customColorsStr = localStorage.getItem('orbitra_custom_colors');
+        let applied = false;
         if (customColorsStr) {
           try {
-            const customColors = JSON.parse(customColorsStr);
-            Object.keys(customColors).forEach(key => {
-              root.style.setProperty(key, customColors[key]);
-            });
+            applyCustomThemeVars(JSON.parse(customColorsStr), root);
+            applied = true;
           } catch (e) { }
         }
+        // A broken/missing palette must not leave a stale inline inverse
+        // overriding the theme's own value.
+        if (!applied) clearInverseText(root);
       } else {
         root.style.removeProperty('--color-primary');
         root.style.removeProperty('--color-bg-main');
@@ -242,6 +257,7 @@ function App() {
         root.style.removeProperty('--color-text-primary');
         root.style.removeProperty('--color-bg-header');
         root.style.removeProperty('--color-text-header');
+        clearInverseText(root);
       }
     };
 
