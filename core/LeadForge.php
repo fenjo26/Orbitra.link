@@ -1118,14 +1118,42 @@ function lf_http_call(string $url, $payload, array $headers, bool $asJson): arra
     return ['http_code' => $code, 'body' => is_string($body) ? $body : ''];
 }
 
+function lf_is_macro($val) {
+    $v = trim((string)$val);
+    return $v === '' || preg_match('/^\{[^{}]+\}$/', $v) === 1 || preg_match('/^\{\{[^{}]+\}\}$/', $v) === 1;
+}
+
 $name = lf_request_value(['name', 'full_name', 'fullname', 'fio', 'customer_name', 'client']) ?: 'Customer';
 $rawPhone = lf_request_value(['phone', 'telephone', 'tel', 'mobile', 'phone_number', 'msisdn']);
 $product = trim($_POST['product'] ?? '') ?: $LF['landing_name'];
 $price = isset($_POST['price']) && $_POST['price'] !== '' ? (float) $_POST['price'] : 0.0;
 $country = strtoupper(lf_request_value(['country', 'id_country', 'country_id', 'country_code']) ?: $LF['geo']);
 
-$subid = lf_request_value(['subid', 'sub_id', 'click_id', 'clickid', 'sub1', 'subid1', 'data1', 'utm_campaign'])
-    ?: ($_COOKIE['orbitra_click'] ?? $_COOKIE['orbitra_subid'] ?? $_COOKIE['subid'] ?? '');
+$rawSubid = lf_request_value(['subid', 'sub_id', 'click_id', 'clickid', 'sub1', 'subid1', 'data1', 'utm_campaign']);
+if (lf_is_macro($rawSubid)) {
+    $rawSubid = '';
+}
+$subid = $rawSubid
+    ?: (isset($_COOKIE['orbitra_click']) && !lf_is_macro($_COOKIE['orbitra_click']) ? $_COOKIE['orbitra_click'] : '')
+    ?: (isset($_COOKIE['orbitra_subid']) && !lf_is_macro($_COOKIE['orbitra_subid']) ? $_COOKIE['orbitra_subid'] : '')
+    ?: (isset($_COOKIE['subid']) && !lf_is_macro($_COOKIE['subid']) ? $_COOKIE['subid'] : '')
+    ?: (isset($_SESSION['orbitra_click']) && !lf_is_macro($_SESSION['orbitra_click']) ? $_SESSION['orbitra_click'] : '')
+    ?: (isset($_SESSION['subid']) && !lf_is_macro($_SESSION['subid']) ? $_SESSION['subid'] : '');
+
+if (lf_is_macro($subid)) {
+    $subid = '';
+}
+if ($subid === '') {
+    foreach (['subid', 'clickid', 'click_id', 'sub1'] as $qk) {
+        if (!empty($_GET[$qk]) && !lf_is_macro($_GET[$qk])) {
+            $subid = trim((string)$_GET[$qk]);
+            break;
+        }
+    }
+}
+if ($subid === '') {
+    $subid = 'lead_' . bin2hex(random_bytes(8));
+}
 
 $ip = lf_get_ip();
 $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
@@ -1165,11 +1193,14 @@ $subParams = [];
 foreach (['sub1','sub2','sub3','sub4','sub5','sub6','sub7','sub8','sub9','sub10',
           'pixel','utm_source','utm_campaign','utm_medium','utm_content','utm_term','utm_placement',
           'fbclid','fbp','fbc','ttclid','gclid','adset_id','ad_id'] as $k) {
-    if (isset($_POST[$k]) && $_POST[$k] !== '') {
+    if (isset($_POST[$k]) && $_POST[$k] !== '' && !lf_is_macro($_POST[$k])) {
         $subParams[$k] = substr((string) $_POST[$k], 0, 255);
-    } elseif (isset($_GET[$k]) && $_GET[$k] !== '') {
+    } elseif (isset($_GET[$k]) && $_GET[$k] !== '' && !lf_is_macro($_GET[$k])) {
         $subParams[$k] = substr((string) $_GET[$k], 0, 255);
     }
+}
+if (empty($subParams['sub1']) || lf_is_macro($subParams['sub1'])) {
+    $subParams['sub1'] = $subid;
 }
 if (empty($subParams['fbp']) && !empty($_COOKIE['_fbp'])) $subParams['fbp'] = $_COOKIE['_fbp'];
 if (empty($subParams['fbc']) && !empty($_COOKIE['_fbc'])) $subParams['fbc'] = $_COOKIE['_fbc'];
@@ -1196,7 +1227,7 @@ if ($isQa) {
         switch ($LF['network']) {
             case 'drcash':
                 $netRequest['endpoint'] = DRCASH_ENDPOINT;
-                $postedSub1 = $subParams['sub1'] ?? $subid;
+                $postedSub1 = (!empty($subParams['sub1']) && !lf_is_macro($subParams['sub1'])) ? $subParams['sub1'] : $subid;
                 $payload = [
                     'stream_code' => $LF['offer_id'],
                     'client' => [

@@ -946,7 +946,17 @@ function orbitraServeLocalOffer(PDO $pdo, $offerId, $clickId, array $clickParams
         $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (($_SERVER['SERVER_PORT'] ?? '') == 443);
         $opts = ['expires' => time() + 86400, 'path' => '/', 'secure' => $secure, 'httponly' => false, 'samesite' => 'Lax'];
         setcookie('orbitra_lo', (string) $offerId, $opts);
+        setcookie('orbitra_click', (string) $clickId, $opts);
+        setcookie('orbitra_subid', (string) $clickId, $opts);
+        setcookie('subid', (string) $clickId, $opts);
         setcookie('orbitra_lp', '', ['expires' => time() - 3600, 'path' => '/']);
+    }
+
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        $_SESSION['orbitra_lo'] = (string) $offerId;
+        $_SESSION['orbitra_click'] = (string) $clickId;
+        $_SESSION['orbitra_subid'] = (string) $clickId;
+        $_SESSION['subid'] = (string) $clickId;
     }
 
     if (file_exists($dir . '/index.php')) {
@@ -967,7 +977,17 @@ function orbitraServeLocalOffer(PDO $pdo, $offerId, $clickId, array $clickParams
                 'offer_id' => $offerId,
             ]
         ));
+        ob_start();
         require $dir . '/index.php';
+        $content = ob_get_clean();
+        echo applyLandingMacros(
+            $content,
+            $clickId,
+            $offerId,
+            '',
+            $clickParams,
+            issueLpToken($clickId, $settings['postback_key'] ?? 'orbitra_secret')
+        );
         exit;
     }
 
@@ -1110,29 +1130,42 @@ function serveOfferAsset($offerId, $uriPath)
 }
 
 function applyLandingMacros($html, $clickId, $offerId, $offerUrl, array $clickParams = [], $lpToken = '')
-{    if (!is_string($html) || $html === '' || strpos($html, '{') === false) {
+{
+    if (!is_string($html) || $html === '' || strpos($html, '{') === false) {
         return $html;
     }
 
     $macros = [
-        '{clickid}' => $clickId,
-        '{subid}' => $clickId,
+        '{clickid}' => (string) $clickId,
+        '{subid}' => (string) $clickId,
+        '{click_id}' => (string) $clickId,
+        '{sub_id}' => (string) $clickId,
+        '{sub1}' => (string) $clickId,
+        '{subid1}' => (string) $clickId,
+        '{data1}' => (string) $clickId,
+        '{external_id}' => (string) $clickId,
+        '{{clickid}}' => (string) $clickId,
+        '{{subid}}' => (string) $clickId,
+        '{{click_id}}' => (string) $clickId,
+        '{{sub_id}}' => (string) $clickId,
+        '{{sub1}}' => (string) $clickId,
+        '{{subid1}}' => (string) $clickId,
+        '{{data1}}' => (string) $clickId,
         // Consumed by the JS adapter; harmless on a landing that doesn't use it.
         '{token}' => (string) $lpToken,
+        '{{token}}' => (string) $lpToken,
         '{offer_id}' => (string) ($offerId ?: ''),
+        '{{offer_id}}' => (string) ($offerId ?: ''),
         // Not url-encoded: this lands in an href, so it has to stay a usable URL.
-        // The redirect path encodes it because there it is nested inside another
-        // query string; here it is the destination itself.
-        //
-        // With no offer on the stream, fall back to the tracked transition link
-        // rather than an empty href — clicking then explains what is missing
-        // instead of silently reloading the landing.
         '{offer}' => (string) $offerUrl !== '' ? (string) $offerUrl : '/?_lp=1',
+        '{{offer}}' => (string) $offerUrl !== '' ? (string) $offerUrl : '/?_lp=1',
     ];
 
     foreach ($clickParams as $key => $val) {
         if (is_scalar($val)) {
-            $macros['{' . $key . '}'] = htmlspecialchars((string) $val, ENT_QUOTES, 'UTF-8');
+            $escaped = htmlspecialchars((string) $val, ENT_QUOTES, 'UTF-8');
+            $macros['{' . $key . '}'] = $escaped;
+            $macros['{{' . $key . '}}'] = $escaped;
         }
     }
 
@@ -2988,7 +3021,17 @@ if ($actionToPerfrom) {
                     ]
                 ));
 
+                ob_start();
                 require $landingDir . '/index.php';
+                $landingOutput = ob_get_clean();
+                echo applyLandingMacros(
+                    $landingOutput,
+                    $clickId,
+                    $offerIdToLog,
+                    $offerUrlMacros,
+                    $clickParams ?? [],
+                    issueLpToken($clickId, $settings['postback_key'] ?? 'orbitra_secret')
+                );
             } else if (file_exists($landingDir . '/index.html')) {
                 echo applyLandingMacros(
                     file_get_contents($landingDir . '/index.html'),

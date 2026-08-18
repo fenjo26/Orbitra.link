@@ -820,8 +820,12 @@ window.onerror = function(msg, src, line, col, err) {
   }
 
   function getCookie(name) {
-    var m = RegExp('(^|;\s*)' + name + '=([^;]*)').exec(document.cookie);
-    return m ? decodeURIComponent(m[2]) : '';
+    try {
+      var m = new RegExp('(?:^|;\\s*)' + name + '=([^;]*)').exec(document.cookie);
+      return m ? decodeURIComponent(m[1]) : '';
+    } catch (e) {
+      return '';
+    }
   }
   function recallStorage(key) {
     try { return sessionStorage.getItem('orbitra_' + key) || ''; } catch (e) { return ''; }
@@ -859,7 +863,7 @@ window.onerror = function(msg, src, line, col, err) {
       var stored = recallStorage(k) || getCookie('orbitra_lf_' + k);
       if (stored && !isTemplateMacroLike(stored)) return stored;
     }
-    var ck = getCookie('orbitra_click') || getCookie('subid');
+    var ck = getCookie('orbitra_click') || getCookie('orbitra_subid') || getCookie('subid') || getCookie('clickid');
     if (ck && !isTemplateMacroLike(ck)) return ck;
     return '';
   }
