@@ -1,6 +1,6 @@
 {
-    "version": "1.0.7",
-    "release_notes": "Modern Integrations Card Hub architecture and Local Offer In-Browser IDE & File Manager. The Integrations page is redesigned into a dual-mode Grid/Card Hub (Vercel/Stripe style) with 25 categorized services, live real-time connection counters and balances, instant search, and dedicated 100% full-width detail configuration views without double-sidebar nesting. Local Offer editing inside OfferEditor now features a full-fledged in-browser IDE with file tree, Monaco-style code editor for HTML/CSS/JS/PHP/JSON, Find & Replace, beautification, live multi-device preview, image asset management, and upload/deletion operations backed by secure backend API endpoints with tiered PHP scanning and realpath containment.",
+    "version": "1.0.8",
+    "release_notes": "LeadForge 2.0 Reference Synchronization & 150-GEO Validation Engine. Integrates the complete 150-country GEO validation dataset with exact national and international regex patterns, mobile operator prefixes, min/max length rules, and 33-language localized messages. The JavaScript adapter (orbitra_adapter.js) now features dynamic country switching on <select name=\"country\">, live visual input badge counters, strict Unicode name validation, haptic vibration feedback, and cross-page ClickID/SubID parameter hydration. The universal order.php handler adds native support for 10 CPA networks (Dr.Cash, Webvork, Lucky.online, KMA.biz, TerraLeads, Leadbit, LemonAD, Everad, Ezaff, Custom Webhooks), automated E.164 phone normalization, in-process and remote CRM vault dual logging, and local failsafe lead logging.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-08-18"
 }

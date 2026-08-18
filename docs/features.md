@@ -1,6 +1,30 @@
-# Основные Функции Orbitra v1.0.7
+# Основные Функции Orbitra v1.0.8
 
 Полный обзор функциональности трекера Orbitra — современного аналога Keitaro Tracker.
+
+## 🆕 Новое в v1.0.8
+
+- **Эталонная синхронизация LeadForge 2.0 и база на 150 ГЕО** — полная интеграция датасета валидации для 150 стран (`core/data/leadforge_geo_rules.json`) с точными национальными и международными regex-паттернами, префиксами мобильных операторов, ограничениями длины (min/max), телефонными кодами и сообщениями валидатора на 33 языках (включая СНГ, Индию, Европу, Латам, Арабские страны и Азию).
+- **Интерактивный JS-движок валидации (`orbitra_adapter.js`)** — генератор клиентского валидатора переведён на эталонный шаблон (`core/data/leadforge_validation_template.js`):
+  - *Динамическое переключение страны*: при смене `<select name="country">` маска, правила валидации и счётчик мгновенно перестраиваются под выбранное ГЕО.
+  - *Интерактивный бейдж-счётчик*: живой визуальный индикатор введённых и недостающих цифр (*«3 cifre inserite, 7 mancanti»* → *«Numero complete»*).
+  - *Строгая Unicode-валидация имени*: защита от ввода цифр и спам-символов в полях имени в реальном времени.
+  - *Виброотклик*: тактильная вибрация мобильного устройства при некорректном вводе номера.
+  - *Сквозной ClickID / SubID мост*: автоматический перенос и гидратация всех скрытых полей (`subid`, `click_id`, `sub1`..`sub5`, `utm_*`, `fbp`, `fbc`, `pub_sub_id` и др.) с сохранением в `sessionStorage` и cookie.
+- **Универсальный CPA Order Bridge (`order.php`)** — нативная поддержка 10 партнёрских сетей с прямыми эндпоинтами и авторизацией:
+  - *Dr.Cash*: `https://order.drcash.sh/v1/order` (Bearer token, `sub1`..`sub5`).
+  - *Webvork*: `https://api.webvork.com/v1/new-lead` & `api2` fallback (`utm_campaign` = `{subid}`).
+  - *Lucky.online*: `https://lucky.online/api/v1/lead-create/webmaster` (`campaign_hash`, `subid1`/`subid`).
+  - *KMA.biz*: `https://api.kma.biz/lead/add` (Bearer token, `data1`..`data5`).
+  - *TerraLeads*: `https://t-api.org/api/lead/create` (SHA1-хеширование `json + api_key`).
+  - *Leadbit*: `http://wapi.leadbit.com/api/pub/new-order/{token}` (`flow_hash`, `sub1`..`sub5`).
+  - *LemonAD*: `https://lemonad.com/api/v2/lead/create` (`click_id`).
+  - *Everad*: `https://api.everad.com/campaigns/{offer_id}/order` (`X-Api-Key`, `sid1`).
+  - *Ezaff*: `https://api.ezaff.com/send` (`click_id`, `pub_sub_id`).
+  - *Custom Webhooks*: сквозной POST-проброс на кастомные CRM и API.
+- **Автоматическая нормализация телефонов в E.164 (`lf_normalize_phone`)** — надёжное приведение локальных номеров к международному стандарту с учётом национальных правил и отсечением лидирующих нулей.
+- **Dual Logging и отказоустойчивый CRM Vault** — одновременная отправка лида в сеть и запись в CRM Vault трекера (`orbitraCrmRecordLead` / `/crm-ingest`) + локальные резервные логи (`leadforge.leads.log` и `orbitra_leads_backup.log`).
+- **Автоматизированный тестовый комплекс (`tests/leadforge_sync_test.php`)** — полный цикл проверок 150 ГЕО, генерации JS-адаптера, сборки order.php под 10 сетей и изоляции маршрутизации.
 
 ## 🆕 Новое в v1.0.7
 
@@ -623,4 +647,4 @@ scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz .
 
 ---
 
-*Функции обновлены для версии v1.0.7*
+*Функции обновлены для версии v1.0.8*

@@ -54428,257 +54428,262 @@ ${describeSslError(domain.ssl_error)}` }) : domain.ssl_status === "pending" ? /*
         ] }) })
       ] }, domain.id)) })
     ] }) }),
-    showModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content w-full max-w-3xl", style: { padding: "20px 24px" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", style: { paddingBottom: "10px", marginBottom: "14px" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: formData.id ? t("domains.editDomain") : t("domains.addDomainTitle") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setShowModal(false), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
-      ] }),
-      error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "alert alert-danger mb-4 flex items-center gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16 }),
-        error
-      ] }),
-      saveNotice && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "alert alert-success mb-4 flex items-center gap-2", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16 }),
-        saveNotice
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "space-y-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-5 items-start", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium mb-1", children: t("domains.domainName") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "input",
-                {
-                  ref: nameInputRef,
-                  type: "text",
-                  required: true,
-                  autoFocus: !formData.id,
-                  className: "form-input w-full",
-                  placeholder: t("domains.bulkPlaceholder"),
-                  value: formData.name,
-                  onChange: (e) => setFormData({ ...formData, name: cleanNameInput(e.target.value) })
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs mt-1", style: { color: "var(--color-text-secondary)" }, children: [
-                t("domains.domainBulkHelper"),
-                " ",
-                t("domains.bulkExample")
-              ] })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium mb-1", children: t("domains.group") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "select",
-                  {
-                    className: "form-select flex-1",
-                    value: formData.group_id,
-                    onChange: (e) => setFormData({ ...formData, group_id: e.target.value }),
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("domains.noGroup") }),
-                      domainGroups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g.id, children: g.name }, g.id))
-                    ]
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "button",
-                  {
-                    type: "button",
-                    className: "btn btn-secondary whitespace-nowrap",
-                    onClick: () => setShowGroupsModal(true),
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 14 }),
+    showModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "modal-content",
+        style: {
+          width: "100%",
+          maxWidth: "840px",
+          padding: "24px 28px",
+          borderRadius: "20px"
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", style: { marginBottom: "18px", paddingBottom: "12px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", style: { fontSize: "17px", fontWeight: 600 }, children: formData.id ? t("domains.editDomain") : t("domains.addDomainTitle") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setShowModal(false), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
+          ] }),
+          error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "alert alert-danger mb-4 flex items-center gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16 }),
+            error
+          ] }),
+          saveNotice && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "alert alert-success mb-4 flex items-center gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16 }),
+            saveNotice
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { onSubmit: handleSubmit, className: "space-y-4", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-6 items-start", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold uppercase tracking-wider mb-1.5", style: { color: "var(--color-text-secondary)" }, children: t("domains.domainName") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "input",
+                    {
+                      ref: nameInputRef,
+                      type: "text",
+                      required: true,
+                      autoFocus: !formData.id,
+                      className: "form-input w-full font-mono text-sm",
+                      placeholder: t("domains.bulkPlaceholder"),
+                      value: formData.name,
+                      onChange: (e) => setFormData({ ...formData, name: cleanNameInput(e.target.value) })
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] mt-1", style: { color: "var(--color-text-muted)" }, children: t("domains.domainBulkHelper") })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold uppercase tracking-wider mb-1.5", style: { color: "var(--color-text-secondary)" }, children: t("domains.group") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "select",
+                      {
+                        className: "form-select flex-1",
+                        value: formData.group_id,
+                        onChange: (e) => setFormData({ ...formData, group_id: e.target.value }),
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("domains.noGroup") }),
+                          domainGroups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: g.id, children: g.name }, g.id))
+                        ]
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "button",
+                      {
+                        type: "button",
+                        className: "btn btn-secondary whitespace-nowrap btn-sm",
+                        onClick: () => setShowGroupsModal(true),
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 14 }),
+                          " ",
+                          t("domains.createGroup")
+                        ]
+                      }
+                    )
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-xs font-semibold uppercase tracking-wider mb-1.5 flex items-center gap-1", style: { color: "var(--color-text-secondary)" }, children: [
+                    t("domains.indexPageLabel"),
+                    " ",
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.indexCampaignTooltip" })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "select",
+                      {
+                        className: "form-select flex-1",
+                        value: formData.index_campaign_id,
+                        onChange: (e) => setFormData({ ...formData, index_campaign_id: e.target.value }),
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "", children: [
+                            "-- ",
+                            t("domains.notSelected"),
+                            " --"
+                          ] }),
+                          campaigns.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: c.id, children: [
+                            c.name,
+                            " (",
+                            c.alias,
+                            ")"
+                          ] }, c.id))
+                        ]
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "inline-flex items-center gap-1.5 text-xs font-medium whitespace-nowrap cursor-pointer", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "input",
+                        {
+                          type: "checkbox",
+                          checked: formData.catch_404,
+                          onChange: (e) => setFormData({ ...formData, catch_404: e.target.checked })
+                        }
+                      ),
+                      t("domains.catch404")
+                    ] })
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-3 gap-2.5 pt-1", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-[11px] font-medium mb-1", style: { color: "var(--color-text-muted)" }, children: t("domains.registrar") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        type: "text",
+                        className: "form-input w-full text-xs",
+                        placeholder: t("domains.optional"),
+                        value: formData.registrar,
+                        onChange: (e) => setFormData({ ...formData, registrar: e.target.value })
+                      }
+                    )
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-[11px] font-medium mb-1", style: { color: "var(--color-text-muted)" }, children: t("domains.dnsProvider") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "input",
+                      {
+                        type: "text",
+                        className: "form-input w-full text-xs",
+                        placeholder: "Cloudflare",
+                        value: formData.dns_provider,
+                        onChange: (e) => setFormData({ ...formData, dns_provider: e.target.value })
+                      }
+                    )
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-[11px] font-medium mb-1", style: { color: "var(--color-text-muted)" }, children: t("domains.status") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "select",
+                      {
+                        className: "form-select w-full text-xs",
+                        value: formData.status,
+                        onChange: (e) => setFormData({ ...formData, status: e.target.value }),
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "OK", children: t("domains.statusOk") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Active", children: t("domains.statusActive") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Disabled", children: t("domains.statusDisabled") })
+                        ]
+                      }
+                    )
+                  ] })
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-3 gap-2.5", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-[11px] font-semibold mb-1 truncate", style: { color: "var(--color-text-secondary)" }, children: t("domains.searchRobots") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      ToggleGroup,
+                      {
+                        value: formData.is_noindex ? "disallow" : "allow",
+                        onChange: (v) => setFormData({ ...formData, is_noindex: v === "disallow" }),
+                        options: [
+                          { value: "allow", label: t("domains.allowRobotsShort") },
+                          { value: "disallow", label: t("domains.disallowShort") }
+                        ]
+                      }
+                    )
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-[11px] font-semibold mb-1 truncate", style: { color: "var(--color-text-secondary)" }, children: t("domains.adminDashboard") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      ToggleGroup,
+                      {
+                        value: formData.admin_access ? "allow" : "deny",
+                        onChange: (v) => setFormData({ ...formData, admin_access: v === "allow" }),
+                        options: [
+                          { value: "allow", label: t("domains.allowAccess") },
+                          { value: "deny", label: t("domains.denyAccess") }
+                        ]
+                      }
+                    )
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-[11px] font-semibold mb-1 truncate flex items-center gap-0.5", style: { color: "var(--color-text-secondary)" }, children: [
+                      t("domains.httpsOnlyShort"),
                       " ",
-                      t("domains.createGroup")
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.httpsTooltip" })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      ToggleGroup,
+                      {
+                        value: formData.https_only ? "on" : "off",
+                        onChange: (v) => setFormData({ ...formData, https_only: v === "on" }),
+                        options: [
+                          { value: "on", label: t("domains.on") },
+                          { value: "off", label: t("domains.off") }
+                        ]
+                      }
+                    )
+                  ] })
+                ] }),
+                !formData.admin_access && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px] -mt-2", style: { color: "var(--color-text-muted)", lineHeight: 1.4 }, children: t("domains.adminAccessHint") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "div",
+                  {
+                    className: "p-4 rounded-xl border flex items-center justify-between gap-4",
+                    style: { background: "var(--color-bg-soft)", borderColor: "var(--color-border)" },
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold text-xs mb-0.5", style: { color: "var(--color-text-primary)" }, children: t("domains.cloudflareProxy") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px]", style: { color: "var(--color-text-muted)", lineHeight: 1.4 }, children: t("domains.cfProxyHint") })
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "120px", flexShrink: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        ToggleGroup,
+                        {
+                          value: formData.cloudflare_proxy ? "on" : "off",
+                          onChange: (v) => setFormData({ ...formData, cloudflare_proxy: v === "on" }),
+                          options: [
+                            { value: "on", label: t("domains.on") },
+                            { value: "off", label: t("domains.off") }
+                          ]
+                        }
+                      ) })
                     ]
                   }
                 )
               ] })
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-sm font-medium mb-1", children: [
-                t("domains.indexPageLabel"),
-                " ",
-                /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.indexCampaignTooltip" })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "select",
-                {
-                  className: "form-select w-full",
-                  value: formData.index_campaign_id,
-                  onChange: (e) => setFormData({ ...formData, index_campaign_id: e.target.value }),
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "", children: [
-                      "-- ",
-                      t("domains.notSelected"),
-                      " --"
-                    ] }),
-                    campaigns.map((c) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: c.id, children: [
-                      c.name,
-                      " (",
-                      c.alias,
-                      ")"
-                    ] }, c.id))
-                  ]
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "inline-flex items-center gap-2 text-sm font-medium cursor-pointer mt-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer mt-6 pt-4 border-t flex items-center justify-between", style: { borderColor: "var(--color-border)" }, children: [
+              !formData.id ? /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "inline-flex items-center gap-2 text-xs font-medium cursor-pointer", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "input",
                   {
                     type: "checkbox",
-                    checked: formData.catch_404,
-                    onChange: (e) => setFormData({ ...formData, catch_404: e.target.checked })
+                    checked: addMore,
+                    onChange: (e) => setAddMore(e.target.checked)
                   }
                 ),
-                t("domains.catch404")
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-secondary)" }, children: t("domains.indexPageHint") })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-medium mb-1.5", children: t("domains.searchRobots") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                ToggleGroup,
-                {
-                  value: formData.is_noindex ? "disallow" : "allow",
-                  onChange: (v) => setFormData({ ...formData, is_noindex: v === "disallow" }),
-                  options: [
-                    { value: "allow", label: t("domains.allowRobotsShort") },
-                    { value: "disallow", label: t("domains.disallowShort") }
-                  ]
-                }
-              )
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-medium mb-1.5", children: t("domains.adminDashboard") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                ToggleGroup,
-                {
-                  value: formData.admin_access ? "allow" : "deny",
-                  onChange: (v) => setFormData({ ...formData, admin_access: v === "allow" }),
-                  options: [
-                    { value: "allow", label: t("domains.allowAccess") },
-                    { value: "deny", label: t("domains.denyAccess") }
-                  ]
-                }
-              ),
-              !formData.admin_access && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1.5", style: { color: "var(--color-text-secondary)" }, children: t("domains.adminAccessHint") })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "block text-xs font-medium mb-1.5 flex items-center gap-1", children: [
-                t("domains.httpsOnlyShort"),
-                " ",
-                /* @__PURE__ */ jsxRuntimeExports.jsx(HelpTooltip, { textKey: "help.httpsTooltip" })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                ToggleGroup,
-                {
-                  value: formData.https_only ? "on" : "off",
-                  onChange: (v) => setFormData({ ...formData, https_only: v === "on" }),
-                  options: [
-                    { value: "on", label: t("domains.on") },
-                    { value: "off", label: t("domains.off") }
-                  ]
-                }
-              )
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between gap-4 p-3 rounded-lg", style: { background: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-sm font-medium", children: t("domains.cloudflareProxy") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-0.5", style: { color: "var(--color-text-secondary)" }, children: t("domains.cfProxyHint") })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { minWidth: "150px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                ToggleGroup,
-                {
-                  value: formData.cloudflare_proxy ? "on" : "off",
-                  onChange: (v) => setFormData({ ...formData, cloudflare_proxy: v === "on" }),
-                  options: [
-                    { value: "on", label: t("domains.on") },
-                    { value: "off", label: t("domains.off") }
-                  ]
-                }
-              ) })
+                t("domains.addMore")
+              ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", {}),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-2.5", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setShowModal(false), className: "btn btn-secondary btn-sm", children: t("common.cancel") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "submit", className: "btn btn-primary btn-sm px-4", children: formData.id ? t("common.save") : t("common.add") })
+              ] })
             ] })
           ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 sm:grid-cols-3 gap-4", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-medium mb-1.5", children: t("domains.registrar") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "text",
-                className: "form-input w-full",
-                placeholder: t("domains.optional"),
-                value: formData.registrar,
-                onChange: (e) => setFormData({ ...formData, registrar: e.target.value })
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-medium mb-1.5", children: t("domains.manageVia", "Управлять DNS через") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "select",
-              {
-                className: "form-select w-full",
-                value: formData.dns_provider === "cloudflare" && formData.dns_account_id ? `cloudflare:${formData.dns_account_id}` : formData.dns_provider === "namecheap" && formData.dns_account_id ? `namecheap:${formData.dns_account_id}` : formData.dns_provider || "",
-                onChange: (e) => {
-                  const v = e.target.value;
-                  if (v === "") {
-                    setFormData({ ...formData, dns_provider: "", dns_account_id: null });
-                  } else if (v.includes(":")) {
-                    const [prov, id] = v.split(":");
-                    setFormData({ ...formData, dns_provider: prov, dns_account_id: Number(id) || null });
-                  } else {
-                    setFormData({ ...formData, dns_provider: v, dns_account_id: null });
-                  }
-                },
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("domains.manageViaNone", "— аккаунт по умолчанию —") }),
-                  cfAccounts.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("optgroup", { label: "Cloudflare", children: cfAccounts.map((a) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: `cloudflare:${a.id}`, children: a.name }, `cf-${a.id}`)) }),
-                  ncAccounts.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("optgroup", { label: "Namecheap", children: ncAccounts.map((a) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: `namecheap:${a.id}`, children: a.name }, `nc-${a.id}`)) }),
-                  formData.dns_provider && !((formData.dns_provider === "cloudflare" || formData.dns_provider === "namecheap") && formData.dns_account_id) && /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: formData.dns_provider, children: formData.dns_provider })
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-secondary)" }, children: t("domains.manageViaHint", "Аккаунт, через который парковается A-запись домена при добавлении и синхронизации.") })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-medium mb-1.5", children: t("domains.status") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "select",
-              {
-                className: "form-select w-full",
-                value: formData.status,
-                onChange: (e) => setFormData({ ...formData, status: e.target.value }),
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "OK", children: t("domains.statusOk") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Active", children: t("domains.statusActive") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "Disabled", children: t("domains.statusDisabled") })
-                ]
-              }
-            )
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
-          !formData.id && /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "inline-flex items-center gap-2 text-sm font-medium cursor-pointer mr-auto", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "checkbox",
-                checked: addMore,
-                onChange: (e) => setAddMore(e.target.checked)
-              }
-            ),
-            t("domains.addMore")
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setShowModal(false), className: "btn btn-secondary", children: t("common.cancel") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "submit", className: "btn btn-primary", children: formData.id ? t("common.save") : t("common.add") })
-        ] })
-      ] })
-    ] }) }),
+        ]
+      }
+    ) }),
     showGroupsModal && /* @__PURE__ */ jsxRuntimeExports.jsx(
       GroupsModal,
       {

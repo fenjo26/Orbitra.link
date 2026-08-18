@@ -170,6 +170,36 @@ $offer   = $rawClick->get('offer');      // the offer URL, same as {offer}
 
 ---
 
+## LeadForge 2.0 (Landing Analyzer, JS Validation & Multi-Network Bridge)
+
+LeadForge 2.0 is Orbitra's built-in engine for analyzing, cleaning, and reseating landing page bundles onto target affiliate networks.
+
+### Integration Modes
+
+- **Auto Mode**: Automatically detects the source network from code signatures and maps form submissions to the target network.
+- **Cross-Network Mode**: Removes legacy network order handlers (`send.php`, `order.php`, `api.php`), cleans out foreign tracking pixels/scripts, and installs the universal multi-network bridge.
+- **Raw Mode (Clone Patch)**: Strips foreign counters and scripts, injects the ClickID/SubID bridge and `{offer}` macros without generating backend handlers.
+
+### 150-GEO Phone Validation & Client Adapter (`orbitra_adapter.js`)
+
+When enabled, LeadForge injects `orbitra_adapter.js`, providing:
+- **150 Country Rules**: Exact national & international regex patterns, mobile operator prefix checks, and min/max length constraints.
+- **Dynamic Country Switching**: Automatically updates validation rules, length caps, and counter helpers when the user changes `<select name="country">`.
+- **Interactive Live Input Badges**: Real-time counter showing digits entered and remaining (e.g. *«3 cifre inserite, 7 mancanti»* → *«Numero complete»*).
+- **Strict Unicode Name Validation**: Real-time filtering preventing digits and spam symbols in customer names.
+- **Haptic Vibration Feedback**: Vibrates mobile devices on invalid phone format attempts.
+- **ClickID / SubID Bridge**: Captures all incoming tracking parameters (`subid`, `click_id`, `sub1`..`sub5`, `utm_*`, `fbp`, `fbc`, etc.) and hydrates form fields across multi-page funnels.
+
+### Universal CPA Order Bridge (`order.php`)
+
+Generates a standalone, self-contained order handler supporting 10 CPA networks:
+- **Dr.Cash**, **Webvork** (with SuperClient fallback), **Lucky.online**, **KMA.biz**, **TerraLeads** (with SHA1 checksum verification), **Leadbit**, **LemonAD**, **Everad**, **Ezaff**, and **Custom Webhooks**.
+- **Automated E.164 Normalization**: Standardizes local phone numbers to international format with country prefix reconciliation.
+- **CRM Dual Logging**: Simultaneously dispatches the lead to the affiliate network and records a complete raw lead snapshot into the Orbitra CRM Vault (`orbitraCrmRecordLead` / `/crm-ingest`).
+- **Failsafe Local Logging**: Appends leads to `leadforge.leads.log` and `orbitra_leads_backup.log`.
+
+---
+
 ## Troubleshooting
 
 **Images and video do not load.** Use relative paths. If they are correct and the page still comes up bare, check that you are opening the campaign URL rather than `landings/<id>/index.html` directly.

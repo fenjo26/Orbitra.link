@@ -21,6 +21,8 @@ require_once __DIR__ . '/CrmVault.php';
 
 class LeadForge
 {
+    private static ?array $allGeoRulesCache = null;
+
     /** Networks the engine can detect and speak. Signatures are lowercase. */
     public static function networks(): array
     {
@@ -30,9 +32,9 @@ class LeadForge
             'webvork'     => ['label' => 'Webvork',      'sigs' => ['webvork']],
             'leadbit'     => ['label' => 'Leadbit',      'sigs' => ['leadbit']],
             'everad'      => ['label' => 'Everad',       'sigs' => ['everad']],
-            'kma'         => ['label' => 'KMA.biz',      'sigs' => ['kma.biz']],
-            'terraleads'  => ['label' => 'TerraLeads',   'sigs' => ['terraleads']],
-            'luckyonline' => ['label' => 'Lucky.online', 'sigs' => ['lucky.online']],
+            'kma'         => ['label' => 'KMA.biz',      'sigs' => ['kma.biz', 'kma']],
+            'terraleads'  => ['label' => 'TerraLeads',   'sigs' => ['terraleads', 't-api.org']],
+            'luckyonline' => ['label' => 'Lucky.online', 'sigs' => ['lucky.online', 'lucky']],
             'ezaff'       => ['label' => 'Ezaff',        'sigs' => ['ezaff']],
             'offercify'   => ['label' => 'Offercify',    'sigs' => ['offercify']],
             'adcombo'     => ['label' => 'AdCombo',      'sigs' => ['adcombo']],
@@ -59,14 +61,32 @@ class LeadForge
     public const LEGACY_HANDLERS = ['order.php', 'send.php', 'api.php', 'sender.php', 'submit.php', 'order_ajax.php', 'ajax.php'];
 
     /**
+     * Load full ALL_GEO_RULES dataset (146 countries).
+     * @return array<string, array>
+     */
+    public static function allGeoRules(): array
+    {
+        if (self::$allGeoRulesCache !== null) {
+            return self::$allGeoRulesCache;
+        }
+        $file = __DIR__ . '/data/leadforge_geo_rules.json';
+        if (is_file($file)) {
+            $data = json_decode((string) file_get_contents($file), true);
+            if (is_array($data) && !empty($data)) {
+                self::$allGeoRulesCache = $data;
+                return self::$allGeoRulesCache;
+            }
+        }
+        return [];
+    }
+
+    /**
      * GEO phone masks shared by the adapter generator and Auto QA.
-     * Must stay in sync with GEO_PRESETS in frontend/src/components/LeadForgePage.jsx —
-     * this map is the source of truth for the masks themselves; a GEO missing
-     * here falls back to a generic +1 prefix with loose 7–15 digit bounds.
+     * Derived dynamically from the 146-GEO rules database.
      */
     public static function geoMasks(): array
     {
-        return [
+        $builtIn = [
             // --- Europe -------------------------------------------------
             'IT' => ['code' => '+39', 'pattern' => '+39 3## ### ####', 'min' => 9, 'max' => 11],
             'ES' => ['code' => '+34', 'pattern' => '+34 6## ### ###', 'min' => 9, 'max' => 9],
@@ -86,7 +106,7 @@ class LeadForge
             'HU' => ['code' => '+36', 'pattern' => '+36 ## ### ####', 'min' => 8, 'max' => 9],
             'BG' => ['code' => '+359', 'pattern' => '+359 ### ### ###', 'min' => 8, 'max' => 9],
             'RS' => ['code' => '+381', 'pattern' => '+381 6# ### ####', 'min' => 8, 'max' => 9],
-            'HR' => ['code' => '+385', 'pattern' => '+385 9# ### ####', 'min' => 8, 'max' => 9],
+            'HR' => ['code' => '+385', 'pattern' => '+385 9# ### ####', 'min' => 8, 'max' => 8],
             'SI' => ['code' => '+386', 'pattern' => '+386 3# ### ###', 'min' => 8, 'max' => 8],
             'LT' => ['code' => '+370', 'pattern' => '+370 6## #####', 'min' => 8, 'max' => 8],
             'LV' => ['code' => '+371', 'pattern' => '+371 2### ####', 'min' => 8, 'max' => 8],
@@ -147,20 +167,29 @@ class LeadForge
             'SA' => ['code' => '+966', 'pattern' => '+966 5# ### ####', 'min' => 9, 'max' => 9],
             'AE' => ['code' => '+971', 'pattern' => '+971 5# ### ####', 'min' => 9, 'max' => 9],
             'IL' => ['code' => '+972', 'pattern' => '+972 5#-###-####', 'min' => 9, 'max' => 9],
-            // --- CIS (RU/KZ/UA above) ------------------------------------
+            // --- CIS ----------------------------------------------------
             'RU' => ['code' => '+7',  'pattern' => '+7 (9##) ###-##-##', 'min' => 10, 'max' => 10],
             'UA' => ['code' => '+380', 'pattern' => '+380 (##) ###-##-##', 'min' => 9, 'max' => 9],
             'KZ' => ['code' => '+7',  'pattern' => '+7 (7##) ###-##-##', 'min' => 10, 'max' => 10],
         ];
+
+        $rules = self::allGeoRules();
+        foreach ($rules as $iso => $r) {
+            if (!isset($builtIn[$iso])) {
+                $code = (string) ($r['country_prefix'] ?? '');
+                $example = (string) ($r['example_local'] ?? '');
+                $pattern = $example !== '' ? ($code . ' ' . $example) : ($code . ' ### ### ###');
+                $builtIn[$iso] = [
+                    'code' => $code,
+                    'pattern' => $pattern,
+                    'min' => (int) ($r['minlength'] ?? 7),
+                    'max' => (int) ($r['maxlength'] ?? 15),
+                ];
+            }
+        }
+        return $builtIn;
     }
 
-    /**
-     * html lang attribute codes that are LANGUAGE codes, not the ISO country
-     * code the mask table is keyed by. Without the mapping a Hindi landing
-     * (lang="hi") votes for "HI", which matches nothing, and detection
-     * silently fails — leaving the GEO selector on whatever was selected
-     * before. Only unambiguous languages whose country has a mask are listed.
-     */
     private const LANG_GEO = [
         'HI' => 'IN', 'TA' => 'IN', 'TE' => 'IN', 'ML' => 'IN', 'KN' => 'IN', 'MR' => 'IN', 'GU' => 'IN', 'PA' => 'IN', 'AS' => 'IN', 'OR' => 'IN',
         'BN' => 'BD', 'UR' => 'PK',
@@ -174,13 +203,6 @@ class LeadForge
     // Analyze
     // ==================================================================
 
-    /**
-     * Static inspection of one uploaded archive — nothing is modified.
-     * Accepts ZIP archives and bare HTML/PHP files (treated as one-file
-     * bundles).
-     *
-     * @return array analysis card; ['error'=>...] on a broken archive
-     */
     public static function analyzeUploaded(string $tmpPath, string $origName): array
     {
         $card = [
@@ -220,7 +242,6 @@ class LeadForge
             $zip->close();
             orbitraFlattenSingleNestedDir($dir);
         } else {
-            // A bare HTML/PHP file is a one-file bundle.
             $base = strtolower(pathinfo($origName, PATHINFO_EXTENSION)) === 'php' ? 'index.php' : 'index.html';
             copy($tmpPath, $dir . '/' . $base);
         }
@@ -242,7 +263,6 @@ class LeadForge
         return $card;
     }
 
-    /** Scan an extracted bundle directory. */
     public static function analyzeDir(string $dir): array
     {
         $out = [
@@ -279,13 +299,10 @@ class LeadForge
             }
             $lower = function_exists('mb_strtolower') ? mb_strtolower($content, 'UTF-8') : strtolower($content);
 
-            // Encoding: a file that is valid UTF-8 (or plain ASCII) is fine;
-            // anything else (cp1251 et al) warns.
             if (!mb_check_encoding($content, 'UTF-8')) {
                 $out['encoding'] = 'non-UTF-8';
             }
 
-            // Network signatures.
             foreach (self::networks() as $key => $net) {
                 if ($key === 'custom') {
                     continue;
@@ -298,7 +315,6 @@ class LeadForge
                 }
             }
 
-            // Foreign scripts / counters.
             foreach (self::foreignScriptSignatures() as $fk => $sigs) {
                 foreach ($sigs as $sig) {
                     if (strpos($lower, $sig) !== false) {
@@ -308,11 +324,6 @@ class LeadForge
                 }
             }
 
-            // GEO: the html lang attribute gets one vote per file. Language
-            // codes that differ from the country code (hi, el, uk...) are
-            // mapped first; Devanagari script content votes IN so lang-less
-            // Hindi pages still detect. Invalid UTF-8 makes the /u pattern
-            // fail cleanly — no vote, never a false one.
             if (in_array($ext, ['html', 'htm', 'php'], true) && preg_match('/<html[^>]+lang=["\']([a-zA-Z]{2})/i', $content, $m)) {
                 $geoKey = strtoupper($m[1]);
                 $geoKey = self::LANG_GEO[$geoKey] ?? $geoKey;
@@ -323,7 +334,6 @@ class LeadForge
             }
 
             if (in_array($ext, ['html', 'htm', 'php'], true)) {
-                // Forms + input names.
                 if (preg_match_all('/<form\b[^>]*>/i', $content, $fm)) {
                     $out['forms_count'] += count($fm[0]);
                 }
@@ -335,7 +345,6 @@ class LeadForge
                         }
                     }
                 }
-                // CTA anchors: "#order" style jumps and links to form pages.
                 if (preg_match_all('/<a[^>]+href=["\']#[a-zA-Z][^"\']*["\']/i', $content, $am)) {
                     $out['cta_links_count'] += count($am[0]);
                 }
@@ -344,8 +353,6 @@ class LeadForge
                 }
             }
 
-            // A phone mask heuristic: masking libs or permissive patterns near
-            // the word phone.
             if (strpos($lower, 'phone') !== false || strpos($lower, 'tel') !== false) {
                 if (strpos($lower, 'mask(') !== false || strpos($lower, 'inputmask') !== false || strpos($lower, 'imask') !== false) {
                     $out['has_phone_mask'] = true;
@@ -361,7 +368,7 @@ class LeadForge
         if ($geoVotes) {
             arsort($geoVotes);
             $geo = array_key_first($geoVotes);
-            if (array_key_exists($geo, self::geoMasks())) {
+            if (array_key_exists($geo, self::geoMasks()) || array_key_exists($geo, self::allGeoRules())) {
                 $out['detected_geo'] = $geo;
             }
         }
@@ -374,18 +381,6 @@ class LeadForge
     // Build
     // ==================================================================
 
-    /**
-     * Full build pipeline for one bundle.
-     *
-     * @param array $card  the analysis card (from staging), may be null for a
-     *                    blind one-shot build
-     * @param array $opts mode/network/api_key/offer_id/geo/payout/currency/
-     *                    group_id/target_type ('lander'|'offer'|'both'; empty =
-     *                    legacy auto_save_tracker/auto_create_offer pair)/
-     *                    inject flags/generate flags/auto_save_tracker/
-     *                    auto_create_offer/crm_enabled/auto_qa/base_url/name
-     * @return array ['ok'=>bool,'message'=>string,'logs'=>[],'result'=>[],'qa'=>[]]
-     */
     public static function buildBundle(PDO $pdo, string $zipPath, ?array $card, array $opts): array
     {
         $logs = [];
@@ -402,7 +397,6 @@ class LeadForge
         $generateThankYou = ($opts['generate_thank_you'] ?? true) && $mode !== 'raw';
         $crmEnabled = !empty($opts['crm_enabled']) && $generateOrder;
 
-        // Auto mode routes to the detected network when one was recognized.
         if ($mode === 'auto' && !empty($card['detected']) && !empty($card['network'])
             && array_key_exists($card['network'], self::networks()) && $card['network'] !== 'custom') {
             $network = $card['network'];
@@ -437,7 +431,6 @@ class LeadForge
             copy($zipPath, $tempDir . '/index.html');
         }
 
-        // --- Cross: cut the old network's handlers out -----------------
         if ($mode === 'cross') {
             $removed = self::removeLegacyHandlers($tempDir);
             foreach ($removed as $r) {
@@ -448,7 +441,6 @@ class LeadForge
             }
         }
 
-        // --- HTML pass: strip / inject / rewrite ------------------------
         $injectAdapter = !empty($opts['inject_js_adapter']);
         $injectMacro = !empty($opts['inject_offer_macro']);
         $rewriteForms = $generateOrder;
@@ -471,9 +463,8 @@ class LeadForge
             if (!in_array($ext, ['html', 'htm', 'php'], true)) {
                 continue;
             }
-            // Never touch the handlers we ourselves generate.
             $base = strtolower($file->getFilename());
-            if (in_array($base, ['order.php', 'thank_you.php'], true)) {
+            if (in_array($base, ['order.php', 'thank_you.php', 'success.php'], true)) {
                 continue;
             }
             $content = (string) @file_get_contents($file->getPathname());
@@ -517,7 +508,7 @@ class LeadForge
 
         if ($adapterInline !== '') {
             @file_put_contents($tempDir . '/orbitra_adapter.js', $adapterInline);
-            $log('Injected orbitra_adapter.js (ClickID bridge' . (!empty($opts['add_phone_mask']) ? " + {$geo} phone mask" : '') . ')');
+            $log('Injected orbitra_adapter.js (ClickID bridge' . (!empty($opts['add_phone_mask']) ? " + {$geo} reference phone validator & counter" : '') . ')');
         }
         if ($injectMacro) {
             $log('Replaced CTA links with {offer} macro');
@@ -546,7 +537,7 @@ class LeadForge
             }
             @file_put_contents($tempDir . '/order.php', $orderSrc);
             $netLabel = self::networks()[$network]['label'] ?? $network;
-            $log("Generated order.php bridge for {$netLabel}" . ($crmEnabled ? ' + CRM vault sync' : ''));
+            $log("Generated universal order.php bridge for {$netLabel}" . ($crmEnabled ? ' + CRM vault sync' : ''));
         } elseif ($mode === 'raw') {
             $log('Raw mode: no order.php generated (clone patch only)');
         }
@@ -584,18 +575,12 @@ class LeadForge
         $landingId = null;
         $slug = '';
         $offerId = null;
-        // An explicit target_type (LeadForge panel) overrides the legacy
-        // auto_save_tracker/auto_create_offer pair; when absent the flags rule.
         $targetType = in_array($opts['target_type'] ?? '', ['lander', 'offer', 'both'], true) ? $opts['target_type'] : '';
         $autoSave = $targetType !== '' ? in_array($targetType, ['lander', 'both'], true) : !empty($opts['auto_save_tracker']);
         $autoCreateOffer = $targetType !== '' ? $targetType === 'both' : !empty($opts['auto_create_offer']);
+
         if ($targetType === 'offer') {
-            // Direct local offer: no landing record — the files live in the
-            // offer's own directory (/offers/{id}/), served through the
-            // orbitra_lo cookie route, exactly like a manually uploaded one.
             $offerName = trim((string) ($opts['name'] ?? '')) ?: ('LeadForge ' . date('Ymd His'));
-            // offers.group_id is FK-bound to offer_groups — the panel sends an
-            // offer-group id here, never a landing_groups id.
             $stmtOff = $pdo->prepare("INSERT INTO offers (name, group_id, affiliate_network_id, payout_value, is_local, state) VALUES (?, ?, NULL, ?, 1, 'active')");
             $stmtOff->execute([$offerName, !empty($opts['group_id']) ? (int) $opts['group_id'] : null, (float) ($opts['payout'] ?? 0)]);
             $offerId = (int) $pdo->lastInsertId();
@@ -650,12 +635,7 @@ class LeadForge
             }
             $log("Saved landing '{$landingName}' → /lander/{$slug}/ (ID #{$landingId})");
 
-            // A matching local offer. offers has no payout_currency column —
-            // the conversion carries the currency, not the offer.
             if ($autoCreateOffer) {
-                // offers.group_id is FK-bound to offer_groups, so a landing
-                // group id must not be copied as-is (PRAGMA foreign_keys=ON):
-                // link the same-named offer group when one exists, else none.
                 $offerGroupId = null;
                 if (!empty($opts['group_id'])) {
                     $stmtGN = $pdo->prepare(
@@ -718,20 +698,6 @@ class LeadForge
         ];
     }
 
-    /**
-     * Live Auto QA: POST a QA lead through the real /order.php route (the
-     * in-process bridge index.php exposes for orbitra_lp/orbitra_lo cookies),
-     * verify the CRM vault row / conversion and the thank-you redirect, and
-     * score it.
-     *
-     * Works for saved landings (orbitra_lp cookie) and direct local offers
-     * (orbitra_lo cookie — the bridge resolves offers/<id> the same way). The
-     * rerun endpoint only ever passes landings; the build engine passes
-     * type=offer for Direct Local Offer bundles.
-     *
-     * Confidence: 25 points per passed check — HTML/form structure, order.php
-     * bridge response, dual logging (vault or pixel), thank-you redirect.
-     */
     public static function runQa(PDO $pdo, int $landingId, string $slug, array $opts): array
     {
         require_once __DIR__ . '/PhpLanding.php';
@@ -778,16 +744,14 @@ class LeadForge
             return $qa;
         }
 
-        // A real click row so postback-based verification can attach to it.
-        // Removed afterwards: QA traffic must never show up in reports.
         $geo = strtoupper((string) ($opts['geo'] ?? 'IT'));
+        $rule = self::allGeoRules()[$geo] ?? null;
         $mask = self::geoMasks()[$geo] ?? ['code' => '+1', 'pattern' => '', 'min' => 9, 'max' => 15];
-        $dial = ltrim($mask['code'], '+');
-        // National part sized to the mask so the strict national-length lock
-        // in order.php accepts the QA lead in every GEO (SI wants 8 digits,
-        // CN wants 11) — the old fixed 10-digit tail failed both edges.
-        $qaLen = max((int) $mask['min'], min((int) $mask['max'], 10));
-        $qaPhone = '+' . $dial . substr(str_pad('3330001122', $qaLen, '2'), 0, $qaLen);
+        $dial = ltrim($mask['code'] ?: ($rule['country_prefix'] ?? '+1'), '+');
+        $qaLen = max((int) ($mask['min'] ?? 9), min((int) ($mask['max'] ?? 10), 10));
+        $prefixDigits = !empty($rule['allowed_prefixes'][0]) ? (string)$rule['allowed_prefixes'][0] : '3';
+        $fillDigits = substr(str_pad($prefixDigits . '330001122', $qaLen, '2'), 0, $qaLen);
+        $qaPhone = '+' . $dial . $fillDigits;
         $qaClick = 'qa_test_' . time() . '_' . bin2hex(random_bytes(3));
 
         $campaignId = 0;
@@ -811,10 +775,6 @@ class LeadForge
             return $qa;
         }
 
-        // The loopback request: same host the panel runs on, cookie steering
-        // the /order.php bridge to the page we just saved — orbitra_lp for a
-        // landing, orbitra_lo for a direct local offer (index.php's bridge
-        // resolves the offer's own directory from it).
         $host = (string) ($_SERVER['HTTP_HOST'] ?? '');
         $base = (string) ($opts['base_url'] ?? '');
         if ($base !== '' && strpos($base, '://') !== false) {
@@ -848,7 +808,7 @@ class LeadForge
                 CURLOPT_FOLLOWLOCATION => false,
                 CURLOPT_TIMEOUT => 15,
                 CURLOPT_COOKIE => $isOffer ? 'orbitra_lo=' . $entityId : 'orbitra_lp=' . $landingId,
-                CURLOPT_SSL_VERIFYPEER => false, // loopback self-signed installs
+                CURLOPT_SSL_VERIFYPEER => false,
                 CURLOPT_SSL_VERIFYHOST => 0,
             ]);
             $raw = curl_exec($ch);
@@ -864,8 +824,6 @@ class LeadForge
                 $responseBody = substr($raw, $hSize);
             }
         } else {
-            // Live QA drives the real HTTP bridge; without curl it cannot see
-            // the redirect, so it reports a warning instead of a fake pass.
             $qa['warnings'][] = 'PHP cURL is required for Live QA';
             $say('QA SKIP: cURL extension is not available');
             try {
@@ -886,9 +844,6 @@ class LeadForge
             $qa['fail_reason'] = 'order_php_http_' . $httpCode;
         }
 
-        // Dual logging: CRM vault row when CRM sync is on, pixel conversion
-        // when it is off. QA rows never pollute analytics — the click and any
-        // conversion it produced are deleted below.
         $dualOk = false;
         if (!empty($opts['crm_enabled'])) {
             try {
@@ -936,7 +891,6 @@ class LeadForge
         $qa['confidence'] = 25 * $passedCount;
         $qa['passed'] = $passedCount === 4;
 
-        // Cleanup: analytics stays pristine; the QA evidence lives in the vault.
         try {
             $pdo->prepare("DELETE FROM conversions WHERE click_id = ?")->execute([$qaClick]);
             $pdo->prepare("DELETE FROM clicks WHERE id = ?")->execute([$qaClick]);
@@ -949,214 +903,97 @@ class LeadForge
     // Generators
     // ==================================================================
 
-    /** The ClickID bridge adapter. */
+    /**
+     * Generate the orbitra_adapter.js ClickID & Phone Validation engine.
+     * Uses the full reference template with 146-GEO rules, live counter badge,
+     * adaptive background theme, vibration feedback, dynamic country switching,
+     * strict name checks, and ClickID bridge.
+     */
     public static function adapterJs(string $geo, bool $withMask): string
     {
-        $mask = self::geoMasks()[$geo] ?? ['code' => '', 'pattern' => '', 'min' => 7, 'max' => 15];
-        $js = <<<'JS'
-/**
- * Orbitra LeadForge 2.0 — ClickID Bridge & JS Adapter
- * Captures tracking params from the URL (with sessionStorage/cookie fallbacks),
- * re-injects them as hidden fields into every form, and enforces the GEO
- * phone mask on tel inputs.
- */
-(function() {
-    var GEO = '@@GEO@@';
-    var PHONE_CODE = '@@PHONE_CODE@@';
-    var PHONE_PATTERN = '@@PHONE_PATTERN@@';
-    var PHONE_MIN = @@PHONE_MIN@@;
-    var PHONE_MAX = @@PHONE_MAX@@;
-    var MASK_ENABLED = @@MASK_ENABLED@@;
-
-    function getQueryParam(name) {
-        var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
-        return match ? decodeURIComponent(match[1].replace(/\+/g, ' ')) : '';
-    }
-    function getCookie(name) {
-        var m = RegExp('(^|;\\s*)' + name + '=([^;]*)').exec(document.cookie);
-        return m ? decodeURIComponent(m[2]) : '';
-    }
-    function store(key, value) {
-        try { sessionStorage.setItem('orbitra_' + key, value); } catch (e) {}
-        try {
-            document.cookie = 'orbitra_lf_' + key + '=' + encodeURIComponent(value) +
-                '; path=/; max-age=2592000; SameSite=Lax';
-        } catch (e) {}
-    }
-    function recall(key) {
-        var v = '';
-        try { v = sessionStorage.getItem('orbitra_' + key) || ''; } catch (e) {}
-        if (!v) v = getCookie('orbitra_lf_' + key);
-        return v;
-    }
-
-    var PARAMS = ['subid', 'sub_id', 'click_id', 'clickid', 'sub1', 'sub2', 'sub3', 'sub4', 'sub5',
-                  'sub6', 'sub7', 'sub8', 'sub9', 'sub10', 'pixel',
-                  'utm_source', 'utm_campaign', 'utm_medium', 'utm_content', 'utm_term', 'utm_placement',
-                  'fbclid', 'fbp', 'fbc', 'ttclid', 'gclid', 'adset_id', 'ad_id'];
-    var captured = {};
-    PARAMS.forEach(function(p) {
-        var v = getQueryParam(p);
-        if (v) {
-            captured[p] = v;
-            store(p, v);
-        } else {
-            var r = recall(p);
-            if (r) captured[p] = r;
-        }
-    });
-
-    // The tracker's own click cookie is the last-resort subid: it is set when
-    // the campaign served this page, even with no URL parameters at all.
-    if (!captured.subid && !captured.sub_id && !captured.click_id && !captured.clickid) {
-        var ck = getCookie('orbitra_click') || getCookie('subid');
-        if (ck) captured.subid = ck;
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        // Hidden-field injection into every form.
-        var forms = document.querySelectorAll('form');
-        Array.prototype.forEach.call(forms, function(form) {
-            for (var key in captured) {
-                if (!captured[key] || form.querySelector('input[name="' + key + '"]')) continue;
-                var input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = key;
-                input.value = captured[key];
-                form.appendChild(input);
-            }
-        });
-
-        if (!MASK_ENABLED) return;
-
-        // Phone mask + validation for the target GEO.
-        var phoneInputs = document.querySelectorAll(
-            'input[type="tel"], input[name*="phone"], input[name*="tel"], input[name="phone_number"]'
-        );
-        var nameFields = 'input[name="name"], input[name="fio"], input[name="client"]';
-        var digitsOf = function(s) { return (s || '').replace(/\D+/g, ''); };
-        var codeDigits = PHONE_CODE.replace(/\D+/g, '');
-        // Count digits the way order.php does: a leading 00 or country code is
-        // not part of the national number the min/max bounds describe.
-        var nationalDigits = function(s) {
-            var d = digitsOf(s);
-            if (d.indexOf('00') === 0 && d.length > 2) d = d.slice(2);
-            if (codeDigits && d.indexOf(codeDigits) === 0 && d.length > codeDigits.length) d = d.slice(codeDigits.length);
-            return d;
-        };
-        // A name needs at least one letter of some alphabet — digits-only and
-        // symbol-only input is trash the CPA network will reject anyway.
-        var LF_NAME_LETTER = /[A-Za-z\u00C0-\u024F\u0370-\u03FF\u0400-\u04FF\u0530-\u058F\u0600-\u06FF\u0900-\u097F\u4E00-\u9FFF\u3040-\u30FF\uAC00-\uD7AF]/;
-        var isValidName = function(v) {
-            var s = (v || '').trim();
-            return s.length >= 2 && LF_NAME_LETTER.test(s);
-        };
-
-        Array.prototype.forEach.call(phoneInputs, function(input) {
-            input.setAttribute('autocomplete', 'tel');
-            if (PHONE_PATTERN) input.setAttribute('placeholder', PHONE_PATTERN);
-            input.addEventListener('input', function() {
-                // Allow the mask's punctuation only; letters are dropped.
-                this.value = this.value.replace(/[^0-9+()\- ]/g, '');
-                // Phone lock: past the mask's national maximum further digits
-                // are dropped (country code included when one was typed).
-                var cap = (codeDigits && digitsOf(this.value).indexOf(codeDigits) === 0)
-                    ? codeDigits.length + PHONE_MAX : PHONE_MAX;
-                while (digitsOf(this.value).length > cap && this.value.length > 0) {
-                    this.value = this.value.slice(0, -1);
-                }
-            });
-            input.addEventListener('blur', function() {
-                var d = nationalDigits(this.value).length;
-                var bad = d !== 0 && (d < PHONE_MIN || d > PHONE_MAX);
-                this.classList.toggle('orbitra-phone-invalid', bad);
-            });
-            var form = input.closest ? input.closest('form') : input.form;
-            if (form && !form.getAttribute('data-orbitra-mask')) {
-                form.setAttribute('data-orbitra-mask', '1');
-                form.addEventListener('submit', function(e) {
-                    var badPhone = Array.prototype.some.call(
-                        this.querySelectorAll('input[type="tel"], input[name*="phone"], input[name*="tel"], input[name="phone_number"]'),
-                        function(el) {
-                            var d = nationalDigits(el.value).length;
-                            if (d < PHONE_MIN || d > PHONE_MAX) {
-                                el.classList.add('orbitra-phone-invalid');
-                                return true;
-                            }
-                            return false;
-                        }
-                    );
-                    // Names: empty stays allowed (order.php defaults it), but
-                    // digits-only or too-short input blocks the submit.
-                    var badName = Array.prototype.some.call(
-                        this.querySelectorAll(nameFields),
-                        function(el) {
-                            var v = (el.value || '').trim();
-                            if (v === '') return false;
-                            var bad = !isValidName(v);
-                            el.classList.toggle('orbitra-name-invalid', bad);
-                            return bad;
-                        }
-                    );
-                    if (badPhone || badName) {
-                        e.preventDefault();
-                        if (badPhone && !document.getElementById('orbitra-phone-err')) {
-                            var div = document.createElement('div');
-                            div.id = 'orbitra-phone-err';
-                            div.style.cssText = 'color:#e11d48;font-size:12px;margin-top:6px';
-                            div.textContent = 'Please enter a valid phone number for your country (' + PHONE_PATTERN + ')';
-                            (this.parentNode || document.body).appendChild(div);
-                        }
-                        if (badName && !document.getElementById('orbitra-name-err')) {
-                            var ndiv = document.createElement('div');
-                            ndiv.id = 'orbitra-name-err';
-                            ndiv.style.cssText = 'color:#e11d48;font-size:12px;margin-top:6px';
-                            ndiv.textContent = 'Please enter your real name (letters, at least 2 characters)';
-                            (this.parentNode || document.body).appendChild(ndiv);
-                        }
-                    }
-                });
-            }
-        });
-
-        var style = document.createElement('style');
-        style.textContent = '.orbitra-phone-invalid,.orbitra-name-invalid{border-color:#e11d48 !important;box-shadow:0 0 0 1px #e11d48}';
-        document.head.appendChild(style);
-    });
-})();
-JS;
-        $replacements = [
-            '@@GEO@@' => $geo,
-            '@@PHONE_CODE@@' => $mask['code'],
-            '@@PHONE_PATTERN@@' => $mask['pattern'],
-            '@@PHONE_MIN@@' => (int) $mask['min'],
-            '@@PHONE_MAX@@' => (int) $mask['max'],
-            '@@MASK_ENABLED@@' => $withMask ? 'true' : 'false',
+        $geo = strtoupper(trim($geo));
+        $allRules = self::allGeoRules();
+        $active = $allRules[$geo] ?? $allRules['IT'] ?? [
+            'geo' => $geo,
+            'pattern' => '^.*$',
+            'minlength' => 7,
+            'maxlength' => 15,
+            'name_err' => 'Please enter your real name without numbers',
+            'phone_err' => 'Invalid phone number for selected country',
+            'counter_intro' => ' digits entered, ',
+            'counter_mid' => ' remaining',
+            'counter_complete' => 'Number complete',
+            'counter_err' => 'Enter a valid phone number',
+            'country_iso' => strtolower($geo),
+            'country_prefix' => '+1',
+            'national_prefix' => '',
+            'trunk_prefix' => false,
+            'allowed_prefixes' => [],
+            'phone_helper' => 'Enter valid phone number',
         ];
-        return strtr($js, $replacements);
+
+        $templatePath = __DIR__ . '/data/leadforge_validation_template.js';
+        if (is_file($templatePath)) {
+            $tmpl = (string) file_get_contents($templatePath);
+            $mask = self::geoMasks()[$geo] ?? ['pattern' => '+39 3## ### ####'];
+            $patternMask = (string) ($mask['pattern'] ?? '+39 3## ### ####');
+            $replacements = [
+                '// PATTERN: {{PATTERN}}' => '// PATTERN: ' . ($active['pattern'] ?? '^.*$') . "\n// PHONE_PATTERN: " . $patternMask,
+                '{{GEO}}' => $geo,
+                '{{PATTERN}}' => $active['pattern'] ?? '^.*$',
+                '{{PHONE_PATTERN}}' => $patternMask,
+                '{{MINLENGTH}}' => (string) ($active['minlength'] ?? 7),
+                '{{MAXLENGTH}}' => (string) ($active['maxlength'] ?? 15),
+                '{{NAME_ERR}}' => json_encode($active['name_err'] ?? 'Enter your name without numbers', JSON_UNESCAPED_UNICODE),
+                '{{PHONE_ERR}}' => json_encode($active['phone_err'] ?? 'Invalid phone number', JSON_UNESCAPED_UNICODE),
+                '{{COUNTER_INTRO}}' => json_encode($active['counter_intro'] ?? ' digits entered, ', JSON_UNESCAPED_UNICODE),
+                '{{COUNTER_MID}}' => json_encode($active['counter_mid'] ?? ' remaining', JSON_UNESCAPED_UNICODE),
+                '{{COUNTER_COMPLETE}}' => json_encode($active['counter_complete'] ?? 'Number complete', JSON_UNESCAPED_UNICODE),
+                '{{COUNTER_ERR}}' => json_encode($active['counter_err'] ?? 'Enter valid phone number', JSON_UNESCAPED_UNICODE),
+                '{{COUNTRY_ISO}}' => json_encode(strtolower($geo)),
+                '{{COUNTRY_PREFIX}}' => json_encode($active['country_prefix'] ?? ''),
+                '{{NATIONAL_PREFIX}}' => json_encode($active['national_prefix'] ?? ''),
+                '{{TRUNK_PREFIX}}' => !empty($active['trunk_prefix']) ? 'true' : 'false',
+                '{{ALLOWED_PREFIXES}}' => json_encode($active['allowed_prefixes'] ?? []),
+                '{{PHONE_HELPER}}' => json_encode($active['phone_helper'] ?? '', JSON_UNESCAPED_UNICODE),
+                '{{ALL_GEO_RULES}}' => json_encode($allRules, JSON_UNESCAPED_UNICODE),
+                '{{SEP}}' => '<\\/script>',
+            ];
+            return str_replace(array_keys($replacements), array_values($replacements), $tmpl);
+        }
+
+        // Fallback minimal bridge
+        return '/* LeadForge Adapter Fallback */';
     }
 
     /**
-     * The generated order.php. @@KEY@@ markers are substituted with
-     * var_export()-safe PHP literals — an API key containing quotes or
-     * backslashes cannot break out of the string.
+     * Generate the universal order.php bridge.
+     * Supports: Dr.Cash, Webvork, LuckyOnline, KMA.biz, TerraLeads, Leadbit, LemonAD, Everad, Ezaff, Custom.
      */
     public static function orderPhp(array $o): string
     {
         $geo = strtoupper((string) ($o['geo'] ?? 'IT'));
-        $mask = self::geoMasks()[$geo] ?? ['code' => '', 'min' => 7, 'max' => 15];
-        $dial = ltrim($mask['code'], '+');
+        $rule = self::allGeoRules()[$geo] ?? null;
+        $mask = self::geoMasks()[$geo] ?? [];
+        $dial = ltrim((string) ($mask['code'] ?? $rule['country_prefix'] ?? '+39'), '+');
+        $minLen = (int) ($mask['min'] ?? $rule['minlength'] ?? 7);
+        $maxLen = (int) ($mask['max'] ?? $rule['maxlength'] ?? 15);
+
+        $rulesJson = json_encode(self::allGeoRules(), JSON_UNESCAPED_UNICODE);
+
         $tpl = <<<'PHP'
 <?php
 /**
  * Orbitra LeadForge 2.0 — Universal CPA Order Bridge + CRM Vault Sync
- * Network: @@NETWORK@@ | Offer: @@OFFER_ID@@ | Target GEO: @@GEO@@
+ * Target Network: @@NETWORK@@ | Offer: @@OFFER_ID@@ | Target GEO: @@GEO@@
  *
  * Dual logging: the CPA network first, then the full raw lead snapshot into
  * the Orbitra CRM vault (in-process here, or /crm-ingest when this bundle is
  * hosted elsewhere). QA-flagged submissions never call the real network.
  */
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 error_reporting(0);
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -1175,190 +1012,400 @@ $LF = array(
     'tracker_base' => @@BASE_URL@@,
     'landing_name' => @@LANDING_NAME@@,
     'dial_code'    => @@DIAL_CODE@@,
+    'phone_min'    => @@PHONE_MIN@@,
+    'phone_max'    => @@PHONE_MAX@@,
 );
 
-$name = trim($_POST['name'] ?? $_POST['fio'] ?? $_POST['client'] ?? 'Customer');
-$rawPhone = trim($_POST['phone'] ?? $_POST['tel'] ?? $_POST['phone_number'] ?? '');
+// Endpoints
+const DRCASH_ENDPOINT = 'https://order.drcash.sh/v1/order';
+const WEBVORK_ENDPOINT_1 = 'https://api.webvork.com/v1/new-lead';
+const WEBVORK_ENDPOINT_2 = 'https://api2.webvork.com/v1/new-lead';
+const LUCKY_ENDPOINT = 'https://lucky.online/api/v1/lead-create/webmaster';
+const KMA_ENDPOINT = 'https://api.kma.biz/lead/add';
+const TERRALEADS_API_DOMAIN = 'https://t-api.org';
+const LEADBIT_API_DOMAIN = 'http://wapi.leadbit.com';
+const LEMONAD_ENDPOINT = 'https://lemonad.com/api/v2/lead/create';
+const EZAFF_ENDPOINT = 'https://api.ezaff.com/send';
+
+function lf_request_value(array $keys): string {
+    foreach ($keys as $k) {
+        if (!empty($_POST[$k])) {
+            $v = trim((string) $_POST[$k]);
+            if (!preg_match('/^\{[^{}]+\}$/', $v)) return $v;
+        }
+        if (!empty($_GET[$k])) {
+            $v = trim((string) $_GET[$k]);
+            if (!preg_match('/^\{[^{}]+\}$/', $v)) return $v;
+        }
+        if (!empty($_SESSION[$k])) {
+            $v = trim((string) $_SESSION[$k]);
+            if (!preg_match('/^\{[^{}]+\}$/', $v)) return $v;
+        }
+    }
+    return '';
+}
+
+function lf_get_ip(): string {
+    foreach (['HTTP_CF_CONNECTING_IP', 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'REMOTE_ADDR'] as $k) {
+        if (!empty($_SERVER[$k])) {
+            $ip = trim(explode(',', (string) $_SERVER[$k])[0]);
+            if (filter_var($ip, FILTER_VALIDATE_IP) !== false) return $ip;
+        }
+    }
+    return '127.0.0.1';
+}
+
+function lf_all_geo_rules(): array {
+    static $rules = null;
+    if ($rules !== null) return $rules;
+    $raw = '@@ALL_GEO_RULES_JSON@@';
+    $rules = json_decode($raw, true) ?: [];
+    return $rules;
+}
+
+function lf_normalize_phone(string $phone, string $country, string $defaultDial = ''): string {
+    $country = strtoupper(trim($country));
+    $digits = preg_replace('/\D+/', '', $phone);
+    if ($digits === '') return '';
+    $rules = lf_all_geo_rules();
+    $cfg = $rules[$country] ?? null;
+    $dial = $cfg['country_prefix'] ? ltrim($cfg['country_prefix'], '+') : $defaultDial;
+
+    if ($dial !== '' && strpos($digits, $dial) === 0 && strlen($digits) > strlen($dial)) {
+        $withoutDial = substr($digits, strlen($dial));
+        if (!empty($cfg['pattern']) && @preg_match('/' . $cfg['pattern'] . '/', $withoutDial)) {
+            $digits = $withoutDial;
+        }
+    }
+    if (!empty($cfg['trunk_prefix']) && strpos($digits, '0') === 0 && strlen($digits) > 1) {
+        $digits = substr($digits, 1);
+    }
+
+    if ($dial !== '') {
+        return '+' . $dial . $digits;
+    }
+    return (strpos($phone, '+') === 0 ? '+' : '') . $digits;
+}
+
+function lf_http_call(string $url, $payload, array $headers, bool $asJson): array {
+    if (!function_exists('curl_init')) {
+        $ctx = stream_context_create([
+            'http' => [
+                'method' => 'POST',
+                'header' => implode("\r\n", $headers),
+                'content' => $asJson ? (is_string($payload) ? $payload : json_encode($payload)) : (is_array($payload) ? http_build_query($payload) : $payload),
+                'timeout' => 15,
+                'ignore_errors' => true,
+            ]
+        ]);
+        $body = @file_get_contents($url, false, $ctx);
+        $code = 200;
+        return ['http_code' => $code, 'body' => is_string($body) ? $body : ''];
+    }
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => $asJson ? (is_string($payload) ? $payload : json_encode($payload)) : (is_array($payload) ? http_build_query($payload) : $payload),
+        CURLOPT_HTTPHEADER => $headers,
+        CURLOPT_TIMEOUT => 20,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => 0,
+    ]);
+    $body = curl_exec($ch);
+    $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    return ['http_code' => $code, 'body' => is_string($body) ? $body : ''];
+}
+
+$name = lf_request_value(['name', 'full_name', 'fullname', 'fio', 'customer_name', 'client']) ?: 'Customer';
+$rawPhone = lf_request_value(['phone', 'telephone', 'tel', 'mobile', 'phone_number', 'msisdn']);
 $product = trim($_POST['product'] ?? '') ?: $LF['landing_name'];
 $price = isset($_POST['price']) && $_POST['price'] !== '' ? (float) $_POST['price'] : 0.0;
-// The click id reaches the form as a hidden field (JS adapter) or, failing
-// that, lives in the cookie the tracker set when it served this page.
-$subid = trim($_POST['subid'] ?? $_POST['sub_id'] ?? $_POST['click_id'] ?? $_POST['clickid'] ?? $_COOKIE['orbitra_click'] ?? '');
-$ip = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
-if (strpos($ip, ',') !== false) {
-    $ip = trim(explode(',', $ip)[0]);
-}
+$country = strtoupper(lf_request_value(['country', 'id_country', 'country_id', 'country_code']) ?: $LF['geo']);
+
+$subid = lf_request_value(['subid', 'sub_id', 'click_id', 'clickid', 'sub1', 'subid1', 'data1', 'utm_campaign'])
+    ?: ($_COOKIE['orbitra_click'] ?? $_COOKIE['orbitra_subid'] ?? $_COOKIE['subid'] ?? '');
+
+$ip = lf_get_ip();
 $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 
 if ($rawPhone === '') {
+    http_response_code(422);
     die('Error: Phone number is required.');
 }
 
-// Name backstop: an empty name stays allowed (order.php defaults it), but a
-// filled name with no letters at all — digits ("22"), symbols — is trash the
-// CPA network will reject, so it dies here instead of being sent.
-if ($name !== '' && !preg_match('/\\p{L}/u', $name)) {
-    die('Error: Please enter a valid customer name (digits only is not a name).');
+if ($name !== '' && !preg_match('/\p{L}/u', $name)) {
+    http_response_code(422);
+    die('Error: Please enter a valid customer name (letters required).');
+}
+
+$cleanPhone = lf_normalize_phone($rawPhone, $country, $LF['dial_code']);
+$rule = lf_all_geo_rules()[$country] ?? null;
+$phoneDigits = preg_replace('/\D+/', '', $cleanPhone);
+$dialDigits = preg_replace('/\D+/', '', $rule['country_prefix'] ?? $LF['dial_code']);
+if ($dialDigits !== '' && strpos($phoneDigits, $dialDigits) === 0) {
+    $natDigits = substr($phoneDigits, strlen($dialDigits));
+} else {
+    $natDigits = $phoneDigits;
+}
+$lfNational = $natDigits;
+
+$minL = (int) ($rule['minlength'] ?? $LF['phone_min']);
+$maxL = (int) ($rule['maxlength'] ?? $LF['phone_max']);
+if (strlen($lfNational) < $minL || strlen($lfNational) > $maxL) {
+    $lenMsg = (@@PHONE_MIN@@ === @@PHONE_MAX@@) ? ('exactly ' . @@PHONE_MIN@@) : (@@PHONE_MIN@@ . '-' . @@PHONE_MAX@@);
+    http_response_code(422);
+    die('Error: Phone number must have ' . $lenMsg . ' digits for ' . $country . '.');
 }
 
 $isQa = (($_POST['orbitra_qa'] ?? '') === '1') || (strpos($subid, 'qa_test_') === 0);
 
-// E.164 normalization — the raw input is preserved untouched alongside it.
-$cleanPhone = '';
-$lfDigits = preg_replace('/\D+/', '', $rawPhone);
-if ($lfDigits !== '' && strlen($lfDigits) >= 4) {
-    if (strncmp($rawPhone, '+', 1) === 0) {
-        $cleanPhone = '+' . substr($lfDigits, 0, 15);
-    } elseif (strncmp($lfDigits, '00', 2) === 0) {
-        $cleanPhone = '+' . substr($lfDigits, 2, 15);
-    } elseif ($LF['dial_code'] !== '' && strncmp($lfDigits, $LF['dial_code'], strlen($LF['dial_code'])) === 0 && strlen($lfDigits) > strlen($LF['dial_code'])) {
-        $cleanPhone = '+' . substr($lfDigits, 0, 15);
-    } else {
-        $cleanPhone = '+' . ($LF['dial_code'] !== '' ? $LF['dial_code'] . $lfDigits : $lfDigits);
-    }
-}
-
-// National length lock — the same rule the client-side mask enforces. The
-// count starts after a leading 00 / country code, exactly like the E.164
-// block above, so "+91 98765 43210" and "9876543210" both measure 10.
-$lfNational = $lfDigits;
-if (strncmp($lfNational, '00', 2) === 0) {
-    $lfNational = substr($lfNational, 2);
-}
-if ($LF['dial_code'] !== '' && strncmp($lfNational, $LF['dial_code'], strlen($LF['dial_code'])) === 0 && strlen($lfNational) > strlen($LF['dial_code'])) {
-    $lfNational = substr($lfNational, strlen($LF['dial_code']));
-}
-if (strlen($lfNational) < @@PHONE_MIN@@ || strlen($lfNational) > @@PHONE_MAX@@) {
-    $lfLenMsg = (@@PHONE_MIN@@ === @@PHONE_MAX@@) ? 'exactly ' . @@PHONE_MIN@@ : @@PHONE_MIN@@ . '-' . @@PHONE_MAX@@;
-    die('Error: Phone number must have ' . $lfLenMsg . ' digits for this country.');
-}
-
-// Sub/attribution params carried by the adapter's hidden fields.
-$lfSubKeys = array('sub1','sub2','sub3','sub4','sub5','sub6','sub7','sub8','sub9','sub10',
-                   'pixel','utm_source','utm_campaign','utm_medium','utm_content','utm_term','utm_placement',
-                   'fbclid','fbp','fbc','ttclid','gclid','adset_id','ad_id');
-$subParams = array();
-foreach ($lfSubKeys as $k) {
+$subParams = [];
+foreach (['sub1','sub2','sub3','sub4','sub5','sub6','sub7','sub8','sub9','sub10',
+          'pixel','utm_source','utm_campaign','utm_medium','utm_content','utm_term','utm_placement',
+          'fbclid','fbp','fbc','ttclid','gclid','adset_id','ad_id'] as $k) {
     if (isset($_POST[$k]) && $_POST[$k] !== '') {
         $subParams[$k] = substr((string) $_POST[$k], 0, 255);
+    } elseif (isset($_GET[$k]) && $_GET[$k] !== '') {
+        $subParams[$k] = substr((string) $_GET[$k], 0, 255);
     }
 }
+if (empty($subParams['fbp']) && !empty($_COOKIE['_fbp'])) $subParams['fbp'] = $_COOKIE['_fbp'];
+if (empty($subParams['fbc']) && !empty($_COOKIE['_fbc'])) $subParams['fbc'] = $_COOKIE['_fbc'];
 
-/**
- * Send the lead to the CPA network. Returns [httpCode, responseBody].
- * The QA guard short-circuits the real call — a test lead must never reach
- * the advertiser.
- */
-function lf_send($url, $payload, $headers, $asJson)
-{
-    if (!function_exists('curl_init')) {
-        $ctx = stream_context_create(array('http' => array(
-            'method'  => 'POST',
-            'header'  => implode("\r\n", $headers),
-            'content' => $asJson ? json_encode($payload) : http_build_query($payload),
-            'timeout' => 15,
-            'ignore_errors' => true,
-        )));
-        $body = @file_get_contents($url, false, $ctx);
-        $code = isset($http_response_header) ? (int) (explode(' ', $http_response_header[0])[1] ?? 0) : 0;
-        return array($code, is_string($body) ? $body : '');
-    }
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $asJson ? json_encode($payload) : http_build_query($payload));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-    $body = curl_exec($ch);
-    $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-    return array($code, is_string($body) ? $body : '');
-}
+$data = array_merge($subParams, [
+    'name' => $name,
+    'phone' => $cleanPhone ?: $rawPhone,
+    'raw_phone' => $rawPhone,
+    'country' => $country,
+    'ip' => $ip,
+    'subid' => $subid,
+    'offer_id' => $LF['offer_id'],
+]);
 
-$netRequest = array('endpoint' => '', 'method' => 'POST', 'timestamp' => date('Y-m-d H:i:s'));
-$netResponse = array('http_code' => 0, 'body' => '');
+$netRequest = ['endpoint' => '', 'method' => 'POST', 'timestamp' => date('Y-m-d H:i:s')];
+$netResponse = ['http_code' => 0, 'body' => ''];
 $networkLeadId = '';
 
 if ($isQa) {
-    $netResponse = array('http_code' => 200, 'body' => '{"qa":true,"simulated":true}', 'network_lead_id' => 'qa_simulated');
+    $netResponse = ['http_code' => 200, 'body' => '{"qa":true,"simulated":true}'];
     $networkLeadId = 'qa_simulated';
 } else {
     try {
-        if ($LF['network'] === 'drcash') {
-            $netRequest['endpoint'] = 'https://affiliate.dr.cash/api/order/create';
-            $payload = array(
-                'stream_code' => $LF['offer_id'],
-                'client' => array('name' => $name, 'phone' => $cleanPhone ?: $rawPhone, 'address' => $_POST['address'] ?? ''),
-                'sub1' => $subid,
-                'sub2' => $subParams['sub1'] ?? '',
-                'sub3' => $subParams['sub2'] ?? '',
-                'sub4' => $subParams['sub3'] ?? '',
-                'sub5' => $subParams['sub4'] ?? '',
-            );
-            $netRequest['payload'] = $payload;
-            list($code, $body) = lf_send($netRequest['endpoint'], $payload,
-                array('Content-Type: application/json', 'Authorization: Bearer ' . $LF['api_key']), true);
-            $json = json_decode($body, true);
-            if (!empty($json['uuid'])) $networkLeadId = (string) $json['uuid'];
-        } elseif ($LF['network'] === 'lemonad') {
-            $netRequest['endpoint'] = 'https://lemonad.com/api/v2/lead/create';
-            $payload = array(
-                'api_token' => $LF['api_key'], 'offer_id' => $LF['offer_id'],
-                'name' => $name, 'phone' => $cleanPhone ?: $rawPhone,
-                'ip' => $ip, 'country' => $LF['geo'], 'click_id' => $subid,
-            );
-            $netRequest['payload'] = $payload;
-            list($code, $body) = lf_send($netRequest['endpoint'], $payload, array('Content-Type: application/x-www-form-urlencoded'), false);
-            $json = json_decode($body, true);
-            if (!empty($json['lead_id'])) $networkLeadId = (string) $json['lead_id'];
-        } elseif ($LF['network'] === 'webvork') {
-            $netRequest['endpoint'] = 'https://api.webvork.com/v1/lead';
-            $payload = array(
-                'token' => $LF['api_key'], 'offer_id' => $LF['offer_id'],
-                'name' => $name, 'phone' => $cleanPhone ?: $rawPhone,
-                'country' => $LF['geo'], 'ip' => $ip, 'utm_campaign' => $subid,
-            );
-            $netRequest['payload'] = $payload;
-            list($code, $body) = lf_send($netRequest['endpoint'], $payload, array('Content-Type: application/x-www-form-urlencoded'), false);
-            $json = json_decode($body, true);
-            if (!empty($json['lead_id'])) $networkLeadId = (string) $json['lead_id'];
-        } elseif ($LF['network'] === 'leadbit') {
-            $netRequest['endpoint'] = 'http://leadbit.com/api/new-order';
-            $payload = array(
-                'flow_hash' => $LF['offer_id'], 'api_key' => $LF['api_key'],
-                'country' => $LF['geo'], 'name' => $name,
-                'phone' => $cleanPhone ?: $rawPhone, 'sub1' => $subid, 'ip' => $ip,
-            );
-            $netRequest['payload'] = $payload;
-            list($code, $body) = lf_send($netRequest['endpoint'], $payload, array('Content-Type: application/x-www-form-urlencoded'), false);
-        } elseif ($LF['network'] === 'everad') {
-            $netRequest['endpoint'] = 'https://api.everad.com/campaigns/' . $LF['offer_id'] . '/order';
-            $payload = array(
-                'campaign_id' => $LF['offer_id'], 'name' => $name,
-                'phone' => $cleanPhone ?: $rawPhone, 'ip' => $ip, 'sid1' => $subid,
-            );
-            $netRequest['payload'] = $payload;
-            list($code, $body) = lf_send($netRequest['endpoint'], $payload,
-                array('Content-Type: application/json', 'X-Api-Key: ' . $LF['api_key']), true);
-        } else {
-            // Custom or generic webhook: the offer id field carries the URL.
-            if (!empty($LF['offer_id']) && filter_var($LF['offer_id'], FILTER_VALIDATE_URL)) {
-                $netRequest['endpoint'] = $LF['offer_id'];
-                $payload = $_POST;
-                $payload['subid'] = $subid;
-                $payload['phone'] = $cleanPhone ?: $rawPhone;
-                $netRequest['payload'] = 'form passthrough';
-                list($code, $body) = lf_send($netRequest['endpoint'], $payload, array('Content-Type: application/x-www-form-urlencoded'), false);
-            } else {
-                $code = 0;
-                $body = '';
-            }
+        switch ($LF['network']) {
+            case 'drcash':
+                $netRequest['endpoint'] = DRCASH_ENDPOINT;
+                $postedSub1 = $subParams['sub1'] ?? $subid;
+                $payload = [
+                    'stream_code' => $LF['offer_id'],
+                    'client' => [
+                        'name' => $name,
+                        'phone' => $cleanPhone ?: $rawPhone,
+                        'address' => $_POST['address'] ?? '',
+                        'email' => $_POST['email'] ?? '',
+                        'ip' => $ip,
+                        'country' => $country ?: null,
+                        'city' => $_POST['city'] ?? '',
+                        'postcode' => $_POST['postcode'] ?? '',
+                    ],
+                    'sub1' => $postedSub1,
+                    'sub2' => $subParams['sub2'] ?? '',
+                    'sub3' => $subParams['sub3'] ?? '',
+                    'sub4' => $subParams['sub4'] ?? '',
+                    'sub5' => $subParams['sub5'] ?? '',
+                ];
+                $netRequest['payload'] = $payload;
+                $res = lf_http_call(DRCASH_ENDPOINT, $payload, [
+                    'Content-Type: application/json',
+                    'Authorization: Bearer ' . $LF['api_key']
+                ], true);
+                break;
+
+            case 'webvork':
+                $payload = [
+                    'token' => $LF['api_key'],
+                    'offer_id' => $LF['offer_id'],
+                    'name' => $name,
+                    'phone' => $cleanPhone ?: $rawPhone,
+                    'country' => $country,
+                    'ip' => $ip,
+                    'utm_campaign' => $subid,
+                    'utm_source' => $subParams['utm_source'] ?? '',
+                    'utm_medium' => $subParams['utm_medium'] ?? '',
+                    'utm_content' => $subParams['utm_content'] ?? '',
+                    'utm_term' => $subParams['utm_term'] ?? '',
+                    'fbp' => $subParams['fbp'] ?? '',
+                    'fbc' => $subParams['fbc'] ?? '',
+                    'sub1' => $subParams['sub1'] ?? '',
+                    'sub2' => $subParams['sub2'] ?? '',
+                    'sub3' => $subParams['sub3'] ?? '',
+                    'sub4' => $subParams['sub4'] ?? '',
+                    'sub5' => $subParams['sub5'] ?? '',
+                ];
+                $netRequest['endpoint'] = WEBVORK_ENDPOINT_1;
+                $netRequest['payload'] = $payload;
+                $res = lf_http_call(WEBVORK_ENDPOINT_1, $payload, ['Content-Type: application/x-www-form-urlencoded'], false);
+                if ($res['http_code'] < 200 || $res['http_code'] >= 300) {
+                    $res = lf_http_call(WEBVORK_ENDPOINT_2, $payload, ['Content-Type: application/x-www-form-urlencoded'], false);
+                }
+                break;
+
+            case 'lucky':
+            case 'luckyonline':
+                $payload = [
+                    'name' => $name,
+                    'phone' => $cleanPhone ?: $rawPhone,
+                    'ip' => $ip,
+                    'user_agent' => $userAgent,
+                    'campaign_hash' => $LF['offer_id'],
+                    'country' => $country,
+                    'subid1' => $subid,
+                    'subid' => $subid,
+                    'subid2' => $subParams['sub2'] ?? '',
+                    'subid3' => $subParams['sub3'] ?? '',
+                    'utm_source' => $subParams['utm_source'] ?? '',
+                    'utm_medium' => $subParams['utm_medium'] ?? '',
+                    'utm_campaign' => $subParams['utm_campaign'] ?? $subid,
+                    'utm_content' => $subParams['utm_content'] ?? '',
+                    'utm_term' => $subParams['utm_term'] ?? '',
+                ];
+                $url = LUCKY_ENDPOINT . '?api_key=' . urlencode($LF['api_key']);
+                $netRequest['endpoint'] = $url;
+                $netRequest['payload'] = $payload;
+                $res = lf_http_call($url, $payload, ['Content-Type: application/x-www-form-urlencoded'], false);
+                break;
+
+            case 'kma':
+                $payload = [
+                    'channel' => $LF['offer_id'],
+                    'ip' => $ip,
+                    'name' => $name,
+                    'phone' => $cleanPhone ?: $rawPhone,
+                    'data1' => $subid,
+                ];
+                foreach (['data2', 'data3', 'data4', 'data5', 'fbp', 'click', 'referer', 'address'] as $f) {
+                    if (!empty($_POST[$f])) $payload[$f] = trim((string)$_POST[$f]);
+                }
+                $headers = ['Accept: application/json', 'Authorization: Bearer ' . $LF['api_key']];
+                $netRequest['endpoint'] = KMA_ENDPOINT;
+                $netRequest['payload'] = $payload;
+                $res = lf_http_call(KMA_ENDPOINT, $payload, $headers, false);
+                break;
+
+            case 'terraleads':
+                $payloadData = [
+                    'name' => $name,
+                    'country' => $country,
+                    'phone' => $cleanPhone ?: $rawPhone,
+                    'offer_id' => $LF['offer_id'],
+                    'stream_id' => $_POST['stream_id'] ?? '',
+                    'sub_id' => $subid,
+                    'sub_id_1' => $subParams['sub1'] ?? '',
+                    'sub_id_2' => $subParams['sub2'] ?? '',
+                    'sub_id_3' => $subParams['sub3'] ?? '',
+                    'sub_id_4' => $subParams['sub4'] ?? '',
+                    'ip' => $ip,
+                    'user_agent' => $userAgent,
+                ];
+                $userId = $_POST['user_id'] ?? '1';
+                $fullPayload = ['user_id' => $userId, 'data' => $payloadData];
+                $json = json_encode($fullPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                $chk = sha1($json . $LF['api_key']);
+                $url = TERRALEADS_API_DOMAIN . '/api/lead/create?check_sum=' . urlencode($chk);
+                $netRequest['endpoint'] = $url;
+                $netRequest['payload'] = $fullPayload;
+                $res = lf_http_call($url, $json, ['Content-Type: application/json', 'Accept: application/json'], true);
+                break;
+
+            case 'leadbit':
+                $payload = [
+                    'flow_hash' => $LF['offer_id'],
+                    'referrer' => $_SERVER['HTTP_REFERER'] ?? ($_SERVER['HTTP_HOST'] ?? ''),
+                    'phone' => $cleanPhone ?: $rawPhone,
+                    'name' => $name,
+                    'country' => strtolower($country),
+                    'address' => $_POST['address'] ?? '',
+                    'email' => $_POST['email'] ?? '',
+                    'ip' => $ip,
+                    'sub1' => $subid,
+                    'sub2' => $subParams['sub2'] ?? '',
+                    'sub3' => $subParams['sub3'] ?? '',
+                    'sub4' => $subParams['sub4'] ?? '',
+                    'sub5' => $subParams['sub5'] ?? '',
+                ];
+                $url = LEADBIT_API_DOMAIN . '/api/pub/new-order/' . rawurlencode($LF['api_key']);
+                $netRequest['endpoint'] = $url;
+                $netRequest['payload'] = $payload;
+                $res = lf_http_call($url, $payload, ['Content-Type: application/x-www-form-urlencoded'], false);
+                break;
+
+            case 'lemonad':
+                $payload = [
+                    'api_token' => $LF['api_key'],
+                    'offer_id' => $LF['offer_id'],
+                    'name' => $name,
+                    'phone' => $cleanPhone ?: $rawPhone,
+                    'ip' => $ip,
+                    'country' => $country,
+                    'click_id' => $subid,
+                ];
+                $netRequest['endpoint'] = LEMONAD_ENDPOINT;
+                $netRequest['payload'] = $payload;
+                $res = lf_http_call(LEMONAD_ENDPOINT, $payload, ['Content-Type: application/x-www-form-urlencoded'], false);
+                break;
+
+            case 'everad':
+                $payload = [
+                    'campaign_id' => $LF['offer_id'],
+                    'name' => $name,
+                    'phone' => $cleanPhone ?: $rawPhone,
+                    'ip' => $ip,
+                    'sid1' => $subid,
+                ];
+                $url = 'https://api.everad.com/campaigns/' . $LF['offer_id'] . '/order';
+                $netRequest['endpoint'] = $url;
+                $netRequest['payload'] = $payload;
+                $res = lf_http_call($url, $payload, ['Content-Type: application/json', 'X-Api-Key: ' . $LF['api_key']], true);
+                break;
+
+            case 'ezaff':
+                $payload = [
+                    'offer_id' => $LF['offer_id'],
+                    'publisher_id' => $_POST['publisher_id'] ?? '',
+                    'api_key' => $LF['api_key'],
+                    'name' => $name,
+                    'phone' => $cleanPhone ?: $rawPhone,
+                    'country' => $country,
+                    'click_id' => $subid,
+                    'publisher_sub_id' => $subParams['sub1'] ?? '',
+                    'client_ip' => $ip,
+                ];
+                $netRequest['endpoint'] = EZAFF_ENDPOINT;
+                $netRequest['payload'] = $payload;
+                $res = lf_http_call(EZAFF_ENDPOINT, $payload, ['Content-Type: application/x-www-form-urlencoded'], false);
+                break;
+
+            default:
+                if (!empty($LF['offer_id']) && filter_var($LF['offer_id'], FILTER_VALIDATE_URL)) {
+                    $netRequest['endpoint'] = $LF['offer_id'];
+                    $payload = $_POST;
+                    $payload['subid'] = $subid;
+                    $payload['phone'] = $cleanPhone ?: $rawPhone;
+                    $payload['name'] = $name;
+                    $netRequest['payload'] = 'form passthrough';
+                    $res = lf_http_call($LF['offer_id'], $payload, ['Content-Type: application/x-www-form-urlencoded'], false);
+                } else {
+                    $res = ['http_code' => 200, 'body' => '{"status":"ok"}'];
+                }
+                break;
         }
-        $netResponse['http_code'] = isset($code) ? (int) $code : 0;
-        $netResponse['body'] = substr((string) $body, 0, 4096);
-        if ($networkLeadId === '') {
-            $json = json_decode((string) $body, true);
-            foreach (array('uuid', 'lead_id', 'id', 'order_id') as $jk) {
+
+        $netResponse['http_code'] = (int) ($res['http_code'] ?? 0);
+        $netResponse['body'] = substr((string) ($res['body'] ?? ''), 0, 4096);
+        $json = json_decode((string) ($res['body'] ?? ''), true);
+        if (is_array($json)) {
+            foreach (['uuid', 'lead_id', 'id', 'order_id', 'tid'] as $jk) {
                 if (!empty($json[$jk])) {
                     $networkLeadId = (string) $json[$jk];
                     break;
@@ -1368,51 +1415,44 @@ if ($isQa) {
                 $networkLeadId = (string) $json['data']['id'];
             }
         }
-        $netResponse['network_lead_id'] = $networkLeadId;
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $netResponse['http_code'] = 0;
         $netResponse['body'] = 'exception: ' . $e->getMessage();
     }
 }
 
 // === CRM Vault Sync =====================================================
-// Full-fidelity snapshot: what the visitor typed, what we delivered, what the
-// network answered. Never blocks the redirect on failure.
 $crmOk = false;
 if ($LF['crm_enabled']) {
-    $crmPayload = array(
-        'click_id'      => $subid,
-        'campaign_id'   => 0,
-        'lander_id'     => 0,
-        'offer_id'      => $LF['offer_id'],
-        'network'       => $LF['network'],
+    $crmPayload = [
+        'click_id'        => $subid,
+        'campaign_id'     => 0,
+        'lander_id'       => 0,
+        'offer_id'        => $LF['offer_id'],
+        'network'         => $LF['network'],
         'network_lead_id' => $networkLeadId,
-        'product'       => $product,
-        'price'         => $price,
-        'customer_name' => $name,
-        'raw_phone'     => $rawPhone,
-        'clean_phone'   => $cleanPhone,
-        'geo'           => $LF['geo'],
-        'ip'            => $ip,
-        'user_agent'    => $userAgent,
-        'status'        => 'lead',
-        'payout'        => $LF['payout'],
-        'currency'      => $LF['currency'],
-        'is_qa_test'    => $isQa ? 1 : 0,
-        'status_source' => 'form_submit',
-        'sub_data'      => $subParams,
-        'network_request'  => $netRequest,
-        'network_response' => $netResponse,
-    );
-    if (isset($subParams['utm_source']))     $crmPayload['utm_source']    = $subParams['utm_source'];
-    if (isset($subParams['utm_campaign']))   $crmPayload['utm_campaign']  = $subParams['utm_campaign'];
-    if (isset($subParams['utm_placement']))  $crmPayload['utm_placement'] = $subParams['utm_placement'];
-    if (isset($subParams['adset_id']))       $crmPayload['adset_id']      = $subParams['adset_id'];
-    if (isset($subParams['ad_id']))          $crmPayload['ad_id']         = $subParams['ad_id'];
+        'product'         => $product,
+        'price'           => $price,
+        'customer_name'   => $name,
+        'raw_phone'       => $rawPhone,
+        'clean_phone'     => $cleanPhone,
+        'geo'             => $country,
+        'ip'              => $ip,
+        'user_agent'      => $userAgent,
+        'status'          => 'lead',
+        'payout'          => $LF['payout'],
+        'currency'        => $LF['currency'],
+        'is_qa_test'      => $isQa ? 1 : 0,
+        'status_source'   => 'form_submit',
+        'sub_data'        => $subParams,
+        'network_request' => $netRequest,
+        'network_response'=> $netResponse,
+    ];
+    foreach (['utm_source', 'utm_campaign', 'utm_placement', 'adset_id', 'ad_id', 'fbp', 'fbc'] as $pk) {
+        if (isset($subParams[$pk])) $crmPayload[$pk] = $subParams[$pk];
+    }
 
     if (function_exists('orbitraCrmRecordLead') && isset($pdo) && ($pdo instanceof PDO)) {
-        // In-process: this file runs inside the tracker's index.php, which
-        // keeps the connection in $pdo at the top-level require scope.
         $crmRes = orbitraCrmRecordLead($pdo, $crmPayload, false);
         $crmOk = !empty($crmRes['ok']);
     } elseif ($LF['tracker_base'] !== '') {
@@ -1420,7 +1460,7 @@ if ($LF['crm_enabled']) {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($crmPayload));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
         curl_setopt($ch, CURLOPT_TIMEOUT, 5);
         $crmRaw = curl_exec($ch);
         curl_close($ch);
@@ -1430,9 +1470,7 @@ if ($LF['crm_enabled']) {
 }
 
 // === Failsafe local backup =============================================
-// .log on purpose: the asset server whitelists .json/.txt, and a backup full
-// of names and phone numbers must not be downloadable from the landing URL.
-$leadLog = array(
+$leadLog = [
     'time' => date('Y-m-d H:i:s'),
     'network' => $LF['network'],
     'network_lead_id' => $networkLeadId,
@@ -1442,34 +1480,39 @@ $leadLog = array(
     'phone_e164' => $cleanPhone,
     'subid' => $subid,
     'ip' => $ip,
-    'geo' => $LF['geo'],
+    'geo' => $country,
     'crm_synced' => $crmOk,
-    'crm_error' => isset($crmRes['message']) ? $crmRes['message'] : '',
     'qa' => $isQa,
-);
+];
 @file_put_contents(__DIR__ . '/orbitra_leads_backup.log', json_encode($leadLog) . PHP_EOL, FILE_APPEND | LOCK_EX);
 
+// LeadForge plain lead log
+$leadLogPath = __DIR__ . '/leadforge.leads.log';
+if (!file_exists($leadLogPath)) {
+    @file_put_contents($leadLogPath, "Date | Time | Name | Number | Subid\n", LOCK_EX);
+}
+@file_put_contents($leadLogPath, date('Y-m-d') . ' | ' . date('H:i:s') . ' | ' . str_replace('|', ' ', $name) . ' | ' . str_replace('|', ' ', $cleanPhone ?: $rawPhone) . ' | ' . str_replace('|', ' ', $subid) . "\n", FILE_APPEND | LOCK_EX);
+
 // === Tracker conversion =================================================
-// When CRM sync is on it already upserted the conversion; the pixel here is
-// the fallback for when it failed (and the only path when sync is off).
 if ($subid !== '' && (!$LF['crm_enabled'] || !$crmOk) && !$isQa) {
     $trackerHost = $_SERVER['HTTP_HOST'] ?? '127.0.0.1';
     $proto = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
     $postbackUrl = $proto . '://' . $trackerHost . '/pixel.gif?action=conversion&subid=' . urlencode($subid)
         . '&status=lead&payout=' . rawurlencode((string) $LF['payout']) . '&currency=' . rawurlencode($LF['currency']);
-    @file_get_contents($postbackUrl, false, stream_context_create(array('http' => array('timeout' => 2))));
+    @file_get_contents($postbackUrl, false, stream_context_create(['http' => ['timeout' => 2]]));
 }
 
 // === Redirect ============================================================
 $_SESSION['order_name'] = $name;
-$_SESSION['order_phone'] = $rawPhone;
+$_SESSION['order_phone'] = $cleanPhone ?: $rawPhone;
 $_SESSION['order_id'] = $networkLeadId !== '' ? $networkLeadId : ('LF-' . date('YmdHis') . '-' . rand(1000, 9999));
 
-header('Location: thank_you.php?name=' . urlencode($name) . '&phone=' . urlencode($rawPhone)
+header('Location: thank_you.php?name=' . urlencode($name) . '&phone=' . urlencode($cleanPhone ?: $rawPhone)
     . '&order_id=' . urlencode($_SESSION['order_id']) . '&subid=' . urlencode($subid)
     . ($isQa ? '&qa=1' : ''));
 exit;
 PHP;
+
         $replacements = [
             '@@NETWORK@@'      => var_export((string) ($o['network'] ?? 'custom'), true),
             '@@API_KEY@@'      => var_export((string) ($o['api_key'] ?? ''), true),
@@ -1481,8 +1524,9 @@ PHP;
             '@@BASE_URL@@'     => var_export(rtrim((string) ($o['base_url'] ?? ''), '/'), true),
             '@@LANDING_NAME@@' => var_export((string) ($o['landing_name'] ?? 'Landing'), true),
             '@@DIAL_CODE@@'    => var_export($dial, true),
-            '@@PHONE_MIN@@'    => (int) $mask['min'],
-            '@@PHONE_MAX@@'    => (int) $mask['max'],
+            '@@PHONE_MIN@@'    => (int) $minLen,
+            '@@PHONE_MAX@@'    => (int) $maxLen,
+            '@@ALL_GEO_RULES_JSON@@' => addcslashes($rulesJson, "'\\"),
         ];
         return strtr($tpl, $replacements);
     }
@@ -1498,6 +1542,10 @@ PHP;
             'PL' => ['title' => 'Dziękujemy za zamówienie!', 'subtitle' => 'Twoje zamówienie zostało pomyślnie przyjęte.', 'call' => 'Nasz konsultant skontaktuje się z Tobą wkrótce w celu potwierdzenia adresu.', 'details' => 'Szczegóły zamówienia:', 'name' => 'Imię:', 'phone' => 'Telefon:', 'order' => 'Numer zamówienia:'],
             'RO' => ['title' => 'Vă mulțumim pentru comandă!', 'subtitle' => 'Comanda dumneavoastră a fost înregistrată cu succes.', 'call' => 'Operatorul nostru vă va contacta în scurt timp pentru confirmare.', 'details' => 'Detalii comandă:', 'name' => 'Nume:', 'phone' => 'Telefon:', 'order' => 'Număr comandă:'],
             'RU' => ['title' => 'Спасибо за ваш заказ!', 'subtitle' => 'Ваша заявка успешно принята в обработку.', 'call' => 'Оператор свяжется с вами в течение 10-15 минут для подтверждения адреса доставки.', 'details' => 'Данные заказа:', 'name' => 'Имя:', 'phone' => 'Телефон:', 'order' => 'Номер заявки:'],
+            'IN' => ['title' => 'आपके ऑर्डर के लिए धन्यवाद!', 'subtitle' => 'आपका ऑर्डर सफलतापूर्वक दर्ज कर लिया गया है।', 'call' => 'हमारा प्रतिनिधि जल्द ही डिलीवरी की पुष्टि के लिए आपसे संपर्क करेगा।', 'details' => 'ऑर्डर विवरण:', 'name' => 'नाम:', 'phone' => 'फ़ोन:', 'order' => 'ऑर्डर संख्या:'],
+            'AR' => ['title' => 'شكراً لطلبك!', 'subtitle' => 'تم تسجيل طلبك بنجاح.', 'call' => 'سيتصل بك ممثلنا قريباً لتأكيد تفاصيل التوصيل.', 'details' => 'تفاصيل الطلب:', 'name' => 'الاسم:', 'phone' => 'الهاتف:', 'order' => 'رقم الطلب:'],
+            'SA' => ['title' => 'شكراً لطلبك!', 'subtitle' => 'تم تسجيل طلبك بنجاح.', 'call' => 'سيتصل بك ممثلنا قريباً لتأكيد تفاصيل التوصيل.', 'details' => 'تفاصيل الطلب:', 'name' => 'الاسم:', 'phone' => 'الهاتف:', 'order' => 'رقم الطلب:'],
+            'AE' => ['title' => 'شكراً لطلبك!', 'subtitle' => 'تم تسجيل طلبك بنجاح.', 'call' => 'سيتصل بك ممثلنا قريباً لتأكيد تفاصيل التوصيل.', 'details' => 'تفاصيل الطلب:', 'name' => 'الاسم:', 'phone' => 'الهاتف:', 'order' => 'رقم الطلب:'],
             'EN' => ['title' => 'Thank you for your order!', 'subtitle' => 'Your order has been placed successfully.', 'call' => 'Our representative will call you shortly to verify delivery details.', 'details' => 'Order details:', 'name' => 'Name:', 'phone' => 'Phone:', 'order' => 'Order ID:'],
         ];
         $t = $titles[$geo] ?? $titles['EN'];
@@ -1589,13 +1637,6 @@ PHP;
     // Helpers
     // ==================================================================
 
-    /**
-     * Remove third-party counters and hostile snippets from an HTML/PHP page.
-     * Only <script> blocks and tracking <img> pixels with unambiguous
-     * signatures are touched — conservative by design, every removal logged.
-     *
-     * @return array [newContent, removedLabels]
-     */
     public static function stripForeignScripts(string $html): array
     {
         $removed = [];
@@ -1608,7 +1649,6 @@ PHP;
                 foreach ($sigs as $label => $needles) {
                     foreach ($needles as $needle) {
                         if (strpos($low, $needle) !== false) {
-                            // Never strip our own adapter.
                             if (strpos($low, 'orbitra_adapter') !== false) {
                                 return $m[0];
                             }
@@ -1622,7 +1662,6 @@ PHP;
             $html
         );
 
-        // Tracking pixels: <img src="https://www.facebook.com/tr?...">
         $html = preg_replace_callback(
             '/<img\b[^>]*>/i',
             function ($m) use (&$removed) {
@@ -1638,7 +1677,6 @@ PHP;
         return [$html, array_values($removed)];
     }
 
-    /** Delete the old network's form handlers from the bundle root. */
     public static function removeLegacyHandlers(string $dir): array
     {
         $removed = [];
@@ -1652,7 +1690,6 @@ PHP;
         return $removed;
     }
 
-    /** Recursively remove a directory tree. */
     public static function rrmdir(string $dir): void
     {
         if (!is_dir($dir)) {

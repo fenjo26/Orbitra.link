@@ -1,4 +1,4 @@
-# Orbitra v1.0.7 Tracker
+# Orbitra v1.0.8 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -422,15 +422,14 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.0.7 (2026-08-18)
-- 🗂️ **Modern Integrations Card Hub** — Complete UI overhaul of the Integrations page (`IntegrationsPage.jsx`) into a dual-mode Grid/Card Hub. Replaces the cramped nested sidebar with a spacious responsive catalog featuring 25 categorized services across `Ads & Costs`, `Domains & SSL`, `Tracking & Sites`, and `Tools & API`
-- ⚡ **Real-Time Live Status & Metrics** — Dynamic pulsing status pills display live connected account counts, real-time Namecheap balances, Cloudflare zone counts, and API tokens with parallel prefetching on page load
-- 🖥️ **100% Full-Width Detail Configuration View** — Dedicated configuration view for selected integrations without sidebar compression, with breadcrumbs and `← Back to all integrations` navigation
-- 💻 **In-Browser IDE & File Manager for Local Offers** — `OfferEditor.jsx` now provides a full in-browser IDE for direct local offers (`is_local=1`): interactive file tree with syntax icons, Monaco-style editor for HTML/CSS/JS/PHP/JSON, Find & Replace, beautification, live multi-device preview (desktop/mobile iframe), asset preview, file upload/replace/delete, and ZIP extraction
-- 🛡️ **Secure Backend File Operations API** — Endpoints in `api.php` (`offer_files`, `offer_file_content`, `save_offer_file`, `offer_file_op`, `upload_offer_file`) equipped with tiered PHP security scanning, strict `realpath` containment to prevent path traversal, and automated test coverage (`tests/offer_file_ops_test.php`)
-- 🌐 **Full 7-Locale Parity** — All hub titles, filters, actions, and status texts localized across English, Russian, German, Spanish, French, Ukrainian, and Chinese
+### Current release — v1.0.8 (2026-08-18)
+- 🌍 **LeadForge 2.0 150-GEO Validation Engine** — Full integration of 150-country GEO validation rules with exact national & international regex patterns, mobile operator prefixes, min/max length constraints, dialing codes, and localized validation messages across 33 languages (including full CIS, India, Europe, LATAM, and MENA/Asia)
+- ⚡ **Reference JavaScript Client Engine (`orbitra_adapter.js`)** — Dynamic country switching on `<select name="country">` dropdowns, interactive live input badge counters (*«3 cifre inserite, 7 mancanti»* → *«Numero complete»*), strict Unicode name validation preventing numbers and spam characters, and haptic vibration feedback
+- 🚀 **Universal Multi-Network CPA Order Bridge (`order.php`)** — Native standalone order handler supporting 10 affiliate networks (Dr.Cash, Webvork with SuperClient fallback, Lucky.online, KMA.biz, TerraLeads with SHA1 checksums, Leadbit, LemonAD, Everad, Ezaff, and Custom Webhooks) with automated E.164 phone normalization
+- 💾 **Dual Logging & Failsafe Lead Vault** — Simultaneous CPA network submission and in-process/remote CRM vault recording (`orbitraCrmRecordLead` / `/crm-ingest`) alongside local fallback logs (`leadforge.leads.log` and `orbitra_leads_backup.log`)
+- 🧪 **Automated Synchronization Test Suite** — Comprehensive test verification (`tests/leadforge_sync_test.php`) covering 150 GEO rules, adapter JS generation, order PHP generation, and router containment
 
-Previous release — v1.0.6: Cloudflare & Namecheap multi-account (migrations 31–32); OAuth preflight for TikTok and Google Ads; delete guard for active landings/offers; local offer upload hardening and sub-hour cost sync.
+Previous release — v1.0.7: Modern Integrations Card Hub architecture, in-browser IDE & File Manager for local offers, and secure file operations API.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

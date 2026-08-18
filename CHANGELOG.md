@@ -7,6 +7,34 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0.8] — 2026-08-18
+
+LeadForge 2.0 Reference Synchronization, complete 150-GEO validation engine, dynamic country switching, interactive live counter badges, and universal multi-network CPA order bridge.
+
+### Added
+- 🌍 **Full 150-GEO Validation Dataset (`core/data/leadforge_geo_rules.json`)** — complete dataset derived directly from the reference LeadForge platform (`87.232.72.54`), covering 150 countries with exact international and national regexes, mobile network prefixes, min/max length constraints, dialing prefixes, trunk rules, and localized messages in 33 languages. Enriched with full rules for CIS countries (`RU`, `KZ`, `BY`, `UZ`, `UA`, `MD`, `GE`, `AM`, `AZ`, `KG`, `TJ`), India (`IN` +91), Europe, LATAM, and MENA/Asia.
+- ⚡ **Reference JavaScript Validation Engine (`orbitra_adapter.js`)** — based on the reference validation template (`core/data/leadforge_validation_template.js`):
+  - **Dynamic Country Switching**: Automatically updates validation rules, input masks, and counter helpers when a user changes the `<select name="country">` dropdown.
+  - **Interactive Live Input Badge Counter**: Visual progress indicator showing digits entered and remaining (*«3 cifre inserite, 7 mancanti»* → *«Numero complete»*).
+  - **Strict Unicode Name Validation**: Real-time filtering preventing numbers and invalid symbols in customer name fields.
+  - **Haptic Vibration Feedback**: Device vibration on invalid input attempts on mobile browsers.
+  - **Comprehensive Parameter Bridge**: Hydrates hidden tracking fields (`subid`, `click_id`, `sub1`..`sub5`, `utm_*`, `fbp`, `fbc`, `pub_sub_id`, etc.) across pages with cookie and `sessionStorage` fallback.
+- 🚀 **Universal Multi-Network CPA Order Bridge (`order.php`)** — generated standalone handler with native integration for 10 affiliate networks:
+  - **Dr.Cash**: `https://order.drcash.sh/v1/order` (Bearer token, client JSON, `sub1`..`sub5`).
+  - **Webvork**: `https://api.webvork.com/v1/new-lead` & `api2` fallback (`utm_campaign` = `{subid}`).
+  - **Lucky.online**: `https://lucky.online/api/v1/lead-create/webmaster` (`campaign_hash`, `subid1` / `subid`).
+  - **KMA.biz**: `https://api.kma.biz/lead/add` (Bearer token, `data1`..`data5`).
+  - **TerraLeads**: `https://t-api.org/api/lead/create` (SHA1 json+key checksum verification).
+  - **Leadbit**: `http://wapi.leadbit.com/api/pub/new-order/{token}` (`flow_hash`, `sub1`..`sub5`).
+  - **LemonAD**: `https://lemonad.com/api/v2/lead/create` (`click_id`).
+  - **Everad**: `https://api.everad.com/campaigns/{offer_id}/order` (`X-Api-Key`, `sid1`).
+  - **Ezaff**: `https://api.ezaff.com/send` (`click_id`, `pub_sub_id`).
+  - **Custom Webhooks**: Full POST payload passthrough.
+- 📱 **Automated E.164 Phone Normalization (`lf_normalize_phone`)** — standardizes local phone inputs into clean E.164 format with automatic prefix handling (stripping leading zeros, country dial code reconciliation).
+- 💾 **Dual Logging & Failsafe Lead Storage** — simultaneously submits leads to the CPA network and logs complete raw lead snapshots into the Orbitra CRM Vault (`orbitraCrmRecordLead` / `/crm-ingest`), alongside local append logs (`leadforge.leads.log` & `orbitra_leads_backup.log`).
+- 🧪 **Automated Synchronization Test Suite (`tests/leadforge_sync_test.php`)** — verified 150 GEO rules, adapter JS generation, order PHP generation across all 10 networks, and router containment.
+- 📦 **Remote Reference Server Backup** — full `/opt/leadforge` directory archived locally to `remote_leadforge_backup/`.
+
 ## [1.0.7] — 2026-08-18
 
 Modern Integrations Card Hub architecture, in-browser IDE & File Manager for local offers, and secure file operations API.

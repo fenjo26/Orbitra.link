@@ -719,46 +719,58 @@ const Domains = ({ campaigns }) => {
 
             {showModal && (
                 <div className="modal-overlay">
-                    <div className="modal-content w-full max-w-3xl" style={{ padding: '20px 24px' }}>
-                        <div className="modal-header" style={{ paddingBottom: '10px', marginBottom: '14px' }}>
-                            <h3 className="modal-title">{formData.id ? t('domains.editDomain') : t('domains.addDomainTitle')}</h3>
+                    <div 
+                        className="modal-content" 
+                        style={{ 
+                            width: '100%', 
+                            maxWidth: '840px', 
+                            padding: '24px 28px',
+                            borderRadius: '20px' 
+                        }}
+                    >
+                        {/* Заголовок */}
+                        <div className="modal-header" style={{ marginBottom: '18px', paddingBottom: '12px' }}>
+                            <h3 className="modal-title" style={{ fontSize: '17px', fontWeight: 600 }}>
+                                {formData.id ? t('domains.editDomain') : t('domains.addDomainTitle')}
+                            </h3>
                             <button type="button" className="btn btn-ghost btn-icon" onClick={() => setShowModal(false)}>
                                 <X size={20} />
                             </button>
                         </div>
+
                         {error && <div className="alert alert-danger mb-4 flex items-center gap-2"><AlertCircle size={16} />{error}</div>}
-                        {saveNotice && (
-                            <div className="alert alert-success mb-4 flex items-center gap-2"><Check size={16} />{saveNotice}</div>
-                        )}
+                        {saveNotice && <div className="alert alert-success mb-4 flex items-center gap-2"><Check size={16} />{saveNotice}</div>}
 
                         <form onSubmit={handleSubmit} className="space-y-4">
-                            {/* Two columns — identity/traffic on the left, access/security
-                                on the right — so the footer stays on screen without inner
-                                scrolling: the former single stack was ~850px tall. */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
-                                {/* Left column: name, group, index page */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                                
+                                {/* === ЛЕВАЯ КОЛОНКА (Домен, Группа, Главная страница, Метаданные) === */}
                                 <div className="space-y-4">
-                                    {/* Domain */}
+                                    {/* Domain name */}
                                     <div>
-                                        <label className="block text-sm font-medium mb-1">{t('domains.domainName')}</label>
+                                        <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--color-text-secondary)' }}>
+                                            {t('domains.domainName')}
+                                        </label>
                                         <input
                                             ref={nameInputRef}
                                             type="text"
                                             required
                                             autoFocus={!formData.id}
-                                            className="form-input w-full"
+                                            className="form-input w-full font-mono text-sm"
                                             placeholder={t('domains.bulkPlaceholder')}
                                             value={formData.name}
                                             onChange={e => setFormData({ ...formData, name: cleanNameInput(e.target.value) })}
                                         />
-                                        <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-                                            {t('domains.domainBulkHelper')} {t('domains.bulkExample')}
+                                        <p className="text-[11px] mt-1" style={{ color: 'var(--color-text-muted)' }}>
+                                            {t('domains.domainBulkHelper')}
                                         </p>
                                     </div>
 
                                     {/* Group */}
                                     <div>
-                                        <label className="block text-sm font-medium mb-1">{t('domains.group')}</label>
+                                        <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--color-text-secondary)' }}>
+                                            {t('domains.group')}
+                                        </label>
                                         <div className="flex gap-2">
                                             <select
                                                 className="form-select flex-1"
@@ -772,7 +784,7 @@ const Domains = ({ campaigns }) => {
                                             </select>
                                             <button
                                                 type="button"
-                                                className="btn btn-secondary whitespace-nowrap"
+                                                className="btn btn-secondary whitespace-nowrap btn-sm"
                                                 onClick={() => setShowGroupsModal(true)}
                                             >
                                                 <Plus size={14} /> {t('domains.createGroup')}
@@ -780,82 +792,132 @@ const Domains = ({ campaigns }) => {
                                         </div>
                                     </div>
 
-                                    {/* Index page */}
+                                    {/* Index page (Default campaign) */}
                                     <div>
-                                        <label className="block text-sm font-medium mb-1">{t('domains.indexPageLabel')} <HelpTooltip textKey="help.indexCampaignTooltip" /></label>
-                                        <select
-                                            className="form-select w-full"
-                                            value={formData.index_campaign_id}
-                                            onChange={e => setFormData({ ...formData, index_campaign_id: e.target.value })}
-                                        >
-                                            <option value="">-- {t('domains.notSelected')} --</option>
-                                            {campaigns.map(c => (
-                                                <option key={c.id} value={c.id}>{c.name} ({c.alias})</option>
-                                            ))}
-                                        </select>
-                                        <label className="inline-flex items-center gap-2 text-sm font-medium cursor-pointer mt-2">
-                                            <input
-                                                type="checkbox"
-                                                checked={formData.catch_404}
-                                                onChange={e => setFormData({ ...formData, catch_404: e.target.checked })}
-                                            />
-                                            {t('domains.catch404')}
+                                        <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 flex items-center gap-1" style={{ color: 'var(--color-text-secondary)' }}>
+                                            {t('domains.indexPageLabel')} <HelpTooltip textKey="help.indexCampaignTooltip" />
                                         </label>
-                                        <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>{t('domains.indexPageHint')}</p>
+                                        <div className="flex items-center gap-3">
+                                            <select
+                                                className="form-select flex-1"
+                                                value={formData.index_campaign_id}
+                                                onChange={e => setFormData({ ...formData, index_campaign_id: e.target.value })}
+                                            >
+                                                <option value="">-- {t('domains.notSelected')} --</option>
+                                                {campaigns.map(c => (
+                                                    <option key={c.id} value={c.id}>{c.name} ({c.alias})</option>
+                                                ))}
+                                            </select>
+                                            <label className="inline-flex items-center gap-1.5 text-xs font-medium whitespace-nowrap cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={formData.catch_404}
+                                                    onChange={e => setFormData({ ...formData, catch_404: e.target.checked })}
+                                                />
+                                                {t('domains.catch404')}
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    {/* Metadata row */}
+                                    <div className="grid grid-cols-3 gap-2.5 pt-1">
+                                        <div>
+                                            <label className="block text-[11px] font-medium mb-1" style={{ color: 'var(--color-text-muted)' }}>{t('domains.registrar')}</label>
+                                            <input
+                                                type="text"
+                                                className="form-input w-full text-xs"
+                                                placeholder={t('domains.optional')}
+                                                value={formData.registrar}
+                                                onChange={e => setFormData({ ...formData, registrar: e.target.value })}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[11px] font-medium mb-1" style={{ color: 'var(--color-text-muted)' }}>{t('domains.dnsProvider')}</label>
+                                            <input
+                                                type="text"
+                                                className="form-input w-full text-xs"
+                                                placeholder="Cloudflare"
+                                                value={formData.dns_provider}
+                                                onChange={e => setFormData({ ...formData, dns_provider: e.target.value })}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[11px] font-medium mb-1" style={{ color: 'var(--color-text-muted)' }}>{t('domains.status')}</label>
+                                            <select
+                                                className="form-select w-full text-xs"
+                                                value={formData.status}
+                                                onChange={e => setFormData({ ...formData, status: e.target.value })}
+                                            >
+                                                <option value="OK">{t('domains.statusOk')}</option>
+                                                <option value="Active">{t('domains.statusActive')}</option>
+                                                <option value="Disabled">{t('domains.statusDisabled')}</option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* Right column: access & security toggles. Stacked
-                                    label-above-control — the short pill labels are long in
-                                    ru/de/fr/es, so three side-by-side toggles don't fit a
-                                    half-width column. */}
+                                {/* === ПРАВАЯ КОЛОНКА (Безопасность, Доступ, Cloudflare) === */}
                                 <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-xs font-medium mb-1.5">{t('domains.searchRobots')}</label>
-                                        <ToggleGroup
-                                            value={formData.is_noindex ? 'disallow' : 'allow'}
-                                            onChange={v => setFormData({ ...formData, is_noindex: v === 'disallow' })}
-                                            options={[
-                                                { value: 'allow', label: t('domains.allowRobotsShort') },
-                                                { value: 'disallow', label: t('domains.disallowShort') }
-                                            ]}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-medium mb-1.5">{t('domains.adminDashboard')}</label>
-                                        <ToggleGroup
-                                            value={formData.admin_access ? 'allow' : 'deny'}
-                                            onChange={v => setFormData({ ...formData, admin_access: v === 'allow' })}
-                                            options={[
-                                                { value: 'allow', label: t('domains.allowAccess') },
-                                                { value: 'deny', label: t('domains.denyAccess') }
-                                            ]}
-                                        />
-                                        {!formData.admin_access && (
-                                            <p className="text-xs mt-1.5" style={{ color: 'var(--color-text-secondary)' }}>{t('domains.adminAccessHint')}</p>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-medium mb-1.5 flex items-center gap-1">
-                                            {t('domains.httpsOnlyShort')} <HelpTooltip textKey="help.httpsTooltip" />
-                                        </label>
-                                        <ToggleGroup
-                                            value={formData.https_only ? 'on' : 'off'}
-                                            onChange={v => setFormData({ ...formData, https_only: v === 'on' })}
-                                            options={[
-                                                { value: 'on', label: t('domains.on') },
-                                                { value: 'off', label: t('domains.off') }
-                                            ]}
-                                        />
+                                    {/* 3 Переключателя доступа в ряд */}
+                                    <div className="grid grid-cols-3 gap-2.5">
+                                        <div>
+                                            <label className="block text-[11px] font-semibold mb-1 truncate" style={{ color: 'var(--color-text-secondary)' }}>{t('domains.searchRobots')}</label>
+                                            <ToggleGroup
+                                                value={formData.is_noindex ? 'disallow' : 'allow'}
+                                                onChange={v => setFormData({ ...formData, is_noindex: v === 'disallow' })}
+                                                options={[
+                                                    { value: 'allow', label: t('domains.allowRobotsShort') },
+                                                    { value: 'disallow', label: t('domains.disallowShort') }
+                                                ]}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[11px] font-semibold mb-1 truncate" style={{ color: 'var(--color-text-secondary)' }}>{t('domains.adminDashboard')}</label>
+                                            <ToggleGroup
+                                                value={formData.admin_access ? 'allow' : 'deny'}
+                                                onChange={v => setFormData({ ...formData, admin_access: v === 'allow' })}
+                                                options={[
+                                                    { value: 'allow', label: t('domains.allowAccess') },
+                                                    { value: 'deny', label: t('domains.denyAccess') }
+                                                ]}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[11px] font-semibold mb-1 truncate flex items-center gap-0.5" style={{ color: 'var(--color-text-secondary)' }}>
+                                                {t('domains.httpsOnlyShort')} <HelpTooltip textKey="help.httpsTooltip" />
+                                            </label>
+                                            <ToggleGroup
+                                                value={formData.https_only ? 'on' : 'off'}
+                                                onChange={v => setFormData({ ...formData, https_only: v === 'on' })}
+                                                options={[
+                                                    { value: 'on', label: t('domains.on') },
+                                                    { value: 'off', label: t('domains.off') }
+                                                ]}
+                                            />
+                                        </div>
                                     </div>
 
-                                    {/* Cloudflare Proxy */}
-                                    <div className="flex items-center justify-between gap-4 p-3 rounded-lg" style={{ background: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}>
-                                        <div>
-                                            <label className="block text-sm font-medium">{t('domains.cloudflareProxy')}</label>
-                                            <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{t('domains.cfProxyHint')}</p>
+                                    {/* Подсказка о закрытии админки */}
+                                    {!formData.admin_access && (
+                                        <p className="text-[11px] -mt-2" style={{ color: 'var(--color-text-muted)', lineHeight: 1.4 }}>
+                                            {t('domains.adminAccessHint')}
+                                        </p>
+                                    )}
+
+                                    {/* Просторная плашка Cloudflare Proxy */}
+                                    <div 
+                                        className="p-4 rounded-xl border flex items-center justify-between gap-4" 
+                                        style={{ background: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}
+                                    >
+                                        <div className="flex-1">
+                                            <div className="font-semibold text-xs mb-0.5" style={{ color: 'var(--color-text-primary)' }}>
+                                                {t('domains.cloudflareProxy')}
+                                            </div>
+                                            <p className="text-[11px]" style={{ color: 'var(--color-text-muted)', lineHeight: 1.4 }}>
+                                                {t('domains.cfProxyHint')}
+                                            </p>
                                         </div>
-                                        <div style={{ minWidth: '150px' }}>
+                                        <div style={{ width: '120px', flexShrink: 0 }}>
                                             <ToggleGroup
                                                 value={formData.cloudflare_proxy ? 'on' : 'off'}
                                                 onChange={v => setFormData({ ...formData, cloudflare_proxy: v === 'on' })}
@@ -869,84 +931,10 @@ const Domains = ({ campaigns }) => {
                                 </div>
                             </div>
 
-                            {/* Metadata */}
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                <div>
-                                    <label className="block text-xs font-medium mb-1.5">{t('domains.registrar')}</label>
-                                    <input
-                                        type="text"
-                                        className="form-input w-full"
-                                        placeholder={t('domains.optional')}
-                                        value={formData.registrar}
-                                        onChange={e => setFormData({ ...formData, registrar: e.target.value })}
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-medium mb-1.5">{t('domains.manageVia', 'Управлять DNS через')}</label>
-                                    <select
-                                        className="form-select w-full"
-                                        value={
-                                            formData.dns_provider === 'cloudflare' && formData.dns_account_id ? `cloudflare:${formData.dns_account_id}`
-                                                : formData.dns_provider === 'namecheap' && formData.dns_account_id ? `namecheap:${formData.dns_account_id}`
-                                                    : (formData.dns_provider || '')
-                                        }
-                                        onChange={e => {
-                                            const v = e.target.value;
-                                            if (v === '') {
-                                                setFormData({ ...formData, dns_provider: '', dns_account_id: null });
-                                            } else if (v.includes(':')) {
-                                                const [prov, id] = v.split(':');
-                                                setFormData({ ...formData, dns_provider: prov, dns_account_id: Number(id) || null });
-                                            } else {
-                                                setFormData({ ...formData, dns_provider: v, dns_account_id: null });
-                                            }
-                                        }}
-                                    >
-                                        <option value="">{t('domains.manageViaNone', '— аккаунт по умолчанию —')}</option>
-                                        {cfAccounts.length > 0 && (
-                                            <optgroup label="Cloudflare">
-                                                {cfAccounts.map(a => (
-                                                    <option key={`cf-${a.id}`} value={`cloudflare:${a.id}`}>{a.name}</option>
-                                                ))}
-                                            </optgroup>
-                                        )}
-                                        {ncAccounts.length > 0 && (
-                                            <optgroup label="Namecheap">
-                                                {ncAccounts.map(a => (
-                                                    <option key={`nc-${a.id}`} value={`namecheap:${a.id}`}>{a.name}</option>
-                                                ))}
-                                            </optgroup>
-                                        )}
-                                        {/* A legacy free-text provider that is not a pinned
-                                            account — keep it selectable so saving does not
-                                            silently wipe it. */}
-                                        {formData.dns_provider
-                                            && !((formData.dns_provider === 'cloudflare' || formData.dns_provider === 'namecheap') && formData.dns_account_id)
-                                            && (
-                                                <option value={formData.dns_provider}>{formData.dns_provider}</option>
-                                            )}
-                                    </select>
-                                    <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>
-                                        {t('domains.manageViaHint', 'Аккаунт, через который парковается A-запись домена при добавлении и синхронизации.')}
-                                    </p>
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-medium mb-1.5">{t('domains.status')}</label>
-                                    <select
-                                        className="form-select w-full"
-                                        value={formData.status}
-                                        onChange={e => setFormData({ ...formData, status: e.target.value })}
-                                    >
-                                        <option value="OK">{t('domains.statusOk')}</option>
-                                        <option value="Active">{t('domains.statusActive')}</option>
-                                        <option value="Disabled">{t('domains.statusDisabled')}</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="modal-footer">
-                                {!formData.id && (
-                                    <label className="inline-flex items-center gap-2 text-sm font-medium cursor-pointer mr-auto">
+                            {/* Footer с кнопками сохранения */}
+                            <div className="modal-footer mt-6 pt-4 border-t flex items-center justify-between" style={{ borderColor: 'var(--color-border)' }}>
+                                {!formData.id ? (
+                                    <label className="inline-flex items-center gap-2 text-xs font-medium cursor-pointer">
                                         <input
                                             type="checkbox"
                                             checked={addMore}
@@ -954,9 +942,16 @@ const Domains = ({ campaigns }) => {
                                         />
                                         {t('domains.addMore')}
                                     </label>
-                                )}
-                                <button type="button" onClick={() => setShowModal(false)} className="btn btn-secondary">{t('common.cancel')}</button>
-                                <button type="submit" className="btn btn-primary">{formData.id ? t('common.save') : t('common.add')}</button>
+                                ) : <div />}
+                                
+                                <div className="flex gap-2.5">
+                                    <button type="button" onClick={() => setShowModal(false)} className="btn btn-secondary btn-sm">
+                                        {t('common.cancel')}
+                                    </button>
+                                    <button type="submit" className="btn btn-primary btn-sm px-4">
+                                        {formData.id ? t('common.save') : t('common.add')}
+                                    </button>
+                                </div>
                             </div>
                         </form>
                     </div>
