@@ -73076,6 +73076,11 @@ const IntegrationsPage = () => {
     setFbOAuthConnecting(false);
   };
   const handleStartFacebookOAuth = () => {
+    if (fbOauthConfigured === false) {
+      setFbAddMode("manual");
+      setFbMessage({ type: "info", text: t("fbCosts.oauthNotConfiguredHint") });
+      return;
+    }
     setFbMessage(null);
     setFbDiscoveredAccounts([]);
     setFbSelectedAccounts([]);
@@ -73132,6 +73137,12 @@ const IntegrationsPage = () => {
     setTtConnecting(false);
   };
   const handleStartTikTokOAuth = () => {
+    if (ttOauthConfigured === false) {
+      setTtAddMode("manual");
+      setTtShowTokenHowTo(true);
+      setTtMessage({ type: "info", text: t("tiktokCosts.oauthNotConfiguredHint") });
+      return;
+    }
     setTtMessage(null);
     setTtDiscoveredAccounts([]);
     setTtDiscoveredPixels([]);
@@ -73422,6 +73433,12 @@ const IntegrationsPage = () => {
     setGaConnecting(false);
   };
   const handleStartGaOAuth = () => {
+    if (gaOauthConfigured === false) {
+      setGaAddMode("manual");
+      setGaShowHowTo(true);
+      setGaMessage({ type: "info", text: t("googleAdsCosts.oauthNotConfiguredHint") });
+      return;
+    }
     setGaMessage(null);
     setGaDiscoveredManagers([]);
     setGaDiscoveredAccounts([]);
@@ -73660,9 +73677,9 @@ const IntegrationsPage = () => {
                     {
                       type: "button",
                       onClick: handleStartFacebookOAuth,
-                      disabled: fbOAuthLoading || fbOAuthConnecting || fbOauthConfigured === false,
+                      disabled: fbOAuthLoading || fbOAuthConnecting,
                       className: "btn py-2.5 px-6 rounded-xl font-bold flex items-center gap-2 transition-transform hover:scale-[1.02]",
-                      style: { backgroundColor: "#1877F2", color: "#ffffff", boxShadow: "0 4px 14px rgba(24, 119, 242, 0.3)", opacity: fbOAuthLoading || fbOauthConfigured === false ? 0.75 : 1 },
+                      style: { backgroundColor: "#1877F2", color: "#ffffff", boxShadow: "0 4px 14px rgba(24, 119, 242, 0.3)", opacity: fbOAuthLoading ? 0.75 : 1 },
                       children: [
                         fbOAuthLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-extrabold text-base", children: "f" }),
                         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: fbOAuthLoading ? t("fbCosts.oauthConnecting") : t("fbCosts.loginWithFb") })
@@ -73700,7 +73717,8 @@ const IntegrationsPage = () => {
                                 children: copied === "fb_oauth_cb" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 12, style: { color: "var(--color-success)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 12 })
                               }
                             )
-                          ] })
+                          ] }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] italic", style: { color: "var(--color-text-muted)" }, children: t("googleAdsCosts.redirectUriNotice", "⚠️ Copy into developer settings. Do not open directly in browser.") })
                         ] }),
                         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 flex flex-wrap gap-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
                           "button",
@@ -74139,9 +74157,9 @@ const IntegrationsPage = () => {
                     {
                       type: "button",
                       onClick: handleStartTikTokOAuth,
-                      disabled: ttOAuthLoading || ttConnecting || ttOauthConfigured === false,
+                      disabled: ttOAuthLoading || ttConnecting,
                       className: "btn py-2.5 px-6 rounded-xl font-bold flex items-center gap-2 transition-transform hover:scale-[1.02]",
-                      style: { backgroundColor: "#FE2C55", color: "#ffffff", boxShadow: "0 4px 14px rgba(254, 44, 85, 0.3)", opacity: ttOAuthLoading || ttOauthConfigured === false ? 0.75 : 1 },
+                      style: { backgroundColor: "#FE2C55", color: "#ffffff", boxShadow: "0 4px 14px rgba(254, 44, 85, 0.3)", opacity: ttOAuthLoading ? 0.75 : 1 },
                       children: [
                         ttOAuthLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Music2, { size: 16 }),
                         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: ttOAuthLoading ? t("tiktokCosts.oauthConnecting") : t("tiktokCosts.loginWithTikTok") })
@@ -74179,7 +74197,8 @@ const IntegrationsPage = () => {
                                 children: copied === "tt_oauth_cb" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 12, style: { color: "var(--color-success)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 12 })
                               }
                             )
-                          ] })
+                          ] }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] italic", style: { color: "var(--color-text-muted)" }, children: t("googleAdsCosts.redirectUriNotice", "⚠️ Copy into developer settings. Do not open directly in browser.") })
                         ] }),
                         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 flex flex-wrap gap-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
                           "button",
@@ -74640,9 +74659,9 @@ const IntegrationsPage = () => {
                     {
                       type: "button",
                       onClick: handleStartGaOAuth,
-                      disabled: gaOAuthLoading || gaConnecting || gaOauthConfigured === false,
+                      disabled: gaOAuthLoading || gaConnecting,
                       className: "btn py-2.5 px-6 rounded-xl font-bold flex items-center gap-2 transition-transform hover:scale-[1.02]",
-                      style: { backgroundColor: "#4285F4", color: "#ffffff", boxShadow: "0 4px 14px rgba(66, 133, 244, 0.3)", opacity: gaOAuthLoading || gaOauthConfigured === false ? 0.75 : 1 },
+                      style: { backgroundColor: "#4285F4", color: "#ffffff", boxShadow: "0 4px 14px rgba(66, 133, 244, 0.3)", opacity: gaOAuthLoading ? 0.75 : 1 },
                       children: [
                         gaOAuthLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 16 }),
                         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: gaOAuthLoading ? t("googleAdsCosts.oauthConnecting") : t("googleAdsCosts.loginWithGoogle") })
@@ -74680,7 +74699,8 @@ const IntegrationsPage = () => {
                                 children: copied === "ga_oauth_cb" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 12, style: { color: "var(--color-success)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 12 })
                               }
                             )
-                          ] })
+                          ] }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] italic", style: { color: "var(--color-text-muted)" }, children: t("googleAdsCosts.redirectUriNotice", "⚠️ Copy into Google Cloud Console → Authorized redirect URIs. Do not open directly in browser.") })
                         ] }),
                         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 flex flex-wrap gap-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
                           "button",
