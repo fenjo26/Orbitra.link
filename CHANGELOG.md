@@ -7,6 +7,20 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.1.1] — 2026-08-18
+
+A local offer hosted on the tracker could take a lead and then answer the buyer with a 404: the form's relative `order.php` never reached PHP at all.
+
+### Fixed
+- 🚨 **A local offer's form POST returned 404** — an uploaded offer is served inline at the campaign URL (`/pr6sxv41`), so the browser resolved the `action="order.php"` LeadForge writes against the domain root and posted to `/order.php`. Nginx claimed that path first: `snippets/fastcgi-php.conf` ends in `try_files $fastcgi_script_name =404` and nothing named `order.php` exists at the document root, so nginx answered with its own 404 and index.php's order bridge never ran. The generated vhost (`core/nginx_config.php`) and `install.sh`'s baseline now hand `/order.php`, `/offers/<id>/*.php` and `/lander/<slug>/*.php` to the front controller, which resolves the bundle and runs the handler in-process as it always intended to. **An existing server needs `sudo php /var/www/orbitra/cli/nginx_sync.php` once** — half of this fix lives in the vhost, not in the code.
+- 🔁 **`success.php` was missing from the handler whitelist** — the generated `order.php` finishes with a relative `Location: success.php`, so the network could accept a lead and the buyer still land on a 404 one hop later. `orbitraBundleHandlers()` is now the single list every bridge reads: `order.php`, `thank_you.php`, `success.php`, `send.php`, `lucky.php`, `lemon.php` — plus `api.php` on the routes that carry the bundle's id in the URL, never at the domain root, where that name is the tracker's own admin API.
+- 🎯 **Form actions are pinned to the offer's own URL** — a relative `*.php` action in a served offer becomes `/offers/<id>/order.php`, so the lead POST carries the offer id instead of depending on a cookie or a Referer surviving, and an Ezaff bundle's `api.php` sender can no longer collide with `/api.php`. In-page `#anchor` links, assets, and any absolute or external action are left alone — deliberately not a `<base>` tag, which would turn every "#order" button into a navigation off the campaign URL.
+- 🔒 **Uploaded PHP is no longer executable straight off disk** — `/offers/<id>/order.php` used to go to PHP-FPM directly, running a file out of an uploaded archive outside the "Allow PHP landings" switch and its execution budget. Both bundle routes go through index.php now, and `/landings/<id>/*.php` — the storage directory behind `/lander/<slug>/`, not a public route — returns 404.
+
+### Added
+- 🧭 **`ORBITRA_OFFER_ID` / `ORBITRA_OFFER_URL` / `ORBITRA_OFFER_PATH`** — defined before any of a local offer's own PHP runs, on all three paths that execute it. A bundle that wants an absolute URL for itself can write `defined('ORBITRA_OFFER_URL') ? ORBITRA_OFFER_URL . 'order.php' : 'order.php'` and still work standalone.
+- 🧪 **`tests/lander_order_route_test.php` grew to 50 checks** — `success.php` on both bridges, the offer-context constants, `/api.php` never claimed from a bundle, twelve form-action rewrite cases, and an assertion that the vhost generator and `install.sh` agree on the bundle routes *and* place them before the generic PHP handler.
+
 ## [1.1.0] — 2026-08-18
 
 Conversion attribution for affiliate-network postbacks (Dr. Cash and every other `?subid=` integration) and the report query that had stopped parsing, plus conversion-failure monitoring, cloud-aware SSL provisioning, a Google Ads OAuth walkthrough, TikTok cost-connection fixes, and outbound TLS verification restored.

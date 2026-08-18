@@ -134,6 +134,36 @@ function orbitraNginxCommonBody(string $fpmSocket): string
     $b .= "    # Allow large file uploads for Geo DB\n";
     $b .= "    client_max_body_size 256m;\n\n";
 
+    $b .= "    # Uploaded landing/offer bundles are content, not tracker code.\n";
+    $b .= "    #\n";
+    $b .= "    # A LeadForge form posts to a relative order.php, which the browser resolves\n";
+    $b .= "    # against the campaign URL (\"/pr6sxv41\") and therefore sends to /order.php —\n";
+    $b .= "    # a path with no file behind it. snippets/fastcgi-php.conf ends in\n";
+    $b .= "    # \"try_files \$fastcgi_script_name =404\", so the PHP handler below answered\n";
+    $b .= "    # that POST with nginx's own 404 and index.php's order bridge never ran.\n";
+    $b .= "    # These paths go to the front controller instead: it resolves which bundle\n";
+    $b .= "    # the visitor is on and runs the handler in-process, gated by the same\n";
+    $b .= "    # \"Allow PHP landings\" switch and execution budget as the rest of an\n";
+    $b .= "    # uploaded archive. Keep this before the generic PHP handler — nginx tries\n";
+    $b .= "    # regex locations in the order they are written.\n";
+    $b .= "    location ~ ^/(?:order|thank_you|success|send|lucky|lemon)\\.php\$ {\n";
+    $b .= "        rewrite ^ /index.php last;\n";
+    $b .= "    }\n\n";
+
+    $b .= "    # The bundles' own routes, /offers/<id>/... and /lander/<slug>/... . Same\n";
+    $b .= "    # reason, plus the one that matters more: without this, any .php a bundle\n";
+    $b .= "    # ships is executable straight off disk by URL, outside the switch and the\n";
+    $b .= "    # budget that exist precisely because uploaded code is not trusted code.\n";
+    $b .= "    location ~ ^/(?:offers|lander)/[^/]+/.*\\.php\$ {\n";
+    $b .= "        rewrite ^ /index.php last;\n";
+    $b .= "    }\n\n";
+
+    $b .= "    # /landings/<id>/ is the storage directory behind /lander/<slug>/, not a\n";
+    $b .= "    # public route. Nothing under it is ever executed.\n";
+    $b .= "    location ~ ^/landings/.*\\.php\$ {\n";
+    $b .= "        return 404;\n";
+    $b .= "    }\n\n";
+
     $b .= "    # PHP processing\n";
     $b .= "    location ~ \\.php\$ {\n";
     $b .= "        include snippets/fastcgi-php.conf;\n";

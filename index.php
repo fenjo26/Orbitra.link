@@ -649,6 +649,33 @@ function serveLandingAsset($landingId, $uriPath, $baseDir = null)
 }
 
 /**
+ * The handler files inside an uploaded landing/offer bundle that the tracker
+ * runs on their own URL.
+ *
+ * A LeadForge bundle is not a single page. The form posts to order.php, which
+ * answers with a relative `Location: success.php` (thank_you.php on older
+ * packs), and a few networks name their sender send.php, lucky.php or lemon.php
+ * instead. Every one of them is a form handler no static server can run, so all
+ * of them need the same in-process execution — miss one and the lead reaches the
+ * network while the visitor still lands on a 404, which is exactly how
+ * success.php behaved before it was on this list.
+ *
+ * api.php is included only for the routes that carry the bundle's id in the URL
+ * (/offers/<id>/..., /lander/<slug>/...). The domain-root bridge must never
+ * claim it: /api.php is the tracker's own admin API, and an Ezaff bundle — whose
+ * sender is named api.php — would otherwise shadow it for every visitor holding
+ * a bundle cookie.
+ */
+function orbitraBundleHandlers(bool $withApi = false): array
+{
+    $handlers = ['order.php', 'thank_you.php', 'success.php', 'send.php', 'lucky.php', 'lemon.php'];
+    if ($withApi) {
+        $handlers[] = 'api.php';
+    }
+    return $handlers;
+}
+
+/**
  * Serve a local landing at /lander/<slug>/, the way Keitaro does.
  *
  * Keitaro publishes a local landing at /lander/<name>/ and injects a <base> tag
@@ -662,9 +689,10 @@ function serveLandingAsset($landingId, $uriPath, $baseDir = null)
  * Not a click: nothing is logged, no cookie is set, and {offer} has no stream to
  * resolve against, so it points at the campaign entry Keitaro uses for the same
  * job. PHP landing pages are not executed here — they need the click context this
- * route deliberately does not have. The LeadForge order handlers (order.php,
- * thank_you.php) are the exception: they are network actors, not click-context
- * pages, and answer their own POSTs under this URL like they do at the root.
+ * route deliberately does not have. The LeadForge bundle handlers
+ * (orbitraBundleHandlers()) are the exception: they are network actors, not
+ * click-context pages, and answer their own POSTs under this URL like they do at
+ * the root.
  */
 function orbitraServeLanderPath(PDO $pdo, string $slug, string $rest): void
 {
@@ -701,7 +729,7 @@ function orbitraServeLanderPath(PDO $pdo, string $slug, string $rest): void
     // in the main flow), gated by the same switch and budget. The slug in this
     // URL names the landing, so unlike the root bridge no cookie is involved.
     $bridgeFile = strtolower(basename($rest));
-    if (in_array($bridgeFile, ['order.php', 'thank_you.php'], true)) {
+    if (in_array($bridgeFile, orbitraBundleHandlers(true), true)) {
         $bridgeRoot = realpath(orbitraLandingContentDir(orbitraLandingDir($pdo, $id)));
         $bridgeTarget = $bridgeRoot === false ? false : realpath($bridgeRoot . '/' . $rest);
         if ($bridgeTarget === false || !is_file($bridgeTarget)
@@ -907,6 +935,106 @@ function orbitraOfferDir($offerId)
     return __DIR__ . '/offers/' . (int) $offerId;
 }
 
+/**
+ * Tell the PHP inside a local offer's bundle where that bundle lives.
+ *
+ * A local offer is served at the campaign's URL ("/pr6sxv41"), not at its own
+ * directory, so nothing in $_SERVER tells a file in the bundle which URL prefix
+ * its siblings are reachable under — __DIR__ answers that for the filesystem and
+ * has no URL equivalent. These three constants are that equivalent, and a bundle
+ * can use them while staying runnable on its own:
+ *
+ *     defined('ORBITRA_OFFER_URL') ? ORBITRA_OFFER_URL . 'order.php' : 'order.php'
+ *
+ * Defined once per request, before any bundle code runs. Outside Orbitra they are
+ * simply undefined and the bundle keeps its relative paths.
+ */
+function orbitraDefineOfferContext(int $offerId, string $dir): void
+{
+    if (!defined('ORBITRA_OFFER_ID')) {
+        define('ORBITRA_OFFER_ID', $offerId);
+    }
+    if (!defined('ORBITRA_OFFER_URL')) {
+        define('ORBITRA_OFFER_URL', '/offers/' . $offerId . '/');
+    }
+    if (!defined('ORBITRA_OFFER_PATH')) {
+        define('ORBITRA_OFFER_PATH', rtrim(strtr($dir, '\\', '/'), '/') . '/');
+    }
+}
+
+/**
+ * Point a served bundle's relative *.php form actions at the bundle's own URL.
+ *
+ * A local offer's page is printed at the campaign URL ("/pr6sxv41"), which has no
+ * trailing segment, so the browser resolves the action LeadForge writes — a bare
+ * "order.php" — against the domain root and posts the lead to /order.php. The
+ * domain-root bridge does answer that, but only for a visitor whose bundle cookie
+ * or Referer survived, and one network's sender is named api.php, which at the
+ * root is the tracker's own admin API. Rewriting the action to
+ * /offers/<id>/order.php puts the bundle's id in the URL itself, so the POST
+ * needs neither cookie nor Referer and cannot collide with a tracker endpoint.
+ *
+ * Deliberately narrow. A <base> tag would do all of this in one line, but it also
+ * turns every "#order" anchor into a navigation away from the campaign URL, and
+ * those buttons are the whole interaction on a lead lander. So only form actions
+ * are touched, only while they are relative, only when they point at a .php file,
+ * and never when they climb out of the bundle with "..". An action that is
+ * already absolute, external, or aimed at a static page is left exactly as it was.
+ */
+function orbitraAbsolutizeBundleActions($html, string $urlBase)
+{
+    if (!is_string($html) || $html === '' || stripos($html, '.php') === false) {
+        return $html;
+    }
+
+    $resolve = static function ($value) use ($urlBase) {
+        $trimmed = trim((string) $value);
+        if ($trimmed === '' || $trimmed[0] === '/' || $trimmed[0] === '#' || $trimmed[0] === '?') {
+            return null;
+        }
+        // A scheme ("https:", "mailto:", "javascript:"), a climb out of the
+        // bundle, or a macro the tracker has not resolved: not ours to rewrite.
+        if (strpos($trimmed, '..') !== false || strpos($trimmed, '{') !== false
+            || preg_match('#^[A-Za-z][A-Za-z0-9+.-]*:#', $trimmed)) {
+            return null;
+        }
+        $path = explode('?', explode('#', $trimmed, 2)[0], 2)[0];
+        if (!preg_match('/\.php$/i', $path)) {
+            return null;
+        }
+        return $urlBase . preg_replace('#^\./#', '', $trimmed);
+    };
+
+    // The action itself, plus the lock attribute LeadForge's validation layer
+    // restores it from when a cloned sender script overwrites it.
+    $html = preg_replace_callback(
+        '/<form\b[^>]*>/i',
+        static function (array $tag) use ($resolve) {
+            return preg_replace_callback(
+                '/\b(data-leadforge-action-lock|action)\s*=\s*(["\'])(.*?)\2/is',
+                static function (array $attr) use ($resolve) {
+                    $next = $resolve($attr[3]);
+                    return $next === null ? $attr[0] : $attr[1] . '=' . $attr[2] . $next . $attr[2];
+                },
+                $tag[0]
+            );
+        },
+        $html
+    ) ?? $html;
+
+    // Inline copies of the senders LeadForge pins ("currentRequestModify =
+    // 'order.php'", "form.action = 'order.php'"). An external .js keeps its
+    // relative path and keeps working through the domain-root bridge.
+    return preg_replace_callback(
+        '/((?:currentRequestModify|\.action)\s*=\s*)(["\'])(.*?)\2/is',
+        static function (array $m) use ($resolve) {
+            $next = $resolve($m[3]);
+            return $next === null ? $m[0] : $m[1] . $m[2] . $next . $m[2];
+        },
+        $html
+    ) ?? $html;
+}
+
 function orbitraOfferIsLocal(PDO $pdo, $offerId): bool
 {
     static $cache = [];
@@ -969,6 +1097,7 @@ function orbitraServeLocalOffer(PDO $pdo, $offerId, $clickId, array $clickParams
             exit;
         }
         @set_time_limit(PhpLanding::timeout($pdo));
+        orbitraDefineOfferContext($offerId, $dir);
         $rawClick = new OrbitraRawClick(array_merge(
             $clickParams,
             [
@@ -980,25 +1109,31 @@ function orbitraServeLocalOffer(PDO $pdo, $offerId, $clickId, array $clickParams
         ob_start();
         require $dir . '/index.php';
         $content = ob_get_clean();
-        echo applyLandingMacros(
-            $content,
-            $clickId,
-            $offerId,
-            '',
-            $clickParams,
-            issueLpToken($clickId, $settings['postback_key'] ?? 'orbitra_secret')
+        echo orbitraAbsolutizeBundleActions(
+            applyLandingMacros(
+                $content,
+                $clickId,
+                $offerId,
+                '',
+                $clickParams,
+                issueLpToken($clickId, $settings['postback_key'] ?? 'orbitra_secret')
+            ),
+            '/offers/' . $offerId . '/'
         );
         exit;
     }
 
     if (file_exists($dir . '/index.html')) {
-        echo applyLandingMacros(
-            file_get_contents($dir . '/index.html'),
-            $clickId,
-            $offerId,
-            '',
-            $clickParams,
-            issueLpToken($clickId, $settings['postback_key'] ?? 'orbitra_secret')
+        echo orbitraAbsolutizeBundleActions(
+            applyLandingMacros(
+                file_get_contents($dir . '/index.html'),
+                $clickId,
+                $offerId,
+                '',
+                $clickParams,
+                issueLpToken($clickId, $settings['postback_key'] ?? 'orbitra_secret')
+            ),
+            '/offers/' . $offerId . '/'
         );
         exit;
     }
@@ -1012,7 +1147,7 @@ function orbitraServeLocalOffer(PDO $pdo, $offerId, $clickId, array $clickParams
  * Cloaked streams that use a local offer as their Safe Page send bots here from
  * click.php and the Click API, which cannot serve the archive themselves. Same
  * rules as the lander route: not a click, nothing logged, PHP indexes are not
- * executed (no click context here) — except the LeadForge order handlers,
+ * executed (no click context here) — except the LeadForge bundle handlers,
  * which answer their own POSTs under this URL. The orbitra_lo cookie is set
  * while serving, so the page's relative assets and the LeadForge order.php
  * bridge keep resolving for a visitor standing on this URL.
@@ -1052,11 +1187,12 @@ function orbitraServeOfferPath(PDO $pdo, int $offerId, string $rest): void
 
     // Same order-bridge handling as /lander/<slug>/: a LeadForge form on this
     // page posts to a relative order.php the <base> below resolves to
-    // /offers/<id>/order.php. The domain-root bridge answers that POST when the
-    // orbitra_lo cookie this route sets survives; this branch answers it from
+    // /offers/<id>/order.php, and the handler's relative "Location: success.php"
+    // resolves back here too. The domain-root bridge answers those when the
+    // orbitra_lo cookie this route sets survives; this branch answers them from
     // the id in the URL itself, so a cookie-less browser is covered too.
     $bridgeFile = strtolower(basename($rest));
-    if (in_array($bridgeFile, ['order.php', 'thank_you.php'], true)) {
+    if (in_array($bridgeFile, orbitraBundleHandlers(true), true)) {
         $bridgeTarget = realpath($root . '/' . $rest);
         if ($bridgeTarget === false || !is_file($bridgeTarget)
             || strpos($bridgeTarget, $root . DIRECTORY_SEPARATOR) !== 0) {
@@ -1071,6 +1207,7 @@ function orbitraServeOfferPath(PDO $pdo, int $offerId, string $rest): void
             exit;
         }
         @set_time_limit(max(PhpLanding::timeout($pdo), 25));
+        orbitraDefineOfferContext($offerId, $root);
         require $bridgeTarget;
         exit;
     }
@@ -1788,19 +1925,23 @@ if ($uriPath !== null && preg_match('#^/lander/([A-Za-z0-9][A-Za-z0-9_-]{0,63})(
 // landing to a local offer is now on the offer's page, so its assets resolve
 // against offers/<id>, not against the landing they came from.
 // Local-offer / local-landing order bridge (LeadForge): the generated
-// order.php and thank_you.php are form handlers no static server can run. The
-// asset passthrough below deliberately never serves .php, so they get the same
-// in-process execution the landing's own index.php gets — gated by the same
+// handlers (orbitraBundleHandlers()) are form senders no static server can run.
+// The asset passthrough below deliberately never serves .php, so they get the
+// same in-process execution the landing's own index.php gets — gated by the same
 // "Allow PHP landings" switch and execution budget. The cookies say which
 // uploaded page the visitor is actually on (offer wins, as with assets); the
 // Referer is the fallback when no cookie does (blocked cookies, or a form
 // posted absolute from a /lander/<slug>/ preview, which sets no cookies).
 if ($uriPath !== null) {
     $orbitraBridgeFile = strtolower(basename(parse_url($uriPath, PHP_URL_PATH) ?? ''));
-    if (in_array($orbitraBridgeFile, ['order.php', 'thank_you.php'], true)) {
+    if (in_array($orbitraBridgeFile, orbitraBundleHandlers(), true)) {
         $orbitraBridgeRoot = '';
+        // Which offer, when it is an offer: the handler gets ORBITRA_OFFER_URL
+        // and friends the same way it would on the offer's own route.
+        $orbitraBridgeOffer = 0;
         if (!empty($_COOKIE['orbitra_lo']) && orbitraOfferIsLocal($pdo, (int) $_COOKIE['orbitra_lo'])) {
-            $orbitraBridgeRoot = orbitraLandingContentDir(orbitraOfferDir((int) $_COOKIE['orbitra_lo']));
+            $orbitraBridgeOffer = (int) $_COOKIE['orbitra_lo'];
+            $orbitraBridgeRoot = orbitraLandingContentDir(orbitraOfferDir($orbitraBridgeOffer));
         } elseif (!empty($_COOKIE['orbitra_lp'])) {
             $orbitraBridgeRoot = orbitraLandingContentDir(orbitraLandingDir($pdo, (int) $_COOKIE['orbitra_lp']));
         }
@@ -1825,7 +1966,8 @@ if ($uriPath !== null) {
                 }
             } elseif (preg_match('#^/offers/(\d+)#', $orbitraRefPath, $orbitraRefMatch)
                 && orbitraOfferIsLocal($pdo, (int) $orbitraRefMatch[1])) {
-                $orbitraBridgeRoot = orbitraLandingContentDir(orbitraOfferDir((int) $orbitraRefMatch[1]));
+                $orbitraBridgeOffer = (int) $orbitraRefMatch[1];
+                $orbitraBridgeRoot = orbitraLandingContentDir(orbitraOfferDir($orbitraBridgeOffer));
             }
         }
         if ($orbitraBridgeRoot !== '' && is_file($orbitraBridgeRoot . '/' . $orbitraBridgeFile)) {
@@ -1842,6 +1984,9 @@ if ($uriPath !== null) {
             // generic landing budget (3s default) would kill a healthy lead
             // mid-flight, so bridge files get a floor of their own.
             @set_time_limit(max(PhpLanding::timeout($pdo), 25));
+            if ($orbitraBridgeOffer > 0) {
+                orbitraDefineOfferContext($orbitraBridgeOffer, $orbitraBridgeRoot);
+            }
             require $orbitraBridgeRoot . '/' . $orbitraBridgeFile;
             exit;
         }

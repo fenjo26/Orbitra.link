@@ -252,6 +252,36 @@ server {
     # Allow large file uploads for Geo DB
     client_max_body_size 256m;
 
+    # Uploaded landing/offer bundles are content, not tracker code.
+    #
+    # A LeadForge form posts to a relative order.php, which the browser resolves
+    # against the campaign URL ("/pr6sxv41") and therefore sends to /order.php —
+    # a path with no file behind it. snippets/fastcgi-php.conf ends in
+    # "try_files \$fastcgi_script_name =404", so the PHP handler below answered
+    # that POST with nginx's own 404 and index.php's order bridge never ran.
+    # These paths go to the front controller instead: it resolves which bundle
+    # the visitor is on and runs the handler in-process, gated by the same
+    # "Allow PHP landings" switch and execution budget as the rest of an
+    # uploaded archive. Keep this before the generic PHP handler — nginx tries
+    # regex locations in the order they are written.
+    location ~ ^/(?:order|thank_you|success|send|lucky|lemon)\.php\$ {
+        rewrite ^ /index.php last;
+    }
+
+    # The bundles' own routes, /offers/<id>/... and /lander/<slug>/... . Same
+    # reason, plus the one that matters more: without this, any .php a bundle
+    # ships is executable straight off disk by URL, outside the switch and the
+    # budget that exist precisely because uploaded code is not trusted code.
+    location ~ ^/(?:offers|lander)/[^/]+/.*\.php\$ {
+        rewrite ^ /index.php last;
+    }
+
+    # /landings/<id>/ is the storage directory behind /lander/<slug>/, not a
+    # public route. Nothing under it is ever executed.
+    location ~ ^/landings/.*\.php\$ {
+        return 404;
+    }
+
     # PHP processing
     location ~ \.php$ {
         include snippets/fastcgi-php.conf;

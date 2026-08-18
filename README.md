@@ -1,4 +1,4 @@
-# Orbitra v1.1.0 Tracker
+# Orbitra v1.1.1 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -10,6 +10,14 @@
 ![Status](https://img.shields.io/badge/Status-Production_Ready-brightgreen)
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
+
+## 🆕 What's New in v1.1.1
+
+- **A local offer's form POST no longer 404s** — an uploaded offer is served at the campaign URL, so the browser resolved the LeadForge form's `action="order.php"` against the domain root and posted to `/order.php`, which nginx answered with its own 404 before PHP ever ran (`snippets/fastcgi-php.conf` ends in `try_files $fastcgi_script_name =404`). The vhost now routes `/order.php`, `/offers/<id>/*.php` and `/lander/<slug>/*.php` to the front controller. **Existing servers: run `sudo php /var/www/orbitra/cli/nginx_sync.php` once after updating.**
+- **`success.php` is executed too** — the generated `order.php` redirects to a relative `success.php`, so a lead could reach the network and the buyer still land on a 404 one hop later. One shared handler list now covers `order.php`, `thank_you.php`, `success.php`, `send.php`, `lucky.php` and `lemon.php`.
+- **Form actions are pinned to `/offers/<id>/…`** — the lead POST carries the offer id instead of depending on a cookie or Referer surviving, and a bundle whose sender is named `api.php` can no longer collide with the tracker's own admin API. In-page anchors and assets are untouched.
+- **Uploaded PHP is not executable off disk any more** — a file inside an offer or landing archive can only run through the tracker, under the "Allow PHP landings" switch and its execution budget; `/landings/<id>/*.php` returns 404.
+- **`ORBITRA_OFFER_ID` / `ORBITRA_OFFER_URL` / `ORBITRA_OFFER_PATH`** are defined for a local offer's own PHP, so a bundle can build an absolute URL for itself and still work standalone.
 
 ## 🆕 What's New in v1.1.0
 
