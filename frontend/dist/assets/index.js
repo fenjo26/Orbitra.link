@@ -19194,10 +19194,14 @@ const ru = {
     "ok": "Работает",
     "neverSynced": "Ещё не синхронизировано",
     "noAccounts": "Кабинеты TikTok не подключены. Добавьте аккаунт, чтобы импортировать расход из TikTok.",
-    "oauthNotConfiguredTitle": "1-Click OAuth не настроен",
-    "oauthNotConfiguredHint": "Задайте ORBITRA_TIKTOK_APP_ID и ORBITRA_TIKTOK_APP_SECRET на сервере или сохраните App ID и App Secret в ручном подключении TikTok — они переиспользуются для 1-Click. Или пропустите 1-Click: подключитесь напрямую по Access Token и Advertiser ID ниже.",
-    "tokenHowTo": "Как получить токен TikTok за 1 минуту",
-    "tokenHowToHint": "1. Войдите в TikTok for Business (ads.tiktok.com) и откройте Business Center.\n2. Скопируйте Advertiser ID рекламного кабинета — числовой ID в переключателе аккаунтов.\n3. В Business Center → Приложения создайте Long-term Access Token со скоупом Advertising Read.\n4. Вставьте токен и Advertiser ID выше и нажмите «Сохранить»."
+    "oauthNotConfiguredTitle": "1-Click OAuth требует ключи приложения",
+    "oauthNotConfiguredHint": "Для авторизации через кнопку 1-Click необходимо указать App ID и App Secret приложения TikTok for Business. Если у вас нет приложения, используйте прямое подключение по токену ниже (без создания приложения).",
+    "tokenHowTo": "Инструкция по подключению TikTok и ключам",
+    "tokenHowToHint": "📌 Способ 1: Прямое подключение по токену (Рекомендуется — без создания приложения):\n1. Войдите в TikTok for Business (ads.tiktok.com) → откройте нужный рекламный кабинет.\n2. Скопируйте Advertiser ID (числовой ID в верхнем меню переключения аккаунтов).\n3. В TikTok Business Center → раздел «Приложения/Разработчикам» или в Events Manager создайте Long-term Access Token со скоупом Advertising Read / Reporting.\n4. Вставьте Access Token и Advertiser ID в поля ниже и нажмите «Проверить подключение» → «Сохранить».\n\n📌 Способ 2: 1-Click OAuth (автоматический поиск всех кабинетов и пикселей):\n1. В TikTok for Business Developer Portal (business-api.tiktok.com) создайте приложение.\n2. В поле Redirect URI укажите точный адрес трекера (требуется HTTPS):\n{redirect_uri}\n3. Укажите App ID и App Secret в форме ниже (или в переменных окружения ORBITRA_TIKTOK_APP_ID и ORBITRA_TIKTOK_APP_SECRET).\n4. После сохранения кнопка 1-Click сможет в один клик открывать окно входа и массово подключать кабинеты.",
+    "redirectUriLabel": "Authorized Redirect URI для TikTok Developer Portal:",
+    "switchToManual": "Перейти к прямому вводу токена (без приложения)",
+    "switchTo1Click": "Перейти к 1-Click OAuth",
+    "httpsNotice": "💡 Обратите внимание: 1-Click OAuth требует HTTPS-домена. При работе по прямому IP-адресу используйте прямое подключение по Access Token."
   },
   "googleAdsCosts": {
     "title": "Google Ads Costs",
@@ -19216,11 +19220,15 @@ const ru = {
     "connectedAccounts": "Подключено аккаунтов Google Ads: {n}.",
     "oauthFailed": "Не удалось подключить Google Ads. Попробуйте ещё раз.",
     "popupBlocked": "Окно входа Google заблокировано. Разрешите всплывающие окна для Orbitra и попробуйте снова.",
-    "oauthNotConfiguredTitle": "1-Click OAuth не настроен",
-    "oauthNotConfiguredHint": "Задайте ORBITRA_GOOGLE_CLIENT_ID, ORBITRA_GOOGLE_CLIENT_SECRET и ORBITRA_GOOGLE_DEVELOPER_TOKEN на сервере либо заполните Developer Token, Client ID и Client Secret в ручной форме ниже — они переиспользуются для 1-Click. Можно также подключиться полностью вручную через Refresh Token (см. инструкцию).",
-    "howTo": "Как подключить Google Ads за 3 шага",
-    "howToHint": "1. Developer Token: Google Ads → ваш аккаунт MCC → Инструменты и настройки → Центр API — скопируйте токен.\n2. Client ID и Secret: Google Cloud Console (console.cloud.google.com) → APIs & Services → Credentials → Create Credentials → идентификатор OAuth 2.0 (Веб-приложение).\nРазрешённый URI перенаправления (Authorized redirect URI) для Google Cloud Console:",
-    "howToStep3": "3. Вставьте Developer Token, Client ID и Client Secret в форму ниже (для полностью ручного подключения также нужны Refresh Token и Customer ID) и нажмите «Проверить» / «Сохранить». После сохранения ключи переиспользуются для 1-Click, а крон и кнопка «Sync Now» подтягивают реальные расходы Google Ads.",
+    "oauthNotConfiguredTitle": "1-Click OAuth требует ключи Google Cloud и MCC",
+    "oauthNotConfiguredHint": "Для работы кнопки 1-Click нужны Developer Token (из MCC) и OAuth Client ID + Secret (из Google Cloud Console). Если их нет, вы можете подключиться напрямую по готовому Refresh Token ниже.",
+    "howTo": "Инструкция по ключам и настройке Google Ads",
+    "howToHint": "📌 Способ 1: Прямое подключение по токенам (Ручной ввод):\n1. Customer ID: 10-значный номер вашего кабинета в правом верхнем углу Google Ads (формат 123-456-7890).\n2. Developer Token: в управляющем аккаунте Google Ads MCC → Инструменты и настройки → Центр API (скопируйте токен).\n3. Client ID и Client Secret: в Google Cloud Console (console.cloud.google.com) → APIs & Services → Credentials → Создать OAuth 2.0 (тип: Веб-приложение).\n4. Refresh Token: полученный OAuth-токен доступа (через OAuth Playground или мастер авторизации).\n5. Вставьте ключи в поля ниже, нажмите «Проверить подключение» и «Сохранить».\n\n📌 Способ 2: 1-Click OAuth (авто-поиск прямых и MCC-кабинетов):\n1. В Google Cloud Console при создании OAuth Client ID добавьте в Authorized Redirect URIs точный адрес (требуется HTTPS):\n{redirect_uri}\n2. Сохраните Developer Token, Client ID и Client Secret на сервере (в .env или в форме ниже).\n3. Кнопка 1-Click станет активной и позволит логиниться через Google в 1 клик с выбором любых аккаунтов.",
+    "howToStep3": "💡 Подсказка: При работе трекера по прямому IP без SSL-сертификата платформы Google и TikTok блокируют OAuth-редиректы — используйте прямое подключение (Manual Token).",
+    "redirectUriLabel": "Authorized Redirect URI для Google Cloud Console:",
+    "switchToManual": "Перейти к прямому вводу токена",
+    "switchTo1Click": "Перейти к 1-Click OAuth",
+    "httpsNotice": "💡 Обратите внимание: 1-Click OAuth требует HTTPS-домена. При работе по прямому IP-адресу используйте прямое подключение.",
     "noDiscoveredAccounts": "Вход в Google выполнен, но доступных рекламных аккаунтов не найдено.",
     "addAccount": "Добавить аккаунт Google Ads",
     "editAccount": "Редактировать аккаунт",
@@ -22564,10 +22572,14 @@ const en = {
     "ok": "OK",
     "neverSynced": "Never synced",
     "noAccounts": "No TikTok ad accounts connected. Add an account to import spend from TikTok.",
-    "oauthNotConfiguredTitle": "1-Click OAuth is not configured",
-    "oauthNotConfiguredHint": "Set ORBITRA_TIKTOK_APP_ID and ORBITRA_TIKTOK_APP_SECRET on the server, or save App ID and App Secret in a manual TikTok connection — they are reused for 1-Click. You can also skip 1-Click: connect directly with an Access Token and Advertiser ID below.",
-    "tokenHowTo": "How to get a TikTok token in 1 minute",
-    "tokenHowToHint": "1. Log in to TikTok for Business (ads.tiktok.com) and open your Business Center.\n2. Copy the Advertiser ID of your ad account — the numeric ID in the account switcher.\n3. Under Business Center → Apps, generate a Long-term Access Token with the Advertising Read scope.\n4. Paste the token and Advertiser ID above and press Save."
+    "oauthNotConfiguredTitle": "1-Click OAuth requires App credentials",
+    "oauthNotConfiguredHint": "The 1-Click login button requires TikTok for Business App ID and App Secret. If you don't have a developer app, use the direct token connection below (no developer app needed).",
+    "tokenHowTo": "TikTok Integration Guide & Keys",
+    "tokenHowToHint": "📌 Method 1: Direct Token Connection (Recommended — No Developer App needed):\n1. Log in to TikTok for Business (ads.tiktok.com) → open your target ad account.\n2. Copy the Advertiser ID (numeric ID in the account switcher header).\n3. In TikTok Business Center → Apps/Developer section or Events Manager, generate a Long-term Access Token with Advertising Read / Reporting scopes.\n4. Paste the Access Token and Advertiser ID below, then click “Test Connection” → “Save”.\n\n📌 Method 2: 1-Click OAuth (Auto-discovery of all accounts and pixels):\n1. In TikTok for Business Developer Portal (business-api.tiktok.com), create a developer app.\n2. In Authorized Redirect URI, enter your tracker URL (HTTPS required):\n{redirect_uri}\n3. Enter your App ID and App Secret below (or set ORBITRA_TIKTOK_APP_ID and ORBITRA_TIKTOK_APP_SECRET in .env).\n4. Once saved, 1-Click login will automatically discover all accounts and import pixels in 1 click.",
+    "redirectUriLabel": "Authorized Redirect URI for TikTok Developer Portal:",
+    "switchToManual": "Switch to Direct Token Connection (No Developer App)",
+    "switchTo1Click": "Switch to 1-Click OAuth",
+    "httpsNotice": "💡 Note: 1-Click OAuth requires an HTTPS domain. When running on a raw HTTP IP address, use Direct Token Connection."
   },
   "googleAdsCosts": {
     "title": "Google Ads Costs",
@@ -22586,11 +22598,15 @@ const en = {
     "connectedAccounts": "Connected Google Ads accounts: {n}.",
     "oauthFailed": "Google Ads connection failed. Please try again.",
     "popupBlocked": "The Google login window was blocked. Allow popups for Orbitra and try again.",
-    "oauthNotConfiguredTitle": "1-Click OAuth is not configured",
-    "oauthNotConfiguredHint": "Set ORBITRA_GOOGLE_CLIENT_ID, ORBITRA_GOOGLE_CLIENT_SECRET and ORBITRA_GOOGLE_DEVELOPER_TOKEN on the server, or fill in Developer Token, Client ID and Client Secret in the manual form below — they are reused for 1-Click. You can also connect fully manually with a Refresh Token (see the guide).",
-    "howTo": "How to connect Google Ads in 3 steps",
-    "howToHint": "1. Developer Token: Google Ads → your MCC account → Tools & Settings → API Center — copy the token.\n2. Client ID & Secret: Google Cloud Console (console.cloud.google.com) → APIs & Services → Credentials → Create Credentials → OAuth 2.0 Client ID (Web application).\nAuthorized redirect URI to add in Google Cloud Console:",
-    "howToStep3": "3. Paste the Developer Token, Client ID and Client Secret into the form below (a fully manual connection also needs a Refresh Token and Customer ID) and press Test / Save. Once saved, the app credentials are reused for 1-Click, and the cron plus “Sync Now” pull real Google Ads spend.",
+    "oauthNotConfiguredTitle": "1-Click OAuth requires Google Cloud & MCC keys",
+    "oauthNotConfiguredHint": "The 1-Click button requires a Developer Token (from MCC) and OAuth Client ID + Secret (from Google Cloud Console). If you don't have them, you can connect directly with a ready-made Refresh Token below.",
+    "howTo": "Google Ads Integration Guide & Keys",
+    "howToHint": "📌 Method 1: Direct Token Connection (Manual Input):\n1. Customer ID: 10-digit account ID from top-right of Google Ads (format 123-456-7890).\n2. Developer Token: In Google Ads MCC → Tools & Settings → API Center (copy token).\n3. Client ID & Client Secret: In Google Cloud Console (console.cloud.google.com) → APIs & Services → Credentials → Create OAuth 2.0 Client ID (Web application).\n4. Refresh Token: Access token from OAuth Playground or authorization flow.\n5. Paste the keys below, click “Test Connection” and “Save”.\n\n📌 Method 2: 1-Click OAuth (Auto-discovery of direct & MCC accounts):\n1. In Google Cloud Console, add this exact Authorized Redirect URI (HTTPS required):\n{redirect_uri}\n2. Save Developer Token, Client ID and Client Secret on the server (or in the form below).\n3. The 1-Click button will become active to sign in and connect multiple accounts simultaneously.",
+    "howToStep3": "💡 Tip: When accessing the tracker via a raw HTTP IP without SSL, Google and TikTok block OAuth callbacks — use Direct Token Connection (Manual) instead.",
+    "redirectUriLabel": "Authorized Redirect URI for Google Cloud Console:",
+    "switchToManual": "Switch to Direct Token Connection",
+    "switchTo1Click": "Switch to 1-Click OAuth",
+    "httpsNotice": "💡 Note: 1-Click OAuth requires an HTTPS domain. When running on a raw HTTP IP address, use Direct Token Connection.",
     "noDiscoveredAccounts": "Google login succeeded, but no accessible ad accounts were found.",
     "addAccount": "Add Google Ads Account",
     "editAccount": "Edit Account",
@@ -73616,11 +73632,49 @@ const IntegrationsPage = () => {
                   fbOauthConfigured === false && /* @__PURE__ */ jsxRuntimeExports.jsxs(
                     "div",
                     {
-                      className: "w-full max-w-md text-left rounded-xl border p-3",
+                      className: "w-full max-w-md text-left rounded-xl border p-3.5",
                       style: { background: "var(--color-warning-bg)", borderColor: "var(--color-warning)" },
                       children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-bold", style: { color: "var(--color-warning)" }, children: t("fbCosts.oauthNotConfiguredTitle") }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] leading-relaxed mt-1", style: { color: "var(--color-text-secondary)" }, children: t("fbCosts.oauthNotConfiguredHint") })
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] leading-relaxed mt-1", style: { color: "var(--color-text-secondary)" }, children: t("fbCosts.oauthNotConfiguredHint") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 space-y-1", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] font-semibold", style: { color: "var(--color-text-muted)" }, children: "Authorized Redirect URI (developers.facebook.com):" }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                              "code",
+                              {
+                                className: "flex-1 text-[10px] font-mono p-1.5 rounded border overflow-x-auto",
+                                style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)", color: "var(--color-text-primary)" },
+                                children: [
+                                  trackerUrl,
+                                  "/api.php?action=facebook_oauth_callback"
+                                ]
+                              }
+                            ),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "button",
+                              {
+                                type: "button",
+                                onClick: () => copyToClipboard$1(`${trackerUrl}/api.php?action=facebook_oauth_callback`, "fb_oauth_cb"),
+                                className: "btn btn-secondary btn-sm text-[11px] shrink-0",
+                                children: copied === "fb_oauth_cb" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 12, style: { color: "var(--color-success)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 12 })
+                              }
+                            )
+                          ] })
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 flex flex-wrap gap-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                          "button",
+                          {
+                            type: "button",
+                            onClick: () => setFbAddMode("manual"),
+                            className: "btn btn-primary btn-sm text-xs font-semibold",
+                            children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx(KeyRound, { size: 12 }),
+                              " ",
+                              t("googleAdsCosts.switchToManual", "Switch to Direct Token Connection")
+                            ]
+                          }
+                        ) })
                       ]
                     }
                   )
@@ -74057,11 +74111,49 @@ const IntegrationsPage = () => {
                   ttOauthConfigured === false && /* @__PURE__ */ jsxRuntimeExports.jsxs(
                     "div",
                     {
-                      className: "w-full max-w-md text-left rounded-xl border p-3",
+                      className: "w-full max-w-md text-left rounded-xl border p-3.5",
                       style: { background: "var(--color-warning-bg)", borderColor: "var(--color-warning)" },
                       children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-bold", style: { color: "var(--color-warning)" }, children: t("tiktokCosts.oauthNotConfiguredTitle") }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] leading-relaxed mt-1", style: { color: "var(--color-text-secondary)" }, children: t("tiktokCosts.oauthNotConfiguredHint") })
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] leading-relaxed mt-1", style: { color: "var(--color-text-secondary)" }, children: t("tiktokCosts.oauthNotConfiguredHint") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 space-y-1", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] font-semibold", style: { color: "var(--color-text-muted)" }, children: t("tiktokCosts.redirectUriLabel", "Authorized Redirect URI:") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                              "code",
+                              {
+                                className: "flex-1 text-[10px] font-mono p-1.5 rounded border overflow-x-auto",
+                                style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)", color: "var(--color-text-primary)" },
+                                children: [
+                                  trackerUrl,
+                                  "/api.php?action=tiktok_oauth_callback"
+                                ]
+                              }
+                            ),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "button",
+                              {
+                                type: "button",
+                                onClick: () => copyToClipboard$1(`${trackerUrl}/api.php?action=tiktok_oauth_callback`, "tt_oauth_cb"),
+                                className: "btn btn-secondary btn-sm text-[11px] shrink-0",
+                                children: copied === "tt_oauth_cb" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 12, style: { color: "var(--color-success)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 12 })
+                              }
+                            )
+                          ] })
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 flex flex-wrap gap-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                          "button",
+                          {
+                            type: "button",
+                            onClick: () => setTtAddMode("manual"),
+                            className: "btn btn-primary btn-sm text-xs font-semibold",
+                            children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx(KeyRound, { size: 12 }),
+                              " ",
+                              t("tiktokCosts.switchToManual", "Switch to Direct Token Connection")
+                            ]
+                          }
+                        ) })
                       ]
                     }
                   )
@@ -74241,7 +74333,43 @@ const IntegrationsPage = () => {
                   ]
                 }
               ),
-              ttShowTokenHowTo && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { border: "1px dashed var(--color-border)", borderRadius: "12px", padding: "14px", marginTop: "8px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", margin: 0, whiteSpace: "pre-line", lineHeight: 1.7 }, children: t("tiktokCosts.tokenHowToHint") }) })
+              ttShowTokenHowTo && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { border: "1px dashed var(--color-border)", borderRadius: "12px", padding: "14px", marginTop: "8px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", margin: 0, whiteSpace: "pre-line", lineHeight: 1.7 }, children: t("tiktokCosts.tokenHowToHint").replace("{redirect_uri}", `${trackerUrl}/api.php?action=tiktok_oauth_callback`) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px", margin: "8px 0" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("code", { style: {
+                    flex: 1,
+                    fontSize: "11px",
+                    fontFamily: "monospace",
+                    color: "var(--color-text-primary)",
+                    wordBreak: "break-all",
+                    background: "var(--color-bg-soft)",
+                    border: "1px solid var(--color-border)",
+                    borderRadius: "8px",
+                    padding: "6px 10px"
+                  }, children: [
+                    trackerUrl,
+                    "/api.php?action=tiktok_oauth_callback"
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      onClick: () => copyToClipboard$1(`${trackerUrl}/api.php?action=tiktok_oauth_callback`, "tt_redirect_uri"),
+                      className: "btn btn-secondary btn-sm",
+                      style: { fontSize: "11px", flexShrink: 0 },
+                      children: copied === "tt_redirect_uri" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 12, style: { color: "var(--color-success)" } }),
+                        " ",
+                        t("integrations.copied")
+                      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 12 }),
+                        " ",
+                        t("integrations.copyCode", "Copy")
+                      ] })
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", margin: 0, lineHeight: 1.7 }, children: t("tiktokCosts.httpsNotice") })
+              ] })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tiktokCosts.interval") }),
@@ -74484,11 +74612,49 @@ const IntegrationsPage = () => {
                   gaOauthConfigured === false && /* @__PURE__ */ jsxRuntimeExports.jsxs(
                     "div",
                     {
-                      className: "w-full max-w-md text-left rounded-xl border p-3",
+                      className: "w-full max-w-md text-left rounded-xl border p-3.5",
                       style: { background: "var(--color-warning-bg)", borderColor: "var(--color-warning)" },
                       children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-bold", style: { color: "var(--color-warning)" }, children: t("googleAdsCosts.oauthNotConfiguredTitle") }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] leading-relaxed mt-1", style: { color: "var(--color-text-secondary)" }, children: t("googleAdsCosts.oauthNotConfiguredHint") })
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] leading-relaxed mt-1", style: { color: "var(--color-text-secondary)" }, children: t("googleAdsCosts.oauthNotConfiguredHint") }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 space-y-1", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] font-semibold", style: { color: "var(--color-text-muted)" }, children: t("googleAdsCosts.redirectUriLabel", "Authorized Redirect URI:") }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                              "code",
+                              {
+                                className: "flex-1 text-[10px] font-mono p-1.5 rounded border overflow-x-auto",
+                                style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)", color: "var(--color-text-primary)" },
+                                children: [
+                                  trackerUrl,
+                                  "/api.php?action=google_ads_oauth_callback"
+                                ]
+                              }
+                            ),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              "button",
+                              {
+                                type: "button",
+                                onClick: () => copyToClipboard$1(`${trackerUrl}/api.php?action=google_ads_oauth_callback`, "ga_oauth_cb"),
+                                className: "btn btn-secondary btn-sm text-[11px] shrink-0",
+                                children: copied === "ga_oauth_cb" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 12, style: { color: "var(--color-success)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 12 })
+                              }
+                            )
+                          ] })
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3 flex flex-wrap gap-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                          "button",
+                          {
+                            type: "button",
+                            onClick: () => setGaAddMode("manual"),
+                            className: "btn btn-primary btn-sm text-xs font-semibold",
+                            children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx(KeyRound, { size: 12 }),
+                              " ",
+                              t("googleAdsCosts.switchToManual", "Switch to Direct Token Connection")
+                            ]
+                          }
+                        ) })
                       ]
                     }
                   )
@@ -74644,7 +74810,7 @@ const IntegrationsPage = () => {
                 }
               ),
               gaShowHowTo && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { border: "1px dashed var(--color-border)", borderRadius: "12px", padding: "14px", marginTop: "8px" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", margin: 0, whiteSpace: "pre-line", lineHeight: 1.7 }, children: t("googleAdsCosts.howToHint") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "11px", color: "var(--color-text-muted)", margin: 0, whiteSpace: "pre-line", lineHeight: 1.7 }, children: t("googleAdsCosts.howToHint").replace("{redirect_uri}", `${trackerUrl}/api.php?action=google_ads_oauth_callback`) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px", margin: "8px 0" }, children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("code", { style: {
                     flex: 1,

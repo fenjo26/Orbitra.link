@@ -1745,13 +1745,40 @@ const IntegrationsPage = () => {
                                             <span>{fbOAuthLoading ? t('fbCosts.oauthConnecting') : t('fbCosts.loginWithFb')}</span>
                                         </button>
                                         {fbOauthConfigured === false && (
-                                            <div className="w-full max-w-md text-left rounded-xl border p-3"
+                                            <div className="w-full max-w-md text-left rounded-xl border p-3.5"
                                                 style={{ background: 'var(--color-warning-bg)', borderColor: 'var(--color-warning)' }}>
                                                 <div className="text-xs font-bold" style={{ color: 'var(--color-warning)' }}>
                                                     {t('fbCosts.oauthNotConfiguredTitle')}
                                                 </div>
                                                 <div className="text-[11px] leading-relaxed mt-1" style={{ color: 'var(--color-text-secondary)' }}>
                                                     {t('fbCosts.oauthNotConfiguredHint')}
+                                                </div>
+                                                <div className="mt-2 space-y-1">
+                                                    <div className="text-[11px] font-semibold" style={{ color: 'var(--color-text-muted)' }}>
+                                                        Authorized Redirect URI (developers.facebook.com):
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5">
+                                                        <code className="flex-1 text-[10px] font-mono p-1.5 rounded border overflow-x-auto"
+                                                            style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}>
+                                                            {trackerUrl}/api.php?action=facebook_oauth_callback
+                                                        </code>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => copyToClipboard(`${trackerUrl}/api.php?action=facebook_oauth_callback`, 'fb_oauth_cb')}
+                                                            className="btn btn-secondary btn-sm text-[11px] shrink-0"
+                                                        >
+                                                            {copied === 'fb_oauth_cb' ? <CheckCircle2 size={12} style={{ color: 'var(--color-success)' }} /> : <Copy size={12} />}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div className="mt-3 flex flex-wrap gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setFbAddMode('manual')}
+                                                        className="btn btn-primary btn-sm text-xs font-semibold"
+                                                    >
+                                                        <KeyRound size={12} /> {t('googleAdsCosts.switchToManual', 'Switch to Direct Token Connection')}
+                                                    </button>
                                                 </div>
                                             </div>
                                         )}
@@ -2092,13 +2119,40 @@ const IntegrationsPage = () => {
                                             <span>{ttOAuthLoading ? t('tiktokCosts.oauthConnecting') : t('tiktokCosts.loginWithTikTok')}</span>
                                         </button>
                                         {ttOauthConfigured === false && (
-                                            <div className="w-full max-w-md text-left rounded-xl border p-3"
+                                            <div className="w-full max-w-md text-left rounded-xl border p-3.5"
                                                 style={{ background: 'var(--color-warning-bg)', borderColor: 'var(--color-warning)' }}>
                                                 <div className="text-xs font-bold" style={{ color: 'var(--color-warning)' }}>
                                                     {t('tiktokCosts.oauthNotConfiguredTitle')}
                                                 </div>
                                                 <div className="text-[11px] leading-relaxed mt-1" style={{ color: 'var(--color-text-secondary)' }}>
                                                     {t('tiktokCosts.oauthNotConfiguredHint')}
+                                                </div>
+                                                <div className="mt-2 space-y-1">
+                                                    <div className="text-[11px] font-semibold" style={{ color: 'var(--color-text-muted)' }}>
+                                                        {t('tiktokCosts.redirectUriLabel', 'Authorized Redirect URI:')}
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5">
+                                                        <code className="flex-1 text-[10px] font-mono p-1.5 rounded border overflow-x-auto"
+                                                            style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}>
+                                                            {trackerUrl}/api.php?action=tiktok_oauth_callback
+                                                        </code>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => copyToClipboard(`${trackerUrl}/api.php?action=tiktok_oauth_callback`, 'tt_oauth_cb')}
+                                                            className="btn btn-secondary btn-sm text-[11px] shrink-0"
+                                                        >
+                                                            {copied === 'tt_oauth_cb' ? <CheckCircle2 size={12} style={{ color: 'var(--color-success)' }} /> : <Copy size={12} />}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div className="mt-3 flex flex-wrap gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setTtAddMode('manual')}
+                                                        className="btn btn-primary btn-sm text-xs font-semibold"
+                                                    >
+                                                        <KeyRound size={12} /> {t('tiktokCosts.switchToManual', 'Switch to Direct Token Connection')}
+                                                    </button>
                                                 </div>
                                             </div>
                                         )}
@@ -2231,7 +2285,24 @@ const IntegrationsPage = () => {
                                 {ttShowTokenHowTo && (
                                     <div style={{ border: '1px dashed var(--color-border)', borderRadius: '12px', padding: '14px', marginTop: '8px' }}>
                                         <p style={{ fontSize: '11px', color: 'var(--color-text-muted)', margin: 0, whiteSpace: 'pre-line', lineHeight: 1.7 }}>
-                                            {t('tiktokCosts.tokenHowToHint')}
+                                            {t('tiktokCosts.tokenHowToHint').replace('{redirect_uri}', `${trackerUrl}/api.php?action=tiktok_oauth_callback`)}
+                                        </p>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '8px 0' }}>
+                                            <code style={{
+                                                flex: 1, fontSize: '11px', fontFamily: 'monospace',
+                                                color: 'var(--color-text-primary)', wordBreak: 'break-all',
+                                                background: 'var(--color-bg-soft)', border: '1px solid var(--color-border)',
+                                                borderRadius: '8px', padding: '6px 10px'
+                                            }}>
+                                                {trackerUrl}/api.php?action=tiktok_oauth_callback
+                                            </code>
+                                            <button onClick={() => copyToClipboard(`${trackerUrl}/api.php?action=tiktok_oauth_callback`, 'tt_redirect_uri')}
+                                                className="btn btn-secondary btn-sm" style={{ fontSize: '11px', flexShrink: 0 }}>
+                                                {copied === 'tt_redirect_uri' ? <><CheckCircle2 size={12} style={{ color: 'var(--color-success)' }} /> {t('integrations.copied')}</> : <><Copy size={12} /> {t('integrations.copyCode', 'Copy')}</>}
+                                            </button>
+                                        </div>
+                                        <p style={{ fontSize: '11px', color: 'var(--color-text-muted)', margin: 0, lineHeight: 1.7 }}>
+                                            {t('tiktokCosts.httpsNotice')}
                                         </p>
                                     </div>
                                 )}
@@ -2450,13 +2521,40 @@ const IntegrationsPage = () => {
                                             <span>{gaOAuthLoading ? t('googleAdsCosts.oauthConnecting') : t('googleAdsCosts.loginWithGoogle')}</span>
                                         </button>
                                         {gaOauthConfigured === false && (
-                                            <div className="w-full max-w-md text-left rounded-xl border p-3"
+                                            <div className="w-full max-w-md text-left rounded-xl border p-3.5"
                                                 style={{ background: 'var(--color-warning-bg)', borderColor: 'var(--color-warning)' }}>
                                                 <div className="text-xs font-bold" style={{ color: 'var(--color-warning)' }}>
                                                     {t('googleAdsCosts.oauthNotConfiguredTitle')}
                                                 </div>
                                                 <div className="text-[11px] leading-relaxed mt-1" style={{ color: 'var(--color-text-secondary)' }}>
                                                     {t('googleAdsCosts.oauthNotConfiguredHint')}
+                                                </div>
+                                                <div className="mt-2 space-y-1">
+                                                    <div className="text-[11px] font-semibold" style={{ color: 'var(--color-text-muted)' }}>
+                                                        {t('googleAdsCosts.redirectUriLabel', 'Authorized Redirect URI:')}
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5">
+                                                        <code className="flex-1 text-[10px] font-mono p-1.5 rounded border overflow-x-auto"
+                                                            style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}>
+                                                            {trackerUrl}/api.php?action=google_ads_oauth_callback
+                                                        </code>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => copyToClipboard(`${trackerUrl}/api.php?action=google_ads_oauth_callback`, 'ga_oauth_cb')}
+                                                            className="btn btn-secondary btn-sm text-[11px] shrink-0"
+                                                        >
+                                                            {copied === 'ga_oauth_cb' ? <CheckCircle2 size={12} style={{ color: 'var(--color-success)' }} /> : <Copy size={12} />}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div className="mt-3 flex flex-wrap gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setGaAddMode('manual')}
+                                                        className="btn btn-primary btn-sm text-xs font-semibold"
+                                                    >
+                                                        <KeyRound size={12} /> {t('googleAdsCosts.switchToManual', 'Switch to Direct Token Connection')}
+                                                    </button>
                                                 </div>
                                             </div>
                                         )}
@@ -2572,7 +2670,7 @@ const IntegrationsPage = () => {
                                 {gaShowHowTo && (
                                     <div style={{ border: '1px dashed var(--color-border)', borderRadius: '12px', padding: '14px', marginTop: '8px' }}>
                                         <p style={{ fontSize: '11px', color: 'var(--color-text-muted)', margin: 0, whiteSpace: 'pre-line', lineHeight: 1.7 }}>
-                                            {t('googleAdsCosts.howToHint')}
+                                            {t('googleAdsCosts.howToHint').replace('{redirect_uri}', `${trackerUrl}/api.php?action=google_ads_oauth_callback`)}
                                         </p>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '8px 0' }}>
                                             <code style={{
