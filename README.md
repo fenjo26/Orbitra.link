@@ -1,4 +1,4 @@
-# Orbitra v1.0.8 Tracker
+# Orbitra v1.0.9 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -10,6 +10,14 @@
 ![Status](https://img.shields.io/badge/Status-Production_Ready-brightgreen)
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
+
+## 🆕 What's New in v1.0.9
+
+- **LeadForge 2.0 Reference Sync & 150-GEO Validation Engine** — complete integration of validation rules for 150 countries with mobile operator prefixes, dynamic country switcher, live input digit counter badges, Unicode name sanitation, and haptic feedback.
+- **Local PHP Landings & Offers Macro Resolution** — output buffering macro substitution (`{subid}`, `{sub1}`, `{click_id}`, `{{subid}}`, `{data1}`, etc.) with cross-page Click ID hydration via cookies and sessions.
+- **Fail-Safe CPA Order Bridge (`order.php`)** — native support for 10 CPA networks (Dr.Cash, Webvork, Lucky.online, KMA.biz, TerraLeads, Leadbit, LemonAD, Everad, Ezaff, Custom Webhooks) with E.164 phone normalization, dual CRM logging, and multi-source Click ID resolution.
+- **Comprehensive Setup Guides & Keys Reference** — in-UI step-by-step instructions for **Google Ads**, **TikTok for Business**, and **Facebook / Meta** with interactive 1-click copyable Authorized Redirect URIs and seamless Direct Token connection fallback.
+- **100% Multilingual Coverage** — full translation parity across all 7 supported languages (EN, RU, UK, DE, ES, FR, ZH).
 
 ## 🖥 Live Demo
 
