@@ -1151,8 +1151,47 @@ if ($subid === '') {
         }
     }
 }
-if ($subid === '') {
-    $subid = 'lead_' . bin2hex(random_bytes(8));
+
+/**
+ * Verify that a subid corresponds to a real click in the database.
+ * Returns a tri-state:
+ *   - true:  subid verified and exists in clicks table
+ *   - false: subid does NOT exist (verified against DB)
+ *   - null:  cannot verify (no DB available, remote deployment)
+ *
+ * An empty subid returns false (explicitly invalid, not "cannot check").
+ */
+function lf_verify_click_exists(string $subid): ?bool {
+    global $pdo;
+    if ($subid === '') {
+        return false; // Empty subid is explicitly invalid, not "cannot check"
+    }
+    if (!isset($pdo) || !($pdo instanceof PDO)) {
+        return null; // Cannot verify - remote deployment without DB
+    }
+    try {
+        $stmt = $pdo->prepare("SELECT id FROM clicks WHERE id = ? LIMIT 1");
+        $stmt->execute([$subid]);
+        return $stmt->fetch() !== false;
+    } catch (\Throwable $e) {
+        return null; // DB error (e.g., locked) means cannot verify, not "doesn't exist"
+    }
+}
+
+/**
+ * Log an event to system_logs for visibility and debugging.
+ */
+function lf_log_event(string $level, string $message, ?array $context = null): void {
+    global $pdo;
+    if (!isset($pdo) || !($pdo instanceof PDO)) {
+        return;
+    }
+    try {
+        $stmt = $pdo->prepare("INSERT INTO system_logs (level, message, context) VALUES (?, ?, ?)");
+        $stmt->execute([$level, $message, $context ? json_encode($context, JSON_UNESCAPED_UNICODE) : null]);
+    } catch (\Throwable $e) {
+        // Fail silently - logging should never break the request
+    }
 }
 
 $ip = lf_get_ip();
@@ -1188,6 +1227,52 @@ if (strlen($lfNational) < $minL || strlen($lfNational) > $maxL) {
 }
 
 $isQa = (($_POST['orbitra_qa'] ?? '') === '1') || (strpos($subid, 'qa_test_') === 0);
+
+// ORB-011: Verify the subid corresponds to a real click before sending to network.
+// QA mode is exempt - those are explicitly for testing.
+// If no valid click exists, we reject the request rather than inventing data.
+$subidIsValid = false;
+$rejectionReason = '';
+$cannotVerify = false; // Track when DB is unavailable (remote deployment)
+
+if ($isQa) {
+    // QA mode: allow without verification (already verified by runQa mechanism)
+    $subidIsValid = true;
+} else {
+    // Verify the subid exists in clicks table (tri-state return)
+    $verificationResult = lf_verify_click_exists($subid);
+
+    if ($verificationResult === true) {
+        // Click exists - allow
+        $subidIsValid = true;
+    } elseif ($verificationResult === null) {
+        // Cannot verify (no DB) - remote deployment, allow with warning
+        $subidIsValid = true;
+        $cannotVerify = true;
+        lf_log_event('warning', 'LeadForge: Subid could not be verified (no database available)', [
+            'subid' => $subid,
+            'ip' => $ip,
+            'offer_id' => $LF['offer_id'],
+            'context' => 'remote_deployment_or_db_unavailable',
+        ]);
+    } else {
+        // verificationResult === false: subid does not exist (stale cookie or invalid)
+        $rejectionReason = 'Subid does not correspond to a real click (stale cookie or invalid subid)';
+    }
+}
+
+// Log and reject if the subid is invalid
+if (!$subidIsValid) {
+    lf_log_event('warning', 'LeadForge: Lead rejected due to invalid click context', [
+        'reason' => $rejectionReason,
+        'subid' => $subid,
+        'ip' => $ip,
+        'offer_id' => $LF['offer_id'],
+    ]);
+    http_response_code(422);
+    // Customer-facing neutral message (diagnostic details in system_logs only)
+    die('Unable to process your order. Please contact customer service or try again later.');
+}
 
 $subParams = [];
 foreach (['sub1','sub2','sub3','sub4','sub5','sub6','sub7','sub8','sub9','sub10',
