@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Calendar, Download, Grid3x3, Table2, BarChart3, TrendingUp } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import { Line } from 'react-chartjs-2';
@@ -11,6 +11,16 @@ import { useLanguage } from '../contexts/LanguageContext';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
 const API_URL = '/api.php';
+
+// Debounce hook to delay execution until user stops typing/changing values
+const useDebounce = (value, delay) => {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+    useEffect(() => {
+        const handler = setTimeout(() => setDebouncedValue(value), delay);
+        return () => clearTimeout(handler);
+    }, [value, delay]);
+    return debouncedValue;
+};
 
 // Map Orbitra UI language codes to BCP47 locale tags for date formatting.
 const LOCALE_TAGS = {
@@ -62,6 +72,10 @@ const CohortView = () => {
     const [data, setData] = useState(null); // { rows: [...], launched: {label: n}, max_period }
     const [error, setError] = useState('');
 
+    // Debounce date changes to reduce API calls
+    const debouncedDateFrom = useDebounce(dateFrom, 500);
+    const debouncedDateTo = useDebounce(dateTo, 500);
+
     const availableMetrics = useMemo(() => ([
         { key: 'revenue', label: t('cohort.revenue') },
         { key: 'real_revenue', label: t('cohort.realRevenue') },
@@ -75,15 +89,15 @@ const CohortView = () => {
         { key: 'campaigns_active', label: t('cohort.campaignsActive') },
     ]), [t]);
 
-    const fetchCohort = async () => {
+    const fetchCohort = useCallback(async () => {
         setLoading(true);
         setError('');
         try {
             const params = new URLSearchParams({
                 action: 'cohort',
                 granularity,
-                date_from: dateFrom,
-                date_to: dateTo,
+                date_from: debouncedDateFrom,
+                date_to: debouncedDateTo,
             });
             const res = await fetch(`${API_URL}?${params}`);
             const json = await res.json();
@@ -100,9 +114,10 @@ const CohortView = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [granularity, debouncedDateFrom, debouncedDateTo]);
 
-    useEffect(() => { fetchCohort(); }, [granularity, dateFrom, dateTo]);
+    // Only fetch cohort when debounced dates change
+    useEffect(() => { fetchCohort(); }, [granularity, debouncedDateFrom, debouncedDateTo]);
 
     // Pivot flat rows → { [cohortLabel]: { [periodIndex]: row, maxPeriod, rowMaxForMetric } }
     // Also compute the global column-axis maximum per metric for heat intensity.

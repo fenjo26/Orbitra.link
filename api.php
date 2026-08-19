@@ -12794,27 +12794,31 @@ try {
                 $trendRealRevenueExpression = "(SELECT SUM($revenueRecordsValueColumn) FROM revenue_records WHERE click_id = cl.id)";
             }
 
-            // Get aggregated data
+            // Get aggregated data - optimized to use LEFT JOINs instead of
+            // correlated subqueries which execute once per row (N+1 problem).
+            // The JOIN approach aggregates conversions/revenue_records once
+            // before grouping, making query time O(1) instead of O(rows).
             $sql = "
-                SELECT 
-                    period,
-                    COUNT(click_id) as clicks,
-                    COUNT(DISTINCT click_ip) as unique_clicks,
-                    SUM(is_conversion) as conversions,
-                    COALESCE(SUM(click_revenue), 0) as revenue,
-                    COALESCE(SUM(click_real_revenue), 0) as real_revenue,
-                    COALESCE(SUM(cost), 0) as cost
-                FROM (
-                    SELECT strftime('$dateFormat', cl.created_at) as period,
-                           cl.id as click_id,
-                           cl.ip as click_ip,
-                           cl.is_conversion,
-                           cl.cost,
-                           $trendRevenueExpression as click_revenue,
-                           $trendRealRevenueExpression as click_real_revenue
-                    FROM clicks cl
-                    WHERE $whereSQL
-                )
+                SELECT
+                    strftime('$dateFormat', cl.created_at) as period,
+                    COUNT(cl.id) as clicks,
+                    COUNT(DISTINCT cl.ip) as unique_clicks,
+                    SUM(cl.is_conversion) as conversions,
+                    COALESCE(SUM(cl.cost), 0) as cost,
+                    COALESCE(SUM(COALESCE(cv.rev, 0)), 0) as revenue,
+                    COALESCE(SUM(COALESCE(rr.rev, 0)), 0) as real_revenue
+                FROM clicks cl
+                LEFT JOIN (
+                    SELECT click_id, SUM($conversionsValueColumn) as rev
+                    FROM conversions
+                    GROUP BY click_id
+                ) cv ON cv.click_id = cl.id
+                LEFT JOIN (
+                    SELECT click_id, SUM($revenueRecordsValueColumn) as rev
+                    FROM revenue_records
+                    GROUP BY click_id
+                ) rr ON rr.click_id = cl.id
+                WHERE $whereSQL
                 GROUP BY period
                 ORDER BY period ASC
             ";

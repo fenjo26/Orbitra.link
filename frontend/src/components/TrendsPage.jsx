@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Calendar, Filter, Download, BarChart3, TrendingUp, Clock, PieChart, Grid3x3 } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import CohortView from './CohortView';
@@ -13,6 +13,16 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 const API_URL = '/api.php';
 
+// Debounce hook to delay execution until user stops typing/changing values
+const useDebounce = (value, delay) => {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+    useEffect(() => {
+        const handler = setTimeout(() => setDebouncedValue(value), delay);
+        return () => clearTimeout(handler);
+    }, [value, delay]);
+    return debouncedValue;
+};
+
 const TrendsPage = () => {
     const { t } = useLanguage();
     const [view, setView] = useState(() => localStorage.getItem('orbitra_analytics_view') || 'trend');
@@ -22,7 +32,8 @@ const TrendsPage = () => {
     };
     const [groupBy, setGroupBy] = useState('day');
     const [dateFrom, setDateFrom] = useState(() => {
-        const d = new Date(); d.setDate(d.getDate() - 7);
+        // Default to 3 days instead of 7 for faster initial load
+        const d = new Date(); d.setDate(d.getDate() - 3);
         return d.toISOString().split('T')[0];
     });
     const [dateTo, setDateTo] = useState(() => new Date().toISOString().split('T')[0]);
@@ -33,6 +44,10 @@ const TrendsPage = () => {
     const [loading, setLoading] = useState(true);
     const [chartData, setChartData] = useState(null);
     const [tableData, setTableData] = useState([]);
+
+    // Debounce date changes to reduce API calls while user is selecting dates
+    const debouncedDateFrom = useDebounce(dateFrom, 500);
+    const debouncedDateTo = useDebounce(dateTo, 500);
 
     const availableMetrics = [
         { key: 'clicks', label: t('trends.clicks'), color: '#3B82F6' },
@@ -72,8 +87,8 @@ const TrendsPage = () => {
         setLoading(true);
         try {
             const params = new URLSearchParams({
-                action: 'trends', group_by: groupBy, date_from: dateFrom,
-                date_to: dateTo, metrics: selectedMetrics.join(','), filters: JSON.stringify(filters)
+                action: 'trends', group_by: groupBy, date_from: debouncedDateFrom,
+                date_to: debouncedDateTo, metrics: selectedMetrics.join(','), filters: JSON.stringify(filters)
             });
             const res = await fetch(`${API_URL}?${params}`);
             const data = await res.json();
@@ -94,7 +109,8 @@ const TrendsPage = () => {
         finally { setLoading(false); }
     };
 
-    useEffect(() => { fetchTrends(); }, [groupBy, dateFrom, dateTo, JSON.stringify(filters)]);
+    // Only fetch trends when debounced dates change (not on every keystroke)
+    useEffect(() => { fetchTrends(); }, [groupBy, debouncedDateFrom, debouncedDateTo, JSON.stringify(filters)]);
 
     const addFilter = () => {
         if (newFilter.value.trim()) {
@@ -259,7 +275,7 @@ const TrendsPage = () => {
                             <tr>
                                 <th>{t('trends.period')}</th>
                                 {selectedMetrics.map(m => (
-                                    <th key={m} className="text-right">{availableMetrics.find(am => am.key === m)?.label || m}</th>
+                                    <th key={m} style={{ textAlign: 'right' }}>{availableMetrics.find(am => am.key === m)?.label || m}</th>
                                 ))}
                             </tr>
                         </thead>
@@ -280,7 +296,7 @@ const TrendsPage = () => {
                                     <tr key={idx}>
                                         <td style={{ fontWeight: 500 }}>{row.period}</td>
                                         {selectedMetrics.map(m => (
-                                            <td key={m} className="text-right" style={{ color: 'var(--color-text-secondary)' }}>
+                                            <td key={m} style={{ textAlign: 'right', color: 'var(--color-text-secondary)' }}>
                                                 {m === 'revenue' || m === 'real_revenue' || m === 'cost' || m === 'profit'
                                                     ? `$${Number(row[m] || 0).toFixed(2)}`
                                                     : m === 'ctr' || m === 'cr' || m === 'real_roi'

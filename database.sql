@@ -609,6 +609,16 @@ CREATE INDEX idx_conversions_click ON conversions(click_id);
 CREATE INDEX idx_conversions_click_status ON conversions(click_id, status);
 CREATE INDEX idx_clicks_campaign_created ON clicks(campaign_id, created_at);
 CREATE INDEX idx_clicks_created_at ON clicks(created_at);
+-- Performance indexes for Analytics/Trends filter queries
+CREATE INDEX idx_clicks_country_code ON clicks(country_code);
+CREATE INDEX idx_clicks_device_type ON clicks(device_type);
+CREATE INDEX idx_clicks_browser ON clicks(browser);
+CREATE INDEX idx_clicks_os ON clicks(os);
+CREATE INDEX idx_clicks_ip ON clicks(ip);
+CREATE INDEX idx_clicks_is_conversion ON clicks(is_conversion);
+CREATE INDEX idx_clicks_offer_id ON clicks(offer_id);
+CREATE INDEX idx_clicks_source_id ON clicks(source_id);
+CREATE INDEX idx_clicks_stream_id ON clicks(stream_id);
 CREATE INDEX idx_revenue_records_click ON revenue_records(click_id);
 CREATE INDEX idx_cost_records_date ON cost_records(click_date);
 CREATE INDEX idx_domains_dns_status ON domains(dns_status);
