@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Globe, Check, X, AlertCircle, Search, Copy, Edit2, Trash2, ShieldAlert, RefreshCw, Clock, Cloud, ShoppingCart, Download } from 'lucide-react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { Plus, Globe, Check, X, AlertCircle, Search, Copy, Edit2, Trash2, ShieldAlert, RefreshCw, Clock, Cloud, ShoppingCart, Download, Folder, ChevronUp, ChevronDown, ChevronsUpDown, GripVertical } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import HelpTooltip from './HelpTooltip';
 import GroupsModal from './GroupsModal';
@@ -39,8 +39,13 @@ const Domains = ({ campaigns }) => {
     const [domains, setDomains] = useState([]);
     const [filteredDomains, setFilteredDomains] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedGroupId, setSelectedGroupId] = useState('');
+    const [selectedDomainIds, setSelectedDomainIds] = useState(() => new Set());
+    const [sortBy, setSortBy] = useState({ key: null, dir: 'asc' });
     const [serverIp, setServerIp] = useState('');
     const [loading, setLoading] = useState(true);
+    const [bulkGroupModal, setBulkGroupModal] = useState(false);
+    const [bulkGroupId, setBulkGroupId] = useState('');
     const [ignoreDnsUi, setIgnoreDnsUi] = useState(() => {
         // UI-only toggle for migrations/tests when DNS isn't set yet.
         // Do not use this in production to "fix" misconfigured DNS.
@@ -295,8 +300,103 @@ const Domains = ({ campaigns }) => {
 
     useEffect(() => {
         const lowercased = searchTerm.toLowerCase();
-        setFilteredDomains(domains.filter(d => d.name.toLowerCase().includes(lowercased)));
-    }, [searchTerm, domains]);
+        setFilteredDomains(domains.filter(d => {
+            const matchesSearch = d.name.toLowerCase().includes(lowercased);
+            const matchesGroup = !selectedGroupId || String(d.group_id || '') === selectedGroupId;
+            return matchesSearch && matchesGroup;
+        }));
+    }, [searchTerm, domains, selectedGroupId]);
+
+    // Sorted domains
+    const visibleDomains = useMemo(() => {
+        if (!sortBy.key) return filteredDomains;
+        const dirMul = sortBy.dir === 'asc' ? 1 : -1;
+        return filteredDomains
+            .map((d, idx) => ({ domain: d, idx }))
+            .sort((a, b) => {
+                const av = a.domain[sortBy.key];
+                const bv = b.domain[sortBy.key];
+                let cmp = 0;
+                if (sortBy.key === 'id') {
+                    cmp = (Number(av) || 0) - (Number(bv) || 0);
+                } else {
+                    cmp = String(av || '').localeCompare(String(bv || ''), undefined, { sensitivity: 'base' });
+                }
+                if (cmp !== 0) return cmp * dirMul;
+                return a.idx - b.idx;
+            })
+            .map(x => x.domain);
+    }, [filteredDomains, sortBy]);
+
+    const toggleSelected = (id, checked) => {
+        setSelectedDomainIds(prev => {
+            const next = new Set(prev);
+            if (checked) next.add(id);
+            else next.delete(id);
+            return next;
+        });
+    };
+
+    const toggleSelectAll = (checked) => {
+        setSelectedDomainIds(prev => {
+            const next = new Set(prev);
+            if (checked) {
+                visibleDomains.forEach(d => next.add(d.id));
+            } else {
+                visibleDomains.forEach(d => next.delete(d.id));
+            }
+            return next;
+        });
+    };
+
+    const allSelected = visibleDomains.length > 0 && visibleDomains.every(d => selectedDomainIds.has(d.id));
+    const someSelected = visibleDomains.some(d => selectedDomainIds.has(d.id));
+
+    const handleBulkDelete = async () => {
+        const ids = Array.from(selectedDomainIds);
+        if (ids.length === 0) return;
+        if (!window.confirm(t('domains.bulkDeleteConfirm', 'Delete {count} domains?').replace('{count}', String(ids.length)))) return;
+        try {
+            await Promise.all(ids.map(id => cachedPost('delete_domain', { id })));
+            setSelectedDomainIds(new Set());
+            fetchDomains();
+        } catch (e) {
+            console.error(e);
+            alert(t('common.error'));
+        }
+    };
+
+    const handleBulkChangeGroup = async () => {
+        const ids = Array.from(selectedDomainIds);
+        if (ids.length === 0) return;
+        if (!bulkGroupId) return;
+        try {
+            await Promise.all(ids.map(id => cachedPost('save_domain', { id, group_id: bulkGroupId })));
+            setSelectedDomainIds(new Set());
+            setBulkGroupModal(false);
+            setBulkGroupId('');
+            fetchDomains();
+        } catch (e) {
+            console.error(e);
+            alert(t('common.error'));
+        }
+    };
+
+    const requestSort = (key, defaultDir = 'asc') => {
+        setSortBy(prev => {
+            if (prev.key === key) {
+                return { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' };
+            }
+            return { key, dir: defaultDir };
+        });
+    };
+
+    const SortIcon = ({ colKey }) => {
+        if (sortBy.key !== colKey) return <ChevronsUpDown className="w-3.5 h-3.5 opacity-40" />;
+        return sortBy.dir === 'asc'
+            ? <ChevronUp className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />
+            : <ChevronDown className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />;
+    };
 
     useEffect(() => {
         localStorage.setItem('domains_ignore_dns_ui', ignoreDnsUi ? '1' : '0');
@@ -574,6 +674,38 @@ const Domains = ({ campaigns }) => {
                             style={{ paddingLeft: '36px' }}
                         />
                     </div>
+                    <select
+                        value={selectedGroupId}
+                        onChange={(e) => setSelectedGroupId(e.target.value)}
+                        className="form-select text-xs py-1.5 px-3 rounded-xl"
+                        style={{ width: '150px' }}
+                    >
+                        <option value="">{t('domains.allGroups', 'All Groups')}</option>
+                        {domainGroups.map(g => (
+                            <option key={g.id} value={String(g.id)}>{g.name}</option>
+                        ))}
+                        <option value="__no_group__">{t('domains.noGroup')}</option>
+                    </select>
+                    {selectedDomainIds.size > 0 && (
+                        <>
+                            <button
+                                onClick={() => setBulkGroupModal(true)}
+                                className="btn btn-secondary flex items-center gap-2"
+                                title={t('domains.bulkChangeGroupTitle', 'Change group for selected domains')}
+                            >
+                                <Folder size={16} />
+                                {t('domains.bulkChangeGroup', 'Change Group')} ({selectedDomainIds.size})
+                            </button>
+                            <button
+                                onClick={handleBulkDelete}
+                                className="btn btn-danger flex items-center gap-2"
+                                title={t('domains.bulkDeleteTitle', 'Delete selected domains')}
+                            >
+                                <Trash2 size={16} />
+                                {t('common.deleteSelected', 'Delete')} ({selectedDomainIds.size})
+                            </button>
+                        </>
+                    )}
                     <label className="inline-flex items-center gap-2 px-3 py-2 rounded text-sm border" style={{ background: 'var(--color-bg-soft)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }} title={t('domains.ignoreDnsHint')}>
                         <input
                             type="checkbox"
@@ -604,6 +736,14 @@ const Domains = ({ campaigns }) => {
                     >
                         <ShieldAlert size={16} className={sslRunning ? 'animate-spin' : ''} />
                         {sslRunning ? t('domains.checkingShort') : t('domains.issueSsl')}
+                    </button>
+                    <button
+                        onClick={() => setShowGroupsModal(true)}
+                        className="btn btn-secondary flex items-center gap-2"
+                        title={t('domains.groupsTitle', 'Manage domain groups')}
+                    >
+                        <Folder size={16} />
+                        {t('domains.groups', 'Groups')}
                     </button>
                     {ncConnected && (
                         <>
@@ -667,24 +807,85 @@ const Domains = ({ campaigns }) => {
                 <table className="page-table">
                     <thead>
                         <tr>
-                            <th>{t('domains.domain')}</th>
-                            <th>{t('domains.group')}</th>
-                            <th>{t('domains.status')}</th>
+                            <th className="w-8" style={{ textAlign: 'left' }}>
+                                <input
+                                    type="checkbox"
+                                    checked={allSelected}
+                                    ref={(el) => {
+                                        if (el) el.indeterminate = !allSelected && someSelected;
+                                    }}
+                                    onChange={(e) => toggleSelectAll(e.target.checked)}
+                                    className="w-3.5 h-3.5 rounded"
+                                    style={{ accentColor: 'var(--color-primary)' }}
+                                />
+                            </th>
+                            <th>
+                                <button
+                                    type="button"
+                                    onClick={() => requestSort('name')}
+                                    className="inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap"
+                                    style={{ color: sortBy.key === 'name' ? 'var(--color-primary)' : 'var(--color-text-secondary)' }}
+                                >
+                                    {t('domains.domain')}
+                                    <SortIcon colKey="name" />
+                                </button>
+                            </th>
+                            <th>
+                                <button
+                                    type="button"
+                                    onClick={() => requestSort('group_name')}
+                                    className="inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap"
+                                    style={{ color: sortBy.key === 'group_name' ? 'var(--color-primary)' : 'var(--color-text-secondary)' }}
+                                >
+                                    {t('domains.group')}
+                                    <SortIcon colKey="group_name" />
+                                </button>
+                            </th>
+                            <th>
+                                <button
+                                    type="button"
+                                    onClick={() => requestSort('status')}
+                                    className="inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap"
+                                    style={{ color: sortBy.key === 'status' ? 'var(--color-primary)' : 'var(--color-text-secondary)' }}
+                                >
+                                    {t('domains.status')}
+                                    <SortIcon colKey="status" />
+                                </button>
+                            </th>
                             <th>{t('domains.indexPage')}</th>
                             <th className="text-center">{t('domains.https')}</th>
                             <th className="text-center">{t('domains.sslStatus')}</th>
-                            <th>{t('domains.dateAdded')}</th>
+                            <th>
+                                <button
+                                    type="button"
+                                    onClick={() => requestSort('created_at')}
+                                    className="inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap"
+                                    style={{ color: sortBy.key === 'created_at' ? 'var(--color-primary)' : 'var(--color-text-secondary)' }}
+                                >
+                                    {t('domains.dateAdded')}
+                                    <SortIcon colKey="created_at" />
+                                </button>
+                            </th>
                             <th className="text-right">{t('domains.actions')}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {loading ? (
-                            <tr><td colSpan="8" className="text-center py-8">{t('domains.loading')}</td></tr>
-                        ) : filteredDomains.length === 0 ? (
-                            <tr><td colSpan="8" className="text-center py-8" style={{ color: 'var(--color-text-muted)' }}>{t('domains.noDomains')}</td></tr>
+                            <tr><td colSpan="9" className="text-center py-8">{t('domains.loading')}</td></tr>
+                        ) : visibleDomains.length === 0 ? (
+                            <tr><td colSpan="9" className="text-center py-8" style={{ color: 'var(--color-text-muted)' }}>{t('domains.noDomains')}</td></tr>
                         ) : (
-                            filteredDomains.map(domain => (
+                            visibleDomains.map(domain => (
                                 <tr key={domain.id}>
+                                    <td>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedDomainIds.has(domain.id)}
+                                            onChange={(e) => toggleSelected(domain.id, e.target.checked)}
+                                            className="w-3.5 h-3.5 rounded"
+                                            style={{ accentColor: 'var(--color-primary)' }}
+                                        />
+                                    </td>
                                     <td className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{domain.name}</td>
                                     <td>
                                         {domain.group_name
@@ -1104,7 +1305,10 @@ const Domains = ({ campaigns }) => {
             {showGroupsModal && (
                 <GroupsModal
                     type="domain"
-                    onClose={setShowGroupsModal}
+                    onClose={() => {
+                        setShowGroupsModal(false);
+                        fetchDomainGroups();
+                    }}
                     onGroupCreated={(g) => {
                         fetchDomainGroups();
                         if (g && g.id) setFormData(f => ({ ...f, group_id: String(g.id) }));
@@ -1454,6 +1658,55 @@ const Domains = ({ campaigns }) => {
                             <button onClick={() => setShowSslErrorModal(false)} className="btn btn-secondary">
                                 {t('common.close', 'Close')}
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Bulk Change Group Modal */}
+            {bulkGroupModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content w-full max-w-md" style={{ padding: '24px' }}>
+                        <div className="modal-header">
+                            <h3 className="modal-title flex items-center gap-2">
+                                <Folder size={18} /> {t('domains.bulkChangeGroup', 'Change Group')}
+                            </h3>
+                            <button onClick={() => setBulkGroupModal(false)} className="btn btn-ghost btn-icon">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="space-y-4">
+                            <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+                                {t('domains.bulkChangeGroupText', 'Change group for {count} selected domains').replace('{count}', String(selectedDomainIds.size))}
+                            </p>
+                            <div>
+                                <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '6px' }}>
+                                    {t('domains.selectGroup', 'Select Group')}
+                                </label>
+                                <select
+                                    className="form-select"
+                                    style={{ width: '100%' }}
+                                    value={bulkGroupId}
+                                    onChange={(e) => setBulkGroupId(e.target.value)}
+                                >
+                                    <option value="">{t('domains.noGroup')}</option>
+                                    {domainGroups.map(g => (
+                                        <option key={g.id} value={String(g.id)}>{g.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="flex justify-end gap-2 pt-3" style={{ borderTop: '1px solid var(--color-border)' }}>
+                                <button onClick={() => setBulkGroupModal(false)} className="btn btn-secondary">
+                                    {t('common.cancel')}
+                                </button>
+                                <button
+                                    onClick={handleBulkChangeGroup}
+                                    disabled={!bulkGroupId}
+                                    className="btn btn-primary"
+                                >
+                                    {t('domains.applyGroup', 'Apply')}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

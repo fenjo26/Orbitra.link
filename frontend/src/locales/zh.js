@@ -866,7 +866,17 @@ export default {
         "sslWaitingDns": "等待 DNS —— 域名尚未指向此服务器。A 记录生效后将自动签发证书。",
         "sslRetrying": "上次签发尝试失败。追踪器会自动继续重试。",
         "sslNotWired": "证书已签发，但 Web 服务器尚未使用它 —— 正在重新生成配置。",
-        "sslFailed": "SSL error"
+        "sslFailed": "SSL error",
+        "allGroups": "所有分组",
+        "groups": "分组",
+        "groupsTitle": "管理域名分组",
+        "bulkChangeGroup": "更改分组",
+        "bulkChangeGroupTitle": "更改所选域名的分组",
+        "bulkChangeGroupText": "更改 {count} 个所选域名的分组",
+        "selectGroup": "选择分组",
+        "applyGroup": "应用",
+        "bulkDeleteConfirm": "删除 {count} 个域名？",
+        "bulkDeleteTitle": "删除所选域名"
     },
     "backorder": {
         "bannerTitle": "Backorder Domain Monitor",

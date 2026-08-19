@@ -866,7 +866,17 @@ export default {
         "reissueSsl": "Перевыпустить SSL-сертификат",
         "reissueConfirm": "Вы уверены, что хотите перевыпустить SSL-сертификат для",
         "sslIssued": "SSL-сертификат успешно выпущен",
-        "sslError": "Не удалось выпустить SSL-сертификат"
+        "sslError": "Не удалось выпустить SSL-сертификат",
+        "allGroups": "Все группы",
+        "groups": "Группы",
+        "groupsTitle": "Управление группами доменов",
+        "bulkChangeGroup": "Изменить группу",
+        "bulkChangeGroupTitle": "Изменить группу для выбранных доменов",
+        "bulkChangeGroupText": "Изменить группу для {count} выбранных доменов",
+        "selectGroup": "Выберите группу",
+        "applyGroup": "Применить",
+        "bulkDeleteConfirm": "Удалить {count} доменов?",
+        "bulkDeleteTitle": "Удалить выбранные домены"
     },
     "backorder": {
         "bannerTitle": "Отложенный мониторинг доменов",

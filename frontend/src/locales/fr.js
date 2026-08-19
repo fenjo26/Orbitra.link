@@ -866,7 +866,17 @@ export default {
         "sslWaitingDns": "En attente du DNS — le domaine ne pointe pas encore vers ce serveur. Le certificat sera émis dès la propagation de l'enregistrement A.",
         "sslRetrying": "La dernière tentative d'émission a échoué. Le tracker continue automatiquement.",
         "sslNotWired": "Le certificat existe mais le serveur web ne le sert pas encore — la configuration est en cours de régénération.",
-        "sslFailed": "Erreur SSL"
+        "sslFailed": "Erreur SSL",
+        "allGroups": "Tous les groupes",
+        "groups": "Groupes",
+        "groupsTitle": "Gérer les groupes de domaines",
+        "bulkChangeGroup": "Changer le groupe",
+        "bulkChangeGroupTitle": "Changer le groupe des domaines sélectionnés",
+        "bulkChangeGroupText": "Changer le groupe de {count} domaines sélectionnés",
+        "selectGroup": "Sélectionner un groupe",
+        "applyGroup": "Appliquer",
+        "bulkDeleteConfirm": "Supprimer {count} domaines ?",
+        "bulkDeleteTitle": "Supprimer les domaines sélectionnés"
     },
     "backorder": {
         "bannerTitle": "Moniteur de domaine en rupture de stock",

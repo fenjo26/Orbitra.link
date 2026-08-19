@@ -866,7 +866,17 @@ export default {
         "sslWaitingDns": "Warten auf DNS — die Domain zeigt noch nicht auf diesen Server. Das Zertifikat wird ausgestellt, sobald der A-Eintrag verteilt ist.",
         "sslRetrying": "Der letzte Ausstellungsversuch ist fehlgeschlagen. Der Tracker versucht es automatisch weiter.",
         "sslNotWired": "Das Zertifikat existiert, wird vom Webserver aber noch nicht ausgeliefert — die Konfiguration wird neu erzeugt.",
-        "sslFailed": "SSL-Fehler"
+        "sslFailed": "SSL-Fehler",
+        "allGroups": "Alle Gruppen",
+        "groups": "Gruppen",
+        "groupsTitle": "Domain-Gruppen verwalten",
+        "bulkChangeGroup": "Gruppe ändern",
+        "bulkChangeGroupTitle": "Gruppe für ausgewählte Domains ändern",
+        "bulkChangeGroupText": "Gruppe für {count} ausgewählte Domains ändern",
+        "selectGroup": "Gruppe auswählen",
+        "applyGroup": "Anwenden",
+        "bulkDeleteConfirm": "{count} Domains löschen?",
+        "bulkDeleteTitle": "Ausgewählte Domains löschen"
     },
     "backorder": {
         "bannerTitle": "Backorder Domain Monitor",

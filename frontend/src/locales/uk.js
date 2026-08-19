@@ -866,7 +866,17 @@ export default {
         "sslWaitingDns": "Очікування DNS — домен поки не вказує на цей сервер. Сертифікат випишеться автоматично, щойно A-запис розійдеться.",
         "sslRetrying": "Остання спроба випуску не вдалася. Трекер продовжить намагатися автоматично.",
         "sslNotWired": "Сертифікат випущено, але вебсервер його ще не віддає — конфіг перезбирається.",
-        "sslFailed": "SSL error"
+        "sslFailed": "SSL error",
+        "allGroups": "Всі групи",
+        "groups": "Групи",
+        "groupsTitle": "Керувати групами доменів",
+        "bulkChangeGroup": "Змінити групу",
+        "bulkChangeGroupTitle": "Змінити групу для вибраних доменів",
+        "bulkChangeGroupText": "Змінити групу для {count} вибраних доменів",
+        "selectGroup": "Виберіть групу",
+        "applyGroup": "Застосувати",
+        "bulkDeleteConfirm": "Видалити {count} доменів?",
+        "bulkDeleteTitle": "Видалити вибрані домени"
     },
     "backorder": {
         "bannerTitle": "Backorder Domain Monitor",

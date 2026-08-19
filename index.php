@@ -1051,6 +1051,39 @@ function orbitraAbsolutizeBundleActions($html, string $urlBase)
     ) ?? $html;
 }
 
+/**
+ * Inject a <base> tag into HTML to ensure relative paths resolve correctly.
+ * Used for local offers and landings served inline at campaign URLs,
+ * where the browser is at /campaignAlias but assets live at /offers/<id>/
+ * or /lander/<slug>/. Without <base>, all relative assets 404 in Incognito.
+ *
+ * @param string $html The HTML content
+ * @param string $baseUrl The base URL (e.g., "/offers/123/" or "/lander/my-landing/")
+ * @return string HTML with injected <base> tag
+ */
+function orbitraInjectBaseTag(string $html, string $baseUrl): string
+{
+    if ($html === '') {
+        return $html;
+    }
+
+    // Remove any existing <base> tag first to avoid conflicts.
+    // Many landing pages have their own <base> pointing to their original domain,
+    // which would break all relative paths. Ours must win.
+    $html = preg_replace('/<base\s+[^>]*>/i', '', $html);
+
+    $base = '<base href="' . htmlspecialchars($baseUrl, ENT_QUOTES) . '">';
+
+    // Insert after <head> tag if present, otherwise prepend to HTML
+    if (preg_match('/<head[^>]*>/i', $html, $m, PREG_OFFSET_CAPTURE)) {
+        $at = $m[0][1] + strlen($m[0][0]);
+        return substr($html, 0, $at) . "\n" . $base . substr($html, $at);
+    }
+
+    // No <head> tag found - prepend to HTML
+    return $base . "\n" . $html;
+}
+
 function orbitraOfferIsLocal(PDO $pdo, $offerId): bool
 {
     static $cache = [];
@@ -1125,7 +1158,7 @@ function orbitraServeLocalOffer(PDO $pdo, $offerId, $clickId, array $clickParams
         ob_start();
         require $dir . '/index.php';
         $content = ob_get_clean();
-        echo orbitraAbsolutizeBundleActions(
+        $processed = orbitraAbsolutizeBundleActions(
             applyLandingMacros(
                 $content,
                 $clickId,
@@ -1136,11 +1169,12 @@ function orbitraServeLocalOffer(PDO $pdo, $offerId, $clickId, array $clickParams
             ),
             '/offers/' . $offerId . '/'
         );
+        echo orbitraInjectBaseTag($processed, '/offers/' . $offerId . '/');
         exit;
     }
 
     if (file_exists($dir . '/index.html')) {
-        echo orbitraAbsolutizeBundleActions(
+        $processed = orbitraAbsolutizeBundleActions(
             applyLandingMacros(
                 file_get_contents($dir . '/index.html'),
                 $clickId,
@@ -1151,6 +1185,7 @@ function orbitraServeLocalOffer(PDO $pdo, $offerId, $clickId, array $clickParams
             ),
             '/offers/' . $offerId . '/'
         );
+        echo orbitraInjectBaseTag($processed, '/offers/' . $offerId . '/');
         exit;
     }
 
@@ -2034,6 +2069,41 @@ if (!empty($_COOKIE['orbitra_lo']) && $uriPath !== null && $uriPath !== '/') {
 }
 if (!empty($_COOKIE['orbitra_lp']) && $uriPath !== null && $uriPath !== '/') {
     serveLandingAsset((int) $_COOKIE['orbitra_lp'], $uriPath);
+}
+
+// === Referer fallback for Incognito/Private mode (no cookies) ===
+// When a browser blocks cookies or is in Incognito mode, the orbitra_lo/orbitra_lp
+// cookies are not sent with asset requests. Check HTTP_REFERER to recover the
+// bundle ID from the preview URL (/offers/<id>/ or /lander/<slug>/) or from
+// campaign context.
+if ($uriPath !== null && $uriPath !== '/' && empty($_COOKIE['orbitra_lo']) && empty($_COOKIE['orbitra_lp'])) {
+    $referer = $_SERVER['HTTP_REFERER'] ?? '';
+    if ($referer !== '') {
+        $refererPath = parse_url($referer, PHP_URL_PATH) ?? '';
+        // Check for /offers/<id>/ pattern in referer
+        if (preg_match('#^/offers/(\d+)/#', $refererPath, $refMatch)) {
+            $offerId = (int) $refMatch[1];
+            if ($offerId > 0 && orbitraOfferIsLocal($pdo, $offerId)) {
+                serveOfferAsset($offerId, $uriPath);
+                // If we get here, the asset wasn't found - fall through to 404
+            }
+        }
+        // Check for /lander/<slug>/ pattern in referer
+        elseif (preg_match('#^/lander/([a-z0-9_-]+)/#i', $refererPath, $refMatch)) {
+            $landingSlug = $refMatch[1];
+            try {
+                $stmt = $pdo->prepare("SELECT id FROM landings WHERE slug = ? AND type = 'local' LIMIT 1");
+                $stmt->execute([$landingSlug]);
+                $landingId = $stmt->fetchColumn();
+                if ($landingId !== false && (int) $landingId > 0) {
+                    serveLandingAsset((int) $landingId, $uriPath);
+                    // If we get here, the asset wasn't found - fall through to 404
+                }
+            } catch (\Throwable $e) {
+                // Fall through to 404
+            }
+        }
+    }
 }
 
 if (preg_match($staticExts, $uriPath)) {
@@ -3164,6 +3234,17 @@ if ($actionToPerfrom) {
             // Resolves through single-nested folders and drops statcache — the
             // very first click after an upload must find the files too.
             $landingDir = orbitraLandingContentDir(orbitraLandingDir($pdo, $landingIdToLog));
+
+            // Fetch landing slug for <base> tag injection (Incognito fix)
+            $landingSlug = '';
+            try {
+                $slugStmt = $pdo->prepare("SELECT slug FROM landings WHERE id = ? LIMIT 1");
+                $slugStmt->execute([$landingIdToLog]);
+                $landingSlug = (string) ($slugStmt->fetchColumn() ?? '');
+            } catch (\Throwable $e) {
+                $landingSlug = '';
+            }
+
             if (file_exists($landingDir . '/index.php')) {
                 require_once __DIR__ . '/core/PhpLanding.php';
                 if (!PhpLanding::enabled($pdo)) {
@@ -3197,7 +3278,7 @@ if ($actionToPerfrom) {
                 ob_start();
                 require $landingDir . '/index.php';
                 $landingOutput = ob_get_clean();
-                echo applyLandingMacros(
+                $processed = applyLandingMacros(
                     $landingOutput,
                     $clickId,
                     $offerIdToLog,
@@ -3205,8 +3286,10 @@ if ($actionToPerfrom) {
                     $clickParams ?? [],
                     issueLpToken($clickId, $settings['postback_key'] ?? 'orbitra_secret')
                 );
+                // Inject <base> tag so assets resolve correctly in Incognito/Private mode
+                echo orbitraInjectBaseTag($processed, '/lander/' . ($landingSlug !== '' ? htmlspecialchars($landingSlug, ENT_QUOTES) : $landingIdToLog) . '/');
             } else if (file_exists($landingDir . '/index.html')) {
-                echo applyLandingMacros(
+                $processed = applyLandingMacros(
                     file_get_contents($landingDir . '/index.html'),
                     $clickId,
                     $offerIdToLog,
@@ -3214,6 +3297,8 @@ if ($actionToPerfrom) {
                     $clickParams ?? [],
                     issueLpToken($clickId, $settings['postback_key'] ?? 'orbitra_secret')
                 );
+                // Inject <base> tag so assets resolve correctly in Incognito/Private mode
+                echo orbitraInjectBaseTag($processed, '/lander/' . ($landingSlug !== '' ? htmlspecialchars($landingSlug, ENT_QUOTES) : $landingIdToLog) . '/');
             } else {
                 die("Local landing files not found in " . $landingDir);
             }

@@ -866,7 +866,17 @@ export default {
         "reissueSsl": "Re-issue SSL certificate",
         "reissueConfirm": "Are you sure you want to re-issue the SSL certificate for",
         "sslIssued": "SSL certificate issued successfully",
-        "sslError": "Failed to issue SSL certificate"
+        "sslError": "Failed to issue SSL certificate",
+        "allGroups": "All Groups",
+        "groups": "Groups",
+        "groupsTitle": "Manage domain groups",
+        "bulkChangeGroup": "Change Group",
+        "bulkChangeGroupTitle": "Change group for selected domains",
+        "bulkChangeGroupText": "Change group for {count} selected domains",
+        "selectGroup": "Select Group",
+        "applyGroup": "Apply",
+        "bulkDeleteConfirm": "Delete {count} domains?",
+        "bulkDeleteTitle": "Delete selected domains"
     },
     "backorder": {
         "bannerTitle": "Backorder Domain Monitor",
