@@ -1,4 +1,4 @@
-# Orbitra v1.1.5 Tracker
+# Orbitra v1.1.6 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,18 +11,24 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.1.5
+## 🆕 What's New in v1.1.6
 
 ### Added
 
-- **🔐 SSL management and verification (ORB-014)** — per-domain certificate verification, an HTTPS server block with a self-signed certificate for non-Let's Encrypt / non-Cloudflare domains, and a documented Cloudflare Full (Strict) setup. **Nginx servers: run `sudo php cli/nginx_sync.php` once**
-- **📜 Custom SSL certificates** — upload your own certificate and key per domain in domain settings
-- **🧠 SUBID in the traffic log** — SUBID values extracted from click parameters (click path + LeadForge, covered by tests)
-- **📤 Bulk file upload** — shared component with CSV parsing and per-file error handling in Bot Settings, Branding, Campaigns, Landings, Offers and Traffic Sources
+- **🔀 SSL mode selector in Domains** — Let's Encrypt / Cloudflare (Real IP restoration + CF-Visitor HTTPS in the generated vhost) / Custom certificate paths, in all 7 languages
+- **🧰 Install smoke tests + landing diagnostics** — `install.sh` verifies nginx location, ACME webroot, self-signed cert and config syntax; `cli/check_landings.php` diagnoses permissions, nginx, ACME and SSL
 
-### Previous Highlights (v1.1.4)
+### Fixed
 
-- **🔤 Tracking snippets in English** — Connection-method code blocks no longer carry hardcoded Russian comments
+- **🧩 Guaranteed landing/offers asset loading** — absolute asset paths rewritten to relative before the base tag (anchor smooth-scroll preserved); campaign URLs (`/bd86o7dw`) now resolve in the referer fallback; a fail-safe streams assets from PHP with Range/206 when the nginx `/_internal_assets/` location is missing
+
+### Removed
+
+- **🗑️ Bulk .txt/.csv import** — upload buttons dropped from Campaigns, Offers, Landings and Traffic Sources by design
+
+### Previous Highlights (v1.1.5)
+
+- **🔐 SSL management and verification (ORB-014)** — per-domain verification, self-signed HTTPS blocks, Cloudflare Full (Strict) docs
 
 ## 🖥 Live Demo
 
@@ -493,15 +499,19 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.1.5 (2026-08-19)
+### Current release — v1.1.6 (2026-08-19)
 
 **Added**
-- 🔐 **SSL management and verification (ORB-014)** — per-domain verification, self-signed HTTPS blocks for nginx, Cloudflare Full (Strict) docs. **Run `sudo php cli/nginx_sync.php` once on nginx**
-- 📜 **Custom SSL certificates** — upload cert + key per domain
-- 🧠 **SUBID in the traffic log** — extracted from click parameters
-- 📤 **Bulk file upload** — CSV parsing, per-file errors, six pages
+- 🔀 **SSL mode selector in Domains** — Let's Encrypt / Cloudflare / Custom, all 7 languages
+- 🧰 **Install smoke tests + `cli/check_landings.php` diagnostics**
 
-Previous releases — v1.1.4: 🔤 English tracking snippets; v1.1.3: 🎨 eight palette themes, 🌗 theme-variable cleanup, 🧱 Conversion Types repair.
+**Fixed**
+- 🧩 **Guaranteed landing/offers asset loading** — relative-path rewriting, campaign-URL referer fallback, PHP streaming fail-safe (Range/206)
+
+**Removed**
+- 🗑️ **Bulk .txt/.csv import** buttons — by design
+
+Previous releases — v1.1.5: 🔐 SSL management (ORB-014), 🧠 SUBID in traffic logs; v1.1.4: 🔤 English tracking snippets; v1.1.3: 🎨 eight palette themes.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

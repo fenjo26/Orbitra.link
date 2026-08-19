@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plus, Edit, Trash2, Search, RefreshCw, ExternalLink, Copy, Settings2, Filter, X, Upload, Globe, FileText } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, RefreshCw, ExternalLink, Copy, Settings2, Filter, X, Upload, Globe } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import TrafficSourceEditor from './TrafficSourceEditor';
 import BulkImportSources from './BulkImportSources';
-import BulkFileUpload from './common/BulkFileUpload';
 import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard } from '../utils/clipboard';
 
@@ -23,7 +22,6 @@ const TrafficSources = ({ refreshData }) => {
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [showBulkImport, setShowBulkImport] = useState(false);
-    const [showBulkFileUpload, setShowBulkFileUpload] = useState(false);
     const [checkingUrls, setCheckingUrls] = useState(false);
 
     const fetchSources = async () => {
@@ -257,10 +255,6 @@ const TrafficSources = ({ refreshData }) => {
                         <Plus size={18} />
                         <span>{t('common.create')}</span>
                     </button>
-                    <button type="button" onClick={() => setShowBulkFileUpload(true)} className="btn btn-secondary">
-                        <FileText size={18} />
-                        <span>{t('bulkFileUpload.uploadBtn')}</span>
-                    </button>
                     <button type="button" onClick={() => setShowBulkImport(true)} className="btn btn-secondary">
                         <Upload size={18} />
                         <span>{t('sources.importBtn')}</span>
@@ -476,19 +470,6 @@ const TrafficSources = ({ refreshData }) => {
                 <BulkImportSources
                     onClose={() => setShowBulkImport(false)}
                     onSave={handleBulkImportSave}
-                />
-            )}
-
-            {/* Bulk File Upload Modal */}
-            {showBulkFileUpload && (
-                <BulkFileUpload
-                    entityType="traffic_sources"
-                    onSuccess={() => {
-                        fetchSources();
-                        refreshData && refreshData();
-                        setShowBulkFileUpload(false);
-                    }}
-                    onClose={() => setShowBulkFileUpload(false)}
                 />
             )}
 

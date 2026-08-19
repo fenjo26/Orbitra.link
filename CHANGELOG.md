@@ -7,6 +7,24 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.1.6] — 2026-08-19
+
+Landing assets are guaranteed to load across Incognito, WebView, blocked cookies and Cloudflare proxy, and SSL gets an explicit per-domain mode.
+
+### Added
+- 🔀 **SSL mode selector in Domains** — Let's Encrypt (auto-issued) / Cloudflare (proxy mode; the generated vhost restores the visitor's real IP from Cloudflare's IPv4+IPv6 ranges and honours `CF-Visitor` for HTTPS detection) / Custom (own certificate and key paths). UI strings in all 7 locales.
+- 🧰 **Install smoke tests + landing diagnostics** — `install.sh` verifies the `_internal_assets` nginx location, ACME webroot writability, the self-signed certificate and nginx config syntax after install; `cli/check_landings.php` diagnoses landing/offer directory permissions, nginx completeness, ACME accessibility, SSL presence and a sample asset fetch.
+
+### Fixed
+- 🧩 **Intelligent HTML rewriter for served landings/offers** — absolute asset paths (`/css/style.css`) are rewritten to relative (`./css/style.css`) before the base tag is injected, and a JS polyfill keeps anchor-link smooth scrolling working under the base tag. Wired into every `orbitraInjectBaseTag()` call point.
+- 🧭 **Campaign-aware referer fallback** — referer/conversion resolution understands campaign URLs (`/bd86o7dw`), resolving the landing or offer from the campaign's stream settings instead of only `/lander/<slug>` addresses.
+- 🛟 **X-Accel-Redirect fail-safe** — when the nginx `/_internal_assets/` location is missing (config not synced), the tracker detects it and streams the asset directly from PHP with Range support (206 Partial Content) instead of failing.
+
+### Removed
+- 🗑️ **Bulk .txt/.csv import** — the upload buttons in Campaigns, Offers, Landings and Traffic Sources are removed by design; the Sources section stays reachable from the main navigation.
+
+> Nginx servers should re-run `sudo php cli/nginx_sync.php` once for the Cloudflare-aware vhost blocks.
+
 ## [1.1.5] — 2026-08-19
 
 SSL management rebuilt around per-domain verification and custom certificates, IP access control reworked with SUBID extraction in the traffic log, and a shared bulk-file-upload component across the panel.

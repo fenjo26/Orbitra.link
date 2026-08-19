@@ -15111,7 +15111,7 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$2e = [
+const __iconNode$2f = [
   [
     "path",
     {
@@ -15120,31 +15120,31 @@ const __iconNode$2e = [
     }
   ]
 ];
-const Activity = createLucideIcon("activity", __iconNode$2e);
-const __iconNode$2d = [
+const Activity = createLucideIcon("activity", __iconNode$2f);
+const __iconNode$2e = [
   ["rect", { width: "20", height: "5", x: "2", y: "3", rx: "1", key: "1wp1u1" }],
   ["path", { d: "M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8", key: "1s80jp" }],
   ["path", { d: "M10 12h4", key: "a56b0p" }]
 ];
-const Archive = createLucideIcon("archive", __iconNode$2d);
-const __iconNode$2c = [
+const Archive = createLucideIcon("archive", __iconNode$2e);
+const __iconNode$2d = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$2c);
-const __iconNode$2b = [
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$2d);
+const __iconNode$2c = [
   ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
   ["path", { d: "M20 7H4", key: "zbl0bi" }],
   ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
   ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$2b);
-const __iconNode$2a = [
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$2c);
+const __iconNode$2b = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$2a);
-const __iconNode$29 = [
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$2b);
+const __iconNode$2a = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15156,8 +15156,8 @@ const __iconNode$29 = [
   ["path", { d: "m2 2 20 20", key: "1ooewy" }],
   ["path", { d: "M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05", key: "1hqiys" }]
 ];
-const BellOff = createLucideIcon("bell-off", __iconNode$29);
-const __iconNode$28 = [
+const BellOff = createLucideIcon("bell-off", __iconNode$2a);
+const __iconNode$29 = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15167,28 +15167,28 @@ const __iconNode$28 = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$28);
-const __iconNode$27 = [
+const Bell = createLucideIcon("bell", __iconNode$29);
+const __iconNode$28 = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const Calendar$1 = createLucideIcon("calendar", __iconNode$27);
-const __iconNode$26 = [
+const Calendar$1 = createLucideIcon("calendar", __iconNode$28);
+const __iconNode$27 = [
   ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
   ["path", { d: "M18 17V9", key: "2bz60n" }],
   ["path", { d: "M13 17V5", key: "1frdt8" }],
   ["path", { d: "M8 17v-3", key: "17ska0" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$26);
-const __iconNode$25 = [
+const ChartColumn = createLucideIcon("chart-column", __iconNode$27);
+const __iconNode$26 = [
   ["path", { d: "M5 21v-6", key: "1hz6c0" }],
   ["path", { d: "M12 21V3", key: "1lcnhd" }],
   ["path", { d: "M19 21V9", key: "unv183" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$25);
-const __iconNode$24 = [
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$26);
+const __iconNode$25 = [
   [
     "path",
     {
@@ -15198,39 +15198,39 @@ const __iconNode$24 = [
   ],
   ["path", { d: "M21.21 15.89A10 10 0 1 1 8 2.83", key: "k2fpak" }]
 ];
-const ChartPie = createLucideIcon("chart-pie", __iconNode$24);
-const __iconNode$23 = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$23);
-const __iconNode$22 = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$22);
-const __iconNode$21 = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$21);
-const __iconNode$20 = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$20);
-const __iconNode$1$ = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$1$);
-const __iconNode$1_ = [
+const ChartPie = createLucideIcon("chart-pie", __iconNode$25);
+const __iconNode$24 = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$24);
+const __iconNode$23 = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$23);
+const __iconNode$22 = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$22);
+const __iconNode$21 = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$21);
+const __iconNode$20 = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$20);
+const __iconNode$1$ = [
   ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
   ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
 ];
-const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1_);
-const __iconNode$1Z = [
+const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1$);
+const __iconNode$1_ = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$1Z);
-const __iconNode$1Y = [
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$1_);
+const __iconNode$1Z = [
   ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1Y);
-const __iconNode$1X = [
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1Z);
+const __iconNode$1Y = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$1X);
-const __iconNode$1W = [
+const CircleCheck = createLucideIcon("circle-check", __iconNode$1Y);
+const __iconNode$1X = [
   [
     "path",
     {
@@ -15240,50 +15240,50 @@ const __iconNode$1W = [
   ],
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
 ];
-const CirclePlay = createLucideIcon("circle-play", __iconNode$1W);
-const __iconNode$1V = [
+const CirclePlay = createLucideIcon("circle-play", __iconNode$1X);
+const __iconNode$1W = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1V);
-const __iconNode$1U = [
+const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1W);
+const __iconNode$1V = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   ["path", { d: "m9 9 6 6", key: "z0biqf" }]
 ];
-const CircleX = createLucideIcon("circle-x", __iconNode$1U);
-const __iconNode$1T = [
+const CircleX = createLucideIcon("circle-x", __iconNode$1V);
+const __iconNode$1U = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 6v6l4 2", key: "mmk7yg" }]
 ];
-const Clock = createLucideIcon("clock", __iconNode$1T);
-const __iconNode$1S = [
+const Clock = createLucideIcon("clock", __iconNode$1U);
+const __iconNode$1T = [
   ["path", { d: "M12 13v8", key: "1l5pq0" }],
   ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
   ["path", { d: "m8 17 4-4 4 4", key: "1quai1" }]
 ];
-const CloudUpload = createLucideIcon("cloud-upload", __iconNode$1S);
-const __iconNode$1R = [
+const CloudUpload = createLucideIcon("cloud-upload", __iconNode$1T);
+const __iconNode$1S = [
   ["path", { d: "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z", key: "p7xjir" }]
 ];
-const Cloud = createLucideIcon("cloud", __iconNode$1R);
-const __iconNode$1Q = [
+const Cloud = createLucideIcon("cloud", __iconNode$1S);
+const __iconNode$1R = [
   ["path", { d: "m16 18 6-6-6-6", key: "eg8j8" }],
   ["path", { d: "m8 6-6 6 6 6", key: "ppft3o" }]
 ];
-const Code = createLucideIcon("code", __iconNode$1Q);
-const __iconNode$1P = [
+const Code = createLucideIcon("code", __iconNode$1R);
+const __iconNode$1Q = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M12 3v18", key: "108xh3" }]
 ];
-const Columns2 = createLucideIcon("columns-2", __iconNode$1P);
-const __iconNode$1O = [
+const Columns2 = createLucideIcon("columns-2", __iconNode$1Q);
+const __iconNode$1P = [
   ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
   ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-const Copy = createLucideIcon("copy", __iconNode$1O);
-const __iconNode$1N = [
+const Copy = createLucideIcon("copy", __iconNode$1P);
+const __iconNode$1O = [
   ["path", { d: "M12 20v2", key: "1lh1kg" }],
   ["path", { d: "M12 2v2", key: "tus03m" }],
   ["path", { d: "M17 20v2", key: "1rnc9c" }],
@@ -15299,33 +15299,33 @@ const __iconNode$1N = [
   ["rect", { x: "4", y: "4", width: "16", height: "16", rx: "2", key: "1vbyd7" }],
   ["rect", { x: "8", y: "8", width: "8", height: "8", rx: "1", key: "z9xiuo" }]
 ];
-const Cpu = createLucideIcon("cpu", __iconNode$1N);
-const __iconNode$1M = [
+const Cpu = createLucideIcon("cpu", __iconNode$1O);
+const __iconNode$1N = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "22", x2: "18", y1: "12", y2: "12", key: "l9bcsi" }],
   ["line", { x1: "6", x2: "2", y1: "12", y2: "12", key: "13hhkx" }],
   ["line", { x1: "12", x2: "12", y1: "6", y2: "2", key: "10w3f3" }],
   ["line", { x1: "12", x2: "12", y1: "22", y2: "18", key: "15g9kq" }]
 ];
-const Crosshair = createLucideIcon("crosshair", __iconNode$1M);
-const __iconNode$1L = [
+const Crosshair = createLucideIcon("crosshair", __iconNode$1N);
+const __iconNode$1M = [
   ["ellipse", { cx: "12", cy: "5", rx: "9", ry: "3", key: "msslwz" }],
   ["path", { d: "M3 5V19A9 3 0 0 0 21 19V5", key: "1wlel7" }],
   ["path", { d: "M3 12A9 3 0 0 0 21 12", key: "mv7ke4" }]
 ];
-const Database = createLucideIcon("database", __iconNode$1L);
-const __iconNode$1K = [
+const Database = createLucideIcon("database", __iconNode$1M);
+const __iconNode$1L = [
   ["line", { x1: "12", x2: "12", y1: "2", y2: "22", key: "7eqyqh" }],
   ["path", { d: "M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", key: "1b0p4s" }]
 ];
-const DollarSign = createLucideIcon("dollar-sign", __iconNode$1K);
-const __iconNode$1J = [
+const DollarSign = createLucideIcon("dollar-sign", __iconNode$1L);
+const __iconNode$1K = [
   ["path", { d: "M12 15V3", key: "m9g1x1" }],
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["path", { d: "m7 10 5 5 5-5", key: "brsn70" }]
 ];
-const Download = createLucideIcon("download", __iconNode$1J);
-const __iconNode$1I = [
+const Download = createLucideIcon("download", __iconNode$1K);
+const __iconNode$1J = [
   [
     "path",
     {
@@ -15334,20 +15334,20 @@ const __iconNode$1I = [
     }
   ]
 ];
-const Droplet = createLucideIcon("droplet", __iconNode$1I);
-const __iconNode$1H = [
+const Droplet = createLucideIcon("droplet", __iconNode$1J);
+const __iconNode$1I = [
   ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
   ["circle", { cx: "12", cy: "5", r: "1", key: "gxeob9" }],
   ["circle", { cx: "12", cy: "19", r: "1", key: "lyex9k" }]
 ];
-const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1H);
-const __iconNode$1G = [
+const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1I);
+const __iconNode$1H = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "M10 14 21 3", key: "gplh6r" }],
   ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
 ];
-const ExternalLink = createLucideIcon("external-link", __iconNode$1G);
-const __iconNode$1F = [
+const ExternalLink = createLucideIcon("external-link", __iconNode$1H);
+const __iconNode$1G = [
   [
     "path",
     {
@@ -15365,8 +15365,8 @@ const __iconNode$1F = [
   ],
   ["path", { d: "m2 2 20 20", key: "1ooewy" }]
 ];
-const EyeOff = createLucideIcon("eye-off", __iconNode$1F);
-const __iconNode$1E = [
+const EyeOff = createLucideIcon("eye-off", __iconNode$1G);
+const __iconNode$1F = [
   [
     "path",
     {
@@ -15376,8 +15376,8 @@ const __iconNode$1E = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Eye = createLucideIcon("eye", __iconNode$1E);
-const __iconNode$1D = [
+const Eye = createLucideIcon("eye", __iconNode$1F);
+const __iconNode$1E = [
   [
     "path",
     {
@@ -15388,8 +15388,8 @@ const __iconNode$1D = [
   ["path", { d: "M16 8 2 22", key: "vp34q" }],
   ["path", { d: "M17.5 15H9", key: "1oz8nu" }]
 ];
-const Feather = createLucideIcon("feather", __iconNode$1D);
-const __iconNode$1C = [
+const Feather = createLucideIcon("feather", __iconNode$1E);
+const __iconNode$1D = [
   [
     "path",
     {
@@ -15403,8 +15403,8 @@ const __iconNode$1C = [
   ["path", { d: "M8 7V6", key: "1nbb54" }],
   ["circle", { cx: "8", cy: "20", r: "2", key: "ckkr5m" }]
 ];
-const FileArchive = createLucideIcon("file-archive", __iconNode$1C);
-const __iconNode$1B = [
+const FileArchive = createLucideIcon("file-archive", __iconNode$1D);
+const __iconNode$1C = [
   [
     "path",
     {
@@ -15416,8 +15416,8 @@ const __iconNode$1B = [
   ["path", { d: "M10 12.5 8 15l2 2.5", key: "1tg20x" }],
   ["path", { d: "m14 12.5 2 2.5-2 2.5", key: "yinavb" }]
 ];
-const FileCode = createLucideIcon("file-code", __iconNode$1B);
-const __iconNode$1A = [
+const FileCode = createLucideIcon("file-code", __iconNode$1C);
+const __iconNode$1B = [
   [
     "path",
     {
@@ -15429,8 +15429,8 @@ const __iconNode$1A = [
   ["circle", { cx: "11.5", cy: "14.5", r: "2.5", key: "1bq0ko" }],
   ["path", { d: "M13.3 16.3 15 18", key: "2quom7" }]
 ];
-const FileSearch = createLucideIcon("file-search", __iconNode$1A);
-const __iconNode$1z = [
+const FileSearch = createLucideIcon("file-search", __iconNode$1B);
+const __iconNode$1A = [
   ["path", { d: "M11 21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1", key: "likhh7" }],
   ["path", { d: "M16 16a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1", key: "17ky3x" }],
   [
@@ -15441,8 +15441,8 @@ const __iconNode$1z = [
     }
   ]
 ];
-const FileStack = createLucideIcon("file-stack", __iconNode$1z);
-const __iconNode$1y = [
+const FileStack = createLucideIcon("file-stack", __iconNode$1A);
+const __iconNode$1z = [
   [
     "path",
     {
@@ -15455,7 +15455,17 @@ const __iconNode$1y = [
   ["path", { d: "M16 13H8", key: "t4e002" }],
   ["path", { d: "M16 17H8", key: "z1uh3a" }]
 ];
-const FileText = createLucideIcon("file-text", __iconNode$1y);
+const FileText = createLucideIcon("file-text", __iconNode$1z);
+const __iconNode$1y = [
+  [
+    "path",
+    {
+      d: "M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z",
+      key: "1kt360"
+    }
+  ]
+];
+const Folder = createLucideIcon("folder", __iconNode$1y);
 const __iconNode$1x = [
   [
     "path",
@@ -16495,26 +16505,6 @@ const ru = {
     "importing": "Импорт...",
     "importBtn": "Импортировать"
   },
-  "bulkFileUpload": {
-    "title": "Массовый импорт {entity}",
-    "uploadBtn": "Загрузить .txt / .csv",
-    "uploading": "Импорт {current} из {total}...",
-    "processing": "Обработка файла...",
-    "success": "Успешно добавлено: {added}",
-    "successWithSkipped": "Успешно добавлено: {added} (Пропущено дубликатов: {skipped})",
-    "error": "Ошибка импорта: {error}",
-    "emptyFile": "Файл пуст или не содержит допустимых записей",
-    "invalidFormat": "Неверный формат файла. Используйте .txt или .csv",
-    "formatHelp": "Универсальный CSV формат: первая строка должна содержать заголовки (name, url, payout, type и т.д.). Одна запись на строку.",
-    "formatHelpSimple": "Или простой формат: одна запись на строку (например, 'Имя' или 'Имя|URL')",
-    "errorsLabel": "Ошибки",
-    "skippedLabel": "Пропущено",
-    "addedLabel": "Добавлено",
-    "viewErrors": "Показать {count} ошибок",
-    "close": "Закрыть",
-    "detectedHeaders": "Обнаружены колонки: {columns}",
-    "noHeaders": "Заголовки не обнаружены, используется позиционный формат"
-  },
   "common": {
     "hide": "Скрыть",
     "showDetails": "Показать детали",
@@ -17163,6 +17153,13 @@ const ru = {
     "customCertPath": "Путь к сертификату",
     "customKeyPath": "Путь к ключу",
     "customSslWarning": "Файлы сертификата должны существовать на сервере. См. документацию для инструкций по настройке.",
+    "sslMode": "Режим SSL",
+    "sslLetsEncrypt": "Let's Encrypt",
+    "sslCloudflare": "Cloudflare",
+    "sslCustom": "Свой сертификат",
+    "sslLetsEncryptHint": "Автоматически выпускаемый сертификат. Направьте A-запись на IP сервера.",
+    "sslCloudflareHint": "Cloudflare обслуживает SSL-сертификат. Самоподписанный сертификат на сервере для режима Full SSL.",
+    "sslCustomHint": "Укажите пути к собственным файлам сертификата и ключа.",
     "title": "Припаркованные домены",
     "serverIp": "IP Сервера:",
     "searchPlaceholder": "Поиск по доменам...",
@@ -17241,7 +17238,17 @@ const ru = {
     "reissueSsl": "Перевыпустить SSL-сертификат",
     "reissueConfirm": "Вы уверены, что хотите перевыпустить SSL-сертификат для",
     "sslIssued": "SSL-сертификат успешно выпущен",
-    "sslError": "Не удалось выпустить SSL-сертификат"
+    "sslError": "Не удалось выпустить SSL-сертификат",
+    "allGroups": "Все группы",
+    "groups": "Группы",
+    "groupsTitle": "Управление группами доменов",
+    "bulkChangeGroup": "Изменить группу",
+    "bulkChangeGroupTitle": "Изменить группу для выбранных доменов",
+    "bulkChangeGroupText": "Изменить группу для {count} выбранных доменов",
+    "selectGroup": "Выберите группу",
+    "applyGroup": "Применить",
+    "bulkDeleteConfirm": "Удалить {count} доменов?",
+    "bulkDeleteTitle": "Удалить выбранные домены"
   },
   "backorder": {
     "bannerTitle": "Отложенный мониторинг доменов",
@@ -19969,26 +19976,6 @@ const en = {
     "importing": "Importing...",
     "importBtn": "Import"
   },
-  "bulkFileUpload": {
-    "title": "Bulk import {entity}",
-    "uploadBtn": "Upload .txt / .csv",
-    "uploading": "Importing {current} / {total}...",
-    "processing": "Processing file...",
-    "success": "Successfully added: {added}",
-    "successWithSkipped": "Successfully added: {added} (Skipped duplicates: {skipped})",
-    "error": "Import failed: {error}",
-    "emptyFile": "File is empty or contains no valid entries",
-    "invalidFormat": "Invalid file format. Please use .txt or .csv",
-    "formatHelp": "Universal CSV format: first row should contain headers (name, url, payout, type, etc.). One entry per row.",
-    "formatHelpSimple": "Or use simple format: one entry per line (e.g., 'Name' or 'Name|URL')",
-    "errorsLabel": "Errors",
-    "skippedLabel": "Skipped",
-    "addedLabel": "Added",
-    "viewErrors": "View {count} errors",
-    "close": "Close",
-    "detectedHeaders": "Detected columns: {columns}",
-    "noHeaders": "No headers detected, using position-based format"
-  },
   "common": {
     "hide": "Hide",
     "showDetails": "Show details",
@@ -20637,6 +20624,13 @@ const en = {
     "customCertPath": "Certificate Path",
     "customKeyPath": "Private Key Path",
     "customSslWarning": "Certificate files must exist on the server. See documentation for setup instructions.",
+    "sslMode": "SSL Mode",
+    "sslLetsEncrypt": "Let's Encrypt",
+    "sslCloudflare": "Cloudflare",
+    "sslCustom": "Custom",
+    "sslLetsEncryptHint": "Auto-issued certificate. Point A record to server IP.",
+    "sslCloudflareHint": "Cloudflare serves SSL certificate. Self-signed cert on origin for Full SSL mode.",
+    "sslCustomHint": "Provide your own certificate and key file paths.",
     "title": "Parked Domains",
     "serverIp": "Server IP:",
     "searchPlaceholder": "Search domains...",
@@ -20715,7 +20709,17 @@ const en = {
     "reissueSsl": "Re-issue SSL certificate",
     "reissueConfirm": "Are you sure you want to re-issue the SSL certificate for",
     "sslIssued": "SSL certificate issued successfully",
-    "sslError": "Failed to issue SSL certificate"
+    "sslError": "Failed to issue SSL certificate",
+    "allGroups": "All Groups",
+    "groups": "Groups",
+    "groupsTitle": "Manage domain groups",
+    "bulkChangeGroup": "Change Group",
+    "bulkChangeGroupTitle": "Change group for selected domains",
+    "bulkChangeGroupText": "Change group for {count} selected domains",
+    "selectGroup": "Select Group",
+    "applyGroup": "Apply",
+    "bulkDeleteConfirm": "Delete {count} domains?",
+    "bulkDeleteTitle": "Delete selected domains"
   },
   "backorder": {
     "bannerTitle": "Backorder Domain Monitor",
@@ -23443,26 +23447,6 @@ const uk = {
     "importing": "Імпорт...",
     "importBtn": "Імпорт"
   },
-  "bulkFileUpload": {
-    "title": "Масовий імпорт {entity}",
-    "uploadBtn": "Завантажити .txt / .csv",
-    "uploading": "Імпорт {current} з {total}...",
-    "processing": "Обробка файлу...",
-    "success": "Успішно додано: {added}",
-    "successWithSkipped": "Успішно додано: {added} (Пропущено дублікатів: {skipped})",
-    "error": "Помилка імпорту: {error}",
-    "emptyFile": "Файл порожній або не містить дійсних записів",
-    "invalidFormat": "Невірний формат файлу. Використовуйте .txt або .csv",
-    "formatHelp": "Універсальний CSV формат: перший рядок повинен містити заголовки (name, url, payout, type тощо). Один запис на рядок.",
-    "formatHelpSimple": "Або простий формат: один запис на рядок (наприклад, 'Назва' або 'Назва|URL')",
-    "errorsLabel": "Помилки",
-    "skippedLabel": "Пропущено",
-    "addedLabel": "Додано",
-    "viewErrors": "Показати {count} помилок",
-    "close": "Закрити",
-    "detectedHeaders": "Виявлено колонки: {columns}",
-    "noHeaders": "Заголовки не виявлено, використовується позиційний формат"
-  },
   "common": {
     "hide": "Сховати",
     "showDetails": "Показати деталі",
@@ -24111,6 +24095,13 @@ const uk = {
     "customCertPath": "Шлях до сертифіката",
     "customKeyPath": "Шлях до ключа",
     "customSslWarning": "Файли сертифіката повинні існувати на сервері. Дивіться документацію для інструкцій налаштування.",
+    "sslMode": "Режим SSL",
+    "sslLetsEncrypt": "Let's Encrypt",
+    "sslCloudflare": "Cloudflare",
+    "sslCustom": "Власний",
+    "sslLetsEncryptHint": "Сертифікат видається автоматично. Спрямуйте A-запис на IP сервера.",
+    "sslCloudflareHint": "Cloudflare обслуговує SSL-сертифікат. Самопідписаний сертифікат на сервері для режиму Full SSL.",
+    "sslCustomHint": "Вкажіть шляхи до власних файлів сертифіката та ключа.",
     "title": "Парковані домени",
     "serverIp": "IP сервера:",
     "searchPlaceholder": "Пошук доменів...",
@@ -24189,7 +24180,17 @@ const uk = {
     "sslWaitingDns": "Очікування DNS — домен поки не вказує на цей сервер. Сертифікат випишеться автоматично, щойно A-запис розійдеться.",
     "sslRetrying": "Остання спроба випуску не вдалася. Трекер продовжить намагатися автоматично.",
     "sslNotWired": "Сертифікат випущено, але вебсервер його ще не віддає — конфіг перезбирається.",
-    "sslFailed": "SSL error"
+    "sslFailed": "SSL error",
+    "allGroups": "Всі групи",
+    "groups": "Групи",
+    "groupsTitle": "Керувати групами доменів",
+    "bulkChangeGroup": "Змінити групу",
+    "bulkChangeGroupTitle": "Змінити групу для вибраних доменів",
+    "bulkChangeGroupText": "Змінити групу для {count} вибраних доменів",
+    "selectGroup": "Виберіть групу",
+    "applyGroup": "Застосувати",
+    "bulkDeleteConfirm": "Видалити {count} доменів?",
+    "bulkDeleteTitle": "Видалити вибрані домени"
   },
   "backorder": {
     "bannerTitle": "Backorder Domain Monitor",
@@ -26917,26 +26918,6 @@ const es = {
     "importing": "Importando...",
     "importBtn": "Importar"
   },
-  "bulkFileUpload": {
-    "title": "Importación masiva {entity}",
-    "uploadBtn": "Subir .txt / .csv",
-    "uploading": "Importando {current} de {total}...",
-    "processing": "Procesando archivo...",
-    "success": "Añadido exitosamente: {added}",
-    "successWithSkipped": "Añadido exitosamente: {added} (Duplicados omitidos: {skipped})",
-    "error": "Error de importación: {error}",
-    "emptyFile": "El archivo está vacío o no contiene entradas válidas",
-    "invalidFormat": "Formato de archivo inválido. Use .txt o .csv",
-    "formatHelp": "Formato CSV universal: la primera fila debe contener encabezados (name, url, payout, type, etc.). Una entrada por fila.",
-    "formatHelpSimple": "O use formato simple: una entrada por línea (ej., 'Nombre' o 'Nombre|URL')",
-    "errorsLabel": "Errores",
-    "skippedLabel": "Omitidos",
-    "addedLabel": "Añadido",
-    "viewErrors": "Ver {count} errores",
-    "close": "Cerrar",
-    "detectedHeaders": "Columnas detectadas: {columns}",
-    "noHeaders": "No se detectaron encabezados, usando formato posicional"
-  },
   "common": {
     "hide": "Ocultar",
     "showDetails": "Mostrar detalles",
@@ -27585,6 +27566,13 @@ const es = {
     "customCertPath": "Ruta del certificado",
     "customKeyPath": "Ruta de la clave",
     "customSslWarning": "Los archivos de certificado deben existir en el servidor. Consulte la documentación para instrucciones de configuración.",
+    "sslMode": "Modo SSL",
+    "sslLetsEncrypt": "Let's Encrypt",
+    "sslCloudflare": "Cloudflare",
+    "sslCustom": "Propio",
+    "sslLetsEncryptHint": "Certificado emitido automáticamente. Apunte el registro A a la IP del servidor.",
+    "sslCloudflareHint": "Cloudflare sirve el certificado SSL. Certificado autofirmado en el origen para el modo Full SSL.",
+    "sslCustomHint": "Indique las rutas a sus propios archivos de certificado y clave.",
     "title": "Dominios estacionados",
     "serverIp": "IP del servidor:",
     "searchPlaceholder": "Buscar dominios...",
@@ -27663,7 +27651,17 @@ const es = {
     "sslWaitingDns": "Esperando DNS: el dominio aún no apunta a este servidor. El certificado se emitirá en cuanto se propague el registro A.",
     "sslRetrying": "El último intento de emisión falló. El tracker seguirá reintentando automáticamente.",
     "sslNotWired": "El certificado existe pero el servidor web todavía no lo sirve: se está regenerando la configuración.",
-    "sslFailed": "SSL error"
+    "sslFailed": "SSL error",
+    "allGroups": "Todos los grupos",
+    "groups": "Grupos",
+    "groupsTitle": "Administrar grupos de dominios",
+    "bulkChangeGroup": "Cambiar grupo",
+    "bulkChangeGroupTitle": "Cambiar grupo de los dominios seleccionados",
+    "bulkChangeGroupText": "Cambiar grupo de {count} dominios seleccionados",
+    "selectGroup": "Seleccionar grupo",
+    "applyGroup": "Aplicar",
+    "bulkDeleteConfirm": "¿Eliminar {count} dominios?",
+    "bulkDeleteTitle": "Eliminar dominios seleccionados"
   },
   "backorder": {
     "bannerTitle": "Backorder Domain Monitor",
@@ -30391,26 +30389,6 @@ const zh = {
     "importing": "正在导入...",
     "importBtn": "进口"
   },
-  "bulkFileUpload": {
-    "title": "批量导入{entity}",
-    "uploadBtn": "上传 .txt / .csv",
-    "uploading": "正在导入 {current} / {total}...",
-    "processing": "正在处理文件...",
-    "success": "成功添加：{added}",
-    "successWithSkipped": "成功添加：{added}（跳过重复项：{skipped}）",
-    "error": "导入失败：{error}",
-    "emptyFile": "文件为空或不包含有效条目",
-    "invalidFormat": "文件格式无效。请使用 .txt 或 .csv",
-    "formatHelp": "通用 CSV 格式：第一行应包含标题（name、url、payout、type 等）。每行一个条目。",
-    "formatHelpSimple": "或使用简单格式：每行一个条目（例如，'名称' 或 '名称|网址'）",
-    "errorsLabel": "错误",
-    "skippedLabel": "跳过",
-    "addedLabel": "已添加",
-    "viewErrors": "查看{count}个错误",
-    "close": "关闭",
-    "detectedHeaders": "检测到的列：{columns}",
-    "noHeaders": "未检测到标题，使用基于位置的格式"
-  },
   "common": {
     "hide": "隐藏",
     "showDetails": "显示详情",
@@ -31059,6 +31037,13 @@ const zh = {
     "customCertPath": "证书路径",
     "customKeyPath": "密钥路径",
     "customSslWarning": "证书文件必须存在于服务器上。请参阅文档以获取配置说明。",
+    "sslMode": "SSL 模式",
+    "sslLetsEncrypt": "Let's Encrypt",
+    "sslCloudflare": "Cloudflare",
+    "sslCustom": "自定义",
+    "sslLetsEncryptHint": "自动签发证书。将 A 记录指向服务器 IP。",
+    "sslCloudflareHint": "由 Cloudflare 提供 SSL 证书。源站使用自签名证书以支持 Full SSL 模式。",
+    "sslCustomHint": "提供您自己的证书和密钥文件路径。",
     "title": "停放域名",
     "serverIp": "服务器IP：",
     "searchPlaceholder": "搜索域...",
@@ -31137,7 +31122,17 @@ const zh = {
     "sslWaitingDns": "等待 DNS —— 域名尚未指向此服务器。A 记录生效后将自动签发证书。",
     "sslRetrying": "上次签发尝试失败。追踪器会自动继续重试。",
     "sslNotWired": "证书已签发，但 Web 服务器尚未使用它 —— 正在重新生成配置。",
-    "sslFailed": "SSL error"
+    "sslFailed": "SSL error",
+    "allGroups": "所有分组",
+    "groups": "分组",
+    "groupsTitle": "管理域名分组",
+    "bulkChangeGroup": "更改分组",
+    "bulkChangeGroupTitle": "更改所选域名的分组",
+    "bulkChangeGroupText": "更改 {count} 个所选域名的分组",
+    "selectGroup": "选择分组",
+    "applyGroup": "应用",
+    "bulkDeleteConfirm": "删除 {count} 个域名？",
+    "bulkDeleteTitle": "删除所选域名"
   },
   "backorder": {
     "bannerTitle": "Backorder Domain Monitor",
@@ -33865,26 +33860,6 @@ const fr = {
     "importing": "Importation...",
     "importBtn": "Importer"
   },
-  "bulkFileUpload": {
-    "title": "Importation groupée {entity}",
-    "uploadBtn": "Télécharger .txt / .csv",
-    "uploading": "Importation {current} / {total}...",
-    "processing": "Traitement du fichier...",
-    "success": "Ajouté avec succès : {added}",
-    "successWithSkipped": "Ajouté avec succès : {added} (Doublons ignorés : {skipped})",
-    "error": "Échec de l'importation : {error}",
-    "emptyFile": "Le fichier est vide ou ne contient pas d'entrées valides",
-    "invalidFormat": "Format de fichier invalide. Veuillez utiliser .txt ou .csv",
-    "formatHelp": "Format CSV universel : la première ligne doit contenir les en-têtes (name, url, payout, type, etc.). Une entrée par ligne.",
-    "formatHelpSimple": "Ou utilisez le format simple : une entrée par ligne (ex., 'Nom' ou 'Nom|URL')",
-    "errorsLabel": "Erreurs",
-    "skippedLabel": "Ignorés",
-    "addedLabel": "Ajoutés",
-    "viewErrors": "Voir {count} erreurs",
-    "close": "Fermer",
-    "detectedHeaders": "Colonnes détectées : {columns}",
-    "noHeaders": "Aucun en-tête détecté, format positionnel utilisé"
-  },
   "common": {
     "hide": "Masquer",
     "showDetails": "Afficher les détails",
@@ -34533,6 +34508,13 @@ const fr = {
     "customCertPath": "Chemin du certificat",
     "customKeyPath": "Chemin de la clé",
     "customSslWarning": "Les fichiers de certificat doivent exister sur le serveur. Consultez la documentation pour les instructions de configuration.",
+    "sslMode": "Mode SSL",
+    "sslLetsEncrypt": "Let's Encrypt",
+    "sslCloudflare": "Cloudflare",
+    "sslCustom": "Personnalisé",
+    "sslLetsEncryptHint": "Certificat émis automatiquement. Pointez l'enregistrement A vers l'IP du serveur.",
+    "sslCloudflareHint": "Cloudflare sert le certificat SSL. Certificat auto-signé sur l'origine pour le mode Full SSL.",
+    "sslCustomHint": "Indiquez les chemins de vos propres fichiers de certificat et de clé.",
     "title": "Domaines parqués",
     "serverIp": "IP du serveur :",
     "searchPlaceholder": "Rechercher des domaines...",
@@ -34611,7 +34593,17 @@ const fr = {
     "sslWaitingDns": "En attente du DNS — le domaine ne pointe pas encore vers ce serveur. Le certificat sera émis dès la propagation de l'enregistrement A.",
     "sslRetrying": "La dernière tentative d'émission a échoué. Le tracker continue automatiquement.",
     "sslNotWired": "Le certificat existe mais le serveur web ne le sert pas encore — la configuration est en cours de régénération.",
-    "sslFailed": "Erreur SSL"
+    "sslFailed": "Erreur SSL",
+    "allGroups": "Tous les groupes",
+    "groups": "Groupes",
+    "groupsTitle": "Gérer les groupes de domaines",
+    "bulkChangeGroup": "Changer le groupe",
+    "bulkChangeGroupTitle": "Changer le groupe des domaines sélectionnés",
+    "bulkChangeGroupText": "Changer le groupe de {count} domaines sélectionnés",
+    "selectGroup": "Sélectionner un groupe",
+    "applyGroup": "Appliquer",
+    "bulkDeleteConfirm": "Supprimer {count} domaines ?",
+    "bulkDeleteTitle": "Supprimer les domaines sélectionnés"
   },
   "backorder": {
     "bannerTitle": "Moniteur de domaine en rupture de stock",
@@ -37341,26 +37333,6 @@ const de = {
     "importing": "Importieren...",
     "importBtn": "Importieren"
   },
-  "bulkFileUpload": {
-    "title": "Massenimport {entity}",
-    "uploadBtn": ".txt / .csv hochladen",
-    "uploading": "Importieren {current} / {total}...",
-    "processing": "Datei wird verarbeitet...",
-    "success": "Erfolgreich hinzugefügt: {added}",
-    "successWithSkipped": "Erfolgreich hinzugefügt: {added} (Duplikate übersprungen: {skipped})",
-    "error": "Import fehlgeschlagen: {error}",
-    "emptyFile": "Datei ist leer oder enthält keine gültigen Einträge",
-    "invalidFormat": "Ungültiges Dateiformat. Bitte .txt oder .csv verwenden",
-    "formatHelp": "Universelles CSV-Format: Die erste Zeile sollte Header enthalten (name, url, payout, type, usw.). Ein Eintrag pro Zeile.",
-    "formatHelpSimple": "Oder einfaches Format verwenden: Ein Eintrag pro Zeile (z.B. 'Name' oder 'Name|URL')",
-    "errorsLabel": "Fehler",
-    "skippedLabel": "Übersprungen",
-    "addedLabel": "Hinzugefügt",
-    "viewErrors": "{count} Fehler anzeigen",
-    "close": "Schließen",
-    "detectedHeaders": "Erkannte Spalten: {columns}",
-    "noHeaders": "Keine Header erkannt, positionsbasiertes Format wird verwendet"
-  },
   "common": {
     "hide": "Ausblenden",
     "showDetails": "Details anzeigen",
@@ -38009,6 +37981,13 @@ const de = {
     "customCertPath": "Zertifikatspfad",
     "customKeyPath": "Schlüsselpfad",
     "customSslWarning": "Zertifikatsdateien müssen auf dem Server existieren. Siehe Dokumentation für Einrichtungsanweisungen.",
+    "sslMode": "SSL-Modus",
+    "sslLetsEncrypt": "Let's Encrypt",
+    "sslCloudflare": "Cloudflare",
+    "sslCustom": "Benutzerdefiniert",
+    "sslLetsEncryptHint": "Automatisch ausgestelltes Zertifikat. A-Record auf Server-IP richten.",
+    "sslCloudflareHint": "Cloudflare stellt SSL-Zertifikat bereit. Selbstsigniertes Zertifikat auf dem Ursprung für Full-SSL-Modus.",
+    "sslCustomHint": "Pfade zu Ihrem eigenen Zertifikat und Schlüssel angeben.",
     "title": "Geparkte Domains",
     "serverIp": "Server-IP:",
     "searchPlaceholder": "Domänen durchsuchen...",
@@ -38087,7 +38066,17 @@ const de = {
     "sslWaitingDns": "Warten auf DNS — die Domain zeigt noch nicht auf diesen Server. Das Zertifikat wird ausgestellt, sobald der A-Eintrag verteilt ist.",
     "sslRetrying": "Der letzte Ausstellungsversuch ist fehlgeschlagen. Der Tracker versucht es automatisch weiter.",
     "sslNotWired": "Das Zertifikat existiert, wird vom Webserver aber noch nicht ausgeliefert — die Konfiguration wird neu erzeugt.",
-    "sslFailed": "SSL-Fehler"
+    "sslFailed": "SSL-Fehler",
+    "allGroups": "Alle Gruppen",
+    "groups": "Gruppen",
+    "groupsTitle": "Domain-Gruppen verwalten",
+    "bulkChangeGroup": "Gruppe ändern",
+    "bulkChangeGroupTitle": "Gruppe für ausgewählte Domains ändern",
+    "bulkChangeGroupText": "Gruppe für {count} ausgewählte Domains ändern",
+    "selectGroup": "Gruppe auswählen",
+    "applyGroup": "Anwenden",
+    "bulkDeleteConfirm": "{count} Domains löschen?",
+    "bulkDeleteTitle": "Ausgewählte Domains löschen"
   },
   "backorder": {
     "bannerTitle": "Backorder Domain Monitor",
@@ -41322,7 +41311,7 @@ const NavItem = ({ icon, label, active, onClick }) => {
     }
   );
 };
-const API_URL$H = "/api.php";
+const API_URL$G = "/api.php";
 const Login = ({ onLogin }) => {
   const { t } = useLanguage();
   const [username, setUsername] = reactExports.useState("");
@@ -41365,7 +41354,7 @@ const Login = ({ onLogin }) => {
       return;
     }
     try {
-      const res = await fetch(`${API_URL$H}?action=login`, {
+      const res = await fetch(`${API_URL$G}?action=login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
@@ -41534,7 +41523,7 @@ const Login = ({ onLogin }) => {
     ] }) })
   ] });
 };
-const API_URL$G = "/api.php";
+const API_URL$F = "/api.php";
 const SetupWizard = ({ onComplete }) => {
   const { t, setLanguage: setContextLanguage, language } = useLanguage();
   const [step, setStep] = reactExports.useState(1);
@@ -41590,7 +41579,7 @@ const SetupWizard = ({ onComplete }) => {
     }
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL$G}?action=setup_first_user`, {
+      const res = await fetch(`${API_URL$F}?action=setup_first_user`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
@@ -53926,7 +53915,7 @@ const TableWidget = ({ title, data, t }) => {
 };
 var reactDomExports = requireReactDom();
 const ReactDOM = /* @__PURE__ */ getDefaultExportFromCjs(reactDomExports);
-const API_URL$F = "/api.php";
+const API_URL$E = "/api.php";
 const ClickDetailsModal = ({ clickId, onClose }) => {
   const { t } = useLanguage();
   const [data, setData] = reactExports.useState(null);
@@ -53937,7 +53926,7 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
     const fetchDetails = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_URL$F}?action=click_details&id=${clickId}`);
+        const response = await axios.get(`${API_URL$E}?action=click_details&id=${clickId}`);
         if (response.data.status === "success") {
           setData(response.data.data);
         } else {
@@ -54457,7 +54446,7 @@ const HelpTooltip = ({ textKey, text, position = "top", size = 15, style = {} })
             ` })
   ] });
 };
-const API_URL$E = "/api.php";
+const API_URL$D = "/api.php";
 const GroupsModal = ({ type, onClose, onGroupCreated }) => {
   const { t } = useLanguage();
   const [groups, setGroups] = reactExports.useState([]);
@@ -54512,7 +54501,7 @@ const GroupsModal = ({ type, onClose, onGroupCreated }) => {
   const fetchGroups = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL$E}?action=${endpoint}`);
+      const res = await axios.get(`${API_URL$D}?action=${endpoint}`);
       if (res.data.status === "success") setGroups(res.data.data);
     } catch (err) {
       console.error("Error fetching groups:", err);
@@ -54523,7 +54512,7 @@ const GroupsModal = ({ type, onClose, onGroupCreated }) => {
   const handleCreate = async () => {
     if (!newGroupName.trim()) return;
     try {
-      const res = await axios.post(`${API_URL$E}?action=${endpoint}`, { name: newGroupName.trim() });
+      const res = await axios.post(`${API_URL$D}?action=${endpoint}`, { name: newGroupName.trim() });
       if (res.data.status === "success") {
         const created = { id: res.data.data?.id, name: newGroupName.trim() };
         setNewGroupName("");
@@ -54537,7 +54526,7 @@ const GroupsModal = ({ type, onClose, onGroupCreated }) => {
   const handleDelete = async (id) => {
     if (!window.confirm(t("groupsModal.deleteConfirm"))) return;
     try {
-      await axios.post(`${API_URL$E}?action=${getDeleteEndpoint()}`, { id });
+      await axios.post(`${API_URL$D}?action=${getDeleteEndpoint()}`, { id });
       fetchGroups();
     } catch {
       alert(t("groupsModal.deleteError"));
@@ -54582,7 +54571,7 @@ const GroupsModal = ({ type, onClose, onGroupCreated }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-6 py-4 border-t flex justify-end", style: { borderColor: "var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "btn btn-secondary", children: t("groupsModal.close") }) })
   ] }) });
 };
-const API_URL$D = "/api.php";
+const API_URL$C = "/api.php";
 const cache = /* @__PURE__ */ new Map();
 const CACHE_TTL = 3e4;
 function getCacheKey(action, params = {}) {
@@ -54599,7 +54588,7 @@ async function cachedGet(action, params = {}, ttl = CACHE_TTL) {
   if (cached && isCacheValid(cached)) {
     return { data: cached.data, fromCache: true };
   }
-  const response = await axios.get(API_URL$D, { params: { action, ...params } });
+  const response = await axios.get(API_URL$C, { params: { action, ...params } });
   if (response.data?.status === "success") {
     cache.set(cacheKey, {
       data: response.data,
@@ -54621,7 +54610,7 @@ function invalidateCache(pattern) {
   }
 }
 async function cachedPost(action, data = {}, params = {}) {
-  const response = await axios.post(API_URL$D, data, { params: { action, ...params } });
+  const response = await axios.post(API_URL$C, data, { params: { action, ...params } });
   if (response.data?.status === "success") {
     cache.clear();
   }
@@ -54649,8 +54638,13 @@ const Domains = ({ campaigns }) => {
   const [domains, setDomains] = reactExports.useState([]);
   const [filteredDomains, setFilteredDomains] = reactExports.useState([]);
   const [searchTerm, setSearchTerm] = reactExports.useState("");
+  const [selectedGroupId, setSelectedGroupId] = reactExports.useState("");
+  const [selectedDomainIds, setSelectedDomainIds] = reactExports.useState(() => /* @__PURE__ */ new Set());
+  const [sortBy, setSortBy] = reactExports.useState({ key: null, dir: "asc" });
   const [serverIp, setServerIp] = reactExports.useState("");
   const [loading, setLoading] = reactExports.useState(true);
+  const [bulkGroupModal, setBulkGroupModal] = reactExports.useState(false);
+  const [bulkGroupId, setBulkGroupId] = reactExports.useState("");
   const [ignoreDnsUi, setIgnoreDnsUi] = reactExports.useState(() => {
     const v = localStorage.getItem("domains_ignore_dns_ui");
     return v === "1";
@@ -54869,8 +54863,89 @@ const Domains = ({ campaigns }) => {
   };
   reactExports.useEffect(() => {
     const lowercased = searchTerm.toLowerCase();
-    setFilteredDomains(domains.filter((d) => d.name.toLowerCase().includes(lowercased)));
-  }, [searchTerm, domains]);
+    setFilteredDomains(domains.filter((d) => {
+      const matchesSearch = d.name.toLowerCase().includes(lowercased);
+      const matchesGroup = !selectedGroupId || String(d.group_id || "") === selectedGroupId;
+      return matchesSearch && matchesGroup;
+    }));
+  }, [searchTerm, domains, selectedGroupId]);
+  const visibleDomains = reactExports.useMemo(() => {
+    if (!sortBy.key) return filteredDomains;
+    const dirMul = sortBy.dir === "asc" ? 1 : -1;
+    return filteredDomains.map((d, idx) => ({ domain: d, idx })).sort((a, b) => {
+      const av = a.domain[sortBy.key];
+      const bv = b.domain[sortBy.key];
+      let cmp = 0;
+      if (sortBy.key === "id") {
+        cmp = (Number(av) || 0) - (Number(bv) || 0);
+      } else {
+        cmp = String(av || "").localeCompare(String(bv || ""), void 0, { sensitivity: "base" });
+      }
+      if (cmp !== 0) return cmp * dirMul;
+      return a.idx - b.idx;
+    }).map((x) => x.domain);
+  }, [filteredDomains, sortBy]);
+  const toggleSelected = (id, checked) => {
+    setSelectedDomainIds((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  };
+  const toggleSelectAll = (checked) => {
+    setSelectedDomainIds((prev) => {
+      const next = new Set(prev);
+      if (checked) {
+        visibleDomains.forEach((d) => next.add(d.id));
+      } else {
+        visibleDomains.forEach((d) => next.delete(d.id));
+      }
+      return next;
+    });
+  };
+  const allSelected = visibleDomains.length > 0 && visibleDomains.every((d) => selectedDomainIds.has(d.id));
+  const someSelected = visibleDomains.some((d) => selectedDomainIds.has(d.id));
+  const handleBulkDelete = async () => {
+    const ids = Array.from(selectedDomainIds);
+    if (ids.length === 0) return;
+    if (!window.confirm(t("domains.bulkDeleteConfirm", "Delete {count} domains?").replace("{count}", String(ids.length)))) return;
+    try {
+      await Promise.all(ids.map((id) => cachedPost("delete_domain", { id })));
+      setSelectedDomainIds(/* @__PURE__ */ new Set());
+      fetchDomains();
+    } catch (e) {
+      console.error(e);
+      alert(t("common.error"));
+    }
+  };
+  const handleBulkChangeGroup = async () => {
+    const ids = Array.from(selectedDomainIds);
+    if (ids.length === 0) return;
+    if (!bulkGroupId) return;
+    try {
+      await Promise.all(ids.map((id) => cachedPost("save_domain", { id, group_id: bulkGroupId })));
+      setSelectedDomainIds(/* @__PURE__ */ new Set());
+      setBulkGroupModal(false);
+      setBulkGroupId("");
+      fetchDomains();
+    } catch (e) {
+      console.error(e);
+      alert(t("common.error"));
+    }
+  };
+  const requestSort = (key, defaultDir = "asc") => {
+    setSortBy((prev) => {
+      if (prev.key === key) {
+        return { key, dir: prev.dir === "asc" ? "desc" : "asc" };
+      }
+      return { key, dir: defaultDir };
+    });
+  };
+  const SortIcon = ({ colKey }) => {
+    if (sortBy.key !== colKey) return /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 opacity-40" });
+    return sortBy.dir === "asc" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } });
+  };
   reactExports.useEffect(() => {
     localStorage.setItem("domains_ignore_dns_ui", ignoreDnsUi ? "1" : "0");
   }, [ignoreDnsUi]);
@@ -55099,6 +55174,52 @@ ${parked.join("\n")}`);
             }
           )
         ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "select",
+          {
+            value: selectedGroupId,
+            onChange: (e) => setSelectedGroupId(e.target.value),
+            className: "form-select text-xs py-1.5 px-3 rounded-xl",
+            style: { width: "150px" },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("domains.allGroups", "All Groups") }),
+              domainGroups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: String(g.id), children: g.name }, g.id)),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "__no_group__", children: t("domains.noGroup") })
+            ]
+          }
+        ),
+        selectedDomainIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              onClick: () => setBulkGroupModal(true),
+              className: "btn btn-secondary flex items-center gap-2",
+              title: t("domains.bulkChangeGroupTitle", "Change group for selected domains"),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Folder, { size: 16 }),
+                t("domains.bulkChangeGroup", "Change Group"),
+                " (",
+                selectedDomainIds.size,
+                ")"
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              onClick: handleBulkDelete,
+              className: "btn btn-danger flex items-center gap-2",
+              title: t("domains.bulkDeleteTitle", "Delete selected domains"),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 16 }),
+                t("common.deleteSelected", "Delete"),
+                " (",
+                selectedDomainIds.size,
+                ")"
+              ]
+            }
+          )
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "inline-flex items-center gap-2 px-3 py-2 rounded text-sm border", style: { background: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-primary)" }, title: t("domains.ignoreDnsHint"), children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
@@ -55138,6 +55259,18 @@ ${parked.join("\n")}`);
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldAlert, { size: 16, className: sslRunning ? "animate-spin" : "" }),
               sslRunning ? t("domains.checkingShort") : t("domains.issueSsl")
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            onClick: () => setShowGroupsModal(true),
+            className: "btn btn-secondary flex items-center gap-2",
+            title: t("domains.groupsTitle", "Manage domain groups"),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Folder, { size: 16 }),
+              t("domains.groups", "Groups")
             ]
           }
         ),
@@ -55203,16 +55336,87 @@ ${parked.join("\n")}`);
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("domains.domain") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("domains.group") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("domains.status") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-8", style: { textAlign: "left" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: allSelected,
+            ref: (el) => {
+              if (el) el.indeterminate = !allSelected && someSelected;
+            },
+            onChange: (e) => toggleSelectAll(e.target.checked),
+            className: "w-3.5 h-3.5 rounded",
+            style: { accentColor: "var(--color-primary)" }
+          }
+        ) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => requestSort("name"),
+            className: "inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap",
+            style: { color: sortBy.key === "name" ? "var(--color-primary)" : "var(--color-text-secondary)" },
+            children: [
+              t("domains.domain"),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { colKey: "name" })
+            ]
+          }
+        ) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => requestSort("group_name"),
+            className: "inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap",
+            style: { color: sortBy.key === "group_name" ? "var(--color-primary)" : "var(--color-text-secondary)" },
+            children: [
+              t("domains.group"),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { colKey: "group_name" })
+            ]
+          }
+        ) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => requestSort("status"),
+            className: "inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap",
+            style: { color: sortBy.key === "status" ? "var(--color-primary)" : "var(--color-text-secondary)" },
+            children: [
+              t("domains.status"),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { colKey: "status" })
+            ]
+          }
+        ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("domains.indexPage") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-center", children: t("domains.https") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-center", children: t("domains.sslStatus") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("domains.dateAdded") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => requestSort("created_at"),
+            className: "inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap",
+            style: { color: sortBy.key === "created_at" ? "var(--color-primary)" : "var(--color-text-secondary)" },
+            children: [
+              t("domains.dateAdded"),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { colKey: "created_at" })
+            ]
+          }
+        ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("domains.actions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "8", className: "text-center py-8", children: t("domains.loading") }) }) : filteredDomains.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "8", className: "text-center py-8", style: { color: "var(--color-text-muted)" }, children: t("domains.noDomains") }) }) : filteredDomains.map((domain) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "9", className: "text-center py-8", children: t("domains.loading") }) }) : visibleDomains.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "9", className: "text-center py-8", style: { color: "var(--color-text-muted)" }, children: t("domains.noDomains") }) }) : visibleDomains.map((domain) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: selectedDomainIds.has(domain.id),
+            onChange: (e) => toggleSelected(domain.id, e.target.checked),
+            className: "w-3.5 h-3.5 rounded",
+            style: { accentColor: "var(--color-primary)" }
+          }
+        ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-medium", style: { color: "var(--color-text-primary)" }, children: domain.name }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: domain.group_name ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "badge", style: { background: "color-mix(in srgb, var(--color-primary) 10%, transparent)", color: "var(--color-primary)" }, children: domain.group_name }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: "—" }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: String(domain.status) === "Disabled" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "badge badge-danger", children: [
@@ -55564,6 +55768,41 @@ ${describeSslError(domain.ssl_error)}`,
                   }
                 )
               ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "block text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("domains.sslMode", "SSL Mode") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-3 gap-2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      type: "button",
+                      className: `btn btn-sm ${formData.ssl_source === "letsencrypt" ? "btn-primary" : "btn-secondary"}`,
+                      onClick: () => setFormData({ ...formData, ssl_source: "letsencrypt", cloudflare_proxy: 0 }),
+                      children: t("domains.sslLetsEncrypt", "Let's Encrypt")
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      type: "button",
+                      className: `btn btn-sm ${formData.ssl_source === "cloudflare_origin" || formData.cloudflare_proxy ? "btn-primary" : "btn-secondary"}`,
+                      onClick: () => setFormData({ ...formData, ssl_source: "cloudflare_origin", cloudflare_proxy: 1 }),
+                      children: t("domains.sslCloudflare", "Cloudflare")
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      type: "button",
+                      className: `btn btn-sm ${formData.ssl_source === "custom" ? "btn-primary" : "btn-secondary"}`,
+                      onClick: () => setFormData({ ...formData, ssl_source: "custom" }),
+                      children: t("domains.sslCustom", "Custom")
+                    }
+                  )
+                ] }),
+                formData.ssl_source === "letsencrypt" && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px]", style: { color: "var(--color-text-muted)", lineHeight: 1.4 }, children: t("domains.sslLetsEncryptHint", "Auto-issued certificate. Point A record to server IP.") }),
+                formData.ssl_source === "cloudflare_origin" && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px]", style: { color: "var(--color-text-muted)", lineHeight: 1.4 }, children: t("domains.sslCloudflareHint", "Cloudflare serves SSL certificate. Self-signed cert on origin for Full SSL mode.") }),
+                formData.ssl_source === "custom" && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px]", style: { color: "var(--color-text-muted)", lineHeight: 1.4 }, children: t("domains.sslCustomHint", "Provide your own certificate and key file paths.") })
+              ] }),
               (formData.cloudflare_proxy || formData.custom_ssl_cert || formData.custom_ssl_key) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", style: { padding: "12px", borderRadius: "8px", backgroundColor: "var(--color-bg-secondary)" }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px", fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: "8px" }, children: t("domains.customSslCert", "Custom SSL Certificate (Full Strict)") }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[11px]", style: { color: "var(--color-text-muted)", lineHeight: 1.4, marginBottom: "12px" }, children: t("domains.customSslHint", "For Cloudflare Full Strict mode, paste the paths to your Cloudflare Origin CA certificate and key files on the server. Leave empty for automatic management (Let's Encrypt or self-signed).") }),
@@ -55628,7 +55867,10 @@ ${describeSslError(domain.ssl_error)}`,
       GroupsModal,
       {
         type: "domain",
-        onClose: setShowGroupsModal,
+        onClose: () => {
+          setShowGroupsModal(false);
+          fetchDomainGroups();
+        },
         onGroupCreated: (g) => {
           fetchDomainGroups();
           if (g && g.id) setFormData((f) => ({ ...f, group_id: String(g.id) }));
@@ -55934,10 +56176,51 @@ ${describeSslError(domain.ssl_error)}`,
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-footer", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowSslErrorModal(false), className: "btn btn-secondary", children: t("common.close", "Close") }) })
+    ] }) }),
+    bulkGroupModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content w-full max-w-md", style: { padding: "24px" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "modal-title flex items-center gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Folder, { size: 18 }),
+          " ",
+          t("domains.bulkChangeGroup", "Change Group")
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setBulkGroupModal(false), className: "btn btn-ghost btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: t("domains.bulkChangeGroupText", "Change group for {count} selected domains").replace("{count}", String(selectedDomainIds.size)) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("label", { style: { fontSize: "13px", fontWeight: 500, color: "var(--color-text-secondary)", display: "block", marginBottom: "6px" }, children: t("domains.selectGroup", "Select Group") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "select",
+            {
+              className: "form-select",
+              style: { width: "100%" },
+              value: bulkGroupId,
+              onChange: (e) => setBulkGroupId(e.target.value),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("domains.noGroup") }),
+                domainGroups.map((g) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: String(g.id), children: g.name }, g.id))
+              ]
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-end gap-2 pt-3", style: { borderTop: "1px solid var(--color-border)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setBulkGroupModal(false), className: "btn btn-secondary", children: t("common.cancel") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: handleBulkChangeGroup,
+              disabled: !bulkGroupId,
+              className: "btn btn-primary",
+              children: t("domains.applyGroup", "Apply")
+            }
+          )
+        ] })
+      ] })
     ] }) })
   ] });
 };
-const API_URL$C = "/api.php";
+const API_URL$B = "/api.php";
 const statusMeta = (t, status) => {
   switch (status) {
     case "available":
@@ -55998,7 +56281,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
   const fetchRows = async ({ silent = false } = {}) => {
     if (!silent) setLoading(true);
     try {
-      const res = await axios.get(`${API_URL$C}?action=backorder_domains`);
+      const res = await axios.get(`${API_URL$B}?action=backorder_domains`);
       if (res.data.status === "success") {
         setRows(res.data.data || []);
       }
@@ -56028,7 +56311,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     if (runStartedAt && Number(runStartedAt) > 0) {
       payload.run_started_at = Number(runStartedAt);
     }
-    const res = await axios.post(`${API_URL$C}?action=backorder_check_batch`, payload);
+    const res = await axios.post(`${API_URL$B}?action=backorder_check_batch`, payload);
     if (res.data.status !== "success") {
       const msg = res.data.message || t("common.error");
       throw new Error(msg);
@@ -56165,7 +56448,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
   const deleteOne = async (id) => {
     if (!window.confirm(t("common.deleteConfirm"))) return;
     try {
-      await axios.post(`${API_URL$C}?action=backorder_delete`, { id });
+      await axios.post(`${API_URL$B}?action=backorder_delete`, { id });
       setSelectedIds((prev) => {
         const n = new Set(prev);
         n.delete(id);
@@ -56181,7 +56464,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     if (ids.length === 0) return;
     if (!window.confirm(t("backorder.deleteSelectedConfirm").replace("{count}", String(ids.length)))) return;
     try {
-      await axios.post(`${API_URL$C}?action=backorder_delete_selected`, { ids });
+      await axios.post(`${API_URL$B}?action=backorder_delete_selected`, { ids });
       setSelectedIds(/* @__PURE__ */ new Set());
       fetchRows();
     } catch (e) {
@@ -56211,7 +56494,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
         ahrefs_ur: editForm.ahrefs_ur,
         ahrefs_ref_domains: editForm.ahrefs_ref_domains
       };
-      const res = await axios.post(`${API_URL$C}?action=backorder_update`, payload);
+      const res = await axios.post(`${API_URL$B}?action=backorder_update`, payload);
       if (res.data.status === "success") {
         setShowEdit(false);
         fetchRows();
@@ -56224,7 +56507,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
   };
   const checkNow = async (id) => {
     try {
-      await axios.post(`${API_URL$C}?action=backorder_check_now`, { id });
+      await axios.post(`${API_URL$B}?action=backorder_check_now`, { id });
       fetchRows();
     } catch (e) {
       console.error(e);
@@ -56235,7 +56518,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
     setImportError("");
     setImportResult(null);
     try {
-      const res = await axios.post(`${API_URL$C}?action=backorder_import`, { domains_text: importText });
+      const res = await axios.post(`${API_URL$B}?action=backorder_import`, { domains_text: importText });
       if (res.data.status === "success") {
         setImportResult(res.data.data);
         fetchRows();
@@ -58379,7 +58662,7 @@ const resolveConversionColor = (status, types) => {
   }
   return DEFAULT_CONVERSION_COLORS[needle] || FALLBACK_CONVERSION_COLOR;
 };
-const API_URL$B = "/api.php";
+const API_URL$A = "/api.php";
 const FB_HIERARCHY_LAYERS = ["ad_campaign_id", "adset_id", "ad_id"];
 const STATUS_COLUMN_STATUSES = {
   leads: "lead",
@@ -58415,7 +58698,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
   const [toggleNotice, setToggleNotice] = reactExports.useState(null);
   const [conversionTypes, setConversionTypes] = reactExports.useState([]);
   reactExports.useEffect(() => {
-    axios.get(`${API_URL$B}?action=conversion_types`).then((res) => {
+    axios.get(`${API_URL$A}?action=conversion_types`).then((res) => {
       if (res.data.status === "success") setConversionTypes(res.data.data || []);
     }).catch(() => {
     });
@@ -58428,7 +58711,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     const nextStatus = (entityStatus[entityId] || "ACTIVE") === "ACTIVE" ? "PAUSED" : "ACTIVE";
     setTogglingIds((prev) => new Set(prev).add(entityId));
     try {
-      const res = await axios.post(`${API_URL$B}?action=ad_entity_toggle_status`, {
+      const res = await axios.post(`${API_URL$A}?action=ad_entity_toggle_status`, {
         entity_type: entityType,
         entity_id: entityId,
         target_status: nextStatus
@@ -58526,7 +58809,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       if (filters.length > 0) {
         params.filters = JSON.stringify(filters);
       }
-      const res = await axios.get(`${API_URL$B}?action=campaign_report`, { params });
+      const res = await axios.get(`${API_URL$A}?action=campaign_report`, { params });
       if (res.data.status === "success") {
         setRows(res.data.data.rows || []);
         setLayerKeys(res.data.data.layers || layers);
@@ -59144,328 +59427,6 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     )
   ] });
 };
-const API_URL$A = "/api.php";
-const parseCSVFile = (content, entityType) => {
-  const lines = content.split(/\r\n|\n|\r/).filter((line) => line.trim());
-  if (lines.length === 0) {
-    return { items: [], headers: null, error: null };
-  }
-  const firstLine = lines[0];
-  const headerPattern = /^(name|url|payout|type|alias|group)(\s*,\s*|\s*\|\s*)/i;
-  const hasHeaders = headerPattern.test(firstLine);
-  let headers = null;
-  let startIndex = 0;
-  if (hasHeaders) {
-    headers = parseLine(firstLine).map((h) => h.toLowerCase().trim());
-    startIndex = 1;
-  }
-  const items = [];
-  const errors = [];
-  for (let i = startIndex; i < lines.length; i++) {
-    const line = lines[i].trim();
-    if (!line) continue;
-    try {
-      const values = parseLine(line);
-      const item = { raw: line };
-      if (hasHeaders && headers) {
-        headers.forEach((header, idx) => {
-          item[header] = values[idx] || "";
-        });
-      } else {
-        item.name = values[0] || "";
-        item.url = values[1] || "";
-        item.payout = values[2] || "";
-        item.type = values[3] || "";
-        item.alias = values[2] || "";
-        item.group = values[3] || "";
-      }
-      if (item.name) {
-        items.push(item);
-      } else {
-        errors.push({ line: i + 1, error: "Missing required field: name" });
-      }
-    } catch (e) {
-      errors.push({ line: i + 1, error: e.message });
-    }
-  }
-  return { items, headers, errors };
-};
-const parseLine = (line) => {
-  if (line.includes("|")) {
-    return line.split("|").map((v) => v.trim().replace(/^["']|["']$/g, ""));
-  }
-  const values = [];
-  let current = "";
-  let inQuotes = false;
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    if (char === '"' || char === "'") {
-      inQuotes = !inQuotes;
-    } else if ((char === "," || char === ";") && !inQuotes) {
-      values.push(current.trim());
-      current = "";
-    } else {
-      current += char;
-    }
-  }
-  if (current) {
-    values.push(current.trim());
-  }
-  return values.map((v) => v.replace(/^["']|["']$/g, ""));
-};
-const calculateChunkSize = (itemCount) => {
-  if (itemCount < 1e3) return itemCount;
-  if (itemCount < 5e3) return 500;
-  return 1e3;
-};
-const ENTITY_ACTIONS = {
-  offers: "bulk_import_offers",
-  landings: "bulk_import_landings",
-  campaigns: "bulk_import_campaigns",
-  sources: "bulk_import_sources",
-  traffic_sources: "bulk_import_sources"
-};
-const ENTITY_NAMES = {
-  offers: "Offers",
-  landings: "Landings",
-  campaigns: "Campaigns",
-  sources: "Traffic Sources",
-  traffic_sources: "Traffic Sources"
-};
-const BulkFileUpload = ({ entityType, onSuccess, onClose }) => {
-  const { t } = useLanguage();
-  const fileInputRef = reactExports.useRef(null);
-  const [file, setFile] = reactExports.useState(null);
-  const [parsing, setParsing] = reactExports.useState(false);
-  const [uploading, setUploading] = reactExports.useState(false);
-  const [progress, setProgress] = reactExports.useState({ current: 0, total: 0 });
-  const [result, setResult] = reactExports.useState(null);
-  const [parseErrors, setParseErrors] = reactExports.useState([]);
-  const [detectedHeaders, setDetectedHeaders] = reactExports.useState(null);
-  const entityName = ENTITY_NAMES[entityType] || entityType;
-  const apiAction = ENTITY_ACTIONS[entityType] || `bulk_import_${entityType}`;
-  const handleFileSelect = reactExports.useCallback((selectedFile) => {
-    if (!selectedFile) return;
-    const validExtensions = [".txt", ".csv"];
-    const fileName = selectedFile.name.toLowerCase();
-    const isValid2 = validExtensions.some((ext) => fileName.endsWith(ext));
-    if (!isValid2) {
-      alert(t("bulkFileUpload.invalidFormat"));
-      return;
-    }
-    setFile(selectedFile);
-    setResult(null);
-    setParseErrors([]);
-    setDetectedHeaders(null);
-    setParsing(true);
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const content = e.target.result;
-        const { items, headers, errors } = parseCSVFile(content, entityType);
-        if (items.length === 0 && errors.length === 0) {
-          alert(t("bulkFileUpload.emptyFile"));
-          setFile(null);
-          setParsing(false);
-          return;
-        }
-        setDetectedHeaders(headers);
-        setParseErrors(errors);
-        if (items.length > 0) {
-          uploadItems(items);
-        } else {
-          setParsing(false);
-        }
-      } catch (error) {
-        console.error("Parse error:", error);
-        alert(t("bulkFileUpload.error", { error: error.message }));
-        setParsing(false);
-      }
-    };
-    reader.onerror = () => {
-      alert(t("bulkFileUpload.error", { error: "Failed to read file" }));
-      setParsing(false);
-    };
-    reader.readAsText(selectedFile);
-  }, [entityType, t]);
-  const uploadItems = async (items) => {
-    setUploading(true);
-    setParsing(false);
-    const total = items.length;
-    const chunkSize = calculateChunkSize(total);
-    let added = 0;
-    let skipped = 0;
-    let errors = [];
-    try {
-      for (let i = 0; i < items.length; i += chunkSize) {
-        const chunk = items.slice(i, i + chunkSize);
-        const currentEnd = Math.min(i + chunkSize, items.length);
-        setProgress({ current: currentEnd, total });
-        const res = await axios.post(`${API_URL$A}?action=${apiAction}`, {
-          items: chunk
-        });
-        if (res.data.status === "success") {
-          added += res.data.data.added || 0;
-          skipped += res.data.data.skipped || res.data.data.duplicates || 0;
-          if (res.data.data.errors) {
-            errors = [...errors, ...res.data.data.errors];
-          }
-        } else {
-          throw new Error(res.data.message || "Import failed");
-        }
-      }
-      setResult({ added, skipped, errors });
-      if (added > 0 || skipped > 0) {
-        const message2 = skipped > 0 ? t("bulkFileUpload.successWithSkipped", { added, skipped }) : t("bulkFileUpload.success", { added });
-        alert(message2);
-        onSuccess && onSuccess();
-      }
-    } catch (error) {
-      console.error("Upload error:", error);
-      alert(t("bulkFileUpload.error", { error: error.message }));
-    } finally {
-      setUploading(false);
-    }
-  };
-  const handleButtonClick = () => {
-    fileInputRef.current?.click();
-  };
-  const handleClose = () => {
-    if (result && result.added > 0) {
-      onSuccess && onSuccess();
-    }
-    onClose();
-  };
-  const isProcessing = parsing || uploading;
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", onClick: handleClose, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "600px" }, onClick: (e) => e.stopPropagation(), children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "modal-title", children: t("bulkFileUpload.title", { entity: entityName }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleClose, className: "action-btn", disabled: isProcessing, children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto p-6", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
-      !file && !result && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "div",
-        {
-          onClick: !isProcessing ? handleButtonClick : void 0,
-          className: "border-2 border-dashed rounded-2xl p-8 text-center transition-all hover:border-[var(--color-primary)] flex flex-col items-center justify-center gap-3 cursor-pointer",
-          style: {
-            opacity: isProcessing ? 0.65 : 1,
-            cursor: isProcessing ? "wait" : "pointer",
-            backgroundColor: "var(--color-bg-soft)",
-            borderColor: "var(--color-border)"
-          },
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                ref: fileInputRef,
-                type: "file",
-                accept: ".txt,.csv",
-                className: "hidden",
-                disabled: isProcessing,
-                onChange: (e) => {
-                  handleFileSelect(e.target.files?.[0]);
-                  e.target.value = "";
-                }
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "div",
-              {
-                className: "w-16 h-16 rounded-2xl flex items-center justify-center",
-                style: {
-                  backgroundColor: "var(--color-bg-card)",
-                  color: "var(--color-primary)"
-                },
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "w-8 h-8" })
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-semibold", style: { color: "var(--color-text-primary)" }, children: t("bulkFileUpload.uploadBtn") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: t("bulkFileUpload.formatHelp") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: t("bulkFileUpload.formatHelpSimple") })
-            ] })
-          ]
-        }
-      ),
-      isProcessing && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col items-center gap-3 py-8", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { className: "w-8 h-8 animate-spin", style: { color: "var(--color-primary)" } }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: parsing ? t("bulkFileUpload.processing") : t("bulkFileUpload.uploading", {
-          current: progress.current,
-          total: progress.total
-        }) }),
-        uploading && progress.total > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full max-w-xs h-2 rounded-full overflow-hidden", style: { backgroundColor: "var(--color-bg-soft)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "div",
-          {
-            className: "h-full transition-all duration-300",
-            style: {
-              width: `${progress.current / progress.total * 100}%`,
-              backgroundColor: "var(--color-primary)"
-            }
-          }
-        ) })
-      ] }),
-      result && !isProcessing && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded-xl", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 mb-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-5 h-5", style: { color: "var(--color-success)" } }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-medium text-sm", children: [
-              t("bulkFileUpload.addedLabel"),
-              ": ",
-              result.added
-            ] })
-          ] }),
-          result.skipped > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 text-sm", style: { color: "var(--color-text-secondary)" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "w-4 h-4", style: { color: "var(--color-warning)" } }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-              t("bulkFileUpload.skippedLabel"),
-              ": ",
-              result.skipped
-            ] })
-          ] })
-        ] }),
-        detectedHeaders && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs p-2 rounded-lg", style: { backgroundColor: "var(--color-bg-soft)", color: "var(--color-text-muted)" }, children: t("bulkFileUpload.detectedHeaders", { columns: detectedHeaders.join(", ") }) }),
-        (result.errors.length > 0 || parseErrors.length > 0) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3 rounded-xl", style: { backgroundColor: "rgba(239, 68, 68, 0.1)", border: "1px solid var(--color-error)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "font-medium text-sm mb-2", style: { color: "var(--color-error)" }, children: [
-            t("bulkFileUpload.errorsLabel"),
-            ": ",
-            result.errors.length + parseErrors.length
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-h-32 overflow-y-auto space-y-1", children: [
-            [...parseErrors.slice(0, 5), ...result.errors.slice(0, 5)].map((err, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: [
-              "Line ",
-              err.line || err.row || "?",
-              ": ",
-              err.error
-            ] }, i)),
-            result.errors.length + parseErrors.length > 10 && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: [
-              "...and ",
-              result.errors.length + parseErrors.length - 10,
-              " more"
-            ] })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            onClick: () => {
-              setFile(null);
-              setResult(null);
-              setParseErrors([]);
-              setDetectedHeaders(null);
-            },
-            className: "btn btn-ghost btn-sm w-full",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { className: "w-4 h-4" }),
-              "Upload another file"
-            ]
-          }
-        )
-      ] })
-    ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-footer", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: handleClose, className: "btn btn-secondary", disabled: isProcessing, children: result && result.added > 0 ? t("common.close") : t("common.cancel") }) })
-  ] }) });
-};
 async function copyToClipboard(text) {
   if (!text && text !== "0") return false;
   const value = String(text);
@@ -59517,7 +59478,6 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
   const [refreshing, setRefreshing] = reactExports.useState(false);
   const [showGroupsModal, setShowGroupsModal] = reactExports.useState(false);
   const [showGlobalReports, setShowGlobalReports] = reactExports.useState(false);
-  const [showBulkFileUpload, setShowBulkFileUpload] = reactExports.useState(false);
   const [campaignStateOverrides, setCampaignStateOverrides] = reactExports.useState({});
   const [menuAnchor, setMenuAnchor] = reactExports.useState(null);
   const [rowsPerPage, setRowsPerPage] = reactExports.useState(() => {
@@ -60149,16 +60109,11 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3.5 h-3.5" }),
           t("common.create")
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => setShowBulkFileUpload(true), className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "w-3.5 h-3.5" }),
-          t("bulkFileUpload.uploadBtn")
-        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => setShowGlobalReports(true), className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium", title: t("campaignReports.report"), children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(ChartNoAxesColumn, { className: "w-3.5 h-3.5" }),
           t("campaignReports.report")
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowGroupsModal(true), className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium", children: t("campaigns.groups") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setActiveTab("sources"), className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl font-medium", children: t("campaigns.sources") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
@@ -60510,17 +60465,6 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
           setShowGroupsModal(false);
           fetchGroups();
         }
-      }
-    ),
-    showBulkFileUpload && /* @__PURE__ */ jsxRuntimeExports.jsx(
-      BulkFileUpload,
-      {
-        entityType: "campaigns",
-        onSuccess: () => {
-          refreshData && refreshData();
-          setShowBulkFileUpload(false);
-        },
-        onClose: () => setShowBulkFileUpload(false)
       }
     ),
     showGlobalReports && /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -62973,7 +62917,6 @@ const Landings = ({ landings, refreshData }) => {
   const [refreshing, setRefreshing] = reactExports.useState(false);
   const [columnsModalOpen, setColumnsModalOpen] = reactExports.useState(false);
   const [chosenColumns, setChosenColumns] = reactExports.useState(() => loadLandingColumns());
-  const [showBulkFileUpload, setShowBulkFileUpload] = reactExports.useState(false);
   const [dateFrom, setDateFrom] = reactExports.useState(() => getPresetDates("today")?.from || formatDate$1(/* @__PURE__ */ new Date()));
   const [dateTo, setDateTo] = reactExports.useState(() => getPresetDates("today")?.to || formatDate$1(/* @__PURE__ */ new Date()));
   const [timezone, setTimezone] = reactExports.useState(() => localStorage.getItem("orbitra_tz") || "UTC");
@@ -63381,10 +63324,6 @@ const Landings = ({ landings, refreshData }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }),
           t("common.create")
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => setShowBulkFileUpload(true), className: "btn btn-secondary", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "w-4 h-4" }),
-          t("bulkFileUpload.uploadBtn")
-        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowGroupsModal(true), className: "btn btn-secondary", children: t("campaigns.groups") }),
         selectedLandingIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkDeleteSelected, className: "btn btn-danger", title: t("common.deleteSelected"), children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }),
@@ -63713,18 +63652,6 @@ const Landings = ({ landings, refreshData }) => {
       {
         type: "landing",
         onClose: () => setShowGroupsModal(false)
-      }
-    ),
-    showBulkFileUpload && /* @__PURE__ */ jsxRuntimeExports.jsx(
-      BulkFileUpload,
-      {
-        entityType: "landings",
-        onSuccess: () => {
-          fetchLandings();
-          setShowBulkFileUpload(false);
-          refreshData?.();
-        },
-        onClose: () => setShowBulkFileUpload(false)
       }
     ),
     columnsModalOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -65833,7 +65760,6 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
   const [refreshing, setRefreshing] = reactExports.useState(false);
   const [columnsModalOpen, setColumnsModalOpen] = reactExports.useState(false);
   const [chosenColumns, setChosenColumns] = reactExports.useState(() => loadOfferColumns());
-  const [showBulkFileUpload, setShowBulkFileUpload] = reactExports.useState(false);
   const [offers, setOffers] = reactExports.useState(initialOffers);
   const [dateFrom, setDateFrom] = reactExports.useState(() => getPresetDates("today")?.from || formatDate$1(/* @__PURE__ */ new Date()));
   const [dateTo, setDateTo] = reactExports.useState(() => getPresetDates("today")?.to || formatDate$1(/* @__PURE__ */ new Date()));
@@ -66401,10 +66327,6 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }),
           t("common.create")
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => setShowBulkFileUpload(true), className: "btn btn-secondary", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "w-4 h-4" }),
-          t("bulkFileUpload.uploadBtn")
-        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setIsGroupsModalOpen(true), className: "btn btn-secondary", children: t("campaigns.groups") }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", style: { width: 220 }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none", style: { color: "var(--color-text-muted)" } }),
@@ -66724,17 +66646,6 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
       {
         type: "offer",
         onClose: () => setIsGroupsModalOpen(false)
-      }
-    ),
-    showBulkFileUpload && /* @__PURE__ */ jsxRuntimeExports.jsx(
-      BulkFileUpload,
-      {
-        entityType: "offers",
-        onSuccess: () => {
-          fetchOffers();
-          setShowBulkFileUpload(false);
-        },
-        onClose: () => setShowBulkFileUpload(false)
       }
     ),
     columnsModalOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -67347,7 +67258,6 @@ const TrafficSources = ({ refreshData }) => {
   const [settingsOpen, setSettingsOpen] = reactExports.useState(false);
   const [refreshing, setRefreshing] = reactExports.useState(false);
   const [showBulkImport, setShowBulkImport] = reactExports.useState(false);
-  const [showBulkFileUpload, setShowBulkFileUpload] = reactExports.useState(false);
   const [checkingUrls, setCheckingUrls] = reactExports.useState(false);
   const fetchSources = async () => {
     setLoading(true);
@@ -67552,10 +67462,6 @@ const TrafficSources = ({ refreshData }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 18 }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("common.create") })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: () => setShowBulkFileUpload(true), className: "btn btn-secondary", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { size: 18 }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("bulkFileUpload.uploadBtn") })
-        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", onClick: () => setShowBulkImport(true), className: "btn btn-secondary", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Upload, { size: 18 }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("sources.importBtn") })
@@ -67735,18 +67641,6 @@ const TrafficSources = ({ refreshData }) => {
       {
         onClose: () => setShowBulkImport(false),
         onSave: handleBulkImportSave
-      }
-    ),
-    showBulkFileUpload && /* @__PURE__ */ jsxRuntimeExports.jsx(
-      BulkFileUpload,
-      {
-        entityType: "traffic_sources",
-        onSuccess: () => {
-          fetchSources();
-          refreshData && refreshData();
-          setShowBulkFileUpload(false);
-        },
-        onClose: () => setShowBulkFileUpload(false)
       }
     ),
     settingsOpen && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", onClick: () => setSettingsOpen(false), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", onClick: (e) => e.stopPropagation(), style: { maxWidth: "560px" }, children: [
@@ -73311,7 +73205,7 @@ const PixelPicker = ({ label, value, profileId, trafficSource, resolveServerSide
     fetchProfiles();
   }, [fetchProfiles]);
   const savedProfiles = profiles.filter(
-    (profile) => !trafficSource || profile.traffic_source === trafficSource
+    (profile) => !trafficSource || profile.traffic_source?.toLowerCase() === trafficSource.toLowerCase()
   );
   const matched = savedProfiles.find(
     (profile) => profileId && String(profile.id) === String(profileId) || !profileId && String(profile.pixel_id) === String(value || "")
@@ -73400,14 +73294,18 @@ const PixelPicker = ({ label, value, profileId, trafficSource, resolveServerSide
         }
       )
     ] }),
-    !showCustom && savedProfiles.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    !showCustom ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "select",
       {
         className: "form-select font-mono text-xs",
         value: matched ? String(matched.id) : "",
         onChange: (e) => handleSelect(e.target.value),
         children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "", children: [
+          savedProfiles.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "", disabled: true, children: [
+            "— ",
+            t("fbConv.noSavedPixels", "No saved pixels in Vault"),
+            " —"
+          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: "", children: [
             "— ",
             t("fbConv.selectPixelPrompt", "Select saved pixel..."),
             " —"
@@ -73425,7 +73323,7 @@ const PixelPicker = ({ label, value, profileId, trafficSource, resolveServerSide
           ] })
         ]
       }
-    ) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px" }, children: [
+    ) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px", alignItems: "center" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         "input",
         {
@@ -73436,7 +73334,7 @@ const PixelPicker = ({ label, value, profileId, trafficSource, resolveServerSide
           onChange: (e) => onPick({ pixel_profile_id: "", pixel_id: e.target.value, has_saved_token: false })
         }
       ),
-      savedProfiles.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
         "button",
         {
           type: "button",
@@ -73446,6 +73344,22 @@ const PixelPicker = ({ label, value, profileId, trafficSource, resolveServerSide
             onPick({ pixel_profile_id: "", pixel_id: "", token: "", has_saved_token: false, test_event_code: "" });
           },
           children: t("fbConv.selectFromList", "Choose from saved")
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          type: "button",
+          className: "btn btn-primary btn-sm",
+          onClick: () => {
+            setQuickError("");
+            setQuickForm({ traffic_source: trafficSource || "facebook", niche: "", name: "", pixel_id: "", token: "", test_event_code: "" });
+            setQuickOpen(true);
+          },
+          children: [
+            "✨ ",
+            t("fbConv.addNewPixel", "Add New")
+          ]
         }
       )
     ] }),

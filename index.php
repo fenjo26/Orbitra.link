@@ -469,6 +469,60 @@ function renderRedirectResponse($type, $url)
 }
 
 /**
+ * Stream a file directly with Range request support.
+ * Used as fallback when X-Accel-Redirect is not available or nginx config is missing.
+ *
+ * @param string $file Absolute path to the file
+ * @param string $mimeType MIME type of the file
+ */
+function orbitraStreamAssetFile(string $file, string $mimeType): void
+{
+    $size = filesize($file);
+    $mtime = filemtime($file);
+    $etag = '"' . dechex($mtime) . '-' . dechex($size) . '"';
+
+    header('Content-Type: ' . $mimeType);
+    header('X-Content-Type-Options: nosniff');
+    header('Accept-Ranges: bytes');
+    header('ETag: ' . $etag);
+    header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $mtime) . ' GMT');
+    header('Cache-Control: public, max-age=3600');
+
+    $ifNoneMatch = trim($_SERVER['HTTP_IF_NONE_MATCH'] ?? '');
+    $ifModifiedSince = strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? '') ?: 0;
+    if ($ifNoneMatch === $etag || ($ifNoneMatch === '' && $ifModifiedSince >= $mtime)) {
+        http_response_code(304);
+        exit;
+    }
+
+    // Range request support
+    $range = $_SERVER['HTTP_RANGE'] ?? '';
+    if ($range !== '') {
+        $parts = explode('-', substr($range, 6)); // "bytes="
+        $start = (int)($parts[0] ?? 0);
+        $end = (int)($parts[1] ?? ($size - 1));
+        if ($end >= $size) {
+            $end = $size - 1;
+        }
+        $length = $end - $start + 1;
+
+        header('HTTP/1.1 206 Partial Content');
+        header('Content-Length: ' . $length);
+        header('Content-Range: bytes ' . $start . '-' . $end . '/' . $size);
+
+        $fp = fopen($file, 'rb');
+        fseek($fp, $start);
+        echo fread($fp, $length);
+        fclose($fp);
+        exit;
+    }
+
+    header('Content-Length: ' . $size);
+    readfile($file);
+    exit;
+}
+
+/**
  * Serve a file belonging to a local landing, addressed from the domain root.
  *
  * Local landings are printed at the campaign URL while their files sit in
@@ -632,6 +686,20 @@ function serveLandingAsset($landingId, $uriPath, $baseDir = null)
         header('X-Orbitra-Asset-Internal: /_internal_assets/' . $internalPath);
         header('X-Orbitra-Asset-Size: ' . $size);
         header('X-Orbitra-Asset-LandingId: ' . $landingId);
+    }
+
+    // Automatic fail-safe: verify nginx config has _internal_assets location
+    // If the block is missing (clean install, manual config edit), fall back to direct streaming
+    if (file_exists(ORBITRA_NGINX_CONFIG_PATH)) {
+        $config = @file_get_contents(ORBITRA_NGINX_CONFIG_PATH);
+        if ($config !== false && strpos($config, 'location /_internal_assets/') === false) {
+            // Config missing - fall back to direct streaming
+            if ($GLOBALS['orbitraLandingDebug'] ?? false) {
+                header('X-Orbitra-Asset-Source: php_stream');
+                header('X-Orbitra-Asset-Fallback: nginx_config_missing');
+            }
+            orbitraStreamAssetFile($file, $mimeTypes[$ext]);
+        }
     }
 
     // Check if we should use fallback mode (nginx not synced or non-standard port)
@@ -1052,6 +1120,58 @@ function orbitraAbsolutizeBundleActions($html, string $urlBase)
 }
 
 /**
+ * Rewrite absolute asset paths to relative paths for correct base tag resolution.
+ * Converts: href="/css/style.css" → href="./css/style.css"
+ * Skips: External URLs (http://, https://, //), protocols (mailto:, tel:), anchors (#)
+ *
+ * @param string $html The HTML content
+ * @return string HTML with rewritten asset paths
+ */
+function orbitraRewriteAssetPaths(string $html): string
+{
+    if ($html === '') {
+        return $html;
+    }
+
+    // Patterns to skip (external URLs, protocols, anchors, macros)
+    $shouldSkip = function($path) {
+        if ($path === '' || $path[0] === '#' || $path[0] === '?') {
+            return true;
+        }
+        // URLs with scheme (http:, javascript:, mailto:, tel:)
+        if (preg_match('#^[a-z][a-z0-9+.-]*:#i', $path)) {
+            return true;
+        }
+        // Protocol-relative URLs, parent paths, macros
+        if (strpos($path, '//') === 0 || strpos($path, '..') !== false || strpos($path, '{') !== false) {
+            return true;
+        }
+        return false;
+    };
+
+    $rewrite = function($matches) use ($shouldSkip) {
+        $value = $matches[2];
+        if ($shouldSkip($value)) {
+            return $matches[0];
+        }
+        // Convert /path to ./path
+        if (strpos($value, '/') === 0) {
+            return $matches[1] . '="./' . ltrim($value, '/') . '"' . $matches[3];
+        }
+        return $matches[0];
+    };
+
+    // Process href, src, poster, cite, background, data-src
+    $html = preg_replace_callback(
+        '/\s(href|src|poster|data-src|cite|background)\s*=\s*(["\'])([^\2]+?)\2/i',
+        $rewrite,
+        $html
+    ) ?? $html;
+
+    return $html;
+}
+
+/**
  * Inject a <base> tag into HTML to ensure relative paths resolve correctly.
  * Used for local offers and landings served inline at campaign URLs,
  * where the browser is at /campaignAlias but assets live at /offers/<id>/
@@ -1077,11 +1197,25 @@ function orbitraInjectBaseTag(string $html, string $baseUrl): string
     // Insert after <head> tag if present, otherwise prepend to HTML
     if (preg_match('/<head[^>]*>/i', $html, $m, PREG_OFFSET_CAPTURE)) {
         $at = $m[0][1] + strlen($m[0][0]);
-        return substr($html, 0, $at) . "\n" . $base . substr($html, $at);
+        $html = substr($html, 0, $at) . "\n" . $base . substr($html, $at);
+    } else {
+        // No <head> tag found - prepend to HTML
+        $html = $base . "\n" . $html;
     }
 
-    // No <head> tag found - prepend to HTML
-    return $base . "\n" . $html;
+    // Inject anchor link polyfill to fix smooth scrolling with <base> tag
+    // The <base> tag breaks anchor links (<a href="#form">) by making them
+    // reload the page. This JavaScript polyfill restores smooth scrolling.
+    $anchorPolyfill = '<script>document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll(\'a[href^="#"]\').forEach(function(link){link.addEventListener("click",function(e){var t=this.getAttribute("href").substring(1),el=document.getElementById(t);if(el){e.preventDefault();el.scrollIntoView({behavior:"smooth"});if(history.pushState){history.pushState(null,null,"#"+t);}}});});});</script>';
+
+    // Inject before closing </body> tag, or at end if no body tag
+    if (preg_match('/<\/body>/i', $html)) {
+        $html = preg_replace('/<\/body>/i', $anchorPolyfill . '</body>', $html);
+    } else {
+        $html = $html . $anchorPolyfill;
+    }
+
+    return $html;
 }
 
 function orbitraOfferIsLocal(PDO $pdo, $offerId): bool
@@ -1169,7 +1303,7 @@ function orbitraServeLocalOffer(PDO $pdo, $offerId, $clickId, array $clickParams
             ),
             '/offers/' . $offerId . '/'
         );
-        echo orbitraInjectBaseTag($processed, '/offers/' . $offerId . '/');
+        echo orbitraInjectBaseTag(orbitraRewriteAssetPaths($processed), '/offers/' . $offerId . '/');
         exit;
     }
 
@@ -1185,7 +1319,7 @@ function orbitraServeLocalOffer(PDO $pdo, $offerId, $clickId, array $clickParams
             ),
             '/offers/' . $offerId . '/'
         );
-        echo orbitraInjectBaseTag($processed, '/offers/' . $offerId . '/');
+        echo orbitraInjectBaseTag(orbitraRewriteAssetPaths($processed), '/offers/' . $offerId . '/');
         exit;
     }
 
@@ -2071,6 +2205,85 @@ if (!empty($_COOKIE['orbitra_lp']) && $uriPath !== null && $uriPath !== '/') {
     serveLandingAsset((int) $_COOKIE['orbitra_lp'], $uriPath);
 }
 
+/**
+ * Resolve landing/offer from campaign alias in referer.
+ * Searches all active streams for the campaign and finds first local landing.
+ *
+ * @param PDO $pdo Database connection
+ * @param string $refererPath The path from HTTP_REFERER
+ * @return array|null ['type' => 'landing'|'offer', 'id' => int, 'slug' => string|null]|null
+ */
+function orbitraResolveCampaignContext(PDO $pdo, string $refererPath): ?array
+{
+    // Extract alias from referer (e.g., "/bd86o7dw" → "bd86o7dw")
+    $alias = basename(parse_url($refererPath, PHP_URL_PATH) ?? '');
+    if ($alias === '' || preg_match('/\./', $alias)) {
+        return null; // Skip file requests
+    }
+
+    try {
+        // Find campaign by alias
+        $stmt = $pdo->prepare("SELECT id FROM campaigns WHERE alias = ? AND is_archived = 0 LIMIT 1");
+        $stmt->execute([$alias]);
+        $campaignId = $stmt->fetchColumn();
+        if (!$campaignId) {
+            return null;
+        }
+
+        // Get all active streams for this campaign
+        $stmt = $pdo->prepare("SELECT schema_custom_json FROM streams WHERE campaign_id = ? AND is_active = 1 ORDER BY position ASC");
+        $stmt->execute([$campaignId]);
+        $streams = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($streams as $stream) {
+            $customSchema = json_decode($stream['schema_custom_json'] ?? '{}', true);
+            if (!is_array($customSchema)) {
+                continue;
+            }
+
+            // Search landings array for first local landing
+            $landings = $customSchema['landings'] ?? [];
+            foreach ($landings as $landing) {
+                $landingId = (int) ($landing['id'] ?? 0);
+                if ($landingId > 0) {
+                    // Verify it's a local landing
+                    $checkStmt = $pdo->prepare("SELECT slug, type FROM landings WHERE id = ? LIMIT 1");
+                    $checkStmt->execute([$landingId]);
+                    $land = $checkStmt->fetch(PDO::FETCH_ASSOC);
+                    if ($land && ($land['type'] ?? '') === 'local') {
+                        return [
+                            'type' => 'landing',
+                            'id' => $landingId,
+                            'slug' => $land['slug'] ?? null
+                        ];
+                    }
+                }
+            }
+
+            // Also check for local offers in offers array
+            $offers = $customSchema['offers'] ?? [];
+            foreach ($offers as $offer) {
+                $offerId = (int) ($offer['id'] ?? 0);
+                if ($offerId > 0) {
+                    $checkStmt = $pdo->prepare("SELECT is_local FROM offers WHERE id = ? LIMIT 1");
+                    $checkStmt->execute([$offerId]);
+                    if (((int) ($checkStmt->fetchColumn() ?? 0)) === 1) {
+                        return [
+                            'type' => 'offer',
+                            'id' => $offerId,
+                            'slug' => null
+                        ];
+                    }
+                }
+            }
+        }
+    } catch (\Throwable $e) {
+        // Fall through to 404 on error
+    }
+
+    return null;
+}
+
 // === Referer fallback for Incognito/Private mode (no cookies) ===
 // When a browser blocks cookies or is in Incognito mode, the orbitra_lo/orbitra_lp
 // cookies are not sent with asset requests. Check HTTP_REFERER to recover the
@@ -2102,6 +2315,15 @@ if ($uriPath !== null && $uriPath !== '/' && empty($_COOKIE['orbitra_lo']) && em
             } catch (\Throwable $e) {
                 // Fall through to 404
             }
+        }
+        // NEW: Campaign context fallback - resolve campaign alias to landing/offer
+        elseif ($campaignCtx = orbitraResolveCampaignContext($pdo, $refererPath)) {
+            if ($campaignCtx['type'] === 'landing') {
+                serveLandingAsset($campaignCtx['id'], $uriPath);
+            } elseif ($campaignCtx['type'] === 'offer') {
+                serveOfferAsset($campaignCtx['id'], $uriPath);
+            }
+            // If we get here, the asset wasn't found - fall through to 404
         }
     }
 }
@@ -3287,7 +3509,7 @@ if ($actionToPerfrom) {
                     issueLpToken($clickId, $settings['postback_key'] ?? 'orbitra_secret')
                 );
                 // Inject <base> tag so assets resolve correctly in Incognito/Private mode
-                echo orbitraInjectBaseTag($processed, '/lander/' . ($landingSlug !== '' ? htmlspecialchars($landingSlug, ENT_QUOTES) : $landingIdToLog) . '/');
+                echo orbitraInjectBaseTag(orbitraRewriteAssetPaths($processed), '/lander/' . ($landingSlug !== '' ? htmlspecialchars($landingSlug, ENT_QUOTES) : $landingIdToLog) . '/');
             } else if (file_exists($landingDir . '/index.html')) {
                 $processed = applyLandingMacros(
                     file_get_contents($landingDir . '/index.html'),
@@ -3298,7 +3520,7 @@ if ($actionToPerfrom) {
                     issueLpToken($clickId, $settings['postback_key'] ?? 'orbitra_secret')
                 );
                 // Inject <base> tag so assets resolve correctly in Incognito/Private mode
-                echo orbitraInjectBaseTag($processed, '/lander/' . ($landingSlug !== '' ? htmlspecialchars($landingSlug, ENT_QUOTES) : $landingIdToLog) . '/');
+                echo orbitraInjectBaseTag(orbitraRewriteAssetPaths($processed), '/lander/' . ($landingSlug !== '' ? htmlspecialchars($landingSlug, ENT_QUOTES) : $landingIdToLog) . '/');
             } else {
                 die("Local landing files not found in " . $landingDir);
             }

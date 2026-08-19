@@ -1225,6 +1225,55 @@ const Domains = ({ campaigns }) => {
                                     </div>
                                 </div>
 
+                                {/* SSL Mode Selector */}
+                                <div className="space-y-3">
+                                    <label className="block text-xs font-semibold" style={{ color: 'var(--color-text-secondary)' }}>
+                                        {t('domains.sslMode', 'SSL Mode')}
+                                    </label>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {/* Let's Encrypt */}
+                                        <button
+                                            type="button"
+                                            className={`btn btn-sm ${formData.ssl_source === 'letsencrypt' ? 'btn-primary' : 'btn-secondary'}`}
+                                            onClick={() => setFormData({ ...formData, ssl_source: 'letsencrypt', cloudflare_proxy: 0 })}
+                                        >
+                                            {t('domains.sslLetsEncrypt', "Let's Encrypt")}
+                                        </button>
+                                        {/* Cloudflare */}
+                                        <button
+                                            type="button"
+                                            className={`btn btn-sm ${formData.ssl_source === 'cloudflare_origin' || formData.cloudflare_proxy ? 'btn-primary' : 'btn-secondary'}`}
+                                            onClick={() => setFormData({ ...formData, ssl_source: 'cloudflare_origin', cloudflare_proxy: 1 })}
+                                        >
+                                            {t('domains.sslCloudflare', 'Cloudflare')}
+                                        </button>
+                                        {/* Custom */}
+                                        <button
+                                            type="button"
+                                            className={`btn btn-sm ${formData.ssl_source === 'custom' ? 'btn-primary' : 'btn-secondary'}`}
+                                            onClick={() => setFormData({ ...formData, ssl_source: 'custom' })}
+                                        >
+                                            {t('domains.sslCustom', 'Custom')}
+                                        </button>
+                                    </div>
+                                    {/* Mode-specific hints */}
+                                    {formData.ssl_source === 'letsencrypt' && (
+                                        <p className="text-[11px]" style={{ color: 'var(--color-text-muted)', lineHeight: 1.4 }}>
+                                            {t('domains.sslLetsEncryptHint', 'Auto-issued certificate. Point A record to server IP.')}
+                                        </p>
+                                    )}
+                                    {formData.ssl_source === 'cloudflare_origin' && (
+                                        <p className="text-[11px]" style={{ color: 'var(--color-text-muted)', lineHeight: 1.4 }}>
+                                            {t('domains.sslCloudflareHint', 'Cloudflare serves SSL certificate. Self-signed cert on origin for Full SSL mode.')}
+                                        </p>
+                                    )}
+                                    {formData.ssl_source === 'custom' && (
+                                        <p className="text-[11px]" style={{ color: 'var(--color-text-muted)', lineHeight: 1.4 }}>
+                                            {t('domains.sslCustomHint', 'Provide your own certificate and key file paths.')}
+                                        </p>
+                                    )}
+                                </div>
+
                                 {/* ORB-014: Custom SSL Certificate (Full Strict) */}
                                 {(formData.cloudflare_proxy || formData.custom_ssl_cert || formData.custom_ssl_key) && (
                                     <div className="space-y-3" style={{ padding: '12px', borderRadius: '8px', backgroundColor: 'var(--color-bg-secondary)' }}>

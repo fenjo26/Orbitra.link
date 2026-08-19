@@ -98,6 +98,50 @@ function orbitraPhpFpmSocket(): string
 }
 
 /**
+ * Cloudflare Real IP restoration and HTTPS forwarding directives.
+ * Used for domains proxied through Cloudflare to restore visitor IPs
+ * and properly handle HTTPS protocol forwarding.
+ *
+ * @return string Nginx directives for Cloudflare
+ */
+function orbitraCloudflareDirectives(): string
+{
+    $cf = "    # Cloudflare Real IP restoration\n";
+    $cf .= "    set_real_ip_from 173.245.48.0/20;\n";
+    $cf .= "    set_real_ip_from 103.21.244.0/22;\n";
+    $cf .= "    set_real_ip_from 103.22.200.0/22;\n";
+    $cf .= "    set_real_ip_from 103.31.4.0/24;\n";
+    $cf .= "    set_real_ip_from 141.101.64.0/18;\n";
+    $cf .= "    set_real_ip_from 108.162.192.0/18;\n";
+    $cf .= "    set_real_ip_from 190.93.240.0/20;\n";
+    $cf .= "    set_real_ip_from 188.114.96.0/20;\n";
+    $cf .= "    set_real_ip_from 197.234.240.0/22;\n";
+    $cf .= "    set_real_ip_from 198.41.128.0/17;\n";
+    $cf .= "    set_real_ip_from 162.158.0.0/15;\n";
+    $cf .= "    set_real_ip_from 104.16.0.0/13;\n";
+    $cf .= "    set_real_ip_from 104.24.0.0/14;\n";
+    $cf .= "    set_real_ip_from 172.64.0.0/13;\n";
+    $cf .= "    set_real_ip_from 131.0.72.0/22;\n";
+    $cf .= "    # IPv6\n";
+    $cf .= "    set_real_ip_from 2606:4700::/32;\n";
+    $cf .= "    set_real_ip_from 2606:4700::/36;\n";
+    $cf .= "    set_real_ip_from 2803:f800::/32;\n";
+    $cf .= "    set_real_ip_from 2405:b500::/32;\n";
+    $cf .= "    set_real_ip_from 2405:8100::/32;\n";
+    $cf .= "    set_real_ip_from 2a06:98c1::/32;\n";
+    $cf .= "    set_real_ip_from 2c0f:f248::/32;\n";
+    $cf .= "    real_ip_header CF-Connecting-IP;\n\n";
+
+    $cf .= "    # Trust Cloudflare protocol forwarding for HTTPS detection\n";
+    $cf .= "    set \$https_proto \"off\";\n";
+    $cf .= "    if (\$http_cf_visitor_https = \"https\") {\n";
+    $cf .= "        set \$https_proto \"on\";\n";
+    $cf .= "    }\n\n";
+
+    return $cf;
+}
+
+/**
  * The location blocks every server block shares.
  */
 function orbitraNginxCommonBody(string $fpmSocket): string
@@ -359,17 +403,34 @@ function orbitraBuildNginxConfig(array $domains, bool $withDefaultServer = true)
         $c .= "}\n\n";
     }
 
-    // ---- Self-signed for domains without LE cert -------------------------
-    // Includes Cloudflare domains (for Full SSL) and domains waiting for LE
-    $needsSelfSigned = array_merge($selfSignedDomains, $cloudflareDomains);
+    // ---- Cloudflare domains with self-signed origin (Full SSL mode) ----
+    $cloudflareOnlyDomains = array_values(array_intersect($cloudflareDomains, $needsSelfSigned));
+    $cloudflareOnlyDomains = array_diff($cloudflareOnlyDomains, array_column($customCertDomains, 'name'), $letsEncryptDomains);
+    $cloudflareOnlyDomains = array_values(array_unique($cloudflareOnlyDomains));
+
+    if (!empty($cloudflareOnlyDomains) && file_exists(ORBITRA_SELF_SIGNED_CERT) && file_exists(ORBITRA_SELF_SIGNED_KEY)) {
+        $c .= "# Parked domains over HTTPS (Cloudflare Full SSL with self-signed origin).\n";
+        $c .= "# ORB-014: Cloudflare edge serves SSL to visitors. Origin uses self-signed\n";
+        $c .= "# certificate. Real IP restoration and HTTPS protocol forwarding enabled.\n";
+        $c .= "server {\n";
+        $c .= "    listen 443 ssl;\n";
+        $c .= "    server_name " . implode(' ', $cloudflareOnlyDomains) . ";\n\n";
+        $c .= "    ssl_certificate " . ORBITRA_SELF_SIGNED_CERT . ";\n";
+        $c .= "    ssl_certificate_key " . ORBITRA_SELF_SIGNED_KEY . ";\n\n";
+        $c .= orbitraCloudflareDirectives();
+        $c .= $body;
+        $c .= "}\n\n";
+    }
+
+    // ---- Self-signed for non-Cloudflare domains without LE cert -------------------------
+    $needsSelfSigned = array_diff($selfSignedDomains, $cloudflareDomains);
     $needsSelfSigned = array_diff($needsSelfSigned, array_column($customCertDomains, 'name'), $letsEncryptDomains);
     $needsSelfSigned = array_values(array_unique($needsSelfSigned));
 
     if (!empty($needsSelfSigned) && file_exists(ORBITRA_SELF_SIGNED_CERT) && file_exists(ORBITRA_SELF_SIGNED_KEY)) {
-        $c .= "# Parked domains over HTTPS (self-signed / Cloudflare Full SSL).\n";
-        $c .= "# ORB-014: Every parked domain gets a 443 block. Cloudflare Full\n";
-        $c .= "# accepts self-signed origin certificates. For Full Strict, install\n";
-        $c .= "# a Cloudflare Origin CA certificate in the domain settings.\n";
+        $c .= "# Parked domains over HTTPS (self-signed).\n";
+        $c .= "# ORB-014: Every parked domain gets a 443 block. Let's Encrypt\n";
+        $c .= "# will replace this when issued.\n";
         $c .= "server {\n";
         $c .= "    listen 443 ssl;\n";
         $c .= "    server_name " . implode(' ', $needsSelfSigned) . ";\n\n";

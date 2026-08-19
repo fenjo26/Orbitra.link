@@ -1,5 +1,5 @@
 #!/bin/bash
-# Orbitra v1.1.5 Tracker Auto-Installer
+# Orbitra v1.1.6 Tracker Auto-Installer
 # Supported OS: Ubuntu 20.04, 22.04, 24.04 / Debian 11, 12
 # Root privileges required (sudo)
 
@@ -467,6 +467,38 @@ chown -R www-data:www-data /var/www/orbitra
 # from the binaries npm installed (esbuild among them) and break the next build.
 find /var/www/orbitra/frontend/dist -type d -exec chmod 775 {} \; 2>/dev/null || true
 find /var/www/orbitra/frontend/dist -type f -exec chmod 664 {} \; 2>/dev/null || true
+
+# Smoke tests to verify installation
+echo "  > Running smoke tests..."
+# Test 1: Verify _internal_assets location
+if grep -q "location /_internal_assets/" /etc/nginx/sites-available/orbitra; then
+    echo "  > ✓ Nginx config contains _internal_assets location"
+else
+    echo "  > ⚠ WARNING: _internal_assets location missing in nginx config"
+fi
+
+# Test 2: Verify ACME webroot is writable
+if [ -w /var/www/orbitra/var/acme/.well-known/acme-challenge ]; then
+    echo "  > ✓ ACME webroot is writable"
+else
+    echo "  > ⚠ WARNING: ACME webroot may not be writable"
+fi
+
+# Test 3: Check self-signed certificate exists
+if [ -f /etc/orbitra/ssl/self-signed.crt ] && [ -f /etc/orbitra/ssl/self-signed.key ]; then
+    echo "  > ✓ Self-signed certificate exists"
+else
+    echo "  > ⚠ WARNING: Self-signed certificate may be missing"
+fi
+
+# Test 4: Test nginx config syntax
+if nginx -t 2>&1 | grep -q "successful"; then
+    echo "  > ✓ Nginx configuration is valid"
+else
+    echo "  > ⚠ WARNING: Nginx configuration may have errors"
+fi
+
+echo "  > Smoke tests completed."
 
 # Get public IP for output
 SERVER_IP=${SERVER_IP:-$(curl -s http://checkip.amazonaws.com || echo "your_server_ip")}
