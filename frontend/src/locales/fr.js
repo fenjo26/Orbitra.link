@@ -762,7 +762,7 @@ export default {
         "savedAddMore": "Enregistré — prêt pour le domaine suivant",
         "domainBulkHelper": "Pour ajouter plusieurs domaines, saisissez une liste séparée par des virgules. HTTP(S) est nettoyé automatiquement.",
         "adminAccessHint": "Si l’accès est refusé, le panneau d’administration et l’API renvoient 404 sur ce domaine. Le panneau reste accessible via les autres hôtes et l’IP du serveur.",
-        "cfProxyHint": "Le domaine passe par le proxy Cloudflare — le SSL est servi par l’edge Cloudflare et l’émission Let’s Encrypt est ignorée.",
+        "cfProxyHint": "L’edge Cloudflare termine TLS pour le visiteur. L’origine doit toujours répondre HTTPS sur le port 443, ce qu’Orbitra configure automatiquement avec un certificat auto-signé. Utilisez le mode SSL Cloudflare ‘Full’. ‘Flexible’ n’est pas recommandé : la connexion entre Cloudflare et l’origine voyage non chiffrée.",
         "title": "Domaines parqués",
         "serverIp": "IP du serveur :",
         "searchPlaceholder": "Rechercher des domaines...",

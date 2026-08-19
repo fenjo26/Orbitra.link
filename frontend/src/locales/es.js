@@ -762,7 +762,7 @@ export default {
         "savedAddMore": "Guardado — listo para el siguiente dominio",
         "domainBulkHelper": "Para agregar múltiples dominios, ingrese una lista separada por comas. HTTP(S) se limpia automáticamente.",
         "adminAccessHint": "Con el acceso denegado, el panel de administración y la API devuelven 404 en este dominio. El panel sigue disponible en otros hosts y mediante la IP del servidor.",
-        "cfProxyHint": "El dominio pasa por el proxy de Cloudflare — el SSL lo sirve el edge de Cloudflare y se omite la emisión de Let’s Encrypt.",
+        "cfProxyHint": "El edge de Cloudflare termina TLS para el visitante. El origen aún necesita responder HTTPS en el puerto 443, lo cual Orbitra configura automáticamente con un certificado autofirmado. Use el modo SSL de Cloudflare ‘Full’. No se recomienda ‘Flexible’: la conexión entre Cloudflare y el origen viaja sin cifrar.",
         "title": "Dominios estacionados",
         "serverIp": "IP del servidor:",
         "searchPlaceholder": "Buscar dominios...",

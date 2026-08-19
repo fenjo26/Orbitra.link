@@ -5288,18 +5288,6 @@ global \$wpdb;
                             {activeObj.statText || 'Active'}
                         </div>
                     )}
-                    {activeObj.isPixelVault && !pixelProfileEditing && (
-                        <button
-                            className="btn btn-primary btn-sm text-xs"
-                            onClick={() => {
-                                setPixelProfileForm(emptyPixelProfileForm);
-                                setPixelProfileEditing('new');
-                                setPixelProfileMessage(null);
-                            }}
-                        >
-                            <Plus size={14} /> {t('pixelVault.addNewPixel')}
-                        </button>
-                    )}
                 </div>
             </div>
 

@@ -7644,6 +7644,28 @@ try {
                 // routes parking through the right CF/NC account. A pin that
                 // no longer resolves is dropped, not fatal.
                 $dnsAccountId = !empty($data['dns_account_id']) ? (int) $data['dns_account_id'] : null;
+                // ORB-014: Cloudflare Origin CA certificate support (Full Strict)
+                $customSslCert = trim((string)($data['custom_ssl_cert'] ?? ''));
+                $customSslKey = trim((string)($data['custom_ssl_key'] ?? ''));
+                $sslSource = trim((string)($data['ssl_source'] ?? 'auto'));
+                // Validate custom cert paths: both must be provided and exist
+                if (($customSslCert !== '' && $customSslKey === '') || ($customSslCert === '' && $customSslKey !== '')) {
+                    echo json_encode(['status' => 'error', 'message' => 'Both certificate and key paths are required for custom SSL']);
+                    break;
+                }
+                if ($customSslCert !== '' && !file_exists($customSslCert)) {
+                    echo json_encode(['status' => 'error', 'message' => "Certificate file not found: $customSslCert"]);
+                    break;
+                }
+                if ($customSslKey !== '' && !file_exists($customSslKey)) {
+                    echo json_encode(['status' => 'error', 'message' => "Key file not found: $customSslKey"]);
+                    break;
+                }
+                // Map ssl_source to valid values
+                $validSslSources = ['auto', 'letsencrypt', 'self_signed', 'cloudflare_origin', 'custom'];
+                if ($sslSource !== '' && !in_array($sslSource, $validSslSources)) {
+                    $sslSource = 'auto';
+                }
                 if ($dnsAccountId !== null) {
                     if ($dnsProvider === 'cloudflare') {
                         if (orbitraCloudflareAccountCfgById($pdo, $dnsAccountId) === null) {
@@ -7676,8 +7698,8 @@ try {
                 try {
                     // EDIT MODE: Update existing domain
                     if ($id) {
-                        $stmt = $pdo->prepare("UPDATE domains SET name=?, index_campaign_id=?, catch_404=?, group_id=?, is_noindex=?, https_only=?, admin_access=?, cloudflare_proxy=?, registrar=?, dns_provider=?, dns_account_id=?, status=? WHERE id=?");
-                        $stmt->execute([$name, $indexCampId, $catch404, $groupId, $isNoindex, $httpsOnly, $adminAccess, $cfProxy, $registrar, $dnsProvider, $dnsAccountId, $domainStatus, $id]);
+                        $stmt = $pdo->prepare("UPDATE domains SET name=?, index_campaign_id=?, catch_404=?, group_id=?, is_noindex=?, https_only=?, admin_access=?, cloudflare_proxy=?, registrar=?, dns_provider=?, dns_account_id=?, status=?, custom_ssl_cert=?, custom_ssl_key=?, ssl_source=? WHERE id=?");
+                        $stmt->execute([$name, $indexCampId, $catch404, $groupId, $isNoindex, $httpsOnly, $adminAccess, $cfProxy, $registrar, $dnsProvider, $dnsAccountId, $domainStatus, $customSslCert, $customSslKey, $sslSource, $id]);
                         logAudit($pdo, 'UPDATE', 'Domain', $id, "Name: $name");
 
                         // Every parked domain wants a certificate, whether or not
@@ -7686,7 +7708,10 @@ try {
                         // out of the queue and left it on the self-signed catch-all.
                         $certPath = "/etc/letsencrypt/live/$name/cert.pem";
                         $sslQueued = false;
-                        if ($cfProxy) {
+                        // ORB-014: Custom certificates take precedence
+                        if ($customSslCert !== '' && file_exists($customSslCert)) {
+                            $pdo->prepare("UPDATE domains SET ssl_status = 'installed', ssl_error = NULL WHERE id = ?")->execute([$id]);
+                        } elseif ($cfProxy) {
                             // Behind the Cloudflare proxy the edge serves the
                             // certificate visitors actually see, and certbot
                             // cannot validate through it — leave the queue.
@@ -7746,11 +7771,17 @@ try {
                             // A domain added without it used to sit at 'none' and
                             // never get a certificate at all. A Cloudflare-proxied
                             // domain is the one exception: the edge serves its SSL.
-                            $sslStatus = $cfProxy ? 'cloudflare' : 'pending';
+                            // ORB-014: Custom certificate takes precedence over auto-issuance
+                            $sslStatus = 'pending';
+                            if ($customSslCert !== '' && file_exists($customSslCert)) {
+                                $sslStatus = 'installed';
+                            } elseif ($cfProxy) {
+                                $sslStatus = 'cloudflare';
+                            }
 
                             try {
-                                $stmt = $pdo->prepare("INSERT INTO domains (name, index_campaign_id, catch_404, group_id, is_noindex, https_only, ssl_status, admin_access, cloudflare_proxy, registrar, dns_provider, dns_account_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                                $stmt->execute([$domainName, $indexCampId, $catch404, $groupId, $isNoindex, $httpsOnly, $sslStatus, $adminAccess, $cfProxy, $registrar, $dnsProvider, $dnsAccountId, $domainStatus]);
+                                $stmt = $pdo->prepare("INSERT INTO domains (name, index_campaign_id, catch_404, group_id, is_noindex, https_only, ssl_status, admin_access, cloudflare_proxy, registrar, dns_provider, dns_account_id, status, custom_ssl_cert, custom_ssl_key, ssl_source) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                $stmt->execute([$domainName, $indexCampId, $catch404, $groupId, $isNoindex, $httpsOnly, $sslStatus, $adminAccess, $cfProxy, $registrar, $dnsProvider, $dnsAccountId, $domainStatus, $customSslCert, $customSslKey, $sslSource]);
                                 $newId = $pdo->lastInsertId();
                                 $results[] = ['id' => $newId, 'name' => $domainName];
 
@@ -9009,47 +9040,69 @@ try {
             break;
 
         case 'check_ssl_status':
-            // Check SSL installation status for all HTTPS-only domains.
+            // Check SSL installation status for all domains.
             //
-            // The stored status is a record of what happened, not of what is true
-            // now: it said "installed" as soon as a certificate appeared on disk,
-            // while nginx only serves that certificate if the config was
-            // regenerated afterwards — the HTTPS server block for a domain is
-            // written only when its fullchain.pem already exists. A domain could
-            // therefore show a tick in the panel while the browser was still being
-            // handed the catch-all's self-signed certificate. Every answer here is
-            // now reconciled against the filesystem and the live config, and a
-            // certificate that exists but is not wired up triggers one rebuild.
+            // ORB-014: The SSL column must reflect reality, not just a stored flag.
+            // This endpoint now performs actual TLS verification to confirm the
+            // response comes from Orbitra rather than another vhost. It reports
+            // three distinct states:
+            //   - serving: Orbitra is correctly serving HTTPS
+            //   - no_certificate: No certificate on the origin
+            //   - answered_elsewhere: Another vhost answered
             try {
-                $stmt = $pdo->query("SELECT id, name, https_only, ssl_status, ssl_error FROM domains ORDER BY id DESC");
+                $stmt = $pdo->query("SELECT id, name, https_only, ssl_status, ssl_error, cloudflare_proxy FROM domains ORDER BY id DESC");
                 $domains = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                // Filter to only include HTTPS-only domains with status
-                $httpsDomains = array_filter($domains, function($d) {
-                    return $d['https_only'] == 1;
-                });
 
                 $liveConfig = (string) @file_get_contents('/etc/nginx/sites-available/orbitra');
                 $needsSync = false;
                 $reconciled = [];
 
-                foreach ($httpsDomains as $d) {
+                foreach ($domains as $d) {
                     $name = (string) $d['name'];
                     $certFile = '/etc/letsencrypt/live/' . $name . '/fullchain.pem';
                     $hasCert = $name !== '' && file_exists($certFile);
-                    // The block is identified by the certificate path it points at,
-                    // which appears only inside that domain's own 443 server block.
                     $isWired = $hasCert && strpos($liveConfig, $certFile) !== false;
 
-                    if ($hasCert && $d['ssl_status'] !== 'installed') {
-                        $pdo->prepare("UPDATE domains SET ssl_status = 'installed', ssl_error = NULL WHERE id = ?")
-                            ->execute([$d['id']]);
-                        $d['ssl_status'] = 'installed';
-                    } elseif (!$hasCert && $d['ssl_status'] === 'installed') {
-                        // The certificate was removed or never really landed.
-                        $pdo->prepare("UPDATE domains SET ssl_status = 'pending' WHERE id = ?")
-                            ->execute([$d['id']]);
-                        $d['ssl_status'] = 'pending';
+                    // ORB-014: Perform actual TLS verification
+                    // Only verify non-Cloudflare domains (CF proxied domains use CF edge SSL)
+                    $tlsCheck = null;
+                    $isCloudflare = (int) ($d['cloudflare_proxy'] ?? 0) === 1 || ($d['ssl_status'] ?? '') === 'cloudflare';
+
+                    if (!$isCloudflare && $name !== '' && $name !== '_') {
+                        $tlsCheck = orbitraVerifyOriginSsl($name);
+                        $d['tls_verified'] = true;
+                        $d['tls_status'] = $tlsCheck['status'];
+                        $d['tls_reachable'] = $tlsCheck['reachable'];
+                        $d['tls_orbitra_serves'] = $tlsCheck['orbitra_serves'];
+                        $d['tls_details'] = $tlsCheck['details'];
+                    } else {
+                        $d['tls_verified'] = false;
+                        $d['tls_status'] = $isCloudflare ? 'cloudflare' : 'not_checked';
+                        $d['tls_details'] = $isCloudflare ? 'SSL served by Cloudflare edge' : 'Not verified';
+                    }
+
+                    // Update database status based on actual TLS check
+                    if ($tlsCheck !== null) {
+                        if ($tlsCheck['status'] === 'serving' && $d['ssl_status'] !== 'installed') {
+                            $pdo->prepare("UPDATE domains SET ssl_status = 'installed', ssl_error = NULL WHERE id = ?")
+                                ->execute([$d['id']]);
+                            $d['ssl_status'] = 'installed';
+                        } elseif ($tlsCheck['status'] === 'answered_elsewhere') {
+                            // Another vhost is answering - this is a critical issue
+                            $error = json_encode([
+                                'code' => 'answered_elsewhere',
+                                'details' => $tlsCheck['details']
+                            ], JSON_UNESCAPED_UNICODE);
+                            $pdo->prepare("UPDATE domains SET ssl_status = 'failed', ssl_error = ? WHERE id = ?")
+                                ->execute([$error, $d['id']]);
+                            $d['ssl_status'] = 'failed';
+                            $d['ssl_error'] = $tlsCheck['details'];
+                        } elseif (!$tlsCheck['reachable'] && $d['ssl_status'] === 'installed') {
+                            // Certificate was supposed to be installed but origin unreachable
+                            $pdo->prepare("UPDATE domains SET ssl_status = 'pending' WHERE id = ?")
+                                ->execute([$d['id']]);
+                            $d['ssl_status'] = 'pending';
+                        }
                     }
 
                     if ($hasCert && !$isWired) {
@@ -9061,16 +9114,16 @@ try {
                     $reconciled[] = $d;
                 }
 
-                // A certificate nobody wired into the config is the one failure the
-                // panel used to hide. Rebuilding is idempotent — orbitraSyncNginx()
-                // compares with what is on disk and skips when they match.
+                // Rebuild config if certificates exist but aren't wired up
                 if ($needsSync) {
                     $syncResult = updateNginxConfig($pdo);
                     if (is_array($syncResult) && ($syncResult['status'] ?? '') === 'success') {
                         $liveConfig = (string) @file_get_contents('/etc/nginx/sites-available/orbitra');
                         foreach ($reconciled as &$d) {
+                            $name = (string) $d['name'];
+                            $certFile = '/etc/letsencrypt/live/' . $name . '/fullchain.pem';
                             $d['https_active'] = !empty($d['cert_present'])
-                                && strpos($liveConfig, '/etc/letsencrypt/live/' . $d['name'] . '/fullchain.pem') !== false;
+                                && strpos($liveConfig, $certFile) !== false;
                         }
                         unset($d);
                     }

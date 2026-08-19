@@ -210,7 +210,10 @@ function orbitraNginxCommonBody(string $fpmSocket): string
 /**
  * Build the complete config.
  *
- * @param string[] $domains            Parked domain names.
+ * @param array[] $domains            Array of domain arrays with metadata:
+ *                                    Each domain array must have 'name' key.
+ *                                    May include 'custom_ssl_cert', 'custom_ssl_key',
+ *                                    'ssl_source', 'cloudflare_proxy'.
  * @param bool     $withDefaultServer  Emit the default_server flag. Set false to
  *                                     retry when another vhost on the box already
  *                                     claims it and nginx -t reports a duplicate.
@@ -220,18 +223,56 @@ function orbitraBuildNginxConfig(array $domains, bool $withDefaultServer = true)
     $fpmSocket = orbitraPhpFpmSocket();
     $body = orbitraNginxCommonBody($fpmSocket);
 
-    $domains = array_values(array_unique(array_filter(array_map(
-        static fn($d) => strtolower(trim((string) $d)),
+    // Normalize and extract domain names
+    $domainNames = array_values(array_unique(array_filter(array_map(
+        static fn($d) => strtolower(trim((string) (is_array($d) ? ($d['name'] ?? '') : $d))),
         $domains
     ))));
-    sort($domains);
+    sort($domainNames);
 
-    $sslDomains = [];
-    foreach ($domains as $domain) {
-        if (file_exists(ORBITRA_LETSENCRYPT_DIR . "/live/$domain/fullchain.pem")) {
-            $sslDomains[] = $domain;
+    // Index domains by name for quick lookup
+    $domainMap = [];
+    foreach ($domains as $d) {
+        $name = strtolower(trim((string) (is_array($d) ? ($d['name'] ?? '') : $d)));
+        if ($name !== '') {
+            $domainMap[$name] = is_array($d) ? $d : ['name' => $name];
         }
     }
+
+    // Categorize domains by SSL certificate source
+    $letsEncryptDomains = [];
+    $customCertDomains = [];
+    $selfSignedDomains = [];
+
+    foreach ($domainNames as $domain) {
+        $domainInfo = $domainMap[$domain] ?? ['name' => $domain];
+        $customCert = $domainInfo['custom_ssl_cert'] ?? '';
+        $customKey = $domainInfo['custom_ssl_key'] ?? '';
+        $sslSource = $domainInfo['ssl_source'] ?? 'auto';
+        $cloudflareProxy = (int) ($domainInfo['cloudflare_proxy'] ?? 0) === 1;
+
+        // Custom certificate takes precedence
+        if ($customCert !== '' && $customKey !== '' && file_exists($customCert) && file_exists($customKey)) {
+            $customCertDomains[] = [
+                'name' => $domain,
+                'cert' => $customCert,
+                'key' => $customKey,
+                'source' => $sslSource,
+            ];
+        } elseif (file_exists(ORBITRA_LETSENCRYPT_DIR . "/live/$domain/fullchain.pem")) {
+            $letsEncryptDomains[] = $domain;
+        } elseif (!$cloudflareProxy) {
+            // Non-cloudflare domains without LE cert get self-signed
+            $selfSignedDomains[] = $domain;
+        }
+    }
+
+    // Cloudflare domains without custom cert still get 443 with self-signed for Full mode
+    $cloudflareDomains = array_filter($domainNames, function($name) use ($domainMap) {
+        $info = $domainMap[$name] ?? [];
+        return (int) ($info['cloudflare_proxy'] ?? 0) === 1 ||
+               ($info['ssl_status'] ?? '') === 'cloudflare';
+    });
 
     $default = $withDefaultServer ? ' default_server' : '';
 
@@ -249,13 +290,16 @@ function orbitraBuildNginxConfig(array $domains, bool $withDefaultServer = true)
 
     // HTTPS catch-all, so that https://<ip>/admin.php opens the panel behind a
     // self-signed warning instead of presenting some parked domain's certificate.
-    // Note: default_server is NOT used here to avoid collisions with other vhosts.
-    // Being the first server block in the config makes this the default for port 443.
+    // ORB-014: Orbitra must own the default server on port 443. Any HTTPS request
+    // for a hostname Orbitra does not recognise must be answered by Orbitra, never
+    // passed to another vhost (e.g. LeadForge's ip-https) that happens to be loaded.
     if (file_exists(ORBITRA_SELF_SIGNED_CERT) && file_exists(ORBITRA_SELF_SIGNED_KEY)) {
         $c .= "# HTTPS catch-all with a self-signed certificate. Let's Encrypt does not\n";
         $c .= "# issue for bare IPs, so the browser will warn — the panel still opens.\n";
+        $c .= "# ORB-014: This block owns default_server on port 443 to prevent other\n";
+        $c .= "# vhosts from capturing traffic for unknown hostnames.\n";
         $c .= "server {\n";
-        $c .= "    listen 443 ssl;\n";
+        $c .= "    listen 443 ssl{$default};\n";
         $c .= "    server_name _;\n\n";
         $c .= "    ssl_certificate " . ORBITRA_SELF_SIGNED_CERT . ";\n";
         $c .= "    ssl_certificate_key " . ORBITRA_SELF_SIGNED_KEY . ";\n\n";
@@ -263,29 +307,42 @@ function orbitraBuildNginxConfig(array $domains, bool $withDefaultServer = true)
         $c .= "}\n\n";
     }
 
-    // ---- Parked domains --------------------------------------------------
-    if (!empty($domains)) {
+    // ---- Parked domains over HTTP ----------------------------------------
+    if (!empty($domainNames)) {
         $c .= "# Parked domains over HTTP.\n";
         $c .= "server {\n";
         $c .= "    listen 80;\n";
-        $c .= "    server_name " . implode(' ', $domains) . ";\n\n";
+        $c .= "    server_name " . implode(' ', $domainNames) . ";\n\n";
         $c .= $body;
         $c .= "}\n\n";
     }
 
-    $nonSslDomains = array_values(array_diff($domains, $sslDomains));
-    if (!empty($nonSslDomains) && file_exists(ORBITRA_SELF_SIGNED_CERT) && file_exists(ORBITRA_SELF_SIGNED_KEY)) {
-        $c .= "# Parked domains over HTTPS (Cloudflare Full SSL / self-signed origin fallback).\n";
+    // ---- Domains with custom certificates (Cloudflare Origin CA, etc) ----
+    foreach ($customCertDomains as $domain) {
+        $sourceLabel = match($domain['source']) {
+            'cloudflare_origin' => 'Cloudflare Origin CA',
+            'custom' => 'Custom',
+            default => 'Custom',
+        };
+        $c .= "# Parked domain over HTTPS with {$sourceLabel} certificate.\n";
         $c .= "server {\n";
         $c .= "    listen 443 ssl;\n";
-        $c .= "    server_name " . implode(' ', $nonSslDomains) . ";\n\n";
-        $c .= "    ssl_certificate " . ORBITRA_SELF_SIGNED_CERT . ";\n";
-        $c .= "    ssl_certificate_key " . ORBITRA_SELF_SIGNED_KEY . ";\n\n";
+        $c .= "    server_name {$domain['name']};\n\n";
+        $c .= "    ssl_certificate {$domain['cert']};\n";
+        $c .= "    ssl_certificate_key {$domain['key']};\n";
+        if (file_exists(ORBITRA_LETSENCRYPT_DIR . '/options-ssl-nginx.conf')) {
+            $c .= '    include ' . ORBITRA_LETSENCRYPT_DIR . "/options-ssl-nginx.conf;\n";
+        }
+        if (file_exists(ORBITRA_LETSENCRYPT_DIR . '/ssl-dhparams.pem')) {
+            $c .= '    ssl_dhparam ' . ORBITRA_LETSENCRYPT_DIR . "/ssl-dhparams.pem;\n";
+        }
+        $c .= "\n";
         $c .= $body;
         $c .= "}\n\n";
     }
 
-    foreach ($sslDomains as $domain) {
+    // ---- Let's Encrypt certificates ---------------------------------------
+    foreach ($letsEncryptDomains as $domain) {
         $c .= "server {\n";
         $c .= "    listen 443 ssl;\n";
         $c .= "    server_name $domain;\n\n";
@@ -298,6 +355,26 @@ function orbitraBuildNginxConfig(array $domains, bool $withDefaultServer = true)
             $c .= '    ssl_dhparam ' . ORBITRA_LETSENCRYPT_DIR . "/ssl-dhparams.pem;\n";
         }
         $c .= "\n";
+        $c .= $body;
+        $c .= "}\n\n";
+    }
+
+    // ---- Self-signed for domains without LE cert -------------------------
+    // Includes Cloudflare domains (for Full SSL) and domains waiting for LE
+    $needsSelfSigned = array_merge($selfSignedDomains, $cloudflareDomains);
+    $needsSelfSigned = array_diff($needsSelfSigned, array_column($customCertDomains, 'name'), $letsEncryptDomains);
+    $needsSelfSigned = array_values(array_unique($needsSelfSigned));
+
+    if (!empty($needsSelfSigned) && file_exists(ORBITRA_SELF_SIGNED_CERT) && file_exists(ORBITRA_SELF_SIGNED_KEY)) {
+        $c .= "# Parked domains over HTTPS (self-signed / Cloudflare Full SSL).\n";
+        $c .= "# ORB-014: Every parked domain gets a 443 block. Cloudflare Full\n";
+        $c .= "# accepts self-signed origin certificates. For Full Strict, install\n";
+        $c .= "# a Cloudflare Origin CA certificate in the domain settings.\n";
+        $c .= "server {\n";
+        $c .= "    listen 443 ssl;\n";
+        $c .= "    server_name " . implode(' ', $needsSelfSigned) . ";\n\n";
+        $c .= "    ssl_certificate " . ORBITRA_SELF_SIGNED_CERT . ";\n";
+        $c .= "    ssl_certificate_key " . ORBITRA_SELF_SIGNED_KEY . ";\n\n";
         $c .= $body;
         $c .= "}\n\n";
     }
@@ -319,8 +396,14 @@ function orbitraBuildNginxConfig(array $domains, bool $withDefaultServer = true)
 function orbitraSyncNginx(PDO $pdo): array
 {
     try {
-        $stmt = $pdo->query("SELECT name FROM domains WHERE name IS NOT NULL AND name != '' ORDER BY name");
-        $domains = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        // ORB-014: Fetch full domain metadata including custom SSL certificate paths
+        $stmt = $pdo->query("
+            SELECT name, custom_ssl_cert, custom_ssl_key, ssl_source, cloudflare_proxy, ssl_status
+            FROM domains
+            WHERE name IS NOT NULL AND name != ''
+            ORDER BY name
+        ");
+        $domains = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $path = ORBITRA_NGINX_CONFIG_PATH;
         if (!file_exists($path)) {

@@ -762,7 +762,7 @@ export default {
         "savedAddMore": "已保存 — 可继续添加下一个域名",
         "domainBulkHelper": "要添加多个域名，请使用逗号分隔列表。HTTP(S) 将自动清除。",
         "adminAccessHint": "拒绝访问时，此域名上的管理面板和 API 返回 404。面板仍可通过其他主机和服务器 IP 访问。",
-        "cfProxyHint": "域名通过 Cloudflare 代理 — SSL 由 Cloudflare 边缘节点提供，跳过 Let’s Encrypt 签发。",
+        "cfProxyHint": "Cloudflare 边缘节点为访客终止 TLS。源站仍需在 443 端口响应 HTTPS，Orbitra 会自动使用自签名证书进行配置。请使用 Cloudflare SSL 模式 ‘Full’。不建议使用 ‘Flexible’：Cloudflare 与源站之间的连接未加密。",
         "title": "停放域名",
         "serverIp": "服务器IP：",
         "searchPlaceholder": "搜索域...",

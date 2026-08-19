@@ -1039,7 +1039,7 @@ const Domains = ({ campaigns }) => {
                                     <button type="button" onClick={() => setShowModal(false)} className="btn btn-secondary btn-sm">
                                         {t('common.cancel')}
                                     </button>
-                                    <button type="submit" className="btn btn-primary btn-sm px-4">
+                                    <button type="submit" className="btn btn-primary btn-sm">
                                         {formData.id ? t('common.save') : t('common.add')}
                                     </button>
                                 </div>

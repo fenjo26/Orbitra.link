@@ -73,7 +73,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 36;
+    $LATEST_SCHEMA_VERSION = 37;
 
     $schemaVersion = 0;
     try {
@@ -1933,6 +1933,40 @@ try {
                 } catch (\Throwable $e) {
                     // Column already present.
                 }
+            }
+
+            if ($schemaVersion < 37) {
+                // Migration 37: ORB-014 Custom SSL certificate paths for Cloudflare Full Strict.
+                //
+                // Cloudflare Full Strict mode requires a valid certificate on the origin.
+                // While Orbitra auto-generates self-signed certificates for Full mode,
+                // Full Strict requires either a Cloudflare Origin CA certificate or a
+                // custom certificate. This migration adds columns to store custom cert paths.
+                //
+                // Note: The actual certificate files must be placed on the server by the
+                // operator. See docs/CLOUDFLARE_FULL_STRICT_SSL.md for instructions.
+                try {
+                    $pdo->exec("ALTER TABLE domains ADD COLUMN custom_ssl_cert TEXT DEFAULT ''");
+                } catch (\Throwable $e) {
+                    // Column already present on a half-migrated DB.
+                }
+                try {
+                    $pdo->exec("ALTER TABLE domains ADD COLUMN custom_ssl_key TEXT DEFAULT ''");
+                } catch (\Throwable $e) {
+                    // Column already present.
+                }
+                try {
+                    $pdo->exec("ALTER TABLE domains ADD COLUMN ssl_source TEXT DEFAULT 'auto'");
+                } catch (\Throwable $e) {
+                    // Column already present.
+                }
+
+                // ssl_source values:
+                // 'auto' - Automatically managed (Let's Encrypt or self-signed)
+                // 'letsencrypt' - Let's Encrypt certificate
+                // 'self_signed' - Self-signed certificate
+                // 'cloudflare_origin' - Cloudflare Origin CA certificate
+                // 'custom' - Custom certificate installed manually
             }
 
             // Mark schema as up-to-date. This must be last.

@@ -622,3 +622,128 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
 
     return $result;
 }
+
+/**
+ * Verify SSL status by making an actual TLS connection to the origin.
+ *
+ * ORB-014: The SSL column must reflect reality, not just a stored flag.
+ * This function opens a TLS connection to port 443 with the hostname as SNI
+ * and confirms the response comes from Orbitra rather than another vhost.
+ *
+ * @return array{status: string, reachable: bool, orbitra_serves: bool, details: string}
+ *   status is one of:
+ *   - 'serving': Orbitra is correctly serving HTTPS for this hostname
+ *   - 'no_certificate': No certificate on the origin (connection failed or no TLS)
+ *   - 'answered_elsewhere': Another vhost answered (not Orbitra)
+ */
+function orbitraVerifyOriginSsl(string $domain): array
+{
+    $result = [
+        'status' => 'no_certificate',
+        'reachable' => false,
+        'orbitra_serves' => false,
+        'details' => '',
+    ];
+
+    // Try to open a TLS connection
+    $context = stream_context_create([
+        'ssl' => [
+            'verify_peer' => false,
+            'verify_peer_name' => false,
+            'capture_peer_cert' => true,
+            'SNI_enabled' => true,
+            'peer_name' => $domain,
+        ],
+        'socket' => [
+            'bindto' => '0:0', // Bind to all interfaces
+        ],
+    ]);
+
+    $socket = @stream_socket_client(
+        'tls://' . $domain . ':443',
+        $errno,
+        $errstr,
+        3, // 3 second timeout
+        STREAM_CLIENT_CONNECT,
+        $context
+    );
+
+    if ($socket === false) {
+        $result['details'] = "Cannot connect to $domain:443 (errno $errno: $errstr)";
+        return $result;
+    }
+
+    $result['reachable'] = true;
+
+    // Get the peer certificate
+    $params = stream_context_get_params($socket);
+    $cert = $params['options']['ssl']['peer_certificate'] ?? null;
+
+    if ($cert === null) {
+        fclose($socket);
+        $result['details'] = 'Connected but no certificate returned';
+        return $result;
+    }
+
+    $certInfo = openssl_x509_parse($cert);
+    fclose($socket);
+
+    if ($certInfo === false) {
+        $result['details'] = 'Certificate returned but could not be parsed';
+        return $result;
+    }
+
+    // Check if this is Orbitra's certificate
+    // Orbitra certificates are either:
+    // 1. Self-signed (/CN=orbitra or /CN=<server-ip>)
+    // 2. Let's Encrypt for the specific domain
+    // 3. Cloudflare Origin CA (if we add support)
+
+    $subject = $certInfo['subject']['CN'] ?? '';
+    $issuer = $certInfo['issuer']['CN'] ?? '';
+    $san = $certInfo['extensions']['subjectAltName'] ?? '';
+
+    // Check if this is Orbitra's self-signed cert
+    $isOrbitraSelfSigned = (
+        stripos($subject, 'orbitra') !== false ||
+        stripos($issuer, 'orbitra') !== false
+    );
+
+    // Check if this is Let's Encrypt for this domain
+    $isLetsEncrypt = (
+        stripos($issuer, "Let's Encrypt") !== false ||
+        stripos($issuer, 'R3') !== false || // LE intermediate
+        stripos($issuer, 'ISRG Root X1') !== false
+    );
+    $matchesDomain = (
+        stripos($san, $domain) !== false ||
+        stripos($subject, $domain) !== false
+    );
+    $isLetsEncryptForDomain = $isLetsEncrypt && $matchesDomain;
+
+    // Check if this is Cloudflare Origin CA
+    $isCloudflareOrigin = (
+        stripos($issuer, "Cloudflare") !== false &&
+        stripos($issuer, 'Origin') !== false
+    );
+
+    if ($isOrbitraSelfSigned) {
+        $result['status'] = 'serving';
+        $result['orbitra_serves'] = true;
+        $result['details'] = 'Served by Orbitra (self-signed certificate)';
+    } elseif ($isLetsEncryptForDomain) {
+        $result['status'] = 'serving';
+        $result['orbitra_serves'] = true;
+        $result['details'] = 'Served by Orbitra (Let\'s Encrypt)';
+    } elseif ($isCloudflareOrigin) {
+        $result['status'] = 'serving';
+        $result['orbitra_serves'] = true;
+        $result['details'] = 'Served by Orbitra (Cloudflare Origin CA)';
+    } else {
+        // Certificate exists but it's not from Orbitra - another vhost answered
+        $result['status'] = 'answered_elsewhere';
+        $result['details'] = "Answered by another vhost (CN: $subject, Issuer: $issuer)";
+    }
+
+    return $result;
+}

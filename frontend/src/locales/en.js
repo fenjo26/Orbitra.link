@@ -762,7 +762,7 @@ export default {
         "savedAddMore": "Saved — ready for the next domain",
         "domainBulkHelper": "To add multiple domains, type a list separated by commas. HTTP(S) is cleaned automatically.",
         "adminAccessHint": "With access denied, the admin panel and the API return 404 on this domain. The panel stays reachable via other hosts and the server IP.",
-        "cfProxyHint": "The domain is proxied through Cloudflare — SSL is served by the Cloudflare edge and Let's Encrypt issuance is skipped.",
+        "cfProxyHint": "The Cloudflare edge terminates TLS for the visitor. The origin still needs to answer HTTPS on port 443, which Orbitra sets up automatically with a self-signed certificate. Use Cloudflare SSL mode 'Full'. 'Flexible' is not recommended: the leg between Cloudflare and the origin travels unencrypted.",
         "title": "Parked Domains",
         "serverIp": "Server IP:",
         "searchPlaceholder": "Search domains...",
