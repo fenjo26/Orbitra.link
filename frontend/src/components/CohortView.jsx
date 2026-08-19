@@ -71,6 +71,7 @@ const CohortView = () => {
     const [dateTo, setDateTo] = useState(() => new Date().toISOString().split('T')[0]);
     const [selectedCampaignIds, setSelectedCampaignIds] = useState([]);
     const [selectedOfferIds, setSelectedOfferIds] = useState([]);
+    const [selectedLandingIds, setSelectedLandingIds] = useState([]);
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState(null); // { rows: [...], launched: {label: n}, max_period }
     const [error, setError] = useState('');
@@ -111,6 +112,12 @@ const CohortView = () => {
                 cohortFilters.push({ field: 'offer_id', operator: 'in', value: selectedOfferIds.join(',') });
             }
 
+            if (selectedLandingIds.length === 1) {
+                cohortFilters.push({ field: 'landing_id', operator: 'equals', value: String(selectedLandingIds[0]) });
+            } else if (selectedLandingIds.length > 1) {
+                cohortFilters.push({ field: 'landing_id', operator: 'in', value: selectedLandingIds.join(',') });
+            }
+
             const params = new URLSearchParams({
                 action: 'cohort',
                 granularity,
@@ -133,10 +140,11 @@ const CohortView = () => {
         } finally {
             setLoading(false);
         }
-    }, [granularity, debouncedDateFrom, debouncedDateTo, selectedCampaignIds, selectedOfferIds]);
+    }, [granularity, debouncedDateFrom, debouncedDateTo, selectedCampaignIds, selectedOfferIds, selectedLandingIds]);
 
-    // Only fetch cohort when debounced dates change
-    useEffect(() => { fetchCohort(); }, [granularity, debouncedDateFrom, debouncedDateTo]);
+    // fetchCohort is memoized on every filter input, so this refetches on
+    // date, granularity AND campaign/offer/landing selections
+    useEffect(() => { fetchCohort(); }, [fetchCohort]);
 
     // Pivot flat rows → { [cohortLabel]: { [periodIndex]: row, maxPeriod, rowMaxForMetric } }
     // Also compute the global column-axis maximum per metric for heat intensity.
@@ -369,6 +377,8 @@ const CohortView = () => {
                         onCampaignChange={setSelectedCampaignIds}
                         offerIds={selectedOfferIds}
                         onOfferChange={setSelectedOfferIds}
+                        landingIds={selectedLandingIds}
+                        onLandingChange={setSelectedLandingIds}
                     />
                     <button onClick={exportCSV} className="btn btn-secondary btn-sm" disabled={!hasData}>
                         <Download className="w-4 h-4" />{t('cohort.exportCsv')}
@@ -376,7 +386,7 @@ const CohortView = () => {
                 </div>
 
                 {/* Active filters badges */}
-                {(selectedCampaignIds.length > 0 || selectedOfferIds.length > 0) && (
+                {(selectedCampaignIds.length > 0 || selectedOfferIds.length > 0 || selectedLandingIds.length > 0) && (
                     <div className="flex flex-wrap gap-2" style={{ marginTop: '12px' }}>
                         {selectedCampaignIds.length > 0 && (
                             <span className="status-badge" style={{ background: 'var(--color-primary)', color: 'var(--color-text-inverse)' }}>
@@ -388,6 +398,12 @@ const CohortView = () => {
                             <span className="status-badge" style={{ background: 'var(--color-primary)', color: 'var(--color-text-inverse)' }}>
                                 {t('analytics.offers')}: {selectedOfferIds.length}
                                 <button onClick={() => setSelectedOfferIds([])} style={{ marginLeft: '4px', cursor: 'pointer' }}>×</button>
+                            </span>
+                        )}
+                        {selectedLandingIds.length > 0 && (
+                            <span className="status-badge" style={{ background: 'var(--color-primary)', color: 'var(--color-text-inverse)' }}>
+                                {t('analytics.landings')}: {selectedLandingIds.length}
+                                <button onClick={() => setSelectedLandingIds([])} style={{ marginLeft: '4px', cursor: 'pointer' }}>×</button>
                             </span>
                         )}
                     </div>

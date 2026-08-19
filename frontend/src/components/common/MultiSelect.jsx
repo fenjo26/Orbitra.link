@@ -173,7 +173,7 @@ export const MultiSelect = ({ items, groups = [], value, onChange, placeholder, 
                             </div>
                             {filteredItems.length === 0 ? (
                                 <div className="px-3 py-4 text-center text-sm text-[var(--color-text-muted)]">
-                                    No results
+                                    {t('analytics.noResults')}
                                 </div>
                             ) : (
                                 filteredItems.map(item => (

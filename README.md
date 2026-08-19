@@ -1,4 +1,4 @@
-# Orbitra v1.1.7 Tracker
+# Orbitra v1.1.8 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,13 +11,21 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.1.7
+## 🆕 What's New in v1.1.8
+
+### Added
+
+- **🎯 Entity filters in Analytics** — multi-select filters by campaigns, offers and landings (dropdown groups, search, select all / clear, active-filter badges) in both Trends and Cohort views
 
 ### Fixed
 
-- **🛟 Landing assets: nginx redirect loop (500s)** — the generated `/_internal_assets/` location carried a nested regex block under an `alias`, which breaks alias inheritance in nginx. The block is flat now (PHP keeps the whitelist and MIME checks); the PHP fail-safe also detects the broken config variant until `nginx_sync.php` runs; vhost generation order for self-signed domain lists fixed. **Nginx servers: re-run `sudo php cli/nginx_sync.php` once**
+- **🕳️ The earlier attempt never showed up** — the feature commits never rebuilt `frontend/dist`, so the panel kept serving the old bundle; Cohort also silently ignored the selections (fetch effect deps). Dropdowns now load via the lightweight `campaigns_simple` / `offers_simple` endpoints, `landing_id` is whitelisted in trends/cohort filters, "No results" is translated (7 locales). **Hard-reload the panel once (Ctrl/Cmd+Shift+R) after updating**
 
-### Previous Highlights (v1.1.6)
+### Previous Highlights (v1.1.7)
+
+- **🛟 Landing assets: nginx redirect loop (500s)** — flattened `/_internal_assets/` location (nested regex broke alias inheritance); fail-safe detects the broken config variant until `nginx_sync.php` runs
+
+### Older (v1.1.6)
 
 - **🔀 SSL mode selector in Domains** — Let's Encrypt / Cloudflare / Custom, all 7 languages
 - **🧰 Install smoke tests + `cli/check_landings.php` diagnostics**
@@ -492,12 +500,15 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.1.7 (2026-08-19)
+### Current release — v1.1.8 (2026-08-19)
+
+**Added**
+- 🎯 **Entity filters in Analytics** — multi-select campaigns / offers / landings filters in Trends and Cohort (groups, search, select-all, badges)
 
 **Fixed**
-- 🛟 **Landing assets: nginx redirect loop (500s)** — flattened `/_internal_assets/` location (nested regex broke alias inheritance); fail-safe detects the broken config variant until `nginx_sync.php` runs; self-signed vhost ordering fixed. **Run `sudo php cli/nginx_sync.php` once**
+- 🕳️ **Earlier attempt invisible** — `frontend/dist` was never rebuilt, so the panel served the old bundle; Cohort also ignored selections (effect deps). Fixed; hard-reload the panel once after updating.
 
-Previous releases — v1.1.6: 🔀 SSL mode selector, 🧰 smoke tests + landing diagnostics, 🧩 asset-loading guarantees, 🗑️ bulk import removed; v1.1.5: 🔐 SSL management (ORB-014), 🧠 SUBID in traffic logs.
+Previous releases — v1.1.7: 🛟 nginx asset-loop hotfix (`nginx_sync.php` once); v1.1.6: 🔀 SSL mode selector, 🧰 smoke tests + landing diagnostics, 🧩 asset-loading guarantees, 🗑️ bulk import removed; v1.1.5: 🔐 SSL management (ORB-014), 🧠 SUBID in traffic logs.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

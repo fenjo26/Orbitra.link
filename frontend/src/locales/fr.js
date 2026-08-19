@@ -212,7 +212,10 @@ export default {
         "selectAll": "Tout sélectionner",
         "clearAll": "Effacer",
         "search": "Rechercher...",
-        "groups": "Groupes"
+        "groups": "Groupes",
+        "landings": "Landing pages",
+        "allLandings": "Toutes les landing pages",
+        "noResults": "Aucun résultat"
     },
     "cohort": {
         "bannerTitle": "Cohortes de campagnes",

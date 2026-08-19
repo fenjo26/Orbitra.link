@@ -17,15 +17,18 @@ export const useEntityList = (action) => {
 
         const fetchItems = async () => {
             try {
-                const res = await fetch(`/api.php?action=${action}&per_page=1000`);
+                const res = await fetch(`/api.php?action=${action}`);
                 const d = await res.json();
 
-                // Normalize response: campaigns has d.data.campaigns, others have d.data directly
+                // Normalize response: *_simple and *_groups return a plain
+                // array in d.data; the full 'campaigns' action wraps it in
+                // d.data.campaigns.
                 const list = Array.isArray(d.data)
                     ? d.data
                     : (d.data?.campaigns || d.data?.offers || []);
 
-                // Filter out archived items
+                // Filter out archived items (full lists carry is_archived;
+                // *_simple endpoints already exclude them in SQL)
                 _cache[action] = list.filter(i => !i.is_archived);
                 setItems(_cache[action]);
             } catch (err) {

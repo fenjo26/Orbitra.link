@@ -645,6 +645,10 @@
     left: 50%;
   }
 
+  .left-2 {
+    left: calc(var(--spacing) * 2);
+  }
+
   .left-2\.5 {
     left: calc(var(--spacing) * 2.5);
   }
@@ -1096,6 +1100,10 @@
 
   .max-h-\[90vh\] {
     max-height: 90vh;
+  }
+
+  .max-h-\[360px\] {
+    max-height: 360px;
   }
 
   .max-h-\[420px\] {
@@ -2012,6 +2020,10 @@
     .bg-\[var\(--color-primary-light\)\]\/20 {
       background-color: color-mix(in oklab, var(--color-primary-light) 20%, transparent);
     }
+  }
+
+  .bg-\[var\(--color-primary-soft\)\] {
+    background-color: var(--color-primary-soft);
   }
 
   .bg-\[var\(--color-success\)\] {

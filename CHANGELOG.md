@@ -7,6 +7,19 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.1.8] — 2026-08-19
+
+Analytics: multi-select entity filters (campaigns, offers, landings) in Trends and Cohort — plus the fixes that made the earlier attempt invisible.
+
+### Added
+- 🎯 **Entity filters in Analytics** — multi-select dropdowns for campaigns, offers **and landings** (group selection, in-dropdown search, select all / clear) on both the Trends and Cohort views, with active-filter badges. Selections feed parameterized `IN (...)` queries through the whitelisted `campaign_id` / `offer_id` / `landing_id` fields; `landing_id` is newly accepted by both the trends and cohort filter whitelists.
+
+### Fixed
+- 🕳️ **The filters from the earlier attempt never appeared** — both feature commits changed only `frontend/src/` and never rebuilt `frontend/dist/`, so the panel kept serving the pre-feature bundle. The dist is rebuilt and committed now. **Hard-reload the panel once (Ctrl/Cmd+Shift+R) after updating** — `index.js` has a stable filename and browsers cache the old build.
+- 🔁 **Cohort ignored the new filters** — its fetch `useEffect` listed only date/granularity dependencies and never re-ran when campaigns/offers/landings were selected; it is now keyed on the memoized `fetchCohort` callback.
+- ⚡ **Dropdowns use the lightweight `*_simple` endpoints** — entity lists load via `campaigns_simple` / `offers_simple` (both now expose `group_id` for grouping) instead of the heavy report JOIN lists.
+- 🌍 **"No results" translated** — the dropdown's hardcoded English empty-state string replaced with `analytics.noResults` across all 7 locales.
+
 ## [1.1.7] — 2026-08-19
 
 Hotfix: landing assets behind nginx ended in redirect loops (500s) — a nested regex location broke the internal-asset hand-off.

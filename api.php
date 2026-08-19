@@ -2658,7 +2658,7 @@ try {
         // Optimized campaigns list without heavy clicks JOIN (for dropdowns/quick loading)
         case 'campaigns_simple':
             $stmt = $pdo->query("
-                SELECT c.id, c.name, c.alias, c.state, c.type,
+                SELECT c.id, c.name, c.alias, c.state, c.type, c.group_id,
                        cg.name as group_name,
                        ts.name as source_name,
                        d.name as domain_name
@@ -2675,7 +2675,7 @@ try {
         // Optimized offers list without heavy clicks JOIN (for dropdowns/quick loading)
         case 'offers_simple':
             $stmt = $pdo->query("
-                SELECT o.id, o.name, o.url, o.state, o.payout_type, o.payout_value,
+                SELECT o.id, o.name, o.url, o.state, o.payout_type, o.payout_value, o.group_id,
                        o.geo, an.name as network_name
                 FROM offers o
                 LEFT JOIN affiliate_networks an ON o.affiliate_network_id = an.id
@@ -13109,6 +13109,7 @@ try {
                 'device_type'  => 'cl.device_type',
                 'campaign_id'  => 'cl.campaign_id',
                 'offer_id'     => 'cl.offer_id',
+                'landing_id'   => 'cl.landing_id',
                 'source_id'    => 'cl.source_id',
                 'ip'           => 'cl.ip',
                 'browser'      => 'cl.browser',
@@ -13398,6 +13399,7 @@ try {
                 'os'           => 'cl.os',
                 'campaign_id'  => 'cl.campaign_id',
                 'offer_id'     => 'cl.offer_id',
+                'landing_id'   => 'cl.landing_id',
                 'source_id'    => 'cl.source_id',
                 'stream_id'    => 'cl.stream_id',
                 'ip'           => 'cl.ip',

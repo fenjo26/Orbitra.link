@@ -212,7 +212,10 @@ export default {
         "selectAll": "全选",
         "clearAll": "清除",
         "search": "搜索...",
-        "groups": "分组"
+        "groups": "分组",
+        "landings": "落地页",
+        "allLandings": "所有落地页",
+        "noResults": "无结果"
     },
     "cohort": {
         "bannerTitle": "广告系列队列",

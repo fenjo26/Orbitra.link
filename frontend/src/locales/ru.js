@@ -212,7 +212,10 @@ export default {
         "selectAll": "Выбрать все",
         "clearAll": "Сбросить",
         "search": "Поиск...",
-        "groups": "Группы"
+        "groups": "Группы",
+        "landings": "Лендинги",
+        "allLandings": "Все лендинги",
+        "noResults": "Ничего не найдено"
     },
     "cohort": {
         "bannerTitle": "Когорты кампаний",

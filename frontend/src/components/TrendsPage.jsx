@@ -42,6 +42,7 @@ const TrendsPage = () => {
     const [filters, setFilters] = useState([]);
     const [selectedCampaignIds, setSelectedCampaignIds] = useState([]);
     const [selectedOfferIds, setSelectedOfferIds] = useState([]);
+    const [selectedLandingIds, setSelectedLandingIds] = useState([]);
     const [showFilterModal, setShowFilterModal] = useState(false);
     const [newFilter, setNewFilter] = useState({ field: 'country_code', operator: 'contains', value: '' });
     const [loading, setLoading] = useState(true);
@@ -106,6 +107,13 @@ const TrendsPage = () => {
                 activeFilters.push({ field: 'offer_id', operator: 'in', value: selectedOfferIds.join(',') });
             }
 
+            // Add landing filter if any selected
+            if (selectedLandingIds.length === 1) {
+                activeFilters.push({ field: 'landing_id', operator: 'equals', value: String(selectedLandingIds[0]) });
+            } else if (selectedLandingIds.length > 1) {
+                activeFilters.push({ field: 'landing_id', operator: 'in', value: selectedLandingIds.join(',') });
+            }
+
             const params = new URLSearchParams({
                 action: 'trends', group_by: groupBy, date_from: debouncedDateFrom,
                 date_to: debouncedDateTo, metrics: selectedMetrics.join(','), filters: JSON.stringify(activeFilters)
@@ -130,7 +138,7 @@ const TrendsPage = () => {
     };
 
     // Only fetch trends when debounced dates change (not on every keystroke)
-    useEffect(() => { fetchTrends(); }, [groupBy, debouncedDateFrom, debouncedDateTo, JSON.stringify(filters), JSON.stringify(selectedCampaignIds), JSON.stringify(selectedOfferIds)]);
+    useEffect(() => { fetchTrends(); }, [groupBy, debouncedDateFrom, debouncedDateTo, JSON.stringify(filters), JSON.stringify(selectedCampaignIds), JSON.stringify(selectedOfferIds), JSON.stringify(selectedLandingIds)]);
 
     const addFilter = () => {
         if (newFilter.value.trim()) {
@@ -233,6 +241,8 @@ const TrendsPage = () => {
                         onCampaignChange={setSelectedCampaignIds}
                         offerIds={selectedOfferIds}
                         onOfferChange={setSelectedOfferIds}
+                        landingIds={selectedLandingIds}
+                        onLandingChange={setSelectedLandingIds}
                     />
                     <button onClick={() => setShowFilterModal(true)} className="btn btn-secondary btn-sm">
                         <Filter className="w-4 h-4" />{t('trends.addFilter')}
@@ -241,7 +251,7 @@ const TrendsPage = () => {
                         <Download className="w-4 h-4" />{t('trends.exportCsv')}
                     </button>
                 </div>
-                {(filters.length > 0 || selectedCampaignIds.length > 0 || selectedOfferIds.length > 0) && (
+                {(filters.length > 0 || selectedCampaignIds.length > 0 || selectedOfferIds.length > 0 || selectedLandingIds.length > 0) && (
                     <div className="flex flex-wrap gap-2" style={{ marginTop: '12px' }}>
                         {filters.map(f => (
                             <span key={f.id} className="status-badge" style={{ background: 'var(--color-info-bg)', color: 'var(--color-info)' }}>
@@ -259,6 +269,12 @@ const TrendsPage = () => {
                             <span className="status-badge" style={{ background: 'var(--color-primary)', color: 'var(--color-text-inverse)' }}>
                                 {t('analytics.offers')}: {selectedOfferIds.length}
                                 <button onClick={() => setSelectedOfferIds([])} style={{ marginLeft: '4px', cursor: 'pointer' }}>×</button>
+                            </span>
+                        )}
+                        {selectedLandingIds.length > 0 && (
+                            <span className="status-badge" style={{ background: 'var(--color-primary)', color: 'var(--color-text-inverse)' }}>
+                                {t('analytics.landings')}: {selectedLandingIds.length}
+                                <button onClick={() => setSelectedLandingIds([])} style={{ marginLeft: '4px', cursor: 'pointer' }}>×</button>
                             </span>
                         )}
                     </div>
