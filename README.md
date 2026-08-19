@@ -1,4 +1,4 @@
-# Orbitra v1.1.2 Tracker
+# Orbitra v1.1.3 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,31 +11,25 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.1.2
+## 🆕 What's New in v1.1.3
 
-### Major New Features
+### New
 
-- **🏗️ LeadForge 2.0** — Complete landing page forge with 150-GEO validation engine, automatic bundle generation for 10+ CPA networks, and real-time QA testing
-- **📋 CRM Anti-Shaving Vault** — Evidence storage for all leads with raw phone data, network request/response logs, and automated shave detection
-- **☁️ Cloudflare Integration** — DNS parking, SSL through Cloudflare edge, automatic A-record management, and proxy detection for SSL provisioning
-- **🌐 Namecheap Integration** — Domain purchasing, DNS parking, and bulk management without leaving the panel
-- **🤖 MCP Server for AI** — 31 tools for Claude Desktop and other AI assistants to read stats and manage campaigns via API
+- **🎨 Eight palette themes** — four color schemes, each in a light and a dark variant, selectable in Personalization: **Cobalt** (signal blue on white / pure black), **Canary** (black CTAs on white; canary yellow on charcoal), **Parchment** (warm cream canvas with ink CTAs; ink canvas with cream surfaces in dark), **Indigo** (violet-blue on a light canvas / deep indigo). Ported from published brand design analyses under neutral color names — no brand names, marks, or fonts ship with them
 
-### Local Offers & PHP Bridge (from v1.1.1)
+### Fixed
 
-- **A local offer's form POST no longer 404s** — `/order.php`, `/offers/<id>/*.php` and `/lander/<slug>/*.php` now route correctly to the front controller
-- **`success.php` execution** — all PHP handlers (`order.php`, `thank_you.php`, `success.php`, `send.php`, `lucky.php`, `lemon.php`) execute correctly
-- **Form actions pinned to offer URL** — POST carries offer ID, no collision with admin API
-- **Uploaded PHP security** — PHP files only execute through the tracker under "Allow PHP landings"
-- **Offer context constants** — `ORBITRA_OFFER_ID`/`URL`/`PATH` defined for local offer PHP
+- **🌗 Hardcoded grays retired** — leftover `bg-white` / `gray-*` Tailwind colors in Automation, Admin Status and the campaign Tracking tab now use theme variables, so every theme — including the new dark palettes — paints them correctly. The Tracking tab is more compact along the way: the options panel only appears for methods that have options, and the generated-code block went full-width with a compact copy button
+- **➕ A doubled "+ +" on the Add Cost Connection button** — the label carried a literal plus next to the plus icon
+- **🧱 Conversion Types page ships for real** — it had been committed in a non-compiling state in 1.1.2, so the unmapped-statuses section advertised in those notes never reached users; the JSX is repaired and the bundle rebuilt
 
-### Previous Highlights (v1.1.0)
+### Previous Highlights (v1.1.2)
 
-- **Conversion attribution** — postback conversions now stamped with click data
-- **Layered reports fixed** — all grouped reports working again
-- **Case-insensitive statuses** — `Approved`/`PENDING` correctly mapped
-- **Conversion failure monitoring** — API endpoint + Telegram alerts
-- **TLS verification restored** — proper certificate checks on outbound calls
+- **🏗️ LeadForge 2.0** — landing page forge with 150-GEO validation, 10+ CPA networks, real-time QA
+- **📋 CRM Anti-Shaving Vault** — lead evidence storage with shave detection
+- **☁️ Cloudflare / 🌐 Namecheap integrations** — domains, DNS and SSL from the panel
+- **🤖 MCP Server for AI** — 31 tools for Claude Desktop
+- **📜 Incoming postbacks log + unmapped statuses with retroactive mapping** — see [CHANGELOG.md](CHANGELOG.md) for the full list
 
 ## 🖥 Live Demo
 
@@ -506,21 +500,15 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.1.2 (2026-08-19)
+### Current release — v1.1.3 (2026-08-19)
 
-**Major New Features**
-- 🏗️ **LeadForge 2.0** — Landing page forge with 150-GEO validation, 10+ CPA networks, real-time QA
-- 📋 **CRM Anti-Shaving Vault** — Evidence storage with shave detection
-- ☁️ **Cloudflare Integration** — DNS parking, SSL, A-record management
-- 🌐 **Namecheap Integration** — Domain purchasing and bulk management
-- 🤖 **MCP Server for AI** — 31 tools for Claude Desktop integration
+**New**
+- 🎨 **Eight palette themes** — Cobalt, Canary, Parchment, Indigo — each in light & dark (Personalization)
 
-**Stability Improvements (from v1.1.1)**
-- 🚨 **POST forms on local** — `/order.php`, `/offers/<id>/*.php` routing fixed
-- 🔁 **PHP handlers** — all bridges execute correctly
-- 🔒 **PHP security** — uploaded files only execute through tracker
-
-Full version history: [CHANGELOG.md](CHANGELOG.md)
+**Fixed**
+- 🌗 **Hardcoded grays → theme variables** — Automation, Admin Status, campaign Tracking tab (now more compact)
+- ➕ **"+ +" on the Add Cost Connection button** — literal plus removed next to the plus icon
+- 🧱 **Conversion Types bundle repair** — the unmapped-statuses UI advertised in 1.1.2 ships for real this time
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

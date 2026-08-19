@@ -2142,7 +2142,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                             className="btn btn-secondary text-xs py-1 px-2.5 rounded-xl flex items-center gap-1.5"
                                                         >
                                                             <Plus className="w-3.5 h-3.5" />
-                                                            {t('streamRefine.addCostConnection', '+ Add Cost Connection')}
+                                                            {t('streamRefine.addCostConnection', 'Add Cost Connection')}
                                                         </button>
                                                         <button
                                                             type="button"
@@ -2547,9 +2547,16 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                 </select>
                                             </div>
 
-                                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 items-start">
-                                                {/* LEFT — per-method settings & options */}
-                                                <div className="rounded-2xl p-4 space-y-3" style={{ border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)' }}>
+                                            <div className="flex flex-col space-y-4">
+                                                {/* Settings & Options — compact, shown only when method has options */}
+                                                {(trackingMethod === 'kclient_js' ||
+                                                  trackingMethod === 'kclient_php' ||
+                                                  (trackingMethod === 'banner_script' || trackingMethod === 'banner_iframe') ||
+                                                  trackingMethod === 'countdown' ||
+                                                  trackingMethod === 'back_button' ||
+                                                  trackingMethod === 'exit_intent' ||
+                                                  trackingMethod === 'pixel') ? (
+                                                <div className="rounded-xl p-3 space-y-3" style={{ border: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)' }}>
                                                     <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--color-text-primary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                                                         {t('tracking.settings', 'Settings & Options')}
                                                     </div>
@@ -2758,52 +2765,47 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                             )}
                                                         </>
                                                     )}
-
-                                                    {['campaign_url', 'link', 'iframe', 'script', 'tracking_script', 'wordpress'].includes(trackingMethod) && (
-                                                        <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                                                            {t('tracking.noOptions', 'This method has no extra options — the code on the right is ready to use.')}
-                                                        </p>
-                                                    )}
                                                 </div>
+                                                ) : null}
 
-                                                {/* RIGHT — generated code, copy, preview, install instruction */}
-                                                <div className="space-y-3">
-                                                    <div style={{ position: 'relative' }}>
-                                                        <button
-                                                            type="button"
-                                                            onClick={async () => {
-                                                                await copyIntegrationSnippet(buildSnippet(trackingMethod, snippetCtx(), trackOpts));
-                                                                setSnippetCopied(true);
-                                                                setTimeout(() => setSnippetCopied(false), 2000);
-                                                            }}
-                                                            className={snippetCopied ? 'btn btn-primary btn-icon' : 'btn btn-secondary btn-icon'}
-                                                            style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 1, display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px' }}
-                                                            title={t('common.copy')}
-                                                        >
-                                                            {snippetCopied
-                                                                ? <><Check className="w-4 h-4" /> {t('tracking.copied', 'Copied!')}</>
-                                                                : <><Copy className="w-4 h-4" /> {t('tracking.copyCode', 'Copy code')}</>}
-                                                        </button>
-                                                        <div className="form-label" style={{ marginBottom: '6px' }}>{t('tracking.generatedCode', 'Generated integration code')}</div>
-                                                        <pre
-                                                            className="text-xs"
-                                                            style={{
-                                                                fontFamily: 'monospace',
-                                                                color: 'var(--color-text-secondary)',
-                                                                background: 'var(--color-bg-soft)',
-                                                                border: '1px solid var(--color-border)',
-                                                                borderRadius: '8px',
-                                                                padding: '12px 140px 12px 12px',
-                                                                margin: 0,
-                                                                whiteSpace: 'pre-wrap',
-                                                                wordBreak: 'break-all',
-                                                                maxHeight: '420px',
-                                                                overflowY: 'auto'
-                                                            }}
-                                                        >
-                                                            {buildSnippet(trackingMethod, snippetCtx(), trackOpts)}
-                                                        </pre>
-                                                    </div>
+                                                {/* Generated code section */}
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                                                        {t('tracking.generatedCode', 'Generated integration code')}
+                                                    </span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={async () => {
+                                                            await copyIntegrationSnippet(buildSnippet(trackingMethod, snippetCtx(), trackOpts));
+                                                            setSnippetCopied(true);
+                                                            setTimeout(() => setSnippetCopied(false), 2000);
+                                                        }}
+                                                        className={snippetCopied ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'}
+                                                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 10px', fontSize: '12px' }}
+                                                        title={t('common.copy')}
+                                                    >
+                                                        {snippetCopied
+                                                            ? <><Check className="w-3.5 h-3.5" /> {t('tracking.copied', 'Copied!')}</>
+                                                            : <><Copy className="w-3.5 h-3.5" /> {t('tracking.copyCode', 'Copy code')}</>}
+                                                    </button>
+                                                </div>
+                                                <pre
+                                                    className="text-xs"
+                                                    style={{
+                                                        fontFamily: 'monospace',
+                                                        color: 'var(--color-text-secondary)',
+                                                        background: 'var(--color-bg-soft)',
+                                                        border: '1px solid var(--color-border)',
+                                                        borderRadius: '8px',
+                                                        padding: '12px',
+                                                        margin: 0,
+                                                        overflowX: 'auto',
+                                                        overflowY: 'auto',
+                                                        maxHeight: '280px'
+                                                    }}
+                                                >
+                                                    {buildSnippet(trackingMethod, snippetCtx(), trackOpts)}
+                                                </pre>
 
                                                     {(trackingMethod === 'countdown' || trackingMethod === 'exit_intent') && (
                                                         <div className="space-y-2">
@@ -2842,18 +2844,17 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                         </div>
                                                     )}
 
-                                                    <div className="rounded-2xl p-3 flex items-start gap-2" style={{ border: '1px solid var(--color-border)', backgroundColor: 'color-mix(in srgb, var(--color-primary) 6%, transparent)' }}>
+                                                    <div className="w-full rounded-xl p-3 flex items-start gap-2.5" style={{ border: '1px solid var(--color-border)', backgroundColor: 'color-mix(in srgb, var(--color-primary) 6%, transparent)' }}>
                                                         <Info className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--color-primary)', marginTop: '1px' }} />
                                                         <div>
                                                             <div className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)', marginBottom: '2px' }}>
                                                                 {t('tracking.howToInstall', 'How to install')}
                                                             </div>
-                                                            <div className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
+                                                            <div className="text-xs leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
                                                                 {t(METHOD_INSTALL_HINTS[trackingMethod] || 'tracking.instWidgets')}
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
                                             </div>
                                         </div>
                                     )}
@@ -3985,7 +3986,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     <div className="modal-content max-w-md w-full rounded-2xl shadow-2xl p-6" style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
                         <div className="flex items-center justify-between pb-3 mb-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
                             <h3 className="text-base font-bold" style={{ color: 'var(--color-text-primary)' }}>
-                                {t('streamRefine.addCostConnection', '+ Add Cost Connection')}
+                                {t('streamRefine.addCostConnection', 'Add Cost Connection')}
                             </h3>
                             <button onClick={() => setShowAddCostConnModal(false)} className="btn-icon">
                                 <X className="w-5 h-5" />

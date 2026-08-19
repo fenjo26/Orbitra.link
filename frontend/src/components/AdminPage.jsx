@@ -97,7 +97,7 @@ const StatusContent = () => {
                             <span className="text-sm text-[var(--color-text-secondary)]">{t('admin.disk')}</span>
                             <span className="text-xs font-mono">{statusData.disk_used_percent}%</span>
                         </div>
-                        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div className="w-full h-2 bg-[var(--color-border)] rounded-full overflow-hidden">
                             <div
                                 className={`h-full transition-all ${getProgressColor(statusData.disk_used_percent)}`}
                                 style={{ width: `${statusData.disk_used_percent}%` }}
@@ -114,7 +114,7 @@ const StatusContent = () => {
                             <span className="text-sm text-[var(--color-text-secondary)]">{t('admin.ram')}</span>
                             <span className="text-xs font-mono">{statusData.system_memory_used_percent || 0}%</span>
                         </div>
-                        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div className="w-full h-2 bg-[var(--color-border)] rounded-full overflow-hidden">
                             <div
                                 className={`h-full transition-all ${getProgressColor(statusData.system_memory_used_percent || 0)}`}
                                 style={{ width: `${statusData.system_memory_used_percent || 0}%` }}
@@ -131,7 +131,7 @@ const StatusContent = () => {
                             <span className="text-sm text-[var(--color-text-secondary)]">{t('admin.cpuLoad')}</span>
                             <span className="text-xs font-mono">{statusData.cpu_load_per_core || statusData.cpu_load}</span>
                         </div>
-                        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div className="w-full h-2 bg-[var(--color-border)] rounded-full overflow-hidden">
                             <div
                                 className={`h-full transition-all ${getProgressColor(Math.min((statusData.cpu_load_per_core || statusData.cpu_load) * 50, 100))}`}
                                 style={{ width: `${Math.min((statusData.cpu_load_per_core || statusData.cpu_load) * 50, 100)}%` }}

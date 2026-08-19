@@ -3234,7 +3234,7 @@ export default {
         "tabOffer": "Offre locale",
         "tabUrl": "URL externe",
         "tabHtml": "HTML intégré",
-        "addCostConnection": "+ Connecter Cost Sync",
+        "addCostConnection": "Connecter Cost Sync",
         "updateCostsManually": "Mettre à jour les coûts manuellement",
         "costSyncTitle": "Synchronisation des coûts",
         "manualCostTitle": "Saisie manuelle des coûts"

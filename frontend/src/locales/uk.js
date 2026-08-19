@@ -3234,7 +3234,7 @@ export default {
         "tabOffer": "Місцева пропозиція",
         "tabUrl": "Зовнішній URL",
         "tabHtml": "Вбудований HTML",
-        "addCostConnection": "+ Підключити Cost Sync",
+        "addCostConnection": "Підключити Cost Sync",
         "updateCostsManually": "Оновити витрати вручну",
         "costSyncTitle": "Синхронізація витрат (Cost Sync)",
         "manualCostTitle": "Ручне введення витрат"

@@ -7,12 +7,16 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [1.1.3] — 2026-08-19
+
+Eight palette themes for the panel, hardcoded grays retired in favour of theme variables, and the repair of a frontend bundle that had shipped broken.
 
 ### Added
 - 🎨 **Eight palette themes** — four color schemes, each in a light and a dark variant, selectable in Personalization: **Cobalt** (signal blue on white / on pure black), **Canary** (black CTAs on white; canary yellow on charcoal), **Parchment** (warm cream canvas with ink CTAs; ink canvas with cream surfaces), **Indigo** (violet-blue on a light canvas / on deep indigo). The palettes are ported from published brand design analyses under neutral color names — no brand names, marks, or fonts ship with them; the analyses themselves list Inter (already the app's stack) as the sanctioned substitute for their proprietary faces.
 
 ### Fixed
+- 🌗 **Hardcoded grays retired** — leftover `bg-white` / `gray-*` Tailwind colors in Automation Settings, Admin Status and the campaign Tracking tab now use theme variables (`var(--color-bg-card)`, `var(--color-border)`, `var(--color-text-muted)`, …), so every theme — including the new dark palettes — paints those surfaces correctly instead of flashing light grays. The Tracking tab got more compact along the way: the options panel only renders for methods that have options, and the generated-code block went full-width with a compact copy button in its header.
+- ➕ **A doubled "+ +" on the Add Cost Connection button** — the label string itself carried a literal `+` next to the `<Plus />` icon, in every locale.
 - 🧱 **The Conversion Types page shipped broken since 1.1.2 — silently** — commit `7483d75` placed sibling JSX inside the page's `{!showForm ? (…) : (…)}` ternary without a fragment, so `ConversionTypesSettings.jsx` stopped compiling from that moment. Nothing flagged it because the shipped `frontend/dist` bundle predated the breakage: the 1.1.2 notes advertised the unmapped-statuses section, but the bundle users actually downloaded never contained it (0 references to its strings in the 1.1.2 `index.js`). The ternary's true branch is now wrapped in `<>…</>` and the bundle rebuilt — the unmapped-statuses UI reaches users for the first time.
 
 ## [1.1.2] — 2026-08-19

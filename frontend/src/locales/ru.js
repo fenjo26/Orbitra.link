@@ -3234,7 +3234,7 @@ export default {
         "tabOffer": "Локальный оффер",
         "tabUrl": "Внешний URL",
         "tabHtml": "Встроенный HTML",
-        "addCostConnection": "+ Подключить Cost Sync",
+        "addCostConnection": "Подключить Cost Sync",
         "updateCostsManually": "Обновить расход вручную",
         "costSyncTitle": "Синхронизация расходов (Cost Sync)",
         "manualCostTitle": "Ручной ввод расходов"

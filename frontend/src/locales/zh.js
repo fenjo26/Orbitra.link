@@ -3234,7 +3234,7 @@ export default {
         "tabOffer": "本地优惠",
         "tabUrl": "外部 URL",
         "tabHtml": "嵌入 HTML",
-        "addCostConnection": "+ 连接 Cost Sync",
+        "addCostConnection": "连接 Cost Sync",
         "updateCostsManually": "手动更新花费",
         "costSyncTitle": "花费同步",
         "manualCostTitle": "手动录入花费"
