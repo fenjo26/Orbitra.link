@@ -7,6 +7,13 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.1.4] — 2026-08-19
+
+Generated integration snippets spoke Russian to every user, regardless of the panel language.
+
+### Fixed
+- 🔤 **Tracking snippets now generate with English comments** — the code blocks in the campaign editor's Connection method (KClient JS/PHP, tracking script, banner blocks, click and conversion pixels, countdown / back-button / exit-intent widgets, WordPress shortcodes) carried Russian how-to comments hardcoded in the snippet templates, so an English- or German-language panel still produced pasteable code with Russian instructions. All template comments are now English, translated in place — deliberately not behind locale keys, because this is code the user pastes into their own site, not panel UI. The one remaining Russian string is intentional: `text_ru="Купить"` in the WordPress shortcode example demonstrates the multilingual parameter itself.
+
 ## [1.1.3] — 2026-08-19
 
 Eight palette themes for the panel, hardcoded grays retired in favour of theme variables, and the repair of a frontend bundle that had shipped broken.

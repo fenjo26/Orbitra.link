@@ -110,7 +110,7 @@ export function obfuscateBase64(code) {
 // ————————————————————————————————————————————————————————————————
 
 function kclientJs({ trackerUrl, campaign }, opts = {}) {
-    let code = `<!-- Orbitra Tracking Client JS — в <head> сайта на стороннем хосте -->\n<script>\n  var orbitra_db_url = '${trackerUrl}';\n  var orbitra_campaign_token = '${campaign.token}';\n</script>\n<script src="${trackerUrl}/kclient.js"></script>\n<noscript><img src="${trackerUrl}/pixel.gif?token=${campaign.token}" alt="" /></noscript>`;
+    let code = `<!-- Orbitra Tracking Client JS — put this in the <head> of a site on a third-party host -->\n<script>\n  var orbitra_db_url = '${trackerUrl}';\n  var orbitra_campaign_token = '${campaign.token}';\n</script>\n<script src="${trackerUrl}/kclient.js"></script>\n<noscript><img src="${trackerUrl}/pixel.gif?token=${campaign.token}" alt="" /></noscript>`;
     if (opts.base64) {
         code = obfuscateBase64(code.replace(/<!--.*?-->\n?/gs, ''));
     }
@@ -122,25 +122,25 @@ function kclientPhp({ trackerUrl, campaign }, opts = {}) {
     const mode = opts.phpMode || 'redirect';
     const paramsLine = sendParams
         ? `$client->sendAllParams();`
-        : `// $client->sendAllParams(); — выключено: UTM/SubID из адресной строки не пробрасываются`;
+        : `// $client->sendAllParams(); — disabled: UTM/SubID from the page URL are not passed through`;
 
     let execution;
     if (mode === 'show_html') {
-        execution = `// «Show as HTML»: контент потока прямо в тело страницы, URL не меняется\necho $client->getContent();`;
+        execution = `// "Show as HTML": stream content goes straight into the page body, the URL stays unchanged\necho $client->getContent();`;
     } else if (mode === 'get_link') {
         // Plain PHP statements only: the outer template already opened the
         // PHP block, and a closing tag inside a // comment would silently
         // end PHP mode there.
-        execution = `// «Get Offer Link»: ссылка на оффер в переменную — для своей кнопки\n$offerLink = $client->getOffer();\n// echo $offerLink; — вывести ссылку на оффер в нужном месте страницы`;
+        execution = `// "Get Offer Link": the offer link into a variable — for your own button\n$offerLink = $client->getOffer();\n// echo $offerLink; — print the offer link wherever you need it on the page`;
     } else {
-        execution = `$client->execute();\n// $client->executeAndBreak(); — останавливать страницу при редиректе`;
+        execution = `$client->execute();\n// $client->executeAndBreak(); — halt the page when a redirect happens`;
     }
 
-    return `<?php\n// Первые строки index.php сайта, до DOCTYPE.\n// Файл kclient.php скачайте кнопкой выше и положите рядом с index.php.\nrequire_once dirname(__FILE__) . '/kclient.php';\n\n$client = new KClickClient('${trackerUrl}', '${campaign.token}');\n${paramsLine}\n${execution}\n`;
+    return `<?php\n// The first lines of your site's index.php, before the DOCTYPE.\n// Download kclient.php with the button above and place it next to index.php.\nrequire_once dirname(__FILE__) . '/kclient.php';\n\n$client = new KClickClient('${trackerUrl}', '${campaign.token}');\n${paramsLine}\n${execution}\n`;
 }
 
 function trackingScript({ trackerUrl, campaign }) {
-    return `<!-- Скрипт отслеживания — в <head> каждой страницы сайта -->\n<script>\n  var orbitra_db_url = '${trackerUrl}';\n  var orbitra_campaign_token = '${campaign.token}';\n</script>\n<script src="${trackerUrl}/tracking.js"></script>\n\n<!-- Страница «Спасибо» / отправка конверсии: -->\n<script>\n  var revenue = 0;\n  var status = 'lead';\n  var tid = Math.floor(Math.random() * 1000000000);\n  KTracking.reportConversion(revenue, status, { tid: tid });\n</script>\n\n<!-- Кнопка на оффер (ссылку подставит скрипт): -->\n<!-- <a href="{offer}" data-orbitra-offer>BUY NOW</a> -->`;
+    return `<!-- Tracking script — into the <head> of every page of the site -->\n<script>\n  var orbitra_db_url = '${trackerUrl}';\n  var orbitra_campaign_token = '${campaign.token}';\n</script>\n<script src="${trackerUrl}/tracking.js"></script>\n\n<!-- "Thank you" page / conversion reporting: -->\n<script>\n  var revenue = 0;\n  var status = 'lead';\n  var tid = Math.floor(Math.random() * 1000000000);\n  KTracking.reportConversion(revenue, status, { tid: tid });\n</script>\n\n<!-- Offer button (the script fills in the link): -->\n<!-- <a href="{offer}" data-orbitra-offer>BUY NOW</a> -->`;
 }
 
 // ————————————————————————————————————————————————————————————————
@@ -150,13 +150,13 @@ function trackingScript({ trackerUrl, campaign }) {
 function bannerScript({ trackerUrl, campaign }, opts = {}) {
     const w = opts.width || 300;
     const h = opts.height || 250;
-    return `<!-- Блок баннеров (script): контент потока «Показать как HTML» -->\n<div id="orbitra-banner" style="width:${w}px;height:${h}px;overflow:hidden"></div>\n<script>\n  var orbitra_db_url = '${trackerUrl}';\n  var orbitra_campaign_token = '${campaign.token}';\n</script>\n<script src="${trackerUrl}/banner.js"></script>`;
+    return `<!-- Banner block (script): stream content in "Show as HTML" mode -->\n<div id="orbitra-banner" style="width:${w}px;height:${h}px;overflow:hidden"></div>\n<script>\n  var orbitra_db_url = '${trackerUrl}';\n  var orbitra_campaign_token = '${campaign.token}';\n</script>\n<script src="${trackerUrl}/banner.js"></script>`;
 }
 
 function bannerIframe({ trackerUrl, campaign }, opts = {}) {
     const w = opts.width || 300;
     const h = opts.height || 250;
-    return `<!-- Блок баннеров (iframe): кампания во фрейме, совместим с RTB-кодами -->\n<iframe src="${trackerUrl}/${campaign.alias}" width="${w}" height="${h}" frameborder="0" scrolling="no" marginwidth="0" marginheight="0"></iframe>`;
+    return `<!-- Banner block (iframe): the campaign in a frame, compatible with RTB codes -->\n<iframe src="${trackerUrl}/${campaign.alias}" width="${w}" height="${h}" frameborder="0" scrolling="no" marginwidth="0" marginheight="0"></iframe>`;
 }
 
 // ————————————————————————————————————————————————————————————————
@@ -187,9 +187,9 @@ function pixelSnippet({ trackerUrl, campaign }, opts = {}) {
         const status = opts.convStatus || 'lead';
         const payout = parseFloat(opts.payout) > 0 ? `&payout=${parseFloat(opts.payout)}` : '';
         const subid = opts.subidParam || '{subid}';
-        return `<!-- Пиксель конверсии: на страницу «Спасибо» после формы/заказа.\n     ${esc(subid)} подставляет ваша платформа рассылок/CRM (id клика). -->\n<img src="${trackerUrl}/pixel.gif?action=conversion&subid=${esc(subid)}&status=${esc(status)}${payout}" width="1" height="1" border="0" alt="" />`;
+        return `<!-- Conversion pixel: on the "Thank you" page, after the form/order.\n     ${esc(subid)} is substituted by your mailing platform / CRM (click id). -->\n<img src="${trackerUrl}/pixel.gif?action=conversion&subid=${esc(subid)}&status=${esc(status)}${payout}" width="1" height="1" border="0" alt="" />`;
     }
-    return `<!-- Пиксель клика: открытий email-рассылок и показов баннеров.\n     Параметры клика (sub_id_1 и т.п.) можно добавить в query string. -->\n<img src="${trackerUrl}/pixel.gif?campaign_id=${campaign.id}" width="1" height="1" border="0" alt="" />`;
+    return `<!-- Click pixel: email-open and banner-impression tracking.\n     Click parameters (sub_id_1 etc.) can be added to the query string. -->\n<img src="${trackerUrl}/pixel.gif?campaign_id=${campaign.id}" width="1" height="1" border="0" alt="" />`;
 }
 
 function countdownSnippet({ trackerUrl, campaign }, opts = {}) {
@@ -207,7 +207,7 @@ function countdownSnippet({ trackerUrl, campaign }, opts = {}) {
         ? `window.location.href = ${JSON.stringify(expireRedirect)};`
         : `document.getElementById('ltt-countdown').innerHTML = '<h2>OFFER EXPIRED</h2>';`;
 
-    return `<!-- Orbitra Countdown Widget — вставьте перед закрывающим </body> лендинга -->\n<div id="ltt-countdown" style="font-family:sans-serif;text-align:center;padding:20px;\n    background:${theme.gradient};color:white;border-radius:12px;max-width:400px;\n    margin:0 auto;box-shadow:0 10px 40px rgba(0,0,0,0.2);">\n    <div style="font-size:14px;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">\n        ${esc(headerText)}\n    </div>\n    <div id="ltt-timer" style="font-size:48px;font-weight:bold;">\n        <span id="ltt-hours">00</span>:<span id="ltt-minutes">00</span>:<span id="ltt-seconds">00</span>\n    </div>\n    <a id="ltt-cta" href="#" style="display:inline-block;margin-top:20px;padding:14px 40px;\n        background:${theme.cta};color:white;text-decoration:none;border-radius:8px;font-weight:600;\n        font-size:16px;transition:transform 0.2s;">\n        ${esc(buttonText)}\n    </a>\n</div>\n\n<script>\n(function() {\n    var trackerUrl = '${trackerUrl}';\n    var campaignId = '${campaign.id}';\n    var redirectUrl = ${JSON.stringify(offerUrl)};\n    var totalSeconds = ${totalSeconds};\n\n    var endTime = new Date().getTime() + totalSeconds * 1000;\n\n    document.getElementById('ltt-cta').href = trackerUrl + '/click.php?campaign_id=' + campaignId + '&url=' + encodeURIComponent(redirectUrl);\n\n    function updateTimer() {\n        var distance = endTime - new Date().getTime();\n        if (distance < 0) {\n            ${onExpire}\n            return;\n        }\n        document.getElementById('ltt-hours').textContent = String(Math.floor(distance / 3600000)).padStart(2, '0');\n        document.getElementById('ltt-minutes').textContent = String(Math.floor((distance % 3600000) / 60000)).padStart(2, '0');\n        document.getElementById('ltt-seconds').textContent = String(Math.floor((distance % 60000) / 1000)).padStart(2, '0');\n    }\n\n    updateTimer();\n    setInterval(updateTimer, 1000);\n})();\n</script>`;
+    return `<!-- Orbitra Countdown Widget — insert before the landing's closing </body> -->\n<div id="ltt-countdown" style="font-family:sans-serif;text-align:center;padding:20px;\n    background:${theme.gradient};color:white;border-radius:12px;max-width:400px;\n    margin:0 auto;box-shadow:0 10px 40px rgba(0,0,0,0.2);">\n    <div style="font-size:14px;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">\n        ${esc(headerText)}\n    </div>\n    <div id="ltt-timer" style="font-size:48px;font-weight:bold;">\n        <span id="ltt-hours">00</span>:<span id="ltt-minutes">00</span>:<span id="ltt-seconds">00</span>\n    </div>\n    <a id="ltt-cta" href="#" style="display:inline-block;margin-top:20px;padding:14px 40px;\n        background:${theme.cta};color:white;text-decoration:none;border-radius:8px;font-weight:600;\n        font-size:16px;transition:transform 0.2s;">\n        ${esc(buttonText)}\n    </a>\n</div>\n\n<script>\n(function() {\n    var trackerUrl = '${trackerUrl}';\n    var campaignId = '${campaign.id}';\n    var redirectUrl = ${JSON.stringify(offerUrl)};\n    var totalSeconds = ${totalSeconds};\n\n    var endTime = new Date().getTime() + totalSeconds * 1000;\n\n    document.getElementById('ltt-cta').href = trackerUrl + '/click.php?campaign_id=' + campaignId + '&url=' + encodeURIComponent(redirectUrl);\n\n    function updateTimer() {\n        var distance = endTime - new Date().getTime();\n        if (distance < 0) {\n            ${onExpire}\n            return;\n        }\n        document.getElementById('ltt-hours').textContent = String(Math.floor(distance / 3600000)).padStart(2, '0');\n        document.getElementById('ltt-minutes').textContent = String(Math.floor((distance % 3600000) / 60000)).padStart(2, '0');\n        document.getElementById('ltt-seconds').textContent = String(Math.floor((distance % 60000) / 1000)).padStart(2, '0');\n    }\n\n    updateTimer();\n    setInterval(updateTimer, 1000);\n})();\n</script>`;
 }
 
 function backButtonSnippet({ trackerUrl, campaign }, opts = {}) {
@@ -222,7 +222,7 @@ function backButtonSnippet({ trackerUrl, campaign }, opts = {}) {
         ? `var clickUrl = trackerUrl + '/click.php?campaign_id=' + campaignId + '&sub1=back_button&redirect=0';\n        fetch(clickUrl).finally(function() {\n            window.location.href = trapUrl;\n        });`
         : `window.location.href = trapUrl;`;
 
-    return `<!-- Orbitra Back Button Trap — вставьте перед закрывающим </body> лендинга -->\n<script>\n(function() {\n    var trackerUrl = '${trackerUrl}';\n    var campaignId = '${campaign.id}';\n    var trapUrl = ${JSON.stringify(trapUrl)};\n\n    function arm() {\n        history.pushState(null, '', location.href);\n    }\n\n    ${armLine}\n\n    window.addEventListener('popstate', function() {\n        // Любой popstate на этой странице — попытка уйти «назад»: pushState\n        // не даёт странице выгрузиться, уводим пользователя в ловушку.\n        ${trapBody}\n    });\n})();\n</script>`;
+    return `<!-- Orbitra Back Button Trap — insert before the landing's closing </body> -->\n<script>\n(function() {\n    var trackerUrl = '${trackerUrl}';\n    var campaignId = '${campaign.id}';\n    var trapUrl = ${JSON.stringify(trapUrl)};\n\n    function arm() {\n        history.pushState(null, '', location.href);\n    }\n\n    ${armLine}\n\n    window.addEventListener('popstate', function() {\n        // Any popstate on this page is an attempt to go "back": pushState\n        // keeps the page from unloading, and we route the user into the trap.\n        ${trapBody}\n    });\n})();\n</script>`;
 }
 
 function exitIntentSnippet({ trackerUrl, campaign }, opts = {}) {
@@ -240,9 +240,9 @@ function exitIntentSnippet({ trackerUrl, campaign }, opts = {}) {
         ? `\n    document.getElementById('ltt-exit-popup').addEventListener('click', function(e) {\n        if (e.target === this) { this.classList.remove('show'); }\n    });`
         : '';
 
-    return `<!-- Orbitra Exit Intent Popup — вставьте перед закрывающим </body> лендинга -->\n<style>\n.ltt-exit-popup { display:none; position:fixed; top:0; left:0; width:100%; height:100%;\n    background:rgba(0,0,0,0.7); z-index:99999; justify-content:center; align-items:center; }\n.ltt-exit-popup.show { display:flex; }\n.ltt-exit-content { background:white; padding:40px; border-radius:16px; max-width:500px;\n    text-align:center; position:relative; box-shadow:0 20px 60px rgba(0,0,0,0.3); }\n.ltt-exit-close { position:absolute; top:15px; right:20px; font-size:24px; cursor:pointer;\n    color:#999; border:none; background:none; }\n.ltt-exit-btn { display:inline-block; margin-top:20px; padding:16px 40px; background:${buttonColor};\n    color:white; text-decoration:none; border-radius:8px; font-weight:600; font-size:18px; }\n</style>\n\n<div id="ltt-exit-popup" class="ltt-exit-popup">\n    <div class="ltt-exit-content">\n        <button class="ltt-exit-close" onclick="document.getElementById('ltt-exit-popup').classList.remove('show')">&times;</button>\n        <h2 style="margin:0 0 15px;font-size:28px;">${esc(heading)}</h2>\n        <p style="font-size:16px;color:#666;margin-bottom:10px;">${esc(text)}</p>\n        <a id="ltt-exit-cta" href="#" class="ltt-exit-btn">${esc(buttonText)}</a>\n    </div>\n</div>\n\n<script>\n(function() {\n    var trackerUrl = '${trackerUrl}';\n    var campaignId = '${campaign.id}';\n    var offerUrl = ${JSON.stringify(offerUrl)};\n    var shown = false;\n    ${activateLine}\n\n    document.getElementById('ltt-exit-cta').href = trackerUrl + '/click.php?campaign_id=' + campaignId + '&url=' + encodeURIComponent(offerUrl);\n${backdropClose}\n\n    document.addEventListener('mouseout', function(e) {\n        if (shown) return;\n        if (new Date().getTime() < activateAt) return;\n        if (e.clientY < 10 && e.relatedTarget === null) {\n            shown = true;\n            document.getElementById('ltt-exit-popup').classList.add('show');\n            fetch(trackerUrl + '/click.php?campaign_id=' + campaignId + '&sub1=exit_popup&redirect=0');\n        }\n    });\n})();\n</script>`;
+    return `<!-- Orbitra Exit Intent Popup — insert before the landing's closing </body> -->\n<style>\n.ltt-exit-popup { display:none; position:fixed; top:0; left:0; width:100%; height:100%;\n    background:rgba(0,0,0,0.7); z-index:99999; justify-content:center; align-items:center; }\n.ltt-exit-popup.show { display:flex; }\n.ltt-exit-content { background:white; padding:40px; border-radius:16px; max-width:500px;\n    text-align:center; position:relative; box-shadow:0 20px 60px rgba(0,0,0,0.3); }\n.ltt-exit-close { position:absolute; top:15px; right:20px; font-size:24px; cursor:pointer;\n    color:#999; border:none; background:none; }\n.ltt-exit-btn { display:inline-block; margin-top:20px; padding:16px 40px; background:${buttonColor};\n    color:white; text-decoration:none; border-radius:8px; font-weight:600; font-size:18px; }\n</style>\n\n<div id="ltt-exit-popup" class="ltt-exit-popup">\n    <div class="ltt-exit-content">\n        <button class="ltt-exit-close" onclick="document.getElementById('ltt-exit-popup').classList.remove('show')">&times;</button>\n        <h2 style="margin:0 0 15px;font-size:28px;">${esc(heading)}</h2>\n        <p style="font-size:16px;color:#666;margin-bottom:10px;">${esc(text)}</p>\n        <a id="ltt-exit-cta" href="#" class="ltt-exit-btn">${esc(buttonText)}</a>\n    </div>\n</div>\n\n<script>\n(function() {\n    var trackerUrl = '${trackerUrl}';\n    var campaignId = '${campaign.id}';\n    var offerUrl = ${JSON.stringify(offerUrl)};\n    var shown = false;\n    ${activateLine}\n\n    document.getElementById('ltt-exit-cta').href = trackerUrl + '/click.php?campaign_id=' + campaignId + '&url=' + encodeURIComponent(offerUrl);\n${backdropClose}\n\n    document.addEventListener('mouseout', function(e) {\n        if (shown) return;\n        if (new Date().getTime() < activateAt) return;\n        if (e.clientY < 10 && e.relatedTarget === null) {\n            shown = true;\n            document.getElementById('ltt-exit-popup').classList.add('show');\n            fetch(trackerUrl + '/click.php?campaign_id=' + campaignId + '&sub1=exit_popup&redirect=0');\n        }\n    });\n})();\n</script>`;
 }
 
 function wordpressSnippet({ campaign }) {
-    return `<!-- WordPress: шорткод трекера (плагин Orbitra) -->\n[orbitra_link campaign_id="${campaign.id}" text="Click Here"]\n\n<!-- Несколько офферов / гео-редирект: -->\n[orbitra_link campaign_id="${campaign.id}" text="Buy" text_ru="Купить" geo_redirect="RU:https://offer1.com,DE:https://offer2.com"]\n\n<!-- Конверсия со страницы «Спасибо» (Contact Form 7 и т.п.): -->\n[send_postback]`;
+    return `<!-- WordPress: tracker shortcodes (Orbitra plugin) -->\n[orbitra_link campaign_id="${campaign.id}" text="Click Here"]\n\n<!-- Multiple offers / geo redirect: -->\n[orbitra_link campaign_id="${campaign.id}" text="Buy" text_ru="Купить" geo_redirect="RU:https://offer1.com,DE:https://offer2.com"]\n\n<!-- Conversion from the "Thank you" page (Contact Form 7 etc.): -->\n[send_postback]`;
 }

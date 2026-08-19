@@ -83740,7 +83740,7 @@ function obfuscateBase64(code) {
   }
 }
 function kclientJs({ trackerUrl, campaign }, opts = {}) {
-  let code = `<!-- Orbitra Tracking Client JS — в <head> сайта на стороннем хосте -->
+  let code = `<!-- Orbitra Tracking Client JS — put this in the <head> of a site on a third-party host -->
 <script>
   var orbitra_db_url = '${trackerUrl}';
   var orbitra_campaign_token = '${campaign.token}';
@@ -83755,22 +83755,22 @@ function kclientJs({ trackerUrl, campaign }, opts = {}) {
 function kclientPhp({ trackerUrl, campaign }, opts = {}) {
   const sendParams = opts.sendParams !== false;
   const mode = opts.phpMode || "redirect";
-  const paramsLine = sendParams ? `$client->sendAllParams();` : `// $client->sendAllParams(); — выключено: UTM/SubID из адресной строки не пробрасываются`;
+  const paramsLine = sendParams ? `$client->sendAllParams();` : `// $client->sendAllParams(); — disabled: UTM/SubID from the page URL are not passed through`;
   let execution;
   if (mode === "show_html") {
-    execution = `// «Show as HTML»: контент потока прямо в тело страницы, URL не меняется
+    execution = `// "Show as HTML": stream content goes straight into the page body, the URL stays unchanged
 echo $client->getContent();`;
   } else if (mode === "get_link") {
-    execution = `// «Get Offer Link»: ссылка на оффер в переменную — для своей кнопки
+    execution = `// "Get Offer Link": the offer link into a variable — for your own button
 $offerLink = $client->getOffer();
-// echo $offerLink; — вывести ссылку на оффер в нужном месте страницы`;
+// echo $offerLink; — print the offer link wherever you need it on the page`;
   } else {
     execution = `$client->execute();
-// $client->executeAndBreak(); — останавливать страницу при редиректе`;
+// $client->executeAndBreak(); — halt the page when a redirect happens`;
   }
   return `<?php
-// Первые строки index.php сайта, до DOCTYPE.
-// Файл kclient.php скачайте кнопкой выше и положите рядом с index.php.
+// The first lines of your site's index.php, before the DOCTYPE.
+// Download kclient.php with the button above and place it next to index.php.
 require_once dirname(__FILE__) . '/kclient.php';
 
 $client = new KClickClient('${trackerUrl}', '${campaign.token}');
@@ -83779,14 +83779,14 @@ ${execution}
 `;
 }
 function trackingScript({ trackerUrl, campaign }) {
-  return `<!-- Скрипт отслеживания — в <head> каждой страницы сайта -->
+  return `<!-- Tracking script — into the <head> of every page of the site -->
 <script>
   var orbitra_db_url = '${trackerUrl}';
   var orbitra_campaign_token = '${campaign.token}';
 <\/script>
 <script src="${trackerUrl}/tracking.js"><\/script>
 
-<!-- Страница «Спасибо» / отправка конверсии: -->
+<!-- "Thank you" page / conversion reporting: -->
 <script>
   var revenue = 0;
   var status = 'lead';
@@ -83794,13 +83794,13 @@ function trackingScript({ trackerUrl, campaign }) {
   KTracking.reportConversion(revenue, status, { tid: tid });
 <\/script>
 
-<!-- Кнопка на оффер (ссылку подставит скрипт): -->
+<!-- Offer button (the script fills in the link): -->
 <!-- <a href="{offer}" data-orbitra-offer>BUY NOW</a> -->`;
 }
 function bannerScript({ trackerUrl, campaign }, opts = {}) {
   const w = opts.width || 300;
   const h = opts.height || 250;
-  return `<!-- Блок баннеров (script): контент потока «Показать как HTML» -->
+  return `<!-- Banner block (script): stream content in "Show as HTML" mode -->
 <div id="orbitra-banner" style="width:${w}px;height:${h}px;overflow:hidden"></div>
 <script>
   var orbitra_db_url = '${trackerUrl}';
@@ -83811,7 +83811,7 @@ function bannerScript({ trackerUrl, campaign }, opts = {}) {
 function bannerIframe({ trackerUrl, campaign }, opts = {}) {
   const w = opts.width || 300;
   const h = opts.height || 250;
-  return `<!-- Блок баннеров (iframe): кампания во фрейме, совместим с RTB-кодами -->
+  return `<!-- Banner block (iframe): the campaign in a frame, compatible with RTB codes -->
 <iframe src="${trackerUrl}/${campaign.alias}" width="${w}" height="${h}" frameborder="0" scrolling="no" marginwidth="0" marginheight="0"></iframe>`;
 }
 function linkSnippet({ campaign }) {
@@ -83841,12 +83841,12 @@ function pixelSnippet({ trackerUrl, campaign }, opts = {}) {
     const status = opts.convStatus || "lead";
     const payout = parseFloat(opts.payout) > 0 ? `&payout=${parseFloat(opts.payout)}` : "";
     const subid = opts.subidParam || "{subid}";
-    return `<!-- Пиксель конверсии: на страницу «Спасибо» после формы/заказа.
-     ${esc(subid)} подставляет ваша платформа рассылок/CRM (id клика). -->
+    return `<!-- Conversion pixel: on the "Thank you" page, after the form/order.
+     ${esc(subid)} is substituted by your mailing platform / CRM (click id). -->
 <img src="${trackerUrl}/pixel.gif?action=conversion&subid=${esc(subid)}&status=${esc(status)}${payout}" width="1" height="1" border="0" alt="" />`;
   }
-  return `<!-- Пиксель клика: открытий email-рассылок и показов баннеров.
-     Параметры клика (sub_id_1 и т.п.) можно добавить в query string. -->
+  return `<!-- Click pixel: email-open and banner-impression tracking.
+     Click parameters (sub_id_1 etc.) can be added to the query string. -->
 <img src="${trackerUrl}/pixel.gif?campaign_id=${campaign.id}" width="1" height="1" border="0" alt="" />`;
 }
 function countdownSnippet({ trackerUrl, campaign }, opts = {}) {
@@ -83859,7 +83859,7 @@ function countdownSnippet({ trackerUrl, campaign }, opts = {}) {
   const theme = COUNTDOWN_THEMES[opts.theme] || COUNTDOWN_THEMES.purple;
   const expireRedirect = opts.expireAction === "redirect" ? opts.expireUrl || offerUrl : "";
   const onExpire = expireRedirect ? `window.location.href = ${JSON.stringify(expireRedirect)};` : `document.getElementById('ltt-countdown').innerHTML = '<h2>OFFER EXPIRED</h2>';`;
-  return `<!-- Orbitra Countdown Widget — вставьте перед закрывающим </body> лендинга -->
+  return `<!-- Orbitra Countdown Widget — insert before the landing's closing </body> -->
 <div id="ltt-countdown" style="font-family:sans-serif;text-align:center;padding:20px;
     background:${theme.gradient};color:white;border-radius:12px;max-width:400px;
     margin:0 auto;box-shadow:0 10px 40px rgba(0,0,0,0.2);">
@@ -83912,7 +83912,7 @@ function backButtonSnippet({ trackerUrl, campaign }, opts = {}) {
         fetch(clickUrl).finally(function() {
             window.location.href = trapUrl;
         });` : `window.location.href = trapUrl;`;
-  return `<!-- Orbitra Back Button Trap — вставьте перед закрывающим </body> лендинга -->
+  return `<!-- Orbitra Back Button Trap — insert before the landing's closing </body> -->
 <script>
 (function() {
     var trackerUrl = '${trackerUrl}';
@@ -83926,8 +83926,8 @@ function backButtonSnippet({ trackerUrl, campaign }, opts = {}) {
     ${armLine}
 
     window.addEventListener('popstate', function() {
-        // Любой popstate на этой странице — попытка уйти «назад»: pushState
-        // не даёт странице выгрузиться, уводим пользователя в ловушку.
+        // Any popstate on this page is an attempt to go "back": pushState
+        // keeps the page from unloading, and we route the user into the trap.
         ${trapBody}
     });
 })();
@@ -83946,7 +83946,7 @@ function exitIntentSnippet({ trackerUrl, campaign }, opts = {}) {
     document.getElementById('ltt-exit-popup').addEventListener('click', function(e) {
         if (e.target === this) { this.classList.remove('show'); }
     });` : "";
-  return `<!-- Orbitra Exit Intent Popup — вставьте перед закрывающим </body> лендинга -->
+  return `<!-- Orbitra Exit Intent Popup — insert before the landing's closing </body> -->
 <style>
 .ltt-exit-popup { display:none; position:fixed; top:0; left:0; width:100%; height:100%;
     background:rgba(0,0,0,0.7); z-index:99999; justify-content:center; align-items:center; }
@@ -83992,13 +83992,13 @@ ${backdropClose}
 <\/script>`;
 }
 function wordpressSnippet({ campaign }) {
-  return `<!-- WordPress: шорткод трекера (плагин Orbitra) -->
+  return `<!-- WordPress: tracker shortcodes (Orbitra plugin) -->
 [orbitra_link campaign_id="${campaign.id}" text="Click Here"]
 
-<!-- Несколько офферов / гео-редирект: -->
+<!-- Multiple offers / geo redirect: -->
 [orbitra_link campaign_id="${campaign.id}" text="Buy" text_ru="Купить" geo_redirect="RU:https://offer1.com,DE:https://offer2.com"]
 
-<!-- Конверсия со страницы «Спасибо» (Contact Form 7 и т.п.): -->
+<!-- Conversion from the "Thank you" page (Contact Form 7 etc.): -->
 [send_postback]`;
 }
 const CAMPAIGN_SUB_ID_KEYS = Array.from({ length: 30 }, (_, index2) => `sub_id_${index2 + 1}`);

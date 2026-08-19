@@ -1,4 +1,4 @@
-# Orbitra v1.1.3 Tracker
+# Orbitra v1.1.4 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,25 +11,17 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.1.3
-
-### New
-
-- **🎨 Eight palette themes** — four color schemes, each in a light and a dark variant, selectable in Personalization: **Cobalt** (signal blue on white / pure black), **Canary** (black CTAs on white; canary yellow on charcoal), **Parchment** (warm cream canvas with ink CTAs; ink canvas with cream surfaces in dark), **Indigo** (violet-blue on a light canvas / deep indigo). Ported from published brand design analyses under neutral color names — no brand names, marks, or fonts ship with them
+## 🆕 What's New in v1.1.4
 
 ### Fixed
 
-- **🌗 Hardcoded grays retired** — leftover `bg-white` / `gray-*` Tailwind colors in Automation, Admin Status and the campaign Tracking tab now use theme variables, so every theme — including the new dark palettes — paints them correctly. The Tracking tab is more compact along the way: the options panel only appears for methods that have options, and the generated-code block went full-width with a compact copy button
-- **➕ A doubled "+ +" on the Add Cost Connection button** — the label carried a literal plus next to the plus icon
-- **🧱 Conversion Types page ships for real** — it had been committed in a non-compiling state in 1.1.2, so the unmapped-statuses section advertised in those notes never reached users; the JSX is repaired and the bundle rebuilt
+- **🔤 Tracking snippets in English** — the code blocks in the campaign editor's Connection method (KClient JS/PHP, tracking script, banners, pixels, countdown / back-button / exit-intent widgets, WordPress shortcodes) had hardcoded Russian comments no matter the panel language; every template comment is now English
 
-### Previous Highlights (v1.1.2)
+### Previous Highlights (v1.1.3)
 
-- **🏗️ LeadForge 2.0** — landing page forge with 150-GEO validation, 10+ CPA networks, real-time QA
-- **📋 CRM Anti-Shaving Vault** — lead evidence storage with shave detection
-- **☁️ Cloudflare / 🌐 Namecheap integrations** — domains, DNS and SSL from the panel
-- **🤖 MCP Server for AI** — 31 tools for Claude Desktop
-- **📜 Incoming postbacks log + unmapped statuses with retroactive mapping** — see [CHANGELOG.md](CHANGELOG.md) for the full list
+- **🎨 Eight palette themes** — Cobalt, Canary, Parchment, Indigo, each in light & dark (Personalization)
+- **🌗 Hardcoded grays → theme variables** — Automation, Admin Status, campaign Tracking tab
+- **🧱 Conversion Types bundle repair** — the unmapped-statuses UI advertised in 1.1.2 shipped for real
 
 ## 🖥 Live Demo
 
@@ -500,15 +492,12 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.1.3 (2026-08-19)
-
-**New**
-- 🎨 **Eight palette themes** — Cobalt, Canary, Parchment, Indigo — each in light & dark (Personalization)
+### Current release — v1.1.4 (2026-08-19)
 
 **Fixed**
-- 🌗 **Hardcoded grays → theme variables** — Automation, Admin Status, campaign Tracking tab (now more compact)
-- ➕ **"+ +" on the Add Cost Connection button** — literal plus removed next to the plus icon
-- 🧱 **Conversion Types bundle repair** — the unmapped-statuses UI advertised in 1.1.2 ships for real this time
+- 🔤 **Tracking snippets in English** — Connection-method code blocks (KClient, banners, pixels, widgets, WordPress) no longer carry hardcoded Russian comments
+
+Previous release — v1.1.3: 🎨 eight palette themes, 🌗 hardcoded grays → theme variables, 🧱 Conversion Types bundle repair.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 
