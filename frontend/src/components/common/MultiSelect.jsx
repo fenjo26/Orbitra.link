@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Search } from 'lucide-react';
-import { useLanguage } from '../contexts/LanguageContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 /**
  * Multi-select dropdown component with search, groups, and bulk actions.
@@ -12,14 +12,10 @@ import { useLanguage } from '../contexts/LanguageContext';
  * @param {function(number[]): void} props.onChange - Callback when selection changes
  * @param {string} props.placeholder - Placeholder text when nothing selected
  * @param {string} props.label - Label for display (e.g., "Campaigns")
- * @param {React.ReactNode} props.icon - Optional icon component
+ * @param {React.ReactNode} props.icon - Optional icon element (JSX)
  */
-export const MultiSelect = ({ items, groups = [], value, onChange, placeholder, label, icon: Icon }) => {
+export const MultiSelect = ({ items, groups = [], value, onChange, placeholder, label, icon }) => {
     const { t } = useLanguage();
-    const [isOpen, setIsOpen] = useState(false);
-    const [search, setSearch] = useState('');
-    const wrapperRef = useRef(null);
-export const MultiSelect = ({ items, groups = [], value, onChange, placeholder, label, icon: Icon }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState('');
     const wrapperRef = useRef(null);
@@ -107,7 +103,7 @@ export const MultiSelect = ({ items, groups = [], value, onChange, placeholder, 
                 style={{ minWidth: '160px', justifyContent: 'space-between' }}
             >
                 <span className="flex items-center gap-2">
-                    {Icon && <Icon className="w-4 h-4" />}
+                    {icon}
                     <span>{getLabelText()}</span>
                 </span>
                 <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
