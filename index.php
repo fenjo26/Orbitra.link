@@ -1717,6 +1717,16 @@ if ($uriPath === '/click_api/v3' || $uriPath === '/click_api/v3/') {
     exit;
 }
 
+// === Postback endpoint: /<postback_key>/postback ===
+// The postback_key is configurable from Settings and overrides the default
+// from config.php, so changing it in the panel takes effect immediately.
+$pbKey = (string) ($postback_key ?? '');
+if ($pbKey !== '' && ($uriPath === '/' . $pbKey . '/postback'
+                   || $uriPath === '/' . $pbKey . '/postback/')) {
+    require __DIR__ . '/postback.php';
+    exit;
+}
+
 // === Tracking pixel: /pixel.gif (Keitaro-compatible) ===
 // One invisible image, two jobs:
 //   /pixel.gif?campaign_id=42[&click params]  — email/impression pixel: logs a
@@ -1740,9 +1750,11 @@ if ($uriPath === '/pixel.gif') {
         // Full postback semantics (status mapping, tid upsert, outbound S2S)
         // live in postback.php; it die()s on bad input, so the shutdown function
         // guarantees the browser still gets its pixel either way.
+        define('ORBITRA_INSIDE_PIXEL_GIF', true);
         $pxBaseObLevel = ob_get_level();
         register_shutdown_function(function () use ($orbitraPixelGif, $orbitraPixelHeaders, $pxBaseObLevel) {
             while (ob_get_level() > $pxBaseObLevel) { @ob_end_clean(); }
+            http_response_code(200);
             $orbitraPixelHeaders();
             echo $orbitraPixelGif;
         });

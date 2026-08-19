@@ -203,11 +203,13 @@ try {
 
 if (!$clickId) {
     orbitraPostbackExit(400, "Missing subid.", ['result' => 'rejected', 'error' => 'Missing subid']);
+    return;
 }
 
 if (!$originalStatus) {
     // В трекере логируется, но мы просто игнорируем
     orbitraPostbackExit(400, "Ignored: Missing status.", ['result' => 'rejected', 'error' => 'Missing status']);
+    return;
 }
 
 // Проверяем существование клика.
@@ -228,6 +230,7 @@ if (!$clickData) {
         'error' => 'Click ID not found in database',
         'click_id' => $clickId
     ]);
+    return;
 }
 $campaignId = $clickData['campaign_id'];
 // sub_id_1..5 here are the CLICK's parameters. $clickId (the incoming subid) is
@@ -249,6 +252,7 @@ if ($internalStatus === 'custom' && !in_array($originalStatus, $allKnown)) {
         'original_status' => $originalStatus,
         'click_id' => $clickId
     ]);
+    return;
 }
 
 // Запись конверсии
@@ -560,6 +564,7 @@ try {
         'conversion_id' => $conversionId,
         'error' => null
     ], true);
+    return;
 
 }
 catch (\Exception $e) {
@@ -582,4 +587,5 @@ catch (\Exception $e) {
     }
 
     orbitraPostbackExit(500, "Internal error.", ['result' => 'error', 'error' => 'Internal server error']);
+    return;
 }
