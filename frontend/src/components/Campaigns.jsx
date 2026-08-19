@@ -1,12 +1,13 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Plus, Search, Trash2, Edit3, Settings2, DollarSign, XCircle, ChevronUp, ChevronDown, ChevronsUpDown, RefreshCw, X, Copy, BarChart2, SlidersHorizontal, GripVertical, MoreVertical, AlertTriangle } from 'lucide-react';
+import { Plus, Search, Trash2, Edit3, Settings2, DollarSign, XCircle, ChevronUp, ChevronDown, ChevronsUpDown, RefreshCw, X, Copy, BarChart2, SlidersHorizontal, GripVertical, MoreVertical, AlertTriangle, FileText } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import GroupsModal from './GroupsModal';
 import PaginationToolbar from './common/PaginationToolbar';
 import CampaignReports from './CampaignReports';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getDefaultTemplateColumns, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
+import BulkFileUpload from './common/BulkFileUpload';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard } from '../utils/clipboard';
@@ -24,6 +25,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     const [refreshing, setRefreshing] = useState(false);
     const [showGroupsModal, setShowGroupsModal] = useState(false);
     const [showGlobalReports, setShowGlobalReports] = useState(false);
+    const [showBulkFileUpload, setShowBulkFileUpload] = useState(false);
 
     // One-click pause: flips campaigns.state; a disabled campaign stops serving
     // immediately (index.php answers 503). Optimistic — reverts on failure.
@@ -762,6 +764,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                         <Plus className="w-3.5 h-3.5" />
                         {t('common.create')}
                     </button>
+                    <button onClick={() => setShowBulkFileUpload(true)} className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium">
+                        <FileText className="w-3.5 h-3.5" />
+                        {t('bulkFileUpload.uploadBtn')}
+                    </button>
                     <button onClick={() => setShowGlobalReports(true)} className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium" title={t('campaignReports.report')}>
                         <BarChart2 className="w-3.5 h-3.5" />
                         {t('campaignReports.report')}
@@ -1187,6 +1193,18 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                         setShowGroupsModal(false);
                         fetchGroups();
                     }}
+                />
+            )}
+
+            {/* Bulk File Upload Modal */}
+            {showBulkFileUpload && (
+                <BulkFileUpload
+                    entityType="campaigns"
+                    onSuccess={() => {
+                        refreshData && refreshData();
+                        setShowBulkFileUpload(false);
+                    }}
+                    onClose={() => setShowBulkFileUpload(false)}
                 />
             )}
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Sun, Moon, Palette, Check, Monitor, Droplet, RefreshCw, Save, Waves, StickyNote, Feather, Gem } from 'lucide-react';
+import { Sun, Moon, Palette, Check, Monitor, Droplet, RefreshCw, Save, Waves, StickyNote, Feather, Gem, Loader2, AlertCircle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { applyCustomThemeVars } from '../utils/themeContrast';
 
@@ -31,6 +31,8 @@ const BrandingPage = () => {
     const { t } = useLanguage();
     const [mode, setMode] = useState('light');
     const [saved, setSaved] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState(null);
     const [customColors, setCustomColors] = useState(DEFAULT_CUSTOM_COLORS);
 
     useEffect(() => {
@@ -72,6 +74,9 @@ const BrandingPage = () => {
     };
 
     const handleSave = async () => {
+        setSaving(true);
+        setError(null);
+
         try {
             if (mode === 'custom') {
                 localStorage.setItem('orbitra_custom_colors', JSON.stringify(customColors));
@@ -82,11 +87,18 @@ const BrandingPage = () => {
                 custom_colors: mode === 'custom' ? customColors : null,
                 theme: 'default'
             });
+
+            setSaving(false);
             setSaved(true);
             setTimeout(() => setSaved(false), 2000);
             window.dispatchEvent(new Event('themeChanged'));
         } catch (err) {
-            console.error('Failed to save settings');
+            setSaving(false);
+            setError(t('branding.saveError') || 'Failed to save settings. Please try again.');
+            console.error('Failed to save settings:', err);
+
+            // Auto-clear error after 3 seconds
+            setTimeout(() => setError(null), 3000);
         }
     };
 
@@ -314,32 +326,54 @@ const BrandingPage = () => {
             </div>
 
             {/* Actions */}
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <button
                     onClick={handleReset}
                     className="flex items-center gap-2 px-4 py-2 border rounded hover:bg-[var(--color-bg-hover)] transition-colors"
+                    disabled={saving}
                 >
                     <RefreshCw size={18} />
                     {t('branding.reset')}
                 </button>
 
-                <button
-                    onClick={handleSave}
-                    className={`flex items-center gap-2 px-6 py-2 rounded text-white transition-all ${saved ? 'bg-green-500' : 'btn-primary'
+                <div className="flex flex-col items-end gap-2 w-full sm:w-auto">
+                    <button
+                        onClick={handleSave}
+                        disabled={saving}
+                        className={`flex items-center justify-center gap-2 px-6 py-2 rounded text-white transition-all min-w-[140px] ${
+                            saved
+                                ? 'bg-green-500 hover:bg-green-600'
+                                : saving
+                                    ? 'bg-[var(--color-primary)] opacity-75 cursor-not-allowed'
+                                    : 'btn-primary hover:shadow-md'
                         }`}
-                >
-                    {saved ? (
-                        <>
-                            <Check size={18} />
-                            {t('branding.saved')}
-                        </>
-                    ) : (
-                        <>
-                            <Save size={18} />
-                            {t('branding.saveSettings')}
-                        </>
+                    >
+                        {saving ? (
+                            <>
+                                <Loader2 size={18} className="animate-spin" />
+                                {t('branding.saving') || 'Saving...'}
+                            </>
+                        ) : saved ? (
+                            <>
+                                <Check size={18} />
+                                {t('branding.saved') || 'Saved!'}
+                            </>
+                        ) : (
+                            <>
+                                <Save size={18} />
+                                {t('branding.saveSettings')}
+                            </>
+                        )}
+                    </button>
+
+                    {/* Error notification */}
+                    {error && (
+                        <div className="flex items-center gap-2 text-red-500 text-sm animate-fade-in">
+                            <AlertCircle size={16} />
+                            <span>{error}</span>
+                        </div>
                     )}
-                </button>
+                </div>
             </div>
         </div>
     );

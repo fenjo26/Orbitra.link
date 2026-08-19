@@ -1,11 +1,12 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { Plus, Trash2, Edit3, Settings2, Filter, RefreshCw, X, SlidersHorizontal } from 'lucide-react';
+import { Plus, Trash2, Edit3, Settings2, Filter, RefreshCw, X, SlidersHorizontal, FileText } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import LandingEditor from './LandingEditor';
 import GroupsModal from './GroupsModal';
 import ColumnsOrderModal from './ColumnsOrderModal';
 import PaginationToolbar from './common/PaginationToolbar';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
+import BulkFileUpload from './common/BulkFileUpload';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 import { entityDeleteErrorText } from '../utils/entityInUseError';
@@ -91,6 +92,7 @@ const Landings = ({ landings, refreshData }) => {
     const [refreshing, setRefreshing] = useState(false);
     const [columnsModalOpen, setColumnsModalOpen] = useState(false);
     const [chosenColumns, setChosenColumns] = useState(() => loadLandingColumns());
+    const [showBulkFileUpload, setShowBulkFileUpload] = useState(false);
     const [dateFrom, setDateFrom] = useState(() => getPresetDates('today')?.from || formatDate(new Date()));
     const [dateTo, setDateTo] = useState(() => getPresetDates('today')?.to || formatDate(new Date()));
     const [timezone, setTimezone] = useState(() => localStorage.getItem('orbitra_tz') || 'UTC');
@@ -531,6 +533,10 @@ const Landings = ({ landings, refreshData }) => {
                         <Plus className="w-4 h-4" />
                         {t('common.create')}
                     </button>
+                    <button onClick={() => setShowBulkFileUpload(true)} className="btn btn-secondary">
+                        <FileText className="w-4 h-4" />
+                        {t('bulkFileUpload.uploadBtn')}
+                    </button>
                     <button onClick={() => setShowGroupsModal(true)} className="btn btn-secondary">
                         {t('campaigns.groups')}
                     </button>
@@ -872,6 +878,18 @@ const Landings = ({ landings, refreshData }) => {
                 <GroupsModal
                     type="landing"
                     onClose={() => setShowGroupsModal(false)}
+                />
+            )}
+
+            {showBulkFileUpload && (
+                <BulkFileUpload
+                    entityType="landings"
+                    onSuccess={() => {
+                        fetchLandings();
+                        setShowBulkFileUpload(false);
+                        refreshData?.();
+                    }}
+                    onClose={() => setShowBulkFileUpload(false)}
                 />
             )}
 

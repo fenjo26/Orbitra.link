@@ -3080,6 +3080,65 @@ try {
             }
             break;
 
+        case 'bulk_import_campaigns':
+            // Import multiple campaigns from a list (CSV or pipe-delimited)
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+            $data = json_decode(orbitraRequestBody(), true);
+            $items = $data['items'] ?? [];
+
+            if (!is_array($items)) {
+                echo json_encode(['status' => 'error', 'message' => 'items must be an array']);
+                break;
+            }
+
+            $results = ['added' => 0, 'skipped' => 0, 'errors' => []];
+            $checkStmt = $pdo->prepare("SELECT id FROM campaigns WHERE name = ? AND is_archived = 0");
+            $checkAliasStmt = $pdo->prepare("SELECT id FROM campaigns WHERE alias = ? AND is_archived = 0");
+            $insertStmt = $pdo->prepare("INSERT INTO campaigns (name, alias, state) VALUES (?, ?, 'active')");
+
+            foreach ($items as $item) {
+                $name = $item['name'] ?? '';
+                $alias = $item['alias'] ?? '';
+
+                // Generate slug for alias if not provided
+                if (empty($alias) && !empty($name)) {
+                    $alias = orbitraSlugify($name);
+                }
+
+                if (empty($name)) {
+                    $results['errors'][] = ['row' => 'Unknown', 'error' => 'Empty name'];
+                    continue;
+                }
+
+                // Check for duplicate by name
+                $checkStmt->execute([$name]);
+                if ($checkStmt->fetch()) {
+                    $results['skipped']++;
+                    continue;
+                }
+
+                // Check for duplicate alias if provided
+                if (!empty($alias)) {
+                    $checkAliasStmt->execute([$alias]);
+                    if ($checkAliasStmt->fetch()) {
+                        $results['skipped']++;
+                        continue;
+                    }
+                }
+
+                try {
+                    $insertStmt->execute([$name, $alias ?: null]);
+                    $results['added']++;
+                } catch (\Exception $e) {
+                    $results['errors'][] = ['row' => $name, 'error' => $e->getMessage()];
+                }
+            }
+            echo json_encode(['status' => 'success', 'data' => $results]);
+            break;
+
         case 'copy_campaign':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);
@@ -3469,54 +3528,71 @@ try {
             break;
 
         case 'bulk_import_sources':
-            // Import multiple sources from a list
+            // Import multiple sources from a list (supports both legacy string lines and new item objects)
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
                 break;
             }
             $data = json_decode(orbitraRequestBody(), true);
+
+            // Support both 'lines' (legacy) and 'items' (new) formats
+            $items = $data['items'] ?? [];
             $lines = $data['lines'] ?? [];
 
-            if (!is_array($lines)) {
-                echo json_encode(['status' => 'error', 'message' => 'lines must be an array']);
+            // If 'lines' is provided but 'items' is not, convert lines to items
+            if (!empty($lines) && empty($items)) {
+                $items = [];
+                foreach ($lines as $line) {
+                    $line = trim($line);
+                    if (empty($line)) continue;
+
+                    if (strpos($line, '|') !== false) {
+                        list($name, $url) = array_map('trim', explode('|', $line, 2));
+                    } else {
+                        $url = trim($line);
+                        $name = parse_url($url, PHP_URL_HOST) ?: $url;
+                    }
+
+                    if (!empty($name)) {
+                        $items[] = ['name' => $name, 'url' => $url];
+                    }
+                }
+            }
+
+            if (!is_array($items)) {
+                echo json_encode(['status' => 'error', 'message' => 'items must be an array']);
                 break;
             }
 
-            $results = ['imported' => 0, 'errors' => [], 'duplicates' => 0];
+            $results = ['added' => 0, 'skipped' => 0, 'errors' => []];
+            // For backward compatibility, also return old field names
+            $results['imported'] = &$results['added'];
+            $results['duplicates'] = &$results['skipped'];
+
             $insertStmt = $pdo->prepare("INSERT INTO traffic_sources (name, url, state) VALUES (?, ?, 'active')");
             $checkStmt = $pdo->prepare("SELECT id FROM traffic_sources WHERE name = ? AND is_archived = 0");
 
-            foreach ($lines as $line) {
-                $line = trim($line);
-                if (empty($line)) continue;
-
-                // Parse line: "url" or "name|url"
-                if (strpos($line, '|') !== false) {
-                    list($name, $url) = array_map('trim', explode('|', $line, 2));
-                } else {
-                    $url = trim($line);
-                    // Extract hostname as name
-                    $name = parse_url($url, PHP_URL_HOST) ?: $url;
-                }
+            foreach ($items as $item) {
+                $name = $item['name'] ?? '';
+                $url = $item['url'] ?? '';
 
                 if (empty($name)) {
-                    $results['errors'][] = ['line' => $line, 'error' => 'Empty name'];
+                    $results['errors'][] = ['row' => 'Unknown', 'error' => 'Empty name'];
                     continue;
                 }
 
                 // Check for duplicate
                 $checkStmt->execute([$name]);
                 if ($checkStmt->fetch()) {
-                    $results['duplicates']++;
-                    $results['errors'][] = ['line' => $line, 'error' => 'Duplicate name'];
+                    $results['skipped']++;
                     continue;
                 }
 
                 try {
                     $insertStmt->execute([$name, $url ?: null]);
-                    $results['imported']++;
+                    $results['added']++;
                 } catch (\Exception $e) {
-                    $results['errors'][] = ['line' => $line, 'error' => $e->getMessage()];
+                    $results['errors'][] = ['row' => $name, 'error' => $e->getMessage()];
                 }
             }
             echo json_encode(['status' => 'success', 'data' => $results]);
@@ -4013,6 +4089,56 @@ try {
                 }
                 echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
             }
+            break;
+
+        case 'bulk_import_landings':
+            // Import multiple landings from a list (CSV or pipe-delimited)
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+            $data = json_decode(orbitraRequestBody(), true);
+            $items = $data['items'] ?? [];
+
+            if (!is_array($items)) {
+                echo json_encode(['status' => 'error', 'message' => 'items must be an array']);
+                break;
+            }
+
+            $results = ['added' => 0, 'skipped' => 0, 'errors' => []];
+            $checkStmt = $pdo->prepare("SELECT id FROM landings WHERE name = ? AND is_archived = 0");
+            $insertStmt = $pdo->prepare("INSERT INTO landings (name, url, type, state) VALUES (?, ?, ?, 'active')");
+
+            foreach ($items as $item) {
+                $name = $item['name'] ?? '';
+                $url = $item['url'] ?? '';
+                $type = !empty($item['type']) ? $item['type'] : 'local';
+
+                // Validate type
+                if (!in_array($type, ['local', 'redirect', 'preload', 'action'], true)) {
+                    $type = 'local';
+                }
+
+                if (empty($name)) {
+                    $results['errors'][] = ['row' => 'Unknown', 'error' => 'Empty name'];
+                    continue;
+                }
+
+                // Check for duplicate
+                $checkStmt->execute([$name]);
+                if ($checkStmt->fetch()) {
+                    $results['skipped']++;
+                    continue;
+                }
+
+                try {
+                    $insertStmt->execute([$name, $url ?: '', $type]);
+                    $results['added']++;
+                } catch (\Exception $e) {
+                    $results['errors'][] = ['row' => $name, 'error' => $e->getMessage()];
+                }
+            }
+            echo json_encode(['status' => 'success', 'data' => $results]);
             break;
 
         case 'upload_landing':
@@ -5438,6 +5564,51 @@ try {
                 }
                 echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
             }
+            break;
+
+        case 'bulk_import_offers':
+            // Import multiple offers from a list (CSV or pipe-delimited)
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+            $data = json_decode(orbitraRequestBody(), true);
+            $items = $data['items'] ?? [];
+
+            if (!is_array($items)) {
+                echo json_encode(['status' => 'error', 'message' => 'items must be an array']);
+                break;
+            }
+
+            $results = ['added' => 0, 'skipped' => 0, 'errors' => []];
+            $checkStmt = $pdo->prepare("SELECT id FROM offers WHERE name = ? AND is_archived = 0");
+            $insertStmt = $pdo->prepare("INSERT INTO offers (name, url, payout_value, state) VALUES (?, ?, ?, 'active')");
+
+            foreach ($items as $item) {
+                $name = $item['name'] ?? '';
+                $url = $item['url'] ?? '';
+                $payout = !empty($item['payout']) ? (float) str_replace(',', '.', $item['payout']) : 0.00;
+
+                if (empty($name)) {
+                    $results['errors'][] = ['row' => 'Unknown', 'error' => 'Empty name'];
+                    continue;
+                }
+
+                // Check for duplicate
+                $checkStmt->execute([$name]);
+                if ($checkStmt->fetch()) {
+                    $results['skipped']++;
+                    continue;
+                }
+
+                try {
+                    $insertStmt->execute([$name, $url ?: null, $payout]);
+                    $results['added']++;
+                } catch (\Exception $e) {
+                    $results['errors'][] = ['row' => $name, 'error' => $e->getMessage()];
+                }
+            }
+            echo json_encode(['status' => 'success', 'data' => $results]);
             break;
 
         case 'copy_offer':

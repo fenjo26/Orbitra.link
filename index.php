@@ -2,6 +2,12 @@
 // index.php - Обработчик кликов
 require_once 'config.php';
 
+// Landing assets debug mode. Set to true via environment variable or setting
+// to diagnose issues with CSS/JS loading on landing pages.
+// Enable with: putenv('ORBITRA_LANDING_DEBUG=1') or in settings table
+$orbitraLandingDebug = (filter_var(getenv('ORBITRA_LANDING_DEBUG') ?: 'false', FILTER_VALIDATE_BOOLEAN) ||
+                        (!empty($_GET['orbitra_debug_assets']) && $_GET['orbitra_debug_assets'] === '1'));
+
 // Keep tracker diagnostics in one predictable application-owned file. Without
 // this, error_log() may land in an FPM/Apache journal whose path varies by host.
 $orbitraLogDir = __DIR__ . '/var/logs';
@@ -596,9 +602,13 @@ function serveLandingAsset($landingId, $uriPath, $baseDir = null)
     //     internal;
     //     alias /var/www/orbitra/;
     // }
+
     $docRoot = realpath(__DIR__);
     if ($docRoot === false) {
         // Fallback to direct serving if we can't resolve the docroot
+        if ($GLOBALS['orbitraLandingDebug'] ?? false) {
+            header('X-Orbitra-Asset-Fallback: docroot-failed');
+        }
         $handle = fopen($file, 'rb');
         if ($handle === false) {
             return;
@@ -613,6 +623,35 @@ function serveLandingAsset($landingId, $uriPath, $baseDir = null)
     $internalPath = str_replace($docRoot . '/', '', $file);
     // URL-encode the path for the header
     $internalPath = implode('/', array_map('rawurlencode', explode('/', $internalPath)));
+
+    // Debug headers for troubleshooting landing asset issues
+    // Enable with: putenv('ORBITRA_LANDING_DEBUG=1') or add ?orbitra_debug_assets=1 to URL
+    if ($GLOBALS['orbitraLandingDebug'] ?? false) {
+        header('X-Orbitra-Asset-Debug: 1');
+        header('X-Orbitra-Asset-File: ' . $file);
+        header('X-Orbitra-Asset-Internal: /_internal_assets/' . $internalPath);
+        header('X-Orbitra-Asset-Size: ' . $size);
+        header('X-Orbitra-Asset-LandingId: ' . $landingId);
+    }
+
+    // Check if we should use fallback mode (nginx not synced or non-standard port)
+    // Enable via environment variable or when X-Accel-Redirect is known to fail
+    $useFallback = (getenv('ORBITRA_ASSET_FALLBACK') === '1');
+
+    if ($useFallback) {
+        // Direct file serving as fallback when nginx is not configured
+        if ($GLOBALS['orbitraLandingDebug'] ?? false) {
+            header('X-Orbitra-Asset-Fallback: forced-fallback-mode');
+        }
+        header('Content-Length: ' . $size);
+        $handle = fopen($file, 'rb');
+        if ($handle === false) {
+            return;
+        }
+        fpassthru($handle);
+        fclose($handle);
+        exit;
+    }
 
     header('X-Accel-Redirect: /_internal_assets/' . $internalPath);
     header('Content-Length: ' . $size);
@@ -752,6 +791,12 @@ function orbitraServeLanderPath(PDO $pdo, string $slug, string $rest): void
     // under the landing's folder instead of the domain root, which is where they
     // would otherwise be requested from — and 404.
     $base = '<base href="/lander/' . htmlspecialchars($slug, ENT_QUOTES) . '/">';
+
+    // Remove any existing <base> tag first to avoid conflicts.
+    // Many landing pages have their own <base> pointing to their original domain,
+    // which would break all relative paths. Ours must win.
+    $html = preg_replace('/<base\s+[^>]*>/i', '', $html);
+
     if (preg_match('/<head[^>]*>/i', $html, $m, PREG_OFFSET_CAPTURE)) {
         $at = $m[0][1] + strlen($m[0][0]);
         $html = substr($html, 0, $at) . "\n" . $base . substr($html, $at);

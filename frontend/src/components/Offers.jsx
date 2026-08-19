@@ -1,10 +1,11 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { Plus, Search, Trash2, Edit3, Settings2, RefreshCw, X, ChevronUp, ChevronDown, ChevronsUpDown, Copy, SlidersHorizontal } from 'lucide-react';
+import { Plus, Search, Trash2, Edit3, Settings2, RefreshCw, X, ChevronUp, ChevronDown, ChevronsUpDown, Copy, SlidersHorizontal, FileText } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import OfferEditor from './OfferEditor';
 import GroupsModal from './GroupsModal';
 import ColumnsOrderModal from './ColumnsOrderModal';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
+import BulkFileUpload from './common/BulkFileUpload';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 import { entityDeleteErrorText } from '../utils/entityInUseError';
@@ -91,6 +92,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
     const [refreshing, setRefreshing] = useState(false);
     const [columnsModalOpen, setColumnsModalOpen] = useState(false);
     const [chosenColumns, setChosenColumns] = useState(() => loadOfferColumns());
+    const [showBulkFileUpload, setShowBulkFileUpload] = useState(false);
 
     // This page owns its reporting period instead of inheriting the dashboard
     // range. Only joined traffic rows are date-limited; zero-traffic offers
@@ -675,6 +677,10 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                         <Plus className="w-4 h-4" />
                         {t('common.create')}
                     </button>
+                    <button onClick={() => setShowBulkFileUpload(true)} className="btn btn-secondary">
+                        <FileText className="w-4 h-4" />
+                        {t('bulkFileUpload.uploadBtn')}
+                    </button>
                     <button onClick={() => setIsGroupsModalOpen(true)} className="btn btn-secondary">
                         {t('campaigns.groups')}
                     </button>
@@ -999,6 +1005,18 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                 <GroupsModal
                     type="offer"
                     onClose={() => setIsGroupsModalOpen(false)}
+                />
+            )}
+
+            {/* Bulk File Upload Modal */}
+            {showBulkFileUpload && (
+                <BulkFileUpload
+                    entityType="offers"
+                    onSuccess={() => {
+                        fetchOffers();
+                        setShowBulkFileUpload(false);
+                    }}
+                    onClose={() => setShowBulkFileUpload(false)}
                 />
             )}
 

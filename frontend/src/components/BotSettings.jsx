@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { ShieldBan, Plus, Trash2, RotateCcw, Search, Upload, FileText, CheckCircle2, Save } from 'lucide-react';
+import { ShieldBan, Plus, Trash2, RotateCcw, Search, Upload, CheckCircle2, Save, FileText } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const API_URL = '/api.php';
@@ -20,11 +20,14 @@ const BotSettings = () => {
     const fileInputIpRef = useRef(null);
     const fileInputSigRef = useRef(null);
 
-    // Global Bot ISP blacklist (settings.bot_isp_list) — a plain keyword list,
-    // not a paged table, so it loads and saves through global_settings.
-    const [ispList, setIspList] = useState('');
+    // Global Bot ISP blacklist (settings.bot_isp_list) — managed client-side
+    // as an array, stored as a comma/newline-separated string in global_settings.
+    const [ispList, setIspList] = useState([]);
+    const [ispSearch, setIspSearch] = useState('');
+    const [newIspKeywords, setNewIspKeywords] = useState('');
     const [ispSaving, setIspSaving] = useState(false);
     const [ispSaved, setIspSaved] = useState(false);
+    const fileInputIspRef = useRef(null);
 
     const endpointOf = (type) => (type === 'ip' ? 'bot_ips' : 'bot_signatures');
 
@@ -64,28 +67,34 @@ const BotSettings = () => {
                 const res = await fetch(`${API_URL}?action=global_settings`);
                 const data = await res.json();
                 if (!cancelled && data.status === 'success') {
-                    setIspList(data.data?.bot_isp_list ?? '');
+                    const raw = data.data?.bot_isp_list ?? '';
+                    // Parse comma/newline-separated string into array
+                    const items = raw.split(/[\r\n,]+/)
+                        .map(s => s.trim().replace(/^"|"$/g, ''))
+                        .filter(Boolean);
+                    setIspList(items);
                 }
             } catch (e) {
-                // The textarea just starts empty; saving still works.
+                // The list just starts empty; saving still works.
             }
         })();
         return () => { cancelled = true; };
     }, []);
 
-    const saveIspList = async () => {
+    const saveIspList = async (itemsToSave = ispList) => {
         setIspSaving(true);
         try {
             const res = await fetch(`${API_URL}?action=global_settings`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ settings: { bot_isp_list: ispList } })
+                body: JSON.stringify({ settings: { bot_isp_list: itemsToSave.join('\n') } })
             });
             const data = await res.json().catch(() => null);
             if (!res.ok || data?.status !== 'success') {
                 throw new Error(data?.message || `HTTP ${res.status}`);
             }
             setIspSaved(true);
+            setIspList(itemsToSave);
             setTimeout(() => setIspSaved(false), 2000);
         } catch (e) {
             alert(`${t('botSettings.saveError')}: ${e.message}`);
@@ -193,6 +202,62 @@ const BotSettings = () => {
         }
     };
 
+    // ISP list handlers (client-side management)
+    const handleAddIsp = async (rawText = newIspKeywords) => {
+        if (!rawText.trim()) return;
+        const items = rawText.split(/[\r\n,]+/)
+            .map(s => s.trim().replace(/^"|"$/g, ''))
+            .filter(Boolean);
+
+        // Deduplicate against existing list
+        const existingSet = new Set(ispList.map(s => s.toLowerCase()));
+        const newItems = items.filter(s => !existingSet.has(s.toLowerCase()));
+
+        if (newItems.length === 0) {
+            alert(t('botSettings.skippedDuplicates'));
+            setNewIspKeywords('');
+            return;
+        }
+
+        const updatedList = [...ispList, ...newItems];
+        await saveIspList(updatedList);
+        setNewIspKeywords('');
+
+        alert(`${t('botSettings.addedCount')} ${newItems.length}`
+            + (items.length - newItems.length ? ` (${t('botSettings.skippedDuplicates')} ${items.length - newItems.length})` : ''));
+    };
+
+    const handleIspFileUpload = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const text = event.target?.result;
+            if (typeof text === 'string') {
+                handleAddIsp(text);
+            }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+    };
+
+    const handleDeleteIsp = async (keyword) => {
+        const updatedList = ispList.filter(s => s !== keyword);
+        await saveIspList(updatedList);
+    };
+
+    const handleClearIsp = async () => {
+        if (!window.confirm(t('botSettings.confirmClear'))) return;
+        await saveIspList([]);
+    };
+
+    const getFilteredIspList = () => {
+        if (!ispSearch.trim()) return ispList;
+        const searchLower = ispSearch.toLowerCase();
+        return ispList.filter(s => s.toLowerCase().includes(searchLower));
+    };
+
     const renderList = (type) => {
         const list = lists[type];
         const hasMore = list.items.length < list.filtered;
@@ -261,10 +326,11 @@ const BotSettings = () => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <ShieldBan size={18} style={{ color: 'var(--color-primary)' }} />
                         <h3 className="page-title" style={{ margin: 0 }}>{t('botSettings.ispTitle')}</h3>
+                        <span className="badge badge-secondary">{ispList.length}</span>
                     </div>
-                    <button onClick={saveIspList} className="btn btn-primary btn-sm flex items-center gap-1.5" disabled={ispSaving}>
-                        {ispSaved ? <CheckCircle2 size={14} /> : <Save size={14} />}
-                        {ispSaved ? t('botSettings.saved') : t('botSettings.save')}
+                    <button onClick={handleClearIsp} className="btn btn-ghost btn-sm">
+                        <RotateCcw size={14} />
+                        {t('botSettings.clearAll')}
                     </button>
                 </div>
 
@@ -273,13 +339,86 @@ const BotSettings = () => {
                         {t('botSettings.ispHint')}
                     </p>
                     <textarea
-                        value={ispList}
-                        onChange={(e) => setIspList(e.target.value)}
+                        value={newIspKeywords}
+                        onChange={(e) => setNewIspKeywords(e.target.value)}
                         placeholder={t('botSettings.ispPlaceholder')}
-                        rows={3}
+                        rows={4}
                         className="form-input"
                         style={{ fontFamily: 'monospace', fontSize: '13px' }}
                     />
+                    <div className="flex flex-wrap items-center gap-2 mt-2">
+                        <button
+                            type="button"
+                            onClick={() => handleAddIsp()}
+                            disabled={ispSaving}
+                            className="btn btn-primary btn-sm flex items-center gap-1.5"
+                        >
+                            {ispSaved ? <CheckCircle2 size={14} /> : ispSaving ? <Save size={14} /> : <Plus size={14} />}
+                            {ispSaved ? t('botSettings.saved') : ispSaving ? t('botSettings.saving') : t('botSettings.addIsp')}
+                        </button>
+
+                        <input
+                            type="file"
+                            ref={fileInputIspRef}
+                            accept=".txt,.csv"
+                            style={{ display: 'none' }}
+                            onChange={handleIspFileUpload}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => fileInputIspRef.current?.click()}
+                            disabled={ispSaving}
+                            className="btn btn-secondary btn-sm flex items-center gap-1.5"
+                        >
+                            <Upload size={14} />
+                            <span>Upload .txt / .csv</span>
+                        </button>
+
+                        {ispSaving && (
+                            <span className="text-xs font-medium ml-2 text-blue-500 animate-pulse">
+                                {t('botSettings.saving')}...
+                            </span>
+                        )}
+                    </div>
+
+                    {/* Search */}
+                    <div style={{ marginTop: '16px', position: 'relative' }}>
+                        <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)', pointerEvents: 'none' }} />
+                        <input
+                            type="text"
+                            value={ispSearch}
+                            onChange={(e) => setIspSearch(e.target.value)}
+                            placeholder={t('botSettings.searchPlaceholder')}
+                            className="form-input"
+                            style={{ paddingLeft: '32px', fontSize: '13px' }}
+                        />
+                    </div>
+
+                    {/* List */}
+                    <div style={{ marginTop: '12px', maxHeight: '420px', overflowY: 'auto', border: '1px solid var(--color-border)', borderRadius: '12px' }}>
+                        {getFilteredIspList().length === 0 ? (
+                            <div style={{ padding: '24px', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '13px' }}>
+                                {ispSearch.trim() ? t('botSettings.noSearchResults') : t('botSettings.noItems')}
+                            </div>
+                        ) : (
+                            <table className="page-table" style={{ margin: 0 }}>
+                                <tbody>
+                                    {getFilteredIspList().map((keyword, idx) => (
+                                        <tr key={idx}>
+                                            <td style={{ fontFamily: 'monospace', fontSize: '12px' }}>
+                                                {keyword}
+                                            </td>
+                                            <td style={{ width: '40px', textAlign: 'right' }}>
+                                                <button onClick={() => handleDeleteIsp(keyword)} className="btn btn-ghost btn-sm" style={{ color: 'var(--color-danger)', padding: '2px 6px' }}>
+                                                    <Trash2 size={13} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )}
+                    </div>
                 </div>
             </div>
 
