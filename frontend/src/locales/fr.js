@@ -203,7 +203,16 @@ export default {
     },
     "analytics": {
         "trends": "Tendance",
-        "cohort": "Cohorte"
+        "cohort": "Cohorte",
+        "campaigns": "Campagnes",
+        "allCampaigns": "Toutes les campagnes",
+        "offers": "Offres",
+        "allOffers": "Toutes les offres",
+        "selectGroup": "Choisir un groupe",
+        "selectAll": "Tout sélectionner",
+        "clearAll": "Effacer",
+        "search": "Rechercher...",
+        "groups": "Groupes"
     },
     "cohort": {
         "bannerTitle": "Cohortes de campagnes",

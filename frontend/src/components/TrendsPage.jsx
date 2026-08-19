@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Calendar, Filter, Download, BarChart3, TrendingUp, Clock, PieChart, Grid3x3 } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import CohortView from './CohortView';
+import AnalyticsEntityFilters from './common/AnalyticsEntityFilters';
 import { Line } from 'react-chartjs-2';
 import {
     Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement,
@@ -39,6 +40,8 @@ const TrendsPage = () => {
     const [dateTo, setDateTo] = useState(() => new Date().toISOString().split('T')[0]);
     const [selectedMetrics, setSelectedMetrics] = useState(['clicks', 'unique_clicks', 'conversions', 'revenue', 'real_revenue', 'cost', 'profit', 'cr']);
     const [filters, setFilters] = useState([]);
+    const [selectedCampaignIds, setSelectedCampaignIds] = useState([]);
+    const [selectedOfferIds, setSelectedOfferIds] = useState([]);
     const [showFilterModal, setShowFilterModal] = useState(false);
     const [newFilter, setNewFilter] = useState({ field: 'country_code', operator: 'contains', value: '' });
     const [loading, setLoading] = useState(true);
@@ -86,9 +89,26 @@ const TrendsPage = () => {
     const fetchTrends = async () => {
         setLoading(true);
         try {
+            // Build active filters array from existing filters + campaign/offer selections
+            const activeFilters = [...filters];
+
+            // Add campaign filter if any selected
+            if (selectedCampaignIds.length === 1) {
+                activeFilters.push({ field: 'campaign_id', operator: 'equals', value: String(selectedCampaignIds[0]) });
+            } else if (selectedCampaignIds.length > 1) {
+                activeFilters.push({ field: 'campaign_id', operator: 'in', value: selectedCampaignIds.join(',') });
+            }
+
+            // Add offer filter if any selected
+            if (selectedOfferIds.length === 1) {
+                activeFilters.push({ field: 'offer_id', operator: 'equals', value: String(selectedOfferIds[0]) });
+            } else if (selectedOfferIds.length > 1) {
+                activeFilters.push({ field: 'offer_id', operator: 'in', value: selectedOfferIds.join(',') });
+            }
+
             const params = new URLSearchParams({
                 action: 'trends', group_by: groupBy, date_from: debouncedDateFrom,
-                date_to: debouncedDateTo, metrics: selectedMetrics.join(','), filters: JSON.stringify(filters)
+                date_to: debouncedDateTo, metrics: selectedMetrics.join(','), filters: JSON.stringify(activeFilters)
             });
             const res = await fetch(`${API_URL}?${params}`);
             const data = await res.json();
@@ -110,7 +130,7 @@ const TrendsPage = () => {
     };
 
     // Only fetch trends when debounced dates change (not on every keystroke)
-    useEffect(() => { fetchTrends(); }, [groupBy, debouncedDateFrom, debouncedDateTo, JSON.stringify(filters)]);
+    useEffect(() => { fetchTrends(); }, [groupBy, debouncedDateFrom, debouncedDateTo, JSON.stringify(filters), JSON.stringify(selectedCampaignIds), JSON.stringify(selectedOfferIds)]);
 
     const addFilter = () => {
         if (newFilter.value.trim()) {
@@ -208,6 +228,12 @@ const TrendsPage = () => {
                         <span style={{ color: 'var(--color-text-muted)' }}>—</span>
                         <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="form-input" style={{ width: 'auto', padding: '8px 12px' }} />
                     </div>
+                    <AnalyticsEntityFilters
+                        campaignIds={selectedCampaignIds}
+                        onCampaignChange={setSelectedCampaignIds}
+                        offerIds={selectedOfferIds}
+                        onOfferChange={setSelectedOfferIds}
+                    />
                     <button onClick={() => setShowFilterModal(true)} className="btn btn-secondary btn-sm">
                         <Filter className="w-4 h-4" />{t('trends.addFilter')}
                     </button>
@@ -215,7 +241,7 @@ const TrendsPage = () => {
                         <Download className="w-4 h-4" />{t('trends.exportCsv')}
                     </button>
                 </div>
-                {filters.length > 0 && (
+                {(filters.length > 0 || selectedCampaignIds.length > 0 || selectedOfferIds.length > 0) && (
                     <div className="flex flex-wrap gap-2" style={{ marginTop: '12px' }}>
                         {filters.map(f => (
                             <span key={f.id} className="status-badge" style={{ background: 'var(--color-info-bg)', color: 'var(--color-info)' }}>
@@ -223,6 +249,18 @@ const TrendsPage = () => {
                                 <button onClick={() => removeFilter(f.id)} style={{ marginLeft: '4px', cursor: 'pointer' }}>×</button>
                             </span>
                         ))}
+                        {selectedCampaignIds.length > 0 && (
+                            <span className="status-badge" style={{ background: 'var(--color-primary)', color: 'var(--color-text-inverse)' }}>
+                                {t('analytics.campaigns')}: {selectedCampaignIds.length}
+                                <button onClick={() => setSelectedCampaignIds([])} style={{ marginLeft: '4px', cursor: 'pointer' }}>×</button>
+                            </span>
+                        )}
+                        {selectedOfferIds.length > 0 && (
+                            <span className="status-badge" style={{ background: 'var(--color-primary)', color: 'var(--color-text-inverse)' }}>
+                                {t('analytics.offers')}: {selectedOfferIds.length}
+                                <button onClick={() => setSelectedOfferIds([])} style={{ marginLeft: '4px', cursor: 'pointer' }}>×</button>
+                            </span>
+                        )}
                     </div>
                 )}
             </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Calendar, Download, Grid3x3, Table2, BarChart3, TrendingUp } from 'lucide-react';
 import InfoBanner from './InfoBanner';
+import AnalyticsEntityFilters from './common/AnalyticsEntityFilters';
 import { Line } from 'react-chartjs-2';
 import {
     Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement,
@@ -68,6 +69,8 @@ const CohortView = () => {
         return d.toISOString().split('T')[0];
     });
     const [dateTo, setDateTo] = useState(() => new Date().toISOString().split('T')[0]);
+    const [selectedCampaignIds, setSelectedCampaignIds] = useState([]);
+    const [selectedOfferIds, setSelectedOfferIds] = useState([]);
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState(null); // { rows: [...], launched: {label: n}, max_period }
     const [error, setError] = useState('');
@@ -93,11 +96,27 @@ const CohortView = () => {
         setLoading(true);
         setError('');
         try {
+            // Build filters array from campaign/offer selections
+            const cohortFilters = [];
+
+            if (selectedCampaignIds.length === 1) {
+                cohortFilters.push({ field: 'campaign_id', operator: 'equals', value: String(selectedCampaignIds[0]) });
+            } else if (selectedCampaignIds.length > 1) {
+                cohortFilters.push({ field: 'campaign_id', operator: 'in', value: selectedCampaignIds.join(',') });
+            }
+
+            if (selectedOfferIds.length === 1) {
+                cohortFilters.push({ field: 'offer_id', operator: 'equals', value: String(selectedOfferIds[0]) });
+            } else if (selectedOfferIds.length > 1) {
+                cohortFilters.push({ field: 'offer_id', operator: 'in', value: selectedOfferIds.join(',') });
+            }
+
             const params = new URLSearchParams({
                 action: 'cohort',
                 granularity,
                 date_from: debouncedDateFrom,
                 date_to: debouncedDateTo,
+                filters: JSON.stringify(cohortFilters),
             });
             const res = await fetch(`${API_URL}?${params}`);
             const json = await res.json();
@@ -114,7 +133,7 @@ const CohortView = () => {
         } finally {
             setLoading(false);
         }
-    }, [granularity, debouncedDateFrom, debouncedDateTo]);
+    }, [granularity, debouncedDateFrom, debouncedDateTo, selectedCampaignIds, selectedOfferIds]);
 
     // Only fetch cohort when debounced dates change
     useEffect(() => { fetchCohort(); }, [granularity, debouncedDateFrom, debouncedDateTo]);
@@ -345,10 +364,34 @@ const CohortView = () => {
                         <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)}
                             className="form-input" style={{ width: 'auto', padding: '8px 12px' }} />
                     </div>
+                    <AnalyticsEntityFilters
+                        campaignIds={selectedCampaignIds}
+                        onCampaignChange={setSelectedCampaignIds}
+                        offerIds={selectedOfferIds}
+                        onOfferChange={setSelectedOfferIds}
+                    />
                     <button onClick={exportCSV} className="btn btn-secondary btn-sm" disabled={!hasData}>
                         <Download className="w-4 h-4" />{t('cohort.exportCsv')}
                     </button>
                 </div>
+
+                {/* Active filters badges */}
+                {(selectedCampaignIds.length > 0 || selectedOfferIds.length > 0) && (
+                    <div className="flex flex-wrap gap-2" style={{ marginTop: '12px' }}>
+                        {selectedCampaignIds.length > 0 && (
+                            <span className="status-badge" style={{ background: 'var(--color-primary)', color: 'var(--color-text-inverse)' }}>
+                                {t('analytics.campaigns')}: {selectedCampaignIds.length}
+                                <button onClick={() => setSelectedCampaignIds([])} style={{ marginLeft: '4px', cursor: 'pointer' }}>×</button>
+                            </span>
+                        )}
+                        {selectedOfferIds.length > 0 && (
+                            <span className="status-badge" style={{ background: 'var(--color-primary)', color: 'var(--color-text-inverse)' }}>
+                                {t('analytics.offers')}: {selectedOfferIds.length}
+                                <button onClick={() => setSelectedOfferIds([])} style={{ marginLeft: '4px', cursor: 'pointer' }}>×</button>
+                            </span>
+                        )}
+                    </div>
+                )}
 
                 {/* Metric selector */}
                 <div className="flex flex-wrap items-center gap-2" style={{ marginTop: '12px' }}>

@@ -13103,41 +13103,63 @@ try {
             $selectedMetrics = explode(',', $metricsParam);
             $filters = json_decode($filtersParam, true) ?? [];
 
+            // Whitelisted filter fields (injection-safe). Maps user keys to qualified columns.
+            $allowedTrendFields = [
+                'country_code' => 'cl.country_code',
+                'device_type'  => 'cl.device_type',
+                'campaign_id'  => 'cl.campaign_id',
+                'offer_id'     => 'cl.offer_id',
+                'source_id'    => 'cl.source_id',
+                'ip'           => 'cl.ip',
+                'browser'      => 'cl.browser',
+                'os'           => 'cl.os',
+            ];
+
             // Build WHERE clause from filters
             $whereClauses = ["cl.created_at >= ? AND cl.created_at <= ?"];
             $params = [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'];
 
             foreach ($filters as $f) {
-                $field = $f['field'] ?? '';
+                $field    = $f['field'] ?? '';
                 $operator = $f['operator'] ?? 'contains';
-                $value = $f['value'] ?? '';
+                $value    = $f['value'] ?? '';
 
-                if (!$field || !$value)
-                    continue;
+                if (!$field || $value === '' || $value === null) continue;
+                if (!isset($allowedTrendFields[$field])) continue;
+
+                $col = $allowedTrendFields[$field];
 
                 switch ($operator) {
+                    case 'in':
+                        $ids = array_filter(array_map('intval', explode(',', $value)));
+                        if ($ids) {
+                            $placeholders = implode(',', array_fill(0, count($ids), '?'));
+                            $whereClauses[] = "$col IN ($placeholders)";
+                            array_push($params, ...$ids);
+                        }
+                        break;
                     case 'contains':
-                        $whereClauses[] = "cl.$field LIKE ?";
+                        $whereClauses[] = "$col LIKE ?";
                         $params[] = "%$value%";
                         break;
                     case 'not_contains':
-                        $whereClauses[] = "cl.$field NOT LIKE ?";
+                        $whereClauses[] = "$col NOT LIKE ?";
                         $params[] = "%$value%";
                         break;
                     case 'equals':
-                        $whereClauses[] = "cl.$field = ?";
+                        $whereClauses[] = "$col = ?";
                         $params[] = $value;
                         break;
                     case 'not_equals':
-                        $whereClauses[] = "cl.$field != ?";
+                        $whereClauses[] = "$col != ?";
                         $params[] = $value;
                         break;
                     case 'starts_with':
-                        $whereClauses[] = "cl.$field LIKE ?";
+                        $whereClauses[] = "$col LIKE ?";
                         $params[] = "$value%";
                         break;
                     case 'ends_with':
-                        $whereClauses[] = "cl.$field LIKE ?";
+                        $whereClauses[] = "$col LIKE ?";
                         $params[] = "%$value";
                         break;
                 }
@@ -13380,7 +13402,7 @@ try {
                 'stream_id'    => 'cl.stream_id',
                 'ip'           => 'cl.ip',
             ];
-            $allowedOperators = ['contains', 'not_contains', 'equals', 'not_equals', 'starts_with', 'ends_with'];
+            $allowedOperators = ['contains', 'not_contains', 'equals', 'not_equals', 'starts_with', 'ends_with', 'in'];
 
             // Period expressions. cohort_label is the row key (human label);
             // cohort_period / click_period are absolute integer period numbers
@@ -13435,6 +13457,14 @@ try {
                 if (!in_array($operator, $allowedOperators, true)) { continue; }
                 $col = $allowedFilterFields[$field];
                 switch ($operator) {
+                    case 'in':
+                        $ids = array_filter(array_map('intval', explode(',', $value)));
+                        if ($ids) {
+                            $placeholders = implode(',', array_fill(0, count($ids), '?'));
+                            $clickWhere[] = "$col IN ($placeholders)";
+                            array_push($params, ...$ids);
+                        }
+                        break;
                     case 'contains':     $clickWhere[] = "$col LIKE ?";    $params[] = "%$value%"; break;
                     case 'not_contains': $clickWhere[] = "$col NOT LIKE ?"; $params[] = "%$value%"; break;
                     case 'equals':       $clickWhere[] = "$col = ?";        $params[] = $value;     break;

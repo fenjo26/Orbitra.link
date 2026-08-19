@@ -203,7 +203,16 @@ export default {
     },
     "analytics": {
         "trends": "Trend",
-        "cohort": "Cohort"
+        "cohort": "Cohort",
+        "campaigns": "Campaigns",
+        "allCampaigns": "All campaigns",
+        "offers": "Offers",
+        "allOffers": "All offers",
+        "selectGroup": "Select group",
+        "selectAll": "Select all",
+        "clearAll": "Clear",
+        "search": "Search...",
+        "groups": "Groups"
     },
     "cohort": {
         "bannerTitle": "Campaign cohorts",

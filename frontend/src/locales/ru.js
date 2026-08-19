@@ -203,7 +203,16 @@ export default {
     },
     "analytics": {
         "trends": "Тренд",
-        "cohort": "Когорта"
+        "cohort": "Когорта",
+        "campaigns": "Кампании",
+        "allCampaigns": "Все кампании",
+        "offers": "Офферы",
+        "allOffers": "Все офферы",
+        "selectGroup": "Выбрать группу",
+        "selectAll": "Выбрать все",
+        "clearAll": "Сбросить",
+        "search": "Поиск...",
+        "groups": "Группы"
     },
     "cohort": {
         "bannerTitle": "Когорты кампаний",

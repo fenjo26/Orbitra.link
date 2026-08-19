@@ -203,7 +203,16 @@ export default {
     },
     "analytics": {
         "trends": "趋势",
-        "cohort": "队列"
+        "cohort": "队列",
+        "campaigns": "活动",
+        "allCampaigns": "所有活动",
+        "offers": "报价",
+        "allOffers": "所有报价",
+        "selectGroup": "选择组",
+        "selectAll": "全选",
+        "clearAll": "清除",
+        "search": "搜索...",
+        "groups": "分组"
     },
     "cohort": {
         "bannerTitle": "广告系列队列",
