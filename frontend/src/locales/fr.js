@@ -1297,8 +1297,19 @@ export default {
         "affectCap": "Compté dans les limites de l'offre (plafond quotidien)",
         "saveType": "Type d'enregistrement",
         "nameAndMacrosRequired": "Le nom et les macros sont requis",
-        "deleteConfirm": "Supprimer le type de conversion ?",
-        "deleteError": "Erreur de suppression"
+        "deleteConfirm": "Supprimer le type de conversion ?",
+        "deleteError": "Erreur de suppression",
+        "unmappedStatuses": "Statuts non mappés",
+        "noUnmappedStatuses": "Aucun statut non mappé trouvé",
+        "originalStatus": "Statut original",
+        "count": "Nombre",
+        "firstSeen": "Première apparition",
+        "lastSeen": "Dernière apparition",
+        "mapTo": "Mapper vers",
+        "mapToTitle": "Mapper vers {type}",
+        "mapToBtn": "{type}",
+        "mappedSuccessfully": "Mappé avec succès et {count} conversion(s) reclassifiée(s)",
+        "alreadyMapped": "Ce statut est déjà mappé à ce type"
     },
     "users": {
         "roleTemplate": "Modèle de rôle",

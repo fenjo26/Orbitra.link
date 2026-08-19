@@ -1298,7 +1298,18 @@ export default {
         "saveType": "Тип збереження",
         "nameAndMacrosRequired": "Ім’я та макроси є обов’язковими",
         "deleteConfirm": "Видалити тип конверсії?",
-        "deleteError": "Видалити помилку"
+        "deleteError": "Видалити помилку",
+        "unmappedStatuses": "Непридатані статуси",
+        "noUnmappedStatuses": "Непридатних статусів не знайдено",
+        "originalStatus": "Початковий статус",
+        "count": "Кількість",
+        "firstSeen": "Перше появлення",
+        "lastSeen": "Останнє появлення",
+        "mapTo": "Мапити в",
+        "mapToTitle": "Мапити в {type}",
+        "mapToBtn": "{type}",
+        "mappedSuccessfully": "Успішно замаплено та перекласифіковано {count} конверсій",
+        "alreadyMapped": "Цей статус вже замаплений в цей тип"
     },
     "users": {
         "roleTemplate": "Шаблон ролі",

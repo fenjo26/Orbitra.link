@@ -20,9 +20,38 @@ class TikTokConversions
         ];
     }
 
-    public static function resolveEvent(string $status): ?string
+    /**
+     * Which TikTok event (if any) this tracker status should produce for this pixel.
+     * mapping_json wins; otherwise the default table; a status mapped to '' is
+     * explicitly suppressed.
+     *
+     * For custom/unmapped statuses, we still check mapping_json first — an operator
+     * can configure a TikTok event for any status, including ones not yet mapped to a
+     * conversion type. Only if there's no explicit mapping do we fall back to the
+     * defaults, which return null for unknown statuses.
+     */
+    public static function resolveEvent(array $pixel, string $status): ?string
     {
-        $event = self::defaultMapping()[strtolower(trim($status))] ?? '';
+        $needle = strtolower(trim($status));
+        if ($needle === '') {
+            return null;
+        }
+
+        // Check pixel-level mapping first.
+        $mapping = [];
+        if (!empty($pixel['mapping_json'])) {
+            $decoded = json_decode((string) $pixel['mapping_json'], true);
+            if (is_array($decoded)) {
+                $mapping = array_change_key_case($decoded, CASE_LOWER);
+            }
+        }
+
+        if (array_key_exists($needle, $mapping)) {
+            $event = trim((string) $mapping[$needle]);
+            return $event === '' ? null : $event;
+        }
+
+        $event = self::defaultMapping()[$needle] ?? '';
         return $event === '' ? null : $event;
     }
 
@@ -96,7 +125,7 @@ class TikTokConversions
         if (empty($pixel['pixel_id']) || empty($pixel['token'])) {
             return false;
         }
-        $event = self::resolveEvent((string) ($ctx['status'] ?? ''));
+        $event = self::resolveEvent($pixel, (string) ($ctx['status'] ?? ''));
         if ($event === null) {
             return false;
         }

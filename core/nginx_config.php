@@ -105,6 +105,23 @@ function orbitraNginxCommonBody(string $fpmSocket): string
     $b = "    root /var/www/orbitra;\n";
     $b .= "    index index.php admin.php index.html;\n\n";
 
+    $b .= "    # ORB-013: Internal location for X-Accel-Redirect.\n";
+    $b .= "    # PHP resolves landing asset paths with security checks, then hands\n";
+    $b .= "    # off to nginx via X-Accel-Redirect. This location serves the file\n";
+    $b .= "    # with sendfile (zero-copy) while PHP is freed for the next request.\n";
+    $b .= "    # A landing page with 30 assets no longer means 30 PHP processes.\n";
+    $b .= "    location /_internal_assets/ {\n";
+    $b .= "        internal;\n";
+    $b .= "        alias /var/www/orbitra/;\n";
+    $b .= "        # Security: only serve whitelisted asset types\n";
+    $b .= "        location ~* \\.(ico|png|jpg|jpeg|gif|bmp|webp|avif|svg|css|js|mjs|json|map|webmanifest|woff|woff2|ttf|otf|eot|mp4|webm|m4v|ogv|mp3|ogg|wav|m4a|txt|pdf)\$ {\n";
+    $b .= "            expires 1h;\n";
+    $b .= "            add_header Cache-Control \"public, immutable\";\n";
+    $b .= "        }\n";
+    $b .= "        # Deny everything else (including .php files)\n";
+    $b .= "        deny all;\n";
+    $b .= "    }\n\n";
+
     $b .= "    # Let's Encrypt HTTP-01 challenge.\n";
     $b .= "    # Must precede the dotfile deny below, which would otherwise swallow it.\n";
     $b .= "    location ^~ /.well-known/acme-challenge/ {\n";

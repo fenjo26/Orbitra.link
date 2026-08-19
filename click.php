@@ -210,26 +210,13 @@ function clickGetGeoData($ip)
         }
     }
 
-    if ($geo['country_code'] === 'Unknown' || $geo['region'] === '' || $geo['city'] === '') {
-        $ch = curl_init("http://ip-api.com/json/{$ip}?fields=countryCode,regionName,city,lat,lon,zip,timezone");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 2);
-        $response = curl_exec($ch);
-        if ($response) {
-            $data = json_decode($response, true);
-            if (is_array($data)) {
-                clickFillGeoData($geo, [
-                    'country_code' => clickNormalizeGeoString($data['countryCode'] ?? '', ''),
-                    'region' => clickNormalizeGeoString($data['regionName'] ?? '', ''),
-                    'city' => clickNormalizeGeoString($data['city'] ?? '', ''),
-                    'latitude' => $data['lat'] ?? null,
-                    'longitude' => $data['lon'] ?? null,
-                    'zipcode' => clickNormalizeGeoString($data['zip'] ?? '', ''),
-                    'timezone' => clickNormalizeGeoString($data['timezone'] ?? '', ''),
-                ]);
-            }
-        }
-    }
+    // Geo enrichment from external APIs is DISABLED in the click path.
+    // The previous implementation called ip-api.com synchronously while the
+    // visitor waited, which caused stalls when the API throttled (45 req/min
+    // free tier) or when DNS resolution exceeded the timeout.
+    //
+    // Serve from local databases only. An incomplete city/region is acceptable;
+    // a blocking request to a third party is not.
 
     if ($geo['country_code'] === '') {
         $geo['country_code'] = 'Unknown';

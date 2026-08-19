@@ -1298,7 +1298,18 @@ export default {
         "saveType": "Сохранить тип",
         "nameAndMacrosRequired": "Имя и Макросы обязательны",
         "deleteConfirm": "Удалить тип конверсии?",
-        "deleteError": "Ошибка удаления"
+        "deleteError": "Ошибка удаления",
+        "unmappedStatuses": "Несмапленные статусы",
+        "noUnmappedStatuses": "Нет несмапленных статусов",
+        "originalStatus": "Исходный статус",
+        "count": "Количество",
+        "firstSeen": "Первое появление",
+        "lastSeen": "Последнее появление",
+        "mapTo": "Смапить в",
+        "mapToTitle": "Смапить в {type}",
+        "mapToBtn": "{type}",
+        "mappedSuccessfully": "Успешно смаплено и переклассифицировано {count} конверсий",
+        "alreadyMapped": "Этот статус уже смаплен в этот тип"
     },
     "users": {
         "roleTemplate": "Шаблон роли",

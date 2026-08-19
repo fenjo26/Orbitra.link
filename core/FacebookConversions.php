@@ -53,6 +53,11 @@ class FacebookConversions
      * Which Meta event (if any) this tracker status should produce for this pixel.
      * mapping_json wins; otherwise the default table; a status mapped to '' is
      * explicitly suppressed.
+     *
+     * For custom/unmapped statuses, we still check mapping_json first — an operator
+     * can configure a Meta event for any status, including ones not yet mapped to a
+     * conversion type. Only if there's no explicit mapping do we fall back to the
+     * defaults, which return null for unknown statuses.
      */
     public static function resolveEvent(array $pixel, string $internalStatus): ?string
     {
@@ -69,6 +74,7 @@ class FacebookConversions
             }
         }
 
+        // Explicit mapping wins, even for custom/unmapped statuses.
         if (array_key_exists($status, $mapping)) {
             $event = trim((string) $mapping[$status]);
             return $event === '' ? null : $event;

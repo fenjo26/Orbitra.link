@@ -31,6 +31,8 @@ const ConversionTypesSettings = () => {
     const [formData, setFormData] = useState(emptyForm);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState({ text: '', type: '' });
+    const [unmappedStatuses, setUnmappedStatuses] = useState([]);
+    const [unmappedLoading, setUnmappedLoading] = useState(false);
 
     const fetchTypes = async () => {
         try {
@@ -45,7 +47,21 @@ const ConversionTypesSettings = () => {
         }
     };
 
-    useEffect(() => { fetchTypes(); }, []);
+    const fetchUnmappedStatuses = async () => {
+        setUnmappedLoading(true);
+        try {
+            const res = await fetch(`${API_URL}?action=unmapped_statuses`).then(r => r.json());
+            if (res.status === 'success') {
+                setUnmappedStatuses(res.data || []);
+            }
+        } catch (e) {
+            console.error('Error fetching unmapped statuses', e);
+        } finally {
+            setUnmappedLoading(false);
+        }
+    };
+
+    useEffect(() => { fetchTypes(); fetchUnmappedStatuses(); }, []);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -70,9 +86,38 @@ const ConversionTypesSettings = () => {
             const data = await res.json();
 
             if (data.status === 'success') {
-                setMessage({ text: t('common.success'), type: 'success' });
+                // After saving, trigger retroactive remapping for any new status values
+                const newStatuses = formData.status_values.split(',').map(s => s.trim()).filter(s => s);
+                let totalReclassified = 0;
+
+                for (const status of newStatuses) {
+                    try {
+                        const remapRes = await fetch(`${API_URL}?action=retroactive_remap`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                original_status: status,
+                                new_status: formData.name
+                            })
+                        });
+                        const remapData = await remapRes.json();
+                        if (remapData.status === 'success') {
+                            totalReclassified += (remapData.data?.affected_conversions || 0);
+                        }
+                    } catch (e) {
+                        // Continue with other statuses even if one fails
+                    }
+                }
+
+                setMessage({
+                    text: totalReclassified > 0
+                        ? t('conversionTypes.mappedSuccessfully', { count: totalReclassified })
+                        : t('common.success'),
+                    type: 'success'
+                });
                 setShowForm(false);
                 fetchTypes();
+                fetchUnmappedStatuses();
             } else {
                 setMessage({ text: data.message || t('common.error'), type: 'error' });
             }
@@ -107,6 +152,64 @@ const ConversionTypesSettings = () => {
         setFormData(emptyForm);
         setShowForm(true);
         setMessage({ text: '', type: '' });
+    };
+
+    const handleMapUnmapped = async (originalStatus, targetTypeName) => {
+        const targetType = types.find(type => type.name === targetTypeName);
+        if (!targetType) return;
+
+        // Add the status to the target type's status_values
+        const currentValues = targetType.status_values ? targetType.status_values.split(',').map(v => v.trim()) : [];
+        if (currentValues.map(v => v.toLowerCase()).includes(originalStatus.toLowerCase())) {
+            setMessage({ text: t('conversionTypes.alreadyMapped'), type: 'error' });
+            return;
+        }
+
+        const newValues = [...currentValues, originalStatus].join(',');
+
+        try {
+            // Update the conversion type
+            const updateRes = await fetch(`${API_URL}?action=conversion_types`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ...targetType,
+                    status_values: newValues
+                })
+            });
+            const updateData = await updateRes.json();
+
+            if (updateData.status === 'success') {
+                // Trigger retroactive remapping
+                const remapRes = await fetch(`${API_URL}?action=retroactive_remap`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        original_status: originalStatus,
+                        new_status: targetTypeName
+                    })
+                });
+                const remapData = await remapRes.json();
+
+                if (remapData.status === 'success') {
+                    setMessage({
+                        text: t('conversionTypes.mappedSuccessfully', {
+                            count: remapData.data?.affected_conversions || 0
+                        }),
+                        type: 'success'
+                    });
+                } else {
+                    setMessage({ text: remapData.message || t('common.error'), type: 'error' });
+                }
+
+                fetchTypes();
+                fetchUnmappedStatuses();
+            } else {
+                setMessage({ text: updateData.message || t('common.error'), type: 'error' });
+            }
+        } catch (error) {
+            setMessage({ text: t('common.networkError'), type: 'error' });
+        }
     };
 
     if (loading) {
@@ -195,6 +298,84 @@ const ConversionTypesSettings = () => {
                         </table>
                     </div>
                 </div>
+
+                {/* Unmapped statuses section */}
+                {!showForm && (
+                    <div className="page-card" style={{ padding: 0 }}>
+                        <div className="page-header" style={{ borderBottom: '1px solid var(--color-border)', marginBottom: 0, padding: '20px 24px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <h3 className="page-title" style={{ margin: 0 }}>{t('conversionTypes.unmappedStatuses')}</h3>
+                                {unmappedLoading && (
+                                    <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
+                                        {t('common.loading')}
+                                    </span>
+                                )}
+                            </div>
+                            <button onClick={fetchUnmappedStatuses} className="btn btn-secondary btn-sm">
+                                <RefreshCw size={16} />
+                            </button>
+                        </div>
+                        {unmappedStatuses.length === 0 ? (
+                            <div style={{ padding: '32px', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+                                {t('conversionTypes.noUnmappedStatuses')}
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="page-table">
+                                    <thead>
+                                        <tr>
+                                            <th>{t('conversionTypes.originalStatus')}</th>
+                                            <th>{t('conversionTypes.count')}</th>
+                                            <th>{t('conversionTypes.firstSeen')}</th>
+                                            <th>{t('conversionTypes.lastSeen')}</th>
+                                            <th>{t('conversionTypes.mapTo')}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {unmappedStatuses.map((row, idx) => (
+                                            <tr key={row.original_status || idx}>
+                                                <td>
+                                                    <code style={{
+                                                        background: 'var(--color-bg-soft)',
+                                                        padding: '4px 8px',
+                                                        borderRadius: '4px',
+                                                        fontSize: '12px'
+                                                    }}>
+                                                        {row.original_status}
+                                                    </code>
+                                                </td>
+                                                <td style={{ fontWeight: 500 }}>
+                                                    {row.count}
+                                                </td>
+                                                <td style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>
+                                                    {row.first_seen ? new Date(row.first_seen).toLocaleString() : '-'}
+                                                </td>
+                                                <td style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>
+                                                    {row.last_seen ? new Date(row.last_seen).toLocaleString() : '-'}
+                                                </td>
+                                                <td>
+                                                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                                                        {types.filter(t => t.name === 'lead' || t.name === 'sale' || t.name === 'rejected' || t.name === 'trash').map(type => (
+                                                            <button
+                                                                key={type.name}
+                                                                onClick={() => handleMapUnmapped(row.original_status, type.name)}
+                                                                className="btn btn-secondary btn-sm"
+                                                                style={{ fontSize: '12px', padding: '4px 8px' }}
+                                                                title={t('conversionTypes.mapToTitle', { type: type.name })}
+                                                            >
+                                                                {t('conversionTypes.mapToBtn', { type: type.name })}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+                )}
             ) : (
                 <div className="page-card">
                     <div className="page-header" style={{ borderBottom: '1px solid var(--color-border)', marginBottom: 0 }}>

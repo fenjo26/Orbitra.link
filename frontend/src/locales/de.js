@@ -1298,7 +1298,18 @@ export default {
         "saveType": "Speichertyp",
         "nameAndMacrosRequired": "Name und Makros sind erforderlich",
         "deleteConfirm": "Konvertierungstyp löschen?",
-        "deleteError": "Löschfehler"
+        "deleteError": "Löschfehler",
+        "unmappedStatuses": "Nicht zugeordnete Status",
+        "noUnmappedStatuses": "Keine nicht zugeordneten Status gefunden",
+        "originalStatus": "Originalstatus",
+        "count": "Anzahl",
+        "firstSeen": "Erste Sichtung",
+        "lastSeen": "Letzte Sichtung",
+        "mapTo": "Zuordnen zu",
+        "mapToTitle": "Zuordnen zu {type}",
+        "mapToBtn": "{type}",
+        "mappedSuccessfully": "Erfolgreich zugeordnet und {count} Konversionen neu klassifiziert",
+        "alreadyMapped": "Dieser Status ist bereits diesem Typ zugeordnet"
     },
     "users": {
         "roleTemplate": "Rollenvorlage",

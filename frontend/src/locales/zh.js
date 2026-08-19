@@ -1298,7 +1298,18 @@ export default {
         "saveType": "保存类型",
         "nameAndMacrosRequired": "名称和宏为必填项",
         "deleteConfirm": "删除转换类型？",
-        "deleteError": "删除错误"
+        "deleteError": "删除错误",
+        "unmappedStatuses": "未映射状态",
+        "noUnmappedStatuses": "未找到未映射状态",
+        "originalStatus": "原始状态",
+        "count": "数量",
+        "firstSeen": "首次出现",
+        "lastSeen": "最后出现",
+        "mapTo": "映射到",
+        "mapToTitle": "映射到 {type}",
+        "mapToBtn": "{type}",
+        "mappedSuccessfully": "成功映射并重新分类 {count} 个转化",
+        "alreadyMapped": "此状态已映射到此类型"
     },
     "users": {
         "roleTemplate": "角色模板",

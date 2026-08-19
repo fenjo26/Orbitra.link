@@ -24,18 +24,40 @@ try {
 
     try {
         // SQLite journal mode affects the presence of `*.sqlite-wal/*.sqlite-shm` files.
-        // WAL improves concurrency, but some setups prefer DELETE to avoid extra files in the project dir.
+        // WAL improves concurrency dramatically: readers no longer block writers,
+        // and multiple processes can access the database simultaneously without the
+        // 5-second busy_timeout queue that caused ORB-013 stalls.
         //
         // Override via env (server-level): ORBITRA_SQLITE_JOURNAL_MODE=WAL|DELETE
+        //
+        // Default is now WAL + NORMAL. DELETE mode is only for filesystems that
+        // don't support WAL (some network mounts).
         $journalMode = getenv('ORBITRA_SQLITE_JOURNAL_MODE');
         $journalMode = is_string($journalMode) ? strtoupper(trim($journalMode)) : '';
         if ($journalMode !== 'WAL' && $journalMode !== 'DELETE') {
-            $journalMode = 'DELETE';
+            $journalMode = 'WAL'; // DEFAULT TO WAL
         }
 
-        $pdo->exec("PRAGMA journal_mode = {$journalMode};");
-        // WAL works best with NORMAL; DELETE is safer with FULL (less risk on power loss).
+        // Read current mode first to avoid unnecessary writes.
+        // journal_mode is persistent, so we only set it when it differs.
+        $currentMode = $pdo->query("PRAGMA journal_mode")->fetchColumn();
+        if (strtolower((string) $currentMode) !== strtolower($journalMode)) {
+            $pdo->exec("PRAGMA journal_mode = {$journalMode};");
+        }
+        // WAL works best with NORMAL; DELETE uses FULL (less risk on power loss).
         $pdo->exec("PRAGMA synchronous = " . ($journalMode === 'WAL' ? "NORMAL" : "FULL") . ";");
+
+        // Verify WAL is actually supported. Some filesystems (e.g., some network
+        // mounts) fail to enable WAL even though the PRAGMA succeeds. Fall back
+        // to DELETE mode in that case.
+        if ($journalMode === 'WAL') {
+            $actualMode = strtolower((string) $pdo->query("PRAGMA journal_mode")->fetchColumn());
+            if ($actualMode !== 'wal') {
+                // WAL failed - fall back to DELETE + FULL
+                $pdo->exec("PRAGMA journal_mode = DELETE;");
+                $pdo->exec("PRAGMA synchronous = FULL;");
+            }
+        }
     } catch (\Throwable $e) {
         // Ignore if we can't switch mode right now (it's persistent anyway)
     }
@@ -51,7 +73,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 35;
+    $LATEST_SCHEMA_VERSION = 36;
 
     $schemaVersion = 0;
     try {
@@ -1881,6 +1903,35 @@ try {
                 try {
                     $pdo->exec("UPDATE domains SET dns_reason = 'direct' WHERE dns_status = 'active' AND (dns_reason IS NULL OR dns_reason = '')");
                 } catch (\Throwable $e) {
+                }
+            }
+
+            if ($schemaVersion < 36) {
+                // Migration 36: Unmapped status recording and retroactive remapping.
+                //
+                // Previously, unmapped network statuses were rejected with a 400 and
+                // no conversion was written. This caused silent data loss and blocked
+                // CAPI firing for leads like "hold" that later convert.
+                //
+                // This migration adds a color column to conversion_types (if not already
+                // present from migration 29) and ensures the table can support unmapped
+                // status discovery and one-click mapping.
+                //
+                // The main logic change is in postback.php: unmapped statuses are now
+                // recorded with status='custom' and original_status preserved, rather
+                // than being rejected. They don't affect counters until mapped.
+                try {
+                    $pdo->exec("ALTER TABLE conversion_types ADD COLUMN color TEXT DEFAULT ''");
+                } catch (\Throwable $e) {
+                    // Column already present from migration 29.
+                }
+
+                // Ensure conversions table has original_status column (should exist,
+                // but verify for databases created from older schemas).
+                try {
+                    $pdo->exec("ALTER TABLE conversions ADD COLUMN original_status TEXT");
+                } catch (\Throwable $e) {
+                    // Column already present.
                 }
             }
 

@@ -1298,7 +1298,18 @@ export default {
         "saveType": "Tipo de guardado",
         "nameAndMacrosRequired": "Se requieren nombre y macros",
         "deleteConfirm": "¿Eliminar tipo de conversión?",
-        "deleteError": "Eliminar error"
+        "deleteError": "Eliminar error",
+        "unmappedStatuses": "Estados no mapeados",
+        "noUnmappedStatuses": "No se encontraron estados no mapeados",
+        "originalStatus": "Estado original",
+        "count": "Cantidad",
+        "firstSeen": "Primera vez visto",
+        "lastSeen": "Última vez visto",
+        "mapTo": "Mapear a",
+        "mapToTitle": "Mapear a {type}",
+        "mapToBtn": "{type}",
+        "mappedSuccessfully": "Mapeado exitosamente y reclasificado {count} conversion(es)",
+        "alreadyMapped": "Este estado ya está mapeado a este tipo"
     },
     "users": {
         "roleTemplate": "Plantilla de rol",

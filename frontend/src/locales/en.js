@@ -1298,7 +1298,18 @@ export default {
         "saveType": "Save type",
         "nameAndMacrosRequired": "Name and Macros are required",
         "deleteConfirm": "Delete conversion type?",
-        "deleteError": "Delete error"
+        "deleteError": "Delete error",
+        "unmappedStatuses": "Unmapped Statuses",
+        "noUnmappedStatuses": "No unmapped statuses found",
+        "originalStatus": "Original Status",
+        "count": "Count",
+        "firstSeen": "First Seen",
+        "lastSeen": "Last Seen",
+        "mapTo": "Map To",
+        "mapToTitle": "Map to {type}",
+        "mapToBtn": "{type}",
+        "mappedSuccessfully": "Successfully mapped and reclassified {count} conversion(s)",
+        "alreadyMapped": "This status is already mapped to this type"
     },
     "users": {
         "roleTemplate": "Role template",

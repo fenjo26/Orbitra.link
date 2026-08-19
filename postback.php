@@ -244,16 +244,11 @@ $stmt = $pdo->query("SELECT name FROM conversion_types");
 $customTypes = $stmt->fetchAll(PDO::FETCH_COLUMN);
 $allKnown = array_merge(['lead', 'sale', 'rejected', 'registration', 'deposit', 'trash'], $customTypes);
 
-if ($internalStatus === 'custom' && !in_array($originalStatus, $allKnown)) {
-    // Если статус новый и не указана трансформация, возвращаем ошибку
-    orbitraPostbackExit(400, "Ignored: Unknown status and no transformation specified.", [
-        'result' => 'rejected',
-        'error' => 'Unknown status and no transformation specified',
-        'original_status' => $originalStatus,
-        'click_id' => $clickId
-    ]);
-    return;
-}
+// Record first, classify second. An unmapped status is stored with status='custom'
+// (or a slug of the original) and original_status kept verbatim. It responds 200
+// — the network did nothing wrong — and does not pollute money or counters until
+// an operator decides what it means.
+// Only genuinely empty input (no subid, no status) returns 400, which was handled above.
 
 // Запись конверсии
 $conversionResult = 'recorded';

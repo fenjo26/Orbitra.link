@@ -248,29 +248,21 @@ function getGeoData($ip)
         }
     }
 
-    // 4. Резервный внешний API (заполняет недостающие поля)
-    if ($geo['country_code'] === 'Unknown' || $geo['city'] === '' || $geo['region'] === '') {
-        $ch = curl_init("http://ip-api.com/json/{$ip}?fields=countryCode,regionName,city,lat,lon,zip,timezone");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 2);
-        $response = curl_exec($ch);
-        // curl_close() deprecated in PHP 8.5 - resources are auto-freed
-
-        if ($response) {
-            $data = json_decode($response, true);
-            if (is_array($data)) {
-                fillGeoData($geo, [
-                    'country_code' => normalizeGeoString($data['countryCode'] ?? '', ''),
-                    'region' => normalizeGeoString($data['regionName'] ?? '', ''),
-                    'city' => normalizeGeoString($data['city'] ?? '', ''),
-                    'latitude' => $data['lat'] ?? null,
-                    'longitude' => $data['lon'] ?? null,
-                    'zipcode' => normalizeGeoString($data['zip'] ?? '', ''),
-                    'timezone' => normalizeGeoString($data['timezone'] ?? '', ''),
-                ]);
-            }
-        }
-    }
+    // 4. Geo enrichment from external APIs is DISABLED in the click path.
+    //
+    // The condition below used to call ip-api.com synchronously while the visitor
+    // waited, which caused stalls when the API throttled (45 req/min free tier)
+    // or when DNS resolution exceeded the timeout. Moving enrichment out of the
+    // request path is required for stable click handling.
+    //
+    // Future: a queue + cron worker pattern (like the S2S postback queue) can
+    // backfill city/region on stored clicks. The worker would:
+    // - Cache results per IP with a TTL
+    // - Be opt-in with a configurable endpoint
+    // - Include CURLOPT_CONNECTTIMEOUT + circuit breaker
+    //
+    // For now, serve from local databases only. An incomplete city/region is
+    // acceptable; a blocking request to a third party is not.
 
     if ($geo['country_code'] === '') {
         $geo['country_code'] = 'Unknown';
@@ -603,49 +595,42 @@ function serveLandingAsset($landingId, $uriPath, $baseDir = null)
         exit;
     }
 
-    $start = 0;
-    $end = $size - 1;
-    if (isset($_SERVER['HTTP_RANGE']) && preg_match('/^bytes=(\d*)-(\d*)$/', trim($_SERVER['HTTP_RANGE']), $m)) {
-        if ($m[1] === '' && $m[2] !== '') {
-            $start = max(0, $size - (int) $m[2]); // suffix range: last N bytes
-        } else {
-            $start = (int) $m[1];
-            if ($m[2] !== '') {
-                $end = min((int) $m[2], $size - 1);
-            }
+    // ORB-013: Use X-Accel-Redirect to hand off file serving to nginx.
+    // Previously, PHP read and echoed the file with readfile(), which kept
+    // a PHP-FPM worker occupied for the entire transfer. With 30 assets on a
+    // landing page, this meant 30 concurrent PHP processes and 30 database
+    // connections for a single page view.
+    //
+    // Now, PHP resolves the path (with all security checks intact), sends an
+    // X-Accel-Redirect header to an internal nginx location, and exits immediately.
+    // nginx serves the file with sendfile (zero-copy) and PHP is free to handle
+    // the next request.
+    //
+    // The internal location is configured in nginx config:
+    // location /_internal_assets/ {
+    //     internal;
+    //     alias /var/www/orbitra/;
+    // }
+    $docRoot = realpath(__DIR__);
+    if ($docRoot === false) {
+        // Fallback to direct serving if we can't resolve the docroot
+        $handle = fopen($file, 'rb');
+        if ($handle === false) {
+            return;
         }
-        if ($start > $end || $start >= $size) {
-            header('Content-Range: bytes */' . $size);
-            http_response_code(416);
-            exit;
-        }
-        http_response_code(206);
-        header('Content-Range: bytes ' . $start . '-' . $end . '/' . $size);
-    }
-
-    header('Content-Length: ' . ($end - $start + 1));
-
-    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'HEAD') {
+        fpassthru($handle);
+        fclose($handle);
         exit;
     }
 
-    $handle = fopen($file, 'rb');
-    if ($handle === false) {
-        return;
-    }
-    if ($start > 0) {
-        fseek($handle, $start);
-    }
-    $remaining = $end - $start + 1;
-    while ($remaining > 0 && !feof($handle)) {
-        $chunk = fread($handle, (int) min(262144, $remaining));
-        if ($chunk === false || $chunk === '') {
-            break;
-        }
-        echo $chunk;
-        $remaining -= strlen($chunk);
-    }
-    fclose($handle);
+    // Build the internal path for nginx X-Accel-Redirect
+    // The path must be relative to the document root
+    $internalPath = str_replace($docRoot . '/', '', $file);
+    // URL-encode the path for the header
+    $internalPath = implode('/', array_map('rawurlencode', explode('/', $internalPath)));
+
+    header('X-Accel-Redirect: /_internal_assets/' . $internalPath);
+    header('Content-Length: ' . $size);
     exit;
 }
 

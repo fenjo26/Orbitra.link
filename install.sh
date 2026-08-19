@@ -230,6 +230,23 @@ server {
     root /var/www/orbitra;
     index index.php admin.php index.html;
 
+    # ORB-013: Internal location for X-Accel-Redirect.
+    # PHP resolves landing asset paths with security checks, then hands
+    # off to nginx via X-Accel-Redirect. This location serves the file
+    # with sendfile (zero-copy) while PHP is freed for the next request.
+    # A landing page with 30 assets no longer means 30 PHP processes.
+    location /_internal_assets/ {
+        internal;
+        alias /var/www/orbitra/;
+        # Security: only serve whitelisted asset types
+        location ~* \.(ico|png|jpg|jpeg|gif|bmp|webp|avif|svg|css|js|mjs|json|map|webmanifest|woff|woff2|ttf|otf|eot|mp4|webm|m4v|ogv|mp3|ogg|wav|m4a|txt|pdf)$ {
+            expires 1h;
+            add_header Cache-Control "public, immutable";
+        }
+        # Deny everything else (including .php files)
+        deny all;
+    }
+
     # Let's Encrypt HTTP-01 challenge.
     # Must precede the dotfile deny below, which would otherwise swallow it.
     location ^~ /.well-known/acme-challenge/ {
@@ -297,6 +314,18 @@ server {
     location ~ /\. {
         deny all;
     }
+
+    # ORB-013: Compression for static assets.
+    # Debian's default gzip_types is text/html only. CSS, JS, SVG, JSON
+    # leave uncompressed on Cloudflare cache misses without this.
+    gzip on;
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types text/plain text/css text/xml text/javascript
+               application/json application/javascript application/xml+rss
+               application/rss+xml font/truetype font/opentype
+               application/vnd.ms-fontobject image/svg+xml;
 }
 EOF
 }

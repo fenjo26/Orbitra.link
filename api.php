@@ -12228,6 +12228,152 @@ try {
             }
             break;
 
+        case 'unmapped_statuses':
+            // Discover unmapped network statuses that exist in conversions but
+            // have no conversion_type mapping. Returns each distinct original_status
+            // with count, first_seen, and last_seen timestamps for visibility and
+            // one-click mapping in the UI.
+            try {
+                $stmt = $pdo->query("
+                    SELECT
+                        original_status,
+                        COUNT(*) as count,
+                        MIN(created_at) as first_seen,
+                        MAX(created_at) as last_seen
+                    FROM conversions
+                    WHERE original_status IS NOT NULL
+                        AND original_status != ''
+                        AND status = 'custom'
+                    GROUP BY original_status
+                    ORDER BY first_seen DESC
+                ");
+                $unmapped = $stmt->fetchAll();
+
+                // Get all mapped status values from conversion_types for comparison.
+                $mappedStmt = $pdo->query("SELECT status_values FROM conversion_types WHERE status_values IS NOT NULL AND status_values != ''");
+                $mappedValues = [];
+                while ($row = $mappedStmt->fetch(PDO::FETCH_ASSOC)) {
+                    foreach (array_map('strtolower', array_map('trim', explode(',', $row['status_values']))) as $v) {
+                        if ($v !== '') {
+                            $mappedValues[$v] = true;
+                        }
+                    }
+                }
+
+                // Built-in statuses that are always considered mapped.
+                $builtin = ['lead', 'sale', 'rejected', 'registration', 'deposit', 'trash'];
+                foreach ($builtin as $b) {
+                    $mappedValues[$b] = true;
+                }
+
+                // Filter: only return statuses that are truly unmapped.
+                $filtered = [];
+                foreach ($unmapped as $row) {
+                    $needle = strtolower(trim($row['original_status']));
+                    if (!isset($mappedValues[$needle])) {
+                        $filtered[] = $row;
+                    }
+                }
+
+                echo json_encode(['status' => 'success', 'data' => $filtered]);
+            } catch (\Throwable $e) {
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
+        case 'retroactive_remap':
+            // Reclassify existing conversions when a status mapping is added or changed.
+            // Updates all conversions with the given original_status to the new internal
+            // status, then recomputes clicks.is_conversion and clicks.revenue for the
+            // affected clicks.
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
+                break;
+            }
+
+            $data = json_decode(orbitraRequestBody(), true);
+            $originalStatus = $data['original_status'] ?? null;
+            $newStatus = $data['new_status'] ?? null;
+
+            if (!$originalStatus || !$newStatus) {
+                echo json_encode(['status' => 'error', 'message' => 'Missing original_status or new_status']);
+                break;
+            }
+
+            try {
+                $pdo->beginTransaction();
+
+                // Update conversions that match the original_status to the new status.
+                $updateStmt = $pdo->prepare("
+                    UPDATE conversions
+                    SET status = ?, updated_at = datetime('now')
+                    WHERE original_status = ? COLLATE NOCASE
+                ");
+                $updateStmt->execute([$newStatus, $originalStatus]);
+                $affectedConversions = $updateStmt->rowCount();
+
+                // Recompute clicks.is_conversion and clicks.revenue for affected clicks.
+                // We need to find all clicks that had conversions updated.
+                $findClicksStmt = $pdo->prepare("
+                    SELECT DISTINCT c.id
+                    FROM clicks c
+                    INNER JOIN conversions conv ON conv.click_id = c.id
+                    WHERE conv.original_status = ? COLLATE NOCASE
+                ");
+                $findClicksStmt->execute([$originalStatus]);
+                $clickIds = $findClicksStmt->fetchAll(PDO::FETCH_COLUMN);
+
+                if (!empty($clickIds)) {
+                    // Get conversion type settings for counter computation.
+                    $ctStmt = $pdo->query("SELECT name, record_conversion, record_revenue FROM conversion_types");
+                    $ct = $ctStmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    $convStatuses = ['sale', 'deposit', 'lead'];
+                    $revStatuses = ['sale', 'deposit', 'lead', 'registration'];
+
+                    foreach ($ct as $row) {
+                        if ($row['record_conversion'])
+                            $convStatuses[] = $row['name'];
+                        if ($row['record_revenue'])
+                            $revStatuses[] = $row['name'];
+                    }
+
+                    $inConv = "'" . implode("','", array_map('addslashes', $convStatuses)) . "'";
+                    $inRev = "'" . implode("','", array_map('addslashes', $revStatuses)) . "'";
+
+                    // Update each affected click's counters.
+                    foreach ($clickIds as $clickId) {
+                        $totalStats = $pdo->prepare("
+                            SELECT
+                                SUM(CASE WHEN status IN ($inConv) THEN 1 ELSE 0 END) as is_conv,
+                                SUM(CASE WHEN status IN ($inRev) AND payout > 0 THEN payout ELSE 0 END) as total_rev
+                            FROM conversions WHERE click_id = ?
+                        ");
+                        $totalStats->execute([$clickId]);
+                        $totals = $totalStats->fetch();
+
+                        $updateClick = $pdo->prepare("UPDATE clicks SET is_conversion = ?, revenue = ? WHERE id = ?");
+                        $updateClick->execute([$totals['is_conv'] > 0 ? 1 : 0, $totals['total_rev'] ?: 0, $clickId]);
+                    }
+                }
+
+                $pdo->commit();
+
+                echo json_encode([
+                    'status' => 'success',
+                    'data' => [
+                        'affected_conversions' => $affectedConversions,
+                        'affected_clicks' => count($clickIds)
+                    ]
+                ]);
+            } catch (\Throwable $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
         case 'custom_metrics':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);
