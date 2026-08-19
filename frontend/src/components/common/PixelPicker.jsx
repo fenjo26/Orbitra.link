@@ -36,8 +36,9 @@ export const PixelPicker = ({ label, value, profileId, trafficSource, resolveSer
     useEffect(() => { fetchProfiles(); }, [fetchProfiles]);
 
     // Show all profiles matching the traffic source, including inactive ones (like Pixel Vault does)
+    // Use case-insensitive comparison for traffic source matching
     const savedProfiles = profiles.filter(profile =>
-        !trafficSource || profile.traffic_source === trafficSource
+        !trafficSource || profile.traffic_source?.toLowerCase() === trafficSource.toLowerCase()
     );
     const matched = savedProfiles.find(profile =>
         (profileId && String(profile.id) === String(profileId)) ||
@@ -131,13 +132,17 @@ export const PixelPicker = ({ label, value, profileId, trafficSource, resolveSer
                 </div>
             )}
 
-            {!showCustom && savedProfiles.length > 0 ? (
+            {!showCustom ? (
                 <select
                     className="form-select font-mono text-xs"
                     value={matched ? String(matched.id) : ''}
                     onChange={(e) => handleSelect(e.target.value)}
                 >
-                    <option value="">— {t('fbConv.selectPixelPrompt', 'Select saved pixel...')} —</option>
+                    {savedProfiles.length === 0 ? (
+                        <option value="" disabled>— {t('fbConv.noSavedPixels', 'No saved pixels in Vault')} —</option>
+                    ) : (
+                        <option value="">— {t('fbConv.selectPixelPrompt', 'Select saved pixel...')} —</option>
+                    )}
                     <option value="__add_new__">✨ + {t('fbConv.addNewPixel', 'Add New Pixel to Vault...')}</option>
                     <option disabled>──────────────────</option>
                     {savedProfiles.map(px => (
@@ -149,7 +154,7 @@ export const PixelPicker = ({ label, value, profileId, trafficSource, resolveSer
                     <option value="__custom__">+ {t('fbConv.enterManually', 'Enter custom Pixel ID manually...')}</option>
                 </select>
             ) : (
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                     <input
                         type="text"
                         className="form-input font-mono text-xs"
@@ -157,15 +162,21 @@ export const PixelPicker = ({ label, value, profileId, trafficSource, resolveSer
                         value={value || ''}
                         onChange={(e) => onPick({ pixel_profile_id: '', pixel_id: e.target.value, has_saved_token: false })}
                     />
-                    {savedProfiles.length > 0 && (
-                        <button type="button" className="btn btn-secondary btn-sm"
-                            onClick={() => {
-                                setIsCustom(false);
-                                onPick({ pixel_profile_id: '', pixel_id: '', token: '', has_saved_token: false, test_event_code: '' });
-                            }}>
-                            {t('fbConv.selectFromList', 'Choose from saved')}
-                        </button>
-                    )}
+                    <button type="button" className="btn btn-secondary btn-sm"
+                        onClick={() => {
+                            setIsCustom(false);
+                            onPick({ pixel_profile_id: '', pixel_id: '', token: '', has_saved_token: false, test_event_code: '' });
+                        }}>
+                        {t('fbConv.selectFromList', 'Choose from saved')}
+                    </button>
+                    <button type="button" className="btn btn-primary btn-sm"
+                        onClick={() => {
+                            setQuickError('');
+                            setQuickForm({ traffic_source: trafficSource || 'facebook', niche: '', name: '', pixel_id: '', token: '', test_event_code: '' });
+                            setQuickOpen(true);
+                        }}>
+                        ✨ {t('fbConv.addNewPixel', 'Add New')}
+                    </button>
                 </div>
             )}
             {loading && <p className="text-[11px]" style={{ color: 'var(--color-text-muted)' }}>{t('common.loading')}</p>}
