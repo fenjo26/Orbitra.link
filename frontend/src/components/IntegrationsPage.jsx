@@ -2755,6 +2755,7 @@ const IntegrationsPage = () => {
                         </div>
                     </div>
                 ) : (
+                    <>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap' }}>
                         <button onClick={() => {
                             setGaForm(emptyGaForm);
@@ -2914,6 +2915,7 @@ const IntegrationsPage = () => {
                             )}
                         </div>
                     )}
+                    </>
                 )}
 
                 {gaLoading ? (
