@@ -73,7 +73,10 @@ const Domains = ({ campaigns }) => {
         registrar: '',
         dns_provider: '',
         dns_account_id: null,
-        status: 'OK'
+        status: 'OK',
+        custom_ssl_cert: '',
+        custom_ssl_key: '',
+        ssl_source: 'auto'
     };
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState(defaultFormData);
@@ -1020,6 +1023,54 @@ const Domains = ({ campaigns }) => {
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* ORB-014: Custom SSL Certificate (Full Strict) */}
+                                {(formData.cloudflare_proxy || formData.custom_ssl_cert || formData.custom_ssl_key) && (
+                                    <div className="space-y-3" style={{ padding: '12px', borderRadius: '8px', backgroundColor: 'var(--color-bg-secondary)' }}>
+                                        <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '8px' }}>
+                                            {t('domains.customSslCert', 'Custom SSL Certificate (Full Strict)')}
+                                        </div>
+                                        <p className="text-[11px]" style={{ color: 'var(--color-text-muted)', lineHeight: 1.4, marginBottom: '12px' }}>
+                                            {t('domains.customSslHint', 'For Cloudflare Full Strict mode, paste the paths to your Cloudflare Origin CA certificate and key files on the server. Leave empty for automatic management (Let\'s Encrypt or self-signed).')}
+                                        </p>
+                                        <div className="space-y-2">
+                                            <div>
+                                                <label style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>
+                                                    {t('domains.customCertPath', 'Certificate Path')}
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={formData.custom_ssl_cert}
+                                                    onChange={e => setFormData({ ...formData, custom_ssl_cert: e.target.value })}
+                                                    placeholder="/etc/orbitra/ssl/cloudflare_origin.crt"
+                                                    className="form-input form-input-sm"
+                                                    style={{ fontSize: '12px', fontFamily: 'monospace' }}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>
+                                                    {t('domains.customKeyPath', 'Private Key Path')}
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={formData.custom_ssl_key}
+                                                    onChange={e => setFormData({ ...formData, custom_ssl_key: e.target.value })}
+                                                    placeholder="/etc/orbitra/ssl/cloudflare_origin.key"
+                                                    className="form-input form-input-sm"
+                                                    style={{ fontSize: '12px', fontFamily: 'monospace' }}
+                                                />
+                                            </div>
+                                        </div>
+                                        {(formData.custom_ssl_cert || formData.custom_ssl_key) && (
+                                            <div className="flex items-center gap-2" style={{ fontSize: '11px', color: 'var(--color-warning)' }}>
+                                                <AlertTriangle size={14} />
+                                                <span>
+                                                    {t('domains.customSslWarning', 'Certificate files must exist on the server. See documentation for setup instructions.')}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
 
                             {/* Footer с кнопками сохранения */}
