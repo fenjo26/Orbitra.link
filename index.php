@@ -28,6 +28,7 @@ require_once __DIR__ . '/core/prefetch.php';
 // executes inside this process and calls orbitraCrmRecordLead() directly, and
 // the public /crm-ingest route answers stand-alone landings deployed elsewhere.
 require_once __DIR__ . '/core/CrmVault.php';
+require_once __DIR__ . '/session_bootstrap.php';
 
 // Получение реального IP адреса
 function getClientIp()
@@ -1071,7 +1072,7 @@ function orbitraServeLocalOffer(PDO $pdo, $offerId, $clickId, array $clickParams
     // Assets of this page resolve against the offer's directory; the landing
     // cookie must go, or the landing the visitor came from would answer instead.
     if (!headers_sent()) {
-        $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (($_SERVER['SERVER_PORT'] ?? '') == 443);
+        $secure = orbitraIsHttps();
         $opts = ['expires' => time() + 86400, 'path' => '/', 'secure' => $secure, 'httponly' => false, 'samesite' => 'Lax'];
         setcookie('orbitra_lo', (string) $offerId, $opts);
         setcookie('orbitra_click', (string) $clickId, $opts);
@@ -1249,7 +1250,7 @@ function orbitraServeOfferPath(PDO $pdo, int $offerId, string $rest): void
     $html = str_replace('{offer}', '/?_lp=1', $html);
 
     if (!headers_sent()) {
-        $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (($_SERVER['SERVER_PORT'] ?? '') == 443);
+        $secure = orbitraIsHttps();
         $opts = ['expires' => time() + 86400, 'path' => '/', 'secure' => $secure, 'httponly' => false, 'samesite' => 'Lax'];
         setcookie('orbitra_lo', (string) $offerId, $opts);
         setcookie('orbitra_lp', '', ['expires' => time() - 3600, 'path' => '/']);
@@ -1669,7 +1670,7 @@ if ($requestHost) {
     if ($domainInfo) {
         // Enforce HTTPS
         if (!empty($domainInfo['https_only'])) {
-            $isSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443;
+            $isSecure = orbitraIsHttps();
             if (!$isSecure) {
                 // Determine the requested URL to reconstruct the HTTPS equivalent
                 $redirectUrl = 'https://' . $requestHost . $_SERVER['REQUEST_URI'];
@@ -3120,7 +3121,7 @@ if ($actionToPerfrom) {
     // Remember this click so a landing's offer link (/?_lp=1) can resolve the
     // bound offer later. Must be set before any landing output.
     if (!empty($landingIdToLog) && !headers_sent()) {
-        $lpSecure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (($_SERVER['SERVER_PORT'] ?? '') == 443);
+        $lpSecure = orbitraIsHttps();
         $lpCookieOpts = ['expires' => time() + 86400, 'path' => '/', 'secure' => $lpSecure, 'httponly' => false, 'samesite' => 'Lax'];
         setcookie('orbitra_click', $clickId, $lpCookieOpts);
         setcookie('subid', $clickId, $lpCookieOpts);

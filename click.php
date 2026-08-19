@@ -17,6 +17,7 @@ require_once __DIR__ . '/core/CloakDetector.php';
 // Same prefetch guard as the main click path — a speculative request here would
 // otherwise be counted as a real click.
 require_once __DIR__ . '/core/prefetch.php';
+require_once __DIR__ . '/session_bootstrap.php';
 
 // ignore_prefetch is read before any campaign lookup so a dropped request never
 // touches the DB. Default is on, matching index.php.
@@ -515,7 +516,7 @@ if ($stream) {
                 if (in_array($safeType, ['redirect', 'preload'], true) && !empty($safeLanding['url'])) {
                     $offerUrl = (string) $safeLanding['url'];
                 } elseif ($safeType === 'local' && !empty($safeLanding['slug'])) {
-                    $safeScheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                    $safeScheme = orbitraIsHttps() ? 'https' : 'http';
                     $safeHost = (string) ($_SERVER['HTTP_HOST'] ?? '');
                     $safePath = '/lander/' . rawurlencode((string) $safeLanding['slug']) . '/';
                     $offerUrl = $safeHost !== '' ? $safeScheme . '://' . $safeHost . $safePath : $safePath;
@@ -538,7 +539,7 @@ if ($stream) {
             $stmtSafeOffer->execute([$safeOfferId]);
             $safeOfferRow = $stmtSafeOffer->fetch();
             if ($safeOfferRow && (int) ($safeOfferRow['is_local'] ?? 0) === 1) {
-                $safeScheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                $safeScheme = orbitraIsHttps() ? 'https' : 'http';
                 $safeHost = (string) ($_SERVER['HTTP_HOST'] ?? '');
                 $safePath = '/offers/' . $safeOfferId . '/';
                 $offerUrl = $safeHost !== '' ? $safeScheme . '://' . $safeHost . $safePath : $safePath;
