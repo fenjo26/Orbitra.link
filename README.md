@@ -1,4 +1,4 @@
-# Orbitra v1.1.1 Tracker
+# Orbitra v1.1.2 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,26 +11,31 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.1.1
+## 🆕 What's New in v1.1.2
 
-### Local Offers & PHP Bridge Fixes
+### Major New Features
 
-- **A local offer's form POST no longer 404s** — an uploaded offer is served at the campaign URL, so the browser resolved the LeadForge form's `action="order.php"` against the domain root and posted to `/order.php`, which nginx answered with its own 404 before PHP ever ran (`snippets/fastcgi-php.conf` ends in `try_files $fastcgi_script_name =404`). The vhost now routes `/order.php`, `/offers/<id>/*.php` and `/lander/<slug>/*.php` to the front controller. **Existing servers: run `sudo php /var/www/orbitra/cli/nginx_sync.php` once after updating.**
-- **`success.php` is executed too** — the generated `order.php` redirects to a relative `success.php`, so a lead could reach the network and the buyer still land on a 404 one hop later. One shared handler list now covers `order.php`, `thank_you.php`, `success.php`, `send.php`, `lucky.php` and `lemon.php`.
-- **Form actions are pinned to `/offers/<id>/…`** — the lead POST carries the offer id instead of depending on a cookie or Referer surviving, and a bundle whose sender is named `api.php` can no longer collide with the tracker's own admin API. In-page anchors and assets are untouched.
-- **Uploaded PHP is not executable off disk any more** — a file inside an offer or landing archive can only run through the tracker, under the "Allow PHP landings" switch and its execution budget; `/landings/<id>/*.php` returns 404.
-- **`ORBITRA_OFFER_ID` / `ORBITRA_OFFER_URL` / `ORBITRA_OFFER_PATH`** are defined for a local offer's own PHP, so a bundle can build an absolute URL for itself and still work standalone.
+- **🏗️ LeadForge 2.0** — Complete landing page forge with 150-GEO validation engine, automatic bundle generation for 10+ CPA networks, and real-time QA testing
+- **📋 CRM Anti-Shaving Vault** — Evidence storage for all leads with raw phone data, network request/response logs, and automated shave detection
+- **☁️ Cloudflare Integration** — DNS parking, SSL through Cloudflare edge, automatic A-record management, and proxy detection for SSL provisioning
+- **🌐 Namecheap Integration** — Domain purchasing, DNS parking, and bulk management without leaving the panel
+- **🤖 MCP Server for AI** — 31 tools for Claude Desktop and other AI assistants to read stats and manage campaigns via API
 
-### Previous Release — v1.1.0
+### Local Offers & PHP Bridge (from v1.1.1)
 
-- **Conversion attribution for affiliate-network postbacks** — every conversion ingested through `postback.php` is now stamped with its click's campaign, offer, `sub_id_1..5`, IP and user agent
-- **Layered reports restored** — fixed SQL query that broke all grouped reports (Sub1…Sub30, Country, Day, Campaign, Offer)
-- **Case-insensitive status matching** — `Approved`/`PENDING` now correctly map to status groups
-- **Conversion failure monitoring** — logged with context, exposed via API and Telegram alerts
-- **Cloud-aware SSL provisioning** — Cloudflare-proxied domains detected and skipped
-- **Outbound TLS verification restored** — proper certificate verification on outbound requests
-- **TikTok cost connection fixed** — API v1.3 support with correct request format
-- **Google Ads 1-click OAuth setup guide** — in-panel walkthrough with preflight check
+- **A local offer's form POST no longer 404s** — `/order.php`, `/offers/<id>/*.php` and `/lander/<slug>/*.php` now route correctly to the front controller
+- **`success.php` execution** — all PHP handlers (`order.php`, `thank_you.php`, `success.php`, `send.php`, `lucky.php`, `lemon.php`) execute correctly
+- **Form actions pinned to offer URL** — POST carries offer ID, no collision with admin API
+- **Uploaded PHP security** — PHP files only execute through the tracker under "Allow PHP landings"
+- **Offer context constants** — `ORBITRA_OFFER_ID`/`URL`/`PATH` defined for local offer PHP
+
+### Previous Highlights (v1.1.0)
+
+- **Conversion attribution** — postback conversions now stamped with click data
+- **Layered reports fixed** — all grouped reports working again
+- **Case-insensitive statuses** — `Approved`/`PENDING` correctly mapped
+- **Conversion failure monitoring** — API endpoint + Telegram alerts
+- **TLS verification restored** — proper certificate checks on outbound calls
 
 ## 🖥 Live Demo
 
@@ -501,21 +506,19 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.1.1 (2026-08-19)
+### Current release — v1.1.2 (2026-08-19)
 
-**Local Offers & PHP Bridge Fixes**
-- 🚨 **POST forms on local offers no longer 404** — `/order.php`, `/offers/<id>/*.php` and `/lander/<slug>/*.php` now route to the front controller
-- 🔁 **`success.php` execution** — all PHP handlers (`order.php`, `thank_you.php`, `success.php`, `send.php`, `lucky.php`, `lemon.php`) execute correctly
-- 🎯 **Form actions pinned to offer URL** — POST carries offer ID, no collision with admin API
-- 🔒 **Uploaded PHP security** — PHP files only execute through the tracker under "Allow PHP landings"
-- 🧭 **Offer context constants** — `ORBITRA_OFFER_ID`/`URL`/`PATH` defined for local offer PHP
+**Major New Features**
+- 🏗️ **LeadForge 2.0** — Landing page forge with 150-GEO validation, 10+ CPA networks, real-time QA
+- 📋 **CRM Anti-Shaving Vault** — Evidence storage with shave detection
+- ☁️ **Cloudflare Integration** — DNS parking, SSL, A-record management
+- 🌐 **Namecheap Integration** — Domain purchasing and bulk management
+- 🤖 **MCP Server for AI** — 31 tools for Claude Desktop integration
 
-**Previous highlights (v1.1.0)**
-- 🔗 **Conversion attribution** — postback conversions now stamped with click data
-- 📊 **Layered reports fixed** — all grouped reports working again
-- 🔤 **Case-insensitive statuses** — `Approved`/`PENDING` correctly mapped
-- 📡 **Conversion failure monitoring** — API endpoint + Telegram alerts
-- 🔐 **TLS verification restored** — proper certificate checks on outbound calls
+**Stability Improvements (from v1.1.1)**
+- 🚨 **POST forms on local** — `/order.php`, `/offers/<id>/*.php` routing fixed
+- 🔁 **PHP handlers** — all bridges execute correctly
+- 🔒 **PHP security** — uploaded files only execute through tracker
 
 Full version history: [CHANGELOG.md](CHANGELOG.md)
 
