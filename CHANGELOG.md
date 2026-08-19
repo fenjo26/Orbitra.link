@@ -7,6 +7,20 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.1.5] — 2026-08-19
+
+SSL management rebuilt around per-domain verification and custom certificates, IP access control reworked with SUBID extraction in the traffic log, and a shared bulk-file-upload component across the panel.
+
+### Added
+- 🔐 **SSL management and verification (ORB-014)** — `core/ssl_manager.php` verifies certificate coverage per domain, the generated nginx vhost gains an HTTPS server block with a self-signed certificate for domains that are neither Let's Encrypt nor behind Cloudflare, and the Cloudflare Full (Strict) setup is documented in `docs/CLOUDFLARE_FULL_STRICT_SSL.md`. A 279-line regression test (`tests/nginx_config_regression_test.php`) locks the generated vhost shape, including server-block parsing and listen matching. **An existing nginx server needs `sudo php /var/www/orbitra/cli/nginx_sync.php` once** for the new vhost blocks.
+- 📜 **Custom SSL certificates per domain** — upload your own certificate and key in domain settings (Domains UI, all 7 locales).
+- 🧠 **SUBID extraction in the traffic log** — SUBID values are read from the click's parameters on the click path and in LeadForge; `tests/traffic_log_subid_test.php` and `tests/verify_traffic_subid.php` cover missing keys, malformed JSON and NULL parameters.
+- 📤 **Bulk file upload** — a shared `BulkFileUpload` component with CSV parsing and per-file error handling, wired into Bot Settings, Branding, Campaigns, Landings, Offers and Traffic Sources, with matching `api.php` endpoints and a `cli/check_landings.php` inspector.
+
+### Changed
+- 🛡️ **IP access control reworked** (`core/ip_access.php`) alongside the traffic-log SUBID work.
+- 📦 **Frontend bundle rebuilt** — the SSL and bulk-upload interfaces had been committed without a `dist` rebuild; this release ships them.
+
 ## [1.1.4] — 2026-08-19
 
 Generated integration snippets spoke Russian to every user, regardless of the panel language.

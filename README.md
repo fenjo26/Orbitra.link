@@ -1,4 +1,4 @@
-# Orbitra v1.1.4 Tracker
+# Orbitra v1.1.5 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,17 +11,18 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.1.4
+## 🆕 What's New in v1.1.5
 
-### Fixed
+### Added
 
-- **🔤 Tracking snippets in English** — the code blocks in the campaign editor's Connection method (KClient JS/PHP, tracking script, banners, pixels, countdown / back-button / exit-intent widgets, WordPress shortcodes) had hardcoded Russian comments no matter the panel language; every template comment is now English
+- **🔐 SSL management and verification (ORB-014)** — per-domain certificate verification, an HTTPS server block with a self-signed certificate for non-Let's Encrypt / non-Cloudflare domains, and a documented Cloudflare Full (Strict) setup. **Nginx servers: run `sudo php cli/nginx_sync.php` once**
+- **📜 Custom SSL certificates** — upload your own certificate and key per domain in domain settings
+- **🧠 SUBID in the traffic log** — SUBID values extracted from click parameters (click path + LeadForge, covered by tests)
+- **📤 Bulk file upload** — shared component with CSV parsing and per-file error handling in Bot Settings, Branding, Campaigns, Landings, Offers and Traffic Sources
 
-### Previous Highlights (v1.1.3)
+### Previous Highlights (v1.1.4)
 
-- **🎨 Eight palette themes** — Cobalt, Canary, Parchment, Indigo, each in light & dark (Personalization)
-- **🌗 Hardcoded grays → theme variables** — Automation, Admin Status, campaign Tracking tab
-- **🧱 Conversion Types bundle repair** — the unmapped-statuses UI advertised in 1.1.2 shipped for real
+- **🔤 Tracking snippets in English** — Connection-method code blocks no longer carry hardcoded Russian comments
 
 ## 🖥 Live Demo
 
@@ -492,12 +493,15 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.1.4 (2026-08-19)
+### Current release — v1.1.5 (2026-08-19)
 
-**Fixed**
-- 🔤 **Tracking snippets in English** — Connection-method code blocks (KClient, banners, pixels, widgets, WordPress) no longer carry hardcoded Russian comments
+**Added**
+- 🔐 **SSL management and verification (ORB-014)** — per-domain verification, self-signed HTTPS blocks for nginx, Cloudflare Full (Strict) docs. **Run `sudo php cli/nginx_sync.php` once on nginx**
+- 📜 **Custom SSL certificates** — upload cert + key per domain
+- 🧠 **SUBID in the traffic log** — extracted from click parameters
+- 📤 **Bulk file upload** — CSV parsing, per-file errors, six pages
 
-Previous release — v1.1.3: 🎨 eight palette themes, 🌗 hardcoded grays → theme variables, 🧱 Conversion Types bundle repair.
+Previous releases — v1.1.4: 🔤 English tracking snippets; v1.1.3: 🎨 eight palette themes, 🌗 theme-variable cleanup, 🧱 Conversion Types repair.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

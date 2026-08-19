@@ -1370,6 +1370,10 @@
     min-width: 120px;
   }
 
+  .min-w-\[140px\] {
+    min-width: 140px;
+  }
+
   .min-w-\[150px\] {
     min-width: 150px;
   }
@@ -1534,6 +1538,10 @@
 
   .items-center {
     align-items: center;
+  }
+
+  .items-end {
+    align-items: flex-end;
   }
 
   .items-start {
@@ -3500,6 +3508,10 @@
       background-color: var(--color-gray-50);
     }
 
+    .hover\:bg-green-600:hover {
+      background-color: var(--color-green-600);
+    }
+
     .hover\:bg-indigo-700:hover {
       background-color: var(--color-indigo-700);
     }
@@ -3602,6 +3614,11 @@
 
     .hover\:shadow-lg:hover {
       --tw-shadow: 0 10px 15px -3px var(--tw-shadow-color, #0000001a), 0 4px 6px -4px var(--tw-shadow-color, #0000001a);
+      box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+    }
+
+    .hover\:shadow-md:hover {
+      --tw-shadow: 0 4px 6px -1px var(--tw-shadow-color, #0000001a), 0 2px 4px -2px var(--tw-shadow-color, #0000001a);
       box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
     }
   }
