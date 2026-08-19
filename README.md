@@ -1,4 +1,4 @@
-# Orbitra v1.1.6 Tracker
+# Orbitra v1.1.7 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,24 +11,17 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.1.6
-
-### Added
-
-- **🔀 SSL mode selector in Domains** — Let's Encrypt / Cloudflare (Real IP restoration + CF-Visitor HTTPS in the generated vhost) / Custom certificate paths, in all 7 languages
-- **🧰 Install smoke tests + landing diagnostics** — `install.sh` verifies nginx location, ACME webroot, self-signed cert and config syntax; `cli/check_landings.php` diagnoses permissions, nginx, ACME and SSL
+## 🆕 What's New in v1.1.7
 
 ### Fixed
 
-- **🧩 Guaranteed landing/offers asset loading** — absolute asset paths rewritten to relative before the base tag (anchor smooth-scroll preserved); campaign URLs (`/bd86o7dw`) now resolve in the referer fallback; a fail-safe streams assets from PHP with Range/206 when the nginx `/_internal_assets/` location is missing
+- **🛟 Landing assets: nginx redirect loop (500s)** — the generated `/_internal_assets/` location carried a nested regex block under an `alias`, which breaks alias inheritance in nginx. The block is flat now (PHP keeps the whitelist and MIME checks); the PHP fail-safe also detects the broken config variant until `nginx_sync.php` runs; vhost generation order for self-signed domain lists fixed. **Nginx servers: re-run `sudo php cli/nginx_sync.php` once**
 
-### Removed
+### Previous Highlights (v1.1.6)
 
-- **🗑️ Bulk .txt/.csv import** — upload buttons dropped from Campaigns, Offers, Landings and Traffic Sources by design
-
-### Previous Highlights (v1.1.5)
-
-- **🔐 SSL management and verification (ORB-014)** — per-domain verification, self-signed HTTPS blocks, Cloudflare Full (Strict) docs
+- **🔀 SSL mode selector in Domains** — Let's Encrypt / Cloudflare / Custom, all 7 languages
+- **🧰 Install smoke tests + `cli/check_landings.php` diagnostics**
+- **🧩 Guaranteed landing/offers asset loading** — relative-path rewriting, campaign-URL referer fallback, PHP streaming fail-safe
 
 ## 🖥 Live Demo
 
@@ -499,19 +492,12 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.1.6 (2026-08-19)
-
-**Added**
-- 🔀 **SSL mode selector in Domains** — Let's Encrypt / Cloudflare / Custom, all 7 languages
-- 🧰 **Install smoke tests + `cli/check_landings.php` diagnostics**
+### Current release — v1.1.7 (2026-08-19)
 
 **Fixed**
-- 🧩 **Guaranteed landing/offers asset loading** — relative-path rewriting, campaign-URL referer fallback, PHP streaming fail-safe (Range/206)
+- 🛟 **Landing assets: nginx redirect loop (500s)** — flattened `/_internal_assets/` location (nested regex broke alias inheritance); fail-safe detects the broken config variant until `nginx_sync.php` runs; self-signed vhost ordering fixed. **Run `sudo php cli/nginx_sync.php` once**
 
-**Removed**
-- 🗑️ **Bulk .txt/.csv import** buttons — by design
-
-Previous releases — v1.1.5: 🔐 SSL management (ORB-014), 🧠 SUBID in traffic logs; v1.1.4: 🔤 English tracking snippets; v1.1.3: 🎨 eight palette themes.
+Previous releases — v1.1.6: 🔀 SSL mode selector, 🧰 smoke tests + landing diagnostics, 🧩 asset-loading guarantees, 🗑️ bulk import removed; v1.1.5: 🔐 SSL management (ORB-014), 🧠 SUBID in traffic logs.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

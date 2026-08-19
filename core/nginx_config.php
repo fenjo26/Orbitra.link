@@ -149,21 +149,20 @@ function orbitraNginxCommonBody(string $fpmSocket): string
     $b = "    root /var/www/orbitra;\n";
     $b .= "    index index.php admin.php index.html;\n\n";
 
-    $b .= "    # ORB-013: Internal location for X-Accel-Redirect.\n";
+    $b .= "    # ORB-013: Internal location for X-Accel-Redirect (flattened, no nested regex).\n";
     $b .= "    # PHP resolves landing asset paths with security checks, then hands\n";
     $b .= "    # off to nginx via X-Accel-Redirect. This location serves the file\n";
     $b .= "    # with sendfile (zero-copy) while PHP is freed for the next request.\n";
     $b .= "    # A landing page with 30 assets no longer means 30 PHP processes.\n";
+    $b .= "    #\n";
+    $b .= "    # CRITICAL: No nested location ~* block! Nginx breaks alias inheritance\n";
+    $b .= "    # when a nested regex location is used, causing redirect loops.\n";
+    $b .= "    # PHP handles all security checks and MIME type validation.\n";
     $b .= "    location /_internal_assets/ {\n";
     $b .= "        internal;\n";
     $b .= "        alias /var/www/orbitra/;\n";
-    $b .= "        # Security: only serve whitelisted asset types\n";
-    $b .= "        location ~* \\.(ico|png|jpg|jpeg|gif|bmp|webp|avif|svg|css|js|mjs|json|map|webmanifest|woff|woff2|ttf|otf|eot|mp4|webm|m4v|ogv|mp3|ogg|wav|m4a|txt|pdf)\$ {\n";
-    $b .= "            expires 1h;\n";
-    $b .= "            add_header Cache-Control \"public, immutable\";\n";
-    $b .= "        }\n";
-    $b .= "        # Deny everything else (including .php files)\n";
-    $b .= "        deny all;\n";
+    $b .= "        expires 1h;\n";
+    $b .= "        add_header Cache-Control \"public, immutable\";\n";
     $b .= "    }\n\n";
 
     $b .= "    # Let's Encrypt HTTP-01 challenge.\n";
@@ -403,8 +402,13 @@ function orbitraBuildNginxConfig(array $domains, bool $withDefaultServer = true)
         $c .= "}\n\n";
     }
 
+    // ---- Self-signed for non-Cloudflare domains without LE cert -------------------------
+    $needsSelfSigned = array_diff($selfSignedDomains, $cloudflareDomains);
+    $needsSelfSigned = array_diff($needsSelfSigned, array_column($customCertDomains, 'name'), $letsEncryptDomains);
+    $needsSelfSigned = array_values(array_unique($needsSelfSigned));
+
     // ---- Cloudflare domains with self-signed origin (Full SSL mode) ----
-    $cloudflareOnlyDomains = array_values(array_intersect($cloudflareDomains, $needsSelfSigned));
+    $cloudflareOnlyDomains = array_values(array_intersect($cloudflareDomains, $selfSignedDomains));
     $cloudflareOnlyDomains = array_diff($cloudflareOnlyDomains, array_column($customCertDomains, 'name'), $letsEncryptDomains);
     $cloudflareOnlyDomains = array_values(array_unique($cloudflareOnlyDomains));
 
@@ -421,11 +425,6 @@ function orbitraBuildNginxConfig(array $domains, bool $withDefaultServer = true)
         $c .= $body;
         $c .= "}\n\n";
     }
-
-    // ---- Self-signed for non-Cloudflare domains without LE cert -------------------------
-    $needsSelfSigned = array_diff($selfSignedDomains, $cloudflareDomains);
-    $needsSelfSigned = array_diff($needsSelfSigned, array_column($customCertDomains, 'name'), $letsEncryptDomains);
-    $needsSelfSigned = array_values(array_unique($needsSelfSigned));
 
     if (!empty($needsSelfSigned) && file_exists(ORBITRA_SELF_SIGNED_CERT) && file_exists(ORBITRA_SELF_SIGNED_KEY)) {
         $c .= "# Parked domains over HTTPS (self-signed).\n";

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Orbitra v1.1.6 Tracker Auto-Installer
+# Orbitra v1.1.7 Tracker Auto-Installer
 # Supported OS: Ubuntu 20.04, 22.04, 24.04 / Debian 11, 12
 # Root privileges required (sudo)
 
@@ -230,21 +230,20 @@ server {
     root /var/www/orbitra;
     index index.php admin.php index.html;
 
-    # ORB-013: Internal location for X-Accel-Redirect.
+    # ORB-013: Internal location for X-Accel-Redirect (flattened, no nested regex).
     # PHP resolves landing asset paths with security checks, then hands
     # off to nginx via X-Accel-Redirect. This location serves the file
     # with sendfile (zero-copy) while PHP is freed for the next request.
     # A landing page with 30 assets no longer means 30 PHP processes.
+    #
+    # CRITICAL: No nested location ~* block! Nginx breaks alias inheritance
+    # when a nested regex location is used, causing redirect loops.
+    # PHP handles all security checks and MIME type validation.
     location /_internal_assets/ {
         internal;
         alias /var/www/orbitra/;
-        # Security: only serve whitelisted asset types
-        location ~* \.(ico|png|jpg|jpeg|gif|bmp|webp|avif|svg|css|js|mjs|json|map|webmanifest|woff|woff2|ttf|otf|eot|mp4|webm|m4v|ogv|mp3|ogg|wav|m4a|txt|pdf)$ {
-            expires 1h;
-            add_header Cache-Control "public, immutable";
-        }
-        # Deny everything else (including .php files)
-        deny all;
+        expires 1h;
+        add_header Cache-Control "public, immutable";
     }
 
     # Let's Encrypt HTTP-01 challenge.

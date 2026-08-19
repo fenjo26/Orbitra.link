@@ -688,17 +688,34 @@ function serveLandingAsset($landingId, $uriPath, $baseDir = null)
         header('X-Orbitra-Asset-LandingId: ' . $landingId);
     }
 
-    // Automatic fail-safe: verify nginx config has _internal_assets location
-    // If the block is missing (clean install, manual config edit), fall back to direct streaming
+    // ORB-013: Automatic fail-safe for broken nginx configs.
+    // Detect and guard against the nested regex bug that causes 500 redirect loops.
+    // After git pull, users get fixed nginx templates BUT /etc/nginx stays broken
+    // until nginx_sync.php runs. This detection ensures immediate asset delivery.
+    if (!defined('ORBITRA_NGINX_CONFIG_PATH')) {
+        define('ORBITRA_NGINX_CONFIG_PATH', '/etc/nginx/sites-available/orbitra');
+    }
     if (file_exists(ORBITRA_NGINX_CONFIG_PATH)) {
         $config = @file_get_contents(ORBITRA_NGINX_CONFIG_PATH);
-        if ($config !== false && strpos($config, 'location /_internal_assets/') === false) {
-            // Config missing - fall back to direct streaming
-            if ($GLOBALS['orbitraLandingDebug'] ?? false) {
-                header('X-Orbitra-Asset-Source: php_stream');
-                header('X-Orbitra-Asset-Fallback: nginx_config_missing');
+        if ($config !== false) {
+            // Check 1: Missing _internal_assets location at all
+            if (strpos($config, 'location /_internal_assets/') === false) {
+                if ($GLOBALS['orbitraLandingDebug'] ?? false) {
+                    header('X-Orbitra-Asset-Source: php_stream');
+                    header('X-Orbitra-Asset-Fallback: nginx_config_missing');
+                }
+                orbitraStreamAssetFile($file, $mimeTypes[$ext]);
             }
-            orbitraStreamAssetFile($file, $mimeTypes[$ext]);
+            // Check 2: BROKEN CONFIG - nested regex inside _internal_assets causes 500 loop!
+            // Pattern matches: location /_internal_assets/ { ... location ~* ... }
+            // This breaks alias inheritance and causes redirect loops → 500 errors
+            elseif (preg_match('#location\s+/_internal_assets/\s*\{[^}]*location\s*~[*\s]#s', $config)) {
+                if ($GLOBALS['orbitraLandingDebug'] ?? false) {
+                    header('X-Orbitra-Asset-Source: php_stream');
+                    header('X-Orbitra-Asset-Fallback: broken_nested_regex_detected');
+                }
+                orbitraStreamAssetFile($file, $mimeTypes[$ext]);
+            }
         }
     }
 

@@ -7,6 +7,17 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.1.7] — 2026-08-19
+
+Hotfix: landing assets behind nginx ended in redirect loops (500s) — a nested regex location broke the internal-asset hand-off.
+
+### Fixed
+- 🛟 **Nested regex location broke `/_internal_assets/`** — the generated vhost (and the `install.sh` baseline) placed a `location ~* \.(…)$` whitelist block *inside* the `/_internal_assets/` prefix location. A nested regex location under an `alias` breaks alias inheritance in nginx, so asset hand-offs looped into 500s. The block is flattened — no nested location; PHP keeps doing path resolution, the extension whitelist and MIME validation before the hand-off, so the security checks live where they already were.
+- 🚑 **Fail-safe detects the broken config variant** — after a `git pull`, servers carry the fixed templates while `/etc/nginx` still holds the broken block until `nginx_sync.php` runs. The PHP fallback now pattern-matches the nested-regex variant (`X-Orbitra-Asset-Fallback: broken_nested_regex_detected`) and streams assets from PHP until the config is regenerated.
+- 🧭 **vhost generation order** — `$needsSelfSigned` was computed *after* the Cloudflare-only block consumed it; the self-signed list is now built first and the Cloudflare-only block diffs `$selfSignedDomains` directly.
+
+> Nginx servers: re-run `sudo php cli/nginx_sync.php` once to replace the broken location block.
+
 ## [1.1.6] — 2026-08-19
 
 Landing assets are guaranteed to load across Incognito, WebView, blocked cookies and Cloudflare proxy, and SSL gets an explicit per-domain mode.
