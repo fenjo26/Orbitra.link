@@ -273,6 +273,18 @@ function orbitraBuildNginxConfig(array $domains, bool $withDefaultServer = true)
         $c .= "}\n\n";
     }
 
+    $nonSslDomains = array_values(array_diff($domains, $sslDomains));
+    if (!empty($nonSslDomains) && file_exists(ORBITRA_SELF_SIGNED_CERT) && file_exists(ORBITRA_SELF_SIGNED_KEY)) {
+        $c .= "# Parked domains over HTTPS (Cloudflare Full SSL / self-signed origin fallback).\n";
+        $c .= "server {\n";
+        $c .= "    listen 443 ssl;\n";
+        $c .= "    server_name " . implode(' ', $nonSslDomains) . ";\n\n";
+        $c .= "    ssl_certificate " . ORBITRA_SELF_SIGNED_CERT . ";\n";
+        $c .= "    ssl_certificate_key " . ORBITRA_SELF_SIGNED_KEY . ";\n\n";
+        $c .= $body;
+        $c .= "}\n\n";
+    }
+
     foreach ($sslDomains as $domain) {
         $c .= "server {\n";
         $c .= "    listen 443 ssl;\n";
