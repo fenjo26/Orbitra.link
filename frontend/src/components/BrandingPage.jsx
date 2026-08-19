@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Sun, Moon, Palette, Check, Monitor, Droplet, RefreshCw, Save } from 'lucide-react';
+import { Sun, Moon, Palette, Check, Monitor, Droplet, RefreshCw, Save, Waves, StickyNote, Feather, Gem } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { applyCustomThemeVars } from '../utils/themeContrast';
 
@@ -12,6 +12,20 @@ const DEFAULT_CUSTOM_COLORS = {
     '--color-bg-card': '#ffffff',
     '--color-text-primary': '#111111'
 };
+
+// Palette-theme cards (color schemes only — no brand names in the UI).
+// Tailwind scans source statically, so every dynamic-ish class (hover
+// border, inactive chip tint) must live here as a full literal.
+const PALETTE_THEMES = [
+    { id: 'cobalt', icon: Waves, labelKey: 'branding.cobalt', descKey: 'branding.cobaltDesc', hoverClass: 'hover:border-[#0070d1]', chipClass: 'bg-[#e3f0fc] text-[#0070d1]' },
+    { id: 'cobalt-dark', icon: Waves, labelKey: 'branding.cobaltDark', descKey: 'branding.cobaltDarkDesc', hoverClass: 'hover:border-[#53b1ff]', chipClass: 'bg-[#0f1116] text-[#53b1ff]' },
+    { id: 'canary', icon: StickyNote, labelKey: 'branding.canary', descKey: 'branding.canaryDesc', hoverClass: 'hover:border-[#1c1c1e]', chipClass: 'bg-[#fff4c4] text-[#1c1c1e]' },
+    { id: 'canary-dark', icon: StickyNote, labelKey: 'branding.canaryDark', descKey: 'branding.canaryDarkDesc', hoverClass: 'hover:border-[#ffd02f]', chipClass: 'bg-[#26262a] text-[#ffd02f]' },
+    { id: 'parchment', icon: Feather, labelKey: 'branding.parchment', descKey: 'branding.parchmentDesc', hoverClass: 'hover:border-[#cf4500]', chipClass: 'bg-[#fbeee6] text-[#cf4500]' },
+    { id: 'parchment-dark', icon: Feather, labelKey: 'branding.parchmentDark', descKey: 'branding.parchmentDarkDesc', hoverClass: 'hover:border-[#f37338]', chipClass: 'bg-[#141413] text-[#f3f0ee]' },
+    { id: 'indigo', icon: Gem, labelKey: 'branding.indigo', descKey: 'branding.indigoDesc', hoverClass: 'hover:border-[#5865f2]', chipClass: 'bg-[#e0e3ff] text-[#5865f2]' },
+    { id: 'indigo-dark', icon: Gem, labelKey: 'branding.indigoDark', descKey: 'branding.indigoDarkDesc', hoverClass: 'hover:border-[#5865f2]', chipClass: 'bg-[#1e2353] text-[#5865f2]' },
+];
 
 const BrandingPage = () => {
     const { t } = useLanguage();
@@ -142,6 +156,26 @@ const BrandingPage = () => {
                             <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('branding.neonDesc')}</p>
                         </div>
                     </div>
+                    {PALETTE_THEMES.map((bt) => {
+                        const BrandIcon = bt.icon;
+                        return (
+                            <div
+                                key={bt.id}
+                                onClick={() => handleModeChange(bt.id)}
+                                className={`border-2 rounded-xl p-4 cursor-pointer transition-all flex items-center gap-3 ${mode === bt.id ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)]' : `border-[var(--color-border)] ${bt.hoverClass}`
+                                    }`}
+                                style={mode !== bt.id ? { backgroundColor: 'var(--color-bg-card)' } : {}}
+                            >
+                                <div className={`p-2 rounded-full ${mode === bt.id ? 'bg-[var(--color-primary)] text-[var(--color-text-inverse)]' : bt.chipClass}`}>
+                                    <BrandIcon size={20} />
+                                </div>
+                                <div>
+                                    <p className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{t(bt.labelKey)}</p>
+                                    <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t(bt.descKey)}</p>
+                                </div>
+                            </div>
+                        );
+                    })}
                     <div
                         onClick={() => handleModeChange('custom')}
                         className={`border-2 rounded-xl p-4 cursor-pointer transition-all flex items-center gap-3 md:col-span-2 ${mode === 'custom' ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)]' : 'border-[var(--color-border)] hover:border-blue-500'

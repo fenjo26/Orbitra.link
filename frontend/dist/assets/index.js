@@ -15111,7 +15111,7 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$29 = [
+const __iconNode$2d = [
   [
     "path",
     {
@@ -15120,31 +15120,31 @@ const __iconNode$29 = [
     }
   ]
 ];
-const Activity = createLucideIcon("activity", __iconNode$29);
-const __iconNode$28 = [
+const Activity = createLucideIcon("activity", __iconNode$2d);
+const __iconNode$2c = [
   ["rect", { width: "20", height: "5", x: "2", y: "3", rx: "1", key: "1wp1u1" }],
   ["path", { d: "M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8", key: "1s80jp" }],
   ["path", { d: "M10 12h4", key: "a56b0p" }]
 ];
-const Archive = createLucideIcon("archive", __iconNode$28);
-const __iconNode$27 = [
+const Archive = createLucideIcon("archive", __iconNode$2c);
+const __iconNode$2b = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$27);
-const __iconNode$26 = [
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$2b);
+const __iconNode$2a = [
   ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
   ["path", { d: "M20 7H4", key: "zbl0bi" }],
   ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
   ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$26);
-const __iconNode$25 = [
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$2a);
+const __iconNode$29 = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$25);
-const __iconNode$24 = [
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$29);
+const __iconNode$28 = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15156,8 +15156,8 @@ const __iconNode$24 = [
   ["path", { d: "m2 2 20 20", key: "1ooewy" }],
   ["path", { d: "M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05", key: "1hqiys" }]
 ];
-const BellOff = createLucideIcon("bell-off", __iconNode$24);
-const __iconNode$23 = [
+const BellOff = createLucideIcon("bell-off", __iconNode$28);
+const __iconNode$27 = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15167,28 +15167,28 @@ const __iconNode$23 = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$23);
-const __iconNode$22 = [
+const Bell = createLucideIcon("bell", __iconNode$27);
+const __iconNode$26 = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const Calendar$1 = createLucideIcon("calendar", __iconNode$22);
-const __iconNode$21 = [
+const Calendar$1 = createLucideIcon("calendar", __iconNode$26);
+const __iconNode$25 = [
   ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
   ["path", { d: "M18 17V9", key: "2bz60n" }],
   ["path", { d: "M13 17V5", key: "1frdt8" }],
   ["path", { d: "M8 17v-3", key: "17ska0" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$21);
-const __iconNode$20 = [
+const ChartColumn = createLucideIcon("chart-column", __iconNode$25);
+const __iconNode$24 = [
   ["path", { d: "M5 21v-6", key: "1hz6c0" }],
   ["path", { d: "M12 21V3", key: "1lcnhd" }],
   ["path", { d: "M19 21V9", key: "unv183" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$20);
-const __iconNode$1$ = [
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$24);
+const __iconNode$23 = [
   [
     "path",
     {
@@ -15198,39 +15198,39 @@ const __iconNode$1$ = [
   ],
   ["path", { d: "M21.21 15.89A10 10 0 1 1 8 2.83", key: "k2fpak" }]
 ];
-const ChartPie = createLucideIcon("chart-pie", __iconNode$1$);
-const __iconNode$1_ = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$1_);
-const __iconNode$1Z = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$1Z);
-const __iconNode$1Y = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$1Y);
-const __iconNode$1X = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$1X);
-const __iconNode$1W = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$1W);
-const __iconNode$1V = [
+const ChartPie = createLucideIcon("chart-pie", __iconNode$23);
+const __iconNode$22 = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$22);
+const __iconNode$21 = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$21);
+const __iconNode$20 = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$20);
+const __iconNode$1$ = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$1$);
+const __iconNode$1_ = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$1_);
+const __iconNode$1Z = [
   ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
   ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
 ];
-const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1V);
-const __iconNode$1U = [
+const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$1Z);
+const __iconNode$1Y = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$1U);
-const __iconNode$1T = [
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$1Y);
+const __iconNode$1X = [
   ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1T);
-const __iconNode$1S = [
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1X);
+const __iconNode$1W = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$1S);
-const __iconNode$1R = [
+const CircleCheck = createLucideIcon("circle-check", __iconNode$1W);
+const __iconNode$1V = [
   [
     "path",
     {
@@ -15240,50 +15240,50 @@ const __iconNode$1R = [
   ],
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
 ];
-const CirclePlay = createLucideIcon("circle-play", __iconNode$1R);
-const __iconNode$1Q = [
+const CirclePlay = createLucideIcon("circle-play", __iconNode$1V);
+const __iconNode$1U = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1Q);
-const __iconNode$1P = [
+const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1U);
+const __iconNode$1T = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   ["path", { d: "m9 9 6 6", key: "z0biqf" }]
 ];
-const CircleX = createLucideIcon("circle-x", __iconNode$1P);
-const __iconNode$1O = [
+const CircleX = createLucideIcon("circle-x", __iconNode$1T);
+const __iconNode$1S = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 6v6l4 2", key: "mmk7yg" }]
 ];
-const Clock = createLucideIcon("clock", __iconNode$1O);
-const __iconNode$1N = [
+const Clock = createLucideIcon("clock", __iconNode$1S);
+const __iconNode$1R = [
   ["path", { d: "M12 13v8", key: "1l5pq0" }],
   ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
   ["path", { d: "m8 17 4-4 4 4", key: "1quai1" }]
 ];
-const CloudUpload = createLucideIcon("cloud-upload", __iconNode$1N);
-const __iconNode$1M = [
+const CloudUpload = createLucideIcon("cloud-upload", __iconNode$1R);
+const __iconNode$1Q = [
   ["path", { d: "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z", key: "p7xjir" }]
 ];
-const Cloud = createLucideIcon("cloud", __iconNode$1M);
-const __iconNode$1L = [
+const Cloud = createLucideIcon("cloud", __iconNode$1Q);
+const __iconNode$1P = [
   ["path", { d: "m16 18 6-6-6-6", key: "eg8j8" }],
   ["path", { d: "m8 6-6 6 6 6", key: "ppft3o" }]
 ];
-const Code = createLucideIcon("code", __iconNode$1L);
-const __iconNode$1K = [
+const Code = createLucideIcon("code", __iconNode$1P);
+const __iconNode$1O = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M12 3v18", key: "108xh3" }]
 ];
-const Columns2 = createLucideIcon("columns-2", __iconNode$1K);
-const __iconNode$1J = [
+const Columns2 = createLucideIcon("columns-2", __iconNode$1O);
+const __iconNode$1N = [
   ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
   ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-const Copy = createLucideIcon("copy", __iconNode$1J);
-const __iconNode$1I = [
+const Copy = createLucideIcon("copy", __iconNode$1N);
+const __iconNode$1M = [
   ["path", { d: "M12 20v2", key: "1lh1kg" }],
   ["path", { d: "M12 2v2", key: "tus03m" }],
   ["path", { d: "M17 20v2", key: "1rnc9c" }],
@@ -15299,33 +15299,33 @@ const __iconNode$1I = [
   ["rect", { x: "4", y: "4", width: "16", height: "16", rx: "2", key: "1vbyd7" }],
   ["rect", { x: "8", y: "8", width: "8", height: "8", rx: "1", key: "z9xiuo" }]
 ];
-const Cpu = createLucideIcon("cpu", __iconNode$1I);
-const __iconNode$1H = [
+const Cpu = createLucideIcon("cpu", __iconNode$1M);
+const __iconNode$1L = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "22", x2: "18", y1: "12", y2: "12", key: "l9bcsi" }],
   ["line", { x1: "6", x2: "2", y1: "12", y2: "12", key: "13hhkx" }],
   ["line", { x1: "12", x2: "12", y1: "6", y2: "2", key: "10w3f3" }],
   ["line", { x1: "12", x2: "12", y1: "22", y2: "18", key: "15g9kq" }]
 ];
-const Crosshair = createLucideIcon("crosshair", __iconNode$1H);
-const __iconNode$1G = [
+const Crosshair = createLucideIcon("crosshair", __iconNode$1L);
+const __iconNode$1K = [
   ["ellipse", { cx: "12", cy: "5", rx: "9", ry: "3", key: "msslwz" }],
   ["path", { d: "M3 5V19A9 3 0 0 0 21 19V5", key: "1wlel7" }],
   ["path", { d: "M3 12A9 3 0 0 0 21 12", key: "mv7ke4" }]
 ];
-const Database = createLucideIcon("database", __iconNode$1G);
-const __iconNode$1F = [
+const Database = createLucideIcon("database", __iconNode$1K);
+const __iconNode$1J = [
   ["line", { x1: "12", x2: "12", y1: "2", y2: "22", key: "7eqyqh" }],
   ["path", { d: "M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", key: "1b0p4s" }]
 ];
-const DollarSign = createLucideIcon("dollar-sign", __iconNode$1F);
-const __iconNode$1E = [
+const DollarSign = createLucideIcon("dollar-sign", __iconNode$1J);
+const __iconNode$1I = [
   ["path", { d: "M12 15V3", key: "m9g1x1" }],
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["path", { d: "m7 10 5 5 5-5", key: "brsn70" }]
 ];
-const Download = createLucideIcon("download", __iconNode$1E);
-const __iconNode$1D = [
+const Download = createLucideIcon("download", __iconNode$1I);
+const __iconNode$1H = [
   [
     "path",
     {
@@ -15334,20 +15334,20 @@ const __iconNode$1D = [
     }
   ]
 ];
-const Droplet = createLucideIcon("droplet", __iconNode$1D);
-const __iconNode$1C = [
+const Droplet = createLucideIcon("droplet", __iconNode$1H);
+const __iconNode$1G = [
   ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
   ["circle", { cx: "12", cy: "5", r: "1", key: "gxeob9" }],
   ["circle", { cx: "12", cy: "19", r: "1", key: "lyex9k" }]
 ];
-const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1C);
-const __iconNode$1B = [
+const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1G);
+const __iconNode$1F = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "M10 14 21 3", key: "gplh6r" }],
   ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
 ];
-const ExternalLink = createLucideIcon("external-link", __iconNode$1B);
-const __iconNode$1A = [
+const ExternalLink = createLucideIcon("external-link", __iconNode$1F);
+const __iconNode$1E = [
   [
     "path",
     {
@@ -15365,8 +15365,8 @@ const __iconNode$1A = [
   ],
   ["path", { d: "m2 2 20 20", key: "1ooewy" }]
 ];
-const EyeOff = createLucideIcon("eye-off", __iconNode$1A);
-const __iconNode$1z = [
+const EyeOff = createLucideIcon("eye-off", __iconNode$1E);
+const __iconNode$1D = [
   [
     "path",
     {
@@ -15376,8 +15376,20 @@ const __iconNode$1z = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Eye = createLucideIcon("eye", __iconNode$1z);
-const __iconNode$1y = [
+const Eye = createLucideIcon("eye", __iconNode$1D);
+const __iconNode$1C = [
+  [
+    "path",
+    {
+      d: "M12.67 19a2 2 0 0 0 1.416-.588l6.154-6.172a6 6 0 0 0-8.49-8.49L5.586 9.914A2 2 0 0 0 5 11.328V18a1 1 0 0 0 1 1z",
+      key: "18jl4k"
+    }
+  ],
+  ["path", { d: "M16 8 2 22", key: "vp34q" }],
+  ["path", { d: "M17.5 15H9", key: "1oz8nu" }]
+];
+const Feather = createLucideIcon("feather", __iconNode$1C);
+const __iconNode$1B = [
   [
     "path",
     {
@@ -15391,8 +15403,8 @@ const __iconNode$1y = [
   ["path", { d: "M8 7V6", key: "1nbb54" }],
   ["circle", { cx: "8", cy: "20", r: "2", key: "ckkr5m" }]
 ];
-const FileArchive = createLucideIcon("file-archive", __iconNode$1y);
-const __iconNode$1x = [
+const FileArchive = createLucideIcon("file-archive", __iconNode$1B);
+const __iconNode$1A = [
   [
     "path",
     {
@@ -15404,8 +15416,8 @@ const __iconNode$1x = [
   ["path", { d: "M10 12.5 8 15l2 2.5", key: "1tg20x" }],
   ["path", { d: "m14 12.5 2 2.5-2 2.5", key: "yinavb" }]
 ];
-const FileCode = createLucideIcon("file-code", __iconNode$1x);
-const __iconNode$1w = [
+const FileCode = createLucideIcon("file-code", __iconNode$1A);
+const __iconNode$1z = [
   [
     "path",
     {
@@ -15417,8 +15429,8 @@ const __iconNode$1w = [
   ["circle", { cx: "11.5", cy: "14.5", r: "2.5", key: "1bq0ko" }],
   ["path", { d: "M13.3 16.3 15 18", key: "2quom7" }]
 ];
-const FileSearch = createLucideIcon("file-search", __iconNode$1w);
-const __iconNode$1v = [
+const FileSearch = createLucideIcon("file-search", __iconNode$1z);
+const __iconNode$1y = [
   ["path", { d: "M11 21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1", key: "likhh7" }],
   ["path", { d: "M16 16a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1", key: "17ky3x" }],
   [
@@ -15429,8 +15441,8 @@ const __iconNode$1v = [
     }
   ]
 ];
-const FileStack = createLucideIcon("file-stack", __iconNode$1v);
-const __iconNode$1u = [
+const FileStack = createLucideIcon("file-stack", __iconNode$1y);
+const __iconNode$1x = [
   [
     "path",
     {
@@ -15443,8 +15455,8 @@ const __iconNode$1u = [
   ["path", { d: "M16 13H8", key: "t4e002" }],
   ["path", { d: "M16 17H8", key: "z1uh3a" }]
 ];
-const FileText = createLucideIcon("file-text", __iconNode$1u);
-const __iconNode$1t = [
+const FileText = createLucideIcon("file-text", __iconNode$1x);
+const __iconNode$1w = [
   [
     "path",
     {
@@ -15453,22 +15465,34 @@ const __iconNode$1t = [
     }
   ]
 ];
-const Funnel = createLucideIcon("funnel", __iconNode$1t);
-const __iconNode$1s = [
+const Funnel = createLucideIcon("funnel", __iconNode$1w);
+const __iconNode$1v = [
+  ["path", { d: "M10.5 3 8 9l4 13 4-13-2.5-6", key: "b3dvk1" }],
+  [
+    "path",
+    {
+      d: "M17 3a2 2 0 0 1 1.6.8l3 4a2 2 0 0 1 .013 2.382l-7.99 10.986a2 2 0 0 1-3.247 0l-7.99-10.986A2 2 0 0 1 2.4 7.8l2.998-3.997A2 2 0 0 1 7 3z",
+      key: "7w4byz"
+    }
+  ],
+  ["path", { d: "M2 9h20", key: "16fsjt" }]
+];
+const Gem = createLucideIcon("gem", __iconNode$1v);
+const __iconNode$1u = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20", key: "13o1zl" }],
   ["path", { d: "M2 12h20", key: "9i4pu4" }]
 ];
-const Globe = createLucideIcon("globe", __iconNode$1s);
-const __iconNode$1r = [
+const Globe = createLucideIcon("globe", __iconNode$1u);
+const __iconNode$1t = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M3 9h18", key: "1pudct" }],
   ["path", { d: "M3 15h18", key: "5xshup" }],
   ["path", { d: "M9 3v18", key: "fh3hqa" }],
   ["path", { d: "M15 3v18", key: "14nvp0" }]
 ];
-const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$1r);
-const __iconNode$1q = [
+const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$1t);
+const __iconNode$1s = [
   ["circle", { cx: "9", cy: "12", r: "1", key: "1vctgf" }],
   ["circle", { cx: "9", cy: "5", r: "1", key: "hp0tcf" }],
   ["circle", { cx: "9", cy: "19", r: "1", key: "fkjjf6" }],
@@ -15476,8 +15500,8 @@ const __iconNode$1q = [
   ["circle", { cx: "15", cy: "5", r: "1", key: "19l28e" }],
   ["circle", { cx: "15", cy: "19", r: "1", key: "f4zoj3" }]
 ];
-const GripVertical = createLucideIcon("grip-vertical", __iconNode$1q);
-const __iconNode$1p = [
+const GripVertical = createLucideIcon("grip-vertical", __iconNode$1s);
+const __iconNode$1r = [
   ["path", { d: "M10 16h.01", key: "1bzywj" }],
   [
     "path",
@@ -15489,8 +15513,8 @@ const __iconNode$1p = [
   ["path", { d: "M21.946 12.013H2.054", key: "zqlbp7" }],
   ["path", { d: "M6 16h.01", key: "1pmjb7" }]
 ];
-const HardDrive = createLucideIcon("hard-drive", __iconNode$1p);
-const __iconNode$1o = [
+const HardDrive = createLucideIcon("hard-drive", __iconNode$1r);
+const __iconNode$1q = [
   [
     "path",
     {
@@ -15499,20 +15523,20 @@ const __iconNode$1o = [
     }
   ]
 ];
-const Heart = createLucideIcon("heart", __iconNode$1o);
-const __iconNode$1n = [
+const Heart = createLucideIcon("heart", __iconNode$1q);
+const __iconNode$1p = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
   ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
   ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
 ];
-const Image = createLucideIcon("image", __iconNode$1n);
-const __iconNode$1m = [
+const Image = createLucideIcon("image", __iconNode$1p);
+const __iconNode$1o = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
 ];
-const Info = createLucideIcon("info", __iconNode$1m);
-const __iconNode$1l = [
+const Info = createLucideIcon("info", __iconNode$1o);
+const __iconNode$1n = [
   [
     "path",
     {
@@ -15522,14 +15546,14 @@ const __iconNode$1l = [
   ],
   ["circle", { cx: "16.5", cy: "7.5", r: ".5", fill: "currentColor", key: "w0ekpg" }]
 ];
-const KeyRound = createLucideIcon("key-round", __iconNode$1l);
-const __iconNode$1k = [
+const KeyRound = createLucideIcon("key-round", __iconNode$1n);
+const __iconNode$1m = [
   ["path", { d: "m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4", key: "g0fldk" }],
   ["path", { d: "m21 2-9.6 9.6", key: "1j0ho8" }],
   ["circle", { cx: "7.5", cy: "15.5", r: "5.5", key: "yqb3hr" }]
 ];
-const Key = createLucideIcon("key", __iconNode$1k);
-const __iconNode$1j = [
+const Key = createLucideIcon("key", __iconNode$1m);
+const __iconNode$1l = [
   [
     "path",
     {
@@ -15552,28 +15576,28 @@ const __iconNode$1j = [
     }
   ]
 ];
-const Layers = createLucideIcon("layers", __iconNode$1j);
-const __iconNode$1i = [
+const Layers = createLucideIcon("layers", __iconNode$1l);
+const __iconNode$1k = [
   ["rect", { width: "7", height: "9", x: "3", y: "3", rx: "1", key: "10lvy0" }],
   ["rect", { width: "7", height: "5", x: "14", y: "3", rx: "1", key: "16une8" }],
   ["rect", { width: "7", height: "9", x: "14", y: "12", rx: "1", key: "1hutg5" }],
   ["rect", { width: "7", height: "5", x: "3", y: "16", rx: "1", key: "ldoo1y" }]
 ];
-const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$1i);
-const __iconNode$1h = [
+const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$1k);
+const __iconNode$1j = [
   ["rect", { width: "7", height: "7", x: "3", y: "3", rx: "1", key: "1g98yp" }],
   ["rect", { width: "7", height: "7", x: "14", y: "3", rx: "1", key: "6d4xhi" }],
   ["rect", { width: "7", height: "7", x: "14", y: "14", rx: "1", key: "nxv5o0" }],
   ["rect", { width: "7", height: "7", x: "3", y: "14", rx: "1", key: "1bb6yr" }]
 ];
-const LayoutGrid = createLucideIcon("layout-grid", __iconNode$1h);
-const __iconNode$1g = [
+const LayoutGrid = createLucideIcon("layout-grid", __iconNode$1j);
+const __iconNode$1i = [
   ["rect", { width: "18", height: "7", x: "3", y: "3", rx: "1", key: "f1a2em" }],
   ["rect", { width: "9", height: "7", x: "3", y: "14", rx: "1", key: "jqznyg" }],
   ["rect", { width: "5", height: "7", x: "16", y: "14", rx: "1", key: "q5h2i8" }]
 ];
-const LayoutTemplate = createLucideIcon("layout-template", __iconNode$1g);
-const __iconNode$1f = [
+const LayoutTemplate = createLucideIcon("layout-template", __iconNode$1i);
+const __iconNode$1h = [
   [
     "path",
     {
@@ -15584,19 +15608,19 @@ const __iconNode$1f = [
   ["path", { d: "M9 18h6", key: "x1upvd" }],
   ["path", { d: "M10 22h4", key: "ceow96" }]
 ];
-const Lightbulb = createLucideIcon("lightbulb", __iconNode$1f);
-const __iconNode$1e = [
+const Lightbulb = createLucideIcon("lightbulb", __iconNode$1h);
+const __iconNode$1g = [
   ["path", { d: "M9 17H7A5 5 0 0 1 7 7h2", key: "8i5ue5" }],
   ["path", { d: "M15 7h2a5 5 0 1 1 0 10h-2", key: "1b9ql8" }],
   ["line", { x1: "8", x2: "16", y1: "12", y2: "12", key: "1jonct" }]
 ];
-const Link2 = createLucideIcon("link-2", __iconNode$1e);
-const __iconNode$1d = [
+const Link2 = createLucideIcon("link-2", __iconNode$1g);
+const __iconNode$1f = [
   ["path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71", key: "1cjeqo" }],
   ["path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71", key: "19qd67" }]
 ];
-const Link = createLucideIcon("link", __iconNode$1d);
-const __iconNode$1c = [
+const Link = createLucideIcon("link", __iconNode$1f);
+const __iconNode$1e = [
   ["path", { d: "M12 2v4", key: "3427ic" }],
   ["path", { d: "m16.2 7.8 2.9-2.9", key: "r700ao" }],
   ["path", { d: "M18 12h4", key: "wj9ykh" }],
@@ -15606,24 +15630,24 @@ const __iconNode$1c = [
   ["path", { d: "M2 12h4", key: "j09sii" }],
   ["path", { d: "m4.9 4.9 2.9 2.9", key: "giyufr" }]
 ];
-const Loader = createLucideIcon("loader", __iconNode$1c);
-const __iconNode$1b = [
+const Loader = createLucideIcon("loader", __iconNode$1e);
+const __iconNode$1d = [
   ["rect", { width: "18", height: "11", x: "3", y: "11", rx: "2", ry: "2", key: "1w4ew1" }],
   ["path", { d: "M7 11V7a5 5 0 0 1 10 0v4", key: "fwvmzm" }]
 ];
-const Lock = createLucideIcon("lock", __iconNode$1b);
-const __iconNode$1a = [
+const Lock = createLucideIcon("lock", __iconNode$1d);
+const __iconNode$1c = [
   ["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }],
   ["path", { d: "M21 12H9", key: "dn1m92" }],
   ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]
 ];
-const LogOut = createLucideIcon("log-out", __iconNode$1a);
-const __iconNode$19 = [
+const LogOut = createLucideIcon("log-out", __iconNode$1c);
+const __iconNode$1b = [
   ["path", { d: "m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7", key: "132q7q" }],
   ["rect", { x: "2", y: "4", width: "20", height: "16", rx: "2", key: "izxlao" }]
 ];
-const Mail = createLucideIcon("mail", __iconNode$19);
-const __iconNode$18 = [
+const Mail = createLucideIcon("mail", __iconNode$1b);
+const __iconNode$1a = [
   [
     "path",
     {
@@ -15633,8 +15657,8 @@ const __iconNode$18 = [
   ],
   ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }]
 ];
-const MapPin = createLucideIcon("map-pin", __iconNode$18);
-const __iconNode$17 = [
+const MapPin = createLucideIcon("map-pin", __iconNode$1a);
+const __iconNode$19 = [
   [
     "path",
     {
@@ -15645,21 +15669,21 @@ const __iconNode$17 = [
   ["path", { d: "M15 5.764v15", key: "1pn4in" }],
   ["path", { d: "M9 3.236v15", key: "1uimfh" }]
 ];
-const Map$1 = createLucideIcon("map", __iconNode$17);
-const __iconNode$16 = [
+const Map$1 = createLucideIcon("map", __iconNode$19);
+const __iconNode$18 = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "m21 3-7 7", key: "1l2asr" }],
   ["path", { d: "m3 21 7-7", key: "tjx5ai" }],
   ["path", { d: "M9 21H3v-6", key: "wtvkvv" }]
 ];
-const Maximize2 = createLucideIcon("maximize-2", __iconNode$16);
-const __iconNode$15 = [
+const Maximize2 = createLucideIcon("maximize-2", __iconNode$18);
+const __iconNode$17 = [
   ["path", { d: "M4 5h16", key: "1tepv9" }],
   ["path", { d: "M4 12h16", key: "1lakjw" }],
   ["path", { d: "M4 19h16", key: "1djgab" }]
 ];
-const Menu = createLucideIcon("menu", __iconNode$15);
-const __iconNode$14 = [
+const Menu = createLucideIcon("menu", __iconNode$17);
+const __iconNode$16 = [
   [
     "path",
     {
@@ -15668,8 +15692,8 @@ const __iconNode$14 = [
     }
   ]
 ];
-const MessageCircle = createLucideIcon("message-circle", __iconNode$14);
-const __iconNode$13 = [
+const MessageCircle = createLucideIcon("message-circle", __iconNode$16);
+const __iconNode$15 = [
   [
     "path",
     {
@@ -15678,21 +15702,21 @@ const __iconNode$13 = [
     }
   ]
 ];
-const MessageSquare = createLucideIcon("message-square", __iconNode$13);
-const __iconNode$12 = [
+const MessageSquare = createLucideIcon("message-square", __iconNode$15);
+const __iconNode$14 = [
   ["path", { d: "m14 10 7-7", key: "oa77jy" }],
   ["path", { d: "M20 10h-6V4", key: "mjg0md" }],
   ["path", { d: "m3 21 7-7", key: "tjx5ai" }],
   ["path", { d: "M4 14h6v6", key: "rmj7iw" }]
 ];
-const Minimize2 = createLucideIcon("minimize-2", __iconNode$12);
-const __iconNode$11 = [
+const Minimize2 = createLucideIcon("minimize-2", __iconNode$14);
+const __iconNode$13 = [
   ["rect", { width: "20", height: "14", x: "2", y: "3", rx: "2", key: "48i651" }],
   ["line", { x1: "8", x2: "16", y1: "21", y2: "21", key: "1svkeh" }],
   ["line", { x1: "12", x2: "12", y1: "17", y2: "21", key: "vw1qmm" }]
 ];
-const Monitor = createLucideIcon("monitor", __iconNode$11);
-const __iconNode$10 = [
+const Monitor = createLucideIcon("monitor", __iconNode$13);
+const __iconNode$12 = [
   [
     "path",
     {
@@ -15701,21 +15725,21 @@ const __iconNode$10 = [
     }
   ]
 ];
-const Moon = createLucideIcon("moon", __iconNode$10);
-const __iconNode$$ = [
+const Moon = createLucideIcon("moon", __iconNode$12);
+const __iconNode$11 = [
   ["circle", { cx: "8", cy: "18", r: "4", key: "1fc0mg" }],
   ["path", { d: "M12 18V2l7 4", key: "g04rme" }]
 ];
-const Music2 = createLucideIcon("music-2", __iconNode$$);
-const __iconNode$_ = [
+const Music2 = createLucideIcon("music-2", __iconNode$11);
+const __iconNode$10 = [
   ["rect", { x: "16", y: "16", width: "6", height: "6", rx: "1", key: "4q2zg0" }],
   ["rect", { x: "2", y: "16", width: "6", height: "6", rx: "1", key: "8cvhb9" }],
   ["rect", { x: "9", y: "2", width: "6", height: "6", rx: "1", key: "1egb70" }],
   ["path", { d: "M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3", key: "1jsf9p" }],
   ["path", { d: "M12 12V8", key: "2874zd" }]
 ];
-const Network = createLucideIcon("network", __iconNode$_);
-const __iconNode$Z = [
+const Network = createLucideIcon("network", __iconNode$10);
+const __iconNode$$ = [
   ["path", { d: "M12 22v-9", key: "x3hkom" }],
   [
     "path",
@@ -15739,8 +15763,8 @@ const __iconNode$Z = [
     }
   ]
 ];
-const PackageOpen = createLucideIcon("package-open", __iconNode$Z);
-const __iconNode$Y = [
+const PackageOpen = createLucideIcon("package-open", __iconNode$$);
+const __iconNode$_ = [
   [
     "path",
     {
@@ -15753,8 +15777,8 @@ const __iconNode$Y = [
   ["line", { x1: "12", x2: "12", y1: "22", y2: "12", key: "a4e8g8" }],
   ["path", { d: "m17 13 5 5m-5 0 5-5", key: "im3w4b" }]
 ];
-const PackageX = createLucideIcon("package-x", __iconNode$Y);
-const __iconNode$X = [
+const PackageX = createLucideIcon("package-x", __iconNode$_);
+const __iconNode$Z = [
   [
     "path",
     {
@@ -15767,8 +15791,8 @@ const __iconNode$X = [
   ["circle", { cx: "6.5", cy: "12.5", r: ".5", fill: "currentColor", key: "qy21gx" }],
   ["circle", { cx: "8.5", cy: "7.5", r: ".5", fill: "currentColor", key: "fotxhn" }]
 ];
-const Palette = createLucideIcon("palette", __iconNode$X);
-const __iconNode$W = [
+const Palette = createLucideIcon("palette", __iconNode$Z);
+const __iconNode$Y = [
   ["path", { d: "M13 21h8", key: "1jsn5i" }],
   [
     "path",
@@ -15778,8 +15802,8 @@ const __iconNode$W = [
     }
   ]
 ];
-const PenLine = createLucideIcon("pen-line", __iconNode$W);
-const __iconNode$V = [
+const PenLine = createLucideIcon("pen-line", __iconNode$Y);
+const __iconNode$X = [
   [
     "path",
     {
@@ -15788,8 +15812,8 @@ const __iconNode$V = [
     }
   ]
 ];
-const Pen = createLucideIcon("pen", __iconNode$V);
-const __iconNode$U = [
+const Pen = createLucideIcon("pen", __iconNode$X);
+const __iconNode$W = [
   [
     "path",
     {
@@ -15799,8 +15823,8 @@ const __iconNode$U = [
   ],
   ["path", { d: "m15 5 4 4", key: "1mk7zo" }]
 ];
-const Pencil = createLucideIcon("pencil", __iconNode$U);
-const __iconNode$T = [
+const Pencil = createLucideIcon("pencil", __iconNode$W);
+const __iconNode$V = [
   [
     "path",
     {
@@ -15809,8 +15833,8 @@ const __iconNode$T = [
     }
   ]
 ];
-const Phone = createLucideIcon("phone", __iconNode$T);
-const __iconNode$S = [
+const Phone = createLucideIcon("phone", __iconNode$V);
+const __iconNode$U = [
   [
     "path",
     {
@@ -15827,8 +15851,8 @@ const __iconNode$S = [
   ],
   ["path", { d: "m2 22 .414-.414", key: "jhxm08" }]
 ];
-const Pipette = createLucideIcon("pipette", __iconNode$S);
-const __iconNode$R = [
+const Pipette = createLucideIcon("pipette", __iconNode$U);
+const __iconNode$T = [
   [
     "path",
     {
@@ -15837,8 +15861,8 @@ const __iconNode$R = [
     }
   ]
 ];
-const Play = createLucideIcon("play", __iconNode$R);
-const __iconNode$Q = [
+const Play = createLucideIcon("play", __iconNode$T);
+const __iconNode$S = [
   ["path", { d: "M12 22v-5", key: "1ega77" }],
   ["path", { d: "M15 8V2", key: "18g5xt" }],
   [
@@ -15847,39 +15871,39 @@ const __iconNode$Q = [
   ],
   ["path", { d: "M9 8V2", key: "14iosj" }]
 ];
-const Plug = createLucideIcon("plug", __iconNode$Q);
-const __iconNode$P = [
+const Plug = createLucideIcon("plug", __iconNode$S);
+const __iconNode$R = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "M12 5v14", key: "s699le" }]
 ];
-const Plus = createLucideIcon("plus", __iconNode$P);
-const __iconNode$O = [
+const Plus = createLucideIcon("plus", __iconNode$R);
+const __iconNode$Q = [
   ["path", { d: "M12 2v10", key: "mnfbl" }],
   ["path", { d: "M18.4 6.6a9 9 0 1 1-12.77.04", key: "obofu9" }]
 ];
-const Power = createLucideIcon("power", __iconNode$O);
-const __iconNode$N = [
+const Power = createLucideIcon("power", __iconNode$Q);
+const __iconNode$P = [
   ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
   ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
   ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
   ["path", { d: "M8 16H3v5", key: "1cv678" }]
 ];
-const RefreshCw = createLucideIcon("refresh-cw", __iconNode$N);
-const __iconNode$M = [
+const RefreshCw = createLucideIcon("refresh-cw", __iconNode$P);
+const __iconNode$O = [
   ["path", { d: "m2 9 3-3 3 3", key: "1ltn5i" }],
   ["path", { d: "M13 18H7a2 2 0 0 1-2-2V6", key: "1r6tfw" }],
   ["path", { d: "m22 15-3 3-3-3", key: "4rnwn2" }],
   ["path", { d: "M11 6h6a2 2 0 0 1 2 2v10", key: "2f72bc" }]
 ];
-const Repeat2 = createLucideIcon("repeat-2", __iconNode$M);
-const __iconNode$L = [
+const Repeat2 = createLucideIcon("repeat-2", __iconNode$O);
+const __iconNode$N = [
   ["path", { d: "m17 2 4 4-4 4", key: "nntrym" }],
   ["path", { d: "M3 11v-1a4 4 0 0 1 4-4h14", key: "84bu3i" }],
   ["path", { d: "m7 22-4-4 4-4", key: "1wqhfi" }],
   ["path", { d: "M21 13v1a4 4 0 0 1-4 4H3", key: "1rx37r" }]
 ];
-const Repeat = createLucideIcon("repeat", __iconNode$L);
-const __iconNode$K = [
+const Repeat = createLucideIcon("repeat", __iconNode$N);
+const __iconNode$M = [
   ["path", { d: "M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5", key: "qeys4" }],
   [
     "path",
@@ -15897,18 +15921,18 @@ const __iconNode$K = [
   ],
   ["path", { d: "M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05", key: "92ym6u" }]
 ];
-const Rocket = createLucideIcon("rocket", __iconNode$K);
-const __iconNode$J = [
+const Rocket = createLucideIcon("rocket", __iconNode$M);
+const __iconNode$L = [
   ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
   ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
 ];
-const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$J);
-const __iconNode$I = [
+const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$L);
+const __iconNode$K = [
   ["path", { d: "M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8", key: "1p45f6" }],
   ["path", { d: "M21 3v5h-5", key: "1q7to0" }]
 ];
-const RotateCw = createLucideIcon("rotate-cw", __iconNode$I);
-const __iconNode$H = [
+const RotateCw = createLucideIcon("rotate-cw", __iconNode$K);
+const __iconNode$J = [
   [
     "path",
     {
@@ -15919,8 +15943,8 @@ const __iconNode$H = [
   ["path", { d: "M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7", key: "1ydtos" }],
   ["path", { d: "M7 3v4a1 1 0 0 0 1 1h7", key: "t51u73" }]
 ];
-const Save = createLucideIcon("save", __iconNode$H);
-const __iconNode$G = [
+const Save = createLucideIcon("save", __iconNode$J);
+const __iconNode$I = [
   ["path", { d: "M3 7V5a2 2 0 0 1 2-2h2", key: "aa7l1z" }],
   ["path", { d: "M17 3h2a2 2 0 0 1 2 2v2", key: "4qcy5o" }],
   ["path", { d: "M21 17v2a2 2 0 0 1-2 2h-2", key: "6vwrx8" }],
@@ -15928,21 +15952,21 @@ const __iconNode$G = [
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }],
   ["path", { d: "m16 16-1.9-1.9", key: "1dq9hf" }]
 ];
-const ScanSearch = createLucideIcon("scan-search", __iconNode$G);
-const __iconNode$F = [
+const ScanSearch = createLucideIcon("scan-search", __iconNode$I);
+const __iconNode$H = [
   ["circle", { cx: "6", cy: "6", r: "3", key: "1lh9wr" }],
   ["path", { d: "M8.12 8.12 12 12", key: "1alkpv" }],
   ["path", { d: "M20 4 8.12 15.88", key: "xgtan2" }],
   ["circle", { cx: "6", cy: "18", r: "3", key: "fqmcym" }],
   ["path", { d: "M14.8 14.8 20 20", key: "ptml3r" }]
 ];
-const Scissors = createLucideIcon("scissors", __iconNode$F);
-const __iconNode$E = [
+const Scissors = createLucideIcon("scissors", __iconNode$H);
+const __iconNode$G = [
   ["path", { d: "m21 21-4.34-4.34", key: "14j7rj" }],
   ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }]
 ];
-const Search = createLucideIcon("search", __iconNode$E);
-const __iconNode$D = [
+const Search = createLucideIcon("search", __iconNode$G);
+const __iconNode$F = [
   [
     "path",
     {
@@ -15952,8 +15976,8 @@ const __iconNode$D = [
   ],
   ["path", { d: "m21.854 2.147-10.94 10.939", key: "12cjpa" }]
 ];
-const Send = createLucideIcon("send", __iconNode$D);
-const __iconNode$C = [
+const Send = createLucideIcon("send", __iconNode$F);
+const __iconNode$E = [
   [
     "path",
     {
@@ -15972,22 +15996,22 @@ const __iconNode$C = [
   ["path", { d: "M6 18h.01", key: "uhywen" }],
   ["path", { d: "m13 6-4 6h6l-4 6", key: "14hqih" }]
 ];
-const ServerCrash = createLucideIcon("server-crash", __iconNode$C);
-const __iconNode$B = [
+const ServerCrash = createLucideIcon("server-crash", __iconNode$E);
+const __iconNode$D = [
   ["rect", { width: "20", height: "8", x: "2", y: "2", rx: "2", ry: "2", key: "ngkwjq" }],
   ["rect", { width: "20", height: "8", x: "2", y: "14", rx: "2", ry: "2", key: "iecqi9" }],
   ["line", { x1: "6", x2: "6.01", y1: "6", y2: "6", key: "16zg32" }],
   ["line", { x1: "6", x2: "6.01", y1: "18", y2: "18", key: "nzw8ys" }]
 ];
-const Server = createLucideIcon("server", __iconNode$B);
-const __iconNode$A = [
+const Server = createLucideIcon("server", __iconNode$D);
+const __iconNode$C = [
   ["path", { d: "M14 17H5", key: "gfn3mx" }],
   ["path", { d: "M19 7h-9", key: "6i9tg" }],
   ["circle", { cx: "17", cy: "17", r: "3", key: "18b49y" }],
   ["circle", { cx: "7", cy: "7", r: "3", key: "dfmy0x" }]
 ];
-const Settings2 = createLucideIcon("settings-2", __iconNode$A);
-const __iconNode$z = [
+const Settings2 = createLucideIcon("settings-2", __iconNode$C);
+const __iconNode$B = [
   [
     "path",
     {
@@ -15997,8 +16021,8 @@ const __iconNode$z = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Settings$1 = createLucideIcon("settings", __iconNode$z);
-const __iconNode$y = [
+const Settings$1 = createLucideIcon("settings", __iconNode$B);
+const __iconNode$A = [
   [
     "path",
     {
@@ -16009,8 +16033,8 @@ const __iconNode$y = [
   ["path", { d: "M12 8v4", key: "1got3b" }],
   ["path", { d: "M12 16h.01", key: "1drbdi" }]
 ];
-const ShieldAlert = createLucideIcon("shield-alert", __iconNode$y);
-const __iconNode$x = [
+const ShieldAlert = createLucideIcon("shield-alert", __iconNode$A);
+const __iconNode$z = [
   [
     "path",
     {
@@ -16020,8 +16044,8 @@ const __iconNode$x = [
   ],
   ["path", { d: "m4.243 5.21 14.39 12.472", key: "1c9a7c" }]
 ];
-const ShieldBan = createLucideIcon("shield-ban", __iconNode$x);
-const __iconNode$w = [
+const ShieldBan = createLucideIcon("shield-ban", __iconNode$z);
+const __iconNode$y = [
   [
     "path",
     {
@@ -16031,8 +16055,8 @@ const __iconNode$w = [
   ],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const ShieldCheck = createLucideIcon("shield-check", __iconNode$w);
-const __iconNode$v = [
+const ShieldCheck = createLucideIcon("shield-check", __iconNode$y);
+const __iconNode$x = [
   [
     "path",
     {
@@ -16041,8 +16065,8 @@ const __iconNode$v = [
     }
   ]
 ];
-const Shield = createLucideIcon("shield", __iconNode$v);
-const __iconNode$u = [
+const Shield = createLucideIcon("shield", __iconNode$x);
+const __iconNode$w = [
   ["circle", { cx: "8", cy: "21", r: "1", key: "jimo8o" }],
   ["circle", { cx: "19", cy: "21", r: "1", key: "13723u" }],
   [
@@ -16053,8 +16077,8 @@ const __iconNode$u = [
     }
   ]
 ];
-const ShoppingCart = createLucideIcon("shopping-cart", __iconNode$u);
-const __iconNode$t = [
+const ShoppingCart = createLucideIcon("shopping-cart", __iconNode$w);
+const __iconNode$v = [
   ["path", { d: "M10 5H3", key: "1qgfaw" }],
   ["path", { d: "M12 19H3", key: "yhmn1j" }],
   ["path", { d: "M14 3v4", key: "1sua03" }],
@@ -16065,8 +16089,8 @@ const __iconNode$t = [
   ["path", { d: "M8 10v4", key: "tgpxqk" }],
   ["path", { d: "M8 12H3", key: "a7s4jb" }]
 ];
-const SlidersHorizontal = createLucideIcon("sliders-horizontal", __iconNode$t);
-const __iconNode$s = [
+const SlidersHorizontal = createLucideIcon("sliders-horizontal", __iconNode$v);
+const __iconNode$u = [
   ["path", { d: "M10 8h4", key: "1sr2af" }],
   ["path", { d: "M12 21v-9", key: "17s77i" }],
   ["path", { d: "M12 8V3", key: "13r4qs" }],
@@ -16077,13 +16101,13 @@ const __iconNode$s = [
   ["path", { d: "M5 10V3", key: "cb8scm" }],
   ["path", { d: "M5 21v-7", key: "1w1uti" }]
 ];
-const SlidersVertical = createLucideIcon("sliders-vertical", __iconNode$s);
-const __iconNode$r = [
+const SlidersVertical = createLucideIcon("sliders-vertical", __iconNode$u);
+const __iconNode$t = [
   ["rect", { width: "14", height: "20", x: "5", y: "2", rx: "2", ry: "2", key: "1yt0o3" }],
   ["path", { d: "M12 18h.01", key: "mhygvu" }]
 ];
-const Smartphone = createLucideIcon("smartphone", __iconNode$r);
-const __iconNode$q = [
+const Smartphone = createLucideIcon("smartphone", __iconNode$t);
+const __iconNode$s = [
   [
     "path",
     {
@@ -16095,8 +16119,8 @@ const __iconNode$q = [
   ["path", { d: "M22 4h-4", key: "gwowj6" }],
   ["circle", { cx: "4", cy: "20", r: "2", key: "6kqj1y" }]
 ];
-const Sparkles = createLucideIcon("sparkles", __iconNode$q);
-const __iconNode$p = [
+const Sparkles = createLucideIcon("sparkles", __iconNode$s);
+const __iconNode$r = [
   ["path", { d: "M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7", key: "1m0v6g" }],
   [
     "path",
@@ -16106,14 +16130,14 @@ const __iconNode$p = [
     }
   ]
 ];
-const SquarePen = createLucideIcon("square-pen", __iconNode$p);
-const __iconNode$o = [
+const SquarePen = createLucideIcon("square-pen", __iconNode$r);
+const __iconNode$q = [
   ["path", { d: "m7 11 2-2-2-2", key: "1lz0vl" }],
   ["path", { d: "M11 13h4", key: "1p7l4v" }],
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }]
 ];
-const SquareTerminal = createLucideIcon("square-terminal", __iconNode$o);
-const __iconNode$n = [
+const SquareTerminal = createLucideIcon("square-terminal", __iconNode$q);
+const __iconNode$p = [
   [
     "path",
     {
@@ -16122,8 +16146,19 @@ const __iconNode$n = [
     }
   ]
 ];
-const Star = createLucideIcon("star", __iconNode$n);
-const __iconNode$m = [
+const Star = createLucideIcon("star", __iconNode$p);
+const __iconNode$o = [
+  [
+    "path",
+    {
+      d: "M21 9a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 15 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z",
+      key: "1dfntj"
+    }
+  ],
+  ["path", { d: "M15 3v5a1 1 0 0 0 1 1h5", key: "6s6qgf" }]
+];
+const StickyNote = createLucideIcon("sticky-note", __iconNode$o);
+const __iconNode$n = [
   ["circle", { cx: "12", cy: "12", r: "4", key: "4exip2" }],
   ["path", { d: "M12 2v2", key: "tus03m" }],
   ["path", { d: "M12 20v2", key: "1lh1kg" }],
@@ -16134,8 +16169,8 @@ const __iconNode$m = [
   ["path", { d: "m6.34 17.66-1.41 1.41", key: "1m8zz5" }],
   ["path", { d: "m19.07 4.93-1.41 1.41", key: "1shlcs" }]
 ];
-const Sun = createLucideIcon("sun", __iconNode$m);
-const __iconNode$l = [
+const Sun = createLucideIcon("sun", __iconNode$n);
+const __iconNode$m = [
   [
     "path",
     {
@@ -16144,15 +16179,15 @@ const __iconNode$l = [
     }
   ]
 ];
-const Table2 = createLucideIcon("table-2", __iconNode$l);
-const __iconNode$k = [
+const Table2 = createLucideIcon("table-2", __iconNode$m);
+const __iconNode$l = [
   ["path", { d: "M12 3v18", key: "108xh3" }],
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M3 9h18", key: "1pudct" }],
   ["path", { d: "M3 15h18", key: "5xshup" }]
 ];
-const Table = createLucideIcon("table", __iconNode$k);
-const __iconNode$j = [
+const Table = createLucideIcon("table", __iconNode$l);
+const __iconNode$k = [
   [
     "path",
     {
@@ -16162,13 +16197,13 @@ const __iconNode$j = [
   ],
   ["circle", { cx: "7.5", cy: "7.5", r: ".5", fill: "currentColor", key: "kqv944" }]
 ];
-const Tag = createLucideIcon("tag", __iconNode$j);
-const __iconNode$i = [
+const Tag = createLucideIcon("tag", __iconNode$k);
+const __iconNode$j = [
   ["path", { d: "M12 19h8", key: "baeox8" }],
   ["path", { d: "m4 17 6-6-6-6", key: "1yngyt" }]
 ];
-const Terminal = createLucideIcon("terminal", __iconNode$i);
-const __iconNode$h = [
+const Terminal = createLucideIcon("terminal", __iconNode$j);
+const __iconNode$i = [
   [
     "path",
     { d: "M21 7 6.82 21.18a2.83 2.83 0 0 1-3.99-.01a2.83 2.83 0 0 1 0-4L17 3", key: "1ub6xw" }
@@ -16176,39 +16211,39 @@ const __iconNode$h = [
   ["path", { d: "m16 2 6 6", key: "1gw87d" }],
   ["path", { d: "M12 16H4", key: "1cjfip" }]
 ];
-const TestTubeDiagonal = createLucideIcon("test-tube-diagonal", __iconNode$h);
-const __iconNode$g = [
+const TestTubeDiagonal = createLucideIcon("test-tube-diagonal", __iconNode$i);
+const __iconNode$h = [
   ["path", { d: "M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5c-1.4 0-2.5-1.1-2.5-2.5V2", key: "125lnx" }],
   ["path", { d: "M8.5 2h7", key: "csnxdl" }],
   ["path", { d: "M14.5 16h-5", key: "1ox875" }]
 ];
-const TestTube = createLucideIcon("test-tube", __iconNode$g);
-const __iconNode$f = [
+const TestTube = createLucideIcon("test-tube", __iconNode$h);
+const __iconNode$g = [
   ["line", { x1: "10", x2: "14", y1: "2", y2: "2", key: "14vaq8" }],
   ["line", { x1: "12", x2: "15", y1: "14", y2: "11", key: "17fdiu" }],
   ["circle", { cx: "12", cy: "14", r: "8", key: "1e1u0o" }]
 ];
-const Timer = createLucideIcon("timer", __iconNode$f);
-const __iconNode$e = [
+const Timer = createLucideIcon("timer", __iconNode$g);
+const __iconNode$f = [
   ["path", { d: "M10 11v6", key: "nco0om" }],
   ["path", { d: "M14 11v6", key: "outv1u" }],
   ["path", { d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6", key: "miytrc" }],
   ["path", { d: "M3 6h18", key: "d0wm0j" }],
   ["path", { d: "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2", key: "e791ji" }]
 ];
-const Trash2 = createLucideIcon("trash-2", __iconNode$e);
-const __iconNode$d = [
+const Trash2 = createLucideIcon("trash-2", __iconNode$f);
+const __iconNode$e = [
   ["path", { d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6", key: "miytrc" }],
   ["path", { d: "M3 6h18", key: "d0wm0j" }],
   ["path", { d: "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2", key: "e791ji" }]
 ];
-const Trash = createLucideIcon("trash", __iconNode$d);
-const __iconNode$c = [
+const Trash = createLucideIcon("trash", __iconNode$e);
+const __iconNode$d = [
   ["path", { d: "M16 7h6v6", key: "box55l" }],
   ["path", { d: "m22 7-8.5 8.5-5-5L2 17", key: "1t1m79" }]
 ];
-const TrendingUp = createLucideIcon("trending-up", __iconNode$c);
-const __iconNode$b = [
+const TrendingUp = createLucideIcon("trending-up", __iconNode$d);
+const __iconNode$c = [
   [
     "path",
     {
@@ -16219,25 +16254,25 @@ const __iconNode$b = [
   ["path", { d: "M12 9v4", key: "juzpu7" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-const TriangleAlert = createLucideIcon("triangle-alert", __iconNode$b);
-const __iconNode$a = [
+const TriangleAlert = createLucideIcon("triangle-alert", __iconNode$c);
+const __iconNode$b = [
   ["path", { d: "M12 4v16", key: "1654pz" }],
   ["path", { d: "M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2", key: "e0r10z" }],
   ["path", { d: "M9 20h6", key: "s66wpe" }]
 ];
-const Type = createLucideIcon("type", __iconNode$a);
-const __iconNode$9 = [
+const Type = createLucideIcon("type", __iconNode$b);
+const __iconNode$a = [
   ["path", { d: "M9 14 4 9l5-5", key: "102s5s" }],
   ["path", { d: "M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11", key: "f3b9sd" }]
 ];
-const Undo2 = createLucideIcon("undo-2", __iconNode$9);
-const __iconNode$8 = [
+const Undo2 = createLucideIcon("undo-2", __iconNode$a);
+const __iconNode$9 = [
   ["path", { d: "M12 3v12", key: "1x0j5s" }],
   ["path", { d: "m17 8-5-5-5 5", key: "7q97r8" }],
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }]
 ];
-const Upload = createLucideIcon("upload", __iconNode$8);
-const __iconNode$7 = [
+const Upload = createLucideIcon("upload", __iconNode$9);
+const __iconNode$8 = [
   ["path", { d: "M10 15H6a4 4 0 0 0-4 4v2", key: "1nfge6" }],
   ["path", { d: "m14.305 16.53.923-.382", key: "1itpsq" }],
   ["path", { d: "m15.228 13.852-.923-.383", key: "eplpkm" }],
@@ -16250,20 +16285,20 @@ const __iconNode$7 = [
   ["circle", { cx: "18", cy: "15", r: "3", key: "gjjjvw" }],
   ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]
 ];
-const UserCog = createLucideIcon("user-cog", __iconNode$7);
-const __iconNode$6 = [
+const UserCog = createLucideIcon("user-cog", __iconNode$8);
+const __iconNode$7 = [
   ["path", { d: "M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2", key: "975kel" }],
   ["circle", { cx: "12", cy: "7", r: "4", key: "17ys0d" }]
 ];
-const User = createLucideIcon("user", __iconNode$6);
-const __iconNode$5 = [
+const User = createLucideIcon("user", __iconNode$7);
+const __iconNode$6 = [
   ["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }],
   ["path", { d: "M16 3.128a4 4 0 0 1 0 7.744", key: "16gr8j" }],
   ["path", { d: "M22 21v-2a4 4 0 0 0-3-3.87", key: "kshegd" }],
   ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]
 ];
-const Users = createLucideIcon("users", __iconNode$5);
-const __iconNode$4 = [
+const Users = createLucideIcon("users", __iconNode$6);
+const __iconNode$5 = [
   [
     "path",
     {
@@ -16279,7 +16314,31 @@ const __iconNode$4 = [
   ["path", { d: "M21 16h-4", key: "1cnmox" }],
   ["path", { d: "M11 3H9", key: "1obp7u" }]
 ];
-const WandSparkles = createLucideIcon("wand-sparkles", __iconNode$4);
+const WandSparkles = createLucideIcon("wand-sparkles", __iconNode$5);
+const __iconNode$4 = [
+  [
+    "path",
+    {
+      d: "M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1",
+      key: "knzxuh"
+    }
+  ],
+  [
+    "path",
+    {
+      d: "M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1",
+      key: "2jd2cc"
+    }
+  ],
+  [
+    "path",
+    {
+      d: "M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1",
+      key: "rd2r6e"
+    }
+  ]
+];
+const Waves = createLucideIcon("waves", __iconNode$4);
 const __iconNode$3 = [
   ["path", { d: "M12 20h.01", key: "zekei9" }],
   ["path", { d: "M8.5 16.429a5 5 0 0 1 7 0", key: "1bycff" }],
@@ -16435,6 +16494,8 @@ const ru = {
     "importBtn": "Импортировать"
   },
   "common": {
+    "hide": "Скрыть",
+    "showDetails": "Показать детали",
     "copied": "Скопировано",
     "selectAll": "Выбрать все",
     "orManual": "Или настроить вручную",
@@ -17087,6 +17148,11 @@ const ru = {
     "status": "Статус",
     "ok": "Ок",
     "awaitingDns": "Ожидает DNS",
+    "activeCloudflare": "Активен (Cloudflare)",
+    "activeLocalhost": "Активен (Localhost)",
+    "wrongIp": "Неверный IP",
+    "dnsReasonNoResolve": "Домен не разрешается в IP-адрес",
+    "dnsReasonWrongIp": "Домен разрешается в {{ip}} вместо IP сервера",
     "ignoreDnsLabel": "Игнорировать DNS (UI)",
     "ignoreDnsHint": "Только в интерфейсе: показывать все домены как OK, даже если DNS еще не настроен. Удобно для миграции/тестов.",
     "notSelected": "Не выбрана",
@@ -17124,6 +17190,7 @@ const ru = {
     "sslEnvAcmeNotWritable": "Каталог для проверки Let's Encrypt закрыт для записи — валидация домена не пройдёт.",
     "sslCertbotNoOutput": "Certbot ничего не ответил — проверьте, что он установлен и доступен веб-серверу через sudo.",
     "sslIncompleteChain": "В файле сертификата нет промежуточного — сайт открывается в Firefox, но не в Chrome. Перевыпустите сертификат.",
+    "sslDnsMismatch": "Домен не указывает на этот сервер. Сертификат не может быть выпущен, пока DNS не распространится.",
     "sslDnsSeen": "A-запись домена",
     "sslNoARecord": "A-записи нет",
     "sslPending": "Ожидает установки",
@@ -17131,6 +17198,7 @@ const ru = {
     "sslEnvTitle": "Автовыпуск SSL на этом сервере недоступен",
     "sslEnvNoShell": "PHP здесь не может запускать внешние команды — значит, ни certbot, ни планировщик отсюда не запустить. Домены так и будут висеть в ожидании сертификата.",
     "sslEnvNoCertbot": "На сервере не установлен certbot — выпускать сертификаты нечем. Установите его: apt install certbot",
+    "sslEnvNoSudoCertbot": "Веб-сервер не может запускать sudo certbot без пароля. Настройте passwordless sudo для certbot в sudoers или добавьте веб-пользователя в соответствующую группу.",
     "sslEnvNoNginx": "Конфиг nginx не найден: похоже, сервер работает не на nginx, и вписать выпущенный сертификат автоматически не выйдет.",
     "sslEnvHint": "Сертификаты придётся выпускать и подключать средствами вашего хостинга. Автовыпуск рассчитан на отдельный VPS с root-доступом — так ставит install.sh.",
     "issueSsl": "Выпустить SSL",
@@ -17142,7 +17210,11 @@ const ru = {
     "sslWaitingDns": "Ожидание DNS — домен пока не указывает на этот сервер. Сертификат выпустится автоматически, как только A-запись разойдётся.",
     "sslRetrying": "Последняя попытка выпуска не удалась. Трекер продолжит пытаться автоматически.",
     "sslNotWired": "Сертификат выпущен, но веб-сервер его ещё не отдаёт — конфиг пересобирается.",
-    "sslFailed": "Ошибка SSL"
+    "sslFailed": "Ошибка SSL",
+    "reissueSsl": "Перевыпустить SSL-сертификат",
+    "reissueConfirm": "Вы уверены, что хотите перевыпустить SSL-сертификат для",
+    "sslIssued": "SSL-сертификат успешно выпущен",
+    "sslError": "Не удалось выпустить SSL-сертификат"
   },
   "backorder": {
     "bannerTitle": "Отложенный мониторинг доменов",
@@ -17599,7 +17671,18 @@ const ru = {
     "saveType": "Сохранить тип",
     "nameAndMacrosRequired": "Имя и Макросы обязательны",
     "deleteConfirm": "Удалить тип конверсии?",
-    "deleteError": "Ошибка удаления"
+    "deleteError": "Ошибка удаления",
+    "unmappedStatuses": "Несмапленные статусы",
+    "noUnmappedStatuses": "Нет несмапленных статусов",
+    "originalStatus": "Исходный статус",
+    "count": "Количество",
+    "firstSeen": "Первое появление",
+    "lastSeen": "Последнее появление",
+    "mapTo": "Смапить в",
+    "mapToTitle": "Смапить в {type}",
+    "mapToBtn": "{type}",
+    "mappedSuccessfully": "Успешно смаплено и переклассифицировано {count} конверсий",
+    "alreadyMapped": "Этот статус уже смаплен в этот тип"
   },
   "users": {
     "roleTemplate": "Шаблон роли",
@@ -18184,6 +18267,16 @@ const ru = {
     "colResponseCode": "Код ответа",
     "colConversionId": "Conversion ID",
     "colUrl": "URL",
+    "colSourceIp": "IP источника",
+    "colResult": "Результат",
+    "colError": "Ошибка",
+    "colSource": "Источник",
+    "resultRecorded": "Записано",
+    "resultUpdated": "Обновлено",
+    "resultRejected": "Отклонено",
+    "resultError": "Ошибка",
+    "sourcePostback": "Postback",
+    "sourcePixel": "Пиксель",
     "direct": "Прямой"
   },
   "campaignReports": {
@@ -18348,6 +18441,8 @@ const ru = {
     "allowPhpLandingsHint": "По умолчанию выключено. PHP-лендинг исполняет загруженный код внутри трекера, в вебруте. Загрузка проверяется на вызовы шелла и eval, но проверка исходников — не песочница: включайте только для лендингов, чьему коду доверяете.",
     "phpLandingTimeout": "Таймаут выполнения, секунд",
     "phpLandingTimeoutHint": "От 1 до 9. Лендинг, который работает дольше, обрывается — чтобы одна медленная страница не занимала воркеры, общие для всего сайта.",
+    "serverIpOverride": "Переопределение IP сервера",
+    "serverIpOverrideHint": "Ручное переопределение для определения IP сервера. Оставьте пустым для автоопределения. Этот IP будет использоваться для проверки DNS доменов.",
     "title": "Общие настройки",
     "postbackKey": "Postback ключ",
     "postbackKeyHint": "Используется для генерации уникальных ссылок S2S постбэков.",
@@ -18380,6 +18475,22 @@ const ru = {
     "greenDesc": "Глубокий зеленый и мята",
     "neon": "Неоновая ночь",
     "neonDesc": "Абсолютно чёрный фон, сочные цвета",
+    "cobalt": "Кобальт",
+    "cobaltDesc": "Сигнальный синий на белом фоне",
+    "cobaltDark": "Тёмный кобальт",
+    "cobaltDarkDesc": "Сигнальный синий на глубоком чёрном",
+    "canary": "Канарейка",
+    "canaryDesc": "Чёрные акценты и канареечный жёлтый",
+    "canaryDark": "Тёмная канарейка",
+    "canaryDarkDesc": "Канареечный жёлтый на графите",
+    "parchment": "Пергамент",
+    "parchmentDesc": "Тёплый кремовый фон и чёрные кнопки",
+    "parchmentDark": "Тёмный пергамент",
+    "parchmentDarkDesc": "Чёрный фон с кремовыми акцентами",
+    "indigo": "Индиго",
+    "indigoDesc": "Сине-фиолетовые акценты на светлом фоне",
+    "indigoDark": "Тёмное индиго",
+    "indigoDarkDesc": "Сине-фиолетовая палитра на глубоком индиго",
     "preview": "Предпросмотр",
     "buttons": "Кнопки",
     "badges": "Бейджи",
@@ -19058,6 +19169,7 @@ const ru = {
     "managedDomains": "Доменов под управлением Cloudflare"
   },
   "namecheap": {
+    "whitelistError": "Ошибка Namecheap API: IP сервера ({ip}) не добавлен в белый список вашего аккаунта Namecheap. Добавьте его в Profile → Tools → Business & Dev Tools → Namecheap API Access → Whitelisted IPs.",
     "title": "Namecheap",
     "description": "Автопарковка DNS доменов из аккаунта Namecheap, покупка новых доменов и SSL Let's Encrypt — прямо из трекера",
     "howTo": "Включите API-доступ: Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access, и добавьте исходящий IP сервера в Whitelisted IPs. Домены, зарегистрированные в аккаунте, при парковке получают A-запись автоматически; сертификат Let's Encrypt выпускается, как только DNS обновится.",
@@ -19132,7 +19244,7 @@ const ru = {
     "tiktokAds": "TikTok Ads",
     "description": "Импортирует дневной рекламный расход и атрибутирует его к кликам по рекламным ID, которые уже ловят шаблоны источников трафика.",
     "fields": {
-      "ttToken": "Access Token",
+      "ttToken": "Access Token (Marketing API — права Ads Management / Reporting; токен из Events Manager не подойдёт)",
       "ttAdvertiser": "Advertiser ID (ID кабинета)",
       "ttAppId": "App ID (опционально, нужен для авто-продления OAuth-токена)",
       "ttAppSecret": "App Secret (опционально)",
@@ -19229,6 +19341,21 @@ const ru = {
     "switchToManual": "Перейти к прямому вводу токена",
     "switchTo1Click": "Перейти к 1-Click OAuth",
     "httpsNotice": "💡 Обратите внимание: 1-Click OAuth требует HTTPS-домена. При работе по прямому IP-адресу используйте прямое подключение.",
+    "setupGuideTitle": "🔧 Включите 1-Click подключение Google Ads",
+    "setupGuideSubtitle": "Настройте OAuth-учётные данные на сервере для бесшовного подключения в 1 клик. Или используйте прямое подключение по токенам ниже.",
+    "setupStepsTitle": "📋 Быстрая настройка",
+    "step1Title": "1. Создайте проект в Google Cloud",
+    "step1Desc": "Перейдите на console.cloud.google.com, создайте проект и включите Google Ads API.",
+    "step2Title": "2. Создайте учётные данные OAuth 2.0",
+    "step2Desc": "APIs & Services → Учетные данные → Создать OAuth 2.0 Client ID (Веб-приложение)",
+    "step3Title": "3. Добавьте Redirect URI",
+    "step3Desc": "Добавьте этот URI в Authorized Redirect URIs:",
+    "step4Title": "4. Получите Developer Token",
+    "step4Desc": "Перейдите в API Center Google Ads и подайте заявку на Developer Token.",
+    "step5Title": "5. Настройте переменные окружения",
+    "step5Desc": "Добавьте их в окружение сервера или в .env файл:",
+    "setupNote": "После настройки перезагрузите эту страницу — кнопка «Войти через Google» заработает мгновенно.",
+    "useManualMode": "Использовать ручной режим с токенами",
     "noDiscoveredAccounts": "Вход в Google выполнен, но доступных рекламных аккаунтов не найдено.",
     "addAccount": "Добавить аккаунт Google Ads",
     "editAccount": "Редактировать аккаунт",
@@ -19813,6 +19940,8 @@ const en = {
     "importBtn": "Import"
   },
   "common": {
+    "hide": "Hide",
+    "showDetails": "Show details",
     "copied": "Copied",
     "selectAll": "Select all",
     "orManual": "Or configure manually",
@@ -20465,6 +20594,11 @@ const en = {
     "status": "Status",
     "ok": "OK",
     "awaitingDns": "Awaiting DNS",
+    "activeCloudflare": "Active (Cloudflare)",
+    "activeLocalhost": "Active (Localhost)",
+    "wrongIp": "Wrong IP",
+    "dnsReasonNoResolve": "Domain does not resolve to any IP address",
+    "dnsReasonWrongIp": "Domain resolves to {{ip}} instead of the server IP",
     "ignoreDnsLabel": "Ignore DNS (UI)",
     "ignoreDnsHint": "UI-only: show all domains as OK even if DNS is not configured yet. Useful for migration/testing.",
     "notSelected": "Not selected",
@@ -20502,6 +20636,7 @@ const en = {
     "sslEnvAcmeNotWritable": "The Let's Encrypt challenge directory is not writable — domain validation will fail.",
     "sslCertbotNoOutput": "Certbot returned nothing — check that it is installed and reachable by the web server via sudo.",
     "sslIncompleteChain": "The certificate file is missing the intermediate — the site opens in Firefox but fails in Chrome. Re-issue the certificate.",
+    "sslDnsMismatch": "Domain does not point to this server. Certificate cannot be issued until DNS propagates.",
     "sslDnsSeen": "The domain's A record",
     "sslNoARecord": "no A record",
     "sslPending": "Awaiting installation",
@@ -20509,6 +20644,7 @@ const en = {
     "sslEnvTitle": "Automatic SSL issuance is unavailable on this server",
     "sslEnvNoShell": "PHP cannot run external commands here, so neither Certbot nor the scheduler can be started. Domains will sit waiting for a certificate indefinitely.",
     "sslEnvNoCertbot": "Certbot is not installed on this server, so there is nothing to issue certificates with. Install it: apt install certbot",
+    "sslEnvNoSudoCertbot": "The web server user cannot run sudo certbot without a password. Configure passwordless sudo for certbot in sudoers or add the web user to the appropriate group.",
     "sslEnvNoNginx": "No nginx config found: this server does not appear to run nginx, so an issued certificate cannot be wired in automatically.",
     "sslEnvHint": "Certificates will have to be issued and installed through your hosting. Automatic issuance targets a dedicated VPS with root access, which is what install.sh sets up.",
     "issueSsl": "Issue SSL",
@@ -20520,7 +20656,11 @@ const en = {
     "sslWaitingDns": "Waiting for DNS — the domain does not point at this server yet. The certificate will be issued as soon as the A record propagates.",
     "sslRetrying": "The last issuance attempt failed. The tracker keeps retrying automatically.",
     "sslNotWired": "The certificate exists but the web server is not serving it yet — the config is being rebuilt.",
-    "sslFailed": "SSL error"
+    "sslFailed": "SSL error",
+    "reissueSsl": "Re-issue SSL certificate",
+    "reissueConfirm": "Are you sure you want to re-issue the SSL certificate for",
+    "sslIssued": "SSL certificate issued successfully",
+    "sslError": "Failed to issue SSL certificate"
   },
   "backorder": {
     "bannerTitle": "Backorder Domain Monitor",
@@ -20977,7 +21117,18 @@ const en = {
     "saveType": "Save type",
     "nameAndMacrosRequired": "Name and Macros are required",
     "deleteConfirm": "Delete conversion type?",
-    "deleteError": "Delete error"
+    "deleteError": "Delete error",
+    "unmappedStatuses": "Unmapped Statuses",
+    "noUnmappedStatuses": "No unmapped statuses found",
+    "originalStatus": "Original Status",
+    "count": "Count",
+    "firstSeen": "First Seen",
+    "lastSeen": "Last Seen",
+    "mapTo": "Map To",
+    "mapToTitle": "Map to {type}",
+    "mapToBtn": "{type}",
+    "mappedSuccessfully": "Successfully mapped and reclassified {count} conversion(s)",
+    "alreadyMapped": "This status is already mapped to this type"
   },
   "users": {
     "roleTemplate": "Role template",
@@ -21524,6 +21675,16 @@ const en = {
     "colResponseCode": "Response Code",
     "colConversionId": "Conversion ID",
     "colUrl": "URL",
+    "colSourceIp": "Source IP",
+    "colResult": "Result",
+    "colError": "Error",
+    "colSource": "Source",
+    "resultRecorded": "Recorded",
+    "resultUpdated": "Updated",
+    "resultRejected": "Rejected",
+    "resultError": "Error",
+    "sourcePostback": "Postback",
+    "sourcePixel": "Pixel",
     "direct": "Direct"
   },
   "campaignReports": {
@@ -21751,6 +21912,8 @@ const en = {
     "allowPhpLandingsHint": "Off by default. A PHP landing runs uploaded code inside the tracker, in the web root. Uploads are scanned for shell and eval calls, but a source scan is not a sandbox — only turn this on for landings whose code you trust.",
     "phpLandingTimeout": "Execution timeout, seconds",
     "phpLandingTimeoutHint": "1 to 9. A landing that runs longer is cut off, so one slow page cannot tie up the workers the whole site shares.",
+    "serverIpOverride": "Server IP Override",
+    "serverIpOverrideHint": "Manual override for server IP detection. Leave empty to auto-detect. This IP will be used for domain DNS checks.",
     "title": "General Settings",
     "postbackKey": "Postback Key",
     "postbackKeyHint": "Used to generate unique S2S postback URLs.",
@@ -21932,6 +22095,22 @@ const en = {
     "greenDesc": "Deep green and mint",
     "neon": "Neon Night",
     "neonDesc": "Absolute black background, vibrant colors",
+    "cobalt": "Cobalt",
+    "cobaltDesc": "Signal blue on a clean white canvas",
+    "cobaltDark": "Cobalt Dark",
+    "cobaltDarkDesc": "Signal blue on deep black",
+    "canary": "Canary",
+    "canaryDesc": "Black accents and canary yellow on white",
+    "canaryDark": "Canary Dark",
+    "canaryDarkDesc": "Canary yellow on warm charcoal",
+    "parchment": "Parchment",
+    "parchmentDesc": "Warm cream canvas with ink-black CTAs",
+    "parchmentDark": "Parchment Dark",
+    "parchmentDarkDesc": "Ink-black canvas with cream accents",
+    "indigo": "Indigo",
+    "indigoDesc": "Violet-blue accents on a clean light canvas",
+    "indigoDark": "Indigo Dark",
+    "indigoDarkDesc": "Violet-blue on deep indigo",
     "custom": "Custom Theme",
     "customDesc": "Customize colors to match your brand exactly",
     "customColorsTitle": "Custom Color Palette",
@@ -22479,6 +22658,7 @@ const en = {
     "importedCount": "Domains added",
     "inTracker": "already in the tracker",
     "noDomains": "No domains in the account",
+    "whitelistError": "Namecheap API Error: Server IP ({ip}) is not whitelisted in your Namecheap account. Add it in Profile → Tools → Business & Dev Tools → Namecheap API Access → Whitelisted IPs.",
     "accounts": "Namecheap Accounts",
     "addAccount": "Add Namecheap Account",
     "editAccount": "Edit Account",
@@ -22510,7 +22690,7 @@ const en = {
     "tiktokAds": "TikTok Ads",
     "description": "Import daily ad spend and attribute it to clicks by the ad IDs your traffic-source templates already capture.",
     "fields": {
-      "ttToken": "Access Token",
+      "ttToken": "Access Token (Marketing API — Ads Management / Reporting; an Events Manager token will not work)",
       "ttAdvertiser": "Advertiser ID",
       "ttAppId": "App ID (optional, keeps OAuth auto-refresh working)",
       "ttAppSecret": "App Secret (optional)",
@@ -22607,6 +22787,21 @@ const en = {
     "switchToManual": "Switch to Direct Token Connection",
     "switchTo1Click": "Switch to 1-Click OAuth",
     "httpsNotice": "💡 Note: 1-Click OAuth requires an HTTPS domain. When running on a raw HTTP IP address, use Direct Token Connection.",
+    "setupGuideTitle": "🔧 Enable 1-Click Google Ads Connection",
+    "setupGuideSubtitle": "Configure OAuth credentials on your server to enable seamless 1-Click connection. Or use Direct Token Connection below.",
+    "setupStepsTitle": "📋 Quick Setup Steps",
+    "step1Title": "1. Create Google Cloud Project",
+    "step1Desc": "Go to console.cloud.google.com, create a project, and enable Google Ads API.",
+    "step2Title": "2. Create OAuth 2.0 Credentials",
+    "step2Desc": "APIs & Services → Credentials → Create OAuth 2.0 Client ID (Web application)",
+    "step3Title": "3. Add Redirect URI",
+    "step3Desc": "Add this URI to Authorized redirect URIs:",
+    "step4Title": "4. Get Developer Token",
+    "step4Desc": "Go to Google Ads API Center and apply for Developer Token.",
+    "step5Title": "5. Configure Environment Variables",
+    "step5Desc": "Add these to your server environment or .env file:",
+    "setupNote": 'After configuration, reload this page and the "Sign in with Google" button will work instantly.',
+    "useManualMode": "Use Manual Token Mode",
     "noDiscoveredAccounts": "Google login succeeded, but no accessible ad accounts were found.",
     "addAccount": "Add Google Ads Account",
     "editAccount": "Edit Account",
@@ -23191,6 +23386,8 @@ const uk = {
     "importBtn": "Імпорт"
   },
   "common": {
+    "hide": "Сховати",
+    "showDetails": "Показати деталі",
     "copied": "Скопійовано",
     "selectAll": "Вибрати все",
     "orManual": "Або налаштувати вручну",
@@ -23843,6 +24040,11 @@ const uk = {
     "status": "Статус",
     "ok": "добре",
     "awaitingDns": "Очікування DNS",
+    "activeCloudflare": "Активний (Cloudflare)",
+    "activeLocalhost": "Активний (Localhost)",
+    "wrongIp": "Невірна IP",
+    "dnsReasonNoResolve": "Домен не резолвиться в IP-адресу",
+    "dnsReasonWrongIp": "Домен резолвиться в {{ip}} замість IP сервера",
     "ignoreDnsLabel": "Ігнорувати DNS (UI)",
     "ignoreDnsHint": "Тільки для інтерфейсу користувача: показувати всі домени як OK, навіть якщо DNS ще не налаштовано. Корисно для міграції/тестування.",
     "notSelected": "Не вибрано",
@@ -23880,6 +24082,11 @@ const uk = {
     "sslEnvAcmeNotWritable": "Каталог для перевірки Let's Encrypt закритий для запису — валідація домену не пройде.",
     "sslCertbotNoOutput": "Certbot нічого не відповів — перевірте, що він встановлений і доступний вебсерверу через sudo.",
     "sslIncompleteChain": "У файлі сертифіката немає проміжного — сайт відкривається у Firefox, але не в Chrome. Перевипустіть сертифікат.",
+    "sslDnsMismatch": "Домен не вказує на цей сервер. Сертифікат не може бути випущений, поки DNS не пошириться.",
+    "reissueSsl": "Перевипустити SSL-сертифікат",
+    "reissueConfirm": "Ви впевнені, що хочете перевипустити SSL-сертифікат для",
+    "sslIssued": "SSL-сертифікат успішно випущено",
+    "sslError": "Не вдалося випустити SSL-сертифікат",
     "sslDnsSeen": "A-запис домену",
     "sslNoARecord": "A-запису немає",
     "sslPending": "Awaiting installation",
@@ -23887,6 +24094,7 @@ const uk = {
     "sslEnvTitle": "Автовипуск SSL на цьому сервері недоступний",
     "sslEnvNoShell": "PHP тут не може запускати зовнішні команди — ні certbot, ні планувальник звідси не запустити. Домени так і чекатимуть на сертифікат.",
     "sslEnvNoCertbot": "На сервері не встановлено certbot — випускати сертифікати нічим. Встановіть: apt install certbot",
+    "sslEnvNoSudoCertbot": "Веб-сервер не може запускати sudo certbot без пароля. Налаштуйте passwordless sudo для certbot у sudoers або додайте веб-користувача до відповідної групи.",
     "sslEnvNoNginx": "Конфіг nginx не знайдено: схоже, сервер працює не на nginx, і вписати випущений сертифікат автоматично не вийде.",
     "sslEnvHint": "Сертифікати доведеться випускати та підключати засобами вашого хостингу. Автовипуск розрахований на окремий VPS з root-доступом — саме так ставить install.sh.",
     "issueSsl": "Випустити SSL",
@@ -24355,7 +24563,18 @@ const uk = {
     "saveType": "Тип збереження",
     "nameAndMacrosRequired": "Ім’я та макроси є обов’язковими",
     "deleteConfirm": "Видалити тип конверсії?",
-    "deleteError": "Видалити помилку"
+    "deleteError": "Видалити помилку",
+    "unmappedStatuses": "Непридатані статуси",
+    "noUnmappedStatuses": "Непридатних статусів не знайдено",
+    "originalStatus": "Початковий статус",
+    "count": "Кількість",
+    "firstSeen": "Перше появлення",
+    "lastSeen": "Останнє появлення",
+    "mapTo": "Мапити в",
+    "mapToTitle": "Мапити в {type}",
+    "mapToBtn": "{type}",
+    "mappedSuccessfully": "Успішно замаплено та перекласифіковано {count} конверсій",
+    "alreadyMapped": "Цей статус вже замаплений в цей тип"
   },
   "users": {
     "roleTemplate": "Шаблон ролі",
@@ -24878,30 +25097,40 @@ const uk = {
   "logs": {
     "title": "Системні журнали",
     "lastRecords": "Показано останні 100 записів. Для повного експорту використовуйте розділ «Інтеграції».",
-    "traffic": "трафік",
-    "incomingPostbacks": "Вхідні зворотні відправлення",
-    "sentS2s": "Надіслано S2S",
+    "traffic": "Трафік",
+    "incomingPostbacks": "Вхідні постбеки",
+    "sentS2s": "Надіслані S2S",
     "systemLog": "Системний журнал",
     "auditLog": "Журнал аудиту",
     "loadingLogs": "Завантаження журналів...",
     "noData": "Немає даних для відображення",
-    "colTime": "час",
-    "colClickId": "Натисніть ID",
+    "colTime": "Час",
+    "colClickId": "ID кліку",
     "colSubid": "SubID",
     "colCampaign": "Кампанія",
     "colIp": "IP",
-    "colGeo": "Географія",
-    "colDevice": "пристрій",
+    "colGeo": "Гео",
+    "colDevice": "Пристрій",
     "colStatus": "Статус",
-    "colOrigStatus": "Ориг. Статус",
+    "colOrigStatus": "Ориг. статус",
     "colPayout": "Виплата",
     "colLevel": "Рівень",
-    "colMessage": "повідомлення",
+    "colMessage": "Повідомлення",
     "colEvent": "Подія",
     "colResource": "Ресурс",
     "colResponseCode": "Код відповіді",
-    "colConversionId": "Ідентифікатор конверсії",
+    "colConversionId": "ID конверсії",
     "colUrl": "URL",
+    "colSourceIp": "IP джерела",
+    "colResult": "Результат",
+    "colError": "Помилка",
+    "colSource": "Джерело",
+    "resultRecorded": "Записано",
+    "resultUpdated": "Оновлено",
+    "resultRejected": "Відхилено",
+    "resultError": "Помилка",
+    "sourcePostback": "Постбек",
+    "sourcePixel": "Піксель",
     "direct": "Прямий"
   },
   "campaignReports": {
@@ -25129,6 +25358,8 @@ const uk = {
     "allowPhpLandingsHint": "Типово вимкнено. PHP-лендінг виконує завантажений код усередині трекера, у вебруті. Завантаження перевіряється на виклики шелла та eval, але перевірка вихідників — не пісочниця: вмикайте лише для лендінгів, чиєму коду довіряєте.",
     "phpLandingTimeout": "Таймаут виконання, секунд",
     "phpLandingTimeoutHint": "Від 1 до 9. Лендінг, що працює довше, обривається — щоб одна повільна сторінка не займала воркери, спільні для всього сайту.",
+    "serverIpOverride": "Перевизначення IP сервера",
+    "serverIpOverrideHint": "Ручне перевизначення для визначення IP сервера. Залиште порожнім для автовизначення. Ця IP-адреса буде використовуватися для перевірки DNS доменів.",
     "title": "Загальні налаштування",
     "postbackKey": "Ключ повернення",
     "postbackKeyHint": "Використовується для генерації унікальних URL-адрес для повернення S2S.",
@@ -25310,6 +25541,22 @@ const uk = {
     "greenDesc": "Глибокий зелений і м'ятний",
     "neon": "Неонова ніч",
     "neonDesc": "Абсолютний чорний фон, яскраві кольори",
+    "cobalt": "Кобальт",
+    "cobaltDesc": "Сигнальний синій на білому тлі",
+    "cobaltDark": "Темний кобальт",
+    "cobaltDarkDesc": "Сигнальний синій на глибокому чорному",
+    "canary": "Канарка",
+    "canaryDesc": "Чорні акценти й канарковий жовтий",
+    "canaryDark": "Темна канарка",
+    "canaryDarkDesc": "Канарковий жовтий на теплому графіті",
+    "parchment": "Пергамент",
+    "parchmentDesc": "Теплий кремовий фон і чорні кнопки",
+    "parchmentDark": "Темний пергамент",
+    "parchmentDarkDesc": "Чорне тло з кремовими акцентами",
+    "indigo": "Індиго",
+    "indigoDesc": "Синьо-фіолетові акценти на світлому тлі",
+    "indigoDark": "Темне індиго",
+    "indigoDarkDesc": "Синьо-фіолетова палітра на глибокому індиго",
     "custom": "Спеціальна тема",
     "customDesc": "Налаштуйте кольори відповідно до свого бренду",
     "customColorsTitle": "Спеціальна палітра кольорів",
@@ -25814,6 +26061,7 @@ const uk = {
     "managedDomains": "Доменів під керуванням Cloudflare"
   },
   "namecheap": {
+    "whitelistError": "Помилка Namecheap API: IP сервера ({ip}) не додано до білого списку вашого акаунта Namecheap. Додайте його в Profile → Tools → Business & Dev Tools → Namecheap API Access → Whitelisted IPs.",
     "title": "Namecheap",
     "description": "Автопаркування DNS доменів з акаунта Namecheap, купівля нових доменів і SSL Let's Encrypt — прямо з трекера",
     "howTo": "Увімкніть API-доступ: Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access і додайте вихідну IP сервера до Whitelisted IPs. Домени, зареєстровані в акаунті, при паркуванні отримують A-запис автоматично; сертифікат Let's Encrypt випускається, щойно DNS оновиться.",
@@ -25888,7 +26136,7 @@ const uk = {
     "tiktokAds": "TikTok Ads",
     "description": "Імпортує денну рекламну витрату і атрибутує її до кліків за рекламними ID, які вже ловлять шаблони джерел трафіку.",
     "fields": {
-      "ttToken": "Access Token",
+      "ttToken": "Access Token (Marketing API — права Ads Management / Reporting; токен з Events Manager не підійде)",
       "ttAdvertiser": "Advertiser ID (ID кабінету)",
       "ttAppId": "App ID (необов'язково, потрібен для авто-поновлення OAuth-токена)",
       "ttAppSecret": "App Secret (необов’язково)",
@@ -25985,6 +26233,21 @@ const uk = {
     "switchToManual": "Перейти до прямого введення токена",
     "switchTo1Click": "Перейти до 1-Click OAuth",
     "httpsNotice": "💡 Зверніть увагу: 1-Click OAuth вимагає HTTPS-домену. При роботі за прямою IP-адресою використовуйте пряме підключення.",
+    "setupGuideTitle": "🔧 Увімкніть 1-Click підключення Google Ads",
+    "setupGuideSubtitle": "Налаштуйте OAuth-облікові дані на сервері для безшовного підключення в 1 клік. Або використовуйте пряме підключення за токенами нижче.",
+    "setupStepsTitle": "📋 Швидке налаштування",
+    "step1Title": "1. Створіть проект у Google Cloud",
+    "step1Desc": "Перейдіть на console.cloud.google.com, створіть проект і увімкніть Google Ads API.",
+    "step2Title": "2. Створіть облікові дані OAuth 2.0",
+    "step2Desc": "APIs & Services → Облікові дані → Створити OAuth 2.0 Client ID (Веб-додаток)",
+    "step3Title": "3. Додайте Redirect URI",
+    "step3Desc": "Додайте цей URI в Authorized Redirect URIs:",
+    "step4Title": "4. Отримайте Developer Token",
+    "step4Desc": "Перейдіть в API Center Google Ads і подайте заявку на Developer Token.",
+    "step5Title": "5. Налаштуйте змінні середовища",
+    "step5Desc": "Додайте їх в оточення сервера або в .env файл:",
+    "setupNote": "Після налаштування перезавантажте цю сторінку — кнопка «Увійти через Google» запрацює миттєво.",
+    "useManualMode": "Використовувати ручний режим з токенами",
     "noDiscoveredAccounts": "Вхід у Google виконано, але доступних рекламних аккаунтів не знайдено.",
     "addAccount": "Додати аккаунт Google Ads",
     "editAccount": "Редагувати аккаунт",
@@ -26569,6 +26832,8 @@ const es = {
     "importBtn": "Importar"
   },
   "common": {
+    "hide": "Ocultar",
+    "showDetails": "Mostrar detalles",
     "copied": "Copiado",
     "selectAll": "Seleccionar todo",
     "orManual": "O configurar manualmente",
@@ -27221,6 +27486,11 @@ const es = {
     "status": "Estado",
     "ok": "OK",
     "awaitingDns": "Esperando DNS",
+    "activeCloudflare": "Activo (Cloudflare)",
+    "activeLocalhost": "Activo (Localhost)",
+    "wrongIp": "IP incorrecta",
+    "dnsReasonNoResolve": "El dominio no resuelve a ninguna dirección IP",
+    "dnsReasonWrongIp": "El dominio resuelve a {{ip}} en lugar de la IP del servidor",
     "ignoreDnsLabel": "Ignorar DNS (UI)",
     "ignoreDnsHint": "Solo interfaz de usuario: muestra todos los dominios como correctos incluso si el DNS aún no está configurado. Útil para migración/pruebas.",
     "notSelected": "No seleccionado",
@@ -27258,6 +27528,11 @@ const es = {
     "sslEnvAcmeNotWritable": "El directorio de validación de Let's Encrypt no admite escritura: la validación del dominio fallará.",
     "sslCertbotNoOutput": "Certbot no devolvió nada: compruebe que está instalado y accesible para el servidor web vía sudo.",
     "sslIncompleteChain": "Al archivo de certificado le falta el intermedio — el sitio abre en Firefox pero no en Chrome. Vuelva a emitir el certificado.",
+    "sslDnsMismatch": "El dominio no apunta a este servidor. No se puede emitir el certificado hasta que se propague el DNS.",
+    "reissueSsl": "Reemitir certificado SSL",
+    "reissueConfirm": "¿Seguro que quieres reemitir el certificado SSL para",
+    "sslIssued": "Certificado SSL emitido correctamente",
+    "sslError": "No se pudo emitir el certificado SSL",
     "sslDnsSeen": "Registro A del dominio",
     "sslNoARecord": "sin registro A",
     "sslPending": "Awaiting installation",
@@ -27265,6 +27540,7 @@ const es = {
     "sslEnvTitle": "La emisión automática de SSL no está disponible en este servidor",
     "sslEnvNoShell": "Aquí PHP no puede ejecutar comandos externos, así que no se puede iniciar ni Certbot ni el planificador. Los dominios quedarán esperando certificado indefinidamente.",
     "sslEnvNoCertbot": "Certbot no está instalado en este servidor, no hay con qué emitir certificados. Instálelo: apt install certbot",
+    "sslEnvNoSudoCertbot": "El usuario del servidor web no puede ejecutar sudo certbot sin contraseña. Configure passwordless sudo para certbot en sudoers o añada el usuario web al grupo apropiado.",
     "sslEnvNoNginx": "No se encontró la configuración de nginx: este servidor no parece usar nginx, y un certificado emitido no podrá integrarse automáticamente.",
     "sslEnvHint": "Los certificados deberán emitirse e instalarse desde su hosting. La emisión automática está pensada para un VPS dedicado con acceso root, que es lo que configura install.sh.",
     "issueSsl": "Emitir SSL",
@@ -27733,7 +28009,18 @@ const es = {
     "saveType": "Tipo de guardado",
     "nameAndMacrosRequired": "Se requieren nombre y macros",
     "deleteConfirm": "¿Eliminar tipo de conversión?",
-    "deleteError": "Eliminar error"
+    "deleteError": "Eliminar error",
+    "unmappedStatuses": "Estados no mapeados",
+    "noUnmappedStatuses": "No se encontraron estados no mapeados",
+    "originalStatus": "Estado original",
+    "count": "Cantidad",
+    "firstSeen": "Primera vez visto",
+    "lastSeen": "Última vez visto",
+    "mapTo": "Mapear a",
+    "mapToTitle": "Mapear a {type}",
+    "mapToBtn": "{type}",
+    "mappedSuccessfully": "Mapeado exitosamente y reclasificado {count} conversion(es)",
+    "alreadyMapped": "Este estado ya está mapeado a este tipo"
   },
   "users": {
     "roleTemplate": "Plantilla de rol",
@@ -28257,21 +28544,21 @@ const es = {
     "title": "Registros del sistema",
     "lastRecords": 'Mostrando los últimos 100 registros. Para una exportación completa, utilice la sección "Integraciones".',
     "traffic": "Tráfico",
-    "incomingPostbacks": "Devoluciones de datos entrantes",
-    "sentS2s": "Enviado S2S",
+    "incomingPostbacks": "Postbacks entrantes",
+    "sentS2s": "S2S enviados",
     "systemLog": "Registro del sistema",
     "auditLog": "Registro de auditoría",
     "loadingLogs": "Cargando registros...",
     "noData": "No hay datos para mostrar",
-    "colTime": "tiempo",
-    "colClickId": "Haga clic en ID",
+    "colTime": "Hora",
+    "colClickId": "ID de clic",
     "colSubid": "SubID",
     "colCampaign": "Campaña",
     "colIp": "IP",
     "colGeo": "Geo",
     "colDevice": "Dispositivo",
     "colStatus": "Estado",
-    "colOrigStatus": "Original. Estado",
+    "colOrigStatus": "Estado original",
     "colPayout": "Pago",
     "colLevel": "Nivel",
     "colMessage": "Mensaje",
@@ -28280,7 +28567,17 @@ const es = {
     "colResponseCode": "Código de respuesta",
     "colConversionId": "ID de conversión",
     "colUrl": "URL",
-    "direct": "directo"
+    "colSourceIp": "IP de origen",
+    "colResult": "Resultado",
+    "colError": "Error",
+    "colSource": "Origen",
+    "resultRecorded": "Registrado",
+    "resultUpdated": "Actualizado",
+    "resultRejected": "Rechazado",
+    "resultError": "Error",
+    "sourcePostback": "Postback",
+    "sourcePixel": "Píxel",
+    "direct": "Directo"
   },
   "campaignReports": {
     "layers": "Niveles de agrupación",
@@ -28507,6 +28804,8 @@ const es = {
     "allowPhpLandingsHint": "Desactivado por defecto. Un landing PHP ejecuta código subido dentro del tracker, en la raíz web. Las subidas se analizan en busca de llamadas a shell y eval, pero un análisis del código no es un sandbox: actívalo solo para landings cuyo código sea de confianza.",
     "phpLandingTimeout": "Tiempo límite de ejecución, segundos",
     "phpLandingTimeoutHint": "De 1 a 9. Un landing que tarde más se corta, para que una página lenta no bloquee los procesos que comparte todo el sitio.",
+    "serverIpOverride": "Anulación de IP del servidor",
+    "serverIpOverrideHint": "Anulación manual para la detección de IP del servidor. Déjelo vacío para autodetección. Esta IP se utilizará para las verificaciones DNS de dominio.",
     "title": "Configuraciones generales",
     "postbackKey": "Clave de devolución de datos",
     "postbackKeyHint": "Se utiliza para generar URL de devolución de datos S2S únicas.",
@@ -28688,6 +28987,22 @@ const es = {
     "greenDesc": "Verde intenso y menta",
     "neon": "noche de neón",
     "neonDesc": "Fondo negro absoluto, colores vibrantes.",
+    "cobalt": "Cobalto",
+    "cobaltDesc": "Azul señal sobre lienzo blanco",
+    "cobaltDark": "Cobalto oscuro",
+    "cobaltDarkDesc": "Azul señal sobre negro profundo",
+    "canary": "Canario",
+    "canaryDesc": "Acentos negros y amarillo canario sobre blanco",
+    "canaryDark": "Canario oscuro",
+    "canaryDarkDesc": "Amarillo canario sobre grafito cálido",
+    "parchment": "Pergamino",
+    "parchmentDesc": "Lienzo crema cálido con botones negros de tinta",
+    "parchmentDark": "Pergamino oscuro",
+    "parchmentDarkDesc": "Fondo negro tinta con acentos crema",
+    "indigo": "Índigo",
+    "indigoDesc": "Acentos azul violeta sobre fondo claro",
+    "indigoDark": "Índigo oscuro",
+    "indigoDarkDesc": "Azul violeta sobre índigo profundo",
     "custom": "Tema personalizado",
     "customDesc": "Personaliza los colores para que coincidan exactamente con tu marca",
     "customColorsTitle": "Paleta de colores personalizada",
@@ -29192,6 +29507,7 @@ const es = {
     "managedDomains": "Dominios gestionados por Cloudflare"
   },
   "namecheap": {
+    "whitelistError": "Error de la API de Namecheap: la IP del servidor ({ip}) no está en la lista blanca de tu cuenta de Namecheap. Añádela en Profile → Tools → Business & Dev Tools → Namecheap API Access → Whitelisted IPs.",
     "title": "Namecheap",
     "description": "Aparcamiento DNS automático de dominios de su cuenta Namecheap, compra de dominios y SSL Let's Encrypt gratuito — directamente desde el tracker",
     "howTo": "Active el acceso API: Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access, y añada la IP saliente del servidor a Whitelisted IPs. Los dominios registrados en la cuenta reciben su registro A automáticamente al aparcarlos; el certificado Let's Encrypt se emite en cuanto el DNS se propague.",
@@ -29266,7 +29582,7 @@ const es = {
     "tiktokAds": "TikTok Ads",
     "description": "Importa el gasto publicitario diario y lo atribuye a los clics por los IDs de anuncio que tus plantillas de fuente de tráfico ya capturan.",
     "fields": {
-      "ttToken": "Access Token",
+      "ttToken": "Access Token (Marketing API — Ads Management / Reporting; un token de Events Manager no sirve)",
       "ttAdvertiser": "Advertiser ID",
       "ttAppId": "App ID (opcional, mantiene el auto-refresco del token OAuth)",
       "ttAppSecret": "App Secret (opcional)",
@@ -29363,6 +29679,21 @@ const es = {
     "switchToManual": "Cambiar a conexión directa por token",
     "switchTo1Click": "Cambiar a 1-Click OAuth",
     "httpsNotice": "💡 Nota: 1-Click OAuth requiere un dominio HTTPS. Si accedes por IP directa, usa la conexión directa.",
+    "setupGuideTitle": "🔧 Activar conexión 1-Click con Google Ads",
+    "setupGuideSubtitle": "Configura las credenciales OAuth en tu servidor para activar la conexión 1-Click. O usa la conexión directa por token abajo.",
+    "setupStepsTitle": "📋 Configuración rápida",
+    "step1Title": "1. Crear proyecto en Google Cloud",
+    "step1Desc": "Ve a console.cloud.google.com, crea un proyecto y habilita Google Ads API.",
+    "step2Title": "2. Crear credenciales OAuth 2.0",
+    "step2Desc": "APIs & Services → Credenciales → Crear OAuth 2.0 Client ID (Aplicación web)",
+    "step3Title": "3. Añadir Redirect URI",
+    "step3Desc": "Añade este URI a los URIs de redirección autorizados:",
+    "step4Title": "4. Obtener Developer Token",
+    "step4Desc": "Ve al Centro de API de Google Ads y solicita un Developer Token.",
+    "step5Title": "5. Configurar variables de entorno",
+    "step5Desc": "Añade estas al entorno del servidor o archivo .env:",
+    "setupNote": 'Después de configurar, recarga esta página — el botón "Iniciar sesión con Google" funcionará al instante.',
+    "useManualMode": "Usar modo manual con tokens",
     "noDiscoveredAccounts": "El inicio de sesión en Google funcionó, pero no se encontraron cuentas publicitarias accesibles.",
     "addAccount": "Añadir cuenta de Google Ads",
     "editAccount": "Editar cuenta",
@@ -29947,6 +30278,8 @@ const zh = {
     "importBtn": "进口"
   },
   "common": {
+    "hide": "隐藏",
+    "showDetails": "显示详情",
     "copied": "已复制",
     "selectAll": "全选",
     "orManual": "或手动填写 Token",
@@ -30599,6 +30932,11 @@ const zh = {
     "status": "状态",
     "ok": "好的",
     "awaitingDns": "等待 DNS",
+    "activeCloudflare": "活动 (Cloudflare)",
+    "activeLocalhost": "活动 (Localhost)",
+    "wrongIp": "IP 错误",
+    "dnsReasonNoResolve": "域名未解析到任何 IP 地址",
+    "dnsReasonWrongIp": "域名解析到 {{ip}} 而非服务器 IP",
     "ignoreDnsLabel": "忽略 DNS (UI)",
     "ignoreDnsHint": "仅 UI：即使尚未配置 DNS，也将所有域显示为“正常”。对于迁移/测试很有用。",
     "notSelected": "未选择",
@@ -30636,6 +30974,11 @@ const zh = {
     "sslEnvAcmeNotWritable": "Let's Encrypt 验证目录不可写 —— 域名验证将失败。",
     "sslCertbotNoOutput": "Certbot 没有任何输出 —— 请确认已安装且 Web 服务器可通过 sudo 调用。",
     "sslIncompleteChain": "证书文件缺少中间证书 —— 网站在 Firefox 能打开但在 Chrome 失败。请重新签发证书。",
+    "sslDnsMismatch": "域名未指向此服务器。在 DNS 传播之前无法签发证书。",
+    "reissueSsl": "重新签发 SSL 证书",
+    "reissueConfirm": "确定要为该域名重新签发 SSL 证书吗：",
+    "sslIssued": "SSL 证书签发成功",
+    "sslError": "SSL 证书签发失败",
     "sslDnsSeen": "域名的 A 记录",
     "sslNoARecord": "无 A 记录",
     "sslPending": "Awaiting installation",
@@ -30643,6 +30986,7 @@ const zh = {
     "sslEnvTitle": "此服务器不支持自动签发 SSL",
     "sslEnvNoShell": "此处 PHP 无法执行外部命令，因此无法启动 Certbot 或计划任务。域名将一直处于等待证书状态。",
     "sslEnvNoCertbot": "服务器未安装 Certbot，没有工具可以签发证书。请安装：apt install certbot",
+    "sslEnvNoSudoCertbot": "Web 服务器用户无法在没有密码的情况下执行 sudo certbot。请在 sudoers 中为 certbot 配置 passwordless sudo 或将 Web 用户添加到相应的组。",
     "sslEnvNoNginx": "未找到 nginx 配置：此服务器似乎并非运行 nginx，已签发的证书无法自动接入。",
     "sslEnvHint": "证书需通过您的主机服务签发和安装。自动签发面向具有 root 权限的独立 VPS —— 即 install.sh 所配置的环境。",
     "issueSsl": "签发 SSL",
@@ -31111,7 +31455,18 @@ const zh = {
     "saveType": "保存类型",
     "nameAndMacrosRequired": "名称和宏为必填项",
     "deleteConfirm": "删除转换类型？",
-    "deleteError": "删除错误"
+    "deleteError": "删除错误",
+    "unmappedStatuses": "未映射状态",
+    "noUnmappedStatuses": "未找到未映射状态",
+    "originalStatus": "原始状态",
+    "count": "数量",
+    "firstSeen": "首次出现",
+    "lastSeen": "最后出现",
+    "mapTo": "映射到",
+    "mapToTitle": "映射到 {type}",
+    "mapToBtn": "{type}",
+    "mappedSuccessfully": "成功映射并重新分类 {count} 个转化",
+    "alreadyMapped": "此状态已映射到此类型"
   },
   "users": {
     "roleTemplate": "角色模板",
@@ -31634,11 +31989,11 @@ const zh = {
   "logs": {
     "title": "系统日志",
     "lastRecords": "显示最近 100 条记录。要完全导出，请使用“集成”部分。",
-    "traffic": "交通",
+    "traffic": "流量",
     "incomingPostbacks": "传入回发",
-    "sentS2s": "发送S2S",
+    "sentS2s": "已发送S2S",
     "systemLog": "系统日志",
-    "auditLog": "审核日志",
+    "auditLog": "审计日志",
     "loadingLogs": "正在加载日志...",
     "noData": "无数据可显示",
     "colTime": "时间",
@@ -31646,18 +32001,28 @@ const zh = {
     "colSubid": "子ID",
     "colCampaign": "活动",
     "colIp": "IP",
-    "colGeo": "地理",
+    "colGeo": "地理位置",
     "colDevice": "设备",
     "colStatus": "状态",
-    "colOrigStatus": "原始。状态",
-    "colPayout": "支出",
-    "colLevel": "等级",
-    "colMessage": "留言",
-    "colEvent": "活动",
+    "colOrigStatus": "原始状态",
+    "colPayout": "支付",
+    "colLevel": "级别",
+    "colMessage": "消息",
+    "colEvent": "事件",
     "colResource": "资源",
     "colResponseCode": "响应代码",
     "colConversionId": "转化ID",
     "colUrl": "网址",
+    "colSourceIp": "来源IP",
+    "colResult": "结果",
+    "colError": "错误",
+    "colSource": "来源",
+    "resultRecorded": "已记录",
+    "resultUpdated": "已更新",
+    "resultRejected": "已拒绝",
+    "resultError": "错误",
+    "sourcePostback": "回发",
+    "sourcePixel": "像素",
     "direct": "直接"
   },
   "campaignReports": {
@@ -31885,6 +32250,8 @@ const zh = {
     "allowPhpLandingsHint": "默认关闭。PHP 落地页会在追踪器内部、网站根目录中执行上传的代码。上传时会扫描 shell 与 eval 调用，但源码扫描不是沙箱——只在你信任其代码的落地页上开启。",
     "phpLandingTimeout": "执行超时（秒）",
     "phpLandingTimeoutHint": "1 到 9。超时的落地页会被中断，避免一个慢页面占满整站共用的工作进程。",
+    "serverIpOverride": "服务器 IP 覆盖",
+    "serverIpOverrideHint": "服务器 IP 检测的手动覆盖。留空以自动检测。此 IP 将用于域名 DNS 检查。",
     "title": "常规设置",
     "postbackKey": "回传键",
     "postbackKeyHint": "用于生成唯一的 S2S 回发 URL。",
@@ -32066,6 +32433,22 @@ const zh = {
     "greenDesc": "深绿色和薄荷色",
     "neon": "霓虹之夜",
     "neonDesc": "绝对的黑色背景，鲜艳的色彩",
+    "cobalt": "钴蓝",
+    "cobaltDesc": "纯白画布上的信号蓝",
+    "cobaltDark": "深钴蓝",
+    "cobaltDarkDesc": "深黑底色上的信号蓝",
+    "canary": "金丝雀黄",
+    "canaryDesc": "白色上的黑色点缀与金丝雀黄",
+    "canaryDark": "暗金丝雀黄",
+    "canaryDarkDesc": "暖炭灰上的金丝雀黄",
+    "parchment": "羊皮纸",
+    "parchmentDesc": "暖米色画布配墨黑按钮",
+    "parchmentDark": "暗羊皮纸",
+    "parchmentDarkDesc": "墨黑底色配奶油色点缀",
+    "indigo": "靛蓝",
+    "indigoDesc": "浅色画布上的蓝紫点缀",
+    "indigoDark": "暗靛蓝",
+    "indigoDarkDesc": "深靛蓝底色上的蓝紫色调",
     "custom": "自定义主题",
     "customDesc": "自定义颜色以完全匹配您的品牌",
     "customColorsTitle": "定制调色板",
@@ -32570,6 +32953,7 @@ const zh = {
     "managedDomains": "由 Cloudflare 管理的域名"
   },
   "namecheap": {
+    "whitelistError": "Namecheap API 错误：服务器 IP ({ip}) 不在您的 Namecheap 账户白名单中。请在 Profile → Tools → Business & Dev Tools → Namecheap API Access → Whitelisted IPs 中添加。",
     "title": "Namecheap",
     "description": "自动为 Namecheap 账户中的域名停放 DNS、直接从追踪器购买域名并免费签发 Let's Encrypt SSL",
     "howTo": "启用 API 访问：Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access，并将服务器出口 IP 添加到 Whitelisted IPs。账户中注册的域名在停放时自动获得 A 记录；DNS 生效后自动签发 Let's Encrypt 证书。",
@@ -32644,7 +33028,7 @@ const zh = {
     "tiktokAds": "TikTok Ads",
     "description": "导入每日广告支出，并通过流量来源模板已捕获的广告 ID 将其归因到点击。",
     "fields": {
-      "ttToken": "Access Token",
+      "ttToken": "Access Token（Marketing API — Ads Management / Reporting 权限；Events Manager 令牌无效）",
       "ttAdvertiser": "广告主 ID",
       "ttAppId": "App ID（可选，用于 OAuth 令牌自动续期）",
       "ttAppSecret": "App Secret（可选）",
@@ -32741,6 +33125,21 @@ const zh = {
     "switchToManual": "切换为直接令牌连接",
     "switchTo1Click": "切换为 1-Click OAuth",
     "httpsNotice": "💡 注意：1-Click OAuth 需要 HTTPS 域名。通过直接 IP 地址访问时，请使用直接连接。",
+    "setupGuideTitle": "🔧 启用 Google Ads 一键连接",
+    "setupGuideSubtitle": "在服务器上配置 OAuth 凭据以启用一键连接。或使用下方的直接令牌连接。",
+    "setupStepsTitle": "📋 快速设置",
+    "step1Title": "1. 创建 Google Cloud 项目",
+    "step1Desc": "前往 console.cloud.google.com，创建项目并启用 Google Ads API。",
+    "step2Title": "2. 创建 OAuth 2.0 凭据",
+    "step2Desc": "APIs & Services → 凭据 → 创建 OAuth 2.0 Client ID（Web 应用）",
+    "step3Title": "3. 添加重定向 URI",
+    "step3Desc": "将此 URI 添加到已授权的重定向 URI：",
+    "step4Title": "4. 获取 Developer Token",
+    "step4Desc": "前往 Google Ads API 中心并申请 Developer Token。",
+    "step5Title": "5. 配置环境变量",
+    "step5Desc": "将这些添加到服务器环境或 .env 文件中：",
+    "setupNote": "配置完成后，刷新此页面 — 「使用 Google 登录」按钮将立即生效。",
+    "useManualMode": "使用手动令牌模式",
     "noDiscoveredAccounts": "Google 登录成功，但未找到可访问的广告账户。",
     "addAccount": "添加 Google Ads 账户",
     "editAccount": "编辑账户",
@@ -33325,6 +33724,8 @@ const fr = {
     "importBtn": "Importer"
   },
   "common": {
+    "hide": "Masquer",
+    "showDetails": "Afficher les détails",
     "copied": "Copié",
     "selectAll": "Tout sélectionner",
     "orManual": "Ou configurer manuellement",
@@ -33977,6 +34378,11 @@ const fr = {
     "status": "Statut",
     "ok": "OK",
     "awaitingDns": "En attente de DNS",
+    "activeCloudflare": "Actif (Cloudflare)",
+    "activeLocalhost": "Actif (Localhost)",
+    "wrongIp": "Mauvaise IP",
+    "dnsReasonNoResolve": "Le domaine ne résout aucune adresse IP",
+    "dnsReasonWrongIp": "Le domaine résout vers {{ip}} au lieu de l'IP du serveur",
     "ignoreDnsLabel": "Ignorer DNS (UI)",
     "ignoreDnsHint": "UI uniquement : affichez tous les domaines comme OK même si le DNS n'est pas encore configuré. Utile pour la migration/les tests.",
     "notSelected": "Non sélectionné",
@@ -34014,6 +34420,11 @@ const fr = {
     "sslEnvAcmeNotWritable": "Le répertoire de validation Let's Encrypt n'est pas accessible en écriture — la validation du domaine échouera.",
     "sslCertbotNoOutput": "Certbot n'a rien renvoyé — vérifiez qu'il est installé et accessible au serveur web via sudo.",
     "sslIncompleteChain": "Il manque l'intermédiaire dans le fichier de certificat — le site s'ouvre dans Firefox mais pas dans Chrome. Réémettez le certificat.",
+    "sslDnsMismatch": "Le domaine ne pointe pas vers ce serveur. Le certificat ne peut pas être émis tant que le DNS n'est pas propagé.",
+    "reissueSsl": "Réémettre le certificat SSL",
+    "reissueConfirm": "Voulez-vous vraiment réémettre le certificat SSL pour",
+    "sslIssued": "Certificat SSL émis avec succès",
+    "sslError": "Échec de l'émission du certificat SSL",
     "sslDnsSeen": "Enregistrement A du domaine",
     "sslNoARecord": "aucun enregistrement A",
     "sslPending": "En attente d'installation",
@@ -34021,6 +34432,7 @@ const fr = {
     "sslEnvTitle": "L'émission automatique de SSL n'est pas disponible sur ce serveur",
     "sslEnvNoShell": "PHP ne peut pas exécuter de commandes externes ici : ni Certbot ni le planificateur ne peuvent être lancés. Les domaines resteront en attente de certificat.",
     "sslEnvNoCertbot": "Certbot n'est pas installé sur ce serveur, il n'y a donc rien pour émettre des certificats. Installez-le : apt install certbot",
+    "sslEnvNoSudoCertbot": "L'utilisateur du serveur web ne peut pas exécuter sudo certbot sans mot de passe. Configurez passwordless sudo pour certbot dans sudoers ou ajoutez l'utilisateur web au groupe approprié.",
     "sslEnvNoNginx": "Aucune configuration nginx trouvée : ce serveur ne semble pas utiliser nginx, un certificat émis ne pourra pas être intégré automatiquement.",
     "sslEnvHint": "Les certificats devront être émis et installés via votre hébergement. L'émission automatique vise un VPS dédié avec accès root, ce que met en place install.sh.",
     "issueSsl": "Émettre SSL",
@@ -34488,8 +34900,19 @@ const fr = {
     "affectCap": "Compté dans les limites de l'offre (plafond quotidien)",
     "saveType": "Type d'enregistrement",
     "nameAndMacrosRequired": "Le nom et les macros sont requis",
-    "deleteConfirm": "Supprimer le type de conversion ?",
-    "deleteError": "Erreur de suppression"
+    "deleteConfirm": "Supprimer le type de conversion ?",
+    "deleteError": "Erreur de suppression",
+    "unmappedStatuses": "Statuts non mappés",
+    "noUnmappedStatuses": "Aucun statut non mappé trouvé",
+    "originalStatus": "Statut original",
+    "count": "Nombre",
+    "firstSeen": "Première apparition",
+    "lastSeen": "Dernière apparition",
+    "mapTo": "Mapper vers",
+    "mapToTitle": "Mapper vers {type}",
+    "mapToBtn": "{type}",
+    "mappedSuccessfully": "Mappé avec succès et {count} conversion(s) reclassifiée(s)",
+    "alreadyMapped": "Ce statut est déjà mappé à ce type"
   },
   "users": {
     "roleTemplate": "Modèle de rôle",
@@ -35010,13 +35433,13 @@ const fr = {
     "loading": "Chargement en cours..."
   },
   "logs": {
-    "title": "Système Journaux",
-    "lastRecords": 'Showing last 100 records. For full export use the "Integrations" section.',
-    "traffic": "Traffic",
-    "incomingPostbacks": "Incoming Postbacks",
-    "sentS2s": "Sent S2S",
-    "systemLog": "System Log",
-    "auditLog": "Audit Log",
+    "title": "Journaux système",
+    "lastRecords": "Affichage des 100 derniers enregistrements. Pour l'export complet, utilisez la section « Intégrations ».",
+    "traffic": "Trafic",
+    "incomingPostbacks": "Postbacks entrants",
+    "sentS2s": "S2S envoyés",
+    "systemLog": "Journal système",
+    "auditLog": "Journal d'audit",
     "loadingLogs": "Chargement des journaux...",
     "noData": "Aucune donnée à afficher",
     "colTime": "Heure",
@@ -35027,7 +35450,7 @@ const fr = {
     "colGeo": "Géo",
     "colDevice": "Appareil",
     "colStatus": "Statut",
-    "colOrigStatus": "Orig. Statut",
+    "colOrigStatus": "Statut orig.",
     "colPayout": "Paiement",
     "colLevel": "Niveau",
     "colMessage": "Message",
@@ -35036,6 +35459,16 @@ const fr = {
     "colResponseCode": "Code de réponse",
     "colConversionId": "ID de conversion",
     "colUrl": "URL",
+    "colSourceIp": "IP source",
+    "colResult": "Résultat",
+    "colError": "Erreur",
+    "colSource": "Source",
+    "resultRecorded": "Enregistré",
+    "resultUpdated": "Mis à jour",
+    "resultRejected": "Rejeté",
+    "resultError": "Erreur",
+    "sourcePostback": "Postback",
+    "sourcePixel": "Pixel",
     "direct": "Direct"
   },
   "campaignReports": {
@@ -35263,6 +35696,8 @@ const fr = {
     "allowPhpLandingsHint": "Désactivé par défaut. Un landing PHP exécute du code téléversé dans le tracker, à la racine web. Les envois sont analysés à la recherche d'appels shell et eval, mais une analyse de source n'est pas un bac à sable : n'activez ceci que pour des landings dont vous connaissez le code.",
     "phpLandingTimeout": "Délai d'exécution, secondes",
     "phpLandingTimeoutHint": "De 1 à 9. Un landing plus lent est interrompu, pour qu'une page lente ne monopolise pas les processus partagés par tout le site.",
+    "serverIpOverride": "Remplacement de l'IP du serveur",
+    "serverIpOverrideHint": "Remplacement manuel pour la détection de l'IP du serveur. Laissez vide pour la détection automatique. Cette IP sera utilisée pour les vérifications DNS des domaines.",
     "title": "Paramètres généraux",
     "postbackKey": "Clé de publication",
     "postbackKeyHint": "Utilisée pour générer des URL de publication S2S uniques.",
@@ -35444,6 +35879,22 @@ const fr = {
     "greenDesc": "Vert profond et menthe",
     "neon": "Nuit Néon",
     "neonDesc": "Fond noir absolu, couleurs vives",
+    "cobalt": "Cobalt",
+    "cobaltDesc": "Bleu signal sur fond blanc",
+    "cobaltDark": "Cobalt sombre",
+    "cobaltDarkDesc": "Bleu signal sur noir profond",
+    "canary": "Canari",
+    "canaryDesc": "Accents noirs et jaune canari sur blanc",
+    "canaryDark": "Canari sombre",
+    "canaryDarkDesc": "Jaune canari sur anthracite chaud",
+    "parchment": "Parchemin",
+    "parchmentDesc": "Fond crème chaud avec boutons noir encre",
+    "parchmentDark": "Parchemin sombre",
+    "parchmentDarkDesc": "Fond noir encre avec accents crème",
+    "indigo": "Indigo",
+    "indigoDesc": "Accents bleu-violet sur fond clair",
+    "indigoDark": "Indigo sombre",
+    "indigoDarkDesc": "Bleu-violet sur indigo profond",
     "custom": "Thème personnalisé",
     "customDesc": "Personnalisez les couleurs pour qu'elles correspondent exactement à votre marque",
     "customColorsTitle": "Palette de couleurs personnalisée",
@@ -35950,6 +36401,7 @@ const fr = {
     "managedDomains": "Domaines gérés par Cloudflare"
   },
   "namecheap": {
+    "whitelistError": "Erreur de l'API Namecheap : l'IP du serveur ({ip}) n'est pas dans la liste blanche de votre compte Namecheap. Ajoutez-la dans Profile → Tools → Business & Dev Tools → Namecheap API Access → Whitelisted IPs.",
     "title": "Namecheap",
     "description": "Stationnement DNS automatique des domaines de votre compte Namecheap, achat de domaines et SSL Let's Encrypt gratuit — directement depuis le tracker",
     "howTo": "Activez l'accès API : Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access, puis ajoutez l'IP sortante du serveur aux Whitelisted IPs. Les domaines enregistrés dans le compte reçoivent leur enregistrement A automatiquement au stationnement ; le certificat Let's Encrypt est émis dès que le DNS se propage.",
@@ -36024,7 +36476,7 @@ const fr = {
     "tiktokAds": "TikTok Ads",
     "description": "Importe les dépenses publicitaires quotidiennes et les attribue aux clics via les IDs d'annonce que vos modèles de source de trafic capturent déjà.",
     "fields": {
-      "ttToken": "Access Token",
+      "ttToken": "Access Token (Marketing API — Ads Management / Reporting ; un jeton Events Manager ne fonctionne pas)",
       "ttAdvertiser": "ID annonceur",
       "ttAppId": "App ID (facultatif, nécessaire au renouvellement automatique du jeton OAuth)",
       "ttAppSecret": "App Secret (facultatif)",
@@ -36121,6 +36573,21 @@ const fr = {
     "switchToManual": "Passer à la connexion directe par token",
     "switchTo1Click": "Passer au 1-Click OAuth",
     "httpsNotice": "💡 Remarque : Le 1-Click OAuth requiert un domaine HTTPS. Si vous accédez par IP directe, utilisez la connexion directe.",
+    "setupGuideTitle": "🔧 Activer la connexion 1-Click Google Ads",
+    "setupGuideSubtitle": "Configurez les identifiants OAuth sur votre serveur pour activer la connexion 1-Click. Ou utilisez la connexion directe par token ci-dessous.",
+    "setupStepsTitle": "📋 Configuration rapide",
+    "step1Title": "1. Créer un projet Google Cloud",
+    "step1Desc": "Allez sur console.cloud.google.com, créez un projet et activez Google Ads API.",
+    "step2Title": "2. Créer les identifiants OAuth 2.0",
+    "step2Desc": "APIs & Services → Identifiants → Créer OAuth 2.0 Client ID (Application web)",
+    "step3Title": "3. Ajouter le Redirect URI",
+    "step3Desc": "Ajoutez cet URI aux URI de redirection autorisés :",
+    "step4Title": "4. Obtenir le Developer Token",
+    "step4Desc": "Allez au Centre d’API Google Ads et demandez un Developer Token.",
+    "step5Title": "5. Configurer les variables d’environnement",
+    "step5Desc": "Ajoutez-les à l’environnement du serveur ou au fichier .env :",
+    "setupNote": "Après configuration, rechargez cette page — le bouton « Se connecter avec Google » fonctionnera immédiatement.",
+    "useManualMode": "Utiliser le mode manuel avec tokens",
     "noDiscoveredAccounts": "Connexion Google réussie, mais aucun compte publicitaire accessible n’a été trouvé.",
     "addAccount": "Ajouter un compte Google Ads",
     "editAccount": "Modifier le compte",
@@ -36705,6 +37172,8 @@ const de = {
     "importBtn": "Importieren"
   },
   "common": {
+    "hide": "Ausblenden",
+    "showDetails": "Details anzeigen",
     "copied": "Kopiert",
     "selectAll": "Alle auswählen",
     "orManual": "Oder manuell konfigurieren",
@@ -37357,6 +37826,11 @@ const de = {
     "status": "Status",
     "ok": "OK",
     "awaitingDns": "Warten auf DNS",
+    "activeCloudflare": "Aktiv (Cloudflare)",
+    "activeLocalhost": "Aktiv (Localhost)",
+    "wrongIp": "Falsche IP",
+    "dnsReasonNoResolve": "Domain löst keine IP-Adresse auf",
+    "dnsReasonWrongIp": "Domain löst zu {{ip}} anstelle der Server-IP auf",
     "ignoreDnsLabel": "DNS ignorieren (UI)",
     "ignoreDnsHint": "Nur UI: Alle Domänen als OK anzeigen, auch wenn DNS noch nicht konfiguriert ist. Nützlich für Migration/Tests.",
     "notSelected": "Nicht ausgewählt",
@@ -37394,6 +37868,11 @@ const de = {
     "sslEnvAcmeNotWritable": "Das Let's-Encrypt-Challenge-Verzeichnis ist nicht beschreibbar — die Domain-Validierung schlägt fehl.",
     "sslCertbotNoOutput": "Certbot hat nichts zurückgegeben — prüfen Sie, ob es installiert und für den Webserver per sudo erreichbar ist.",
     "sslIncompleteChain": "In der Zertifikatsdatei fehlt das Intermediate — die Seite öffnet sich in Firefox, aber nicht in Chrome. Stellen Sie das Zertifikat neu aus.",
+    "sslDnsMismatch": "Domain zeigt nicht auf diesen Server. Zertifikat kann nicht ausgestellt werden, bis DNS verteilt ist.",
+    "reissueSsl": "SSL-Zertifikat neu ausstellen",
+    "reissueConfirm": "Möchten Sie das SSL-Zertifikat wirklich neu ausstellen für",
+    "sslIssued": "SSL-Zertifikat erfolgreich ausgestellt",
+    "sslError": "SSL-Zertifikat konnte nicht ausgestellt werden",
     "sslDnsSeen": "A-Eintrag der Domain",
     "sslNoARecord": "kein A-Eintrag",
     "sslPending": "Warten auf Installation",
@@ -37401,6 +37880,7 @@ const de = {
     "sslEnvTitle": "Automatische SSL-Ausstellung ist auf diesem Server nicht verfügbar",
     "sslEnvNoShell": "PHP kann hier keine externen Befehle ausführen — weder Certbot noch der Planer lassen sich starten. Domains warten dauerhaft auf ein Zertifikat.",
     "sslEnvNoCertbot": "Certbot ist auf diesem Server nicht installiert, es gibt also nichts, womit Zertifikate ausgestellt werden könnten. Installieren: apt install certbot",
+    "sslEnvNoSudoCertbot": "Der Webserver-Benutzer kann sudo certbot nicht ohne Passwort ausführen. Konfigurieren Sie passwordless sudo für certbot in sudoers oder fügen Sie den Webbenutzer zur entsprechenden Gruppe hinzu.",
     "sslEnvNoNginx": "Keine nginx-Konfiguration gefunden: der Server läuft offenbar nicht auf nginx, ein ausgestelltes Zertifikat kann nicht automatisch eingebunden werden.",
     "sslEnvHint": "Zertifikate müssen über Ihr Hosting ausgestellt und eingerichtet werden. Die automatische Ausstellung ist für einen eigenen VPS mit Root-Zugang gedacht, wie ihn install.sh einrichtet.",
     "issueSsl": "SSL ausstellen",
@@ -37869,7 +38349,18 @@ const de = {
     "saveType": "Speichertyp",
     "nameAndMacrosRequired": "Name und Makros sind erforderlich",
     "deleteConfirm": "Konvertierungstyp löschen?",
-    "deleteError": "Löschfehler"
+    "deleteError": "Löschfehler",
+    "unmappedStatuses": "Nicht zugeordnete Status",
+    "noUnmappedStatuses": "Keine nicht zugeordneten Status gefunden",
+    "originalStatus": "Originalstatus",
+    "count": "Anzahl",
+    "firstSeen": "Erste Sichtung",
+    "lastSeen": "Letzte Sichtung",
+    "mapTo": "Zuordnen zu",
+    "mapToTitle": "Zuordnen zu {type}",
+    "mapToBtn": "{type}",
+    "mappedSuccessfully": "Erfolgreich zugeordnet und {count} Konversionen neu klassifiziert",
+    "alreadyMapped": "Dieser Status ist bereits diesem Typ zugeordnet"
   },
   "users": {
     "roleTemplate": "Rollenvorlage",
@@ -38416,6 +38907,16 @@ const de = {
     "colResponseCode": "Antwortcode",
     "colConversionId": "Conversion-ID",
     "colUrl": "URL",
+    "colSourceIp": "Quell-IP",
+    "colResult": "Ergebnis",
+    "colError": "Fehler",
+    "colSource": "Quelle",
+    "resultRecorded": "Aufgezeichnet",
+    "resultUpdated": "Aktualisiert",
+    "resultRejected": "Abgelehnt",
+    "resultError": "Fehler",
+    "sourcePostback": "Postback",
+    "sourcePixel": "Pixel",
     "direct": "Direkt"
   },
   "campaignReports": {
@@ -38643,6 +39144,8 @@ const de = {
     "allowPhpLandingsHint": "Standardmäßig aus. Ein PHP-Landing führt hochgeladenen Code im Tracker aus, im Web-Root. Uploads werden auf Shell- und eval-Aufrufe geprüft, aber eine Quelltextprüfung ist keine Sandbox — schalte das nur für Landings ein, deren Code du kennst.",
     "phpLandingTimeout": "Ausführungs-Timeout, Sekunden",
     "phpLandingTimeoutHint": "1 bis 9. Ein Landing, das länger läuft, wird abgebrochen, damit eine langsame Seite nicht die Worker blockiert, die die ganze Site teilt.",
+    "serverIpOverride": "Server-IP-Überschreibung",
+    "serverIpOverrideHint": "Manuelle Überschreibung für die Server-IP-Erkennung. Leer lassen für automatische Erkennung. Diese IP wird für Domain-DNS-Prüfungen verwendet.",
     "title": "Allgemeine Einstellungen",
     "postbackKey": "Postback-Schlüssel",
     "postbackKeyHint": "Wird zum Generieren eindeutiger S2S-Postback-URLs verwendet.",
@@ -38824,6 +39327,22 @@ const de = {
     "greenDesc": "Tiefgrün und Mint",
     "neon": "Neon Night",
     "neonDesc": "Absolut schwarzer Hintergrund, lebendige Farben",
+    "cobalt": "Kobalt",
+    "cobaltDesc": "Signalblau auf reinem Weiß",
+    "cobaltDark": "Kobalt Dunkel",
+    "cobaltDarkDesc": "Signalblau auf tiefem Schwarz",
+    "canary": "Kanariengelb",
+    "canaryDesc": "Schwarze Akzente und Kanariengelb auf Weiß",
+    "canaryDark": "Kanariengelb Dunkel",
+    "canaryDarkDesc": "Kanariengelb auf warmem Anthrazit",
+    "parchment": "Pergament",
+    "parchmentDesc": "Warmes Cremeweiß mit tintenschwarzen Schaltflächen",
+    "parchmentDark": "Pergament Dunkel",
+    "parchmentDarkDesc": "Tintenschwarzer Grund mit cremefarbenen Akzenten",
+    "indigo": "Indigo",
+    "indigoDesc": "Violettblaue Akzente auf hellem Grund",
+    "indigoDark": "Indigo Dunkel",
+    "indigoDarkDesc": "Violettblau auf tiefem Indigo",
     "custom": "Benutzerdefiniertes Design",
     "customDesc": "Passen Sie die Farben genau an Ihre Marke an",
     "customColorsTitle": "Benutzerdefinierte Farbpalette",
@@ -39328,6 +39847,7 @@ const de = {
     "managedDomains": "Von Cloudflare verwaltete Domains"
   },
   "namecheap": {
+    "whitelistError": "Namecheap-API-Fehler: Die Server-IP ({ip}) steht nicht auf der Whitelist Ihres Namecheap-Kontos. Fügen Sie sie unter Profile → Tools → Business & Dev Tools → Namecheap API Access → Whitelisted IPs hinzu.",
     "title": "Namecheap",
     "description": "Auto-DNS-Parking für Domains aus Ihrem Namecheap-Konto, Domain-Kauf und kostenloses Let's-Encrypt-SSL — direkt aus dem Tracker",
     "howTo": "API-Zugriff aktivieren: Namecheap → Profile → Tools → Business & Dev Tools → Namecheap API Access → Manage → Toggle API Access, und die ausgehende Server-IP zu Whitelisted IPs hinzufügen. Im Konto registrierte Domains erhalten beim Parken automatisch einen A-Record; das Let's-Encrypt-Zertifikat wird ausgestellt, sobald DNS propagiert.",
@@ -39402,7 +39922,7 @@ const de = {
     "tiktokAds": "TikTok Ads",
     "description": "Importiert tägliche Werbeausgaben und ordnet sie Klicks über die Anzeigen-IDs zu, die Ihre Traffic-Quell-Vorlagen bereits erfassen.",
     "fields": {
-      "ttToken": "Access Token",
+      "ttToken": "Access Token (Marketing API — Ads Management / Reporting; ein Events-Manager-Token funktioniert nicht)",
       "ttAdvertiser": "Advertiser-ID",
       "ttAppId": "App-ID (optional, hält die OAuth-Auto-Erneuerung am Laufen)",
       "ttAppSecret": "App Secret (optional)",
@@ -39499,6 +40019,21 @@ const de = {
     "switchToManual": "Zu direkter Token-Verbindung wechseln",
     "switchTo1Click": "Zu 1-Click OAuth wechseln",
     "httpsNotice": "💡 Hinweis: 1-Click OAuth erfordert eine HTTPS-Domain. Bei Zugriff über direkte IP nutzen Sie die direkte Verbindung.",
+    "setupGuideTitle": "🔧 1-Click Google-Ads-Verbindung aktivieren",
+    "setupGuideSubtitle": "Konfigurieren Sie OAuth-Anmeldedaten auf Ihrem Server für nahtlose 1-Click-Verbindung. Oder nutzen Sie die direkte Token-Verbindung unten.",
+    "setupStepsTitle": "📋 Schnelleinrichtung",
+    "step1Title": "1. Google Cloud-Projekt erstellen",
+    "step1Desc": "Gehen Sie zu console.cloud.google.com, erstellen Sie ein Projekt und aktivieren Sie die Google Ads API.",
+    "step2Title": "2. OAuth 2.0-Anmeldedaten erstellen",
+    "step2Desc": "APIs & Services → Anmeldedaten → OAuth 2.0 Client ID erstellen (Webanwendung)",
+    "step3Title": "3. Redirect URI hinzufügen",
+    "step3Desc": "Fügen Sie diesen URI zu den autorisierten Redirect-URIs hinzu:",
+    "step4Title": "4. Developer-Token abrufen",
+    "step4Desc": "Gehen Sie zum Google Ads API Center und beantragen Sie ein Developer-Token.",
+    "step5Title": "5. Umgebungsvariablen konfigurieren",
+    "step5Desc": "Fügen Sie diese zur Serverumgebung oder .env-Datei hinzu:",
+    "setupNote": 'Nach der Konfiguration diese Seite neu laden — die Schaltfläche "Mit Google anmelden" funktioniert sofort.',
+    "useManualMode": "Manuellen Token-Modus verwenden",
     "noDiscoveredAccounts": "Google-Anmeldung erfolgreich, aber keine zugänglichen Werbekonten gefunden.",
     "addAccount": "Google-Ads-Konto hinzufügen",
     "editAccount": "Konto bearbeiten",
@@ -53925,6 +54460,7 @@ const Domains = ({ campaigns }) => {
   const [copiedIp, setCopiedIp] = reactExports.useState(false);
   const [forceChecking, setForceChecking] = reactExports.useState(false);
   const [sslRunning, setSslRunning] = reactExports.useState(false);
+  const [reissuingSsl, setReissuingSsl] = reactExports.useState(null);
   const [sslEnv, setSslEnv] = reactExports.useState(null);
   const defaultFormData = {
     id: null,
@@ -53950,6 +54486,8 @@ const Domains = ({ campaigns }) => {
   const [saveNotice, setSaveNotice] = reactExports.useState("");
   const nameInputRef = reactExports.useRef(null);
   const [showDnsModal, setShowDnsModal] = reactExports.useState(false);
+  const [showSslErrorModal, setShowSslErrorModal] = reactExports.useState(false);
+  const [sslErrorDomain, setSslErrorDomain] = reactExports.useState(null);
   const [ncConnected, setNcConnected] = reactExports.useState(false);
   const [ncAccounts, setNcAccounts] = reactExports.useState([]);
   const [ncAccountId, setNcAccountId] = reactExports.useState(null);
@@ -54058,11 +54596,18 @@ const Domains = ({ campaigns }) => {
   const openImport = async (accountId) => {
     const accId = accountId ?? activeNcAccount?.id ?? null;
     setShowImport(true);
-    setNcImport({ loading: true, domains: [], selected: {}, importing: false, message: "" });
+    setNcImport({ loading: true, domains: [], selected: {}, importing: false, message: "", ipHint: "" });
     try {
       const [{ data: listRes }] = await Promise.all([cachedPost("namecheap_domains", accId ? { account_id: accId } : {})]);
       if (listRes.status !== "success") {
-        setNcImport((s) => ({ ...s, loading: false, message: listRes.message || t("common.error") }));
+        let errorMsg = listRes.message || t("common.error");
+        const detectedIp = listRes.detail?.ip || "";
+        if (detectedIp) {
+          errorMsg = t("namecheap.errConnection") + ". " + t("namecheap.whitelistError", "Server IP must be whitelisted").replace("{ip}", detectedIp);
+          setNcImport((s) => ({ ...s, loading: false, message: errorMsg, ipHint: detectedIp }));
+        } else {
+          setNcImport((s) => ({ ...s, loading: false, message: errorMsg }));
+        }
         return;
       }
       const have = new Set(domains.map((d) => d.name.toLowerCase()));
@@ -54071,7 +54616,7 @@ const Domains = ({ campaigns }) => {
       fresh.forEach((d) => {
         selected[d] = true;
       });
-      setNcImport({ loading: false, domains: listRes.data.domains || [], selected, importing: false, message: "" });
+      setNcImport({ loading: false, domains: listRes.data.domains || [], selected, importing: false, message: "", ipHint: "" });
     } catch (e) {
       setNcImport((s) => ({ ...s, loading: false, message: t("common.networkError") }));
     }
@@ -54233,6 +54778,23 @@ ${t("domains.serverIp")}: ${parsed.expected || "—"}`;
       alert(`${t("domains.sslRunError")}: ${e.response?.data?.message || e.message}`);
     } finally {
       setSslRunning(false);
+    }
+  };
+  const reissueSsl = async (domainId, domainName) => {
+    if (!window.confirm(`${t("domains.reissueConfirm", "Are you sure you want to re-issue the SSL certificate for")} ${domainName}?`)) return;
+    setReissuingSsl(domainId);
+    try {
+      const { data } = await cachedPost("reissue_ssl", { id: domainId });
+      if (data.status === "success") {
+        alert(data.message || t("domains.sslIssued", "SSL certificate issued successfully"));
+        fetchDomains();
+      } else {
+        alert(data.message || t("domains.sslError", "Failed to issue SSL certificate"));
+      }
+    } catch (e) {
+      alert(`${t("domains.sslError")}: ${e.response?.data?.message || e.message}`);
+    } finally {
+      setReissuingSsl(null);
     }
   };
   const handleDelete = async (id) => {
@@ -54456,11 +55018,47 @@ ${parked.join("\n")}`);
           /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }),
           " ",
           t("domains.statusDisabled")
-        ] }) : ignoreDnsUi || domain.dns_state === "active" ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "badge badge-success", children: [
+        ] }) : ignoreDnsUi ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "badge badge-success", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14 }),
           " ",
           String(domain.status) === "Active" ? t("domains.statusActive") : t("domains.ok")
-        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        ] }) : domain.dns_state === "active" ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "badge badge-success", children: domain.dns_reason === "cloudflare" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Cloud, { size: 14 }),
+          " ",
+          t("domains.activeCloudflare")
+        ] }) : domain.dns_reason === "local" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14 }),
+          " ",
+          t("domains.activeLocalhost")
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14 }),
+          " ",
+          String(domain.status) === "Active" ? t("domains.statusActive") : t("domains.ok")
+        ] }) }) : domain.dns_state === "pending" && domain.dns_reason === "no_resolve" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            onClick: () => setShowDnsModal(true),
+            className: "badge badge-warning cursor-pointer hover:bg-yellow-500/20 transition",
+            title: t("domains.dnsReasonNoResolve"),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 14 }),
+              " ",
+              t("domains.awaitingDns")
+            ]
+          }
+        ) : domain.dns_state === "pending" && domain.dns_reason?.startsWith("wrong_ip:") ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            onClick: () => setShowDnsModal(true),
+            className: "badge badge-danger cursor-pointer hover:bg-red-500/20 transition",
+            title: t("domains.dnsReasonWrongIp", { ip: domain.dns_reason?.replace("wrong_ip:", "") }),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldAlert, { size: 14 }),
+              " ",
+              t("domains.wrongIp")
+            ]
+          }
+        ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
             onClick: () => setShowDnsModal(true),
@@ -54474,11 +55072,58 @@ ${parked.join("\n")}`);
         ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: domain.index_campaign_name || /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "italic", style: { color: "var(--color-text-muted)" }, children: t("domains.notSelected") }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: domain.https_only ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-green-500 mx-auto" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 16, className: "mx-auto", style: { color: "var(--color-text-muted)" } }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: domain.ssl_status === "cloudflare" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Cloud, { size: 16, className: "mx-auto", style: { color: "var(--color-primary)" }, title: t("domains.sslCloudflare", "SSL от Cloudflare (проксированный домен)") }) : domain.ssl_status === "installed" && domain.https_active === false ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16, className: "text-orange-500 mx-auto", title: t("domains.sslNotWired") }) : domain.ssl_status === "installed" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-green-500 mx-auto", title: t("domains.sslInstalled") }) : domain.ssl_status === "installing" ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "text-blue-500 mx-auto animate-spin", title: t("domains.sslInstalling") }) : domain.ssl_status === "waiting_dns" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "text-yellow-500 mx-auto", title: describeSslError(domain.ssl_error) || t("domains.sslWaitingDns") }) : domain.ssl_status === "failed" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16, className: "text-red-500 mx-auto", title: `${t("domains.sslRetrying")}
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: domain.ssl_status === "cloudflare" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Cloud, { size: 16, className: "mx-auto", style: { color: "var(--color-primary)" }, title: t("domains.sslCloudflare", "SSL от Cloudflare (проксированный домен)") }) : domain.ssl_status === "installed" && domain.https_active === false ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            onClick: () => {
+              setSslErrorDomain(domain);
+              setShowSslErrorModal(true);
+            },
+            className: "mx-auto hover:text-orange-400 transition",
+            style: { background: "none", border: "none", cursor: "pointer" },
+            title: t("domains.sslNotWired"),
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16, className: "text-orange-500" })
+          }
+        ) : domain.ssl_status === "installed" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 16, className: "text-green-500 mx-auto", title: t("domains.sslInstalled") }) : domain.ssl_status === "installing" ? /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: "text-blue-500 mx-auto animate-spin", title: t("domains.sslInstalling") }) : domain.ssl_status === "waiting_dns" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            onClick: () => {
+              setSslErrorDomain(domain);
+              setShowSslErrorModal(true);
+            },
+            className: "mx-auto hover:text-yellow-400 transition",
+            style: { background: "none", border: "none", cursor: "pointer" },
+            title: describeSslError(domain.ssl_error) || t("domains.sslWaitingDns"),
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "text-yellow-500" })
+          }
+        ) : domain.ssl_status === "failed" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            onClick: () => {
+              setSslErrorDomain(domain);
+              setShowSslErrorModal(true);
+            },
+            className: "mx-auto hover:text-red-400 transition",
+            style: { background: "none", border: "none", cursor: "pointer" },
+            title: `${t("domains.sslRetrying")}
 
-${describeSslError(domain.ssl_error)}` }) : domain.ssl_status === "pending" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "text-yellow-500 mx-auto", title: t("domains.sslPending") }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "mx-auto", style: { color: "var(--color-text-muted)" }, title: t("domains.sslPending") }) }),
+${describeSslError(domain.ssl_error)}`,
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16, className: "text-red-500" })
+          }
+        ) : domain.ssl_status === "pending" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "text-yellow-500 mx-auto", title: t("domains.sslPending") }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 16, className: "mx-auto", style: { color: "var(--color-text-muted)" }, title: t("domains.sslPending") }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-xs", style: { color: "var(--color-text-secondary)" }, children: domain.created_at }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-end gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: () => reissueSsl(domain.id, domain.name),
+              disabled: reissuingSsl === domain.id,
+              className: `hover:text-[var(--color-primary)] transition ${reissuingSsl === domain.id ? "text-blue-500" : ""}`,
+              style: { color: reissuingSsl === domain.id ? "var(--color-primary)" : "var(--color-text-muted)", cursor: reissuingSsl === domain.id ? "wait" : "pointer" },
+              title: t("domains.reissueSsl", "Re-issue SSL certificate"),
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16, className: reissuingSsl === domain.id ? "animate-spin" : "" })
+            }
+          ),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(domain), className: "hover:text-[var(--color-primary)] transition", style: { color: "var(--color-text-muted)" }, title: t("components.edit"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { size: 16 }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(domain.id), className: "hover:text-red-500 transition", style: { color: "var(--color-text-muted)" }, title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 16 }) })
         ] }) })
@@ -54919,9 +55564,32 @@ ${describeSslError(domain.ssl_error)}` }) : domain.ssl_status === "pending" ? /*
             }),
             !ncImport.domains.length && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-8", style: { color: "var(--color-text-muted)" }, children: t("namecheap.noDomains", "В аккаунте нет доменов") })
           ] }),
-          ncImport.message && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "alert alert-danger flex items-center gap-2", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16 }),
-            ncImport.message
+          ncImport.message && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "alert alert-danger flex items-start gap-2", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 16, className: "mt-0.5 flex-shrink-0" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: ncImport.message }),
+              ncImport.ipHint && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 flex items-center gap-2 text-xs", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-secondary)" }, children: [
+                  t("namecheap.whitelistIp", "Whitelist IP"),
+                  ":"
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("code", { className: "px-2 py-0.5 rounded font-mono", style: { background: "var(--color-bg-soft)", color: "var(--color-primary)" }, children: ncImport.ipHint }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    onClick: () => {
+                      navigator.clipboard?.writeText(ncImport.ipHint);
+                      setCopiedIp(true);
+                      setTimeout(() => setCopiedIp(false), 2e3);
+                    },
+                    className: "hover:text-[var(--color-primary)] transition",
+                    style: { color: "var(--color-text-secondary)" },
+                    title: t("common.copy"),
+                    children: copiedIp ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14, className: "text-green-500" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 14 })
+                  }
+                )
+              ] })
+            ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-secondary", onClick: () => setShowImport(false), children: t("common.cancel") }),
@@ -54969,6 +55637,64 @@ ${describeSslError(domain.ssl_error)}` }) : domain.ssl_status === "pending" ? /*
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-footer", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowDnsModal(false), className: "btn btn-secondary", children: t("common.close") }) })
+    ] }) }),
+    showSslErrorModal && sslErrorDomain && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content w-full max-w-lg", style: { padding: 0 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "modal-title flex items-center gap-2", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldAlert, { className: "text-red-500" }),
+          " ",
+          t("domains.sslErrorTitle", "SSL Certificate Error")
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowSslErrorModal(false), className: "btn btn-ghost btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 20 }) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-6", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4 pb-4 border-b", style: { borderColor: "var(--color-border)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs uppercase tracking-wider font-semibold mb-1", style: { color: "var(--color-text-secondary)" }, children: t("domains.domain", "Domain") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-mono text-sm", style: { color: "var(--color-text-primary)" }, children: sslErrorDomain.name })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs uppercase tracking-wider font-semibold mb-2 flex items-center gap-2", style: { color: "var(--color-text-secondary)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldAlert, { size: 14, className: "text-red-500" }),
+            t("domains.sslStatus", "SSL Status")
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium", style: {
+            background: sslErrorDomain.ssl_status === "failed" ? "color-mix(in srgb, #ef4444 15%, transparent)" : sslErrorDomain.ssl_status === "waiting_dns" ? "color-mix(in srgb, #eab308 15%, transparent)" : "color-mix(in srgb, #f97316 15%, transparent)",
+            color: sslErrorDomain.ssl_status === "failed" ? "#ef4444" : sslErrorDomain.ssl_status === "waiting_dns" ? "#eab308" : "#f97316"
+          }, children: [
+            sslErrorDomain.ssl_status === "failed" && /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 12 }),
+            sslErrorDomain.ssl_status === "waiting_dns" && /* @__PURE__ */ jsxRuntimeExports.jsx(Clock, { size: 12 }),
+            sslErrorDomain.ssl_status === "failed" ? t("domains.sslFailed", "Failed") : sslErrorDomain.ssl_status === "waiting_dns" ? t("domains.sslWaitingDns", "Waiting for DNS") : t("domains.sslNotWired", "Not Wired")
+          ] })
+        ] }),
+        sslErrorDomain.ssl_error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-xs uppercase tracking-wider font-semibold mb-2 flex items-center gap-2", style: { color: "var(--color-text-secondary)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { size: 14, className: "text-red-500" }),
+            t("domains.errorDetails", "Error Details")
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "rounded p-4 text-sm whitespace-pre-wrap font-mono", style: {
+            background: "var(--color-bg-soft)",
+            border: "1px solid var(--color-border)",
+            color: "var(--color-text-primary)"
+          }, children: describeSslError(sslErrorDomain.ssl_error) })
+        ] }),
+        sslErrorDomain.ssl_status === "waiting_dns" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 p-3 rounded text-xs", style: {
+          background: "color-mix(in srgb, #eab308 10%, transparent)",
+          border: "1px solid color-mix(in srgb, #eab308 25%, transparent)",
+          color: "var(--color-text-primary)"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-medium mb-1", style: { color: "#eab308" }, children: t("domains.sslWaitingDns", "Waiting for DNS") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { color: "var(--color-text-secondary)", lineHeight: 1.5 }, children: t("domains.sslWaitingDnsHint", "The certificate will be issued automatically once DNS propagates. This usually takes 1-5 minutes, but can take up to 24 hours.") })
+        ] }),
+        sslErrorDomain.ssl_status === "failed" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-4 p-3 rounded text-xs", style: {
+          background: "color-mix(in srgb, #ef4444 10%, transparent)",
+          border: "1px solid color-mix(in srgb, #ef4444 25%, transparent)",
+          color: "var(--color-text-primary)"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-medium mb-1", style: { color: "#ef4444" }, children: t("domains.sslAutoRetry", "Automatic Retry") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { color: "var(--color-text-secondary)", lineHeight: 1.5 }, children: t("domains.sslAutoRetryHint", 'The system will automatically retry issuing the certificate. Check back in a few minutes or click "Issue SSL" to force an immediate attempt.') })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-footer", children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowSslErrorModal(false), className: "btn btn-secondary", children: t("common.close", "Close") }) })
     ] }) })
   ] });
 };
@@ -66424,8 +67150,10 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
   const [conversionTypes, setConversionTypes] = reactExports.useState([]);
   const [search, setSearch] = reactExports.useState("");
   const [statusFilter, setStatusFilter] = reactExports.useState("");
-  const [dateFrom, setDateFrom] = reactExports.useState("");
-  const [dateTo, setDateTo] = reactExports.useState("");
+  const todayPreset = getPresetDates("today");
+  const [dateFrom, setDateFrom] = reactExports.useState(todayPreset?.from || formatDate$1(/* @__PURE__ */ new Date()));
+  const [dateTo, setDateTo] = reactExports.useState(todayPreset?.to || formatDate$1(/* @__PURE__ */ new Date()));
+  const [timezone, setTimezone] = reactExports.useState(() => localStorage.getItem("orbitra_tz") || "UTC");
   const [internalCampaignId, setInternalCampaignId] = reactExports.useState("");
   const effectiveCampaignId = propCampaignId !== void 0 ? propCampaignId : internalCampaignId;
   const fetchConversions = async (page = 1) => {
@@ -66561,30 +67289,19 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
           }
         )
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("conversions.dateFrom") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "input",
-          {
-            type: "date",
-            value: dateFrom,
-            onChange: (e) => setDateFrom(e.target.value),
-            className: "form-input"
-          }
-        )
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("conversions.dateTo") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "input",
-          {
-            type: "date",
-            value: dateTo,
-            onChange: (e) => setDateTo(e.target.value),
-            className: "form-input"
-          }
-        )
-      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        DateRangePicker,
+        {
+          dateFrom,
+          dateTo,
+          onChange: (from2, to2) => {
+            setDateFrom(from2);
+            setDateTo(to2);
+          },
+          selectedTimezone: timezone,
+          onTimezoneChange: setTimezone
+        }
+      ),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
@@ -68430,6 +69147,16 @@ const DEFAULT_CUSTOM_COLORS = {
   "--color-bg-card": "#ffffff",
   "--color-text-primary": "#111111"
 };
+const PALETTE_THEMES = [
+  { id: "cobalt", icon: Waves, labelKey: "branding.cobalt", descKey: "branding.cobaltDesc", hoverClass: "hover:border-[#0070d1]", chipClass: "bg-[#e3f0fc] text-[#0070d1]" },
+  { id: "cobalt-dark", icon: Waves, labelKey: "branding.cobaltDark", descKey: "branding.cobaltDarkDesc", hoverClass: "hover:border-[#53b1ff]", chipClass: "bg-[#0f1116] text-[#53b1ff]" },
+  { id: "canary", icon: StickyNote, labelKey: "branding.canary", descKey: "branding.canaryDesc", hoverClass: "hover:border-[#1c1c1e]", chipClass: "bg-[#fff4c4] text-[#1c1c1e]" },
+  { id: "canary-dark", icon: StickyNote, labelKey: "branding.canaryDark", descKey: "branding.canaryDarkDesc", hoverClass: "hover:border-[#ffd02f]", chipClass: "bg-[#26262a] text-[#ffd02f]" },
+  { id: "parchment", icon: Feather, labelKey: "branding.parchment", descKey: "branding.parchmentDesc", hoverClass: "hover:border-[#cf4500]", chipClass: "bg-[#fbeee6] text-[#cf4500]" },
+  { id: "parchment-dark", icon: Feather, labelKey: "branding.parchmentDark", descKey: "branding.parchmentDarkDesc", hoverClass: "hover:border-[#f37338]", chipClass: "bg-[#141413] text-[#f3f0ee]" },
+  { id: "indigo", icon: Gem, labelKey: "branding.indigo", descKey: "branding.indigoDesc", hoverClass: "hover:border-[#5865f2]", chipClass: "bg-[#e0e3ff] text-[#5865f2]" },
+  { id: "indigo-dark", icon: Gem, labelKey: "branding.indigoDark", descKey: "branding.indigoDarkDesc", hoverClass: "hover:border-[#5865f2]", chipClass: "bg-[#1e2353] text-[#5865f2]" }
+];
 const BrandingPage = () => {
   const { t } = useLanguage();
   const [mode, setMode] = reactExports.useState("light");
@@ -68551,6 +69278,25 @@ const BrandingPage = () => {
             ]
           }
         ),
+        PALETTE_THEMES.map((bt) => {
+          const BrandIcon = bt.icon;
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "div",
+            {
+              onClick: () => handleModeChange(bt.id),
+              className: `border-2 rounded-xl p-4 cursor-pointer transition-all flex items-center gap-3 ${mode === bt.id ? "border-[var(--color-primary)] bg-[var(--color-primary-light)]" : `border-[var(--color-border)] ${bt.hoverClass}`}`,
+              style: mode !== bt.id ? { backgroundColor: "var(--color-bg-card)" } : {},
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `p-2 rounded-full ${mode === bt.id ? "bg-[var(--color-primary)] text-[var(--color-text-inverse)]" : bt.chipClass}`, children: /* @__PURE__ */ jsxRuntimeExports.jsx(BrandIcon, { size: 20 }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "font-medium", style: { color: "var(--color-text-primary)" }, children: t(bt.labelKey) }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t(bt.descKey) })
+                ] })
+              ]
+            },
+            bt.id
+          );
+        }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "div",
           {
@@ -69054,7 +69800,8 @@ const GeneralSettings = () => {
     postback_key: "",
     currency: "USD",
     allow_php_landings: "1",
-    php_landing_timeout: "3"
+    php_landing_timeout: "3",
+    server_ip_override: ""
   });
   reactExports.useEffect(() => {
     fetch(`${API_URL$k}?action=global_settings`).then((res) => res.json()).then((data) => {
@@ -69080,7 +69827,8 @@ const GeneralSettings = () => {
             postback_key: settings.postback_key,
             currency: settings.currency,
             allow_php_landings: settings.allow_php_landings,
-            php_landing_timeout: settings.php_landing_timeout
+            php_landing_timeout: settings.php_landing_timeout,
+            server_ip_override: settings.server_ip_override
           }
         })
       });
@@ -69176,6 +69924,21 @@ const GeneralSettings = () => {
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "6px", lineHeight: 1.55 }, children: t("generalSettings.phpLandingTimeoutHint") })
         ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "24px", paddingTop: "20px", borderTop: "1px solid var(--color-border)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("generalSettings.serverIpOverride") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "text",
+            name: "server_ip_override",
+            value: settings.server_ip_override || "",
+            onChange: handleChange,
+            className: "form-input",
+            placeholder: "1.2.3.4"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "12px", color: "var(--color-text-muted)", marginTop: "6px", lineHeight: 1.55 }, children: t("generalSettings.serverIpOverrideHint") })
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { marginTop: "24px", display: "flex", justifyContent: "flex-end" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -69828,6 +70591,8 @@ const ConversionTypesSettings = () => {
   const [formData, setFormData] = reactExports.useState(emptyForm$1);
   const [saving, setSaving] = reactExports.useState(false);
   const [message2, setMessage] = reactExports.useState({ text: "", type: "" });
+  const [unmappedStatuses, setUnmappedStatuses] = reactExports.useState([]);
+  const [unmappedLoading, setUnmappedLoading] = reactExports.useState(false);
   const fetchTypes = async () => {
     try {
       const res = await fetch(`${API_URL$h}?action=conversion_types`).then((r2) => r2.json());
@@ -69840,8 +70605,22 @@ const ConversionTypesSettings = () => {
       setLoading(false);
     }
   };
+  const fetchUnmappedStatuses = async () => {
+    setUnmappedLoading(true);
+    try {
+      const res = await fetch(`${API_URL$h}?action=unmapped_statuses`).then((r2) => r2.json());
+      if (res.status === "success") {
+        setUnmappedStatuses(res.data || []);
+      }
+    } catch (e) {
+      console.error("Error fetching unmapped statuses", e);
+    } finally {
+      setUnmappedLoading(false);
+    }
+  };
   reactExports.useEffect(() => {
     fetchTypes();
+    fetchUnmappedStatuses();
   }, []);
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -69862,9 +70641,32 @@ const ConversionTypesSettings = () => {
       });
       const data = await res.json();
       if (data.status === "success") {
-        setMessage({ text: t("common.success"), type: "success" });
+        const newStatuses = formData.status_values.split(",").map((s) => s.trim()).filter((s) => s);
+        let totalReclassified = 0;
+        for (const status of newStatuses) {
+          try {
+            const remapRes = await fetch(`${API_URL$h}?action=retroactive_remap`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                original_status: status,
+                new_status: formData.name
+              })
+            });
+            const remapData = await remapRes.json();
+            if (remapData.status === "success") {
+              totalReclassified += remapData.data?.affected_conversions || 0;
+            }
+          } catch (e) {
+          }
+        }
+        setMessage({
+          text: totalReclassified > 0 ? t("conversionTypes.mappedSuccessfully", { count: totalReclassified }) : t("common.success"),
+          type: "success"
+        });
         setShowForm(false);
         fetchTypes();
+        fetchUnmappedStatuses();
       } else {
         setMessage({ text: data.message || t("common.error"), type: "error" });
       }
@@ -69897,55 +70699,145 @@ const ConversionTypesSettings = () => {
     setShowForm(true);
     setMessage({ text: "", type: "" });
   };
+  const handleMapUnmapped = async (originalStatus, targetTypeName) => {
+    const targetType = types.find((type) => type.name === targetTypeName);
+    if (!targetType) return;
+    const currentValues = targetType.status_values ? targetType.status_values.split(",").map((v) => v.trim()) : [];
+    if (currentValues.map((v) => v.toLowerCase()).includes(originalStatus.toLowerCase())) {
+      setMessage({ text: t("conversionTypes.alreadyMapped"), type: "error" });
+      return;
+    }
+    const newValues = [...currentValues, originalStatus].join(",");
+    try {
+      const updateRes = await fetch(`${API_URL$h}?action=conversion_types`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...targetType,
+          status_values: newValues
+        })
+      });
+      const updateData = await updateRes.json();
+      if (updateData.status === "success") {
+        const remapRes = await fetch(`${API_URL$h}?action=retroactive_remap`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            original_status: originalStatus,
+            new_status: targetTypeName
+          })
+        });
+        const remapData = await remapRes.json();
+        if (remapData.status === "success") {
+          setMessage({
+            text: t("conversionTypes.mappedSuccessfully", {
+              count: remapData.data?.affected_conversions || 0
+            }),
+            type: "success"
+          });
+        } else {
+          setMessage({ text: remapData.message || t("common.error"), type: "error" });
+        }
+        fetchTypes();
+        fetchUnmappedStatuses();
+      } else {
+        setMessage({ text: updateData.message || t("common.error"), type: "error" });
+      }
+    } catch (error) {
+      setMessage({ text: t("common.networkError"), type: "error" });
+    }
+  };
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t("conversionTypes.loading") }) });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4", children: [
     message2.text && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: `alert ${message2.type === "success" ? "alert-success" : "alert-danger"}`, children: message2.text }),
-    !showForm ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", style: { padding: 0 }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { borderBottom: "1px solid var(--color-border)", marginBottom: 0, padding: "20px 24px" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 18, style: { color: "var(--color-primary)" } }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t("conversionTypes.title") })
+    !showForm ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", style: { padding: 0 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { borderBottom: "1px solid var(--color-border)", marginBottom: 0, padding: "20px 24px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 18, style: { color: "var(--color-primary)" } }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t("conversionTypes.title") })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleNew, className: "btn btn-primary btn-sm", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
+            t("conversionTypes.addType")
+          ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleNew, className: "btn btn-primary btn-sm", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
-          t("conversionTypes.addType")
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("conversionTypes.name") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("conversionTypes.statusMacros") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "center" }, title: t("conversionTypes.conversionTitle"), children: t("conversionTypes.conversion") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "center" }, title: t("conversionTypes.profitTitle"), children: t("conversionTypes.profit") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "center" }, title: t("conversionTypes.s2sTitle"), children: t("conversionTypes.s2s") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "center" }, title: t("conversionTypes.capTitle"), children: t("conversionTypes.cap") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "80px" } })
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: types.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "7", className: "text-center", style: { padding: "32px", color: "var(--color-text-muted)" }, children: t("conversionTypes.noTypes") }) }) : types.map((type) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontWeight: 500 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "inline-flex", alignItems: "center", gap: "8px" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { title: normalizeColor(type.color) || t("conversionTypes.colorNotSet"), style: {
-              width: "10px",
-              height: "10px",
-              borderRadius: "50%",
-              flexShrink: 0,
-              backgroundColor: normalizeColor(type.color) || "transparent",
-              border: normalizeColor(type.color) ? "none" : "2px dashed var(--color-border)"
-            } }),
-            type.name
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("conversionTypes.name") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("conversionTypes.statusMacros") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "center" }, title: t("conversionTypes.conversionTitle"), children: t("conversionTypes.conversion") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "center" }, title: t("conversionTypes.profitTitle"), children: t("conversionTypes.profit") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "center" }, title: t("conversionTypes.s2sTitle"), children: t("conversionTypes.s2s") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "center" }, title: t("conversionTypes.capTitle"), children: t("conversionTypes.cap") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { width: "80px" } })
           ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontFamily: "monospace", fontSize: "12px", color: "var(--color-text-secondary)" }, children: type.status_values }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: type.record_conversion === 1 ? "✅" : "❌" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: type.record_revenue === 1 ? "✅" : "❌" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: type.send_postback === 1 ? "✅" : "❌" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: type.affect_cap === 1 ? "✅" : "❌" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "action-buttons", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(type), className: "action-btn text-blue", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { size: 16 }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(type.id), className: "action-btn text-red", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 16 }) })
-          ] }) })
-        ] }, type.id)) })
-      ] }) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: types.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: "7", className: "text-center", style: { padding: "32px", color: "var(--color-text-muted)" }, children: t("conversionTypes.noTypes") }) }) : types.map((type) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontWeight: 500 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { display: "inline-flex", alignItems: "center", gap: "8px" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { title: normalizeColor(type.color) || t("conversionTypes.colorNotSet"), style: {
+                width: "10px",
+                height: "10px",
+                borderRadius: "50%",
+                flexShrink: 0,
+                backgroundColor: normalizeColor(type.color) || "transparent",
+                border: normalizeColor(type.color) ? "none" : "2px dashed var(--color-border)"
+              } }),
+              type.name
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontFamily: "monospace", fontSize: "12px", color: "var(--color-text-secondary)" }, children: type.status_values }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: type.record_conversion === 1 ? "✅" : "❌" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: type.record_revenue === 1 ? "✅" : "❌" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: type.send_postback === 1 ? "✅" : "❌" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-center", children: type.affect_cap === 1 ? "✅" : "❌" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "action-buttons", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(type), className: "action-btn text-blue", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { size: 16 }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(type.id), className: "action-btn text-red", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { size: 16 }) })
+            ] }) })
+          ] }, type.id)) })
+        ] }) })
+      ] }),
+      !showForm && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", style: { padding: 0 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { borderBottom: "1px solid var(--color-border)", marginBottom: 0, padding: "20px 24px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: t("conversionTypes.unmappedStatuses") }),
+            unmappedLoading && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "12px", color: "var(--color-text-muted)" }, children: t("common.loading") })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: fetchUnmappedStatuses, className: "btn btn-secondary btn-sm", children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 16 }) })
+        ] }),
+        unmappedStatuses.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "32px", textAlign: "center", color: "var(--color-text-muted)" }, children: t("conversionTypes.noUnmappedStatuses") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("conversionTypes.originalStatus") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("conversionTypes.count") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("conversionTypes.firstSeen") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("conversionTypes.lastSeen") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("conversionTypes.mapTo") })
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: unmappedStatuses.map((row, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("code", { style: {
+              background: "var(--color-bg-soft)",
+              padding: "4px 8px",
+              borderRadius: "4px",
+              fontSize: "12px"
+            }, children: row.original_status }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontWeight: 500 }, children: row.count }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)", fontSize: "14px" }, children: row.first_seen ? new Date(row.first_seen).toLocaleString() : "-" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)", fontSize: "14px" }, children: row.last_seen ? new Date(row.last_seen).toLocaleString() : "-" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", gap: "4px", flexWrap: "wrap" }, children: types.filter((t2) => t2.name === "lead" || t2.name === "sale" || t2.name === "rejected" || t2.name === "trash").map((type) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                onClick: () => handleMapUnmapped(row.original_status, type.name),
+                className: "btn btn-secondary btn-sm",
+                style: { fontSize: "12px", padding: "4px 8px" },
+                title: t("conversionTypes.mapToTitle", { type: type.name }),
+                children: t("conversionTypes.mapToBtn", { type: type.name })
+              },
+              type.name
+            )) }) })
+          ] }, row.original_status || idx)) })
+        ] }) })
+      ] })
     ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-header", style: { borderBottom: "1px solid var(--color-border)", marginBottom: 0 }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "page-title", style: { margin: 0 }, children: formData.id ? t("conversionTypes.editType") : t("conversionTypes.newType") }),
@@ -72172,7 +73064,8 @@ const IntegrationsPage = () => {
   const gaPollRef = reactExports.useRef(null);
   const [gaOauthConfigured, setGaOauthConfigured] = reactExports.useState(null);
   const [gaShowHowTo, setGaShowHowTo] = reactExports.useState(false);
-  const [gaAddMode, setGaAddMode] = reactExports.useState("manual");
+  const [gaShowSetupGuide, setGaShowSetupGuide] = reactExports.useState(false);
+  const [gaAddMode, setGaAddMode] = reactExports.useState("oauth");
   const emptyCapiForm = {
     campaign_id: "",
     pixel_profile_id: "",
@@ -74956,31 +75849,176 @@ const IntegrationsPage = () => {
             ] })
           ] })
         ] })
-      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px", alignItems: "center", marginBottom: "16px", flexWrap: "wrap" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
-          setGaForm(emptyGaForm);
-          setGaTest(null);
-          resetGoogleAdsOAuth();
-          setGaSyncInterval(2);
-          setGaMessage(null);
-          setGaAddMode("manual");
-          setGaEditing("new");
-        }, className: "btn btn-primary", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
-          " ",
-          t("googleAdsCosts.addAccount")
+      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "10px", alignItems: "center", marginBottom: "16px", flexWrap: "wrap" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+            setGaForm(emptyGaForm);
+            setGaTest(null);
+            resetGoogleAdsOAuth();
+            setGaSyncInterval(2);
+            setGaMessage(null);
+            setGaAddMode("oauth");
+            setGaEditing("new");
+          }, className: "btn btn-primary", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { size: 16 }),
+            " ",
+            t("googleAdsCosts.addAccount")
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              className: "form-input",
+              style: { maxWidth: "240px" },
+              placeholder: t("googleAdsCosts.findAccount"),
+              value: gaSearch,
+              onChange: (e) => setGaSearch(e.target.value)
+            }
+          )
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "input",
-          {
-            type: "text",
-            className: "form-input",
-            style: { maxWidth: "240px" },
-            placeholder: t("googleAdsCosts.findAccount"),
-            value: gaSearch,
-            onChange: (e) => setGaSearch(e.target.value)
-          }
-        )
+        !gaEditing && gaOauthConfigured === false && visible.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+          padding: "20px",
+          borderRadius: "16px",
+          border: "1px solid var(--color-warning)",
+          background: "var(--color-warning-bg)",
+          marginBottom: "20px"
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "flex-start", gap: "12px", marginBottom: "16px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: {
+              width: "32px",
+              height: "32px",
+              borderRadius: "8px",
+              background: "rgba(66, 133, 244, 0.12)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0
+            }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { fontSize: "18px", fontWeight: "bold", color: "#4285F4" }, children: "G" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flex: 1 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { style: { margin: "0 0 4px 0", fontSize: "14px", fontWeight: 600, color: "var(--color-text-primary)" }, children: t("googleAdsCosts.setupGuideTitle", "🔧 Enable 1-Click Google Ads Connection") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { margin: 0, fontSize: "12px", color: "var(--color-text-muted)" }, children: t("googleAdsCosts.setupGuideSubtitle", "Configure OAuth credentials on your server to enable seamless 1-Click connection. Or use Direct Token Connection below.") })
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px", marginBottom: "16px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                onClick: () => setGaShowSetupGuide(!gaShowSetupGuide),
+                className: "btn btn-secondary btn-sm",
+                style: { fontSize: "11px" },
+                children: [
+                  gaShowSetupGuide ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { size: 12 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { size: 12 }),
+                  gaShowSetupGuide ? t("common.hide") : t("common.showDetails")
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                onClick: () => {
+                  setGaForm(emptyGaForm);
+                  setGaTest(null);
+                  resetGoogleAdsOAuth();
+                  setGaSyncInterval(2);
+                  setGaMessage(null);
+                  setGaAddMode("manual");
+                  setGaEditing("new");
+                },
+                className: "btn btn-primary btn-sm",
+                style: { fontSize: "11px" },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(KeyRound, { size: 12 }),
+                  " ",
+                  t("googleAdsCosts.useManualMode", "Use Manual Token Mode")
+                ]
+              }
+            )
+          ] }),
+          gaShowSetupGuide && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { background: "var(--color-bg-card)", borderRadius: "12px", padding: "16px", marginTop: "12px" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { fontSize: "12px", marginBottom: "12px", fontWeight: 600, color: "var(--color-text-primary)" }, children: t("googleAdsCosts.setupStepsTitle", "📋 Quick Setup Steps") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("ol", { style: { margin: 0, paddingLeft: "18px", fontSize: "11px", color: "var(--color-text-secondary)", lineHeight: "1.8" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { style: { marginBottom: "8px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { style: { color: "var(--color-text-primary)" }, children: t("googleAdsCosts.step1Title", "1. Create Google Cloud Project") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+                t("googleAdsCosts.step1Desc", "Go to console.cloud.google.com, create a project, and enable Google Ads API."),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://console.cloud.google.com/", target: "_blank", rel: "noopener noreferrer", style: { color: "#4285F4", textDecoration: "underline" }, children: "https://console.cloud.google.com/" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { style: { marginBottom: "8px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { style: { color: "var(--color-text-primary)" }, children: t("googleAdsCosts.step2Title", "2. Create OAuth 2.0 Credentials") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+                t("googleAdsCosts.step2Desc", "APIs & Services → Credentials → Create OAuth 2.0 Client ID (Web application)")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { style: { marginBottom: "8px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { style: { color: "var(--color-text-primary)" }, children: t("googleAdsCosts.step3Title", "3. Add Redirect URI") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+                t("googleAdsCosts.step3Desc", "Add this URI to Authorized redirect URIs:"),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { marginTop: "6px", display: "flex", alignItems: "center", gap: "8px" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("code", { style: {
+                    flex: 1,
+                    fontSize: "10px",
+                    fontFamily: "monospace",
+                    color: "var(--color-text-primary)",
+                    background: "var(--color-bg-soft)",
+                    border: "1px solid var(--color-border)",
+                    borderRadius: "6px",
+                    padding: "6px 10px",
+                    wordBreak: "break-all"
+                  }, children: [
+                    trackerUrl,
+                    "/api.php?action=google_ads_oauth_callback"
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      onClick: () => copyToClipboard$1(`${trackerUrl}/api.php?action=google_ads_oauth_callback`, "ga_setup_cb"),
+                      className: "btn btn-secondary btn-sm",
+                      style: { fontSize: "10px", flexShrink: 0 },
+                      children: copied === "ga_setup_cb" ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircleCheck, { size: 12, style: { color: "var(--color-success)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { size: 12 })
+                    }
+                  )
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { style: { marginBottom: "8px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { style: { color: "var(--color-text-primary)" }, children: t("googleAdsCosts.step4Title", "4. Get Developer Token") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+                t("googleAdsCosts.step4Desc", "Go to Google Ads API Center and apply for Developer Token."),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "https://ads.google.com/aw/apicenter", target: "_blank", rel: "noopener noreferrer", style: { color: "#4285F4", textDecoration: "underline" }, children: "https://ads.google.com/aw/apicenter" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { style: { marginBottom: "8px" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { style: { color: "var(--color-text-primary)" }, children: t("googleAdsCosts.step5Title", "5. Configure Environment Variables") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+                t("googleAdsCosts.step5Desc", "Add these to your server environment or .env file:"),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+                  marginTop: "8px",
+                  background: "#1e1e1e",
+                  borderRadius: "8px",
+                  padding: "12px",
+                  fontSize: "10px",
+                  fontFamily: "monospace",
+                  color: "#d4d4d4",
+                  overflow: "auto"
+                }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: "ORBITRA_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: "ORBITRA_GOOGLE_CLIENT_SECRET=your-client-secret" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: "ORBITRA_GOOGLE_DEVELOPER_TOKEN=your-developer-token" })
+                ] })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+              marginTop: "12px",
+              padding: "10px",
+              background: "rgba(66, 133, 244, 0.08)",
+              borderRadius: "8px",
+              fontSize: "11px",
+              color: "var(--color-text-secondary)"
+            }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Info, { size: 14, style: { verticalAlign: "middle", marginRight: "6px", color: "#4285F4" } }),
+              t("googleAdsCosts.setupNote", 'After configuration, reload this page and the "Sign in with Google" button will work instantly.')
+            ] })
+          ] })
+        ] })
       ] }),
       gaLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex justify-center py-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2", style: { borderColor: "var(--color-primary)" } }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", style: { marginTop: gaEditing ? "20px" : 0 }, children: [
         visible.map((conn) => {
@@ -78676,20 +79714,46 @@ const LogsPage = () => {
         return /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colTime") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colSourceIp") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colClickId") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colCampaign") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colStatus") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colOrigStatus") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("logs.colPayout") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("logs.colPayout") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colResult") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colError") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colSource") })
           ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: logs.map((log, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.created_at }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-mono text-xs", children: log.click_id }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.campaign_name || "-" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `status-badge ${log.status === "sale" || log.status === "lead" ? "status-active" : "status-inactive"}`, children: log.status }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.original_status || "-" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `text-right font-medium ${log.payout > 0 ? "text-[var(--color-success)]" : "text-[var(--color-text-muted)]"}`, children: parseFloat(log.payout) > 0 ? `${log.payout} ${log.currency}` : "0.00" })
-          ] }, i)) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: logs.map((log, i) => {
+            const resultLabels = {
+              recorded: t("logs.resultRecorded"),
+              updated: t("logs.resultUpdated"),
+              rejected: t("logs.resultRejected"),
+              error: t("logs.resultError")
+            };
+            const resultClasses = {
+              recorded: "status-active",
+              updated: "status-pending",
+              rejected: "status-inactive",
+              error: "status-inactive"
+            };
+            const sourceLabels = {
+              postback: t("logs.sourcePostback"),
+              pixel: t("logs.sourcePixel")
+            };
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.created_at }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-mono text-xs", children: log.remote_ip || "-" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-mono text-xs", children: log.click_id || "-" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.campaign_name || "-" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.status ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `status-badge ${log.status === "sale" || log.status === "lead" ? "status-active" : "status-inactive"}`, children: log.status }) : "-" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.original_status || "-" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `text-right font-medium ${log.payout > 0 ? "text-[var(--color-success)]" : "text-[var(--color-text-muted)]"}`, children: parseFloat(log.payout) > 0 ? `${log.payout} ${log.currency}` : "0.00" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `status-badge ${resultClasses[log.result] || "status-inactive"}`, children: resultLabels[log.result] || log.result }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "truncate max-w-xs", title: log.error || "", children: log.error || "-" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-[var(--color-text-muted)]", children: sourceLabels[log.source] || log.source }) })
+            ] }, i);
+          }) })
         ] });
       case "system":
         return /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
@@ -81597,6 +82661,14 @@ const AdminPage = ({ page }) => {
 };
 Chart$1.register(CategoryScale, LinearScale, PointElement, LineElement, plugin_title, plugin_tooltip, plugin_legend, index$2);
 const API_URL$4 = "/api.php";
+const useDebounce$1 = (value, delay) => {
+  const [debouncedValue, setDebouncedValue] = reactExports.useState(value);
+  reactExports.useEffect(() => {
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debouncedValue;
+};
 const LOCALE_TAGS = {
   ru: "ru-RU",
   en: "en-US",
@@ -81643,6 +82715,8 @@ const CohortView = () => {
   const [loading, setLoading] = reactExports.useState(true);
   const [data, setData] = reactExports.useState(null);
   const [error, setError] = reactExports.useState("");
+  const debouncedDateFrom = useDebounce$1(dateFrom, 500);
+  const debouncedDateTo = useDebounce$1(dateTo, 500);
   const availableMetrics = reactExports.useMemo(() => [
     { key: "revenue", label: t("cohort.revenue") },
     { key: "real_revenue", label: t("cohort.realRevenue") },
@@ -81655,15 +82729,15 @@ const CohortView = () => {
     { key: "cr", label: t("cohort.cr") },
     { key: "campaigns_active", label: t("cohort.campaignsActive") }
   ], [t]);
-  const fetchCohort = async () => {
+  const fetchCohort = reactExports.useCallback(async () => {
     setLoading(true);
     setError("");
     try {
       const params = new URLSearchParams({
         action: "cohort",
         granularity,
-        date_from: dateFrom,
-        date_to: dateTo
+        date_from: debouncedDateFrom,
+        date_to: debouncedDateTo
       });
       const res = await fetch(`${API_URL$4}?${params}`);
       const json = await res.json();
@@ -81680,10 +82754,10 @@ const CohortView = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [granularity, debouncedDateFrom, debouncedDateTo]);
   reactExports.useEffect(() => {
     fetchCohort();
-  }, [granularity, dateFrom, dateTo]);
+  }, [granularity, debouncedDateFrom, debouncedDateTo]);
   const { matrix, cohortLabels, maxPeriod } = reactExports.useMemo(() => {
     if (!data || !data.rows || data.rows.length === 0) {
       return { matrix: {}, cohortLabels: [], maxPeriod: 0 };
@@ -82113,6 +83187,14 @@ const CohortView = () => {
 };
 Chart$1.register(CategoryScale, LinearScale, PointElement, LineElement, plugin_title, plugin_tooltip, plugin_legend, index$2);
 const API_URL$3 = "/api.php";
+const useDebounce = (value, delay) => {
+  const [debouncedValue, setDebouncedValue] = reactExports.useState(value);
+  reactExports.useEffect(() => {
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debouncedValue;
+};
 const TrendsPage = () => {
   const { t } = useLanguage();
   const [view, setView] = reactExports.useState(() => localStorage.getItem("orbitra_analytics_view") || "trend");
@@ -82123,7 +83205,7 @@ const TrendsPage = () => {
   const [groupBy, setGroupBy] = reactExports.useState("day");
   const [dateFrom, setDateFrom] = reactExports.useState(() => {
     const d = /* @__PURE__ */ new Date();
-    d.setDate(d.getDate() - 7);
+    d.setDate(d.getDate() - 3);
     return d.toISOString().split("T")[0];
   });
   const [dateTo, setDateTo] = reactExports.useState(() => (/* @__PURE__ */ new Date()).toISOString().split("T")[0]);
@@ -82134,6 +83216,8 @@ const TrendsPage = () => {
   const [loading, setLoading] = reactExports.useState(true);
   const [chartData, setChartData] = reactExports.useState(null);
   const [tableData, setTableData] = reactExports.useState([]);
+  const debouncedDateFrom = useDebounce(dateFrom, 500);
+  const debouncedDateTo = useDebounce(dateTo, 500);
   const availableMetrics = [
     { key: "clicks", label: t("trends.clicks"), color: "#3B82F6" },
     { key: "unique_clicks", label: t("trends.uniqueClicks"), color: "#10B981" },
@@ -82171,8 +83255,8 @@ const TrendsPage = () => {
       const params = new URLSearchParams({
         action: "trends",
         group_by: groupBy,
-        date_from: dateFrom,
-        date_to: dateTo,
+        date_from: debouncedDateFrom,
+        date_to: debouncedDateTo,
         metrics: selectedMetrics.join(","),
         filters: JSON.stringify(filters)
       });
@@ -82197,7 +83281,7 @@ const TrendsPage = () => {
   };
   reactExports.useEffect(() => {
     fetchTrends();
-  }, [groupBy, dateFrom, dateTo, JSON.stringify(filters)]);
+  }, [groupBy, debouncedDateFrom, debouncedDateTo, JSON.stringify(filters)]);
   const addFilter = () => {
     if (newFilter.value.trim()) {
       setFilters([...filters, { ...newFilter, id: Date.now() }]);
@@ -82347,14 +83431,14 @@ const TrendsPage = () => {
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("trends.period") }),
-          selectedMetrics.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: availableMetrics.find((am) => am.key === m)?.label || m }, m))
+          selectedMetrics.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: { textAlign: "right" }, children: availableMetrics.find((am) => am.key === m)?.label || m }, m))
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: selectedMetrics.length + 1, className: "text-center", style: { padding: "32px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "empty-state", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { color: "var(--color-text-muted)" }, children: t("trends.loading") }) }) }) }) : tableData.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: selectedMetrics.length + 1, className: "text-center", style: { padding: "32px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("trends.noDataTitle") }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("trends.noDataPeriod") })
         ] }) }) }) : tableData.map((row, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { fontWeight: 500 }, children: row.period }),
-          selectedMetrics.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", style: { color: "var(--color-text-secondary)" }, children: m === "revenue" || m === "real_revenue" || m === "cost" || m === "profit" ? `$${Number(row[m] || 0).toFixed(2)}` : m === "ctr" || m === "cr" || m === "real_roi" ? `${Number(row[m] || 0).toFixed(2)}%` : Number(row[m] || 0).toLocaleString("ru-RU") }, m))
+          selectedMetrics.map((m) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", color: "var(--color-text-secondary)" }, children: m === "revenue" || m === "real_revenue" || m === "cost" || m === "profit" ? `$${Number(row[m] || 0).toFixed(2)}` : m === "ctr" || m === "cr" || m === "real_roi" ? `${Number(row[m] || 0).toFixed(2)}%` : Number(row[m] || 0).toLocaleString("ru-RU") }, m))
         ] }, idx)) })
       ] }) })
     ] }),
@@ -99768,7 +100852,7 @@ function App() {
     const applyTheme = () => {
       const savedMode = localStorage.getItem("orbitra_mode") || "light";
       const root = document.documentElement;
-      if (["dark", "green", "neon", "custom"].includes(savedMode)) {
+      if (["dark", "green", "neon", "cobalt", "cobalt-dark", "canary", "canary-dark", "parchment", "parchment-dark", "indigo", "indigo-dark", "custom"].includes(savedMode)) {
         root.setAttribute("data-theme", savedMode);
         root.setAttribute("data-mode", savedMode);
       } else {

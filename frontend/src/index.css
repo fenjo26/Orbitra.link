@@ -191,6 +191,323 @@
   border-bottom: 1px solid rgba(163, 230, 53, 0.1);
 }
 
+/* ─── Palette themes — color schemes ported from the DESIGN-*.md analyses.
+   Fonts are NOT swapped: the source palettes assume proprietary brand
+   faces whose own docs list Inter as the sanctioned stand-in — which is
+   already this app's stack. Palette vars only. */
+
+/* Cobalt Light — signal blue #0070d1 on white, airy minimal chrome (DESIGN-playstation.md) */
+[data-theme="cobalt"] {
+  --color-bg-main: #f3f3f3;
+  --color-bg-card: #ffffff;
+  --color-bg-sidebar: #f3f3f3;
+  --color-bg-hover: #ececec;
+  --color-bg-soft: #f5f7fa;
+  --color-bg-dropdown: #ffffff;
+
+  --color-text-primary: #000000;
+  --color-text-secondary: rgba(0, 0, 0, 0.6);
+  --color-text-muted: #6b6b6b;
+  --color-text-inverse: #ffffff;
+
+  --color-primary: #0070d1;
+  --color-primary-hover: #0064b7;
+  --color-primary-light: #e3f0fc;
+  --color-primary-shadow: rgba(0, 112, 209, 0.22);
+
+  --color-border: #e8e8e8;
+  --color-border-dark: #e0e0e0;
+
+  --shadow-main: 0 4px 16px rgba(0, 0, 0, 0.05);
+  --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.03);
+
+  --color-bg-header: #ffffff;
+  --color-text-header: #000000;
+}
+
+/* Cobalt Dark — signal blue on the pure-black canvas (DESIGN-playstation.md) */
+[data-theme="cobalt-dark"] {
+  --color-bg-main: #000000;
+  --color-bg-card: #121314;
+  --color-bg-sidebar: #121314;
+  --color-bg-hover: #1f2024;
+  --color-bg-soft: #181818;
+  --color-bg-dropdown: #181818;
+
+  --color-text-primary: #ffffff;
+  --color-text-secondary: rgba(255, 255, 255, 0.7);
+  --color-text-muted: rgba(229, 229, 229, 0.55);
+  --color-text-inverse: #ffffff;
+
+  --color-primary: #0070d1;
+  --color-primary-hover: #0064b7;
+  --color-primary-light: rgba(0, 112, 209, 0.16);
+  --color-primary-shadow: rgba(0, 112, 209, 0.25);
+
+  --color-border: #26282c;
+  --color-border-dark: #26282c;
+
+  --shadow-main: 0 10px 30px rgba(0, 0, 0, 0.6);
+  --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.4);
+
+  --color-warning: #f59e0b;
+  --color-warning-bg: rgba(245, 158, 11, 0.12);
+  --color-warning-border: rgba(245, 158, 11, 0.35);
+  --color-danger: #ef4444;
+  --color-danger-bg: rgba(239, 68, 68, 0.12);
+  --color-danger-border: rgba(239, 68, 68, 0.35);
+  --color-success: #10b981;
+  --color-success-bg: rgba(16, 185, 129, 0.12);
+  --color-success-border: rgba(16, 185, 129, 0.35);
+  --color-info: #3b82f6;
+  --color-info-bg: rgba(59, 130, 246, 0.12);
+  --color-info-border: rgba(59, 130, 246, 0.35);
+
+  --color-bg-header: #121314;
+  --color-text-header: #ffffff;
+}
+
+[data-theme="cobalt-dark"] .navbar-header {
+  background: rgba(18, 19, 20, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Canary Light — black-pill CTAs, canary-yellow accent on white (DESIGN-miro.md) */
+[data-theme="canary"] {
+  --color-bg-main: #f7f8fa;
+  --color-bg-card: #ffffff;
+  --color-bg-sidebar: #f7f8fa;
+  --color-bg-hover: #f0f1f5;
+  --color-bg-soft: #fafbfc;
+  --color-bg-dropdown: #ffffff;
+
+  --color-text-primary: #1c1c1e;
+  --color-text-secondary: #555a6a;
+  --color-text-muted: #a5a8b5;
+  --color-text-inverse: #ffffff;
+
+  --color-primary: #1c1c1e;
+  --color-primary-hover: #2c2c34;
+  --color-primary-light: rgba(28, 28, 30, 0.08);
+  --color-primary-shadow: rgba(28, 28, 30, 0.2);
+
+  --color-border: #e0e2e8;
+  --color-border-dark: #c7cad5;
+
+  --shadow-main: 0 4px 12px rgba(5, 0, 56, 0.06);
+  --shadow-soft: 0 1px 2px rgba(5, 0, 56, 0.04);
+
+  --color-bg-header: #ffffff;
+  --color-text-header: #1c1c1e;
+}
+
+/* Canary Dark — canary yellow on warm charcoal (DESIGN-miro.md) */
+[data-theme="canary-dark"] {
+  --color-bg-main: #161719;
+  --color-bg-card: #1c1c1e;
+  --color-bg-sidebar: #1c1c1e;
+  --color-bg-hover: #2c2c34;
+  --color-bg-soft: #232326;
+  --color-bg-dropdown: #232326;
+
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #a5a8b5;
+  --color-text-muted: #6b6f7e;
+  --color-text-inverse: #000000;
+
+  --color-primary: #ffd02f;
+  --color-primary-hover: #fcb900;
+  --color-primary-light: rgba(255, 208, 47, 0.14);
+  --color-primary-shadow: rgba(255, 208, 47, 0.2);
+
+  --color-border: #2e2f33;
+  --color-border-dark: #2e2f33;
+
+  --shadow-main: 0 10px 30px rgba(0, 0, 0, 0.6);
+  --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.4);
+
+  --color-warning: #f59e0b;
+  --color-warning-bg: rgba(245, 158, 11, 0.12);
+  --color-warning-border: rgba(245, 158, 11, 0.35);
+  --color-danger: #ef4444;
+  --color-danger-bg: rgba(239, 68, 68, 0.12);
+  --color-danger-border: rgba(239, 68, 68, 0.35);
+  --color-success: #00b473;
+  --color-success-bg: rgba(0, 180, 115, 0.12);
+  --color-success-border: rgba(0, 180, 115, 0.35);
+  --color-info: #4262ff;
+  --color-info-bg: rgba(66, 98, 255, 0.12);
+  --color-info-border: rgba(66, 98, 255, 0.35);
+
+  --color-bg-header: #1c1c1e;
+  --color-text-header: #ffffff;
+}
+
+[data-theme="canary-dark"] .navbar-header {
+  background: rgba(28, 28, 30, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 208, 47, 0.08);
+}
+
+/* Parchment Light — warm putty-cream canvas, ink-black pill CTAs (DESIGN-mastercard.md) */
+[data-theme="parchment"] {
+  --color-bg-main: #f3f0ee;
+  --color-bg-card: #fcfbfa;
+  --color-bg-sidebar: #f3f0ee;
+  --color-bg-hover: #eae6e1;
+  --color-bg-soft: #f7f5f3;
+  --color-bg-dropdown: #fcfbfa;
+
+  --color-text-primary: #141413;
+  --color-text-secondary: #696969;
+  --color-text-muted: #8f8a83;
+  --color-text-inverse: #f3f0ee;
+
+  --color-primary: #141413;
+  --color-primary-hover: #262627;
+  --color-primary-light: rgba(20, 20, 19, 0.07);
+  --color-primary-shadow: rgba(20, 20, 19, 0.18);
+
+  --color-border: #e5e1dc;
+  --color-border-dark: #d1cdc7;
+
+  --shadow-main: 0 4px 24px rgba(0, 0, 0, 0.04);
+  --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.03);
+
+  --color-bg-header: #fcfbfa;
+  --color-text-header: #141413;
+}
+
+/* Parchment Dark — ink canvas, cream elevated surfaces (DESIGN-mastercard.md) */
+[data-theme="parchment-dark"] {
+  --color-bg-main: #141413;
+  --color-bg-card: #1e1e1d;
+  --color-bg-sidebar: #141413;
+  --color-bg-hover: #262625;
+  --color-bg-soft: #1a1a19;
+  --color-bg-dropdown: #1e1e1d;
+
+  --color-text-primary: #f3f0ee;
+  --color-text-secondary: #a8a49d;
+  --color-text-muted: #6e6b66;
+  --color-text-inverse: #141413;
+
+  --color-primary: #fcfbfa;
+  --color-primary-hover: #ffffff;
+  --color-primary-light: rgba(252, 251, 250, 0.1);
+  --color-primary-shadow: rgba(252, 251, 250, 0.12);
+
+  --color-border: #2b2b29;
+  --color-border-dark: #2b2b29;
+
+  --shadow-main: 0 10px 30px rgba(0, 0, 0, 0.55);
+  --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.35);
+
+  --color-warning: #f59e0b;
+  --color-warning-bg: rgba(245, 158, 11, 0.12);
+  --color-warning-border: rgba(245, 158, 11, 0.35);
+  --color-danger: #ef4444;
+  --color-danger-bg: rgba(239, 68, 68, 0.12);
+  --color-danger-border: rgba(239, 68, 68, 0.35);
+  --color-success: #10b981;
+  --color-success-bg: rgba(16, 185, 129, 0.12);
+  --color-success-border: rgba(16, 185, 129, 0.35);
+  --color-info: #3860be;
+  --color-info-bg: rgba(56, 96, 190, 0.14);
+  --color-info-border: rgba(56, 96, 190, 0.35);
+
+  --color-bg-header: #1a1a19;
+  --color-text-header: #f3f0ee;
+}
+
+[data-theme="parchment-dark"] .navbar-header {
+  background: rgba(20, 20, 19, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(243, 240, 238, 0.06);
+}
+
+/* Indigo Light — violet-blue accents on a clean light canvas (DESIGN-discord.md) */
+[data-theme="indigo"] {
+  --color-bg-main: #f2f3f5;
+  --color-bg-card: #ffffff;
+  --color-bg-sidebar: #f2f3f5;
+  --color-bg-hover: #e3e5e8;
+  --color-bg-soft: #ebedef;
+  --color-bg-dropdown: #ffffff;
+
+  --color-text-primary: #1e1f22;
+  --color-text-secondary: #4e5058;
+  --color-text-muted: #80848e;
+  --color-text-inverse: #ffffff;
+
+  --color-primary: #5865f2;
+  --color-primary-hover: #4752c4;
+  --color-primary-light: rgba(88, 101, 242, 0.1);
+  --color-primary-shadow: rgba(88, 101, 242, 0.25);
+
+  --color-border: #e3e5e8;
+  --color-border-dark: #d6d8dc;
+
+  --shadow-main: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-soft: 0 2px 6px rgba(0, 0, 0, 0.04);
+
+  --color-bg-header: #ffffff;
+  --color-text-header: #1e1f22;
+}
+
+/* Indigo Dark — violet-blue on the deep-indigo canvas (DESIGN-discord.md) */
+[data-theme="indigo-dark"] {
+  --color-bg-main: #0a0d3a;
+  --color-bg-card: #1e2353;
+  --color-bg-sidebar: #161a44;
+  --color-bg-hover: #272c62;
+  --color-bg-soft: #232865;
+  --color-bg-dropdown: #232865;
+
+  --color-text-primary: #ffffff;
+  --color-text-secondary: rgba(255, 255, 255, 0.72);
+  --color-text-muted: rgba(255, 255, 255, 0.45);
+  --color-text-inverse: #ffffff;
+
+  --color-primary: #5865f2;
+  --color-primary-hover: #4752c4;
+  --color-primary-light: rgba(88, 101, 242, 0.22);
+  --color-primary-shadow: rgba(88, 101, 242, 0.35);
+
+  --color-border: #2e335f;
+  --color-border-dark: #2e335f;
+
+  --shadow-main: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+  --color-warning: #fbbf24;
+  --color-warning-bg: rgba(251, 191, 36, 0.15);
+  --color-warning-border: rgba(251, 191, 36, 0.4);
+  --color-danger: #f87171;
+  --color-danger-bg: rgba(248, 113, 113, 0.15);
+  --color-danger-border: rgba(248, 113, 113, 0.4);
+  --color-success: #35ed7e;
+  --color-success-bg: rgba(53, 237, 126, 0.12);
+  --color-success-border: rgba(53, 237, 126, 0.4);
+  --color-info: #00b0f4;
+  --color-info-bg: rgba(0, 176, 244, 0.12);
+  --color-info-border: rgba(0, 176, 244, 0.4);
+
+  --color-bg-header: rgba(10, 13, 58, 0.85);
+  --color-text-header: #ffffff;
+}
+
+[data-theme="indigo-dark"] .navbar-header {
+  background: rgba(10, 13, 58, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(88, 101, 242, 0.15);
+}
+
 body {
   font-family: "Inter", "SF Pro Display", "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   background-color: var(--color-bg-main);

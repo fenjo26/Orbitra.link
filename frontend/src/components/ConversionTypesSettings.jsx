@@ -229,6 +229,7 @@ const ConversionTypesSettings = () => {
             )}
 
             {!showForm ? (
+                <>
                 <div className="page-card" style={{ padding: 0 }}>
                     <div className="page-header" style={{ borderBottom: '1px solid var(--color-border)', marginBottom: 0, padding: '20px 24px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -376,6 +377,7 @@ const ConversionTypesSettings = () => {
                         )}
                     </div>
                 )}
+                </>
             ) : (
                 <div className="page-card">
                     <div className="page-header" style={{ borderBottom: '1px solid var(--color-border)', marginBottom: 0 }}>

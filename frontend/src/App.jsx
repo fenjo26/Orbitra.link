@@ -230,7 +230,7 @@ function App() {
       const savedMode = localStorage.getItem('orbitra_mode') || 'light';
       const root = document.documentElement;
 
-      if (['dark', 'green', 'neon', 'custom'].includes(savedMode)) {
+      if (['dark', 'green', 'neon', 'cobalt', 'cobalt-dark', 'canary', 'canary-dark', 'parchment', 'parchment-dark', 'indigo', 'indigo-dark', 'custom'].includes(savedMode)) {
         root.setAttribute('data-theme', savedMode);
         root.setAttribute('data-mode', savedMode);
       } else {
