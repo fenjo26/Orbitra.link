@@ -1046,13 +1046,44 @@ function lf_request_value(array $keys): string {
 }
 
 function lf_get_ip(): string {
-    foreach (['HTTP_CF_CONNECTING_IP', 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'REMOTE_ADDR'] as $k) {
-        if (!empty($_SERVER[$k])) {
-            $ip = trim(explode(',', (string) $_SERVER[$k])[0]);
-            if (filter_var($ip, FILTER_VALIDATE_IP) !== false) return $ip;
+    $remote = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+
+    // Trust CF-Connecting-IP only when REMOTE_ADDR is in Cloudflare ranges.
+    $cfIp = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? '';
+    if ($cfIp !== '') {
+        $candidate = trim(explode(',', $cfIp)[0]);
+        if (filter_var($candidate, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false) {
+            // Check if REMOTE_ADDR is in Cloudflare ranges (2025-01)
+            $cfRanges = ['173.245.48.0/20', '103.21.244.0/22', '103.22.200.0/22', '103.31.4.0/22', '141.101.64.0/18', '108.162.192.0/18', '190.93.240.0/20', '188.114.96.0/20', '197.234.240.0/22', '198.41.128.0/17', '162.158.0.0/15', '104.16.0.0/13', '104.24.0.0/14', '172.64.0.0/13', '131.0.72.0/22'];
+            $isCf = false;
+            foreach ($cfRanges as $range) {
+                $parts = explode('/', $range, 2);
+                if (count($parts) === 2) {
+                    $rangeDec = ip2long($parts[0]);
+                    $ipDec = ip2long($remote);
+                    $mask = -1 << (32 - (int)$parts[1]);
+                    if ($rangeDec !== false && $ipDec !== false && ($ipDec & $mask) === ($rangeDec & $mask)) {
+                        $isCf = true;
+                        break;
+                    }
+                }
+            }
+            if ($isCf) {
+                return $candidate;
+            }
         }
     }
-    return '127.0.0.1';
+
+    // Fallback: X-Forwarded-For (leftmost IP only, reject private ranges)
+    $xff = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '';
+    if ($xff !== '') {
+        $candidate = trim(explode(',', $xff)[0]);
+        if (filter_var($candidate, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false) {
+            return $candidate;
+        }
+    }
+
+    return $remote;
 }
 
 function lf_all_geo_rules(): array {

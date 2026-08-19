@@ -28,24 +28,9 @@ require_once __DIR__ . '/core/prefetch.php';
 // executes inside this process and calls orbitraCrmRecordLead() directly, and
 // the public /crm-ingest route answers stand-alone landings deployed elsewhere.
 require_once __DIR__ . '/core/CrmVault.php';
+// IP access control with secure Cloudflare-aware client IP resolution.
+require_once __DIR__ . '/core/ip_access.php';
 require_once __DIR__ . '/session_bootstrap.php';
-
-// Получение реального IP адреса
-function getClientIp()
-{
-    $ipKeys = ['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR'];
-    foreach ($ipKeys as $key) {
-        if (array_key_exists($key, $_SERVER) === true) {
-            foreach (explode(',', $_SERVER[$key]) as $ip) {
-                $ip = trim($ip);
-                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false) {
-                    return $ip;
-                }
-            }
-        }
-    }
-    return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-}
 
 function normalizeGeoString($value, $default = '')
 {
@@ -1898,7 +1883,7 @@ if ($uriPath === '/crm-ingest') {
         echo json_encode(['status' => 'error', 'message' => 'JSON body required']);
         exit;
     }
-    $ingest['ip'] = $ingest['ip'] ?? getClientIp();
+    $ingest['ip'] = $ingest['ip'] ?? orbitraClientIp();
     $ingest['user_agent'] = $ingest['user_agent'] ?? ($_SERVER['HTTP_USER_AGENT'] ?? '');
     $res = orbitraCrmRecordLead($pdo, $ingest, false);
     echo json_encode(['status' => $res['ok'] ? 'success' : 'error', 'message' => $res['message'], 'data' => ['lead_id' => $res['lead_id']]]);
@@ -2208,7 +2193,7 @@ if (strtolower((string) ($campaign['state'] ?? 'active')) === 'disabled') {
 $campaignId = $campaign['id'];
 
 // 2. Сбор данных
-$ip = getClientIp();
+$ip = orbitraClientIp();
 $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $referer = $_SERVER['HTTP_REFERER'] ?? '';
 $geoData = getGeoData($ip);

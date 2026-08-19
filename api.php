@@ -6239,7 +6239,9 @@ try {
                         cl.device_type,
                         cl.user_agent,
                         o.url as redirect_url,
-                        '' as subid
+                        CASE WHEN json_valid(cl.parameters_json)
+                             THEN COALESCE(json_extract(cl.parameters_json, '$.sub_id_1'), '')
+                             ELSE '' END as subid
                     FROM clicks cl
                     LEFT JOIN campaigns c ON cl.campaign_id = c.id
                     LEFT JOIN offers o ON cl.offer_id = o.id

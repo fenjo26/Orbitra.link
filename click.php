@@ -17,6 +17,8 @@ require_once __DIR__ . '/core/CloakDetector.php';
 // Same prefetch guard as the main click path — a speculative request here would
 // otherwise be counted as a real click.
 require_once __DIR__ . '/core/prefetch.php';
+// IP access control with secure Cloudflare-aware client IP resolution.
+require_once __DIR__ . '/core/ip_access.php';
 require_once __DIR__ . '/session_bootstrap.php';
 
 // ignore_prefetch is read before any campaign lookup so a dropped request never
@@ -75,23 +77,6 @@ if (!empty($campaign['token'])) {
         echo json_encode(['error' => 'invalid token']);
         exit;
     }
-}
-
-// --- Collect visitor data ---
-function clickGetClientIp()
-{
-    $ipKeys = ['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR'];
-    foreach ($ipKeys as $key) {
-        if (!empty($_SERVER[$key])) {
-            foreach (explode(',', $_SERVER[$key]) as $ip) {
-                $ip = trim($ip);
-                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false) {
-                    return $ip;
-                }
-            }
-        }
-    }
-    return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
 }
 
 function clickNormalizeGeoString($value, $default = '')
@@ -333,7 +318,7 @@ function clickGenerateUuid()
     return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
 }
 
-$ip = clickGetClientIp();
+$ip = orbitraClientIp();
 $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $referer = $_SERVER['HTTP_REFERER'] ?? '';
 

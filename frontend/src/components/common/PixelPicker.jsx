@@ -35,8 +35,9 @@ export const PixelPicker = ({ label, value, profileId, trafficSource, resolveSer
 
     useEffect(() => { fetchProfiles(); }, [fetchProfiles]);
 
+    // Show all profiles matching the traffic source, including inactive ones (like Pixel Vault does)
     const savedProfiles = profiles.filter(profile =>
-        (!trafficSource || profile.traffic_source === trafficSource) && Number(profile.is_active ?? 1) === 1
+        !trafficSource || profile.traffic_source === trafficSource
     );
     const matched = savedProfiles.find(profile =>
         (profileId && String(profile.id) === String(profileId)) ||
@@ -44,8 +45,12 @@ export const PixelPicker = ({ label, value, profileId, trafficSource, resolveSer
     );
     // Vault profiles from several networks can appear in one unfiltered picker
     // (the campaign editor), so each option spells out its source.
+    // Inactive pixels are marked with [inactive] like Pixel Vault shows them with reduced opacity.
     const sourceLabels = { facebook: 'Facebook', tiktok: 'TikTok', google_ads: 'Google Ads', snapchat: 'Snapchat', pinterest: 'Pinterest' };
-    const optionLabel = px => `${px.pixel_id} ( ${sourceLabels[px.traffic_source] || px.traffic_source || 'Facebook'} · ${px.niche || '—'} / ${px.name || '—'} )`;
+    const optionLabel = px => {
+        const base = `${px.pixel_id} ( ${sourceLabels[px.traffic_source] || px.traffic_source || 'Facebook'} · ${px.niche || '—'} / ${px.name || '—'} )`;
+        return Number(px.is_active ?? 1) === 1 ? base : `${base} [inactive]`;
+    };
 
     const showCustom = isCustom || (!!value && !matched && !profileId);
 

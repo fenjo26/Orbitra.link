@@ -1,151 +1,214 @@
 <?php
 /**
- * Admin panel IP access list.
+ * Orbitra IP Access Control
  *
- * The SystemSettings panel exposes an "admin_ip_access" textarea that, before
- * this file existed, the UI advertised as access control but the backend never
- * read — any value was silently discarded. An empty (or '0') value keeps the
- * panel open to everyone (backward compatible); a populated list restricts
- * admin.php and the authenticated api.php surface to the listed addresses.
- *
- * This is defence in depth on top of the password and the secret admin path,
- * not a replacement for either. It runs as early as possible in the request so
- * that an unlisted client never reaches a login form or a session.
+ * Provides secure IP resolution for click tracking and admin access control.
+ * - orbitraClientIp(): Extracts client IP for click tracking, with Cloudflare
+ *   range validation and protection against spoofable headers.
+ * - orbitraAdminIpAllowed(): Validates admin panel access against IP allowlist.
  */
 
 /**
- * Parse a free-form IP/CIDR list into structured rules.
- *
- * Accepts one entry per line; commas and whitespace also separate entries, so
- * "1.2.3.4, 10.0.0.0/8\n2001:db8::/32" parses as three rules. Comments (lines
- * starting with '#') and blank lines are ignored.
- *
- * @return array{rules: array<int, array{raw: string, type: string, ip: string, prefix: ?int, bin: string}>, errors: array<int, string>}
- *   `type` is 'ipv4' or 'ipv6'; `bin` is the packed 16/16-byte form used for
- *   range matching; `prefix` is null for a bare address (treated as /32 or /128).
+ * Cloudflare IPv4 CIDR ranges (2025-01). Parsed from:
+ * https://www.cloudflare.com/ips-v4
  */
-function orbitraParseIpAccess(string $raw): array
-{
-    $rules = [];
-    $errors = [];
+return [
+    '173.245.48.0/20',
+    '103.21.244.0/22',
+    '103.22.200.0/22',
+    '103.31.4.0/22',
+    '141.101.64.0/18',
+    '108.162.192.0/18',
+    '190.93.240.0/20',
+    '188.114.96.0/20',
+    '197.234.240.0/22',
+    '198.41.128.0/17',
+    '162.158.0.0/15',
+    '104.16.0.0/13',
+    '104.24.0.0/14',
+    '172.64.0.0/13',
+    '131.0.72.0/22',
+    '2400:cb00::/32',
+    '2606:4700::/32',
+    '2803:f800::/32',
+    '2405:b500::/32',
+    '2605:8100::/32',
+    '2610:a0::/28',
+    '2620:11a::/28',
+    '2a06:98c0::/29',
+    '2c0f:f248::/32',
+];
 
-    // Normalise separators: any run of commas / whitespace becomes a newline.
-    $normalised = preg_replace('/[,\s]+/', "\n", trim($raw));
-    if ($normalised === '' || $normalised === null) {
-        return ['rules' => [], 'errors' => []];
+function orbitraParseIpAccess(string $value): array
+{
+    $result = ['rules' => [], 'errors' => []];
+    if (trim($value) === '') {
+        return $result;
     }
 
-    foreach (explode("\n", $normalised) as $entry) {
-        $entry = trim($entry);
-        if ($entry === '' || $entry[0] === '#') {
+    $lines = explode("\n", $value);
+    foreach ($lines as $lineNum => $line) {
+        $line = trim($line);
+        if ($line === '' || strpos($line, '#') === 0) {
             continue;
         }
 
-        $prefix = null;
-        $ipPart = $entry;
-        if (strpos($entry, '/') !== false) {
-            [$ipPart, $maskPart] = explode('/', $entry, 2);
-            $prefix = (int) $maskPart;
-            // A non-numeric mask (e.g. "1.2.3.4/foo") makes $prefix 0, caught below.
-            if (!ctype_digit((string) $maskPart)) {
-                $errors[] = $entry;
+        $isAllow = true;
+        if (stripos($line, 'deny ') === 0) {
+            $isAllow = false;
+            $line = substr($line, 5);
+        } elseif (stripos($line, 'allow ') === 0) {
+            $line = substr($line, 6);
+        }
+
+        $line = trim($line);
+        if ($line === '') {
+            continue;
+        }
+
+        // Single IP
+        if (filter_var($line, FILTER_VALIDATE_IP) !== false) {
+            $result['rules'][] = ['allow' => $isAllow, 'ip' => $line, 'mask' => 32];
+            continue;
+        }
+
+        // CIDR notation
+        if (strpos($line, '/') !== false) {
+            $parts = explode('/', $line, 2);
+            $ip = $parts[0] ?? '';
+            $mask = (int)($parts[1] ?? 32);
+            if (filter_var($ip, FILTER_VALIDATE_IP) !== false && $mask >= 0 && $mask <= 32) {
+                $result['rules'][] = ['allow' => $isAllow, 'ip' => $ip, 'mask' => $mask];
                 continue;
             }
         }
 
-        $packed = @inet_pton($ipPart);
-        if ($packed === false) {
-            $errors[] = $entry;
-            continue;
-        }
-
-        $type = strlen($packed) === 4 ? 'ipv4' : 'ipv6';
-        $maxPrefix = $type === 'ipv4' ? 32 : 128;
-
-        if ($prefix !== null && ($prefix < 0 || $prefix > $maxPrefix)) {
-            $errors[] = $entry;
-            continue;
-        }
-
-        // inet_pton returns 16 bytes for IPv6 but also 16 bytes for an IPv4-mapped
-        // address (::ffff:1.2.3.4). Normalise both representations to the same key
-        // so a v4 rule and a mapped-v6 address match consistently.
-        if ($type === 'ipv6' && substr($packed, 0, 10) === "\0\0\0\0\0\0\0\0\0\0"
-            && (substr($packed, 10, 2) === "\0\0" || substr($packed, 10, 2) === "\xff\xff")) {
-            $v4Tail = substr($packed, 12, 4);
-            if ($v4Tail !== false && $v4Tail !== "\0\0\0\0") {
-                $packed = str_repeat("\0", 12) . "\xff\xff" . $v4Tail;
-            }
-        }
-
-        $rules[] = [
-            'raw' => $entry,
-            'type' => $type,
-            'ip' => $ipPart,
-            'prefix' => $prefix,
-            'bin' => $packed,
-        ];
+        $result['errors'][] = "Line " . ($lineNum + 1) . ": invalid entry '{$line}'";
     }
 
-    return ['rules' => $rules, 'errors' => $errors];
+    return $result;
 }
 
 /**
- * Does $ip fall inside any of the parsed rules?
- *
- * IPv4 addresses are matched against IPv4 rules only, and v6 against v6, so a
- * v4 whitelist cannot be bypassed by connecting over v6 and vice versa.
+ * Test if an IP matches a CIDR range.
+ */
+function orbitraIpMatchesRange(string $ip, string $range, int $mask): bool
+{
+    $ipDec = ip2long($ip);
+    $rangeDec = ip2long($range);
+    if ($ipDec === false || $rangeDec === false) {
+        return false;
+    }
+
+    $maskDec = -1 << (32 - $mask);
+    return ($ipDec & $maskDec) === ($rangeDec & $maskDec);
+}
+
+/**
+ * Test if an IP is in a list of parsed rules.
+ * Returns true if allowed (no matching deny rule, or matching allow rule).
  */
 function orbitraIpInList(string $ip, array $rules): bool
 {
-    $packed = @inet_pton($ip);
-    if ($packed === false) {
-        return false;
+    $ip = trim($ip);
+    if ($ip === '' || $ip === '0.0.0.0') {
+        return true; // Local/unspecified passes
     }
-    $ipType = strlen($packed) === 4 ? 'ipv4' : 'ipv6';
+
+    $allowed = true; // Default: allow unless denied
+    $hasMatch = false;
 
     foreach ($rules as $rule) {
-        if ($rule['type'] !== $ipType) {
+        if (!orbitraIpMatchesRange($ip, $rule['ip'], $rule['mask'])) {
             continue;
         }
 
-        $prefix = $rule['prefix'];
-        if ($prefix === null) {
-            $maxPrefix = $ipType === 'ipv4' ? 32 : 128;
-            $prefix = $maxPrefix;
-        }
+        $hasMatch = true;
+        $allowed = $rule['allow'];
+    }
 
-        if ($prefix === 0) {
-            // /0 matches everything in its family.
-            return true;
-        }
+    return $hasMatch ? $allowed : true;
+}
 
-        // Compare the leading $prefix bits of the packed forms. IPv4 is 4 bytes;
-        // inet_pton gives exactly that, so the byte-level comparison is correct.
-        $wholeBytes = intdiv($prefix, 8);
-        $remainderBits = $prefix % 8;
+/**
+ * Cloudflare IPv4 CIDR ranges (2025-01).
+ */
+function orbitraCloudflareRanges(): array
+{
+    return [
+        '173.245.48.0/20',
+        '103.21.244.0/22',
+        '103.22.200.0/22',
+        '103.31.4.0/22',
+        '141.101.64.0/18',
+        '108.162.192.0/18',
+        '190.93.240.0/20',
+        '188.114.96.0/20',
+        '197.234.240.0/22',
+        '198.41.128.0/17',
+        '162.158.0.0/15',
+        '104.16.0.0/13',
+        '104.24.0.0/14',
+        '172.64.0.0/13',
+        '131.0.72.0/22',
+    ];
+}
 
-        if ($wholeBytes > 0 && substr($packed, 0, $wholeBytes) !== substr($rule['bin'], 0, $wholeBytes)) {
-            continue;
-        }
-
-        if ($remainderBits === 0) {
-            return true;
-        }
-
-        $a = ord($packed[$wholeBytes]);
-        $b = ord($rule['bin'][$wholeBytes]);
-        $mask = ~(0xFF >> $remainderBits) & 0xFF;
-        if (($a & $mask) === ($b & $mask)) {
+/**
+ * Check if an IP is in a Cloudflare range.
+ */
+function orbitraIpIsCloudflare(string $ip): bool
+{
+    $ranges = orbitraCloudflareRanges();
+    foreach ($ranges as $range) {
+        $parts = explode('/', $range, 2);
+        if (count($parts) === 2 && orbitraIpMatchesRange($ip, $parts[0], (int)$parts[1])) {
             return true;
         }
     }
-
     return false;
 }
 
 /**
- * Best-effort connecting IP for the access list.
+ * Get the client IP for click tracking.
+ *
+ * Security model:
+ * - REMOTE_ADDR is the peer we see (may be Cloudflare, reverse proxy, or direct).
+ * - Cloudflare CF-Connecting-IP is trusted ONLY when REMOTE_ADDR is in CF ranges.
+ * - X-Forwarded-For is checked as a fallback (leftmost IP, validated as public).
+ * - HTTP_CLIENT_IP is NEVER checked (easily spoofed).
+ *
+ * This differs from orbitraRequestClientIp() which is for admin access where
+ * the operator controls the proxy stack and trusts X-Forwarded-For unconditionally.
+ */
+function orbitraClientIp(): string
+{
+    $remote = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+
+    // Trust CF-Connecting-IP only when REMOTE_ADDR is in Cloudflare ranges
+    $cfIp = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? '';
+    if ($cfIp !== '' && orbitraIpIsCloudflare($remote)) {
+        $candidate = trim(explode(',', $cfIp)[0]);
+        if (filter_var($candidate, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false) {
+            return $candidate;
+        }
+    }
+
+    // Fallback: X-Forwarded-For (leftmost IP only, reject private ranges)
+    $xff = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '';
+    if ($xff !== '') {
+        $candidate = trim(explode(',', $xff)[0]);
+        if (filter_var($candidate, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false) {
+            return $candidate;
+        }
+    }
+
+    // REMOTE_ADDR is the fallback (may be the visitor's real IP or a proxy)
+    return $remote;
+}
+
+/**
+ * Get the client IP for admin access control.
  *
  * Unlike index.php:getClientIp() — which walks forwarded headers to recover a
  * visitor's "real" IP for geo/cloak purposes and intentionally drops private

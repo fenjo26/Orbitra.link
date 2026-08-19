@@ -14,6 +14,7 @@ require_once __DIR__ . '/geo_databases.php';
 require_once __DIR__ . '/Device.php';
 require_once __DIR__ . '/CloakDetector.php';
 require_once __DIR__ . '/StreamFilters.php';
+require_once __DIR__ . '/ip_access.php';
 
 function orbitraClickApiGetSettings(PDO $pdo): array
 {
@@ -66,24 +67,13 @@ function orbitraClickApiGenerateUuid(): string
 
 function orbitraClickApiGetClientIp(): string
 {
-    // Allows overriding via Click API param.
+    // Allows overriding via Click API param (for testing/integrations).
     $ipFromQuery = trim((string) ($_GET['ip'] ?? ''));
     if ($ipFromQuery !== '' && filter_var($ipFromQuery, FILTER_VALIDATE_IP)) {
         return $ipFromQuery;
     }
 
-    $ipKeys = ['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR'];
-    foreach ($ipKeys as $key) {
-        if (!empty($_SERVER[$key])) {
-            foreach (explode(',', (string) $_SERVER[$key]) as $ip) {
-                $ip = trim($ip);
-                if ($ip !== '' && filter_var($ip, FILTER_VALIDATE_IP)) {
-                    return $ip;
-                }
-            }
-        }
-    }
-    return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+    return orbitraClientIp();
 }
 
 function orbitraClickApiGetUserAgent(): string
