@@ -37,6 +37,7 @@ require_once __DIR__ . '/core/LeadForge.php';
 require_once __DIR__ . '/core/CrmVault.php';
 require_once __DIR__ . '/core/CloudDetector.php';
 require_once __DIR__ . '/core/DomainDnsResolver.php';
+require_once __DIR__ . '/core/server_ip.php';
 
 // CORS Headers
 $allowedOrigins = ['https://tracker.yourdomain.com', 'http://127.0.0.1:8000', 'http://localhost:8080', 'http://localhost:5173', 'http://localhost']; // Add real domains here
@@ -6412,38 +6413,8 @@ try {
             break;
 
         case 'domains':
-            // Try multiple methods to get server IP
-            $serverIp = '127.0.0.1'; // Default fallback
-
-            // Method 1: $_SERVER['SERVER_ADDR'] (web request)
-            if (isset($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR'] !== '') {
-                $serverIp = $_SERVER['SERVER_ADDR'];
-            }
-            // Method 2: Resolve hostname from HTTP_HOST
-            elseif (isset($_SERVER['HTTP_HOST'])) {
-                $hostname = explode(':', $_SERVER['HTTP_HOST'])[0];
-                $hostIp = @gethostbyname($hostname);
-                if ($hostIp !== $hostname) {
-                    $serverIp = $hostIp;
-                }
-            }
-            // Method 3: Use external service as last resort (cached for 1 hour)
-            else {
-                $cacheFile = __DIR__ . '/var/server_ip_cache.txt';
-                if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < 3600) {
-                    $serverIp = trim(file_get_contents($cacheFile));
-                } else {
-                    // Try to get public IP from external service
-                    $publicIp = @file_get_contents('http://169.254.169.254/latest/meta-data/public-ipv4'); // AWS
-                    if (!$publicIp) {
-                        $publicIp = @file_get_contents('http://checkip.amazonaws.com');
-                    }
-                    if ($publicIp && filter_var($publicIp, FILTER_VALIDATE_IP)) {
-                        $serverIp = trim($publicIp);
-                        @file_put_contents($cacheFile, $serverIp);
-                    }
-                }
-            }
+            // Detect server IP using unified function (ORB-005)
+            $serverIp = orbitraDetectServerIp($pdo);
 
             $stmt = $pdo->query("
                 SELECT d.*, c.name as index_campaign_name, dg.name as group_name
@@ -6550,38 +6521,8 @@ try {
                 break;
             }
 
-            // Try multiple methods to get server IP
-            $serverIp = '127.0.0.1'; // Default fallback
-
-            // Method 1: $_SERVER['SERVER_ADDR'] (web request)
-            if (isset($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR'] !== '') {
-                $serverIp = $_SERVER['SERVER_ADDR'];
-            }
-            // Method 2: Resolve hostname from HTTP_HOST
-            elseif (isset($_SERVER['HTTP_HOST'])) {
-                $hostname = explode(':', $_SERVER['HTTP_HOST'])[0];
-                $hostIp = @gethostbyname($hostname);
-                if ($hostIp !== $hostname) {
-                    $serverIp = $hostIp;
-                }
-            }
-            // Method 3: Use external service as last resort (cached for 1 hour)
-            else {
-                $cacheFile = __DIR__ . '/var/server_ip_cache.txt';
-                if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < 3600) {
-                    $serverIp = trim(file_get_contents($cacheFile));
-                } else {
-                    // Try to get public IP from external service
-                    $publicIp = @file_get_contents('http://169.254.169.254/latest/meta-data/public-ipv4'); // AWS
-                    if (!$publicIp) {
-                        $publicIp = @file_get_contents('http://checkip.amazonaws.com');
-                    }
-                    if ($publicIp && filter_var($publicIp, FILTER_VALIDATE_IP)) {
-                        $serverIp = trim($publicIp);
-                        @file_put_contents($cacheFile, $serverIp);
-                    }
-                }
-            }
+            // Detect server IP using unified function (ORB-005)
+            $serverIp = orbitraDetectServerIp($pdo);
 
             // Do DNS lookup using shared resolver (Cloudflare-aware)
             $result = orbitraResolveDomainDnsState($pdo, $domain, $serverIp);
@@ -6671,38 +6612,8 @@ try {
 
         // Force DNS check for ALL domains (no limits)
         case 'force_check_all_dns':
-            // Try multiple methods to get server IP
-            $serverIp = '127.0.0.1'; // Default fallback
-
-            // Method 1: $_SERVER['SERVER_ADDR'] (web request)
-            if (isset($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR'] !== '') {
-                $serverIp = $_SERVER['SERVER_ADDR'];
-            }
-            // Method 2: Resolve hostname from HTTP_HOST
-            elseif (isset($_SERVER['HTTP_HOST'])) {
-                $hostname = explode(':', $_SERVER['HTTP_HOST'])[0];
-                $hostIp = @gethostbyname($hostname);
-                if ($hostIp !== $hostname) {
-                    $serverIp = $hostIp;
-                }
-            }
-            // Method 3: Use external service as last resort (cached for 1 hour)
-            else {
-                $cacheFile = __DIR__ . '/var/server_ip_cache.txt';
-                if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < 3600) {
-                    $serverIp = trim(file_get_contents($cacheFile));
-                } else {
-                    // Try to get public IP from external service
-                    $publicIp = @file_get_contents('http://169.254.169.254/latest/meta-data/public-ipv4'); // AWS
-                    if (!$publicIp) {
-                        $publicIp = @file_get_contents('http://checkip.amazonaws.com');
-                    }
-                    if ($publicIp && filter_var($publicIp, FILTER_VALIDATE_IP)) {
-                        $serverIp = trim($publicIp);
-                        @file_put_contents($cacheFile, $serverIp);
-                    }
-                }
-            }
+            // Detect server IP using unified function (ORB-005)
+            $serverIp = orbitraDetectServerIp($pdo);
 
             // Get all domains
             $stmt = $pdo->query("SELECT id, name, cloudflare_proxy, dns_status, dns_reason FROM domains ORDER BY id ASC");
@@ -10242,7 +10153,7 @@ try {
 
         case 'global_settings':
             if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-                $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token', 'allow_php_landings', 'php_landing_timeout', 'admin_path', 'stats_enabled', 'stats_retention_days', 'archive_retention_days', 'admin_ip_access', 'ignore_prefetch', 'bot_isp_list')");
+                $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token', 'allow_php_landings', 'php_landing_timeout', 'admin_path', 'stats_enabled', 'stats_retention_days', 'archive_retention_days', 'admin_ip_access', 'ignore_prefetch', 'bot_isp_list', 'server_ip_override')");
                 $data = [];
                 while ($row = $stmt->fetch()) {
                     $data[$row['key']] = $row['value'];
@@ -10296,7 +10207,7 @@ try {
                     foreach (['postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token',
                               'allow_php_landings', 'php_landing_timeout', 'admin_path',
                               'stats_enabled', 'stats_retention_days', 'archive_retention_days',
-                              'admin_ip_access', 'ignore_prefetch', 'bot_isp_list'] as $key) {
+                              'admin_ip_access', 'ignore_prefetch', 'bot_isp_list', 'server_ip_override'] as $key) {
                         if (!isset($settings[$key])) {
                             continue;
                         }

@@ -42,6 +42,16 @@ function orbitraResolveDomainDnsState(PDO $pdo, array $domain, string $serverIp)
     $reason = 'no_resolve';
     $updateCloudflareFlag = null;
 
+    // If server IP detection failed, return 'unknown' status
+    if ($serverIp === '') {
+        return [
+            'status' => 'unknown',
+            'reason' => 'server_ip_unknown',
+            'ip' => $domainIp === $domainName ? '' : $domainIp,
+            'cloudflare_proxy' => null,
+        ];
+    }
+
     // 1. Resolution failed (domain does not resolve)
     if ($domainIp === $domainName) {
         $status = 'pending';
@@ -67,8 +77,8 @@ function orbitraResolveDomainDnsState(PDO $pdo, array $domain, string $serverIp)
             }
         }
     }
-    // 4. Localhost environment
-    elseif ($domainIp === '127.0.0.1' || $serverIp === '127.0.0.1') {
+    // 4. Localhost environment (only when server IP is explicitly set to 127.0.0.1)
+    elseif ($serverIp === '127.0.0.1' || $domainIp === '127.0.0.1') {
         $status = 'active';
         $reason = 'local';
     }

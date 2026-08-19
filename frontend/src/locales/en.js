@@ -2084,6 +2084,8 @@ export default {
         "allowPhpLandingsHint": "Off by default. A PHP landing runs uploaded code inside the tracker, in the web root. Uploads are scanned for shell and eval calls, but a source scan is not a sandbox — only turn this on for landings whose code you trust.",
         "phpLandingTimeout": "Execution timeout, seconds",
         "phpLandingTimeoutHint": "1 to 9. A landing that runs longer is cut off, so one slow page cannot tie up the workers the whole site shares.",
+        "serverIpOverride": "Server IP Override",
+        "serverIpOverrideHint": "Manual override for server IP detection. Leave empty to auto-detect. This IP will be used for domain DNS checks.",
         "title": "General Settings",
         "postbackKey": "Postback Key",
         "postbackKeyHint": "Used to generate unique S2S postback URLs.",

@@ -66,3 +66,5 @@ data/leadforge_downloads/
 data/leadforge_tmp/
 remote_leadforge_backup/
 tests/offers/
+# Test database files
+database.db

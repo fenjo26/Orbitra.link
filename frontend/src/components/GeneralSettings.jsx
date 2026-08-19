@@ -15,6 +15,7 @@ const GeneralSettings = () => {
         currency: 'USD',
         allow_php_landings: '1',
         php_landing_timeout: '3',
+        server_ip_override: '',
     });
 
     useEffect(() => {
@@ -47,6 +48,7 @@ const GeneralSettings = () => {
                         currency: settings.currency,
                         allow_php_landings: settings.allow_php_landings,
                         php_landing_timeout: settings.php_landing_timeout,
+                        server_ip_override: settings.server_ip_override,
                     }
                 })
             });
@@ -157,6 +159,22 @@ const GeneralSettings = () => {
                             </p>
                         </div>
                     )}
+                </div>
+
+                {/* Server IP Override - ORB-005 */}
+                <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid var(--color-border)' }}>
+                    <label className="form-label">{t('generalSettings.serverIpOverride')}</label>
+                    <input
+                        type="text"
+                        name="server_ip_override"
+                        value={settings.server_ip_override || ''}
+                        onChange={handleChange}
+                        className="form-input"
+                        placeholder="1.2.3.4"
+                    />
+                    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '6px', lineHeight: 1.55 }}>
+                        {t('generalSettings.serverIpOverrideHint')}
+                    </p>
                 </div>
             </div>
 

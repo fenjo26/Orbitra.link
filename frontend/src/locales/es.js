@@ -2084,6 +2084,8 @@ export default {
         "allowPhpLandingsHint": "Desactivado por defecto. Un landing PHP ejecuta código subido dentro del tracker, en la raíz web. Las subidas se analizan en busca de llamadas a shell y eval, pero un análisis del código no es un sandbox: actívalo solo para landings cuyo código sea de confianza.",
         "phpLandingTimeout": "Tiempo límite de ejecución, segundos",
         "phpLandingTimeoutHint": "De 1 a 9. Un landing que tarde más se corta, para que una página lenta no bloquee los procesos que comparte todo el sitio.",
+        "serverIpOverride": "Anulación de IP del servidor",
+        "serverIpOverrideHint": "Anulación manual para la detección de IP del servidor. Déjelo vacío para autodetección. Esta IP se utilizará para las verificaciones DNS de dominio.",
         "title": "Configuraciones generales",
         "postbackKey": "Clave de devolución de datos",
         "postbackKeyHint": "Se utiliza para generar URL de devolución de datos S2S únicas.",

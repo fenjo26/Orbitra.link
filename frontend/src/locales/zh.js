@@ -2084,6 +2084,8 @@ export default {
         "allowPhpLandingsHint": "默认关闭。PHP 落地页会在追踪器内部、网站根目录中执行上传的代码。上传时会扫描 shell 与 eval 调用，但源码扫描不是沙箱——只在你信任其代码的落地页上开启。",
         "phpLandingTimeout": "执行超时（秒）",
         "phpLandingTimeoutHint": "1 到 9。超时的落地页会被中断，避免一个慢页面占满整站共用的工作进程。",
+        "serverIpOverride": "服务器 IP 覆盖",
+        "serverIpOverrideHint": "服务器 IP 检测的手动覆盖。留空以自动检测。此 IP 将用于域名 DNS 检查。",
         "title": "常规设置",
         "postbackKey": "回传键",
         "postbackKeyHint": "用于生成唯一的 S2S 回发 URL。",

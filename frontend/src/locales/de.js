@@ -2084,6 +2084,8 @@ export default {
         "allowPhpLandingsHint": "Standardmäßig aus. Ein PHP-Landing führt hochgeladenen Code im Tracker aus, im Web-Root. Uploads werden auf Shell- und eval-Aufrufe geprüft, aber eine Quelltextprüfung ist keine Sandbox — schalte das nur für Landings ein, deren Code du kennst.",
         "phpLandingTimeout": "Ausführungs-Timeout, Sekunden",
         "phpLandingTimeoutHint": "1 bis 9. Ein Landing, das länger läuft, wird abgebrochen, damit eine langsame Seite nicht die Worker blockiert, die die ganze Site teilt.",
+        "serverIpOverride": "Server-IP-Überschreibung",
+        "serverIpOverrideHint": "Manuelle Überschreibung für die Server-IP-Erkennung. Leer lassen für automatische Erkennung. Diese IP wird für Domain-DNS-Prüfungen verwendet.",
         "title": "Allgemeine Einstellungen",
         "postbackKey": "Postback-Schlüssel",
         "postbackKeyHint": "Wird zum Generieren eindeutiger S2S-Postback-URLs verwendet.",
