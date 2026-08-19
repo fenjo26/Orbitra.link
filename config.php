@@ -51,7 +51,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 33;
+    $LATEST_SCHEMA_VERSION = 35;
 
     $schemaVersion = 0;
     try {
@@ -1446,7 +1446,7 @@ try {
                             ssl_attempts INTEGER DEFAULT 0,
                             ssl_last_attempt TEXT,
                             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                            dns_status TEXT, dns_ip TEXT, dns_checked_at DATETIME,
+                            dns_status TEXT, dns_ip TEXT, dns_reason TEXT DEFAULT '', dns_checked_at DATETIME,
                             keitaro_id INTEGER,
                             admin_access INTEGER DEFAULT 1,
                             cloudflare_proxy INTEGER DEFAULT 0,
@@ -1819,6 +1819,68 @@ try {
                 } catch (\Throwable $e) {
                     // A failed backfill costs history, not new data — never block
                     // the schema bump (and therefore every request) on it.
+                }
+            }
+
+            if ($schemaVersion < 34) {
+                // Migration 34: incoming_postbacks_log — audit trail for all
+                // postback requests, including rejections. Without this, rejected
+                // postbacks (unknown subid, missing status, unmapped status) leave
+                // no trace anywhere in the product, making debugging impossible.
+                try {
+                    $pdo->exec("CREATE TABLE IF NOT EXISTS incoming_postbacks_log (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        remote_ip TEXT,
+                        request_uri TEXT,
+                        params_json TEXT,
+                        click_id TEXT,
+                        matched INTEGER DEFAULT 0,
+                        campaign_id INTEGER,
+                        original_status TEXT,
+                        status TEXT,
+                        payout REAL DEFAULT 0.00,
+                        currency TEXT DEFAULT 'USD',
+                        result TEXT,
+                        error TEXT,
+                        conversion_id INTEGER,
+                        source TEXT DEFAULT 'postback'
+                    )");
+                    foreach ([
+                        "CREATE INDEX IF NOT EXISTS idx_incoming_postbacks_created ON incoming_postbacks_log(created_at)",
+                        "CREATE INDEX IF NOT EXISTS idx_incoming_postbacks_click ON incoming_postbacks_log(click_id)",
+                        "CREATE INDEX IF NOT EXISTS idx_incoming_postbacks_source ON incoming_postbacks_log(source)",
+                    ] as $sql) {
+                        try { $pdo->exec($sql); } catch (\Throwable $e) {}
+                    }
+                } catch (\Throwable $e) {
+                    // Non-critical: the postback still works without the log.
+                }
+            }
+
+            if ($schemaVersion < 35) {
+                // Migration 35: DNS reason column for Cloudflare-aware domain DNS states.
+                //
+                // The dns_status column only stored 'active' or 'pending' with no
+                // explanation. Cloudflare-proxied domains were permanently stuck on
+                // 'pending' because their resolved IP (a Cloudflare edge) never
+                // matched the origin server IP. This adds dns_reason to persist
+                // WHY a domain is in its state and enables distinguishing:
+                // - Active (direct connection)
+                // - Active (Cloudflare proxied)
+                // - Awaiting DNS (does not resolve)
+                // - Wrong IP (resolves to wrong address)
+                try {
+                    $pdo->exec("ALTER TABLE domains ADD COLUMN dns_reason TEXT DEFAULT ''");
+                } catch (\Throwable $e) {
+                    // Column already present on a half-migrated DB.
+                }
+                // Backfill existing domains with a reason based on current state.
+                // Domains marked active are assumed direct; pending ones get a
+                // placeholder reason that will be corrected on the next DNS check.
+                try {
+                    $pdo->exec("UPDATE domains SET dns_reason = 'direct' WHERE dns_status = 'active' AND (dns_reason IS NULL OR dns_reason = '')");
+                } catch (\Throwable $e) {
                 }
             }
 

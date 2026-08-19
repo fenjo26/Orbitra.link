@@ -6,6 +6,84 @@ require_once __DIR__ . '/core/CrmVault.php';
 require_once __DIR__ . '/core/ConversionAttribution.php';
 
 /**
+ * Exit helper for postback responses.
+ *
+ * Sets the proper HTTP status code, emits the response body, logs the request
+ * to incoming_postbacks_log, and exits. When running inside the pixel GIF path
+ * (/pixel.gif?action=conversion), the status code is ignored and reset to 200
+ * by the shutdown function in index.php — the browser still receives a valid GIF.
+ *
+ * Logging is best-effort: a broken audit trail must never break a paying postback.
+ *
+ * @param int    $statusCode HTTP status code (200, 400, 404, 500)
+ * @param string $message    Response body message
+ * @param array  $logContext Context data for the log entry
+ * @param bool   $isSuccess  Whether this is a successful postback (affects exit vs return)
+ */
+function orbitraPostbackExit($statusCode, $message, $logContext = [], $isSuccess = false)
+{
+    global $pdo, $orbitraIncomingLogId;
+
+    http_response_code($statusCode);
+    echo $message;
+
+    // Update the incoming postback log entry with the outcome
+    if (!empty($orbitraIncomingLogId) && !empty($pdo)) {
+        try {
+            $updateFields = ['result = ?, error = ?'];
+            $updateValues = [$logContext['result'] ?? 'rejected', $logContext['error'] ?? null];
+
+            // Add matched/campaign_id/status fields if available
+            if (isset($logContext['matched'])) {
+                $updateFields[] = 'matched = ?';
+                $updateValues[] = $logContext['matched'] ? 1 : 0;
+            }
+            if (isset($logContext['campaign_id'])) {
+                $updateFields[] = 'campaign_id = ?';
+                $updateValues[] = $logContext['campaign_id'];
+            }
+            if (isset($logContext['original_status'])) {
+                $updateFields[] = 'original_status = ?';
+                $updateValues[] = $logContext['original_status'];
+            }
+            if (isset($logContext['status'])) {
+                $updateFields[] = 'status = ?';
+                $updateValues[] = $logContext['status'];
+            }
+            if (isset($logContext['payout'])) {
+                $updateFields[] = 'payout = ?';
+                $updateValues[] = $logContext['payout'];
+            }
+            if (isset($logContext['currency'])) {
+                $updateFields[] = 'currency = ?';
+                $updateValues[] = $logContext['currency'];
+            }
+            if (isset($logContext['conversion_id'])) {
+                $updateFields[] = 'conversion_id = ?';
+                $updateValues[] = $logContext['conversion_id'];
+            }
+
+            $updateValues[] = $orbitraIncomingLogId;
+            $sql = "UPDATE incoming_postbacks_log SET " . implode(', ', $updateFields) . " WHERE id = ?";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($updateValues);
+        } catch (\Throwable $e) {
+            // Logging failure must not break the postback response
+        }
+    }
+
+    // When called from /pixel.gif?action=conversion, we must return instead of exit
+    // to allow the shutdown function in index.php to replace the response with a GIF.
+    // The ORBITRA_INSIDE_PIXEL_GIF constant is set by index.php before requiring this file.
+    if (defined('ORBITRA_INSIDE_PIXEL_GIF') && ORBITRA_INSIDE_PIXEL_GIF) {
+        // Return control to index.php; its shutdown function will replace our output
+        return;
+    }
+
+    exit;
+}
+
+/**
  * Resolve the network's status word into one of the tracker's own status names.
  *
  * Matching is case-insensitive throughout: networks are inconsistent about it
@@ -74,6 +152,30 @@ function mapStatus($pdo, $status, $params)
     return $mapped_status;
 }
 
+// Incoming postback log entry ID — will be created on first request and updated on exit
+$orbitraIncomingLogId = null;
+
+// Log the incoming request FIRST, before any validation — this ensures a fatal
+// mid-request error still leaves the raw request visible in the logs.
+// Best-effort: if logging fails, continue without breaking the postback.
+$source = defined('ORBITRA_INSIDE_PIXEL_GIF') && ORBITRA_INSIDE_PIXEL_GIF ? 'pixel' : 'postback';
+try {
+    $remoteIp = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+    $requestUri = $_SERVER['REQUEST_URI'] ?? '/postback.php';
+    $paramsJson = json_encode($_GET, JSON_UNESCAPED_UNICODE);
+
+    $stmt = $pdo->prepare("
+        INSERT INTO incoming_postbacks_log
+            (created_at, remote_ip, request_uri, params_json, source)
+        VALUES
+            (datetime('now'), ?, ?, ?, ?)
+    ");
+    $stmt->execute([$remoteIp, $requestUri, $paramsJson, $source]);
+    $orbitraIncomingLogId = (int) $pdo->lastInsertId();
+} catch (\Throwable $e) {
+    // Non-critical: the postback continues without logging
+}
+
 // subid is the tracker's own click id, handed to the network in the offer URL
 // (&sub1={subid} for Dr. Cash) and handed back here. Networks vary on the
 // parameter name and some append whitespace when the macro is unresolved, so
@@ -89,13 +191,23 @@ $returnMsg = $_GET['return'] ?? null;
 // CRM row so an anti-shaving dispute can quote the network's own wording.
 $reason = trim((string) ($_GET['reason'] ?? $_GET['reject_reason'] ?? ''));
 
+// Store click_id for logging even if we reject later
+try {
+    if ($orbitraIncomingLogId && $clickId) {
+        $pdo->prepare("UPDATE incoming_postbacks_log SET click_id = ? WHERE id = ?")
+            ->execute([$clickId, $orbitraIncomingLogId]);
+    }
+} catch (\Throwable $e) {
+    // Non-critical
+}
+
 if (!$clickId) {
-    die("Missing subid.");
+    orbitraPostbackExit(400, "Missing subid.", ['result' => 'rejected', 'error' => 'Missing subid']);
 }
 
 if (!$originalStatus) {
     // В трекере логируется, но мы просто игнорируем
-    die("Ignored: Missing status.");
+    orbitraPostbackExit(400, "Ignored: Missing status.", ['result' => 'rejected', 'error' => 'Missing status']);
 }
 
 // Проверяем существование клика.
@@ -111,7 +223,11 @@ $stmt = $pdo->prepare("
 $stmt->execute([$clickId]);
 $clickData = $stmt->fetch();
 if (!$clickData) {
-    die("Click ID not found in database.");
+    orbitraPostbackExit(404, "Click ID not found in database.", [
+        'result' => 'rejected',
+        'error' => 'Click ID not found in database',
+        'click_id' => $clickId
+    ]);
 }
 $campaignId = $clickData['campaign_id'];
 // sub_id_1..5 here are the CLICK's parameters. $clickId (the incoming subid) is
@@ -127,23 +243,42 @@ $allKnown = array_merge(['lead', 'sale', 'rejected', 'registration', 'deposit', 
 
 if ($internalStatus === 'custom' && !in_array($originalStatus, $allKnown)) {
     // Если статус новый и не указана трансформация, возвращаем ошибку
-    die("Ignored: Unknown status and no transformation specified.");
+    orbitraPostbackExit(400, "Ignored: Unknown status and no transformation specified.", [
+        'result' => 'rejected',
+        'error' => 'Unknown status and no transformation specified',
+        'original_status' => $originalStatus,
+        'click_id' => $clickId
+    ]);
 }
 
 // Запись конверсии
+$conversionResult = 'recorded';
 try {
     if ($tid) {
         // Если передан tid, это может быть новая уникальная конверсия или апдейт существующей
         $stmt = $pdo->prepare("
-            INSERT INTO conversions (click_id, tid, status, original_status, payout, currency) 
+            INSERT INTO conversions (click_id, tid, status, original_status, payout, currency)
             VALUES (?, ?, ?, ?, ?, ?)
-            ON CONFLICT(click_id, tid) DO UPDATE SET 
+            ON CONFLICT(click_id, tid) DO UPDATE SET
                 status = excluded.status,
                 original_status = excluded.original_status,
                 payout = excluded.payout,
                 currency = excluded.currency
         ");
         $stmt->execute([$clickId, $tid, $internalStatus, $originalStatus, $payout, $currency]);
+
+        // Check if this was an update (row already existed)
+        $checkStmt = $pdo->prepare("SELECT changes() as changed");
+        $checkStmt->execute();
+        $changed = $checkStmt->fetchColumn();
+        if ($changed > 0) {
+            // Check if the row was updated vs inserted
+            $existsStmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid = ?");
+            $existsStmt->execute([$clickId, $tid]);
+            if ($existsStmt->fetch()) {
+                $conversionResult = 'updated';
+            }
+        }
     }
     else {
         // Если без tid, пытаемся найти конверсию без tid и обновить, либо создать новую
@@ -153,15 +288,16 @@ try {
 
         if ($existing) {
             $updateStmt = $pdo->prepare("
-                UPDATE conversions 
-                SET status = ?, original_status = ?, payout = ?, currency = ? 
+                UPDATE conversions
+                SET status = ?, original_status = ?, payout = ?, currency = ?
                 WHERE id = ?
             ");
             $updateStmt->execute([$internalStatus, $originalStatus, $payout, $currency, $existing['id']]);
+            $conversionResult = 'updated';
         }
         else {
             $insertStmt = $pdo->prepare("
-                INSERT INTO conversions (click_id, status, original_status, payout, currency) 
+                INSERT INTO conversions (click_id, status, original_status, payout, currency)
                 VALUES (?, ?, ?, ?, ?)
             ");
             $insertStmt->execute([$clickId, $internalStatus, $originalStatus, $payout, $currency]);
@@ -205,7 +341,7 @@ try {
     $inRev = "'" . implode("','", array_map('addslashes', $revStatuses)) . "'";
 
     $totalStats = $pdo->prepare("
-        SELECT 
+        SELECT
             SUM(CASE WHEN status IN ($inConv) THEN 1 ELSE 0 END) as is_conv,
             SUM(CASE WHEN status IN ($inRev) AND payout > 0 THEN payout ELSE 0 END) as total_rev
         FROM conversions WHERE click_id = ?
@@ -413,14 +549,37 @@ try {
     // CAPI — best effort: ответ на входящий постбек важнее.
     }
 
-    if ($returnMsg) {
-        echo htmlspecialchars($returnMsg);
-    }
-    else {
-        echo "Postback recorded successfully.";
-    }
+    orbitraPostbackExit(200, $returnMsg ? htmlspecialchars($returnMsg) : "Postback recorded successfully.", [
+        'result' => $conversionResult,
+        'matched' => true,
+        'campaign_id' => $campaignId,
+        'original_status' => $originalStatus,
+        'status' => $internalStatus,
+        'payout' => $payout,
+        'currency' => $currency,
+        'conversion_id' => $conversionId,
+        'error' => null
+    ], true);
 
 }
 catch (\Exception $e) {
-    die("Database error: " . $e->getMessage());
+    // Log the full exception server-side
+    try {
+        $logStmt = $pdo->prepare("INSERT INTO system_logs (level, message, context) VALUES (?, ?, ?)");
+        $logStmt->execute([
+            'ERROR',
+            'postback.php database error',
+            json_encode([
+                'exception' => get_class($e),
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ])
+        ]);
+    } catch (\Throwable $logErr) {
+        // If logging fails, continue anyway
+    }
+
+    orbitraPostbackExit(500, "Internal error.", ['result' => 'error', 'error' => 'Internal server error']);
 }

@@ -36,6 +36,7 @@ require_once __DIR__ . '/core/geo_databases.php';
 require_once __DIR__ . '/core/LeadForge.php';
 require_once __DIR__ . '/core/CrmVault.php';
 require_once __DIR__ . '/core/CloudDetector.php';
+require_once __DIR__ . '/core/DomainDnsResolver.php';
 
 // CORS Headers
 $allowedOrigins = ['https://tracker.yourdomain.com', 'http://127.0.0.1:8000', 'http://localhost:8080', 'http://localhost:5173', 'http://localhost']; // Add real domains here
@@ -6249,23 +6250,40 @@ try {
             } elseif ($type === 'postbacks') {
                 $stmt = $pdo->prepare("
                     SELECT
-                        conv.id,
-                        conv.click_id,
-                        conv.status,
-                        conv.original_status,
-                        conv.payout,
-                        conv.currency,
-                        datetime(conv.created_at, '$dbTzOffset') as created_at,
-                        cl.campaign_id,
-                        c.name as campaign_name
-                    FROM conversions conv
-                    LEFT JOIN clicks cl ON conv.click_id = cl.id
-                    LEFT JOIN campaigns c ON cl.campaign_id = c.id
-                    ORDER BY conv.created_at DESC
+                        id,
+                        click_id,
+                        status,
+                        original_status,
+                        payout,
+                        currency,
+                        datetime(created_at, '$dbTzOffset') as created_at,
+                        campaign_id,
+                        result,
+                        error,
+                        remote_ip,
+                        source,
+                        matched
+                    FROM incoming_postbacks_log
+                    ORDER BY created_at DESC
                     LIMIT ? OFFSET ?
                 ");
                 $stmt->execute([$limit, $offset]);
-                echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
+                $rows = $stmt->fetchAll();
+                // Enrich with campaign names for display
+                foreach ($rows as &$row) {
+                    if ($row['campaign_id']) {
+                        try {
+                            $campStmt = $pdo->prepare("SELECT name FROM campaigns WHERE id = ? LIMIT 1");
+                            $campStmt->execute([$row['campaign_id']]);
+                            $row['campaign_name'] = $campStmt->fetchColumn();
+                        } catch (\Throwable $e) {
+                            $row['campaign_name'] = null;
+                        }
+                    } else {
+                        $row['campaign_name'] = null;
+                    }
+                }
+                echo json_encode(['status' => 'success', 'data' => $rows]);
             } elseif ($type === 'system') {
                 $stmt = $pdo->prepare("SELECT *, datetime(created_at, '$dbTzOffset') as created_at FROM system_logs ORDER BY created_at DESC LIMIT ? OFFSET ?");
                 $stmt->execute([$limit, $offset]);
@@ -6475,37 +6493,20 @@ try {
                     if (!$hasCachedStatus && !$forceRefresh && $dnsLookupsCount >= $maxDnsLookups) {
                         $domain['dns_state'] = 'checking';
                     } else {
-                        // Perform DNS lookup
-                        $domainIp = @gethostbyname($domain['name']);
+                        // Perform DNS lookup using shared resolver (Cloudflare-aware)
+                        $result = orbitraResolveDomainDnsState($pdo, $domain, $serverIp);
+                        $domain['dns_state'] = $result['status'];
+                        $domain['dns_reason'] = $result['reason'];
+                        $domainIp = $result['ip'];
 
                         // Debug logging
-                        error_log("DNS Check: {$domain['name']} -> {$domainIp} (server: {$serverIp})");
-
-                        // More robust IP matching - trim whitespace and handle both IPv4 and IPv6
-                        $domainIp = trim($domainIp);
-                        $serverIp = trim($serverIp);
-
-                        if ($domainIp === $serverIp) {
-                            $domain['dns_state'] = 'active';
-                            error_log("DNS Match: {$domain['name']} is ACTIVE");
-                        } elseif ($domainIp === '127.0.0.1' || $serverIp === '127.0.0.1') {
-                            // Localhost environment - consider as active
-                            $domain['dns_state'] = 'active';
-                            error_log("DNS Localhost: {$domain['name']} marked ACTIVE (localhost)");
-                        } elseif ($domainIp === $domain['name']) {
-                            // DNS lookup failed - domain doesn't resolve
-                            $domain['dns_state'] = 'pending';
-                            error_log("DNS Failed: {$domain['name']} does not resolve");
-                        } else {
-                            // Domain resolves but to different IP
-                            $domain['dns_state'] = 'pending';
-                            error_log("DNS Mismatch: {$domain['name']} resolves to {$domainIp}, expected {$serverIp}");
-                        }
+                        error_log("DNS Check: {$domain['name']} -> {$domainIp} (server: {$serverIp}), state: {$result['status']}, reason: {$result['reason']}");
 
                         // Mark for database update
                         $needsUpdate[] = [
                             'id' => $domainId,
-                            'status' => $domain['dns_state'],
+                            'status' => $result['status'],
+                            'reason' => $result['reason'],
                             'ip' => $domainIp
                         ];
 
@@ -6523,9 +6524,9 @@ try {
 
             // Batch update DNS cache in database (only if we did lookups)
             if (!empty($needsUpdate)) {
-                $updateStmt = $pdo->prepare("UPDATE domains SET dns_status = ?, dns_ip = ?, dns_checked_at = CURRENT_TIMESTAMP WHERE id = ?");
+                $updateStmt = $pdo->prepare("UPDATE domains SET dns_status = ?, dns_reason = ?, dns_ip = ?, dns_checked_at = CURRENT_TIMESTAMP WHERE id = ?");
                 foreach ($needsUpdate as $update) {
-                    $updateStmt->execute([$update['status'], $update['ip'], $update['id']]);
+                    $updateStmt->execute([$update['status'], $update['reason'], $update['ip'], $update['id']]);
                 }
             }
 
@@ -6540,7 +6541,7 @@ try {
                 break;
             }
 
-            $stmt = $pdo->prepare("SELECT id, name FROM domains WHERE id = ?");
+            $stmt = $pdo->prepare("SELECT id, name, cloudflare_proxy, dns_status, dns_reason FROM domains WHERE id = ?");
             $stmt->execute([$domainId]);
             $domain = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -6582,22 +6583,19 @@ try {
                 }
             }
 
-            // Do DNS lookup
-            $domainIp = @gethostbyname($domain['name']);
-            $status = 'pending';
-            if ($domainIp === $serverIp || $domainIp === '127.0.0.1' || $serverIp === '127.0.0.1') {
-                $status = 'active';
-            }
+            // Do DNS lookup using shared resolver (Cloudflare-aware)
+            $result = orbitraResolveDomainDnsState($pdo, $domain, $serverIp);
 
             // Update cache
-            $updateStmt = $pdo->prepare("UPDATE domains SET dns_status = ?, dns_ip = ?, dns_checked_at = CURRENT_TIMESTAMP WHERE id = ?");
-            $updateStmt->execute([$status, $domainIp, $domainId]);
+            $updateStmt = $pdo->prepare("UPDATE domains SET dns_status = ?, dns_reason = ?, dns_ip = ?, dns_checked_at = CURRENT_TIMESTAMP WHERE id = ?");
+            $updateStmt->execute([$result['status'], $result['reason'], $result['ip'], $domainId]);
 
             echo json_encode(['status' => 'success', 'data' => [
                 'id' => $domain['id'],
                 'name' => $domain['name'],
-                'dns_status' => $status,
-                'dns_ip' => $domainIp
+                'dns_status' => $result['status'],
+                'dns_reason' => $result['reason'],
+                'dns_ip' => $result['ip']
             ]]);
             break;
 
@@ -6707,37 +6705,25 @@ try {
             }
 
             // Get all domains
-            $stmt = $pdo->query("SELECT id, name, dns_status FROM domains ORDER BY id ASC");
+            $stmt = $pdo->query("SELECT id, name, cloudflare_proxy, dns_status, dns_reason FROM domains ORDER BY id ASC");
             $allDomains = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             $results = [];
-            $updateStmt = $pdo->prepare("UPDATE domains SET dns_status = ?, dns_ip = ?, dns_checked_at = CURRENT_TIMESTAMP WHERE id = ?");
+            $updateStmt = $pdo->prepare("UPDATE domains SET dns_status = ?, dns_reason = ?, dns_ip = ?, dns_checked_at = CURRENT_TIMESTAMP WHERE id = ?");
 
             foreach ($allDomains as $domain) {
-                // Do DNS lookup for EACH domain (no limits)
-                $domainIp = @gethostbyname($domain['name']);
-                $domainIp = trim($domainIp);
-                $serverIp = trim($serverIp);
-
-                // Determine status
-                if ($domainIp === $serverIp) {
-                    $status = 'active';
-                } elseif ($domainIp === '127.0.0.1' || $serverIp === '127.0.0.1') {
-                    $status = 'active';
-                } elseif ($domainIp === $domain['name']) {
-                    $status = 'pending';
-                } else {
-                    $status = 'pending';
-                }
+                // Do DNS lookup for EACH domain using shared resolver (Cloudflare-aware)
+                $result = orbitraResolveDomainDnsState($pdo, $domain, $serverIp);
 
                 // Update database
-                $updateStmt->execute([$status, $domainIp, $domain['id']]);
+                $updateStmt->execute([$result['status'], $result['reason'], $result['ip'], $domain['id']]);
 
                 $results[] = [
                     'id' => $domain['id'],
                     'name' => $domain['name'],
-                    'dns_status' => $status,
-                    'dns_ip' => $domainIp
+                    'dns_status' => $result['status'],
+                    'dns_reason' => $result['reason'],
+                    'dns_ip' => $result['ip']
                 ];
             }
 

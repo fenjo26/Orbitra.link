@@ -691,10 +691,36 @@ const Domains = ({ campaigns }) => {
                                     <td>
                                         {String(domain.status) === 'Disabled' ? (
                                             <span className="badge badge-danger"><X size={14} /> {t('domains.statusDisabled')}</span>
-                                        ) : (ignoreDnsUi || domain.dns_state === 'active') ? (
+                                        ) : ignoreDnsUi ? (
                                             <span className="badge badge-success">
                                                 <Check size={14} /> {String(domain.status) === 'Active' ? t('domains.statusActive') : t('domains.ok')}
                                             </span>
+                                        ) : domain.dns_state === 'active' ? (
+                                            <span className="badge badge-success">
+                                                {domain.dns_reason === 'cloudflare' ? (
+                                                    <><Cloud size={14} /> {t('domains.activeCloudflare')}</>
+                                                ) : domain.dns_reason === 'local' ? (
+                                                    <><Check size={14} /> {t('domains.activeLocalhost')}</>
+                                                ) : (
+                                                    <><Check size={14} /> {String(domain.status) === 'Active' ? t('domains.statusActive') : t('domains.ok')}</>
+                                                )}
+                                            </span>
+                                        ) : domain.dns_state === 'pending' && domain.dns_reason === 'no_resolve' ? (
+                                            <button
+                                                onClick={() => setShowDnsModal(true)}
+                                                className="badge badge-warning cursor-pointer hover:bg-yellow-500/20 transition"
+                                                title={t('domains.dnsReasonNoResolve')}
+                                            >
+                                                <Clock size={14} /> {t('domains.awaitingDns')}
+                                            </button>
+                                        ) : domain.dns_state === 'pending' && domain.dns_reason?.startsWith('wrong_ip:') ? (
+                                            <button
+                                                onClick={() => setShowDnsModal(true)}
+                                                className="badge badge-danger cursor-pointer hover:bg-red-500/20 transition"
+                                                title={t('domains.dnsReasonWrongIp', { ip: domain.dns_reason?.replace('wrong_ip:', '') })}
+                                            >
+                                                <ShieldAlert size={14} /> {t('domains.wrongIp')}
+                                            </button>
                                         ) : (
                                             <button
                                                 onClick={() => setShowDnsModal(true)}

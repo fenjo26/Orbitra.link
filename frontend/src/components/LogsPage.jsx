@@ -85,30 +85,66 @@ const LogsPage = () => {
                         <thead>
                             <tr>
                                 <th>{t('logs.colTime')}</th>
+                                <th>{t('logs.colSourceIp')}</th>
                                 <th>{t('logs.colClickId')}</th>
                                 <th>{t('logs.colCampaign')}</th>
                                 <th>{t('logs.colStatus')}</th>
                                 <th>{t('logs.colOrigStatus')}</th>
                                 <th className="text-right">{t('logs.colPayout')}</th>
+                                <th>{t('logs.colResult')}</th>
+                                <th>{t('logs.colError')}</th>
+                                <th>{t('logs.colSource')}</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {logs.map((log, i) => (
-                                <tr key={i}>
-                                    <td>{log.created_at}</td>
-                                    <td className="font-mono text-xs">{log.click_id}</td>
-                                    <td>{log.campaign_name || '-'}</td>
-                                    <td>
-                                        <span className={`status-badge ${log.status === 'sale' || log.status === 'lead' ? 'status-active' : 'status-inactive'}`}>
-                                            {log.status}
-                                        </span>
-                                    </td>
-                                    <td>{log.original_status || '-'}</td>
-                                    <td className={`text-right font-medium ${log.payout > 0 ? 'text-[var(--color-success)]' : 'text-[var(--color-text-muted)]'}`}>
-                                        {parseFloat(log.payout) > 0 ? `${log.payout} ${log.currency}` : '0.00'}
-                                    </td>
-                                </tr>
-                            ))}
+                            {logs.map((log, i) => {
+                                const resultLabels = {
+                                    recorded: t('logs.resultRecorded'),
+                                    updated: t('logs.resultUpdated'),
+                                    rejected: t('logs.resultRejected'),
+                                    error: t('logs.resultError')
+                                };
+                                const resultClasses = {
+                                    recorded: 'status-active',
+                                    updated: 'status-pending',
+                                    rejected: 'status-inactive',
+                                    error: 'status-inactive'
+                                };
+                                const sourceLabels = {
+                                    postback: t('logs.sourcePostback'),
+                                    pixel: t('logs.sourcePixel')
+                                };
+                                return (
+                                    <tr key={i}>
+                                        <td>{log.created_at}</td>
+                                        <td className="font-mono text-xs">{log.remote_ip || '-'}</td>
+                                        <td className="font-mono text-xs">{log.click_id || '-'}</td>
+                                        <td>{log.campaign_name || '-'}</td>
+                                        <td>
+                                            {log.status ? (
+                                                <span className={`status-badge ${log.status === 'sale' || log.status === 'lead' ? 'status-active' : 'status-inactive'}`}>
+                                                    {log.status}
+                                                </span>
+                                            ) : '-'}
+                                        </td>
+                                        <td>{log.original_status || '-'}</td>
+                                        <td className={`text-right font-medium ${log.payout > 0 ? 'text-[var(--color-success)]' : 'text-[var(--color-text-muted)]'}`}>
+                                            {parseFloat(log.payout) > 0 ? `${log.payout} ${log.currency}` : '0.00'}
+                                        </td>
+                                        <td>
+                                            <span className={`status-badge ${resultClasses[log.result] || 'status-inactive'}`}>
+                                                {resultLabels[log.result] || log.result}
+                                            </span>
+                                        </td>
+                                        <td className="truncate max-w-xs" title={log.error || ''}>{log.error || '-'}</td>
+                                        <td>
+                                            <span className="text-xs text-[var(--color-text-muted)]">
+                                                {sourceLabels[log.source] || log.source}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 );

@@ -125,6 +125,19 @@ try {
 
 orbitraCleanupLog("  purged {$clicksDeleted} clicks, {$convDeleted} conversions older than {$clicksRetentionDays} days");
 
+// --- Incoming postbacks log retention ---------------------------------------
+// Use the same retention window as clicks. These are audit logs, not billing
+// records, so they can be pruned aggressively.
+$postbackRetentionDays = $clicksRetentionDays;
+$postbackWhere = "created_at < datetime('now', '-" . $postbackRetentionDays . " days')";
+try {
+    $postbackDeleted = orbitraCleanupChunkedDelete($pdo, 'incoming_postbacks_log', $postbackWhere, []);
+} catch (\Throwable $e) {
+    $postbackDeleted = 0;
+    orbitraCleanupLog('  incoming_postbacks_log delete skipped: ' . $e->getMessage());
+}
+orbitraCleanupLog("  purged {$postbackDeleted} incoming postback logs older than {$postbackRetentionDays} days");
+
 // --- Archived items past their retention window -----------------------------
 // Deleting an archived campaign cascades to its streams/clicks (FK ON DELETE
 // CASCADE); offers/landings set dependent campaign columns to NULL. These rows
