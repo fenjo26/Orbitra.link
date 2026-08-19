@@ -7,6 +7,26 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.1.2] — 2026-08-19
+
+Postback observability and honest status mapping, routing consolidated into a single front controller, and performance work on the click path and analytics. Existing nginx servers need one `nginx_sync.php` run (see below).
+
+### Added
+- 📜 **Incoming postbacks log (ORB-001)** — every postback the tracker receives is now recorded as it arrives, before status mapping and attribution run, so a conversion that went missing or landed on the wrong status can be traced back to the exact request the network sent.
+- 🧩 **Unmapped conversion statuses + retroactive mapping** — the Facebook and TikTok engines check custom status mappings before falling back to defaults, and a status that no rule maps is stored unmapped instead of being forced into a guess. A new section in Conversion Types Settings lists the unmapped statuses collected so far and lets you define a mapping for them; a mapping defined later is applied retroactively, reclassifying conversions already stored with that status.
+- ⚡ **Landing assets via nginx X-Accel-Redirect (ORB-013)** — PHP resolves the asset path with its security checks, then hands the file to nginx through `X-Accel-Redirect`: nginx serves it with sendfile (zero-copy) while PHP is freed for the next request, so a landing page with 30 assets no longer ties up 30 PHP workers. The internal location serves only whitelisted asset types — everything else, including `.php`, gets `deny all`. **An existing nginx server needs `sudo php /var/www/orbitra/cli/nginx_sync.php` once** — the internal location lives in the vhost, not in the code. Apache installs need nothing manual.
+- 🗂️ **Analytics performance indexes** — a new migration adds covering indexes on the `clicks` table for the analytics and trends filters, so grouped reports over large click volumes stop scanning the whole table.
+
+### Fixed
+- 🎯 **LeadForge no longer fabricates subids (ORB-011)** — the `bin2hex(random_bytes(8))` fallback that invented a subid for leads with no click context is gone. The subid is now verified tri-state against the `clicks` table: a lead with a stale or missing subid is rejected with a neutral customer-facing message and an entry in `system_logs`, while a lead is still accepted when the database is unreachable (remote deployments, DB errors) so availability never depends on the check.
+- 🔒 **Cloudflare Flexible SSL redirect loop** — HTTPS detection goes through `orbitraIsHttps()`, which honours the `CF-Visitor` header, so the panel no longer bounces between HTTP and HTTPS behind Flexible SSL.
+- 🌐 **One source of truth for the server's public IP (ORB-005)** — features that need the server's public address (SSL provisioning, integration hints) no longer each run their own detection with their own caching quirks.
+- 🧱 **IntegrationsPage JSX fragment** — multiple sibling elements behind a conditional were wrapped in a fragment, fixing a render error on that page.
+
+### Changed
+- 🧭 **Routing consolidated into `index.php`** — `router.php` is deleted; `index.php` is the sole front controller and carries the two access guards ported from it: the Disabled Domain Guard (a 404 for domains marked disabled) and the Admin Access Guard (admin routes restricted per the domain's `admin_access` setting). The postback route and the conversion pixel path work through the front controller as well, returning a valid GIF with proper error codes, and are now covered by real-HTTP integration tests (ORB-010) instead of fakes.
+- ⏱️ **Geo enrichment off the click path** — synchronous calls to external geo APIs during click processing are disabled; a click no longer waits on a third-party response before being redirected.
+
 ## [1.1.1] — 2026-08-18
 
 A local offer hosted on the tracker could take a lead and then answer the buyer with a 404: the form's relative `order.php` never reached PHP at all.
