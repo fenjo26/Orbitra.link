@@ -506,7 +506,7 @@ class OrbitraTestHarness
             if ($candidate === 'php') {
                 // Try from PATH
                 $which = shell_exec('which php 2>/dev/null');
-                if ($whom !== null && trim($which) !== '') {
+                if ($which !== null && trim($which) !== '') {
                     $path = trim($which);
                     if (is_file($path)) {
                         return $path;
