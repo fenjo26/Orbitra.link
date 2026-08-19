@@ -13,24 +13,24 @@ Orbitra is a modern traffic management and conversion tracking system. A simpler
 
 ## 🆕 What's New in v1.1.1
 
+### Local Offers & PHP Bridge Fixes
+
 - **A local offer's form POST no longer 404s** — an uploaded offer is served at the campaign URL, so the browser resolved the LeadForge form's `action="order.php"` against the domain root and posted to `/order.php`, which nginx answered with its own 404 before PHP ever ran (`snippets/fastcgi-php.conf` ends in `try_files $fastcgi_script_name =404`). The vhost now routes `/order.php`, `/offers/<id>/*.php` and `/lander/<slug>/*.php` to the front controller. **Existing servers: run `sudo php /var/www/orbitra/cli/nginx_sync.php` once after updating.**
 - **`success.php` is executed too** — the generated `order.php` redirects to a relative `success.php`, so a lead could reach the network and the buyer still land on a 404 one hop later. One shared handler list now covers `order.php`, `thank_you.php`, `success.php`, `send.php`, `lucky.php` and `lemon.php`.
 - **Form actions are pinned to `/offers/<id>/…`** — the lead POST carries the offer id instead of depending on a cookie or Referer surviving, and a bundle whose sender is named `api.php` can no longer collide with the tracker's own admin API. In-page anchors and assets are untouched.
 - **Uploaded PHP is not executable off disk any more** — a file inside an offer or landing archive can only run through the tracker, under the "Allow PHP landings" switch and its execution budget; `/landings/<id>/*.php` returns 404.
 - **`ORBITRA_OFFER_ID` / `ORBITRA_OFFER_URL` / `ORBITRA_OFFER_PATH`** are defined for a local offer's own PHP, so a bundle can build an absolute URL for itself and still work standalone.
 
-## 🆕 What's New in v1.1.0
+### Previous Release — v1.1.0
 
-- **Conversion attribution for affiliate-network postbacks** — every conversion ingested through `postback.php` is now stamped with its click's campaign, offer, `sub_id_1..5`, IP and user agent, so the Conversions log and its campaign/offer filters stop showing unlinked rows. Migration 33 backfills existing records from their clicks.
-- **Layered reports restored** — a stray `//` comment inside the `campaign_report` SQL made SQLite reject the whole statement, so every grouped view (Sub1…Sub30, Country, Day, Campaign, Offer) returned an error instead of rendering.
-- **Case-insensitive status matching** — a network sending `Approved` or `PENDING` used to be counted as a conversion that belonged to no status group, which is how a campaign could show `Conversions: 1` with Sales, Leads, Rejected and Trash all at 0. The status vocabulary also covers `approve/accepted/paid`, `new/wait/processing`, `reject/decline/cancelled` and `spam/duplicate`.
-- **`subid` stays out of the Sub1 dimension** — the incoming `subid` is the tracker's Click ID; the sub dimensions are read from the click's own parameters, so Sub1 reports group by ad set instead of degenerating to one row per click.
-- **CSV conversion import is attributed too**, and a status's own `*_status` rule now wins over another type that happens to list the same value.
-- **Conversion failure monitoring** — failures to create a conversion (unknown click, database error) are logged with context, exposed through `api.php?action=conversion_monitoring`, and alerted on via Telegram by `conversion_monitor_cron.php` once the failure rate crosses a threshold.
-- **Cloud-aware SSL provisioning** — Cloudflare-proxied domains are detected and skipped by Certbot, DNS and sudo prerequisites are checked before a certificate is requested, and Domains gained a reissue action that reports why issuance failed.
-- **Outbound TLS verification restored** — Telegram, postback-queue and LeadForge cURL calls no longer accept any certificate; verification is relaxed only in an explicitly local environment.
-- **TikTok cost connection fixed for API v1.3** — correct `advertiser_ids` request format, digits-only Advertiser ID parsing, and errors that name the cause. A Marketing API token is required; an Events Manager token will not work.
-- **Google Ads 1-click OAuth setup guide** — in-panel walkthrough plus a `check_google_ads_oauth.php` preflight, with `.env.example` documenting the variables.
+- **Conversion attribution for affiliate-network postbacks** — every conversion ingested through `postback.php` is now stamped with its click's campaign, offer, `sub_id_1..5`, IP and user agent
+- **Layered reports restored** — fixed SQL query that broke all grouped reports (Sub1…Sub30, Country, Day, Campaign, Offer)
+- **Case-insensitive status matching** — `Approved`/`PENDING` now correctly map to status groups
+- **Conversion failure monitoring** — logged with context, exposed via API and Telegram alerts
+- **Cloud-aware SSL provisioning** — Cloudflare-proxied domains detected and skipped
+- **Outbound TLS verification restored** — proper certificate verification on outbound requests
+- **TikTok cost connection fixed** — API v1.3 support with correct request format
+- **Google Ads 1-click OAuth setup guide** — in-panel walkthrough with preflight check
 
 ## 🖥 Live Demo
 
@@ -501,14 +501,23 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.0.8 (2026-08-18)
-- 🌍 **LeadForge 2.0 150-GEO Validation Engine** — Full integration of 150-country GEO validation rules with exact national & international regex patterns, mobile operator prefixes, min/max length constraints, dialing codes, and localized validation messages across 33 languages (including full CIS, India, Europe, LATAM, and MENA/Asia)
-- ⚡ **Reference JavaScript Client Engine (`orbitra_adapter.js`)** — Dynamic country switching on `<select name="country">` dropdowns, interactive live input badge counters (*«3 cifre inserite, 7 mancanti»* → *«Numero complete»*), strict Unicode name validation preventing numbers and spam characters, and haptic vibration feedback
-- 🚀 **Universal Multi-Network CPA Order Bridge (`order.php`)** — Native standalone order handler supporting 10 affiliate networks (Dr.Cash, Webvork with SuperClient fallback, Lucky.online, KMA.biz, TerraLeads with SHA1 checksums, Leadbit, LemonAD, Everad, Ezaff, and Custom Webhooks) with automated E.164 phone normalization
-- 💾 **Dual Logging & Failsafe Lead Vault** — Simultaneous CPA network submission and in-process/remote CRM vault recording (`orbitraCrmRecordLead` / `/crm-ingest`) alongside local fallback logs (`leadforge.leads.log` and `orbitra_leads_backup.log`)
-- 🧪 **Automated Synchronization Test Suite** — Comprehensive test verification (`tests/leadforge_sync_test.php`) covering 150 GEO rules, adapter JS generation, order PHP generation, and router containment
+### Current release — v1.1.1 (2026-08-19)
 
-Previous release — v1.0.7: Modern Integrations Card Hub architecture, in-browser IDE & File Manager for local offers, and secure file operations API.
+**Local Offers & PHP Bridge Fixes**
+- 🚨 **POST forms on local offers no longer 404** — `/order.php`, `/offers/<id>/*.php` and `/lander/<slug>/*.php` now route to the front controller
+- 🔁 **`success.php` execution** — all PHP handlers (`order.php`, `thank_you.php`, `success.php`, `send.php`, `lucky.php`, `lemon.php`) execute correctly
+- 🎯 **Form actions pinned to offer URL** — POST carries offer ID, no collision with admin API
+- 🔒 **Uploaded PHP security** — PHP files only execute through the tracker under "Allow PHP landings"
+- 🧭 **Offer context constants** — `ORBITRA_OFFER_ID`/`URL`/`PATH` defined for local offer PHP
+
+**Previous highlights (v1.1.0)**
+- 🔗 **Conversion attribution** — postback conversions now stamped with click data
+- 📊 **Layered reports fixed** — all grouped reports working again
+- 🔤 **Case-insensitive statuses** — `Approved`/`PENDING` correctly mapped
+- 📡 **Conversion failure monitoring** — API endpoint + Telegram alerts
+- 🔐 **TLS verification restored** — proper certificate checks on outbound calls
+
+Full version history: [CHANGELOG.md](CHANGELOG.md)
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 
