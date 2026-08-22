@@ -152,14 +152,16 @@ class CloakDetector
      *                          ('allow'|'deny'), devices (string/array, empty
      *                          disables), device_mode, block_bot_isps (bool,
      *                          default true), custom_bot_isps (comma-separated
-     *                          local override of the global list)
+     *                          local override of the global list), geo_unknown_action
+     *                          ('safe'|'money', default 'safe')
      * @param string $countryCode    visitor country, e.g. 'US' (or 'Unknown')
      * @param string $deviceType     Mobile/Tablet/Desktop or a known alias
      * @param string $ispHaystack    visitor "isp asn" string, any case
      * @param string $globalBotIspList comma-separated keywords from settings.bot_isp_list
-     * @return array reason codes: geo_country / device_type / bot_isp (may be empty)
+     * @param bool   $geoReady      true when a geo database is installed and readable
+     * @return array reason codes: geo_country / geo_unknown / device_type / bot_isp (may be empty)
      */
-    public static function targetingReasons(array $targeting, string $countryCode, string $deviceType, string $ispHaystack, string $globalBotIspList): array
+    public static function targetingReasons(array $targeting, string $countryCode, string $deviceType, string $ispHaystack, string $globalBotIspList, bool $geoReady = true): array
     {
         $reasons = [];
         $normalize = static function ($raw): array {
@@ -169,11 +171,28 @@ class CloakDetector
         };
 
         // 1. Country (GEO): allow = must be in the list, deny = must not be.
+        // W4: Distinguish "not in list" from "cannot tell" - emit geo_unknown when
+        // country is Unknown and no geo database is installed.
         $countries = array_map('strtoupper', $normalize($targeting['countries'] ?? ''));
         if (!empty($countries)) {
-            $inList = in_array(strtoupper(trim($countryCode)), $countries, true);
+            $countryUpper = strtoupper(trim($countryCode));
+            $inList = in_array($countryUpper, $countries, true);
             $deny = ($targeting['geo_mode'] ?? 'allow') === 'deny';
-            if ($deny ? $inList : !$inList) {
+
+            // W4: Special handling for Unknown country when geo is not ready
+            $isUnknown = $countryUpper === '' || $countryUpper === 'UNKNOWN';
+            $geoUnknownAction = $targeting['geo_unknown_action'] ?? 'safe';
+
+            if ($isUnknown && !$geoReady && !$deny) {
+                // Country allow-list + no geo DB + Unknown country
+                // Emit geo_unknown reason (instead of geo_country)
+                // Route based on geo_unknown_action setting
+                if ($geoUnknownAction !== 'money') {
+                    $reasons[] = 'geo_unknown';
+                }
+                // If geo_unknown_action === 'money', no reason is emitted and
+                // the visitor passes through to the money page
+            } elseif ($deny ? $inList : !$inList) {
                 $reasons[] = 'geo_country';
             }
         }

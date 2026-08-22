@@ -3476,6 +3476,42 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                 </div>
                                                             </div>
 
+                                                            {/* W4: Detection layer degradation warnings */}
+                                                            {(sc.detect_datacenter !== false || sc.detect_vpn !== false) && (
+                                                                <div className="space-y-2">
+                                                                    {sc.detect_datacenter !== false && geoTargetingReady.asn === false && (
+                                                                        <div style={{
+                                                                            padding: '8px 10px',
+                                                                            background: 'var(--color-warning-bg)',
+                                                                            borderRadius: '8px',
+                                                                            fontSize: '11px',
+                                                                            color: 'var(--color-warning)',
+                                                                            display: 'flex',
+                                                                            alignItems: 'flex-start',
+                                                                            gap: '6px'
+                                                                        }}>
+                                                                            <AlertTriangle className="w-3.5 h-3.5 shrink-0" style={{ marginTop: '1px' }} />
+                                                                            <span>{t('cloaking.inactiveDatacenterWarning')}</span>
+                                                                        </div>
+                                                                    )}
+                                                                    {sc.detect_vpn !== false && geoTargetingReady.proxy === false && (
+                                                                        <div style={{
+                                                                            padding: '8px 10px',
+                                                                            background: 'var(--color-warning-bg)',
+                                                                            borderRadius: '8px',
+                                                                            fontSize: '11px',
+                                                                            color: 'var(--color-warning)',
+                                                                            display: 'flex',
+                                                                            alignItems: 'flex-start',
+                                                                            gap: '6px'
+                                                                        }}>
+                                                                            <AlertTriangle className="w-3.5 h-3.5 shrink-0" style={{ marginTop: '1px' }} />
+                                                                            <span>{t('cloaking.inactiveVpnWarning')}</span>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            )}
+
                                                             {/* Sensitivity & JS Challenge row */}
                                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2" style={{ borderTop: '1px solid var(--color-border)' }}>
                                                                 <div>
@@ -3780,6 +3816,23 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                             <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
                                                                                 {t('cloaking.botIspHint', "Matched against the visitor's ISP and ASN. Leave empty to use the global list from Settings → Bots.")}
                                                                             </p>
+                                                                            {/* W4: ASN database degradation warning */}
+                                                                            {geoTargetingReady.asn === false && (
+                                                                                <div style={{
+                                                                                    marginTop: '8px',
+                                                                                    padding: '8px 10px',
+                                                                                    background: 'var(--color-warning-bg)',
+                                                                                    borderRadius: '8px',
+                                                                                    fontSize: '11px',
+                                                                                    color: 'var(--color-warning)',
+                                                                                    display: 'flex',
+                                                                                    alignItems: 'flex-start',
+                                                                                    gap: '6px'
+                                                                                }}>
+                                                                                    <AlertTriangle className="w-3.5 h-3.5 shrink-0" style={{ marginTop: '1px' }} />
+                                                                                    <span>{t('cloaking.inactiveBotWarning')}</span>
+                                                                                </div>
+                                                                            )}
                                                                         </div>
                                                                     )}
                                                                 </div>

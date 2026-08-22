@@ -199,12 +199,15 @@ function orbitraCloakDecision(
 
     // Layer 3: Targeting filters (country, device, ISP) - hard rules
     if (!$showSafe) {
+        // W4: Check if geo data was available for targeting
+        $geoReady = !empty($countryCode) && strtoupper($countryCode) !== 'UNKNOWN';
         $targetingReasons = CloakDetector::targetingReasons(
             $customSchema,
             $countryCode,
             $deviceType,
             ($visitorCtx['isp'] ?? '') . ' ' . ($visitorCtx['asn'] ?? ''),
-            (string) ($settings['bot_isp_list'] ?? '')
+            (string) ($settings['bot_isp_list'] ?? ''),
+            $geoReady
         );
         if (!empty($targetingReasons)) {
             $showSafe = true;

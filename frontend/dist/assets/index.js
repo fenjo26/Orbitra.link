@@ -88721,6 +88721,34 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         );
                       }) })
                     ] }),
+                    (sc.detect_datacenter !== false || sc.detect_vpn !== false) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
+                      sc.detect_datacenter !== false && geoTargetingReady.asn === false && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+                        padding: "8px 10px",
+                        background: "var(--color-warning-bg)",
+                        borderRadius: "8px",
+                        fontSize: "11px",
+                        color: "var(--color-warning)",
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: "6px"
+                      }, children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "w-3.5 h-3.5 shrink-0", style: { marginTop: "1px" } }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("cloaking.inactiveDatacenterWarning") })
+                      ] }),
+                      sc.detect_vpn !== false && geoTargetingReady.proxy === false && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+                        padding: "8px 10px",
+                        background: "var(--color-warning-bg)",
+                        borderRadius: "8px",
+                        fontSize: "11px",
+                        color: "var(--color-warning)",
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: "6px"
+                      }, children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "w-3.5 h-3.5 shrink-0", style: { marginTop: "1px" } }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("cloaking.inactiveVpnWarning") })
+                      ] })
+                    ] }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-xs font-semibold uppercase mb-1 block", style: { color: "var(--color-text-muted)" }, children: t("cloaking.sensitivity") }),
@@ -88988,7 +89016,21 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                               onChange: (e) => setCloakField("custom_bot_isps", e.target.value)
                             }
                           ),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t("cloaking.botIspHint", "Matched against the visitor's ISP and ASN. Leave empty to use the global list from Settings → Bots.") })
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t("cloaking.botIspHint", "Matched against the visitor's ISP and ASN. Leave empty to use the global list from Settings → Bots.") }),
+                          geoTargetingReady.asn === false && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+                            marginTop: "8px",
+                            padding: "8px 10px",
+                            background: "var(--color-warning-bg)",
+                            borderRadius: "8px",
+                            fontSize: "11px",
+                            color: "var(--color-warning)",
+                            display: "flex",
+                            alignItems: "flex-start",
+                            gap: "6px"
+                          }, children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "w-3.5 h-3.5 shrink-0", style: { marginTop: "1px" } }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("cloaking.inactiveBotWarning") })
+                          ] })
                         ] })
                       ] })
                     ] }),
