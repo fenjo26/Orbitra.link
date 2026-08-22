@@ -2680,7 +2680,8 @@ export default {
         "dontRecordSafeClicks": "Ne pas enregistrer les clics pour la Safe Page",
         "dontRecordSafeClicksHint": "Les robots, crawlers et modérateurs redirigés vers la Safe Page ne seront pas enregistrés dans les rapports.",
         "moneyPage": "Page monétisée (pour les visiteurs)",
-        "moneyPageHint": "Affichée aux vrais visiteurs. Se comporte comme le schéma landing+offre."
+        "moneyPageHint": "Affichée aux vrais visiteurs. Se comporte comme le schéma landing+offre.",
+        "noGeoDbWarning": "Chaque visiteur est résolu comme pays Unknown, donc ce filtre enverra 100% de votre trafic vers la Safe Page."
     },
     "postbackQueue": {
         "title": "File d'attente des postbacks",

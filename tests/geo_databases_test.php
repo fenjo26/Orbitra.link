@@ -61,6 +61,63 @@ try {
             $failures[] = 'Official IP2Proxy sample was not resolved as VPN';
         }
     }
+
+    // Test orbitraGeoTargetingReady() - Phase 0 cloak warnings
+    // Test with empty directory - all should be false
+    $emptyRoot = sys_get_temp_dir() . '/orbitra-geo-empty-' . bin2hex(random_bytes(5));
+    mkdir($emptyRoot . '/geo', 0755, true);
+    $emptyReady = orbitraGeoTargetingReady($emptyRoot);
+    if ($emptyReady['country'] !== false) {
+        $failures[] = 'Empty directory should report country as false';
+    }
+    if ($emptyReady['asn'] !== false) {
+        $failures[] = 'Empty directory should report asn as false';
+    }
+    if ($emptyReady['proxy'] !== false) {
+        $failures[] = 'Empty directory should report proxy as false';
+    }
+    if (count($emptyReady['files']) !== 0) {
+        $failures[] = 'Empty directory should report zero files';
+    }
+    foreach (glob($emptyRoot . '/geo/*') ?: [] as $file) {
+        @unlink($file);
+    }
+    @rmdir($emptyRoot . '/geo');
+    @rmdir($emptyRoot);
+
+    // Test with present files
+    $writeHeader($tempRoot . '/geo/IP2LOCATION-LITE-DB11.BIN', 11, 1);
+    $withCountry = orbitraGeoTargetingReady($tempRoot);
+    if ($withCountry['country'] !== true) {
+        $failures[] = 'With IP2Location DB11, country should be true';
+    }
+    if ($withCountry['asn'] !== false) {
+        $failures[] = 'With IP2Location DB11 only, asn should be false';
+    }
+
+    // Test with truncated file (0-byte or too small) - should not be ready
+    file_put_contents($tempRoot . '/geo/IP2LOCATION-LITE-DB11.BIN', '');
+    $truncatedReady = orbitraGeoTargetingReady($tempRoot);
+    if ($truncatedReady['country'] !== false) {
+        $failures[] = 'Truncated file should report country as false';
+    }
+    // Restore valid file for further tests
+    $writeHeader($tempRoot . '/geo/IP2LOCATION-LITE-DB11.BIN', 11, 1);
+
+    // Test with unreadable file (no read permissions) - should not be ready
+    chmod($tempRoot . '/geo/IP2LOCATION-LITE-DB11.BIN', 0000);
+    $unreadableReady = orbitraGeoTargetingReady($tempRoot);
+    if ($unreadableReady['country'] !== false) {
+        $failures[] = 'Unreadable file should report country as false';
+    }
+    // Restore permissions for cleanup
+    chmod($tempRoot . '/geo/IP2LOCATION-LITE-DB11.BIN', 0644);
+
+    // Test memoisation - should return same result without re-checking files
+    $memoised = orbitraGeoTargetingReady($tempRoot);
+    if ($memoised !== $withCountry) {
+        $failures[] = 'orbitraGeoTargetingReady() should return memoised result';
+    }
 } finally {
     foreach (glob($tempRoot . '/geo/*') ?: [] as $file) {
         @unlink($file);

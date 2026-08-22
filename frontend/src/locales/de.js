@@ -2680,7 +2680,8 @@ export default {
         "dontRecordSafeClicks": "Klicks für Safe Page nicht aufzeichnen",
         "dontRecordSafeClicksHint": "Bots, Crawler und Prüfer, die zur Safe Page weitergeleitet werden, werden nicht in Berichten erfasst.",
         "moneyPage": "Money-Page (für Besucher)",
-        "moneyPageHint": "Wird echten Besuchern gezeigt. Verhält sich wie das Landing+Angebot-Schema."
+        "moneyPageHint": "Wird echten Besuchern gezeigt. Verhält sich wie das Landing+Angebot-Schema.",
+        "noGeoDbWarning": "Jeder Besucher wird als Land Unknown aufgelöst, daher wird dieser Filter 100% Ihres Traffics an die Safe Page senden."
     },
     "postbackQueue": {
         "title": "Postback-Warteschlange",
