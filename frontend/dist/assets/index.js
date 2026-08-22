@@ -16420,6 +16420,7 @@ const ru = {
     "enterParamKey": "Введите ключ параметра (например, utm_placement, placement, custom_id):",
     "addParam": "Добавить параметр",
     "additionalSubIds": "Дополнительные Sub ID (sub_id_1 .. sub_id_30)",
+    "sourceDrivenHint": "Список параметров берётся из источника трафика кампании — пока он не выбран, список универсальный.",
     "placement": "Плейсмент (utm_placement)",
     "facebookParams": "Параметры Facebook",
     "facebookParamsHint": "Скопировать URL-параметры Facebook Ads (без ведущего «?») для вставки в Meta Ads Manager"
@@ -19959,6 +19960,7 @@ const en = {
     "enterParamKey": "Enter parameter key (e.g. utm_placement, placement, custom_id):",
     "addParam": "Add Parameter",
     "additionalSubIds": "Sub IDs (sub_id_1 .. sub_id_30)",
+    "sourceDrivenHint": "The parameter list comes from the campaign's traffic source — it stays generic until one is picked.",
     "placement": "Placement (utm_placement)",
     "facebookParams": "Facebook Parameters",
     "facebookParamsHint": "Copy Facebook Ads URL Parameters (without leading ?) for pasting into Meta Ads Manager"
@@ -23498,6 +23500,7 @@ const uk = {
     "enterParamKey": "Введіть ключ параметра (наприклад, utm_placement, placement, custom_id):",
     "addParam": "Додати параметр",
     "additionalSubIds": "Додаткові Sub ID (sub_id_1 .. sub_id_30)",
+    "sourceDrivenHint": "Список параметрів береться з джерела трафіку кампанії — доки воно не обране, список універсальний.",
     "placement": "Плейсмент (utm_placement)",
     "facebookParams": "Параметри Facebook",
     "facebookParamsHint": "Скопіювати URL-параметри Facebook Ads (без початкового «?») для вставки в Meta Ads Manager"
@@ -27037,6 +27040,7 @@ const es = {
     "enterParamKey": "Ingrese la clave del parámetro (ej. utm_placement, placement, custom_id):",
     "addParam": "Añadir parámetro",
     "additionalSubIds": "Sub IDs adicionales (sub_id_1 .. sub_id_30)",
+    "sourceDrivenHint": "La lista de parámetros proviene de la fuente de tráfico de la campaña: sigue siendo genérica hasta que se elija una.",
     "placement": "Ubicación (utm_placement)",
     "facebookParams": "Parámetros de Facebook",
     "facebookParamsHint": "Copiar los parámetros de URL de Facebook Ads (sin el signo de interrogación inicial) para pegarlos en Meta Ads Manager"
@@ -30576,6 +30580,7 @@ const zh = {
     "enterParamKey": "输入参数键（例如 utm_placement、placement、custom_id）：",
     "addParam": "添加参数",
     "additionalSubIds": "附加子 ID (sub_id_1 .. sub_id_30)",
+    "sourceDrivenHint": "参数列表来自广告系列流量源——未选择之前保持通用。",
     "placement": "版位 (utm_placement)",
     "facebookParams": "Facebook 参数",
     "facebookParamsHint": "复制 Facebook Ads URL 参数（不含开头的问号）以便粘贴到 Meta Ads Manager"
@@ -34115,6 +34120,7 @@ const fr = {
     "enterParamKey": "Entrez la clé du paramètre (ex. utm_placement, placement, custom_id) :",
     "addParam": "Ajouter un paramètre",
     "additionalSubIds": "Sub ID supplémentaires (sub_id_1 .. sub_id_30)",
+    "sourceDrivenHint": "La liste des paramètres vient de la source de trafic de la campagne — elle reste générique tant qu'aucune n'est choisie.",
     "placement": "Emplacement (utm_placement)",
     "facebookParams": "Paramètres Facebook",
     "facebookParamsHint": "Copier les paramètres d'URL Facebook Ads (sans le point d'interrogation initial) pour les coller dans Meta Ads Manager"
@@ -37656,6 +37662,7 @@ const de = {
     "enterParamKey": "Parameterschlüssel eingeben (z. B. utm_placement, placement, custom_id):",
     "addParam": "Parameter hinzufügen",
     "additionalSubIds": "Zusätzliche Sub-IDs (sub_id_1 .. sub_id_30)",
+    "sourceDrivenHint": "Die Parameterliste stammt aus der Traffic-Quelle der Kampagne — bis eine ausgewählt ist, bleibt sie generisch.",
     "placement": "Platzierung (utm_placement)",
     "facebookParams": "Facebook-Parameter",
     "facebookParamsHint": "Facebook-Ads-URL-Parameter (ohne führendes Fragezeichen) zum Einfügen in den Meta Ads Manager kopieren"
@@ -41443,7 +41450,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18 }), label: t("nav.domains"), tab: "domains" },
     { icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { size: 18 }), label: t("nav.backorder"), tab: "backorder" }
   ];
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full fixed top-0 z-[1000] px-4 pt-4 md:px-6 md:pt-6 transition-all", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full fixed top-0 z-[1500] px-4 pt-4 md:px-6 md:pt-6 transition-all", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("nav", { className: "navbar-header h-[72px] flex items-center justify-between px-6 md:px-10 shadow-[var(--shadow-main)] bg-[var(--color-bg-card)] rounded-[24px] w-full mx-auto border-none transition-colors duration-300", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-3 md:space-x-5 h-full", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "font-semibold text-xl mr-2 flex items-center cursor-pointer", onClick: () => setActiveTab("dashboard"), style: { color: "var(--color-text-primary)" }, children: [
@@ -41608,7 +41615,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         "div",
         {
-          className: "xl:hidden fixed inset-0 bg-black/40 z-[999]",
+          className: "xl:hidden fixed inset-0 bg-black/40 z-[1499]",
           onClick: () => setMobileMenuOpen(false),
           style: { top: 0 }
         }
@@ -41616,7 +41623,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "div",
         {
-          className: "xl:hidden fixed right-0 top-0 bottom-0 z-[1001] overflow-y-auto",
+          className: "xl:hidden fixed right-0 top-0 bottom-0 z-[1501] overflow-y-auto",
           style: {
             width: "280px",
             background: "var(--color-bg-card)",
@@ -55431,7 +55438,7 @@ const Domains = ({ campaigns }) => {
       return { key, dir: defaultDir };
     });
   };
-  const SortIcon = ({ colKey }) => {
+  const SortIcon2 = ({ colKey }) => {
     if (sortBy.key !== colKey) return /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 opacity-40" });
     return sortBy.dir === "asc" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } });
   };
@@ -55847,7 +55854,7 @@ ${parked.join("\n")}`);
             style: { color: sortBy.key === "name" ? "var(--color-primary)" : "var(--color-text-secondary)" },
             children: [
               t("domains.domain"),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { colKey: "name" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon2, { colKey: "name" })
             ]
           }
         ) }),
@@ -55860,7 +55867,7 @@ ${parked.join("\n")}`);
             style: { color: sortBy.key === "group_name" ? "var(--color-primary)" : "var(--color-text-secondary)" },
             children: [
               t("domains.group"),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { colKey: "group_name" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon2, { colKey: "group_name" })
             ]
           }
         ) }),
@@ -55873,7 +55880,7 @@ ${parked.join("\n")}`);
             style: { color: sortBy.key === "status" ? "var(--color-primary)" : "var(--color-text-secondary)" },
             children: [
               t("domains.status"),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { colKey: "status" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon2, { colKey: "status" })
             ]
           }
         ) }),
@@ -55889,7 +55896,7 @@ ${parked.join("\n")}`);
             style: { color: sortBy.key === "created_at" ? "var(--color-primary)" : "var(--color-text-secondary)" },
             children: [
               t("domains.dateAdded"),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { colKey: "created_at" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon2, { colKey: "created_at" })
             ]
           }
         ) }),
@@ -59248,7 +59255,9 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
   });
   const [thDragIdx, setThDragIdx] = reactExports.useState(null);
   const [thDragOverIdx, setThDragOverIdx] = reactExports.useState(null);
-  const handleThDragStart = (idx) => {
+  const handleThDragStart = (e, idx) => {
+    e.dataTransfer.setData("text/plain", String(idx));
+    e.dataTransfer.effectAllowed = "move";
     setThDragIdx(idx);
   };
   const handleThDragOver = (e, idx) => {
@@ -59821,7 +59830,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                 "th",
                 {
                   draggable: true,
-                  onDragStart: () => handleThDragStart(colIdx),
+                  onDragStart: (e) => handleThDragStart(e, colIdx),
                   onDragOver: (e) => handleThDragOver(e, colIdx),
                   onDrop: (e) => handleThDrop(e, colIdx),
                   onDragEnd: handleThDragEnd,
@@ -59988,6 +59997,57 @@ async function copyToClipboard(text) {
   }
 }
 const API_URL$z = "/api.php";
+const SortIcon$1 = ({ sortBy, colKey }) => {
+  if (sortBy.key !== colKey) return /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 opacity-40" });
+  return sortBy.dir === "asc" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } });
+};
+const SortableTh$1 = ({ colKey, label, fullTitle, defaultDir = "asc", alignRight = false, draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd }) => {
+  const isActive = sortBy.key === colKey;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "th",
+    {
+      className: `${alignRight ? "text-right" : "text-left"} whitespace-nowrap transition-all`,
+      "aria-sort": isActive ? sortBy.dir === "asc" ? "ascending" : "descending" : "none",
+      title: fullTitle,
+      onDragOver,
+      onDrop,
+      onDragEnd,
+      style: {
+        textAlign: alignRight ? "right" : "left",
+        userSelect: "none",
+        boxShadow: isDragOver ? "inset 2px 0 0 var(--color-primary)" : "none",
+        backgroundColor: isDragOver ? "var(--color-bg-soft)" : void 0
+      },
+      children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `inline-flex items-center gap-1.5 ${alignRight ? "justify-end w-full" : ""}`, children: [
+        draggable && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "span",
+          {
+            draggable: true,
+            onDragStart,
+            className: "cursor-grab active:cursor-grabbing flex-shrink-0 -ml-1",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3 h-3 opacity-25 hover:opacity-75" })
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => requestSort(colKey, defaultDir),
+            className: "inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap cursor-pointer",
+            style: {
+              color: isActive ? "var(--color-primary)" : "var(--color-text-secondary)",
+              textAlign: alignRight ? "right" : "left"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon$1, { sortBy, colKey })
+            ]
+          }
+        )
+      ] })
+    }
+  );
+};
 const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, setEditingCampaignId, user }) => {
   const { t } = useLanguage();
   const [actionModal, setActionModal] = reactExports.useState({ type: null, campaignId: null });
@@ -60177,7 +60237,9 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     setChosenColumns(cols);
     localStorage.setItem("orbitra_campaign_columns", JSON.stringify(cols));
   };
-  const handleThDragStart = (idx) => {
+  const handleThDragStart = (e, idx) => {
+    e.dataTransfer.setData("text/plain", String(idx));
+    e.dataTransfer.effectAllowed = "move";
     setThDragIdx(idx);
   };
   const handleThDragOver = (e, idx) => {
@@ -60439,50 +60501,6 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
       alert(`${t("campaigns.copyErrors")}: ${errorCount}`);
     }
     setSelectedCampaignIds(/* @__PURE__ */ new Set());
-  };
-  const SortIcon = ({ colKey }) => {
-    if (sortBy.key !== colKey) return /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 opacity-40" });
-    return sortBy.dir === "asc" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } });
-  };
-  const SortableTh = ({ colKey, label, fullTitle, defaultDir = "asc", alignRight = false, draggable = false, isDragOver = false, onDragStart, onDragOver, onDrop, onDragEnd }) => {
-    const isActive = sortBy.key === colKey;
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "th",
-      {
-        className: `${alignRight ? "text-right" : "text-left"} whitespace-nowrap transition-all`,
-        "aria-sort": isActive ? sortBy.dir === "asc" ? "ascending" : "descending" : "none",
-        title: fullTitle,
-        draggable,
-        onDragStart,
-        onDragOver,
-        onDrop,
-        onDragEnd,
-        style: {
-          textAlign: alignRight ? "right" : "left",
-          cursor: draggable ? "grab" : "pointer",
-          userSelect: "none",
-          boxShadow: isDragOver ? "inset 2px 0 0 var(--color-primary)" : "none",
-          backgroundColor: isDragOver ? "var(--color-bg-soft)" : void 0
-        },
-        children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            type: "button",
-            onClick: () => requestSort(colKey, defaultDir),
-            className: `inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap ${alignRight ? "justify-end w-full" : ""}`,
-            style: {
-              color: isActive ? "var(--color-primary)" : "var(--color-text-secondary)",
-              textAlign: alignRight ? "right" : "left"
-            },
-            children: [
-              draggable && /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3 h-3 opacity-25 hover:opacity-75 -ml-1 cursor-grab flex-shrink-0" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { colKey })
-            ]
-          }
-        )
-      }
-    );
   };
   const formatMetricCell = (metricId, row) => {
     const val = row[metricId];
@@ -60774,15 +60792,17 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             style: { accentColor: "var(--color-primary)" }
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "id", label: "ID", defaultDir: "desc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "state", label: t("common.status"), defaultDir: "asc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "name", label: t("campaigns.campaign"), defaultDir: "asc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "group_name", label: t("campaigns.group"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh$1, { sortBy, requestSort, colKey: "id", label: "ID", defaultDir: "desc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh$1, { sortBy, requestSort, colKey: "state", label: t("common.status"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh$1, { sortBy, requestSort, colKey: "name", label: t("campaigns.campaign"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh$1, { sortBy, requestSort, colKey: "group_name", label: t("campaigns.group"), defaultDir: "asc" }),
         visibleColumns.map((colId, colIdx) => {
           const def = ALL_REPORT_METRICS.find((m) => m.id === colId);
           return /* @__PURE__ */ jsxRuntimeExports.jsx(
-            SortableTh,
+            SortableTh$1,
             {
+              sortBy,
+              requestSort,
               colKey: colId,
               label: def?.shortLabel || def?.label || colId,
               fullTitle: getReportMetricTooltip(def, t),
@@ -60790,7 +60810,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
               alignRight: true,
               draggable: true,
               isDragOver: thDragOverIdx === colIdx && thDragIdx !== null && thDragIdx !== colIdx,
-              onDragStart: () => handleThDragStart(colIdx),
+              onDragStart: (e) => handleThDragStart(e, colIdx),
               onDragOver: (e) => handleThDragOver(e, colIdx),
               onDrop: (e) => handleThDrop(e, colIdx),
               onDragEnd: handleThDragEnd
@@ -63906,8 +63926,8 @@ const Landings = ({ landings, refreshData }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("landings.noLandings") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("landings.noLandingsDesc") })
       ] }) }) }) : pagedLandings.map((landing) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        FIXED_LANDING_COLUMNS.filter((c) => c.id !== "checkbox").map(
-          (colId) => renderEntityCell(landing, colId)
+        FIXED_LANDING_COLUMNS.map(
+          (col) => renderEntityCell(landing, col.id)
         ),
         chosenColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: formatMetricCell(colId, landing) }, colId)),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "action-buttons", children: [
@@ -65997,6 +66017,57 @@ const loadOfferColumns = () => {
   }
   return normalizeReportMetricIds(PRESETS.best);
 };
+const SortIcon = ({ sortBy, colKey }) => {
+  if (sortBy.key !== colKey) return /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 opacity-40" });
+  return sortBy.dir === "asc" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } });
+};
+const SortableTh = ({ colKey, label, fullTitle, defaultDir = "asc", alignRight = false, draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd }) => {
+  const isActive = sortBy.key === colKey;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "th",
+    {
+      className: `${alignRight ? "text-right" : "text-left"} whitespace-nowrap transition-all`,
+      "aria-sort": isActive ? sortBy.dir === "asc" ? "ascending" : "descending" : "none",
+      title: fullTitle,
+      onDragOver,
+      onDrop,
+      onDragEnd,
+      style: {
+        textAlign: alignRight ? "right" : "left",
+        userSelect: "none",
+        boxShadow: isDragOver ? "inset 2px 0 0 var(--color-primary)" : "none",
+        backgroundColor: isDragOver ? "var(--color-bg-soft)" : void 0
+      },
+      children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `inline-flex items-center gap-1.5 ${alignRight ? "justify-end w-full" : ""}`, children: [
+        draggable && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "span",
+          {
+            draggable: true,
+            onDragStart,
+            className: "cursor-grab active:cursor-grabbing flex-shrink-0 -ml-1",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3 h-3 opacity-25 hover:opacity-75" })
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => requestSort(colKey, defaultDir),
+            className: "inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap cursor-pointer",
+            style: {
+              color: isActive ? "var(--color-primary)" : "var(--color-text-secondary)",
+              textAlign: alignRight ? "right" : "left"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { sortBy, colKey })
+            ]
+          }
+        )
+      ] })
+    }
+  );
+};
 const Offers = ({ offers: initialOffers = [], refreshData }) => {
   const { t } = useLanguage();
   const [isEditorOpen, setIsEditorOpen] = reactExports.useState(false);
@@ -66062,7 +66133,9 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
     setChosenColumns(cols);
     localStorage.setItem(OFFER_COLUMNS_KEY, JSON.stringify(cols));
   };
-  const handleThDragStart = (idx) => {
+  const handleThDragStart = (e, idx) => {
+    e.dataTransfer.setData("text/plain", String(idx));
+    e.dataTransfer.effectAllowed = "move";
     setThDragIdx(idx);
   };
   const handleThDragOver = (e, idx) => {
@@ -66578,50 +66651,6 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
         return val !== void 0 && val !== null ? String(val) : "-";
     }
   };
-  const SortIcon = ({ colKey }) => {
-    if (sortBy.key !== colKey) return /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 opacity-40" });
-    return sortBy.dir === "asc" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } });
-  };
-  const SortableTh = ({ colKey, label, fullTitle, defaultDir = "asc", alignRight = false, draggable = false, isDragOver = false, onDragStart, onDragOver, onDrop, onDragEnd }) => {
-    const isActive = sortBy.key === colKey;
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "th",
-      {
-        className: `${alignRight ? "text-right" : "text-left"} whitespace-nowrap transition-all`,
-        "aria-sort": isActive ? sortBy.dir === "asc" ? "ascending" : "descending" : "none",
-        title: fullTitle,
-        draggable,
-        onDragStart,
-        onDragOver,
-        onDrop,
-        onDragEnd,
-        style: {
-          textAlign: alignRight ? "right" : "left",
-          cursor: draggable ? "grab" : "pointer",
-          userSelect: "none",
-          boxShadow: isDragOver ? "inset 2px 0 0 var(--color-primary)" : "none",
-          backgroundColor: isDragOver ? "var(--color-bg-soft)" : void 0
-        },
-        children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            type: "button",
-            onClick: () => requestSort(colKey, defaultDir),
-            className: `inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap ${alignRight ? "justify-end w-full" : ""}`,
-            style: {
-              color: isActive ? "var(--color-primary)" : "var(--color-text-secondary)",
-              textAlign: alignRight ? "right" : "left"
-            },
-            children: [
-              draggable && /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3 h-3 opacity-25 hover:opacity-75 -ml-1 cursor-grab flex-shrink-0" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { colKey })
-            ]
-          }
-        )
-      }
-    );
-  };
   const exportVisibleCsv = () => {
     const cols = [
       { key: "id", label: "id" },
@@ -66906,19 +66935,21 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
             onChange: (e) => toggleSelectAllFiltered(e.target.checked)
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "id", label: "ID", defaultDir: "desc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "id", label: "ID", defaultDir: "desc" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("common.status") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "name", label: t("editor.name"), defaultDir: "asc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "group_name", label: t("components.group"), defaultDir: "asc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "affiliate_network_name", label: t("offers.network"), defaultDir: "asc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "geo", label: "GEO", defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "name", label: t("editor.name"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "group_name", label: t("components.group"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "affiliate_network_name", label: t("offers.network"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "geo", label: "GEO", defaultDir: "asc" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("offerColumns.payout") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "redirect_type", label: t("components.type"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "redirect_type", label: t("components.type"), defaultDir: "asc" }),
         chosenColumns.map((colId, colIdx) => {
           const def = ALL_REPORT_METRICS.find((m) => m.id === colId);
           return /* @__PURE__ */ jsxRuntimeExports.jsx(
             SortableTh,
             {
+              sortBy,
+              requestSort,
               colKey: colId,
               label: def?.shortLabel || def?.label || colId,
               fullTitle: getReportMetricTooltip(def, t),
@@ -66926,7 +66957,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
               alignRight: true,
               draggable: true,
               isDragOver: thDragOverIdx === colIdx && thDragIdx !== null && thDragIdx !== colIdx,
-              onDragStart: () => handleThDragStart(colIdx),
+              onDragStart: (e) => handleThDragStart(e, colIdx),
               onDragOver: (e) => handleThDragOver(e, colIdx),
               onDrop: (e) => handleThDrop(e, colIdx),
               onDragEnd: handleThDragEnd
@@ -85663,6 +85694,58 @@ const ExitIntentPreview = ({ heading, text, buttonText, buttonColor }) => /* @__
   /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: 14, color: "#666", margin: "0 0 8px" }, children: text || "Don't miss this exclusive deal just for you!" }),
   /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { display: "inline-block", marginTop: 12, padding: "13px 32px", background: buttonColor, color: "#fff", borderRadius: 8, fontWeight: 600, fontSize: 15 }, children: buttonText || "CLAIM 50% OFF" })
 ] }) });
+const parseSourceParamRows = (source) => {
+  let rows = source?.parameters_json;
+  if (typeof rows === "string") {
+    try {
+      rows = JSON.parse(rows);
+    } catch {
+      rows = null;
+    }
+  }
+  if (!Array.isArray(rows)) return [];
+  const seen = /* @__PURE__ */ new Set();
+  const out = [];
+  for (const entry of rows) {
+    if (!entry || typeof entry !== "object") continue;
+    const param = String(entry.param ?? "").trim();
+    const alias = String(entry.alias ?? param ?? "").trim();
+    const macro = String(entry.macro ?? "").trim();
+    if (!param || !alias || !macro || seen.has(param)) continue;
+    seen.add(param);
+    out.push({ param, alias, macro });
+  }
+  return out;
+};
+const DEFAULT_PARAM_ROWS = [
+  { param: "utm_placement", alias: "utm_placement", macro: "{{placement}}" },
+  { param: "source", alias: "source", macro: "{{site_source_name}}" },
+  { param: "campaign_id", alias: "campaign_id", macro: "{{campaign.id}}" },
+  { param: "campaign_name", alias: "campaign_name", macro: "{{campaign.name}}" },
+  { param: "adset_id", alias: "adset_id", macro: "{{adset.id}}" },
+  { param: "adset_name", alias: "adset_name", macro: "{{adset.name}}" },
+  { param: "ad_id", alias: "ad_id", macro: "{{ad.id}}" },
+  { param: "ad_name", alias: "ad_name", macro: "{{ad.name}}" },
+  { param: "placement", alias: "placement", macro: "{{placement}}" },
+  { param: "site_source_name", alias: "site_source_name", macro: "{{site_source_name}}" }
+];
+const TRACKER_NATIVE_MACROS = ["subid", "clickid", "country", "ip", "cost", "sub_id_1", "sub_id_2", "sub_id_3"];
+const mergeDirectUrlQuery = (url, generated) => {
+  const qIdx = url.indexOf("?");
+  const base = qIdx === -1 ? url : url.slice(0, qIdx);
+  const rawQuery = qIdx === -1 ? "" : url.slice(qIdx + 1);
+  const hashIdx = rawQuery.indexOf("#");
+  const hash = hashIdx === -1 ? "" : rawQuery.slice(hashIdx);
+  const query = hashIdx === -1 ? rawQuery : rawQuery.slice(0, hashIdx);
+  const existingPairs = query.split("&").filter(Boolean);
+  const existingKeys = new Set(existingPairs.map((p) => {
+    const eq2 = p.indexOf("=");
+    return eq2 === -1 ? p : p.slice(0, eq2);
+  }));
+  const additions = generated.filter(([k]) => k && !existingKeys.has(k));
+  const parts = [...existingPairs, ...additions.map(([k, v]) => `${k}=${v}`)];
+  return base + (parts.length ? "?" + parts.join("&") : "") + hash;
+};
 const CampaignEditor = ({ campaignId, onClose }) => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = reactExports.useState("general");
@@ -86075,19 +86158,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     }
   };
   const copyFacebookParams = async () => {
-    const fbParams = [
-      "utm_placement={{placement}}",
-      "source={{site_source_name}}",
-      "campaign_id={{campaign.id}}",
-      "campaign_name={{campaign.name}}",
-      "adset_id={{adset.id}}",
-      "adset_name={{adset.name}}",
-      "ad_id={{ad.id}}",
-      "ad_name={{ad.name}}",
-      "placement={{placement}}",
-      "site_source_name={{site_source_name}}"
-    ];
-    const customParams = Object.entries(formData.parameters || {}).filter(([, v]) => String(v ?? "").trim() !== "").map(([k, v]) => {
+    const rows = parseSourceParamRows(activeSource);
+    const activeRows = rows.length ? rows : DEFAULT_PARAM_ROWS;
+    const fbParams = activeRows.map((r2) => `${r2.param}=${r2.macro}`);
+    const customParams = Object.entries(formData.parameters || {}).filter(([, v]) => String(v ?? "").trim() !== "").filter(([k]) => !activeRows.some((r2) => r2.param === String(k).trim())).map(([k, v]) => {
       const safeVal = encodeURIComponent(String(v).trim()).replace(/%7B/gi, "{").replace(/%7D/gi, "}").replace(/%3A/gi, ":");
       return `${encodeURIComponent(k)}=${safeVal}`;
     });
@@ -86633,6 +86707,51 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       })
     });
   };
+  const isSchemaItemEnabled = (it) => {
+    if (it?.state === "disabled" || it?.state === "paused") return false;
+    const a = it?.is_active;
+    if (a === false || a === 0 || a === "0") return false;
+    return true;
+  };
+  const schemaEnabledWeight = (list) => (list || []).filter(isSchemaItemEnabled).reduce((sum, it) => sum + (parseInt(it.weight, 10) || 0), 0);
+  const handleEqualizeSchemaWeights = (streamIdx, type) => {
+    setFormData((prev) => {
+      const stream = prev.streams[streamIdx];
+      const list = stream?.schema_custom?.[type];
+      if (!Array.isArray(list)) return prev;
+      const enabledCount = list.filter(isSchemaItemEnabled).length;
+      if (!enabledCount) return prev;
+      const base = Math.floor(100 / enabledCount);
+      const remainder = 100 - base * enabledCount;
+      let seen = 0;
+      const nextList = list.map((it) => {
+        if (!isSchemaItemEnabled(it)) return it;
+        const w = base + (seen === 0 ? remainder : 0);
+        seen += 1;
+        return { ...it, weight: w };
+      });
+      const streams = [...prev.streams];
+      streams[streamIdx] = { ...stream, schema_custom: { ...stream.schema_custom, [type]: nextList } };
+      return { ...prev, streams };
+    });
+  };
+  const renderSchemaEqualizeButton = (streamIdx, type, list) => {
+    const enabledCount = (list || []).filter(isSchemaItemEnabled).length;
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "button",
+      {
+        type: "button",
+        disabled: enabledCount < 2,
+        onClick: () => handleEqualizeSchemaWeights(streamIdx, type),
+        className: "btn btn-secondary btn-sm text-xs py-1 px-2.5 rounded-lg flex items-center gap-1 font-semibold",
+        title: t("editor.equalizeSplit", "Split Evenly"),
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "⚖" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("editor.equalizeSplit", "Split Evenly") })
+        ]
+      }
+    );
+  };
   const addEntitiesToStream = (streamIdx, type, ids) => {
     const numeric = (ids || []).map((id) => parseInt(id, 10)).filter((id) => !!id);
     if (!numeric.length) return;
@@ -86720,25 +86839,39 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     setFormData({ ...formData, streams: s });
   };
   const schemaBadge = (label) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10.5px] leading-none px-1.5 py-1 rounded-md", style: { backgroundColor: "var(--color-bg-soft)", color: "var(--color-text-muted)", border: "1px solid var(--color-border)" }, children: label }, label);
-  const schemaWeightInput = (streamIdx, type, item, itemIdx, list) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 flex-shrink-0", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "input",
-      {
-        type: "number",
-        value: list.length === 1 ? 100 : item.weight,
-        disabled: list.length === 1,
-        onChange: (e) => updateSchemaItem(streamIdx, type, itemIdx, "weight", parseInt(e.target.value)),
-        className: "w-14 text-center rounded-lg px-1 py-1 text-xs",
-        style: {
-          backgroundColor: list.length === 1 ? "var(--color-bg-soft)" : "var(--color-bg-card)",
-          border: "1px solid var(--color-border)",
-          color: list.length === 1 ? "var(--color-text-muted)" : "var(--color-text-primary)"
-        },
-        title: t("editor.weight")
-      }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "%" })
-  ] });
+  const schemaWeightInput = (streamIdx, type, item, itemIdx, list) => {
+    const enabledTotal = schemaEnabledWeight(list);
+    const w = list.length === 1 ? 100 : parseInt(item.weight, 10) || 0;
+    const paused = !isSchemaItemEnabled(item);
+    const share = !paused && enabledTotal > 0 ? `${(w / enabledTotal * 100).toFixed(1)}%` : "—";
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 flex-shrink-0", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          type: "number",
+          value: list.length === 1 ? 100 : item.weight,
+          disabled: list.length === 1,
+          onChange: (e) => updateSchemaItem(streamIdx, type, itemIdx, "weight", parseInt(e.target.value)),
+          className: "w-14 text-center rounded-lg px-1 py-1 text-xs",
+          style: {
+            backgroundColor: list.length === 1 ? "var(--color-bg-soft)" : "var(--color-bg-card)",
+            border: "1px solid var(--color-border)",
+            color: list.length === 1 ? "var(--color-text-muted)" : "var(--color-text-primary)"
+          },
+          title: t("editor.weight")
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "span",
+        {
+          className: "text-xs font-extrabold px-1.5 py-0.5 rounded-md whitespace-nowrap",
+          style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" },
+          title: paused ? `${w} (paused — not in rotation)` : `${w} / ${enabledTotal}`,
+          children: share
+        }
+      )
+    ] });
+  };
   const renderLandingRow = (idx, l, lIdx, list) => {
     const info = allLandings.find((al) => al.id === parseInt(l.id, 10));
     const empty = !info && !l.id;
@@ -86749,7 +86882,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       preload: t("landingEditor.typePreload"),
       action: t("landingEditor.typeAction")
     };
-    const isItemActive = (l.state ?? "active") !== "disabled" && (l.is_active ?? 1) != 0;
+    const isItemActive = isSchemaItemEnabled(l);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "div",
       {
@@ -86814,7 +86947,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const info = allOffers.find((ao) => ao.id === parseInt(o.id, 10));
     const empty = !info && !o.id;
     const name = info ? info.name : o.id ? `#${o.id}` : t("editor.selectOfferPlaceholder");
-    const isItemActive = (o.state ?? "active") !== "disabled" && (o.is_active ?? 1) != 0;
+    const isItemActive = isSchemaItemEnabled(o);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "div",
       {
@@ -87554,6 +87687,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                   )
                 ] })
               ] }),
+              parseSourceParamRows(activeSource).length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: t("parameters.sourceDrivenHint", "The parameter list comes from the campaign's traffic source — it stays generic until one is picked.") }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden sm:grid grid-cols-12 gap-2 px-2 text-[11px] font-semibold uppercase tracking-wide", style: { color: "var(--color-text-muted)" }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "col-span-3", children: t("sourceEditor.alias") }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "col-span-3", children: t("sourceEditor.param") }),
@@ -88645,30 +88779,36 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-2", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.landings") }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        AddDropdownButton,
-                        {
-                          label: t("editor.addLandings"),
-                          createLabel: t("editor.createLandingDropdown"),
-                          onMain: () => openEntityPicker(idx, "landings"),
-                          onCreate: () => setQuickCreate({ kind: "landings", streamIdx: idx })
-                        }
-                      )
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                        renderSchemaEqualizeButton(idx, "landings", stream.schema_custom?.landings),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          AddDropdownButton,
+                          {
+                            label: t("editor.addLandings"),
+                            createLabel: t("editor.createLandingDropdown"),
+                            onMain: () => openEntityPicker(idx, "landings"),
+                            onCreate: () => setQuickCreate({ kind: "landings", streamIdx: idx })
+                          }
+                        )
+                      ] })
                     ] }),
                     (stream.schema_custom?.landings || []).length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs py-3 px-4 rounded-xl border border-dashed text-center", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-muted)" }, children: t("editor.noLandingsAdded") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (stream.schema_custom?.landings || []).map((l, lIdx, list) => renderLandingRow(idx, l, lIdx, list)) })
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-3", style: { borderTop: "1px solid var(--color-border)" }, children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-2", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.offers") }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        AddDropdownButton,
-                        {
-                          label: t("editor.addOffers"),
-                          createLabel: t("editor.createOfferDropdown"),
-                          onMain: () => openEntityPicker(idx, "offers"),
-                          onCreate: () => setQuickCreate({ kind: "offers", streamIdx: idx })
-                        }
-                      )
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                        renderSchemaEqualizeButton(idx, "offers", stream.schema_custom?.offers),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          AddDropdownButton,
+                          {
+                            label: t("editor.addOffers"),
+                            createLabel: t("editor.createOfferDropdown"),
+                            onMain: () => openEntityPicker(idx, "offers"),
+                            onCreate: () => setQuickCreate({ kind: "offers", streamIdx: idx })
+                          }
+                        )
+                      ] })
                     ] }),
                     (stream.schema_custom?.offers || []).length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs py-3 px-4 rounded-xl border border-dashed text-center", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-muted)" }, children: t("editor.noOffersAdded") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (stream.schema_custom?.offers || []).map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list)) }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 pt-3", style: { borderTop: "1px dashed var(--color-border)" }, children: [
@@ -89211,30 +89351,36 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-1.5", children: [
                           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("editor.landings") }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            AddDropdownButton,
-                            {
-                              label: t("editor.addLandings"),
-                              createLabel: t("editor.createLandingDropdown"),
-                              onMain: () => openEntityPicker(idx, "landings"),
-                              onCreate: () => setQuickCreate({ kind: "landings", streamIdx: idx })
-                            }
-                          )
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                            renderSchemaEqualizeButton(idx, "landings", sc.landings),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              AddDropdownButton,
+                              {
+                                label: t("editor.addLandings"),
+                                createLabel: t("editor.createLandingDropdown"),
+                                onMain: () => openEntityPicker(idx, "landings"),
+                                onCreate: () => setQuickCreate({ kind: "landings", streamIdx: idx })
+                              }
+                            )
+                          ] })
                         ] }),
                         (sc.landings || []).length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs py-3 px-4 rounded-xl border border-dashed text-center", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-muted)" }, children: t("editor.noLandingsAdded") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (sc.landings || []).map((l, lIdx, list) => renderLandingRow(idx, l, lIdx, list)) })
                       ] }),
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-1.5", children: [
                           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("editor.offers") }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            AddDropdownButton,
-                            {
-                              label: t("editor.addOffers"),
-                              createLabel: t("editor.createOfferDropdown"),
-                              onMain: () => openEntityPicker(idx, "offers"),
-                              onCreate: () => setQuickCreate({ kind: "offers", streamIdx: idx })
-                            }
-                          )
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                            renderSchemaEqualizeButton(idx, "offers", sc.offers),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              AddDropdownButton,
+                              {
+                                label: t("editor.addOffers"),
+                                createLabel: t("editor.createOfferDropdown"),
+                                onMain: () => openEntityPicker(idx, "offers"),
+                                onCreate: () => setQuickCreate({ kind: "offers", streamIdx: idx })
+                              }
+                            )
+                          ] })
                         ] }),
                         (sc.offers || []).length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs py-3 px-4 rounded-xl border border-dashed text-center", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-muted)" }, children: t("editor.noOffersAdded") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (sc.offers || []).map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list)) })
                       ] })
@@ -89302,21 +89448,21 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                           {
                             type: "button",
                             onClick: () => {
-                              const trackingParams = [
-                                "subid={subid}",
-                                "clickid={clickid}",
-                                "campaign_id={campaign_id}",
-                                "adset_id={adset_id}",
-                                "ad_id={ad_id}",
-                                "utm_placement={utm_placement}",
-                                "utm_source={utm_source}",
-                                "utm_medium={utm_medium}",
-                                "utm_campaign={utm_campaign}",
-                                "utm_content={utm_content}",
-                                "utm_term={utm_term}"
-                              ].join("&");
-                              const baseUrl = sc.direct_url?.split("?")[0] || sc.direct_url || "";
-                              setDirectUrl(baseUrl + (baseUrl.includes("?") ? "&" : "?") + trackingParams);
+                              const rows = parseSourceParamRows(activeSource);
+                              const activeRows = rows.length ? rows : DEFAULT_PARAM_ROWS;
+                              const seen = /* @__PURE__ */ new Set();
+                              const generated = [];
+                              for (const r2 of activeRows) {
+                                if (seen.has(r2.param)) continue;
+                                seen.add(r2.param);
+                                generated.push([r2.param, `{${r2.alias}}`]);
+                              }
+                              for (const native of TRACKER_NATIVE_MACROS) {
+                                if (seen.has(native)) continue;
+                                seen.add(native);
+                                generated.push([native, `{${native}}`]);
+                              }
+                              setDirectUrl(mergeDirectUrlQuery(sc.direct_url || "", generated));
                             },
                             className: "text-[11px] px-2 py-1 rounded-lg border font-medium transition-colors hover:border-blue-400",
                             style: { backgroundColor: "var(--color-primary-soft)", borderColor: "var(--color-primary)", color: "var(--color-primary)" },
@@ -89346,15 +89492,18 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center", children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.offers") }),
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          AddDropdownButton,
-                          {
-                            label: t("editor.addOffers"),
-                            createLabel: t("editor.createOfferDropdown"),
-                            onMain: () => openEntityPicker(idx, "offers"),
-                            onCreate: () => setQuickCreate({ kind: "offers", streamIdx: idx })
-                          }
-                        )
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                          renderSchemaEqualizeButton(idx, "offers", sc.offers),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            AddDropdownButton,
+                            {
+                              label: t("editor.addOffers"),
+                              createLabel: t("editor.createOfferDropdown"),
+                              onMain: () => openEntityPicker(idx, "offers"),
+                              onCreate: () => setQuickCreate({ kind: "offers", streamIdx: idx })
+                            }
+                          )
+                        ] })
                       ] }),
                       (() => {
                         const offers = sc.offers || [];

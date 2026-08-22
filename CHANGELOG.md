@@ -7,6 +7,21 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.1.10] — 2026-08-23
+
+Hotfix + editor usability release. The Landings table fix is critical for anyone on 1.1.9.
+
+### Fixed
+- 🩹 **CRITICAL: Landings table rendered as dashes (v1.1.9 regression)** — the table rewrite mapped `FIXED_LANDING_COLUMNS` into the cell renderer passing the column OBJECT where a string id is switched on; no case matched, so ID/Status/Name/Group/Type/URL/Last Event all fell through to `default: '-'`. The checkbox cell was also filtered from the body while its `<th>` stayed, shifting every metric one column left of its header. Rows now render every fixed column and the checkbox cell; header and body column counts match. (Offers.jsx audited — not affected: its rows render inline cells.)
+- 🖱️ **Column drag-and-drop never started (Campaigns, Offers)** — three stacked causes: the grip lived inside the sort `<button>` and a native drag cannot begin on an interactive descendant; `SortableTh` was defined in the component body, so every render remounted its DOM and the dragover highlight cancelled the drag mid-flight; `handleThDragStart` dropped the event, so `dataTransfer.setData` was never called — Firefox refuses to start a drag without a payload. The grip is now its own drag source (`draggable` + `onDragStart` + grab cursors), the `<th>` remains the drop target with the highlight, `SortableTh`/`SortIcon` live at module scope (sort context via props), and the drag payload + `effectAllowed = 'move'` are set. CampaignReports.jsx has neither the button nor the remount problem and gets the Firefox payload fix only.
+- 🎛️ **Navbar dropdowns rendered behind report overlays** — the navbar (`fixed top-0 z-[1000]`) forms a stacking context, so its gear and user-menu dropdowns (z-[100] inside) painted below the report overlay and the dashboard-settings overlay (both z-[1100]) exactly where the dropdowns open. The navbar layer is raised to z-[1500] — above page-level overlays, below true modals (z-[2000]); the mobile drawer and its backdrop move as a pair (1501/1499) to keep their original relation to the bar.
+
+### Added
+- 🔌 **Traffic-source-driven parameter buttons** — "Facebook Parameters" and "Add All Tracking Parameters" now derive from the campaign's traffic source (`traffic_sources.parameters_json`, the same `{alias, param, macro}` rows `orbitraSourceParamAliases()` reads): layer 1 emits `param={{macro}}` per source row in the source's order with no duplicate keys (campaign custom parameters appended, explicit beats template); layer 2 emits `param={alias}` plus the tracker-native macros the chips offer (`subid, clickid, country, ip, cost, sub_id_1..3`), skipping any alias the source already declares. The Direct-URL preset MERGES into the existing query instead of wiping it: hand-typed pairs are preserved verbatim (never re-encoded — `{macros}` must not become `%7B`), user values win on key collisions, no key is emitted twice, re-clicking is idempotent. Without a source picked, the Facebook defaults remain as a fallback with a one-line hint (new key, all 7 locales).
+- ⚖️ **"Split Evenly" + live share badges in stream Offers/Landings lists** — a shared `isSchemaItemEnabled` helper mirrors `selectWeightedItem()`'s filter verbatim (`state` disabled/paused, `is_active` false/0/'0`), so what the button splits is exactly what the router rotates. The split gives the rounding remainder to the first enabled item so enabled weights total 100; paused rows keep their weight; nothing is rewritten on toggle — the button is the explicit action. The static `%` next to weight inputs is replaced by a live share badge (weight / enabled-total, one decimal, the same badge style the stream rows use, '—' while paused). Row dimming uses the same helper, so a `paused` item no longer looks active.
+
+**AFTER UPDATING, HARD-RELOAD THE PANEL ONCE (Ctrl/Cmd+Shift+R)** — `index.js` has a stable filename and browsers cache the old build.
+
 ## [1.1.9] — 2026-08-22
 
 Facebook tracking resilience, cloak geo-safety warnings and full metric parity on Landings/Offers.

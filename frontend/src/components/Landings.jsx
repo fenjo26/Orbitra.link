@@ -884,8 +884,11 @@ const Landings = ({ landings, refreshData }) => {
                         ) : (
                             pagedLandings.map((landing) => (
                                 <tr key={landing.id}>
-                                    {FIXED_LANDING_COLUMNS.filter(c => c.id !== 'checkbox').map(colId =>
-                                        renderEntityCell(landing, colId)
+                                    {/* The checkbox cell renders here too — renderEntityCell
+                                        has the 'checkbox' case, and the body must keep the
+                                        header's column count or every metric shifts left. */}
+                                    {FIXED_LANDING_COLUMNS.map(col =>
+                                        renderEntityCell(landing, col.id)
                                     )}
                                     {/* Metric cells */}
                                     {chosenColumns.map((colId) => (

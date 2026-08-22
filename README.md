@@ -1,4 +1,4 @@
-# Orbitra v1.1.9 Tracker
+# Orbitra v1.1.10 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,7 +11,22 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.1.9
+## 🆕 What's New in v1.1.10
+
+### Fixed
+
+- **🩹 CRITICAL: Landings table was blank in v1.1.9** — the rewrite passed the column object into the cell renderer, so every fixed column (ID, Status, Name, Group, Type, URL, Last Event) rendered as "-" and metrics sat one column left of their header; rows render fully again
+- **🖱️ Column drag-and-drop never started** — the grip was inside the sort button (a native drag cannot begin on an interactive descendant), the header component remounted on every render killing the drag mid-flight, and the drag payload was never set (Firefox refused to start); fixed in Campaigns + Offers, Firefox payload fix in CampaignReports
+- **🎛️ Navbar dropdowns behind report overlays** — the navbar layer is raised above page-level overlays (report + dashboard settings); true modals and the mobile drawer keep their order
+
+### Added
+
+- **🔌 Traffic-source-driven parameter buttons** — "Facebook Parameters" and "Add All Tracking Parameters" both derive from the campaign's traffic source (`parameters_json`, the same {alias, param, macro} contract the click path uses); the Direct-URL preset now merges into the existing query instead of wiping hand-typed parameters (user values win, no duplicate keys); generic Facebook defaults + a hint until a source is picked
+- **⚖️ "Split Evenly" + live share badges in stream Offers/Landings lists** — splits weights across enabled items only (the exact set the router rotates), paused rows keep their weight; the static "%" becomes a live share badge (weight / enabled-total, one decimal, "-" while paused)
+
+**AFTER UPDATING, HARD-RELOAD THE PANEL ONCE (Ctrl/Cmd+Shift+R)** — index.js has a stable filename and browsers cache the old build.
+
+### Previous Highlights (v1.1.9)
 
 ### Added
 
@@ -510,17 +525,18 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.1.9 (2026-08-22)
-
-**Added**
-- 🩹 **Auto-heal for double-`?` URLs** — Facebook Ads / cloaker query-string corruption healed before campaign routing (utm_placement captured); 📘 "Facebook Parameters" copy button; ➡️ "Add All Tracking Parameters" preset for Direct URLs + leftover `{macro}` cleanup
-- 🔍 **Cloak observability** — verdicts/reasons/ISP on every click, Route/Reason columns in Analytics→Clicks, suppressed-hit counter, safe clicks logged by default + excludable from reports, geo-safety warnings (`docs/cloak-how-it-works.md`)
-- 📊 **Full metric parity on Landings/Offers** — registrations, deposits, bots, per-status and real revenue actually computed (were zeros / bogus −100% real_roi)
+### Current release — v1.1.10 (2026-08-23)
 
 **Fixed**
-- 🎛️ **Rotation honors per-item disable toggles** (paused offers no longer receive traffic); 🌍 locale parity in all 7 languages; extension widget remembers position. Hard-reload the panel once after updating.
+- 🩹 **CRITICAL: Landings table rendered as dashes in v1.1.9** (column object passed to the cell renderer + one-column shift) — rows render fully again
+- 🖱️ **Column drag-and-drop fixed** in Campaigns/Offers (grip was trapped inside the sort button; header remounted mid-drag; Firefox never started without a payload)
+- 🎛️ **Navbar dropdowns render above report overlays** (layer raised; modals and the mobile drawer keep their order)
 
-Previous releases — v1.1.8: 🎯 entity filters in Analytics (Trends/Cohort) with the dist-rebuild fix; v1.1.7: 🛟 nginx asset-loop hotfix (`nginx_sync.php` once); v1.1.6: 🔀 SSL mode selector, 🧰 smoke tests + landing diagnostics, 🧩 asset-loading guarantees, 🗑️ bulk import removed; v1.1.5: 🔐 SSL management (ORB-014), 🧠 SUBID in traffic logs.
+**Added**
+- 🔌 **Traffic-source-driven parameter buttons** — both buttons derive from the campaign's traffic source ({alias, param, macro} contract); Direct-URL preset merges into the existing query (hand-typed values win, no duplicate keys)
+- ⚖️ **"Split Evenly" + live share badges** in stream Offers/Landings lists (enabled-only split matching the router; weight / enabled-total badge instead of the static "%"). Hard-reload the panel once after updating.
+
+Previous releases — v1.1.9: 🩹 double-`?` auto-heal, 🔍 cloak observability (W1–W4), 📊 Landings/Offers metric parity; v1.1.8: 🎯 entity filters in Analytics (Trends/Cohort) with the dist-rebuild fix; v1.1.7: 🛟 nginx asset-loop hotfix (`nginx_sync.php` once); v1.1.6: 🔀 SSL mode selector, 🧰 smoke tests + landing diagnostics, 🧩 asset-loading guarantees, 🗑️ bulk import removed; v1.1.5: 🔐 SSL management (ORB-014), 🧠 SUBID in traffic logs.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

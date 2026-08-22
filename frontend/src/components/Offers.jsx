@@ -37,6 +37,63 @@ const loadOfferColumns = () => {
     return normalizeReportMetricIds(PRESETS.best);
 };
 
+// Module scope on purpose: a component defined in the render body is a new
+// type on every render, so React remounts its DOM — and a remounted <th>
+// cancels a column drag in flight (the dragover highlight re-renders it).
+const SortIcon = ({ sortBy, colKey }) => {
+    if (sortBy.key !== colKey) return <ChevronsUpDown className="w-3.5 h-3.5 opacity-40" />;
+    return sortBy.dir === 'asc'
+        ? <ChevronUp className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />
+        : <ChevronDown className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />;
+};
+
+// The drag source is the GRIP, not the <th>: a native drag never starts on
+// an interactive descendant, so a grip inside the sort <button> was dead.
+// The <th> itself stays the drop target (highlight + onDrop).
+const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', alignRight = false, draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd }) => {
+    const isActive = sortBy.key === colKey;
+    return (
+        <th
+            className={`${alignRight ? 'text-right' : 'text-left'} whitespace-nowrap transition-all`}
+            aria-sort={isActive ? (sortBy.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
+            title={fullTitle}
+            onDragOver={onDragOver}
+            onDrop={onDrop}
+            onDragEnd={onDragEnd}
+            style={{
+                textAlign: alignRight ? 'right' : 'left',
+                userSelect: 'none',
+                boxShadow: isDragOver ? 'inset 2px 0 0 var(--color-primary)' : 'none',
+                backgroundColor: isDragOver ? 'var(--color-bg-soft)' : undefined
+            }}
+        >
+            <div className={`inline-flex items-center gap-1.5 ${alignRight ? 'justify-end w-full' : ''}`}>
+                {draggable && (
+                    <span
+                        draggable
+                        onDragStart={onDragStart}
+                        className="cursor-grab active:cursor-grabbing flex-shrink-0 -ml-1"
+                    >
+                        <GripVertical className="w-3 h-3 opacity-25 hover:opacity-75" />
+                    </span>
+                )}
+                <button
+                    type="button"
+                    onClick={() => requestSort(colKey, defaultDir)}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap cursor-pointer"
+                    style={{
+                        color: isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                        textAlign: alignRight ? 'right' : 'left'
+                    }}
+                >
+                    <span>{label}</span>
+                    <SortIcon sortBy={sortBy} colKey={colKey} />
+                </button>
+            </div>
+        </th>
+    );
+};
+
 const Offers = ({ offers: initialOffers = [], refreshData }) => {
     const { t } = useLanguage();
     const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -117,7 +174,10 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
         localStorage.setItem(OFFER_COLUMNS_KEY, JSON.stringify(cols));
     };
 
-    const handleThDragStart = (idx) => {
+    const handleThDragStart = (e, idx) => {
+        // Firefox refuses to start a native drag until the payload is set.
+        e.dataTransfer.setData('text/plain', String(idx));
+        e.dataTransfer.effectAllowed = 'move';
         setThDragIdx(idx);
     };
 
@@ -608,50 +668,6 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
         }
     };
 
-    const SortIcon = ({ colKey }) => {
-        if (sortBy.key !== colKey) return <ChevronsUpDown className="w-3.5 h-3.5 opacity-40" />;
-        return sortBy.dir === 'asc'
-            ? <ChevronUp className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />
-            : <ChevronDown className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />;
-    };
-
-    const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', alignRight = false, draggable = false, isDragOver = false, onDragStart, onDragOver, onDrop, onDragEnd }) => {
-        const isActive = sortBy.key === colKey;
-        return (
-            <th
-                className={`${alignRight ? 'text-right' : 'text-left'} whitespace-nowrap transition-all`}
-                aria-sort={isActive ? (sortBy.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
-                title={fullTitle}
-                draggable={draggable}
-                onDragStart={onDragStart}
-                onDragOver={onDragOver}
-                onDrop={onDrop}
-                onDragEnd={onDragEnd}
-                style={{
-                    textAlign: alignRight ? 'right' : 'left',
-                    cursor: draggable ? 'grab' : 'pointer',
-                    userSelect: 'none',
-                    boxShadow: isDragOver ? 'inset 2px 0 0 var(--color-primary)' : 'none',
-                    backgroundColor: isDragOver ? 'var(--color-bg-soft)' : undefined
-                }}
-            >
-                <button
-                    type="button"
-                    onClick={() => requestSort(colKey, defaultDir)}
-                    className={`inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap ${alignRight ? 'justify-end w-full' : ''}`}
-                    style={{
-                        color: isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                        textAlign: alignRight ? 'right' : 'left'
-                    }}
-                >
-                    {draggable && <GripVertical className="w-3 h-3 opacity-25 hover:opacity-75 -ml-1 cursor-grab flex-shrink-0" />}
-                    <span>{label}</span>
-                    <SortIcon colKey={colKey} />
-                </button>
-            </th>
-        );
-    };
-
     const exportVisibleCsv = () => {
         const cols = [
             { key: 'id', label: 'id' },
@@ -937,20 +953,22 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                                     onChange={(e) => toggleSelectAllFiltered(e.target.checked)}
                                 />
                             </th>
-                            <SortableTh colKey="id" label="ID" defaultDir="desc" />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="id" label="ID" defaultDir="desc" />
                             <th>{t('common.status')}</th>
-                            <SortableTh colKey="name" label={t('editor.name')} defaultDir="asc" />
-                            <SortableTh colKey="group_name" label={t('components.group')} defaultDir="asc" />
-                            <SortableTh colKey="affiliate_network_name" label={t('offers.network')} defaultDir="asc" />
-                            <SortableTh colKey="geo" label="GEO" defaultDir="asc" />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="name" label={t('editor.name')} defaultDir="asc" />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="group_name" label={t('components.group')} defaultDir="asc" />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="affiliate_network_name" label={t('offers.network')} defaultDir="asc" />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="geo" label="GEO" defaultDir="asc" />
                             <th>{t('offerColumns.payout')}</th>
-                            <SortableTh colKey="redirect_type" label={t('components.type')} defaultDir="asc" />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="redirect_type" label={t('components.type')} defaultDir="asc" />
 
                             {/* Dynamic metric columns */}
                             {chosenColumns.map((colId, colIdx) => {
                                 const def = ALL_REPORT_METRICS.find(m => m.id === colId);
                                 return (
                                     <SortableTh
+                                                    sortBy={sortBy}
+                                                    requestSort={requestSort}
                                         key={colId}
                                         colKey={colId}
                                         label={def?.shortLabel || def?.label || colId}
@@ -959,7 +977,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                                         alignRight={true}
                                         draggable={true}
                                         isDragOver={thDragOverIdx === colIdx && thDragIdx !== null && thDragIdx !== colIdx}
-                                        onDragStart={() => handleThDragStart(colIdx)}
+                                        onDragStart={(e) => handleThDragStart(e, colIdx)}
                                         onDragOver={(e) => handleThDragOver(e, colIdx)}
                                         onDrop={(e) => handleThDrop(e, colIdx)}
                                         onDragEnd={handleThDragEnd}

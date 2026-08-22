@@ -22,6 +22,8 @@ export default {
         "enterParamKey": "Введіть ключ параметра (наприклад, utm_placement, placement, custom_id):",
         "addParam": "Додати параметр",
         "additionalSubIds": "Додаткові Sub ID (sub_id_1 .. sub_id_30)",
+        "sourceDrivenHint": "Список параметрів береться з джерела трафіку кампанії — доки воно не обране, список універсальний.",
+
         "placement": "Плейсмент (utm_placement)",
         "facebookParams": "Параметри Facebook",
         "facebookParamsHint": "Скопіювати URL-параметри Facebook Ads (без початкового «?») для вставки в Meta Ads Manager",

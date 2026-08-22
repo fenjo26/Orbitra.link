@@ -126,7 +126,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     ];
 
     return (
-        <div className="w-full fixed top-0 z-[1000] px-4 pt-4 md:px-6 md:pt-6 transition-all">
+        <div className="w-full fixed top-0 z-[1500] px-4 pt-4 md:px-6 md:pt-6 transition-all">
             <nav className="navbar-header h-[72px] flex items-center justify-between px-6 md:px-10 shadow-[var(--shadow-main)] bg-[var(--color-bg-card)] rounded-[24px] w-full mx-auto border-none transition-colors duration-300">
                 <div className="flex items-center space-x-3 md:space-x-5 h-full">
                     {/* Logo / Brand */}
@@ -320,12 +320,12 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
             {mobileMenuOpen && (
                 <>
                     <div
-                        className="xl:hidden fixed inset-0 bg-black/40 z-[999]"
+                        className="xl:hidden fixed inset-0 bg-black/40 z-[1499]"
                         onClick={() => setMobileMenuOpen(false)}
                         style={{ top: 0 }}
                     />
                     <div
-                        className="xl:hidden fixed right-0 top-0 bottom-0 z-[1001] overflow-y-auto"
+                        className="xl:hidden fixed right-0 top-0 bottom-0 z-[1501] overflow-y-auto"
                         style={{
                             width: '280px',
                             background: 'var(--color-bg-card)',

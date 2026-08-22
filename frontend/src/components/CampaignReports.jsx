@@ -123,7 +123,10 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     const [thDragIdx, setThDragIdx] = useState(null);
     const [thDragOverIdx, setThDragOverIdx] = useState(null);
 
-    const handleThDragStart = (idx) => {
+    const handleThDragStart = (e, idx) => {
+        // Firefox refuses to start a native drag until the payload is set.
+        e.dataTransfer.setData('text/plain', String(idx));
+        e.dataTransfer.effectAllowed = 'move';
         setThDragIdx(idx);
     };
 
@@ -740,7 +743,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                 <th
                                                     key={colId}
                                                     draggable
-                                                    onDragStart={() => handleThDragStart(colIdx)}
+                                                    onDragStart={(e) => handleThDragStart(e, colIdx)}
                                                     onDragOver={(e) => handleThDragOver(e, colIdx)}
                                                     onDrop={(e) => handleThDrop(e, colIdx)}
                                                     onDragEnd={handleThDragEnd}

@@ -22,6 +22,8 @@ export default {
         "enterParamKey": "输入参数键（例如 utm_placement、placement、custom_id）：",
         "addParam": "添加参数",
         "additionalSubIds": "附加子 ID (sub_id_1 .. sub_id_30)",
+        "sourceDrivenHint": "参数列表来自广告系列流量源——未选择之前保持通用。",
+
         "placement": "版位 (utm_placement)",
         "facebookParams": "Facebook 参数",
         "facebookParamsHint": "复制 Facebook Ads URL 参数（不含开头的问号）以便粘贴到 Meta Ads Manager",

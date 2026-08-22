@@ -143,6 +143,73 @@ const ExitIntentPreview = ({ heading, text, buttonText, buttonColor }) => (
     </div>
 );
 
+// --- Traffic-source parameter contract -----------------------------------
+// The same rows orbitraSourceParamAliases() (core/ClickParams.php) reads from
+// traffic_sources.parameters_json: [{alias, param, macro}]. Layer 1 is
+// `param={{macro}}` pasted into the ad network's parameter box; layer 2 is
+// `param={alias}` in a Direct URL, resolved from what layer 1 captured.
+const parseSourceParamRows = (source) => {
+    let rows = source?.parameters_json;
+    if (typeof rows === 'string') {
+        try { rows = JSON.parse(rows); } catch { rows = null; }
+    }
+    if (!Array.isArray(rows)) return [];
+    const seen = new Set();
+    const out = [];
+    for (const entry of rows) {
+        if (!entry || typeof entry !== 'object') continue;
+        const param = String(entry.param ?? '').trim();
+        const alias = String(entry.alias ?? param ?? '').trim();
+        const macro = String(entry.macro ?? '').trim();
+        if (!param || !alias || !macro || seen.has(param)) continue;
+        seen.add(param);
+        out.push({ param, alias, macro });
+    }
+    return out;
+};
+
+// Fallback when the campaign has no traffic source picked: today's Facebook
+// defaults (kept verbatim, including the placement / site_source_name twins).
+const DEFAULT_PARAM_ROWS = [
+    { param: 'utm_placement', alias: 'utm_placement', macro: '{{placement}}' },
+    { param: 'source', alias: 'source', macro: '{{site_source_name}}' },
+    { param: 'campaign_id', alias: 'campaign_id', macro: '{{campaign.id}}' },
+    { param: 'campaign_name', alias: 'campaign_name', macro: '{{campaign.name}}' },
+    { param: 'adset_id', alias: 'adset_id', macro: '{{adset.id}}' },
+    { param: 'adset_name', alias: 'adset_name', macro: '{{adset.name}}' },
+    { param: 'ad_id', alias: 'ad_id', macro: '{{ad.id}}' },
+    { param: 'ad_name', alias: 'ad_name', macro: '{{ad.name}}' },
+    { param: 'placement', alias: 'placement', macro: '{{placement}}' },
+    { param: 'site_source_name', alias: 'site_source_name', macro: '{{site_source_name}}' },
+];
+
+// Tracker-native macros no source declares — the same set the macro chips
+// under the Direct URL field offer. Added only when the source rows don't
+// already declare the alias.
+const TRACKER_NATIVE_MACROS = ['subid', 'clickid', 'country', 'ip', 'cost', 'sub_id_1', 'sub_id_2', 'sub_id_3'];
+
+// Merge generated [key, value] pairs into an existing URL's query without
+// destroying what the user typed: existing pairs are kept VERBATIM (raw,
+// never decoded/re-encoded — {macros} must not become %7B), user values win
+// on key collisions, and no key is ever emitted twice. Re-clicking the
+// button is therefore idempotent.
+const mergeDirectUrlQuery = (url, generated) => {
+    const qIdx = url.indexOf('?');
+    const base = qIdx === -1 ? url : url.slice(0, qIdx);
+    const rawQuery = qIdx === -1 ? '' : url.slice(qIdx + 1);
+    const hashIdx = rawQuery.indexOf('#');
+    const hash = hashIdx === -1 ? '' : rawQuery.slice(hashIdx);
+    const query = hashIdx === -1 ? rawQuery : rawQuery.slice(0, hashIdx);
+    const existingPairs = query.split('&').filter(Boolean);
+    const existingKeys = new Set(existingPairs.map(p => {
+        const eq = p.indexOf('=');
+        return eq === -1 ? p : p.slice(0, eq);
+    }));
+    const additions = generated.filter(([k]) => k && !existingKeys.has(k));
+    const parts = [...existingPairs, ...additions.map(([k, v]) => `${k}=${v}`)];
+    return base + (parts.length ? '?' + parts.join('&') : '') + hash;
+};
+
 const CampaignEditor = ({ campaignId, onClose }) => {
     const { t } = useLanguage();
     const [activeTab, setActiveTab] = useState('general');
@@ -642,26 +709,22 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         }
     };
 
-    // Generate and copy Facebook Ads URL Parameters (without leading ?)
-    // This ensures proper pasting into Facebook Ads Manager URL Parameters field
+    // Generate and copy the ad-network URL Parameters string (no leading ?)
+    // for pasting into e.g. Meta Ads Manager. The list is the campaign's
+    // traffic source parameters_json — param={{macro}} per row, in the
+    // source's own order — falling back to the Facebook defaults while no
+    // source is picked.
     const copyFacebookParams = async () => {
-        // Standard Facebook tracking macros that should be passed
-        const fbParams = [
-            'utm_placement={{placement}}',
-            'source={{site_source_name}}',
-            'campaign_id={{campaign.id}}',
-            'campaign_name={{campaign.name}}',
-            'adset_id={{adset.id}}',
-            'adset_name={{adset.name}}',
-            'ad_id={{ad.id}}',
-            'ad_name={{ad.name}}',
-            'placement={{placement}}',
-            'site_source_name={{site_source_name}}'
-        ];
+        const rows = parseSourceParamRows(activeSource);
+        const activeRows = rows.length ? rows : DEFAULT_PARAM_ROWS;
+        const fbParams = activeRows.map(r => `${r.param}=${r.macro}`);
 
-        // Add any custom parameters that are set in the campaign
+        // Campaign-level custom parameters keep being appended; a custom key
+        // wins over a source row with the same name (explicit beats template)
+        // so the pasted string never carries a key twice.
         const customParams = Object.entries(formData.parameters || {})
             .filter(([, v]) => String(v ?? '').trim() !== '')
+            .filter(([k]) => !activeRows.some(r => r.param === String(k).trim()))
             .map(([k, v]) => {
                 const safeVal = encodeURIComponent(String(v).trim())
                     .replace(/%7B/gi, '{')
@@ -1276,6 +1339,63 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         });
     };
 
+    // Mirrors selectWeightedItem()'s filter in index.php/click.php/click_api.php
+    // exactly: state 'disabled' OR 'paused' is out, and so is is_active
+    // false/0/'0'. If this drifts from the router, the on-screen shares stop
+    // matching the traffic split.
+    const isSchemaItemEnabled = (it) => {
+        if (it?.state === 'disabled' || it?.state === 'paused') return false;
+        const a = it?.is_active;
+        if (a === false || a === 0 || a === '0') return false;
+        return true;
+    };
+
+    const schemaEnabledWeight = (list) =>
+        (list || []).filter(isSchemaItemEnabled).reduce((sum, it) => sum + (parseInt(it.weight, 10) || 0), 0);
+
+    // Even split across ENABLED items only; paused rows keep their weight. The
+    // rounding remainder lands on the first enabled item so enabled weights
+    // total 100 — same convention as handleEqualizeStreamWeights.
+    const handleEqualizeSchemaWeights = (streamIdx, type) => {
+        setFormData(prev => {
+            const stream = prev.streams[streamIdx];
+            const list = stream?.schema_custom?.[type];
+            if (!Array.isArray(list)) return prev;
+            const enabledCount = list.filter(isSchemaItemEnabled).length;
+            if (!enabledCount) return prev;
+            const base = Math.floor(100 / enabledCount);
+            const remainder = 100 - base * enabledCount;
+            let seen = 0;
+            const nextList = list.map(it => {
+                if (!isSchemaItemEnabled(it)) return it;
+                const w = base + (seen === 0 ? remainder : 0);
+                seen += 1;
+                return { ...it, weight: w };
+            });
+            const streams = [...prev.streams];
+            streams[streamIdx] = { ...stream, schema_custom: { ...stream.schema_custom, [type]: nextList } };
+            return { ...prev, streams };
+        });
+    };
+
+    // Shared header action for every per-stream Offers/Landings list header
+    // (landing_offer schema, redirect schema offers, cloak money page).
+    const renderSchemaEqualizeButton = (streamIdx, type, list) => {
+        const enabledCount = (list || []).filter(isSchemaItemEnabled).length;
+        return (
+            <button
+                type="button"
+                disabled={enabledCount < 2}
+                onClick={() => handleEqualizeSchemaWeights(streamIdx, type)}
+                className="btn btn-secondary btn-sm text-xs py-1 px-2.5 rounded-lg flex items-center gap-1 font-semibold"
+                title={t('editor.equalizeSplit', 'Split Evenly')}
+            >
+                <span>⚖</span>
+                <span>{t('editor.equalizeSplit', 'Split Evenly')}</span>
+            </button>
+        );
+    };
+
     // Schema item management
     /**
      * Add landings/offers to a stream's rotation and split the weights evenly:
@@ -1421,24 +1541,40 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         </span>
     );
 
-    const schemaWeightInput = (streamIdx, type, item, itemIdx, list) => (
-        <div className="flex items-center gap-1 flex-shrink-0">
-            <input
-                type="number"
-                value={list.length === 1 ? 100 : item.weight}
-                disabled={list.length === 1}
-                onChange={e => updateSchemaItem(streamIdx, type, itemIdx, 'weight', parseInt(e.target.value))}
-                className="w-14 text-center rounded-lg px-1 py-1 text-xs"
-                style={{
-                    backgroundColor: list.length === 1 ? 'var(--color-bg-soft)' : 'var(--color-bg-card)',
-                    border: '1px solid var(--color-border)',
-                    color: list.length === 1 ? 'var(--color-text-muted)' : 'var(--color-text-primary)'
-                }}
-                title={t('editor.weight')}
-            />
-            <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>%</span>
-        </div>
-    );
+    // Weights are relative to the sum of ENABLED items (the router rotates
+    // over those only), so the badge next to the input shows the live share —
+    // weight / enabled-total, one decimal — the same badge the stream rows
+    // use. A paused item has no share: it is not in the rotation at all.
+    const schemaWeightInput = (streamIdx, type, item, itemIdx, list) => {
+        const enabledTotal = schemaEnabledWeight(list);
+        const w = list.length === 1 ? 100 : (parseInt(item.weight, 10) || 0);
+        const paused = !isSchemaItemEnabled(item);
+        const share = !paused && enabledTotal > 0 ? `${((w / enabledTotal) * 100).toFixed(1)}%` : '—';
+        return (
+            <div className="flex items-center gap-1 flex-shrink-0">
+                <input
+                    type="number"
+                    value={list.length === 1 ? 100 : item.weight}
+                    disabled={list.length === 1}
+                    onChange={e => updateSchemaItem(streamIdx, type, itemIdx, 'weight', parseInt(e.target.value))}
+                    className="w-14 text-center rounded-lg px-1 py-1 text-xs"
+                    style={{
+                        backgroundColor: list.length === 1 ? 'var(--color-bg-soft)' : 'var(--color-bg-card)',
+                        border: '1px solid var(--color-border)',
+                        color: list.length === 1 ? 'var(--color-text-muted)' : 'var(--color-text-primary)'
+                    }}
+                    title={t('editor.weight')}
+                />
+                <span
+                    className="text-xs font-extrabold px-1.5 py-0.5 rounded-md whitespace-nowrap"
+                    style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}
+                    title={paused ? `${w} (paused — not in rotation)` : `${w} / ${enabledTotal}`}
+                >
+                    {share}
+                </span>
+            </div>
+        );
+    };
 
     const renderLandingRow = (idx, l, lIdx, list) => {
         const info = allLandings.find(al => al.id === parseInt(l.id, 10));
@@ -1453,7 +1589,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             preload: t('landingEditor.typePreload'),
             action: t('landingEditor.typeAction'),
         };
-        const isItemActive = (l.state ?? 'active') !== 'disabled' && (l.is_active ?? 1) != 0;
+        const isItemActive = isSchemaItemEnabled(l);
         return (
             <div
                 key={lIdx}
@@ -1512,7 +1648,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         // swaps itself for a real pick.
         const empty = !info && !o.id;
         const name = info ? info.name : (o.id ? `#${o.id}` : t('editor.selectOfferPlaceholder'));
-        const isItemActive = (o.state ?? 'active') !== 'disabled' && (o.is_active ?? 1) != 0;
+        const isItemActive = isSchemaItemEnabled(o);
         return (
             <div
                 key={oIdx}
@@ -2207,6 +2343,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                     </button>
                                                 </div>
                                             </div>
+
+                                            {parseSourceParamRows(activeSource).length === 0 && (
+                                                <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
+                                                    {t('parameters.sourceDrivenHint', 'The parameter list comes from the campaign\'s traffic source — it stays generic until one is picked.')}
+                                                </p>
+                                            )}
 
                                             <div className="hidden sm:grid grid-cols-12 gap-2 px-2 text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--color-text-muted)' }}>
                                                 <span className="col-span-3">{t('sourceEditor.alias')}</span>
@@ -3345,12 +3487,15 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                         <div>
                                                             <div className="flex justify-between items-center mb-2">
                                                                 <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('editor.landings')}</span>
-                                                                <AddDropdownButton
-                                                                    label={t('editor.addLandings')}
-                                                                    createLabel={t('editor.createLandingDropdown')}
-                                                                    onMain={() => openEntityPicker(idx, 'landings')}
-                                                                    onCreate={() => setQuickCreate({ kind: 'landings', streamIdx: idx })}
-                                                                />
+                                                                <div className="flex items-center gap-2">
+                                                                    {renderSchemaEqualizeButton(idx, 'landings', stream.schema_custom?.landings)}
+                                                                    <AddDropdownButton
+                                                                        label={t('editor.addLandings')}
+                                                                        createLabel={t('editor.createLandingDropdown')}
+                                                                        onMain={() => openEntityPicker(idx, 'landings')}
+                                                                        onCreate={() => setQuickCreate({ kind: 'landings', streamIdx: idx })}
+                                                                    />
+                                                                </div>
                                                             </div>
                                                             {(stream.schema_custom?.landings || []).length === 0 ? (
                                                                 <div className="text-xs py-3 px-4 rounded-xl border border-dashed text-center" style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}>
@@ -3365,12 +3510,15 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                         <div className="pt-3" style={{ borderTop: '1px solid var(--color-border)' }}>
                                                             <div className="flex justify-between items-center mb-2">
                                                                 <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('editor.offers')}</span>
-                                                                <AddDropdownButton
-                                                                    label={t('editor.addOffers')}
-                                                                    createLabel={t('editor.createOfferDropdown')}
-                                                                    onMain={() => openEntityPicker(idx, 'offers')}
-                                                                    onCreate={() => setQuickCreate({ kind: 'offers', streamIdx: idx })}
-                                                                />
+                                                                <div className="flex items-center gap-2">
+                                                                    {renderSchemaEqualizeButton(idx, 'offers', stream.schema_custom?.offers)}
+                                                                    <AddDropdownButton
+                                                                        label={t('editor.addOffers')}
+                                                                        createLabel={t('editor.createOfferDropdown')}
+                                                                        onMain={() => openEntityPicker(idx, 'offers')}
+                                                                        onCreate={() => setQuickCreate({ kind: 'offers', streamIdx: idx })}
+                                                                    />
+                                                                </div>
                                                             </div>
                                                             {(stream.schema_custom?.offers || []).length === 0 ? (
                                                                 <div className="text-xs py-3 px-4 rounded-xl border border-dashed text-center" style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}>
@@ -3998,12 +4146,15 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                 <div>
                                                                     <div className="flex justify-between items-center mb-1.5">
                                                                         <span className="text-xs font-semibold" style={{ color: 'var(--color-text-secondary)' }}>{t('editor.landings')}</span>
-                                                                        <AddDropdownButton
-                                                                            label={t('editor.addLandings')}
-                                                                            createLabel={t('editor.createLandingDropdown')}
-                                                                            onMain={() => openEntityPicker(idx, 'landings')}
-                                                                            onCreate={() => setQuickCreate({ kind: 'landings', streamIdx: idx })}
-                                                                        />
+                                                                        <div className="flex items-center gap-2">
+                                                                            {renderSchemaEqualizeButton(idx, 'landings', sc.landings)}
+                                                                            <AddDropdownButton
+                                                                                label={t('editor.addLandings')}
+                                                                                createLabel={t('editor.createLandingDropdown')}
+                                                                                onMain={() => openEntityPicker(idx, 'landings')}
+                                                                                onCreate={() => setQuickCreate({ kind: 'landings', streamIdx: idx })}
+                                                                            />
+                                                                        </div>
                                                                     </div>
                                                                     {(sc.landings || []).length === 0 ? (
                                                                         <div className="text-xs py-3 px-4 rounded-xl border border-dashed text-center" style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}>
@@ -4020,12 +4171,15 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                 <div className="pt-2" style={{ borderTop: '1px solid var(--color-border)' }}>
                                                                     <div className="flex justify-between items-center mb-1.5">
                                                                         <span className="text-xs font-semibold" style={{ color: 'var(--color-text-secondary)' }}>{t('editor.offers')}</span>
-                                                                        <AddDropdownButton
-                                                                            label={t('editor.addOffers')}
-                                                                            createLabel={t('editor.createOfferDropdown')}
-                                                                            onMain={() => openEntityPicker(idx, 'offers')}
-                                                                            onCreate={() => setQuickCreate({ kind: 'offers', streamIdx: idx })}
-                                                                        />
+                                                                        <div className="flex items-center gap-2">
+                                                                            {renderSchemaEqualizeButton(idx, 'offers', sc.offers)}
+                                                                            <AddDropdownButton
+                                                                                label={t('editor.addOffers')}
+                                                                                createLabel={t('editor.createOfferDropdown')}
+                                                                                onMain={() => openEntityPicker(idx, 'offers')}
+                                                                                onCreate={() => setQuickCreate({ kind: 'offers', streamIdx: idx })}
+                                                                            />
+                                                                        </div>
                                                                     </div>
                                                                     {(sc.offers || []).length === 0 ? (
                                                                         <div className="text-xs py-3 px-4 rounded-xl border border-dashed text-center" style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}>
@@ -4106,22 +4260,27 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                         <button
                                                                             type="button"
                                                                             onClick={() => {
-                                                                                // Preset that adds all Facebook/UTM tracking parameters
-                                                                                const trackingParams = [
-                                                                                    'subid={subid}',
-                                                                                    'clickid={clickid}',
-                                                                                    'campaign_id={campaign_id}',
-                                                                                    'adset_id={adset_id}',
-                                                                                    'ad_id={ad_id}',
-                                                                                    'utm_placement={utm_placement}',
-                                                                                    'utm_source={utm_source}',
-                                                                                    'utm_medium={utm_medium}',
-                                                                                    'utm_campaign={utm_campaign}',
-                                                                                    'utm_content={utm_content}',
-                                                                                    'utm_term={utm_term}'
-                                                                                ].join('&');
-                                                                                const baseUrl = sc.direct_url?.split('?')[0] || sc.direct_url || '';
-                                                                                setDirectUrl(baseUrl + (baseUrl.includes('?') ? '&' : '?') + trackingParams);
+                                                                                // param={alias} for every traffic-source
+                                                                                // row (resolved from what layer 1 captured),
+                                                                                // plus the tracker-native macros no source
+                                                                                // declares. Merged into the existing query —
+                                                                                // hand-typed values are kept, keys never
+                                                                                // duplicated, so re-clicking is a no-op.
+                                                                                const rows = parseSourceParamRows(activeSource);
+                                                                                const activeRows = rows.length ? rows : DEFAULT_PARAM_ROWS;
+                                                                                const seen = new Set();
+                                                                                const generated = [];
+                                                                                for (const r of activeRows) {
+                                                                                    if (seen.has(r.param)) continue;
+                                                                                    seen.add(r.param);
+                                                                                    generated.push([r.param, `{${r.alias}}`]);
+                                                                                }
+                                                                                for (const native of TRACKER_NATIVE_MACROS) {
+                                                                                    if (seen.has(native)) continue;
+                                                                                    seen.add(native);
+                                                                                    generated.push([native, `{${native}}`]);
+                                                                                }
+                                                                                setDirectUrl(mergeDirectUrlQuery(sc.direct_url || '', generated));
                                                                             }}
                                                                             className="text-[11px] px-2 py-1 rounded-lg border font-medium transition-colors hover:border-blue-400"
                                                                             style={{ backgroundColor: 'var(--color-primary-soft)', borderColor: 'var(--color-primary)', color: 'var(--color-primary)' }}
@@ -4153,12 +4312,15 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                 <div className="space-y-3">
                                                                     <div className="flex justify-between items-center">
                                                                         <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('editor.offers')}</span>
-                                                                        <AddDropdownButton
-                                                                            label={t('editor.addOffers')}
-                                                                            createLabel={t('editor.createOfferDropdown')}
-                                                                            onMain={() => openEntityPicker(idx, 'offers')}
-                                                                            onCreate={() => setQuickCreate({ kind: 'offers', streamIdx: idx })}
-                                                                        />
+                                                                        <div className="flex items-center gap-2">
+                                                                            {renderSchemaEqualizeButton(idx, 'offers', sc.offers)}
+                                                                            <AddDropdownButton
+                                                                                label={t('editor.addOffers')}
+                                                                                createLabel={t('editor.createOfferDropdown')}
+                                                                                onMain={() => openEntityPicker(idx, 'offers')}
+                                                                                onCreate={() => setQuickCreate({ kind: 'offers', streamIdx: idx })}
+                                                                            />
+                                                                        </div>
                                                                     </div>
 
                                                                     {(() => {

@@ -22,6 +22,8 @@ export default {
         "enterParamKey": "Enter parameter key (e.g. utm_placement, placement, custom_id):",
         "addParam": "Add Parameter",
         "additionalSubIds": "Sub IDs (sub_id_1 .. sub_id_30)",
+        "sourceDrivenHint": "The parameter list comes from the campaign's traffic source — it stays generic until one is picked.",
+
         "placement": "Placement (utm_placement)",
         "facebookParams": "Facebook Parameters",
         "facebookParamsHint": "Copy Facebook Ads URL Parameters (without leading ?) for pasting into Meta Ads Manager"
