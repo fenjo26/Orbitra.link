@@ -10756,7 +10756,7 @@ try {
                     }
                 }
                 if (!$hasGeoDb) {
-                    $warnings[] = ['level' => 'warning', 'message' => 'noGeoDb'];
+                    $warnings[] = ['level' => 'warning', 'messageKey' => 'noGeoDb'];
                 }
 
                 // Estimate capacity

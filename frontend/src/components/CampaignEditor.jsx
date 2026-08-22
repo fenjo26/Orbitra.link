@@ -3407,6 +3407,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                     />
                                                                     {/* Phase 0: Warning when country filter is configured but no geo database */}
                                                                     {(() => {
+                                                                        // Only warn in 'allow' mode - missing geo DB in 'deny' mode doesn't block traffic
+                                                                        if ((sc.geo_mode || 'allow') !== 'allow') return false;
                                                                         // Normalize countries to string (handle array case from API imports)
                                                                         const countriesStr = Array.isArray(sc.countries)
                                                                             ? sc.countries.join(',')
@@ -3415,7 +3417,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                         const countriesList = countriesStr.split(',')
                                                                             .map(c => c.trim().toUpperCase())
                                                                             .filter(Boolean);
-                                                                        const hasUnknown = countriesList.includes('UNKNOWN') || countriesList.includes('');
+                                                                        const hasUnknown = countriesList.includes('UNKNOWN');
                                                                         // Show warning only when: has countries, confirmed no DB, and Unknown not in list
                                                                         return countriesStr.trim() !== '' &&
                                                                             geoTargetingReady.country === false &&
