@@ -57,7 +57,7 @@ foreach ($cases as $name => [$targeting, $country, $device, $isp, $globalList, $
 
 $clickPolicyCases = [
     'money page is always recorded' => [[], false, false],
-    'missing option defaults to skipping safe clicks' => [[], true, true],
+    'missing option defaults to recording safe clicks (W3.1)' => [[], true, false],
     'explicit true skips safe clicks' => [['dont_record_safe_clicks' => true], true, true],
     'string true skips safe clicks' => [['dont_record_safe_clicks' => 'true'], true, true],
     'explicit false records safe clicks' => [['dont_record_safe_clicks' => false], true, false],

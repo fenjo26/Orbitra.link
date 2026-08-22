@@ -2712,7 +2712,11 @@ export default {
         "inactiveDatacenterWarning": "Detección de datacenter inactiva: no hay base ASN instalada.",
         "inactiveVpnWarning": "Detección VPN/proxy inactiva: no hay base IP2Proxy PX12 instalada.",
         "inactiveBotWarning": "Lista de bloqueo de bots inactiva: no hay base ASN instalada.",
-        "inactiveIspWarning": "Bloqueo de ISP inactivo: no hay base ASN instalada."
+        "inactiveIspWarning": "Bloqueo de ISP inactivo: no hay base ASN instalada.",
+        "logSafeClicks": "Registrar clics en Safe Page",
+        "logSafeClicksHint": "Los clics en Safe Page se escriben en el log de clics con is_safe_page=1. Desmarca para descartarlos completamente de la base de datos.",
+        "excludeSafeFromReports": "Excluir clics de Safe Page de los informes",
+        "excludeSafeFromReportsHint": "Los clics en Safe Page siguen registrados y visibles en el log de clics, pero no se cuentan en las métricas de campaña, costo o CPC."
     },
     "postbackQueue": {
         "title": "Cola de postbacks",

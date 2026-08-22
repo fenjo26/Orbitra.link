@@ -2712,7 +2712,11 @@ export default {
         "inactiveDatacenterWarning": "数据中心检测未激活：未安装 ASN 数据库。",
         "inactiveVpnWarning": "VPN/代理检测未激活：未安装 IP2Proxy PX12 数据库。",
         "inactiveBotWarning": "机器人黑名单未激活：未安装 ASN 数据库。",
-        "inactiveIspWarning": "ISP 黑名单未激活：未安装 ASN 数据库。"
+        "inactiveIspWarning": "ISP 黑名单未激活：未安装 ASN 数据库。",
+        "logSafeClicks": "记录 Safe Page 点击",
+        "logSafeClicksHint": "Safe Page 点击会以 is_safe_page=1 写入点击日志。取消勾选可完全将其从数据库中丢弃。",
+        "excludeSafeFromReports": "从报表中排除 Safe Page 点击",
+        "excludeSafeFromReportsHint": "Safe Page 点击仍会记录并在点击日志中可见，但不会计入广告系列指标、成本或 CPC。"
     },
     "postbackQueue": {
         "title": "Postback 队列",

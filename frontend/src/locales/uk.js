@@ -2712,7 +2712,11 @@ export default {
         "inactiveDatacenterWarning": "Визначення датацентрів неактивне: не встановлено базу ASN.",
         "inactiveVpnWarning": "Визначення VPN/проксі неактивне: не встановлено базу IP2Proxy PX12.",
         "inactiveBotWarning": "Чорний список ботів неактивний: не встановлено базу ASN.",
-        "inactiveIspWarning": "Блокування ISP неактивне: не встановлено базу ASN."
+        "inactiveIspWarning": "Блокування ISP неактивне: не встановлено базу ASN.",
+        "logSafeClicks": "Записувати кліки на Safe Page",
+        "logSafeClicksHint": "Кліки на Safe Page записуються в лог кліків з is_safe_page=1. Зніміть прапорець, щоб не зберігати їх у базі даних.",
+        "excludeSafeFromReports": "Виключити кліки Safe Page зі звітів",
+        "excludeSafeFromReportsHint": "Кліки на Safe Page все одно видно в логі кліків, але не враховуються в метриках кампанії, витратах і CPC."
     },
     "postbackQueue": {
         "title": "Черга постбеків",

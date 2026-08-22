@@ -2712,7 +2712,11 @@ export default {
         "inactiveDatacenterWarning": "Datacenter-Erkennung inaktiv: keine ASN-Datenbank installiert.",
         "inactiveVpnWarning": "VPN/Proxy-Erkennung inaktiv: keine IP2Proxy PX12-Datenbank installiert.",
         "inactiveBotWarning": "Bot-Sperrliste inaktiv: keine ASN-Datenbank installiert.",
-        "inactiveIspWarning": "ISP-Sperrliste inaktiv: keine ASN-Datenbank installiert."
+        "inactiveIspWarning": "ISP-Sperrliste inaktiv: keine ASN-Datenbank installiert.",
+        "logSafeClicks": "Safe Page-Klicks protokollieren",
+        "logSafeClicksHint": "Safe Page-Klicks werden mit is_safe_page=1 in das Klick-Protokoll geschrieben. Deaktivieren, um sie vollständig aus der Datenbank zu verwerfen.",
+        "excludeSafeFromReports": "Safe Page-Klicks von Berichten ausschließen",
+        "excludeSafeFromReportsHint": "Safe Page-Klicks werden weiterhin protokolliert und sind im Klick-Protokoll sichtbar, werden aber nicht in Kampagnenmetriken, Kosten oder CPC eingerechnet."
     },
     "postbackQueue": {
         "title": "Postback-Warteschlange",

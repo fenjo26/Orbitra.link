@@ -1943,6 +1943,46 @@ function getDashboardFilters($prefix = '')
             break;
     }
 
+    // W3.4: Exclude Safe Page clicks from reports when stream has exclude_safe_from_reports
+    // This prevents safe clicks from leaking into cost, CPC, and CR metrics
+    global $pdo;
+    $safePageFilterNeeded = false;
+    if ($campaign_id) {
+        // Check if this specific campaign has any stream with exclude_safe_from_reports enabled
+        $stmt = $pdo->prepare("
+            SELECT cloak_streams FROM campaigns WHERE id = ? AND cloak_streams IS NOT NULL AND cloak_streams != '[]' AND cloak_streams != ''
+        ");
+        $stmt->execute([$campaign_id]);
+        $cloakStreams = $stmt->fetchColumn();
+        if ($cloakStreams) {
+            // Check if any stream has exclude_safe_from_reports !== false (default is true)
+            $streams = json_decode($cloakStreams, true);
+            if (is_array($streams)) {
+                foreach ($streams as $stream) {
+                    if (!isset($stream['exclude_safe_from_reports']) || $stream['exclude_safe_from_reports'] !== false) {
+                        $safePageFilterNeeded = true;
+                        break;
+                    }
+                }
+            }
+        }
+    } else {
+        // No campaign filter - check if ANY active campaign has exclude_safe_from_reports
+        $stmt = $pdo->query("
+            SELECT COUNT(*) FROM campaigns
+            WHERE cloak_streams IS NOT NULL AND cloak_streams != '[]' AND cloak_streams != ''
+            AND state = 'active'
+            LIMIT 1
+        ");
+        if ($stmt->fetchColumn() > 0) {
+            $safePageFilterNeeded = true;
+        }
+    }
+
+    if ($safePageFilterNeeded) {
+        $conditions[] = "{$prefix}is_safe_page = 0";
+    }
+
     $whereClause = !empty($conditions) ? "WHERE " . implode(" AND ", $conditions) : "";
     return [$whereClause, $params];
 }
@@ -3940,6 +3980,17 @@ try {
             }
 
             if ($dateConditions) {
+                // W3.4: Add is_safe_page filter for campaigns with exclude_safe_from_reports
+                // Check if any active campaign has cloaking with exclude_safe_from_reports
+                $stmtCheck = $pdo->query("
+                    SELECT COUNT(*) FROM campaigns
+                    WHERE cloak_streams IS NOT NULL AND cloak_streams != '[]' AND cloak_streams != ''
+                    AND state = 'active'
+                    LIMIT 1
+                ");
+                if ($stmtCheck->fetchColumn() > 0) {
+                    $dateConditions[] = "cl.is_safe_page = 0";
+                }
                 $joinCondition = 'AND ' . implode(' AND ', $dateConditions);
             } else {
                 // Requests without an explicit Landings range retain the old
@@ -5439,6 +5490,17 @@ try {
                 if ($dateTo !== null) {
                     $joinConds[] = "date(cl.created_at, '$dbTzOffset') <= date(?)";
                     $paramsCl[] = $dateTo;
+                }
+                // W3.4: Add is_safe_page filter for campaigns with exclude_safe_from_reports
+                // Check if any active campaign has cloaking with exclude_safe_from_reports
+                $stmtCheck = $pdo->query("
+                    SELECT COUNT(*) FROM campaigns
+                    WHERE cloak_streams IS NOT NULL AND cloak_streams != '[]' AND cloak_streams != ''
+                    AND state = 'active'
+                    LIMIT 1
+                ");
+                if ($stmtCheck->fetchColumn() > 0) {
+                    $joinConds[] = "cl.is_safe_page = 0";
                 }
                 $joinCondition = $joinConds ? 'AND ' . implode(' AND ', $joinConds) : '';
             } else {
@@ -13615,6 +13677,17 @@ try {
             $clickWhere = ["cl.created_at >= ?", "cl.created_at <= ?"];
             $params = [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'];
             $groupClause = '';
+
+            // W3.4: Add is_safe_page filter for campaigns with exclude_safe_from_reports
+            $stmtCheck = $pdo->query("
+                SELECT COUNT(*) FROM campaigns
+                WHERE cloak_streams IS NOT NULL AND cloak_streams != '[]' AND cloak_streams != ''
+                AND state = 'active'
+                LIMIT 1
+            ");
+            if ($stmtCheck->fetchColumn() > 0) {
+                $clickWhere[] = "cl.is_safe_page = 0";
+            }
             if ($groupId !== '') {
                 $groupClause = " AND c.group_id = " . (int)$groupId;
             }

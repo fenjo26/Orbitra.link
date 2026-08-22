@@ -19108,7 +19108,11 @@ const ru = {
     "inactiveDatacenterWarning": "Определение датацентров неактивно: не установлена база ASN.",
     "inactiveVpnWarning": "Определение VPN/прокси неактивно: не установлена база IP2Proxy PX12.",
     "inactiveBotWarning": "Чёрный список ботов неактивен: не установлена база ASN.",
-    "inactiveIspWarning": "Блокировка ISP неактивна: не установлена база ASN."
+    "inactiveIspWarning": "Блокировка ISP неактивна: не установлена база ASN.",
+    "logSafeClicks": "Записывать клики на Safe Page",
+    "logSafeClicksHint": "Клики на Safe Page записываются в лог кликов с is_safe_page=1. Снимите флажок, чтобы не сохранять их в базе данных.",
+    "excludeSafeFromReports": "Исключить клики Safe Page из отчетов",
+    "excludeSafeFromReportsHint": "Клики на Safe Page все равно видны в логе кликов, но не учитываются в метриках кампании, расходах и CPC."
   },
   "postbackQueue": {
     "title": "Очередь постбеков",
@@ -22643,7 +22647,11 @@ const en = {
     "inactiveDatacenterWarning": "Datacenter detection is inactive: no ASN database installed.",
     "inactiveVpnWarning": "VPN/proxy detection is inactive: no IP2Proxy PX12 database installed.",
     "inactiveBotWarning": "Bot blocklist is inactive: no ASN database installed.",
-    "inactiveIspWarning": "ISP blocklist is inactive: no ASN database installed."
+    "inactiveIspWarning": "ISP blocklist is inactive: no ASN database installed.",
+    "logSafeClicks": "Log Safe Page clicks",
+    "logSafeClicksHint": "Safe Page hits are written to the click log with is_safe_page=1. Uncheck to drop them from the database entirely.",
+    "excludeSafeFromReports": "Exclude Safe Page clicks from reports",
+    "excludeSafeFromReportsHint": "Safe Page hits are still logged and visible in the click log, but are not counted in campaign metrics, cost, or CPC."
   },
   "postbackQueue": {
     "title": "Postback queue",
@@ -26178,7 +26186,11 @@ const uk = {
     "inactiveDatacenterWarning": "Визначення датацентрів неактивне: не встановлено базу ASN.",
     "inactiveVpnWarning": "Визначення VPN/проксі неактивне: не встановлено базу IP2Proxy PX12.",
     "inactiveBotWarning": "Чорний список ботів неактивний: не встановлено базу ASN.",
-    "inactiveIspWarning": "Блокування ISP неактивне: не встановлено базу ASN."
+    "inactiveIspWarning": "Блокування ISP неактивне: не встановлено базу ASN.",
+    "logSafeClicks": "Записувати кліки на Safe Page",
+    "logSafeClicksHint": "Кліки на Safe Page записуються в лог кліків з is_safe_page=1. Зніміть прапорець, щоб не зберігати їх у базі даних.",
+    "excludeSafeFromReports": "Виключити кліки Safe Page зі звітів",
+    "excludeSafeFromReportsHint": "Кліки на Safe Page все одно видно в логі кліків, але не враховуються в метриках кампанії, витратах і CPC."
   },
   "postbackQueue": {
     "title": "Черга постбеків",
@@ -29713,7 +29725,11 @@ const es = {
     "inactiveDatacenterWarning": "Detección de datacenter inactiva: no hay base ASN instalada.",
     "inactiveVpnWarning": "Detección VPN/proxy inactiva: no hay base IP2Proxy PX12 instalada.",
     "inactiveBotWarning": "Lista de bloqueo de bots inactiva: no hay base ASN instalada.",
-    "inactiveIspWarning": "Bloqueo de ISP inactivo: no hay base ASN instalada."
+    "inactiveIspWarning": "Bloqueo de ISP inactivo: no hay base ASN instalada.",
+    "logSafeClicks": "Registrar clics en Safe Page",
+    "logSafeClicksHint": "Los clics en Safe Page se escriben en el log de clics con is_safe_page=1. Desmarca para descartarlos completamente de la base de datos.",
+    "excludeSafeFromReports": "Excluir clics de Safe Page de los informes",
+    "excludeSafeFromReportsHint": "Los clics en Safe Page siguen registrados y visibles en el log de clics, pero no se cuentan en las métricas de campaña, costo o CPC."
   },
   "postbackQueue": {
     "title": "Cola de postbacks",
@@ -33248,7 +33264,11 @@ const zh = {
     "inactiveDatacenterWarning": "数据中心检测未激活：未安装 ASN 数据库。",
     "inactiveVpnWarning": "VPN/代理检测未激活：未安装 IP2Proxy PX12 数据库。",
     "inactiveBotWarning": "机器人黑名单未激活：未安装 ASN 数据库。",
-    "inactiveIspWarning": "ISP 黑名单未激活：未安装 ASN 数据库。"
+    "inactiveIspWarning": "ISP 黑名单未激活：未安装 ASN 数据库。",
+    "logSafeClicks": "记录 Safe Page 点击",
+    "logSafeClicksHint": "Safe Page 点击会以 is_safe_page=1 写入点击日志。取消勾选可完全将其从数据库中丢弃。",
+    "excludeSafeFromReports": "从报表中排除 Safe Page 点击",
+    "excludeSafeFromReportsHint": "Safe Page 点击仍会记录并在点击日志中可见，但不会计入广告系列指标、成本或 CPC。"
   },
   "postbackQueue": {
     "title": "Postback 队列",
@@ -36785,7 +36805,11 @@ const fr = {
     "inactiveDatacenterWarning": "Détection datacenter inactive : pas de base ASN installée.",
     "inactiveVpnWarning": "Détection VPN/proxy inactive : pas de base IP2Proxy PX12 installée.",
     "inactiveBotWarning": "Liste de blocage de bots inactive : pas de base ASN installée.",
-    "inactiveIspWarning": "Blocage ISP inactif : pas de base ASN installée."
+    "inactiveIspWarning": "Blocage ISP inactif : pas de base ASN installée.",
+    "logSafeClicks": "Enregistrer les clics Safe Page",
+    "logSafeClicksHint": "Les clics Safe Page sont écrits dans le log des clics avec is_safe_page=1. Décocher pour les supprimer complètement de la base de données.",
+    "excludeSafeFromReports": "Exclure les clics Safe Page des rapports",
+    "excludeSafeFromReportsHint": "Les clics Safe Page sont toujours enregistrés et visibles dans le log des clics, mais ne sont pas comptés dans les métriques de campagne, le coût ou le CPC."
   },
   "postbackQueue": {
     "title": "File d'attente des postbacks",
@@ -40320,7 +40344,11 @@ const de = {
     "inactiveDatacenterWarning": "Datacenter-Erkennung inaktiv: keine ASN-Datenbank installiert.",
     "inactiveVpnWarning": "VPN/Proxy-Erkennung inaktiv: keine IP2Proxy PX12-Datenbank installiert.",
     "inactiveBotWarning": "Bot-Sperrliste inaktiv: keine ASN-Datenbank installiert.",
-    "inactiveIspWarning": "ISP-Sperrliste inaktiv: keine ASN-Datenbank installiert."
+    "inactiveIspWarning": "ISP-Sperrliste inaktiv: keine ASN-Datenbank installiert.",
+    "logSafeClicks": "Safe Page-Klicks protokollieren",
+    "logSafeClicksHint": "Safe Page-Klicks werden mit is_safe_page=1 in das Klick-Protokoll geschrieben. Deaktivieren, um sie vollständig aus der Datenbank zu verwerfen.",
+    "excludeSafeFromReports": "Safe Page-Klicks von Berichten ausschließen",
+    "excludeSafeFromReportsHint": "Safe Page-Klicks werden weiterhin protokolliert und sind im Klick-Protokoll sichtbar, werden aber nicht in Kampagnenmetriken, Kosten oder CPC eingerechnet."
   },
   "postbackQueue": {
     "title": "Postback-Warteschlange",
@@ -89128,25 +89156,46 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                           placeholder: "<!DOCTYPE html><html><body><h1>Welcome</h1></body></html>"
                         }
                       ) }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-start gap-2 cursor-pointer select-none", children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsx(
-                          "input",
-                          {
-                            type: "checkbox",
-                            checked: sc.dont_record_safe_clicks !== false,
-                            onChange: (e) => setCloakField("dont_record_safe_clicks", e.target.checked),
-                            className: "w-4 h-4 rounded mt-0.5",
-                            style: { accentColor: "var(--color-primary)" }
-                          }
-                        ),
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: [
-                            "🚫 ",
-                            t("cloaking.dontRecordSafeClicks", "Do not record clicks for Safe Page")
-                          ] }),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-[11px]", style: { color: "var(--color-text-muted)", lineHeight: 1.4 }, children: t("cloaking.dontRecordSafeClicksHint", "Bots, crawlers, and reviewers routed to the Safe Page will not be saved in database logs or counted in campaign reports.") })
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2 space-y-3", style: { borderTop: "1px solid var(--color-border)" }, children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-start gap-2 cursor-pointer select-none", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "input",
+                            {
+                              type: "checkbox",
+                              checked: sc.log_safe_clicks !== false,
+                              onChange: (e) => setCloakField("log_safe_clicks", e.target.checked),
+                              className: "w-4 h-4 rounded mt-0.5",
+                              style: { accentColor: "var(--color-primary)" }
+                            }
+                          ),
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: [
+                              "📝 ",
+                              t("cloaking.logSafeClicks", "Log Safe Page clicks")
+                            ] }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-[11px]", style: { color: "var(--color-text-muted)", lineHeight: 1.4 }, children: t("cloaking.logSafeClicksHint", "Safe Page hits are written to the click log with is_safe_page=1. Uncheck to drop them from the database entirely.") })
+                          ] })
+                        ] }),
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-start gap-2 cursor-pointer select-none", children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            "input",
+                            {
+                              type: "checkbox",
+                              checked: sc.exclude_safe_from_reports !== false,
+                              onChange: (e) => setCloakField("exclude_safe_from_reports", e.target.checked),
+                              className: "w-4 h-4 rounded mt-0.5",
+                              style: { accentColor: "var(--color-primary)" }
+                            }
+                          ),
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: [
+                              "📊 ",
+                              t("cloaking.excludeSafeFromReports", "Exclude Safe Page clicks from reports")
+                            ] }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "block text-[11px]", style: { color: "var(--color-text-muted)", lineHeight: 1.4 }, children: t("cloaking.excludeSafeFromReportsHint", "Safe Page hits are still logged and visible in the click log, but are not counted in campaign metrics, cost, or CPC.") })
+                          ] })
                         ] })
-                      ] }) })
+                      ] })
                     ] }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3.5 rounded-xl space-y-3", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs font-bold uppercase tracking-wider block", style: { color: "var(--color-text-primary)" }, children: [
