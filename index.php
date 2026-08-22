@@ -3120,87 +3120,63 @@ if ($selectedStream) {
             $finalUrl = $offerUrl;
         }
     } else if ($schemaType === 'cloak') {
+        // Load shared click-logging module (needed for orbitraCloakDecision)
+        require_once __DIR__ . '/core/click_logger.php';
+
         // Cloaking: route suspicious visitors (bots / moderators / datacenter traffic)
         // to a safe page, real visitors to the money page. The detector's verdict is
         // computed once here; the chosen branch reuses the same landing/offer serving
         // logic as the landing_offer and redirect schemas.
-        $cloakConfig = [
-            'detect_datacenter' => $customSchema['detect_datacenter'] ?? true,
-            'detect_vpn'        => $customSchema['detect_vpn'] ?? true,
-            'detect_bots'       => $customSchema['detect_bots'] ?? true,
-            'detect_ua'         => $customSchema['detect_ua'] ?? true,
-            'sensitivity'       => $customSchema['sensitivity'] ?? 'medium',
-        ];
-        $cloakVisitorCtx = [
-            'ip'              => $ip,
-            'user_agent'      => $userAgent,
-            'asn'             => $geoData['asn'] ?? '',
-            'isp'             => $geoData['isp'] ?? '',
-            'is_proxy'        => $geoData['is_proxy'] ?? 0,
-            'proxy_type'      => $geoData['proxy_type'] ?? '',
-            'proxy_threat'    => $geoData['proxy_threat'] ?? '',
-            'proxy_provider'  => $geoData['proxy_provider'] ?? '',
-            'proxy_fraud_score' => $geoData['proxy_fraud_score'] ?? null,
-            'accept_language' => $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '',
-        ];
-        $verdict = CloakDetector::detect($cloakVisitorCtx, $cloakConfig);
-        $cloakShowSafe = (bool) $verdict['is_suspicious'];
 
-        $jsChallengeEnabled = filter_var(
-            $customSchema['js_challenge'] ?? false,
-            FILTER_VALIDATE_BOOL
-        );
+        // Compute cloak routing decision using shared function (W1)
         $jsFailure = (string) ($_GET['_ocjf'] ?? '');
-        if (!$cloakShowSafe && $jsChallengeEnabled && $jsFailure === 'webdriver') {
-            $cloakShowSafe = true;
+        $cloakDecision = orbitraCloakDecision(
+            $customSchema,
+            [
+                'ip' => $ip,
+                'user_agent' => $userAgent,
+                'asn' => $geoData['asn'] ?? '',
+                'isp' => $geoData['isp'] ?? '',
+                'is_proxy' => $geoData['is_proxy'] ?? 0,
+                'proxy_type' => $geoData['proxy_type'] ?? '',
+                'proxy_threat' => $geoData['proxy_threat'] ?? '',
+                'proxy_provider' => $geoData['proxy_provider'] ?? '',
+                'proxy_fraud_score' => $geoData['proxy_fraud_score'] ?? null,
+                'accept_language' => $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '',
+            ],
+            $settings,
+            (string) $countryCode,
+            (string) $deviceType,
+            $jsFailure
+        );
+
+        $cloakShowSafe = $cloakDecision['show_safe'];
+        $cloakVerdict = $cloakDecision['verdict'];
+        $cloakReasons = $cloakDecision['reasons'];
+        $skipClickLogging = $cloakDecision['skip_click_log'];
+
+        // Keep error_log logging for post-mortems (spec: logCloakEvent stays as-is)
+        $cloakVisitorCtx = [
+            'ip' => $ip,
+            'user_agent' => $userAgent,
+            'asn' => $geoData['asn'] ?? '',
+            'isp' => $geoData['isp'] ?? '',
+        ];
+        if ($cloakVerdict) {
             logCloakEvent(
-                'JS_SAFE',
+                strtoupper($cloakVerdict),
                 $campaignId ?? '?',
                 $selectedStream['id'] ?? '?',
                 $cloakVisitorCtx,
-                ['webdriver'],
-                $cloakConfig['sensitivity']
+                $cloakReasons,
+                $cloakDecision['sensitivity']
             );
-        }
-
-        if ($verdict['is_suspicious']) {
-            logCloakEvent(
-                'PASSIVE_SAFE',
-                $campaignId ?? '?',
-                $selectedStream['id'] ?? '?',
-                $cloakVisitorCtx,
-                $verdict['reasons'],
-                $cloakConfig['sensitivity']
-            );
-        }
-
-        // Quick targeting filters from the cloak card: hard routing rules, not
-        // heuristics — a country/device/Bot-ISP miss goes to the safe page
-        // whatever the detector said.
-        if (!$cloakShowSafe) {
-            $targetingReasons = CloakDetector::targetingReasons(
-                $customSchema,
-                (string) $countryCode,
-                (string) $deviceType,
-                ($geoData['isp'] ?? '') . ' ' . ($geoData['asn'] ?? ''),
-                (string) ($settings['bot_isp_list'] ?? '')
-            );
-            if (!empty($targetingReasons)) {
-                $cloakShowSafe = true;
-                logCloakEvent(
-                    'TARGETING_SAFE',
-                    $campaignId ?? '?',
-                    $selectedStream['id'] ?? '?',
-                    $cloakVisitorCtx,
-                    $targetingReasons,
-                    $cloakConfig['sensitivity']
-                );
-            }
         }
 
         // Optional active step: a visitor who passed the passive layers still has to
         // prove it runs a real browser before the money page is served. See
         // renderCloakJsChallenge(). Off by default — it adds a round trip.
+        $jsChallengeEnabled = filter_var($customSchema['js_challenge'] ?? false, FILTER_VALIDATE_BOOL);
         if (!$cloakShowSafe && $jsChallengeEnabled) {
             $cloakSecret = $settings['postback_key'] ?? 'orbitra_secret';
             $jsToken = $_GET['_ocj'] ?? '';
@@ -3230,8 +3206,6 @@ if ($selectedStream) {
                 exit;
             }
         }
-
-        $skipClickLogging = CloakDetector::shouldSkipSafePageClick($customSchema, $cloakShowSafe);
 
         if ($cloakShowSafe) {
             // --- Safe page ---
@@ -3388,53 +3362,53 @@ $streamCollectsClicks = !$selectedStream || (int) ($selectedStream['collect_clic
 
 // A prefetch hit serves the campaign but never reaches the stats.
 if ($statsEnabled && !$isDebounced && !$isPrefetchRequest && !$skipClickLogging && $streamCollectsClicks) {
-    // No offer (e.g. landing-only stream) must be logged as NULL, not 0, to
-    // avoid the offers(id) foreign-key violation.
-    $offerIdForDb = !empty($offerIdToLog) ? $offerIdToLog : null;
-    try {
-        $insertStmt = $pdo->prepare("
-            INSERT INTO clicks
-            (
-                id, campaign_id, offer_id, stream_id, source_id, landing_id, ip, user_agent, referer,
-                country, country_code, region, city, latitude, longitude, zipcode, timezone,
-                device_type, os, browser, language, accept_language_raw, parameters_json
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ");
-        $insertStmt->execute([
-            $clickId,
-            $campaignId,
-            $offerIdForDb,
-            $streamIdToLog,
-            $sourceIdToLog,
-            $landingIdToLog,
-            $ip,
-            $userAgent,
-            $referer,
-            $country,
-            $countryCode,
-            $region,
-            $city,
-            $latitude,
-            $longitude,
-            $zipcode,
-            $timezone,
-            $deviceType,
-            $os,
-            $browser,
-            $language,
-            $acceptLanguageRaw,
-            $parametersJson
-        ]);
+    // Build click row using shared module
+    $clickCtx = [
+        'click_id' => $clickId,
+        'campaign_id' => $campaignId,
+        'offer_id' => $offerIdToLog,
+        'stream_id' => $streamIdToLog,
+        'source_id' => $sourceIdToLog,
+        'landing_id' => $landingIdToLog,
+        'ip' => $ip,
+        'user_agent' => $userAgent,
+        'referer' => $referer,
+        'country' => $country,
+        'country_code' => $countryCode,
+        'region' => $region,
+        'city' => $city,
+        'latitude' => $latitude,
+        'longitude' => $longitude,
+        'zipcode' => $zipcode,
+        'timezone' => $timezone,
+        'device_type' => $deviceType,
+        'os' => $os,
+        'browser' => $browser,
+        'language' => $language,
+        'accept_language_raw' => $acceptLanguageRaw,
+        'parameters_json' => $parametersJson,
+    ];
 
-        // Honesty flags for the report metrics (bots/proxies/uniqueness) —
-        // one UPDATE, never allowed to break the click itself.
-        require_once __DIR__ . '/core/ClickFlags.php';
-        orbitraWriteClickFlags($pdo, $clickId, $ip, $userAgent, $campaign ?? [], $streamIdToLog ?? 0, is_array($geoData ?? null) ? $geoData : []);
-    } catch (\Throwable $e) {
-        // Never let click logging break the redirect/landing. Log and continue.
-        error_log('Orbitra click logging failed: ' . $e->getMessage());
+    // Add cloak observability fields for cloak streams (W1)
+    if (isset($cloakDecision) && $schemaType === 'cloak') {
+        $cloakClickCtx = orbitraCloakClickContext($cloakDecision, $geoData ?? []);
+        $clickCtx = array_merge($clickCtx, $cloakClickCtx);
     }
+
+    // Load shared click-logging module if not already loaded (moved from cloak section)
+    if (!function_exists('orbitraBuildClickRow')) {
+        require_once __DIR__ . '/core/click_logger.php';
+    }
+
+    $clickRow = orbitraBuildClickRow($clickCtx);
+
+    // Persist click using shared module
+    orbitraPersistClick($pdo, $clickRow);
+
+    // Honesty flags for the report metrics (bots/proxies/uniqueness) —
+    // one UPDATE, never allowed to break the click itself.
+    require_once __DIR__ . '/core/ClickFlags.php';
+    orbitraWriteClickFlags($pdo, $clickId, $ip, $userAgent, $campaign ?? [], $streamIdToLog ?? 0, is_array($geoData ?? null) ? $geoData : []);
 }
 
 if (!$selectedStream) {

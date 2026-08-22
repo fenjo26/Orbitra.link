@@ -73,7 +73,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 37;
+    $LATEST_SCHEMA_VERSION = 38;
 
     $schemaVersion = 0;
     try {
@@ -1967,6 +1967,50 @@ try {
                 // 'self_signed' - Self-signed certificate
                 // 'cloudflare_origin' - Cloudflare Origin CA certificate
                 // 'custom' - Custom certificate installed manually
+            }
+
+            if ($schemaVersion < 38) {
+                // Migration 38: Cloak observability — verdict persistence.
+                //
+                // Adds cloak verdict, reason codes, and network fact columns to the
+                // clicks table. Every cloak routing decision is now persisted with its
+                // verdict, reason codes, and the network facts it was based on.
+                //
+                // Columns added:
+                // - cloak_verdict: 'money', 'passive_safe', 'targeting_safe', 'js_safe', or NULL
+                // - cloak_reasons: comma-separated reason codes (e.g. 'geo_country,device_type')
+                // - is_safe_page: denormalised flag for cheap report filtering (1 = safe page)
+                // - isp: ISP name from geo lookup
+                // - asn: AS number with 'AS' prefix (e.g. 'AS12345')
+                // - proxy_type: IP2Proxy proxy type (DCH, VPN, RES, etc.)
+                // - cloak_sensitivity: sensitivity level in force for this decision
+                //
+                // Historical rows keep NULL verdicts; UI renders NULL as '—'.
+
+                $cloakColumns = [
+                    'cloak_verdict' => 'TEXT DEFAULT NULL',
+                    'cloak_reasons' => 'TEXT DEFAULT NULL',
+                    'is_safe_page' => 'INTEGER DEFAULT 0',
+                    'isp' => 'TEXT DEFAULT NULL',
+                    'asn' => 'TEXT DEFAULT NULL',
+                    'proxy_type' => 'TEXT DEFAULT NULL',
+                    'cloak_sensitivity' => 'TEXT DEFAULT NULL',
+                ];
+
+                foreach ($cloakColumns as $col => $def) {
+                    try {
+                        $pdo->exec("ALTER TABLE clicks ADD COLUMN $col $def");
+                    } catch (\Throwable $e) {
+                        // Column already present on a half-migrated DB.
+                    }
+                }
+
+                // Index for safe-page filtering in campaign reports.
+                try {
+                    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_clicks_safe ON clicks(campaign_id, is_safe_page, created_at)");
+                } catch (\Throwable $e) {
+                    // Index already exists.
+                }
             }
 
             // Mark schema as up-to-date. This must be last.

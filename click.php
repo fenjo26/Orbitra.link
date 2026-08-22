@@ -14,6 +14,7 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 require_once __DIR__ . '/core/geo_databases.php';
 require_once __DIR__ . '/core/Device.php';
 require_once __DIR__ . '/core/CloakDetector.php';
+require_once __DIR__ . '/core/click_logger.php';
 // Same prefetch guard as the main click path — a speculative request here would
 // otherwise be counted as a real click.
 require_once __DIR__ . '/core/prefetch.php';
@@ -446,16 +447,8 @@ if ($stream) {
             'accept_language' => $acceptLanguageRaw,
             'pdo' => $pdo,
         ];
-        $cloakConfig = [
-            'detect_datacenter' => $customSchema['detect_datacenter'] ?? true,
-            'detect_vpn' => $customSchema['detect_vpn'] ?? true,
-            'detect_bots' => $customSchema['detect_bots'] ?? true,
-            'detect_ua' => $customSchema['detect_ua'] ?? true,
-            'sensitivity' => $customSchema['sensitivity'] ?? 'medium',
-        ];
-        $verdict = CloakDetector::detect($cloakVisitor, $cloakConfig);
-        $cloakShowSafe = (bool) ($verdict['is_suspicious'] ?? false);
 
+        // Load global settings for cloak decision
         $globalBotIspList = '';
         try {
             $stmtBotIsps = $pdo->prepare("SELECT value FROM settings WHERE key = 'bot_isp_list' LIMIT 1");
@@ -465,22 +458,40 @@ if ($stream) {
             // The detector can still use its other layers.
         }
 
-        if (!$cloakShowSafe) {
-            $cloakShowSafe = !empty(CloakDetector::targetingReasons(
-                $customSchema,
-                (string) $countryCode,
-                (string) $deviceType,
-                trim($cloakIsp . ' ' . $cloakAsn),
-                $globalBotIspList
-            ));
-        }
-        if (!$cloakShowSafe
-            && filter_var($customSchema['js_challenge'] ?? false, FILTER_VALIDATE_BOOL)
-            && (string) ($_GET['_ocjf'] ?? '') === 'webdriver') {
-            $cloakShowSafe = true;
-        }
+        // Compute cloak routing decision using shared function (W1)
+        $settings = ['bot_isp_list' => $globalBotIspList];
+        $jsFailure = (string) ($_GET['_ocjf'] ?? '');
+        $cloakDecision = orbitraCloakDecision(
+            $customSchema,
+            $cloakVisitor,
+            $settings,
+            (string) $countryCode,
+            (string) $deviceType,
+            $jsFailure
+        );
 
-        $skipClickLogging = CloakDetector::shouldSkipSafePageClick($customSchema, $cloakShowSafe);
+        $cloakShowSafe = $cloakDecision['show_safe'];
+        $cloakVerdict = $cloakDecision['verdict'];
+        $cloakReasons = $cloakDecision['reasons'];
+        $skipClickLogging = $cloakDecision['skip_click_log'];
+
+        // Keep error_log logging for post-mortems
+        if ($cloakVerdict) {
+            $cloakVisitorCtx = [
+                'ip' => $ip,
+                'user_agent' => $userAgent,
+                'asn' => $cloakAsn,
+                'isp' => $cloakIsp,
+            ];
+            logCloakEvent(
+                strtoupper($cloakVerdict),
+                $campaignId ?? '?',
+                $streamId ?? '?',
+                $cloakVisitorCtx,
+                $cloakReasons,
+                $cloakDecision['sensitivity']
+            );
+        }
     }
 
     if ($cloakShowSafe) {
@@ -575,38 +586,42 @@ $streamCollectsClicks = !$stream || (int) ($stream['collect_clicks'] ?? 1) === 1
 
 // Log click (a prefetch hit is served but never logged)
 if ($statsEnabled && !$isDebounced && !$skipClickOnPrefetch && !$skipClickLogging && $streamCollectsClicks) {
-    $insertStmt = $pdo->prepare("
-        INSERT INTO clicks (
-            id, campaign_id, offer_id, stream_id, source_id, ip, user_agent, referer,
-            country, country_code, region, city, latitude, longitude, zipcode, timezone,
-            device_type, os, browser, language, accept_language_raw, parameters_json
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ");
-    $insertStmt->execute([
-        $clickId,
-        $campaignId,
-        $offerId,
-        $streamId,
-        $sourceId,
-        $ip,
-        $userAgent,
-        $referer,
-        $country,
-        $countryCode,
-        $region,
-        $city,
-        $latitude,
-        $longitude,
-        $zipcode,
-        $timezone,
-        $deviceType,
-        $os,
-        $browser,
-        $language,
-        $acceptLanguageRaw,
-        $parametersJson
-    ]);
+    // Build click row using shared module (note: landing_id is null for click.php)
+    $clickCtx = [
+        'click_id' => $clickId,
+        'campaign_id' => $campaignId,
+        'offer_id' => $offerId,
+        'stream_id' => $streamId,
+        'source_id' => $sourceId,
+        'ip' => $ip,
+        'user_agent' => $userAgent,
+        'referer' => $referer,
+        'country' => $country,
+        'country_code' => $countryCode,
+        'region' => $region,
+        'city' => $city,
+        'latitude' => $latitude,
+        'longitude' => $longitude,
+        'zipcode' => $zipcode,
+        'timezone' => $timezone,
+        'device_type' => $deviceType,
+        'os' => $os,
+        'browser' => $browser,
+        'language' => $language,
+        'accept_language_raw' => $acceptLanguageRaw,
+        'parameters_json' => $parametersJson,
+    ];
+
+    // Add cloak observability fields for cloak streams (W1)
+    if (isset($cloakDecision) && ($stream['schema_type'] ?? '') === 'cloak') {
+        $cloakClickCtx = orbitraCloakClickContext($cloakDecision, $geoData ?? []);
+        $clickCtx = array_merge($clickCtx, $cloakClickCtx);
+    }
+
+    $clickRow = orbitraBuildClickRow($clickCtx);
+
+    // Persist click using shared module
+    orbitraPersistClick($pdo, $clickRow);
 
     // Honesty flags for the report metrics — same helper the router uses.
     require_once __DIR__ . '/core/ClickFlags.php';

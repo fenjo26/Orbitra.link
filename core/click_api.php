@@ -15,6 +15,7 @@ require_once __DIR__ . '/Device.php';
 require_once __DIR__ . '/CloakDetector.php';
 require_once __DIR__ . '/StreamFilters.php';
 require_once __DIR__ . '/ip_access.php';
+require_once __DIR__ . '/click_logger.php';
 
 function orbitraClickApiGetSettings(PDO $pdo): array
 {
@@ -646,32 +647,46 @@ function orbitraClickApiV3(PDO $pdo): void
             'accept_language' => $acceptLanguageRaw,
             'pdo' => $pdo,
         ];
-        $verdict = CloakDetector::detect($cloakVisitor, $cloakConfig);
-        $cloakShowSafe = (bool) ($verdict['is_suspicious'] ?? false);
 
-        if (!$cloakShowSafe) {
-            $targetingReasons = CloakDetector::targetingReasons(
-                $customSchema,
-                $country,
-                $deviceType,
-                ($geoData['isp'] ?? '') . ' ' . ($geoData['asn'] ?? ''),
-                (string) ($settings['bot_isp_list'] ?? '')
-            );
-            $cloakShowSafe = !empty($targetingReasons);
-        }
+        // Compute cloak routing decision using shared function (W1)
+        $jsFailure = (string) ($_GET['_ocjf'] ?? '');
+        $cloakDecision = orbitraCloakDecision(
+            $customSchema,
+            $cloakVisitor,
+            $settings,
+            $country,
+            $deviceType,
+            $jsFailure
+        );
 
-        if (!$cloakShowSafe
-            && filter_var($customSchema['js_challenge'] ?? false, FILTER_VALIDATE_BOOL)
-            && (string) ($_GET['_ocjf'] ?? '') === 'webdriver') {
-            $cloakShowSafe = true;
-        }
-
-        $skipClickLogging = CloakDetector::shouldSkipSafePageClick($customSchema, $cloakShowSafe);
+        $cloakShowSafe = $cloakDecision['show_safe'];
+        $cloakVerdict = $cloakDecision['verdict'];
+        $cloakReasons = $cloakDecision['reasons'];
+        $skipClickLogging = $cloakDecision['skip_click_log'];
         $routeSchemaType = $cloakShowSafe ? 'cloak_safe' : 'landing_offer';
+
         if ($wantLog) {
             $log[] = $cloakShowSafe
                 ? 'Cloak decision: Safe Page' . ($skipClickLogging ? ' (click logging skipped)' : '')
                 : 'Cloak decision: Money Page';
+        }
+
+        // Keep error_log logging for post-mortems
+        if ($cloakVerdict) {
+            $cloakVisitorCtx = [
+                'ip' => $ip,
+                'user_agent' => $userAgent,
+                'asn' => $geoData['asn'] ?? '',
+                'isp' => $geoData['isp'] ?? '',
+            ];
+            logCloakEvent(
+                strtoupper($cloakVerdict),
+                $campaignId,
+                $streamId,
+                $cloakVisitorCtx,
+                $cloakReasons,
+                $cloakDecision['sensitivity']
+            );
         }
     }
 
@@ -817,41 +832,43 @@ function orbitraClickApiV3(PDO $pdo): void
     $statsEnabled = ($settings['stats_enabled'] ?? '1') !== '0';
     if ($statsEnabled && !$prefetchSkipClick && !$skipClickLogging && $streamCollectsClicks) {
         try {
-            $offerIdForDb = $offerIdToLog > 0 ? $offerIdToLog : null;
-            $insertStmt = $pdo->prepare("
-                INSERT INTO clicks
-                (
-                    id, campaign_id, offer_id, stream_id, source_id, landing_id, ip, user_agent, referer,
-                    country, country_code, region, city, latitude, longitude, zipcode, timezone,
-                    device_type, os, browser, language, accept_language_raw, parameters_json
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ");
-            $insertStmt->execute([
-                $clickId,
-                $campaignId,
-                $offerIdForDb,
-                $streamId,
-                $campaign['source_id'] ?? null,
-                $landingIdToLog,
-                $ip,
-                $userAgent,
-                $referer,
-                $country,
-                $country,
-                $geoData['region'] ?? '',
-                $geoData['city'] ?? '',
-                $geoData['latitude'] ?? null,
-                $geoData['longitude'] ?? null,
-                $geoData['zipcode'] ?? '',
-                $geoData['timezone'] ?? '',
-                $deviceType,
-                'Unknown',
-                'Unknown',
-                $language,
-                $acceptLanguageRaw,
-                $parametersJson,
-            ]);
+            // Build click row using shared module
+            $clickCtx = [
+                'click_id' => $clickId,
+                'campaign_id' => $campaignId,
+                'offer_id' => $offerIdToLog,
+                'stream_id' => $streamId,
+                'source_id' => $campaign['source_id'] ?? null,
+                'landing_id' => $landingIdToLog,
+                'ip' => $ip,
+                'user_agent' => $userAgent,
+                'referer' => $referer,
+                'country' => $country,
+                'country_code' => $country,
+                'region' => $geoData['region'] ?? '',
+                'city' => $geoData['city'] ?? '',
+                'latitude' => $geoData['latitude'] ?? null,
+                'longitude' => $geoData['longitude'] ?? null,
+                'zipcode' => $geoData['zipcode'] ?? '',
+                'timezone' => $geoData['timezone'] ?? '',
+                'device_type' => $deviceType,
+                'os' => 'Unknown',
+                'browser' => 'Unknown',
+                'language' => $language,
+                'accept_language_raw' => $acceptLanguageRaw,
+                'parameters_json' => $parametersJson,
+            ];
+
+            // Add cloak observability fields for cloak streams (W1)
+            if (isset($cloakDecision) && ($schema['type'] ?? '') === 'cloak') {
+                $cloakClickCtx = orbitraCloakClickContext($cloakDecision, $geoData ?? []);
+                $clickCtx = array_merge($clickCtx, $cloakClickCtx);
+            }
+
+            $clickRow = orbitraBuildClickRow($clickCtx);
+
+            // Persist click using shared module
+            orbitraPersistClick($pdo, $clickRow);
 
             // Honesty flags for the report metrics — same helper the router uses.
             require_once __DIR__ . '/ClickFlags.php';
