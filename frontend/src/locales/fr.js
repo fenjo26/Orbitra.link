@@ -22,7 +22,9 @@ export default {
         "enterParamKey": "Entrez la clé du paramètre (ex. utm_placement, placement, custom_id) :",
         "addParam": "Ajouter un paramètre",
         "additionalSubIds": "Sub ID supplémentaires (sub_id_1 .. sub_id_30)",
-        "placement": "Emplacement (utm_placement)"
+        "placement": "Emplacement (utm_placement)",
+        "facebookParams": "Paramètres Facebook",
+        "facebookParamsHint": "Copier les paramètres d'URL Facebook Ads (sans le point d'interrogation initial) pour les coller dans Meta Ads Manager",
     },
     "costModels": {
         "cpc": "CPC — coût par clic",
@@ -1463,6 +1465,7 @@ export default {
         "name": "Nom",
         "namePlaceholder": "Nom de la destination",
         "group": "Groupe",
+        "groupOrProduct": "Groupe / Produit",
         "noGroup": "-- Aucun groupe --",
         "status": "Statut",
         "active": "Actif",
@@ -1604,6 +1607,7 @@ export default {
         "notesPlaceholder": "Vos notes sur l'offre...",
         "nameLabel": "Nom",
         "group": "Groupe",
+        "groupOrProduct": "Groupe / Produit",
         "noGroup": "-- Aucun groupe --",
         "affiliateNetwork": "Réseau d'affiliation",
         "networkTooltip": "Le réseau sélectionné ajoute des balises à l'URL et active les métriques dans les rapports.",
@@ -3274,7 +3278,11 @@ export default {
         "addCostConnection": "Connecter Cost Sync",
         "updateCostsManually": "Mettre à jour les coûts manuellement",
         "costSyncTitle": "Synchronisation des coûts",
-        "manualCostTitle": "Saisie manuelle des coûts"
+        "manualCostTitle": "Saisie manuelle des coûts",
+        "passthroughParams": "Ajouter tous les paramètres de suivi",
+        "passthroughHint": "Ajouter tous les paramètres de suivi Facebook et UTM à transmettre à la destination",
+        "passthroughHelp": "Ajouter automatiquement les macros Facebook et UTM",
+
     },
     "suite": {
         "leadforge": "LeadForge",

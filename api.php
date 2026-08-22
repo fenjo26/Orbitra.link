@@ -2658,7 +2658,7 @@ try {
         // Optimized campaigns list without heavy clicks JOIN (for dropdowns/quick loading)
         case 'campaigns_simple':
             $stmt = $pdo->query("
-                SELECT c.id, c.name, c.alias, c.state, c.type, c.group_id,
+                SELECT c.id, c.name, c.alias, c.state, c.group_id,
                        cg.name as group_name,
                        ts.name as source_name,
                        d.name as domain_name
@@ -3839,7 +3839,7 @@ try {
             // the landings table cannot drift from the verified 64-metric
             // math. The SQL lives in core/ReportMetrics.php so tests run the
             // exact production query.
-            $stmt = $pdo->prepare(orbitraLandingsWithStatsSql($joinCondition, getConversionsValueColumn($pdo))
+            $stmt = $pdo->prepare(orbitraLandingsWithStatsSql($joinCondition, getConversionsValueColumn($pdo), getRevenueRecordsValueColumn($pdo))
                 . " $havingClause $orderBy $limitClause");
             $stmt->execute($paramsCl);
             $landingsData = $stmt->fetchAll();
@@ -3849,10 +3849,10 @@ try {
                 // exactly lp_clicks / visits.
                 $lRow['prelander_clicks'] = $lRow['clicks'];
                 $m = orbitraComputeDerivedMetrics($lRow);
-                foreach (['lp_ctr', 'cr', 'approve_rate', 'epc', 'epc_confirmed', 'epv',
-                    'cpc', 'cpv', 'profit', 'profit_confirmed', 'roi', 'roi_confirmed'] as $k) {
-                    $lRow[$k] = $m[$k];
-                }
+                // Merge all derived metrics to provide complete 65+ metric parity
+                // with campaigns (CPA, CPL, CPS, CPR, CR sales/leads/deposits/regs,
+                // registrations, deposits, real revenue/profit/ROI, etc.).
+                $lRow = array_merge($lRow, $m);
                 // A click row IS a landing visit: the LP→offer click-through
                 // updates the same row's offer_id instead of inserting a new
                 // one, so visits/clicks (and uVisits/uClicks) are equal here —
@@ -5339,7 +5339,7 @@ try {
             // orbitraComputeDerivedMetrics() — so the offers table can never
             // drift from the verified 64-metric math. The SQL lives in
             // core/ReportMetrics.php so tests run the exact production query.
-            $stmt = $pdo->prepare(orbitraOffersWithStatsSql($joinCondition, $conversionsValueColumn)
+            $stmt = $pdo->prepare(orbitraOffersWithStatsSql($joinCondition, $conversionsValueColumn, getRevenueRecordsValueColumn($pdo))
                 . " $havingClause $orderBy $limitClause");
             $stmt->execute($paramsCl);
             $offersData = $stmt->fetchAll();
@@ -5349,10 +5349,10 @@ try {
                 // of the offer's clicks that arrived through a landing.
                 $oRow['prelander_clicks'] = $oRow['clicks'];
                 $m = orbitraComputeDerivedMetrics($oRow);
-                foreach (['cr', 'approve_rate', 'lp_ctr', 'epc', 'epc_confirmed', 'epv',
-                    'cpc', 'cpv', 'profit', 'profit_confirmed', 'roi', 'roi_confirmed'] as $k) {
-                    $oRow[$k] = $m[$k];
-                }
+                // Merge all derived metrics to provide complete 65+ metric parity
+                // with campaigns (CPA, CPL, CPS, CPR, CR sales/leads/deposits/regs,
+                // registrations, deposits, real revenue/profit/ROI, etc.).
+                $oRow = array_merge($oRow, $m);
                 $oRow['visits'] = $m['clicks'];
                 $oRow['unique_visits'] = $m['unique_clicks'];
             }

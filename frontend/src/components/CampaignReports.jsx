@@ -211,7 +211,9 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             offer_clicks: 0,
             conversions: 0,
             purchases: 0,
+            sales: 0,
             holds: 0,
+            leads: 0,
             rejected: 0,
             trash: 0,
             cost: 0,
@@ -234,8 +236,12 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             node.lp_clicks += Number(row.lp_clicks ?? row.offer_clicks) || 0;
             node.offer_clicks += Number(row.offer_clicks) || 0;
             node.conversions += Number(row.conversions) || 0;
-            node.purchases += Number(row.purchases) || 0;
-            node.holds += Number(row.holds) || 0;
+            const purchases = Number(row.purchases ?? row.sales) || 0;
+            node.purchases += purchases;
+            node.sales += purchases;
+            const holds = Number(row.holds ?? row.leads) || 0;
+            node.holds += holds;
+            node.leads += holds;
             node.rejected += Number(row.rejected) || 0;
             node.trash += Number(row.trash) || 0;
             node.cost += Number(row.cost) || 0;
@@ -251,15 +257,21 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
 
         const computeDerived = (node) => {
             const lpClickDenominator = node.lp_clicks > 0 ? node.lp_clicks : node.clicks;
+            node.sales = node.purchases;
+            node.leads = node.holds;
             node.uc_rate = node.clicks > 0 ? (node.unique_clicks / node.clicks) * 100 : 0;
             node.lp_ctr = node.lp_views > 0 ? (node.lp_clicks / node.lp_views) * 100 : 0;
             node.cr = node.clicks > 0 ? (node.conversions / node.clicks) * 100 : 0;
+            node.cr_all = node.cr;
             node.cr_sales = node.clicks > 0 ? (node.purchases / node.clicks) * 100 : 0;
             node.cr_holds = node.clicks > 0 ? (node.holds / node.clicks) * 100 : 0;
+            node.cr_leads = node.cr_holds;
             node.approve_rate = node.conversions > 0 ? (node.purchases / node.conversions) * 100 : 0;
             const nonTrash = node.purchases + node.holds + node.rejected;
             node.approve_rate_excl_trash = nonTrash > 0 ? (node.purchases / nonTrash) * 100 : 0;
+            node.profit_confirmed = node.revenue_confirmed - node.cost;
             node.roi = node.cost > 0 ? (node.profit / node.cost) * 100 : 0;
+            node.roi_confirmed = node.cost > 0 ? (node.profit_confirmed / node.cost) * 100 : 0;
             node.real_roi = node.cost > 0 ? (node.real_profit / node.cost) * 100 : 0;
             node.epc = lpClickDenominator > 0 ? node.revenue / lpClickDenominator : 0;
             node.epc_all = node.epc;
@@ -269,6 +281,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             node.ucpc = node.unique_clicks > 0 ? node.cost / node.unique_clicks : 0;
             node.cpv = node.lp_views > 0 ? node.cost / node.lp_views : 0;
             node.cpa = node.conversions > 0 ? node.cost / node.conversions : 0;
+            node.cps = node.purchases > 0 ? node.cost / node.purchases : 0;
+            node.cpl = node.holds > 0 ? node.cost / node.holds : 0;
             node.earnings_per_conv = node.conversions > 0 ? node.revenue / node.conversions : 0;
         };
 
@@ -344,8 +358,10 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             t0.lp_clicks += Number(r.lp_clicks ?? r.offer_clicks) || 0;
             t0.offer_clicks += Number(r.offer_clicks) || 0;
             t0.conversions += Number(r.conversions) || 0;
-            t0.purchases += Number(r.purchases) || 0;
-            t0.holds += Number(r.holds) || 0;
+            const purchases = Number(r.purchases ?? r.sales) || 0;
+            t0.purchases += purchases;
+            const holds = Number(r.holds ?? r.leads) || 0;
+            t0.holds += holds;
             t0.rejected += Number(r.rejected) || 0;
             t0.trash += Number(r.trash) || 0;
             t0.cost += Number(r.cost) || 0;
@@ -365,6 +381,13 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         const cr = t0.clicks > 0 ? (t0.conversions / t0.clicks) * 100 : 0;
         const cr_sales = t0.clicks > 0 ? (t0.purchases / t0.clicks) * 100 : 0;
         const cr_holds = t0.clicks > 0 ? (t0.holds / t0.clicks) * 100 : 0;
+        const cr_leads = cr_holds;
+        const sales = t0.purchases;
+        const leads = t0.holds;
+        const profit_confirmed = t0.revenue_confirmed - t0.cost;
+        const roi_confirmed = t0.cost > 0 ? (profit_confirmed / t0.cost) * 100 : 0;
+        const cpl = t0.holds > 0 ? t0.cost / t0.holds : 0;
+        const cps = t0.purchases > 0 ? t0.cost / t0.purchases : 0;
         const approve_rate = t0.conversions > 0 ? (t0.purchases / t0.conversions) * 100 : 0;
         const nonTrash = t0.purchases + t0.holds + t0.rejected;
         const approve_rate_excl_trash = nonTrash > 0 ? (t0.purchases / nonTrash) * 100 : 0;
@@ -381,11 +404,19 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
 
         return {
             ...t0,
+            sales,
+            leads,
+            profit_confirmed,
+            roi_confirmed,
+            cpl,
+            cps,
             uc_rate,
             lp_ctr,
             cr,
+            cr_all: cr,
             cr_sales,
             cr_holds,
+            cr_leads,
             approve_rate,
             approve_rate_excl_trash,
             roi,

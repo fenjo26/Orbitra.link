@@ -22,7 +22,9 @@ export default {
         "enterParamKey": "Parameterschlüssel eingeben (z. B. utm_placement, placement, custom_id):",
         "addParam": "Parameter hinzufügen",
         "additionalSubIds": "Zusätzliche Sub-IDs (sub_id_1 .. sub_id_30)",
-        "placement": "Platzierung (utm_placement)"
+        "placement": "Platzierung (utm_placement)",
+        "facebookParams": "Facebook-Parameter",
+        "facebookParamsHint": "Facebook-Ads-URL-Parameter (ohne führendes Fragezeichen) zum Einfügen in den Meta Ads Manager kopieren",
     },
     "costModels": {
         "cpc": "CPC — Kosten pro Klick",
@@ -1463,6 +1465,7 @@ export default {
         "name": "Name",
         "namePlaceholder": "Landing-Name",
         "group": "Gruppe",
+        "groupOrProduct": "Gruppe / Produkt",
         "noGroup": "-- Keine Gruppe --",
         "status": "Status",
         "active": "Aktiv",
@@ -1604,6 +1607,7 @@ export default {
         "notesPlaceholder": "Ihre Notizen zum Angebot...",
         "nameLabel": "Name",
         "group": "Gruppe",
+        "groupOrProduct": "Gruppe / Produkt",
         "noGroup": "-- Keine Gruppe --",
         "affiliateNetwork": "Affiliate-Netzwerk",
         "networkTooltip": "Das ausgewählte Netzwerk fügt der URL Tags hinzu und aktiviert Metriken in Berichten.",
@@ -3274,7 +3278,11 @@ export default {
         "addCostConnection": "Cost Sync verbinden",
         "updateCostsManually": "Kosten manuell aktualisieren",
         "costSyncTitle": "Kostensynchronisation",
-        "manualCostTitle": "Manuelle Kostenerfassung"
+        "manualCostTitle": "Manuelle Kostenerfassung",
+        "passthroughParams": "Alle Tracking-Parameter hinzufügen",
+        "passthroughHint": "Alle Facebook- und UTM-Tracking-Parameter hinzufügen, um sie an das Ziel weiterzuleiten",
+        "passthroughHelp": "Facebook- und UTM-Makros automatisch hinzufügen",
+
     },
     "suite": {
         "leadforge": "LeadForge",

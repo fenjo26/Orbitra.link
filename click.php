@@ -37,6 +37,14 @@ try {
 // "Prefetch ignored." body on the visitor's screen.
 $skipClickOnPrefetch = orbitraShouldSkipClickOnPrefetch($ignorePrefetch);
 
+// Heal malformed query strings (double "?" from Facebook Ads / cloakers)
+// BEFORE the campaign lookup: the routing keys (campaign_id / token) are the
+// first query pair and are exactly what a double "?" corrupts. Healing after
+// the lookup would recover tracking params for a click the router already
+// rejected. No-op for normal traffic.
+require_once __DIR__ . '/core/ClickParams.php';
+orbitraHealQueryString($_GET, $_SERVER['QUERY_STRING'] ?? '');
+
 $campaignId = $_GET['campaign_id'] ?? null;
 $token = $_GET['token'] ?? ($_GET['api_token'] ?? null);
 if (is_string($token)) {
@@ -347,7 +355,8 @@ $clickId = clickGenerateUuid();
 // Collect sub parameters. Same helper as index.php — the Click API must record the
 // ad-network IDs (ad_id / adset_id / campaign_id) and fbclid too, otherwise cost
 // import and Conversions API silently skip every click that came in this way.
-require_once __DIR__ . '/core/ClickParams.php';
+// (ClickParams.php is already required and $_GET healed at the top of the file,
+// before campaign routing — see the orbitraHealQueryString call there.)
 $clickParams = orbitraCollectClickParams($pdo, array_merge($_GET, $_POST), $_COOKIE, $campaign['source_id'] ?? null);
 $parametersJson = json_encode($clickParams, JSON_UNESCAPED_UNICODE);
 
@@ -358,6 +367,13 @@ $statsEnabled = $stmtSetting ? ($stmtSetting->fetchColumn() !== '0') : true;
 // Universal function for weighted selection locally in click.php
 function clickSelectWeightedItem($items)
 {
+    if (empty($items))
+        return null;
+    $items = array_values(array_filter($items, function($it) {
+        if (isset($it['state']) && ($it['state'] === 'disabled' || $it['state'] === 'paused')) return false;
+        if (isset($it['is_active']) && ($it['is_active'] === false || $it['is_active'] === 0 || $it['is_active'] === '0')) return false;
+        return true;
+    }));
     if (empty($items))
         return null;
     $totalW = 0;

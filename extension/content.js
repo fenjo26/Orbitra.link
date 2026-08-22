@@ -85,8 +85,27 @@
         color: #f8fafc;
         box-shadow: 0 6px 24px rgba(15, 23, 42, .35);
         font: 600 11px/1.3 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        cursor: pointer;
         user-select: none;
+        touch-action: none;
+      }
+      #orbitra-floating-widget .ofw-drag-handle {
+        cursor: grab;
+        color: #a78bfa;
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 4px;
+        border-radius: 4px;
+      }
+      #orbitra-floating-widget .ofw-drag-handle:active,
+      #orbitra-floating-widget.dragging {
+        cursor: grabbing !important;
+      }
+      #orbitra-floating-widget .ofw-btn.spinning {
+        animation: orbitra-spin 0.8s linear infinite;
+      }
+      @keyframes orbitra-spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
       }
       #orbitra-floating-widget .ofw-logo { color: #c4b5fd; letter-spacing: .02em; white-space: nowrap; }
       #orbitra-floating-widget .ofw-status { color: #cbd5e1; font-weight: 500; white-space: nowrap; }
@@ -256,10 +275,29 @@
     window.OrbitraModal?.open(entities, subtitle);
   }
 
-  function installFloatingWidget() {
+  async function installFloatingWidget() {
     if (document.getElementById('orbitra-floating-widget')) return;
     const widget = document.createElement('div');
     widget.id = 'orbitra-floating-widget';
+
+    // Restore saved widget coordinates
+    try {
+      const saved = await chrome.storage.local.get(['orbitra_widget_pos']);
+      if (saved?.orbitra_widget_pos) {
+        const { top, left } = saved.orbitra_widget_pos;
+        const maxTop = window.innerHeight - 50;
+        const maxLeft = window.innerWidth - 100;
+        widget.style.top = `${Math.max(0, Math.min(top, maxTop))}px`;
+        widget.style.left = `${Math.max(0, Math.min(left, maxLeft))}px`;
+        widget.style.right = 'auto';
+      }
+    } catch (_e) {}
+
+    const handle = document.createElement('span');
+    handle.className = 'ofw-drag-handle';
+    handle.textContent = '⠿';
+    handle.title = 'Drag to move';
+
     const logo = document.createElement('span');
     logo.className = 'ofw-logo';
     logo.textContent = '🪐 Orbitra';
@@ -276,10 +314,72 @@
     reload.className = 'ofw-btn';
     reload.title = L.refreshTitle;
     reload.textContent = '🔄';
-    widget.append(logo, status, analytics, reload);
-    widget.addEventListener('click', openAccountStats);
-    analytics.addEventListener('click', event => { event.stopPropagation(); openAccountStats(); });
-    reload.addEventListener('click', event => { event.stopPropagation(); refresh(true); });
+    widget.append(handle, logo, status, analytics, reload);
+
+    // Dragging logic
+    let isDragging = false;
+    let startX = 0, startY = 0;
+    let startLeft = 0, startTop = 0;
+    let hasMoved = false;
+
+    const onPointerDown = (e) => {
+      if (e.target.closest('button')) return;
+      isDragging = true;
+      hasMoved = false;
+      startX = e.clientX;
+      startY = e.clientY;
+      const rect = widget.getBoundingClientRect();
+      startLeft = rect.left;
+      startTop = rect.top;
+      widget.classList.add('dragging');
+      document.addEventListener('pointermove', onPointerMove);
+      document.addEventListener('pointerup', onPointerUp);
+    };
+
+    const onPointerMove = (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) hasMoved = true;
+      const newLeft = Math.max(0, Math.min(window.innerWidth - widget.offsetWidth, startLeft + dx));
+      const newTop = Math.max(0, Math.min(window.innerHeight - widget.offsetHeight, startTop + dy));
+      widget.style.left = `${newLeft}px`;
+      widget.style.top = `${newTop}px`;
+      widget.style.right = 'auto';
+    };
+
+    const onPointerUp = () => {
+      if (!isDragging) return;
+      isDragging = false;
+      widget.classList.remove('dragging');
+      document.removeEventListener('pointermove', onPointerMove);
+      document.removeEventListener('pointerup', onPointerUp);
+      if (hasMoved) {
+        const rect = widget.getBoundingClientRect();
+        chrome.storage.local.set({ orbitra_widget_pos: { top: rect.top, left: rect.left } });
+      }
+    };
+
+    widget.addEventListener('pointerdown', onPointerDown);
+
+    widget.addEventListener('click', (e) => {
+      if (hasMoved || e.target.closest('button')) return;
+      openAccountStats();
+    });
+    analytics.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openAccountStats();
+    });
+    reload.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      reload.classList.add('spinning');
+      try {
+        await refresh(true);
+      } finally {
+        setTimeout(() => reload.classList.remove('spinning'), 600);
+      }
+    });
+
     document.body.appendChild(widget);
   }
 

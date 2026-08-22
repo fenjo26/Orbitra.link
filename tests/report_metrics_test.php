@@ -144,7 +144,12 @@ $assert('lp_ctr is a dash with a zero denominator', $funnelZero['lp_ctr'], null)
 $pdo->exec('CREATE TABLE clicks (id TEXT PRIMARY KEY, campaign_id INTEGER, offer_id INTEGER,
     landing_id INTEGER, ip TEXT, cost REAL DEFAULT 0, is_conversion INTEGER DEFAULT 0,
     revenue REAL DEFAULT 0, is_bot INTEGER DEFAULT 0, is_proxy INTEGER DEFAULT 0,
-    referer TEXT, created_at TEXT DEFAULT "2026-01-01 10:00:00")');
+    referer TEXT, created_at TEXT DEFAULT "2026-01-01 10:00:00",
+    uniq_campaign INTEGER DEFAULT 1, uniq_stream INTEGER DEFAULT 1, uniq_global INTEGER DEFAULT 1,
+    landing_at TEXT, offer_at TEXT)');
+// "Real" revenue (aggregator payouts) lives in revenue_records, joined per
+// click exactly like the campaigns report does.
+$pdo->exec('CREATE TABLE revenue_records (id INTEGER PRIMARY KEY, click_id TEXT, amount REAL)');
 $pdo->exec('CREATE TABLE landings (id INTEGER PRIMARY KEY, name TEXT, type TEXT, url TEXT,
     state TEXT, group_id INTEGER, is_archived INTEGER DEFAULT 0)');
 $pdo->exec('CREATE TABLE landing_groups (id INTEGER PRIMARY KEY, name TEXT)');
@@ -160,6 +165,15 @@ $st = $pdo->prepare('INSERT INTO clicks (id, landing_id, offer_id, ip, cost) VAL
 foreach ([['m1',1,7,'A',10], ['m2',1,null,'A',5], ['m3',1,null,'B',1],
           ['m4',2,8,'C',4], ['m5',null,9,'D',1], ['m6',null,null,'E',0]] as $r) { $st->execute($r); }
 $pdo->exec("UPDATE clicks SET is_bot = 1 WHERE id = 'm4'");
+// Uniqueness / referer / funnel-timing extras for the parity counters:
+// m2 is the same IP as m1 (not unique anywhere), m3 arrives with an empty
+// referer, m1 waits 95s on the landing before clicking to the offer.
+$pdo->exec("UPDATE clicks SET uniq_campaign = 0, uniq_stream = 0, uniq_global = 0 WHERE id = 'm2'");
+$pdo->exec("UPDATE clicks SET referer = 'https://fb.com/' WHERE id IN ('m1','m2','m4')");
+$pdo->exec("UPDATE clicks SET referer = '' WHERE id = 'm3'");
+$pdo->exec("UPDATE clicks SET landing_at = '2026-01-01 10:00:00', offer_at = '2026-01-01 10:01:35' WHERE id = 'm1'");
+$pdo->exec("UPDATE clicks SET landing_at = '2026-01-01 10:00:00', offer_at = '2026-01-01 10:02:00' WHERE id = 'm4'");
+$pdo->exec("INSERT INTO revenue_records (click_id, amount) VALUES ('m1', 12)");
 $st = $pdo->prepare('INSERT INTO landings (id, name, group_id) VALUES (?,?,?)');
 foreach ([[1,'LP one',1], [2,'LP two',null], [3,'LP empty',null]] as $r) { $st->execute($r); }
 $pdo->exec("INSERT INTO landing_groups (id, name) VALUES (1, 'grp')");
@@ -184,20 +198,19 @@ $assert('Dashboard CPS', $dashboard['cps'], 7);
 $assert('Dashboard LP CTR', $dashboard['lp_ctr'], 50);
 $assert('Dashboard bot rate', $dashboard['bot_rate'], 16.67);
 
-// The derivation loop the landings/offers endpoints run after the SQL.
+// The derivation loop the landings/offers endpoints run after the SQL:
+// array_merge of ALL derived metrics — the same 65-metric parity the panel
+// tables now ship (registrations, deposits, real_* revenue family etc.).
 $deriveRow = function (array $row): array {
     $row['prelander_clicks'] = $row['clicks'];
     $m = orbitraComputeDerivedMetrics($row);
-    foreach (['lp_ctr', 'cr', 'approve_rate', 'epc', 'epc_confirmed', 'epv', 'cpc', 'cpv',
-        'profit', 'profit_confirmed', 'roi', 'roi_confirmed'] as $k) {
-        $row[$k] = $m[$k];
-    }
+    $row = array_merge($row, $m);
     $row['visits'] = $m['clicks'];
     $row['unique_visits'] = $m['unique_clicks'];
     return $row;
 };
 
-$rows = $pdo->query(orbitraLandingsWithStatsSql('', 'payout') . ' ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
+$rows = $pdo->query(orbitraLandingsWithStatsSql('', 'payout', 'amount') . ' ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
 $lp = [];
 foreach ($rows as $r) { $lp[$r['id']] = $deriveRow($r); }
 
@@ -228,12 +241,36 @@ $assert('L1 profit_confirmed', $lp[1]['profit_confirmed'], 29);
 $assert('L1 roi', $lp[1]['roi'], 387.5);
 $assert('L1 roi_confirmed', $lp[1]['roi_confirmed'], 181.25);
 
+// Parity counters: m2 carried a deposit (30) + a registration (1), m3 an empty
+// referer, m2 was not unique, m1 waited 95s before the LP click and earned 12
+// of aggregator "real" revenue (real_profit 12-16=-4, real_roi -25%).
+$assert('L1 registrations', $lp[1]['registrations'], 1, 0);
+$assert('L1 deposits', $lp[1]['deposits'], 1, 0);
+$assert('L1 revenue_deposit', $lp[1]['revenue_deposit'], 30);
+$assert('L1 revenue_registration', $lp[1]['revenue_registration'], 1);
+$assert('L1 revenue_hold', $lp[1]['revenue_hold'], 2);
+$assert('L1 bots', $lp[1]['bots'], 0, 0);
+$assert('L1 empty_referrers', $lp[1]['empty_referrers'], 1, 0);
+$assert('L1 unique_clicks_stream', $lp[1]['unique_clicks_stream'], 2, 0);
+$assert('L1 unique_clicks_global', $lp[1]['unique_clicks_global'], 2, 0);
+$assert('L1 visitors', $lp[1]['visitors'], 2, 0);
+$assert('L1 avg_lp_seconds', $lp[1]['avg_lp_seconds'], 95);
+$assert('L1 real_revenue', $lp[1]['real_revenue'], 12);
+$assert('L1 real_profit', $lp[1]['real_profit'], -4);
+$assert('L1 real_roi', $lp[1]['real_roi'], -25);
+$assert('L1 cr_deposits (1 deposit / 3 clicks)', $lp[1]['cr_deposits'], 33.33);
+
 // Landing 2: 1 visit that clicked through, one rejected conversion.
 $assert('L2 clicks', $lp[2]['clicks'], 1, 0);
 $assert('L2 lp_ctr', $lp[2]['lp_ctr'], 100);
 $assert('L2 approve_rate (1 rejected → 0%)', $lp[2]['approve_rate'], 0);
 $assert('L2 profit_confirmed', $lp[2]['profit_confirmed'], -4);
 $assert('L2 roi_confirmed', $lp[2]['roi_confirmed'], -100);
+// m4 is the bot click and took 120s from landing to offer.
+$assert('L2 bots', $lp[2]['bots'], 1, 0);
+$assert('L2 bot_rate', $lp[2]['bot_rate'], 100);
+$assert('L2 avg_lp_seconds', $lp[2]['avg_lp_seconds'], 120);
+$assert('L2 real_revenue (no revenue_records)', $lp[2]['real_revenue'], 0);
 
 // Landing 3: no clicks at all — zero counters, ratios 0, LP CTR and ROI dashes.
 $assert('L3 clicks', $lp[3]['clicks'], 0, 0);
@@ -255,7 +292,7 @@ $assert('Dated landing filter keeps all rows', count($datedLandings), 3, 0);
 $assert('Dated landing filter zeroes out-of-range clicks', $datedLandings[0]['clicks'], 0, 0);
 
 $of = [];
-foreach ($pdo->query(orbitraOffersWithStatsSql('', 'payout') . ' ORDER BY id')->fetchAll(PDO::FETCH_ASSOC) as $r) {
+foreach ($pdo->query(orbitraOffersWithStatsSql('', 'payout', 'amount') . ' ORDER BY id')->fetchAll(PDO::FETCH_ASSOC) as $r) {
     $of[$r['id']] = $deriveRow($r);
 }
 // Offer 7 got exactly click m1 (through landing 1): LP share 100%, CR 300%.
@@ -266,6 +303,13 @@ $assert('O7 conversions', $of[7]['conversions'], 3, 0);
 $assert('O7 cr', $of[7]['cr'], 300);
 $assert('O7 approve_rate', $of[7]['approve_rate'], 100);
 $assert('O7 roi', $of[7]['roi'], 350);
+// Parity counters reach the offers table too.
+$assert('O7 real_revenue', $of[7]['real_revenue'], 12);
+$assert('O7 registrations', $of[7]['registrations'], 0, 0);
+$assert('O7 bots', $of[7]['bots'], 0, 0);
+// Offer 8 got the bot click through landing 2.
+$assert('O8 bots', $of[8]['bots'], 1, 0);
+$assert('O8 revenue_rejected', $of[8]['revenue_rejected'], 5);
 // Offer 9 got a direct click (no landing): lp_clicks 0, its conversion is trash.
 $assert('O9 clicks', $of[9]['clicks'], 1, 0);
 $assert('O9 lp_clicks', $of[9]['lp_clicks'], 0, 0);

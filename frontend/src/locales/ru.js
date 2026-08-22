@@ -22,7 +22,9 @@ export default {
         "enterParamKey": "Введите ключ параметра (например, utm_placement, placement, custom_id):",
         "addParam": "Добавить параметр",
         "additionalSubIds": "Дополнительные Sub ID (sub_id_1 .. sub_id_30)",
-        "placement": "Плейсмент (utm_placement)"
+        "placement": "Плейсмент (utm_placement)",
+        "facebookParams": "Параметры Facebook",
+        "facebookParamsHint": "Скопировать URL-параметры Facebook Ads (без ведущего «?») для вставки в Meta Ads Manager",
     },
     "costModels": {
         "cpc": "CPC — оплата за клик",
@@ -1463,6 +1465,7 @@ export default {
         "name": "Название / Alias *",
         "namePlaceholder": "Название лендинга",
         "group": "Группа",
+        "groupOrProduct": "Группа / Продукт",
         "noGroup": "-- Без группы --",
         "status": "Статус",
         "active": "Активен",
@@ -1604,6 +1607,7 @@ export default {
         "notesPlaceholder": "Ваши заметки об оффере...",
         "nameLabel": "Название",
         "group": "Группа",
+        "groupOrProduct": "Группа / Продукт",
         "noGroup": "-- Без группы --",
         "affiliateNetwork": "Партнёрская сеть",
         "networkTooltip": "Выбранная сеть добавляет к URL метки и включает показатели в отчётах.",
@@ -3274,7 +3278,11 @@ export default {
         "addCostConnection": "Подключить Cost Sync",
         "updateCostsManually": "Обновить расход вручную",
         "costSyncTitle": "Синхронизация расходов (Cost Sync)",
-        "manualCostTitle": "Ручной ввод расходов"
+        "manualCostTitle": "Ручной ввод расходов",
+        "passthroughParams": "Добавить все трекинг-параметры",
+        "passthroughHint": "Добавить все параметры Facebook и UTM для передачи на целевой адрес",
+        "passthroughHelp": "Автоматически добавить макросы Facebook и UTM",
+
     },
     "suite": {
         "leadforge": "LeadForge",

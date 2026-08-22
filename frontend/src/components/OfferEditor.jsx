@@ -823,7 +823,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
 
                                     <div className="flex gap-4">
                                         <div className="flex-1">
-                                            <label className="form-label">{t('offerEditor.group')}</label>
+                                            <label className="form-label">{t('offerEditor.groupOrProduct', 'Group / Product')}</label>
                                             <div className="flex">
                                                 <select
                                                     value={formData.group_id}

@@ -22,7 +22,9 @@ export default {
         "enterParamKey": "Enter parameter key (e.g. utm_placement, placement, custom_id):",
         "addParam": "Add Parameter",
         "additionalSubIds": "Sub IDs (sub_id_1 .. sub_id_30)",
-        "placement": "Placement (utm_placement)"
+        "placement": "Placement (utm_placement)",
+        "facebookParams": "Facebook Parameters",
+        "facebookParamsHint": "Copy Facebook Ads URL Parameters (without leading ?) for pasting into Meta Ads Manager"
     },
     "costModels": {
         "cpc": "CPC — cost per click",
@@ -1463,6 +1465,7 @@ export default {
         "name": "Name",
         "namePlaceholder": "Landing name",
         "group": "Group",
+        "groupOrProduct": "Group / Product",
         "noGroup": "-- No group --",
         "status": "Status",
         "active": "Active",
@@ -1604,6 +1607,7 @@ export default {
         "notesPlaceholder": "Your notes about the offer...",
         "nameLabel": "Name",
         "group": "Group",
+        "groupOrProduct": "Group / Product",
         "noGroup": "-- No group --",
         "affiliateNetwork": "Affiliate Network",
         "networkTooltip": "The selected network adds tags to the URL and enables metrics in reports.",
@@ -3274,7 +3278,10 @@ export default {
         "addCostConnection": "Add Cost Connection",
         "updateCostsManually": "Update Costs Manually",
         "costSyncTitle": "Cost Synchronization",
-        "manualCostTitle": "Manual Cost Entry"
+        "manualCostTitle": "Manual Cost Entry",
+        "passthroughParams": "Add All Tracking Parameters",
+        "passthroughHint": "Add all Facebook & UTM tracking parameters to forward to the destination",
+        "passthroughHelp": "Auto-add Facebook & UTM macros"
     },
     "suite": {
         "leadforge": "LeadForge",

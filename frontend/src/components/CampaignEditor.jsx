@@ -633,6 +633,70 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         }
     };
 
+    // Generate and copy Facebook Ads URL Parameters (without leading ?)
+    // This ensures proper pasting into Facebook Ads Manager URL Parameters field
+    const copyFacebookParams = async () => {
+        // Standard Facebook tracking macros that should be passed
+        const fbParams = [
+            'utm_placement={{placement}}',
+            'source={{site_source_name}}',
+            'campaign_id={{campaign.id}}',
+            'campaign_name={{campaign.name}}',
+            'adset_id={{adset.id}}',
+            'adset_name={{adset.name}}',
+            'ad_id={{ad.id}}',
+            'ad_name={{ad.name}}',
+            'placement={{placement}}',
+            'site_source_name={{site_source_name}}'
+        ];
+
+        // Add any custom parameters that are set in the campaign
+        const customParams = Object.entries(formData.parameters || {})
+            .filter(([, v]) => String(v ?? '').trim() !== '')
+            .map(([k, v]) => {
+                const safeVal = encodeURIComponent(String(v).trim())
+                    .replace(/%7B/gi, '{')
+                    .replace(/%7D/gi, '}')
+                    .replace(/%3A/gi, ':');
+                return `${encodeURIComponent(k)}=${safeVal}`;
+            });
+
+        const paramString = [...fbParams, ...customParams].join('&');
+        let copied = false;
+
+        if (navigator.clipboard && window.isSecureContext) {
+            try {
+                await navigator.clipboard.writeText(paramString);
+                copied = true;
+            } catch (e) {
+                copied = false;
+            }
+        }
+
+        if (!copied) {
+            try {
+                const textarea = document.createElement('textarea');
+                textarea.value = paramString;
+                textarea.setAttribute('readonly', '');
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                copied = document.execCommand('copy');
+                document.body.removeChild(textarea);
+            } catch (e) {
+                copied = false;
+            }
+        }
+
+        if (copied) {
+            setCopySuccess(true);
+            setTimeout(() => setCopySuccess(false), 2000);
+        } else {
+            alert(t('common.error'));
+        }
+    };
+
     // Fetch click logs
     const fetchClickLogs = async () => {
         if (!activeCampaignId) return;
@@ -1345,17 +1409,33 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             preload: t('landingEditor.typePreload'),
             action: t('landingEditor.typeAction'),
         };
+        const isItemActive = (l.state ?? 'active') !== 'disabled' && (l.is_active ?? 1) != 0;
         return (
             <div
                 key={lIdx}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl transition-opacity"
                 style={{
                     backgroundColor: 'var(--color-bg-card)',
                     border: empty ? '1px dashed var(--color-border)' : '1px solid var(--color-border)',
-                    cursor: empty ? 'pointer' : 'default'
+                    cursor: empty ? 'pointer' : 'default',
+                    opacity: isItemActive ? 1 : 0.6
                 }}
                 onClick={empty ? () => { removeSchemaItem(idx, 'landings', lIdx); openEntityPicker(idx, 'landings'); } : undefined}
             >
+                {!empty && (
+                    <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); updateSchemaItem(idx, 'landings', lIdx, 'state', isItemActive ? 'disabled' : 'active'); }}
+                        className="relative inline-flex h-4 w-7 flex-shrink-0 items-center rounded-full transition-colors cursor-pointer"
+                        style={{ background: isItemActive ? 'var(--color-success, #10b981)' : 'var(--color-border)' }}
+                        title={isItemActive ? t('automation.clickToPause', 'Click to pause') : t('automation.clickToResume', 'Click to resume')}
+                    >
+                        <span
+                            className="inline-block h-3 w-3 transform rounded-full bg-white transition-transform"
+                            style={{ transform: isItemActive ? 'translateX(14px)' : 'translateX(2px)' }}
+                        />
+                    </button>
+                )}
                 <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium truncate" style={{ color: empty ? 'var(--color-warning)' : 'var(--color-text-primary)' }} title={name}>{name}</div>
                     {info && (
@@ -1388,17 +1468,33 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         // swaps itself for a real pick.
         const empty = !info && !o.id;
         const name = info ? info.name : (o.id ? `#${o.id}` : t('editor.selectOfferPlaceholder'));
+        const isItemActive = (o.state ?? 'active') !== 'disabled' && (o.is_active ?? 1) != 0;
         return (
             <div
                 key={oIdx}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl transition-opacity"
                 style={{
                     backgroundColor: 'var(--color-bg-card)',
                     border: empty ? '1px dashed var(--color-border)' : '1px solid var(--color-border)',
-                    cursor: empty ? 'pointer' : 'default'
+                    cursor: empty ? 'pointer' : 'default',
+                    opacity: isItemActive ? 1 : 0.6
                 }}
                 onClick={empty ? () => { removeSchemaItem(idx, 'offers', oIdx); openEntityPicker(idx, 'offers'); } : undefined}
             >
+                {!empty && (
+                    <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); updateSchemaItem(idx, 'offers', oIdx, 'state', isItemActive ? 'disabled' : 'active'); }}
+                        className="relative inline-flex h-4 w-7 flex-shrink-0 items-center rounded-full transition-colors cursor-pointer"
+                        style={{ background: isItemActive ? 'var(--color-success, #10b981)' : 'var(--color-border)' }}
+                        title={isItemActive ? t('automation.clickToPause', 'Click to pause') : t('automation.clickToResume', 'Click to resume')}
+                    >
+                        <span
+                            className="inline-block h-3 w-3 transform rounded-full bg-white transition-transform"
+                            style={{ transform: isItemActive ? 'translateX(14px)' : 'translateX(2px)' }}
+                        />
+                    </button>
+                )}
                 <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium truncate" style={{ color: empty ? 'var(--color-warning)' : 'var(--color-text-primary)' }} title={name}>{name}</div>
                     {info && (
@@ -2037,14 +2133,35 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                         </p>
                                                     )}
                                                 </div>
-                                                <button
-                                                    type="button"
-                                                    onClick={addCustomParameter}
-                                                    className="btn btn-secondary text-xs py-1 px-2.5 rounded-xl font-medium"
-                                                >
-                                                    <Plus className="w-3.5 h-3.5" />
-                                                    {t('parameters.addParam', 'Add Parameter')}
-                                                </button>
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={copyFacebookParams}
+                                                        className="btn btn-secondary text-xs py-1 px-2.5 rounded-xl font-medium flex items-center gap-1.5"
+                                                        title={t('parameters.facebookParamsHint', 'Copy Facebook Ads URL Parameters (without leading ?) for pasting into Meta Ads Manager')}
+                                                        style={copySuccess ? { backgroundColor: 'var(--color-success)', borderColor: 'var(--color-success)' } : {}}
+                                                    >
+                                                        {copySuccess ? (
+                                                            <>
+                                                                <Check className="w-3.5 h-3.5" />
+                                                                {t('common.copied', 'Copied!')}
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <Copy className="w-3.5 h-3.5" />
+                                                                {t('parameters.facebookParams', 'Facebook Parameters')}
+                                                            </>
+                                                        )}
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={addCustomParameter}
+                                                        className="btn btn-secondary text-xs py-1 px-2.5 rounded-xl font-medium"
+                                                    >
+                                                        <Plus className="w-3.5 h-3.5" />
+                                                        {t('parameters.addParam', 'Add Parameter')}
+                                                    </button>
+                                                </div>
                                             </div>
 
                                             <div className="hidden sm:grid grid-cols-12 gap-2 px-2 text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--color-text-muted)' }}>
@@ -3722,6 +3839,39 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                     <p className="text-xs" style={{ color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
                                                                         {t('streamRefine.directUrlHelp')}
                                                                     </p>
+                                                                    {/* Query String Passthrough: Auto-add all tracking parameters */}
+                                                                    <div className="flex items-center gap-2 pt-1">
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => {
+                                                                                // Preset that adds all Facebook/UTM tracking parameters
+                                                                                const trackingParams = [
+                                                                                    'subid={subid}',
+                                                                                    'clickid={clickid}',
+                                                                                    'campaign_id={campaign_id}',
+                                                                                    'adset_id={adset_id}',
+                                                                                    'ad_id={ad_id}',
+                                                                                    'utm_placement={utm_placement}',
+                                                                                    'utm_source={utm_source}',
+                                                                                    'utm_medium={utm_medium}',
+                                                                                    'utm_campaign={utm_campaign}',
+                                                                                    'utm_content={utm_content}',
+                                                                                    'utm_term={utm_term}'
+                                                                                ].join('&');
+                                                                                const baseUrl = sc.direct_url?.split('?')[0] || sc.direct_url || '';
+                                                                                setDirectUrl(baseUrl + (baseUrl.includes('?') ? '&' : '?') + trackingParams);
+                                                                            }}
+                                                                            className="text-[11px] px-2 py-1 rounded-lg border font-medium transition-colors hover:border-blue-400"
+                                                                            style={{ backgroundColor: 'var(--color-primary-soft)', borderColor: 'var(--color-primary)', color: 'var(--color-primary)' }}
+                                                                            title={t('streamRefine.passthroughHint', 'Add all Facebook & UTM tracking parameters to forward to the destination')}
+                                                                        >
+                                                                            <RefreshCw className="w-3 h-3 inline mr-1" />
+                                                                            {t('streamRefine.passthroughParams', 'Add All Tracking Parameters')}
+                                                                        </button>
+                                                                        <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                                                                            {t('streamRefine.passthroughHelp', 'Auto-add Facebook & UTM macros')}
+                                                                        </span>
+                                                                    </div>
                                                                     {/* Macro Helper Tags */}
                                                                     <div className="flex flex-wrap gap-1.5 pt-1">
                                                                         {['{subid}', '{clickid}', '{country}', '{ip}', '{sub_id_1}', '{sub_id_2}', '{sub_id_3}', '{cost}'].map(tag => (

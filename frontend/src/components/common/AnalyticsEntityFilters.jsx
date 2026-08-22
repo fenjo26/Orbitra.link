@@ -29,7 +29,7 @@ const AnalyticsEntityFilters = ({
     // The *_simple endpoints are the lightweight lists built for dropdowns.
     const { items: campaigns } = useEntityList('campaigns_simple');
     const { items: offers } = useEntityList('offers_simple');
-    const { items: landings } = useEntityList('landings');
+    const { items: landings } = useEntityList('landings_simple');
     const { items: campaignGroups } = useEntityList('campaign_groups');
     const { items: offerGroups } = useEntityList('offer_groups');
     const { items: landingGroups } = useEntityList('landing_groups');

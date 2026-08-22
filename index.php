@@ -1856,6 +1856,15 @@ function generateUuid()
 // 1) campaign query param: site.com/r/my-camp
 // 2) alias from root path: site.com/my-camp
 // 3) direct campaign_id от паркованного домена
+//
+// Heal double-"?" query strings (Facebook Ads URL parameters with a leading
+// "?", cloakers concatenating onto a URL that already had one) BEFORE any
+// routing key is read: the first query pair is what a double "?" corrupts, so
+// healing later would recover params for a click the router already rejected.
+// No-op for normal traffic — a valid query string contains no literal '?'.
+require_once __DIR__ . '/core/ClickParams.php';
+orbitraHealQueryString($_GET, $_SERVER['QUERY_STRING'] ?? '');
+
 $alias = $_GET['campaign'] ?? '';
 $directCampaignId = $_GET['campaign_id'] ?? null;
 $fallbackCampaignId = $_GET['fallback_campaign_id'] ?? null;
@@ -2573,6 +2582,8 @@ $clickId = generateUuid();
 // The full list — including the ad-network IDs cost import matches on and the
 // Meta click identifiers CAPI needs — lives in core/ClickParams.php, shared with
 // click.php so the two entry points cannot capture different things.
+// ($_GET was healed at the top of the routing block — see the
+// orbitraHealQueryString call before $alias is read.)
 require_once __DIR__ . '/core/ClickParams.php';
 $incomingParams = array_merge($_GET, $_POST);
 $clickParams = orbitraCollectClickParams($pdo, $incomingParams, $_COOKIE, $campaign['source_id'] ?? null);
@@ -3012,6 +3023,13 @@ if (!$selectedStream) {
 // Универсальная функция для выбора элемента с весами
 function selectWeightedItem($items)
 {
+    if (empty($items))
+        return null;
+    $items = array_values(array_filter($items, function($it) {
+        if (isset($it['state']) && ($it['state'] === 'disabled' || $it['state'] === 'paused')) return false;
+        if (isset($it['is_active']) && ($it['is_active'] === false || $it['is_active'] === 0 || $it['is_active'] === '0')) return false;
+        return true;
+    }));
     if (empty($items))
         return null;
     $totalW = 0;
@@ -3640,6 +3658,13 @@ if ($actionToPerfrom) {
         // If finalUrl is landingUrl, '{offer}' macro should point to the configured offer URL
         $finalUrl = str_replace('{offer}', urlencode($offerUrlMacros), $finalUrl);
     }
+
+    // Drop macros the click carried no value for ("{utm_term}" and friends):
+    // the "Add All Tracking Parameters" preset can add more macros than the
+    // traffic source actually sends, and a literal "{...}" traveling to the
+    // affiliate network breaks its sub-id parsing. Keitaro cleans leftovers
+    // the same way.
+    $finalUrl = preg_replace('#\{[a-zA-Z0-9_]+\}#', '', $finalUrl);
 
     // Ensure URL has a scheme (http/https) to prevent relative redirects back to the index
     if ($finalUrl !== '' && !preg_match('#^(https?:)?//#i', $finalUrl) && !preg_match('#^/#', $finalUrl) && !preg_match('#^(mailto|tel):#i', $finalUrl)) {

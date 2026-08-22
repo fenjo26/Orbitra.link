@@ -430,6 +430,13 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         const cr = t0.clicks > 0 ? (t0.conversions / t0.clicks) * 100 : 0;
         const cr_sales = t0.clicks > 0 ? (t0.purchases / t0.clicks) * 100 : 0;
         const cr_holds = t0.clicks > 0 ? (t0.holds / t0.clicks) * 100 : 0;
+        const cr_leads = cr_holds;
+        const sales = t0.purchases;
+        const leads = t0.holds;
+        const profit_confirmed = t0.revenue_confirmed - t0.cost;
+        const roi_confirmed = t0.cost > 0 ? (profit_confirmed / t0.cost) * 100 : 0;
+        const cpl = t0.holds > 0 ? t0.cost / t0.holds : 0;
+        const cps = t0.purchases > 0 ? t0.cost / t0.purchases : 0;
         const approve_rate = t0.conversions > 0 ? (t0.purchases / t0.conversions) * 100 : 0;
         const nonTrash = t0.purchases + t0.holds + t0.rejected;
         const approve_rate_excl_trash = nonTrash > 0 ? (t0.purchases / nonTrash) * 100 : 0;
@@ -446,11 +453,18 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
 
         return {
             ...t0,
+            sales,
+            leads,
+            profit_confirmed,
+            roi_confirmed,
+            cpl,
+            cps,
             uc_rate,
             lp_ctr,
             cr,
             cr_sales,
             cr_holds,
+            cr_leads,
             approve_rate,
             approve_rate_excl_trash,
             roi,

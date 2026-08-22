@@ -3,7 +3,7 @@ import { Plus, Trash2, Edit3, Settings2, Filter, RefreshCw, X, SlidersHorizontal
 import InfoBanner from './InfoBanner';
 import LandingEditor from './LandingEditor';
 import GroupsModal from './GroupsModal';
-import ColumnsOrderModal from './ColumnsOrderModal';
+import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
 import PaginationToolbar from './common/PaginationToolbar';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 import axios from 'axios';
@@ -12,61 +12,28 @@ import { entityDeleteErrorText } from '../utils/entityInUseError';
 
 const API_URL = '/api.php';
 
-// Every column the landings table can show, backed by fields the `landings`
-// endpoint actually returns. Money and status counters come from the same
-// conversion aggregate as the reports (see core/ReportMetrics.php); visits
-// equal clicks because one click row IS one landing visit.
-export const ALL_LANDING_COLUMNS = [
-    { id: 'id', label: 'ID' },
-    { id: 'name', label: 'Name', required: true },
-    { id: 'group_name', label: 'Group' },
-    { id: 'type', label: 'Type' },
-    { id: 'state', label: 'Status' },
-    { id: 'visits', label: 'Visits', alignRight: true },
-    { id: 'unique_visits', label: 'uVisits', alignRight: true },
-    { id: 'clicks', label: 'Clicks', alignRight: true },
-    { id: 'unique_clicks', label: 'Uniques', alignRight: true },
-    { id: 'lp_clicks', label: 'LP Clicks', alignRight: true },
-    { id: 'lp_ctr', label: 'LP CTR', alignRight: true },
-    { id: 'conversions', label: 'Conversions', alignRight: true },
-    { id: 'leads', label: 'Leads', alignRight: true },
-    { id: 'sales', label: 'Sales', alignRight: true },
-    { id: 'rejected', label: 'Rejected', alignRight: true },
-    { id: 'trash', label: 'Trash', alignRight: true },
-    { id: 'approve_rate', label: 'Approve %', alignRight: true },
-    { id: 'cr', label: 'CR', alignRight: true },
-    { id: 'cost', label: 'Cost', alignRight: true },
-    { id: 'revenue', label: 'Revenue', alignRight: true },
-    { id: 'revenue_confirmed', label: 'Revenue (conf)', alignRight: true },
-    { id: 'profit', label: 'Profit', alignRight: true },
-    { id: 'profit_confirmed', label: 'Profit (conf)', alignRight: true },
-    { id: 'cpc', label: 'CPC', alignRight: true },
-    { id: 'cpv', label: 'CPV', alignRight: true },
-    { id: 'epc', label: 'EPC', alignRight: true },
-    { id: 'epc_confirmed', label: 'EPC (conf)', alignRight: true },
-    { id: 'epv', label: 'EPV', alignRight: true },
-    { id: 'roi', label: 'ROI', alignRight: true },
-    { id: 'roi_confirmed', label: 'ROI (conf)', alignRight: true },
-    { id: 'last_event', label: 'Last Event' },
-];
-
-// The table as it shipped: order and composition users already know.
-export const DEFAULT_LANDING_COLUMNS = [
-    'id', 'name', 'group_name', 'type', 'state',
-    'clicks', 'unique_clicks', 'lp_clicks', 'lp_ctr',
+// Fixed entity columns for landings — these are always present and not part of
+// the metric customization. Metrics come from ALL_REPORT_METRICS.
+const FIXED_LANDING_COLUMNS = [
+    { id: 'checkbox', label: '', fixed: true },
+    { id: 'id', label: 'ID', fixed: true },
+    { id: 'state', label: 'Status', fixed: true },
+    { id: 'name', label: 'Name', fixed: true },
+    { id: 'group_name', label: 'Group', fixed: true },
+    { id: 'type', label: 'Type', fixed: true },
+    { id: 'url', label: 'URL', fixed: true },
+    { id: 'last_event', label: 'Last Event', fixed: true },
 ];
 
 const LANDING_COLUMNS_KEY = 'orbitra_landing_columns';
 
 const loadLandingColumns = () => {
     try {
-        const saved = JSON.parse(localStorage.getItem(LANDING_COLUMNS_KEY) || 'null');
-        if (Array.isArray(saved) && saved.length) {
-            const valid = saved.filter(id => ALL_LANDING_COLUMNS.some(c => c.id === id));
-            if (valid.includes('name')) return valid;
-        }
-    } catch { /* fall through to default */ }
-    return [...DEFAULT_LANDING_COLUMNS];
+        const saved = localStorage.getItem(LANDING_COLUMNS_KEY);
+        if (saved) return normalizeReportMetricIds(JSON.parse(saved));
+    } catch (e) {}
+    // Fallback to 'lander_to_offer' preset for landings
+    return normalizeReportMetricIds(PRESETS.lander_to_offer);
 };
 
 const Landings = ({ landings, refreshData }) => {
@@ -316,57 +283,6 @@ const Landings = ({ landings, refreshData }) => {
         }
     };
 
-    const columnLabel = (colId) => ({
-        id: 'ID',
-        name: t('components.aliasName'),
-        type: t('components.type'),
-        state: t('components.status'),
-        visits: t('metrics.visits'),
-        unique_visits: t('metrics.uniqueVisits'),
-        clicks: t('components.clicks'),
-        unique_clicks: t('components.uniques'),
-        lp_clicks: t('components.lpClicks'),
-        lp_ctr: t('components.lpCtr'),
-        conversions: t('landingColumns.conversions'),
-        leads: t('offerColumns.leads'),
-        sales: t('offerColumns.sales'),
-        rejected: t('offerColumns.rejected'),
-        trash: t('metrics.trash'),
-        approve_rate: t('metrics.approve'),
-        cr: t('landingColumns.cr'),
-        cost: t('metrics.cost'),
-        revenue: t('metrics.revenue'),
-        revenue_confirmed: t('offerColumns.revenueConfirmed'),
-        profit: t('metrics.profit'),
-        profit_confirmed: t('offerColumns.profitConfirmed'),
-        cpc: t('metrics.cpc'),
-        cpv: t('metrics.cpv', 'CPV'),
-        epc: t('metrics.epc'),
-        epc_confirmed: t('offerColumns.epcConfirmed'),
-        epv: t('metrics.epv'),
-        roi: t('metrics.roi'),
-        roi_confirmed: t('offerColumns.roiConfirmed'),
-        group_name: t('components.group'),
-        last_event: t('landingColumns.lastEvent'),
-    }[colId] || colId);
-
-    const localizedColumns = ALL_LANDING_COLUMNS.map(c => ({ ...c, label: columnLabel(c.id) }));
-
-    const metricHint = (colId) => {
-        const hintKey = ({
-            visits: 'lpViewsHint',
-            clicks: 'lpViewsHint',
-            lp_clicks: 'lpClicksHint',
-            lp_ctr: 'lpCtrHint',
-            cpv: 'cpvHint',
-            cpc: 'cpcHint',
-            epv: 'epvHint',
-            epc: 'epcHint',
-            epc_confirmed: 'epcHint',
-        })[colId];
-        return hintKey ? t(`metrics.${hintKey}`) : undefined;
-    };
-
     // SQLite hands back "YYYY-MM-DD HH:MM:SS"; the space separator chokes
     // Safari's Date parser, so normalize to ISO before formatting.
     const formatLastEvent = (v) => {
@@ -377,68 +293,268 @@ const Landings = ({ landings, refreshData }) => {
         return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
     };
 
-    const money = (v, precision = 2) => `$${(parseFloat(v) || 0).toFixed(precision)}`;
+    // Entity column label helper
+    const entityLabel = (colId) => ({
+        id: 'ID',
+        name: t('editor.name'),
+        state: t('components.status'),
+        group_name: t('components.group'),
+        type: t('components.type'),
+        url: 'URL',
+        last_event: t('landingColumns.lastEvent'),
+    }[colId] || colId);
 
-    const totals = visibleLandings.reduce((acc, landing) => {
-        acc.clicks += Number(landing.clicks) || 0;
-        acc.unique_clicks += Number(landing.unique_clicks) || 0;
-        acc.visits += Number(landing.visits) || 0;
-        acc.unique_visits += Number(landing.unique_visits) || 0;
-        acc.lp_clicks += Number(landing.lp_clicks) || 0;
-        acc.conversions += Number(landing.conversions) || 0;
-        acc.leads += Number(landing.leads) || 0;
-        acc.sales += Number(landing.sales) || 0;
-        acc.rejected += Number(landing.rejected) || 0;
-        acc.trash += Number(landing.trash) || 0;
-        acc.revenue += Number(landing.revenue) || 0;
-        acc.revenue_confirmed += Number(landing.revenue_confirmed) || 0;
-        acc.cost += Number(landing.cost) || 0;
-        return acc;
-    }, { clicks: 0, unique_clicks: 0, visits: 0, unique_visits: 0, lp_clicks: 0,
-        conversions: 0, leads: 0, sales: 0, rejected: 0, trash: 0,
-        revenue: 0, revenue_confirmed: 0, cost: 0 });
+    // Unified metric cell formatter (same as Campaigns.jsx/Offers.jsx)
+    const formatMetricCell = (metricId, row) => {
+        const val = row[metricId];
+        const num = Number(val) || 0;
 
-    const totalsProfit = totals.revenue - totals.cost;
-    const totalsProfitConfirmed = totals.revenue_confirmed - totals.cost;
-    const totalsApproveDenom = totals.sales + totals.leads + totals.rejected + totals.trash;
-    const totalsLpViews = totals.visits > 0 ? totals.visits : totals.clicks;
-    const totalsLpClickDenominator = totals.lp_clicks > 0 ? totals.lp_clicks : totals.clicks;
-    const renderTotalCell = (colId) => {
-        switch (colId) {
-            case 'clicks': return totals.clicks.toLocaleString();
-            case 'unique_clicks': return totals.unique_clicks.toLocaleString();
-            case 'visits': return totals.visits.toLocaleString();
-            case 'unique_visits': return totals.unique_visits.toLocaleString();
-            case 'lp_clicks': return totals.lp_clicks.toLocaleString();
-            case 'conversions': return totals.conversions.toLocaleString();
-            case 'leads': return totals.leads.toLocaleString();
-            case 'sales': return totals.sales.toLocaleString();
-            case 'rejected': return totals.rejected.toLocaleString();
-            case 'trash': return totals.trash.toLocaleString();
-            case 'approve_rate': return totalsApproveDenom > 0 ? `${((totals.sales / totalsApproveDenom) * 100).toFixed(2)}%` : '0%';
-            case 'lp_ctr': return totalsLpViews > 0 ? `${((totals.lp_clicks / totalsLpViews) * 100).toFixed(2)}%` : '0%';
-            case 'revenue': return money(totals.revenue);
-            case 'revenue_confirmed': return money(totals.revenue_confirmed);
-            case 'cost': return money(totals.cost);
-            case 'profit': return money(totalsProfit);
-            case 'profit_confirmed': return money(totalsProfitConfirmed);
-            case 'cr': return totals.clicks > 0 ? `${((totals.conversions / totals.clicks) * 100).toFixed(2)}%` : '0%';
-            case 'epc': return totalsLpClickDenominator > 0 ? money(totals.revenue / totalsLpClickDenominator) : '$0.00';
-            case 'epc_confirmed': return totalsLpClickDenominator > 0 ? money(totals.revenue_confirmed / totalsLpClickDenominator) : '$0.00';
-            case 'epv': return totalsLpViews > 0 ? money(totals.revenue / totalsLpViews) : '$0.00';
-            case 'cpc': return totalsLpClickDenominator > 0 ? money(totals.cost / totalsLpClickDenominator) : '$0.00';
-            case 'cpv': return totalsLpViews > 0 ? money(totals.cost / totalsLpViews) : '$0.00';
-            case 'roi': return totals.cost > 0 ? `${((totalsProfit / totals.cost) * 100).toFixed(2)}%` : '—';
-            case 'roi_confirmed': return totals.cost > 0 ? `${((totalsProfitConfirmed / totals.cost) * 100).toFixed(2)}%` : '—';
-            default: return null;
+        switch (metricId) {
+            case 'clicks':
+            case 'unique_clicks':
+            case 'visits':
+            case 'unique_visits':
+            case 'lp_views':
+            case 'lp_clicks':
+            case 'sales':
+            case 'leads':
+            case 'registrations':
+            case 'deposits':
+            case 'rejected':
+            case 'trash':
+            case 'bots':
+            case 'proxies':
+            case 'empty_referrers':
+                return num.toLocaleString();
+
+            case 'conversions':
+                return num > 0 ? <span className="font-semibold" style={{ color: 'var(--color-success)' }}>{num.toLocaleString()}</span> : '0';
+
+            case 'lp_ctr':
+            case 'approve_rate':
+            case 'cr':
+            case 'cr_sales':
+            case 'cr_leads':
+            case 'cr_holds':
+            case 'cr_registrations':
+            case 'cr_deposits':
+                return val === null || val === undefined ? '—' : `${num.toFixed(2)}%`;
+
+            case 'roi':
+            case 'roi_confirmed': {
+                if (val === null || val === undefined) return '—';
+                if (num === 0) return <span style={{ color: 'var(--color-text-muted)' }}>0.00%</span>;
+                const isPos = num > 0;
+                return (
+                    <span style={{ color: isPos ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: 600 }}>
+                        {isPos ? '+' : ''}{num.toFixed(2)}%
+                    </span>
+                );
+            }
+
+            case 'profit':
+            case 'profit_confirmed': {
+                if (Math.abs(num) < 0.0001) {
+                    return <span style={{ color: 'var(--color-text-secondary)' }}>$0.00</span>;
+                }
+                const isPos = num > 0;
+                return (
+                    <span style={{ color: isPos ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: 600 }}>
+                        {isPos ? '+' : '-'}${Math.abs(num).toFixed(2)}
+                    </span>
+                );
+            }
+
+            case 'cost':
+            case 'revenue':
+            case 'revenue_confirmed':
+            case 'revenue_hold':
+            case 'revenue_rejected':
+            case 'revenue_trash':
+            case 'cpa':
+            case 'cps':
+            case 'cpl':
+            case 'cpd':
+            case 'cpc':
+            case 'cpv':
+            case 'epc':
+            case 'uepc':
+            case 'epv':
+            case 'ecpm_all':
+            case 'ecpm_confirmed':
+            case 'earnings_per_conv':
+            case 'epc_confirmed':
+            case 'uepc_confirmed':
+            case 'epc_hold':
+            case 'uepc_hold':
+            case 'epc_registration':
+            case 'uepc_registration':
+            case 'ucpc':
+                return `$${num.toFixed(2)}`;
+
+            default:
+                return val !== undefined && val !== null ? String(val) : '-';
         }
     };
 
-    const renderLandingCell = (landing, colId) => {
-        const tdCls = ALL_LANDING_COLUMNS.find(c => c.id === colId)?.alignRight ? 'text-right' : '';
+    // Calculate grand totals for all visible landings (not just paged slice).
+    // Ratios (CR/EPC/CPC/ROI) are recomputed from the summed base metrics.
+    const grandTotals = useMemo(() => {
+        const t0 = {
+            clicks: 0, unique_clicks: 0, visits: 0, unique_visits: 0,
+            lp_clicks: 0, lp_views: 0, conversions: 0, leads: 0, sales: 0,
+            rejected: 0, trash: 0, cost: 0, revenue: 0, revenue_confirmed: 0,
+            revenue_hold: 0, revenue_rejected: 0, revenue_trash: 0,
+            registrations: 0, deposits: 0, bots: 0, proxies: 0, empty_referrers: 0
+        };
+
+        visibleLandings.forEach(l => {
+            t0.clicks += Number(l.clicks) || 0;
+            t0.unique_clicks += Number(l.unique_clicks) || 0;
+            const lpViews = Number(l.visits ?? l.clicks) || 0;
+            t0.visits += lpViews;
+            t0.lp_views += lpViews;
+            t0.lp_clicks += Number(l.lp_clicks) || 0;
+            t0.conversions += Number(l.conversions) || 0;
+            t0.leads += Number(l.leads) || 0;
+            t0.sales += Number(l.sales) || 0;
+            t0.rejected += Number(l.rejected) || 0;
+            t0.trash += Number(l.trash) || 0;
+            t0.cost += Number(l.cost) || 0;
+            t0.revenue += Number(l.revenue) || 0;
+            t0.revenue_confirmed += Number(l.revenue_confirmed) || 0;
+            t0.revenue_hold += Number(l.revenue_hold) || 0;
+            t0.revenue_rejected += Number(l.revenue_rejected) || 0;
+            t0.revenue_trash += Number(l.revenue_trash) || 0;
+            t0.registrations += Number(l.registrations) || 0;
+            t0.deposits += Number(l.deposits) || 0;
+            t0.bots += Number(l.bots) || 0;
+            t0.proxies += Number(l.proxies) || 0;
+            t0.empty_referrers += Number(l.empty_referrers) || 0;
+        });
+
+        // Computed ratios from totals (same logic as Campaigns.jsx/Offers.jsx)
+        const lpClickDenominator = t0.lp_clicks > 0 ? t0.lp_clicks : t0.clicks;
+        const lp_ctr = t0.lp_views > 0 ? (t0.lp_clicks / t0.lp_views) * 100 : 0;
+        const cr = t0.clicks > 0 ? (t0.conversions / t0.clicks) * 100 : 0;
+        const cr_sales = t0.clicks > 0 ? (t0.sales / t0.clicks) * 100 : 0;
+        const cr_leads = t0.clicks > 0 ? (t0.leads / t0.clicks) * 100 : 0;
+        const profit_confirmed = t0.revenue_confirmed - t0.cost;
+        const roi_confirmed = t0.cost > 0 ? (profit_confirmed / t0.cost) * 100 : 0;
+        const cpl = t0.leads > 0 ? t0.cost / t0.leads : 0;
+        const cps = t0.sales > 0 ? t0.cost / t0.sales : 0;
+        const cpa = t0.conversions > 0 ? t0.cost / t0.conversions : 0;
+        const approve_rate = t0.conversions > 0 ? (t0.sales / t0.conversions) * 100 : 0;
+        const roi = t0.cost > 0 ? ((t0.revenue - t0.cost) / t0.cost) * 100 : 0;
+        const epc = lpClickDenominator > 0 ? t0.revenue / lpClickDenominator : 0;
+        const epv = t0.lp_views > 0 ? t0.revenue / t0.lp_views : 0;
+        const uepc = t0.unique_clicks > 0 ? t0.revenue / t0.unique_clicks : 0;
+        const cpc = lpClickDenominator > 0 ? t0.cost / lpClickDenominator : 0;
+        const cpv = t0.lp_views > 0 ? t0.cost / t0.lp_views : 0;
+
+        return {
+            ...t0,
+            profit: t0.revenue - t0.cost,
+            profit_confirmed,
+            roi_confirmed,
+            cpl, cps, cpa,
+            lp_ctr, cr, cr_sales, cr_leads,
+            approve_rate, roi,
+            epc, epv, uepc, cpc, cpv,
+            sales: t0.sales,
+            leads: t0.leads
+        };
+    }, [visibleLandings]);
+
+    const formatTotalCell = (colId) => {
+        const val = grandTotals[colId];
+        const num = Number(val) || 0;
         switch (colId) {
+            case 'clicks':
+            case 'unique_clicks':
+            case 'lp_views':
+            case 'lp_clicks':
+            case 'sales':
+            case 'leads':
+            case 'registrations':
+            case 'deposits':
+            case 'rejected':
+            case 'trash':
+            case 'bots':
+            case 'proxies':
+            case 'empty_referrers':
+            case 'visits':
+            case 'unique_visits':
+                return num.toLocaleString();
+            case 'conversions':
+                return <span className="font-semibold" style={{ color: 'var(--color-success)' }}>{num.toLocaleString()}</span>;
+            case 'lp_ctr':
+            case 'approve_rate':
+            case 'cr':
+            case 'cr_sales':
+            case 'cr_leads':
+                return `${num.toFixed(2)}%`;
+            case 'roi':
+            case 'roi_confirmed': {
+                if (num === 0) return <span style={{ color: 'var(--color-text-muted)' }}>0.00%</span>;
+                const isPos = num > 0;
+                return (
+                    <span style={{ color: isPos ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: 600 }}>
+                        {isPos ? '+' : ''}{num.toFixed(2)}%
+                    </span>
+                );
+            }
+            case 'profit':
+            case 'profit_confirmed': {
+                if (Math.abs(num) < 0.0001) return <span style={{ color: 'var(--color-text-secondary)' }}>$0.00</span>;
+                const isPos = num > 0;
+                return (
+                    <span style={{ color: isPos ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: 600 }}>
+                        {isPos ? '+' : '-'}${Math.abs(num).toFixed(2)}
+                    </span>
+                );
+            }
+            case 'cost':
+            case 'revenue':
+            case 'revenue_confirmed':
+            case 'cpa':
+            case 'cps':
+            case 'cpl':
+            case 'cpc':
+            case 'cpv':
+            case 'epc':
+            case 'uepc':
+            case 'epv':
+                return `$${num.toFixed(2)}`;
+            default:
+                return val !== undefined && val !== null ? String(val) : '-';
+        }
+    };
+
+    // Entity cell renderer for fixed columns
+    const renderEntityCell = (landing, colId) => {
+        switch (colId) {
+            case 'checkbox':
+                return (
+                    <td key={colId}>
+                        <input
+                            type="checkbox"
+                            checked={selectedLandingIds.has(landing.id)}
+                            onChange={(e) => toggleSelected(landing.id, e.target.checked)}
+                        />
+                    </td>
+                );
             case 'id':
                 return <td key={colId} className="font-medium">{landing.id}</td>;
+            case 'state':
+                return (
+                    <td key={colId}>
+                        <span className="flex items-center text-xs font-medium" style={{ color: landing.state === 'active' ? 'var(--color-success)' : 'var(--color-text-muted)' }}>
+                            <span className="w-2 h-2 rounded-full mr-1.5" style={{ backgroundColor: landing.state === 'active' ? 'var(--color-success)' : 'var(--color-text-muted)' }}></span>
+                            {landing.state === 'active' ? t('components.active') : t('components.archive')}
+                        </span>
+                    </td>
+                );
             case 'name':
                 return (
                     <td key={colId}>
@@ -458,6 +574,8 @@ const Landings = ({ landings, refreshData }) => {
                         </div>
                     </td>
                 );
+            case 'group_name':
+                return <td key={colId} style={{ color: 'var(--color-text-secondary)' }}>{landing.group_name || '-'}</td>;
             case 'type':
                 return (
                     <td key={colId}>
@@ -466,57 +584,16 @@ const Landings = ({ landings, refreshData }) => {
                         </span>
                     </td>
                 );
-            case 'state':
+            case 'url':
                 return (
-                    <td key={colId}>
-                        <span className="flex items-center text-xs font-medium" style={{ color: landing.state === 'active' ? 'var(--color-success)' : 'var(--color-text-muted)' }}>
-                            <span className="w-2 h-2 rounded-full mr-1.5" style={{ backgroundColor: landing.state === 'active' ? 'var(--color-success)' : 'var(--color-text-muted)' }}></span>
-                            {landing.state === 'active' ? t('components.active') : t('components.archive')}
-                        </span>
+                    <td key={colId} style={{ color: 'var(--color-text-muted)', fontSize: '12px' }} className="truncate max-w-[200px]" title={landing.url}>
+                        {landing.url}
                     </td>
                 );
-            case 'group_name':
-                return <td key={colId} style={{ color: 'var(--color-text-secondary)' }}>{landing.group_name || '-'}</td>;
-            case 'cost':
-                return <td key={colId} className={tdCls}>{money(landing.cost)}</td>;
-            case 'revenue':
-                return <td key={colId} className={`${tdCls} font-medium`} style={{ color: 'var(--color-success)' }}>{money(landing.revenue)}</td>;
-            case 'revenue_confirmed':
-                return <td key={colId} className={`${tdCls} font-medium`} style={{ color: 'var(--color-success)' }}>{money(landing.revenue_confirmed)}</td>;
-            case 'profit':
-            case 'profit_confirmed': {
-                const v = parseFloat(landing[colId]) || 0;
-                return (
-                    <td key={colId} className={`${tdCls} font-medium`} style={{ color: v > 0 ? 'var(--color-success)' : v < 0 ? 'var(--color-danger)' : 'var(--color-text-secondary)' }}>
-                        {money(v)}
-                    </td>
-                );
-            }
-            case 'cpc':
-            case 'cpv':
-            case 'epc':
-            case 'epc_confirmed':
-            case 'epv':
-                return <td key={colId} className={tdCls}>{money(landing[colId])}</td>;
-            case 'approve_rate':
-                return <td key={colId} className={tdCls}>{`${parseFloat(landing.approve_rate) || 0}%`}</td>;
-            case 'roi':
-            case 'roi_confirmed': {
-                const v = landing[colId];
-                return (
-                    <td key={colId} className={`${tdCls} font-medium`} style={{ color: (parseFloat(v) || 0) > 0 ? 'var(--color-success)' : 'var(--color-text-secondary)' }}>
-                        {v !== null && v !== undefined ? `${v}%` : '—'}
-                    </td>
-                );
-            }
-            case 'lp_ctr':
-                return <td key={colId} className={tdCls}>{landing.lp_ctr !== undefined ? `${landing.lp_ctr}%` : '0%'}</td>;
-            case 'cr':
-                return <td key={colId} className={tdCls}>{landing.cr !== undefined ? `${landing.cr}%` : '0%'}</td>;
             case 'last_event':
                 return <td key={colId} style={{ color: 'var(--color-text-secondary)' }}>{formatLastEvent(landing.last_event)}</td>;
             default:
-                return <td key={colId} className={tdCls}>{Number(landing[colId] || 0).toLocaleString()}</td>;
+                return <td key={colId}>-</td>;
         }
     };
 
@@ -770,16 +847,34 @@ const Landings = ({ landings, refreshData }) => {
                                     onChange={(e) => toggleSelectAll(e.target.checked)}
                                 />
                             </th>
-                            {chosenColumns.map((colId) => (
-                                <th key={colId} title={metricHint(colId)} className={ALL_LANDING_COLUMNS.find(c => c.id === colId)?.alignRight ? 'text-right' : ''}>{columnLabel(colId)}</th>
-                            ))}
+                            <th>ID</th>
+                            <th>{t('components.status')}</th>
+                            <th>{t('editor.name')}</th>
+                            <th>{t('components.group')}</th>
+                            <th>{t('components.type')}</th>
+                            <th>URL</th>
+                            <th>{t('landingColumns.lastEvent')}</th>
+
+                            {/* Dynamic metric columns */}
+                            {chosenColumns.map((colId) => {
+                                const def = ALL_REPORT_METRICS.find(m => m.id === colId);
+                                return (
+                                    <th
+                                        key={colId}
+                                        title={getReportMetricTooltip(def, t)}
+                                        className="text-right whitespace-nowrap"
+                                    >
+                                        {def?.shortLabel || def?.label || colId}
+                                    </th>
+                                );
+                            })}
                             <th className="text-right">{t('common.actions')}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {visibleLandings.length === 0 ? (
                             <tr>
-                                <td colSpan={chosenColumns.length + 2} className="text-center py-12">
+                                <td colSpan={9 + chosenColumns.length} className="text-center py-12">
                                     <div className="empty-state">
                                         <p className="empty-state-title">{t('landings.noLandings')}</p>
                                         <p className="empty-state-text">{t('landings.noLandingsDesc')}</p>
@@ -789,15 +884,16 @@ const Landings = ({ landings, refreshData }) => {
                         ) : (
                             pagedLandings.map((landing) => (
                                 <tr key={landing.id}>
-                                    <td>
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedLandingIds.has(landing.id)}
-                                            onChange={(e) => toggleSelected(landing.id, e.target.checked)}
-                                        />
-                                    </td>
-                                    {chosenColumns.map((colId) => renderLandingCell(landing, colId))}
-                                    <td>
+                                    {FIXED_LANDING_COLUMNS.filter(c => c.id !== 'checkbox').map(colId =>
+                                        renderEntityCell(landing, colId)
+                                    )}
+                                    {/* Metric cells */}
+                                    {chosenColumns.map((colId) => (
+                                        <td key={colId} className="text-right">
+                                            {formatMetricCell(colId, landing)}
+                                        </td>
+                                    ))}
+                                    <td className="text-right">
                                         <div className="action-buttons">
                                             <button onClick={() => handleEdit(landing.id)} className="action-btn text-blue" title={t('common.edit') || t('components.edit')}>
                                                 <Edit3 className="w-4 h-4" />
@@ -811,20 +907,17 @@ const Landings = ({ landings, refreshData }) => {
                             ))
                         )}
                     </tbody>
+                    {/* Totals Footer */}
                     {visibleLandings.length > 0 && (
                         <tfoot style={{ background: 'var(--color-bg-soft)' }}>
                             <tr className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
                                 <td className="px-4 py-3"></td>
-                                {chosenColumns.map((colId) => {
-                                    if (colId === 'name') {
-                                        return <td key={colId} className="px-4 py-3">{t('campaignReports.total', 'Total')} ({visibleLandings.length})</td>;
-                                    }
-                                    const val = renderTotalCell(colId);
-                                    const alignRight = ALL_LANDING_COLUMNS.find(c => c.id === colId)?.alignRight;
-                                    const isNegativeProfit = (colId === 'profit' && totalsProfit < 0)
-                                        || (colId === 'profit_confirmed' && totalsProfitConfirmed < 0);
-                                    return <td key={colId} className={`px-4 py-3 ${alignRight ? 'text-right' : ''}`} style={{ color: isNegativeProfit ? 'var(--color-danger)' : undefined }}>{val ?? ''}</td>;
-                                })}
+                                <td className="px-4 py-3" colSpan={7}>Σ Total ({visibleLandings.length})</td>
+                                {chosenColumns.map((colId) => (
+                                    <td key={colId} className="px-4 py-3 text-right">
+                                        {formatTotalCell(colId)}
+                                    </td>
+                                ))}
                                 <td></td>
                             </tr>
                         </tfoot>
@@ -875,19 +968,17 @@ const Landings = ({ landings, refreshData }) => {
                 />
             )}
 
-            {columnsModalOpen && (
-                <ColumnsOrderModal
-                    columns={localizedColumns}
-                    selectedIds={chosenColumns}
-                    defaultIds={DEFAULT_LANDING_COLUMNS}
-                    onClose={() => setColumnsModalOpen(false)}
-                    onSave={(ids) => {
-                        setChosenColumns(ids);
-                        localStorage.setItem(LANDING_COLUMNS_KEY, JSON.stringify(ids));
-                        setColumnsModalOpen(false);
-                    }}
-                />
-            )}
+            <ReportCustomizerModal
+                isOpen={columnsModalOpen}
+                onClose={() => setColumnsModalOpen(false)}
+                selectedColumns={chosenColumns}
+                onSaveColumns={(ids) => {
+                    setChosenColumns(ids);
+                    localStorage.setItem(LANDING_COLUMNS_KEY, JSON.stringify(ids));
+                    setColumnsModalOpen(false);
+                }}
+                mode="landings"
+            />
         </div>
     );
 };

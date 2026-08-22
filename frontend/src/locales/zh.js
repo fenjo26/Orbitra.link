@@ -22,7 +22,9 @@ export default {
         "enterParamKey": "输入参数键（例如 utm_placement、placement、custom_id）：",
         "addParam": "添加参数",
         "additionalSubIds": "附加子 ID (sub_id_1 .. sub_id_30)",
-        "placement": "版位 (utm_placement)"
+        "placement": "版位 (utm_placement)",
+        "facebookParams": "Facebook 参数",
+        "facebookParamsHint": "复制 Facebook Ads URL 参数（不含开头的问号）以便粘贴到 Meta Ads Manager",
     },
     "costModels": {
         "cpc": "CPC — 按点击付费",
@@ -1463,6 +1465,7 @@ export default {
         "name": "名称",
         "namePlaceholder": "登陆名称",
         "group": "集团",
+        "groupOrProduct": "分组 / 产品",
         "noGroup": "-- 没有组 --",
         "status": "状态",
         "active": "活跃",
@@ -1604,6 +1607,7 @@ export default {
         "notesPlaceholder": "您关于此优惠的备注...",
         "nameLabel": "名称",
         "group": "集团",
+        "groupOrProduct": "分组 / 产品",
         "noGroup": "-- 没有组 --",
         "affiliateNetwork": "联盟网络",
         "networkTooltip": "所选网络将标签添加到 URL 并在报告中启用指标。",
@@ -3274,7 +3278,11 @@ export default {
         "addCostConnection": "连接 Cost Sync",
         "updateCostsManually": "手动更新花费",
         "costSyncTitle": "花费同步",
-        "manualCostTitle": "手动录入花费"
+        "manualCostTitle": "手动录入花费",
+        "passthroughParams": "添加所有跟踪参数",
+        "passthroughHint": "添加所有 Facebook 和 UTM 跟踪参数并转发到目标地址",
+        "passthroughHelp": "自动添加 Facebook 和 UTM 宏",
+
     },
     "suite": {
         "leadforge": "LeadForge",

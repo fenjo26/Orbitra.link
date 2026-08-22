@@ -16,6 +16,96 @@
 
 if (!function_exists('orbitraClickParamKeys')) {
 
+    /**
+     * Normalize malformed query strings that contain a literal '?' — a valid
+     * query string never does. Facebook Ads (URL parameters box with a leading
+     * "?") and third-party cloakers concatenate a second "?" onto a URL that
+     * already had one; PHP's own parse then swallows everything between the two
+     * "?" into the FIRST param's value ("c=tk4u2h?utm=x&ad_id=1" → c holds
+     * "tk4u2h?utm=x", ad_id is lost from the routing keys).
+     *
+     * Handles:
+     * - "c=tk4u2h?utm_source=facebook" → ["c" => "tk4u2h", "utm_source" => "facebook"]
+     * - "??param=value" → ["param" => "value"]
+     * - "utm_a=1?utm_b=2&x=3" → ["utm_a" => "1", "utm_b" => "2", "x" => "3"]
+     *
+     * Values decoded by parse_str that legitimately contain '?' (from %3F) are
+     * preserved as-is.
+     *
+     * @param string $queryString The raw query string from $_SERVER['QUERY_STRING']
+     * @return array Normalized key-value pairs (later segments override earlier)
+     */
+    function orbitraNormalizeQueryString(string $queryString): array
+    {
+        if ($queryString === '' || $queryString === '?') {
+            return [];
+        }
+
+        $queryString = ltrim($queryString, '?');
+
+        // A literal '?' separates what should have been independent params.
+        // Each segment is parsed as its own query string.
+        $segments = explode('?', $queryString);
+        $result = [];
+
+        foreach ($segments as $segment) {
+            if (trim($segment) === '') {
+                continue;
+            }
+
+            parse_str($segment, $parsed);
+
+            foreach ((array) $parsed as $key => $value) {
+                $result[$key] = $value;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Detect and auto-heal malformed query strings in the incoming request.
+     * Returns true if any $_GET entry was recovered or repaired.
+     *
+     * MUST run before campaign routing: the first query pair is usually the
+     * routing key (token / campaign / campaign_id), and an add-if-missing merge
+     * would leave its corrupted value in place — the click would still be lost.
+     * Normalized values therefore REPLACE $_GET's, which is safe because the
+     * function only runs when the query string contains a literal '?' and is
+     * broken by definition.
+     *
+     * @param array $getArray $_GET (or a copy), modified in place
+     * @param string|null $queryString Raw query string; defaults to $_SERVER['QUERY_STRING']
+     * @return bool True if healing changed anything
+     */
+    function orbitraHealQueryString(array &$getArray, ?string $queryString = null): bool
+    {
+        if ($queryString === null) {
+            $queryString = $_SERVER['QUERY_STRING'] ?? '';
+        }
+
+        // A valid query string contains no literal '?': its presence is the
+        // double-"?" smell. Normal traffic never enters the healing path.
+        if (strpos($queryString, '?') === false) {
+            return false;
+        }
+
+        $normalized = orbitraNormalizeQueryString($queryString);
+        if (empty($normalized)) {
+            return false;
+        }
+
+        $healed = false;
+        foreach ($normalized as $key => $value) {
+            if (!array_key_exists($key, $getArray) || $getArray[$key] !== $value) {
+                $getArray[$key] = $value;
+                $healed = true;
+            }
+        }
+
+        return $healed;
+    }
+
     /** Baseline keys, kept for backward compatibility with existing installs. */
     function orbitraClickParamKeys(): array
     {
@@ -37,7 +127,7 @@ if (!function_exists('orbitraClickParamKeys')) {
             'ad_id', 'adset_id', 'campaign_id',
             'ad_name', 'adset_name', 'campaign_name',
             'adgroup', 'adgroupid', 'ad_group_id', 'campaignid', 'creative',
-            'site', 'site_id', 'placement', 'widget', 'section',
+            'site', 'site_id', 'placement', 'utm_placement', 'widget', 'section',
             'matchtype', 'device', 'loc_physical', 'cpc',
         ]);
 

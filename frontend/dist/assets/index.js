@@ -16420,7 +16420,9 @@ const ru = {
     "enterParamKey": "Введите ключ параметра (например, utm_placement, placement, custom_id):",
     "addParam": "Добавить параметр",
     "additionalSubIds": "Дополнительные Sub ID (sub_id_1 .. sub_id_30)",
-    "placement": "Плейсмент (utm_placement)"
+    "placement": "Плейсмент (utm_placement)",
+    "facebookParams": "Параметры Facebook",
+    "facebookParamsHint": "Скопировать URL-параметры Facebook Ads (без ведущего «?») для вставки в Meta Ads Manager"
   },
   "costModels": {
     "cpc": "CPC — оплата за клик",
@@ -17861,6 +17863,7 @@ const ru = {
     "name": "Название / Alias *",
     "namePlaceholder": "Название лендинга",
     "group": "Группа",
+    "groupOrProduct": "Группа / Продукт",
     "noGroup": "-- Без группы --",
     "status": "Статус",
     "active": "Активен",
@@ -18002,6 +18005,7 @@ const ru = {
     "notesPlaceholder": "Ваши заметки об оффере...",
     "nameLabel": "Название",
     "group": "Группа",
+    "groupOrProduct": "Группа / Продукт",
     "noGroup": "-- Без группы --",
     "affiliateNetwork": "Партнёрская сеть",
     "networkTooltip": "Выбранная сеть добавляет к URL метки и включает показатели в отчётах.",
@@ -19669,7 +19673,10 @@ const ru = {
     "addCostConnection": "Подключить Cost Sync",
     "updateCostsManually": "Обновить расход вручную",
     "costSyncTitle": "Синхронизация расходов (Cost Sync)",
-    "manualCostTitle": "Ручной ввод расходов"
+    "manualCostTitle": "Ручной ввод расходов",
+    "passthroughParams": "Добавить все трекинг-параметры",
+    "passthroughHint": "Добавить все параметры Facebook и UTM для передачи на целевой адрес",
+    "passthroughHelp": "Автоматически добавить макросы Facebook и UTM"
   },
   "suite": {
     "leadforge": "LeadForge",
@@ -19903,7 +19910,9 @@ const en = {
     "enterParamKey": "Enter parameter key (e.g. utm_placement, placement, custom_id):",
     "addParam": "Add Parameter",
     "additionalSubIds": "Sub IDs (sub_id_1 .. sub_id_30)",
-    "placement": "Placement (utm_placement)"
+    "placement": "Placement (utm_placement)",
+    "facebookParams": "Facebook Parameters",
+    "facebookParamsHint": "Copy Facebook Ads URL Parameters (without leading ?) for pasting into Meta Ads Manager"
   },
   "costModels": {
     "cpc": "CPC — cost per click",
@@ -21344,6 +21353,7 @@ const en = {
     "name": "Name",
     "namePlaceholder": "Landing name",
     "group": "Group",
+    "groupOrProduct": "Group / Product",
     "noGroup": "-- No group --",
     "status": "Status",
     "active": "Active",
@@ -21485,6 +21495,7 @@ const en = {
     "notesPlaceholder": "Your notes about the offer...",
     "nameLabel": "Name",
     "group": "Group",
+    "groupOrProduct": "Group / Product",
     "noGroup": "-- No group --",
     "affiliateNetwork": "Affiliate Network",
     "networkTooltip": "The selected network adds tags to the URL and enables metrics in reports.",
@@ -23152,7 +23163,10 @@ const en = {
     "addCostConnection": "Add Cost Connection",
     "updateCostsManually": "Update Costs Manually",
     "costSyncTitle": "Cost Synchronization",
-    "manualCostTitle": "Manual Cost Entry"
+    "manualCostTitle": "Manual Cost Entry",
+    "passthroughParams": "Add All Tracking Parameters",
+    "passthroughHint": "Add all Facebook & UTM tracking parameters to forward to the destination",
+    "passthroughHelp": "Auto-add Facebook & UTM macros"
   },
   "suite": {
     "leadforge": "LeadForge",
@@ -23386,7 +23400,9 @@ const uk = {
     "enterParamKey": "Введіть ключ параметра (наприклад, utm_placement, placement, custom_id):",
     "addParam": "Додати параметр",
     "additionalSubIds": "Додаткові Sub ID (sub_id_1 .. sub_id_30)",
-    "placement": "Плейсмент (utm_placement)"
+    "placement": "Плейсмент (utm_placement)",
+    "facebookParams": "Параметри Facebook",
+    "facebookParamsHint": "Скопіювати URL-параметри Facebook Ads (без початкового «?») для вставки в Meta Ads Manager"
   },
   "costModels": {
     "cpc": "CPC — оплата за клік",
@@ -24827,6 +24843,7 @@ const uk = {
     "name": "Ім'я",
     "namePlaceholder": "Назва посадки",
     "group": "Група",
+    "groupOrProduct": "Група / Продукт",
     "noGroup": "-- Немає групи --",
     "status": "Статус",
     "active": "Активний",
@@ -24968,6 +24985,7 @@ const uk = {
     "notesPlaceholder": "Ваші примітки щодо пропозиції...",
     "nameLabel": "Ім'я",
     "group": "Група",
+    "groupOrProduct": "Група / Продукт",
     "noGroup": "-- Немає групи --",
     "affiliateNetwork": "Партнерська мережа",
     "networkTooltip": "Вибрана мережа додає теги до URL-адреси та вмикає показники у звітах.",
@@ -26635,7 +26653,10 @@ const uk = {
     "addCostConnection": "Підключити Cost Sync",
     "updateCostsManually": "Оновити витрати вручну",
     "costSyncTitle": "Синхронізація витрат (Cost Sync)",
-    "manualCostTitle": "Ручне введення витрат"
+    "manualCostTitle": "Ручне введення витрат",
+    "passthroughParams": "Додати всі трекінг-параметри",
+    "passthroughHint": "Додати всі параметри Facebook та UTM для передачі на цільову адресу",
+    "passthroughHelp": "Автоматично додати макроси Facebook та UTM"
   },
   "suite": {
     "leadforge": "LeadForge",
@@ -26869,7 +26890,9 @@ const es = {
     "enterParamKey": "Ingrese la clave del parámetro (ej. utm_placement, placement, custom_id):",
     "addParam": "Añadir parámetro",
     "additionalSubIds": "Sub IDs adicionales (sub_id_1 .. sub_id_30)",
-    "placement": "Ubicación (utm_placement)"
+    "placement": "Ubicación (utm_placement)",
+    "facebookParams": "Parámetros de Facebook",
+    "facebookParamsHint": "Copiar los parámetros de URL de Facebook Ads (sin el signo de interrogación inicial) para pegarlos en Meta Ads Manager"
   },
   "costModels": {
     "cpc": "CPC — coste por clic",
@@ -28310,6 +28333,7 @@ const es = {
     "name": "Nombre",
     "namePlaceholder": "Nombre del aterrizaje",
     "group": "grupo",
+    "groupOrProduct": "Grupo / Producto",
     "noGroup": "-- Ningún grupo --",
     "status": "Estado",
     "active": "Activo",
@@ -28451,6 +28475,7 @@ const es = {
     "notesPlaceholder": "Tus notas sobre la oferta...",
     "nameLabel": "Nombre",
     "group": "grupo",
+    "groupOrProduct": "Grupo / Producto",
     "noGroup": "-- Ningún grupo --",
     "affiliateNetwork": "Red de afiliados",
     "networkTooltip": "La red seleccionada agrega etiquetas a la URL y habilita métricas en los informes.",
@@ -30118,7 +30143,10 @@ const es = {
     "addCostConnection": "Conectar Cost Sync",
     "updateCostsManually": "Actualizar costos manualmente",
     "costSyncTitle": "Sincronización de costos",
-    "manualCostTitle": "Entrada manual de costos"
+    "manualCostTitle": "Entrada manual de costos",
+    "passthroughParams": "Añadir todos los parámetros de seguimiento",
+    "passthroughHint": "Añadir todos los parámetros de seguimiento de Facebook y UTM para reenviarlos al destino",
+    "passthroughHelp": "Añadir macros de Facebook y UTM automáticamente"
   },
   "suite": {
     "leadforge": "LeadForge",
@@ -30352,7 +30380,9 @@ const zh = {
     "enterParamKey": "输入参数键（例如 utm_placement、placement、custom_id）：",
     "addParam": "添加参数",
     "additionalSubIds": "附加子 ID (sub_id_1 .. sub_id_30)",
-    "placement": "版位 (utm_placement)"
+    "placement": "版位 (utm_placement)",
+    "facebookParams": "Facebook 参数",
+    "facebookParamsHint": "复制 Facebook Ads URL 参数（不含开头的问号）以便粘贴到 Meta Ads Manager"
   },
   "costModels": {
     "cpc": "CPC — 按点击付费",
@@ -31793,6 +31823,7 @@ const zh = {
     "name": "名称",
     "namePlaceholder": "登陆名称",
     "group": "集团",
+    "groupOrProduct": "分组 / 产品",
     "noGroup": "-- 没有组 --",
     "status": "状态",
     "active": "活跃",
@@ -31934,6 +31965,7 @@ const zh = {
     "notesPlaceholder": "您关于此优惠的备注...",
     "nameLabel": "名称",
     "group": "集团",
+    "groupOrProduct": "分组 / 产品",
     "noGroup": "-- 没有组 --",
     "affiliateNetwork": "联盟网络",
     "networkTooltip": "所选网络将标签添加到 URL 并在报告中启用指标。",
@@ -33601,7 +33633,10 @@ const zh = {
     "addCostConnection": "连接 Cost Sync",
     "updateCostsManually": "手动更新花费",
     "costSyncTitle": "花费同步",
-    "manualCostTitle": "手动录入花费"
+    "manualCostTitle": "手动录入花费",
+    "passthroughParams": "添加所有跟踪参数",
+    "passthroughHint": "添加所有 Facebook 和 UTM 跟踪参数并转发到目标地址",
+    "passthroughHelp": "自动添加 Facebook 和 UTM 宏"
   },
   "suite": {
     "leadforge": "LeadForge",
@@ -33835,7 +33870,9 @@ const fr = {
     "enterParamKey": "Entrez la clé du paramètre (ex. utm_placement, placement, custom_id) :",
     "addParam": "Ajouter un paramètre",
     "additionalSubIds": "Sub ID supplémentaires (sub_id_1 .. sub_id_30)",
-    "placement": "Emplacement (utm_placement)"
+    "placement": "Emplacement (utm_placement)",
+    "facebookParams": "Paramètres Facebook",
+    "facebookParamsHint": "Copier les paramètres d'URL Facebook Ads (sans le point d'interrogation initial) pour les coller dans Meta Ads Manager"
   },
   "costModels": {
     "cpc": "CPC — coût par clic",
@@ -35276,6 +35313,7 @@ const fr = {
     "name": "Nom",
     "namePlaceholder": "Nom de la destination",
     "group": "Groupe",
+    "groupOrProduct": "Groupe / Produit",
     "noGroup": "-- Aucun groupe --",
     "status": "Statut",
     "active": "Actif",
@@ -35417,6 +35455,7 @@ const fr = {
     "notesPlaceholder": "Vos notes sur l'offre...",
     "nameLabel": "Nom",
     "group": "Groupe",
+    "groupOrProduct": "Groupe / Produit",
     "noGroup": "-- Aucun groupe --",
     "affiliateNetwork": "Réseau d'affiliation",
     "networkTooltip": "Le réseau sélectionné ajoute des balises à l'URL et active les métriques dans les rapports.",
@@ -37086,7 +37125,10 @@ const fr = {
     "addCostConnection": "Connecter Cost Sync",
     "updateCostsManually": "Mettre à jour les coûts manuellement",
     "costSyncTitle": "Synchronisation des coûts",
-    "manualCostTitle": "Saisie manuelle des coûts"
+    "manualCostTitle": "Saisie manuelle des coûts",
+    "passthroughParams": "Ajouter tous les paramètres de suivi",
+    "passthroughHint": "Ajouter tous les paramètres de suivi Facebook et UTM à transmettre à la destination",
+    "passthroughHelp": "Ajouter automatiquement les macros Facebook et UTM"
   },
   "suite": {
     "leadforge": "LeadForge",
@@ -37320,7 +37362,9 @@ const de = {
     "enterParamKey": "Parameterschlüssel eingeben (z. B. utm_placement, placement, custom_id):",
     "addParam": "Parameter hinzufügen",
     "additionalSubIds": "Zusätzliche Sub-IDs (sub_id_1 .. sub_id_30)",
-    "placement": "Platzierung (utm_placement)"
+    "placement": "Platzierung (utm_placement)",
+    "facebookParams": "Facebook-Parameter",
+    "facebookParamsHint": "Facebook-Ads-URL-Parameter (ohne führendes Fragezeichen) zum Einfügen in den Meta Ads Manager kopieren"
   },
   "costModels": {
     "cpc": "CPC — Kosten pro Klick",
@@ -38761,6 +38805,7 @@ const de = {
     "name": "Name",
     "namePlaceholder": "Landing-Name",
     "group": "Gruppe",
+    "groupOrProduct": "Gruppe / Produkt",
     "noGroup": "-- Keine Gruppe --",
     "status": "Status",
     "active": "Aktiv",
@@ -38902,6 +38947,7 @@ const de = {
     "notesPlaceholder": "Ihre Notizen zum Angebot...",
     "nameLabel": "Name",
     "group": "Gruppe",
+    "groupOrProduct": "Gruppe / Produkt",
     "noGroup": "-- Keine Gruppe --",
     "affiliateNetwork": "Affiliate-Netzwerk",
     "networkTooltip": "Das ausgewählte Netzwerk fügt der URL Tags hinzu und aktiviert Metriken in Berichten.",
@@ -40569,7 +40615,10 @@ const de = {
     "addCostConnection": "Cost Sync verbinden",
     "updateCostsManually": "Kosten manuell aktualisieren",
     "costSyncTitle": "Kostensynchronisation",
-    "manualCostTitle": "Manuelle Kostenerfassung"
+    "manualCostTitle": "Manuelle Kostenerfassung",
+    "passthroughParams": "Alle Tracking-Parameter hinzufügen",
+    "passthroughHint": "Alle Facebook- und UTM-Tracking-Parameter hinzufügen, um sie an das Ziel weiterzuleiten",
+    "passthroughHelp": "Facebook- und UTM-Makros automatisch hinzufügen"
   },
   "suite": {
     "leadforge": "LeadForge",
@@ -58933,7 +58982,9 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       offer_clicks: 0,
       conversions: 0,
       purchases: 0,
+      sales: 0,
       holds: 0,
+      leads: 0,
       rejected: 0,
       trash: 0,
       cost: 0,
@@ -58955,8 +59006,12 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       node.lp_clicks += Number(row.lp_clicks ?? row.offer_clicks) || 0;
       node.offer_clicks += Number(row.offer_clicks) || 0;
       node.conversions += Number(row.conversions) || 0;
-      node.purchases += Number(row.purchases) || 0;
-      node.holds += Number(row.holds) || 0;
+      const purchases = Number(row.purchases ?? row.sales) || 0;
+      node.purchases += purchases;
+      node.sales += purchases;
+      const holds = Number(row.holds ?? row.leads) || 0;
+      node.holds += holds;
+      node.leads += holds;
       node.rejected += Number(row.rejected) || 0;
       node.trash += Number(row.trash) || 0;
       node.cost += Number(row.cost) || 0;
@@ -58971,15 +59026,21 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     };
     const computeDerived = (node) => {
       const lpClickDenominator = node.lp_clicks > 0 ? node.lp_clicks : node.clicks;
+      node.sales = node.purchases;
+      node.leads = node.holds;
       node.uc_rate = node.clicks > 0 ? node.unique_clicks / node.clicks * 100 : 0;
       node.lp_ctr = node.lp_views > 0 ? node.lp_clicks / node.lp_views * 100 : 0;
       node.cr = node.clicks > 0 ? node.conversions / node.clicks * 100 : 0;
+      node.cr_all = node.cr;
       node.cr_sales = node.clicks > 0 ? node.purchases / node.clicks * 100 : 0;
       node.cr_holds = node.clicks > 0 ? node.holds / node.clicks * 100 : 0;
+      node.cr_leads = node.cr_holds;
       node.approve_rate = node.conversions > 0 ? node.purchases / node.conversions * 100 : 0;
       const nonTrash = node.purchases + node.holds + node.rejected;
       node.approve_rate_excl_trash = nonTrash > 0 ? node.purchases / nonTrash * 100 : 0;
+      node.profit_confirmed = node.revenue_confirmed - node.cost;
       node.roi = node.cost > 0 ? node.profit / node.cost * 100 : 0;
+      node.roi_confirmed = node.cost > 0 ? node.profit_confirmed / node.cost * 100 : 0;
       node.real_roi = node.cost > 0 ? node.real_profit / node.cost * 100 : 0;
       node.epc = lpClickDenominator > 0 ? node.revenue / lpClickDenominator : 0;
       node.epc_all = node.epc;
@@ -58989,6 +59050,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       node.ucpc = node.unique_clicks > 0 ? node.cost / node.unique_clicks : 0;
       node.cpv = node.lp_views > 0 ? node.cost / node.lp_views : 0;
       node.cpa = node.conversions > 0 ? node.cost / node.conversions : 0;
+      node.cps = node.purchases > 0 ? node.cost / node.purchases : 0;
+      node.cpl = node.holds > 0 ? node.cost / node.holds : 0;
       node.earnings_per_conv = node.conversions > 0 ? node.revenue / node.conversions : 0;
     };
     const root = { ...createEmptyAgg(), children: /* @__PURE__ */ new Map() };
@@ -59056,8 +59119,10 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       t0.lp_clicks += Number(r2.lp_clicks ?? r2.offer_clicks) || 0;
       t0.offer_clicks += Number(r2.offer_clicks) || 0;
       t0.conversions += Number(r2.conversions) || 0;
-      t0.purchases += Number(r2.purchases) || 0;
-      t0.holds += Number(r2.holds) || 0;
+      const purchases = Number(r2.purchases ?? r2.sales) || 0;
+      t0.purchases += purchases;
+      const holds = Number(r2.holds ?? r2.leads) || 0;
+      t0.holds += holds;
       t0.rejected += Number(r2.rejected) || 0;
       t0.trash += Number(r2.trash) || 0;
       t0.cost += Number(r2.cost) || 0;
@@ -59076,6 +59141,13 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     const cr = t0.clicks > 0 ? t0.conversions / t0.clicks * 100 : 0;
     const cr_sales = t0.clicks > 0 ? t0.purchases / t0.clicks * 100 : 0;
     const cr_holds = t0.clicks > 0 ? t0.holds / t0.clicks * 100 : 0;
+    const cr_leads = cr_holds;
+    const sales = t0.purchases;
+    const leads = t0.holds;
+    const profit_confirmed = t0.revenue_confirmed - t0.cost;
+    const roi_confirmed = t0.cost > 0 ? profit_confirmed / t0.cost * 100 : 0;
+    const cpl = t0.holds > 0 ? t0.cost / t0.holds : 0;
+    const cps = t0.purchases > 0 ? t0.cost / t0.purchases : 0;
     const approve_rate = t0.conversions > 0 ? t0.purchases / t0.conversions * 100 : 0;
     const nonTrash = t0.purchases + t0.holds + t0.rejected;
     const approve_rate_excl_trash = nonTrash > 0 ? t0.purchases / nonTrash * 100 : 0;
@@ -59091,11 +59163,19 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     const earnings_per_conv = t0.conversions > 0 ? t0.revenue / t0.conversions : 0;
     return {
       ...t0,
+      sales,
+      leads,
+      profit_confirmed,
+      roi_confirmed,
+      cpl,
+      cps,
       uc_rate,
       lp_ctr,
       cr,
+      cr_all: cr,
       cr_sales,
       cr_holds,
+      cr_leads,
       approve_rate,
       approve_rate_excl_trash,
       roi,
@@ -59908,6 +59988,13 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     const cr = t0.clicks > 0 ? t0.conversions / t0.clicks * 100 : 0;
     const cr_sales = t0.clicks > 0 ? t0.purchases / t0.clicks * 100 : 0;
     const cr_holds = t0.clicks > 0 ? t0.holds / t0.clicks * 100 : 0;
+    const cr_leads = cr_holds;
+    const sales = t0.purchases;
+    const leads = t0.holds;
+    const profit_confirmed = t0.revenue_confirmed - t0.cost;
+    const roi_confirmed = t0.cost > 0 ? profit_confirmed / t0.cost * 100 : 0;
+    const cpl = t0.holds > 0 ? t0.cost / t0.holds : 0;
+    const cps = t0.purchases > 0 ? t0.cost / t0.purchases : 0;
     const approve_rate = t0.conversions > 0 ? t0.purchases / t0.conversions * 100 : 0;
     const nonTrash = t0.purchases + t0.holds + t0.rejected;
     const approve_rate_excl_trash = nonTrash > 0 ? t0.purchases / nonTrash * 100 : 0;
@@ -59923,11 +60010,18 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     const earnings_per_conv = t0.conversions > 0 ? t0.revenue / t0.conversions : 0;
     return {
       ...t0,
+      sales,
+      leads,
+      profit_confirmed,
+      roi_confirmed,
+      cpl,
+      cps,
       uc_rate,
       lp_ctr,
       cr,
       cr_sales,
       cr_holds,
+      cr_leads,
       approve_rate,
       approve_rate_excl_trash,
       roi,
@@ -62157,7 +62251,7 @@ ${note}` : t("landingEditor.archiveUploaded"));
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.group") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("landingEditor.groupOrProduct", "Group / Product") }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsxs(
                         "select",
@@ -62659,276 +62753,6 @@ ${note}` : t("landingEditor.archiveUploaded"));
     )
   ] });
 };
-const ColumnsOrderModal = ({ columns, selectedIds, defaultIds, onClose, onSave }) => {
-  const { t } = useLanguage();
-  const [selectedSet, setSelectedSet] = reactExports.useState(() => new Set(selectedIds));
-  const [orderedIds, setOrderedIds] = reactExports.useState(() => {
-    const chosen = selectedIds.filter((id) => columns.some((c) => c.id === id));
-    const rest = columns.map((c) => c.id).filter((id) => !chosen.includes(id));
-    return [...chosen, ...rest];
-  });
-  const draggedIdRef = reactExports.useRef(null);
-  const [draggedId, setDraggedId] = reactExports.useState(null);
-  const [dragOverId, setDragOverId] = reactExports.useState(null);
-  const prevSelectedIdsRef = reactExports.useRef(null);
-  reactExports.useEffect(() => {
-    if (prevSelectedIdsRef.current !== selectedIds) {
-      setSelectedSet(new Set(selectedIds));
-      const chosen = selectedIds.filter((id) => columns.some((c) => c.id === id));
-      const rest = columns.map((c) => c.id).filter((id) => !chosen.includes(id));
-      setOrderedIds([...chosen, ...rest]);
-      prevSelectedIdsRef.current = selectedIds;
-    }
-  }, [selectedIds, columns]);
-  const isAllSelected = columns.every((c) => selectedSet.has(c.id));
-  const handleToggle = (id, required) => {
-    if (required) return;
-    setSelectedSet((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-  const handleToggleAll = () => {
-    setSelectedSet((prev) => {
-      const allIn = columns.every((c) => prev.has(c.id));
-      const next = new Set(prev);
-      if (allIn) {
-        columns.forEach((c) => {
-          if (!c.required) next.delete(c.id);
-        });
-      } else {
-        columns.forEach((c) => next.add(c.id));
-      }
-      return next;
-    });
-  };
-  const handleRestoreDefault = () => {
-    setSelectedSet(new Set(defaultIds));
-    const rest = columns.map((c) => c.id).filter((id) => !defaultIds.includes(id));
-    setOrderedIds([...defaultIds.filter((id) => columns.some((c) => c.id === id)), ...rest]);
-  };
-  const handleMoveMetric = (id, direction) => {
-    setOrderedIds((prev) => {
-      const next = [...prev];
-      const currentIndex = next.indexOf(id);
-      if (currentIndex === -1) return prev;
-      const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
-      if (targetIndex < 0 || targetIndex >= next.length) return prev;
-      const [item] = next.splice(currentIndex, 1);
-      next.splice(targetIndex, 0, item);
-      return next;
-    });
-  };
-  const handleDragStart = (e, id) => {
-    draggedIdRef.current = id;
-    setDraggedId(id);
-    e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/plain", id);
-  };
-  const handleDragOver = (e, id) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-    if (dragOverId !== id) setDragOverId(id);
-  };
-  const handleDrop = (e, targetId) => {
-    e.preventDefault();
-    const sourceId = draggedIdRef.current || e.dataTransfer.getData("text/plain");
-    if (sourceId && sourceId !== targetId) {
-      setOrderedIds((prev) => {
-        const next = [...prev];
-        const from2 = next.indexOf(sourceId);
-        const to2 = next.indexOf(targetId);
-        if (from2 !== -1 && to2 !== -1) {
-          const [item] = next.splice(from2, 1);
-          next.splice(to2, 0, item);
-        }
-        return next;
-      });
-    }
-    draggedIdRef.current = null;
-    setDraggedId(null);
-    setDragOverId(null);
-  };
-  const handleDragEnd = () => {
-    draggedIdRef.current = null;
-    setDraggedId(null);
-    setDragOverId(null);
-  };
-  const handleSave = () => {
-    const result = orderedIds.filter((id) => selectedSet.has(id));
-    onSave(result.length > 0 ? result : defaultIds);
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", style: { padding: "24px 16px", zIndex: 1200 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    "div",
-    {
-      className: "modal-content rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150",
-      style: {
-        maxWidth: "500px",
-        width: "100%",
-        maxHeight: "84vh",
-        padding: 0,
-        backgroundColor: "var(--color-bg-card)",
-        border: "1px solid var(--color-border)",
-        color: "var(--color-text-primary)"
-      },
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-6 py-4 border-b", style: { borderColor: "var(--color-border)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-base font-semibold", style: { color: "var(--color-text-primary)" }, children: t("columnsOrder.title", "Columns") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              type: "button",
-              onClick: onClose,
-              className: "btn-icon p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors",
-              style: { color: "var(--color-text-muted)" },
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" })
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-6 py-3 border-b select-none bg-[var(--color-bg-soft)]", style: { borderColor: "var(--color-border)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "input",
-              {
-                type: "checkbox",
-                id: "cols_select_all",
-                checked: isAllSelected,
-                onChange: handleToggleAll,
-                className: "w-4 h-4 rounded cursor-pointer",
-                style: { accentColor: "var(--color-primary)" }
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "cols_select_all", className: "text-xs font-medium cursor-pointer", style: { color: "var(--color-text-primary)" }, children: t("editor.selectAll", "Select All") })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-[11px] font-medium px-2 py-0.5 rounded-full", style: { backgroundColor: "var(--color-bg-card)", color: "var(--color-text-secondary)", border: "1px solid var(--color-border)" }, children: [
-            selectedSet.size,
-            " / ",
-            columns.length
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "div",
-          {
-            className: "flex-1 overflow-y-auto px-4 py-3 space-y-1",
-            style: { scrollbarWidth: "thin" },
-            children: orderedIds.map((id, idx) => {
-              const col = columns.find((c) => c.id === id);
-              if (!col) return null;
-              const isChecked = selectedSet.has(id);
-              const isDragging = draggedId === id;
-              const isOver = dragOverId === id && draggedId && draggedId !== id;
-              const isFirst = idx === 0;
-              const isLast = idx === orderedIds.length - 1;
-              return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "div",
-                {
-                  onDragOver: (e) => handleDragOver(e, id),
-                  onDrop: (e) => handleDrop(e, id),
-                  onClick: () => handleToggle(id, col.required),
-                  className: "group flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs select-none transition-all cursor-pointer border",
-                  style: {
-                    backgroundColor: isChecked ? "var(--color-bg-soft)" : "transparent",
-                    borderColor: isChecked ? "var(--color-border)" : "transparent",
-                    opacity: isDragging ? 0.35 : 1,
-                    boxShadow: isOver ? "inset 0 2px 0 var(--color-primary)" : "none"
-                  },
-                  children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "div",
-                      {
-                        draggable: true,
-                        onDragStart: (e) => handleDragStart(e, id),
-                        onDragEnd: handleDragEnd,
-                        className: "cursor-grab active:cursor-grabbing p-1 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors flex-shrink-0",
-                        onClick: (e) => e.stopPropagation(),
-                        title: "Drag to reorder",
-                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3.5 h-3.5 opacity-60 group-hover:opacity-100 pointer-events-none" })
-                      }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                      "div",
-                      {
-                        className: "flex items-center gap-0.5 flex-shrink-0 opacity-40 group-hover:opacity-100 transition-opacity",
-                        onClick: (e) => e.stopPropagation(),
-                        children: [
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            "button",
-                            {
-                              type: "button",
-                              disabled: isFirst,
-                              onClick: () => handleMoveMetric(id, "up"),
-                              className: "p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-20 text-[var(--color-text-muted)] transition-colors",
-                              title: "Move up",
-                              children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5" })
-                            }
-                          ),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx(
-                            "button",
-                            {
-                              type: "button",
-                              disabled: isLast,
-                              onClick: () => handleMoveMetric(id, "down"),
-                              className: "p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-20 text-[var(--color-text-muted)] transition-colors",
-                              title: "Move down",
-                              children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5" })
-                            }
-                          )
-                        ]
-                      }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "input",
-                      {
-                        type: "checkbox",
-                        checked: isChecked,
-                        disabled: col.required,
-                        onChange: () => handleToggle(id, col.required),
-                        onClick: (e) => e.stopPropagation(),
-                        className: "w-4 h-4 rounded cursor-pointer flex-shrink-0",
-                        style: { accentColor: "var(--color-primary)" }
-                      }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "span",
-                      {
-                        className: "flex-1 font-medium truncate",
-                        style: { color: isChecked ? "var(--color-text-primary)" : "var(--color-text-secondary)" },
-                        children: col.label
-                      }
-                    ),
-                    col.required && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10.5px] px-1.5 py-0.5 rounded-md flex-shrink-0", style: { backgroundColor: "var(--color-bg-card)", color: "var(--color-text-muted)", border: "1px solid var(--color-border)" }, children: t("columnsOrder.required", "Required") })
-                  ]
-                },
-                id
-              );
-            })
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-6 py-3.5 border-t", style: { borderColor: "var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              type: "button",
-              onClick: handleRestoreDefault,
-              className: "text-xs transition-colors hover:underline flex items-center gap-1.5 font-medium",
-              style: { color: "var(--color-primary)" },
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { className: "w-3.5 h-3.5" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("reportCustomizer.restoreDefault", "Restore to default") })
-              ]
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2.5", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onClose, className: "btn btn-secondary text-xs py-2 px-4 rounded-xl font-medium", children: t("common.cancel", "Cancel") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: handleSave, className: "btn btn-primary text-xs py-2 px-5 rounded-xl font-medium", children: t("common.save", "Save") })
-          ] })
-        ] })
-      ]
-    }
-  ) });
-};
 const entityDeleteErrorText = (t, data, err = null, fallbackKey = "common.error") => {
   if (data?.code === "entity_in_use") {
     const campaigns = Array.isArray(data.campaigns) ? data.campaigns.filter(Boolean) : [];
@@ -62937,61 +62761,24 @@ const entityDeleteErrorText = (t, data, err = null, fallbackKey = "common.error"
   return data?.message || err?.response?.data?.message || err?.message || t(fallbackKey);
 };
 const API_URL$w = "/api.php";
-const ALL_LANDING_COLUMNS = [
-  { id: "id", label: "ID" },
-  { id: "name", label: "Name", required: true },
-  { id: "group_name", label: "Group" },
-  { id: "type", label: "Type" },
-  { id: "state", label: "Status" },
-  { id: "visits", label: "Visits", alignRight: true },
-  { id: "unique_visits", label: "uVisits", alignRight: true },
-  { id: "clicks", label: "Clicks", alignRight: true },
-  { id: "unique_clicks", label: "Uniques", alignRight: true },
-  { id: "lp_clicks", label: "LP Clicks", alignRight: true },
-  { id: "lp_ctr", label: "LP CTR", alignRight: true },
-  { id: "conversions", label: "Conversions", alignRight: true },
-  { id: "leads", label: "Leads", alignRight: true },
-  { id: "sales", label: "Sales", alignRight: true },
-  { id: "rejected", label: "Rejected", alignRight: true },
-  { id: "trash", label: "Trash", alignRight: true },
-  { id: "approve_rate", label: "Approve %", alignRight: true },
-  { id: "cr", label: "CR", alignRight: true },
-  { id: "cost", label: "Cost", alignRight: true },
-  { id: "revenue", label: "Revenue", alignRight: true },
-  { id: "revenue_confirmed", label: "Revenue (conf)", alignRight: true },
-  { id: "profit", label: "Profit", alignRight: true },
-  { id: "profit_confirmed", label: "Profit (conf)", alignRight: true },
-  { id: "cpc", label: "CPC", alignRight: true },
-  { id: "cpv", label: "CPV", alignRight: true },
-  { id: "epc", label: "EPC", alignRight: true },
-  { id: "epc_confirmed", label: "EPC (conf)", alignRight: true },
-  { id: "epv", label: "EPV", alignRight: true },
-  { id: "roi", label: "ROI", alignRight: true },
-  { id: "roi_confirmed", label: "ROI (conf)", alignRight: true },
-  { id: "last_event", label: "Last Event" }
-];
-const DEFAULT_LANDING_COLUMNS = [
-  "id",
-  "name",
-  "group_name",
-  "type",
-  "state",
-  "clicks",
-  "unique_clicks",
-  "lp_clicks",
-  "lp_ctr"
+const FIXED_LANDING_COLUMNS = [
+  { id: "checkbox", label: "", fixed: true },
+  { id: "id", label: "ID", fixed: true },
+  { id: "state", label: "Status", fixed: true },
+  { id: "name", label: "Name", fixed: true },
+  { id: "group_name", label: "Group", fixed: true },
+  { id: "type", label: "Type", fixed: true },
+  { id: "url", label: "URL", fixed: true },
+  { id: "last_event", label: "Last Event", fixed: true }
 ];
 const LANDING_COLUMNS_KEY = "orbitra_landing_columns";
 const loadLandingColumns = () => {
   try {
-    const saved = JSON.parse(localStorage.getItem(LANDING_COLUMNS_KEY) || "null");
-    if (Array.isArray(saved) && saved.length) {
-      const valid = saved.filter((id) => ALL_LANDING_COLUMNS.some((c) => c.id === id));
-      if (valid.includes("name")) return valid;
-    }
-  } catch {
+    const saved = localStorage.getItem(LANDING_COLUMNS_KEY);
+    if (saved) return normalizeReportMetricIds(JSON.parse(saved));
+  } catch (e) {
   }
-  return [...DEFAULT_LANDING_COLUMNS];
+  return normalizeReportMetricIds(PRESETS.lander_to_offer);
 };
 const Landings = ({ landings, refreshData }) => {
   const { t } = useLanguage();
@@ -63205,54 +62992,6 @@ const Landings = ({ landings, refreshData }) => {
       refreshData?.();
     }
   };
-  const columnLabel = (colId) => ({
-    id: "ID",
-    name: t("components.aliasName"),
-    type: t("components.type"),
-    state: t("components.status"),
-    visits: t("metrics.visits"),
-    unique_visits: t("metrics.uniqueVisits"),
-    clicks: t("components.clicks"),
-    unique_clicks: t("components.uniques"),
-    lp_clicks: t("components.lpClicks"),
-    lp_ctr: t("components.lpCtr"),
-    conversions: t("landingColumns.conversions"),
-    leads: t("offerColumns.leads"),
-    sales: t("offerColumns.sales"),
-    rejected: t("offerColumns.rejected"),
-    trash: t("metrics.trash"),
-    approve_rate: t("metrics.approve"),
-    cr: t("landingColumns.cr"),
-    cost: t("metrics.cost"),
-    revenue: t("metrics.revenue"),
-    revenue_confirmed: t("offerColumns.revenueConfirmed"),
-    profit: t("metrics.profit"),
-    profit_confirmed: t("offerColumns.profitConfirmed"),
-    cpc: t("metrics.cpc"),
-    cpv: t("metrics.cpv", "CPV"),
-    epc: t("metrics.epc"),
-    epc_confirmed: t("offerColumns.epcConfirmed"),
-    epv: t("metrics.epv"),
-    roi: t("metrics.roi"),
-    roi_confirmed: t("offerColumns.roiConfirmed"),
-    group_name: t("components.group"),
-    last_event: t("landingColumns.lastEvent")
-  })[colId] || colId;
-  const localizedColumns = ALL_LANDING_COLUMNS.map((c) => ({ ...c, label: columnLabel(c.id) }));
-  const metricHint = (colId) => {
-    const hintKey = {
-      visits: "lpViewsHint",
-      clicks: "lpViewsHint",
-      lp_clicks: "lpClicksHint",
-      lp_ctr: "lpCtrHint",
-      cpv: "cpvHint",
-      cpc: "cpcHint",
-      epv: "epvHint",
-      epc: "epcHint",
-      epc_confirmed: "epcHint"
-    }[colId];
-    return hintKey ? t(`metrics.${hintKey}`) : void 0;
-  };
   const formatLastEvent = (v) => {
     if (!v) return t("landingColumns.never");
     const d = new Date(String(v).replace(" ", "T"));
@@ -63260,103 +62999,261 @@ const Landings = ({ landings, refreshData }) => {
     const p = (n) => String(n).padStart(2, "0");
     return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
   };
-  const money = (v, precision = 2) => `$${(parseFloat(v) || 0).toFixed(precision)}`;
-  const totals = visibleLandings.reduce((acc, landing) => {
-    acc.clicks += Number(landing.clicks) || 0;
-    acc.unique_clicks += Number(landing.unique_clicks) || 0;
-    acc.visits += Number(landing.visits) || 0;
-    acc.unique_visits += Number(landing.unique_visits) || 0;
-    acc.lp_clicks += Number(landing.lp_clicks) || 0;
-    acc.conversions += Number(landing.conversions) || 0;
-    acc.leads += Number(landing.leads) || 0;
-    acc.sales += Number(landing.sales) || 0;
-    acc.rejected += Number(landing.rejected) || 0;
-    acc.trash += Number(landing.trash) || 0;
-    acc.revenue += Number(landing.revenue) || 0;
-    acc.revenue_confirmed += Number(landing.revenue_confirmed) || 0;
-    acc.cost += Number(landing.cost) || 0;
-    return acc;
-  }, {
-    clicks: 0,
-    unique_clicks: 0,
-    visits: 0,
-    unique_visits: 0,
-    lp_clicks: 0,
-    conversions: 0,
-    leads: 0,
-    sales: 0,
-    rejected: 0,
-    trash: 0,
-    revenue: 0,
-    revenue_confirmed: 0,
-    cost: 0
-  });
-  const totalsProfit = totals.revenue - totals.cost;
-  const totalsProfitConfirmed = totals.revenue_confirmed - totals.cost;
-  const totalsApproveDenom = totals.sales + totals.leads + totals.rejected + totals.trash;
-  const totalsLpViews = totals.visits > 0 ? totals.visits : totals.clicks;
-  const totalsLpClickDenominator = totals.lp_clicks > 0 ? totals.lp_clicks : totals.clicks;
-  const renderTotalCell = (colId) => {
-    switch (colId) {
+  const formatMetricCell = (metricId, row) => {
+    const val = row[metricId];
+    const num = Number(val) || 0;
+    switch (metricId) {
       case "clicks":
-        return totals.clicks.toLocaleString();
       case "unique_clicks":
-        return totals.unique_clicks.toLocaleString();
       case "visits":
-        return totals.visits.toLocaleString();
       case "unique_visits":
-        return totals.unique_visits.toLocaleString();
+      case "lp_views":
       case "lp_clicks":
-        return totals.lp_clicks.toLocaleString();
-      case "conversions":
-        return totals.conversions.toLocaleString();
-      case "leads":
-        return totals.leads.toLocaleString();
       case "sales":
-        return totals.sales.toLocaleString();
+      case "leads":
+      case "registrations":
+      case "deposits":
       case "rejected":
-        return totals.rejected.toLocaleString();
       case "trash":
-        return totals.trash.toLocaleString();
-      case "approve_rate":
-        return totalsApproveDenom > 0 ? `${(totals.sales / totalsApproveDenom * 100).toFixed(2)}%` : "0%";
+      case "bots":
+      case "proxies":
+      case "empty_referrers":
+        return num.toLocaleString();
+      case "conversions":
+        return num > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", style: { color: "var(--color-success)" }, children: num.toLocaleString() }) : "0";
       case "lp_ctr":
-        return totalsLpViews > 0 ? `${(totals.lp_clicks / totalsLpViews * 100).toFixed(2)}%` : "0%";
-      case "revenue":
-        return money(totals.revenue);
-      case "revenue_confirmed":
-        return money(totals.revenue_confirmed);
-      case "cost":
-        return money(totals.cost);
-      case "profit":
-        return money(totalsProfit);
-      case "profit_confirmed":
-        return money(totalsProfitConfirmed);
+      case "approve_rate":
       case "cr":
-        return totals.clicks > 0 ? `${(totals.conversions / totals.clicks * 100).toFixed(2)}%` : "0%";
-      case "epc":
-        return totalsLpClickDenominator > 0 ? money(totals.revenue / totalsLpClickDenominator) : "$0.00";
-      case "epc_confirmed":
-        return totalsLpClickDenominator > 0 ? money(totals.revenue_confirmed / totalsLpClickDenominator) : "$0.00";
-      case "epv":
-        return totalsLpViews > 0 ? money(totals.revenue / totalsLpViews) : "$0.00";
-      case "cpc":
-        return totalsLpClickDenominator > 0 ? money(totals.cost / totalsLpClickDenominator) : "$0.00";
-      case "cpv":
-        return totalsLpViews > 0 ? money(totals.cost / totalsLpViews) : "$0.00";
+      case "cr_sales":
+      case "cr_leads":
+      case "cr_holds":
+      case "cr_registrations":
+      case "cr_deposits":
+        return val === null || val === void 0 ? "—" : `${num.toFixed(2)}%`;
       case "roi":
-        return totals.cost > 0 ? `${(totalsProfit / totals.cost * 100).toFixed(2)}%` : "—";
-      case "roi_confirmed":
-        return totals.cost > 0 ? `${(totalsProfitConfirmed / totals.cost * 100).toFixed(2)}%` : "—";
+      case "roi_confirmed": {
+        if (val === null || val === void 0) return "—";
+        if (num === 0) return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: "0.00%" });
+        const isPos = num > 0;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: isPos ? "var(--color-success)" : "var(--color-danger)", fontWeight: 600 }, children: [
+          isPos ? "+" : "",
+          num.toFixed(2),
+          "%"
+        ] });
+      }
+      case "profit":
+      case "profit_confirmed": {
+        if (Math.abs(num) < 1e-4) {
+          return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-secondary)" }, children: "$0.00" });
+        }
+        const isPos = num > 0;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: isPos ? "var(--color-success)" : "var(--color-danger)", fontWeight: 600 }, children: [
+          isPos ? "+" : "-",
+          "$",
+          Math.abs(num).toFixed(2)
+        ] });
+      }
+      case "cost":
+      case "revenue":
+      case "revenue_confirmed":
+      case "revenue_hold":
+      case "revenue_rejected":
+      case "revenue_trash":
+      case "cpa":
+      case "cps":
+      case "cpl":
+      case "cpd":
+      case "cpc":
+      case "cpv":
+      case "epc":
+      case "uepc":
+      case "epv":
+      case "ecpm_all":
+      case "ecpm_confirmed":
+      case "earnings_per_conv":
+      case "epc_confirmed":
+      case "uepc_confirmed":
+      case "epc_hold":
+      case "uepc_hold":
+      case "epc_registration":
+      case "uepc_registration":
+      case "ucpc":
+        return `$${num.toFixed(2)}`;
       default:
-        return null;
+        return val !== void 0 && val !== null ? String(val) : "-";
     }
   };
-  const renderLandingCell = (landing, colId) => {
-    const tdCls = ALL_LANDING_COLUMNS.find((c) => c.id === colId)?.alignRight ? "text-right" : "";
+  const grandTotals = reactExports.useMemo(() => {
+    const t0 = {
+      clicks: 0,
+      unique_clicks: 0,
+      visits: 0,
+      unique_visits: 0,
+      lp_clicks: 0,
+      lp_views: 0,
+      conversions: 0,
+      leads: 0,
+      sales: 0,
+      rejected: 0,
+      trash: 0,
+      cost: 0,
+      revenue: 0,
+      revenue_confirmed: 0,
+      revenue_hold: 0,
+      revenue_rejected: 0,
+      revenue_trash: 0,
+      registrations: 0,
+      deposits: 0,
+      bots: 0,
+      proxies: 0,
+      empty_referrers: 0
+    };
+    visibleLandings.forEach((l) => {
+      t0.clicks += Number(l.clicks) || 0;
+      t0.unique_clicks += Number(l.unique_clicks) || 0;
+      const lpViews = Number(l.visits ?? l.clicks) || 0;
+      t0.visits += lpViews;
+      t0.lp_views += lpViews;
+      t0.lp_clicks += Number(l.lp_clicks) || 0;
+      t0.conversions += Number(l.conversions) || 0;
+      t0.leads += Number(l.leads) || 0;
+      t0.sales += Number(l.sales) || 0;
+      t0.rejected += Number(l.rejected) || 0;
+      t0.trash += Number(l.trash) || 0;
+      t0.cost += Number(l.cost) || 0;
+      t0.revenue += Number(l.revenue) || 0;
+      t0.revenue_confirmed += Number(l.revenue_confirmed) || 0;
+      t0.revenue_hold += Number(l.revenue_hold) || 0;
+      t0.revenue_rejected += Number(l.revenue_rejected) || 0;
+      t0.revenue_trash += Number(l.revenue_trash) || 0;
+      t0.registrations += Number(l.registrations) || 0;
+      t0.deposits += Number(l.deposits) || 0;
+      t0.bots += Number(l.bots) || 0;
+      t0.proxies += Number(l.proxies) || 0;
+      t0.empty_referrers += Number(l.empty_referrers) || 0;
+    });
+    const lpClickDenominator = t0.lp_clicks > 0 ? t0.lp_clicks : t0.clicks;
+    const lp_ctr = t0.lp_views > 0 ? t0.lp_clicks / t0.lp_views * 100 : 0;
+    const cr = t0.clicks > 0 ? t0.conversions / t0.clicks * 100 : 0;
+    const cr_sales = t0.clicks > 0 ? t0.sales / t0.clicks * 100 : 0;
+    const cr_leads = t0.clicks > 0 ? t0.leads / t0.clicks * 100 : 0;
+    const profit_confirmed = t0.revenue_confirmed - t0.cost;
+    const roi_confirmed = t0.cost > 0 ? profit_confirmed / t0.cost * 100 : 0;
+    const cpl = t0.leads > 0 ? t0.cost / t0.leads : 0;
+    const cps = t0.sales > 0 ? t0.cost / t0.sales : 0;
+    const cpa = t0.conversions > 0 ? t0.cost / t0.conversions : 0;
+    const approve_rate = t0.conversions > 0 ? t0.sales / t0.conversions * 100 : 0;
+    const roi = t0.cost > 0 ? (t0.revenue - t0.cost) / t0.cost * 100 : 0;
+    const epc = lpClickDenominator > 0 ? t0.revenue / lpClickDenominator : 0;
+    const epv = t0.lp_views > 0 ? t0.revenue / t0.lp_views : 0;
+    const uepc = t0.unique_clicks > 0 ? t0.revenue / t0.unique_clicks : 0;
+    const cpc = lpClickDenominator > 0 ? t0.cost / lpClickDenominator : 0;
+    const cpv = t0.lp_views > 0 ? t0.cost / t0.lp_views : 0;
+    return {
+      ...t0,
+      profit: t0.revenue - t0.cost,
+      profit_confirmed,
+      roi_confirmed,
+      cpl,
+      cps,
+      cpa,
+      lp_ctr,
+      cr,
+      cr_sales,
+      cr_leads,
+      approve_rate,
+      roi,
+      epc,
+      epv,
+      uepc,
+      cpc,
+      cpv,
+      sales: t0.sales,
+      leads: t0.leads
+    };
+  }, [visibleLandings]);
+  const formatTotalCell = (colId) => {
+    const val = grandTotals[colId];
+    const num = Number(val) || 0;
     switch (colId) {
+      case "clicks":
+      case "unique_clicks":
+      case "lp_views":
+      case "lp_clicks":
+      case "sales":
+      case "leads":
+      case "registrations":
+      case "deposits":
+      case "rejected":
+      case "trash":
+      case "bots":
+      case "proxies":
+      case "empty_referrers":
+      case "visits":
+      case "unique_visits":
+        return num.toLocaleString();
+      case "conversions":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", style: { color: "var(--color-success)" }, children: num.toLocaleString() });
+      case "lp_ctr":
+      case "approve_rate":
+      case "cr":
+      case "cr_sales":
+      case "cr_leads":
+        return `${num.toFixed(2)}%`;
+      case "roi":
+      case "roi_confirmed": {
+        if (num === 0) return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: "0.00%" });
+        const isPos = num > 0;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: isPos ? "var(--color-success)" : "var(--color-danger)", fontWeight: 600 }, children: [
+          isPos ? "+" : "",
+          num.toFixed(2),
+          "%"
+        ] });
+      }
+      case "profit":
+      case "profit_confirmed": {
+        if (Math.abs(num) < 1e-4) return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-secondary)" }, children: "$0.00" });
+        const isPos = num > 0;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: isPos ? "var(--color-success)" : "var(--color-danger)", fontWeight: 600 }, children: [
+          isPos ? "+" : "-",
+          "$",
+          Math.abs(num).toFixed(2)
+        ] });
+      }
+      case "cost":
+      case "revenue":
+      case "revenue_confirmed":
+      case "cpa":
+      case "cps":
+      case "cpl":
+      case "cpc":
+      case "cpv":
+      case "epc":
+      case "uepc":
+      case "epv":
+        return `$${num.toFixed(2)}`;
+      default:
+        return val !== void 0 && val !== null ? String(val) : "-";
+    }
+  };
+  const renderEntityCell = (landing, colId) => {
+    switch (colId) {
+      case "checkbox":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: selectedLandingIds.has(landing.id),
+            onChange: (e) => toggleSelected(landing.id, e.target.checked)
+          }
+        ) }, colId);
       case "id":
         return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-medium", children: landing.id }, colId);
+      case "state":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center text-xs font-medium", style: { color: landing.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-2 h-2 rounded-full mr-1.5", style: { backgroundColor: landing.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" } }),
+          landing.state === "active" ? t("components.active") : t("components.archive")
+        ] }) }, colId);
       case "name":
         return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -63370,47 +63267,16 @@ const Landings = ({ landings, refreshData }) => {
           ),
           landing.type !== "local" && landing.type !== "action" && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)", fontSize: "12px" }, className: "truncate max-w-[200px]", title: landing.url, children: landing.url })
         ] }) }, colId);
-      case "type":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2 py-1 rounded text-xs font-semibold", style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" }, children: landing.type }) }, colId);
-      case "state":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center text-xs font-medium", style: { color: landing.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-2 h-2 rounded-full mr-1.5", style: { backgroundColor: landing.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" } }),
-          landing.state === "active" ? t("components.active") : t("components.archive")
-        ] }) }, colId);
       case "group_name":
         return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: landing.group_name || "-" }, colId);
-      case "cost":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: money(landing.cost) }, colId);
-      case "revenue":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: "var(--color-success)" }, children: money(landing.revenue) }, colId);
-      case "revenue_confirmed":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: "var(--color-success)" }, children: money(landing.revenue_confirmed) }, colId);
-      case "profit":
-      case "profit_confirmed": {
-        const v = parseFloat(landing[colId]) || 0;
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: v > 0 ? "var(--color-success)" : v < 0 ? "var(--color-danger)" : "var(--color-text-secondary)" }, children: money(v) }, colId);
-      }
-      case "cpc":
-      case "cpv":
-      case "epc":
-      case "epc_confirmed":
-      case "epv":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: money(landing[colId]) }, colId);
-      case "approve_rate":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: `${parseFloat(landing.approve_rate) || 0}%` }, colId);
-      case "roi":
-      case "roi_confirmed": {
-        const v = landing[colId];
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: (parseFloat(v) || 0) > 0 ? "var(--color-success)" : "var(--color-text-secondary)" }, children: v !== null && v !== void 0 ? `${v}%` : "—" }, colId);
-      }
-      case "lp_ctr":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: landing.lp_ctr !== void 0 ? `${landing.lp_ctr}%` : "0%" }, colId);
-      case "cr":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: landing.cr !== void 0 ? `${landing.cr}%` : "0%" }, colId);
+      case "type":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2 py-1 rounded text-xs font-semibold", style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" }, children: landing.type }) }, colId);
+      case "url":
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-muted)", fontSize: "12px" }, className: "truncate max-w-[200px]", title: landing.url, children: landing.url }, colId);
       case "last_event":
         return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: formatLastEvent(landing.last_event) }, colId);
       default:
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: Number(landing[colId] || 0).toLocaleString() }, colId);
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: "-" }, colId);
     }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
@@ -63672,43 +63538,48 @@ const Landings = ({ landings, refreshData }) => {
             onChange: (e) => toggleSelectAll(e.target.checked)
           }
         ) }),
-        chosenColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("th", { title: metricHint(colId), className: ALL_LANDING_COLUMNS.find((c) => c.id === colId)?.alignRight ? "text-right" : "", children: columnLabel(colId) }, colId)),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "ID" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.status") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("editor.name") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.group") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.type") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "URL" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("landingColumns.lastEvent") }),
+        chosenColumns.map((colId) => {
+          const def = ALL_REPORT_METRICS.find((m) => m.id === colId);
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "th",
+            {
+              title: getReportMetricTooltip(def, t),
+              className: "text-right whitespace-nowrap",
+              children: def?.shortLabel || def?.label || colId
+            },
+            colId
+          );
+        }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("common.actions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleLandings.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: chosenColumns.length + 2, className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleLandings.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 9 + chosenColumns.length, className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("landings.noLandings") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("landings.noLandingsDesc") })
       ] }) }) }) : pagedLandings.map((landing) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "input",
-          {
-            type: "checkbox",
-            checked: selectedLandingIds.has(landing.id),
-            onChange: (e) => toggleSelected(landing.id, e.target.checked)
-          }
-        ) }),
-        chosenColumns.map((colId) => renderLandingCell(landing, colId)),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "action-buttons", children: [
+        FIXED_LANDING_COLUMNS.filter((c) => c.id !== "checkbox").map(
+          (colId) => renderEntityCell(landing, colId)
+        ),
+        chosenColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: formatMetricCell(colId, landing) }, colId)),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "action-buttons", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(landing.id), className: "action-btn text-blue", title: t("common.edit") || t("components.edit"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-4 h-4" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(landing.id), className: "action-btn text-red", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }) })
         ] }) })
       ] }, landing.id)) }),
       visibleLandings.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tfoot", { style: { background: "var(--color-bg-soft)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "font-semibold", style: { color: "var(--color-text-primary)" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3" }),
-        chosenColumns.map((colId) => {
-          if (colId === "name") {
-            return /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "px-4 py-3", children: [
-              t("campaignReports.total", "Total"),
-              " (",
-              visibleLandings.length,
-              ")"
-            ] }, colId);
-          }
-          const val = renderTotalCell(colId);
-          const alignRight = ALL_LANDING_COLUMNS.find((c) => c.id === colId)?.alignRight;
-          const isNegativeProfit = colId === "profit" && totalsProfit < 0 || colId === "profit_confirmed" && totalsProfitConfirmed < 0;
-          return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `px-4 py-3 ${alignRight ? "text-right" : ""}`, style: { color: isNegativeProfit ? "var(--color-danger)" : void 0 }, children: val ?? "" }, colId);
-        }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "px-4 py-3", colSpan: 7, children: [
+          "Σ Total (",
+          visibleLandings.length,
+          ")"
+        ] }),
+        chosenColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-right", children: formatTotalCell(colId) }, colId)),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", {})
       ] }) })
     ] }) }),
@@ -63751,18 +63622,18 @@ const Landings = ({ landings, refreshData }) => {
         onClose: () => setShowGroupsModal(false)
       }
     ),
-    columnsModalOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(
-      ColumnsOrderModal,
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ReportCustomizerModal,
       {
-        columns: localizedColumns,
-        selectedIds: chosenColumns,
-        defaultIds: DEFAULT_LANDING_COLUMNS,
+        isOpen: columnsModalOpen,
         onClose: () => setColumnsModalOpen(false),
-        onSave: (ids) => {
+        selectedColumns: chosenColumns,
+        onSaveColumns: (ids) => {
           setChosenColumns(ids);
           localStorage.setItem(LANDING_COLUMNS_KEY, JSON.stringify(ids));
           setColumnsModalOpen(false);
-        }
+        },
+        mode: "landings"
       }
     )
   ] });
@@ -65133,7 +65004,7 @@ ${file}`)) return;
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.group") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("offerEditor.groupOrProduct", "Group / Product") }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsxs(
                         "select",
@@ -65774,67 +65645,14 @@ ${file}`)) return;
   ] });
 };
 const API_URL$t = "/api.php";
-const ALL_OFFER_COLUMNS = [
-  { id: "id", label: "ID" },
-  { id: "name", label: "Name", required: true },
-  { id: "state", label: "Status" },
-  { id: "affiliate_network_name", label: "Affiliate network" },
-  { id: "group_name", label: "Group" },
-  { id: "redirect_type", label: "Type" },
-  { id: "geo", label: "GEO" },
-  { id: "payout", label: "Payout" },
-  { id: "clicks", label: "Clicks", alignRight: true },
-  { id: "unique_clicks", label: "Uniques", alignRight: true },
-  { id: "visits", label: "Visits", alignRight: true },
-  { id: "unique_visits", label: "uVisits", alignRight: true },
-  { id: "lp_clicks", label: "LP Clicks", alignRight: true },
-  { id: "lp_ctr", label: "LP CTR", alignRight: true },
-  { id: "conversions", label: "Conversions", alignRight: true },
-  { id: "leads", label: "Leads", alignRight: true },
-  { id: "sales", label: "Sales", alignRight: true },
-  { id: "rejected", label: "Rejected", alignRight: true },
-  { id: "trash", label: "Trash", alignRight: true },
-  { id: "approve_rate", label: "Approve %", alignRight: true },
-  { id: "revenue", label: "Revenue", alignRight: true },
-  { id: "revenue_confirmed", label: "Revenue (confirmed)", alignRight: true },
-  { id: "cost", label: "Cost", alignRight: true },
-  { id: "cr", label: "CR", alignRight: true },
-  { id: "epc", label: "EPC", alignRight: true },
-  { id: "epc_confirmed", label: "EPC (confirmed)", alignRight: true },
-  { id: "epv", label: "EPV", alignRight: true },
-  { id: "cpc", label: "CPC", alignRight: true },
-  { id: "cpv", label: "CPV", alignRight: true },
-  { id: "profit", label: "Profit", alignRight: true },
-  { id: "profit_confirmed", label: "P/L (confirmed)", alignRight: true },
-  { id: "roi", label: "ROI", alignRight: true },
-  { id: "roi_confirmed", label: "ROI (confirmed)", alignRight: true }
-];
-const DEFAULT_OFFER_COLUMNS = [
-  "name",
-  "state",
-  "affiliate_network_name",
-  "clicks",
-  "leads",
-  "sales",
-  "rejected",
-  "cr",
-  "epc_confirmed",
-  "cpc",
-  "revenue_confirmed",
-  "cost",
-  "profit_confirmed"
-];
 const OFFER_COLUMNS_KEY = "orbitra_offer_columns";
 const loadOfferColumns = () => {
   try {
-    const saved = JSON.parse(localStorage.getItem(OFFER_COLUMNS_KEY) || "null");
-    if (Array.isArray(saved) && saved.length) {
-      const valid = saved.filter((id) => ALL_OFFER_COLUMNS.some((c) => c.id === id));
-      if (valid.includes("name")) return valid;
-    }
-  } catch {
+    const saved = localStorage.getItem(OFFER_COLUMNS_KEY);
+    if (saved) return normalizeReportMetricIds(JSON.parse(saved));
+  } catch (e) {
   }
-  return [...DEFAULT_OFFER_COLUMNS];
+  return normalizeReportMetricIds(PRESETS.best);
 };
 const Offers = ({ offers: initialOffers = [], refreshData }) => {
   const { t } = useLanguage();
@@ -65857,6 +65675,9 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
   const [refreshing, setRefreshing] = reactExports.useState(false);
   const [columnsModalOpen, setColumnsModalOpen] = reactExports.useState(false);
   const [chosenColumns, setChosenColumns] = reactExports.useState(() => loadOfferColumns());
+  const [thDragIdx, setThDragIdx] = reactExports.useState(null);
+  const [thDragOverIdx, setThDragOverIdx] = reactExports.useState(null);
+  const [menuAnchor, setMenuAnchor] = reactExports.useState(null);
   const [offers, setOffers] = reactExports.useState(initialOffers);
   const [dateFrom, setDateFrom] = reactExports.useState(() => getPresetDates("today")?.from || formatDate$1(/* @__PURE__ */ new Date()));
   const [dateTo, setDateTo] = reactExports.useState(() => getPresetDates("today")?.to || formatDate$1(/* @__PURE__ */ new Date()));
@@ -65894,6 +65715,66 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
     setDateFrom(from2);
     setDateTo(to2);
   };
+  const handleSaveColumns = (cols) => {
+    setChosenColumns(cols);
+    localStorage.setItem(OFFER_COLUMNS_KEY, JSON.stringify(cols));
+  };
+  const handleThDragStart = (idx) => {
+    setThDragIdx(idx);
+  };
+  const handleThDragOver = (e, idx) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (thDragOverIdx !== idx) {
+      setThDragOverIdx(idx);
+    }
+  };
+  const handleThDrop = (e, targetIdx) => {
+    e.preventDefault();
+    if (thDragIdx !== null && thDragIdx !== targetIdx) {
+      const sourceColId = chosenColumns[thDragIdx];
+      const targetColId = chosenColumns[targetIdx];
+      if (sourceColId && targetColId) {
+        const copy = [...chosenColumns];
+        const from2 = copy.indexOf(sourceColId);
+        const to2 = copy.indexOf(targetColId);
+        if (from2 !== -1 && to2 !== -1) {
+          const [item] = copy.splice(from2, 1);
+          copy.splice(to2, 0, item);
+          setChosenColumns(copy);
+          localStorage.setItem(OFFER_COLUMNS_KEY, JSON.stringify(copy));
+        }
+      }
+    }
+    setThDragIdx(null);
+    setThDragOverIdx(null);
+  };
+  const handleThDragEnd = () => {
+    setThDragIdx(null);
+    setThDragOverIdx(null);
+  };
+  const handleToggleMenu = (event, offerId) => {
+    event.stopPropagation();
+    if (menuAnchor?.id === offerId) {
+      setMenuAnchor(null);
+      return;
+    }
+    const rect = event.currentTarget.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const openUp = spaceBelow < 240;
+    setMenuAnchor({
+      id: offerId,
+      top: openUp ? rect.top - 8 : rect.bottom + 4,
+      right: Math.max(8, window.innerWidth - rect.right),
+      openUp
+    });
+  };
+  reactExports.useEffect(() => {
+    if (!menuAnchor) return void 0;
+    const close = () => setMenuAnchor(null);
+    window.addEventListener("click", close);
+    return () => window.removeEventListener("click", close);
+  }, [menuAnchor]);
   const groups = [...new Set(offers.map((o) => o.group_name).filter(Boolean))];
   const networks = [...new Set(offers.map((o) => o.affiliate_network_name).filter(Boolean))];
   const noGroupCount = offers.filter((o) => !o.group_name).length;
@@ -65927,80 +65808,14 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
     if (!sortBy.key) return filteredOffers;
     const dirMul = sortBy.dir === "asc" ? 1 : -1;
     const getVal = (o) => {
-      switch (sortBy.key) {
-        case "id":
-          return Number(o.id) || 0;
-        case "name":
-          return String(o.name || "");
-        case "group_name":
-          return String(o.group_name || "");
-        case "affiliate_network_name":
-          return String(o.affiliate_network_name || "");
-        case "redirect_type":
-          return String(o.redirect_type || "");
-        case "state":
-          return String(o.state || "");
-        case "geo":
-          return String(o.geo || "");
-        case "payout":
-          return Number(o.payout_value) || 0;
-        case "clicks":
-          return Number(o.clicks) || 0;
-        case "unique_clicks":
-          return Number(o.unique_clicks) || 0;
-        case "visits":
-          return Number(o.visits) || 0;
-        case "unique_visits":
-          return Number(o.unique_visits) || 0;
-        case "lp_clicks":
-          return Number(o.lp_clicks) || 0;
-        case "lp_ctr":
-          return Number(o.lp_ctr) || 0;
-        case "conversions":
-          return Number(o.conversions) || 0;
-        case "leads":
-          return Number(o.leads) || 0;
-        case "sales":
-          return Number(o.sales) || 0;
-        case "rejected":
-          return Number(o.rejected) || 0;
-        case "trash":
-          return Number(o.trash) || 0;
-        case "approve_rate":
-          return Number(o.approve_rate) || 0;
-        case "revenue":
-          return Number(o.revenue) || 0;
-        case "revenue_confirmed":
-          return Number(o.revenue_confirmed) || 0;
-        case "cost":
-          return Number(o.cost) || 0;
-        case "cr":
-          return Number(o.cr) || 0;
-        case "epc":
-          return Number(o.epc) || 0;
-        case "epc_confirmed":
-          return Number(o.epc_confirmed) || 0;
-        case "epv":
-          return Number(o.epv) || 0;
-        case "cpc":
-          return Number(o.cpc) || 0;
-        case "cpv":
-          return Number(o.cpv) || 0;
-        case "profit":
-          return Number(o.profit) || 0;
-        case "profit_confirmed":
-          return Number(o.profit_confirmed) || 0;
-        case "roi":
-          return Number(o.roi) || 0;
-        case "roi_confirmed":
-          return Number(o.roi_confirmed) || 0;
-        default:
-          return "";
-      }
+      const val = o[sortBy.key];
+      if (val === null || val === void 0) return "";
+      if (typeof val === "number") return val;
+      return String(val);
     };
     const isNumeric = [
       "id",
-      "payout",
+      "payout_value",
       "clicks",
       "unique_clicks",
       "visits",
@@ -66025,7 +65840,46 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
       "profit",
       "profit_confirmed",
       "roi",
-      "roi_confirmed"
+      "roi_confirmed",
+      // All derived metrics from orbitraComputeDerivedMetrics
+      "cpa",
+      "cpl",
+      "cps",
+      "cpr",
+      "cpd",
+      "cr_sales",
+      "cr_holds",
+      "cr_leads",
+      "cr_registrations",
+      "cr_deposits",
+      "registrations",
+      "deposits",
+      "uc_rate",
+      "bot_rate",
+      "uepc",
+      "uepc_confirmed",
+      "epc_hold",
+      "uepc_hold",
+      "epc_registration",
+      "uepc_registration",
+      "ucpc",
+      "ecpm_all",
+      "ecpm_confirmed",
+      "earnings_per_conv",
+      "ec_confirmed",
+      "revenue_hold",
+      "revenue_rejected",
+      "revenue_trash",
+      "revenue_registration",
+      "revenue_deposit",
+      "real_revenue",
+      "real_profit",
+      "real_roi",
+      "bots",
+      "proxies",
+      "empty_referrers",
+      "unique_clicks_stream",
+      "unique_clicks_global"
     ].includes(sortBy.key);
     return filteredOffers.map((offer, idx) => ({ offer, idx })).sort((a, b) => {
       const av = getVal(a.offer);
@@ -66145,240 +65999,285 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
     setSearch("");
   };
   const hasActiveFilters = filterGroup || filterNetwork || filterState || search;
-  const totals = filteredOffers.reduce((acc, o) => {
-    acc.clicks += parseInt(o.clicks || 0);
-    acc.unique_clicks += parseInt(o.unique_clicks || 0);
-    acc.visits += parseInt(o.visits || 0);
-    acc.unique_visits += parseInt(o.unique_visits || 0);
-    acc.lp_clicks += parseInt(o.lp_clicks || 0);
-    acc.conversions += parseInt(o.conversions || 0);
-    acc.leads += parseInt(o.leads || 0);
-    acc.sales += parseInt(o.sales || 0);
-    acc.rejected += parseInt(o.rejected || 0);
-    acc.trash += parseInt(o.trash || 0);
-    acc.revenue += parseFloat(o.revenue || 0);
-    acc.revenue_confirmed += parseFloat(o.revenue_confirmed || 0);
-    acc.cost += parseFloat(o.cost || 0);
-    return acc;
-  }, {
-    clicks: 0,
-    unique_clicks: 0,
-    visits: 0,
-    unique_visits: 0,
-    lp_clicks: 0,
-    conversions: 0,
-    leads: 0,
-    sales: 0,
-    rejected: 0,
-    trash: 0,
-    revenue: 0,
-    revenue_confirmed: 0,
-    cost: 0
-  });
-  const totalsProfit = totals.revenue - totals.cost;
-  const totalsProfitConfirmed = totals.revenue_confirmed - totals.cost;
-  const totalsApproveDenom = totals.sales + totals.leads + totals.rejected + totals.trash;
-  const totalsLpViews = totals.visits > 0 ? totals.visits : totals.clicks;
-  const totalsLpClickDenominator = totals.lp_clicks > 0 ? totals.lp_clicks : totals.clicks;
-  const renderTotalCell = (colId) => {
-    switch (colId) {
+  const grandTotals = reactExports.useMemo(() => {
+    const t0 = {
+      clicks: 0,
+      unique_clicks: 0,
+      visits: 0,
+      unique_visits: 0,
+      lp_clicks: 0,
+      lp_views: 0,
+      conversions: 0,
+      leads: 0,
+      sales: 0,
+      rejected: 0,
+      trash: 0,
+      cost: 0,
+      revenue: 0,
+      revenue_confirmed: 0,
+      revenue_hold: 0,
+      revenue_rejected: 0,
+      revenue_trash: 0,
+      registrations: 0,
+      deposits: 0,
+      bots: 0,
+      proxies: 0,
+      empty_referrers: 0
+    };
+    visibleOffers.forEach((o) => {
+      t0.clicks += Number(o.clicks) || 0;
+      t0.unique_clicks += Number(o.unique_clicks) || 0;
+      const lpViews = Number(o.visits ?? o.clicks) || 0;
+      t0.visits += lpViews;
+      t0.lp_views += lpViews;
+      t0.lp_clicks += Number(o.lp_clicks) || 0;
+      t0.conversions += Number(o.conversions) || 0;
+      t0.leads += Number(o.leads) || 0;
+      t0.sales += Number(o.sales) || 0;
+      t0.rejected += Number(o.rejected) || 0;
+      t0.trash += Number(o.trash) || 0;
+      t0.cost += Number(o.cost) || 0;
+      t0.revenue += Number(o.revenue) || 0;
+      t0.revenue_confirmed += Number(o.revenue_confirmed) || 0;
+      t0.revenue_hold += Number(o.revenue_hold) || 0;
+      t0.revenue_rejected += Number(o.revenue_rejected) || 0;
+      t0.revenue_trash += Number(o.revenue_trash) || 0;
+      t0.registrations += Number(o.registrations) || 0;
+      t0.deposits += Number(o.deposits) || 0;
+      t0.bots += Number(o.bots) || 0;
+      t0.proxies += Number(o.proxies) || 0;
+      t0.empty_referrers += Number(o.empty_referrers) || 0;
+    });
+    const lpClickDenominator = t0.lp_clicks > 0 ? t0.lp_clicks : t0.clicks;
+    const lp_ctr = t0.lp_views > 0 ? t0.lp_clicks / t0.lp_views * 100 : 0;
+    const cr = t0.clicks > 0 ? t0.conversions / t0.clicks * 100 : 0;
+    const cr_sales = t0.clicks > 0 ? t0.sales / t0.clicks * 100 : 0;
+    const cr_leads = t0.clicks > 0 ? t0.leads / t0.clicks * 100 : 0;
+    const profit_confirmed = t0.revenue_confirmed - t0.cost;
+    const roi_confirmed = t0.cost > 0 ? profit_confirmed / t0.cost * 100 : 0;
+    const cpl = t0.leads > 0 ? t0.cost / t0.leads : 0;
+    const cps = t0.sales > 0 ? t0.cost / t0.sales : 0;
+    const cpa = t0.conversions > 0 ? t0.cost / t0.conversions : 0;
+    const approve_rate = t0.conversions > 0 ? t0.sales / t0.conversions * 100 : 0;
+    const roi = t0.cost > 0 ? (t0.revenue - t0.cost) / t0.cost * 100 : 0;
+    const epc = lpClickDenominator > 0 ? t0.revenue / lpClickDenominator : 0;
+    const epv = t0.lp_views > 0 ? t0.revenue / t0.lp_views : 0;
+    const uepc = t0.unique_clicks > 0 ? t0.revenue / t0.unique_clicks : 0;
+    const cpc = lpClickDenominator > 0 ? t0.cost / lpClickDenominator : 0;
+    const cpv = t0.lp_views > 0 ? t0.cost / t0.lp_views : 0;
+    return {
+      ...t0,
+      profit: t0.revenue - t0.cost,
+      profit_confirmed,
+      roi_confirmed,
+      cpl,
+      cps,
+      cpa,
+      lp_ctr,
+      cr,
+      cr_sales,
+      cr_leads,
+      approve_rate,
+      roi,
+      epc,
+      epv,
+      uepc,
+      cpc,
+      cpv,
+      sales: t0.sales,
+      leads: t0.leads
+    };
+  }, [visibleOffers]);
+  const formatMetricCell = (metricId, row) => {
+    const val = row[metricId];
+    const num = Number(val) || 0;
+    switch (metricId) {
       case "clicks":
-        return totals.clicks.toLocaleString();
       case "unique_clicks":
-        return totals.unique_clicks.toLocaleString();
-      case "visits":
-        return totals.visits.toLocaleString();
-      case "unique_visits":
-        return totals.unique_visits.toLocaleString();
+      case "visitors":
+      case "unique_clicks_stream":
+      case "unique_clicks_global":
+      case "bots":
+      case "proxies":
+      case "empty_referrers":
+      case "lp_views":
       case "lp_clicks":
-        return totals.lp_clicks.toLocaleString();
-      case "conversions":
-        return totals.conversions.toLocaleString();
-      case "leads":
-        return totals.leads.toLocaleString();
       case "sales":
-        return totals.sales.toLocaleString();
+      case "leads":
+      case "registrations":
+      case "deposits":
       case "rejected":
-        return totals.rejected.toLocaleString();
       case "trash":
-        return totals.trash.toLocaleString();
-      case "approve_rate":
-        return totalsApproveDenom > 0 ? `${(totals.sales / totalsApproveDenom * 100).toFixed(2)}%` : "0%";
+        return num.toLocaleString();
+      case "conversions":
+        return num > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", style: { color: "var(--color-success)" }, children: num.toLocaleString() }) : "0";
       case "lp_ctr":
-        return totalsLpViews > 0 ? `${(totals.lp_clicks / totalsLpViews * 100).toFixed(2)}%` : "0%";
-      case "revenue":
-        return `$${totals.revenue.toFixed(2)}`;
-      case "revenue_confirmed":
-        return `$${totals.revenue_confirmed.toFixed(2)}`;
-      case "cost":
-        return `$${totals.cost.toFixed(2)}`;
-      case "profit":
-        return `$${totalsProfit.toFixed(2)}`;
-      case "profit_confirmed":
-        return `$${totalsProfitConfirmed.toFixed(2)}`;
+      case "approve_rate":
       case "cr":
-        return totals.clicks > 0 ? `${(totals.conversions / totals.clicks * 100).toFixed(2)}%` : "0%";
-      case "epc":
-        return totalsLpClickDenominator > 0 ? `$${(totals.revenue / totalsLpClickDenominator).toFixed(2)}` : "$0";
-      case "epc_confirmed":
-        return totalsLpClickDenominator > 0 ? `$${(totals.revenue_confirmed / totalsLpClickDenominator).toFixed(2)}` : "$0";
-      case "epv":
-        return totalsLpViews > 0 ? `$${(totals.revenue / totalsLpViews).toFixed(2)}` : "$0";
-      case "cpc":
-        return totalsLpClickDenominator > 0 ? `$${(totals.cost / totalsLpClickDenominator).toFixed(2)}` : "$0";
-      case "cpv":
-        return totalsLpViews > 0 ? `$${(totals.cost / totalsLpViews).toFixed(2)}` : "$0.00";
+      case "cr_sales":
+      case "cr_leads":
+      case "cr_holds":
+      case "cr_registrations":
+      case "cr_deposits":
+        return val === null || val === void 0 ? "—" : `${num.toFixed(2)}%`;
       case "roi":
-        return totals.cost > 0 ? `${(totalsProfit / totals.cost * 100).toFixed(2)}%` : "—";
-      case "roi_confirmed":
-        return totals.cost > 0 ? `${(totalsProfitConfirmed / totals.cost * 100).toFixed(2)}%` : "—";
+      case "roi_confirmed": {
+        if (val === null || val === void 0) return "—";
+        if (num === 0) return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: "0.00%" });
+        const isPos = num > 0;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: isPos ? "var(--color-success)" : "var(--color-danger)", fontWeight: 600 }, children: [
+          isPos ? "+" : "",
+          num.toFixed(2),
+          "%"
+        ] });
+      }
+      case "profit":
+      case "profit_confirmed": {
+        if (Math.abs(num) < 1e-4) {
+          return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-secondary)" }, children: "$0.00" });
+        }
+        const isPos = num > 0;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: isPos ? "var(--color-success)" : "var(--color-danger)", fontWeight: 600 }, children: [
+          isPos ? "+" : "-",
+          "$",
+          Math.abs(num).toFixed(2)
+        ] });
+      }
+      case "cost":
+      case "revenue":
+      case "revenue_confirmed":
+      case "revenue_hold":
+      case "revenue_rejected":
+      case "revenue_trash":
+      case "cpa":
+      case "cps":
+      case "cpl":
+      case "cpd":
+      case "cpc":
+      case "cpv":
+      case "epc":
+      case "uepc":
+      case "epv":
+      case "ecpm_all":
+      case "ecpm_confirmed":
+      case "earnings_per_conv":
+      case "epc_confirmed":
+      case "uepc_confirmed":
+      case "epc_hold":
+      case "uepc_hold":
+      case "epc_registration":
+      case "uepc_registration":
+      case "ucpc":
+        return `$${num.toFixed(2)}`;
       default:
-        return null;
+        return val !== void 0 && val !== null ? String(val) : "-";
     }
   };
-  const columnLabel = (colId) => ({
-    id: "ID",
-    name: t("editor.name"),
-    state: t("components.status"),
-    affiliate_network_name: t("offers.network"),
-    group_name: t("components.group"),
-    redirect_type: t("components.type"),
-    geo: t("offerColumns.geo"),
-    payout: t("offerColumns.payout"),
-    clicks: t("components.clicks"),
-    unique_clicks: t("components.uniques"),
-    visits: t("metrics.visits"),
-    unique_visits: t("metrics.uniqueVisits"),
-    lp_clicks: t("components.lpClicks"),
-    lp_ctr: t("components.lpCtr"),
-    conversions: t("metrics.conversions"),
-    leads: t("offerColumns.leads"),
-    sales: t("offerColumns.sales"),
-    rejected: t("offerColumns.rejected"),
-    trash: t("metrics.trash"),
-    approve_rate: t("metrics.approve"),
-    revenue: t("metrics.revenue"),
-    revenue_confirmed: t("offerColumns.revenueConfirmed"),
-    cost: t("offerColumns.cost"),
-    cr: t("offerColumns.cr"),
-    epc: t("metrics.epc"),
-    epc_confirmed: t("offerColumns.epcConfirmed"),
-    epv: t("metrics.epv"),
-    cpc: t("offerColumns.cpc"),
-    cpv: t("metrics.cpv", "CPV"),
-    profit: t("metrics.profit"),
-    profit_confirmed: t("offerColumns.profitConfirmed"),
-    roi: t("metrics.roi"),
-    roi_confirmed: t("offerColumns.roiConfirmed")
-  })[colId] || colId;
-  const localizedColumns = ALL_OFFER_COLUMNS.map((c) => ({ ...c, label: columnLabel(c.id) }));
-  const metricHint = (colId) => {
-    const hintKey = {
-      visits: "lpViewsHint",
-      clicks: "lpViewsHint",
-      lp_clicks: "lpClicksHint",
-      lp_ctr: "lpCtrHint",
-      cpv: "cpvHint",
-      cpc: "cpcHint",
-      epv: "epvHint",
-      epc: "epcHint",
-      epc_confirmed: "epcHint"
-    }[colId];
-    return hintKey ? t(`metrics.${hintKey}`) : void 0;
-  };
-  const money = (v, precision = 2) => `$${(parseFloat(v) || 0).toFixed(precision)}`;
-  const renderOfferCell = (offer, colId) => {
-    const tdCls = ALL_OFFER_COLUMNS.find((c) => c.id === colId)?.alignRight ? "text-right" : "";
+  const formatTotalCell = (colId) => {
+    const val = grandTotals[colId];
+    const num = Number(val) || 0;
     switch (colId) {
-      case "id":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-medium", children: offer.id }, colId);
-      case "name":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "span",
-            {
-              className: "font-semibold cursor-pointer hover:underline",
-              style: { color: "var(--color-primary)" },
-              onClick: () => handleEdit(offer.id),
-              children: offer.name
-            }
-          ),
-          !offer.is_local && offer.url && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)", fontSize: "12px" }, className: "truncate max-w-[200px]", title: offer.url, children: offer.url }),
-          offer.is_local && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-accent-purple)", fontSize: "12px" }, children: t("offers.localOffer") })
-        ] }) }, colId);
-      case "state":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center text-xs font-medium", style: { color: offer.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-2 h-2 rounded-full mr-1.5", style: { backgroundColor: offer.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" } }),
-          offer.state === "active" ? t("components.active") : t("components.archive")
-        ] }) }, colId);
-      case "affiliate_network_name":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, style: { color: "var(--color-text-secondary)" }, children: offer.affiliate_network_name || "-" }, colId);
-      case "group_name":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, style: { color: "var(--color-text-secondary)" }, children: offer.group_name || "-" }, colId);
-      case "geo":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2 py-1 rounded text-xs font-semibold", style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" }, children: offer.geo || t("offerColumns.allGeo") }) }, colId);
-      case "payout":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, style: { color: "var(--color-text-secondary)" }, children: offer.payout_auto ? t("offerColumns.payoutAuto") : `$${parseFloat(offer.payout_value || 0).toFixed(2)} (${String(offer.payout_type || "cpa").toUpperCase()})` }, colId);
-      case "redirect_type":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2 py-1 rounded text-xs font-semibold", style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" }, children: offer.redirect_type === "redirect" ? t("offers.redirect") : offer.redirect_type === "frame" ? t("offers.iframe") : offer.redirect_type === "local" ? t("offers.local") : offer.redirect_type === "js" ? t("redirectTypes.jsName") : offer.redirect_type === "meta_refresh" ? t("redirectTypes.metaName") : offer.redirect_type === "form_submit" ? t("redirectTypes.formName") : offer.redirect_type === "preload" ? t("offerEditor.preloadCurl") : offer.redirect_type === "curl_proxy" ? t("redirectTypes.curlProxyName") : offer.redirect_type }) }, colId);
       case "clicks":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, children: offer.clicks || 0 }, colId);
+      case "unique_clicks":
+      case "lp_views":
+      case "lp_clicks":
+      case "sales":
+      case "leads":
+      case "registrations":
+      case "deposits":
+      case "rejected":
+      case "trash":
+      case "bots":
+      case "proxies":
+      case "empty_referrers":
+        return num.toLocaleString();
       case "conversions":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: "var(--color-success)" }, children: offer.conversions || 0 }, colId);
-      case "revenue":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: "var(--color-success)" }, children: money(offer.revenue) }, colId);
-      case "revenue_confirmed":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: "var(--color-success)" }, children: money(offer.revenue_confirmed) }, colId);
-      case "cost":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: money(offer.cost) }, colId);
-      case "profit":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: (parseFloat(offer.profit) || 0) > 0 ? "var(--color-success)" : (parseFloat(offer.profit) || 0) < 0 ? "var(--color-danger)" : "var(--color-text-secondary)" }, children: money(offer.profit) }, colId);
-      case "profit_confirmed":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: (parseFloat(offer.profit_confirmed) || 0) > 0 ? "var(--color-success)" : (parseFloat(offer.profit_confirmed) || 0) < 0 ? "var(--color-danger)" : "var(--color-text-secondary)" }, children: money(offer.profit_confirmed) }, colId);
-      case "roi_confirmed":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: (parseFloat(offer.roi_confirmed) || 0) > 0 ? "var(--color-success)" : "var(--color-text-secondary)" }, children: offer.roi_confirmed !== null && offer.roi_confirmed !== void 0 ? `${offer.roi_confirmed}%` : "—" }, colId);
-      case "roi":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `${tdCls} font-medium`, style: { color: (parseFloat(offer.roi) || 0) > 0 ? "var(--color-success)" : "var(--color-text-secondary)" }, children: offer.roi !== null && offer.roi !== void 0 ? `${offer.roi}%` : "—" }, colId);
-      case "cr":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: `${offer.cr || 0}%` }, colId);
+        return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", style: { color: "var(--color-success)" }, children: num.toLocaleString() });
       case "lp_ctr":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: `${parseFloat(offer.lp_ctr) || 0}%` }, colId);
       case "approve_rate":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: `${parseFloat(offer.approve_rate) || 0}%` }, colId);
-      case "epc":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: money(offer.epc) }, colId);
-      case "epc_confirmed":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: `$${(parseFloat(offer.epc_confirmed) || 0).toFixed(2)}` }, colId);
-      case "epv":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: money(offer.epv) }, colId);
+      case "cr":
+      case "cr_sales":
+      case "cr_leads":
+        return `${num.toFixed(2)}%`;
+      case "roi":
+      case "roi_confirmed": {
+        if (num === 0) return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: "0.00%" });
+        const isPos = num > 0;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: isPos ? "var(--color-success)" : "var(--color-danger)", fontWeight: 600 }, children: [
+          isPos ? "+" : "",
+          num.toFixed(2),
+          "%"
+        ] });
+      }
+      case "profit":
+      case "profit_confirmed": {
+        if (Math.abs(num) < 1e-4) return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-secondary)" }, children: "$0.00" });
+        const isPos = num > 0;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: isPos ? "var(--color-success)" : "var(--color-danger)", fontWeight: 600 }, children: [
+          isPos ? "+" : "-",
+          "$",
+          Math.abs(num).toFixed(2)
+        ] });
+      }
+      case "cost":
+      case "revenue":
+      case "revenue_confirmed":
+      case "cpa":
+      case "cps":
+      case "cpl":
       case "cpc":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: `$${(parseFloat(offer.cpc) || 0).toFixed(2)}` }, colId);
       case "cpv":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: money(offer.cpv) }, colId);
+      case "epc":
+      case "uepc":
+      case "epv":
+        return `$${num.toFixed(2)}`;
       default:
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: tdCls, children: offer[colId] || 0 }, colId);
+        return val !== void 0 && val !== null ? String(val) : "-";
     }
   };
   const SortIcon = ({ colKey }) => {
-    if (sortBy.key !== colKey) return /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 opacity-60" });
-    return sortBy.dir === "asc" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5" });
+    if (sortBy.key !== colKey) return /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 opacity-40" });
+    return sortBy.dir === "asc" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } });
   };
-  const SortableTh = ({ colKey, label, fullTitle, defaultDir = "asc", alignRight = false }) => {
+  const SortableTh = ({ colKey, label, fullTitle, defaultDir = "asc", alignRight = false, draggable = false, isDragOver = false, onDragStart, onDragOver, onDrop, onDragEnd }) => {
     const isActive = sortBy.key === colKey;
-    return /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: alignRight ? "text-right" : "", "aria-sort": isActive ? sortBy.dir === "asc" ? "ascending" : "descending" : "none", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "button",
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "th",
       {
-        type: "button",
-        onClick: () => requestSort(colKey, defaultDir),
-        className: `inline-flex items-center gap-1 select-none ${alignRight ? "justify-end w-full" : ""}`,
-        style: { color: isActive ? "var(--color-text-primary)" : "var(--color-text-secondary)" },
-        title: fullTitle || t("common.sort", "Sort"),
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { colKey })
-        ]
+        className: `${alignRight ? "text-right" : "text-left"} whitespace-nowrap transition-all`,
+        "aria-sort": isActive ? sortBy.dir === "asc" ? "ascending" : "descending" : "none",
+        title: fullTitle,
+        draggable,
+        onDragStart,
+        onDragOver,
+        onDrop,
+        onDragEnd,
+        style: {
+          textAlign: alignRight ? "right" : "left",
+          cursor: draggable ? "grab" : "pointer",
+          userSelect: "none",
+          boxShadow: isDragOver ? "inset 2px 0 0 var(--color-primary)" : "none",
+          backgroundColor: isDragOver ? "var(--color-bg-soft)" : void 0
+        },
+        children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => requestSort(colKey, defaultDir),
+            className: `inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap ${alignRight ? "justify-end w-full" : ""}`,
+            style: {
+              color: isActive ? "var(--color-primary)" : "var(--color-text-secondary)",
+              textAlign: alignRight ? "right" : "left"
+            },
+            children: [
+              draggable && /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3 h-3 opacity-25 hover:opacity-75 -ml-1 cursor-grab flex-shrink-0" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { colKey })
+            ]
+          }
+        )
       }
-    ) });
+    );
   };
   const exportVisibleCsv = () => {
     const cols = [
@@ -66414,7 +66313,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
   };
   const handleRefresh = async () => {
     if (refreshing) return;
-    await refreshOfferData();
+    await fetchOffers();
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_offers", title: t("help.offerBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("help.offerBanner") }) }),
@@ -66451,15 +66350,15 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
           )
         ] }),
         selectedOfferIds.size > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkCopySelected, className: "btn btn-success", title: t("offers.copySelected"), children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-4 h-4" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkCopySelected, className: "btn btn-success text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5", title: t("offers.copySelected"), children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-3.5 h-3.5" }),
             t("offers.copySelected"),
             " (",
             selectedOfferIds.size,
             ")"
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkDeleteSelected, className: "btn btn-danger", title: t("common.deleteSelected"), children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: handleBulkDeleteSelected, className: "btn btn-danger text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5", title: t("common.deleteSelected"), children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-3.5 h-3.5" }),
             t("common.deleteSelected") || t("common.delete"),
             " (",
             selectedOfferIds.size,
@@ -66474,12 +66373,6 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
             type: "button",
             onClick: () => setColumnsModalOpen(true),
             className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium",
-            title: t("columnsOrder.title"),
-            style: {
-              backgroundColor: "var(--color-bg-card)",
-              border: "1px solid var(--color-border)",
-              color: "var(--color-text-primary)"
-            },
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(SlidersHorizontal, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("reportCustomizer.columns") }),
@@ -66492,20 +66385,20 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
           {
             type: "button",
             onClick: handleRefresh,
-            className: "btn btn-ghost btn-icon",
+            className: "btn btn-ghost btn-icon p-1.5 rounded-xl",
             title: t("common.refresh"),
             disabled: refreshing,
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: `w-5 h-5 ${refreshing ? "animate-spin" : ""}` })
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: `w-4 h-4 ${refreshing ? "animate-spin" : ""}` })
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
             type: "button",
-            className: "btn btn-ghost btn-icon",
+            className: "btn btn-ghost btn-icon p-1.5 rounded-xl",
             title: t("common.settings", "Settings"),
             onClick: () => setSettingsOpen(true),
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "w-5 h-5" })
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings2, { className: "w-4 h-4" })
           }
         )
       ] })
@@ -66670,24 +66563,37 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
             onChange: (e) => toggleSelectAllFiltered(e.target.checked)
           }
         ) }),
-        chosenColumns.map((colId) => {
-          const col = ALL_OFFER_COLUMNS.find((c) => c.id === colId);
-          if (!col) return null;
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "id", label: "ID", defaultDir: "desc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("common.status") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "name", label: t("editor.name"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "group_name", label: t("components.group"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "affiliate_network_name", label: t("offers.network"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "geo", label: "GEO", defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("offerColumns.payout") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { colKey: "redirect_type", label: t("components.type"), defaultDir: "asc" }),
+        chosenColumns.map((colId, colIdx) => {
+          const def = ALL_REPORT_METRICS.find((m) => m.id === colId);
           return /* @__PURE__ */ jsxRuntimeExports.jsx(
             SortableTh,
             {
               colKey: colId,
-              label: columnLabel(colId),
-              fullTitle: metricHint(colId),
-              defaultDir: col.alignRight ? "desc" : "asc",
-              alignRight: col.alignRight
+              label: def?.shortLabel || def?.label || colId,
+              fullTitle: getReportMetricTooltip(def, t),
+              defaultDir: "desc",
+              alignRight: true,
+              draggable: true,
+              isDragOver: thDragOverIdx === colIdx && thDragIdx !== null && thDragIdx !== colIdx,
+              onDragStart: () => handleThDragStart(colIdx),
+              onDragOver: (e) => handleThDragOver(e, colIdx),
+              onDrop: (e) => handleThDrop(e, colIdx),
+              onDragEnd: handleThDragEnd
             },
             colId
           );
         }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("common.actions") })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleOffers.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: chosenColumns.length + 2, className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleOffers.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 10 + chosenColumns.length, className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: offers.length === 0 ? t("offers.noOffers") : t("offers.noOffersFiltered") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: offers.length === 0 ? t("offers.noOffersDesc") : t("offers.changeFilters") })
       ] }) }) }) : pagedOffers.map((offer) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
@@ -66699,22 +66605,43 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
             onChange: (e) => toggleSelected(offer.id, e.target.checked)
           }
         ) }),
-        chosenColumns.map((colId) => renderOfferCell(offer, colId)),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "action-buttons", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-medium", children: offer.id }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center text-xs font-medium", style: { color: offer.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-2 h-2 rounded-full mr-1.5", style: { backgroundColor: offer.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" } }),
+          offer.state === "active" ? t("components.active") : t("components.archive")
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "span",
+            {
+              className: "font-semibold cursor-pointer hover:underline",
+              style: { color: "var(--color-primary)" },
+              onClick: () => handleEdit(offer.id),
+              children: offer.name
+            }
+          ),
+          !offer.is_local && offer.url && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)", fontSize: "12px" }, className: "truncate max-w-[200px]", title: offer.url, children: offer.url }),
+          offer.is_local && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-accent-purple)", fontSize: "12px" }, children: t("offers.localOffer") })
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: offer.group_name || "-" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: offer.affiliate_network_name || "-" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2 py-1 rounded text-xs font-semibold", style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" }, children: offer.geo || t("offerColumns.allGeo") }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: offer.payout_auto ? t("offerColumns.payoutAuto") : `$${parseFloat(offer.payout_value || 0).toFixed(2)} (${String(offer.payout_type || "cpa").toUpperCase()})` }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2 py-1 rounded text-xs font-semibold", style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" }, children: offer.redirect_type === "redirect" ? t("offers.redirect") : offer.redirect_type === "frame" ? t("offers.iframe") : offer.redirect_type === "local" ? t("offers.local") : offer.redirect_type === "js" ? t("redirectTypes.jsName") : offer.redirect_type === "meta_refresh" ? t("redirectTypes.metaName") : offer.redirect_type === "form_submit" ? t("redirectTypes.formName") : offer.redirect_type === "preload" ? t("offerEditor.preloadCurl") : offer.redirect_type === "curl_proxy" ? t("redirectTypes.curlProxyName") : offer.redirect_type }) }),
+        chosenColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: formatMetricCell(colId, offer) }, colId)),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-end gap-1", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(offer.id), className: "action-btn text-blue", title: t("common.edit") || t("components.edit"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-4 h-4" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(offer.id), className: "action-btn text-red", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: (e) => handleToggleMenu(e, offer.id), className: "action-btn text-gray-500", title: t("common.more"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(EllipsisVertical, { className: "w-4 h-4" }) })
         ] }) })
       ] }, offer.id)) }),
-      filteredOffers.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tfoot", { style: { background: "var(--color-bg-soft)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "font-semibold", style: { color: "var(--color-text-primary)" }, children: [
+      visibleOffers.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tfoot", { style: { background: "var(--color-bg-soft)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "font-semibold", style: { color: "var(--color-text-primary)" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3" }),
-        chosenColumns.map((colId) => {
-          if (colId === "name") {
-            return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3", children: t("offers.total").replace("{count}", filteredOffers.length) }, colId);
-          }
-          const val = renderTotalCell(colId);
-          const alignRight = ALL_OFFER_COLUMNS.find((c) => c.id === colId)?.alignRight;
-          return /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: `px-4 py-3 ${alignRight ? "text-right" : ""}`, style: { color: colId === "profit_confirmed" && totalsProfitConfirmed < 0 || colId === "profit" && totalsProfit < 0 ? "var(--color-danger)" : void 0 }, children: val ?? "" }, colId);
-        }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "px-4 py-3", colSpan: 8, children: [
+          "Σ Total (",
+          visibleOffers.length,
+          ")"
+        ] }),
+        chosenColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-right", children: formatTotalCell(colId) }, colId)),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", {})
       ] }) })
     ] }) }),
@@ -66745,18 +66672,54 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
         onClose: () => setIsGroupsModalOpen(false)
       }
     ),
-    columnsModalOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(
-      ColumnsOrderModal,
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ReportCustomizerModal,
       {
-        columns: localizedColumns,
-        selectedIds: chosenColumns,
-        defaultIds: DEFAULT_OFFER_COLUMNS,
+        isOpen: columnsModalOpen,
         onClose: () => setColumnsModalOpen(false),
-        onSave: (ids) => {
-          setChosenColumns(ids);
-          localStorage.setItem(OFFER_COLUMNS_KEY, JSON.stringify(ids));
-          setColumnsModalOpen(false);
-        }
+        selectedColumns: chosenColumns,
+        onSaveColumns: handleSaveColumns,
+        mode: "offers"
+      }
+    ),
+    menuAnchor && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "dropdown-menu",
+        style: {
+          position: "fixed",
+          top: menuAnchor.top,
+          right: menuAnchor.right,
+          zIndex: 1e3
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: (e) => {
+                e.stopPropagation();
+                handleEdit(menuAnchor.id);
+                setMenuAnchor(null);
+              },
+              className: "dropdown-item",
+              children: t("common.edit")
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: (e) => {
+                e.stopPropagation();
+                setMenuAnchor(null);
+                handleDelete(menuAnchor.id);
+              },
+              className: "dropdown-item text-red-600",
+              children: t("common.delete")
+            }
+          )
+        ]
       }
     ),
     settingsOpen && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", onClick: () => setSettingsOpen(false), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", onClick: (e) => e.stopPropagation(), style: { maxWidth: "560px" }, children: [
@@ -83629,7 +83592,7 @@ const AnalyticsEntityFilters = ({
   const { t } = useLanguage();
   const { items: campaigns } = useEntityList("campaigns_simple");
   const { items: offers } = useEntityList("offers_simple");
-  const { items: landings } = useEntityList("landings");
+  const { items: landings } = useEntityList("landings_simple");
   const { items: campaignGroups } = useEntityList("campaign_groups");
   const { items: offerGroups } = useEntityList("offer_groups");
   const { items: landingGroups } = useEntityList("landing_groups");
@@ -85621,6 +85584,55 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       alert(t("common.error"));
     }
   };
+  const copyFacebookParams = async () => {
+    const fbParams = [
+      "utm_placement={{placement}}",
+      "source={{site_source_name}}",
+      "campaign_id={{campaign.id}}",
+      "campaign_name={{campaign.name}}",
+      "adset_id={{adset.id}}",
+      "adset_name={{adset.name}}",
+      "ad_id={{ad.id}}",
+      "ad_name={{ad.name}}",
+      "placement={{placement}}",
+      "site_source_name={{site_source_name}}"
+    ];
+    const customParams = Object.entries(formData.parameters || {}).filter(([, v]) => String(v ?? "").trim() !== "").map(([k, v]) => {
+      const safeVal = encodeURIComponent(String(v).trim()).replace(/%7B/gi, "{").replace(/%7D/gi, "}").replace(/%3A/gi, ":");
+      return `${encodeURIComponent(k)}=${safeVal}`;
+    });
+    const paramString = [...fbParams, ...customParams].join("&");
+    let copied = false;
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(paramString);
+        copied = true;
+      } catch (e) {
+        copied = false;
+      }
+    }
+    if (!copied) {
+      try {
+        const textarea = document.createElement("textarea");
+        textarea.value = paramString;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        copied = document.execCommand("copy");
+        document.body.removeChild(textarea);
+      } catch (e) {
+        copied = false;
+      }
+    }
+    if (copied) {
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2e3);
+    } else {
+      alert(t("common.error"));
+    }
+  };
   const fetchClickLogs = async () => {
     if (!activeCampaignId) return;
     try {
@@ -86219,20 +86231,42 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       preload: t("landingEditor.typePreload"),
       action: t("landingEditor.typeAction")
     };
+    const isItemActive = (l.state ?? "active") !== "disabled" && (l.is_active ?? 1) != 0;
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "div",
       {
-        className: "flex items-center gap-2 px-3 py-2 rounded-xl",
+        className: "flex items-center gap-2 px-3 py-2 rounded-xl transition-opacity",
         style: {
           backgroundColor: "var(--color-bg-card)",
           border: empty ? "1px dashed var(--color-border)" : "1px solid var(--color-border)",
-          cursor: empty ? "pointer" : "default"
+          cursor: empty ? "pointer" : "default",
+          opacity: isItemActive ? 1 : 0.6
         },
         onClick: empty ? () => {
           removeSchemaItem(idx, "landings", lIdx);
           openEntityPicker(idx, "landings");
         } : void 0,
         children: [
+          !empty && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: (e) => {
+                e.stopPropagation();
+                updateSchemaItem(idx, "landings", lIdx, "state", isItemActive ? "disabled" : "active");
+              },
+              className: "relative inline-flex h-4 w-7 flex-shrink-0 items-center rounded-full transition-colors cursor-pointer",
+              style: { background: isItemActive ? "var(--color-success, #10b981)" : "var(--color-border)" },
+              title: isItemActive ? t("automation.clickToPause", "Click to pause") : t("automation.clickToResume", "Click to resume"),
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "span",
+                {
+                  className: "inline-block h-3 w-3 transform rounded-full bg-white transition-transform",
+                  style: { transform: isItemActive ? "translateX(14px)" : "translateX(2px)" }
+                }
+              )
+            }
+          ),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-medium truncate", style: { color: empty ? "var(--color-warning)" : "var(--color-text-primary)" }, title: name, children: name }),
             info && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-1 mt-1", children: [
@@ -86262,20 +86296,42 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const info = allOffers.find((ao) => ao.id === parseInt(o.id, 10));
     const empty = !info && !o.id;
     const name = info ? info.name : o.id ? `#${o.id}` : t("editor.selectOfferPlaceholder");
+    const isItemActive = (o.state ?? "active") !== "disabled" && (o.is_active ?? 1) != 0;
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "div",
       {
-        className: "flex items-center gap-2 px-3 py-2 rounded-xl",
+        className: "flex items-center gap-2 px-3 py-2 rounded-xl transition-opacity",
         style: {
           backgroundColor: "var(--color-bg-card)",
           border: empty ? "1px dashed var(--color-border)" : "1px solid var(--color-border)",
-          cursor: empty ? "pointer" : "default"
+          cursor: empty ? "pointer" : "default",
+          opacity: isItemActive ? 1 : 0.6
         },
         onClick: empty ? () => {
           removeSchemaItem(idx, "offers", oIdx);
           openEntityPicker(idx, "offers");
         } : void 0,
         children: [
+          !empty && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: (e) => {
+                e.stopPropagation();
+                updateSchemaItem(idx, "offers", oIdx, "state", isItemActive ? "disabled" : "active");
+              },
+              className: "relative inline-flex h-4 w-7 flex-shrink-0 items-center rounded-full transition-colors cursor-pointer",
+              style: { background: isItemActive ? "var(--color-success, #10b981)" : "var(--color-border)" },
+              title: isItemActive ? t("automation.clickToPause", "Click to pause") : t("automation.clickToResume", "Click to resume"),
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "span",
+                {
+                  className: "inline-block h-3 w-3 transform rounded-full bg-white transition-transform",
+                  style: { transform: isItemActive ? "translateX(14px)" : "translateX(2px)" }
+                }
+              )
+            }
+          ),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 min-w-0", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-sm font-medium truncate", style: { color: empty ? "var(--color-warning)" : "var(--color-text-primary)" }, title: name, children: name }),
             info && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-1 mt-1", children: [
@@ -86948,18 +87004,37 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-primary)", fontWeight: 600 }, children: activeSource.name })
                   ] })
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "button",
-                  {
-                    type: "button",
-                    onClick: addCustomParameter,
-                    className: "btn btn-secondary text-xs py-1 px-2.5 rounded-xl font-medium",
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3.5 h-3.5" }),
-                      t("parameters.addParam", "Add Parameter")
-                    ]
-                  }
-                )
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: copyFacebookParams,
+                      className: "btn btn-secondary text-xs py-1 px-2.5 rounded-xl font-medium flex items-center gap-1.5",
+                      title: t("parameters.facebookParamsHint", "Copy Facebook Ads URL Parameters (without leading ?) for pasting into Meta Ads Manager"),
+                      style: copySuccess ? { backgroundColor: "var(--color-success)", borderColor: "var(--color-success)" } : {},
+                      children: copySuccess ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-3.5 h-3.5" }),
+                        t("common.copied", "Copied!")
+                      ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-3.5 h-3.5" }),
+                        t("parameters.facebookParams", "Facebook Parameters")
+                      ] })
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: addCustomParameter,
+                      className: "btn btn-secondary text-xs py-1 px-2.5 rounded-xl font-medium",
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3.5 h-3.5" }),
+                        t("parameters.addParam", "Add Parameter")
+                      ]
+                    }
+                  )
+                ] })
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "hidden sm:grid grid-cols-12 gap-2 px-2 text-[11px] font-semibold uppercase tracking-wide", style: { color: "var(--color-text-muted)" }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "col-span-3", children: t("sourceEditor.alias") }),
@@ -88544,6 +88619,39 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         }
                       ),
                       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs", style: { color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t("streamRefine.directUrlHelp") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 pt-1", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                          "button",
+                          {
+                            type: "button",
+                            onClick: () => {
+                              const trackingParams = [
+                                "subid={subid}",
+                                "clickid={clickid}",
+                                "campaign_id={campaign_id}",
+                                "adset_id={adset_id}",
+                                "ad_id={ad_id}",
+                                "utm_placement={utm_placement}",
+                                "utm_source={utm_source}",
+                                "utm_medium={utm_medium}",
+                                "utm_campaign={utm_campaign}",
+                                "utm_content={utm_content}",
+                                "utm_term={utm_term}"
+                              ].join("&");
+                              const baseUrl = sc.direct_url?.split("?")[0] || sc.direct_url || "";
+                              setDirectUrl(baseUrl + (baseUrl.includes("?") ? "&" : "?") + trackingParams);
+                            },
+                            className: "text-[11px] px-2 py-1 rounded-lg border font-medium transition-colors hover:border-blue-400",
+                            style: { backgroundColor: "var(--color-primary-soft)", borderColor: "var(--color-primary)", color: "var(--color-primary)" },
+                            title: t("streamRefine.passthroughHint", "Add all Facebook & UTM tracking parameters to forward to the destination"),
+                            children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-3 h-3 inline mr-1" }),
+                              t("streamRefine.passthroughParams", "Add All Tracking Parameters")
+                            ]
+                          }
+                        ),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: t("streamRefine.passthroughHelp", "Auto-add Facebook & UTM macros") })
+                      ] }),
                       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1.5 pt-1", children: ["{subid}", "{clickid}", "{country}", "{ip}", "{sub_id_1}", "{sub_id_2}", "{sub_id_3}", "{cost}"].map((tag) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
                         "button",
                         {

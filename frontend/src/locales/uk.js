@@ -22,7 +22,9 @@ export default {
         "enterParamKey": "Введіть ключ параметра (наприклад, utm_placement, placement, custom_id):",
         "addParam": "Додати параметр",
         "additionalSubIds": "Додаткові Sub ID (sub_id_1 .. sub_id_30)",
-        "placement": "Плейсмент (utm_placement)"
+        "placement": "Плейсмент (utm_placement)",
+        "facebookParams": "Параметри Facebook",
+        "facebookParamsHint": "Скопіювати URL-параметри Facebook Ads (без початкового «?») для вставки в Meta Ads Manager",
     },
     "costModels": {
         "cpc": "CPC — оплата за клік",
@@ -1463,6 +1465,7 @@ export default {
         "name": "Ім'я",
         "namePlaceholder": "Назва посадки",
         "group": "Група",
+        "groupOrProduct": "Група / Продукт",
         "noGroup": "-- Немає групи --",
         "status": "Статус",
         "active": "Активний",
@@ -1604,6 +1607,7 @@ export default {
         "notesPlaceholder": "Ваші примітки щодо пропозиції...",
         "nameLabel": "Ім'я",
         "group": "Група",
+        "groupOrProduct": "Група / Продукт",
         "noGroup": "-- Немає групи --",
         "affiliateNetwork": "Партнерська мережа",
         "networkTooltip": "Вибрана мережа додає теги до URL-адреси та вмикає показники у звітах.",
@@ -3274,7 +3278,11 @@ export default {
         "addCostConnection": "Підключити Cost Sync",
         "updateCostsManually": "Оновити витрати вручну",
         "costSyncTitle": "Синхронізація витрат (Cost Sync)",
-        "manualCostTitle": "Ручне введення витрат"
+        "manualCostTitle": "Ручне введення витрат",
+        "passthroughParams": "Додати всі трекінг-параметри",
+        "passthroughHint": "Додати всі параметри Facebook та UTM для передачі на цільову адресу",
+        "passthroughHelp": "Автоматично додати макроси Facebook та UTM",
+
     },
     "suite": {
         "leadforge": "LeadForge",

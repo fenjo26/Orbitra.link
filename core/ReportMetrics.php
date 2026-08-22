@@ -149,9 +149,16 @@ if (!function_exists('orbitraConversionStatusGroups')) {
      * roi_confirmed (plus raw sales/leads/rejected/trash/revenue_confirmed/cost
      * and lp_clicks — clicks that reached the offer through a landing).
      */
-    function orbitraOffersWithStatsSql(string $joinCondition, ?string $valueColumn): string
+    function orbitraOffersWithStatsSql(string $joinCondition, ?string $valueColumn, ?string $realValueColumn = null): string
     {
         $agg = orbitraConversionAggregateSql($valueColumn);
+        $realJoin = $realValueColumn !== null
+            ? 'LEFT JOIN ' . orbitraRevenueRecordsAggregateSql($realValueColumn) . ' rr ON rr.click_id = cl.id'
+            : '';
+        // The aggregate runs in the OUTER query, over the subquery's bare
+        // real_rev column — the rr alias only exists inside the subquery.
+        $realSelect = $realValueColumn !== null ? 'COALESCE(SUM(real_rev), 0)' : '0';
+        $realInner = $realValueColumn !== null ? 'rr.real_rev' : 'NULL as real_rev';
         return "
             SELECT id, name, group_id, affiliate_network_id, url, redirect_type,
                    is_local, geo, payout_type, payout_value, payout_auto,
@@ -159,6 +166,14 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    notes, state, created_at, group_name, affiliate_network_name,
                    COUNT(click_id) as clicks,
                    COUNT(DISTINCT click_ip) as unique_clicks,
+                   COALESCE(SUM(uniq_stream), 0) as unique_clicks_stream,
+                   COALESCE(SUM(uniq_global), 0) as unique_clicks_global,
+                   COALESCE(SUM(uniq_global), 0) as visitors,
+                   COALESCE(SUM(is_bot), 0) as bots,
+                   COALESCE(SUM(is_proxy), 0) as proxies,
+                   COALESCE(SUM(CASE WHEN click_referer IS NULL OR click_referer = '' THEN 1 ELSE 0 END), 0) as empty_referrers,
+                   AVG(CASE WHEN landing_at IS NOT NULL AND offer_at IS NOT NULL
+                       THEN CAST(strftime('%s', offer_at) - strftime('%s', landing_at) AS REAL) END) as avg_lp_seconds,
                    COALESCE(SUM(via_landing), 0) as lp_clicks,
                    COALESCE(SUM(cnt_any), 0) as conversions,
                    COALESCE(SUM(rev_all), 0) as revenue,
@@ -167,7 +182,15 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    COALESCE(SUM(cnt_hold), 0) as leads,
                    COALESCE(SUM(cnt_rejected), 0) as rejected,
                    COALESCE(SUM(cnt_trash), 0) as trash,
-                   COALESCE(SUM(click_cost), 0) as cost
+                   COALESCE(SUM(cnt_registration), 0) as registrations,
+                   COALESCE(SUM(cnt_deposit), 0) as deposits,
+                   COALESCE(SUM(rev_hold), 0) as revenue_hold,
+                   COALESCE(SUM(rev_rejected), 0) as revenue_rejected,
+                   COALESCE(SUM(rev_trash), 0) as revenue_trash,
+                   COALESCE(SUM(rev_registration), 0) as revenue_registration,
+                   COALESCE(SUM(rev_deposit), 0) as revenue_deposit,
+                   COALESCE(SUM(click_cost), 0) as cost,
+                   $realSelect as real_revenue
             FROM (
                 SELECT o.id, o.name, o.group_id, o.affiliate_network_id, o.url, o.redirect_type,
                        o.is_local, o.geo, o.payout_type, o.payout_value, o.payout_auto,
@@ -178,14 +201,23 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                        cl.id as click_id,
                        cl.ip as click_ip,
                        cl.cost as click_cost,
+                       cl.uniq_stream, cl.uniq_global,
+                       cl.is_bot, cl.is_proxy,
+                       cl.referer as click_referer,
+                       cl.landing_at, cl.offer_at,
                        CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 THEN 1 ELSE 0 END as via_landing,
                        cva.cnt_any, cva.rev_all, cva.rev_sale,
-                       cva.cnt_sale, cva.cnt_hold, cva.cnt_rejected, cva.cnt_trash
+                       cva.cnt_sale, cva.cnt_hold, cva.cnt_rejected, cva.cnt_trash,
+                       cva.cnt_registration, cva.cnt_deposit,
+                       cva.rev_hold, cva.rev_rejected, cva.rev_trash,
+                       cva.rev_registration, cva.rev_deposit,
+                       $realInner
                 FROM offers o
                 LEFT JOIN offer_groups og ON o.group_id = og.id
                 LEFT JOIN affiliate_networks an ON an.id = o.affiliate_network_id
                 LEFT JOIN clicks cl ON o.id = cl.offer_id $joinCondition
                 LEFT JOIN $agg cva ON cva.click_id = cl.id
+                $realJoin
                 WHERE o.is_archived = 0
             )
             GROUP BY id
@@ -201,13 +233,28 @@ if (!function_exists('orbitraConversionStatusGroups')) {
      * Row extras after compute: lp_ctr, cr, approve_rate, epc/epv family, cpc/cpv,
      * profit, roi (plus raw sales/leads/rejected/trash/revenue_confirmed/cost).
      */
-    function orbitraLandingsWithStatsSql(string $joinCondition, ?string $valueColumn): string
+    function orbitraLandingsWithStatsSql(string $joinCondition, ?string $valueColumn, ?string $realValueColumn = null): string
     {
         $agg = orbitraConversionAggregateSql($valueColumn);
+        $realJoin = $realValueColumn !== null
+            ? 'LEFT JOIN ' . orbitraRevenueRecordsAggregateSql($realValueColumn) . ' rr ON rr.click_id = cl.id'
+            : '';
+        // The aggregate runs in the OUTER query, over the subquery's bare
+        // real_rev column — the rr alias only exists inside the subquery.
+        $realSelect = $realValueColumn !== null ? 'COALESCE(SUM(real_rev), 0)' : '0';
+        $realInner = $realValueColumn !== null ? 'rr.real_rev' : 'NULL as real_rev';
         return "
             SELECT id, name, group_id, type, url, state, group_name,
                    COUNT(click_id) as clicks,
                    COUNT(DISTINCT click_ip) as unique_clicks,
+                   COALESCE(SUM(uniq_stream), 0) as unique_clicks_stream,
+                   COALESCE(SUM(uniq_global), 0) as unique_clicks_global,
+                   COALESCE(SUM(uniq_global), 0) as visitors,
+                   COALESCE(SUM(is_bot), 0) as bots,
+                   COALESCE(SUM(is_proxy), 0) as proxies,
+                   COALESCE(SUM(CASE WHEN click_referer IS NULL OR click_referer = '' THEN 1 ELSE 0 END), 0) as empty_referrers,
+                   AVG(CASE WHEN landing_at IS NOT NULL AND offer_at IS NOT NULL
+                       THEN CAST(strftime('%s', offer_at) - strftime('%s', landing_at) AS REAL) END) as avg_lp_seconds,
                    COALESCE(SUM(offer_clicked), 0) as lp_clicks,
                    COALESCE(SUM(cnt_any), 0) as conversions,
                    COALESCE(SUM(rev_all), 0) as revenue,
@@ -216,7 +263,15 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    COALESCE(SUM(cnt_hold), 0) as leads,
                    COALESCE(SUM(cnt_rejected), 0) as rejected,
                    COALESCE(SUM(cnt_trash), 0) as trash,
+                   COALESCE(SUM(cnt_registration), 0) as registrations,
+                   COALESCE(SUM(cnt_deposit), 0) as deposits,
+                   COALESCE(SUM(rev_hold), 0) as revenue_hold,
+                   COALESCE(SUM(rev_rejected), 0) as revenue_rejected,
+                   COALESCE(SUM(rev_trash), 0) as revenue_trash,
+                   COALESCE(SUM(rev_registration), 0) as revenue_registration,
+                   COALESCE(SUM(rev_deposit), 0) as revenue_deposit,
                    COALESCE(SUM(click_cost), 0) as cost,
+                   $realSelect as real_revenue,
                    MAX(click_created) as last_event
             FROM (
                 SELECT l.id, l.name, l.group_id, l.type, l.url, l.state,
@@ -225,13 +280,22 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                        cl.ip as click_ip,
                        cl.cost as click_cost,
                        cl.created_at as click_created,
+                       cl.uniq_stream, cl.uniq_global,
+                       cl.is_bot, cl.is_proxy,
+                       cl.referer as click_referer,
+                       cl.landing_at, cl.offer_at,
                        CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END as offer_clicked,
                        cva.cnt_any, cva.rev_all, cva.rev_sale,
-                       cva.cnt_sale, cva.cnt_hold, cva.cnt_rejected, cva.cnt_trash
+                       cva.cnt_sale, cva.cnt_hold, cva.cnt_rejected, cva.cnt_trash,
+                       cva.cnt_registration, cva.cnt_deposit,
+                       cva.rev_hold, cva.rev_rejected, cva.rev_trash,
+                       cva.rev_registration, cva.rev_deposit,
+                       $realInner
                 FROM landings l
                 LEFT JOIN landing_groups lg ON l.group_id = lg.id
                 LEFT JOIN clicks cl ON l.id = cl.landing_id $joinCondition
                 LEFT JOIN $agg cva ON cva.click_id = cl.id
+                $realJoin
                 WHERE l.is_archived = 0
             )
             GROUP BY id

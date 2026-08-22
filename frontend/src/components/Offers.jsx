@@ -1,9 +1,9 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { Plus, Search, Trash2, Edit3, Settings2, RefreshCw, X, ChevronUp, ChevronDown, ChevronsUpDown, Copy, SlidersHorizontal } from 'lucide-react';
+import { Plus, Search, Trash2, Edit3, Settings2, RefreshCw, X, ChevronUp, ChevronDown, ChevronsUpDown, Copy, SlidersHorizontal, GripVertical, MoreVertical } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import OfferEditor from './OfferEditor';
 import GroupsModal from './GroupsModal';
-import ColumnsOrderModal from './ColumnsOrderModal';
+import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -12,61 +12,29 @@ import PaginationToolbar from './common/PaginationToolbar';
 
 const API_URL = '/api.php';
 
-// Every column the offers table can show. Status counters and money come from
-// the report engine's status groups (leads = hold group, sales = sale group,
-// "confirmed" = sale group), so the labels match the 65-metric reports.
-export const ALL_OFFER_COLUMNS = [
-    { id: 'id', label: 'ID' },
-    { id: 'name', label: 'Name', required: true },
-    { id: 'state', label: 'Status' },
-    { id: 'affiliate_network_name', label: 'Affiliate network' },
-    { id: 'group_name', label: 'Group' },
-    { id: 'redirect_type', label: 'Type' },
-    { id: 'geo', label: 'GEO' },
-    { id: 'payout', label: 'Payout' },
-    { id: 'clicks', label: 'Clicks', alignRight: true },
-    { id: 'unique_clicks', label: 'Uniques', alignRight: true },
-    { id: 'visits', label: 'Visits', alignRight: true },
-    { id: 'unique_visits', label: 'uVisits', alignRight: true },
-    { id: 'lp_clicks', label: 'LP Clicks', alignRight: true },
-    { id: 'lp_ctr', label: 'LP CTR', alignRight: true },
-    { id: 'conversions', label: 'Conversions', alignRight: true },
-    { id: 'leads', label: 'Leads', alignRight: true },
-    { id: 'sales', label: 'Sales', alignRight: true },
-    { id: 'rejected', label: 'Rejected', alignRight: true },
-    { id: 'trash', label: 'Trash', alignRight: true },
-    { id: 'approve_rate', label: 'Approve %', alignRight: true },
-    { id: 'revenue', label: 'Revenue', alignRight: true },
-    { id: 'revenue_confirmed', label: 'Revenue (confirmed)', alignRight: true },
-    { id: 'cost', label: 'Cost', alignRight: true },
-    { id: 'cr', label: 'CR', alignRight: true },
-    { id: 'epc', label: 'EPC', alignRight: true },
-    { id: 'epc_confirmed', label: 'EPC (confirmed)', alignRight: true },
-    { id: 'epv', label: 'EPV', alignRight: true },
-    { id: 'cpc', label: 'CPC', alignRight: true },
-    { id: 'cpv', label: 'CPV', alignRight: true },
-    { id: 'profit', label: 'Profit', alignRight: true },
-    { id: 'profit_confirmed', label: 'P/L (confirmed)', alignRight: true },
-    { id: 'roi', label: 'ROI', alignRight: true },
-    { id: 'roi_confirmed', label: 'ROI (confirmed)', alignRight: true },
-];
-
-export const DEFAULT_OFFER_COLUMNS = [
-    'name', 'state', 'affiliate_network_name', 'clicks', 'leads', 'sales',
-    'rejected', 'cr', 'epc_confirmed', 'cpc', 'revenue_confirmed', 'cost', 'profit_confirmed',
+// Fixed entity columns for offers — these are always present and not part of
+// the metric customization. Metrics come from ALL_REPORT_METRICS.
+const FIXED_OFFER_COLUMNS = [
+    { id: 'checkbox', label: '', fixed: true },
+    { id: 'id', label: 'ID', fixed: true },
+    { id: 'state', label: 'Status', fixed: true },
+    { id: 'name', label: 'Name', fixed: true },
+    { id: 'group_name', label: 'Group', fixed: true },
+    { id: 'affiliate_network_name', label: 'Affiliate Network', fixed: true },
+    { id: 'geo', label: 'GEO', fixed: true },
+    { id: 'payout', label: 'Payout', fixed: true },
+    { id: 'redirect_type', label: 'Type', fixed: true },
 ];
 
 const OFFER_COLUMNS_KEY = 'orbitra_offer_columns';
 
 const loadOfferColumns = () => {
     try {
-        const saved = JSON.parse(localStorage.getItem(OFFER_COLUMNS_KEY) || 'null');
-        if (Array.isArray(saved) && saved.length) {
-            const valid = saved.filter(id => ALL_OFFER_COLUMNS.some(c => c.id === id));
-            if (valid.includes('name')) return valid;
-        }
-    } catch { /* fall through to default */ }
-    return [...DEFAULT_OFFER_COLUMNS];
+        const saved = localStorage.getItem(OFFER_COLUMNS_KEY);
+        if (saved) return normalizeReportMetricIds(JSON.parse(saved));
+    } catch (e) {}
+    // Fallback to 'best' preset for offers (revenue-focused metrics)
+    return normalizeReportMetricIds(PRESETS.best);
 };
 
 const Offers = ({ offers: initialOffers = [], refreshData }) => {
@@ -91,6 +59,13 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
     const [refreshing, setRefreshing] = useState(false);
     const [columnsModalOpen, setColumnsModalOpen] = useState(false);
     const [chosenColumns, setChosenColumns] = useState(() => loadOfferColumns());
+
+    // Header Drag-and-Drop state
+    const [thDragIdx, setThDragIdx] = useState(null);
+    const [thDragOverIdx, setThDragOverIdx] = useState(null);
+
+    // Row action dropdown (⋮)
+    const [menuAnchor, setMenuAnchor] = useState(null);
 
     // This page owns its reporting period instead of inheriting the dashboard
     // range. Only joined traffic rows are date-limited; zero-traffic offers
@@ -137,6 +112,74 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
         setDateTo(to);
     };
 
+    const handleSaveColumns = (cols) => {
+        setChosenColumns(cols);
+        localStorage.setItem(OFFER_COLUMNS_KEY, JSON.stringify(cols));
+    };
+
+    const handleThDragStart = (idx) => {
+        setThDragIdx(idx);
+    };
+
+    const handleThDragOver = (e, idx) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (thDragOverIdx !== idx) {
+            setThDragOverIdx(idx);
+        }
+    };
+
+    const handleThDrop = (e, targetIdx) => {
+        e.preventDefault();
+        if (thDragIdx !== null && thDragIdx !== targetIdx) {
+            const sourceColId = chosenColumns[thDragIdx];
+            const targetColId = chosenColumns[targetIdx];
+            if (sourceColId && targetColId) {
+                const copy = [...chosenColumns];
+                const from = copy.indexOf(sourceColId);
+                const to = copy.indexOf(targetColId);
+                if (from !== -1 && to !== -1) {
+                    const [item] = copy.splice(from, 1);
+                    copy.splice(to, 0, item);
+                    setChosenColumns(copy);
+                    localStorage.setItem(OFFER_COLUMNS_KEY, JSON.stringify(copy));
+                }
+            }
+        }
+        setThDragIdx(null);
+        setThDragOverIdx(null);
+    };
+
+    const handleThDragEnd = () => {
+        setThDragIdx(null);
+        setThDragOverIdx(null);
+    };
+
+    const handleToggleMenu = (event, offerId) => {
+        event.stopPropagation();
+        if (menuAnchor?.id === offerId) {
+            setMenuAnchor(null);
+            return;
+        }
+        const rect = event.currentTarget.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const openUp = spaceBelow < 240;
+        setMenuAnchor({
+            id: offerId,
+            top: openUp ? rect.top - 8 : rect.bottom + 4,
+            right: Math.max(8, window.innerWidth - rect.right),
+            openUp
+        });
+    };
+
+    // Close menu on outside clicks
+    useEffect(() => {
+        if (!menuAnchor) return undefined;
+        const close = () => setMenuAnchor(null);
+        window.addEventListener('click', close);
+        return () => window.removeEventListener('click', close);
+    }, [menuAnchor]);
+
     // Get unique values for filters
     const groups = [...new Set(offers.map(o => o.group_name).filter(Boolean))];
     const networks = [...new Set(offers.map(o => o.affiliate_network_name).filter(Boolean))];
@@ -176,48 +219,25 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
         const dirMul = sortBy.dir === 'asc' ? 1 : -1;
 
         const getVal = (o) => {
-            switch (sortBy.key) {
-                case 'id': return Number(o.id) || 0;
-                case 'name': return String(o.name || '');
-                case 'group_name': return String(o.group_name || '');
-                case 'affiliate_network_name': return String(o.affiliate_network_name || '');
-                case 'redirect_type': return String(o.redirect_type || '');
-                case 'state': return String(o.state || '');
-                case 'geo': return String(o.geo || '');
-                case 'payout': return Number(o.payout_value) || 0;
-                case 'clicks': return Number(o.clicks) || 0;
-                case 'unique_clicks': return Number(o.unique_clicks) || 0;
-                case 'visits': return Number(o.visits) || 0;
-                case 'unique_visits': return Number(o.unique_visits) || 0;
-                case 'lp_clicks': return Number(o.lp_clicks) || 0;
-                case 'lp_ctr': return Number(o.lp_ctr) || 0;
-                case 'conversions': return Number(o.conversions) || 0;
-                case 'leads': return Number(o.leads) || 0;
-                case 'sales': return Number(o.sales) || 0;
-                case 'rejected': return Number(o.rejected) || 0;
-                case 'trash': return Number(o.trash) || 0;
-                case 'approve_rate': return Number(o.approve_rate) || 0;
-                case 'revenue': return Number(o.revenue) || 0;
-                case 'revenue_confirmed': return Number(o.revenue_confirmed) || 0;
-                case 'cost': return Number(o.cost) || 0;
-                case 'cr': return Number(o.cr) || 0;
-                case 'epc': return Number(o.epc) || 0;
-                case 'epc_confirmed': return Number(o.epc_confirmed) || 0;
-                case 'epv': return Number(o.epv) || 0;
-                case 'cpc': return Number(o.cpc) || 0;
-                case 'cpv': return Number(o.cpv) || 0;
-                case 'profit': return Number(o.profit) || 0;
-                case 'profit_confirmed': return Number(o.profit_confirmed) || 0;
-                case 'roi': return Number(o.roi) || 0;
-                case 'roi_confirmed': return Number(o.roi_confirmed) || 0;
-                default: return '';
-            }
+            const val = o[sortBy.key];
+            if (val === null || val === undefined) return '';
+            if (typeof val === 'number') return val;
+            return String(val);
         };
 
-        const isNumeric = ['id', 'payout', 'clicks', 'unique_clicks', 'visits', 'unique_visits',
+        const isNumeric = [
+            'id', 'payout_value', 'clicks', 'unique_clicks', 'visits', 'unique_visits',
             'lp_clicks', 'lp_ctr', 'conversions', 'leads', 'sales', 'rejected', 'trash',
             'approve_rate', 'revenue', 'revenue_confirmed', 'cost', 'cr', 'epc', 'epc_confirmed',
-            'epv', 'cpc', 'cpv', 'profit', 'profit_confirmed', 'roi', 'roi_confirmed'].includes(sortBy.key);
+            'epv', 'cpc', 'cpv', 'profit', 'profit_confirmed', 'roi', 'roi_confirmed',
+            // All derived metrics from orbitraComputeDerivedMetrics
+            'cpa', 'cpl', 'cps', 'cpr', 'cpd', 'cr_sales', 'cr_holds', 'cr_leads', 'cr_registrations',
+            'cr_deposits', 'registrations', 'deposits', 'uc_rate', 'bot_rate', 'uepc', 'uepc_confirmed',
+            'epc_hold', 'uepc_hold', 'epc_registration', 'uepc_registration', 'ucpc', 'ecpm_all', 'ecpm_confirmed',
+            'earnings_per_conv', 'ec_confirmed', 'revenue_hold', 'revenue_rejected', 'revenue_trash',
+            'revenue_registration', 'revenue_deposit', 'real_revenue', 'real_profit', 'real_roi',
+            'bots', 'proxies', 'empty_referrers', 'unique_clicks_stream', 'unique_clicks_global'
+        ].includes(sortBy.key);
 
         return filteredOffers
             .map((offer, idx) => ({ offer, idx }))
@@ -263,9 +283,6 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
         if (window.confirm(t('common.deleteConfirm'))) {
             try {
                 const res = await axios.post(`${API_URL}?action=delete_offer`, { id });
-                // The API refuses with HTTP 200 + status:'error' when the offer
-                // is live in a serving campaign — axios does not throw, so the
-                // body has to be read or the refusal looks like a success.
                 if (res?.data?.status !== 'success') {
                     alert(entityDeleteErrorText(t, res?.data));
                     return;
@@ -308,8 +325,6 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
         if (!window.confirm(msg)) return;
         try {
             const res = await axios.post(`${API_URL}?action=bulk_delete_offers`, { ids });
-            // Same 200-with-error refusal as the single delete: a blocked
-            // batch must not look like it went through.
             if (res?.data?.status !== 'success') {
                 alert(entityDeleteErrorText(t, res?.data));
                 return;
@@ -367,254 +382,269 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
 
     const hasActiveFilters = filterGroup || filterNetwork || filterState || search;
 
-    // Calculate totals for filtered offers. Ratios (CR/EPC/CPC/ROI) are not
-    // summed — they are recomputed from the totals below, same as the reports.
-    const totals = filteredOffers.reduce((acc, o) => {
-        acc.clicks += parseInt(o.clicks || 0);
-        acc.unique_clicks += parseInt(o.unique_clicks || 0);
-        acc.visits += parseInt(o.visits || 0);
-        acc.unique_visits += parseInt(o.unique_visits || 0);
-        acc.lp_clicks += parseInt(o.lp_clicks || 0);
-        acc.conversions += parseInt(o.conversions || 0);
-        acc.leads += parseInt(o.leads || 0);
-        acc.sales += parseInt(o.sales || 0);
-        acc.rejected += parseInt(o.rejected || 0);
-        acc.trash += parseInt(o.trash || 0);
-        acc.revenue += parseFloat(o.revenue || 0);
-        acc.revenue_confirmed += parseFloat(o.revenue_confirmed || 0);
-        acc.cost += parseFloat(o.cost || 0);
-        return acc;
-    }, { clicks: 0, unique_clicks: 0, visits: 0, unique_visits: 0, lp_clicks: 0, conversions: 0,
-        leads: 0, sales: 0, rejected: 0, trash: 0, revenue: 0, revenue_confirmed: 0, cost: 0 });
+    // Calculate grand totals for all visible offers (not just paged slice).
+    // Ratios (CR/EPC/CPC/ROI) are recomputed from the summed base metrics.
+    const grandTotals = useMemo(() => {
+        const t0 = {
+            clicks: 0, unique_clicks: 0, visits: 0, unique_visits: 0,
+            lp_clicks: 0, lp_views: 0, conversions: 0, leads: 0, sales: 0,
+            rejected: 0, trash: 0, cost: 0, revenue: 0, revenue_confirmed: 0,
+            revenue_hold: 0, revenue_rejected: 0, revenue_trash: 0,
+            registrations: 0, deposits: 0, bots: 0, proxies: 0, empty_referrers: 0
+        };
 
-    const totalsProfit = totals.revenue - totals.cost;
-    const totalsProfitConfirmed = totals.revenue_confirmed - totals.cost;
-    const totalsApproveDenom = totals.sales + totals.leads + totals.rejected + totals.trash;
-    const totalsLpViews = totals.visits > 0 ? totals.visits : totals.clicks;
-    const totalsLpClickDenominator = totals.lp_clicks > 0 ? totals.lp_clicks : totals.clicks;
-    const renderTotalCell = (colId) => {
-        switch (colId) {
-            case 'clicks': return totals.clicks.toLocaleString();
-            case 'unique_clicks': return totals.unique_clicks.toLocaleString();
-            case 'visits': return totals.visits.toLocaleString();
-            case 'unique_visits': return totals.unique_visits.toLocaleString();
-            case 'lp_clicks': return totals.lp_clicks.toLocaleString();
-            case 'conversions': return totals.conversions.toLocaleString();
-            case 'leads': return totals.leads.toLocaleString();
-            case 'sales': return totals.sales.toLocaleString();
-            case 'rejected': return totals.rejected.toLocaleString();
-            case 'trash': return totals.trash.toLocaleString();
-            case 'approve_rate': return totalsApproveDenom > 0 ? `${((totals.sales / totalsApproveDenom) * 100).toFixed(2)}%` : '0%';
-            case 'lp_ctr': return totalsLpViews > 0 ? `${((totals.lp_clicks / totalsLpViews) * 100).toFixed(2)}%` : '0%';
-            case 'revenue': return `$${totals.revenue.toFixed(2)}`;
-            case 'revenue_confirmed': return `$${totals.revenue_confirmed.toFixed(2)}`;
-            case 'cost': return `$${totals.cost.toFixed(2)}`;
-            case 'profit': return `$${totalsProfit.toFixed(2)}`;
-            case 'profit_confirmed': return `$${totalsProfitConfirmed.toFixed(2)}`;
-            case 'cr': return totals.clicks > 0 ? `${((totals.conversions / totals.clicks) * 100).toFixed(2)}%` : '0%';
-            case 'epc': return totalsLpClickDenominator > 0 ? `$${(totals.revenue / totalsLpClickDenominator).toFixed(2)}` : '$0';
-            case 'epc_confirmed': return totalsLpClickDenominator > 0 ? `$${(totals.revenue_confirmed / totalsLpClickDenominator).toFixed(2)}` : '$0';
-            case 'epv': return totalsLpViews > 0 ? `$${(totals.revenue / totalsLpViews).toFixed(2)}` : '$0';
-            case 'cpc': return totalsLpClickDenominator > 0 ? `$${(totals.cost / totalsLpClickDenominator).toFixed(2)}` : '$0';
-            case 'cpv': return totalsLpViews > 0 ? `$${(totals.cost / totalsLpViews).toFixed(2)}` : '$0.00';
-            case 'roi': return totals.cost > 0 ? `${((totalsProfit / totals.cost) * 100).toFixed(2)}%` : '—';
-            case 'roi_confirmed': return totals.cost > 0 ? `${((totalsProfitConfirmed / totals.cost) * 100).toFixed(2)}%` : '—';
-            default: return null;
+        visibleOffers.forEach(o => {
+            t0.clicks += Number(o.clicks) || 0;
+            t0.unique_clicks += Number(o.unique_clicks) || 0;
+            const lpViews = Number(o.visits ?? o.clicks) || 0;
+            t0.visits += lpViews;
+            t0.lp_views += lpViews;
+            t0.lp_clicks += Number(o.lp_clicks) || 0;
+            t0.conversions += Number(o.conversions) || 0;
+            t0.leads += Number(o.leads) || 0;
+            t0.sales += Number(o.sales) || 0;
+            t0.rejected += Number(o.rejected) || 0;
+            t0.trash += Number(o.trash) || 0;
+            t0.cost += Number(o.cost) || 0;
+            t0.revenue += Number(o.revenue) || 0;
+            t0.revenue_confirmed += Number(o.revenue_confirmed) || 0;
+            t0.revenue_hold += Number(o.revenue_hold) || 0;
+            t0.revenue_rejected += Number(o.revenue_rejected) || 0;
+            t0.revenue_trash += Number(o.revenue_trash) || 0;
+            t0.registrations += Number(o.registrations) || 0;
+            t0.deposits += Number(o.deposits) || 0;
+            t0.bots += Number(o.bots) || 0;
+            t0.proxies += Number(o.proxies) || 0;
+            t0.empty_referrers += Number(o.empty_referrers) || 0;
+        });
+
+        // Computed ratios from totals (same logic as Campaigns.jsx)
+        const lpClickDenominator = t0.lp_clicks > 0 ? t0.lp_clicks : t0.clicks;
+        const lp_ctr = t0.lp_views > 0 ? (t0.lp_clicks / t0.lp_views) * 100 : 0;
+        const cr = t0.clicks > 0 ? (t0.conversions / t0.clicks) * 100 : 0;
+        const cr_sales = t0.clicks > 0 ? (t0.sales / t0.clicks) * 100 : 0;
+        const cr_leads = t0.clicks > 0 ? (t0.leads / t0.clicks) * 100 : 0;
+        const profit_confirmed = t0.revenue_confirmed - t0.cost;
+        const roi_confirmed = t0.cost > 0 ? (profit_confirmed / t0.cost) * 100 : 0;
+        const cpl = t0.leads > 0 ? t0.cost / t0.leads : 0;
+        const cps = t0.sales > 0 ? t0.cost / t0.sales : 0;
+        const cpa = t0.conversions > 0 ? t0.cost / t0.conversions : 0;
+        const approve_rate = t0.conversions > 0 ? (t0.sales / t0.conversions) * 100 : 0;
+        const roi = t0.cost > 0 ? ((t0.revenue - t0.cost) / t0.cost) * 100 : 0;
+        const epc = lpClickDenominator > 0 ? t0.revenue / lpClickDenominator : 0;
+        const epv = t0.lp_views > 0 ? t0.revenue / t0.lp_views : 0;
+        const uepc = t0.unique_clicks > 0 ? t0.revenue / t0.unique_clicks : 0;
+        const cpc = lpClickDenominator > 0 ? t0.cost / lpClickDenominator : 0;
+        const cpv = t0.lp_views > 0 ? t0.cost / t0.lp_views : 0;
+
+        return {
+            ...t0,
+            profit: t0.revenue - t0.cost,
+            profit_confirmed,
+            roi_confirmed,
+            cpl, cps, cpa,
+            lp_ctr, cr, cr_sales, cr_leads,
+            approve_rate, roi,
+            epc, epv, uepc, cpc, cpv,
+            sales: t0.sales,
+            leads: t0.leads
+        };
+    }, [visibleOffers]);
+
+    // Unified metric cell formatter (same as Campaigns.jsx)
+    const formatMetricCell = (metricId, row) => {
+        const val = row[metricId];
+        const num = Number(val) || 0;
+
+        switch (metricId) {
+            case 'clicks':
+            case 'unique_clicks':
+            case 'visitors':
+            case 'unique_clicks_stream':
+            case 'unique_clicks_global':
+            case 'bots':
+            case 'proxies':
+            case 'empty_referrers':
+            case 'lp_views':
+            case 'lp_clicks':
+            case 'sales':
+            case 'leads':
+            case 'registrations':
+            case 'deposits':
+            case 'rejected':
+            case 'trash':
+                return num.toLocaleString();
+
+            case 'conversions':
+                return num > 0 ? <span className="font-semibold" style={{ color: 'var(--color-success)' }}>{num.toLocaleString()}</span> : '0';
+
+            case 'lp_ctr':
+            case 'approve_rate':
+            case 'cr':
+            case 'cr_sales':
+            case 'cr_leads':
+            case 'cr_holds':
+            case 'cr_registrations':
+            case 'cr_deposits':
+                return val === null || val === undefined ? '—' : `${num.toFixed(2)}%`;
+
+            case 'roi':
+            case 'roi_confirmed': {
+                if (val === null || val === undefined) return '—';
+                if (num === 0) return <span style={{ color: 'var(--color-text-muted)' }}>0.00%</span>;
+                const isPos = num > 0;
+                return (
+                    <span style={{ color: isPos ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: 600 }}>
+                        {isPos ? '+' : ''}{num.toFixed(2)}%
+                    </span>
+                );
+            }
+
+            case 'profit':
+            case 'profit_confirmed': {
+                if (Math.abs(num) < 0.0001) {
+                    return <span style={{ color: 'var(--color-text-secondary)' }}>$0.00</span>;
+                }
+                const isPos = num > 0;
+                return (
+                    <span style={{ color: isPos ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: 600 }}>
+                        {isPos ? '+' : '-'}${Math.abs(num).toFixed(2)}
+                    </span>
+                );
+            }
+
+            case 'cost':
+            case 'revenue':
+            case 'revenue_confirmed':
+            case 'revenue_hold':
+            case 'revenue_rejected':
+            case 'revenue_trash':
+            case 'cpa':
+            case 'cps':
+            case 'cpl':
+            case 'cpd':
+            case 'cpc':
+            case 'cpv':
+            case 'epc':
+            case 'uepc':
+            case 'epv':
+            case 'ecpm_all':
+            case 'ecpm_confirmed':
+            case 'earnings_per_conv':
+            case 'epc_confirmed':
+            case 'uepc_confirmed':
+            case 'epc_hold':
+            case 'uepc_hold':
+            case 'epc_registration':
+            case 'uepc_registration':
+            case 'ucpc':
+                return `$${num.toFixed(2)}`;
+
+            default:
+                return val !== undefined && val !== null ? String(val) : '-';
         }
     };
 
-    const columnLabel = (colId) => ({
-        id: 'ID',
-        name: t('editor.name'),
-        state: t('components.status'),
-        affiliate_network_name: t('offers.network'),
-        group_name: t('components.group'),
-        redirect_type: t('components.type'),
-        geo: t('offerColumns.geo'),
-        payout: t('offerColumns.payout'),
-        clicks: t('components.clicks'),
-        unique_clicks: t('components.uniques'),
-        visits: t('metrics.visits'),
-        unique_visits: t('metrics.uniqueVisits'),
-        lp_clicks: t('components.lpClicks'),
-        lp_ctr: t('components.lpCtr'),
-        conversions: t('metrics.conversions'),
-        leads: t('offerColumns.leads'),
-        sales: t('offerColumns.sales'),
-        rejected: t('offerColumns.rejected'),
-        trash: t('metrics.trash'),
-        approve_rate: t('metrics.approve'),
-        revenue: t('metrics.revenue'),
-        revenue_confirmed: t('offerColumns.revenueConfirmed'),
-        cost: t('offerColumns.cost'),
-        cr: t('offerColumns.cr'),
-        epc: t('metrics.epc'),
-        epc_confirmed: t('offerColumns.epcConfirmed'),
-        epv: t('metrics.epv'),
-        cpc: t('offerColumns.cpc'),
-        cpv: t('metrics.cpv', 'CPV'),
-        profit: t('metrics.profit'),
-        profit_confirmed: t('offerColumns.profitConfirmed'),
-        roi: t('metrics.roi'),
-        roi_confirmed: t('offerColumns.roiConfirmed'),
-    }[colId] || colId);
-
-    const localizedColumns = ALL_OFFER_COLUMNS.map(c => ({ ...c, label: columnLabel(c.id) }));
-
-    const metricHint = (colId) => {
-        const hintKey = ({
-            visits: 'lpViewsHint',
-            clicks: 'lpViewsHint',
-            lp_clicks: 'lpClicksHint',
-            lp_ctr: 'lpCtrHint',
-            cpv: 'cpvHint',
-            cpc: 'cpcHint',
-            epv: 'epvHint',
-            epc: 'epcHint',
-            epc_confirmed: 'epcHint',
-        })[colId];
-        return hintKey ? t(`metrics.${hintKey}`) : undefined;
-    };
-
-    const money = (v, precision = 2) => `$${(parseFloat(v) || 0).toFixed(precision)}`;
-
-    const renderOfferCell = (offer, colId) => {
-        const tdCls = ALL_OFFER_COLUMNS.find(c => c.id === colId)?.alignRight ? 'text-right' : '';
+    const formatTotalCell = (colId) => {
+        const val = grandTotals[colId];
+        const num = Number(val) || 0;
         switch (colId) {
-            case 'id':
-                return <td key={colId} className="font-medium">{offer.id}</td>;
-            case 'name':
-                return (
-                    <td key={colId}>
-                        <div className="flex flex-col">
-                            <span
-                                className="font-semibold cursor-pointer hover:underline"
-                                style={{ color: 'var(--color-primary)' }}
-                                onClick={() => handleEdit(offer.id)}
-                            >
-                                {offer.name}
-                            </span>
-                            {!offer.is_local && offer.url && (
-                                <span style={{ color: 'var(--color-text-muted)', fontSize: '12px' }} className="truncate max-w-[200px]" title={offer.url}>
-                                    {offer.url}
-                                </span>
-                            )}
-                            {offer.is_local && (
-                                <span style={{ color: 'var(--color-accent-purple)', fontSize: '12px' }}>{t('offers.localOffer')}</span>
-                            )}
-                        </div>
-                    </td>
-                );
-            case 'state':
-                return (
-                    <td key={colId}>
-                        <span className="flex items-center text-xs font-medium" style={{ color: offer.state === 'active' ? 'var(--color-success)' : 'var(--color-text-muted)' }}>
-                            <span className="w-2 h-2 rounded-full mr-1.5" style={{ backgroundColor: offer.state === 'active' ? 'var(--color-success)' : 'var(--color-text-muted)' }}></span>
-                            {offer.state === 'active' ? t('components.active') : t('components.archive')}
-                        </span>
-                    </td>
-                );
-            case 'affiliate_network_name':
-                return <td key={colId} className={tdCls} style={{ color: 'var(--color-text-secondary)' }}>{offer.affiliate_network_name || '-'}</td>;
-            case 'group_name':
-                return <td key={colId} className={tdCls} style={{ color: 'var(--color-text-secondary)' }}>{offer.group_name || '-'}</td>;
-            case 'geo':
-                return <td key={colId} className={tdCls}><span className="px-2 py-1 rounded text-xs font-semibold" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>{offer.geo || t('offerColumns.allGeo')}</span></td>;
-            case 'payout':
-                return (
-                    <td key={colId} className={tdCls} style={{ color: 'var(--color-text-secondary)' }}>
-                        {offer.payout_auto ? t('offerColumns.payoutAuto') : `$${parseFloat(offer.payout_value || 0).toFixed(2)} (${String(offer.payout_type || 'cpa').toUpperCase()})`}
-                    </td>
-                );
-            case 'redirect_type':
-                return (
-                    <td key={colId} className={tdCls}>
-                        <span className="px-2 py-1 rounded text-xs font-semibold" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>
-                            {offer.redirect_type === 'redirect' ? t('offers.redirect') :
-                                offer.redirect_type === 'frame' ? t('offers.iframe') :
-                                    offer.redirect_type === 'local' ? t('offers.local') :
-                                        offer.redirect_type === 'js' ? t('redirectTypes.jsName') :
-                                            offer.redirect_type === 'meta_refresh' ? t('redirectTypes.metaName') :
-                                                offer.redirect_type === 'form_submit' ? t('redirectTypes.formName') :
-                                                    offer.redirect_type === 'preload' ? t('offerEditor.preloadCurl') :
-                                                        offer.redirect_type === 'curl_proxy' ? t('redirectTypes.curlProxyName') :
-                                                            offer.redirect_type}
-                        </span>
-                    </td>
-                );
             case 'clicks':
-                return <td key={colId} className={`${tdCls} font-medium`}>{offer.clicks || 0}</td>;
+            case 'unique_clicks':
+            case 'lp_views':
+            case 'lp_clicks':
+            case 'sales':
+            case 'leads':
+            case 'registrations':
+            case 'deposits':
+            case 'rejected':
+            case 'trash':
+            case 'bots':
+            case 'proxies':
+            case 'empty_referrers':
+                return num.toLocaleString();
             case 'conversions':
-                return <td key={colId} className={`${tdCls} font-medium`} style={{ color: 'var(--color-success)' }}>{offer.conversions || 0}</td>;
-            case 'revenue':
-                return <td key={colId} className={`${tdCls} font-medium`} style={{ color: 'var(--color-success)' }}>{money(offer.revenue)}</td>;
-            case 'revenue_confirmed':
-                return <td key={colId} className={`${tdCls} font-medium`} style={{ color: 'var(--color-success)' }}>{money(offer.revenue_confirmed)}</td>;
-            case 'cost':
-                return <td key={colId} className={tdCls}>{money(offer.cost)}</td>;
-            case 'profit':
-                return (
-                    <td key={colId} className={`${tdCls} font-medium`} style={{ color: (parseFloat(offer.profit) || 0) > 0 ? 'var(--color-success)' : (parseFloat(offer.profit) || 0) < 0 ? 'var(--color-danger)' : 'var(--color-text-secondary)' }}>
-                        {money(offer.profit)}
-                    </td>
-                );
-            case 'profit_confirmed':
-                return (
-                    <td key={colId} className={`${tdCls} font-medium`} style={{ color: (parseFloat(offer.profit_confirmed) || 0) > 0 ? 'var(--color-success)' : (parseFloat(offer.profit_confirmed) || 0) < 0 ? 'var(--color-danger)' : 'var(--color-text-secondary)' }}>
-                        {money(offer.profit_confirmed)}
-                    </td>
-                );
-            case 'roi_confirmed':
-                return (
-                    <td key={colId} className={`${tdCls} font-medium`} style={{ color: (parseFloat(offer.roi_confirmed) || 0) > 0 ? 'var(--color-success)' : 'var(--color-text-secondary)' }}>
-                        {offer.roi_confirmed !== null && offer.roi_confirmed !== undefined ? `${offer.roi_confirmed}%` : '—'}
-                    </td>
-                );
-            case 'roi':
-                return (
-                    <td key={colId} className={`${tdCls} font-medium`} style={{ color: (parseFloat(offer.roi) || 0) > 0 ? 'var(--color-success)' : 'var(--color-text-secondary)' }}>
-                        {offer.roi !== null && offer.roi !== undefined ? `${offer.roi}%` : '—'}
-                    </td>
-                );
-            case 'cr':
-                return <td key={colId} className={tdCls}>{`${offer.cr || 0}%`}</td>;
+                return <span className="font-semibold" style={{ color: 'var(--color-success)' }}>{num.toLocaleString()}</span>;
             case 'lp_ctr':
-                return <td key={colId} className={tdCls}>{`${parseFloat(offer.lp_ctr) || 0}%`}</td>;
             case 'approve_rate':
-                return <td key={colId} className={tdCls}>{`${parseFloat(offer.approve_rate) || 0}%`}</td>;
-            case 'epc':
-                return <td key={colId} className={tdCls}>{money(offer.epc)}</td>;
-            case 'epc_confirmed':
-                return <td key={colId} className={tdCls}>{`$${(parseFloat(offer.epc_confirmed) || 0).toFixed(2)}`}</td>;
-            case 'epv':
-                return <td key={colId} className={tdCls}>{money(offer.epv)}</td>;
+            case 'cr':
+            case 'cr_sales':
+            case 'cr_leads':
+                return `${num.toFixed(2)}%`;
+            case 'roi':
+            case 'roi_confirmed': {
+                if (num === 0) return <span style={{ color: 'var(--color-text-muted)' }}>0.00%</span>;
+                const isPos = num > 0;
+                return (
+                    <span style={{ color: isPos ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: 600 }}>
+                        {isPos ? '+' : ''}{num.toFixed(2)}%
+                    </span>
+                );
+            }
+            case 'profit':
+            case 'profit_confirmed': {
+                if (Math.abs(num) < 0.0001) return <span style={{ color: 'var(--color-text-secondary)' }}>$0.00</span>;
+                const isPos = num > 0;
+                return (
+                    <span style={{ color: isPos ? 'var(--color-success)' : 'var(--color-danger)', fontWeight: 600 }}>
+                        {isPos ? '+' : '-'}${Math.abs(num).toFixed(2)}
+                    </span>
+                );
+            }
+            case 'cost':
+            case 'revenue':
+            case 'revenue_confirmed':
+            case 'cpa':
+            case 'cps':
+            case 'cpl':
             case 'cpc':
-                return <td key={colId} className={tdCls}>{`$${(parseFloat(offer.cpc) || 0).toFixed(2)}`}</td>;
             case 'cpv':
-                return <td key={colId} className={tdCls}>{money(offer.cpv)}</td>;
+            case 'epc':
+            case 'uepc':
+            case 'epv':
+                return `$${num.toFixed(2)}`;
             default:
-                return <td key={colId} className={tdCls}>{offer[colId] || 0}</td>;
+                return val !== undefined && val !== null ? String(val) : '-';
         }
     };
 
     const SortIcon = ({ colKey }) => {
-        if (sortBy.key !== colKey) return <ChevronsUpDown className="w-3.5 h-3.5 opacity-60" />;
+        if (sortBy.key !== colKey) return <ChevronsUpDown className="w-3.5 h-3.5 opacity-40" />;
         return sortBy.dir === 'asc'
-            ? <ChevronUp className="w-3.5 h-3.5" />
-            : <ChevronDown className="w-3.5 h-3.5" />;
+            ? <ChevronUp className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />
+            : <ChevronDown className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />;
     };
 
-    const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', alignRight = false }) => {
+    const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', alignRight = false, draggable = false, isDragOver = false, onDragStart, onDragOver, onDrop, onDragEnd }) => {
         const isActive = sortBy.key === colKey;
         return (
-            <th className={alignRight ? 'text-right' : ''} aria-sort={isActive ? (sortBy.dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
+            <th
+                className={`${alignRight ? 'text-right' : 'text-left'} whitespace-nowrap transition-all`}
+                aria-sort={isActive ? (sortBy.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
+                title={fullTitle}
+                draggable={draggable}
+                onDragStart={onDragStart}
+                onDragOver={onDragOver}
+                onDrop={onDrop}
+                onDragEnd={onDragEnd}
+                style={{
+                    textAlign: alignRight ? 'right' : 'left',
+                    cursor: draggable ? 'grab' : 'pointer',
+                    userSelect: 'none',
+                    boxShadow: isDragOver ? 'inset 2px 0 0 var(--color-primary)' : 'none',
+                    backgroundColor: isDragOver ? 'var(--color-bg-soft)' : undefined
+                }}
+            >
                 <button
                     type="button"
                     onClick={() => requestSort(colKey, defaultDir)}
-                    className={`inline-flex items-center gap-1 select-none ${alignRight ? 'justify-end w-full' : ''}`}
-                    style={{ color: isActive ? 'var(--color-text-primary)' : 'var(--color-text-secondary)' }}
-                    title={fullTitle || t('common.sort', 'Sort')}
+                    className={`inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap ${alignRight ? 'justify-end w-full' : ''}`}
+                    style={{
+                        color: isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                        textAlign: alignRight ? 'right' : 'left'
+                    }}
                 >
+                    {draggable && <GripVertical className="w-3 h-3 opacity-25 hover:opacity-75 -ml-1 cursor-grab flex-shrink-0" />}
                     <span>{label}</span>
                     <SortIcon colKey={colKey} />
                 </button>
@@ -660,8 +690,20 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
 
     const handleRefresh = async () => {
         if (refreshing) return;
-        await refreshOfferData();
+        await fetchOffers();
     };
+
+    // Entity column label helper
+    const entityLabel = (colId) => ({
+        id: 'ID',
+        name: t('editor.name'),
+        state: t('components.status'),
+        affiliate_network_name: t('offers.network'),
+        group_name: t('components.group'),
+        redirect_type: t('components.type'),
+        geo: t('offerColumns.geo'),
+        payout: t('offerColumns.payout'),
+    }[colId] || colId);
 
     return (
         <div className="page-card">
@@ -702,29 +744,23 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                     </div>
                     {selectedOfferIds.size > 0 && (
                         <>
-                            <button onClick={handleBulkCopySelected} className="btn btn-success" title={t('offers.copySelected')}>
-                                <Copy className="w-4 h-4" />
+                            <button onClick={handleBulkCopySelected} className="btn btn-success text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5" title={t('offers.copySelected')}>
+                                <Copy className="w-3.5 h-3.5" />
                                 {(t('offers.copySelected'))} ({selectedOfferIds.size})
                             </button>
-                            <button onClick={handleBulkDeleteSelected} className="btn btn-danger" title={t('common.deleteSelected')}>
-                                <Trash2 className="w-4 h-4" />
+                            <button onClick={handleBulkDeleteSelected} className="btn btn-danger text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5" title={t('common.deleteSelected')}>
+                                <Trash2 className="w-3.5 h-3.5" />
                                 {(t('common.deleteSelected') || t('common.delete'))} ({selectedOfferIds.size})
                             </button>
                         </>
                     )}
                 </div>
                 <div className="flex gap-2">
-                    {/* Columns Customizer Button [ ☵ ] */}
+                    {/* Columns Customizer Button */}
                     <button
                         type="button"
                         onClick={() => setColumnsModalOpen(true)}
                         className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium"
-                        title={t('columnsOrder.title')}
-                        style={{
-                            backgroundColor: 'var(--color-bg-card)',
-                            border: '1px solid var(--color-border)',
-                            color: 'var(--color-text-primary)'
-                        }}
                     >
                         <SlidersHorizontal className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />
                         <span>{t('reportCustomizer.columns')}</span>
@@ -735,24 +771,24 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                     <button
                         type="button"
                         onClick={handleRefresh}
-                        className="btn btn-ghost btn-icon"
+                        className="btn btn-ghost btn-icon p-1.5 rounded-xl"
                         title={t('common.refresh')}
                         disabled={refreshing}
                     >
-                        <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
+                        <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
                     </button>
                     <button
                         type="button"
-                        className="btn btn-ghost btn-icon"
+                        className="btn btn-ghost btn-icon p-1.5 rounded-xl"
                         title={t('common.settings', 'Settings')}
                         onClick={() => setSettingsOpen(true)}
                     >
-                        <Settings2 className="w-5 h-5" />
+                        <Settings2 className="w-4 h-4" />
                     </button>
                 </div>
             </div>
 
-            {/* Always-visible quick filters and reporting period. */}
+            {/* Filters and Date Range */}
             <div className="flex flex-wrap items-center justify-between gap-3 py-3 mb-3 border-b" style={{ borderColor: 'var(--color-border)' }}>
                 <div className="flex flex-wrap items-center gap-2">
                     <select
@@ -822,8 +858,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                 />
             </div>
 
-            {/* Group pill tabs — one click narrows the table to a group or a
-                offer type; counts come straight from the rows. */}
+            {/* Group pill tabs */}
             <div className="flex items-center gap-2 overflow-x-auto pb-2 pt-1 mb-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
                 {[
                     { key: '', label: t('common.all'), count: offers.length },
@@ -902,17 +937,32 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                                     onChange={(e) => toggleSelectAllFiltered(e.target.checked)}
                                 />
                             </th>
-                            {chosenColumns.map((colId) => {
-                                const col = ALL_OFFER_COLUMNS.find(c => c.id === colId);
-                                if (!col) return null;
+                            <SortableTh colKey="id" label="ID" defaultDir="desc" />
+                            <th>{t('common.status')}</th>
+                            <SortableTh colKey="name" label={t('editor.name')} defaultDir="asc" />
+                            <SortableTh colKey="group_name" label={t('components.group')} defaultDir="asc" />
+                            <SortableTh colKey="affiliate_network_name" label={t('offers.network')} defaultDir="asc" />
+                            <SortableTh colKey="geo" label="GEO" defaultDir="asc" />
+                            <th>{t('offerColumns.payout')}</th>
+                            <SortableTh colKey="redirect_type" label={t('components.type')} defaultDir="asc" />
+
+                            {/* Dynamic metric columns */}
+                            {chosenColumns.map((colId, colIdx) => {
+                                const def = ALL_REPORT_METRICS.find(m => m.id === colId);
                                 return (
                                     <SortableTh
                                         key={colId}
                                         colKey={colId}
-                                        label={columnLabel(colId)}
-                                        fullTitle={metricHint(colId)}
-                                        defaultDir={col.alignRight ? 'desc' : 'asc'}
-                                        alignRight={col.alignRight}
+                                        label={def?.shortLabel || def?.label || colId}
+                                        fullTitle={getReportMetricTooltip(def, t)}
+                                        defaultDir="desc"
+                                        alignRight={true}
+                                        draggable={true}
+                                        isDragOver={thDragOverIdx === colIdx && thDragIdx !== null && thDragIdx !== colIdx}
+                                        onDragStart={() => handleThDragStart(colIdx)}
+                                        onDragOver={(e) => handleThDragOver(e, colIdx)}
+                                        onDrop={(e) => handleThDrop(e, colIdx)}
+                                        onDragEnd={handleThDragEnd}
                                     />
                                 );
                             })}
@@ -922,7 +972,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                     <tbody>
                         {visibleOffers.length === 0 ? (
                             <tr>
-                                <td colSpan={chosenColumns.length + 2} className="text-center py-12">
+                                <td colSpan={10 + chosenColumns.length} className="text-center py-12">
                                     <div className="empty-state">
                                         <p className="empty-state-title">
                                             {offers.length === 0 ? t('offers.noOffers') : t('offers.noOffersFiltered')}
@@ -943,14 +993,66 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                                             onChange={(e) => toggleSelected(offer.id, e.target.checked)}
                                         />
                                     </td>
-                                    {chosenColumns.map((colId) => renderOfferCell(offer, colId))}
+                                    <td className="font-medium">{offer.id}</td>
                                     <td>
-                                        <div className="action-buttons">
+                                        <span className="flex items-center text-xs font-medium" style={{ color: offer.state === 'active' ? 'var(--color-success)' : 'var(--color-text-muted)' }}>
+                                            <span className="w-2 h-2 rounded-full mr-1.5" style={{ backgroundColor: offer.state === 'active' ? 'var(--color-success)' : 'var(--color-text-muted)' }}></span>
+                                            {offer.state === 'active' ? t('components.active') : t('components.archive')}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div className="flex flex-col">
+                                            <span
+                                                className="font-semibold cursor-pointer hover:underline"
+                                                style={{ color: 'var(--color-primary)' }}
+                                                onClick={() => handleEdit(offer.id)}
+                                            >
+                                                {offer.name}
+                                            </span>
+                                            {!offer.is_local && offer.url && (
+                                                <span style={{ color: 'var(--color-text-muted)', fontSize: '12px' }} className="truncate max-w-[200px]" title={offer.url}>
+                                                    {offer.url}
+                                                </span>
+                                            )}
+                                            {offer.is_local && (
+                                                <span style={{ color: 'var(--color-accent-purple)', fontSize: '12px' }}>{t('offers.localOffer')}</span>
+                                            )}
+                                        </div>
+                                    </td>
+                                    <td style={{ color: 'var(--color-text-secondary)' }}>{offer.group_name || '-'}</td>
+                                    <td style={{ color: 'var(--color-text-secondary)' }}>{offer.affiliate_network_name || '-'}</td>
+                                    <td><span className="px-2 py-1 rounded text-xs font-semibold" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>{offer.geo || t('offerColumns.allGeo')}</span></td>
+                                    <td style={{ color: 'var(--color-text-secondary)' }}>
+                                        {offer.payout_auto ? t('offerColumns.payoutAuto') : `$${parseFloat(offer.payout_value || 0).toFixed(2)} (${String(offer.payout_type || 'cpa').toUpperCase()})`}
+                                    </td>
+                                    <td>
+                                        <span className="px-2 py-1 rounded text-xs font-semibold" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>
+                                            {offer.redirect_type === 'redirect' ? t('offers.redirect') :
+                                                offer.redirect_type === 'frame' ? t('offers.iframe') :
+                                                    offer.redirect_type === 'local' ? t('offers.local') :
+                                                        offer.redirect_type === 'js' ? t('redirectTypes.jsName') :
+                                                            offer.redirect_type === 'meta_refresh' ? t('redirectTypes.metaName') :
+                                                                offer.redirect_type === 'form_submit' ? t('redirectTypes.formName') :
+                                                                    offer.redirect_type === 'preload' ? t('offerEditor.preloadCurl') :
+                                                                        offer.redirect_type === 'curl_proxy' ? t('redirectTypes.curlProxyName') :
+                                                                            offer.redirect_type}
+                                        </span>
+                                    </td>
+
+                                    {/* Metric cells */}
+                                    {chosenColumns.map((colId) => (
+                                        <td key={colId} className="text-right">
+                                            {formatMetricCell(colId, offer)}
+                                        </td>
+                                    ))}
+
+                                    <td className="text-right">
+                                        <div className="flex items-center justify-end gap-1">
                                             <button onClick={() => handleEdit(offer.id)} className="action-btn text-blue" title={t('common.edit') || t('components.edit')}>
                                                 <Edit3 className="w-4 h-4" />
                                             </button>
-                                            <button onClick={() => handleDelete(offer.id)} className="action-btn text-red" title={t('common.delete')}>
-                                                <Trash2 className="w-4 h-4" />
+                                            <button onClick={(e) => handleToggleMenu(e, offer.id)} className="action-btn text-gray-500" title={t('common.more')}>
+                                                <MoreVertical className="w-4 h-4" />
                                             </button>
                                         </div>
                                     </td>
@@ -959,18 +1061,16 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                         )}
                     </tbody>
                     {/* Totals Footer */}
-                    {filteredOffers.length > 0 && (
+                    {visibleOffers.length > 0 && (
                         <tfoot style={{ background: 'var(--color-bg-soft)' }}>
                             <tr className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
                                 <td className="px-4 py-3"></td>
-                                {chosenColumns.map((colId) => {
-                                    if (colId === 'name') {
-                                        return <td key={colId} className="px-4 py-3">{t('offers.total').replace('{count}', filteredOffers.length)}</td>;
-                                    }
-                                    const val = renderTotalCell(colId);
-                                    const alignRight = ALL_OFFER_COLUMNS.find(c => c.id === colId)?.alignRight;
-                                    return <td key={colId} className={`px-4 py-3 ${alignRight ? 'text-right' : ''}`} style={{ color: (colId === 'profit_confirmed' && totalsProfitConfirmed < 0) || (colId === 'profit' && totalsProfit < 0) ? 'var(--color-danger)' : undefined }}>{val ?? ''}</td>;
-                                })}
+                                <td className="px-4 py-3" colSpan={8}>Σ Total ({visibleOffers.length})</td>
+                                {chosenColumns.map((colId) => (
+                                    <td key={colId} className="px-4 py-3 text-right">
+                                        {formatTotalCell(colId)}
+                                    </td>
+                                ))}
                                 <td></td>
                             </tr>
                         </tfoot>
@@ -1002,20 +1102,52 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                 />
             )}
 
-            {columnsModalOpen && (
-                <ColumnsOrderModal
-                    columns={localizedColumns}
-                    selectedIds={chosenColumns}
-                    defaultIds={DEFAULT_OFFER_COLUMNS}
-                    onClose={() => setColumnsModalOpen(false)}
-                    onSave={(ids) => {
-                        setChosenColumns(ids);
-                        localStorage.setItem(OFFER_COLUMNS_KEY, JSON.stringify(ids));
-                        setColumnsModalOpen(false);
+            {/* Report Customizer Modal */}
+            <ReportCustomizerModal
+                isOpen={columnsModalOpen}
+                onClose={() => setColumnsModalOpen(false)}
+                selectedColumns={chosenColumns}
+                onSaveColumns={handleSaveColumns}
+                mode="offers"
+            />
+
+            {/* Row Action Menu */}
+            {menuAnchor && (
+                <div
+                    className="dropdown-menu"
+                    style={{
+                        position: 'fixed',
+                        top: menuAnchor.top,
+                        right: menuAnchor.right,
+                        zIndex: 1000
                     }}
-                />
+                >
+                    <button
+                        type="button"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleEdit(menuAnchor.id);
+                            setMenuAnchor(null);
+                        }}
+                        className="dropdown-item"
+                    >
+                        {t('common.edit')}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setMenuAnchor(null);
+                            handleDelete(menuAnchor.id);
+                        }}
+                        className="dropdown-item text-red-600"
+                    >
+                        {t('common.delete')}
+                    </button>
+                </div>
             )}
 
+            {/* Settings Modal */}
             {settingsOpen && (
                 <div className="modal-overlay" onClick={() => setSettingsOpen(false)}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '560px' }}>

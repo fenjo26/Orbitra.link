@@ -712,7 +712,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
 
                             <div className="flex gap-4">
                                 <div className="flex-1">
-                                    <label className="form-label">{t('landingEditor.group')}</label>
+                                    <label className="form-label">{t('landingEditor.groupOrProduct', 'Group / Product')}</label>
                                     <div className="flex">
                                         <select
                                             value={landing.group_id}

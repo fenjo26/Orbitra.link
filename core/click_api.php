@@ -347,6 +347,14 @@ function orbitraClickApiSelectWeightedItem(array $items): ?array
     if (empty($items)) {
         return null;
     }
+    $items = array_values(array_filter($items, function($it) {
+        if (isset($it['state']) && ($it['state'] === 'disabled' || $it['state'] === 'paused')) return false;
+        if (isset($it['is_active']) && ($it['is_active'] === false || $it['is_active'] === 0 || $it['is_active'] === '0')) return false;
+        return true;
+    }));
+    if (empty($items)) {
+        return null;
+    }
     $totalW = 0;
     foreach ($items as $it) {
         $w = (int) ($it['weight'] ?? 0);
@@ -443,6 +451,12 @@ function orbitraClickApiV3(PDO $pdo): void
         require_once $autoload;
     }
 
+    // Heal double-"?" query strings BEFORE the token read below: the token is
+    // the first query pair on these URLs and is exactly what a malformed
+    // concatenation corrupts. No-op for normal traffic.
+    require_once __DIR__ . '/ClickParams.php';
+    orbitraHealQueryString($_GET, $_SERVER['QUERY_STRING'] ?? '');
+
     $token = trim((string) ($_GET['token'] ?? ''));
     $wantLog = ((string) ($_GET['log'] ?? '0')) === '1';
     $wantInfo = ((string) ($_GET['info'] ?? '0')) === '1';
@@ -506,6 +520,7 @@ function orbitraClickApiV3(PDO $pdo): void
 
     // Shared capture: standard keys, sub_id_N, ad-network IDs, click ids and
     // the campaign source's declared aliases — identical to redirect visits.
+    // ($_GET was healed at the top of this handler, before the token read.)
     $incomingParams = array_merge($_GET, $_POST);
     $clickParams = orbitraCollectClickParams($pdo, $incomingParams, [], $campaign['source_id'] ?? null);
     $parametersJson = json_encode($clickParams, JSON_UNESCAPED_UNICODE);
@@ -879,6 +894,11 @@ function orbitraClickApiV3(PDO $pdo): void
             $resolved = str_replace('{offer_id}', (string) $offerIdToLog, $resolved);
             $resolved = str_replace('{offer}', urlencode($offerUrlMacros), $resolved);
         }
+
+        // Drop macros the click carried no value for — same cleanup as the
+        // index.php redirect path (a literal "{utm_term}" must not reach the
+        // affiliate network).
+        $resolved = preg_replace('#\{[a-zA-Z0-9_]+\}#', '', $resolved);
 
         if (!preg_match('#^(https?:)?//#i', $resolved) && !preg_match('#^/#', $resolved) && !preg_match('#^(mailto|tel):#i', $resolved)) {
             $resolved = 'http://' . ltrim($resolved, '/');
