@@ -68,3 +68,4 @@ remote_leadforge_backup/
 tests/offers/
 # Test database files
 database.db
+.claude/worktrees/
