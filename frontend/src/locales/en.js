@@ -2684,7 +2684,8 @@ export default {
         "dontRecordSafeClicks": "Do not record clicks for Safe Page",
         "dontRecordSafeClicksHint": "Bots, crawlers, and reviewers routed to the Safe Page will not be saved in database logs or counted in campaign reports.",
         "moneyPage": "Money page (for visitors)",
-        "moneyPageHint": "Shown to real visitors. Behaves like the landing+offer schema."
+        "moneyPageHint": "Shown to real visitors. Behaves like the landing+offer schema.",
+        "noGeoDbWarning": "Every visitor resolves as country Unknown, so this filter will send 100% of your traffic to the Safe Page."
     },
     "postbackQueue": {
         "title": "Postback queue",

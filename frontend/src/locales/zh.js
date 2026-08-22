@@ -2684,7 +2684,8 @@ export default {
         "dontRecordSafeClicks": "不记录安全页（Safe Page）的点击",
         "dontRecordSafeClicksHint": "路由到安全页的机器人、爬虫和审核人员将不会记录在数据库或广告报告中。",
         "moneyPage": "盈利页面（面向访客）",
-        "moneyPageHint": "展示给真实访客。行为与落地页+offer 模式相同。"
+        "moneyPageHint": "展示给真实访客。行为与落地页+offer 模式相同。",
+        "noGeoDbWarning": "每个访客都会被解析为 Unknown 国家，因此此过滤器会将 100% 的流量发送到安全页。"
     },
     "postbackQueue": {
         "title": "Postback 队列",

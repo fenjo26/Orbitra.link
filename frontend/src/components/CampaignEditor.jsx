@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import GeoSelector from './GeoSelector';
 import HelpTooltip from './HelpTooltip';
-import { ArrowLeft, Plus, Check, Link, Copy, Settings, Trash2, ChevronDown, ChevronUp, AlertCircle, X, Shield, Globe, MousePointerClick, TrendingUp, Activity, BarChart2, BarChart3, DollarSign, RefreshCw, FileText, MoreVertical, Play, Code, Edit3, Eye, Info, Search } from 'lucide-react';
+import { ArrowLeft, Plus, Check, Link, Copy, Settings, Trash2, ChevronDown, ChevronUp, AlertCircle, AlertTriangle, X, Shield, Globe, MousePointerClick, TrendingUp, Activity, BarChart2, BarChart3, DollarSign, RefreshCw, FileText, MoreVertical, Play, Code, Edit3, Eye, Info, Search } from 'lucide-react';
 import CampaignReports from './CampaignReports';
 import ConversionsLog from './ConversionsLog';
 import LandingEditor from './LandingEditor';
@@ -258,6 +258,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     // Candidates for the cloak Safe Page's "Local Offer" tab.
     const localOffers = (allOffers || []).filter(o => o.is_local);
     const [allLandings, setAllLandings] = useState([]);
+    // Geo targeting readiness for Phase 0 cloak warnings
+    const [geoTargetingReady, setGeoTargetingReady] = useState({
+        country: null,
+        asn: null,
+        proxy: null
+    });
     // Creating a landing or offer without leaving the stream you are wiring up.
     // Going to another page and back used to mean losing the unsaved campaign.
     // Landing groups, the campaign list, the postback key and the offer-link
@@ -824,6 +830,17 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             .then(({ data }) => { if (data.status === 'success') setCostMatch(data.data); })
             .catch(() => {});
     }, [activeCampaignId]);
+
+    // Fetch geo targeting readiness for Phase 0 cloak warnings
+    useEffect(() => {
+        axios.get('/api.php?action=global_settings')
+            .then(res => {
+                if (res.data.status === 'success' && res.data.data?.geo_targeting_ready) {
+                    setGeoTargetingReady(res.data.data.geo_targeting_ready);
+                }
+            })
+            .catch(() => {});
+    }, []);
 
     // Manual 7-day spend pull for one connection — the same action the
     // Integrations page's "Update spend" button runs.
@@ -3505,6 +3522,49 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                         onChange={selected => setCloakField('countries', selected)}
                                                                         placeholder={t('cloaking.geoPlaceholder', 'Select target countries (e.g. US, DE, GB)...')}
                                                                     />
+                                                                    {/* Phase 0: Warning when country filter is configured but no geo database */}
+                                                                    {(() => {
+                                                                        // Only warn in 'allow' mode - missing geo DB in 'deny' mode doesn't block traffic
+                                                                        if ((sc.geo_mode || 'allow') !== 'allow') return false;
+                                                                        // Normalize countries to string (handle array case from API imports)
+                                                                        const countriesStr = Array.isArray(sc.countries)
+                                                                            ? sc.countries.join(',')
+                                                                            : (sc.countries || '');
+                                                                        // Check if Unknown is in the allow-list (suppress warning if so)
+                                                                        const countriesList = countriesStr.split(',')
+                                                                            .map(c => c.trim().toUpperCase())
+                                                                            .filter(Boolean);
+                                                                        const hasUnknown = countriesList.includes('UNKNOWN');
+                                                                        // Show warning only when: has countries, confirmed no DB, and Unknown not in list
+                                                                        return countriesStr.trim() !== '' &&
+                                                                            geoTargetingReady.country === false &&
+                                                                            !hasUnknown;
+                                                                    })() && (
+                                                                        <div style={{
+                                                                            marginTop: '12px',
+                                                                            padding: '10px 12px',
+                                                                            background: 'var(--color-warning-bg)',
+                                                                            borderRadius: '10px',
+                                                                            fontSize: '12px',
+                                                                            color: 'var(--color-warning)',
+                                                                            display: 'flex',
+                                                                            alignItems: 'flex-start',
+                                                                            gap: '8px'
+                                                                        }}>
+                                                                            <AlertTriangle className="w-4 h-4 shrink-0" style={{ marginTop: '1px' }} />
+                                                                            <div style={{ flex: 1 }}>
+                                                                                <div style={{ fontWeight: 600, marginBottom: '4px' }}>
+                                                                                    {t('admin.noGeoDb')}
+                                                                                </div>
+                                                                                <div style={{ fontSize: '11px', opacity: 0.9 }}>
+                                                                                    {t('cloaking.noGeoDbWarning')}
+                                                                                </div>
+                                                                                <span style={{ display: 'inline-block', marginTop: '6px', fontSize: '11px', color: 'var(--color-text-muted)' }}>
+                                                                                    {t('geoDb.title', 'Geo Databases')}
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
                                                                 </div>
 
                                                                 {/* Canonical device groups shared by routing and cloaking */}

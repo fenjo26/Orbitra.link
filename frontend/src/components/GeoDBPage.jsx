@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Database, RefreshCw, CheckCircle, XCircle, AlertTriangle, Upload, Info } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import axios from 'axios';
 
 const API_URL = '/api.php';
 
@@ -16,6 +17,12 @@ const GeoDBPage = () => {
     const [maxmindAccountId, setMaxmindAccountId] = useState('');
     const [ip2locationToken, setIp2locationToken] = useState('');
     const [savingKey, setSavingKey] = useState(false);
+    // Geo targeting readiness for Phase 0 warning
+    const [geoTargetingReady, setGeoTargetingReady] = useState({
+        country: null,
+        asn: null,
+        proxy: null
+    });
     const fileInputRef = useRef(null);
 
     const fetchDbs = () => {
@@ -39,6 +46,9 @@ const GeoDBPage = () => {
                     setMaxmindKey(data.data.maxmind_license_key || '');
                     setMaxmindAccountId(data.data.maxmind_account_id || '');
                     setIp2locationToken(data.data.ip2location_token || '');
+                    if (data.data.geo_targeting_ready) {
+                        setGeoTargetingReady(data.data.geo_targeting_ready);
+                    }
                 }
             })
             .catch(console.error);
@@ -157,6 +167,29 @@ const GeoDBPage = () => {
                         <h2 className="page-title">{t('geoDb.title')}</h2>
                     </div>
                 </div>
+
+                {/* Phase 0: Warning banner when no country geo database is installed */}
+                {geoTargetingReady.country === false && (
+                    <div style={{
+                        padding: '14px 16px',
+                        background: 'var(--color-warning-bg)',
+                        borderRadius: '12px',
+                        marginBottom: '20px',
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '12px'
+                    }}>
+                        <AlertTriangle className="w-5 h-5 shrink-0" style={{ color: 'var(--color-warning)', marginTop: '2px' }} />
+                        <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 600, marginBottom: '4px', color: 'var(--color-warning)' }}>
+                                {t('admin.noGeoDb')}
+                            </div>
+                            <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>
+                                {t('cloaking.noGeoDbWarning')}
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Info Block */}
                 <div style={{

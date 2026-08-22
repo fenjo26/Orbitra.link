@@ -10405,6 +10405,15 @@ try {
                 if (!isset($data['ignore_prefetch'])) {
                     $data['ignore_prefetch'] = '1';
                 }
+
+                // Add geo targeting readiness for Phase 0 cloak warnings
+                $geoReady = orbitraGeoTargetingReady();
+                $data['geo_targeting_ready'] = [
+                    'country' => $geoReady['country'],
+                    'asn' => $geoReady['asn'],
+                    'proxy' => $geoReady['proxy']
+                ];
+
                 echo json_encode(['status' => 'success', 'data' => $data]);
             } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $input = json_decode(orbitraRequestBody(), true);
@@ -10747,7 +10756,7 @@ try {
                     }
                 }
                 if (!$hasGeoDb) {
-                    $warnings[] = ['level' => 'warning', 'message' => 'noGeoDb'];
+                    $warnings[] = ['level' => 'warning', 'messageKey' => 'noGeoDb'];
                 }
 
                 // Estimate capacity

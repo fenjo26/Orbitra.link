@@ -275,3 +275,76 @@ function orbitraLookupIp2LocationAsn(string $ip, ?string $root = null): array
         return [];
     }
 }
+
+/**
+ * Check which geo targeting capabilities are available.
+ * Memoised per root directory to avoid multiple file checks.
+ *
+ * @param string|null $root Base directory, defaults to parent of core/.
+ * @return array ['country' => bool, 'asn' => bool, 'proxy' => bool, 'files' => string[]]
+ */
+function orbitraGeoTargetingReady(?string $root = null): array
+{
+    static $memo = [];
+    $root = $root ?: dirname(__DIR__);
+
+    if (isset($memo[$root])) {
+        return $memo[$root];
+    }
+
+    $paths = orbitraGeoDatabasePaths($root);
+
+    $files = [];
+
+    // Country targeting: at least one of IP2Location DB11 or MaxMind City
+    $countryReady = false;
+    $ip2locPath = $paths['ip2location_geo'];
+    $maxmindPath = $paths['maxmind_city'];
+    $sypexPath = $paths['sypex_city'];
+
+    foreach ([
+        [$ip2locPath, 'ip2location_geo', 'IP2LOCATION-LITE-DB11.BIN'],
+        [$maxmindPath, 'maxmind_city', 'GeoLite2-City.mmdb'],
+        [$sypexPath, 'sypex_city', 'SxGeoCity.dat']
+    ] as $check) {
+        [$path, $kind, $name] = $check;
+        if (orbitraGeoFileStatus($path, $kind, $name) === 'OK') {
+            $countryReady = true;
+            $files[] = $path;
+            break;
+        }
+    }
+
+    // ASN targeting: either IP2Location ASN or MaxMind ASN
+    $asnReady = false;
+    $asnPath = $paths['ip2location_asn'];
+    $maxmindAsnPath = $paths['maxmind_asn'];
+
+    foreach ([
+        [$asnPath, 'ip2location_asn', 'IP2LOCATION-LITE-ASN.BIN'],
+        [$maxmindAsnPath, 'maxmind_asn', 'GeoLite2-ASN.mmdb']
+    ] as $check) {
+        [$path, $kind, $name] = $check;
+        if (orbitraGeoFileStatus($path, $kind, $name) === 'OK') {
+            $asnReady = true;
+            $files[] = $path;
+            break;
+        }
+    }
+
+    // Proxy detection: IP2Proxy PX12
+    $proxyPath = $paths['ip2proxy'];
+    $proxyReady = orbitraGeoFileStatus($proxyPath, 'ip2proxy', 'IP2PROXY-LITE-PX12.BIN') === 'OK';
+    if ($proxyReady) {
+        $files[] = $proxyPath;
+    }
+
+    $memo[$root] = [
+        'country' => $countryReady,
+        'asn' => $asnReady,
+        'proxy' => $proxyReady,
+        'files' => $files
+    ];
+
+    return $memo[$root];
+}
