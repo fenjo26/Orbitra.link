@@ -1671,26 +1671,9 @@ function renderCloakJsChallenge($safeHtml, $nextUrl, $webdriverUrl)
     echo (string) $safeHtml . $probeScript;
 }
 
-function logCloakEvent($stage, $campaignId, $streamId, array $visitor, array $reasons, $sensitivity)
-{
-    $clean = static function ($value) {
-        return preg_replace('/[\r\n]+/', ' ', (string) $value);
-    };
-    error_log(sprintf(
-        'Orbitra cloak [campaign=%s stream=%s]: stage=%s ip=%s asn=%s isp=%s proxy=%s provider=%s ua=%.80s reasons=[%s] sensitivity=%s',
-        $clean($campaignId),
-        $clean($streamId),
-        $clean($stage),
-        $clean($visitor['ip'] ?? ''),
-        $clean($visitor['asn'] ?? ''),
-        $clean($visitor['isp'] ?? ''),
-        $clean($visitor['proxy_type'] ?? ''),
-        $clean($visitor['proxy_provider'] ?? ''),
-        $clean($visitor['user_agent'] ?? ''),
-        implode(', ', array_map($clean, $reasons)),
-        $clean($sensitivity)
-    ));
-}
+// logCloakEvent() lives in core/click_logger.php now (guarded there with
+// function_exists): core/click_api.php calls it on its router entry, where
+// index.php's own definitions are never loaded.
 
 function renderChallengePage($campaign, $settings, $ct, $cs, $queryString) {
     $challengeType = $campaign['challenge_type'] ?? 'none';

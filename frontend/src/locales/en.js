@@ -2712,7 +2712,11 @@ export default {
         "inactiveDatacenterWarning": "Datacenter detection is inactive: no ASN database installed.",
         "inactiveVpnWarning": "VPN/proxy detection is inactive: no IP2Proxy PX12 database installed.",
         "inactiveBotWarning": "Bot blocklist is inactive: no ASN database installed.",
-        "inactiveIspWarning": "ISP blocklist is inactive: no ASN database installed."
+        "inactiveIspWarning": "ISP blocklist is inactive: no ASN database installed.",
+        "logSafeClicks": "Log Safe Page clicks",
+        "logSafeClicksHint": "Safe Page hits are written to the click log with is_safe_page=1. Uncheck to drop them from the database entirely.",
+        "excludeSafeFromReports": "Exclude Safe Page clicks from reports",
+        "excludeSafeFromReportsHint": "Safe Page hits are still logged and visible in the click log, but are not counted in campaign metrics, cost, or CPC."
     },
     "postbackQueue": {
         "title": "Postback queue",

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Orbitra v1.1.8 Tracker Auto-Installer
+# Orbitra v1.1.9 Tracker Auto-Installer
 # Supported OS: Ubuntu 20.04, 22.04, 24.04 / Debian 11, 12
 # Root privileges required (sudo)
 

@@ -7,6 +7,28 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.1.9] — 2026-08-22
+
+Facebook tracking resilience, cloak geo-safety warnings and full metric parity on Landings/Offers.
+
+### Added
+- 🩹 **Auto-heal for double-`?` query strings** — a leading `?` in the Facebook Ads URL-parameters box (or a cloaker concatenating onto a URL that already had one) made PHP swallow every key between the two `?` into the first parameter's value — including the routing keys (`token` / `campaign`), so the click was lost before it could be logged. Healing now runs **before campaign routing** in all 3 entry points (index.php, click.php, Click API v3): the corrupted first value is repaired and every swallowed key is recovered; `utm_placement` is captured into `parameters_json`. Healing only triggers on a literal `?` in the query string — normal traffic is untouched.
+- 📘 **"Facebook Parameters" copy button** in the campaign editor — copies the clean tracking-parameter string (strictly without the leading `?`), Meta macros plus the campaign's custom parameters, for direct pasting into Meta Ads Manager.
+- ➡️ **"Add All Tracking Parameters" preset** for Direct-URL streams — appends the full macro set (`{subid}`, `{clickid}`, `{campaign_id}`, `{adset_id}`, `{ad_id}`, utm_*) in one click; unresolved `{macros}` are stripped from final redirect URLs (index.php + Click API) so literals never reach the affiliate network.
+- 🔍 **Cloak observability (W1–W4, full spec)** — the cloak is no longer a black box:
+  - **W1 verdict persistence** — clicks carry `cloak_verdict` (`money`/`passive_safe`/`targeting_safe`/`js_safe`), `cloak_reasons`, `is_safe_page`, `isp`, `asn`, `proxy_type`, `cloak_sensitivity`; a shared logger (`core/click_logger.php`) produces them identically on all three entry points.
+  - **W2 surfaced in the UI** — Analytics → Clicks gets Route / Reason / Destination / ISP / ASN columns and campaign/route/reason filters; the campaign editor cloak card shows live diagnostics via the new `cloak_summary` endpoint.
+  - **W3 no more silent zeros** — safe-page clicks are **logged by default** on new streams (`log_safe_clicks`, `is_safe_page=1`); legacy streams keep their old behavior via the schema-v38 migration; **Exclude Safe Page clicks from reports** (`exclude_safe_from_reports`) keeps metrics clean while the click log stays complete; every suppressed hit increments a per campaign/stream/day/verdict counter (`cloak_suppressed_stats`).
+  - **W4 geo-targeting safety** — a country allow-list with no geo database no longer silently rejects 100% of traffic as `geo_country`: such visitors are marked `geo_unknown` with a configurable `geo_unknown_action` (`safe` default / `money`); the campaign editor and the Geo Databases page warn whenever filters run without a readable database (`geo_targeting_ready` in `global_settings`), including ASN-database degradation for the ISP blocklist.
+  - Operator guide rewritten as `docs/cloak-how-it-works.md`.
+- 📊 **Full 65+ metric parity on Landings/Offers** — registrations, deposits, bots/proxies, per-status revenue (hold/rejected/trash/registration/deposit), the real-revenue family, stream/global uniques and avg LP→offer time are actually selected and computed now: previously the SQL never fetched those counters, the new columns showed zeros and `real_roi` reported a bogus −100% on every row. Both pages get the customizable metric table (presets, column customizer, totals row) matching the Campaigns page.
+
+### Fixed
+- 🎛️ **Stream rotation honors per-item disable toggles** — an individually disabled (paused) offer or landing inside a custom stream schema no longer receives traffic; weighted selection filters inactive items before counting weights, in all 3 entry points.
+- 🌍 **Locale parity in all 7 languages** — the Facebook-parameters keys, tracking-preset keys and "Group / Product" shipped English-only before (t() falls back to English); Chrome-extension floating widget remembers its drag position.
+- 🖥️ **Admin system-status warnings render again** — `system_status` now returns `messageKey` (AdminPage renders `t(admin.${w.messageKey})`), fixing warnings that serialized to literal "message" keys.
+- **AFTER UPDATING, HARD-RELOAD THE PANEL ONCE (Ctrl/Cmd+Shift+R)** — `index.js` has a stable filename and browsers cache the old build.
+
 ## [1.1.8] — 2026-08-19
 
 Analytics: multi-select entity filters (campaigns, offers, landings) in Trends and Cohort — plus the fixes that made the earlier attempt invisible.

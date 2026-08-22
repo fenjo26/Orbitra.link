@@ -7,6 +7,13 @@
 //
 // Run: php tests/cloak_report_sql_test.php
 
+// SQLite json_set(key, false) stores INTEGER 0/1, not JSON booleans; the
+// UI stores real booleans; legacy rows may carry strings. Production reads
+// all three through configBool-style normalization — assert the same way.
+$normBool = static function ($v): bool {
+    return $v === true || $v === 1 || $v === '1' || $v === 'true';
+};
+
 require_once __DIR__ . '/../config.php';
 
 $failures = [];
@@ -161,7 +168,7 @@ try {
     ");
     $stmt->execute([$cloakStreamId]);
     $config = json_decode($stmt->fetchColumn(), true);
-    assertEquals(false, $config['exclude_safe_from_reports'] ?? null, 'Config should have exclude_safe_from_reports=false');
+    assertEquals(false, $normBool($config['exclude_safe_from_reports'] ?? null), 'Config should have exclude_safe_from_reports=false');
     echo "\n";
 
     // ===== Test 6: Verify the campaign query still works =====
@@ -177,7 +184,7 @@ try {
     assertTrue(count($streamConfigs) > 0, 'Should still find cloak stream config');
     if (!empty($streamConfigs)) {
         $config = json_decode($streamConfigs[0], true);
-        assertEquals(false, $config['exclude_safe_from_reports'] ?? null, 'Config should now have exclude_safe_from_reports=false');
+        assertEquals(false, $normBool($config['exclude_safe_from_reports'] ?? null), 'Config should now have exclude_safe_from_reports=false');
     }
     echo "\n";
 
@@ -199,8 +206,8 @@ try {
     $rawValue = $stmt->fetchColumn();
 
     // String 'false' should be normalized to boolean false in application logic
-    $normBool = ($rawValue === 'true' || $rawValue === '1' || $rawValue === true);
-    assertEquals(false, $normBool, 'String "false" should normalize to boolean false');
+    $isTruthy = $normBool($rawValue);
+    assertEquals(false, $isTruthy, 'String "false" should normalize to boolean false');
 
     // Test with string 'true'
     $stmt = $pdo->prepare("
@@ -216,8 +223,8 @@ try {
     $stmt->execute([$cloakStreamId]);
     $rawValue = $stmt->fetchColumn();
 
-    $normBool = ($rawValue === 'true' || $rawValue === '1' || $rawValue === true);
-    assertEquals(true, $normBool, 'String "true" should normalize to boolean true');
+    $isTruthy = $normBool($rawValue);
+    assertEquals(true, $isTruthy, 'String "true" should normalize to boolean true');
 
     // Test with actual boolean
     $stmt = $pdo->prepare("
@@ -233,8 +240,8 @@ try {
     $stmt->execute([$cloakStreamId]);
     $rawValue = $stmt->fetchColumn();
 
-    $normBool = ($rawValue === 'true' || $rawValue === '1' || $rawValue === true);
-    assertEquals(true, $normBool, 'Boolean true should normalize to boolean true');
+    $isTruthy = $normBool($rawValue);
+    assertEquals(true, $isTruthy, 'Boolean true (stored as int 1 by SQLite) should normalize to boolean true');
 
     $pdo->exec("COMMIT");
     echo "\n";

@@ -2712,7 +2712,11 @@ export default {
         "inactiveDatacenterWarning": "Определение датацентров неактивно: не установлена база ASN.",
         "inactiveVpnWarning": "Определение VPN/прокси неактивно: не установлена база IP2Proxy PX12.",
         "inactiveBotWarning": "Чёрный список ботов неактивен: не установлена база ASN.",
-        "inactiveIspWarning": "Блокировка ISP неактивна: не установлена база ASN."
+        "inactiveIspWarning": "Блокировка ISP неактивна: не установлена база ASN.",
+        "logSafeClicks": "Записывать клики на Safe Page",
+        "logSafeClicksHint": "Клики на Safe Page записываются в лог кликов с is_safe_page=1. Снимите флажок, чтобы не сохранять их в базе данных.",
+        "excludeSafeFromReports": "Исключить клики Safe Page из отчетов",
+        "excludeSafeFromReportsHint": "Клики на Safe Page все равно видны в логе кликов, но не учитываются в метриках кампании, расходах и CPC."
     },
     "postbackQueue": {
         "title": "Очередь постбеков",

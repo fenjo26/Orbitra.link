@@ -1,4 +1,4 @@
-# Orbitra v1.1.8 Tracker
+# Orbitra v1.1.9 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,17 +11,27 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.1.8
+## 🆕 What's New in v1.1.9
 
 ### Added
 
-- **🎯 Entity filters in Analytics** — multi-select filters by campaigns, offers and landings (dropdown groups, search, select all / clear, active-filter badges) in both Trends and Cohort views
+- **🩹 Auto-heal for double-`?` URLs** — a leading `?` in the Facebook Ads URL-parameters box (or a cloaker concatenating onto a URL that already had one) corrupted the first routing parameter and lost the click; healing now runs before campaign routing in all 3 entry points, repairs the corrupted value and recovers every swallowed key (`utm_placement` is captured too)
+- **📘 Facebook Parameters copy button** in the campaign editor — copies the clean tracking-parameter string (no leading `?`) straight into Meta Ads Manager
+- **➡️ "Add All Tracking Parameters" preset** for Direct-URL streams; unresolved `{macros}` are stripped from redirect URLs so literals never reach the affiliate network
+- **🔍 Cloak observability** — every routing decision is persisted and visible: verdict + reason codes + ISP/ASN on each click, Route/Reason/Destination columns in Analytics → Clicks with filters, per-day suppressed-hit counter ("zero clicks" can never hide real traffic), safe clicks logged by default and excludable from reports, and geo-targeting safety warnings (missing geo DB → `geo_unknown` + configurable action) in the editor and Geo Databases page. Full guide: `docs/cloak-how-it-works.md`
+- **📊 Full metric parity on Landings/Offers** — registrations, deposits, bots/proxies, per-status revenue and the real-revenue family are actually computed (previously always 0, real_roi showed a bogus −100%); both pages get the customizable metric table with presets and totals
 
 ### Fixed
 
-- **🕳️ The earlier attempt never showed up** — the feature commits never rebuilt `frontend/dist`, so the panel kept serving the old bundle; Cohort also silently ignored the selections (fetch effect deps). Dropdowns now load via the lightweight `campaigns_simple` / `offers_simple` endpoints, `landing_id` is whitelisted in trends/cohort filters, "No results" is translated (7 locales). **Hard-reload the panel once (Ctrl/Cmd+Shift+R) after updating**
+- **🎛️ Stream rotation honors per-item disable toggles** — a paused offer/landing inside a custom schema no longer receives traffic; weighted selection filters disabled items
+- **🌍 Locales at full parity in all 7 languages** (new keys shipped English-only before); Chrome-extension floating widget remembers its position
+- **AFTER UPDATING, HARD-RELOAD THE PANEL ONCE (Ctrl/Cmd+Shift+R)** — index.js has a stable filename and browsers cache the old build
 
-### Previous Highlights (v1.1.7)
+### Previous Highlights (v1.1.8)
+
+- **🎯 Entity filters in Analytics** — multi-select filters by campaigns, offers and landings (dropdown groups, search, select all / clear, active-filter badges) in both Trends and Cohort views; the earlier attempt never showed up because the feature commits never rebuilt `frontend/dist`
+
+### Older (v1.1.7)
 
 - **🛟 Landing assets: nginx redirect loop (500s)** — flattened `/_internal_assets/` location (nested regex broke alias inheritance); fail-safe detects the broken config variant until `nginx_sync.php` runs
 
@@ -500,15 +510,17 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.1.8 (2026-08-19)
+### Current release — v1.1.9 (2026-08-22)
 
 **Added**
-- 🎯 **Entity filters in Analytics** — multi-select campaigns / offers / landings filters in Trends and Cohort (groups, search, select-all, badges)
+- 🩹 **Auto-heal for double-`?` URLs** — Facebook Ads / cloaker query-string corruption healed before campaign routing (utm_placement captured); 📘 "Facebook Parameters" copy button; ➡️ "Add All Tracking Parameters" preset for Direct URLs + leftover `{macro}` cleanup
+- 🔍 **Cloak observability** — verdicts/reasons/ISP on every click, Route/Reason columns in Analytics→Clicks, suppressed-hit counter, safe clicks logged by default + excludable from reports, geo-safety warnings (`docs/cloak-how-it-works.md`)
+- 📊 **Full metric parity on Landings/Offers** — registrations, deposits, bots, per-status and real revenue actually computed (were zeros / bogus −100% real_roi)
 
 **Fixed**
-- 🕳️ **Earlier attempt invisible** — `frontend/dist` was never rebuilt, so the panel served the old bundle; Cohort also ignored selections (effect deps). Fixed; hard-reload the panel once after updating.
+- 🎛️ **Rotation honors per-item disable toggles** (paused offers no longer receive traffic); 🌍 locale parity in all 7 languages; extension widget remembers position. Hard-reload the panel once after updating.
 
-Previous releases — v1.1.7: 🛟 nginx asset-loop hotfix (`nginx_sync.php` once); v1.1.6: 🔀 SSL mode selector, 🧰 smoke tests + landing diagnostics, 🧩 asset-loading guarantees, 🗑️ bulk import removed; v1.1.5: 🔐 SSL management (ORB-014), 🧠 SUBID in traffic logs.
+Previous releases — v1.1.8: 🎯 entity filters in Analytics (Trends/Cohort) with the dist-rebuild fix; v1.1.7: 🛟 nginx asset-loop hotfix (`nginx_sync.php` once); v1.1.6: 🔀 SSL mode selector, 🧰 smoke tests + landing diagnostics, 🧩 asset-loading guarantees, 🗑️ bulk import removed; v1.1.5: 🔐 SSL management (ORB-014), 🧠 SUBID in traffic logs.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

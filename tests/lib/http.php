@@ -73,6 +73,27 @@ class OrbitraTestHarness
         });
     }
 
+    /** Route through the production router.php (knows /api.php and panel paths) instead of index.php. */
+    public function useProductionRouter(): void
+    {
+        $path = $this->repoRoot . '/router.php';
+        if (!is_file($path)) {
+            throw new RuntimeException('router.php not found in repo root');
+        }
+        $this->routerFile = $path;
+    }
+
+    /** Direct PDO handle to the sandbox DB (seeding/ asserts from tests). */
+    public function getPdo(): PDO
+    {
+        if ($this->testDbPath === null) {
+            throw new RuntimeException('Test database not set up. Call start() first.');
+        }
+        $pdo = new PDO('sqlite:' . $this->testDbPath);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        return $pdo;
+    }
+
     /**
      * Start the PHP built-in web server on a random available port.
      *
@@ -107,7 +128,7 @@ class OrbitraTestHarness
             $this->port,
             escapeshellarg($this->repoRoot),
             escapeshellarg($this->routerFile)
-        );
+        ) . ' -d display_errors=1 -d error_reporting=E_ALL';
 
         $descriptorspec = [
             0 => ['pipe', 'r'],   // stdin
@@ -501,8 +522,10 @@ class OrbitraTestHarness
             // Insert cloak stream with India country filter, mobile devices, HTML safe page
             $cloakSchema = [
                 'schema_type' => 'cloak',
-                'countries' => 'IN',  // India allow-list
-                'geo_mode' => 'allow',
+                // No country filter on purpose: the sandbox has no geo DB, so
+                // every visitor resolves as Unknown and an allow-list would
+                // send even the money click to the safe page. Safe/bot traffic
+                // is produced by UA heuristics + device allow-list instead.
                 'devices' => 'mobile,tablet',
                 'device_mode' => 'allow',
                 'detect_datacenter' => true,
@@ -519,8 +542,8 @@ class OrbitraTestHarness
                 'landings' => [['id' => $testLandingId, 'weight' => 100]],
             ];
             $pdo->prepare("
-                INSERT INTO streams (id, campaign_id, offer_id, name, type, schema_type, schema_custom_json, is_active, collect_clicks)
-                VALUES (?, ?, ?, ?, 'regular', ?, ?, 1, 1)
+                INSERT INTO streams (id, campaign_id, offer_id, name, type, position, schema_type, schema_custom_json, is_active, collect_clicks)
+                VALUES (?, ?, ?, ?, 'regular', 1, ?, ?, 1, 1)
             ")->execute([
                 $testCloakStreamId,
                 $testCampaignId,
@@ -535,8 +558,8 @@ class OrbitraTestHarness
                 'offers' => [['id' => $testOfferId, 'weight' => 100]],
             ];
             $pdo->prepare("
-                INSERT INTO streams (id, campaign_id, offer_id, name, type, schema_type, schema_custom_json, is_active, collect_clicks)
-                VALUES (?, ?, ?, ?, 'regular', ?, ?, 1, 1)
+                INSERT INTO streams (id, campaign_id, offer_id, name, type, position, schema_type, schema_custom_json, is_active, collect_clicks)
+                VALUES (?, ?, ?, ?, 'regular', 2, ?, ?, 1, 1)
             ")->execute([
                 $testRedirectStreamId,
                 $testCampaignId,
@@ -598,6 +621,7 @@ class OrbitraTestHarness
 
             return [
                 'campaign_id' => $testCampaignId,
+                'alias' => 'cloakcamp',
                 'campaign_token' => $testCampaignToken,
                 'cloak_stream_id' => $testCloakStreamId,
                 'redirect_stream_id' => $testRedirectStreamId,
@@ -1098,6 +1122,7 @@ class OrbitraTestHarness
             'api.php',
             'telegram_notify.php',
             'session_bootstrap.php',
+            'version.php',
             'core',
         ];
 

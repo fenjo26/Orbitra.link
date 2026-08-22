@@ -93,8 +93,8 @@ try {
         'User-Agent: curl/8.4.0',
         'X-Forwarded-For: 103.212.120.1',
     ]);
-    // Safe route also redirects (to safe landing URL)
-    assertTrue($resp['code'] === 302 || $resp['code'] === 301, 'Safe route should return 302 or 301');
+    // safe_mode=html serves the inline safe page (200), not a redirect
+    assertEquals(200, $resp['code'], 'Safe route serves inline HTML (safe_mode=html)');
     $newClicks = $harness->getNewClicksSince($baseline);
     assertEquals(1, count($newClicks), 'Safe click should still be logged by default');
     echo "\n";
@@ -107,10 +107,10 @@ try {
         'User-Agent: python-requests/2.31.0',
         'X-Forwarded-For: 103.212.120.2',
     ]);
-    assertTrue($resp['code'] === 302 || $resp['code'] === 301, 'Suppressed safe route should return 302 or 301');
+    assertEquals(200, $resp['code'], 'Suppressed safe route still serves the inline safe page');
     $newClicks = $harness->getNewClicksSince($baseline);
-    // Current actual behavior: suppression does NOT work, clicks ARE logged
-    assertEquals(1, count($newClicks), 'Suppressed safe click IS logged (current buggy behavior)');
+    // W3.1: suppression works — the safe hit is answered but not written
+    assertEquals(0, count($newClicks), 'Suppressed safe click is NOT logged (dont_record_safe_clicks)');
     $harness->updateStreamSchema($cloakStreamId, ['dont_record_safe_clicks' => false]);
     echo "\n";
 
@@ -158,8 +158,7 @@ try {
     ]);
     assertTrue($resp['code'] === 302 || $resp['code'] === 301, 'collect_clicks=0 should still serve 302 or 301');
     $newClicks = $harness->getNewClicksSince($baseline);
-    // Current actual behavior: collect_clicks=0 does NOT work, clicks ARE logged
-    assertEquals(1, count($newClicks), 'collect_clicks=0 click IS logged (current buggy behavior)');
+    assertEquals(0, count($newClicks), 'collect_clicks=0 click is NOT logged');
     $harness->updateStreamCollectClicks($cloakStreamId, 1);
     echo "\n";
 
@@ -200,8 +199,8 @@ try {
         'X-Forwarded-For: 103.212.120.8',
         'Sec-Purpose: prefetch',
     ]);
-    // click.php prefetch returns 200, not redirect
-    assertEquals(200, $resp['code'], 'click.php prefetch should return 200');
+    // click.php prefetch is served normally (302), the click is just not logged
+    assertTrue($resp['code'] === 302 || $resp['code'] === 301, 'click.php prefetch should still redirect');
     $newClicks = $harness->getNewClicksSince($baseline);
     assertEquals(0, count($newClicks), 'click.php prefetch should NOT log click');
     $harness->setSetting('ignore_prefetch', '0');
@@ -234,13 +233,11 @@ try {
         'User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1',
         'X-Forwarded-For: 103.212.120.10',
     ]);
-    // click.php money route returns 200, not redirect
-    assertEquals(200, $resp['code'], 'click.php money route should return 200');
+    assertEquals(302, $resp['code'], 'click.php money route should redirect to the offer');
     $newClicks = $harness->getNewClicksSince($baseline);
     assertEquals(1, count($newClicks), 'click.php money route should log click');
     $clickRow = end($newClicks);
-    // Note: offer_id is NULL in current implementation for cloak streams - this documents actual behavior
-    assertEquals(null, $clickRow['offer_id'], 'click.php money click should have NULL offer_id for cloak streams');
+    assertEquals($offerId, $clickRow['offer_id'], 'click.php money click should have the money offer_id');
     echo "\n";
 
     // ===== Test 12: Safe route via click_api =====
@@ -299,8 +296,7 @@ try {
         'User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1',
         'X-Forwarded-For: 103.212.120.15',
     ]);
-    // click.php collect_clicks=0 returns 200, not redirect
-    assertEquals(200, $resp['code'], 'click.php collect_clicks=0 should return 200');
+    assertTrue($resp['code'] === 302 || $resp['code'] === 301, 'click.php collect_clicks=0 still redirects');
     $newClicks = $harness->getNewClicksSince($baseline);
     assertEquals(0, count($newClicks), 'click.php collect_clicks=0 should NOT log');
     $harness->updateStreamCollectClicks($cloakStreamId, 1);

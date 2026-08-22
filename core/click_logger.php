@@ -13,6 +13,34 @@
 require_once __DIR__ . '/CloakDetector.php';
 require_once __DIR__ . '/Device.php';
 
+if (!function_exists('logCloakEvent')) {
+    /**
+     * Post-mortem cloak event line in the PHP error log. Kept next to the
+     * shared click logger so core/click_api.php (which never passes through
+     * index.php's definitions on its router entry) can call it too.
+     */
+    function logCloakEvent($stage, $campaignId, $streamId, array $visitor, array $reasons, $sensitivity)
+    {
+        $clean = static function ($value) {
+            return preg_replace('/[\r\n]+/', ' ', (string) $value);
+        };
+        error_log(sprintf(
+            'Orbitra cloak [campaign=%s stream=%s]: stage=%s ip=%s asn=%s isp=%s proxy=%s provider=%s ua=%.80s reasons=[%s] sensitivity=%s',
+            $clean($campaignId),
+            $clean($streamId),
+            $clean($stage),
+            $clean($visitor['ip'] ?? ''),
+            $clean($visitor['asn'] ?? ''),
+            $clean($visitor['isp'] ?? ''),
+            $clean($visitor['proxy_type'] ?? ''),
+            $clean($visitor['proxy_provider'] ?? ''),
+            $clean($visitor['user_agent'] ?? ''),
+            implode(', ', array_map($clean, $reasons)),
+            $clean($sensitivity)
+        ));
+    }
+}
+
 /**
  * Build the complete click row array for INSERT.
  *

@@ -27,7 +27,10 @@ $pdo->exec('CREATE TABLE clicks (
     browser TEXT, language TEXT, accept_language_raw TEXT, parameters_json TEXT,
     is_bot INTEGER DEFAULT 0, is_proxy INTEGER DEFAULT 0,
     uniq_campaign INTEGER DEFAULT 0, uniq_stream INTEGER DEFAULT 0,
-    uniq_global INTEGER DEFAULT 0, created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    uniq_global INTEGER DEFAULT 0, created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    cloak_verdict TEXT DEFAULT NULL, cloak_reasons TEXT DEFAULT NULL,
+    is_safe_page INTEGER DEFAULT 0, isp TEXT, asn TEXT, proxy_type TEXT,
+    cloak_sensitivity TEXT DEFAULT NULL
 )');
 
 $settings = $pdo->prepare('INSERT INTO settings (key, value) VALUES (?, ?)');
@@ -92,37 +95,75 @@ $baseSchema = [
 $botUa = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)';
 $browserUa = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/127.0.0.0 Safari/537.36';
 
+$clickCount = function () use ($pdo): int {
+    return (int) $pdo->query('SELECT COUNT(*) FROM clicks')->fetchColumn();
+};
+$lastRow = function () use ($pdo): array {
+    return $pdo->query('SELECT * FROM clicks ORDER BY created_at DESC, rowid DESC LIMIT 1')->fetch(PDO::FETCH_ASSOC) ?: [];
+};
+
+// W3.1 default: safe traffic IS logged now (is_safe_page=1, verdict persisted).
 $safeResponse = $runClickApi($baseSchema, $botUa);
-if ((int) $pdo->query('SELECT COUNT(*) FROM clicks')->fetchColumn() !== 0) {
-    throw new RuntimeException('Default Safe Page request was written to clicks');
+if ($clickCount() !== 1) {
+    throw new RuntimeException('Default Safe Page request was not logged (W3.1 default)');
 }
 if (($safeResponse['headers'][0] ?? '') !== 'Location: https://safe.example/review') {
     throw new RuntimeException('Safe Page URL was not returned');
+}
+$safeRow = $lastRow();
+if ((int) $safeRow['is_safe_page'] !== 1 || ($safeRow['cloak_verdict'] ?? '') !== 'passive_safe') {
+    throw new RuntimeException('Safe Page click missing W1 verdict/is_safe_page columns');
+}
+if (strpos((string) $safeRow['cloak_reasons'], 'crawler_or_tool_ua') === false) {
+    throw new RuntimeException('Safe Page click missing cloak_reasons');
 }
 
 $htmlSchema = $baseSchema;
 $htmlSchema['safe_mode'] = 'html';
 $htmlSchema['safe_html'] = '<h1>Review page</h1>';
 $htmlResponse = $runClickApi($htmlSchema, $botUa);
-if ((int) $pdo->query('SELECT COUNT(*) FROM clicks')->fetchColumn() !== 0) {
-    throw new RuntimeException('Inline Safe Page request was written to clicks');
+if ($clickCount() !== 2) {
+    throw new RuntimeException('Inline Safe Page request was not logged');
 }
 if (($htmlResponse['body'] ?? '') !== '<h1>Review page</h1>' || !empty($htmlResponse['headers'])) {
     throw new RuntimeException('Saved Safe Page mode did not override the stale URL field');
 }
 
 $moneyResponse = $runClickApi($baseSchema, $browserUa);
-if ((int) $pdo->query('SELECT COUNT(*) FROM clicks')->fetchColumn() !== 1) {
+if ($clickCount() !== 3) {
     throw new RuntimeException('Money Page request was not recorded');
 }
 if (($moneyResponse['headers'][0] ?? '') !== 'Location: https://money.example/path') {
     throw new RuntimeException('Money Page URL was not returned');
 }
+if ((int) $lastRow()['is_safe_page'] !== 0) {
+    throw new RuntimeException('Money Page click must not carry is_safe_page=1');
+}
 
+// W3.1 opt-out: log_safe_clicks=false drops safe hits from the database.
+$dropSchema = $baseSchema;
+$dropSchema['log_safe_clicks'] = false;
+$droppedResponse = $runClickApi($dropSchema, $botUa);
+if ($clickCount() !== 3) {
+    throw new RuntimeException('log_safe_clicks=false did not drop the Safe Page hit');
+}
+if (($droppedResponse['headers'][0] ?? '') !== 'Location: https://safe.example/review') {
+    throw new RuntimeException('Dropped Safe Page hit did not still serve the Safe Page URL');
+}
+
+// Legacy streams: dont_record_safe_clicks=true still drops.
+$legacyDropSchema = $baseSchema;
+$legacyDropSchema['dont_record_safe_clicks'] = true;
+$runClickApi($legacyDropSchema, $botUa);
+if ($clickCount() !== 3) {
+    throw new RuntimeException('Legacy dont_record_safe_clicks=true did not drop the Safe Page hit');
+}
+
+// Explicit opt-in via the legacy key keeps working.
 $recordSafeSchema = $baseSchema;
 $recordSafeSchema['dont_record_safe_clicks'] = false;
 $recordedSafeResponse = $runClickApi($recordSafeSchema, $botUa);
-if ((int) $pdo->query('SELECT COUNT(*) FROM clicks')->fetchColumn() !== 2) {
+if ($clickCount() !== 4) {
     throw new RuntimeException('Explicitly enabled Safe Page logging did not record the click');
 }
 if (($recordedSafeResponse['headers'][0] ?? '') !== 'Location: https://safe.example/review') {
@@ -137,8 +178,8 @@ $offerSafeResponse = $runClickApi($offerSafeSchema, $botUa);
 if (($offerSafeResponse['headers'][0] ?? '') !== 'Location: /offers/2/') {
     throw new RuntimeException('Safe Page local offer redirect was not returned');
 }
-if ((int) $pdo->query('SELECT COUNT(*) FROM clicks')->fetchColumn() !== 2) {
-    throw new RuntimeException('Safe Page local offer request was written to clicks');
+if ($clickCount() !== 5) {
+    throw new RuntimeException('Safe Page local offer request was not logged');
 }
 
 // A non-local offer id must not produce an /offers/ redirect — the default

@@ -85,38 +85,64 @@ try {
     @rmdir($emptyRoot . '/geo');
     @rmdir($emptyRoot);
 
-    // Test with present files
-    $writeHeader($tempRoot . '/geo/IP2LOCATION-LITE-DB11.BIN', 11, 1);
-    $withCountry = orbitraGeoTargetingReady($tempRoot);
-    if ($withCountry['country'] !== true) {
-        $failures[] = 'With IP2Location DB11, country should be true';
-    }
-    if ($withCountry['asn'] !== false) {
-        $failures[] = 'With IP2Location DB11 only, asn should be false';
-    }
+    // Readiness deep-validates through the official library, so the
+    // with-file case needs a real database — a bare header stub is exactly
+    // the truncated file the check must reject. Memoisation is per-root, so
+    // every scenario uses its own fresh root.
+    $sampleGeo = __DIR__ . '/../vendor/ip2location/ip2location-php/data/IP2LOCATION-LITE-DB1.BIN';
+    if (is_file($sampleGeo)) {
+        $countryRoot = sys_get_temp_dir() . '/orbitra-geo-country-' . bin2hex(random_bytes(5));
+        mkdir($countryRoot . '/geo', 0755, true);
+        copy($sampleGeo, $countryRoot . '/geo/IP2LOCATION-LITE-DB11.BIN');
+        $withCountry = orbitraGeoTargetingReady($countryRoot);
+        if ($withCountry['country'] !== true) {
+            $failures[] = 'With IP2Location DB11, country should be true';
+        }
+        if ($withCountry['asn'] !== false) {
+            $failures[] = 'With IP2Location DB11 only, asn should be false';
+        }
 
-    // Test with truncated file (0-byte or too small) - should not be ready
-    file_put_contents($tempRoot . '/geo/IP2LOCATION-LITE-DB11.BIN', '');
-    $truncatedReady = orbitraGeoTargetingReady($tempRoot);
-    if ($truncatedReady['country'] !== false) {
-        $failures[] = 'Truncated file should report country as false';
-    }
-    // Restore valid file for further tests
-    $writeHeader($tempRoot . '/geo/IP2LOCATION-LITE-DB11.BIN', 11, 1);
+        // Memoisation: a second call on the same root returns the first
+        // result even after the file disappeared underneath.
+        unlink($countryRoot . '/geo/IP2LOCATION-LITE-DB11.BIN');
+        if (orbitraGeoTargetingReady($countryRoot) !== $withCountry) {
+            $failures[] = 'orbitraGeoTargetingReady() should return memoised result';
+        }
+        foreach (glob($countryRoot . '/geo/*') ?: [] as $file) {
+            @unlink($file);
+        }
+        @rmdir($countryRoot . '/geo');
+        @rmdir($countryRoot);
 
-    // Test with unreadable file (no read permissions) - should not be ready
-    chmod($tempRoot . '/geo/IP2LOCATION-LITE-DB11.BIN', 0000);
-    $unreadableReady = orbitraGeoTargetingReady($tempRoot);
-    if ($unreadableReady['country'] !== false) {
-        $failures[] = 'Unreadable file should report country as false';
-    }
-    // Restore permissions for cleanup
-    chmod($tempRoot . '/geo/IP2LOCATION-LITE-DB11.BIN', 0644);
+        // Truncated file (fresh root): a 64-byte header stub must not count.
+        $truncRoot = sys_get_temp_dir() . '/orbitra-geo-trunc-' . bin2hex(random_bytes(5));
+        mkdir($truncRoot . '/geo', 0755, true);
+        $writeHeader($truncRoot . '/geo/IP2LOCATION-LITE-DB11.BIN', 11, 1);
+        if (orbitraGeoTargetingReady($truncRoot)['country'] !== false) {
+            $failures[] = 'Truncated file should report country as false';
+        }
+        foreach (glob($truncRoot . '/geo/*') ?: [] as $file) {
+            @unlink($file);
+        }
+        @rmdir($truncRoot . '/geo');
+        @rmdir($truncRoot);
 
-    // Test memoisation - should return same result without re-checking files
-    $memoised = orbitraGeoTargetingReady($tempRoot);
-    if ($memoised !== $withCountry) {
-        $failures[] = 'orbitraGeoTargetingReady() should return memoised result';
+        // Unreadable file (fresh root) must not be ready. Root bypasses file
+        // permissions, so the assertion is skipped when running as root.
+        $unrRoot = sys_get_temp_dir() . '/orbitra-geo-unread-' . bin2hex(random_bytes(5));
+        mkdir($unrRoot . '/geo', 0755, true);
+        copy($sampleGeo, $unrRoot . '/geo/IP2LOCATION-LITE-DB11.BIN');
+        chmod($unrRoot . '/geo/IP2LOCATION-LITE-DB11.BIN', 0000);
+        $runningAsRoot = function_exists('posix_geteuid') && posix_geteuid() === 0;
+        if (!$runningAsRoot && orbitraGeoTargetingReady($unrRoot)['country'] !== false) {
+            $failures[] = 'Unreadable file should report country as false';
+        }
+        chmod($unrRoot . '/geo/IP2LOCATION-LITE-DB11.BIN', 0644);
+        foreach (glob($unrRoot . '/geo/*') ?: [] as $file) {
+            @unlink($file);
+        }
+        @rmdir($unrRoot . '/geo');
+        @rmdir($unrRoot);
     }
 } finally {
     foreach (glob($tempRoot . '/geo/*') ?: [] as $file) {

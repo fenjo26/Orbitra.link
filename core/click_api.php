@@ -860,7 +860,7 @@ function orbitraClickApiV3(PDO $pdo): void
             ];
 
             // Add cloak observability fields for cloak streams (W1)
-            if (isset($cloakDecision) && ($schema['type'] ?? '') === 'cloak') {
+            if (isset($cloakDecision) && $schemaType === 'cloak') {
                 $cloakClickCtx = orbitraCloakClickContext($cloakDecision, $geoData ?? []);
                 $clickCtx = array_merge($clickCtx, $cloakClickCtx);
             }
@@ -883,7 +883,7 @@ function orbitraClickApiV3(PDO $pdo): void
         $verdict = 'unknown';
         $reasons = '';
 
-        if (isset($cloakDecision) && ($schema['type'] ?? '') === 'cloak') {
+        if (isset($cloakDecision) && $schemaType === 'cloak') {
             $verdict = $cloakDecision['verdict'] ?? 'unknown';
             $reasons = !empty($cloakDecision['reasons']) ? implode(',', $cloakDecision['reasons']) : '';
         }

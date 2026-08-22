@@ -69,3 +69,4 @@ tests/offers/
 # Test database files
 database.db
 .claude/worktrees/
+data/tracker.db
