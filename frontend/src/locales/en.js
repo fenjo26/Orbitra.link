@@ -169,7 +169,8 @@ export default {
         "copy": "Copy",
         "notSet": "not set",
         "disabled": "Disabled",
-        "checking": "Checking..."
+        "checking": "Checking...",
+        "more": "More"
     },
     "nav": {
         "navigation": "Navigation",
@@ -1907,7 +1908,22 @@ export default {
         "resultError": "Error",
         "sourcePostback": "Postback",
         "sourcePixel": "Pixel",
-        "direct": "Direct"
+        "direct": "Direct",
+        "colRoute": "Route",
+        "colReason": "Reason",
+        "colDestination": "Destination",
+        "colIsp": "ISP",
+        "colAsn": "ASN",
+        "colProxyType": "Proxy Type",
+        "routeMoney": "Money",
+        "routeSafe": "Safe",
+        "routeNone": "—",
+        "filterByCampaign": "Filter by campaign",
+        "filterByRoute": "Filter by route",
+        "routeFilterAll": "All routes",
+        "routeFilterMoney": "Money only",
+        "routeFilterSafe": "Safe only",
+        "filterByReason": "Filter by reason"
     },
     "campaignReports": {
         "layers": "Grouping layers",
@@ -2685,7 +2701,18 @@ export default {
         "dontRecordSafeClicksHint": "Bots, crawlers, and reviewers routed to the Safe Page will not be saved in database logs or counted in campaign reports.",
         "moneyPage": "Money page (for visitors)",
         "moneyPageHint": "Shown to real visitors. Behaves like the landing+offer schema.",
-        "noGeoDbWarning": "Every visitor resolves as country Unknown, so this filter will send 100% of your traffic to the Safe Page."
+        "noGeoDbWarning": "Every visitor resolves as country Unknown, so this filter will send 100% of your traffic to the Safe Page.",
+        "diagnosticsTitle": "Last 24h",
+        "diagnosticsEmpty": "No clicks yet",
+        "diagnosticsStats": "{hits} hits  →  {money} money  ·  {safe} safe",
+        "diagnosticsTopReasons": "Top reasons:",
+        "diagnosticsReasonItem": "{reason} ×{count}",
+        "diagnosticsViewLogs": "View in click log",
+        "almostAllSafeWarning": "Almost all traffic is being routed to the safe page. Check the reasons below before spending more on this campaign.",
+        "inactiveDatacenterWarning": "Datacenter detection is inactive: no ASN database installed.",
+        "inactiveVpnWarning": "VPN/proxy detection is inactive: no IP2Proxy PX12 database installed.",
+        "inactiveBotWarning": "Bot blocklist is inactive: no ASN database installed.",
+        "inactiveIspWarning": "ISP blocklist is inactive: no ASN database installed."
     },
     "postbackQueue": {
         "title": "Postback queue",
@@ -2707,6 +2734,23 @@ export default {
         "cronRemoved": "Postback delivery cron removed.",
         "queueHealthy": "Delivery worker is running.",
         "queueStale": "Delivery worker has not pinged recently. Install the cron to enable retries."
+    },
+    "cloakReasons": {
+        "geo_country": "Visitor's country was not in the stream's allow-list.",
+        "geo_unknown": "Country could not be determined — no geo database installed or IP not recognized.",
+        "device_type": "Visitor's device type was not in the stream's allow-list.",
+        "isp_blocklist": "Visitor's ISP matched the bot/datacenter blocklist.",
+        "crawler_or_tool_ua": "User-agent matched a known crawler, bot, or debugging tool.",
+        "suspicious_ua": "User-agent exhibited bot-like characteristics.",
+        "ip2proxy_vpn_proxy": "IP2Proxy detected this as a VPN or proxy address.",
+        "ip2proxy_datacenter": "IP2Proxy detected this as a datacenter IP.",
+        "ip2proxy_residential": "IP2Proxy detected this as a residential proxy.",
+        "ip2proxy_tor": "IP2Proxy detected this as a Tor exit node.",
+        "asn_datacenter": "ASN matched a known datacenter or hosting provider.",
+        "webdriver": "Browser automation detected via JavaScript challenge.",
+        "js_missing": "JavaScript did not execute.",
+        "js_fingerprint": "Browser fingerprint challenge failed.",
+        "bot_blocklist": "IP matched a known bot or crawler blocklist."
     },
     "extCosts": {
         "title": "Dolphin / FBTool API",

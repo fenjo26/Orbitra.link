@@ -169,7 +169,8 @@ export default {
         "copy": "复制",
         "notSet": "未设置",
         "disabled": "残疾人",
-        "checking": "正在检查..."
+        "checking": "正在检查...",
+        "more": "更多"
     },
     "nav": {
         "navigation": "导航",
@@ -1907,7 +1908,22 @@ export default {
         "resultError": "错误",
         "sourcePostback": "回发",
         "sourcePixel": "像素",
-        "direct": "直接"
+        "direct": "直接",
+        "colRoute": "路由",
+        "colReason": "原因",
+        "colDestination": "目标",
+        "colIsp": "ISP",
+        "colAsn": "ASN",
+        "colProxyType": "代理类型",
+        "routeMoney": "盈利",
+        "routeSafe": "安全",
+        "routeNone": "—",
+        "filterByCampaign": "按活动筛选",
+        "filterByRoute": "按路由筛选",
+        "routeFilterAll": "所有路由",
+        "routeFilterMoney": "仅盈利",
+        "routeFilterSafe": "仅安全",
+        "filterByReason": "按原因筛选"
     },
     "campaignReports": {
         "layers": "分组层级",
@@ -2685,7 +2701,18 @@ export default {
         "dontRecordSafeClicksHint": "路由到安全页的机器人、爬虫和审核人员将不会记录在数据库或广告报告中。",
         "moneyPage": "盈利页面（面向访客）",
         "moneyPageHint": "展示给真实访客。行为与落地页+offer 模式相同。",
-        "noGeoDbWarning": "每个访客都会被解析为 Unknown 国家，因此此过滤器会将 100% 的流量发送到安全页。"
+        "noGeoDbWarning": "每个访客都会被解析为 Unknown 国家，因此此过滤器会将 100% 的流量发送到安全页。",
+        "diagnosticsTitle": "最近 24 小时",
+        "diagnosticsEmpty": "暂无点击",
+        "diagnosticsStats": "{hits} 次点击  →  {money} 盈利  ·  {safe} 安全",
+        "diagnosticsTopReasons": "主要原因：",
+        "diagnosticsReasonItem": "{reason} ×{count}",
+        "diagnosticsViewLogs": "在点击日志中查看",
+        "almostAllSafeWarning": "几乎所有流量都被路由到安全页面。在继续为此广告系列花费之前，请检查以下原因。",
+        "inactiveDatacenterWarning": "数据中心检测未激活：未安装 ASN 数据库。",
+        "inactiveVpnWarning": "VPN/代理检测未激活：未安装 IP2Proxy PX12 数据库。",
+        "inactiveBotWarning": "机器人黑名单未激活：未安装 ASN 数据库。",
+        "inactiveIspWarning": "ISP 黑名单未激活：未安装 ASN 数据库。"
     },
     "postbackQueue": {
         "title": "Postback 队列",
@@ -2707,6 +2734,23 @@ export default {
         "cronRemoved": "Postback 投递 cron 已移除。",
         "queueHealthy": "投递 worker 正在运行。",
         "queueStale": "投递 worker 已较长时间未报告。请安装 cron 以启用重试。"
+    },
+    "cloakReasons": {
+        "geo_country": "访客的国家不在流体的允许列表中。",
+        "geo_unknown": "无法确定国家 — 未安装 geo 数据库或无法识别 IP。",
+        "device_type": "访客的设备类型不在流体的允许列表中。",
+        "isp_blocklist": "访客的 ISP 与机器人/数据中心黑名单匹配。",
+        "crawler_or_tool_ua": "User-Agent 与已知的爬虫、机器人或调试工具匹配。",
+        "suspicious_ua": "User-Agent exhibits bot-like characteristics.",
+        "ip2proxy_vpn_proxy": "IP2Proxy detected this as a VPN or proxy address.",
+        "ip2proxy_datacenter": "IP2Proxy detected this as a datacenter IP.",
+        "ip2proxy_residential": "IP2Proxy 检测到此 IP 为住宅代理。",
+        "ip2proxy_tor": "IP2Proxy 检测到此 IP 为 Tor 出口节点。",
+        "asn_datacenter": "ASN 与已知的数据中心或托管提供商匹配。",
+        "webdriver": "Browser automation detected via JavaScript challenge.",
+        "js_missing": "JavaScript did not execute.",
+        "js_fingerprint": "Browser fingerprint challenge failed.",
+        "bot_blocklist": "IP 与已知的机器人黑名单匹配。"
     },
     "extCosts": {
         "title": "Dolphin / FBTool API",

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, ArrowRightLeft, ShieldAlert, TerminalSquare, ServerCrash, FileStack } from 'lucide-react';
+import { Activity, ArrowRightLeft, ShieldAlert, TerminalSquare, ServerCrash, FileStack, Filter, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const API_URL = '/api.php';
@@ -9,6 +9,13 @@ const LogsPage = () => {
     const [activeTab, setActiveTab] = useState('traffic');
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(true);
+    // W2: Cloak observability filters
+    const [filters, setFilters] = useState({
+        campaign_id: '',
+        route: 'all', // 'all', 'money', 'safe'
+        reason: ''
+    });
+    const [showFilters, setShowFilters] = useState(false);
 
     const tabs = {
         traffic: { name: t('logs.traffic'), icon: <Activity className="w-4 h-4" /> },
@@ -20,7 +27,20 @@ const LogsPage = () => {
 
     useEffect(() => {
         setLoading(true);
-        fetch(`${API_URL}?action=logs&type=${activeTab}&limit=100`)
+        // W2: Build URL with filter parameters for traffic tab
+        const params = new URLSearchParams({
+            action: 'logs',
+            type: activeTab,
+            limit: '100'
+        });
+
+        if (activeTab === 'traffic') {
+            if (filters.campaign_id) params.append('campaign_id', filters.campaign_id);
+            if (filters.route !== 'all') params.append('route', filters.route);
+            if (filters.reason) params.append('reason', filters.reason);
+        }
+
+        fetch(`${API_URL}?${params.toString()}`)
             .then(res => res.json())
             .then(data => {
                 if (data.status === 'success') {
@@ -34,7 +54,7 @@ const LogsPage = () => {
                 setLogs([]);
                 setLoading(false);
             });
-    }, [activeTab]);
+    }, [activeTab, filters]);
 
     const renderTable = () => {
         if (loading) return <div className="p-8 text-center text-[var(--color-text-muted)]">{t('logs.loadingLogs')}</div>;
@@ -43,40 +63,148 @@ const LogsPage = () => {
         switch (activeTab) {
             case 'traffic':
                 return (
-                    <table className="page-table">
-                        <thead>
-                            <tr>
-                                <th>{t('logs.colTime')}</th>
-                                <th>{t('logs.colClickId')}</th>
-                                <th>{t('logs.colSubid')}</th>
-                                <th>{t('logs.colCampaign')}</th>
-                                <th>{t('logs.colIp')}</th>
-                                <th>{t('logs.colGeo')}</th>
-                                <th>{t('logs.colDevice')}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {logs.map((log, i) => (
-                                <tr key={i}>
-                                    <td>{log.created_at}</td>
-                                    <td className="font-mono text-xs">{log.click_id}</td>
-                                    <td>{log.subid || '-'}</td>
-                                    <td>{log.campaign_name || t('logs.direct')}</td>
-                                    <td>{log.ip}</td>
-                                    <td>
-                                        <div>{log.country_code || '-'}</div>
-                                        <div className="text-xs text-[var(--color-text-muted)]">
-                                            {[log.region, log.city].filter(Boolean).join(', ') || '-'}
-                                        </div>
-                                        {log.geo_timezone ? (
-                                            <div className="text-[11px] text-[var(--color-text-muted)]">{log.geo_timezone}</div>
-                                        ) : null}
-                                    </td>
-                                    <td>{log.device_type || '-'}</td>
+                    <>
+                        {/* W2: Filter bar for traffic logs */}
+                        <div className="mb-4 p-3 rounded-xl border" style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}>
+                            <div className="flex items-center gap-2 mb-2">
+                                <button
+                                    onClick={() => setShowFilters(!showFilters)}
+                                    className="flex items-center gap-2 text-xs font-medium"
+                                    style={{ color: 'var(--color-text-secondary)' }}
+                                >
+                                    <Filter className="w-4 h-4" />
+                                    {showFilters ? <ChevronDown className="w-4 h-4" /> : <ChevronDown className="w-4 h-4 rotate-[-90deg]" />}
+                                    {t('logs.filterByCampaign')}
+                                </button>
+                            </div>
+                            {showFilters && (
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <input
+                                        type="number"
+                                        placeholder={t('logs.filterByCampaign')}
+                                        value={filters.campaign_id}
+                                        onChange={e => setFilters({ ...filters, campaign_id: e.target.value })}
+                                        className="form-input text-xs py-1.5 rounded-lg"
+                                        style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}
+                                    />
+                                    <select
+                                        value={filters.route}
+                                        onChange={e => setFilters({ ...filters, route: e.target.value })}
+                                        className="form-select text-xs py-1.5 rounded-lg"
+                                        style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}
+                                    >
+                                        <option value="all">{t('logs.routeFilterAll')}</option>
+                                        <option value="money">{t('logs.routeFilterMoney')}</option>
+                                        <option value="safe">{t('logs.routeFilterSafe')}</option>
+                                    </select>
+                                    <input
+                                        type="text"
+                                        placeholder={t('logs.filterByReason')}
+                                        value={filters.reason}
+                                        onChange={e => setFilters({ ...filters, reason: e.target.value })}
+                                        className="form-input text-xs py-1.5 rounded-lg"
+                                        style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        <table className="page-table">
+                            <thead>
+                                <tr>
+                                    <th>{t('logs.colTime')}</th>
+                                    <th>{t('logs.colClickId')}</th>
+                                    <th>{t('logs.colSubid')}</th>
+                                    <th>{t('logs.colCampaign')}</th>
+                                    <th>{t('logs.colRoute')}</th>
+                                    <th>{t('logs.colReason')}</th>
+                                    <th>{t('logs.colDestination')}</th>
+                                    <th>{t('logs.colIp')}</th>
+                                    <th>{t('logs.colGeo')}</th>
+                                    <th>{t('logs.colDevice')}</th>
+                                    <th>{t('logs.colIsp')}</th>
+                                    <th>{t('logs.colAsn')}</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {logs.map((log, i) => {
+                                    // W2: Render route badge
+                                    const renderRouteBadge = () => {
+                                        if (!log.cloak_verdict && !log.is_safe_page) {
+                                            return <span className="text-xs text-[var(--color-text-muted)]">{t('logs.routeNone')}</span>;
+                                        }
+                                        const isMoney = !log.is_safe_page;
+                                        const label = isMoney ? t('logs.routeMoney') : t('logs.routeSafe');
+                                        const className = isMoney
+                                            ? 'status-active'
+                                            : 'status-inactive';
+                                        return (
+                                            <span className={`status-badge ${className} text-[11px]`}>
+                                                {label}
+                                            </span>
+                                        );
+                                    };
+
+                                    // W2: Render reason chips
+                                    const renderReasonChips = () => {
+                                        if (!log.cloak_reasons) return <span className="text-xs text-[var(--color-text-muted)]">-</span>;
+                                        const reasons = log.cloak_reasons.split(',').filter(Boolean);
+                                        if (reasons.length === 0) return <span className="text-xs text-[var(--color-text-muted)]">-</span>;
+                                        return (
+                                            <div className="flex flex-wrap gap-1">
+                                                {reasons.map((reason, idx) => (
+                                                    <span
+                                                        key={idx}
+                                                        className="text-[10px] px-1.5 py-0.5 rounded"
+                                                        style={{
+                                                            backgroundColor: 'var(--color-bg-soft)',
+                                                            color: 'var(--color-text-secondary)',
+                                                            border: '1px solid var(--color-border)'
+                                                        }}
+                                                        title={t(`cloakReasons.${reason.trim()}`, reason)}
+                                                    >
+                                                        {reason}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        );
+                                    };
+
+                                    // W2: Render destination
+                                    const renderDestination = () => {
+                                        if (log.landing_name) return log.landing_name;
+                                        if (log.offer_name) return log.offer_name;
+                                        return <span className="text-xs text-[var(--color-text-muted)]">-</span>;
+                                    };
+
+                                    return (
+                                        <tr key={i}>
+                                            <td>{log.created_at}</td>
+                                            <td className="font-mono text-xs">{log.click_id}</td>
+                                            <td>{log.subid || '-'}</td>
+                                            <td>{log.campaign_name || t('logs.direct')}</td>
+                                            <td>{renderRouteBadge()}</td>
+                                            <td>{renderReasonChips()}</td>
+                                            <td className="text-xs">{renderDestination()}</td>
+                                            <td>{log.ip}</td>
+                                            <td>
+                                                <div>{log.country_code || '-'}</div>
+                                                <div className="text-xs text-[var(--color-text-muted)]">
+                                                    {[log.region, log.city].filter(Boolean).join(', ') || '-'}
+                                                </div>
+                                                {log.geo_timezone ? (
+                                                    <div className="text-[11px] text-[var(--color-text-muted)]">{log.geo_timezone}</div>
+                                                ) : null}
+                                            </td>
+                                            <td>{log.device_type || '-'}</td>
+                                            <td className="text-xs text-[var(--color-text-muted)]">{log.isp || '-'}</td>
+                                            <td className="text-xs font-mono text-[var(--color-text-muted)]">{log.asn || '-'}</td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </>
                 );
 
             case 'postbacks':

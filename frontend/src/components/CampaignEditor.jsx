@@ -264,6 +264,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         asn: null,
         proxy: null
     });
+    // W2: Cloak diagnostics summary for campaign editor
+    const [cloakSummary, setCloakSummary] = useState(null);
+    const [cloakSummaryLoading, setCloakSummaryLoading] = useState(false);
     // Creating a landing or offer without leaving the stream you are wiring up.
     // Going to another page and back used to mean losing the unsaved campaign.
     // Landing groups, the campaign list, the postback key and the offer-link
@@ -841,6 +844,30 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             })
             .catch(() => {});
     }, []);
+
+    // W2: Fetch cloak diagnostics summary when campaign changes
+    useEffect(() => {
+        if (!activeCampaignId) {
+            setCloakSummary(null);
+            return;
+        }
+        setCloakSummaryLoading(true);
+        axios.get('/api.php?action=cloak_summary', {
+            params: { campaign_id: activeCampaignId }
+        })
+            .then(res => {
+                if (res.data.status === 'success') {
+                    setCloakSummary(res.data.data);
+                } else {
+                    setCloakSummary(null);
+                }
+                setCloakSummaryLoading(false);
+            })
+            .catch(() => {
+                setCloakSummary(null);
+                setCloakSummaryLoading(false);
+            });
+    }, [activeCampaignId]);
 
     // Manual 7-day spend pull for one connection — the same action the
     // Integrations page's "Update spend" button runs.
@@ -3488,6 +3515,100 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                     </label>
                                                                 </div>
                                                             </div>
+
+                                                            {/* W2: Cloak diagnostics panel */}
+                                                            {(() => {
+                                                                if (cloakSummaryLoading) {
+                                                                    return (
+                                                                        <div className="p-3 rounded-xl mt-3" style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}>
+                                                                            <div className="text-xs text-[var(--color-text-muted)]">{t('common.loading', 'Loading...')}</div>
+                                                                        </div>
+                                                                    );
+                                                                }
+                                                                if (!cloakSummary) {
+                                                                    return (
+                                                                        <div className="p-3 rounded-xl mt-3" style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}>
+                                                                            <div className="text-xs text-[var(--color-text-muted)]">{t('cloaking.diagnosticsEmpty')}</div>
+                                                                        </div>
+                                                                    );
+                                                                }
+                                                                const { total, money, safe, suppressed, by_reason } = cloakSummary;
+                                                                const totalHits = total + suppressed;
+                                                                const safeRatio = totalHits > 0 ? safe / totalHits : 0;
+                                                                const showWarning = safeRatio >= 0.9 && totalHits >= 10;
+
+                                                                return (
+                                                                    <div className="mt-3 space-y-3">
+                                                                        {/* Warning banner when almost all traffic is safe */}
+                                                                        {showWarning && (
+                                                                            <div style={{
+                                                                                padding: '10px 12px',
+                                                                                background: 'var(--color-warning-bg)',
+                                                                                borderRadius: '10px',
+                                                                                fontSize: '12px',
+                                                                                color: 'var(--color-warning)',
+                                                                                display: 'flex',
+                                                                                alignItems: 'flex-start',
+                                                                                gap: '8px'
+                                                                            }}>
+                                                                                <AlertTriangle className="w-4 h-4 shrink-0" style={{ marginTop: '1px' }} />
+                                                                                <div style={{ fontWeight: 500 }}>
+                                                                                    {t('cloaking.almostAllSafeWarning')}
+                                                                                </div>
+                                                                            </div>
+                                                                        )}
+
+                                                                        {/* Diagnostics stats */}
+                                                                        <div className="p-3 rounded-xl" style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}>
+                                                                            <div className="flex items-center justify-between mb-2">
+                                                                                <span className="text-xs font-semibold" style={{ color: 'var(--color-text-muted)' }}>
+                                                                                    {t('cloaking.diagnosticsTitle')}
+                                                                                </span>
+                                                                                <a
+                                                                                    href={`/logs?tab=traffic&campaign_id=${activeCampaignId}`}
+                                                                                    className="text-xs"
+                                                                                    style={{ color: 'var(--color-primary)' }}
+                                                                                >
+                                                                                    {t('cloaking.diagnosticsViewLogs')}
+                                                                                </a>
+                                                                            </div>
+                                                                            <div className="text-sm font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
+                                                                                {t('cloaking.diagnosticsStats', {
+                                                                                    hits: totalHits,
+                                                                                    money: money,
+                                                                                    safe: safe + (suppressed || 0)
+                                                                                }).replace('{hits}', String(totalHits)).replace('{money}', String(money)).replace('{safe}', String(safe + (suppressed || 0)))}
+                                                                            </div>
+                                                                            {by_reason && by_reason.length > 0 && (
+                                                                                <div>
+                                                                                    <div className="text-xs mb-1" style={{ color: 'var(--color-text-muted)' }}>
+                                                                                        {t('cloaking.diagnosticsTopReasons')}
+                                                                                    </div>
+                                                                                    <div className="flex flex-wrap gap-1">
+                                                                                        {by_reason.slice(0, 5).map((r, i) => (
+                                                                                            <span
+                                                                                                key={i}
+                                                                                                className="text-[10px] px-2 py-0.5 rounded"
+                                                                                                style={{
+                                                                                                    backgroundColor: 'var(--color-bg-card)',
+                                                                                                    color: 'var(--color-text-secondary)',
+                                                                                                    border: '1px solid var(--color-border)'
+                                                                                                }}
+                                                                                                title={t(`cloakReasons.${r.reason}`, r.reason)}
+                                                                                            >
+                                                                                                {t('cloaking.diagnosticsReasonItem', {
+                                                                                                    reason: r.reason,
+                                                                                                    count: r.count
+                                                                                                }).replace('{reason}', r.reason).replace('{count}', String(r.count))}
+                                                                                            </span>
+                                                                                        ))}
+                                                                                    </div>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            })()}
 
                                                             {/* Targeting Filters: hard routing rules — any miss goes to the Safe Page */}
                                                             <div className="space-y-3 pt-2" style={{ borderTop: '1px solid var(--color-border)' }}>

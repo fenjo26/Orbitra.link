@@ -169,7 +169,8 @@ export default {
         "copy": "Копировать",
         "notSet": "не заданы",
         "disabled": "Отключена",
-        "checking": "Проверка..."
+        "checking": "Проверка...",
+        "more": "Ещё"
     },
     "nav": {
         "navigation": "Навигация",
@@ -1945,7 +1946,22 @@ export default {
         "resultError": "Ошибка",
         "sourcePostback": "Postback",
         "sourcePixel": "Пиксель",
-        "direct": "Прямой"
+        "direct": "Прямой",
+        "colRoute": "Маршрут",
+        "colReason": "Причина",
+        "colDestination": "Назначение",
+        "colIsp": "ISP",
+        "colAsn": "ASN",
+        "colProxyType": "Тип прокси",
+        "routeMoney": "Деньги",
+        "routeSafe": "Safe",
+        "routeNone": "—",
+        "filterByCampaign": "Фильтр по кампании",
+        "filterByRoute": "Фильтр по маршруту",
+        "routeFilterAll": "Все маршруты",
+        "routeFilterMoney": "Только деньги",
+        "routeFilterSafe": "Только safe",
+        "filterByReason": "Фильтр по причине"
     },
     "campaignReports": {
         "layers": "Слои группировки",
@@ -2685,7 +2701,18 @@ export default {
         "dontRecordSafeClicksHint": "Боты, модераторы и парсеры, попавшие на Safe Page, не будут записываться в базу кликов и не попадут в отчеты.",
         "moneyPage": "Денежная страница (для посетителей)",
         "moneyPageHint": "Показывается реальным посетителям. Работает как схема лендинг+оффер.",
-        "noGeoDbWarning": "Каждый посетитель определяется как страна Unknown, поэтому этот фильтр отправит 100% вашего трафика на Safe Page."
+        "noGeoDbWarning": "Каждый посетитель определяется как страна Unknown, поэтому этот фильтр отправит 100% вашего трафика на Safe Page.",
+        "diagnosticsTitle": "Последние 24ч",
+        "diagnosticsEmpty": "Пока нет кликов",
+        "diagnosticsStats": "{hits} хитов  →  {money} деньги  ·  {safe} safe",
+        "diagnosticsTopReasons": "Топ причин:",
+        "diagnosticsReasonItem": "{reason} ×{count}",
+        "diagnosticsViewLogs": "Смотреть в логе кликов",
+        "almostAllSafeWarning": "Почти весь трафик направляется на безопасную страницу. Проверьте причины ниже, прежде чем продолжать тратить бюджет на эту кампанию.",
+        "inactiveDatacenterWarning": "Определение датацентров неактивно: не установлена база ASN.",
+        "inactiveVpnWarning": "Определение VPN/прокси неактивно: не установлена база IP2Proxy PX12.",
+        "inactiveBotWarning": "Чёрный список ботов неактивен: не установлена база ASN.",
+        "inactiveIspWarning": "Блокировка ISP неактивна: не установлена база ASN."
     },
     "postbackQueue": {
         "title": "Очередь постбеков",
@@ -2707,6 +2734,23 @@ export default {
         "cronRemoved": "Cron доставки постбеков удалён.",
         "queueHealthy": "Воркер доставки работает.",
         "queueStale": "Воркер доставки давно не отмечался. Установите cron, чтобы включить повторы."
+    },
+    "cloakReasons": {
+        "geo_country": "Страна посетителя не входит в список разрешённых для потока.",
+        "geo_unknown": "Страну не удалось определить — не установлена geo-база или IP не распознан.",
+        "device_type": "Тип устройства посетителя не входит в список разрешённых для потока.",
+        "isp_blocklist": "ISP посетителя совпал с чёрным списком ботов/датацентров.",
+        "crawler_or_tool_ua": "User-agent совпал с известным краулером, ботом или отладочным инструментом.",
+        "suspicious_ua": "User-agent exhibits bot-like characteristics.",
+        "ip2proxy_vpn_proxy": "IP2Proxy detected this as a VPN or proxy address.",
+        "ip2proxy_datacenter": "IP2Proxy detected this as a datacenter IP.",
+        "ip2proxy_residential": "IP2Proxy обнаружил это как residential proxy.",
+        "ip2proxy_tor": "IP2Proxy обнаружил это как Tor exit node.",
+        "asn_datacenter": "ASN совпал с известным датацентром или хостинг-провайдером.",
+        "webdriver": "Browser automation detected via JavaScript challenge.",
+        "js_missing": "JavaScript did not execute.",
+        "js_fingerprint": "Browser fingerprint challenge failed.",
+        "bot_blocklist": "IP совпал с известным чёрным списком ботов."
     },
     "extCosts": {
         "title": "Dolphin / FBTool API",

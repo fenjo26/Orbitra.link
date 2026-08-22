@@ -2732,6 +2732,125 @@ try {
             echo json_encode(['status' => 'success', 'data' => $campaign]);
             break;
 
+        case 'cloak_summary':
+            // W2: Cloak diagnostics summary for campaign editor
+            $campaignId = isset($_GET['campaign_id']) ? (int) $_GET['campaign_id'] : 0;
+            $from = $_GET['from'] ?? gmdate('Y-m-d', strtotime('-24 hours'));
+            $to = $_GET['to'] ?? gmdate('Y-m-d');
+
+            if ($campaignId <= 0) {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid campaign_id']);
+                break;
+            }
+
+            // Time range filter (UTC)
+            $fromTime = $from . ' 00:00:00';
+            $toTime = $to . ' 23:59:59';
+
+            // Get stream schema to check if it's a cloak stream
+            $stmt = $pdo->prepare("SELECT s.schema_type, s.schema_custom_json FROM streams s
+                                   WHERE s.campaign_id = ? AND s.schema_type = 'cloak' LIMIT 1");
+            $stmt->execute([$campaignId]);
+            $cloakStream = $stmt->fetch();
+
+            // Get click counts
+            $stmt = $pdo->prepare("
+                SELECT
+                    COUNT(*) as total,
+                    SUM(CASE WHEN is_safe_page = 0 THEN 1 ELSE 0 END) as money,
+                    SUM(CASE WHEN is_safe_page = 1 THEN 1 ELSE 0 END) as safe
+                FROM clicks
+                WHERE campaign_id = ? AND created_at >= ? AND created_at <= ?
+            ");
+            $stmt->execute([$campaignId, $fromTime, $toTime]);
+            $counts = $stmt->fetch();
+
+            // Get suppressed count from cloak_suppressed_stats
+            $stmtSuppressed = $pdo->prepare("
+                SELECT COALESCE(SUM(hits), 0) as suppressed
+                FROM cloak_suppressed_stats
+                WHERE campaign_id = ? AND day >= ? AND day <= ?
+            ");
+            $stmtSuppressed->execute([$campaignId, $from, $to]);
+            $suppressed = $stmtSuppressed->fetch();
+
+            // Get reason breakdown
+            $stmtReasons = $pdo->prepare("
+                SELECT
+                    cloak_verdict as verdict,
+                    cloak_reasons as reasons,
+                    COUNT(*) as count
+                FROM clicks
+                WHERE campaign_id = ? AND created_at >= ? AND created_at <= ?
+                    AND cloak_reasons IS NOT NULL AND cloak_reasons != ''
+                GROUP BY cloak_verdict, cloak_reasons
+            ");
+            $stmtReasons->execute([$campaignId, $fromTime, $toTime]);
+            $reasonRows = $stmtReasons->fetchAll();
+
+            // Parse reason codes - each click may have multiple comma-separated reasons
+            $byReason = [];
+            foreach ($reasonRows as $row) {
+                $codes = explode(',', $row['reasons']);
+                foreach ($codes as $code) {
+                    $code = trim($code);
+                    if ($code === '') continue;
+                    if (!isset($byReason[$code])) {
+                        $byReason[$code] = 0;
+                    }
+                    $byReason[$code] += (int) $row['count'];
+                }
+            }
+
+            // Format by_reason as array of objects
+            $byReasonArray = [];
+            foreach ($byReason as $reason => $count) {
+                $byReasonArray[] = ['reason' => $reason, 'count' => $count];
+            }
+
+            // Sort by count descending
+            usort($byReasonArray, function($a, $b) {
+                return $b['count'] - $a['count'];
+            });
+
+            // Get sensitivity from stream config
+            $sensitivity = 'medium';
+            if ($cloakStream) {
+                $schema = json_decode($cloakStream['schema_custom_json'], true);
+                if (isset($schema['sensitivity'])) {
+                    $sensitivity = $schema['sensitivity'];
+                }
+            }
+
+            // Check geo databases (reuse existing function if available, else check files)
+            $geoFiles = glob(__DIR__ . '/../geo/*.BIN');
+            $geoFiles = array_merge($geoFiles, glob(__DIR__ . '/../geo/*.mmdb'));
+            $px12Installed = false;
+            $geoReady = false;
+            foreach ($geoFiles as $file) {
+                if (strpos($file, 'PX12') !== false || strpos($file, 'IP2LOCATION-LITE-DB11') !== false || strpos($file, 'GeoLite2-City') !== false) {
+                    $geoReady = true;
+                    if (strpos($file, 'PX12') !== false) {
+                        $px12Installed = true;
+                    }
+                }
+            }
+
+            echo json_encode([
+                'status' => 'success',
+                'data' => [
+                    'total' => (int) ($counts['total'] ?? 0),
+                    'money' => (int) ($counts['money'] ?? 0),
+                    'safe' => (int) ($counts['safe'] ?? 0),
+                    'suppressed' => (int) ($suppressed['suppressed'] ?? 0),
+                    'by_reason' => $byReasonArray,
+                    'geo_ready' => $geoReady,
+                    'px12_installed' => $px12Installed,
+                    'sensitivity' => $sensitivity,
+                ]
+            ]);
+            break;
+
         case 'campaign_cost_match':
             // Cost-sync diagnostics for one campaign: does its recent traffic
             // carry the ad-network IDs cost import matches on? This is the
@@ -6394,6 +6513,33 @@ try {
             $offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;
 
             if ($type === 'traffic') {
+                // W2: Cloak observability - filtering parameters
+                $campaignId = isset($_GET['campaign_id']) ? (int) $_GET['campaign_id'] : null;
+                $route = $_GET['route'] ?? 'all'; // 'all', 'money', 'safe'
+                $reason = $_GET['reason'] ?? ''; // reason code filter
+
+                // Build WHERE conditions
+                $whereConditions = [];
+                $params = [$limit, $offset];
+
+                if ($campaignId) {
+                    $whereConditions[] = 'cl.campaign_id = ?';
+                    array_splice($params, -2, 0, [$campaignId]);
+                }
+
+                if ($route === 'money') {
+                    $whereConditions[] = 'cl.is_safe_page = 0';
+                } elseif ($route === 'safe') {
+                    $whereConditions[] = 'cl.is_safe_page = 1';
+                }
+
+                if ($reason !== '') {
+                    $whereConditions[] = 'cl.cloak_reasons LIKE ?';
+                    array_splice($params, -2, 0, ['%' . $reason . '%']);
+                }
+
+                $whereSql = !empty($whereConditions) ? 'WHERE ' . implode(' AND ', $whereConditions) : '';
+
                 $stmt = $pdo->prepare("
                     SELECT
                         cl.id,
@@ -6412,14 +6558,27 @@ try {
                         o.url as redirect_url,
                         CASE WHEN json_valid(cl.parameters_json)
                              THEN COALESCE(json_extract(cl.parameters_json, '$.sub_id_1'), '')
-                             ELSE '' END as subid
+                             ELSE '' END as subid,
+                        -- W2: Cloak observability columns
+                        cl.cloak_verdict,
+                        cl.cloak_reasons,
+                        cl.is_safe_page,
+                        cl.isp,
+                        cl.asn,
+                        cl.proxy_type,
+                        cl.cloak_sensitivity,
+                        l.name AS landing_name,
+                        of.name AS offer_name
                     FROM clicks cl
                     LEFT JOIN campaigns c ON cl.campaign_id = c.id
                     LEFT JOIN offers o ON cl.offer_id = o.id
+                    LEFT JOIN landings l ON cl.landing_id = l.id
+                    LEFT JOIN offers of ON cl.offer_id = of.id
+                    $whereSql
                     ORDER BY cl.created_at DESC
                     LIMIT ? OFFSET ?
                 ");
-                $stmt->execute([$limit, $offset]);
+                $stmt->execute($params);
                 echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
             } elseif ($type === 'postbacks') {
                 $stmt = $pdo->prepare("

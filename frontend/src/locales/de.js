@@ -169,7 +169,8 @@ export default {
         "copy": "Kopieren",
         "notSet": "nicht festgelegt",
         "disabled": "Deaktiviert",
-        "checking": "Überprüft..."
+        "checking": "Überprüft...",
+        "more": "Mehr"
     },
     "nav": {
         "navigation": "Navigation",
@@ -1907,7 +1908,22 @@ export default {
         "resultError": "Fehler",
         "sourcePostback": "Postback",
         "sourcePixel": "Pixel",
-        "direct": "Direkt"
+        "direct": "Direkt",
+        "colRoute": "Route",
+        "colReason": "Grund",
+        "colDestination": "Ziel",
+        "colIsp": "ISP",
+        "colAsn": "ASN",
+        "colProxyType": "Proxy-Typ",
+        "routeMoney": "Geld",
+        "routeSafe": "Safe",
+        "routeNone": "—",
+        "filterByCampaign": "Nach Kampagne filtern",
+        "filterByRoute": "Nach Route filtern",
+        "routeFilterAll": "Alle Routen",
+        "routeFilterMoney": "Nur Geld",
+        "routeFilterSafe": "Nur Safe",
+        "filterByReason": "Nach Grund filtern"
     },
     "campaignReports": {
         "layers": "Gruppierungsebenen",
@@ -2685,7 +2701,18 @@ export default {
         "dontRecordSafeClicksHint": "Bots, Crawler und Prüfer, die zur Safe Page weitergeleitet werden, werden nicht in Berichten erfasst.",
         "moneyPage": "Money-Page (für Besucher)",
         "moneyPageHint": "Wird echten Besuchern gezeigt. Verhält sich wie das Landing+Angebot-Schema.",
-        "noGeoDbWarning": "Jeder Besucher wird als Land Unknown aufgelöst, daher wird dieser Filter 100% Ihres Traffics an die Safe Page senden."
+        "noGeoDbWarning": "Jeder Besucher wird als Land Unknown aufgelöst, daher wird dieser Filter 100% Ihres Traffics an die Safe Page senden.",
+        "diagnosticsTitle": "Letzte 24h",
+        "diagnosticsEmpty": "Noch keine Klicks",
+        "diagnosticsStats": "{hits} Hits  →  {money} Geld  ·  {safe} Safe",
+        "diagnosticsTopReasons": "Häufigste Gründe:",
+        "diagnosticsReasonItem": "{reason} ×{count}",
+        "diagnosticsViewLogs": "Im Klick-Log ansehen",
+        "almostAllSafeWarning": "Fast aller Traffic wird zur sicheren Seite geleitet. Prüfen Sie die Gründe unten, bevor Sie mehr für diese Kampagne ausgeben.",
+        "inactiveDatacenterWarning": "Datacenter-Erkennung inaktiv: keine ASN-Datenbank installiert.",
+        "inactiveVpnWarning": "VPN/Proxy-Erkennung inaktiv: keine IP2Proxy PX12-Datenbank installiert.",
+        "inactiveBotWarning": "Bot-Sperrliste inaktiv: keine ASN-Datenbank installiert.",
+        "inactiveIspWarning": "ISP-Sperrliste inaktiv: keine ASN-Datenbank installiert."
     },
     "postbackQueue": {
         "title": "Postback-Warteschlange",
@@ -2707,6 +2734,23 @@ export default {
         "cronRemoved": "Postback-Zustellungs-Cron entfernt.",
         "queueHealthy": "Zustellungs-Worker läuft.",
         "queueStale": "Zustellungs-Worker hat sich lange nicht gemeldet. Installieren Sie den Cron, um Wiederholungen zu aktivieren."
+    },
+    "cloakReasons": {
+        "geo_country": "Land des Besuchers ist nicht in der Allow-List des Streams.",
+        "geo_unknown": "Land konnte nicht ermittelt werden – keine Geo-Datenbank installiert oder IP nicht erkannt.",
+        "device_type": "Gerätetyp des Besuchers ist nicht in der Allow-List des Streams.",
+        "isp_blocklist": "ISP des Besuchers stimmt mit der Bot/Datacenter-Sperrliste überein.",
+        "crawler_or_tool_ua": "User-Agent stimmt mit einem bekannten Crawler, Bot oder Debugging-Tool überein.",
+        "suspicious_ua": "User-Agent exhibited bot-like characteristics.",
+        "ip2proxy_vpn_proxy": "IP2Proxy detected this as a VPN or proxy address.",
+        "ip2proxy_datacenter": "IP2Proxy detected this as a datacenter IP.",
+        "ip2proxy_residential": "IP2Proxy erkannte dies als residential proxy.",
+        "ip2proxy_tor": "IP2Proxy erkannte dies als Tor-Exit-Node.",
+        "asn_datacenter": "ASN stimmt mit einem bekannten Datacenter oder Hosting-Provider überein.",
+        "webdriver": "Browser automation detected via JavaScript challenge.",
+        "js_missing": "JavaScript did not execute.",
+        "js_fingerprint": "Browser fingerprint challenge failed.",
+        "bot_blocklist": "IP stimmt mit einer bekannten Bot-Sperrliste überein."
     },
     "extCosts": {
         "title": "Dolphin / FBTool API",
