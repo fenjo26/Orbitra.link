@@ -3404,6 +3404,13 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
                                                 {stream.schema_type === 'cloak' && (() => {
                                                     const sc = stream.schema_custom || {};
+                                                    // Normalize boolean values from JSON - strings 'true'/'false' to actual booleans
+                                                    const normBool = (v) => typeof v === 'string' ? (v === 'true' || v === '1') : Boolean(v);
+                                                    const normalizedSc = {
+                                                        ...sc,
+                                                        log_safe_clicks: sc.log_safe_clicks !== undefined ? normBool(sc.log_safe_clicks) : undefined,
+                                                        exclude_safe_from_reports: sc.exclude_safe_from_reports !== undefined ? normBool(sc.exclude_safe_from_reports) : undefined,
+                                                    };
                                                     const setCloakField = (field, value) => updateStream(idx, 'schema_custom', { ...sc, [field]: value });
                                                     const safeMode = sc.safe_mode || (sc.safe_landing_id ? 'landing' : sc.safe_offer_id ? 'offer' : sc.safe_html ? 'html' : 'url');
                                                     const setSafeMode = (mode) => updateStream(idx, 'schema_custom', { ...sc, safe_mode: mode });
@@ -3939,21 +3946,42 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                     </div>
                                                                 )}
 
-                                                                <div className="pt-2" style={{ borderTop: '1px solid var(--color-border)' }}>
+                                                                {/* W3.2: Split click logging and report filtering checkboxes */}
+                                                                <div className="pt-2 space-y-3" style={{ borderTop: '1px solid var(--color-border)' }}>
+                                                                    {/* Log Safe Page clicks */}
                                                                     <label className="flex items-start gap-2 cursor-pointer select-none">
                                                                         <input
                                                                             type="checkbox"
-                                                                            checked={sc.dont_record_safe_clicks !== false}
-                                                                            onChange={e => setCloakField('dont_record_safe_clicks', e.target.checked)}
+                                                                            checked={normalizedSc.log_safe_clicks !== false}
+                                                                            onChange={e => setCloakField('log_safe_clicks', e.target.checked)}
                                                                             className="w-4 h-4 rounded mt-0.5"
                                                                             style={{ accentColor: 'var(--color-primary)' }}
                                                                         />
                                                                         <span>
                                                                             <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-                                                                                🚫 {t('cloaking.dontRecordSafeClicks', 'Do not record clicks for Safe Page')}
+                                                                                📝 {t('cloaking.logSafeClicks', 'Log Safe Page clicks')}
                                                                             </span>
                                                                             <span className="block text-[11px]" style={{ color: 'var(--color-text-muted)', lineHeight: 1.4 }}>
-                                                                                {t('cloaking.dontRecordSafeClicksHint', 'Bots, crawlers, and reviewers routed to the Safe Page will not be saved in database logs or counted in campaign reports.')}
+                                                                                {t('cloaking.logSafeClicksHint', 'Safe Page hits are written to the click log with is_safe_page=1. Uncheck to drop them from the database entirely.')}
+                                                                            </span>
+                                                                        </span>
+                                                                    </label>
+
+                                                                    {/* Exclude Safe Page clicks from reports */}
+                                                                    <label className="flex items-start gap-2 cursor-pointer select-none">
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            checked={normalizedSc.exclude_safe_from_reports !== false}
+                                                                            onChange={e => setCloakField('exclude_safe_from_reports', e.target.checked)}
+                                                                            className="w-4 h-4 rounded mt-0.5"
+                                                                            style={{ accentColor: 'var(--color-primary)' }}
+                                                                        />
+                                                                        <span>
+                                                                            <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                                                                                📊 {t('cloaking.excludeSafeFromReports', 'Exclude Safe Page clicks from reports')}
+                                                                            </span>
+                                                                            <span className="block text-[11px]" style={{ color: 'var(--color-text-muted)', lineHeight: 1.4 }}>
+                                                                                {t('cloaking.excludeSafeFromReportsHint', 'Safe Page hits are still logged and visible in the click log, but are not counted in campaign metrics, cost, or CPC.')}
                                                                             </span>
                                                                         </span>
                                                                     </label>

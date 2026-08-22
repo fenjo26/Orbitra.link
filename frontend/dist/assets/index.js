@@ -88690,6 +88690,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 ] }),
                 stream.schema_type === "cloak" && (() => {
                   const sc = stream.schema_custom || {};
+                  const normBool = (v) => typeof v === "string" ? v === "true" || v === "1" : Boolean(v);
+                  const normalizedSc = {
+                    ...sc,
+                    log_safe_clicks: sc.log_safe_clicks !== void 0 ? normBool(sc.log_safe_clicks) : void 0,
+                    exclude_safe_from_reports: sc.exclude_safe_from_reports !== void 0 ? normBool(sc.exclude_safe_from_reports) : void 0
+                  };
                   const setCloakField = (field, value) => updateStream(idx, "schema_custom", { ...sc, [field]: value });
                   const safeMode = sc.safe_mode || (sc.safe_landing_id ? "landing" : sc.safe_offer_id ? "offer" : sc.safe_html ? "html" : "url");
                   const setSafeMode = (mode) => updateStream(idx, "schema_custom", { ...sc, safe_mode: mode });
@@ -89162,7 +89168,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             "input",
                             {
                               type: "checkbox",
-                              checked: sc.log_safe_clicks !== false,
+                              checked: normalizedSc.log_safe_clicks !== false,
                               onChange: (e) => setCloakField("log_safe_clicks", e.target.checked),
                               className: "w-4 h-4 rounded mt-0.5",
                               style: { accentColor: "var(--color-primary)" }
@@ -89181,7 +89187,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             "input",
                             {
                               type: "checkbox",
-                              checked: sc.exclude_safe_from_reports !== false,
+                              checked: normalizedSc.exclude_safe_from_reports !== false,
                               onChange: (e) => setCloakField("exclude_safe_from_reports", e.target.checked),
                               className: "w-4 h-4 rounded mt-0.5",
                               style: { accentColor: "var(--color-primary)" }

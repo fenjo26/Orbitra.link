@@ -2031,6 +2031,70 @@ try {
                 } catch (\Throwable $e) {
                     // Table already exists.
                 }
+
+                // W3.1: Pin legacy behaviour for existing cloak streams and add new keys.
+                // - Write explicit dont_record_safe_clicks=true to all cloak streams
+                // - Map legacy dont_record_safe_clicks to new log_safe_clicks and exclude_safe_from_reports
+                // This ensures no existing installation changes behaviour after upgrade.
+                try {
+                    $pdo->beginTransaction();
+
+                    // First, update all cloak streams to have explicit dont_record_safe_clicks
+                    $stmt = $pdo->prepare("
+                        UPDATE streams
+                        SET schema_custom_json = json_set(
+                            json_set(schema_custom_json, '$.dont_record_safe_clicks', true),
+                            '$.dont_record_safe_clicks_explicit', true
+                        )
+                        WHERE schema_type = 'cloak'
+                          AND json_extract(schema_custom_json, '$.dont_record_safe_clicks') IS NULL
+                    ");
+                    $stmt->execute();
+
+                    // Map legacy dont_record_safe_clicks to new split keys
+                    // When dont_record_safe_clicks=true and new keys are absent:
+                    // - log_safe_clicks = false (don't log)
+                    // - exclude_safe_from_reports = true (exclude from metrics - already implied by no logging)
+                    $stmt = $pdo->prepare("
+                        UPDATE streams
+                        SET schema_custom_json = json_set(
+                            json_set(
+                                json_set(schema_custom_json, '$.log_safe_clicks', false),
+                                '$.exclude_safe_from_reports', true
+                            ),
+                            '$.dont_record_safe_clicks_mapped', true
+                        )
+                        WHERE schema_type = 'cloak'
+                          AND json_extract(schema_custom_json, '$.dont_record_safe_clicks') = true
+                          AND json_extract(schema_custom_json, '$.log_safe_clicks') IS NULL
+                    ");
+                    $stmt->execute();
+
+                    // For streams that already have dont_record_safe_clicks=false or the new keys,
+                    // ensure exclude_safe_from_reports has a sensible default (true = safe default)
+                    $stmt = $pdo->prepare("
+                        UPDATE streams
+                        SET schema_custom_json = json_set(
+                            schema_custom_json,
+                            '$.exclude_safe_from_reports',
+                            COALESCE(
+                                json_extract(schema_custom_json, '$.exclude_safe_from_reports'),
+                                true
+                            )
+                        )
+                        WHERE schema_type = 'cloak'
+                          AND json_extract(schema_custom_json, '$.exclude_safe_from_reports') IS NULL
+                    ");
+                    $stmt->execute();
+
+                    $pdo->commit();
+                } catch (\Throwable $e) {
+                    if ($pdo->inTransaction()) {
+                        $pdo->rollBack();
+                    }
+                    // Don't fail the whole migration for this; log and continue
+                    error_log('Orbitra W3.1 migration failed: ' . $e->getMessage());
+                }
             }
 
             // Mark schema as up-to-date. This must be last.

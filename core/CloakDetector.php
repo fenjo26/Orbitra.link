@@ -35,10 +35,29 @@ class CloakDetector
      * clicks table. The editor exposes this as an opt-out checkbox, so missing
      * values from older streams use the privacy/clean-report default (enabled),
      * while an explicitly stored false restores normal click logging.
+     * W3.1: Default changed to false - new streams log safe traffic by default.
+     *
+     * Decision path:
+     * 1. If log_safe_clicks is set, use its inverse (skip = !log_safe_clicks)
+     * 2. Otherwise, fall back to dont_record_safe_clicks for legacy streams
      */
     public static function shouldSkipSafePageClick(array $config, bool $showSafe): bool
     {
-        return $showSafe && self::configBool($config, 'dont_record_safe_clicks', true);
+        if (!$showSafe) {
+            return false;
+        }
+
+        // W3.1+: Check new log_safe_clicks key first
+        if (isset($config['log_safe_clicks'])) {
+            // log_safe_clicks = true means we DO log, so skip = false
+            // log_safe_clicks = false means we DON'T log, so skip = true
+            return self::configBool($config, 'log_safe_clicks', true) === false;
+        }
+
+        // Legacy fallback: dont_record_safe_clicks
+        // dont_record_safe_clicks = true means we DON'T log (skip = true)
+        // dont_record_safe_clicks = false means we DO log (skip = false)
+        return self::configBool($config, 'dont_record_safe_clicks', false);
     }
 
     /**
