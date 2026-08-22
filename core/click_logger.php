@@ -263,3 +263,36 @@ function orbitraCloakClickContext(array $decision, array $geoData = []): array
         'cloak_sensitivity' => (string) ($decision['sensitivity'] ?? ''),
     ];
 }
+
+/**
+ * Record a suppressed hit when a click is not persisted.
+ *
+ * Called when a click is suppressed due to dont_record_safe_clicks=true
+ * or collect_clicks=0. Uses a single INSERT ... ON CONFLICT DO UPDATE
+ * for minimal overhead on the click path.
+ *
+ * @param PDO $pdo Database connection
+ * @param int $campaignId Campaign ID
+ * @param int|null $streamId Stream ID (may be null for some cases)
+ * @param string $verdict Cloak verdict (e.g., 'targeting_safe', 'passive_safe', 'js_safe')
+ * @param string $reason Comma-separated reason codes (empty string for no reason)
+ * @return bool True if record succeeded, false otherwise
+ */
+function orbitraRecordSuppressedHit(PDO $pdo, int $campaignId, ?int $streamId, string $verdict, string $reason = ''): bool
+{
+    try {
+        $day = gmdate('Y-m-d'); // UTC day for consistent aggregation
+        $stmt = $pdo->prepare("
+            INSERT INTO cloak_suppressed_stats (campaign_id, stream_id, day, verdict, reason, hits)
+            VALUES (?, ?, ?, ?, ?, 1)
+            ON CONFLICT (campaign_id, stream_id, day, verdict, reason)
+            DO UPDATE SET hits = hits + 1
+        ");
+        $stmt->execute([$campaignId, $streamId, $day, $verdict, $reason]);
+        return true;
+    } catch (\Throwable $e) {
+        // Don't break the click path for stats recording failures
+        error_log('Orbitra suppressed-hit recording failed: ' . $e->getMessage());
+        return false;
+    }
+}

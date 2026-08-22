@@ -3409,6 +3409,28 @@ if ($statsEnabled && !$isDebounced && !$isPrefetchRequest && !$skipClickLogging 
     // one UPDATE, never allowed to break the click itself.
     require_once __DIR__ . '/core/ClickFlags.php';
     orbitraWriteClickFlags($pdo, $clickId, $ip, $userAgent, $campaign ?? [], $streamIdToLog ?? 0, is_array($geoData ?? null) ? $geoData : []);
+} elseif ($statsEnabled && !$isDebounced && !$isPrefetchRequest && ($skipClickLogging || !$streamCollectsClicks)) {
+    // Click was suppressed - record it for visibility (W3.3)
+    // This covers dont_record_safe_clicks=true and collect_clicks=0 cases
+    if (!function_exists('orbitraRecordSuppressedHit')) {
+        require_once __DIR__ . '/core/click_logger.php';
+    }
+
+    $verdict = 'unknown';
+    $reasons = '';
+
+    if (isset($cloakDecision) && $schemaType === 'cloak') {
+        $verdict = $cloakDecision['verdict'] ?? 'unknown';
+        $reasons = !empty($cloakDecision['reasons']) ? implode(',', $cloakDecision['reasons']) : '';
+    }
+
+    orbitraRecordSuppressedHit(
+        $pdo,
+        (int) $campaignId,
+        $streamIdToLog,
+        $verdict,
+        $reasons
+    );
 }
 
 if (!$selectedStream) {

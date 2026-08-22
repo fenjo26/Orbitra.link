@@ -626,6 +626,23 @@ if ($statsEnabled && !$isDebounced && !$skipClickOnPrefetch && !$skipClickLoggin
     // Honesty flags for the report metrics — same helper the router uses.
     require_once __DIR__ . '/core/ClickFlags.php';
     orbitraWriteClickFlags($pdo, $clickId, $ip, $userAgent, $campaign ?? [], $streamId ?? 0, is_array($geoData ?? null) ? $geoData : []);
+} elseif ($statsEnabled && !$isDebounced && !$skipClickOnPrefetch && ($skipClickLogging || !$streamCollectsClicks)) {
+    // Click was suppressed - record it for visibility (W3.3)
+    $verdict = 'unknown';
+    $reasons = '';
+
+    if (isset($cloakDecision) && ($stream['schema_type'] ?? '') === 'cloak') {
+        $verdict = $cloakDecision['verdict'] ?? 'unknown';
+        $reasons = !empty($cloakDecision['reasons']) ? implode(',', $cloakDecision['reasons']) : '';
+    }
+
+    orbitraRecordSuppressedHit(
+        $pdo,
+        (int) $campaignId,
+        $streamId,
+        $verdict,
+        $reasons
+    );
 }
 
 if ($safeResponseBody !== null) {

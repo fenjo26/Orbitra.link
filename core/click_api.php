@@ -878,6 +878,23 @@ function orbitraClickApiV3(PDO $pdo): void
                 $log[] = "DB insert failed: " . $e->getMessage();
             }
         }
+    } elseif ($statsEnabled && !$prefetchSkipClick && ($skipClickLogging || !$streamCollectsClicks)) {
+        // Click was suppressed - record it for visibility (W3.3)
+        $verdict = 'unknown';
+        $reasons = '';
+
+        if (isset($cloakDecision) && ($schema['type'] ?? '') === 'cloak') {
+            $verdict = $cloakDecision['verdict'] ?? 'unknown';
+            $reasons = !empty($cloakDecision['reasons']) ? implode(',', $cloakDecision['reasons']) : '';
+        }
+
+        orbitraRecordSuppressedHit(
+            $pdo,
+            (int) $campaignId,
+            $streamId,
+            $verdict,
+            $reasons
+        );
     }
 
     $headers = [];

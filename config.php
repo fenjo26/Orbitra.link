@@ -2011,6 +2011,26 @@ try {
                 } catch (\Throwable $e) {
                     // Index already exists.
                 }
+
+                // W3.3: Suppressed-hit counter table.
+                // Tracks clicks that were not persisted due to safe-page suppression
+                // or collect_clicks=0. Allows operators to see "something arrived"
+                // even when clicks are not logged.
+                try {
+                    $pdo->exec("
+                        CREATE TABLE IF NOT EXISTS cloak_suppressed_stats (
+                            campaign_id INTEGER NOT NULL,
+                            stream_id   INTEGER,
+                            day         TEXT NOT NULL,
+                            verdict     TEXT NOT NULL,
+                            reason      TEXT NOT NULL DEFAULT '',
+                            hits        INTEGER NOT NULL DEFAULT 0,
+                            PRIMARY KEY (campaign_id, stream_id, day, verdict, reason)
+                        )
+                    ");
+                } catch (\Throwable $e) {
+                    // Table already exists.
+                }
             }
 
             // Mark schema as up-to-date. This must be last.

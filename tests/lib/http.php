@@ -574,6 +574,23 @@ class OrbitraTestHarness
                 // Index already exists.
             }
 
+            // Add W3.3 cloak_suppressed_stats table since we skip migrations
+            try {
+                $pdo->exec("
+                    CREATE TABLE IF NOT EXISTS cloak_suppressed_stats (
+                        campaign_id INTEGER NOT NULL,
+                        stream_id   INTEGER,
+                        day         TEXT NOT NULL,
+                        verdict     TEXT NOT NULL,
+                        reason      TEXT NOT NULL DEFAULT '',
+                        hits        INTEGER NOT NULL DEFAULT 0,
+                        PRIMARY KEY (campaign_id, stream_id, day, verdict, reason)
+                    )
+                ");
+            } catch (PDOException $e) {
+                // Table already exists.
+            }
+
             // Set schema version to prevent migrations from running on every request
             $pdo->exec("PRAGMA user_version = 38;");
 
