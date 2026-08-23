@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Activity, ArrowRightLeft, ShieldAlert, TerminalSquare, ServerCrash, FileStack, Filter, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import MobileCards from './common/MobileCards';
 
 const API_URL = '/api.php';
 
@@ -79,7 +80,70 @@ const LogsPage = () => {
         if (!logs.length) return <div className="p-8 text-center text-[var(--color-text-muted)]">{t('logs.noData')}</div>;
 
         switch (activeTab) {
-            case 'traffic':
+            case 'traffic': {
+                // Shared row renderers — used by both the desktop table and
+                // the mobile stacked cards below.
+                const renderRouteBadge = (log) => {
+                    if (!log.cloak_verdict && !log.is_safe_page) {
+                        return <span className="text-xs text-[var(--color-text-muted)]">{t('logs.routeNone')}</span>;
+                    }
+                    const isMoney = !log.is_safe_page;
+                    const label = isMoney ? t('logs.routeMoney') : t('logs.routeSafe');
+                    const className = isMoney
+                        ? 'status-active'
+                        : 'status-inactive';
+                    return (
+                        <span className={`status-badge ${className} text-[11px]`}>
+                            {label}
+                        </span>
+                    );
+                };
+
+                // Reasons are `code:evidence` (crawler_or_tool_ua:curl/) — split
+                // on the FIRST ':' so the label resolves and the evidence stays
+                // visible.
+                const renderReasonChips = (log) => {
+                    if (!log.cloak_reasons) return <span className="text-xs text-[var(--color-text-muted)]">-</span>;
+                    const reasons = log.cloak_reasons.split(',').filter(Boolean);
+                    if (reasons.length === 0) return <span className="text-xs text-[var(--color-text-muted)]">-</span>;
+                    return (
+                        <div className="flex flex-wrap gap-1">
+                            {reasons.map((reason, idx) => {
+                                const colon = reason.indexOf(':');
+                                const code = colon === -1 ? reason : reason.slice(0, colon);
+                                const evidence = colon === -1 ? '' : reason.slice(colon + 1);
+                                return (
+                                    <span
+                                        key={idx}
+                                        className="text-[10px] px-1.5 py-0.5 rounded font-mono"
+                                        style={{
+                                            backgroundColor: 'var(--color-bg-soft)',
+                                            color: 'var(--color-text-secondary)',
+                                            border: '1px solid var(--color-border)'
+                                        }}
+                                        title={t(`cloakReasons.${code}`, '') || code}
+                                    >
+                                        {code}{evidence ? <b style={{ color: 'var(--color-primary)', fontWeight: 600 }}>{` ${evidence}`}</b> : null}
+                                    </span>
+                                );
+                            })}
+                        </div>
+                    );
+                };
+
+                const renderDestination = (log) => {
+                    if (log.landing_name) return log.landing_name;
+                    if (log.offer_name) return log.offer_name;
+                    return <span className="text-xs text-[var(--color-text-muted)]">-</span>;
+                };
+
+                const renderGeo = (log) => (
+                    <span className="whitespace-normal break-words">
+                        {log.country_code || '-'}
+                        {[log.region, log.city].filter(Boolean).length > 0 && ` · ${[log.region, log.city].filter(Boolean).join(', ')}`}
+                    </span>
+                );
+
                 return (
                     <>
                         {/* W2: Filter bar for traffic logs */}
@@ -127,90 +191,34 @@ const LogsPage = () => {
                             )}
                         </div>
 
-                        <table className="page-table">
-                            <thead>
-                                <tr>
-                                    <th>{t('logs.colTime')}</th>
-                                    <th>{t('logs.colClickId')}</th>
-                                    <th>{t('logs.colSubid')}</th>
-                                    <th>{t('logs.colCampaign')}</th>
-                                    <th>{t('logs.colRoute')}</th>
-                                    <th>{t('logs.colReason')}</th>
-                                    <th>{t('logs.colDestination')}</th>
-                                    <th>{t('logs.colIp')}</th>
-                                    <th>{t('logs.colGeo')}</th>
-                                    <th>{t('logs.colDevice')}</th>
-                                    <th>{t('logs.colIsp')}</th>
-                                    <th>{t('logs.colAsn')}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {logs.map((log, i) => {
-                                    // W2: Render route badge
-                                    const renderRouteBadge = () => {
-                                        if (!log.cloak_verdict && !log.is_safe_page) {
-                                            return <span className="text-xs text-[var(--color-text-muted)]">{t('logs.routeNone')}</span>;
-                                        }
-                                        const isMoney = !log.is_safe_page;
-                                        const label = isMoney ? t('logs.routeMoney') : t('logs.routeSafe');
-                                        const className = isMoney
-                                            ? 'status-active'
-                                            : 'status-inactive';
-                                        return (
-                                            <span className={`status-badge ${className} text-[11px]`}>
-                                                {label}
-                                            </span>
-                                        );
-                                    };
-
-                                    // W2: Render reason chips. Reasons are `code:evidence`
-                                    // (crawler_or_tool_ua:curl/) — split on the FIRST ':'
-                                    // so the label resolves and the evidence stays visible.
-                                    const renderReasonChips = () => {
-                                        if (!log.cloak_reasons) return <span className="text-xs text-[var(--color-text-muted)]">-</span>;
-                                        const reasons = log.cloak_reasons.split(',').filter(Boolean);
-                                        if (reasons.length === 0) return <span className="text-xs text-[var(--color-text-muted)]">-</span>;
-                                        return (
-                                            <div className="flex flex-wrap gap-1">
-                                                {reasons.map((reason, idx) => {
-                                                    const colon = reason.indexOf(':');
-                                                    const code = colon === -1 ? reason : reason.slice(0, colon);
-                                                    const evidence = colon === -1 ? '' : reason.slice(colon + 1);
-                                                    return (
-                                                        <span
-                                                            key={idx}
-                                                            className="text-[10px] px-1.5 py-0.5 rounded font-mono"
-                                                            style={{
-                                                                backgroundColor: 'var(--color-bg-soft)',
-                                                                color: 'var(--color-text-secondary)',
-                                                                border: '1px solid var(--color-border)'
-                                                            }}
-                                                            title={t(`cloakReasons.${code}`, '') || code}
-                                                        >
-                                                            {code}{evidence ? <b style={{ color: 'var(--color-primary)', fontWeight: 600 }}>{` ${evidence}`}</b> : null}
-                                                        </span>
-                                                    );
-                                                })}
-                                            </div>
-                                        );
-                                    };
-
-                                    // W2: Render destination
-                                    const renderDestination = () => {
-                                        if (log.landing_name) return log.landing_name;
-                                        if (log.offer_name) return log.offer_name;
-                                        return <span className="text-xs text-[var(--color-text-muted)]">-</span>;
-                                    };
-
-                                    return (
+                        <div className="hidden lg:block">
+                            <table className="page-table">
+                                <thead>
+                                    <tr>
+                                        <th>{t('logs.colTime')}</th>
+                                        <th>{t('logs.colClickId')}</th>
+                                        <th>{t('logs.colSubid')}</th>
+                                        <th>{t('logs.colCampaign')}</th>
+                                        <th>{t('logs.colRoute')}</th>
+                                        <th>{t('logs.colReason')}</th>
+                                        <th>{t('logs.colDestination')}</th>
+                                        <th>{t('logs.colIp')}</th>
+                                        <th>{t('logs.colGeo')}</th>
+                                        <th>{t('logs.colDevice')}</th>
+                                        <th>{t('logs.colIsp')}</th>
+                                        <th>{t('logs.colAsn')}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {logs.map((log, i) => (
                                         <tr key={i}>
                                             <td>{log.created_at}</td>
                                             <td className="font-mono text-xs">{log.click_id}</td>
                                             <td>{log.subid || '-'}</td>
                                             <td>{log.campaign_name || t('logs.direct')}</td>
-                                            <td>{renderRouteBadge()}</td>
-                                            <td>{renderReasonChips()}</td>
-                                            <td className="text-xs">{renderDestination()}</td>
+                                            <td>{renderRouteBadge(log)}</td>
+                                            <td>{renderReasonChips(log)}</td>
+                                            <td className="text-xs">{renderDestination(log)}</td>
                                             <td>{log.ip}</td>
                                             <td>
                                                 <div>{log.country_code || '-'}</div>
@@ -225,12 +233,47 @@ const LogsPage = () => {
                                             <td className="text-xs text-[var(--color-text-muted)]">{log.isp || '-'}</td>
                                             <td className="text-xs font-mono text-[var(--color-text-muted)]">{log.asn || '-'}</td>
                                         </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Mobile stacked cards (below lg): campaign + route on
+                            top, time/click id/destination checked at a glance,
+                            the rest (subid, reasons, geo, device, ISP, ASN)
+                            behind the "More" expander. */}
+                        <div className="lg:hidden">
+                            <MobileCards
+                                rows={logs}
+                                getId={(log, i) => log.click_id || `log-${i}`}
+                                renderTitle={(log) => (
+                                    <>
+                                        <span className="font-semibold text-sm truncate" style={{ color: 'var(--color-text-primary)' }}>
+                                            {log.campaign_name || t('logs.direct')}
+                                        </span>
+                                        {renderRouteBadge(log)}
+                                    </>
+                                )}
+                                renderSubtitle={(log) => (
+                                    <span className="font-mono">{log.click_id}</span>
+                                )}
+                                fields={[
+                                    { id: 'created_at', label: t('logs.colTime'), render: (log) => log.created_at },
+                                    { id: 'destination', label: t('logs.colDestination'), render: renderDestination },
+                                    { id: 'ip', label: t('logs.colIp'), render: (log) => log.ip },
+                                    { id: 'geo', label: t('logs.colGeo'), render: renderGeo },
+                                    { id: 'subid', label: t('logs.colSubid'), render: (log) => log.subid || '-' },
+                                    { id: 'reasons', label: t('logs.colReason'), render: renderReasonChips },
+                                    { id: 'device', label: t('logs.colDevice'), render: (log) => log.device_type || '-' },
+                                    { id: 'isp', label: t('logs.colIsp'), render: (log) => log.isp || '-' },
+                                    { id: 'asn', label: t('logs.colAsn'), render: (log) => log.asn || '-' },
+                                ]}
+                                primaryIds={['created_at', 'destination', 'ip', 'geo']}
+                            />
+                        </div>
                     </>
                 );
+            }
 
             case 'postbacks':
                 return (

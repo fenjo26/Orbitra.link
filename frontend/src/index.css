@@ -1707,6 +1707,41 @@ code {
   }
 }
 
+/* Touch devices — 44px minimum hit area, no hover-dependent affordances.
+   (hover: none) matches phones/tablets; pointer (mouse) users are untouched,
+   so the desktop layout stays pixel-identical. */
+@media (hover: none) {
+  .btn-icon,
+  .action-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  input[type='checkbox'] {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* Explicit up/down and pill buttons inside the column customisers. */
+  .touch-min-44 {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Hit-area extension for compact controls whose visuals must stay small
+     (toggle switches, tight icon buttons): the pseudo-element reaches 10px
+     past the visual without changing the layout. */
+  .hit-44 {
+    position: relative;
+  }
+
+  .hit-44::after {
+    content: '';
+    position: absolute;
+    inset: -10px;
+  }
+}
+
 /* Small mobile */
 @media (max-width: 480px) {
   .dashboard {

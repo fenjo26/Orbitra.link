@@ -47,7 +47,7 @@ const PaginationToolbar = ({
             type="button"
             disabled={disabled}
             onClick={onClick}
-            className="px-2.5 py-1 rounded-lg border text-xs font-medium transition disabled:opacity-40"
+            className="touch-min-44 px-2.5 py-1 rounded-lg border text-xs font-medium transition disabled:opacity-40"
             style={navBtnStyle}
         >
             {label}
@@ -93,7 +93,10 @@ const PaginationToolbar = ({
                 </div>
 
                 {!isAll && totalPages > 1 && (
-                    <div className="flex items-center gap-1">
+                    /* flex-wrap: without it the 9-button cluster keeps its
+                       ~480px min-content width and drags the whole page past
+                       a phone viewport. */
+                    <div className="flex flex-wrap items-center gap-1">
                         {navBtn(t('table.first', 'First'), currentPage === 0, () => onPageChange(0))}
                         {navBtn(t('table.prev', 'Prev'), currentPage === 0, () => onPageChange(currentPage - 1))}
 

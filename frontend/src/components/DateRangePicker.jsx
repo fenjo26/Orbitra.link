@@ -306,20 +306,21 @@ const DateRangePicker = ({
                         backgroundColor: 'var(--color-bg-card)',
                         border: '1px solid var(--color-border)',
                         color: 'var(--color-text-primary)',
-                        minWidth: '540px',
+                        // min(): a fixed 540px minWidth would beat maxWidth on
+                        // a phone (CSS resolves min-width over max-width) and
+                        // push the whole page into horizontal scroll.
+                        minWidth: 'min(540px, calc(100vw - 24px))',
                         maxWidth: 'calc(100vw - 24px)'
                     }}
                 >
-                    <div className="flex gap-4">
-                        {/* Left Side: Presets Menu */}
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        {/* Left Side: Presets Menu — horizontal chip strip on
+                            phones, the 160px sidebar from sm up. */}
                         <div
-                            className="flex flex-col gap-1 pr-3"
-                            style={{
-                                width: '160px',
-                                borderRight: '1px solid var(--color-border)'
-                            }}
+                            className="flex sm:flex-col gap-1 w-full sm:w-[160px] sm:flex-shrink-0 overflow-x-auto sm:overflow-visible pb-1 sm:pb-0 border-b sm:border-b-0 sm:border-r"
+                            style={{ borderColor: 'var(--color-border)' }}
                         >
-                            <span className="text-xs font-semibold uppercase px-2 mb-1" style={{ color: 'var(--color-text-muted)' }}>
+                            <span className="hidden sm:block text-xs font-semibold uppercase px-2 mb-1" style={{ color: 'var(--color-text-muted)' }}>
                                 {t('reportCustomizer.presets')}
                             </span>
                             {presets.map((p) => {
@@ -329,7 +330,7 @@ const DateRangePicker = ({
                                         key={p.id}
                                         type="button"
                                         onClick={() => handleSelectPreset(p.id)}
-                                        className="text-left text-xs px-2.5 py-1.5 rounded-lg transition-colors flex items-center justify-between"
+                                        className="touch-min-44 text-left text-xs px-2.5 py-1.5 rounded-lg transition-colors flex items-center justify-between whitespace-nowrap"
                                         style={{
                                             backgroundColor: isSelected ? 'var(--color-primary-light)' : 'transparent',
                                             color: isSelected ? 'var(--color-primary)' : 'var(--color-text-secondary)',
@@ -449,7 +450,7 @@ const DateRangePicker = ({
 
                     {/* Bottom Toolbar: Timezone and Action Buttons */}
                     <div
-                        className="flex items-center justify-between pt-3"
+                        className="flex items-center justify-between flex-wrap gap-2 pt-3"
                         style={{ borderTop: '1px solid var(--color-border)' }}
                     >
                         {/* Timezone picker */}

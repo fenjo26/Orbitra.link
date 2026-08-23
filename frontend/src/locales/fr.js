@@ -492,6 +492,35 @@ export default {
         "copied": "Copié",
         "copyErrors": "Erreurs"
     },
+    "rotationAuto": {
+        "auto": "Auto",
+        "toggleOnHint": "Auto-optimisation active — le cron recalcule les poids selon la métrique choisie. Désactivez-la pour les figer et les éditer à la main.",
+        "toggleOffHint": "Activez pour que l'optimiseur répartisse automatiquement les poids de cette rotation",
+        "conditions": "Conditions",
+        "conditionsTitle": "Conditions d'optimisation",
+        "metricLabel": "Métrique",
+        "metricSales": "Ventes confirmées",
+        "metricCr": "CR (confirmé)",
+        "metricEpv": "EPV (confirmé)",
+        "metricEpc": "EPC (confirmé)",
+        "metricRoi": "ROI (confirmé)",
+        "needsCost": "nécessite un coût",
+        "needsCostHint": "ROI et EPC exigent des dépenses — connectez une synchronisation des coûts ou définissez un coût manuel de campagne.",
+        "minSample": "Échantillon min. par élément",
+        "lookback": "Fenêtre, jours",
+        "floor": "Plancher, %",
+        "cap": "Plafond, %",
+        "interval": "Réévaluation, min",
+        "conditionsHint": "Les éléments sans échantillon gardent une part égale et ne concourent pas. Les éléments actifs ne descendent pas sous le plancher ni au-dessus du plafond ; une passe déplace au plus 20 points.",
+        "lastUpdated": "Mis à jour",
+        "waitingFirstRun": "En attente de la première passe de l'optimiseur…",
+        "skippedNoCost": "Ignoré — la campagne n'a pas de coût",
+        "window": "fenêtre",
+        "sampleLabel": "échantillon",
+        "managedWeight": "Géré par l'auto-optimisation — le cron réécrit ce poids",
+        "equalizeBlocked": "« Répartir uniformément » indisponible tant que Auto gère cette liste"
+    },
+
     "editor": {
         "collectClicks": "Collecter les clics",
         "collectClicksHint": "Enregistrer les clics dans les statistiques et rapports pour ce flux. Désactivé — le visiteur reçoit la destination, mais aucune ligne de clic n’est écrite ; les conversions de ce flux n’ont aucun clic auquel s’attacher.",
@@ -2345,6 +2374,8 @@ export default {
         "instruction": "Ajoutez ce script avant la balise de fermeture </body>. Remplacez CONFIG_KEY par votre clé de configuration actuelle."
     },
     "branding": {
+        "saveError": "Échec de l'enregistrement des paramètres. Veuillez réessayer.",
+        "saving": "Enregistrement...",
         "themeTitle": "Thème d'interface",
         "light": "Clair",
         "lightDesc": "Style SaaS épuré",
@@ -3571,5 +3602,13 @@ export default {
         "subId3": "Sub ID 3",
         "subId4": "Sub ID 4",
         "subId5": "Sub ID 5"
+    },
+    pwa: {
+        "updateAvailable": "Nouvelle version disponible",
+        "reload": "Recharger"
+    },
+    mobileCards: {
+        "showMore": "Plus",
+        "showLess": "Moins"
     }
 };

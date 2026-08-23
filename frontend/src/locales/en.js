@@ -492,6 +492,35 @@ export default {
         "copied": "Copied",
         "copyErrors": "Errors"
     },
+    "rotationAuto": {
+        "auto": "Auto",
+        "toggleOnHint": "Auto-optimisation is on: the cron rewrites these weights on the chosen metric. Turn off to freeze and edit manually.",
+        "toggleOffHint": "Turn on to let the optimiser reweight this rotation automatically",
+        "conditions": "Conditions",
+        "conditionsTitle": "Optimisation conditions",
+        "metricLabel": "Metric",
+        "metricSales": "Confirmed sales",
+        "metricCr": "CR (confirmed)",
+        "metricEpv": "EPV (confirmed)",
+        "metricEpc": "EPC (confirmed)",
+        "metricRoi": "ROI (confirmed)",
+        "needsCost": "needs cost",
+        "needsCostHint": "ROI and EPC need spend: connect a cost sync or set a manual campaign cost to enable them.",
+        "minSample": "Min sample per item",
+        "lookback": "Lookback, days",
+        "floor": "Floor, %",
+        "cap": "Cap, %",
+        "interval": "Re-check, min",
+        "conditionsHint": "Items below the sample keep an equal share and don't compete. Enabled items never drop under the floor or exceed the cap; one run moves at most 20 points.",
+        "lastUpdated": "Updated",
+        "waitingFirstRun": "Waiting for the first optimiser run…",
+        "skippedNoCost": "Skipped: the campaign has no cost",
+        "window": "window",
+        "sampleLabel": "sample",
+        "managedWeight": "Managed by auto-optimisation — the cron rewrites this weight",
+        "equalizeBlocked": "Split Evenly is unavailable while Auto manages this list"
+    },
+
     "editor": {
         "collectClicks": "Collect clicks",
         "collectClicksHint": "Record clicks in statistics and reports for this stream. When off, visitors still get the destination, but no click row is written — conversions from this stream have no click to attach to.",
@@ -2345,6 +2374,8 @@ export default {
         "instruction": "Add this script before the closing </body> tag. Replace CONFIG_KEY with your actual config key."
     },
     "branding": {
+        "saveError": "Failed to save settings. Please try again.",
+        "saving": "Saving...",
         "themeTitle": "Interface Theme",
         "light": "Light",
         "lightDesc": "Clean SaaS style",
@@ -3571,5 +3602,13 @@ export default {
         "subId3": "Sub ID 3",
         "subId4": "Sub ID 4",
         "subId5": "Sub ID 5"
+    },
+    pwa: {
+        "updateAvailable": "New version available",
+        "reload": "Reload"
+    },
+    mobileCards: {
+        "showMore": "More",
+        "showLess": "Less"
     }
 };

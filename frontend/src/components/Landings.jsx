@@ -5,6 +5,7 @@ import LandingEditor from './LandingEditor';
 import GroupsModal from './GroupsModal';
 import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
 import PaginationToolbar from './common/PaginationToolbar';
+import MobileCards from './common/MobileCards';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -833,7 +834,7 @@ const Landings = ({ landings, refreshData }) => {
                 </div>
             )}
 
-            <div className="tracker-table-container">
+            <div className="tracker-table-container hidden lg:block">
                 <table className="page-table tracker-table">
                     <thead>
                         <tr>
@@ -926,6 +927,77 @@ const Landings = ({ landings, refreshData }) => {
                         </tfoot>
                     )}
                 </table>
+            </div>
+
+            {/* Mobile stacked cards (below lg) — same customiser-driven metric
+                set as the table; the fixed entity columns (group, type, URL,
+                last event) sit behind the "More" expander. */}
+            <div className="lg:hidden">
+                <MobileCards
+                    rows={pagedLandings}
+                    getId={(landing) => landing.id}
+                    renderTitle={(landing) => (
+                        <>
+                            <input
+                                type="checkbox"
+                                checked={selectedLandingIds.has(landing.id)}
+                                onChange={(e) => toggleSelected(landing.id, e.target.checked)}
+                                className="rounded flex-shrink-0"
+                                style={{ accentColor: 'var(--color-primary)' }}
+                                aria-label={landing.name}
+                            />
+                            <span
+                                className="font-semibold text-sm cursor-pointer truncate"
+                                style={{ color: 'var(--color-primary)' }}
+                                onClick={() => handleEdit(landing.id)}
+                                title={landing.name}
+                            >
+                                {landing.name}
+                            </span>
+                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold flex-shrink-0" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>
+                                {landing.type}
+                            </span>
+                        </>
+                    )}
+                    renderSubtitle={(landing) => `#${landing.id}${landing.group_name ? ` · ${landing.group_name}` : ''}`}
+                    renderHeaderRight={(landing) => (
+                        <>
+                            <span className="flex items-center text-xs font-medium mr-1" style={{ color: landing.state === 'active' ? 'var(--color-success)' : 'var(--color-text-muted)' }}>
+                                <span className="w-2 h-2 rounded-full mr-1.5" style={{ backgroundColor: landing.state === 'active' ? 'var(--color-success)' : 'var(--color-text-muted)' }}></span>
+                                {landing.state === 'active' ? t('components.active') : t('components.archive')}
+                            </span>
+                            <button onClick={() => handleEdit(landing.id)} className="action-btn text-blue" title={t('common.edit') || t('components.edit')}>
+                                <Edit3 className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => handleDelete(landing.id)} className="action-btn text-red" title={t('common.delete')}>
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                        </>
+                    )}
+                    fields={[
+                        ...chosenColumns.map((colId) => {
+                            const def = ALL_REPORT_METRICS.find(m => m.id === colId);
+                            return {
+                                id: colId,
+                                label: def?.shortLabel || def?.label || colId,
+                                render: (row) => formatMetricCell(colId, row),
+                            };
+                        }),
+                        { id: 'group_name', label: entityLabel('group_name'), render: (l) => l.group_name || '-' },
+                        { id: 'type', label: entityLabel('type'), render: (l) => l.type },
+                        { id: 'url', label: 'URL', render: (l) => (l.type !== 'local' && l.type !== 'action' && l.url ? <span className="break-all whitespace-normal">{l.url}</span> : '-') },
+                        { id: 'last_event', label: entityLabel('last_event'), render: (l) => formatLastEvent(l.last_event) },
+                    ]}
+                    primaryIds={['clicks', 'conversions', 'cost', 'roi']}
+                    emptyState={
+                        <div className="text-center py-12">
+                            <div className="empty-state">
+                                <p className="empty-state-title">{t('landings.noLandings')}</p>
+                                <p className="empty-state-text">{t('landings.noLandingsDesc')}</p>
+                            </div>
+                        </div>
+                    }
+                />
             </div>
 
             <PaginationToolbar

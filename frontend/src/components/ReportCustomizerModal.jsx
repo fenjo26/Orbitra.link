@@ -781,7 +781,7 @@ const ReportCustomizerModal = ({
                                             onClick={(e) => { e.stopPropagation(); handleToggleDefault(pKey); }}
                                             className={`p-0.5 rounded flex-shrink-0 transition-opacity hover:text-[var(--color-primary)] ${isDefault
                                                 ? 'text-[var(--color-primary)]'
-                                                : 'text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100'}`}
+                                                : 'text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 max-lg:opacity-100'}`}
                                             title={isDefault
                                                 ? t('reportCustomizer.defaultTemplateActive', 'Default template — click to remove')
                                                 : t('reportCustomizer.makeDefault', 'Set as default')}
@@ -814,7 +814,7 @@ const ReportCustomizerModal = ({
                                             onClick={(e) => { e.stopPropagation(); handleToggleDefault(tpl.id); }}
                                             className={`p-0.5 rounded flex-shrink-0 transition-opacity hover:text-[var(--color-primary)] ${isDefault
                                                 ? 'text-[var(--color-primary)]'
-                                                : 'text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100'}`}
+                                                : 'text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 max-lg:opacity-100'}`}
                                             title={isDefault
                                                 ? t('reportCustomizer.defaultTemplateActive', 'Default template — click to remove')
                                                 : t('reportCustomizer.makeDefault', 'Set as default')}
@@ -824,7 +824,7 @@ const ReportCustomizerModal = ({
                                         <button
                                             type="button"
                                             onClick={(e) => { e.stopPropagation(); handleRenameTemplate(tpl); }}
-                                            className="p-0.5 rounded flex-shrink-0 text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 hover:text-[var(--color-primary)] transition-opacity"
+                                            className="p-0.5 rounded flex-shrink-0 text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 max-lg:opacity-100 hover:text-[var(--color-primary)] transition-opacity"
                                             title={t('common.edit', 'Edit')}
                                         >
                                             <Pencil className="w-3 h-3" />
@@ -832,7 +832,7 @@ const ReportCustomizerModal = ({
                                         <button
                                             type="button"
                                             onClick={(e) => { e.stopPropagation(); handleDeleteTemplate(tpl); }}
-                                            className="p-0.5 rounded flex-shrink-0 text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 hover:text-red-500 transition-opacity"
+                                            className="p-0.5 rounded flex-shrink-0 text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 max-lg:opacity-100 hover:text-red-500 transition-opacity"
                                             title={t('common.delete', 'Delete')}
                                         >
                                             <Trash2 className="w-3 h-3" />
@@ -982,16 +982,18 @@ const ReportCustomizerModal = ({
                                             <GripVertical className="w-3.5 h-3.5 pointer-events-none opacity-60 group-hover:opacity-100" />
                                         </div>
 
-                                        {/* Move Up / Move Down buttons */}
+                                        {/* Move Up / Move Down — always visible below
+                                            lg (group-hover never fires on touch,
+                                            and native drag needs a mouse). */}
                                         <div
-                                            className="flex items-center gap-0.5 flex-shrink-0 opacity-40 group-hover:opacity-100 transition-opacity"
+                                            className="flex items-center gap-0.5 flex-shrink-0 opacity-40 group-hover:opacity-100 max-lg:opacity-100 transition-opacity"
                                             onClick={(e) => e.stopPropagation()}
                                         >
                                             <button
                                                 type="button"
                                                 disabled={isFirst}
                                                 onClick={() => handleMoveMetric(metric.id, 'up')}
-                                                className="p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-20 text-[var(--color-text-muted)] transition-colors"
+                                                className="touch-min-44 p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-20 text-[var(--color-text-muted)] transition-colors"
                                                 title="Move up"
                                             >
                                                 <ChevronUp className="w-3.5 h-3.5" />
@@ -1000,7 +1002,7 @@ const ReportCustomizerModal = ({
                                                 type="button"
                                                 disabled={isLast}
                                                 onClick={() => handleMoveMetric(metric.id, 'down')}
-                                                className="p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-20 text-[var(--color-text-muted)] transition-colors"
+                                                className="touch-min-44 p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-20 text-[var(--color-text-muted)] transition-colors"
                                                 title="Move down"
                                             >
                                                 <ChevronDown className="w-3.5 h-3.5" />
@@ -1090,7 +1092,7 @@ const ReportCustomizerModal = ({
                                                 onClick={(e) => { e.stopPropagation(); handleToggleDefaultGroup(preset.id); }}
                                                 className={`p-0.5 rounded flex-shrink-0 transition-opacity hover:text-[var(--color-primary)] ${isDefault
                                                     ? 'text-[var(--color-primary)]'
-                                                    : 'text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100'}`}
+                                                    : 'text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 max-lg:opacity-100'}`}
                                                 title={isDefault
                                                     ? t('reportCustomizer.defaultGroupActive', 'Default grouping — click to remove')
                                                     : t('reportCustomizer.makeDefaultGroup', 'Set as default grouping')}
@@ -1121,7 +1123,7 @@ const ReportCustomizerModal = ({
                                                 onClick={(e) => { e.stopPropagation(); handleToggleDefaultGroup(tpl.id); }}
                                                 className={`p-0.5 rounded flex-shrink-0 transition-opacity hover:text-[var(--color-primary)] ${isDefault
                                                     ? 'text-[var(--color-primary)]'
-                                                    : 'text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100'}`}
+                                                    : 'text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 max-lg:opacity-100'}`}
                                                 title={isDefault
                                                     ? t('reportCustomizer.defaultGroupActive', 'Default grouping — click to remove')
                                                     : t('reportCustomizer.makeDefaultGroup', 'Set as default grouping')}
@@ -1134,7 +1136,7 @@ const ReportCustomizerModal = ({
                                                     e.stopPropagation();
                                                     handleDeleteGroupTemplate(tpl.id);
                                                 }}
-                                                className="p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                className="p-0.5 opacity-0 group-hover:opacity-100 max-lg:opacity-100 transition-opacity"
                                                 style={{ color: 'var(--color-danger)' }}
                                                 title={t('common.delete')}
                                             >

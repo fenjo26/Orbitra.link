@@ -33,28 +33,87 @@ if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+// The panel entry URL as the browser sees it: /admin.php, the secret admin
+// path, or the domain root on dev routing. Everything the PWA needs to point
+// back at the panel derives from this.
+function orbitraPanelPath(): string
+{
+    $path = parse_url($_SERVER['REQUEST_URI'] ?? '/admin.php', PHP_URL_PATH);
+    if (!is_string($path) || $path === '' || $path === '/') {
+        return '/';
+    }
+    return '/' . trim($path, '/');
+}
+
 // Запрет кэширования
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 header("Expires: 0");
 
+// PWA manifest. Served through the panel entry (not as a static file) so
+// start_url always matches how this install is reached — /admin.php, the
+// secret admin path or the domain root. A static file could hardcode only
+// one of them, and /admin.php 404s behind a secret path.
+if (isset($_GET['orbitra_manifest'])) {
+    header('Content-Type: application/manifest+json; charset=utf-8');
+    $panelPath = orbitraPanelPath();
+    echo json_encode([
+        'name' => 'Orbitra',
+        'short_name' => 'Orbitra',
+        'description' => 'Orbitra tracking panel',
+        'id' => $panelPath,
+        'start_url' => $panelPath,
+        'scope' => '/',
+        'display' => 'standalone',
+        'orientation' => 'any',
+        'background_color' => '#f4f5f7',
+        'theme_color' => '#f05a3e',
+        'icons' => [
+            ['src' => '/frontend/dist/icons/icon-192.png', 'sizes' => '192x192', 'type' => 'image/png', 'purpose' => 'any'],
+            ['src' => '/frontend/dist/icons/icon-512.png', 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'any'],
+            ['src' => '/frontend/dist/icons/maskable-192.png', 'sizes' => '192x192', 'type' => 'image/png', 'purpose' => 'maskable'],
+            ['src' => '/frontend/dist/icons/maskable-512.png', 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'maskable'],
+        ],
+    ], JSON_UNESCAPED_SLASHES);
+    exit;
+}
+
 // admin.php - входная точка для React приложения (SPA)
 $html = file_get_contents(__DIR__ . '/frontend/dist/index.html');
 $html = str_replace('{{ csrf_token }}', $_SESSION['csrf_token'], $html);
 
-// Cache busting for stable asset names (vite config uses non-hashed filenames).
-// This avoids situations where server code is updated but the browser keeps an old /assets/index.js.
-$assetJs = __DIR__ . '/frontend/dist/assets/index.js';
-$assetCss = __DIR__ . '/frontend/dist/assets/index.css';
-$v = 0;
-if (is_file($assetJs)) {
-    $v = (int) (filemtime($assetJs) ?: 0);
-} elseif (is_file($assetCss)) {
-    $v = (int) (filemtime($assetCss) ?: 0);
-} else {
-    $v = (int) time();
+// Content-hashed assets: the build emits assets/index-[hash].js|css and
+// .vite/manifest.json maps the entry to those files. Reference the built
+// files through the manifest rather than a hardcoded path — a rebuild
+// changes the URL and, with the shell being no-store, a normal reload picks
+// the new bundle up. (Replaces the ?v=filemtime cache-buster that the old
+// stable filenames required.)
+$manifestFile = __DIR__ . '/frontend/dist/.vite/manifest.json';
+if (is_file($manifestFile)) {
+    $manifest = json_decode((string) file_get_contents($manifestFile), true);
+    $entry = is_array($manifest) ? ($manifest['index.html'] ?? null) : null;
+    if (is_array($entry) && !empty($entry['file'])) {
+        $assetBase = '/frontend/dist/';
+        $jsTag = '<script type="module" crossorigin src="' . $assetBase . ltrim($entry['file'], '/') . '"></script>';
+        $cssTags = '';
+        foreach (($entry['css'] ?? []) as $cssFile) {
+            $cssTags .= '<link rel="stylesheet" crossorigin href="' . $assetBase . ltrim((string) $cssFile, '/') . '">';
+        }
+        // The built index.html already carries the right tags after a full
+        // build; rewriting from the manifest also heals a stale shell after
+        // a partial deploy (assets refreshed, index.html not).
+        $html = preg_replace('#<script type="module"[^>]*src="[^"]*assets/[^"]+\.js"[^>]*></script>#', $jsTag, $html);
+        $html = preg_replace('#<link rel="stylesheet"[^>]*href="[^"]*assets/[^"]+\.css"[^>]*>#', $cssTags, $html);
+    }
 }
-$html = str_replace('/frontend/dist/assets/index.js', '/frontend/dist/assets/index.js?v=' . $v, $html);
-$html = str_replace('/frontend/dist/assets/index.css', '/frontend/dist/assets/index.css?v=' . $v, $html);
+
+// PWA head extras: manifest link (via this entry — see above), install
+// colour and the iOS home-screen icon.
+$panelPath = orbitraPanelPath();
+$pwaHead = ''
+    . '<link rel="manifest" href="' . htmlspecialchars($panelPath . '?orbitra_manifest=1', ENT_QUOTES) . '">'
+    . '<meta name="theme-color" content="#f05a3e">'
+    . '<link rel="apple-touch-icon" href="/frontend/dist/icons/apple-touch-icon.png">';
+$html = str_replace('</head>', $pwaHead . '</head>', $html);
 echo $html;

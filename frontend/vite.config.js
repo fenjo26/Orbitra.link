@@ -19,12 +19,10 @@ export default defineConfig({
   ],
   build: {
     minify: false,
-    rollupOptions: {
-      output: {
-        entryFileNames: `assets/[name].js`,
-        chunkFileNames: `assets/[name].js`,
-        assetFileNames: `assets/[name].[ext]`
-      }
-    }
+    // Content-hashed filenames (Vite's default [name]-[hash] pattern): a
+    // rebuild changes the URL, so browsers pick a new release up on a normal
+    // reload. admin.php resolves the entry through .vite/manifest.json —
+    // never a hardcoded filename.
+    manifest: true,
   },
 })

@@ -114,7 +114,13 @@ elseif (preg_match('#^/(order|thank_you)\.php$#', $uri) || $uri === '/crm-ingest
     exit;
 }
 // Support for root aliases even when domain is not parked (e.g., localhost testing)
-elseif (preg_match('#^/([^/]+)$#', $uri, $matches) && !in_array($uri, ['/', '/admin', '/admin.php', '/router.php', '/api.php', '/click.php', '/postback.php', '/robots.txt', '/favicon.ico', '/crm-ingest'], true)) {
+// Real files at the domain root (sw.js, banner.js, …) must NOT enter the alias
+// branch: matching it skips the static-file branch later in this chain, and the
+// request dies as an empty 200 — that killed /sw.js (service worker). This
+// mirrors Apache's RewriteCond !-f.
+elseif (preg_match('#^/([^/]+)$#', $uri, $matches)
+    && !file_exists(__DIR__ . $uri)
+    && !in_array($uri, ['/', '/admin', '/admin.php', '/router.php', '/api.php', '/click.php', '/postback.php', '/robots.txt', '/favicon.ico', '/crm-ingest'], true)) {
     $alias = $matches[1];
 
     // Check if it's a valid campaign alias before consuming it

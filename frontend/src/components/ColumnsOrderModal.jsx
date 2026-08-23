@@ -208,16 +208,19 @@ const ColumnsOrderModal = ({ columns, selectedIds, defaultIds, onClose, onSave }
                                     <GripVertical className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 pointer-events-none" />
                                 </div>
 
-                                {/* Move Up / Move Down buttons */}
+                                {/* Move Up / Move Down buttons — always visible
+                                    below lg: group-hover never fires on a
+                                    touch screen, and drag handles don't work
+                                    with fingers either. */}
                                 <div
-                                    className="flex items-center gap-0.5 flex-shrink-0 opacity-40 group-hover:opacity-100 transition-opacity"
+                                    className="flex items-center gap-0.5 flex-shrink-0 opacity-40 group-hover:opacity-100 max-lg:opacity-100 transition-opacity"
                                     onClick={(e) => e.stopPropagation()}
                                 >
                                     <button
                                         type="button"
                                         disabled={isFirst}
                                         onClick={() => handleMoveMetric(id, 'up')}
-                                        className="p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-20 text-[var(--color-text-muted)] transition-colors"
+                                        className="touch-min-44 p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-20 text-[var(--color-text-muted)] transition-colors"
                                         title="Move up"
                                     >
                                         <ChevronUp className="w-3.5 h-3.5" />
@@ -226,7 +229,7 @@ const ColumnsOrderModal = ({ columns, selectedIds, defaultIds, onClose, onSave }
                                         type="button"
                                         disabled={isLast}
                                         onClick={() => handleMoveMetric(id, 'down')}
-                                        className="p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-20 text-[var(--color-text-muted)] transition-colors"
+                                        className="touch-min-44 p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-20 text-[var(--color-text-muted)] transition-colors"
                                         title="Move down"
                                     >
                                         <ChevronDown className="w-3.5 h-3.5" />

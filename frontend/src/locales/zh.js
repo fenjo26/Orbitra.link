@@ -492,6 +492,35 @@ export default {
         "copied": "已复制",
         "copyErrors": "错误"
     },
+    "rotationAuto": {
+        "auto": "自动",
+        "toggleOnHint": "自动优化已开启：计划任务按所选指标重算权重。关闭可冻结并手动编辑。",
+        "toggleOffHint": "开启后，优化器将自动重新分配该轮播的权重",
+        "conditions": "条件",
+        "conditionsTitle": "优化条件",
+        "metricLabel": "指标",
+        "metricSales": "确认销量",
+        "metricCr": "CR（确认）",
+        "metricEpv": "EPV（确认）",
+        "metricEpc": "EPC（确认）",
+        "metricRoi": "ROI（确认）",
+        "needsCost": "需要成本",
+        "needsCostHint": "ROI 和 EPC 需要花费数据：连接成本同步或设置手动 campaign 成本。",
+        "minSample": "每项最小样本",
+        "lookback": "窗口，天",
+        "floor": "下限，%",
+        "cap": "上限，%",
+        "interval": "重估间隔，分钟",
+        "conditionsHint": "未达样本的项保持均分且不参与竞争。启用项不会低于下限、不会超过上限；单次最多移动 20 个百分点。",
+        "lastUpdated": "更新于",
+        "waitingFirstRun": "等待优化器首次运行…",
+        "skippedNoCost": "已跳过：campaign 无成本",
+        "window": "窗口",
+        "sampleLabel": "样本",
+        "managedWeight": "由自动优化管理 — 权重由计划任务重写",
+        "equalizeBlocked": "Auto 管理此列表时不可用「平均分配」"
+    },
+
     "editor": {
         "collectClicks": "收集点击",
         "collectClicksHint": "为此分流记录点击到统计和报告。关闭时访客仍会到达目标页，但不写入点击行 — 此分流的转化将无法关联到点击。",
@@ -2345,6 +2374,8 @@ export default {
         "instruction": "将此脚本添加到结束 </body> 标记之前。将 CONFIG_KEY 替换为您的实际配置密钥。"
     },
     "branding": {
+        "saveError": "保存设置失败，请重试。",
+        "saving": "保存中...",
         "themeTitle": "界面主题",
         "light": "光",
         "lightDesc": "干净的 SaaS 风格",
@@ -3571,5 +3602,13 @@ export default {
         "subId3": "Sub ID 3",
         "subId4": "Sub ID 4",
         "subId5": "Sub ID 5"
+    },
+    pwa: {
+        "updateAvailable": "新版本可用",
+        "reload": "重新加载"
+    },
+    mobileCards: {
+        "showMore": "更多",
+        "showLess": "收起"
     }
 };

@@ -492,6 +492,35 @@ export default {
         "copied": "Copiado",
         "copyErrors": "Errores"
     },
+    "rotationAuto": {
+        "auto": "Auto",
+        "toggleOnHint": "Autooptimización activada: el cron recalcula los pesos según la métrica elegida. Desactívala para congelarlos y editar a mano.",
+        "toggleOffHint": "Activa para que el optimizador reasigne los pesos de esta rotación automáticamente",
+        "conditions": "Condiciones",
+        "conditionsTitle": "Condiciones de optimización",
+        "metricLabel": "Métrica",
+        "metricSales": "Ventas confirmadas",
+        "metricCr": "CR (confirmado)",
+        "metricEpv": "EPV (confirmado)",
+        "metricEpc": "EPC (confirmado)",
+        "metricRoi": "ROI (confirmado)",
+        "needsCost": "requiere coste",
+        "needsCostHint": "ROI y EPC necesitan gasto: conecta una sincronización de costes o define un coste manual de campaña.",
+        "minSample": "Muestra mínima por elemento",
+        "lookback": "Ventana, días",
+        "floor": "Suelo, %",
+        "cap": "Techo, %",
+        "interval": "Reevaluación, min",
+        "conditionsHint": "Los elementos sin muestra conservan una parte igual y no compiten. Los activados no bajan del suelo ni superan el techo; una pasada mueve como máximo 20 puntos.",
+        "lastUpdated": "Actualizado",
+        "waitingFirstRun": "Esperando la primera pasada del optimizador…",
+        "skippedNoCost": "Omitido: la campaña no tiene coste",
+        "window": "ventana",
+        "sampleLabel": "muestra",
+        "managedWeight": "Gestionado por la autooptimización — el cron reescribe este peso",
+        "equalizeBlocked": "«Dividir equitativamente» no disponible mientras Auto gestiona esta lista"
+    },
+
     "editor": {
         "collectClicks": "Recopilar clics",
         "collectClicksHint": "Registrar clics en estadísticas e informes para este flujo. Desactivado: el visitante recibe el destino igualmente, pero no se escribe ninguna fila de clic — las conversiones de este flujo no tienen clic al que adjuntarse.",
@@ -2345,6 +2374,8 @@ export default {
         "instruction": "Agregue este script antes de la etiqueta </body> de cierre. Reemplace CONFIG_KEY con su clave de configuración real."
     },
     "branding": {
+        "saveError": "No se pudo guardar la configuración. Inténtalo de nuevo.",
+        "saving": "Guardando...",
         "themeTitle": "Tema de interfaz",
         "light": "Luz",
         "lightDesc": "Estilo SaaS limpio",
@@ -3571,5 +3602,13 @@ export default {
         "subId3": "Sub ID 3",
         "subId4": "Sub ID 4",
         "subId5": "Sub ID 5"
+    },
+    pwa: {
+        "updateAvailable": "Nueva versión disponible",
+        "reload": "Recargar"
+    },
+    mobileCards: {
+        "showMore": "Más",
+        "showLess": "Menos"
     }
 };

@@ -4,6 +4,7 @@ import { RefreshCw, Search, Download, ChevronLeft, ChevronRight, BarChart3 } fro
 import InfoBanner from './InfoBanner';
 import { useLanguage } from '../contexts/LanguageContext';
 import ClickDetailsModal from './ClickDetailsModal';
+import MobileCards from './common/MobileCards';
 import { resolveConversionColor } from '../utils/conversionColors';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 
@@ -226,7 +227,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
                 </div>
             ) : (
                 <div className="page-card" style={{ padding: 0 }}>
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto hidden lg:block">
                         <table className="page-table">
                             <thead>
                                 <tr>
@@ -302,6 +303,56 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
                                 )}
                             </tbody>
                         </table>
+                    </div>
+
+                    {/* Mobile stacked cards (below lg) — one card per conversion,
+                        click_id opens the click details modal. */}
+                    <div className="lg:hidden p-3">
+                        <MobileCards
+                            rows={conversions}
+                            getId={(conv) => conv.id}
+                            renderTitle={(conv) => (
+                                <button
+                                    onClick={() => setSelectedClickId(conv.click_id)}
+                                    className="font-mono text-xs px-2 py-1 rounded-md"
+                                    style={{
+                                        color: 'var(--color-primary)',
+                                        backgroundColor: 'var(--color-bg-soft)',
+                                        border: 'none',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    {conv.click_id}
+                                </button>
+                            )}
+                            renderHeaderRight={(conv) => getStatusBadge(conv.status)}
+                            fields={[
+                                {
+                                    id: 'payout',
+                                    label: t('conversions.payout'),
+                                    render: (c) => <span style={{ color: 'var(--color-success)', fontWeight: 500 }}>${Number(c.payout || 0).toFixed(2)}</span>,
+                                },
+                                { id: 'campaign', label: t('conversions.campaign'), render: (c) => c.campaign_name || '-' },
+                                { id: 'offer', label: t('conversions.offer'), render: (c) => c.offer_name || '-' },
+                                {
+                                    id: 'created',
+                                    label: t('conversions.date'),
+                                    render: (c) => new Date(c.created_at).toLocaleString('ru-RU'),
+                                },
+                                { id: 'id', label: 'ID', render: (c) => c.id },
+                                { id: 'tid', label: 'TID', render: (c) => c.tid || '-' },
+                                { id: 'ip', label: 'IP', render: (c) => c.ip || '-' },
+                            ]}
+                            primaryIds={['payout', 'campaign', 'offer', 'created']}
+                            emptyState={
+                                <div className="text-center py-10">
+                                    <div className="empty-state">
+                                        <p className="empty-state-title">{t('conversions.noConversions')}</p>
+                                        <p className="empty-state-text">{t('conversions.noConversionsText')}</p>
+                                    </div>
+                                </div>
+                            }
+                        />
                     </div>
 
                     {/* Pagination */}

@@ -4,6 +4,7 @@ import { Plus, Search, Trash2, Edit3, Settings2, DollarSign, XCircle, ChevronUp,
 import InfoBanner from './InfoBanner';
 import GroupsModal from './GroupsModal';
 import PaginationToolbar from './common/PaginationToolbar';
+import MobileCards from './common/MobileCards';
 import CampaignReports from './CampaignReports';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getDefaultTemplateColumns, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
@@ -913,8 +914,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                 </div>
             </div>
 
-            {/* Main Campaigns Data Table */}
-            <div className="tracker-table-container">
+            {/* Main Campaigns Data Table — desktop table / mobile stacked cards.
+                Both render the same paged rows and the same customiser-driven
+                metric set. */}
+            <div className="tracker-table-container hidden lg:block">
                 <table className="page-table tracker-table" style={{ fontVariantNumeric: 'tabular-nums' }}>
                     <thead>
                         <tr>
@@ -1072,6 +1075,105 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                         </tfoot>
                     )}
                 </table>
+            </div>
+
+            {/* Mobile stacked cards (below lg): name + status on top, the
+                metrics the user checks as label/value pairs, the rest behind
+                the "More" expander. Driven by the same customiser columns. */}
+            <div className="lg:hidden">
+                <MobileCards
+                    rows={pagedCampaigns}
+                    getId={(camp) => camp.id}
+                    header={visibleCampaigns.length > 0 && (
+                        <div className="rounded-xl border px-3.5 py-2.5 flex items-center gap-x-4 gap-y-1.5 flex-wrap" style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}>
+                            <span className="text-[11px] font-bold uppercase whitespace-nowrap" style={{ color: 'var(--color-text-primary)' }}>
+                                {t('campaignReports.total', 'Totals')} ({visibleCampaigns.length})
+                            </span>
+                            {['clicks', 'conversions', 'cost', 'roi']
+                                .filter(id => visibleColumns.includes(id))
+                                .map(id => {
+                                    const def = ALL_REPORT_METRICS.find(m => m.id === id);
+                                    return (
+                                        <span key={id} className="text-[11px] flex items-center gap-1 whitespace-nowrap" style={{ color: 'var(--color-text-secondary)' }}>
+                                            <span style={{ color: 'var(--color-text-muted)' }}>{def?.shortLabel || def?.label || id}:</span>
+                                            {formatMetricCell(id, grandTotals)}
+                                        </span>
+                                    );
+                                })}
+                        </div>
+                    )}
+                    renderTitle={(camp) => (
+                        <>
+                            <input
+                                type="checkbox"
+                                checked={selectedCampaignIds.has(camp.id)}
+                                onChange={(e) => toggleSelected(camp.id, e.target.checked)}
+                                className="rounded flex-shrink-0"
+                                style={{ accentColor: 'var(--color-primary)' }}
+                                aria-label={camp.name}
+                            />
+                            <span
+                                className="font-semibold text-sm cursor-pointer truncate"
+                                style={{ color: 'var(--color-primary)' }}
+                                onClick={() => handleEdit(camp.id)}
+                                title={camp.name}
+                            >
+                                {camp.name}
+                            </span>
+                            <span
+                                className="text-[10px] font-mono px-1 rounded border flex-shrink-0"
+                                style={{ color: 'var(--color-text-muted)', borderColor: 'var(--color-border)' }}
+                            >
+                                {camp.alias}
+                            </span>
+                        </>
+                    )}
+                    renderSubtitle={(camp) => `#${camp.id}${camp.group_name ? ` · ${camp.group_name}` : ''}`}
+                    renderHeaderRight={(camp) => (
+                        <>
+                            <button
+                                type="button"
+                                disabled={togglingCampaignIds.has(camp.id)}
+                                onClick={() => handleRequestToggleState(camp)}
+                                className="hit-44 relative inline-flex h-4 w-7 flex-shrink-0 items-center rounded-full transition-colors"
+                                style={{
+                                    background: campaignEnabled(camp) ? 'var(--color-success, #10b981)' : 'var(--color-border)',
+                                    opacity: togglingCampaignIds.has(camp.id) ? 0.5 : 1,
+                                    cursor: 'pointer'
+                                }}
+                                title={campaignEnabled(camp) ? t('automation.clickToPause') : t('automation.clickToResume')}
+                            >
+                                <span className="inline-block h-3 w-3 transform rounded-full bg-white shadow transition-transform" style={{ transform: campaignEnabled(camp) ? 'translateX(12px)' : 'translateX(2px)' }} />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={(event) => handleToggleMenu(event, camp.id)}
+                                className="hit-44 flex items-center justify-center rounded-lg"
+                                style={{ color: menuAnchor?.id === camp.id ? 'var(--color-primary)' : 'var(--color-text-muted)' }}
+                                title={t('table.actions')}
+                            >
+                                <MoreVertical className="w-5 h-5" />
+                            </button>
+                        </>
+                    )}
+                    fields={visibleColumns.map((colId) => {
+                        const def = ALL_REPORT_METRICS.find(m => m.id === colId);
+                        return {
+                            id: colId,
+                            label: def?.shortLabel || def?.label || colId,
+                            render: (row) => formatMetricCell(colId, row),
+                        };
+                    })}
+                    primaryIds={['clicks', 'conversions', 'cost', 'roi']}
+                    emptyState={
+                        <div className="text-center py-12">
+                            <div className="empty-state">
+                                <p className="empty-state-title">{t('campaigns.noCampaignsCreated')}</p>
+                                <p className="empty-state-text">{t('campaigns.createFirstCampaign')}</p>
+                            </div>
+                        </div>
+                    }
+                />
             </div>
 
             {/* Pagination toolbar: page through 50–100+ campaigns without

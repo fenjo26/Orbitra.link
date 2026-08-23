@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import GeoSelector from './GeoSelector';
 import HelpTooltip from './HelpTooltip';
-import { ArrowLeft, Plus, Check, Link, Copy, Settings, Trash2, ChevronDown, ChevronUp, AlertCircle, AlertTriangle, X, Shield, Globe, MousePointerClick, TrendingUp, Activity, BarChart2, BarChart3, DollarSign, RefreshCw, FileText, MoreVertical, Play, Code, Edit3, Eye, Info, Search } from 'lucide-react';
+import { ArrowLeft, Plus, Check, Link, Copy, Settings, Trash2, ChevronDown, ChevronUp, AlertCircle, AlertTriangle, X, Shield, Globe, MousePointerClick, TrendingUp, Activity, BarChart2, BarChart3, DollarSign, RefreshCw, FileText, MoreVertical, Play, Code, Edit3, Eye, Info, Search, SlidersHorizontal } from 'lucide-react';
 import CampaignReports from './CampaignReports';
 import ConversionsLog from './ConversionsLog';
 import ClickDetailsModal from './ClickDetailsModal';
@@ -219,6 +219,25 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const [saveSuccess, setSaveSuccess] = useState(false);
     const [copySuccess, setCopySuccess] = useState(false);
 
+    // "Create stream" dropdown — click-toggled (hover-only would be dead on
+    // touch screens) and closed by an outside click.
+    const [streamMenuOpen, setStreamMenuOpen] = useState(false);
+    const streamMenuRef = useRef(null);
+    useEffect(() => {
+        if (!streamMenuOpen) return undefined;
+        const close = (e) => {
+            if (streamMenuRef.current && !streamMenuRef.current.contains(e.target)) {
+                setStreamMenuOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', close);
+        document.addEventListener('touchstart', close);
+        return () => {
+            document.removeEventListener('mousedown', close);
+            document.removeEventListener('touchstart', close);
+        };
+    }, [streamMenuOpen]);
+
     // Modal states
     const [showLogModal, setShowLogModal] = useState(false);
     // Click Log modal: segmented route filter (is_safe_page) and the optional
@@ -342,6 +361,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     });
     // W2: Cloak diagnostics summary for campaign editor
     const [cloakSummary, setCloakSummary] = useState(null);
+    // Rotation auto-optimisation: cost availability (gates the ROI/EPC metric
+    // options) + the recent optimiser decisions shown under each Auto toggle.
+    const [rotationStatus, setRotationStatus] = useState(null);
+    // Which list's Conditions popover is open: { streamIdx, type } | null.
+    const [autoPopover, setAutoPopover] = useState(null);
     const [cloakSummaryLoading, setCloakSummaryLoading] = useState(false);
     // Creating a landing or offer without leaving the stream you are wiring up.
     // Going to another page and back used to mean losing the unsaved campaign.
@@ -965,6 +989,21 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             });
     }, [activeCampaignId]);
 
+    // Rotation optimiser status: cost availability + recent weight decisions,
+    // fresh on every editor open (the cron keeps writing while it's closed).
+    useEffect(() => {
+        if (!activeCampaignId) {
+            setRotationStatus(null);
+            return;
+        }
+        cachedGet('rotation_status', { campaign_id: activeCampaignId, _: Date.now() }, 0)
+            .then(({ data }) => {
+                if (data.status === 'success') setRotationStatus(data.data);
+                else setRotationStatus(null);
+            })
+            .catch(() => setRotationStatus(null));
+    }, [activeCampaignId]);
+
     // Manual 7-day spend pull for one connection — the same action the
     // Integrations page's "Update spend" button runs.
     const syncCostConnection = async (connId) => {
@@ -1386,6 +1425,240 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const schemaEnabledWeight = (list) =>
         (list || []).filter(isSchemaItemEnabled).reduce((sum, it) => sum + (parseInt(it.weight, 10) || 0), 0);
 
+    // ——— Rotation auto-optimisation ————————————————————————————
+    // Settings live inside schema_custom.auto[list] and persist with the
+    // campaign; the cron (rotation_optimiser_cron.php) rewrites the weights
+    // while enabled. While Auto is on the weights belong to the cron: inputs
+    // go read-only and Split Evenly is disabled.
+    const ROTATION_METRICS = [
+        { id: 'sales', label: t('rotationAuto.metricSales') },
+        { id: 'cr', label: t('rotationAuto.metricCr') },
+        { id: 'epv_confirmed', label: t('rotationAuto.metricEpv') },
+        { id: 'epc_confirmed', label: t('rotationAuto.metricEpc'), needsCost: true },
+        { id: 'roi_confirmed', label: t('rotationAuto.metricRoi'), needsCost: true },
+    ];
+    const ROTATION_DEFAULTS = { metric: 'epv_confirmed', min_sample: 3, lookback_days: 7, floor_pct: 5, cap_pct: 70, interval_min: 60 };
+
+    const genRotationKey = () => `rot_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+    const getAutoCfg = (stream, type) => (stream?.schema_custom?.auto?.[type]) || {};
+    const isAutoRotationOn = (stream, type) => !!getAutoCfg(stream, type).enabled;
+
+    const setAutoCfg = (streamIdx, type, patch) => {
+        setFormData(prev => {
+            const s = prev.streams[streamIdx];
+            if (!s) return prev;
+            const sc = { ...(s.schema_custom || {}) };
+            const auto = { ...(sc.auto || {}) };
+            auto[type] = { ...ROTATION_DEFAULTS, ...(auto[type] || {}), ...patch };
+            sc.auto = auto;
+            const streams = [...prev.streams];
+            streams[streamIdx] = { ...s, schema_custom: sc };
+            return { ...prev, streams };
+        });
+    };
+
+    // Toggling on mints the rotation key the audit history hangs on; toggling
+    // off just freezes the weights where they are (the key survives, so a
+    // later re-enable continues the same decision trail).
+    const toggleAutoRotation = (streamIdx, type, on) => {
+        const stream = formData.streams[streamIdx];
+        if (on && !getAutoCfg(stream, type).key) {
+            setAutoCfg(streamIdx, type, { key: genRotationKey() });
+        }
+        setAutoCfg(streamIdx, type, { enabled: on });
+    };
+
+    // Compact Auto switch + Conditions opener, shared by every per-stream
+    // Landings/Offers list header (landing_offer, cloak money page, redirect).
+    const renderSchemaAutoControls = (streamIdx, type, list) => {
+        const stream = formData.streams[streamIdx];
+        const on = isAutoRotationOn(stream, type);
+        const enabledCount = (list || []).filter(isSchemaItemEnabled).length;
+        // Auto needs at least two enabled items to ever do anything; allow
+        // switching OFF regardless.
+        const canToggle = on || enabledCount >= 2;
+        return (
+            <div className="flex items-center gap-1.5">
+                <button
+                    type="button"
+                    disabled={!canToggle}
+                    onClick={() => toggleAutoRotation(streamIdx, type, !on)}
+                    className="relative inline-flex h-4 w-7 flex-shrink-0 items-center rounded-full transition-colors"
+                    style={{
+                        background: on ? 'var(--color-primary)' : 'var(--color-border)',
+                        cursor: canToggle ? 'pointer' : 'not-allowed',
+                        opacity: canToggle ? 1 : 0.5
+                    }}
+                    title={on ? t('rotationAuto.toggleOnHint') : t('rotationAuto.toggleOffHint')}
+                >
+                    <span
+                        className="inline-block h-3 w-3 transform rounded-full bg-white transition-transform"
+                        style={{ transform: on ? 'translateX(14px)' : 'translateX(2px)' }}
+                    />
+                </button>
+                <span
+                    className="text-[11px] font-bold uppercase tracking-wide whitespace-nowrap"
+                    style={{ color: on ? 'var(--color-primary)' : 'var(--color-text-muted)' }}
+                >
+                    {t('rotationAuto.auto')}
+                </span>
+                {on && (
+                    <div className="relative">
+                        <button
+                            type="button"
+                            onClick={() => setAutoPopover(prev => (prev && prev.streamIdx === streamIdx && prev.type === type ? null : { streamIdx, type }))}
+                            className="text-[11px] px-2 py-0.5 rounded-lg border font-semibold flex items-center gap-1 transition-colors"
+                            style={{
+                                backgroundColor: autoPopover && autoPopover.streamIdx === streamIdx && autoPopover.type === type ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
+                                borderColor: 'var(--color-border)',
+                                color: 'var(--color-primary)'
+                            }}
+                        >
+                            <SlidersHorizontal className="w-3 h-3" />
+                            {t('rotationAuto.conditions')}
+                        </button>
+                        {autoPopover && autoPopover.streamIdx === streamIdx && autoPopover.type === type && renderAutoConditionsPopover(streamIdx, type)}
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    // Conditions popover: metric + thresholds. Cost-dependent metrics are
+    // disabled with the reason right there when the campaign has no cost.
+    const renderAutoConditionsPopover = (streamIdx, type) => {
+        const stream = formData.streams[streamIdx];
+        const cfg = { ...ROTATION_DEFAULTS, ...getAutoCfg(stream, type) };
+        const costAvailable = rotationStatus ? !!rotationStatus.cost_available : true;
+        const numField = (field, label, lo, hi) => (
+            <label key={field} className="flex flex-col gap-1">
+                <span className="text-[11px] font-semibold" style={{ color: 'var(--color-text-muted)' }}>{label}</span>
+                <input
+                    type="number"
+                    min={lo}
+                    max={hi}
+                    value={cfg[field]}
+                    onChange={e => {
+                        const v = Math.max(lo, Math.min(hi, parseInt(e.target.value, 10) || lo));
+                        setAutoCfg(streamIdx, type, { [field]: v });
+                    }}
+                    className="w-full rounded-lg px-2 py-1 text-xs"
+                    style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
+                />
+            </label>
+        );
+        return (
+            <>
+                <div className="fixed inset-0 z-40" onClick={() => setAutoPopover(null)} />
+                <div
+                    className="absolute right-0 top-full mt-1.5 w-80 rounded-2xl shadow-lg p-3.5 space-y-3 z-50 text-left"
+                    style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}
+                    onClick={e => e.stopPropagation()}
+                >
+                    <div className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>
+                        {t('rotationAuto.conditionsTitle', 'Optimisation conditions')}
+                    </div>
+                    <label className="flex flex-col gap-1">
+                        <span className="text-[11px] font-semibold" style={{ color: 'var(--color-text-muted)' }}>{t('rotationAuto.metricLabel')}</span>
+                        <select
+                            value={cfg.metric}
+                            onChange={e => setAutoCfg(streamIdx, type, { metric: e.target.value })}
+                            className="form-select text-xs"
+                        >
+                            {ROTATION_METRICS.map(m => {
+                                const blocked = m.needsCost && !costAvailable;
+                                return (
+                                    <option key={m.id} value={m.id} disabled={blocked}>
+                                        {m.label}{blocked ? ` — ${t('rotationAuto.needsCost')}` : ''}
+                                    </option>
+                                );
+                            })}
+                        </select>
+                        {!costAvailable && (
+                            <span className="text-[10.5px] leading-snug" style={{ color: 'var(--color-warning, #f59e0b)' }}>
+                                {t('rotationAuto.needsCostHint')}
+                            </span>
+                        )}
+                    </label>
+                    <div className="grid grid-cols-2 gap-2.5">
+                        {numField('min_sample', t('rotationAuto.minSample'), 1, 10000)}
+                        {numField('lookback_days', t('rotationAuto.lookback'), 1, 90)}
+                        {numField('floor_pct', t('rotationAuto.floor'), 1, 50)}
+                        {numField('cap_pct', t('rotationAuto.cap'), 10, 100)}
+                        {numField('interval_min', t('rotationAuto.interval'), 5, 1440)}
+                    </div>
+                    <p className="text-[10.5px] leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
+                        {t('rotationAuto.conditionsHint')}
+                    </p>
+                </div>
+            </>
+        );
+    };
+
+    // Status line + last decisions, shown under a list header while Auto is
+    // on: "why is LP2 now at 34%" reads from here, straight off the audit log.
+    const renderAutoStatusPanel = (streamIdx, type) => {
+        const stream = formData.streams[streamIdx];
+        const cfg = { ...getAutoCfg(stream, type) };
+        if (!cfg.enabled) return null;
+        const decisions = (rotationStatus?.decisions || [])
+            .filter(d => d.rotation_key === cfg.key)
+            .slice(0, 6);
+        const metricLabel = (id) => (ROTATION_METRICS.find(m => m.id === id) || {}).label || id;
+        const fmtValue = (d) => {
+            const v = parseFloat(d.metric_value);
+            if (!isFinite(v)) return '—';
+            return ['epv_confirmed', 'epc_confirmed'].includes(d.metric) ? v.toFixed(4) : String(Math.round(v * 100) / 100);
+        };
+        const fmtTime = (iso) => {
+            if (!iso) return '';
+            const d = new Date(String(iso).replace(' ', 'T') + (String(iso).includes('Z') ? '' : 'Z'));
+            return isNaN(d.getTime()) ? String(iso) : d.toLocaleString();
+        };
+        return (
+            <div className="mt-2 rounded-xl px-3 py-2 space-y-1.5" style={{
+                backgroundColor: 'color-mix(in srgb, var(--color-primary) 5%, transparent)',
+                border: '1px solid var(--color-border)'
+            }}>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]" style={{ color: 'var(--color-text-secondary)' }}>
+                    {cfg.last_updated_at ? (
+                        <span>
+                            <span style={{ color: 'var(--color-text-muted)' }}>{t('rotationAuto.lastUpdated')}:</span>{' '}
+                            <span className="font-semibold">{fmtTime(cfg.last_updated_at)}</span>
+                        </span>
+                    ) : (
+                        <span style={{ color: 'var(--color-text-muted)' }}>{t('rotationAuto.waitingFirstRun')}</span>
+                    )}
+                    {cfg.last_status === 'skipped_no_cost' && (
+                        <span className="font-semibold" style={{ color: 'var(--color-warning, #f59e0b)' }}>
+                            ⚠ {t('rotationAuto.skippedNoCost')}
+                        </span>
+                    )}
+                    {cfg.metric && (
+                        <span>
+                            <span style={{ color: 'var(--color-text-muted)' }}>{t('rotationAuto.metricLabel')}:</span>{' '}
+                            {metricLabel(cfg.metric)} · {t('rotationAuto.window')} {cfg.lookback_days ?? 7}d
+                        </span>
+                    )}
+                </div>
+                {decisions.length > 0 && (
+                    <div className="space-y-1">
+                        {decisions.map((d, i) => (
+                            <div key={i} className="flex flex-wrap items-center gap-x-2 text-[11px]" style={{ color: 'var(--color-text-secondary)' }}>
+                                <span className="font-semibold truncate max-w-[140px]" title={d.item_name} style={{ color: 'var(--color-text-primary)' }}>{d.item_name}</span>
+                                <span className="font-mono">{d.old_weight}% → <span style={{ color: 'var(--color-primary)' }}>{d.new_weight}%</span></span>
+                                <span style={{ color: 'var(--color-text-muted)' }}>
+                                    {metricLabel(d.metric)} {fmtValue(d)} · {t('rotationAuto.sampleLabel')}: {d.sample_size}
+                                </span>
+                                <span className="ml-auto whitespace-nowrap" style={{ color: 'var(--color-text-muted)' }}>{fmtTime(d.created_at)}</span>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        );
+    };
+
     // Even split across ENABLED items only; paused rows keep their weight. The
     // rounding remainder lands on the first enabled item so enabled weights
     // total 100 — same convention as handleEqualizeStreamWeights.
@@ -1413,15 +1686,19 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
     // Shared header action for every per-stream Offers/Landings list header
     // (landing_offer schema, redirect schema offers, cloak money page).
+    // Disabled while Auto owns the list — an even split would be overwritten
+    // by the cron's next pass anyway.
     const renderSchemaEqualizeButton = (streamIdx, type, list) => {
         const enabledCount = (list || []).filter(isSchemaItemEnabled).length;
+        const autoOn = isAutoRotationOn(formData.streams[streamIdx], type);
         return (
             <button
                 type="button"
-                disabled={enabledCount < 2}
+                disabled={enabledCount < 2 || autoOn}
                 onClick={() => handleEqualizeSchemaWeights(streamIdx, type)}
                 className="btn btn-secondary btn-sm text-xs py-1 px-2.5 rounded-lg flex items-center gap-1 font-semibold"
-                title={t('editor.equalizeSplit', 'Split Evenly')}
+                title={autoOn ? t('rotationAuto.equalizeBlocked') : t('editor.equalizeSplit', 'Split Evenly')}
+                style={autoOn ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
             >
                 <span>⚖</span>
                 <span>{t('editor.equalizeSplit', 'Split Evenly')}</span>
@@ -1578,25 +1855,28 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     // over those only), so the badge next to the input shows the live share —
     // weight / enabled-total, one decimal — the same badge the stream rows
     // use. A paused item has no share: it is not in the rotation at all.
+    // While Auto is on the input is read-only: the cron rewrites these
+    // numbers, and the visible value is the computed share it last wrote.
     const schemaWeightInput = (streamIdx, type, item, itemIdx, list) => {
         const enabledTotal = schemaEnabledWeight(list);
         const w = list.length === 1 ? 100 : (parseInt(item.weight, 10) || 0);
         const paused = !isSchemaItemEnabled(item);
+        const autoOn = isAutoRotationOn(formData.streams[streamIdx], type);
         const share = !paused && enabledTotal > 0 ? `${((w / enabledTotal) * 100).toFixed(1)}%` : '—';
         return (
             <div className="flex items-center gap-1 flex-shrink-0">
                 <input
                     type="number"
                     value={list.length === 1 ? 100 : item.weight}
-                    disabled={list.length === 1}
+                    disabled={list.length === 1 || autoOn}
                     onChange={e => updateSchemaItem(streamIdx, type, itemIdx, 'weight', parseInt(e.target.value))}
                     className="w-14 text-center rounded-lg px-1 py-1 text-xs"
                     style={{
-                        backgroundColor: list.length === 1 ? 'var(--color-bg-soft)' : 'var(--color-bg-card)',
+                        backgroundColor: (list.length === 1 || autoOn) ? 'var(--color-bg-soft)' : 'var(--color-bg-card)',
                         border: '1px solid var(--color-border)',
-                        color: list.length === 1 ? 'var(--color-text-muted)' : 'var(--color-text-primary)'
+                        color: (list.length === 1 || autoOn) ? 'var(--color-text-muted)' : 'var(--color-text-primary)'
                     }}
-                    title={t('editor.weight')}
+                    title={autoOn ? t('rotationAuto.managedWeight') : t('editor.weight')}
                 />
                 <span
                     className="text-xs font-extrabold px-1.5 py-0.5 rounded-md whitespace-nowrap"
@@ -1800,10 +2080,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
     return (
         <>
-            <div className="h-[calc(100vh-80px)] w-full flex flex-col overflow-hidden rounded-[24px] shadow-lg" style={{ backgroundColor: 'var(--color-bg-card)', border: 'none' }}>
+            {/* Below lg the two panes stack into one column and the page
+                itself scrolls; from lg up the fixed split-view stays. */}
+            <div className="w-full lg:h-[calc(100vh-80px)] flex flex-col rounded-[24px] shadow-lg" style={{ backgroundColor: 'var(--color-bg-card)', border: 'none' }}>
                 {/* Header */}
-                <div className="flex justify-between items-center px-6 py-4 flex-shrink-0" style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}>
-                    <div className="flex items-center gap-4">
+                <div className="flex justify-between items-center flex-wrap gap-2 px-4 py-3 lg:px-6 lg:py-4 flex-shrink-0" style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}>
+                    <div className="flex items-center gap-3 min-w-0">
                         <button
                             onClick={requestClose}
                             className="btn btn-secondary btn-icon"
@@ -1812,17 +2094,17 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         >
                             <ArrowLeft className="w-5 h-5" />
                         </button>
-                        <h2 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
+                        <h2 className="text-base lg:text-xl font-bold truncate" style={{ color: 'var(--color-text-primary)' }}>
                             {activeCampaignId ? `${t('editor.campaign')}: ${formData.name}` : t('editor.createCampaign')}
                         </h2>
                         {formData.alias && (
-                            <span className="text-sm font-mono px-2 py-1 rounded-lg" style={{ color: 'var(--color-text-muted)', backgroundColor: 'var(--color-bg-hover)' }}>
+                            <span className="hidden sm:inline text-sm font-mono px-2 py-1 rounded-lg" style={{ color: 'var(--color-text-muted)', backgroundColor: 'var(--color-bg-hover)' }}>
                                 /{formData.alias}
                             </span>
                         )}
                     </div>
 
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center flex-wrap gap-2 lg:space-x-2 lg:gap-0">
                         <button
                             type="button"
                             onClick={() => handleSave(true)}
@@ -1904,17 +2186,18 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         </div>
 
                     </div>
-                    {/* Close button */}
-                    <button onClick={requestClose} className="btn btn-secondary">
+                    {/* Close button — hidden below lg; the Back arrow next to
+                        the title already leaves the editor there. */}
+                    <button onClick={requestClose} className="btn btn-secondary hidden lg:flex">
                         <X className="w-5 h-5 mr-2" />
                         {t('common.close')}
                     </button>
                 </div>
 
-                {/* Main Content: Left tabs + Right streams */}
-                <div className="flex-1 flex overflow-hidden">
-                    {/* Left sidebar with tabs */}
-                    <div className="w-[30%] min-w-[300px] flex flex-col" style={{ borderRight: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}>
+                {/* Main Content: single column below lg, left tabs + right streams from lg up */}
+                <div className="flex-1 flex flex-col lg:flex-row">
+                    {/* Tab column: full-width strip below lg, 30% sidebar from lg up */}
+                    <div className="w-full lg:w-[30%] min-w-0 lg:min-w-[300px] flex flex-col border-b lg:border-b-0" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}>
                         {/* Tabs */}
                         <div className="flex px-2 pt-2 overflow-x-auto no-scrollbar" style={{ borderBottom: '1px solid var(--color-border)' }}>
                             {[
@@ -1929,7 +2212,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                 <button
                                     key={tab.key}
                                     onClick={() => setActiveTab(tab.key)}
-                                    className="px-4 py-2 text-sm font-medium border-b-2 transition whitespace-nowrap rounded-t-lg"
+                                    className="px-4 max-lg:py-3 py-2 text-sm font-medium border-b-2 transition whitespace-nowrap rounded-t-lg"
                                     style={{
                                         borderColor: activeTab === tab.key ? 'var(--color-primary)' : 'transparent',
                                         color: activeTab === tab.key ? 'var(--color-primary)' : 'var(--color-text-secondary)',
@@ -1941,8 +2224,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             ))}
                         </div>
 
-                        {/* Tab content */}
-                        <div className="flex-1 overflow-y-auto p-5" style={{ backgroundColor: 'var(--color-bg-card)' }}>
+                        {/* Tab content — the page scrolls below lg, so the pane
+                            itself only becomes a scroll context from lg up. */}
+                        <div className="flex-1 p-4 lg:p-5 lg:overflow-y-auto" style={{ backgroundColor: 'var(--color-bg-card)' }}>
                             {loading ? (
                                 <div className="text-center py-10 flex flex-col items-center" style={{ color: 'var(--color-text-muted)' }}>
                                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 mb-2" style={{ borderColor: 'var(--color-primary)' }}></div>
@@ -3256,40 +3540,45 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         </div>
                     </div>
 
-                    {/* Right side: Streams Area (70%) */}
-                    <div className="flex-1 flex flex-col overflow-hidden" style={{ backgroundColor: 'var(--color-bg-main)' }}>
-                        <div className="p-4 flex justify-between items-center shadow-sm z-10" style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)' }}>
-                            <h3 className="font-bold text-lg" style={{ color: 'var(--color-text-primary)' }}>
+                    {/* Streams Area: below the tabs on narrow viewports, 70% pane from lg up */}
+                    <div className="flex-1 flex flex-col border-t lg:border-t-0" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-main)' }}>
+                        <div className="p-4 flex justify-between items-center flex-wrap gap-2 shadow-sm z-10" style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)' }}>
+                            <h3 className="font-bold text-base lg:text-lg" style={{ color: 'var(--color-text-primary)' }}>
                                 {t('editor.streams')}
                                 <span className="font-normal text-sm ml-1" style={{ color: 'var(--color-text-muted)' }}>({formData.streams.length})</span>
                             </h3>
 
-                            <div className="relative group">
-                                <button className="btn btn-primary">
+                            <div className="relative" ref={streamMenuRef}>
+                                {/* Click-toggle, not hover: hover never fires on a
+                                    phone, and this menu is the only way to add a
+                                    stream. Outside clicks close it. */}
+                                <button type="button" className="btn btn-primary" onClick={() => setStreamMenuOpen(!streamMenuOpen)}>
                                     <Plus className="w-4 h-4" />
                                     {t('editor.createStream')}
-                                    <ChevronDown className="w-4 h-4 ml-1 opacity-70" />
+                                    <ChevronDown className={`w-4 h-4 ml-1 opacity-70 transition-transform ${streamMenuOpen ? 'rotate-180' : ''}`} />
                                 </button>
-                                <div className="absolute right-0 top-full mt-1 w-48 rounded-2xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 py-2" style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
-                                    <button onClick={() => addStream('intercepting')} className="w-full text-left px-4 py-2 text-sm flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
-                                        <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                                        {t('editor.streamIntercepting')}
-                                    </button>
-                                    <button onClick={() => addStream('regular')} className="w-full text-left px-4 py-2 text-sm flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
-                                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                                        {t('editor.streamRegular')}
-                                    </button>
-                                    {!formData.streams.find(s => s.type === 'fallback') && (
-                                        <button onClick={() => addStream('fallback')} className="w-full text-left px-4 py-2 text-sm flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
-                                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--color-text-muted)' }}></div>
-                                            {t('editor.streamFallback')}
+                                {streamMenuOpen && (
+                                    <div className="absolute right-0 top-full mt-1 w-48 rounded-2xl shadow-lg transition-all duration-200 z-50 py-2" style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+                                        <button onClick={() => { setStreamMenuOpen(false); addStream('intercepting'); }} className="w-full text-left px-4 py-2 text-sm flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+                                            <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+                                            {t('editor.streamIntercepting')}
                                         </button>
-                                    )}
-                                </div>
+                                        <button onClick={() => { setStreamMenuOpen(false); addStream('regular'); }} className="w-full text-left px-4 py-2 text-sm flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+                                            <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                                            {t('editor.streamRegular')}
+                                        </button>
+                                        {!formData.streams.find(s => s.type === 'fallback') && (
+                                            <button onClick={() => { setStreamMenuOpen(false); addStream('fallback'); }} className="w-full text-left px-4 py-2 text-sm flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+                                                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--color-text-muted)' }}></div>
+                                                {t('editor.streamFallback')}
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto p-6">
+                        <div className="flex-1 p-4 lg:p-6 lg:overflow-y-auto">
                             {formData.streams.length === 0 ? (
                                 <div className="h-full flex flex-col items-center justify-center text-center max-w-sm mx-auto">
                                     <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6" style={{ backgroundColor: 'var(--color-bg-soft)' }}>
@@ -3331,7 +3620,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                             borderLeftColor: stream.type === 'intercepting' ? '#f97316' : stream.type === 'fallback' ? 'var(--color-text-muted)' : '#3b82f6'
                                         }}>
 
-                                            <div className="flex items-center justify-between px-4 py-2" style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}>
+                                            <div className="flex items-center justify-between flex-wrap gap-2 px-4 py-2" style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}>
                                                 <div className="flex items-center gap-3">
                                                     <span className="text-xs font-bold uppercase" style={{
                                                         color: stream.type === 'intercepting' ? '#f97316' : stream.type === 'fallback' ? 'var(--color-text-muted)' : '#3b82f6'
@@ -3342,7 +3631,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                         type="text"
                                                         value={stream.name || ''}
                                                         onChange={e => updateStream(idx, 'name', e.target.value)}
-                                                        className="bg-transparent border-none font-semibold px-0 w-48"
+                                                        className="bg-transparent border-none font-semibold px-0 w-full sm:w-48 min-w-0"
                                                         style={{ color: 'var(--color-text-primary)' }}
                                                         placeholder={t('editor.streamName')}
                                                     />
@@ -3517,19 +3806,21 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
                                                 {stream.schema_type === 'landing_offer' && (
                                                     <div className="space-y-3 rounded-2xl p-3" style={{ border: '1px solid var(--color-border)', backgroundColor: 'rgba(59, 130, 246, 0.05)' }}>
-                                                        <div>
-                                                            <div className="flex justify-between items-center mb-2">
-                                                                <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('editor.landings')}</span>
-                                                                <div className="flex items-center gap-2">
-                                                                    {renderSchemaEqualizeButton(idx, 'landings', stream.schema_custom?.landings)}
-                                                                    <AddDropdownButton
-                                                                        label={t('editor.addLandings')}
-                                                                        createLabel={t('editor.createLandingDropdown')}
-                                                                        onMain={() => openEntityPicker(idx, 'landings')}
-                                                                        onCreate={() => setQuickCreate({ kind: 'landings', streamIdx: idx })}
-                                                                    />
-                                                                </div>
+                                                    <div>
+                                                        <div className="flex justify-between items-center flex-wrap gap-2 mb-2">
+                                                            <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('editor.landings')}</span>
+                                                            <div className="flex items-center gap-2">
+                                                                {renderSchemaAutoControls(idx, 'landings', stream.schema_custom?.landings)}
+                                                                {renderSchemaEqualizeButton(idx, 'landings', stream.schema_custom?.landings)}
+                                                                <AddDropdownButton
+                                                                    label={t('editor.addLandings')}
+                                                                    createLabel={t('editor.createLandingDropdown')}
+                                                                    onMain={() => openEntityPicker(idx, 'landings')}
+                                                                    onCreate={() => setQuickCreate({ kind: 'landings', streamIdx: idx })}
+                                                                />
                                                             </div>
+                                                        </div>
+                                                        {renderAutoStatusPanel(idx, 'landings')}
                                                             {(stream.schema_custom?.landings || []).length === 0 ? (
                                                                 <div className="text-xs py-3 px-4 rounded-xl border border-dashed text-center" style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}>
                                                                     {t('editor.noLandingsAdded')}
@@ -3541,9 +3832,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                             )}
                                                         </div>
                                                         <div className="pt-3" style={{ borderTop: '1px solid var(--color-border)' }}>
-                                                            <div className="flex justify-between items-center mb-2">
+                                                            <div className="flex justify-between items-center flex-wrap gap-2 mb-2">
                                                                 <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('editor.offers')}</span>
                                                                 <div className="flex items-center gap-2">
+                                                                    {renderSchemaAutoControls(idx, 'offers', stream.schema_custom?.offers)}
                                                                     {renderSchemaEqualizeButton(idx, 'offers', stream.schema_custom?.offers)}
                                                                     <AddDropdownButton
                                                                         label={t('editor.addOffers')}
@@ -3553,6 +3845,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                     />
                                                                 </div>
                                                             </div>
+                                                            {renderAutoStatusPanel(idx, 'offers')}
                                                             {(stream.schema_custom?.offers || []).length === 0 ? (
                                                                 <div className="text-xs py-3 px-4 rounded-xl border border-dashed text-center" style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}>
                                                                     {t('editor.noOffersAdded')}
@@ -4222,9 +4515,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
                                                                 {/* Money Landings */}
                                                                 <div>
-                                                                    <div className="flex justify-between items-center mb-1.5">
+                                                                    <div className="flex justify-between items-center flex-wrap gap-2 mb-1.5">
                                                                         <span className="text-xs font-semibold" style={{ color: 'var(--color-text-secondary)' }}>{t('editor.landings')}</span>
                                                                         <div className="flex items-center gap-2">
+                                                                            {renderSchemaAutoControls(idx, 'landings', sc.landings)}
                                                                             {renderSchemaEqualizeButton(idx, 'landings', sc.landings)}
                                                                             <AddDropdownButton
                                                                                 label={t('editor.addLandings')}
@@ -4234,6 +4528,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                             />
                                                                         </div>
                                                                     </div>
+                                                                    {renderAutoStatusPanel(idx, 'landings')}
                                                                     {(sc.landings || []).length === 0 ? (
                                                                         <div className="text-xs py-3 px-4 rounded-xl border border-dashed text-center" style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}>
                                                                             {t('editor.noLandingsAdded')}
@@ -4247,9 +4542,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
                                                                 {/* Money Offers */}
                                                                 <div className="pt-2" style={{ borderTop: '1px solid var(--color-border)' }}>
-                                                                    <div className="flex justify-between items-center mb-1.5">
+                                                                    <div className="flex justify-between items-center flex-wrap gap-2 mb-1.5">
                                                                         <span className="text-xs font-semibold" style={{ color: 'var(--color-text-secondary)' }}>{t('editor.offers')}</span>
                                                                         <div className="flex items-center gap-2">
+                                                                            {renderSchemaAutoControls(idx, 'offers', sc.offers)}
                                                                             {renderSchemaEqualizeButton(idx, 'offers', sc.offers)}
                                                                             <AddDropdownButton
                                                                                 label={t('editor.addOffers')}
@@ -4259,6 +4555,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                             />
                                                                         </div>
                                                                     </div>
+                                                                    {renderAutoStatusPanel(idx, 'offers')}
                                                                     {(sc.offers || []).length === 0 ? (
                                                                         <div className="text-xs py-3 px-4 rounded-xl border border-dashed text-center" style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }}>
                                                                             {t('editor.noOffersAdded')}
@@ -4391,6 +4688,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                     <div className="flex justify-between items-center">
                                                                         <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('editor.offers')}</span>
                                                                         <div className="flex items-center gap-2">
+                                                                            {renderSchemaAutoControls(idx, 'offers', sc.offers)}
                                                                             {renderSchemaEqualizeButton(idx, 'offers', sc.offers)}
                                                                             <AddDropdownButton
                                                                                 label={t('editor.addOffers')}
@@ -4400,6 +4698,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                             />
                                                                         </div>
                                                                     </div>
+                                                                    {renderAutoStatusPanel(idx, 'offers')}
 
                                                                     {(() => {
                                                                         const offers = sc.offers || [];
@@ -4431,7 +4730,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                 {/* Filters */}
                                                 {stream.type !== 'fallback' && (
                                                     <div>
-                                                        <div className="flex justify-between items-center mb-2">
+                                                        <div className="flex justify-between items-center flex-wrap gap-2 mb-2">
                                                             <div className="flex items-center gap-2">
                                                                 <span className="text-xs font-semibold uppercase" style={{ color: 'var(--color-text-muted)' }}>{t('editor.filters')}</span>
                                                                 {/* AND / OR: one filter can't be combined with anything,

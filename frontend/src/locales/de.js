@@ -492,6 +492,35 @@ export default {
         "copied": "Kopiert",
         "copyErrors": "Fehler"
     },
+    "rotationAuto": {
+        "auto": "Auto",
+        "toggleOnHint": "Auto-Optimierung aktiv — der Cron gewichtet anhand der gewählten Metrik neu. Ausschalten friert die Gewichte ein.",
+        "toggleOffHint": "Einschalten, damit der Optimierer diese Rotation automatisch neu gewichtet",
+        "conditions": "Bedingungen",
+        "conditionsTitle": "Optimierungsbedingungen",
+        "metricLabel": "Metrik",
+        "metricSales": "Bestätigte Verkäufe",
+        "metricCr": "CR (bestätigt)",
+        "metricEpv": "EPV (bestätigt)",
+        "metricEpc": "EPC (bestätigt)",
+        "metricRoi": "ROI (bestätigt)",
+        "needsCost": "benötigt Kosten",
+        "needsCostHint": "ROI und EPC brauchen Ausgaben — verbinde eine Kosten-Synchronisierung oder hinterlege manuelle Kampagnenkosten.",
+        "minSample": "Min. Stichprobe pro Element",
+        "lookback": "Zeitfenster, Tage",
+        "floor": "Untergrenze, %",
+        "cap": "Obergrenze, %",
+        "interval": "Neubewertung, Min.",
+        "conditionsHint": "Elemente ohne Stichprobe behalten einen gleichen Anteil und konkurrieren nicht. Aktive Elemente bleiben zwischen Unter- und Obergrenze; ein Durchlauf bewegt höchstens 20 Punkte.",
+        "lastUpdated": "Aktualisiert",
+        "waitingFirstRun": "Warte auf den ersten Optimierer-Lauf…",
+        "skippedNoCost": "Übersprungen — die Kampagne hat keine Kosten",
+        "window": "Fenster",
+        "sampleLabel": "Stichprobe",
+        "managedWeight": "Von der Auto-Optimierung verwaltet — der Cron schreibt dieses Gewicht neu",
+        "equalizeBlocked": "« Gleichmäßig verteilen » ist deaktiviert, solange Auto diese Liste verwaltet"
+    },
+
     "editor": {
         "collectClicks": "Klicks erfassen",
         "collectClicksHint": "Klicks in Statistiken und Berichten für diesen Stream aufzeichnen. Aus: der Besucher bekommt das Ziel weiterhin, aber es wird keine Klick-Zeile geschrieben — Konversionen aus diesem Stream haben keinen Anknüpfungspunkt.",
@@ -2345,6 +2374,8 @@ export default {
         "instruction": "Fügen Sie dieses Skript vor dem schließenden </body>-Tag hinzu. Ersetzen Sie CONFIG_KEY durch Ihren tatsächlichen Konfigurationsschlüssel."
     },
     "branding": {
+        "saveError": "Speichern der Einstellungen fehlgeschlagen. Bitte erneut versuchen.",
+        "saving": "Speichern...",
         "themeTitle": "Oberflächendesign",
         "light": "Hell",
         "lightDesc": "Sauberer SaaS-Stil",
@@ -3571,5 +3602,13 @@ export default {
         "subId3": "Sub-ID 3",
         "subId4": "Sub-ID 4",
         "subId5": "Sub-ID 5"
+    },
+    pwa: {
+        "updateAvailable": "Neue Version verfügbar",
+        "reload": "Neu laden"
+    },
+    mobileCards: {
+        "showMore": "Mehr",
+        "showLess": "Weniger"
     }
 };

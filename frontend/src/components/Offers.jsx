@@ -9,6 +9,7 @@ import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 import { entityDeleteErrorText } from '../utils/entityInUseError';
 import PaginationToolbar from './common/PaginationToolbar';
+import MobileCards from './common/MobileCards';
 
 const API_URL = '/api.php';
 
@@ -938,8 +939,8 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                 })}
             </div>
 
-            {/* Table */}
-            <div className="tracker-table-container">
+            {/* Table — desktop table / mobile stacked cards */}
+            <div className="tracker-table-container hidden lg:block">
                 <table className="page-table tracker-table">
                     <thead>
                         <tr>
@@ -1094,6 +1095,110 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                         </tfoot>
                     )}
                 </table>
+            </div>
+
+            {/* Mobile stacked cards (below lg) — same customiser-driven metric
+                set; fixed offer columns (GEO, payout, type, network) live in
+                the "More" expander. */}
+            <div className="lg:hidden">
+                <MobileCards
+                    rows={pagedOffers}
+                    getId={(offer) => offer.id}
+                    renderTitle={(offer) => (
+                        <>
+                            <input
+                                type="checkbox"
+                                checked={selectedOfferIds.has(offer.id)}
+                                onChange={(e) => toggleSelected(offer.id, e.target.checked)}
+                                className="rounded flex-shrink-0"
+                                style={{ accentColor: 'var(--color-primary)' }}
+                                aria-label={offer.name}
+                            />
+                            <span
+                                className="font-semibold text-sm cursor-pointer truncate"
+                                style={{ color: 'var(--color-primary)' }}
+                                onClick={() => handleEdit(offer.id)}
+                                title={offer.name}
+                            >
+                                {offer.name}
+                            </span>
+                            {offer.is_local && (
+                                <span className="text-[10px] font-medium flex-shrink-0" style={{ color: 'var(--color-accent-purple)' }}>{t('offers.localOffer')}</span>
+                            )}
+                        </>
+                    )}
+                    renderSubtitle={(offer) => `#${offer.id}${offer.group_name ? ` · ${offer.group_name}` : ''}`}
+                    renderHeaderRight={(offer) => (
+                        <>
+                            <span className="flex items-center text-xs font-medium mr-1" style={{ color: offer.state === 'active' ? 'var(--color-success)' : 'var(--color-text-muted)' }}>
+                                <span className="w-2 h-2 rounded-full mr-1.5" style={{ backgroundColor: offer.state === 'active' ? 'var(--color-success)' : 'var(--color-text-muted)' }}></span>
+                                {offer.state === 'active' ? t('components.active') : t('components.archive')}
+                            </span>
+                            <button onClick={() => handleEdit(offer.id)} className="action-btn text-blue" title={t('common.edit') || t('components.edit')}>
+                                <Edit3 className="w-4 h-4" />
+                            </button>
+                            <button onClick={(e) => handleToggleMenu(e, offer.id)} className="action-btn text-gray-500" title={t('common.more')}>
+                                <MoreVertical className="w-4 h-4" />
+                            </button>
+                        </>
+                    )}
+                    fields={[
+                        ...chosenColumns.map((colId) => {
+                            const def = ALL_REPORT_METRICS.find(m => m.id === colId);
+                            return {
+                                id: colId,
+                                label: def?.shortLabel || def?.label || colId,
+                                render: (row) => formatMetricCell(colId, row),
+                            };
+                        }),
+                        {
+                            id: 'geo',
+                            label: 'GEO',
+                            render: (o) => <span className="px-2 py-0.5 rounded text-[11px] font-semibold" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>{o.geo || t('offerColumns.allGeo')}</span>,
+                        },
+                        {
+                            id: 'payout',
+                            label: t('offerColumns.payout'),
+                            render: (o) => o.payout_auto ? t('offerColumns.payoutAuto') : `$${parseFloat(o.payout_value || 0).toFixed(2)} (${String(o.payout_type || 'cpa').toUpperCase()})`,
+                        },
+                        {
+                            id: 'redirect_type',
+                            label: t('components.type'),
+                            render: (o) => (
+                                <span className="px-2 py-0.5 rounded text-[11px] font-semibold" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>
+                                    {o.redirect_type === 'redirect' ? t('offers.redirect') :
+                                        o.redirect_type === 'frame' ? t('offers.iframe') :
+                                            o.redirect_type === 'local' ? t('offers.local') :
+                                                o.redirect_type === 'js' ? t('redirectTypes.jsName') :
+                                                    o.redirect_type === 'meta_refresh' ? t('redirectTypes.metaName') :
+                                                        o.redirect_type === 'form_submit' ? t('redirectTypes.formName') :
+                                                            o.redirect_type === 'preload' ? t('offerEditor.preloadCurl') :
+                                                                o.redirect_type === 'curl_proxy' ? t('redirectTypes.curlProxyName') :
+                                                                    o.redirect_type}
+                                </span>
+                            ),
+                        },
+                        { id: 'affiliate_network_name', label: t('offers.network'), render: (o) => o.affiliate_network_name || '-' },
+                        {
+                            id: 'url',
+                            label: 'URL',
+                            render: (o) => (!o.is_local && o.url ? <span className="break-all whitespace-normal">{o.url}</span> : '-'),
+                        },
+                    ]}
+                    primaryIds={['clicks', 'conversions', 'cost', 'roi']}
+                    emptyState={
+                        <div className="text-center py-12">
+                            <div className="empty-state">
+                                <p className="empty-state-title">
+                                    {offers.length === 0 ? t('offers.noOffers') : t('offers.noOffersFiltered')}
+                                </p>
+                                <p className="empty-state-text">
+                                    {offers.length === 0 ? t('offers.noOffersDesc') : t('offers.changeFilters')}
+                                </p>
+                            </div>
+                        </div>
+                    }
+                />
             </div>
 
             <PaginationToolbar
