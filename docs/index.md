@@ -55,6 +55,7 @@ wget -qO- https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/install.sh
    - SSL сертификаты
 
 5. **[Лендинги](landing-pages.md)** (English) — все четыре типа, макросы, JS-адаптер, PHP-лендинги и разбор частых ошибок
+   - **[Tracking Client (PHP)](tracking-client-php.md)** (English) — `kclient.php`: сниппет, вторичные страницы, `getOffer()`, конверсии
 6. **[Facebook / Meta](facebook.md)** (English)
    - Импорт расходов из Meta Marketing API
    - Conversions API: отправка конверсий с сервера

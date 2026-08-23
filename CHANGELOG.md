@@ -7,6 +7,50 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.3.0] — 2026-08-23
+
+Working-analyzer release: resizable columns in every table, Click/Conversions
+Log modals, `kclient.php` 2.0 for secondary pages, and honest test-suite green.
+
+### Added
+
+- **Resizable columns everywhere**: one shared `ColumnResize` module gives the
+  Campaigns, Offers, Landings, Logs and Conversions tables (plus the campaign
+  report and report customizer) drag-to-resize headers — widths persist per
+  table and restore to default. `overflow:hidden` on the resize handle's
+  header cell is load-bearing: without it the sticky header paints over the
+  neighbouring handle.
+- **Click Log and Conversions Log modals**: the Click Log keeps its cloak
+  quick-filters (ALL/SAFE/MONEY) and W1/W2 detail fields, now in a modal
+  reachable from both the Campaigns list and the stream cards in the campaign
+  editor; a matching Conversions Log modal rides along.
+- **Shared `campaignUrl` helper**: campaign URLs are built in one place by the
+  Campaigns list and the campaign editor.
+- **Domain column in the Campaigns table**: `api.php` now joins `domains` on
+  `campaigns.domain_id` and selects the name.
+- **`kclient.php` 2.0**: on secondary pages of the same site
+  `restoreFromQuery()` picks the click back up from `_subid` and restores
+  this click's offer from the session (id-matched, so a stale session cannot
+  hand over another click's offer); `getOffer(42)` keeps working in the
+  bare-id form the integration panel documents; choosing a specific offer
+  now *replaces* the tracker's own `offer_id` on the transition link instead
+  of appending a second one. New docs page `docs/tracking-client-php.md`,
+  linked from the integration panel alongside Keitaro's.
+- **KClient direct-destination macros**: `{subid}`, `{ip}` and `{country}`
+  are substituted on the KClient path exactly like the campaign-link path —
+  an offer URL written with `{subid}` no longer reaches the network empty.
+
+### Fixed
+
+- **Rotation optimiser cost-gating**: EPC is no longer cost-gated — earnings
+  per click has no spend term, so EPC configs run on zero-cost campaigns;
+  only ROI still requires cost. Pinned in the allocator and cron tests.
+- **Test-suite hygiene**: four stale tests aligned with shipped behavior —
+  the TikTok `resolveEvent` pixel-first signature (7483d75), unknown postback
+  statuses now recording for retroactive mapping instead of a 400 (ORB-012),
+  and the DNS/nginx regression tests skipping on hosts without the fixtures
+  instead of failing red. The whole suite runs green.
+
 ## [1.2.0] — 2026-08-23
 
 Mobile + PWA + rotation auto-optimiser release: the panel is finally usable on

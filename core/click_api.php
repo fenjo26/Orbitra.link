@@ -917,10 +917,19 @@ function orbitraClickApiV3(PDO $pdo): void
     }
 
     if ($finalUrl) {
-        // Macro replacement (similar to index.php).
-        $offerUrlMacros = str_replace('{clickid}', $clickId, (string) ($offerUrl ?? ''));
+        // Macro replacement — the same set index.php substitutes on the redirect
+        // path. {clickid} alone is not enough: the stream editor documents
+        // {subid}, {ip} and {country} as working in a direct destination URL,
+        // and an offer URL written with {subid} (the Keitaro spelling, and the
+        // one most networks ask for) reached the network empty when the visitor
+        // arrived through KClient instead of the campaign link — so the
+        // conversion postback had no click to attach itself to.
+        $clickMacros = ['{clickid}', '{subid}', '{ip}', '{country}'];
+        $clickValues = [$clickId, $clickId, urlencode((string) $ip), urlencode((string) $country)];
 
-        $resolved = str_replace('{clickid}', $clickId, $finalUrl);
+        $offerUrlMacros = str_replace($clickMacros, $clickValues, (string) ($offerUrl ?? ''));
+
+        $resolved = str_replace($clickMacros, $clickValues, $finalUrl);
         foreach ($clickParams as $key => $val) {
             $resolved = str_replace('{' . $key . '}', urlencode((string) $val), $resolved);
         }
@@ -945,7 +954,11 @@ function orbitraClickApiV3(PDO $pdo): void
     } else if ($actionBody !== null) {
         // The action landing's content carries the banner. {offer} was already
         // resolved into the signed transition link above.
-        $actionBody = str_replace('{clickid}', $clickId, $actionBody);
+        $actionBody = str_replace(
+            ['{clickid}', '{subid}', '{ip}', '{country}'],
+            [$clickId, $clickId, urlencode((string) $ip), urlencode((string) $country)],
+            $actionBody
+        );
         foreach ($clickParams as $key => $val) {
             $actionBody = str_replace('{' . $key . '}', urlencode((string) $val), $actionBody);
         }

@@ -15111,7 +15111,7 @@ const createLucideIcon = (iconName, iconNode) => {
   Component.displayName = toPascalCase(iconName);
   return Component;
 };
-const __iconNode$2g = [
+const __iconNode$2i = [
   [
     "path",
     {
@@ -15120,31 +15120,31 @@ const __iconNode$2g = [
     }
   ]
 ];
-const Activity = createLucideIcon("activity", __iconNode$2g);
-const __iconNode$2f = [
+const Activity = createLucideIcon("activity", __iconNode$2i);
+const __iconNode$2h = [
   ["rect", { width: "20", height: "5", x: "2", y: "3", rx: "1", key: "1wp1u1" }],
   ["path", { d: "M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8", key: "1s80jp" }],
   ["path", { d: "M10 12h4", key: "a56b0p" }]
 ];
-const Archive = createLucideIcon("archive", __iconNode$2f);
-const __iconNode$2e = [
+const Archive = createLucideIcon("archive", __iconNode$2h);
+const __iconNode$2g = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$2e);
-const __iconNode$2d = [
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$2g);
+const __iconNode$2f = [
   ["path", { d: "m16 3 4 4-4 4", key: "1x1c3m" }],
   ["path", { d: "M20 7H4", key: "zbl0bi" }],
   ["path", { d: "m8 21-4-4 4-4", key: "h9nckh" }],
   ["path", { d: "M4 17h16", key: "g4d7ey" }]
 ];
-const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$2d);
-const __iconNode$2c = [
+const ArrowRightLeft = createLucideIcon("arrow-right-left", __iconNode$2f);
+const __iconNode$2e = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$2c);
-const __iconNode$2b = [
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$2e);
+const __iconNode$2d = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15156,8 +15156,8 @@ const __iconNode$2b = [
   ["path", { d: "m2 2 20 20", key: "1ooewy" }],
   ["path", { d: "M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05", key: "1hqiys" }]
 ];
-const BellOff = createLucideIcon("bell-off", __iconNode$2b);
-const __iconNode$2a = [
+const BellOff = createLucideIcon("bell-off", __iconNode$2d);
+const __iconNode$2c = [
   ["path", { d: "M10.268 21a2 2 0 0 0 3.464 0", key: "vwvbt9" }],
   [
     "path",
@@ -15167,28 +15167,28 @@ const __iconNode$2a = [
     }
   ]
 ];
-const Bell = createLucideIcon("bell", __iconNode$2a);
-const __iconNode$29 = [
+const Bell = createLucideIcon("bell", __iconNode$2c);
+const __iconNode$2b = [
   ["path", { d: "M8 2v4", key: "1cmpym" }],
   ["path", { d: "M16 2v4", key: "4m81vk" }],
   ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", key: "1hopcy" }],
   ["path", { d: "M3 10h18", key: "8toen8" }]
 ];
-const Calendar$1 = createLucideIcon("calendar", __iconNode$29);
-const __iconNode$28 = [
+const Calendar$1 = createLucideIcon("calendar", __iconNode$2b);
+const __iconNode$2a = [
   ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
   ["path", { d: "M18 17V9", key: "2bz60n" }],
   ["path", { d: "M13 17V5", key: "1frdt8" }],
   ["path", { d: "M8 17v-3", key: "17ska0" }]
 ];
-const ChartColumn = createLucideIcon("chart-column", __iconNode$28);
-const __iconNode$27 = [
+const ChartColumn = createLucideIcon("chart-column", __iconNode$2a);
+const __iconNode$29 = [
   ["path", { d: "M5 21v-6", key: "1hz6c0" }],
   ["path", { d: "M12 21V3", key: "1lcnhd" }],
   ["path", { d: "M19 21V9", key: "unv183" }]
 ];
-const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$27);
-const __iconNode$26 = [
+const ChartNoAxesColumn = createLucideIcon("chart-no-axes-column", __iconNode$29);
+const __iconNode$28 = [
   [
     "path",
     {
@@ -15198,39 +15198,39 @@ const __iconNode$26 = [
   ],
   ["path", { d: "M21.21 15.89A10 10 0 1 1 8 2.83", key: "k2fpak" }]
 ];
-const ChartPie = createLucideIcon("chart-pie", __iconNode$26);
-const __iconNode$25 = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$25);
-const __iconNode$24 = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
-const ChevronDown = createLucideIcon("chevron-down", __iconNode$24);
-const __iconNode$23 = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
-const ChevronLeft = createLucideIcon("chevron-left", __iconNode$23);
-const __iconNode$22 = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
-const ChevronRight = createLucideIcon("chevron-right", __iconNode$22);
-const __iconNode$21 = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
-const ChevronUp = createLucideIcon("chevron-up", __iconNode$21);
-const __iconNode$20 = [
+const ChartPie = createLucideIcon("chart-pie", __iconNode$28);
+const __iconNode$27 = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$27);
+const __iconNode$26 = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]];
+const ChevronDown = createLucideIcon("chevron-down", __iconNode$26);
+const __iconNode$25 = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$25);
+const __iconNode$24 = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$24);
+const __iconNode$23 = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]];
+const ChevronUp = createLucideIcon("chevron-up", __iconNode$23);
+const __iconNode$22 = [
   ["path", { d: "m7 15 5 5 5-5", key: "1hf1tw" }],
   ["path", { d: "m7 9 5-5 5 5", key: "sgt6xg" }]
 ];
-const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$20);
-const __iconNode$1$ = [
+const ChevronsUpDown = createLucideIcon("chevrons-up-down", __iconNode$22);
+const __iconNode$21 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
 ];
-const CircleAlert = createLucideIcon("circle-alert", __iconNode$1$);
-const __iconNode$1_ = [
+const CircleAlert = createLucideIcon("circle-alert", __iconNode$21);
+const __iconNode$20 = [
   ["path", { d: "M21.801 10A10 10 0 1 1 17 3.335", key: "yps3ct" }],
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
 ];
-const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$1_);
-const __iconNode$1Z = [
+const CircleCheckBig = createLucideIcon("circle-check-big", __iconNode$20);
+const __iconNode$1$ = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$1Z);
-const __iconNode$1Y = [
+const CircleCheck = createLucideIcon("circle-check", __iconNode$1$);
+const __iconNode$1_ = [
   [
     "path",
     {
@@ -15240,50 +15240,50 @@ const __iconNode$1Y = [
   ],
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]
 ];
-const CirclePlay = createLucideIcon("circle-play", __iconNode$1Y);
-const __iconNode$1X = [
+const CirclePlay = createLucideIcon("circle-play", __iconNode$1_);
+const __iconNode$1Z = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1X);
-const __iconNode$1W = [
+const CircleQuestionMark = createLucideIcon("circle-question-mark", __iconNode$1Z);
+const __iconNode$1Y = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
   ["path", { d: "m9 9 6 6", key: "z0biqf" }]
 ];
-const CircleX = createLucideIcon("circle-x", __iconNode$1W);
-const __iconNode$1V = [
+const CircleX = createLucideIcon("circle-x", __iconNode$1Y);
+const __iconNode$1X = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 6v6l4 2", key: "mmk7yg" }]
 ];
-const Clock = createLucideIcon("clock", __iconNode$1V);
-const __iconNode$1U = [
+const Clock = createLucideIcon("clock", __iconNode$1X);
+const __iconNode$1W = [
   ["path", { d: "M12 13v8", key: "1l5pq0" }],
   ["path", { d: "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", key: "1pljnt" }],
   ["path", { d: "m8 17 4-4 4 4", key: "1quai1" }]
 ];
-const CloudUpload = createLucideIcon("cloud-upload", __iconNode$1U);
-const __iconNode$1T = [
+const CloudUpload = createLucideIcon("cloud-upload", __iconNode$1W);
+const __iconNode$1V = [
   ["path", { d: "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z", key: "p7xjir" }]
 ];
-const Cloud = createLucideIcon("cloud", __iconNode$1T);
-const __iconNode$1S = [
+const Cloud = createLucideIcon("cloud", __iconNode$1V);
+const __iconNode$1U = [
   ["path", { d: "m16 18 6-6-6-6", key: "eg8j8" }],
   ["path", { d: "m8 6-6 6 6 6", key: "ppft3o" }]
 ];
-const Code = createLucideIcon("code", __iconNode$1S);
-const __iconNode$1R = [
+const Code = createLucideIcon("code", __iconNode$1U);
+const __iconNode$1T = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M12 3v18", key: "108xh3" }]
 ];
-const Columns2 = createLucideIcon("columns-2", __iconNode$1R);
-const __iconNode$1Q = [
+const Columns2 = createLucideIcon("columns-2", __iconNode$1T);
+const __iconNode$1S = [
   ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
   ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-const Copy = createLucideIcon("copy", __iconNode$1Q);
-const __iconNode$1P = [
+const Copy = createLucideIcon("copy", __iconNode$1S);
+const __iconNode$1R = [
   ["path", { d: "M12 20v2", key: "1lh1kg" }],
   ["path", { d: "M12 2v2", key: "tus03m" }],
   ["path", { d: "M17 20v2", key: "1rnc9c" }],
@@ -15299,33 +15299,33 @@ const __iconNode$1P = [
   ["rect", { x: "4", y: "4", width: "16", height: "16", rx: "2", key: "1vbyd7" }],
   ["rect", { x: "8", y: "8", width: "8", height: "8", rx: "1", key: "z9xiuo" }]
 ];
-const Cpu = createLucideIcon("cpu", __iconNode$1P);
-const __iconNode$1O = [
+const Cpu = createLucideIcon("cpu", __iconNode$1R);
+const __iconNode$1Q = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "22", x2: "18", y1: "12", y2: "12", key: "l9bcsi" }],
   ["line", { x1: "6", x2: "2", y1: "12", y2: "12", key: "13hhkx" }],
   ["line", { x1: "12", x2: "12", y1: "6", y2: "2", key: "10w3f3" }],
   ["line", { x1: "12", x2: "12", y1: "22", y2: "18", key: "15g9kq" }]
 ];
-const Crosshair = createLucideIcon("crosshair", __iconNode$1O);
-const __iconNode$1N = [
+const Crosshair = createLucideIcon("crosshair", __iconNode$1Q);
+const __iconNode$1P = [
   ["ellipse", { cx: "12", cy: "5", rx: "9", ry: "3", key: "msslwz" }],
   ["path", { d: "M3 5V19A9 3 0 0 0 21 19V5", key: "1wlel7" }],
   ["path", { d: "M3 12A9 3 0 0 0 21 12", key: "mv7ke4" }]
 ];
-const Database = createLucideIcon("database", __iconNode$1N);
-const __iconNode$1M = [
+const Database = createLucideIcon("database", __iconNode$1P);
+const __iconNode$1O = [
   ["line", { x1: "12", x2: "12", y1: "2", y2: "22", key: "7eqyqh" }],
   ["path", { d: "M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6", key: "1b0p4s" }]
 ];
-const DollarSign = createLucideIcon("dollar-sign", __iconNode$1M);
-const __iconNode$1L = [
+const DollarSign = createLucideIcon("dollar-sign", __iconNode$1O);
+const __iconNode$1N = [
   ["path", { d: "M12 15V3", key: "m9g1x1" }],
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["path", { d: "m7 10 5 5 5-5", key: "brsn70" }]
 ];
-const Download = createLucideIcon("download", __iconNode$1L);
-const __iconNode$1K = [
+const Download = createLucideIcon("download", __iconNode$1N);
+const __iconNode$1M = [
   [
     "path",
     {
@@ -15334,20 +15334,20 @@ const __iconNode$1K = [
     }
   ]
 ];
-const Droplet = createLucideIcon("droplet", __iconNode$1K);
-const __iconNode$1J = [
+const Droplet = createLucideIcon("droplet", __iconNode$1M);
+const __iconNode$1L = [
   ["circle", { cx: "12", cy: "12", r: "1", key: "41hilf" }],
   ["circle", { cx: "12", cy: "5", r: "1", key: "gxeob9" }],
   ["circle", { cx: "12", cy: "19", r: "1", key: "lyex9k" }]
 ];
-const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1J);
-const __iconNode$1I = [
+const EllipsisVertical = createLucideIcon("ellipsis-vertical", __iconNode$1L);
+const __iconNode$1K = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "M10 14 21 3", key: "gplh6r" }],
   ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
 ];
-const ExternalLink = createLucideIcon("external-link", __iconNode$1I);
-const __iconNode$1H = [
+const ExternalLink = createLucideIcon("external-link", __iconNode$1K);
+const __iconNode$1J = [
   [
     "path",
     {
@@ -15365,8 +15365,8 @@ const __iconNode$1H = [
   ],
   ["path", { d: "m2 2 20 20", key: "1ooewy" }]
 ];
-const EyeOff = createLucideIcon("eye-off", __iconNode$1H);
-const __iconNode$1G = [
+const EyeOff = createLucideIcon("eye-off", __iconNode$1J);
+const __iconNode$1I = [
   [
     "path",
     {
@@ -15376,8 +15376,8 @@ const __iconNode$1G = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Eye = createLucideIcon("eye", __iconNode$1G);
-const __iconNode$1F = [
+const Eye = createLucideIcon("eye", __iconNode$1I);
+const __iconNode$1H = [
   [
     "path",
     {
@@ -15388,8 +15388,8 @@ const __iconNode$1F = [
   ["path", { d: "M16 8 2 22", key: "vp34q" }],
   ["path", { d: "M17.5 15H9", key: "1oz8nu" }]
 ];
-const Feather = createLucideIcon("feather", __iconNode$1F);
-const __iconNode$1E = [
+const Feather = createLucideIcon("feather", __iconNode$1H);
+const __iconNode$1G = [
   [
     "path",
     {
@@ -15403,8 +15403,8 @@ const __iconNode$1E = [
   ["path", { d: "M8 7V6", key: "1nbb54" }],
   ["circle", { cx: "8", cy: "20", r: "2", key: "ckkr5m" }]
 ];
-const FileArchive = createLucideIcon("file-archive", __iconNode$1E);
-const __iconNode$1D = [
+const FileArchive = createLucideIcon("file-archive", __iconNode$1G);
+const __iconNode$1F = [
   [
     "path",
     {
@@ -15416,8 +15416,8 @@ const __iconNode$1D = [
   ["path", { d: "M10 12.5 8 15l2 2.5", key: "1tg20x" }],
   ["path", { d: "m14 12.5 2 2.5-2 2.5", key: "yinavb" }]
 ];
-const FileCode = createLucideIcon("file-code", __iconNode$1D);
-const __iconNode$1C = [
+const FileCode = createLucideIcon("file-code", __iconNode$1F);
+const __iconNode$1E = [
   [
     "path",
     {
@@ -15429,8 +15429,8 @@ const __iconNode$1C = [
   ["circle", { cx: "11.5", cy: "14.5", r: "2.5", key: "1bq0ko" }],
   ["path", { d: "M13.3 16.3 15 18", key: "2quom7" }]
 ];
-const FileSearch = createLucideIcon("file-search", __iconNode$1C);
-const __iconNode$1B = [
+const FileSearch = createLucideIcon("file-search", __iconNode$1E);
+const __iconNode$1D = [
   ["path", { d: "M11 21a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1", key: "likhh7" }],
   ["path", { d: "M16 16a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1", key: "17ky3x" }],
   [
@@ -15441,8 +15441,8 @@ const __iconNode$1B = [
     }
   ]
 ];
-const FileStack = createLucideIcon("file-stack", __iconNode$1B);
-const __iconNode$1A = [
+const FileStack = createLucideIcon("file-stack", __iconNode$1D);
+const __iconNode$1C = [
   [
     "path",
     {
@@ -15455,8 +15455,8 @@ const __iconNode$1A = [
   ["path", { d: "M16 13H8", key: "t4e002" }],
   ["path", { d: "M16 17H8", key: "z1uh3a" }]
 ];
-const FileText = createLucideIcon("file-text", __iconNode$1A);
-const __iconNode$1z = [
+const FileText = createLucideIcon("file-text", __iconNode$1C);
+const __iconNode$1B = [
   [
     "path",
     {
@@ -15465,8 +15465,8 @@ const __iconNode$1z = [
     }
   ]
 ];
-const Folder = createLucideIcon("folder", __iconNode$1z);
-const __iconNode$1y = [
+const Folder = createLucideIcon("folder", __iconNode$1B);
+const __iconNode$1A = [
   [
     "path",
     {
@@ -15475,8 +15475,8 @@ const __iconNode$1y = [
     }
   ]
 ];
-const Funnel = createLucideIcon("funnel", __iconNode$1y);
-const __iconNode$1x = [
+const Funnel = createLucideIcon("funnel", __iconNode$1A);
+const __iconNode$1z = [
   ["path", { d: "M10.5 3 8 9l4 13 4-13-2.5-6", key: "b3dvk1" }],
   [
     "path",
@@ -15487,22 +15487,22 @@ const __iconNode$1x = [
   ],
   ["path", { d: "M2 9h20", key: "16fsjt" }]
 ];
-const Gem = createLucideIcon("gem", __iconNode$1x);
-const __iconNode$1w = [
+const Gem = createLucideIcon("gem", __iconNode$1z);
+const __iconNode$1y = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20", key: "13o1zl" }],
   ["path", { d: "M2 12h20", key: "9i4pu4" }]
 ];
-const Globe = createLucideIcon("globe", __iconNode$1w);
-const __iconNode$1v = [
+const Globe = createLucideIcon("globe", __iconNode$1y);
+const __iconNode$1x = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M3 9h18", key: "1pudct" }],
   ["path", { d: "M3 15h18", key: "5xshup" }],
   ["path", { d: "M9 3v18", key: "fh3hqa" }],
   ["path", { d: "M15 3v18", key: "14nvp0" }]
 ];
-const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$1v);
-const __iconNode$1u = [
+const Grid3x3 = createLucideIcon("grid-3x3", __iconNode$1x);
+const __iconNode$1w = [
   ["circle", { cx: "9", cy: "12", r: "1", key: "1vctgf" }],
   ["circle", { cx: "9", cy: "5", r: "1", key: "hp0tcf" }],
   ["circle", { cx: "9", cy: "19", r: "1", key: "fkjjf6" }],
@@ -15510,8 +15510,8 @@ const __iconNode$1u = [
   ["circle", { cx: "15", cy: "5", r: "1", key: "19l28e" }],
   ["circle", { cx: "15", cy: "19", r: "1", key: "f4zoj3" }]
 ];
-const GripVertical = createLucideIcon("grip-vertical", __iconNode$1u);
-const __iconNode$1t = [
+const GripVertical = createLucideIcon("grip-vertical", __iconNode$1w);
+const __iconNode$1v = [
   ["path", { d: "M10 16h.01", key: "1bzywj" }],
   [
     "path",
@@ -15523,8 +15523,8 @@ const __iconNode$1t = [
   ["path", { d: "M21.946 12.013H2.054", key: "zqlbp7" }],
   ["path", { d: "M6 16h.01", key: "1pmjb7" }]
 ];
-const HardDrive = createLucideIcon("hard-drive", __iconNode$1t);
-const __iconNode$1s = [
+const HardDrive = createLucideIcon("hard-drive", __iconNode$1v);
+const __iconNode$1u = [
   [
     "path",
     {
@@ -15533,20 +15533,20 @@ const __iconNode$1s = [
     }
   ]
 ];
-const Heart = createLucideIcon("heart", __iconNode$1s);
-const __iconNode$1r = [
+const Heart = createLucideIcon("heart", __iconNode$1u);
+const __iconNode$1t = [
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }],
   ["circle", { cx: "9", cy: "9", r: "2", key: "af1f0g" }],
   ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
 ];
-const Image = createLucideIcon("image", __iconNode$1r);
-const __iconNode$1q = [
+const Image = createLucideIcon("image", __iconNode$1t);
+const __iconNode$1s = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
 ];
-const Info = createLucideIcon("info", __iconNode$1q);
-const __iconNode$1p = [
+const Info = createLucideIcon("info", __iconNode$1s);
+const __iconNode$1r = [
   [
     "path",
     {
@@ -15556,14 +15556,14 @@ const __iconNode$1p = [
   ],
   ["circle", { cx: "16.5", cy: "7.5", r: ".5", fill: "currentColor", key: "w0ekpg" }]
 ];
-const KeyRound = createLucideIcon("key-round", __iconNode$1p);
-const __iconNode$1o = [
+const KeyRound = createLucideIcon("key-round", __iconNode$1r);
+const __iconNode$1q = [
   ["path", { d: "m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4", key: "g0fldk" }],
   ["path", { d: "m21 2-9.6 9.6", key: "1j0ho8" }],
   ["circle", { cx: "7.5", cy: "15.5", r: "5.5", key: "yqb3hr" }]
 ];
-const Key = createLucideIcon("key", __iconNode$1o);
-const __iconNode$1n = [
+const Key = createLucideIcon("key", __iconNode$1q);
+const __iconNode$1p = [
   [
     "path",
     {
@@ -15586,28 +15586,28 @@ const __iconNode$1n = [
     }
   ]
 ];
-const Layers = createLucideIcon("layers", __iconNode$1n);
-const __iconNode$1m = [
+const Layers = createLucideIcon("layers", __iconNode$1p);
+const __iconNode$1o = [
   ["rect", { width: "7", height: "9", x: "3", y: "3", rx: "1", key: "10lvy0" }],
   ["rect", { width: "7", height: "5", x: "14", y: "3", rx: "1", key: "16une8" }],
   ["rect", { width: "7", height: "9", x: "14", y: "12", rx: "1", key: "1hutg5" }],
   ["rect", { width: "7", height: "5", x: "3", y: "16", rx: "1", key: "ldoo1y" }]
 ];
-const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$1m);
-const __iconNode$1l = [
+const LayoutDashboard = createLucideIcon("layout-dashboard", __iconNode$1o);
+const __iconNode$1n = [
   ["rect", { width: "7", height: "7", x: "3", y: "3", rx: "1", key: "1g98yp" }],
   ["rect", { width: "7", height: "7", x: "14", y: "3", rx: "1", key: "6d4xhi" }],
   ["rect", { width: "7", height: "7", x: "14", y: "14", rx: "1", key: "nxv5o0" }],
   ["rect", { width: "7", height: "7", x: "3", y: "14", rx: "1", key: "1bb6yr" }]
 ];
-const LayoutGrid = createLucideIcon("layout-grid", __iconNode$1l);
-const __iconNode$1k = [
+const LayoutGrid = createLucideIcon("layout-grid", __iconNode$1n);
+const __iconNode$1m = [
   ["rect", { width: "18", height: "7", x: "3", y: "3", rx: "1", key: "f1a2em" }],
   ["rect", { width: "9", height: "7", x: "3", y: "14", rx: "1", key: "jqznyg" }],
   ["rect", { width: "5", height: "7", x: "16", y: "14", rx: "1", key: "q5h2i8" }]
 ];
-const LayoutTemplate = createLucideIcon("layout-template", __iconNode$1k);
-const __iconNode$1j = [
+const LayoutTemplate = createLucideIcon("layout-template", __iconNode$1m);
+const __iconNode$1l = [
   [
     "path",
     {
@@ -15618,21 +15618,21 @@ const __iconNode$1j = [
   ["path", { d: "M9 18h6", key: "x1upvd" }],
   ["path", { d: "M10 22h4", key: "ceow96" }]
 ];
-const Lightbulb = createLucideIcon("lightbulb", __iconNode$1j);
-const __iconNode$1i = [
+const Lightbulb = createLucideIcon("lightbulb", __iconNode$1l);
+const __iconNode$1k = [
   ["path", { d: "M9 17H7A5 5 0 0 1 7 7h2", key: "8i5ue5" }],
   ["path", { d: "M15 7h2a5 5 0 1 1 0 10h-2", key: "1b9ql8" }],
   ["line", { x1: "8", x2: "16", y1: "12", y2: "12", key: "1jonct" }]
 ];
-const Link2 = createLucideIcon("link-2", __iconNode$1i);
-const __iconNode$1h = [
+const Link2 = createLucideIcon("link-2", __iconNode$1k);
+const __iconNode$1j = [
   ["path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71", key: "1cjeqo" }],
   ["path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71", key: "19qd67" }]
 ];
-const Link = createLucideIcon("link", __iconNode$1h);
-const __iconNode$1g = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
-const LoaderCircle = createLucideIcon("loader-circle", __iconNode$1g);
-const __iconNode$1f = [
+const Link = createLucideIcon("link", __iconNode$1j);
+const __iconNode$1i = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
+const LoaderCircle = createLucideIcon("loader-circle", __iconNode$1i);
+const __iconNode$1h = [
   ["path", { d: "M12 2v4", key: "3427ic" }],
   ["path", { d: "m16.2 7.8 2.9-2.9", key: "r700ao" }],
   ["path", { d: "M18 12h4", key: "wj9ykh" }],
@@ -15642,24 +15642,24 @@ const __iconNode$1f = [
   ["path", { d: "M2 12h4", key: "j09sii" }],
   ["path", { d: "m4.9 4.9 2.9 2.9", key: "giyufr" }]
 ];
-const Loader = createLucideIcon("loader", __iconNode$1f);
-const __iconNode$1e = [
+const Loader = createLucideIcon("loader", __iconNode$1h);
+const __iconNode$1g = [
   ["rect", { width: "18", height: "11", x: "3", y: "11", rx: "2", ry: "2", key: "1w4ew1" }],
   ["path", { d: "M7 11V7a5 5 0 0 1 10 0v4", key: "fwvmzm" }]
 ];
-const Lock = createLucideIcon("lock", __iconNode$1e);
-const __iconNode$1d = [
+const Lock = createLucideIcon("lock", __iconNode$1g);
+const __iconNode$1f = [
   ["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }],
   ["path", { d: "M21 12H9", key: "dn1m92" }],
   ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]
 ];
-const LogOut = createLucideIcon("log-out", __iconNode$1d);
-const __iconNode$1c = [
+const LogOut = createLucideIcon("log-out", __iconNode$1f);
+const __iconNode$1e = [
   ["path", { d: "m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7", key: "132q7q" }],
   ["rect", { x: "2", y: "4", width: "20", height: "16", rx: "2", key: "izxlao" }]
 ];
-const Mail = createLucideIcon("mail", __iconNode$1c);
-const __iconNode$1b = [
+const Mail = createLucideIcon("mail", __iconNode$1e);
+const __iconNode$1d = [
   [
     "path",
     {
@@ -15669,8 +15669,8 @@ const __iconNode$1b = [
   ],
   ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }]
 ];
-const MapPin = createLucideIcon("map-pin", __iconNode$1b);
-const __iconNode$1a = [
+const MapPin = createLucideIcon("map-pin", __iconNode$1d);
+const __iconNode$1c = [
   [
     "path",
     {
@@ -15681,21 +15681,21 @@ const __iconNode$1a = [
   ["path", { d: "M15 5.764v15", key: "1pn4in" }],
   ["path", { d: "M9 3.236v15", key: "1uimfh" }]
 ];
-const Map$1 = createLucideIcon("map", __iconNode$1a);
-const __iconNode$19 = [
+const Map$1 = createLucideIcon("map", __iconNode$1c);
+const __iconNode$1b = [
   ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
   ["path", { d: "m21 3-7 7", key: "1l2asr" }],
   ["path", { d: "m3 21 7-7", key: "tjx5ai" }],
   ["path", { d: "M9 21H3v-6", key: "wtvkvv" }]
 ];
-const Maximize2 = createLucideIcon("maximize-2", __iconNode$19);
-const __iconNode$18 = [
+const Maximize2 = createLucideIcon("maximize-2", __iconNode$1b);
+const __iconNode$1a = [
   ["path", { d: "M4 5h16", key: "1tepv9" }],
   ["path", { d: "M4 12h16", key: "1lakjw" }],
   ["path", { d: "M4 19h16", key: "1djgab" }]
 ];
-const Menu = createLucideIcon("menu", __iconNode$18);
-const __iconNode$17 = [
+const Menu = createLucideIcon("menu", __iconNode$1a);
+const __iconNode$19 = [
   [
     "path",
     {
@@ -15704,8 +15704,8 @@ const __iconNode$17 = [
     }
   ]
 ];
-const MessageCircle = createLucideIcon("message-circle", __iconNode$17);
-const __iconNode$16 = [
+const MessageCircle = createLucideIcon("message-circle", __iconNode$19);
+const __iconNode$18 = [
   [
     "path",
     {
@@ -15714,21 +15714,21 @@ const __iconNode$16 = [
     }
   ]
 ];
-const MessageSquare = createLucideIcon("message-square", __iconNode$16);
-const __iconNode$15 = [
+const MessageSquare = createLucideIcon("message-square", __iconNode$18);
+const __iconNode$17 = [
   ["path", { d: "m14 10 7-7", key: "oa77jy" }],
   ["path", { d: "M20 10h-6V4", key: "mjg0md" }],
   ["path", { d: "m3 21 7-7", key: "tjx5ai" }],
   ["path", { d: "M4 14h6v6", key: "rmj7iw" }]
 ];
-const Minimize2 = createLucideIcon("minimize-2", __iconNode$15);
-const __iconNode$14 = [
+const Minimize2 = createLucideIcon("minimize-2", __iconNode$17);
+const __iconNode$16 = [
   ["rect", { width: "20", height: "14", x: "2", y: "3", rx: "2", key: "48i651" }],
   ["line", { x1: "8", x2: "16", y1: "21", y2: "21", key: "1svkeh" }],
   ["line", { x1: "12", x2: "12", y1: "17", y2: "21", key: "vw1qmm" }]
 ];
-const Monitor = createLucideIcon("monitor", __iconNode$14);
-const __iconNode$13 = [
+const Monitor = createLucideIcon("monitor", __iconNode$16);
+const __iconNode$15 = [
   [
     "path",
     {
@@ -15737,21 +15737,27 @@ const __iconNode$13 = [
     }
   ]
 ];
-const Moon = createLucideIcon("moon", __iconNode$13);
-const __iconNode$12 = [
+const Moon = createLucideIcon("moon", __iconNode$15);
+const __iconNode$14 = [
+  ["path", { d: "m18 8 4 4-4 4", key: "1ak13k" }],
+  ["path", { d: "M2 12h20", key: "9i4pu4" }],
+  ["path", { d: "m6 8-4 4 4 4", key: "15zrgr" }]
+];
+const MoveHorizontal = createLucideIcon("move-horizontal", __iconNode$14);
+const __iconNode$13 = [
   ["circle", { cx: "8", cy: "18", r: "4", key: "1fc0mg" }],
   ["path", { d: "M12 18V2l7 4", key: "g04rme" }]
 ];
-const Music2 = createLucideIcon("music-2", __iconNode$12);
-const __iconNode$11 = [
+const Music2 = createLucideIcon("music-2", __iconNode$13);
+const __iconNode$12 = [
   ["rect", { x: "16", y: "16", width: "6", height: "6", rx: "1", key: "4q2zg0" }],
   ["rect", { x: "2", y: "16", width: "6", height: "6", rx: "1", key: "8cvhb9" }],
   ["rect", { x: "9", y: "2", width: "6", height: "6", rx: "1", key: "1egb70" }],
   ["path", { d: "M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3", key: "1jsf9p" }],
   ["path", { d: "M12 12V8", key: "2874zd" }]
 ];
-const Network = createLucideIcon("network", __iconNode$11);
-const __iconNode$10 = [
+const Network = createLucideIcon("network", __iconNode$12);
+const __iconNode$11 = [
   ["path", { d: "M12 22v-9", key: "x3hkom" }],
   [
     "path",
@@ -15775,8 +15781,8 @@ const __iconNode$10 = [
     }
   ]
 ];
-const PackageOpen = createLucideIcon("package-open", __iconNode$10);
-const __iconNode$$ = [
+const PackageOpen = createLucideIcon("package-open", __iconNode$11);
+const __iconNode$10 = [
   [
     "path",
     {
@@ -15789,8 +15795,8 @@ const __iconNode$$ = [
   ["line", { x1: "12", x2: "12", y1: "22", y2: "12", key: "a4e8g8" }],
   ["path", { d: "m17 13 5 5m-5 0 5-5", key: "im3w4b" }]
 ];
-const PackageX = createLucideIcon("package-x", __iconNode$$);
-const __iconNode$_ = [
+const PackageX = createLucideIcon("package-x", __iconNode$10);
+const __iconNode$$ = [
   [
     "path",
     {
@@ -15802,8 +15808,8 @@ const __iconNode$_ = [
   ["polyline", { points: "3.29 7 12 12 20.71 7", key: "ousv84" }],
   ["path", { d: "m7.5 4.27 9 5.15", key: "1c824w" }]
 ];
-const Package = createLucideIcon("package", __iconNode$_);
-const __iconNode$Z = [
+const Package = createLucideIcon("package", __iconNode$$);
+const __iconNode$_ = [
   [
     "path",
     {
@@ -15816,8 +15822,8 @@ const __iconNode$Z = [
   ["circle", { cx: "6.5", cy: "12.5", r: ".5", fill: "currentColor", key: "qy21gx" }],
   ["circle", { cx: "8.5", cy: "7.5", r: ".5", fill: "currentColor", key: "fotxhn" }]
 ];
-const Palette = createLucideIcon("palette", __iconNode$Z);
-const __iconNode$Y = [
+const Palette = createLucideIcon("palette", __iconNode$_);
+const __iconNode$Z = [
   ["path", { d: "M13 21h8", key: "1jsn5i" }],
   [
     "path",
@@ -15827,8 +15833,8 @@ const __iconNode$Y = [
     }
   ]
 ];
-const PenLine = createLucideIcon("pen-line", __iconNode$Y);
-const __iconNode$X = [
+const PenLine = createLucideIcon("pen-line", __iconNode$Z);
+const __iconNode$Y = [
   [
     "path",
     {
@@ -15837,8 +15843,8 @@ const __iconNode$X = [
     }
   ]
 ];
-const Pen = createLucideIcon("pen", __iconNode$X);
-const __iconNode$W = [
+const Pen = createLucideIcon("pen", __iconNode$Y);
+const __iconNode$X = [
   [
     "path",
     {
@@ -15848,8 +15854,8 @@ const __iconNode$W = [
   ],
   ["path", { d: "m15 5 4 4", key: "1mk7zo" }]
 ];
-const Pencil = createLucideIcon("pencil", __iconNode$W);
-const __iconNode$V = [
+const Pencil = createLucideIcon("pencil", __iconNode$X);
+const __iconNode$W = [
   [
     "path",
     {
@@ -15858,8 +15864,8 @@ const __iconNode$V = [
     }
   ]
 ];
-const Phone = createLucideIcon("phone", __iconNode$V);
-const __iconNode$U = [
+const Phone = createLucideIcon("phone", __iconNode$W);
+const __iconNode$V = [
   [
     "path",
     {
@@ -15876,8 +15882,8 @@ const __iconNode$U = [
   ],
   ["path", { d: "m2 22 .414-.414", key: "jhxm08" }]
 ];
-const Pipette = createLucideIcon("pipette", __iconNode$U);
-const __iconNode$T = [
+const Pipette = createLucideIcon("pipette", __iconNode$V);
+const __iconNode$U = [
   [
     "path",
     {
@@ -15886,8 +15892,8 @@ const __iconNode$T = [
     }
   ]
 ];
-const Play = createLucideIcon("play", __iconNode$T);
-const __iconNode$S = [
+const Play = createLucideIcon("play", __iconNode$U);
+const __iconNode$T = [
   ["path", { d: "M12 22v-5", key: "1ega77" }],
   ["path", { d: "M15 8V2", key: "18g5xt" }],
   [
@@ -15896,39 +15902,39 @@ const __iconNode$S = [
   ],
   ["path", { d: "M9 8V2", key: "14iosj" }]
 ];
-const Plug = createLucideIcon("plug", __iconNode$S);
-const __iconNode$R = [
+const Plug = createLucideIcon("plug", __iconNode$T);
+const __iconNode$S = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "M12 5v14", key: "s699le" }]
 ];
-const Plus = createLucideIcon("plus", __iconNode$R);
-const __iconNode$Q = [
+const Plus = createLucideIcon("plus", __iconNode$S);
+const __iconNode$R = [
   ["path", { d: "M12 2v10", key: "mnfbl" }],
   ["path", { d: "M18.4 6.6a9 9 0 1 1-12.77.04", key: "obofu9" }]
 ];
-const Power = createLucideIcon("power", __iconNode$Q);
-const __iconNode$P = [
+const Power = createLucideIcon("power", __iconNode$R);
+const __iconNode$Q = [
   ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
   ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
   ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
   ["path", { d: "M8 16H3v5", key: "1cv678" }]
 ];
-const RefreshCw = createLucideIcon("refresh-cw", __iconNode$P);
-const __iconNode$O = [
+const RefreshCw = createLucideIcon("refresh-cw", __iconNode$Q);
+const __iconNode$P = [
   ["path", { d: "m2 9 3-3 3 3", key: "1ltn5i" }],
   ["path", { d: "M13 18H7a2 2 0 0 1-2-2V6", key: "1r6tfw" }],
   ["path", { d: "m22 15-3 3-3-3", key: "4rnwn2" }],
   ["path", { d: "M11 6h6a2 2 0 0 1 2 2v10", key: "2f72bc" }]
 ];
-const Repeat2 = createLucideIcon("repeat-2", __iconNode$O);
-const __iconNode$N = [
+const Repeat2 = createLucideIcon("repeat-2", __iconNode$P);
+const __iconNode$O = [
   ["path", { d: "m17 2 4 4-4 4", key: "nntrym" }],
   ["path", { d: "M3 11v-1a4 4 0 0 1 4-4h14", key: "84bu3i" }],
   ["path", { d: "m7 22-4-4 4-4", key: "1wqhfi" }],
   ["path", { d: "M21 13v1a4 4 0 0 1-4 4H3", key: "1rx37r" }]
 ];
-const Repeat = createLucideIcon("repeat", __iconNode$N);
-const __iconNode$M = [
+const Repeat = createLucideIcon("repeat", __iconNode$O);
+const __iconNode$N = [
   ["path", { d: "M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5", key: "qeys4" }],
   [
     "path",
@@ -15946,18 +15952,18 @@ const __iconNode$M = [
   ],
   ["path", { d: "M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05", key: "92ym6u" }]
 ];
-const Rocket = createLucideIcon("rocket", __iconNode$M);
-const __iconNode$L = [
+const Rocket = createLucideIcon("rocket", __iconNode$N);
+const __iconNode$M = [
   ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
   ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
 ];
-const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$L);
-const __iconNode$K = [
+const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$M);
+const __iconNode$L = [
   ["path", { d: "M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8", key: "1p45f6" }],
   ["path", { d: "M21 3v5h-5", key: "1q7to0" }]
 ];
-const RotateCw = createLucideIcon("rotate-cw", __iconNode$K);
-const __iconNode$J = [
+const RotateCw = createLucideIcon("rotate-cw", __iconNode$L);
+const __iconNode$K = [
   [
     "path",
     {
@@ -15968,8 +15974,8 @@ const __iconNode$J = [
   ["path", { d: "M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7", key: "1ydtos" }],
   ["path", { d: "M7 3v4a1 1 0 0 0 1 1h7", key: "t51u73" }]
 ];
-const Save = createLucideIcon("save", __iconNode$J);
-const __iconNode$I = [
+const Save = createLucideIcon("save", __iconNode$K);
+const __iconNode$J = [
   ["path", { d: "M3 7V5a2 2 0 0 1 2-2h2", key: "aa7l1z" }],
   ["path", { d: "M17 3h2a2 2 0 0 1 2 2v2", key: "4qcy5o" }],
   ["path", { d: "M21 17v2a2 2 0 0 1-2 2h-2", key: "6vwrx8" }],
@@ -15977,21 +15983,21 @@ const __iconNode$I = [
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }],
   ["path", { d: "m16 16-1.9-1.9", key: "1dq9hf" }]
 ];
-const ScanSearch = createLucideIcon("scan-search", __iconNode$I);
-const __iconNode$H = [
+const ScanSearch = createLucideIcon("scan-search", __iconNode$J);
+const __iconNode$I = [
   ["circle", { cx: "6", cy: "6", r: "3", key: "1lh9wr" }],
   ["path", { d: "M8.12 8.12 12 12", key: "1alkpv" }],
   ["path", { d: "M20 4 8.12 15.88", key: "xgtan2" }],
   ["circle", { cx: "6", cy: "18", r: "3", key: "fqmcym" }],
   ["path", { d: "M14.8 14.8 20 20", key: "ptml3r" }]
 ];
-const Scissors = createLucideIcon("scissors", __iconNode$H);
-const __iconNode$G = [
+const Scissors = createLucideIcon("scissors", __iconNode$I);
+const __iconNode$H = [
   ["path", { d: "m21 21-4.34-4.34", key: "14j7rj" }],
   ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }]
 ];
-const Search = createLucideIcon("search", __iconNode$G);
-const __iconNode$F = [
+const Search = createLucideIcon("search", __iconNode$H);
+const __iconNode$G = [
   [
     "path",
     {
@@ -16001,8 +16007,8 @@ const __iconNode$F = [
   ],
   ["path", { d: "m21.854 2.147-10.94 10.939", key: "12cjpa" }]
 ];
-const Send = createLucideIcon("send", __iconNode$F);
-const __iconNode$E = [
+const Send = createLucideIcon("send", __iconNode$G);
+const __iconNode$F = [
   [
     "path",
     {
@@ -16021,22 +16027,22 @@ const __iconNode$E = [
   ["path", { d: "M6 18h.01", key: "uhywen" }],
   ["path", { d: "m13 6-4 6h6l-4 6", key: "14hqih" }]
 ];
-const ServerCrash = createLucideIcon("server-crash", __iconNode$E);
-const __iconNode$D = [
+const ServerCrash = createLucideIcon("server-crash", __iconNode$F);
+const __iconNode$E = [
   ["rect", { width: "20", height: "8", x: "2", y: "2", rx: "2", ry: "2", key: "ngkwjq" }],
   ["rect", { width: "20", height: "8", x: "2", y: "14", rx: "2", ry: "2", key: "iecqi9" }],
   ["line", { x1: "6", x2: "6.01", y1: "6", y2: "6", key: "16zg32" }],
   ["line", { x1: "6", x2: "6.01", y1: "18", y2: "18", key: "nzw8ys" }]
 ];
-const Server = createLucideIcon("server", __iconNode$D);
-const __iconNode$C = [
+const Server = createLucideIcon("server", __iconNode$E);
+const __iconNode$D = [
   ["path", { d: "M14 17H5", key: "gfn3mx" }],
   ["path", { d: "M19 7h-9", key: "6i9tg" }],
   ["circle", { cx: "17", cy: "17", r: "3", key: "18b49y" }],
   ["circle", { cx: "7", cy: "7", r: "3", key: "dfmy0x" }]
 ];
-const Settings2 = createLucideIcon("settings-2", __iconNode$C);
-const __iconNode$B = [
+const Settings2 = createLucideIcon("settings-2", __iconNode$D);
+const __iconNode$C = [
   [
     "path",
     {
@@ -16046,8 +16052,8 @@ const __iconNode$B = [
   ],
   ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
 ];
-const Settings$1 = createLucideIcon("settings", __iconNode$B);
-const __iconNode$A = [
+const Settings$1 = createLucideIcon("settings", __iconNode$C);
+const __iconNode$B = [
   [
     "path",
     {
@@ -16058,8 +16064,8 @@ const __iconNode$A = [
   ["path", { d: "M12 8v4", key: "1got3b" }],
   ["path", { d: "M12 16h.01", key: "1drbdi" }]
 ];
-const ShieldAlert = createLucideIcon("shield-alert", __iconNode$A);
-const __iconNode$z = [
+const ShieldAlert = createLucideIcon("shield-alert", __iconNode$B);
+const __iconNode$A = [
   [
     "path",
     {
@@ -16069,8 +16075,8 @@ const __iconNode$z = [
   ],
   ["path", { d: "m4.243 5.21 14.39 12.472", key: "1c9a7c" }]
 ];
-const ShieldBan = createLucideIcon("shield-ban", __iconNode$z);
-const __iconNode$y = [
+const ShieldBan = createLucideIcon("shield-ban", __iconNode$A);
+const __iconNode$z = [
   [
     "path",
     {
@@ -16080,8 +16086,8 @@ const __iconNode$y = [
   ],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const ShieldCheck = createLucideIcon("shield-check", __iconNode$y);
-const __iconNode$x = [
+const ShieldCheck = createLucideIcon("shield-check", __iconNode$z);
+const __iconNode$y = [
   [
     "path",
     {
@@ -16090,8 +16096,8 @@ const __iconNode$x = [
     }
   ]
 ];
-const Shield = createLucideIcon("shield", __iconNode$x);
-const __iconNode$w = [
+const Shield = createLucideIcon("shield", __iconNode$y);
+const __iconNode$x = [
   ["circle", { cx: "8", cy: "21", r: "1", key: "jimo8o" }],
   ["circle", { cx: "19", cy: "21", r: "1", key: "13723u" }],
   [
@@ -16102,8 +16108,8 @@ const __iconNode$w = [
     }
   ]
 ];
-const ShoppingCart = createLucideIcon("shopping-cart", __iconNode$w);
-const __iconNode$v = [
+const ShoppingCart = createLucideIcon("shopping-cart", __iconNode$x);
+const __iconNode$w = [
   ["path", { d: "M10 5H3", key: "1qgfaw" }],
   ["path", { d: "M12 19H3", key: "yhmn1j" }],
   ["path", { d: "M14 3v4", key: "1sua03" }],
@@ -16114,8 +16120,8 @@ const __iconNode$v = [
   ["path", { d: "M8 10v4", key: "tgpxqk" }],
   ["path", { d: "M8 12H3", key: "a7s4jb" }]
 ];
-const SlidersHorizontal = createLucideIcon("sliders-horizontal", __iconNode$v);
-const __iconNode$u = [
+const SlidersHorizontal = createLucideIcon("sliders-horizontal", __iconNode$w);
+const __iconNode$v = [
   ["path", { d: "M10 8h4", key: "1sr2af" }],
   ["path", { d: "M12 21v-9", key: "17s77i" }],
   ["path", { d: "M12 8V3", key: "13r4qs" }],
@@ -16126,13 +16132,13 @@ const __iconNode$u = [
   ["path", { d: "M5 10V3", key: "cb8scm" }],
   ["path", { d: "M5 21v-7", key: "1w1uti" }]
 ];
-const SlidersVertical = createLucideIcon("sliders-vertical", __iconNode$u);
-const __iconNode$t = [
+const SlidersVertical = createLucideIcon("sliders-vertical", __iconNode$v);
+const __iconNode$u = [
   ["rect", { width: "14", height: "20", x: "5", y: "2", rx: "2", ry: "2", key: "1yt0o3" }],
   ["path", { d: "M12 18h.01", key: "mhygvu" }]
 ];
-const Smartphone = createLucideIcon("smartphone", __iconNode$t);
-const __iconNode$s = [
+const Smartphone = createLucideIcon("smartphone", __iconNode$u);
+const __iconNode$t = [
   [
     "path",
     {
@@ -16144,8 +16150,8 @@ const __iconNode$s = [
   ["path", { d: "M22 4h-4", key: "gwowj6" }],
   ["circle", { cx: "4", cy: "20", r: "2", key: "6kqj1y" }]
 ];
-const Sparkles = createLucideIcon("sparkles", __iconNode$s);
-const __iconNode$r = [
+const Sparkles = createLucideIcon("sparkles", __iconNode$t);
+const __iconNode$s = [
   ["path", { d: "M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7", key: "1m0v6g" }],
   [
     "path",
@@ -16155,14 +16161,14 @@ const __iconNode$r = [
     }
   ]
 ];
-const SquarePen = createLucideIcon("square-pen", __iconNode$r);
-const __iconNode$q = [
+const SquarePen = createLucideIcon("square-pen", __iconNode$s);
+const __iconNode$r = [
   ["path", { d: "m7 11 2-2-2-2", key: "1lz0vl" }],
   ["path", { d: "M11 13h4", key: "1p7l4v" }],
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", ry: "2", key: "1m3agn" }]
 ];
-const SquareTerminal = createLucideIcon("square-terminal", __iconNode$q);
-const __iconNode$p = [
+const SquareTerminal = createLucideIcon("square-terminal", __iconNode$r);
+const __iconNode$q = [
   [
     "path",
     {
@@ -16171,8 +16177,8 @@ const __iconNode$p = [
     }
   ]
 ];
-const Star = createLucideIcon("star", __iconNode$p);
-const __iconNode$o = [
+const Star = createLucideIcon("star", __iconNode$q);
+const __iconNode$p = [
   [
     "path",
     {
@@ -16182,8 +16188,8 @@ const __iconNode$o = [
   ],
   ["path", { d: "M15 3v5a1 1 0 0 0 1 1h5", key: "6s6qgf" }]
 ];
-const StickyNote = createLucideIcon("sticky-note", __iconNode$o);
-const __iconNode$n = [
+const StickyNote = createLucideIcon("sticky-note", __iconNode$p);
+const __iconNode$o = [
   ["circle", { cx: "12", cy: "12", r: "4", key: "4exip2" }],
   ["path", { d: "M12 2v2", key: "tus03m" }],
   ["path", { d: "M12 20v2", key: "1lh1kg" }],
@@ -16194,8 +16200,8 @@ const __iconNode$n = [
   ["path", { d: "m6.34 17.66-1.41 1.41", key: "1m8zz5" }],
   ["path", { d: "m19.07 4.93-1.41 1.41", key: "1shlcs" }]
 ];
-const Sun = createLucideIcon("sun", __iconNode$n);
-const __iconNode$m = [
+const Sun = createLucideIcon("sun", __iconNode$o);
+const __iconNode$n = [
   [
     "path",
     {
@@ -16204,15 +16210,15 @@ const __iconNode$m = [
     }
   ]
 ];
-const Table2 = createLucideIcon("table-2", __iconNode$m);
-const __iconNode$l = [
+const Table2 = createLucideIcon("table-2", __iconNode$n);
+const __iconNode$m = [
   ["path", { d: "M12 3v18", key: "108xh3" }],
   ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }],
   ["path", { d: "M3 9h18", key: "1pudct" }],
   ["path", { d: "M3 15h18", key: "5xshup" }]
 ];
-const Table = createLucideIcon("table", __iconNode$l);
-const __iconNode$k = [
+const Table = createLucideIcon("table", __iconNode$m);
+const __iconNode$l = [
   [
     "path",
     {
@@ -16222,7 +16228,13 @@ const __iconNode$k = [
   ],
   ["circle", { cx: "7.5", cy: "7.5", r: ".5", fill: "currentColor", key: "kqv944" }]
 ];
-const Tag = createLucideIcon("tag", __iconNode$k);
+const Tag = createLucideIcon("tag", __iconNode$l);
+const __iconNode$k = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["circle", { cx: "12", cy: "12", r: "6", key: "1vlfrh" }],
+  ["circle", { cx: "12", cy: "12", r: "2", key: "1c9p78" }]
+];
+const Target = createLucideIcon("target", __iconNode$k);
 const __iconNode$j = [
   ["path", { d: "M12 19h8", key: "baeox8" }],
   ["path", { d: "m4 17 6-6-6-6", key: "1yngyt" }]
@@ -16525,6 +16537,7 @@ const ru = {
     "hide": "Скрыть",
     "showDetails": "Показать детали",
     "copied": "Скопировано",
+    "colResizeHint": "Потяните, чтобы изменить ширину · двойной клик — сброс",
     "selectAll": "Выбрать все",
     "orManual": "Или настроить вручную",
     "connectModeManual": "Прямое подключение (токен)",
@@ -16903,13 +16916,31 @@ const ru = {
     "metricEpc": "EPC (подтверждённый)",
     "metricRoi": "ROI (подтверждённый)",
     "needsCost": "нужны затраты",
-    "needsCostHint": "ROI и EPC требуют затрат: подключите синк расходов или задайте ручную стоимость кампании.",
-    "minSample": "Мин. выборка на элемент",
-    "lookback": "Окно, дней",
-    "floor": "Пол, %",
-    "cap": "Потолок, %",
-    "interval": "Переоценка, мин",
-    "conditionsHint": "Элементы без выборки сохраняют равную долю и не участвуют в конкуренции. Включённые не падают ниже пола и не превышают потолок; один проход двигает максимум 20 пунктов.",
+    "needsCostHint": "ROI требует затрат: подключите синк расходов или задайте ручную стоимость кампании.",
+    "minSampleLabel": "Подтверждённые продажи до участия в дележе",
+    "minSampleHint": "Пока столько продаж не набрано, элемент держит равную долю и не выигрывает и не проигрывает трафик.",
+    "lookbackPrefix": "Смотрим на последние",
+    "lookbackUnitForms": "дн.",
+    "lookbackHint": "Считаются только конверсии внутри этого окна. Более старые не учитываются.",
+    "floorPrefix": "Никогда не отправлять меньше",
+    "floorHint": "Проигравший сохраняет эту долю — будет шанс отыграться.",
+    "capPrefix": "Никогда не отправлять больше",
+    "capHint": "Даже лидер не получает больше — остальные остаются измеримыми.",
+    "intervalPrefix": "Пересчитывать каждые",
+    "intervalSuffix": "мин",
+    "intervalHint": "Как часто пересчитываются веса.",
+    "pctSuffix": "%",
+    "exampleShare": "Сейчас {count} {items}, каждому по {share}%.",
+    "exampleNeeds": "{Item} начинает забирать трафик, когда наберёт {min} {sales} за последние {days} {daysWord}.",
+    "exampleBounds": "Ниже {floor}% и выше {cap}% не бывает, а веса сдвигаются максимум на {move} {points} в час.",
+    "exampleFew": "Включите хотя бы два элемента — иначе делить нечего.",
+    "itemOfferForms": "оффер|оффера|офферов",
+    "itemLandingForms": "лендинг|лендинга|лендингов",
+    "itemOfferOne": "оффер",
+    "itemLandingOne": "лендинг",
+    "salesForms": "подтверждённую продажу|подтверждённые продажи|подтверждённых продаж",
+    "daysForms": "день|дня|дней",
+    "pointsForms": "пункт|пункта|пунктов",
     "lastUpdated": "Обновлено",
     "waitingFirstRun": "Ожидание первого прохода оптимизатора…",
     "skippedNoCost": "Пропущено: у кампании нет затрат",
@@ -18221,6 +18252,8 @@ const ru = {
     "networkError": "Ошибка сети",
     "deleteConfirm": "Удалить группу? Офферы в этой группе будут без группы.",
     "deleteError": "Ошибка удаления",
+    "rename": "Переименовать",
+    "renameError": "Ошибка переименования",
     "close": "Закрыть",
     "loading": "Загрузка..."
   },
@@ -18455,6 +18488,10 @@ const ru = {
   },
   "table": {
     "copyLink": "Копировать ссылку",
+    "campaignUrl": "Ссылка кампании",
+    "clickLog": "Лог кликов",
+    "conversionLog": "Лог конверсий",
+    "openInNewTab": "Открыть в новой вкладке",
     "duplicate": "Дублировать",
     "perPage": "На странице",
     "showingRows": "Показано {start}-{end} из {total} строк",
@@ -19269,10 +19306,14 @@ const ru = {
     "colorCoral": "Коралловый",
     "showDelay": "Задержка показа, сек",
     "closeOnBackdrop": "Закрывать при клике мимо окна",
-    "phpMode": "Режим выполнения",
-    "phpRedirect": "Редирект на оффер",
-    "phpShowHtml": "Показать как HTML (контент в тело страницы)",
-    "phpGetLink": "Получить ссылку на оффер в переменную",
+    "phpStreamNote": "Что получит посетитель — локальная страница, редирект или белая страница — решают потоки кампании, а не этот сниппет.",
+    "phpSecondaryTitle": "Код для вторичных страниц (необязательно)",
+    "phpSecondaryHint": "Для страниц, на которые лендинг ведёт посетителя дальше: клик продолжает трекаться вместо регистрации нового.",
+    "phpOfferLinkTitle": "Как поставить ссылку на оффер",
+    "phpOfferLinkHint": "getOffer(42) берёт конкретный оффер потока вместо того, который выбрал трекер.",
+    "phpAdvanced": "Получить ссылку на оффер в переменную",
+    "phpAdvancedHint": "getOffer() отдаёт URL оффера, не давая трекеру ничего сделать со страницей — для кнопки, которую вы рисуете сами.",
+    "phpDocs": "Tracking Client (PHP) — полная документация",
     "sendParams": "Пробрасывать UTM / SubID из адресной строки",
     "pixelType": "Тип пикселя",
     "pixelClick": "Клики (email / баннеры)",
@@ -19662,6 +19703,7 @@ const ru = {
   "reportCustomizer": {
     "columnsSelector": "Колонки",
     "restoreDefault": "Вернуть по умолчанию",
+    "resetColumnWidths": "Сбросить ширину колонок",
     "dimCity": "Город",
     "dimRegion": "Регион",
     "dimHour": "Час",
@@ -20137,6 +20179,7 @@ const en = {
     "hide": "Hide",
     "showDetails": "Show details",
     "copied": "Copied",
+    "colResizeHint": "Drag to resize · double-click to reset",
     "selectAll": "Select all",
     "orManual": "Or configure manually",
     "connectModeManual": "Direct connection (token)",
@@ -20515,13 +20558,31 @@ const en = {
     "metricEpc": "EPC (confirmed)",
     "metricRoi": "ROI (confirmed)",
     "needsCost": "needs cost",
-    "needsCostHint": "ROI and EPC need spend: connect a cost sync or set a manual campaign cost to enable them.",
-    "minSample": "Min sample per item",
-    "lookback": "Lookback, days",
-    "floor": "Floor, %",
-    "cap": "Cap, %",
-    "interval": "Re-check, min",
-    "conditionsHint": "Items below the sample keep an equal share and don't compete. Enabled items never drop under the floor or exceed the cap; one run moves at most 20 points.",
+    "needsCostHint": "ROI needs spend: connect a cost sync or set a manual campaign cost to enable it.",
+    "minSampleLabel": "Confirmed sales before an item competes",
+    "minSampleHint": "Until it reaches this many confirmed sales, an item keeps an equal share and can't win or lose traffic.",
+    "lookbackPrefix": "Look at the last",
+    "lookbackUnitForms": "day|days",
+    "lookbackHint": "Only conversions inside this window count. Older data is ignored.",
+    "floorPrefix": "Never send less than",
+    "floorHint": "A losing item keeps this share so it can prove itself later.",
+    "capPrefix": "Never send more than",
+    "capHint": "Even the best item is capped, so the others stay measurable.",
+    "intervalPrefix": "Re-check every",
+    "intervalSuffix": "min",
+    "intervalHint": "How often weights are recalculated.",
+    "pctSuffix": "%",
+    "exampleShare": "{count} {items}, {share}% each right now.",
+    "exampleNeeds": "Each {item} needs {min} {sales} in the last {days} {daysWord} before it starts winning traffic.",
+    "exampleBounds": "Nothing drops below {floor}% or goes above {cap}%, and weights move at most {move} {points} per hour.",
+    "exampleFew": "Enable at least two items — with fewer there is nothing to split.",
+    "itemOfferForms": "offer|offers",
+    "itemLandingForms": "landing|landings",
+    "itemOfferOne": "offer",
+    "itemLandingOne": "landing",
+    "salesForms": "confirmed sale|confirmed sales",
+    "daysForms": "day|days",
+    "pointsForms": "point|points",
     "lastUpdated": "Updated",
     "waitingFirstRun": "Waiting for the first optimiser run…",
     "skippedNoCost": "Skipped: the campaign has no cost",
@@ -21833,6 +21894,8 @@ const en = {
     "networkError": "Network error",
     "deleteConfirm": "Delete group? Offers in this group will be ungrouped.",
     "deleteError": "Deletion error",
+    "rename": "Rename",
+    "renameError": "Rename error",
     "close": "Close",
     "loading": "Loading..."
   },
@@ -22092,6 +22155,10 @@ const en = {
   },
   "table": {
     "copyLink": "Copy link",
+    "campaignUrl": "Campaign URL",
+    "clickLog": "Click log",
+    "conversionLog": "Conversion log",
+    "openInNewTab": "Open in new tab",
     "duplicate": "Duplicate",
     "perPage": "Per page",
     "showingRows": "Showing {start}-{end} of {total} rows",
@@ -22881,10 +22948,14 @@ const en = {
     "colorCoral": "Coral",
     "showDelay": "Show delay, seconds",
     "closeOnBackdrop": "Close on backdrop click",
-    "phpMode": "Execution mode",
-    "phpRedirect": "Redirect to offer",
-    "phpShowHtml": "Show as HTML (content in page body)",
-    "phpGetLink": "Get offer link into a variable",
+    "phpStreamNote": "What the visitor gets — a local page, a redirect, or the white page — is decided by the campaign's streams, not by this snippet.",
+    "phpSecondaryTitle": "Code for secondary pages (optional)",
+    "phpSecondaryHint": "For pages the landing sends visitors on to: the click keeps being tracked instead of a new one being registered.",
+    "phpOfferLinkTitle": "How to link to the offer",
+    "phpOfferLinkHint": "getOffer(42) picks a specific offer of the stream instead of the one the tracker chose.",
+    "phpAdvanced": "Get the offer link into a variable",
+    "phpAdvancedHint": "getOffer() hands you the offer URL without letting the tracker act on the page — for a button you draw yourself.",
+    "phpDocs": "Tracking Client (PHP) — full reference",
     "sendParams": "Pass UTM / SubID parameters from the URL",
     "pixelType": "Pixel type",
     "pixelClick": "Click Tracking (email / banners)",
@@ -23274,6 +23345,7 @@ const en = {
   "reportCustomizer": {
     "columnsSelector": "Columns",
     "restoreDefault": "Restore to default",
+    "resetColumnWidths": "Reset column widths",
     "dimCity": "City",
     "dimRegion": "Region",
     "dimHour": "Hour",
@@ -23749,6 +23821,7 @@ const uk = {
     "hide": "Сховати",
     "showDetails": "Показати деталі",
     "copied": "Скопійовано",
+    "colResizeHint": "Потягніть, щоб змінити ширину · подвійний клік — скинути",
     "selectAll": "Вибрати все",
     "orManual": "Або налаштувати вручну",
     "connectModeManual": "Пряме підключення (токен)",
@@ -24127,13 +24200,31 @@ const uk = {
     "metricEpc": "EPC (підтверджений)",
     "metricRoi": "ROI (підтверджений)",
     "needsCost": "потрібні витрати",
-    "needsCostHint": "ROI і EPC потребують витрат: підключіть синк витрат або задайте ручну вартість кампанії.",
-    "minSample": "Мін. вибірка на елемент",
-    "lookback": "Вікно, днів",
-    "floor": "Підлога, %",
-    "cap": "Стеля, %",
-    "interval": "Переоцінка, хв",
-    "conditionsHint": "Елементи без вибірки зберігають рівну частку і не конкурують. Увімкнені не падають нижче підлоги й не перевищують стелю; один прохід рухає максимум 20 пунктів.",
+    "needsCostHint": "ROI потребує витрат: підключіть синк витрат або задайте ручну вартість кампанії.",
+    "minSampleLabel": "Підтверджені продажі до участі в розподілі",
+    "minSampleHint": "Поки стільки продажів не набрано, елемент тримає рівну частку — не виграє і не програє трафік.",
+    "lookbackPrefix": "Дивимось на останні",
+    "lookbackUnitForms": "дн.",
+    "lookbackHint": "Рахуються лише конверсії всередині цього вікна. Старіші не враховуються.",
+    "floorPrefix": "Ніколи не надсилати менше",
+    "floorHint": "Той, хто програє, зберігає цю частку — буде шанс відігратися.",
+    "capPrefix": "Ніколи не надсилати більше",
+    "capHint": "Навіть лідер не отримує більше — решта залишаються вимірюваними.",
+    "intervalPrefix": "Перераховувати кожні",
+    "intervalSuffix": "хв",
+    "intervalHint": "Як часто перераховуються ваги.",
+    "pctSuffix": "%",
+    "exampleShare": "Зараз {count} {items}, кожному по {share}%.",
+    "exampleNeeds": "{Item} починає забирати трафік, коли набере {min} {sales} за останні {days} {daysWord}.",
+    "exampleBounds": "Нижче {floor}% і вище {cap}% не буває, а ваги зсуваються щонайбільше на {move} {points} за годину.",
+    "exampleFew": "Увімкніть принаймні два елементи — інакше ділити нічого.",
+    "itemOfferForms": "офер|офера|оферів",
+    "itemLandingForms": "лендінг|лендінги|лендінгів",
+    "itemOfferOne": "офер",
+    "itemLandingOne": "лендінг",
+    "salesForms": "підтверджену продаж|підтверджені продажі|підтверджених продажів",
+    "daysForms": "день|дні|днів",
+    "pointsForms": "пункт|пункти|пунктів",
     "lastUpdated": "Оновлено",
     "waitingFirstRun": "Очікування першого проходу оптимізатора…",
     "skippedNoCost": "Пропущено: у кампанії немає витрат",
@@ -25445,6 +25536,8 @@ const uk = {
     "networkError": "Помилка мережі",
     "deleteConfirm": "Видалити групу? Пропозиції в цій групі буде розгруповано.",
     "deleteError": "Помилка видалення",
+    "rename": "Перейменувати",
+    "renameError": "Помилка перейменування",
     "close": "Закрити",
     "loading": "Завантаження..."
   },
@@ -25704,6 +25797,10 @@ const uk = {
   },
   "table": {
     "copyLink": "Копіювати посилання",
+    "campaignUrl": "Посилання кампанії",
+    "clickLog": "Лог кліків",
+    "conversionLog": "Лог конверсій",
+    "openInNewTab": "Відкрити в новій вкладці",
     "duplicate": "Дублювати",
     "perPage": "На сторінці",
     "showingRows": "Показано {start}-{end} з {total} рядків",
@@ -26493,10 +26590,14 @@ const uk = {
     "colorCoral": "Кораловий",
     "showDelay": "Затримка показу, сек",
     "closeOnBackdrop": "Закривати при кліку повз вікно",
-    "phpMode": "Режим виконання",
-    "phpRedirect": "Редирект на оффер",
-    "phpShowHtml": "Показати як HTML (контент у тіло сторінки)",
-    "phpGetLink": "Отримати посилання на оффер у змінну",
+    "phpStreamNote": "Що отримає відвідувач — локальна сторінка, редирект чи біла сторінка — вирішують потоки кампанії, а не цей сніпет.",
+    "phpSecondaryTitle": "Код для вторинних сторінок (необов'язково)",
+    "phpSecondaryHint": "Для сторінок, куди лендинг веде відвідувача далі: клік і далі трекається замість реєстрації нового.",
+    "phpOfferLinkTitle": "Як поставити посилання на оффер",
+    "phpOfferLinkHint": "getOffer(42) бере конкретний оффер потоку замість того, який обрав трекер.",
+    "phpAdvanced": "Отримати посилання на оффер у змінну",
+    "phpAdvancedHint": "getOffer() віддає URL оффера, не даючи трекеру нічого зробити зі сторінкою — для кнопки, яку ви малюєте самі.",
+    "phpDocs": "Tracking Client (PHP) — повна документація",
     "sendParams": "Пробрасовувати UTM / SubID з адресного рядка",
     "pixelType": "Тип пікселя",
     "pixelClick": "Кліки (email / банери)",
@@ -26886,6 +26987,7 @@ const uk = {
   "reportCustomizer": {
     "columnsSelector": "Колонки",
     "restoreDefault": "Відновити стандартні",
+    "resetColumnWidths": "Скинути ширину колонок",
     "dimCity": "Місто",
     "dimRegion": "Регіон",
     "dimHour": "Година",
@@ -27361,6 +27463,7 @@ const es = {
     "hide": "Ocultar",
     "showDetails": "Mostrar detalles",
     "copied": "Copiado",
+    "colResizeHint": "Arrastra para cambiar el ancho · doble clic para restablecer",
     "selectAll": "Seleccionar todo",
     "orManual": "O configurar manualmente",
     "connectModeManual": "Conexión directa (token)",
@@ -27739,13 +27842,31 @@ const es = {
     "metricEpc": "EPC (confirmado)",
     "metricRoi": "ROI (confirmado)",
     "needsCost": "requiere coste",
-    "needsCostHint": "ROI y EPC necesitan gasto: conecta una sincronización de costes o define un coste manual de campaña.",
-    "minSample": "Muestra mínima por elemento",
-    "lookback": "Ventana, días",
-    "floor": "Suelo, %",
-    "cap": "Techo, %",
-    "interval": "Reevaluación, min",
-    "conditionsHint": "Los elementos sin muestra conservan una parte igual y no compiten. Los activados no bajan del suelo ni superan el techo; una pasada mueve como máximo 20 puntos.",
+    "needsCostHint": "ROI necesita gasto: conecta una sincronización de costes o define un coste manual de campaña.",
+    "minSampleLabel": "Ventas confirmadas antes de competir",
+    "minSampleHint": "Hasta alcanzar ese número de ventas confirmadas, un elemento mantiene una parte igual: no gana ni pierde tráfico.",
+    "lookbackPrefix": "Mirar los últimos",
+    "lookbackUnitForms": "día|días",
+    "lookbackHint": "Solo cuentan las conversiones de esta ventana. Los datos más antiguos se ignoran.",
+    "floorPrefix": "Nunca enviar menos del",
+    "floorHint": "Un elemento perdedor conserva esta parte para poder reivindicarse más tarde.",
+    "capPrefix": "Nunca enviar más del",
+    "capHint": "Incluso el mejor elemento tiene techo, para que los demás sigan siendo medibles.",
+    "intervalPrefix": "Revisar cada",
+    "intervalSuffix": "min",
+    "intervalHint": "Con qué frecuencia se recalculan los pesos.",
+    "pctSuffix": "%",
+    "exampleShare": "{count} {items}, {share}% por elemento ahora mismo.",
+    "exampleNeeds": "Cada {item} necesita {min} {sales} en los últimos {days} {daysWord} antes de empezar a ganar tráfico.",
+    "exampleBounds": "Nada baja de {floor}% ni supera {cap}%, y los pesos se mueven como máximo {move} {points} por hora.",
+    "exampleFew": "Activa al menos dos elementos — si no, no hay nada que repartir.",
+    "itemOfferForms": "oferta|ofertas",
+    "itemLandingForms": "landing|landings",
+    "itemOfferOne": "oferta",
+    "itemLandingOne": "landing",
+    "salesForms": "venta confirmada|ventas confirmadas",
+    "daysForms": "día|días",
+    "pointsForms": "punto|puntos",
     "lastUpdated": "Actualizado",
     "waitingFirstRun": "Esperando la primera pasada del optimizador…",
     "skippedNoCost": "Omitido: la campaña no tiene coste",
@@ -29057,6 +29178,8 @@ const es = {
     "networkError": "error de red",
     "deleteConfirm": "¿Eliminar grupo? Las ofertas de este grupo se desagruparán.",
     "deleteError": "Error de eliminación",
+    "rename": "Renombrar",
+    "renameError": "Error al renombrar",
     "close": "Cerrar",
     "loading": "Cargando..."
   },
@@ -29316,6 +29439,10 @@ const es = {
   },
   "table": {
     "copyLink": "Copiar enlace",
+    "campaignUrl": "URL de la campaña",
+    "clickLog": "Registro de clics",
+    "conversionLog": "Registro de conversiones",
+    "openInNewTab": "Abrir en una pestaña nueva",
     "duplicate": "Duplicar",
     "perPage": "Por página",
     "showingRows": "Mostrando {start}-{end} de {total} filas",
@@ -30105,10 +30232,14 @@ const es = {
     "colorCoral": "Coral",
     "showDelay": "Retardo de muestra, seg.",
     "closeOnBackdrop": "Cerrar al hacer clic fuera",
-    "phpMode": "Modo de ejecución",
-    "phpRedirect": "Redirigir a la oferta",
-    "phpShowHtml": "Mostrar como HTML (contenido en la página)",
-    "phpGetLink": "Obtener enlace de la oferta en una variable",
+    "phpStreamNote": "Lo que recibe el visitante — una página local, una redirección o la página blanca — lo deciden los flujos de la campaña, no este fragmento.",
+    "phpSecondaryTitle": "Código para páginas secundarias (opcional)",
+    "phpSecondaryHint": "Para las páginas a las que la landing envía al visitante: el clic se sigue rastreando en vez de registrar uno nuevo.",
+    "phpOfferLinkTitle": "Cómo enlazar a la oferta",
+    "phpOfferLinkHint": "getOffer(42) toma una oferta concreta del flujo en lugar de la que eligió el tracker.",
+    "phpAdvanced": "Obtener el enlace de la oferta en una variable",
+    "phpAdvancedHint": "getOffer() devuelve la URL de la oferta sin dejar que el tracker actúe sobre la página — para un botón que dibujas tú.",
+    "phpDocs": "Tracking Client (PHP) — referencia completa",
     "sendParams": "Pasar parámetros UTM / SubID de la URL",
     "pixelType": "Tipo de píxel",
     "pixelClick": "Seguimiento de clics (email / banners)",
@@ -30498,6 +30629,7 @@ const es = {
   "reportCustomizer": {
     "columnsSelector": "Columnas",
     "restoreDefault": "Restaurar valores predeterminados",
+    "resetColumnWidths": "Restablecer ancho de columnas",
     "dimCity": "Ciudad",
     "dimRegion": "Región",
     "dimHour": "Hora",
@@ -30973,6 +31105,7 @@ const zh = {
     "hide": "隐藏",
     "showDetails": "显示详情",
     "copied": "已复制",
+    "colResizeHint": "拖动调整宽度 · 双击重置",
     "selectAll": "全选",
     "orManual": "或手动填写 Token",
     "connectModeManual": "直接连接（令牌）",
@@ -31351,13 +31484,31 @@ const zh = {
     "metricEpc": "EPC（确认）",
     "metricRoi": "ROI（确认）",
     "needsCost": "需要成本",
-    "needsCostHint": "ROI 和 EPC 需要花费数据：连接成本同步或设置手动 campaign 成本。",
-    "minSample": "每项最小样本",
-    "lookback": "窗口，天",
-    "floor": "下限，%",
-    "cap": "上限，%",
-    "interval": "重估间隔，分钟",
-    "conditionsHint": "未达样本的项保持均分且不参与竞争。启用项不会低于下限、不会超过上限；单次最多移动 20 个百分点。",
+    "needsCostHint": "ROI 需要花费数据：连接成本同步或设置手动 campaign 成本。",
+    "minSampleLabel": "参与竞争前所需的确认销量",
+    "minSampleHint": "达到该数量的确认销量之前，项目保持均分，不会赢得也不会失去流量。",
+    "lookbackPrefix": "只看最近",
+    "lookbackUnitForms": "天",
+    "lookbackHint": "只统计该窗口内的转化，更早的数据会被忽略。",
+    "floorPrefix": "流量永远不低于",
+    "floorHint": "落后项目保留这部分流量，之后仍有机会翻盘。",
+    "capPrefix": "流量永远不超过",
+    "capHint": "即使是最好的项目也设上限，其余项目保持可衡量。",
+    "intervalPrefix": "每",
+    "intervalSuffix": "分钟重新计算一次",
+    "intervalHint": "权重重新计算的频率。",
+    "pctSuffix": "%",
+    "exampleShare": "当前 {count} {items}，各占 {share}%。",
+    "exampleNeeds": "{item} 需要在最近 {days} 天内获得 {min} {sales} 才能开始赢得流量。",
+    "exampleBounds": "占比不会低于 {floor}%、不会超过 {cap}%，权重每小时最多变动 {move} {points}。",
+    "exampleFew": "至少启用两个项目，否则无流量可分配。",
+    "itemOfferForms": "个 offer",
+    "itemLandingForms": "个 landing",
+    "itemOfferOne": "offer",
+    "itemLandingOne": "landing",
+    "salesForms": "笔确认销量",
+    "daysForms": "天",
+    "pointsForms": "个百分点",
     "lastUpdated": "更新于",
     "waitingFirstRun": "等待优化器首次运行…",
     "skippedNoCost": "已跳过：campaign 无成本",
@@ -32669,6 +32820,8 @@ const zh = {
     "networkError": "网络错误",
     "deleteConfirm": "删除群组？该组中的优惠将被取消分组。",
     "deleteError": "删除错误",
+    "rename": "重命名",
+    "renameError": "重命名失败",
     "close": "关闭",
     "loading": "正在加载..."
   },
@@ -32928,6 +33081,10 @@ const zh = {
   },
   "table": {
     "copyLink": "复制链接",
+    "campaignUrl": "活动链接",
+    "clickLog": "点击日志",
+    "conversionLog": "转化日志",
+    "openInNewTab": "在新标签页中打开",
     "duplicate": "复制副本",
     "perPage": "每页",
     "showingRows": "显示第 {start}-{end} 条，共 {total} 条",
@@ -33717,10 +33874,14 @@ const zh = {
     "colorCoral": "珊瑚色",
     "showDelay": "显示延迟，秒",
     "closeOnBackdrop": "点击遮罩时关闭",
-    "phpMode": "执行模式",
-    "phpRedirect": "重定向到 offer",
-    "phpShowHtml": "以 HTML 显示（内容嵌入页面）",
-    "phpGetLink": "获取 offer 链接到变量",
+    "phpStreamNote": "访客最终看到什么——本地页面、跳转还是白页——由广告系列的流决定，而不是这段代码。",
+    "phpSecondaryTitle": "二级页面代码（可选）",
+    "phpSecondaryHint": "用于落地页跳转过去的页面：继续跟踪原来的点击，而不是注册一个新点击。",
+    "phpOfferLinkTitle": "如何链接到 offer",
+    "phpOfferLinkHint": "getOffer(42) 会选中流里的指定 offer，而不是跟踪器选出的那个。",
+    "phpAdvanced": "获取 offer 链接到变量",
+    "phpAdvancedHint": "getOffer() 只返回 offer 的 URL，不让跟踪器对页面做任何事——适合自己绘制按钮。",
+    "phpDocs": "Tracking Client (PHP) — 完整文档",
     "sendParams": "透传 URL 中的 UTM / SubID 参数",
     "pixelType": "像素类型",
     "pixelClick": "点击跟踪（邮件 / 横幅）",
@@ -34110,6 +34271,7 @@ const zh = {
   "reportCustomizer": {
     "columnsSelector": "列",
     "restoreDefault": "恢复默认",
+    "resetColumnWidths": "重置列宽",
     "dimCity": "城市",
     "dimRegion": "地区",
     "dimHour": "小时",
@@ -34585,6 +34747,7 @@ const fr = {
     "hide": "Masquer",
     "showDetails": "Afficher les détails",
     "copied": "Copié",
+    "colResizeHint": "Glisser pour redimensionner · double-clic pour réinitialiser",
     "selectAll": "Tout sélectionner",
     "orManual": "Ou configurer manuellement",
     "connectModeManual": "Connexion directe (token)",
@@ -34963,13 +35126,31 @@ const fr = {
     "metricEpc": "EPC (confirmé)",
     "metricRoi": "ROI (confirmé)",
     "needsCost": "nécessite un coût",
-    "needsCostHint": "ROI et EPC exigent des dépenses — connectez une synchronisation des coûts ou définissez un coût manuel de campagne.",
-    "minSample": "Échantillon min. par élément",
-    "lookback": "Fenêtre, jours",
-    "floor": "Plancher, %",
-    "cap": "Plafond, %",
-    "interval": "Réévaluation, min",
-    "conditionsHint": "Les éléments sans échantillon gardent une part égale et ne concourent pas. Les éléments actifs ne descendent pas sous le plancher ni au-dessus du plafond ; une passe déplace au plus 20 points.",
+    "needsCostHint": "ROI exige des dépenses — connectez une synchronisation des coûts ou définissez un coût manuel de campagne.",
+    "minSampleLabel": "Ventes confirmées avant de concourir",
+    "minSampleHint": "Avant d'atteindre ce nombre de ventes confirmées, un élément garde une part égale — il ne gagne ni ne perd de trafic.",
+    "lookbackPrefix": "Regarder les",
+    "lookbackUnitForms": "dernier jour|derniers jours",
+    "lookbackHint": "Seules les conversions de cette fenêtre comptent. Les données plus anciennes sont ignorées.",
+    "floorPrefix": "Ne jamais envoyer moins de",
+    "floorHint": "Un élément perdant garde cette part pour pouvoir faire ses preuves plus tard.",
+    "capPrefix": "Ne jamais envoyer plus de",
+    "capHint": "Même le meilleur élément est plafonné, pour que les autres restent mesurables.",
+    "intervalPrefix": "Revérifier toutes les",
+    "intervalSuffix": "min",
+    "intervalHint": "Fréquence de recalcul des poids.",
+    "pctSuffix": " %",
+    "exampleShare": "{count} {items}, {share} % chacune pour l'instant.",
+    "exampleNeeds": "Une {item} doit réaliser {min} {sales} sur les {days} derniers {daysWord} avant de commencer à gagner du trafic.",
+    "exampleBounds": "Rien ne descend sous {floor} % ni ne dépasse {cap} %, et les poids évoluent d'au plus {move} {points} par heure.",
+    "exampleFew": "Activez au moins deux éléments — sinon il n'y a rien à répartir.",
+    "itemOfferForms": "offre|offres",
+    "itemLandingForms": "landing page|landing pages",
+    "itemOfferOne": "offre",
+    "itemLandingOne": "landing page",
+    "salesForms": "vente confirmée|ventes confirmées",
+    "daysForms": "jour|jours",
+    "pointsForms": "point|points",
     "lastUpdated": "Mis à jour",
     "waitingFirstRun": "En attente de la première passe de l'optimiseur…",
     "skippedNoCost": "Ignoré — la campagne n'a pas de coût",
@@ -36281,6 +36462,8 @@ const fr = {
     "networkError": "Erreur réseau",
     "deleteConfirm": "Supprimer le groupe ? Les offres de ce groupe seront dissociées.",
     "deleteError": "Erreur de suppression",
+    "rename": "Renommer",
+    "renameError": "Erreur lors du renommage",
     "close": "Fermer",
     "loading": "Chargement..."
   },
@@ -36540,6 +36723,10 @@ const fr = {
   },
   "table": {
     "copyLink": "Copier le lien",
+    "campaignUrl": "URL de la campagne",
+    "clickLog": "Journal des clics",
+    "conversionLog": "Journal des conversions",
+    "openInNewTab": "Ouvrir dans un nouvel onglet",
     "duplicate": "Dupliquer",
     "perPage": "Par page",
     "showingRows": "Affichage de {start}-{end} sur {total} lignes",
@@ -37331,10 +37518,14 @@ const fr = {
     "colorCoral": "Corail",
     "showDelay": "Délai d'affichage, sec.",
     "closeOnBackdrop": "Fermer au clic à l'extérieur",
-    "phpMode": "Mode d'exécution",
-    "phpRedirect": "Rediriger vers l'offre",
-    "phpShowHtml": "Afficher en HTML (contenu dans la page)",
-    "phpGetLink": "Récupérer le lien de l'offre dans une variable",
+    "phpStreamNote": "Ce que reçoit le visiteur — une page locale, une redirection ou la page blanche — est décidé par les flux de la campagne, pas par ce snippet.",
+    "phpSecondaryTitle": "Code pour les pages secondaires (facultatif)",
+    "phpSecondaryHint": "Pour les pages vers lesquelles la landing envoie le visiteur : le clic continue d'être suivi au lieu d'en enregistrer un nouveau.",
+    "phpOfferLinkTitle": "Comment créer le lien vers l'offre",
+    "phpOfferLinkHint": "getOffer(42) prend une offre précise du flux au lieu de celle choisie par le tracker.",
+    "phpAdvanced": "Récupérer le lien de l'offre dans une variable",
+    "phpAdvancedHint": "getOffer() renvoie l'URL de l'offre sans laisser le tracker agir sur la page — pour un bouton que vous dessinez vous-même.",
+    "phpDocs": "Tracking Client (PHP) — référence complète",
     "sendParams": "Transmettre les paramètres UTM / SubID de l'URL",
     "pixelType": "Type de pixel",
     "pixelClick": "Suivi des clics (e-mail / bannières)",
@@ -37724,6 +37915,7 @@ const fr = {
   "reportCustomizer": {
     "columnsSelector": "Colonnes",
     "restoreDefault": "Restaurer par défaut",
+    "resetColumnWidths": "Réinitialiser la largeur des colonnes",
     "dimCity": "Ville",
     "dimRegion": "Région",
     "dimHour": "Heure",
@@ -38199,6 +38391,7 @@ const de = {
     "hide": "Ausblenden",
     "showDetails": "Details anzeigen",
     "copied": "Kopiert",
+    "colResizeHint": "Ziehen zum Anpassen der Breite · Doppelklick setzt zurück",
     "selectAll": "Alle auswählen",
     "orManual": "Oder manuell konfigurieren",
     "connectModeManual": "Direkte Verbindung (Token)",
@@ -38577,13 +38770,31 @@ const de = {
     "metricEpc": "EPC (bestätigt)",
     "metricRoi": "ROI (bestätigt)",
     "needsCost": "benötigt Kosten",
-    "needsCostHint": "ROI und EPC brauchen Ausgaben — verbinde eine Kosten-Synchronisierung oder hinterlege manuelle Kampagnenkosten.",
-    "minSample": "Min. Stichprobe pro Element",
-    "lookback": "Zeitfenster, Tage",
-    "floor": "Untergrenze, %",
-    "cap": "Obergrenze, %",
-    "interval": "Neubewertung, Min.",
-    "conditionsHint": "Elemente ohne Stichprobe behalten einen gleichen Anteil und konkurrieren nicht. Aktive Elemente bleiben zwischen Unter- und Obergrenze; ein Durchlauf bewegt höchstens 20 Punkte.",
+    "needsCostHint": "ROI braucht Ausgaben — verbinde eine Kosten-Synchronisierung oder hinterlege manuelle Kampagnenkosten.",
+    "minSampleLabel": "Bestätigte Verkäufe, bevor ein Element konkurriert",
+    "minSampleHint": "Bis zu dieser Anzahl bestätigter Verkäufe behält ein Element eine gleich große Quote — es kann keinen Traffic gewinnen oder verlieren.",
+    "lookbackPrefix": "Betrachte die letzten",
+    "lookbackUnitForms": "Tag|Tage",
+    "lookbackHint": "Nur Konversionen in diesem Fenster zählen. Ältere Daten werden ignoriert.",
+    "floorPrefix": "Nie weniger senden als",
+    "floorHint": "Ein unterlegenes Element behält diese Quote, um sich später beweisen zu können.",
+    "capPrefix": "Nie mehr senden als",
+    "capHint": "Auch das beste Element wird gedeckelt — die anderen bleiben messbar.",
+    "intervalPrefix": "Neubewertung alle",
+    "intervalSuffix": "Min.",
+    "intervalHint": "Wie oft die Gewichte neu berechnet werden.",
+    "pctSuffix": " %",
+    "exampleShare": "{count} {items}, aktuell je {share} %.",
+    "exampleNeeds": "Ein {item} braucht {min} {sales} in den letzten {days} {daysWord}, bevor es Traffic gewinnen kann.",
+    "exampleBounds": "Nichts fällt unter {floor} % oder steigt über {cap} %, und die Gewichte bewegen sich um höchstens {move} {points} pro Stunde.",
+    "exampleFew": "Aktiviere mindestens zwei Elemente — sonst gibt es nichts zu verteilen.",
+    "itemOfferForms": "Angebot|Angebote",
+    "itemLandingForms": "Landing|Landings",
+    "itemOfferOne": "Angebot",
+    "itemLandingOne": "Landing",
+    "salesForms": "bestätigter Verkauf|bestätigte Verkäufe",
+    "daysForms": "Tag|Tagen",
+    "pointsForms": "Punkt|Punkte",
     "lastUpdated": "Aktualisiert",
     "waitingFirstRun": "Warte auf den ersten Optimierer-Lauf…",
     "skippedNoCost": "Übersprungen — die Kampagne hat keine Kosten",
@@ -39895,6 +40106,8 @@ const de = {
     "networkError": "Netzwerkfehler",
     "deleteConfirm": "Gruppe löschen? Die Gruppierung der Angebote in dieser Gruppe wird aufgehoben.",
     "deleteError": "Löschfehler",
+    "rename": "Umbenennen",
+    "renameError": "Fehler beim Umbenennen",
     "close": "Schließen",
     "loading": "Laden..."
   },
@@ -40154,6 +40367,10 @@ const de = {
   },
   "table": {
     "copyLink": "Link kopieren",
+    "campaignUrl": "Kampagnen-URL",
+    "clickLog": "Klick-Log",
+    "conversionLog": "Conversion-Log",
+    "openInNewTab": "In neuem Tab öffnen",
     "duplicate": "Duplizieren",
     "perPage": "Pro Seite",
     "showingRows": "Zeige {start}-{end} von {total} Zeilen",
@@ -40943,10 +41160,14 @@ const de = {
     "colorCoral": "Koralle",
     "showDelay": "Anzeigeverzögerung, Sek.",
     "closeOnBackdrop": "Bei Klick außerhalb schließen",
-    "phpMode": "Ausführungsmodus",
-    "phpRedirect": "Weiterleitung zum Angebot",
-    "phpShowHtml": "Als HTML anzeigen (Inhalt im Seitenkörper)",
-    "phpGetLink": "Angebotslink in eine Variable",
+    "phpStreamNote": "Was der Besucher bekommt — eine lokale Seite, eine Weiterleitung oder die weiße Seite — entscheiden die Streams der Kampagne, nicht dieses Snippet.",
+    "phpSecondaryTitle": "Code für Folgeseiten (optional)",
+    "phpSecondaryHint": "Für Seiten, auf die die Landingpage weiterleitet: der Klick wird weiter getrackt, statt einen neuen zu registrieren.",
+    "phpOfferLinkTitle": "So verlinkst du auf das Angebot",
+    "phpOfferLinkHint": "getOffer(42) wählt ein bestimmtes Angebot des Streams statt des vom Tracker gewählten.",
+    "phpAdvanced": "Angebotslink in eine Variable holen",
+    "phpAdvancedHint": "getOffer() liefert die Angebots-URL, ohne dass der Tracker die Seite verändert — für einen Button, den du selbst baust.",
+    "phpDocs": "Tracking Client (PHP) — vollständige Referenz",
     "sendParams": "UTM-/SubID-Parameter aus der URL übergeben",
     "pixelType": "Pixeltyp",
     "pixelClick": "Klick-Tracking (E-Mail / Banner)",
@@ -41336,6 +41557,7 @@ const de = {
   "reportCustomizer": {
     "columnsSelector": "Spalten",
     "restoreDefault": "Standard wiederherstellen",
+    "resetColumnWidths": "Spaltenbreiten zurücksetzen",
     "dimCity": "Stadt",
     "dimRegion": "Region",
     "dimHour": "Stunde",
@@ -55489,11 +55711,59 @@ const HelpTooltip = ({ textKey, text, position = "top", size = 15, style = {} })
   ] });
 };
 const API_URL$D = "/api.php";
+const cache = /* @__PURE__ */ new Map();
+const CACHE_TTL = 3e4;
+function getCacheKey(action, params = {}) {
+  const paramStr = Object.keys(params).sort().map((k) => `${k}=${JSON.stringify(params[k])}`).join("&");
+  return `${action}${paramStr ? "?" + paramStr : ""}`;
+}
+function isCacheValid(entry) {
+  if (!entry) return false;
+  return Date.now() - entry.timestamp < entry.ttl;
+}
+async function cachedGet(action, params = {}, ttl = CACHE_TTL) {
+  const cacheKey = getCacheKey(action, params);
+  const cached = cache.get(cacheKey);
+  if (cached && isCacheValid(cached)) {
+    return { data: cached.data, fromCache: true };
+  }
+  const response = await axios.get(API_URL$D, { params: { action, ...params } });
+  if (response.data?.status === "success") {
+    cache.set(cacheKey, {
+      data: response.data,
+      timestamp: Date.now(),
+      ttl
+    });
+  }
+  return { data: response.data, fromCache: false };
+}
+function invalidateCache(pattern) {
+  if (!pattern) {
+    cache.clear();
+    return;
+  }
+  for (const key of cache.keys()) {
+    if (key.includes(pattern)) {
+      cache.delete(key);
+    }
+  }
+}
+async function cachedPost(action, data = {}, params = {}) {
+  const response = await axios.post(API_URL$D, data, { params: { action, ...params } });
+  if (response.data?.status === "success") {
+    cache.clear();
+  }
+  return response;
+}
+const API_URL$C = "/api.php";
 const GroupsModal = ({ type, onClose, onGroupCreated }) => {
   const { t } = useLanguage();
   const [groups, setGroups] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(true);
   const [newGroupName, setNewGroupName] = reactExports.useState("");
+  const [editingId, setEditingId] = reactExports.useState(null);
+  const [editingName, setEditingName] = reactExports.useState("");
+  const [renaming, setRenaming] = reactExports.useState(false);
   const getEndpoint = () => {
     switch (type) {
       case "offer":
@@ -55522,6 +55792,20 @@ const GroupsModal = ({ type, onClose, onGroupCreated }) => {
         return "delete_offer_group";
     }
   };
+  const getRenameEndpoint = () => {
+    switch (type) {
+      case "offer":
+        return "rename_offer_group";
+      case "landing":
+        return "rename_landing_group";
+      case "campaign":
+        return "rename_campaign_group";
+      case "domain":
+        return "rename_domain_group";
+      default:
+        return "rename_offer_group";
+    }
+  };
   const getTitle = () => {
     switch (type) {
       case "offer":
@@ -55543,7 +55827,7 @@ const GroupsModal = ({ type, onClose, onGroupCreated }) => {
   const fetchGroups = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL$D}?action=${endpoint}`);
+      const res = await axios.get(`${API_URL$C}?action=${endpoint}`);
       if (res.data.status === "success") setGroups(res.data.data);
     } catch (err) {
       console.error("Error fetching groups:", err);
@@ -55554,10 +55838,11 @@ const GroupsModal = ({ type, onClose, onGroupCreated }) => {
   const handleCreate = async () => {
     if (!newGroupName.trim()) return;
     try {
-      const res = await axios.post(`${API_URL$D}?action=${endpoint}`, { name: newGroupName.trim() });
+      const res = await axios.post(`${API_URL$C}?action=${endpoint}`, { name: newGroupName.trim() });
       if (res.data.status === "success") {
         const created = { id: res.data.data?.id, name: newGroupName.trim() };
         setNewGroupName("");
+        invalidateCache(endpoint);
         fetchGroups();
         if (onGroupCreated) onGroupCreated(created);
       } else alert(res.data.message || t("groupsModal.createError"));
@@ -55568,10 +55853,36 @@ const GroupsModal = ({ type, onClose, onGroupCreated }) => {
   const handleDelete = async (id) => {
     if (!window.confirm(t("groupsModal.deleteConfirm"))) return;
     try {
-      await axios.post(`${API_URL$D}?action=${getDeleteEndpoint()}`, { id });
+      await axios.post(`${API_URL$C}?action=${getDeleteEndpoint()}`, { id });
+      invalidateCache(endpoint);
       fetchGroups();
     } catch {
       alert(t("groupsModal.deleteError"));
+    }
+  };
+  const startRename = (group) => {
+    setEditingId(group.id);
+    setEditingName(group.name);
+  };
+  const cancelRename = () => {
+    setEditingId(null);
+    setEditingName("");
+  };
+  const saveRename = async () => {
+    const name = editingName.trim();
+    if (!name || editingId == null || renaming) return;
+    setRenaming(true);
+    try {
+      const res = await axios.post(`${API_URL$C}?action=${getRenameEndpoint()}`, { id: editingId, name });
+      if (res.data.status === "success") {
+        cancelRename();
+        invalidateCache(endpoint);
+        fetchGroups();
+      } else alert(res.data.message || t("groupsModal.renameError"));
+    } catch {
+      alert(t("groupsModal.networkError"));
+    } finally {
+      setRenaming(false);
     }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "480px" }, children: [
@@ -55600,7 +55911,31 @@ const GroupsModal = ({ type, onClose, onGroupCreated }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "max-h-80 overflow-y-auto", children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-8 text-center", style: { color: "var(--color-text-muted)" }, children: t("groupsModal.loading") }) : groups.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-8 text-center", style: { color: "var(--color-text-muted)" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("groupsModal.noGroups") }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm mt-1", children: t("groupsModal.createFirst") })
-    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y", style: { borderColor: "var(--color-border)" }, children: groups.map((group) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { className: "flex items-center justify-between px-6 py-3 transition", style: { borderColor: "var(--color-border)" }, children: [
+    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "divide-y", style: { borderColor: "var(--color-border)" }, children: groups.map((group) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { className: "flex items-center justify-between px-6 py-3 transition", style: { borderColor: "var(--color-border)" }, children: editingId === group.id ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          type: "text",
+          value: editingName,
+          onChange: (e) => setEditingName(e.target.value),
+          onKeyDown: (e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              saveRename();
+            } else if (e.key === "Escape") {
+              e.preventDefault();
+              cancelRename();
+            }
+          },
+          className: "form-input text-sm flex-1",
+          autoFocus: true
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 ml-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: saveRename, disabled: !editingName.trim() || renaming, className: "action-btn", title: t("common.save"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4", style: { color: "var(--color-primary)" } }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: cancelRename, className: "action-btn", title: t("common.cancel"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-4 h-4", style: { color: "var(--color-text-muted)" } }) })
+      ] })
+    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium", style: { color: "var(--color-text-primary)" }, children: group.name }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: [
@@ -55608,56 +55943,14 @@ const GroupsModal = ({ type, onClose, onGroupCreated }) => {
           group.id
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(group.id), className: "action-btn", title: t("groups.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4", style: { color: "var(--color-text-muted)" } }) })
-    ] }, group.id)) }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => startRename(group), className: "action-btn", title: t("groupsModal.rename"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pen, { className: "w-4 h-4", style: { color: "var(--color-text-muted)" } }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(group.id), className: "action-btn", title: t("groups.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4", style: { color: "var(--color-text-muted)" } }) })
+      ] })
+    ] }) }, group.id)) }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "px-6 py-4 border-t flex justify-end", style: { borderColor: "var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => onClose(false), className: "btn btn-secondary", children: t("groupsModal.close") }) })
   ] }) });
 };
-const API_URL$C = "/api.php";
-const cache = /* @__PURE__ */ new Map();
-const CACHE_TTL = 3e4;
-function getCacheKey(action, params = {}) {
-  const paramStr = Object.keys(params).sort().map((k) => `${k}=${JSON.stringify(params[k])}`).join("&");
-  return `${action}${paramStr ? "?" + paramStr : ""}`;
-}
-function isCacheValid(entry) {
-  if (!entry) return false;
-  return Date.now() - entry.timestamp < entry.ttl;
-}
-async function cachedGet(action, params = {}, ttl = CACHE_TTL) {
-  const cacheKey = getCacheKey(action, params);
-  const cached = cache.get(cacheKey);
-  if (cached && isCacheValid(cached)) {
-    return { data: cached.data, fromCache: true };
-  }
-  const response = await axios.get(API_URL$C, { params: { action, ...params } });
-  if (response.data?.status === "success") {
-    cache.set(cacheKey, {
-      data: response.data,
-      timestamp: Date.now(),
-      ttl
-    });
-  }
-  return { data: response.data, fromCache: false };
-}
-function invalidateCache(pattern) {
-  if (!pattern) {
-    cache.clear();
-    return;
-  }
-  for (const key of cache.keys()) {
-    if (key.includes(pattern)) {
-      cache.delete(key);
-    }
-  }
-}
-async function cachedPost(action, data = {}, params = {}) {
-  const response = await axios.post(API_URL$C, data, { params: { action, ...params } });
-  if (response.data?.status === "success") {
-    cache.clear();
-  }
-  return response;
-}
 const cleanNameInput = (v) => v.toLowerCase().replace(/^https?:\/\//, "").replace(/\/+$/, "").replace(/\s+/g, "");
 const ToggleGroup = ({ value, options, onChange }) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex rounded-lg overflow-hidden", style: { border: "1px solid var(--color-border)" }, children: options.map((opt, i) => /* @__PURE__ */ jsxRuntimeExports.jsx(
   "button",
@@ -55893,8 +56186,12 @@ const Domains = ({ campaigns }) => {
     try {
       const { data } = await cachedGet("domains");
       if (data.status === "success") {
-        setDomains(data.data);
-        setFilteredDomains(data.data);
+        const payload = JSON.stringify(data.data, (key, value) => key === "cache_age" ? void 0 : value);
+        if (payload !== lastDomainsPayloadRef.current) {
+          lastDomainsPayloadRef.current = payload;
+          setDomains(data.data);
+          setFilteredDomains(data.data);
+        }
         setServerIp(data.server_ip || t("common.notSet"));
       }
     } catch (e) {
@@ -55991,15 +56288,17 @@ const Domains = ({ campaigns }) => {
   reactExports.useEffect(() => {
     localStorage.setItem("domains_ignore_dns_ui", ignoreDnsUi ? "1" : "0");
   }, [ignoreDnsUi]);
+  const pendingSslRef = reactExports.useRef(false);
   reactExports.useEffect(() => {
-    const interval = setInterval(async () => {
-      const hasPending = domains.some((d) => ["pending", "installing", "waiting_dns"].includes(d.ssl_status));
-      if (hasPending) {
-        await fetchDomains();
-      }
+    pendingSslRef.current = domains.some((d) => ["pending", "installing", "waiting_dns"].includes(d.ssl_status));
+  }, [domains]);
+  const lastDomainsPayloadRef = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    const interval = setInterval(() => {
+      if (pendingSslRef.current) fetchDomains();
     }, 5e3);
     return () => clearInterval(interval);
-  }, [domains]);
+  }, []);
   const handleEdit = (domain) => {
     setFormData({
       id: domain.id,
@@ -58129,6 +58428,197 @@ const CardField = ({ label, value }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("
     }
   )
 ] });
+const MIN_COL_WIDTH = 60;
+const STORAGE_PREFIX = "orbitra_colwidths_";
+const DEFAULT_COL_WIDTH = 120;
+function useIsDesktop() {
+  const [isDesktop, setIsDesktop] = reactExports.useState(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return true;
+    return window.matchMedia("(min-width: 1024px)").matches;
+  });
+  reactExports.useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return void 0;
+    const mql = window.matchMedia("(min-width: 1024px)");
+    const onChange = (e) => setIsDesktop(e.matches);
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+  return isDesktop;
+}
+const readStoredWidths = (storageKey) => {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(storageKey) || "{}");
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+    const clean = {};
+    for (const [id, w] of Object.entries(parsed)) {
+      if (typeof w === "number" && Number.isFinite(w) && w >= MIN_COL_WIDTH) {
+        clean[id] = Math.round(w);
+      }
+    }
+    return clean;
+  } catch {
+    return {};
+  }
+};
+function useColumnWidths(tableId) {
+  const storageKey = STORAGE_PREFIX + tableId;
+  const [widths, setWidths] = reactExports.useState(() => readStoredWidths(storageKey));
+  const setWidth = reactExports.useCallback((colId, px) => {
+    setWidths((prev) => {
+      const next = { ...prev, [colId]: Math.max(MIN_COL_WIDTH, Math.round(px)) };
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(next));
+      } catch {
+      }
+      return next;
+    });
+  }, [storageKey]);
+  const resetColumn = reactExports.useCallback((colId) => {
+    setWidths((prev) => {
+      if (!(colId in prev)) return prev;
+      const next = { ...prev };
+      delete next[colId];
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(next));
+      } catch {
+      }
+      return next;
+    });
+  }, [storageKey]);
+  const resetAll = reactExports.useCallback(() => {
+    setWidths({});
+    try {
+      localStorage.removeItem(storageKey);
+    } catch {
+    }
+  }, [storageKey]);
+  return { widths, setWidth, resetColumn, resetAll, storageKey };
+}
+function useResizableTableColumns({ tableId, columns, enabled = true }) {
+  const api = useColumnWidths(tableId);
+  const [resizingId, setResizingId] = reactExports.useState(null);
+  const resolved = reactExports.useMemo(() => {
+    const byId = {};
+    let total = 0;
+    for (const col of columns) {
+      const stored = api.widths[col.id];
+      const w = stored != null ? Math.max(MIN_COL_WIDTH, Math.round(stored)) : Math.round(col.width ?? DEFAULT_COL_WIDTH);
+      byId[col.id] = w;
+      total += w;
+    }
+    return { byId, total };
+  }, [columns, api.widths]);
+  const beginResize = reactExports.useCallback((colId) => setResizingId(colId), []);
+  const endResize = reactExports.useCallback(() => setResizingId(null), []);
+  const colgroup = enabled ? /* @__PURE__ */ jsxRuntimeExports.jsx("colgroup", { children: columns.map((col) => /* @__PURE__ */ jsxRuntimeExports.jsx("col", { style: { width: resolved.byId[col.id] } }, col.id)) }) : null;
+  const tableStyle = enabled ? { tableLayout: "fixed", width: resolved.total, minWidth: "100%" } : null;
+  return {
+    api,
+    enabled,
+    resizingId,
+    beginResize,
+    endResize,
+    widthOf: resolved.byId,
+    colgroup,
+    tableStyle
+  };
+}
+const ColumnResizeHandle = ({ rt, colId }) => {
+  const { t } = useLanguage();
+  const [liveWidth, setLiveWidth] = reactExports.useState(null);
+  const dragRef = reactExports.useRef(null);
+  const handlePointerDown = (e) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    const th = e.currentTarget.closest("th");
+    const table = th?.closest("table");
+    const colEl = table?.querySelector("colgroup")?.children?.[th.cellIndex];
+    if (!th || !table || !colEl) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const startW = th.getBoundingClientRect().width;
+    dragRef.current = {
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startW,
+      startTableW: parseFloat(table.style.width) || startW,
+      colEl,
+      tableEl: table,
+      lastW: null,
+      moved: false
+    };
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+    }
+    e.currentTarget.classList.add("is-dragging");
+    document.body.classList.add("col-resizing");
+    rt.beginResize(colId);
+    setLiveWidth(Math.round(startW));
+  };
+  const handlePointerMove = (e) => {
+    const d = dragRef.current;
+    if (!d || e.pointerId !== d.pointerId) return;
+    e.stopPropagation();
+    const w = Math.max(MIN_COL_WIDTH, Math.round(d.startW + (e.clientX - d.startX)));
+    if (w === d.lastW) return;
+    d.lastW = w;
+    d.moved = true;
+    d.colEl.style.width = `${w}px`;
+    d.tableEl.style.width = `${Math.round(d.startTableW + (w - d.startW))}px`;
+    setLiveWidth(w);
+  };
+  const endDrag = (e, { commit = false, revert = false } = {}) => {
+    const d = dragRef.current;
+    if (!d || e && e.pointerId !== void 0 && e.pointerId !== d.pointerId) return;
+    dragRef.current = null;
+    if (e) {
+      e.stopPropagation();
+      try {
+        e.currentTarget.releasePointerCapture(d.pointerId);
+      } catch {
+      }
+    }
+    e?.currentTarget?.classList?.remove?.("is-dragging");
+    document.body.classList.remove("col-resizing");
+    if (revert) {
+      d.colEl.style.width = `${Math.round(d.startW)}px`;
+      d.tableEl.style.width = `${Math.round(d.startTableW)}px`;
+    }
+    rt.endResize();
+    setLiveWidth(null);
+    if (commit && d.moved) {
+      rt.api.setWidth(colId, d.lastW ?? d.startW);
+    }
+  };
+  if (!rt || !rt.enabled) return null;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "span",
+    {
+      className: "col-resize-handle",
+      title: t("common.colResizeHint", "Drag to resize · double-click to reset"),
+      onPointerDown: handlePointerDown,
+      onPointerMove: handlePointerMove,
+      onPointerUp: (e) => endDrag(e, { commit: true }),
+      onPointerCancel: (e) => endDrag(e, { revert: true }),
+      onLostPointerCapture: (e) => endDrag(e, { revert: true }),
+      onDoubleClick: (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        rt.api.resetColumn(colId);
+      },
+      onDragStart: (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      },
+      onMouseDown: (e) => e.stopPropagation(),
+      onClick: (e) => e.stopPropagation(),
+      children: liveWidth !== null && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "col-resize-badge", children: [
+        liveWidth,
+        " px"
+      ] })
+    }
+  );
+};
 const TIMEZONES = [
   { value: "UTC", label: "UTC (UTC+00:00)" },
   { value: "Europe/London", label: "London (UTC+01:00 / +00:00)" },
@@ -58844,7 +59334,10 @@ const ReportCustomizerModal = ({
   onSaveLayers,
   layerPresets = [],
   currentFilters = [],
-  onSaveFilters
+  onSaveFilters,
+  // Clears the table's persisted column widths (shared ColumnResize module);
+  // rendered only when the host table supports resizing.
+  onResetColumnWidths
 }) => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = reactExports.useState("columns");
@@ -59806,19 +60299,34 @@ const ReportCustomizerModal = ({
           ] }, fIdx))
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-6 py-3.5 border-t", style: { borderColor: "var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              type: "button",
-              onClick: handleRestoreDefault,
-              className: "text-xs transition-colors hover:underline flex items-center gap-1.5 font-medium",
-              style: { color: "var(--color-primary)" },
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { className: "w-3.5 h-3.5" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("reportCustomizer.restoreDefault", "Restore to default") })
-              ]
-            }
-          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4 flex-wrap", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: handleRestoreDefault,
+                className: "text-xs transition-colors hover:underline flex items-center gap-1.5 font-medium",
+                style: { color: "var(--color-primary)" },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { className: "w-3.5 h-3.5" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("reportCustomizer.restoreDefault", "Restore to default") })
+                ]
+              }
+            ),
+            onResetColumnWidths && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: onResetColumnWidths,
+                className: "text-xs transition-colors hover:underline flex items-center gap-1.5 font-medium",
+                style: { color: "var(--color-text-secondary)" },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(MoveHorizontal, { className: "w-3.5 h-3.5" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("reportCustomizer.resetColumnWidths", "Reset column widths") })
+                ]
+              }
+            )
+          ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2.5", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
@@ -59992,6 +60500,12 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
   });
   const [thDragIdx, setThDragIdx] = reactExports.useState(null);
   const [thDragOverIdx, setThDragOverIdx] = reactExports.useState(null);
+  const isDesktop = useIsDesktop();
+  const columnDefs = reactExports.useMemo(
+    () => [{ id: "name", width: 300 }, ...chosenColumns.map((id) => ({ id, width: 120 }))],
+    [chosenColumns]
+  );
+  const colResize = useResizableTableColumns({ tableId: "campaign_reports", columns: columnDefs, enabled: isDesktop });
   const handleThDragStart = (e, idx) => {
     e.dataTransfer.setData("text/plain", String(idx));
     e.dataTransfer.effectAllowed = "move";
@@ -60550,30 +61064,41 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
           toggleNotice.type === "error" ? /* @__PURE__ */ jsxRuntimeExports.jsx(X, { size: 14 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChartColumn, { size: 14 }),
           toggleNotice.text
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table tracker-table", style: { fontVariantNumeric: "tabular-nums", minWidth: "100%", width: "max-content" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table tracker-table", style: { fontVariantNumeric: "tabular-nums", ...colResize.tableStyle }, children: [
+          colResize.colgroup,
           /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("th", { style: {
-              minWidth: "240px",
-              textAlign: "left",
-              position: "sticky",
-              left: 0,
-              /* above .tracker-table th's z-index:10 — the pinned
-                 header must not slide under scrolling metric th's */
-              zIndex: 11,
-              backgroundColor: "var(--color-bg-soft)"
-            }, children: layerKeys.map(formatDimensionLabel).join(" → ") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "th",
+              {
+                className: "resizable-th",
+                style: {
+                  textAlign: "left",
+                  position: "sticky",
+                  left: 0,
+                  /* above .tracker-table th's z-index:10 — the pinned
+                     header must not slide under scrolling metric th's */
+                  zIndex: 11,
+                  backgroundColor: "var(--color-bg-soft)"
+                },
+                children: [
+                  layerKeys.map(formatDimensionLabel).join(" → "),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "name" })
+                ]
+              }
+            ),
             chosenColumns.map((colId, colIdx) => {
               const def = ALL_REPORT_METRICS.find((m) => m.id === colId);
               const isDragOver = thDragOverIdx === colIdx && thDragIdx !== null && thDragIdx !== colIdx;
-              return /* @__PURE__ */ jsxRuntimeExports.jsx(
+              return /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "th",
                 {
-                  draggable: true,
+                  draggable: !colResize.resizingId,
                   onDragStart: (e) => handleThDragStart(e, colIdx),
                   onDragOver: (e) => handleThDragOver(e, colIdx),
                   onDrop: (e) => handleThDrop(e, colIdx),
                   onDragEnd: handleThDragEnd,
                   title: getReportMetricTooltip(def, t),
+                  className: "resizable-th",
                   style: {
                     textAlign: "right",
                     cursor: "grab",
@@ -60582,23 +61107,26 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                     boxShadow: isDragOver ? "inset 2px 0 0 var(--color-primary)" : "none",
                     backgroundColor: isDragOver ? "var(--color-bg-soft)" : void 0
                   },
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "inline-flex items-center justify-end gap-1 w-full", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3 h-3 opacity-30 -ml-1" }),
-                    STATUS_COLUMN_STATUSES[colId] && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      "span",
-                      {
-                        title: def?.label || colId,
-                        style: {
-                          width: "7px",
-                          height: "7px",
-                          borderRadius: "50%",
-                          flexShrink: 0,
-                          backgroundColor: resolveConversionColor(STATUS_COLUMN_STATUSES[colId], conversionTypes)
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "inline-flex items-center justify-end gap-1 w-full", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3 h-3 opacity-30 -ml-1" }),
+                      STATUS_COLUMN_STATUSES[colId] && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "span",
+                        {
+                          title: def?.label || colId,
+                          style: {
+                            width: "7px",
+                            height: "7px",
+                            borderRadius: "50%",
+                            flexShrink: 0,
+                            backgroundColor: resolveConversionColor(STATUS_COLUMN_STATUSES[colId], conversionTypes)
+                          }
                         }
-                      }
-                    ),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: def?.shortLabel || def?.label || colId })
-                  ] })
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: def?.shortLabel || def?.label || colId })
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId })
+                  ]
                 },
                 colId
               );
@@ -60690,10 +61218,587 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         onSaveLayers: handleSaveLayers,
         layerPresets: REPORT_LAYER_PRESETS,
         currentFilters: filters,
-        onSaveFilters: handleSaveFilters
+        onSaveFilters: handleSaveFilters,
+        onResetColumnWidths: colResize.api.resetAll
       }
     )
   ] });
+};
+const ClickLogModal = ({
+  campaignId,
+  campaignName,
+  initialRoute = "all",
+  initialHours = 0,
+  initialStreamId = 0,
+  onClose
+}) => {
+  const { t } = useLanguage();
+  const [route, setRoute] = reactExports.useState(initialRoute);
+  const hours = initialHours;
+  const streamId = initialStreamId;
+  const [logs, setLogs] = reactExports.useState([]);
+  const [loading, setLoading] = reactExports.useState(false);
+  const [selectedClickId, setSelectedClickId] = reactExports.useState(null);
+  const fetchLogs = async (nextRoute = route) => {
+    if (!campaignId) return;
+    setLoading(true);
+    try {
+      const params = { campaign_id: campaignId, limit: 100 };
+      if (nextRoute && nextRoute !== "all") params.route = nextRoute;
+      if (hours > 0) params.hours = hours;
+      if (streamId > 0) params.stream_id = streamId;
+      invalidateCache("campaign_logs");
+      const { data } = await cachedGet("campaign_logs", params, 0);
+      setLogs(data.status === "success" ? data.data : []);
+    } catch (e) {
+      console.error("Error fetching logs:", e);
+      setLogs([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  reactExports.useEffect(() => {
+    fetchLogs(initialRoute);
+    setRoute(initialRoute);
+  }, [campaignId, initialRoute, initialHours, initialStreamId]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "960px" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("campaignEditor.clickLogTitle") }),
+          campaignName && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs truncate mt-0.5", style: { color: "var(--color-text-muted)" }, title: campaignName, children: campaignName })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-1 p-1 rounded-lg", style: { backgroundColor: "var(--color-bg-soft)" }, children: [
+        ["all", t("campaignEditor.clickLogFilterAll", "ALL")],
+        ["safe", t("campaignEditor.clickLogFilterSafe", "SAFE")],
+        ["money", t("campaignEditor.clickLogFilterMoney", "MONEY")]
+      ].map(([value, label]) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          onClick: () => {
+            setRoute(value);
+            fetchLogs(value);
+          },
+          className: `flex-1 px-3 py-2 rounded-md text-xs font-semibold tracking-wide transition-colors ${route === value ? "bg-[var(--color-bg)] shadow-sm" : "hover:text-[var(--color-text-primary)]"}`,
+          style: { color: route === value ? "var(--color-primary)" : "var(--color-text-secondary)" },
+          children: label
+        },
+        value
+      )) }),
+      hours > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] mt-2", style: { color: "var(--color-text-muted)" }, children: t("campaignEditor.clickLogLast24h", "Last 24 hours") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-y-auto mt-2", style: { maxHeight: "58vh" }, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-10", style: { color: "var(--color-text-muted)" }, children: t("common.loading", "Loading...") }) : logs.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-10", style: { color: "var(--color-text-muted)" }, children: t("campaignEditor.clickLogNoClicks") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: logs.map((log) => {
+        const reasons = (log.cloak_reasons || "").split(",").map((s) => s.trim()).filter(Boolean);
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            onClick: () => setSelectedClickId(log.id),
+            className: "rounded-xl p-3 transition-colors hover:border-[var(--color-primary)]",
+            style: { border: "1px solid var(--color-border)", cursor: "pointer" },
+            title: t("campaignEditor.clickLogOpenDetails", "Open click details"),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2 mb-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] font-mono", style: { color: "var(--color-text-muted)" }, children: log.created_at }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `status-badge ${log.is_safe_page === 1 ? "status-inactive" : "status-active"} text-[11px]`, children: log.is_safe_page === 1 ? t("logs.routeSafe") : t("logs.routeMoney") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-[11px]", style: { color: "var(--color-text-secondary)" }, children: [
+                    t("campaignEditor.clickLogVerdict"),
+                    ": ",
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("b", { style: { color: "var(--color-text-primary)" }, children: log.cloak_verdict || "—" })
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-[11px] font-mono", style: { color: "var(--color-text-muted)" }, children: [
+                  "#",
+                  log.id
+                ] })
+              ] }),
+              reasons.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px]", style: { color: "var(--color-text-muted)" }, children: "—" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1", children: reasons.map((reason, idx) => {
+                const colon = reason.indexOf(":");
+                const code = colon === -1 ? reason : reason.slice(0, colon);
+                const evidence = colon === -1 ? "" : reason.slice(colon + 1);
+                return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "span",
+                  {
+                    className: "text-[10px] px-1.5 py-0.5 rounded font-mono inline-flex items-center gap-1",
+                    style: {
+                      backgroundColor: "var(--color-bg-soft)",
+                      color: "var(--color-text-secondary)",
+                      border: "1px solid var(--color-border)"
+                    },
+                    title: t(`cloakReasons.${code}`, "") || code,
+                    children: [
+                      code,
+                      evidence && /* @__PURE__ */ jsxRuntimeExports.jsx("b", { style: { color: "var(--color-primary)", fontWeight: 600 }, children: evidence })
+                    ]
+                  },
+                  idx
+                );
+              }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2 text-[11px]", style: { color: "var(--color-text-primary)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "truncate", title: log.isp || "", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)" }, children: [
+                    t("campaignEditor.clickLogIsp"),
+                    ": "
+                  ] }),
+                  log.isp || "—"
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "truncate font-mono", title: log.asn || "", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)" }, children: [
+                    t("campaignEditor.clickLogAsn"),
+                    ": "
+                  ] }),
+                  log.asn || "—"
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "truncate font-mono", title: log.proxy_type || "", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)" }, children: [
+                    t("campaignEditor.clickLogProxyType"),
+                    ": "
+                  ] }),
+                  log.proxy_type || "—"
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 text-[11px] font-mono break-all", style: { color: "var(--color-text-secondary)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)" }, children: [
+                  t("campaignEditor.clickLogUserAgent"),
+                  ": "
+                ] }),
+                log.user_agent || "—"
+              ] })
+            ]
+          },
+          log.id
+        );
+      }) }) })
+    ] }) }),
+    selectedClickId && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ClickDetailsModal,
+      {
+        clickId: selectedClickId,
+        onClose: () => setSelectedClickId(null)
+      }
+    )
+  ] });
+};
+const API_URL$z = "/api.php";
+const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
+  const { t } = useLanguage();
+  const [conversions, setConversions] = reactExports.useState([]);
+  const [loading, setLoading] = reactExports.useState(true);
+  const [pagination, setPagination] = reactExports.useState({ total: 0, page: 1, per_page: 50, total_pages: 0 });
+  const [selectedClickId, setSelectedClickId] = reactExports.useState(null);
+  const [conversionTypes, setConversionTypes] = reactExports.useState([]);
+  const [search, setSearch] = reactExports.useState("");
+  const [statusFilter, setStatusFilter] = reactExports.useState("");
+  const todayPreset = getPresetDates("today");
+  const [dateFrom, setDateFrom] = reactExports.useState(todayPreset?.from || formatDate$1(/* @__PURE__ */ new Date()));
+  const [dateTo, setDateTo] = reactExports.useState(todayPreset?.to || formatDate$1(/* @__PURE__ */ new Date()));
+  const [timezone, setTimezone] = reactExports.useState(() => localStorage.getItem("orbitra_tz") || "UTC");
+  const isDesktop = useIsDesktop();
+  const colResize = useResizableTableColumns({
+    tableId: "conversions",
+    enabled: isDesktop,
+    columns: [
+      { id: "id", width: 70 },
+      { id: "click_id", width: 120 },
+      { id: "tid", width: 90 },
+      { id: "status", width: 110 },
+      { id: "payout", width: 100 },
+      { id: "campaign", width: 200 },
+      { id: "offer", width: 200 },
+      { id: "ip", width: 110 },
+      { id: "date", width: 170 }
+    ]
+  });
+  const [internalCampaignId, setInternalCampaignId] = reactExports.useState("");
+  const effectiveCampaignId = propCampaignId !== void 0 ? propCampaignId : internalCampaignId;
+  const fetchConversions = async (page = 1) => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({ action: "conversions", page, per_page: pagination.per_page });
+      if (search) params.append("search", search);
+      if (statusFilter) params.append("status", statusFilter);
+      if (dateFrom) params.append("date_from", dateFrom);
+      if (dateTo) params.append("date_to", dateTo);
+      if (effectiveCampaignId) params.append("campaign_id", effectiveCampaignId);
+      const res = await axios.get(`${API_URL$z}?${params.toString()}`);
+      if (res.data.status === "success") {
+        setConversions(res.data.data);
+        setPagination(res.data.pagination);
+      }
+    } catch (error) {
+      console.error("Error fetching conversions:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  reactExports.useEffect(() => {
+    fetchConversions(1);
+  }, [statusFilter, dateFrom, dateTo, effectiveCampaignId]);
+  reactExports.useEffect(() => {
+    axios.get(`${API_URL$z}?action=conversion_types`).then((res) => {
+      if (res.data.status === "success") setConversionTypes(res.data.data || []);
+    }).catch(() => {
+    });
+  }, []);
+  const handleSearch = () => {
+    fetchConversions(1);
+  };
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= pagination.total_pages) {
+      fetchConversions(newPage);
+    }
+  };
+  const exportCSV = () => {
+    if (conversions.length === 0) return;
+    const headers = ["ID", "Click ID", "TID", "Status", "Payout", "Currency", "Campaign", "Offer", "IP", "Created"];
+    const rows = conversions.map((c) => [
+      c.id,
+      c.click_id,
+      c.tid || "",
+      c.status,
+      c.payout,
+      c.currency,
+      c.campaign_name || "",
+      c.offer_name || "",
+      c.ip || "",
+      c.created_at
+    ]);
+    const csv = [headers, ...rows].map((r2) => r2.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `conversions_${(/* @__PURE__ */ new Date()).toISOString().split("T")[0]}.csv`;
+    a.click();
+  };
+  const getStatusBadge = (status) => {
+    const badgeColor = resolveConversionColor(status, conversionTypes);
+    const statusLabels = {
+      lead: t("conversions.lead"),
+      sale: t("conversions.sale"),
+      rejected: t("conversions.rejected"),
+      registration: t("conversions.registration"),
+      deposit: t("conversions.deposit"),
+      trash: t("conversions.trash")
+    };
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: {
+      display: "inline-flex",
+      alignItems: "center",
+      padding: "4px 10px",
+      fontSize: "12px",
+      fontWeight: 500,
+      borderRadius: "12px",
+      color: badgeColor,
+      backgroundColor: `color-mix(in srgb, ${badgeColor} 14%, transparent)`,
+      border: `1px solid color-mix(in srgb, ${badgeColor} 25%, transparent)`
+    }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
+        width: "6px",
+        height: "6px",
+        borderRadius: "50%",
+        backgroundColor: badgeColor,
+        marginRight: "6px",
+        flexShrink: 0
+      } }),
+      statusLabels[status] || status
+    ] });
+  };
+  const isModalMode = onClose !== void 0;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: isModalMode ? "" : "space-y-4", children: [
+    !isModalMode && /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_conversions", title: t("help.conversionsBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("help.conversionsBanner") }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px", alignItems: "end" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { gridColumn: "span 2" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("conversions.search") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "text",
+              placeholder: t("conversions.searchPlaceholder"),
+              value: search,
+              onChange: (e) => setSearch(e.target.value),
+              onKeyDown: (e) => e.key === "Enter" && handleSearch(),
+              className: "form-input pl-12"
+            }
+          )
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("conversions.status") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "select",
+          {
+            value: statusFilter,
+            onChange: (e) => setStatusFilter(e.target.value),
+            className: "form-select",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("conversions.allStatuses") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "lead", children: t("conversions.lead") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "sale", children: t("conversions.sale") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "rejected", children: t("conversions.rejected") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "registration", children: t("conversions.registration") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "deposit", children: t("conversions.deposit") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "trash", children: t("conversions.trash") })
+            ]
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        DateRangePicker,
+        {
+          dateFrom,
+          dateTo,
+          onChange: (from2, to2) => {
+            setDateFrom(from2);
+            setDateTo(to2);
+          },
+          selectedTimezone: timezone,
+          onTimezoneChange: setTimezone
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            onClick: () => fetchConversions(pagination.page),
+            className: "btn btn-secondary btn-icon",
+            title: t("common.refresh"),
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 18 })
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            onClick: exportCSV,
+            className: "btn btn-secondary btn-icon",
+            title: "CSV",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 18 })
+          }
+        )
+      ] })
+    ] }) }),
+    loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", justifyContent: "center", alignItems: "center", height: "200px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "32px", height: "32px", border: "3px solid var(--color-border)", borderTopColor: "var(--color-primary)", borderRadius: "50%", animation: "spin 1s linear infinite" } }) }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", style: { padding: 0 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto hidden lg:block", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", style: { ...colResize.tableStyle }, children: [
+        colResize.colgroup,
+        /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+            "ID",
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "id" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+            "Click ID",
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "click_id" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+            "TID",
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "tid" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+            t("conversions.status"),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "status" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+            t("conversions.payout"),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "payout" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+            t("conversions.campaign"),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "campaign" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+            t("conversions.offer"),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "offer" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+            "IP",
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "ip" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+            t("conversions.date"),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "date" })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: conversions.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 9, className: "text-center", style: { padding: "48px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("conversions.noConversions") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("conversions.noConversionsText") })
+        ] }) }) }) : conversions.map((conv) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: conv.id }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: () => setSelectedClickId(conv.click_id),
+              style: {
+                fontFamily: "monospace",
+                fontSize: "12px",
+                color: "var(--color-primary)",
+                background: "var(--color-bg-soft)",
+                padding: "4px 8px",
+                borderRadius: "6px",
+                border: "none",
+                cursor: "pointer",
+                transition: "all 0.2s"
+              },
+              children: conv.click_id
+            }
+          ) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: conv.tid || "-" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: getStatusBadge(conv.status) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { style: { color: "var(--color-success)", fontWeight: 500 }, children: [
+            "$",
+            Number(conv.payout || 0).toFixed(2)
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-primary)" }, children: conv.campaign_name || "-" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-primary)" }, children: conv.offer_name || "-" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-muted)", fontSize: "14px" }, children: conv.ip || "-" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: () => setSelectedClickId(conv.click_id),
+              style: {
+                color: "var(--color-text-secondary)",
+                fontSize: "14px",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: 0,
+                transition: "color 0.2s"
+              },
+              children: new Date(conv.created_at).toLocaleString("ru-RU")
+            }
+          ) })
+        ] }, conv.id)) })
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "lg:hidden p-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        MobileCards,
+        {
+          rows: conversions,
+          getId: (conv) => conv.id,
+          renderTitle: (conv) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: () => setSelectedClickId(conv.click_id),
+              className: "font-mono text-xs px-2 py-1 rounded-md",
+              style: {
+                color: "var(--color-primary)",
+                backgroundColor: "var(--color-bg-soft)",
+                border: "none",
+                cursor: "pointer"
+              },
+              children: conv.click_id
+            }
+          ),
+          renderHeaderRight: (conv) => getStatusBadge(conv.status),
+          fields: [
+            {
+              id: "payout",
+              label: t("conversions.payout"),
+              render: (c) => /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-success)", fontWeight: 500 }, children: [
+                "$",
+                Number(c.payout || 0).toFixed(2)
+              ] })
+            },
+            { id: "campaign", label: t("conversions.campaign"), render: (c) => c.campaign_name || "-" },
+            { id: "offer", label: t("conversions.offer"), render: (c) => c.offer_name || "-" },
+            {
+              id: "created",
+              label: t("conversions.date"),
+              render: (c) => new Date(c.created_at).toLocaleString("ru-RU")
+            },
+            { id: "id", label: "ID", render: (c) => c.id },
+            { id: "tid", label: "TID", render: (c) => c.tid || "-" },
+            { id: "ip", label: "IP", render: (c) => c.ip || "-" }
+          ],
+          primaryIds: ["payout", "campaign", "offer", "created"],
+          emptyState: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-10", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("conversions.noConversions") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("conversions.noConversionsText") })
+          ] }) })
+        }
+      ) }),
+      pagination.total_pages > 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "16px",
+        borderTop: "1px solid var(--color-border)"
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "14px", color: "var(--color-text-secondary)" }, children: [
+          t("conversions.shown"),
+          " ",
+          (pagination.page - 1) * pagination.per_page + 1,
+          " - ",
+          Math.min(pagination.page * pagination.per_page, pagination.total),
+          " ",
+          t("conversions.of"),
+          " ",
+          pagination.total
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: () => handlePageChange(pagination.page - 1),
+              disabled: pagination.page <= 1,
+              className: "btn btn-secondary btn-sm",
+              style: { opacity: pagination.page <= 1 ? 0.5 : 1 },
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { size: 16 })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-primary)", fontSize: "14px" }, children: [
+            pagination.page,
+            " / ",
+            pagination.total_pages
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: () => handlePageChange(pagination.page + 1),
+              disabled: pagination.page >= pagination.total_pages,
+              className: "btn btn-secondary btn-sm",
+              style: { opacity: pagination.page >= pagination.total_pages ? 0.5 : 1 },
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { size: 16 })
+            }
+          )
+        ] })
+      ] })
+    ] }),
+    !isModalMode && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", style: { background: "var(--color-info-bg)", borderColor: "var(--color-info)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "flex-start", gap: "12px" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(ChartColumn, { size: 20, style: { color: "var(--color-info)", flexShrink: 0, marginTop: "2px" } }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { fontWeight: 500, marginBottom: "4px", color: "var(--color-text-primary)" }, children: t("conversions.title") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-text-secondary)", margin: 0 }, children: t("conversions.logInfo") })
+      ] })
+    ] }) }),
+    selectedClickId && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ClickDetailsModal,
+      {
+        clickId: selectedClickId,
+        onClose: () => setSelectedClickId(null)
+      }
+    )
+  ] });
+};
+const ConversionsLogModal = ({ campaignId, campaignName, onClose }) => {
+  const { t } = useLanguage();
+  if (!campaignId) return null;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", style: { zIndex: 1100, top: "88px", height: "calc(100vh - 88px)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "1200px", maxHeight: "100%", overflow: "auto" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-4", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("editor.conversionsLog") }),
+        campaignName && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs truncate mt-0.5", style: { color: "var(--color-text-muted)" }, title: campaignName, children: campaignName })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "btn btn-ghost btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ConversionsLog,
+      {
+        campaignId,
+        onClose
+      }
+    )
+  ] }) });
 };
 async function copyToClipboard(text) {
   if (!text && text !== "0") return false;
@@ -60735,17 +61840,21 @@ async function copyToClipboard(text) {
     textarea?.remove();
   }
 }
-const API_URL$z = "/api.php";
+function campaignLinkUrl(alias, domainName) {
+  const baseUrl = domainName ? `https://${domainName}` : window.location.origin;
+  return `${baseUrl}/${alias}`;
+}
+const API_URL$y = "/api.php";
 const SortIcon$1 = ({ sortBy, colKey }) => {
   if (sortBy.key !== colKey) return /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 opacity-40" });
   return sortBy.dir === "asc" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } });
 };
-const SortableTh$1 = ({ colKey, label, fullTitle, defaultDir = "asc", alignRight = false, draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd }) => {
+const SortableTh$1 = ({ colKey, label, fullTitle, defaultDir = "asc", alignRight = false, draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd, resize }) => {
   const isActive = sortBy.key === colKey;
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "th",
     {
-      className: `${alignRight ? "text-right" : "text-left"} whitespace-nowrap transition-all`,
+      className: `${alignRight ? "text-right" : "text-left"} whitespace-nowrap transition-all resizable-th`,
       "aria-sort": isActive ? sortBy.dir === "asc" ? "ascending" : "descending" : "none",
       title: fullTitle,
       onDragOver,
@@ -60757,33 +61866,36 @@ const SortableTh$1 = ({ colKey, label, fullTitle, defaultDir = "asc", alignRight
         boxShadow: isDragOver ? "inset 2px 0 0 var(--color-primary)" : "none",
         backgroundColor: isDragOver ? "var(--color-bg-soft)" : void 0
       },
-      children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `inline-flex items-center gap-1.5 ${alignRight ? "justify-end w-full" : ""}`, children: [
-        draggable && /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "span",
-          {
-            draggable: true,
-            onDragStart,
-            className: "cursor-grab active:cursor-grabbing flex-shrink-0 -ml-1",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3 h-3 opacity-25 hover:opacity-75" })
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            type: "button",
-            onClick: () => requestSort(colKey, defaultDir),
-            className: "inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap cursor-pointer",
-            style: {
-              color: isActive ? "var(--color-primary)" : "var(--color-text-secondary)",
-              textAlign: alignRight ? "right" : "left"
-            },
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon$1, { sortBy, colKey })
-            ]
-          }
-        )
-      ] })
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `inline-flex items-center gap-1.5 ${alignRight ? "justify-end w-full" : ""}`, children: [
+          draggable && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "span",
+            {
+              draggable: !resize?.resizingId,
+              onDragStart,
+              className: "cursor-grab active:cursor-grabbing flex-shrink-0 -ml-1",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3 h-3 opacity-25 hover:opacity-75" })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: () => requestSort(colKey, defaultDir),
+              className: "inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap cursor-pointer",
+              style: {
+                color: isActive ? "var(--color-primary)" : "var(--color-text-secondary)",
+                textAlign: alignRight ? "right" : "left"
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon$1, { sortBy, colKey })
+              ]
+            }
+          )
+        ] }),
+        resize && /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: resize, colId: colKey })
+      ]
     }
   );
 };
@@ -60799,6 +61911,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
   const [showGlobalReports, setShowGlobalReports] = reactExports.useState(false);
   const [campaignStateOverrides, setCampaignStateOverrides] = reactExports.useState({});
   const [menuAnchor, setMenuAnchor] = reactExports.useState(null);
+  const [logModal, setLogModal] = reactExports.useState(null);
   const [rowsPerPage, setRowsPerPage] = reactExports.useState(() => {
     const saved = localStorage.getItem("orbitra_table_page_size");
     return saved === "All" ? "All" : [25, 50, 100, 250].includes(Number(saved)) ? Number(saved) : 50;
@@ -60841,7 +61954,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
   const [togglingCampaignIds, setTogglingCampaignIds] = reactExports.useState(/* @__PURE__ */ new Set());
   const campaignEnabled = (camp) => (campaignStateOverrides[camp.id] ?? camp.state ?? "active") !== "disabled";
   const handleCopyCampaignLink = async (camp) => {
-    const url = `${window.location.origin}/${camp.alias}`;
+    const url = campaignLinkUrl(camp.alias, camp.domain_name || null);
     const ok = await copyToClipboard(url);
     if (ok) {
       alert(`${t("common.copied")}: ${url}`);
@@ -60849,9 +61962,54 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
       alert(url);
     }
   };
+  const handleOpenCampaignLink = (camp) => {
+    const url = campaignLinkUrl(camp.alias, camp.domain_name || null);
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+  const renderQuickActions = (camp, { size = "w-4 h-4", touch = false } = {}) => {
+    const btnClass = `${touch ? "hit-44 " : ""}p-1.5 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5`;
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          onClick: () => handleCopyCampaignLink(camp),
+          className: btnClass,
+          style: { color: "var(--color-text-muted)" },
+          title: t("table.campaignUrl"),
+          "aria-label": t("table.campaignUrl"),
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(Link2, { className: size })
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          onClick: () => setLogModal({ type: "clicks", id: camp.id, name: camp.name }),
+          className: btnClass,
+          style: { color: "var(--color-text-muted)" },
+          title: t("table.clickLog"),
+          "aria-label": t("table.clickLog"),
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: size })
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          onClick: () => setLogModal({ type: "conversions", id: camp.id, name: camp.name }),
+          className: btnClass,
+          style: { color: "var(--color-text-muted)" },
+          title: t("table.conversionLog"),
+          "aria-label": t("table.conversionLog"),
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(Target, { className: size })
+        }
+      )
+    ] });
+  };
   const handleDuplicateCampaign = async (camp) => {
     try {
-      const res = await axios.post(`${API_URL$z}?action=copy_campaign`, { id: camp.id });
+      const res = await axios.post(`${API_URL$y}?action=copy_campaign`, { id: camp.id });
       if (res.data.status === "success") {
         fetchCampaigns();
         if (refreshData) refreshData();
@@ -60903,7 +62061,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
       return;
     }
     try {
-      const res = await axios.get(`${API_URL$z}?action=campaign_remote_links`, { params: { campaign_id: camp.id } });
+      const res = await axios.get(`${API_URL$y}?action=campaign_remote_links`, { params: { campaign_id: camp.id } });
       const linked = res.data.status === "success" ? (res.data.data || []).flatMap((p) => (p.ids || []).map((id) => ({ platform: p.platform, id }))) : [];
       if (linked.length > 0) {
         setConfirmPause({ camp, linked });
@@ -60936,8 +62094,19 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     () => chosenColumns.filter((id) => !financeHiddenMetric(id, financeVis)),
     [chosenColumns, financeVis]
   );
+  const isDesktop = useIsDesktop();
+  const columnDefs = reactExports.useMemo(() => [
+    { id: "check", width: 40 },
+    { id: "id", width: 70 },
+    { id: "state", width: 90 },
+    { id: "name", width: 300 },
+    { id: "group_name", width: 140 },
+    ...visibleColumns.map((id) => ({ id, width: 120 })),
+    { id: "actions", width: 110 }
+  ], [visibleColumns]);
+  const colResize = useResizableTableColumns({ tableId: "campaigns", columns: columnDefs, enabled: isDesktop });
   const fetchGroups = () => {
-    axios.get(`${API_URL$z}?action=campaign_groups`).then((res) => {
+    axios.get(`${API_URL$y}?action=campaign_groups`).then((res) => {
       if (res.data.status === "success") {
         setGroups(res.data.data || []);
       }
@@ -60955,7 +62124,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         date_to: dateTo
       };
       if (selectedGroupId) params.group_id = selectedGroupId;
-      const res = await axios.get(`${API_URL$z}?action=campaigns`, { params });
+      const res = await axios.get(`${API_URL$y}?action=campaigns`, { params });
       if (res.data.status === "success") {
         setCampaignList(res.data.data || []);
       }
@@ -61023,7 +62192,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
   const handleDelete = async (id) => {
     if (window.confirm(t("campaigns.deleteConfirm"))) {
       try {
-        await axios.post(`${API_URL$z}?action=delete_campaign`, { id });
+        await axios.post(`${API_URL$y}?action=delete_campaign`, { id });
         fetchCampaigns();
         if (refreshData) refreshData();
       } catch (err) {
@@ -61209,7 +62378,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     const msg = (t("common.deleteSelectedConfirm") || t("campaigns.deleteConfirm")).replace("{count}", String(ids.length));
     if (!window.confirm(msg)) return;
     try {
-      await axios.post(`${API_URL$z}?action=bulk_delete_campaigns`, { ids });
+      await axios.post(`${API_URL$y}?action=bulk_delete_campaigns`, { ids });
       setSelectedCampaignIds(/* @__PURE__ */ new Set());
       fetchCampaigns();
       if (refreshData) refreshData();
@@ -61226,7 +62395,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     let errorCount = 0;
     for (const id of ids) {
       try {
-        await axios.post(`${API_URL$z}?action=copy_campaign`, { id });
+        await axios.post(`${API_URL$y}?action=copy_campaign`, { id });
         successCount++;
       } catch (err) {
         errorCount++;
@@ -61361,7 +62530,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
   };
   const handleClearStats = async () => {
     try {
-      await axios.post(`${API_URL$z}?action=clear_stats`, { campaign_id: actionModal.campaignId });
+      await axios.post(`${API_URL$y}?action=clear_stats`, { campaign_id: actionModal.campaignId });
       fetchCampaigns();
       if (refreshData) refreshData();
       setActionModal({ type: null, campaignId: null });
@@ -61380,7 +62549,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
       unique_only: fd.get("unique_only") === "on"
     };
     try {
-      const res = await axios.post(`${API_URL$z}?action=update_costs`, data);
+      const res = await axios.post(`${API_URL$y}?action=update_costs`, data);
       if (res.data.status === "success") {
         alert(t("campaigns.updatedClicks").replace("{count}", res.data.updated_clicks));
         fetchCampaigns();
@@ -61517,7 +62686,8 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         )
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tracker-table-container hidden lg:block", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table tracker-table", style: { fontVariantNumeric: "tabular-nums" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tracker-table-container hidden lg:block", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table tracker-table", style: { fontVariantNumeric: "tabular-nums", ...colResize.tableStyle }, children: [
+      colResize.colgroup,
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-8", style: { textAlign: "left" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
@@ -61532,10 +62702,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             style: { accentColor: "var(--color-primary)" }
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh$1, { sortBy, requestSort, colKey: "id", label: "ID", defaultDir: "desc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh$1, { sortBy, requestSort, colKey: "state", label: t("common.status"), defaultDir: "asc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh$1, { sortBy, requestSort, colKey: "name", label: t("campaigns.campaign"), defaultDir: "asc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh$1, { sortBy, requestSort, colKey: "group_name", label: t("campaigns.group"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh$1, { sortBy, requestSort, colKey: "id", label: "ID", defaultDir: "desc", resize: colResize }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh$1, { sortBy, requestSort, colKey: "state", label: t("common.status"), defaultDir: "asc", resize: colResize }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh$1, { sortBy, requestSort, colKey: "name", label: t("campaigns.campaign"), defaultDir: "asc", resize: colResize }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh$1, { sortBy, requestSort, colKey: "group_name", label: t("campaigns.group"), defaultDir: "asc", resize: colResize }),
         visibleColumns.map((colId, colIdx) => {
           const def = ALL_REPORT_METRICS.find((m) => m.id === colId);
           return /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -61549,6 +62719,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
               defaultDir: "desc",
               alignRight: true,
               draggable: true,
+              resize: colResize,
               isDragOver: thDragOverIdx === colIdx && thDragIdx !== null && thDragIdx !== colIdx,
               onDragStart: (e) => handleThDragStart(e, colIdx),
               onDragOver: (e) => handleThDragOver(e, colIdx),
@@ -61558,7 +62729,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             colId
           );
         }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", style: { textAlign: "right" }, children: t("common.actions") })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "text-right resizable-th", style: { textAlign: "right" }, children: [
+          t("common.actions"),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "actions" })
+        ] })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleCampaigns.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 6 + visibleColumns.length, className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("campaigns.noCampaignsCreated") }),
@@ -61614,17 +62788,20 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: camp.group_name || "-" }),
         visibleColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums" }, children: formatMetricCell(colId, camp) }, colId)),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            type: "button",
-            onClick: (event) => handleToggleMenu(event, camp.id),
-            className: "p-1.5 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5",
-            style: { color: menuAnchor?.id === camp.id ? "var(--color-primary)" : "var(--color-text-muted)" },
-            title: t("table.actions"),
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(EllipsisVertical, { className: "w-4 h-4" })
-          }
-        ) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "inline-flex items-center justify-end gap-0.5", children: [
+          renderQuickActions(camp),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: (event) => handleToggleMenu(event, camp.id),
+              className: "p-1.5 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5",
+              style: { color: menuAnchor?.id === camp.id ? "var(--color-primary)" : "var(--color-text-muted)" },
+              title: t("table.actions"),
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(EllipsisVertical, { className: "w-4 h-4" })
+            }
+          )
+        ] }) })
       ] }, camp.id)) }),
       visibleCampaigns.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tfoot", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { style: { backgroundColor: "var(--color-bg-soft)", borderTop: "2px solid var(--color-border)", fontWeight: 700 }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", {}),
@@ -61713,15 +62890,16 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
               children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "inline-block h-3 w-3 transform rounded-full bg-white shadow transition-transform", style: { transform: campaignEnabled(camp) ? "translateX(12px)" : "translateX(2px)" } })
             }
           ),
+          renderQuickActions(camp, { size: "w-4 h-4", touch: true }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
               type: "button",
               onClick: (event) => handleToggleMenu(event, camp.id),
-              className: "hit-44 flex items-center justify-center rounded-lg",
+              className: "hit-44 p-1.5 flex items-center justify-center rounded-lg",
               style: { color: menuAnchor?.id === camp.id ? "var(--color-primary)" : "var(--color-text-muted)" },
               title: t("table.actions"),
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(EllipsisVertical, { className: "w-5 h-5" })
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(EllipsisVertical, { className: "w-4 h-4" })
             }
           )
         ] }),
@@ -61760,7 +62938,8 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         onClose: () => setColumnsFilterOpen(false),
         selectedColumns: chosenColumns,
         onSaveColumns: handleSaveColumns,
-        mode: "campaigns"
+        mode: "campaigns",
+        onResetColumnWidths: colResize.api.resetAll
       }
     ),
     confirmPause && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", onClick: () => setConfirmPause(null), children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content max-w-md w-full rounded-2xl p-6", style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, onClick: (e) => e.stopPropagation(), children: [
@@ -61868,6 +63047,22 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         onClose: () => setShowGlobalReports(false)
       }
     ),
+    logModal?.type === "clicks" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ClickLogModal,
+      {
+        campaignId: logModal.id,
+        campaignName: logModal.name,
+        onClose: () => setLogModal(null)
+      }
+    ),
+    logModal?.type === "conversions" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ConversionsLogModal,
+      {
+        campaignId: logModal.id,
+        campaignName: logModal.name,
+        onClose: () => setLogModal(null)
+      }
+    ),
     menuAnchor && typeof document !== "undefined" && reactDomExports.createPortal(
       (() => {
         const camp = campaignList.find((campaign) => campaign.id === menuAnchor.id);
@@ -61912,6 +63107,14 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
                 setMenuAnchor(null);
+                handleOpenCampaignLink(camp);
+              }, className: "w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition", style: { color: "var(--color-text-primary)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ExternalLink, { className: "w-3.5 h-3.5" }),
+                " ",
+                t("table.openInNewTab")
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                setMenuAnchor(null);
                 handleDuplicateCampaign(camp);
               }, className: "w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition", style: { color: "var(--color-text-primary)" }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 rotate-90" }),
@@ -61943,7 +63146,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     )
   ] });
 };
-const API_URL$y = "/api.php";
+const API_URL$x = "/api.php";
 const TrafficSimulation = () => {
   const { t } = useLanguage();
   const [campaigns, setCampaigns] = reactExports.useState([]);
@@ -61958,7 +63161,7 @@ const TrafficSimulation = () => {
   const [trace, setTrace] = reactExports.useState(null);
   const [loading, setLoading] = reactExports.useState(false);
   reactExports.useEffect(() => {
-    axios.get(`${API_URL$y}?action=campaigns`).then((res) => {
+    axios.get(`${API_URL$x}?action=campaigns`).then((res) => {
       if (res.data.status === "success") {
         setCampaigns(res.data.data);
         if (res.data.data.length > 0) {
@@ -61972,7 +63175,7 @@ const TrafficSimulation = () => {
     setLoading(true);
     setTrace(null);
     try {
-      const res = await axios.post(`${API_URL$y}?action=simulate_traffic`, formData);
+      const res = await axios.post(`${API_URL$x}?action=simulate_traffic`, formData);
       if (res.data.status === "success") {
         setTrace(res.data.trace);
       } else {
@@ -62881,7 +64084,7 @@ function translateLandingRequestError(t, error) {
   }
   return t("landingEditor.networkError");
 }
-const API_URL$x = "/api.php";
+const API_URL$w = "/api.php";
 const IMAGE_EXTENSIONS$1 = /* @__PURE__ */ new Set(["png", "jpg", "jpeg", "gif", "webp", "svg", "avif", "ico", "bmp"]);
 const VOID_HTML_TAGS$1 = /* @__PURE__ */ new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]);
 const JUNK_FILE_NAMES$1 = /* @__PURE__ */ new Set(["__MACOSX", ".DS_Store", "Thumbs.db", ".git"]);
@@ -63013,7 +64216,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
   reactExports.useEffect(() => {
     if (landing.type !== "action" || landing.action_type !== "to_campaign" || campaigns.length) return;
     let cancelled = false;
-    axios.get(`${API_URL$x}?action=campaigns`).then((res) => {
+    axios.get(`${API_URL$w}?action=campaigns`).then((res) => {
       if (!cancelled && res.data.status === "success") setCampaigns(res.data.data || []);
     }).catch(() => {
     });
@@ -63026,10 +64229,10 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
       setLoading(true);
       try {
         const [groupsRes, settingsRes] = await Promise.all([
-          axios.get(`${API_URL$x}?action=landing_groups`),
+          axios.get(`${API_URL$w}?action=landing_groups`),
           // Needed to build the adapter's postback URL, which is keyed by
           // the instance's postback_key.
-          axios.get(`${API_URL$x}?action=settings`).catch(() => null)
+          axios.get(`${API_URL$w}?action=settings`).catch(() => null)
         ]);
         if (groupsRes.data.status === "success") {
           setGroups(groupsRes.data.data);
@@ -63038,7 +64241,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
           setPostbackKey(settingsRes.data.data?.postback_key || "");
         }
         if (landingId) {
-          const landingRes = await axios.get(`${API_URL$x}?action=get_landing&id=${landingId}`);
+          const landingRes = await axios.get(`${API_URL$w}?action=get_landing&id=${landingId}`);
           if (landingRes.data.status === "success") {
             setLanding(landingRes.data.data);
             if (landingRes.data.data.type === "local") {
@@ -63057,7 +64260,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
   }, [landingId, t]);
   const fetchLandingFiles = async (id) => {
     try {
-      const res = await axios.get(`${API_URL$x}?action=landing_files&id=${id}`);
+      const res = await axios.get(`${API_URL$w}?action=landing_files&id=${id}`);
       if (res.data.status === "success") {
         setFiles(res.data.data);
       }
@@ -63086,7 +64289,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
       setSaving(true);
       const payload = { ...landing };
       if (landingId) payload.id = landingId;
-      const res = await axios.post(`${API_URL$x}?action=save_landing`, payload);
+      const res = await axios.post(`${API_URL$w}?action=save_landing`, payload);
       if (res.data.status === "success") {
         setSavedSomething(true);
         const newId = res.data.data?.id;
@@ -63122,7 +64325,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
   };
   const fileOp = async (payload, okMessage) => {
     try {
-      const res = await axios.post(`${API_URL$x}?action=landing_file_op`, { id: landingId, ...payload });
+      const res = await axios.post(`${API_URL$w}?action=landing_file_op`, { id: landingId, ...payload });
       if (res.data.status !== "success") throw new Error(res.data.message || "failed");
       fetchLandingFiles(landingId);
       if (okMessage) ;
@@ -63163,7 +64366,7 @@ ${file}`)) return;
     fd.append("id", landingId);
     fd.append("dir", dir);
     try {
-      const res = await axios.post(`${API_URL$x}?action=upload_landing_file`, fd, {
+      const res = await axios.post(`${API_URL$w}?action=upload_landing_file`, fd, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       if (res.data.status !== "success") throw new Error(res.data.message || "failed");
@@ -63180,7 +64383,7 @@ ${file}`)) return;
     formData.append("file", file);
     formData.append("id", id);
     try {
-      const res = await axios.post(`${API_URL$x}?action=upload_landing`, formData, {
+      const res = await axios.post(`${API_URL$w}?action=upload_landing`, formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       if (res.data.status === "success") {
@@ -63222,7 +64425,7 @@ ${note}` : t("landingEditor.archiveUploaded"));
       return;
     }
     try {
-      const res = await axios.get(`${API_URL$x}?action=get_landing_file&id=${landingId}&path=${encodeURIComponent(path)}`);
+      const res = await axios.get(`${API_URL$w}?action=get_landing_file&id=${landingId}&path=${encodeURIComponent(path)}`);
       if (res.data.status === "success") {
         setSelectedFile(path);
         setFileContent(res.data.data);
@@ -63237,7 +64440,7 @@ ${note}` : t("landingEditor.archiveUploaded"));
     if (!selectedFile || selectedIsImage) return;
     setSavingFile(true);
     try {
-      const res = await axios.post(`${API_URL$x}?action=save_landing_file`, {
+      const res = await axios.post(`${API_URL$w}?action=save_landing_file`, {
         id: landingId,
         path: selectedFile,
         content: fileContent
@@ -63267,7 +64470,7 @@ ${note}` : t("landingEditor.archiveUploaded"));
     fd.append("id", landingId);
     fd.append("path", selectedFile);
     try {
-      const res = await axios.post(`${API_URL$x}?action=upload_landing_file`, fd, {
+      const res = await axios.post(`${API_URL$w}?action=upload_landing_file`, fd, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       if (res.data.status !== "success") throw new Error(res.data.message || "failed");
@@ -63941,7 +65144,7 @@ ${note}` : t("landingEditor.archiveUploaded"));
         type: "landing",
         onClose: () => {
           setShowGroupsModal(false);
-          axios.get(`${API_URL$x}?action=landing_groups`).then((res) => {
+          axios.get(`${API_URL$w}?action=landing_groups`).then((res) => {
             if (res.data.status === "success") setGroups(res.data.data);
           }).catch(() => {
           });
@@ -63962,7 +65165,7 @@ const entityDeleteErrorText = (t, data, err = null, fallbackKey = "common.error"
   }
   return data?.message || err?.response?.data?.message || err?.message || t(fallbackKey);
 };
-const API_URL$w = "/api.php";
+const API_URL$v = "/api.php";
 const FIXED_LANDING_COLUMNS = [
   { id: "checkbox", label: "", fixed: true },
   { id: "id", label: "ID", fixed: true },
@@ -64003,6 +65206,20 @@ const Landings = ({ landings, refreshData }) => {
   const [refreshing, setRefreshing] = reactExports.useState(false);
   const [columnsModalOpen, setColumnsModalOpen] = reactExports.useState(false);
   const [chosenColumns, setChosenColumns] = reactExports.useState(() => loadLandingColumns());
+  const isDesktop = useIsDesktop();
+  const columnDefs = reactExports.useMemo(() => [
+    { id: "checkbox", width: 40 },
+    { id: "id", width: 70 },
+    { id: "state", width: 90 },
+    { id: "name", width: 260 },
+    { id: "group_name", width: 130 },
+    { id: "type", width: 100 },
+    { id: "url", width: 280 },
+    { id: "last_event", width: 130 },
+    ...chosenColumns.map((id) => ({ id, width: 120 })),
+    { id: "actions", width: 110 }
+  ], [chosenColumns]);
+  const colResize = useResizableTableColumns({ tableId: "landings", columns: columnDefs, enabled: isDesktop });
   const [dateFrom, setDateFrom] = reactExports.useState(() => getPresetDates("today")?.from || formatDate$1(/* @__PURE__ */ new Date()));
   const [dateTo, setDateTo] = reactExports.useState(() => getPresetDates("today")?.to || formatDate$1(/* @__PURE__ */ new Date()));
   const [timezone, setTimezone] = reactExports.useState(() => localStorage.getItem("orbitra_tz") || "UTC");
@@ -64011,7 +65228,7 @@ const Landings = ({ landings, refreshData }) => {
     const requestId = ++landingRequestId.current;
     setRefreshing(true);
     try {
-      const res = await axios.get(`${API_URL$w}?action=landings`, {
+      const res = await axios.get(`${API_URL$v}?action=landings`, {
         params: {
           date_from: dateFrom,
           date_to: dateTo,
@@ -64047,7 +65264,7 @@ const Landings = ({ landings, refreshData }) => {
   const handleDelete = async (id) => {
     if (window.confirm(t("common.deleteConfirm"))) {
       try {
-        const res = await axios.post(`${API_URL$w}?action=delete_landing`, { id });
+        const res = await axios.post(`${API_URL$v}?action=delete_landing`, { id });
         if (res?.data?.status !== "success") {
           alert(entityDeleteErrorText(t, res?.data));
           return;
@@ -64138,7 +65355,7 @@ const Landings = ({ landings, refreshData }) => {
     const msg = (t("common.deleteSelectedConfirm") || t("common.deleteConfirm")).replace("{count}", String(ids.length));
     if (!window.confirm(msg)) return;
     try {
-      const res = await axios.post(`${API_URL$w}?action=bulk_delete_landings`, { ids });
+      const res = await axios.post(`${API_URL$v}?action=bulk_delete_landings`, { ids });
       if (res?.data?.status !== "success") {
         alert(entityDeleteErrorText(t, res?.data));
         return;
@@ -64736,7 +65953,8 @@ const Landings = ({ landings, refreshData }) => {
         t("common.clear")
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tracker-table-container hidden lg:block", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table tracker-table", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tracker-table-container hidden lg:block", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table tracker-table", style: { ...colResize.tableStyle }, children: [
+      colResize.colgroup,
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
@@ -64749,26 +65967,53 @@ const Landings = ({ landings, refreshData }) => {
             onChange: (e) => toggleSelectAll(e.target.checked)
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "ID" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.status") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("editor.name") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.group") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("components.type") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "URL" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("landingColumns.lastEvent") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+          "ID",
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "id" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+          t("components.status"),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "state" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+          t("editor.name"),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "name" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+          t("components.group"),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "group_name" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+          t("components.type"),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "type" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+          "URL",
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "url" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+          t("landingColumns.lastEvent"),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "last_event" })
+        ] }),
         chosenColumns.map((colId) => {
           const def = ALL_REPORT_METRICS.find((m) => m.id === colId);
-          return /* @__PURE__ */ jsxRuntimeExports.jsx(
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "th",
             {
               title: getReportMetricTooltip(def, t),
-              className: "text-right whitespace-nowrap",
-              children: def?.shortLabel || def?.label || colId
+              className: "text-right whitespace-nowrap resizable-th",
+              children: [
+                def?.shortLabel || def?.label || colId,
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId })
+              ]
             },
             colId
           );
         }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("common.actions") })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "text-right resizable-th", children: [
+          t("common.actions"),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "actions" })
+        ] })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleLandings.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 9 + chosenColumns.length, className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("landings.noLandings") }),
@@ -64903,7 +66148,8 @@ const Landings = ({ landings, refreshData }) => {
           localStorage.setItem(LANDING_COLUMNS_KEY, JSON.stringify(ids));
           setColumnsModalOpen(false);
         },
-        mode: "landings"
+        mode: "landings",
+        onResetColumnWidths: colResize.api.resetAll
       }
     )
   ] });
@@ -64934,7 +66180,7 @@ const localizedCountryName = (code, language, fallbackName) => {
   }
   return fallbackName || code;
 };
-const API_URL$v = "/api.php";
+const API_URL$u = "/api.php";
 const getCountryFlag = (code) => {
   if (!code || code === "Unknown" || code === "??") return "🏳️";
   if (code.length !== 2) return "📍";
@@ -64959,8 +66205,8 @@ const GeoSelector = ({ value = "", onChange, placeholder }) => {
     const loadData = async () => {
       try {
         const [cRes, pRes] = await Promise.all([
-          axios.get(`${API_URL$v}?action=countries_list`),
-          axios.get(`${API_URL$v}?action=geo_profiles`)
+          axios.get(`${API_URL$u}?action=countries_list`),
+          axios.get(`${API_URL$u}?action=geo_profiles`)
         ]);
         if (cRes.data?.data) setCountries(cRes.data.data);
         if (pRes.data?.data) setProfiles(pRes.data.data);
@@ -65551,7 +66797,7 @@ const AffiliateNetworkEditor = ({ networkId, onClose, postbackKey }) => {
     }
   ) });
 };
-const API_URL$u = "/api.php";
+const API_URL$t = "/api.php";
 const IMAGE_EXTENSIONS = /* @__PURE__ */ new Set(["png", "jpg", "jpeg", "gif", "webp", "svg", "avif", "ico", "bmp"]);
 const VOID_HTML_TAGS = /* @__PURE__ */ new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]);
 const JUNK_FILE_NAMES = /* @__PURE__ */ new Set(["__MACOSX", ".DS_Store", "Thumbs.db", ".git"]);
@@ -65695,7 +66941,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
   }, []);
   const refetchGroups = async () => {
     try {
-      const res = await axios.get(`${API_URL$u}?action=offer_groups`);
+      const res = await axios.get(`${API_URL$t}?action=offer_groups`);
       if (res.data.status === "success") setGroups(res.data.data);
     } catch (err) {
       console.error(err);
@@ -65703,7 +66949,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
   };
   const refetchNetworks = async (selectNewest = false) => {
     try {
-      const res = await axios.get(`${API_URL$u}?action=affiliate_networks`);
+      const res = await axios.get(`${API_URL$t}?action=affiliate_networks`);
       if (res.data.status === "success") {
         setAffiliateNetworks(res.data.data);
         if (selectNewest && res.data.data.length) {
@@ -65725,9 +66971,9 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
     const fetchDeps = async () => {
       try {
         const [gRes, anRes, oRes] = await Promise.all([
-          axios.get(`${API_URL$u}?action=offer_groups`),
-          axios.get(`${API_URL$u}?action=affiliate_networks`),
-          axios.get(`${API_URL$u}?action=all_offers`)
+          axios.get(`${API_URL$t}?action=offer_groups`),
+          axios.get(`${API_URL$t}?action=affiliate_networks`),
+          axios.get(`${API_URL$t}?action=all_offers`)
         ]);
         if (gRes.data.status === "success") setGroups(gRes.data.data);
         if (anRes.data.status === "success") setAffiliateNetworks(anRes.data.data);
@@ -65739,7 +66985,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
     fetchDeps();
     if (offerId) {
       setLoading(true);
-      axios.get(`${API_URL$u}?action=get_offer&id=${offerId}`).then((res) => {
+      axios.get(`${API_URL$t}?action=get_offer&id=${offerId}`).then((res) => {
         if (res.data.status === "success") {
           const data = res.data.data;
           setFormData({
@@ -65785,7 +67031,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
       setLoading(true);
       const payload = { ...formData };
       if (currentOfferId) payload.id = currentOfferId;
-      const res = await axios.post(`${API_URL$u}?action=save_offer`, payload);
+      const res = await axios.post(`${API_URL$t}?action=save_offer`, payload);
       if (res.data.status === "success") {
         const newId = res.data.data?.id || currentOfferId;
         setSavedSomething(true);
@@ -65822,7 +67068,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
   const fetchOfferFiles = async (id) => {
     if (!id) return;
     try {
-      const res = await axios.get(`${API_URL$u}?action=offer_files`, { params: { id } });
+      const res = await axios.get(`${API_URL$t}?action=offer_files`, { params: { id } });
       if (res.data.status === "success") {
         const list = res.data.data || [];
         setOfferFiles(list);
@@ -65846,7 +67092,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
       return;
     }
     try {
-      const res = await axios.get(`${API_URL$u}?action=offer_file_content&id=${id}&path=${encodeURIComponent(path)}`);
+      const res = await axios.get(`${API_URL$t}?action=offer_file_content&id=${id}&path=${encodeURIComponent(path)}`);
       if (res.data.status === "success") {
         setSelectedFile(path);
         setFileContent(res.data.data ?? "");
@@ -65861,7 +67107,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
     if (!selectedFile || selectedIsImage || !currentOfferId) return;
     setSavingFile(true);
     try {
-      const res = await axios.post(`${API_URL$u}?action=offer_save_file`, {
+      const res = await axios.post(`${API_URL$t}?action=offer_save_file`, {
         id: currentOfferId,
         path: selectedFile,
         content: fileContent
@@ -65881,7 +67127,7 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
   const fileOp = async (payload, okMessage) => {
     if (!currentOfferId) return false;
     try {
-      const res = await axios.post(`${API_URL$u}?action=offer_file_op`, { id: currentOfferId, ...payload });
+      const res = await axios.post(`${API_URL$t}?action=offer_file_op`, { id: currentOfferId, ...payload });
       if (res.data.status !== "success") throw new Error(res.data.message || "failed");
       fetchOfferFiles(currentOfferId);
       if (okMessage) ;
@@ -65925,7 +67171,7 @@ ${file}`)) return;
     fd.append("id", currentOfferId);
     fd.append("dir", dir);
     try {
-      const res = await axios.post(`${API_URL$u}?action=upload_offer_file`, fd, {
+      const res = await axios.post(`${API_URL$t}?action=upload_offer_file`, fd, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       if (res.data.status !== "success") throw new Error(res.data.message || "failed");
@@ -65949,7 +67195,7 @@ ${file}`)) return;
     fd.append("id", currentOfferId);
     fd.append("path", selectedFile);
     try {
-      const res = await axios.post(`${API_URL$u}?action=upload_offer_file`, fd, {
+      const res = await axios.post(`${API_URL$t}?action=upload_offer_file`, fd, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       if (res.data.status !== "success") throw new Error(res.data.message || "failed");
@@ -65975,7 +67221,7 @@ ${file}`)) return;
       const fd = new FormData();
       fd.append("id", id);
       fd.append("file", file);
-      const res = await axios.post(`${API_URL$u}?action=upload_offer`, fd, {
+      const res = await axios.post(`${API_URL$t}?action=upload_offer`, fd, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       if (res.data.status !== "success") {
@@ -66914,7 +68160,7 @@ ${file}`)) return;
     )
   ] });
 };
-const API_URL$t = "/api.php";
+const API_URL$s = "/api.php";
 const OFFER_COLUMNS_KEY = "orbitra_offer_columns";
 const loadOfferColumns = () => {
   try {
@@ -66928,12 +68174,12 @@ const SortIcon = ({ sortBy, colKey }) => {
   if (sortBy.key !== colKey) return /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 opacity-40" });
   return sortBy.dir === "asc" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } });
 };
-const SortableTh = ({ colKey, label, fullTitle, defaultDir = "asc", alignRight = false, draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd }) => {
+const SortableTh = ({ colKey, label, fullTitle, defaultDir = "asc", alignRight = false, draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd, resize }) => {
   const isActive = sortBy.key === colKey;
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "th",
     {
-      className: `${alignRight ? "text-right" : "text-left"} whitespace-nowrap transition-all`,
+      className: `${alignRight ? "text-right" : "text-left"} whitespace-nowrap transition-all resizable-th`,
       "aria-sort": isActive ? sortBy.dir === "asc" ? "ascending" : "descending" : "none",
       title: fullTitle,
       onDragOver,
@@ -66945,33 +68191,36 @@ const SortableTh = ({ colKey, label, fullTitle, defaultDir = "asc", alignRight =
         boxShadow: isDragOver ? "inset 2px 0 0 var(--color-primary)" : "none",
         backgroundColor: isDragOver ? "var(--color-bg-soft)" : void 0
       },
-      children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `inline-flex items-center gap-1.5 ${alignRight ? "justify-end w-full" : ""}`, children: [
-        draggable && /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "span",
-          {
-            draggable: true,
-            onDragStart,
-            className: "cursor-grab active:cursor-grabbing flex-shrink-0 -ml-1",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3 h-3 opacity-25 hover:opacity-75" })
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            type: "button",
-            onClick: () => requestSort(colKey, defaultDir),
-            className: "inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap cursor-pointer",
-            style: {
-              color: isActive ? "var(--color-primary)" : "var(--color-text-secondary)",
-              textAlign: alignRight ? "right" : "left"
-            },
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { sortBy, colKey })
-            ]
-          }
-        )
-      ] })
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `inline-flex items-center gap-1.5 ${alignRight ? "justify-end w-full" : ""}`, children: [
+          draggable && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "span",
+            {
+              draggable: !resize?.resizingId,
+              onDragStart,
+              className: "cursor-grab active:cursor-grabbing flex-shrink-0 -ml-1",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3 h-3 opacity-25 hover:opacity-75" })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: () => requestSort(colKey, defaultDir),
+              className: "inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap cursor-pointer",
+              style: {
+                color: isActive ? "var(--color-primary)" : "var(--color-text-secondary)",
+                textAlign: alignRight ? "right" : "left"
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { sortBy, colKey })
+              ]
+            }
+          )
+        ] }),
+        resize && /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: resize, colId: colKey })
+      ]
     }
   );
 };
@@ -66998,6 +68247,21 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
   const [chosenColumns, setChosenColumns] = reactExports.useState(() => loadOfferColumns());
   const [thDragIdx, setThDragIdx] = reactExports.useState(null);
   const [thDragOverIdx, setThDragOverIdx] = reactExports.useState(null);
+  const isDesktop = useIsDesktop();
+  const columnDefs = reactExports.useMemo(() => [
+    { id: "check", width: 40 },
+    { id: "id", width: 70 },
+    { id: "state", width: 90 },
+    { id: "name", width: 260 },
+    { id: "group_name", width: 130 },
+    { id: "affiliate_network_name", width: 140 },
+    { id: "geo", width: 80 },
+    { id: "payout", width: 110 },
+    { id: "redirect_type", width: 110 },
+    ...chosenColumns.map((id) => ({ id, width: 120 })),
+    { id: "actions", width: 110 }
+  ], [chosenColumns]);
+  const colResize = useResizableTableColumns({ tableId: "offers", columns: columnDefs, enabled: isDesktop });
   const [menuAnchor, setMenuAnchor] = reactExports.useState(null);
   const [offers, setOffers] = reactExports.useState(initialOffers);
   const [dateFrom, setDateFrom] = reactExports.useState(() => getPresetDates("today")?.from || formatDate$1(/* @__PURE__ */ new Date()));
@@ -67008,7 +68272,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
     const sequence = ++fetchSequence.current;
     if (showSpinner) setRefreshing(true);
     try {
-      const res = await axios.get(`${API_URL$t}?action=offers`, {
+      const res = await axios.get(`${API_URL$s}?action=offers`, {
         params: {
           date_from: dateFrom,
           date_to: dateTo,
@@ -67236,7 +68500,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
   const handleDelete = async (id) => {
     if (window.confirm(t("common.deleteConfirm"))) {
       try {
-        const res = await axios.post(`${API_URL$t}?action=delete_offer`, { id });
+        const res = await axios.post(`${API_URL$s}?action=delete_offer`, { id });
         if (res?.data?.status !== "success") {
           alert(entityDeleteErrorText(t, res?.data));
           return;
@@ -67274,7 +68538,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
     const msg = (t("common.deleteSelectedConfirm") || t("common.deleteConfirm")).replace("{count}", String(ids.length));
     if (!window.confirm(msg)) return;
     try {
-      const res = await axios.post(`${API_URL$t}?action=bulk_delete_offers`, { ids });
+      const res = await axios.post(`${API_URL$s}?action=bulk_delete_offers`, { ids });
       if (res?.data?.status !== "success") {
         alert(entityDeleteErrorText(t, res?.data));
         return;
@@ -67294,7 +68558,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
     let errorCount = 0;
     for (const id of ids) {
       try {
-        await axios.post(`${API_URL$t}?action=copy_offer`, { id });
+        await axios.post(`${API_URL$s}?action=copy_offer`, { id });
         successCount++;
       } catch {
         errorCount++;
@@ -67829,7 +69093,8 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
         );
       })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tracker-table-container hidden lg:block", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table tracker-table", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tracker-table-container hidden lg:block", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table tracker-table", style: { ...colResize.tableStyle }, children: [
+      colResize.colgroup,
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
@@ -67842,14 +69107,20 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
             onChange: (e) => toggleSelectAllFiltered(e.target.checked)
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "id", label: "ID", defaultDir: "desc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("common.status") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "name", label: t("editor.name"), defaultDir: "asc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "group_name", label: t("components.group"), defaultDir: "asc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "affiliate_network_name", label: t("offers.network"), defaultDir: "asc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "geo", label: "GEO", defaultDir: "asc" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("offerColumns.payout") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "redirect_type", label: t("components.type"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "id", label: "ID", defaultDir: "desc", resize: colResize }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+          t("common.status"),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "state" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "name", label: t("editor.name"), defaultDir: "asc", resize: colResize }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "group_name", label: t("components.group"), defaultDir: "asc", resize: colResize }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "affiliate_network_name", label: t("offers.network"), defaultDir: "asc", resize: colResize }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "geo", label: "GEO", defaultDir: "asc", resize: colResize }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+          t("offerColumns.payout"),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "payout" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "redirect_type", label: t("components.type"), defaultDir: "asc", resize: colResize }),
         chosenColumns.map((colId, colIdx) => {
           const def = ALL_REPORT_METRICS.find((m) => m.id === colId);
           return /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -67863,6 +69134,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
               defaultDir: "desc",
               alignRight: true,
               draggable: true,
+              resize: colResize,
               isDragOver: thDragOverIdx === colIdx && thDragIdx !== null && thDragIdx !== colIdx,
               onDragStart: (e) => handleThDragStart(e, colIdx),
               onDragOver: (e) => handleThDragOver(e, colIdx),
@@ -67872,7 +69144,10 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
             colId
           );
         }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right", children: t("common.actions") })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "text-right resizable-th", children: [
+          t("common.actions"),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "actions" })
+        ] })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleOffers.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 10 + chosenColumns.length, className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: offers.length === 0 ? t("offers.noOffers") : t("offers.noOffersFiltered") }),
@@ -68036,7 +69311,8 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
         onClose: () => setColumnsModalOpen(false),
         selectedColumns: chosenColumns,
         onSaveColumns: handleSaveColumns,
-        mode: "offers"
+        mode: "offers",
+        onResetColumnWidths: colResize.api.resetAll
       }
     ),
     menuAnchor && /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -68096,7 +69372,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
     ] }) })
   ] });
 };
-const API_URL$s = "/api.php";
+const API_URL$r = "/api.php";
 let cachedTrafficSourceTemplates = null;
 const TrafficSourceEditor = ({ id, onClose, onSave }) => {
   const { t, language } = useLanguage();
@@ -68125,7 +69401,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     if (cachedTrafficSourceTemplates) {
       setTemplates(cachedTrafficSourceTemplates);
     } else {
-      axios.get(`${API_URL$s}?action=traffic_source_templates`).then((res) => {
+      axios.get(`${API_URL$r}?action=traffic_source_templates`).then((res) => {
         if (res.data.status === "success") {
           cachedTrafficSourceTemplates = res.data.data;
           setTemplates(res.data.data);
@@ -68134,7 +69410,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     }
     if (id) {
       setLoading(true);
-      axios.get(`${API_URL$s}?action=get_traffic_source&id=${id}`).then((res) => {
+      axios.get(`${API_URL$r}?action=get_traffic_source&id=${id}`).then((res) => {
         if (res.data.status === "success") {
           const data = res.data.data;
           setFormData({
@@ -68197,7 +69473,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     try {
       setSaving(true);
       const payload = { ...formData, id: currentId };
-      const res = await axios.post(`${API_URL$s}?action=traffic_sources`, payload);
+      const res = await axios.post(`${API_URL$r}?action=traffic_sources`, payload);
       if (res.data.status !== "success") {
         alert(res.data.message || t("common.error"));
         return;
@@ -68526,7 +69802,7 @@ const TrafficSourceEditor = ({ id, onClose, onSave }) => {
     }
   ) });
 };
-const API_URL$r = "/api.php";
+const API_URL$q = "/api.php";
 const BulkImportSources = ({ onClose, onSave }) => {
   const { t } = useLanguage();
   const [lines, setLines] = reactExports.useState("");
@@ -68541,7 +69817,7 @@ const BulkImportSources = ({ onClose, onSave }) => {
     setResult(null);
     try {
       const linesArray = lines.split("\n").map((l) => l.trim()).filter((l) => l);
-      const res = await axios.post(`${API_URL$r}?action=bulk_import_sources`, { lines: linesArray });
+      const res = await axios.post(`${API_URL$q}?action=bulk_import_sources`, { lines: linesArray });
       if (res.data.status === "success") {
         setResult(res.data.data);
       }
@@ -68661,7 +69937,7 @@ ${t("bulkImport.mySource")}|https://example3.com`,
     ] })
   ] }) });
 };
-const API_URL$q = "/api.php";
+const API_URL$p = "/api.php";
 const TrafficSources = ({ refreshData }) => {
   const { t } = useLanguage();
   const [sources, setSources] = reactExports.useState([]);
@@ -68679,7 +69955,7 @@ const TrafficSources = ({ refreshData }) => {
   const fetchSources = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_URL$q}?action=traffic_sources`);
+      const res = await axios.get(`${API_URL$p}?action=traffic_sources`);
       if (res.data.status === "success") {
         setSources(res.data.data);
       }
@@ -68710,7 +69986,7 @@ const TrafficSources = ({ refreshData }) => {
   const handleDelete = async (id) => {
     if (!confirm(t("sources.deleteConfirm"))) return;
     try {
-      const res = await axios.post(`${API_URL$q}?action=delete_traffic_source`, { id });
+      const res = await axios.post(`${API_URL$p}?action=delete_traffic_source`, { id });
       if (res?.data?.status !== "success") {
         alert(res?.data?.message || t("common.error"));
         return;
@@ -68749,7 +70025,7 @@ const TrafficSources = ({ refreshData }) => {
     const msg = (t("common.deleteSelectedConfirm") || t("sources.deleteConfirm")).replace("{count}", String(ids.length));
     if (!confirm(msg)) return;
     try {
-      await axios.post(`${API_URL$q}?action=bulk_delete_traffic_sources`, { ids });
+      await axios.post(`${API_URL$p}?action=bulk_delete_traffic_sources`, { ids });
       setSelectedIds(/* @__PURE__ */ new Set());
       fetchSources();
       refreshData && refreshData();
@@ -68802,7 +70078,7 @@ const TrafficSources = ({ refreshData }) => {
   };
   const checkSourceUrl = async (id) => {
     try {
-      await axios.get(`${API_URL$q}?action=check_source_url&id=${id}`);
+      await axios.get(`${API_URL$p}?action=check_source_url&id=${id}`);
       fetchSources();
     } catch (error) {
       console.error("Error checking URL:", error);
@@ -68812,7 +70088,7 @@ const TrafficSources = ({ refreshData }) => {
     if (checkingUrls) return;
     setCheckingUrls(true);
     try {
-      await axios.post(`${API_URL$q}?action=check_all_source_urls`);
+      await axios.post(`${API_URL$p}?action=check_all_source_urls`);
       fetchSources();
     } catch (error) {
       console.error("Error checking URLs:", error);
@@ -69076,362 +70352,6 @@ const TrafficSources = ({ refreshData }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "btn btn-primary w-full", onClick: exportVisibleCsv, children: t("common.exportCsv") })
       ] })
     ] }) })
-  ] });
-};
-const API_URL$p = "/api.php";
-const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
-  const { t } = useLanguage();
-  const [conversions, setConversions] = reactExports.useState([]);
-  const [loading, setLoading] = reactExports.useState(true);
-  const [pagination, setPagination] = reactExports.useState({ total: 0, page: 1, per_page: 50, total_pages: 0 });
-  const [selectedClickId, setSelectedClickId] = reactExports.useState(null);
-  const [conversionTypes, setConversionTypes] = reactExports.useState([]);
-  const [search, setSearch] = reactExports.useState("");
-  const [statusFilter, setStatusFilter] = reactExports.useState("");
-  const todayPreset = getPresetDates("today");
-  const [dateFrom, setDateFrom] = reactExports.useState(todayPreset?.from || formatDate$1(/* @__PURE__ */ new Date()));
-  const [dateTo, setDateTo] = reactExports.useState(todayPreset?.to || formatDate$1(/* @__PURE__ */ new Date()));
-  const [timezone, setTimezone] = reactExports.useState(() => localStorage.getItem("orbitra_tz") || "UTC");
-  const [internalCampaignId, setInternalCampaignId] = reactExports.useState("");
-  const effectiveCampaignId = propCampaignId !== void 0 ? propCampaignId : internalCampaignId;
-  const fetchConversions = async (page = 1) => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({ action: "conversions", page, per_page: pagination.per_page });
-      if (search) params.append("search", search);
-      if (statusFilter) params.append("status", statusFilter);
-      if (dateFrom) params.append("date_from", dateFrom);
-      if (dateTo) params.append("date_to", dateTo);
-      if (effectiveCampaignId) params.append("campaign_id", effectiveCampaignId);
-      const res = await axios.get(`${API_URL$p}?${params.toString()}`);
-      if (res.data.status === "success") {
-        setConversions(res.data.data);
-        setPagination(res.data.pagination);
-      }
-    } catch (error) {
-      console.error("Error fetching conversions:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  reactExports.useEffect(() => {
-    fetchConversions(1);
-  }, [statusFilter, dateFrom, dateTo, effectiveCampaignId]);
-  reactExports.useEffect(() => {
-    axios.get(`${API_URL$p}?action=conversion_types`).then((res) => {
-      if (res.data.status === "success") setConversionTypes(res.data.data || []);
-    }).catch(() => {
-    });
-  }, []);
-  const handleSearch = () => {
-    fetchConversions(1);
-  };
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= pagination.total_pages) {
-      fetchConversions(newPage);
-    }
-  };
-  const exportCSV = () => {
-    if (conversions.length === 0) return;
-    const headers = ["ID", "Click ID", "TID", "Status", "Payout", "Currency", "Campaign", "Offer", "IP", "Created"];
-    const rows = conversions.map((c) => [
-      c.id,
-      c.click_id,
-      c.tid || "",
-      c.status,
-      c.payout,
-      c.currency,
-      c.campaign_name || "",
-      c.offer_name || "",
-      c.ip || "",
-      c.created_at
-    ]);
-    const csv = [headers, ...rows].map((r2) => r2.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `conversions_${(/* @__PURE__ */ new Date()).toISOString().split("T")[0]}.csv`;
-    a.click();
-  };
-  const getStatusBadge = (status) => {
-    const badgeColor = resolveConversionColor(status, conversionTypes);
-    const statusLabels = {
-      lead: t("conversions.lead"),
-      sale: t("conversions.sale"),
-      rejected: t("conversions.rejected"),
-      registration: t("conversions.registration"),
-      deposit: t("conversions.deposit"),
-      trash: t("conversions.trash")
-    };
-    return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: {
-      display: "inline-flex",
-      alignItems: "center",
-      padding: "4px 10px",
-      fontSize: "12px",
-      fontWeight: 500,
-      borderRadius: "12px",
-      color: badgeColor,
-      backgroundColor: `color-mix(in srgb, ${badgeColor} 14%, transparent)`,
-      border: `1px solid color-mix(in srgb, ${badgeColor} 25%, transparent)`
-    }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: {
-        width: "6px",
-        height: "6px",
-        borderRadius: "50%",
-        backgroundColor: badgeColor,
-        marginRight: "6px",
-        flexShrink: 0
-      } }),
-      statusLabels[status] || status
-    ] });
-  };
-  const isModalMode = onClose !== void 0;
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: isModalMode ? "" : "space-y-4", children: [
-    !isModalMode && /* @__PURE__ */ jsxRuntimeExports.jsx(InfoBanner, { storageKey: "help_conversions", title: t("help.conversionsBannerTitle"), children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: t("help.conversionsBanner") }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px", alignItems: "end" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { gridColumn: "span 2" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("conversions.search") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Search, { className: "absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              type: "text",
-              placeholder: t("conversions.searchPlaceholder"),
-              value: search,
-              onChange: (e) => setSearch(e.target.value),
-              onKeyDown: (e) => e.key === "Enter" && handleSearch(),
-              className: "form-input pl-12"
-            }
-          )
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("conversions.status") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "select",
-          {
-            value: statusFilter,
-            onChange: (e) => setStatusFilter(e.target.value),
-            className: "form-select",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "", children: t("conversions.allStatuses") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "lead", children: t("conversions.lead") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "sale", children: t("conversions.sale") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "rejected", children: t("conversions.rejected") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "registration", children: t("conversions.registration") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "deposit", children: t("conversions.deposit") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "trash", children: t("conversions.trash") })
-            ]
-          }
-        )
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        DateRangePicker,
-        {
-          dateFrom,
-          dateTo,
-          onChange: (from2, to2) => {
-            setDateFrom(from2);
-            setDateTo(to2);
-          },
-          selectedTimezone: timezone,
-          onTimezoneChange: setTimezone
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            onClick: () => fetchConversions(pagination.page),
-            className: "btn btn-secondary btn-icon",
-            title: t("common.refresh"),
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { size: 18 })
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            onClick: exportCSV,
-            className: "btn btn-secondary btn-icon",
-            title: "CSV",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Download, { size: 18 })
-          }
-        )
-      ] })
-    ] }) }),
-    loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", justifyContent: "center", alignItems: "center", height: "200px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "32px", height: "32px", border: "3px solid var(--color-border)", borderTopColor: "var(--color-primary)", borderRadius: "50%", animation: "spin 1s linear infinite" } }) }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", style: { padding: 0 }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto hidden lg:block", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "ID" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Click ID" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "TID" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("conversions.status") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("conversions.payout") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("conversions.campaign") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("conversions.offer") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "IP" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("conversions.date") })
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: conversions.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 9, className: "text-center", style: { padding: "48px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("conversions.noConversions") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("conversions.noConversionsText") })
-        ] }) }) }) : conversions.map((conv) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: conv.id }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              onClick: () => setSelectedClickId(conv.click_id),
-              style: {
-                fontFamily: "monospace",
-                fontSize: "12px",
-                color: "var(--color-primary)",
-                background: "var(--color-bg-soft)",
-                padding: "4px 8px",
-                borderRadius: "6px",
-                border: "none",
-                cursor: "pointer",
-                transition: "all 0.2s"
-              },
-              children: conv.click_id
-            }
-          ) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: conv.tid || "-" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: getStatusBadge(conv.status) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { style: { color: "var(--color-success)", fontWeight: 500 }, children: [
-            "$",
-            Number(conv.payout || 0).toFixed(2)
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-primary)" }, children: conv.campaign_name || "-" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-primary)" }, children: conv.offer_name || "-" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-muted)", fontSize: "14px" }, children: conv.ip || "-" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              onClick: () => setSelectedClickId(conv.click_id),
-              style: {
-                color: "var(--color-text-secondary)",
-                fontSize: "14px",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                padding: 0,
-                transition: "color 0.2s"
-              },
-              children: new Date(conv.created_at).toLocaleString("ru-RU")
-            }
-          ) })
-        ] }, conv.id)) })
-      ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "lg:hidden p-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        MobileCards,
-        {
-          rows: conversions,
-          getId: (conv) => conv.id,
-          renderTitle: (conv) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              onClick: () => setSelectedClickId(conv.click_id),
-              className: "font-mono text-xs px-2 py-1 rounded-md",
-              style: {
-                color: "var(--color-primary)",
-                backgroundColor: "var(--color-bg-soft)",
-                border: "none",
-                cursor: "pointer"
-              },
-              children: conv.click_id
-            }
-          ),
-          renderHeaderRight: (conv) => getStatusBadge(conv.status),
-          fields: [
-            {
-              id: "payout",
-              label: t("conversions.payout"),
-              render: (c) => /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-success)", fontWeight: 500 }, children: [
-                "$",
-                Number(c.payout || 0).toFixed(2)
-              ] })
-            },
-            { id: "campaign", label: t("conversions.campaign"), render: (c) => c.campaign_name || "-" },
-            { id: "offer", label: t("conversions.offer"), render: (c) => c.offer_name || "-" },
-            {
-              id: "created",
-              label: t("conversions.date"),
-              render: (c) => new Date(c.created_at).toLocaleString("ru-RU")
-            },
-            { id: "id", label: "ID", render: (c) => c.id },
-            { id: "tid", label: "TID", render: (c) => c.tid || "-" },
-            { id: "ip", label: "IP", render: (c) => c.ip || "-" }
-          ],
-          primaryIds: ["payout", "campaign", "offer", "created"],
-          emptyState: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-10", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("conversions.noConversions") }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("conversions.noConversionsText") })
-          ] }) })
-        }
-      ) }),
-      pagination.total_pages > 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "16px",
-        borderTop: "1px solid var(--color-border)"
-      }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { fontSize: "14px", color: "var(--color-text-secondary)" }, children: [
-          t("conversions.shown"),
-          " ",
-          (pagination.page - 1) * pagination.per_page + 1,
-          " - ",
-          Math.min(pagination.page * pagination.per_page, pagination.total),
-          " ",
-          t("conversions.of"),
-          " ",
-          pagination.total
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              onClick: () => handlePageChange(pagination.page - 1),
-              disabled: pagination.page <= 1,
-              className: "btn btn-secondary btn-sm",
-              style: { opacity: pagination.page <= 1 ? 0.5 : 1 },
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { size: 16 })
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-primary)", fontSize: "14px" }, children: [
-            pagination.page,
-            " / ",
-            pagination.total_pages
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              onClick: () => handlePageChange(pagination.page + 1),
-              disabled: pagination.page >= pagination.total_pages,
-              className: "btn btn-secondary btn-sm",
-              style: { opacity: pagination.page >= pagination.total_pages ? 0.5 : 1 },
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { size: 16 })
-            }
-          )
-        ] })
-      ] })
-    ] }),
-    !isModalMode && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", style: { background: "var(--color-info-bg)", borderColor: "var(--color-info)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", alignItems: "flex-start", gap: "12px" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(ChartColumn, { size: 20, style: { color: "var(--color-info)", flexShrink: 0, marginTop: "2px" } }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { style: { fontWeight: 500, marginBottom: "4px", color: "var(--color-text-primary)" }, children: t("conversions.title") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { style: { fontSize: "14px", color: "var(--color-text-secondary)", margin: 0 }, children: t("conversions.logInfo") })
-      ] })
-    ] }) }),
-    selectedClickId && /* @__PURE__ */ jsxRuntimeExports.jsx(
-      ClickDetailsModal,
-      {
-        clickId: selectedClickId,
-        onClose: () => setSelectedClickId(null)
-      }
-    )
   ] });
 };
 const API_URL$o = "/api.php";
@@ -79269,7 +80189,9 @@ const IntegrationsPage = () => {
 require_once dirname(__FILE__) . '/kclient.php';
 $client = new KClickClient('${trackerUrl}', 'CAMPAIGN_TOKEN');
 $client->sendAllParams();
-$client->execute(); 
+// $client->debug();            // show errors while testing
+// $client->execute();          // run, print the output, keep the page going
+$client->executeAndBreak();     // stop the page if the tracker redirects or returns content
 ?>`
     },
     kclient_js: {
@@ -81871,6 +82793,25 @@ const LogsPage = () => {
     const params = new URLSearchParams(window.location.search);
     return !!(params.get("campaign_id") || params.get("route") !== "all" || params.get("reason"));
   });
+  const isDesktop = useIsDesktop();
+  const colResize = useResizableTableColumns({
+    tableId: "logs_traffic",
+    enabled: isDesktop,
+    columns: [
+      { id: "time", width: 170 },
+      { id: "click_id", width: 120 },
+      { id: "subid", width: 100 },
+      { id: "campaign", width: 180 },
+      { id: "route", width: 100 },
+      { id: "reason", width: 180 },
+      { id: "destination", width: 160 },
+      { id: "ip", width: 110 },
+      { id: "geo", width: 160 },
+      { id: "device", width: 100 },
+      { id: "isp", width: 120 },
+      { id: "asn", width: 110 }
+    ]
+  });
   const tabs = {
     traffic: { name: t("logs.traffic"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Activity, { className: "w-4 h-4" }) },
     postbacks: { name: t("logs.incomingPostbacks"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRightLeft, { className: "w-4 h-4" }) },
@@ -82006,20 +82947,57 @@ const LogsPage = () => {
               )
             ] })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hidden lg:block", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hidden lg:block", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", style: { ...colResize.tableStyle }, children: [
+            colResize.colgroup,
             /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colTime") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colClickId") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colSubid") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colCampaign") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colRoute") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colReason") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colDestination") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colIp") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colGeo") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colDevice") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colIsp") }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colAsn") })
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+                t("logs.colTime"),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "time" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+                t("logs.colClickId"),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "click_id" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+                t("logs.colSubid"),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "subid" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+                t("logs.colCampaign"),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "campaign" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+                t("logs.colRoute"),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "route" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+                t("logs.colReason"),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "reason" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+                t("logs.colDestination"),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "destination" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+                t("logs.colIp"),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "ip" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+                t("logs.colGeo"),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "geo" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+                t("logs.colDevice"),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "device" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+                t("logs.colIsp"),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "isp" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+                t("logs.colAsn"),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "asn" })
+              ] })
             ] }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: logs.map((log, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.created_at }),
@@ -86423,6 +87401,7 @@ const EXIT_BUTTON_COLORS = [
   { value: "#3b82f6", labelKey: "tracking.colorBlue" },
   { value: "#f05a3e", labelKey: "tracking.colorCoral" }
 ];
+const KCLIENT_PHP_DOCS_URL = "https://github.com/fenjo26/Orbitra.link/blob/main/docs/tracking-client-php.md";
 const METHOD_INSTALL_HINTS = {
   kclient_js: "tracking.instKclientJs",
   kclient_php: "tracking.instKclientPhp",
@@ -86497,28 +87476,34 @@ function kclientJs({ trackerUrl, campaign }, opts = {}) {
 }
 function kclientPhp({ trackerUrl, campaign }, opts = {}) {
   const sendParams = opts.sendParams !== false;
-  const mode = opts.phpMode || "redirect";
-  const paramsLine = sendParams ? `$client->sendAllParams();` : `// $client->sendAllParams(); — disabled: UTM/SubID from the page URL are not passed through`;
-  let execution;
-  if (mode === "show_html") {
-    execution = `// "Show as HTML": stream content goes straight into the page body, the URL stays unchanged
-echo $client->getContent();`;
-  } else if (mode === "get_link") {
-    execution = `// "Get Offer Link": the offer link into a variable — for your own button
-$offerLink = $client->getOffer();
-// echo $offerLink; — print the offer link wherever you need it on the page`;
-  } else {
-    execution = `$client->execute();
-// $client->executeAndBreak(); — halt the page when a redirect happens`;
-  }
+  const paramsLine = sendParams ? `$client->sendAllParams();` : `// $client->sendAllParams();   // disabled: UTM/SubID from the page URL are not passed through`;
   return `<?php
-// The first lines of your site's index.php, before the DOCTYPE.
-// Download kclient.php with the button above and place it next to index.php.
 require_once dirname(__FILE__) . '/kclient.php';
-
 $client = new KClickClient('${trackerUrl}', '${campaign.token}');
 ${paramsLine}
-${execution}
+// $client->debug();            // show errors while testing
+// $client->execute();          // run, print the output, keep the page going
+$client->executeAndBreak();     // stop the page if the tracker redirects or returns content
+?>
+`;
+}
+function kclientPhpSecondary({ trackerUrl, campaign }) {
+  return `<?php
+require_once dirname(__FILE__) . '/kclient.php';
+$client = new KClickClient('${trackerUrl}', '${campaign.token}');
+$client->restoreFromQuery();
+// $client->restoreFromSession();   // when internal links do not carry _subid
+?>
+`;
+}
+function kclientPhpOfferLink() {
+  return `<a href="<?= $client->getOffer() ?>">link</a>`;
+}
+function kclientPhpGetOffer() {
+  return `<?php
+$offerLink = $client->getOffer();
+// $offerLink = $client->getOffer(42);   // a specific offer of the stream
+?>
 `;
 }
 function trackingScript({ trackerUrl, campaign }) {
@@ -86898,8 +87883,37 @@ const mergeDirectUrlQuery = (url, generated) => {
   const parts = [...existingPairs, ...additions.map(([k, v]) => `${k}=${v}`)];
   return base + (parts.length ? "?" + parts.join("&") : "") + hash;
 };
+const SNIPPET_PRE_STYLE = {
+  fontFamily: "monospace",
+  color: "var(--color-text-secondary)",
+  background: "var(--color-bg-soft)",
+  border: "1px solid var(--color-border)",
+  borderRadius: "8px",
+  padding: "12px",
+  margin: 0,
+  overflowX: "auto",
+  overflowY: "auto",
+  maxHeight: "280px"
+};
+const ROTATION_MAX_MOVE_PP = 20;
+const rotationPlural = (lang, n, formsStr) => {
+  const forms = String(formsStr || "").split("|");
+  if (forms.length < 2) return forms[0] || "";
+  const m100 = Math.abs(n) % 100;
+  const m10 = m100 % 10;
+  let i;
+  if (lang === "ru" || lang === "uk") {
+    i = m100 > 10 && m100 < 20 ? 2 : m10 >= 2 && m10 <= 4 ? 1 : m10 === 1 ? 0 : 2;
+  } else if (lang === "zh") {
+    i = 0;
+  } else {
+    i = n === 1 ? 0 : 1;
+  }
+  return forms[Math.min(i, forms.length - 1)];
+};
+const fillTpl = (tpl, params) => String(tpl || "").replace(/\{(\w+)\}/g, (_, k) => params[k] != null ? String(params[k]) : "");
 const CampaignEditor = ({ campaignId, onClose }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [activeTab, setActiveTab] = reactExports.useState("general");
   const [loading, setLoading] = reactExports.useState(false);
   const [saveSuccess, setSaveSuccess] = reactExports.useState(false);
@@ -86920,12 +87934,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       document.removeEventListener("touchstart", close);
     };
   }, [streamMenuOpen]);
-  const [showLogModal, setShowLogModal] = reactExports.useState(false);
-  const [clickLogRoute, setClickLogRoute] = reactExports.useState("all");
-  const [clickLogHours, setClickLogHours] = reactExports.useState(0);
-  const [clickLogStreamId, setClickLogStreamId] = reactExports.useState(0);
-  const [clickLogsLoading, setClickLogsLoading] = reactExports.useState(false);
-  const [selectedClickId, setSelectedClickId] = reactExports.useState(null);
+  const [clickLogRequest, setClickLogRequest] = reactExports.useState(null);
   const [showCostModal, setShowCostModal] = reactExports.useState(false);
   const [showClearModal, setShowClearModal] = reactExports.useState(false);
   const [showReportsMenu, setShowReportsMenu] = reactExports.useState(false);
@@ -86936,6 +87945,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   const [trackingMethod, setTrackingMethod] = reactExports.useState("kclient_js");
   const [snippetCopied, setSnippetCopied] = reactExports.useState(false);
   const [showWidgetPreview, setShowWidgetPreview] = reactExports.useState(false);
+  const [showPhpAdvanced, setShowPhpAdvanced] = reactExports.useState(false);
+  const [phpBlockCopied, setPhpBlockCopied] = reactExports.useState("");
   const [trackOpts, setTrackOpts] = reactExports.useState({
     // Countdown Timer
     hours: 2,
@@ -86966,8 +87977,6 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     base64: false,
     sendParams: true,
     // PHP only: kclient.js always passes page params
-    phpMode: "redirect",
-    // redirect | show_html | get_link
     // Tracking Pixel
     pixelType: "click",
     // click | conversion
@@ -87013,7 +88022,6 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   const [pixelProfileAttaching, setPixelProfileAttaching] = reactExports.useState(false);
   const [pixelProfileMessage, setPixelProfileMessage] = reactExports.useState(null);
   const emptyPixelForm = { type: "", pixel_id: "", token: "", events: "PageView,Lead", event_source_url: "", is_active: 1, mapping: {}, test_event_code: "", proxy_url: "" };
-  const [clickLogs, setClickLogs] = reactExports.useState([]);
   const [groups, setGroups] = reactExports.useState([]);
   const [sources, setSources] = reactExports.useState([]);
   const [domains, setDomains] = reactExports.useState([]);
@@ -87214,12 +88222,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   ];
   const getCampaignUrl = () => {
     const domain = domains.find((d) => d.id == formData.domain_id);
-    const baseUrl = domain ? `https://${domain.name}` : window.location.origin;
+    const url = campaignLinkUrl(formData.alias, domain ? domain.name : null);
     const pairs = Object.entries(formData.parameters || {}).filter(([, v]) => String(v ?? "").trim() !== "").map(([k, v]) => {
       const safeVal = encodeURIComponent(String(v).trim()).replace(/%7B/gi, "{").replace(/%7D/gi, "}").replace(/%3A/gi, ":");
       return `${encodeURIComponent(k)}=${safeVal}`;
     });
-    return pairs.length ? `${baseUrl}/${formData.alias}?${pairs.join("&")}` : `${baseUrl}/${formData.alias}`;
+    return pairs.length ? `${url}?${pairs.join("&")}` : url;
   };
   const sourceToParameters = (source) => {
     const params = {};
@@ -87372,34 +88380,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       alert(t("common.error"));
     }
   };
-  const fetchClickLogs = async (route = clickLogRoute, hours = clickLogHours, streamId = clickLogStreamId) => {
-    if (!activeCampaignId) return;
-    setClickLogsLoading(true);
-    try {
-      const params = { campaign_id: activeCampaignId, limit: 100 };
-      if (route && route !== "all") params.route = route;
-      if (hours > 0) params.hours = hours;
-      if (streamId > 0) params.stream_id = streamId;
-      invalidateCache("campaign_logs");
-      const { data } = await cachedGet("campaign_logs", params, 0);
-      if (data.status === "success") {
-        setClickLogs(data.data);
-      } else {
-        setClickLogs([]);
-      }
-    } catch (e) {
-      console.error("Error fetching logs:", e);
-      setClickLogs([]);
-    } finally {
-      setClickLogsLoading(false);
-    }
-  };
   const openClickLog = ({ route = "all", hours = 0, streamId = 0 } = {}) => {
-    setClickLogRoute(route);
-    setClickLogHours(hours);
-    setClickLogStreamId(streamId);
-    fetchClickLogs(route, hours, streamId);
-    setShowLogModal(true);
+    setClickLogRequest({ route, hours, streamId });
   };
   reactExports.useEffect(() => {
     const fetchDeps = async () => {
@@ -87921,7 +88903,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     { id: "sales", label: t("rotationAuto.metricSales") },
     { id: "cr", label: t("rotationAuto.metricCr") },
     { id: "epv_confirmed", label: t("rotationAuto.metricEpv") },
-    { id: "epc_confirmed", label: t("rotationAuto.metricEpc"), needsCost: true },
+    { id: "epc_confirmed", label: t("rotationAuto.metricEpc") },
     { id: "roi_confirmed", label: t("rotationAuto.metricRoi"), needsCost: true }
   ];
   const ROTATION_DEFAULTS = { metric: "epv_confirmed", min_sample: 3, lookback_days: 7, floor_pct: 5, cap_pct: 70, interval_min: 60 };
@@ -88002,31 +88984,64 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             ]
           }
         ),
-        autoPopover && autoPopover.streamIdx === streamIdx && autoPopover.type === type && renderAutoConditionsPopover(streamIdx, type)
+        autoPopover && autoPopover.streamIdx === streamIdx && autoPopover.type === type && renderAutoConditionsPopover(streamIdx, type, list)
       ] })
     ] });
   };
-  const renderAutoConditionsPopover = (streamIdx, type) => {
+  const renderAutoConditionsPopover = (streamIdx, type, list) => {
     const stream = formData.streams[streamIdx];
     const cfg = { ...ROTATION_DEFAULTS, ...getAutoCfg(stream, type) };
     const costAvailable = rotationStatus ? !!rotationStatus.cost_available : true;
-    const numField = (field, label, lo, hi) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex flex-col gap-1", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] font-semibold", style: { color: "var(--color-text-muted)" }, children: label }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "input",
-        {
-          type: "number",
-          min: lo,
-          max: hi,
-          value: cfg[field],
-          onChange: (e) => {
-            const v = Math.max(lo, Math.min(hi, parseInt(e.target.value, 10) || lo));
-            setAutoCfg(streamIdx, type, { [field]: v });
-          },
-          className: "w-full rounded-lg px-2 py-1 text-xs",
-          style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)", color: "var(--color-text-primary)" }
-        }
-      )
+    const enabledCount = (list || []).filter(isSchemaItemEnabled).length;
+    const equalShare = enabledCount > 0 ? 100 / enabledCount : 0;
+    const shareTxt = enabledCount > 0 ? Number.isInteger(equalShare) ? `${equalShare}` : `${Math.floor(equalShare)}-${Math.ceil(equalShare)}` : "";
+    const movePerHour = Math.round(ROTATION_MAX_MOVE_PP * 60 / (cfg.interval_min || 60) * 10) / 10;
+    const itemOne = t(type === "offers" ? "rotationAuto.itemOfferOne" : "rotationAuto.itemLandingOne");
+    const cap1 = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+    const example = enabledCount >= 2 ? [
+      fillTpl(t("rotationAuto.exampleShare"), {
+        count: enabledCount,
+        items: rotationPlural(language, enabledCount, t(type === "offers" ? "rotationAuto.itemOfferForms" : "rotationAuto.itemLandingForms")),
+        share: shareTxt
+      }),
+      fillTpl(t("rotationAuto.exampleNeeds"), {
+        item: itemOne,
+        Item: cap1(itemOne),
+        min: cfg.min_sample,
+        sales: rotationPlural(language, cfg.min_sample, t("rotationAuto.salesForms")),
+        days: cfg.lookback_days,
+        daysWord: rotationPlural(language, cfg.lookback_days, t("rotationAuto.daysForms"))
+      }),
+      fillTpl(t("rotationAuto.exampleBounds"), {
+        floor: cfg.floor_pct,
+        cap: cfg.cap_pct,
+        move: movePerHour,
+        points: rotationPlural(language, movePerHour, t("rotationAuto.pointsForms"))
+      })
+    ].join(" ") : t("rotationAuto.exampleFew");
+    const hintEl = (key) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10.5px] leading-snug", style: { color: "var(--color-text-muted)" }, children: t(key) });
+    const numInput = (field, lo, hi, cls) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "input",
+      {
+        type: "number",
+        min: lo,
+        max: hi,
+        value: cfg[field],
+        onChange: (e) => {
+          const v = Math.max(lo, Math.min(hi, parseInt(e.target.value, 10) || lo));
+          setAutoCfg(streamIdx, type, { [field]: v });
+        },
+        className: cls || "w-full rounded-lg px-2 py-1 text-xs",
+        style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)", color: "var(--color-text-primary)" }
+      }
+    );
+    const sentenceField = (field, prefixKey, suffix, lo, hi, hintKey) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-1", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex flex-wrap items-center gap-1.5 text-[11px] font-semibold", style: { color: "var(--color-text-muted)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t(prefixKey) }),
+        numInput(field, lo, hi, "w-14 text-center px-1.5 py-1 text-xs rounded-lg"),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: suffix })
+      ] }),
+      hintEl(hintKey)
     ] }, field);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", onClick: () => setAutoPopover(null) }),
@@ -88034,7 +89049,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         "div",
         {
           className: "absolute right-0 top-full mt-1.5 w-80 rounded-2xl shadow-lg p-3.5 space-y-3 z-50 text-left",
-          style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" },
+          style: {
+            backgroundColor: "var(--color-bg-card)",
+            border: "1px solid var(--color-border)",
+            maxHeight: "calc(100vh - 140px)",
+            overflowY: "auto"
+          },
           onClick: (e) => e.stopPropagation(),
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-bold uppercase tracking-wider", style: { color: "var(--color-text-primary)" }, children: t("rotationAuto.conditionsTitle", "Optimisation conditions") }),
@@ -88057,14 +89077,20 @@ const CampaignEditor = ({ campaignId, onClose }) => {
               ),
               !costAvailable && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10.5px] leading-snug", style: { color: "var(--color-warning, #f59e0b)" }, children: t("rotationAuto.needsCostHint") })
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-2.5", children: [
-              numField("min_sample", t("rotationAuto.minSample"), 1, 1e4),
-              numField("lookback_days", t("rotationAuto.lookback"), 1, 90),
-              numField("floor_pct", t("rotationAuto.floor"), 1, 50),
-              numField("cap_pct", t("rotationAuto.cap"), 10, 100),
-              numField("interval_min", t("rotationAuto.interval"), 5, 1440)
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2.5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-1", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex flex-col gap-1 text-[11px] font-semibold", style: { color: "var(--color-text-muted)" }, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("rotationAuto.minSampleLabel") }),
+                  numInput("min_sample", 1, 1e4)
+                ] }),
+                hintEl("rotationAuto.minSampleHint")
+              ] }),
+              sentenceField("lookback_days", "rotationAuto.lookbackPrefix", rotationPlural(language, cfg.lookback_days, t("rotationAuto.lookbackUnitForms")), 1, 90, "rotationAuto.lookbackHint"),
+              sentenceField("floor_pct", "rotationAuto.floorPrefix", t("rotationAuto.pctSuffix"), 1, 50, "rotationAuto.floorHint"),
+              sentenceField("cap_pct", "rotationAuto.capPrefix", t("rotationAuto.pctSuffix"), 10, 100, "rotationAuto.capHint"),
+              sentenceField("interval_min", "rotationAuto.intervalPrefix", t("rotationAuto.intervalSuffix"), 5, 1440, "rotationAuto.intervalHint")
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[10.5px] leading-relaxed", style: { color: "var(--color-text-muted)" }, children: t("rotationAuto.conditionsHint") })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[10.5px] leading-relaxed", style: { color: "var(--color-text-muted)" }, children: example })
           ]
         }
       )
@@ -89611,22 +90637,6 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     t("tracking.base64", "Base64 (hide from ad blockers)")
                   ] }),
                   trackingMethod === "kclient_php" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "form-label", children: t("tracking.phpMode", "Execution mode") }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                        "select",
-                        {
-                          className: "form-select",
-                          value: trackOpts.phpMode,
-                          onChange: (e) => setTrackOpts({ ...trackOpts, phpMode: e.target.value }),
-                          children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "redirect", children: t("tracking.phpRedirect", "Redirect to offer") }),
-                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "show_html", children: t("tracking.phpShowHtml", "Show as HTML (content in page body)") }),
-                            /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "get_link", children: t("tracking.phpGetLink", "Get offer link into a variable") })
-                          ]
-                        }
-                      )
-                    ] }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex items-center gap-2 text-xs", style: { color: "var(--color-text-secondary)" }, children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx(
                         "input",
@@ -89818,6 +90828,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     }
                   )
                 ] }),
+                trackingMethod === "kclient_php" && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mb-2", style: { color: "var(--color-text-muted)" }, children: t("tracking.phpStreamNote", "What the visitor gets — a local page, a redirect, or the white page — is decided by the campaign's streams, not by this snippet.") }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "pre",
                   {
@@ -89837,6 +90848,87 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     children: buildSnippet(trackingMethod, snippetCtx(), trackOpts)
                   }
                 ),
+                trackingMethod === "kclient_php" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-4 mt-4", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-1", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("tracking.phpSecondaryTitle", "Code for secondary pages (optional)") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "button",
+                        {
+                          type: "button",
+                          onClick: async () => {
+                            await copyIntegrationSnippet(kclientPhpSecondary(snippetCtx()));
+                            setPhpBlockCopied("secondary");
+                            setTimeout(() => setPhpBlockCopied(""), 2e3);
+                          },
+                          className: phpBlockCopied === "secondary" ? "btn btn-primary btn-sm" : "btn btn-secondary btn-sm",
+                          style: { display: "inline-flex", alignItems: "center", gap: "4px", padding: "4px 10px", fontSize: "12px" },
+                          title: t("common.copy"),
+                          children: phpBlockCopied === "secondary" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-3.5 h-3.5" }),
+                            " ",
+                            t("tracking.copied", "Copied!")
+                          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-3.5 h-3.5" }),
+                            " ",
+                            t("tracking.copyCode", "Copy code")
+                          ] })
+                        }
+                      )
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mb-2", style: { color: "var(--color-text-muted)" }, children: t("tracking.phpSecondaryHint", "For pages the landing sends visitors on to: the click keeps being tracked instead of a new one being registered.") }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "text-xs", style: SNIPPET_PRE_STYLE, children: kclientPhpSecondary(snippetCtx()) })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-1", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("tracking.phpOfferLinkTitle", "How to link to the offer") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        "button",
+                        {
+                          type: "button",
+                          onClick: async () => {
+                            await copyIntegrationSnippet(kclientPhpOfferLink());
+                            setPhpBlockCopied("offer");
+                            setTimeout(() => setPhpBlockCopied(""), 2e3);
+                          },
+                          className: phpBlockCopied === "offer" ? "btn btn-primary btn-sm" : "btn btn-secondary btn-sm",
+                          style: { display: "inline-flex", alignItems: "center", gap: "4px", padding: "4px 10px", fontSize: "12px" },
+                          title: t("common.copy"),
+                          children: phpBlockCopied === "offer" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-3.5 h-3.5" }),
+                            " ",
+                            t("tracking.copied", "Copied!")
+                          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                            /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-3.5 h-3.5" }),
+                            " ",
+                            t("tracking.copyCode", "Copy code")
+                          ] })
+                        }
+                      )
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "text-xs", style: SNIPPET_PRE_STYLE, children: kclientPhpOfferLink() }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)" }, children: t("tracking.phpOfferLinkHint", "getOffer(42) picks a specific offer of the stream instead of the one the tracker chose.") })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: () => setShowPhpAdvanced(!showPhpAdvanced),
+                        className: "btn btn-secondary btn-sm",
+                        style: { display: "inline-flex", alignItems: "center", gap: "6px", padding: "4px 10px", fontSize: "12px" },
+                        children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: `w-3.5 h-3.5 transition-transform ${showPhpAdvanced ? "rotate-180" : ""}` }),
+                          t("tracking.phpAdvanced", "Get the offer link into a variable")
+                        ]
+                      }
+                    ),
+                    showPhpAdvanced && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2", children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mb-2", style: { color: "var(--color-text-muted)" }, children: t("tracking.phpAdvancedHint", "getOffer() hands you the offer URL without letting the tracker act on the page — for a button you draw yourself.") }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "text-xs", style: SNIPPET_PRE_STYLE, children: kclientPhpGetOffer() })
+                    ] })
+                  ] })
+                ] }),
                 (trackingMethod === "countdown" || trackingMethod === "exit_intent") && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs(
                     "button",
@@ -89875,7 +90967,18 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Info, { className: "w-4 h-4 flex-shrink-0", style: { color: "var(--color-primary)", marginTop: "1px" } }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)", marginBottom: "2px" }, children: t("tracking.howToInstall", "How to install") }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs leading-relaxed", style: { color: "var(--color-text-secondary)" }, children: t(METHOD_INSTALL_HINTS[trackingMethod] || "tracking.instWidgets") })
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs leading-relaxed", style: { color: "var(--color-text-secondary)" }, children: t(METHOD_INSTALL_HINTS[trackingMethod] || "tracking.instWidgets") }),
+                    trackingMethod === "kclient_php" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "a",
+                      {
+                        href: KCLIENT_PHP_DOCS_URL,
+                        target: "_blank",
+                        rel: "noopener noreferrer",
+                        className: "text-xs",
+                        style: { color: "var(--color-primary)", display: "inline-block", marginTop: "6px" },
+                        children: t("tracking.phpDocs", "Tracking Client (PHP) — full reference")
+                      }
+                    )
                   ] })
                 ] })
               ] })
@@ -91152,117 +92255,15 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: saveFilter, disabled: !newFilter.payload?.trim(), className: "btn btn-primary", children: filterModal.filterIdx !== null ? t("common.save") : t("common.add") })
       ] })
     ] }) }),
-    showLogModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "960px" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("campaignEditor.clickLogTitle") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowLogModal(false), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-1 p-1 rounded-lg", style: { backgroundColor: "var(--color-bg-soft)" }, children: [
-        ["all", t("campaignEditor.clickLogFilterAll", "ALL")],
-        ["safe", t("campaignEditor.clickLogFilterSafe", "SAFE")],
-        ["money", t("campaignEditor.clickLogFilterMoney", "MONEY")]
-      ].map(([value, label]) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          onClick: () => {
-            setClickLogRoute(value);
-            fetchClickLogs(value, clickLogHours, clickLogStreamId);
-          },
-          className: `flex-1 px-3 py-2 rounded-md text-xs font-semibold tracking-wide transition-colors ${clickLogRoute === value ? "bg-[var(--color-bg)] shadow-sm" : "hover:text-[var(--color-text-primary)]"}`,
-          style: { color: clickLogRoute === value ? "var(--color-primary)" : "var(--color-text-secondary)" },
-          children: label
-        },
-        value
-      )) }),
-      clickLogHours > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] mt-2", style: { color: "var(--color-text-muted)" }, children: t("campaignEditor.clickLogLast24h", "Last 24 hours") }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-y-auto mt-2", style: { maxHeight: "58vh" }, children: clickLogsLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-10", style: { color: "var(--color-text-muted)" }, children: t("common.loading", "Loading...") }) : clickLogs.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-10", style: { color: "var(--color-text-muted)" }, children: t("campaignEditor.clickLogNoClicks") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: clickLogs.map((log) => {
-        const reasons = (log.cloak_reasons || "").split(",").map((s) => s.trim()).filter(Boolean);
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "div",
-          {
-            onClick: () => setSelectedClickId(log.id),
-            className: "rounded-xl p-3 transition-colors hover:border-[var(--color-primary)]",
-            style: { border: "1px solid var(--color-border)", cursor: "pointer" },
-            title: t("campaignEditor.clickLogOpenDetails", "Open click details"),
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2 mb-2", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] font-mono", style: { color: "var(--color-text-muted)" }, children: log.created_at }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `status-badge ${log.is_safe_page === 1 ? "status-inactive" : "status-active"} text-[11px]`, children: log.is_safe_page === 1 ? t("logs.routeSafe") : t("logs.routeMoney") }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-[11px]", style: { color: "var(--color-text-secondary)" }, children: [
-                    t("campaignEditor.clickLogVerdict"),
-                    ": ",
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("b", { style: { color: "var(--color-text-primary)" }, children: log.cloak_verdict || "—" })
-                  ] })
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-[11px] font-mono", style: { color: "var(--color-text-muted)" }, children: [
-                  "#",
-                  log.id
-                ] })
-              ] }),
-              reasons.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px]", style: { color: "var(--color-text-muted)" }, children: "—" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1", children: reasons.map((reason, idx) => {
-                const colon = reason.indexOf(":");
-                const code = colon === -1 ? reason : reason.slice(0, colon);
-                const evidence = colon === -1 ? "" : reason.slice(colon + 1);
-                return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "span",
-                  {
-                    className: "text-[10px] px-1.5 py-0.5 rounded font-mono inline-flex items-center gap-1",
-                    style: {
-                      backgroundColor: "var(--color-bg-soft)",
-                      color: "var(--color-text-secondary)",
-                      border: "1px solid var(--color-border)"
-                    },
-                    title: t(`cloakReasons.${code}`, "") || code,
-                    children: [
-                      code,
-                      evidence && /* @__PURE__ */ jsxRuntimeExports.jsx("b", { style: { color: "var(--color-primary)", fontWeight: 600 }, children: evidence })
-                    ]
-                  },
-                  idx
-                );
-              }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2 text-[11px]", style: { color: "var(--color-text-primary)" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "truncate", title: log.isp || "", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)" }, children: [
-                    t("campaignEditor.clickLogIsp"),
-                    ": "
-                  ] }),
-                  log.isp || "—"
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "truncate font-mono", title: log.asn || "", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)" }, children: [
-                    t("campaignEditor.clickLogAsn"),
-                    ": "
-                  ] }),
-                  log.asn || "—"
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "truncate font-mono", title: log.proxy_type || "", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)" }, children: [
-                    t("campaignEditor.clickLogProxyType"),
-                    ": "
-                  ] }),
-                  log.proxy_type || "—"
-                ] })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 text-[11px] font-mono break-all", style: { color: "var(--color-text-secondary)" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)" }, children: [
-                  t("campaignEditor.clickLogUserAgent"),
-                  ": "
-                ] }),
-                log.user_agent || "—"
-              ] })
-            ]
-          },
-          log.id
-        );
-      }) }) })
-    ] }) }),
-    selectedClickId && /* @__PURE__ */ jsxRuntimeExports.jsx(
-      ClickDetailsModal,
+    clickLogRequest && activeCampaignId && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ClickLogModal,
       {
-        clickId: selectedClickId,
-        onClose: () => setSelectedClickId(null)
+        campaignId: activeCampaignId,
+        campaignName: formData.name,
+        initialRoute: clickLogRequest.route,
+        initialHours: clickLogRequest.hours,
+        initialStreamId: clickLogRequest.streamId,
+        onClose: () => setClickLogRequest(null)
       }
     ),
     showAddCostConnModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content max-w-md w-full rounded-2xl shadow-2xl p-6", style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, children: [
@@ -91416,19 +92417,14 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         onClose: () => setShowReports(false)
       }
     ),
-    showConversionsLog && activeCampaignId && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", style: { zIndex: 1100, top: "88px", height: "calc(100vh - 88px)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "1200px", maxHeight: "100%", overflow: "auto" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-4", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("editor.conversionsLog") }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowConversionsLog(false), className: "btn btn-ghost btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        ConversionsLog,
-        {
-          campaignId: activeCampaignId,
-          onClose: () => setShowConversionsLog(false)
-        }
-      )
-    ] }) }),
+    showConversionsLog && activeCampaignId && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ConversionsLogModal,
+      {
+        campaignId: activeCampaignId,
+        campaignName: formData.name,
+        onClose: () => setShowConversionsLog(false)
+      }
+    ),
     showTrafficSimModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", style: { zIndex: 1100 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "600px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("editor.trafficSimulation") }),

@@ -5,6 +5,7 @@ import InfoBanner from './InfoBanner';
 import { useLanguage } from '../contexts/LanguageContext';
 import ClickDetailsModal from './ClickDetailsModal';
 import MobileCards from './common/MobileCards';
+import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle } from './common/ColumnResize';
 import { resolveConversionColor } from '../utils/conversionColors';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 
@@ -28,6 +29,25 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
     const [dateFrom, setDateFrom] = useState(todayPreset?.from || formatDate(new Date()));
     const [dateTo, setDateTo] = useState(todayPreset?.to || formatDate(new Date()));
     const [timezone, setTimezone] = useState(() => localStorage.getItem('orbitra_tz') || 'UTC');
+
+    // Resizable columns — desktop table only; below lg the list renders as
+    // MobileCards and skips resizing entirely.
+    const isDesktop = useIsDesktop();
+    const colResize = useResizableTableColumns({
+        tableId: 'conversions',
+        enabled: isDesktop,
+        columns: [
+            { id: 'id', width: 70 },
+            { id: 'click_id', width: 120 },
+            { id: 'tid', width: 90 },
+            { id: 'status', width: 110 },
+            { id: 'payout', width: 100 },
+            { id: 'campaign', width: 200 },
+            { id: 'offer', width: 200 },
+            { id: 'ip', width: 110 },
+            { id: 'date', width: 170 }
+        ]
+    });
 
     const [internalCampaignId, setInternalCampaignId] = useState('');
 
@@ -228,18 +248,46 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
             ) : (
                 <div className="page-card" style={{ padding: 0 }}>
                     <div className="overflow-x-auto hidden lg:block">
-                        <table className="page-table">
+                        <table className="page-table" style={{ ...colResize.tableStyle }}>
+                            {colResize.colgroup}
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Click ID</th>
-                                    <th>TID</th>
-                                    <th>{t('conversions.status')}</th>
-                                    <th>{t('conversions.payout')}</th>
-                                    <th>{t('conversions.campaign')}</th>
-                                    <th>{t('conversions.offer')}</th>
-                                    <th>IP</th>
-                                    <th>{t('conversions.date')}</th>
+                                    <th className="resizable-th">
+                                        ID
+                                        <ColumnResizeHandle rt={colResize} colId="id" />
+                                    </th>
+                                    <th className="resizable-th">
+                                        Click ID
+                                        <ColumnResizeHandle rt={colResize} colId="click_id" />
+                                    </th>
+                                    <th className="resizable-th">
+                                        TID
+                                        <ColumnResizeHandle rt={colResize} colId="tid" />
+                                    </th>
+                                    <th className="resizable-th">
+                                        {t('conversions.status')}
+                                        <ColumnResizeHandle rt={colResize} colId="status" />
+                                    </th>
+                                    <th className="resizable-th">
+                                        {t('conversions.payout')}
+                                        <ColumnResizeHandle rt={colResize} colId="payout" />
+                                    </th>
+                                    <th className="resizable-th">
+                                        {t('conversions.campaign')}
+                                        <ColumnResizeHandle rt={colResize} colId="campaign" />
+                                    </th>
+                                    <th className="resizable-th">
+                                        {t('conversions.offer')}
+                                        <ColumnResizeHandle rt={colResize} colId="offer" />
+                                    </th>
+                                    <th className="resizable-th">
+                                        IP
+                                        <ColumnResizeHandle rt={colResize} colId="ip" />
+                                    </th>
+                                    <th className="resizable-th">
+                                        {t('conversions.date')}
+                                        <ColumnResizeHandle rt={colResize} colId="date" />
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>

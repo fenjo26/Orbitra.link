@@ -3782,7 +3782,7 @@ const IntegrationsPage = () => {
             isConnected: true,
             statText: 'Full server-side execution',
             ctaText: t('integrations.getCode', 'Get Code'),
-            code: `<?php\n// ${t('integrations.codeToInsert')}\n// kclient.php: ${trackerUrl}/kclient.php?download=1\nrequire_once dirname(__FILE__) . '/kclient.php';\n$client = new KClickClient('${trackerUrl}', 'CAMPAIGN_TOKEN');\n$client->sendAllParams();\n$client->execute(); \n?>`
+            code: `<?php\n// ${t('integrations.codeToInsert')}\n// kclient.php: ${trackerUrl}/kclient.php?download=1\nrequire_once dirname(__FILE__) . '/kclient.php';\n$client = new KClickClient('${trackerUrl}', 'CAMPAIGN_TOKEN');\n$client->sendAllParams();\n// $client->debug();            // show errors while testing\n// $client->execute();          // run, print the output, keep the page going\n$client->executeAndBreak();     // stop the page if the tracker redirects or returns content\n?>`
         },
         kclient_js: {
             category: 'sites',

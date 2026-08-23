@@ -132,11 +132,12 @@ try {
     assertEquals(400, $resp['code'], 'Status code should be 400');
     assertContains('Missing status', $resp['body'], 'Body should contain error message');
 
-    // Test 4: Unknown status with no transformation rule should return 400
-    echo "\nTest 4: Unknown status with no transformation should return 400\n";
+    // Test 4: Unknown status is recorded for retroactive mapping (ORB-012),
+    // not rejected — a later conversion_types change can reclassify it.
+    echo "\nTest 4: Unknown status is recorded (retroactive mapping)\n";
     $resp = $harness->get("/{$postbackKey}/postback?subid={$clickId}&status=xyz_unknown_status_12345");
-    assertEquals(400, $resp['code'], 'Status code should be 400');
-    assertContains('Unknown status', $resp['body'], 'Body should contain error message');
+    assertEquals(200, $resp['code'], 'Status code should be 200');
+    assertContains('recorded successfully', $resp['body'], 'Body should confirm recording');
 
     // Test 5: subid matching no click should return 404
     echo "\nTest 5: subid matching no click should return 404\n";

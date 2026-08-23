@@ -289,8 +289,8 @@ $tikTokPayload = TikTokConversions::buildPayload($tikTokPixel, $clickRow, [
     'extra' => ['email' => ' Buyer@Example.com '],
 ]);
 
-check('TikTok sale maps to CompletePayment', TikTokConversions::resolveEvent('sale') === 'CompletePayment');
-check('TikTok rejected status is suppressed', TikTokConversions::resolveEvent('rejected') === null);
+check('TikTok sale maps to CompletePayment', TikTokConversions::resolveEvent($tikTokPixel, 'sale') === 'CompletePayment');
+check('TikTok rejected status is suppressed', TikTokConversions::resolveEvent($tikTokPixel, 'rejected') === null);
 check('TikTok payload carries pixel, event, value and callback',
     $tikTokPayload['pixel_code'] === 'TT-PIXEL-123'
     && $tikTokPayload['event'] === 'CompletePayment'

@@ -204,6 +204,30 @@ $out3 = orbitraSanitizeAutoConfigs($pdo, 2, $out2);
 $c = $out3[0]['schema_custom']['auto']['landings'];
 $assert('key stable across saves', $c['key'] === $b['key']);
 
+echo "== 13. cost gating covers ROI only — EPC is revenue ÷ clicks ==\n";
+// epc_confirmed = revenue_confirmed / clicks (ReportMetrics has no cost term
+// in it), so a zero-cost campaign must keep an EPC config verbatim.
+$assert('only roi_confirmed needs cost',
+    orbitraRotationMetricNeedsCost('roi_confirmed') === true
+    && orbitraRotationMetricNeedsCost('epc_confirmed') === false
+    && orbitraRotationMetricNeedsCost('epv_confirmed') === false
+    && orbitraRotationMetricNeedsCost('cr') === false
+    && orbitraRotationMetricNeedsCost('sales') === false);
+$epcPayload = [[
+    'name' => 'S', 'schema_type' => 'landing_offer',
+    'schema_custom' => [
+        'landings' => [['id' => 1, 'weight' => 50], ['id' => 2, 'weight' => 50]],
+        'offers' => [],
+        'auto' => [
+            'landings' => ['enabled' => true, 'metric' => 'epc_confirmed', 'key' => 'rot_epc1'],
+            'offers' => ['enabled' => false],
+        ],
+    ],
+]];
+$out4 = orbitraSanitizeAutoConfigs($pdo, 1, $epcPayload); // campaign 1: no cost at all
+$d = $out4[0]['schema_custom']['auto']['landings'];
+$assert('EPC config not coerced on a zero-cost campaign', $d['metric'] === 'epc_confirmed', var_export($d, true));
+
 if ($failures > 0) {
     echo "\n$failures FAILURE(S)\n";
     exit(1);

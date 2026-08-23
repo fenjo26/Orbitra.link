@@ -4,6 +4,7 @@ import { X, Download, Filter, BarChart3, Plus, Trash2, SlidersHorizontal, GripVe
 import { useLanguage } from '../contexts/LanguageContext';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getDimensionLabel, getDefaultTemplateColumns, getReportMetricTooltip, normalizeReportMetricIds, resolveInitialGroupLayers, persistLastAppliedGroupBy, DEFAULT_REPORT_LAYERS } from './ReportCustomizerModal';
+import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle } from './common/ColumnResize';
 import { resolveConversionColor } from '../utils/conversionColors';
 
 const API_URL = '/api.php';
@@ -121,6 +122,15 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     // Drag-and-drop column state
     const [thDragIdx, setThDragIdx] = useState(null);
     const [thDragOverIdx, setThDragOverIdx] = useState(null);
+
+    // Resizable columns — the report table is desktop-only, but the flag
+    // keeps the controller honest below lg anyway.
+    const isDesktop = useIsDesktop();
+    const columnDefs = useMemo(
+        () => [{ id: 'name', width: 300 }, ...chosenColumns.map(id => ({ id, width: 120 }))],
+        [chosenColumns]
+    );
+    const colResize = useResizableTableColumns({ tableId: 'campaign_reports', columns: columnDefs, enabled: isDesktop });
 
     const handleThDragStart = (e, idx) => {
         // Firefox refuses to start a native drag until the payload is set.
@@ -724,18 +734,23 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                         </div>
                     )}
 
-                            <table className="page-table tracker-table" style={{ fontVariantNumeric: 'tabular-nums', minWidth: '100%', width: 'max-content' }}>
+                            <table className="page-table tracker-table" style={{ fontVariantNumeric: 'tabular-nums', ...colResize.tableStyle }}>
+                                {colResize.colgroup}
                                 <thead>
                                     <tr>
-                                        <th style={{
-                                            minWidth: '240px', textAlign: 'left',
-                                            position: 'sticky', left: 0,
-                                            /* above .tracker-table th's z-index:10 — the pinned
-                                               header must not slide under scrolling metric th's */
-                                            zIndex: 11,
-                                            backgroundColor: 'var(--color-bg-soft)'
-                                        }}>
+                                        <th
+                                            className="resizable-th"
+                                            style={{
+                                                textAlign: 'left',
+                                                position: 'sticky', left: 0,
+                                                /* above .tracker-table th's z-index:10 — the pinned
+                                                   header must not slide under scrolling metric th's */
+                                                zIndex: 11,
+                                                backgroundColor: 'var(--color-bg-soft)'
+                                            }}
+                                        >
                                             {layerKeys.map(formatDimensionLabel).join(' → ')}
+                                            <ColumnResizeHandle rt={colResize} colId="name" />
                                         </th>
                                         {chosenColumns.map((colId, colIdx) => {
                                             const def = ALL_REPORT_METRICS.find(m => m.id === colId);
@@ -743,12 +758,13 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                             return (
                                                 <th
                                                     key={colId}
-                                                    draggable
+                                                    draggable={!colResize.resizingId}
                                                     onDragStart={(e) => handleThDragStart(e, colIdx)}
                                                     onDragOver={(e) => handleThDragOver(e, colIdx)}
                                                     onDrop={(e) => handleThDrop(e, colIdx)}
                                                     onDragEnd={handleThDragEnd}
                                                     title={getReportMetricTooltip(def, t)}
+                                                    className="resizable-th"
                                                     style={{
                                                         textAlign: 'right',
                                                         cursor: 'grab',
@@ -774,6 +790,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                         )}
                                                         <span>{def?.shortLabel || def?.label || colId}</span>
                                                     </div>
+                                                    <ColumnResizeHandle rt={colResize} colId={colId} />
                                                 </th>
                                             );
                                         })}
@@ -894,6 +911,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                 layerPresets={REPORT_LAYER_PRESETS}
                 currentFilters={filters}
                 onSaveFilters={handleSaveFilters}
+                onResetColumnWidths={colResize.api.resetAll}
             />
         </div>
     );

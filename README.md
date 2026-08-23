@@ -1,4 +1,4 @@
-# Orbitra v1.2.0 Tracker
+# Orbitra v1.3.0 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,7 +11,23 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.2.0
+## 🆕 What's New in v1.3.0
+
+### Added
+
+- **🖱️ Resizable columns in every table** — drag any header edge in Campaigns, Offers, Landings, Logs, Conversions, the campaign report and the report customizer; widths persist per table and restore to default, live during the drag — one shared `ColumnResize` module instead of per-page hacks
+- **📋 Click Log & Conversions Log modals** — the Click Log keeps its cloak quick-filters (ALL/SAFE/MONEY) and W1/W2 detail fields, now opening from both the Campaigns list and the campaign editor's stream cards; a matching Conversions Log modal rides along
+- **🔗 Shared campaign URL builder** — Campaigns and the campaign editor build campaign URLs through one `campaignUrl` helper
+- **🌐 Domain column in the Campaigns table** — `api.php` joins `domains` on `campaigns.domain_id`
+- **🧩 kclient.php 2.0** — on secondary pages of the same site `restoreFromQuery()` picks the click back up from `_subid` and restores *this* click's offer from the session (id-matched, so a stale session can't hand over another click's offer); `getOffer(42)` keeps working in the bare-id form the integration panel documents; choosing a specific offer now *replaces* the tracker's own `offer_id` on the transition link instead of appending a second one; new docs page `docs/tracking-client-php.md`, linked from the integration panel
+- **🏷️ KClient direct-destination macros** — `{subid}`, `{ip}` and `{country}` are substituted exactly like the campaign-link path, so an offer URL written with `{subid}` (the spelling most networks ask for) no longer reaches the network empty
+
+### Fixed
+
+- **🔄 EPC no longer cost-gated in the rotation optimiser** — earnings per click has no spend term, so EPC configs run on zero-cost campaigns (only ROI still requires cost); pinned in the allocator and cron tests
+- **🧪 Test suite fully green** — four stale tests aligned with shipped behavior: the TikTok `resolveEvent` pixel-first signature, unknown postback statuses recording for retroactive mapping instead of a 400, and the DNS/nginx regression tests skipping on hosts without the fixtures
+
+### Previous Highlights (v1.2.0)
 
 ### Fixed
 
@@ -557,34 +573,29 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.2.0 (2026-08-23)
+### Current release — v1.3.0 (2026-08-23)
+
+**Added**
+- 🖱️ **Resizable columns in every table** — drag any header edge (Campaigns, Offers, Landings, Logs, Conversions, campaign report, report customizer); widths persist per table and restore to default; one shared `ColumnResize` module
+- 📋 **Click Log & Conversions Log modals** — cloak quick-filters (ALL/SAFE/MONEY) + W1/W2 fields, opened from the Campaigns list and the editor's stream cards
+- 🔗 **Shared `campaignUrl` helper**; 🌐 **Domain column in Campaigns**
+- 🧩 **kclient.php 2.0** — secondary pages restore this click's offer from the session (id-matched); `getOffer(42)` bare-id form; picking an offer *replaces* the tracker's `offer_id` instead of stacking a second; new `docs/tracking-client-php.md` linked from the integration panel
+- 🏷️ **KClient direct-destination macros** — `{subid}`, `{ip}`, `{country}` substituted like the campaign-link path; `{subid}` offer URLs no longer arrive empty
 
 **Fixed**
-- 📱 **Panel was a 980px desktop on phones** — no viewport meta at all: every `lg:` breakpoint never fired; one tag + the mobile layout makes the panel usable on a phone
-- 🧭 **"Create stream" menu dead on touch** — hover → click, 44px touch targets
-- 🛟 **router.php ate real root files** — `/sw.js` died as an empty 200 in the campaign-alias branch; `file_exists` guard mirrors Apache's `RewriteCond !-f`
+- 🔄 **EPC no longer cost-gated in the rotation optimiser** — EPC configs run on zero-cost campaigns (only ROI requires cost), pinned in tests
+- 🧪 **Test suite fully green** — four stale tests aligned with shipped behavior (TikTok `resolveEvent` signature, unknown postback statuses recording for retroactive mapping, DNS/nginx env-skips)
+
+Previous releases — v1.2.0:
 
 **Added**
 - 📱 **Mobile layout** — five list screens switch to card rows below `lg` (shared MobileCards); campaign editor in one column; toolbars wrap
 - 📲 **PWA + service worker** — manifest from admin.php (`start_url` matches the real entry, incl. the secret path); icons + maskable + apple-touch; shell network-first, hashed assets stale-while-revalidate; updates swap on reload via a toast, never mid-session
 - #️⃣ **Hashed build assets** — `index-[hash].js|css` resolved via `.vite/manifest.json`; `?v=` cache-buster and hard-reload advice retired
 - 🔄 **Rotation auto-optimiser** — Auto per landing/offer list + metric (sales/CR/EPV/EPC/ROI); */5 cron, rolling 7-day window, safe-page excluded, bots kept; cap 70% / floor 5% / ≤20pp per run; audited per item (`stream_rotation_log`); campaign save hands cron-owned weights back
+- 🛟 **router.php no longer eats real root files** (`/sw.js` died as an empty 200); 📱 viewport meta + touch-friendly "Create stream" menu
 
-Previous releases — v1.1.11:
-
-**Fixed**
-- 🩹 **Cloak numbers disagreed between screens** — the date-filtered Campaigns list counted safe-page clicks while Landings/Offers/dashboard excluded them; one shared helper on all four surfaces, `COALESCE(is_safe_page, 0)` keeps pre-observability (NULL) rows visible
-- 🕐 **Cloak panel window buckets in the report timezone** (was UTC) and returns the exact window it computed
-- 🛟 **Cloak diagnostics survive a degraded database** (missing table → fallback, no fatal)
-
-**Added**
-- 🔍 **Evidence in every cloak reason** — `crawler_or_tool_ua:curl/`, `iprange_datacenter:52.95.0.0/8`, `bot_isp:hetzner`, `geo_country:US`; shown in the Click Log and click details, stripped for aggregation/thresholds
-- 🔗 **Cloak panel → Click Log deep link** + ALL/SAFE/MONEY tabs, hours/stream filters, ISP/ASN/proxy-type/verdict in click details
-- 🛠️ **Self-heal DDL for `cloak_suppressed_stats`** — the table is recreated on boot for databases the migration's earlier build had already stamped (root cause of empty-diagnostics support cases)
-- 📋 **Bot-ISP blocklist in the Keitaro format** — per-line providers matched as whole phrases; generic suffixes (Inc/Ltd/GmbH) and <3-char entries ignored with settings warnings (PHP/JS mirror)
-- ⭐ **Group By star + last-applied** in report settings; "Report" in Campaigns follows a single ticked checkbox.
-
-v1.1.10: 🩹 CRITICAL Landings dashes hotfix, 🖱️ column drag-and-drop fix, 🎛️ navbar layer, 🔌 source-driven parameter buttons, ⚖️ Split Evenly + live share badges; v1.1.9: 🩹 double-`?` auto-heal, 🔍 cloak observability (W1–W4), 📊 Landings/Offers metric parity; v1.1.8: 🎯 entity filters in Analytics (Trends/Cohort) with the dist-rebuild fix; v1.1.7: 🛟 nginx asset-loop hotfix (`nginx_sync.php` once); v1.1.6: 🔀 SSL mode selector, 🧰 smoke tests + landing diagnostics, 🧩 asset-loading guarantees, 🗑️ bulk import removed; v1.1.5: 🔐 SSL management (ORB-014), 🧠 SUBID in traffic logs.
+v1.1.11: 🩹 cloak-числа по 4 поверхностям (один хелпер + COALESCE), 🔍 evidence в причинах cloak, 🔗 cloak-панель → Click Log с табами ALL/SAFE/MONEY, 🛠️ self-heal DDL `cloak_suppressed_stats`, 📋 bot-ISP в формате Keitaro, ⭐ Group By star; v1.1.10: 🩹 CRITICAL Landings dashes hotfix, 🖱️ column drag-and-drop fix, 🎛️ navbar layer, 🔌 source-driven parameter buttons, ⚖️ Split Evenly + live share badges; v1.1.9: 🩹 double-`?` auto-heal, 🔍 cloak observability (W1–W4), 📊 Landings/Offers metric parity; v1.1.8: 🎯 entity filters in Analytics (Trends/Cohort) with the dist-rebuild fix; v1.1.7: 🛟 nginx asset-loop hotfix (`nginx_sync.php` once); v1.1.6: 🔀 SSL mode selector, 🧰 smoke tests + landing diagnostics, 🧩 asset-loading guarantees, 🗑️ bulk import removed; v1.1.5: 🔐 SSL management (ORB-014), 🧠 SUBID in traffic logs.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

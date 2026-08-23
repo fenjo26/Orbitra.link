@@ -53,10 +53,14 @@ if (!function_exists('orbitraRotationAutoDefaults')) {
         ];
     }
 
-    /** Metrics that need spend to mean anything; sales/EPV/CR work without cost. */
+    /**
+     * Metrics that need spend to mean anything. Only ROI (profit ÷ spend) is
+     * cost-gated; sales/CR/EPV/EPC are revenue-per-click metrics and rank
+     * offers fine without any cost sync.
+     */
     function orbitraRotationMetricNeedsCost(string $metric): bool
     {
-        return in_array($metric, ['roi_confirmed', 'epc_confirmed'], true);
+        return in_array($metric, ['roi_confirmed'], true);
     }
 
     function orbitraRotationMetricExists(string $metric): bool
@@ -161,7 +165,7 @@ if (!function_exists('orbitraRotationAutoDefaults')) {
             }
         }
 
-        // Values clamped at zero: a negative ROI/EPC item is a loser — it
+        // Values clamped at zero: a negative-ROI item is a loser — it
         // keeps the floor but takes no proportional share.
         $vals = [];
         $sumVals = 0.0;
@@ -464,7 +468,7 @@ if (!function_exists('orbitraRotationAutoDefaults')) {
     }
 
     /**
-     * Can ROI/EPC be selected for this campaign? True when a manual cost is
+     * Can ROI be selected for this campaign? True when a manual cost is
      * configured on the campaign or any of its recent clicks carried synced
      * spend (cost sync distributes into clicks.cost).
      */

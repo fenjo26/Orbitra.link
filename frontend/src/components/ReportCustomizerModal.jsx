@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { X, GripVertical, ChevronUp, ChevronDown, Plus, Trash2, Search, SlidersHorizontal, Layers, Filter as FilterIcon, RotateCcw, Star, Pencil, Save } from 'lucide-react';
+import { X, GripVertical, ChevronUp, ChevronDown, Plus, Trash2, Search, SlidersHorizontal, Layers, Filter as FilterIcon, RotateCcw, Star, Pencil, Save, MoveHorizontal } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 // Report metrics list.
@@ -342,7 +342,10 @@ const ReportCustomizerModal = ({
     onSaveLayers,
     layerPresets = [],
     currentFilters = [],
-    onSaveFilters
+    onSaveFilters,
+    // Clears the table's persisted column widths (shared ColumnResize module);
+    // rendered only when the host table supports resizing.
+    onResetColumnWidths
 }) => {
     const { t } = useLanguage();
     const [activeTab, setActiveTab] = useState('columns');
@@ -1309,17 +1312,30 @@ const ReportCustomizerModal = ({
                     </div>
                 )}
 
-                {/* Footer (Restore to default | Cancel | Apply) */}
+                {/* Footer (Restore to default | Reset widths | Cancel | Apply) */}
                 <div className="flex items-center justify-between px-6 py-3.5 border-t" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-card)' }}>
-                    <button
-                        type="button"
-                        onClick={handleRestoreDefault}
-                        className="text-xs transition-colors hover:underline flex items-center gap-1.5 font-medium"
-                        style={{ color: 'var(--color-primary)' }}
-                    >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        <span>{t('reportCustomizer.restoreDefault', 'Restore to default')}</span>
-                    </button>
+                    <div className="flex items-center gap-4 flex-wrap">
+                        <button
+                            type="button"
+                            onClick={handleRestoreDefault}
+                            className="text-xs transition-colors hover:underline flex items-center gap-1.5 font-medium"
+                            style={{ color: 'var(--color-primary)' }}
+                        >
+                            <RotateCcw className="w-3.5 h-3.5" />
+                            <span>{t('reportCustomizer.restoreDefault', 'Restore to default')}</span>
+                        </button>
+                        {onResetColumnWidths && (
+                            <button
+                                type="button"
+                                onClick={onResetColumnWidths}
+                                className="text-xs transition-colors hover:underline flex items-center gap-1.5 font-medium"
+                                style={{ color: 'var(--color-text-secondary)' }}
+                            >
+                                <MoveHorizontal className="w-3.5 h-3.5" />
+                                <span>{t('reportCustomizer.resetColumnWidths', 'Reset column widths')}</span>
+                            </button>
+                        )}
+                    </div>
 
                     <div className="flex items-center gap-2.5">
                         <button

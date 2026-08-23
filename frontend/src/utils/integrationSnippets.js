@@ -28,6 +28,11 @@ export const EXIT_BUTTON_COLORS = [
     { value: '#f05a3e', labelKey: 'tracking.colorCoral' },
 ];
 
+/** Our own reference for the PHP client — the panel links it the way Keitaro
+ *  links theirs at the bottom of the KClient block. */
+export const KCLIENT_PHP_DOCS_URL =
+    'https://github.com/fenjo26/Orbitra.link/blob/main/docs/tracking-client-php.md';
+
 /** method id => locale key with the "where do I paste this" instruction. */
 export const METHOD_INSTALL_HINTS = {
     kclient_js: 'tracking.instKclientJs',
@@ -119,24 +124,48 @@ function kclientJs({ trackerUrl, campaign }, opts = {}) {
 
 function kclientPhp({ trackerUrl, campaign }, opts = {}) {
     const sendParams = opts.sendParams !== false;
-    const mode = opts.phpMode || 'redirect';
     const paramsLine = sendParams
         ? `$client->sendAllParams();`
-        : `// $client->sendAllParams(); — disabled: UTM/SubID from the page URL are not passed through`;
+        : `// $client->sendAllParams();   // disabled: UTM/SubID from the page URL are not passed through`;
 
-    let execution;
-    if (mode === 'show_html') {
-        execution = `// "Show as HTML": stream content goes straight into the page body, the URL stays unchanged\necho $client->getContent();`;
-    } else if (mode === 'get_link') {
-        // Plain PHP statements only: the outer template already opened the
-        // PHP block, and a closing tag inside a // comment would silently
-        // end PHP mode there.
-        execution = `// "Get Offer Link": the offer link into a variable — for your own button\n$offerLink = $client->getOffer();\n// echo $offerLink; — print the offer link wherever you need it on the page`;
-    } else {
-        execution = `$client->execute();\n// $client->executeAndBreak(); — halt the page when a redirect happens`;
-    }
+    // One snippet that works as pasted, with the alternatives sitting next to
+    // it as comments — the way Keitaro ships KClient. What the visitor gets
+    // (a local page, a redirect, the white page) is the campaign's stream
+    // talking, not this code, so there is nothing to choose here.
+    return `<?php\n`
+        + `require_once dirname(__FILE__) . '/kclient.php';\n`
+        + `$client = new KClickClient('${trackerUrl}', '${campaign.token}');\n`
+        + `${paramsLine}\n`
+        + `// $client->debug();            // show errors while testing\n`
+        + `// $client->execute();          // run, print the output, keep the page going\n`
+        + `$client->executeAndBreak();     // stop the page if the tracker redirects or returns content\n`
+        + `?>\n`;
+}
 
-    return `<?php\n// The first lines of your site's index.php, before the DOCTYPE.\n// Download kclient.php with the button above and place it next to index.php.\nrequire_once dirname(__FILE__) . '/kclient.php';\n\n$client = new KClickClient('${trackerUrl}', '${campaign.token}');\n${paramsLine}\n${execution}\n`;
+/** Secondary pages of the same site: pick the click back up instead of
+ *  registering a new one. The tracker appends _subid to the URL it sends the
+ *  visitor to, so restoreFromQuery() is the default; restoreFromSession() is
+ *  the fallback when the site's own links drop the parameter. */
+export function kclientPhpSecondary({ trackerUrl, campaign }) {
+    return `<?php\n`
+        + `require_once dirname(__FILE__) . '/kclient.php';\n`
+        + `$client = new KClickClient('${trackerUrl}', '${campaign.token}');\n`
+        + `$client->restoreFromQuery();\n`
+        + `// $client->restoreFromSession();   // when internal links do not carry _subid\n`
+        + `?>\n`;
+}
+
+/** The offer link, for a button the page draws itself. */
+export function kclientPhpOfferLink() {
+    return `<a href="<?= $client->getOffer() ?>">link</a>`;
+}
+
+/** Advanced: the same URL in a variable, when the markup is built elsewhere. */
+export function kclientPhpGetOffer() {
+    return `<?php\n`
+        + `$offerLink = $client->getOffer();\n`
+        + `// $offerLink = $client->getOffer(42);   // a specific offer of the stream\n`
+        + `?>\n`;
 }
 
 function trackingScript({ trackerUrl, campaign }) {

@@ -4,6 +4,7 @@ import InfoBanner from './InfoBanner';
 import OfferEditor from './OfferEditor';
 import GroupsModal from './GroupsModal';
 import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
+import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle } from './common/ColumnResize';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -51,11 +52,14 @@ const SortIcon = ({ sortBy, colKey }) => {
 // The drag source is the GRIP, not the <th>: a native drag never starts on
 // an interactive descendant, so a grip inside the sort <button> was dead.
 // The <th> itself stays the drop target (highlight + onDrop).
-const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', alignRight = false, draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd }) => {
+// `resize` (the shared column-resize controller) mounts a resize handle on
+// the header's right edge and suspends the reorder grip while a resize drag
+// is in flight, so both gestures coexist on the same header.
+const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', alignRight = false, draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd, resize }) => {
     const isActive = sortBy.key === colKey;
     return (
         <th
-            className={`${alignRight ? 'text-right' : 'text-left'} whitespace-nowrap transition-all`}
+            className={`${alignRight ? 'text-right' : 'text-left'} whitespace-nowrap transition-all resizable-th`}
             aria-sort={isActive ? (sortBy.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
             title={fullTitle}
             onDragOver={onDragOver}
@@ -71,7 +75,7 @@ const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', alignRight =
             <div className={`inline-flex items-center gap-1.5 ${alignRight ? 'justify-end w-full' : ''}`}>
                 {draggable && (
                     <span
-                        draggable
+                        draggable={!resize?.resizingId}
                         onDragStart={onDragStart}
                         className="cursor-grab active:cursor-grabbing flex-shrink-0 -ml-1"
                     >
@@ -91,6 +95,7 @@ const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', alignRight =
                     <SortIcon sortBy={sortBy} colKey={colKey} />
                 </button>
             </div>
+            {resize && <ColumnResizeHandle rt={resize} colId={colKey} />}
         </th>
     );
 };
@@ -121,6 +126,24 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
     // Header Drag-and-Drop state
     const [thDragIdx, setThDragIdx] = useState(null);
     const [thDragOverIdx, setThDragOverIdx] = useState(null);
+
+    // Resizable columns — desktop table only; below lg the list renders as
+    // MobileCards and skips resizing entirely.
+    const isDesktop = useIsDesktop();
+    const columnDefs = useMemo(() => ([
+        { id: 'check', width: 40 },
+        { id: 'id', width: 70 },
+        { id: 'state', width: 90 },
+        { id: 'name', width: 260 },
+        { id: 'group_name', width: 130 },
+        { id: 'affiliate_network_name', width: 140 },
+        { id: 'geo', width: 80 },
+        { id: 'payout', width: 110 },
+        { id: 'redirect_type', width: 110 },
+        ...chosenColumns.map(id => ({ id, width: 120 })),
+        { id: 'actions', width: 110 }
+    ]), [chosenColumns]);
+    const colResize = useResizableTableColumns({ tableId: 'offers', columns: columnDefs, enabled: isDesktop });
 
     // Row action dropdown (⋮)
     const [menuAnchor, setMenuAnchor] = useState(null);
@@ -941,7 +964,8 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
 
             {/* Table — desktop table / mobile stacked cards */}
             <div className="tracker-table-container hidden lg:block">
-                <table className="page-table tracker-table">
+                <table className="page-table tracker-table" style={{ ...colResize.tableStyle }}>
+                    {colResize.colgroup}
                     <thead>
                         <tr>
                             <th className="w-10">
@@ -954,14 +978,20 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                                     onChange={(e) => toggleSelectAllFiltered(e.target.checked)}
                                 />
                             </th>
-                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="id" label="ID" defaultDir="desc" />
-                            <th>{t('common.status')}</th>
-                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="name" label={t('editor.name')} defaultDir="asc" />
-                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="group_name" label={t('components.group')} defaultDir="asc" />
-                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="affiliate_network_name" label={t('offers.network')} defaultDir="asc" />
-                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="geo" label="GEO" defaultDir="asc" />
-                            <th>{t('offerColumns.payout')}</th>
-                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="redirect_type" label={t('components.type')} defaultDir="asc" />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="id" label="ID" defaultDir="desc" resize={colResize} />
+                            <th className="resizable-th">
+                                {t('common.status')}
+                                <ColumnResizeHandle rt={colResize} colId="state" />
+                            </th>
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="name" label={t('editor.name')} defaultDir="asc" resize={colResize} />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="group_name" label={t('components.group')} defaultDir="asc" resize={colResize} />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="affiliate_network_name" label={t('offers.network')} defaultDir="asc" resize={colResize} />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="geo" label="GEO" defaultDir="asc" resize={colResize} />
+                            <th className="resizable-th">
+                                {t('offerColumns.payout')}
+                                <ColumnResizeHandle rt={colResize} colId="payout" />
+                            </th>
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="redirect_type" label={t('components.type')} defaultDir="asc" resize={colResize} />
 
                             {/* Dynamic metric columns */}
                             {chosenColumns.map((colId, colIdx) => {
@@ -977,6 +1007,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                                         defaultDir="desc"
                                         alignRight={true}
                                         draggable={true}
+                                        resize={colResize}
                                         isDragOver={thDragOverIdx === colIdx && thDragIdx !== null && thDragIdx !== colIdx}
                                         onDragStart={(e) => handleThDragStart(e, colIdx)}
                                         onDragOver={(e) => handleThDragOver(e, colIdx)}
@@ -985,7 +1016,10 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                                     />
                                 );
                             })}
-                            <th className="text-right">{t('common.actions')}</th>
+                            <th className="text-right resizable-th">
+                                {t('common.actions')}
+                                <ColumnResizeHandle rt={colResize} colId="actions" />
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1232,6 +1266,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                 selectedColumns={chosenColumns}
                 onSaveColumns={handleSaveColumns}
                 mode="offers"
+                onResetColumnWidths={colResize.api.resetAll}
             />
 
             {/* Row Action Menu */}

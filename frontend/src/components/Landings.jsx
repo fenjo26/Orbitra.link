@@ -4,6 +4,7 @@ import InfoBanner from './InfoBanner';
 import LandingEditor from './LandingEditor';
 import GroupsModal from './GroupsModal';
 import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
+import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle } from './common/ColumnResize';
 import PaginationToolbar from './common/PaginationToolbar';
 import MobileCards from './common/MobileCards';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
@@ -59,6 +60,24 @@ const Landings = ({ landings, refreshData }) => {
     const [refreshing, setRefreshing] = useState(false);
     const [columnsModalOpen, setColumnsModalOpen] = useState(false);
     const [chosenColumns, setChosenColumns] = useState(() => loadLandingColumns());
+
+    // Resizable columns — desktop table only; below lg the list renders as
+    // MobileCards and skips resizing entirely. Ids mirror FIXED_LANDING_COLUMNS.
+    const isDesktop = useIsDesktop();
+    const columnDefs = useMemo(() => ([
+        { id: 'checkbox', width: 40 },
+        { id: 'id', width: 70 },
+        { id: 'state', width: 90 },
+        { id: 'name', width: 260 },
+        { id: 'group_name', width: 130 },
+        { id: 'type', width: 100 },
+        { id: 'url', width: 280 },
+        { id: 'last_event', width: 130 },
+        ...chosenColumns.map(id => ({ id, width: 120 })),
+        { id: 'actions', width: 110 }
+    ]), [chosenColumns]);
+    const colResize = useResizableTableColumns({ tableId: 'landings', columns: columnDefs, enabled: isDesktop });
+
     const [dateFrom, setDateFrom] = useState(() => getPresetDates('today')?.from || formatDate(new Date()));
     const [dateTo, setDateTo] = useState(() => getPresetDates('today')?.to || formatDate(new Date()));
     const [timezone, setTimezone] = useState(() => localStorage.getItem('orbitra_tz') || 'UTC');
@@ -835,7 +854,8 @@ const Landings = ({ landings, refreshData }) => {
             )}
 
             <div className="tracker-table-container hidden lg:block">
-                <table className="page-table tracker-table">
+                <table className="page-table tracker-table" style={{ ...colResize.tableStyle }}>
+                    {colResize.colgroup}
                     <thead>
                         <tr>
                             <th className="w-10">
@@ -848,13 +868,34 @@ const Landings = ({ landings, refreshData }) => {
                                     onChange={(e) => toggleSelectAll(e.target.checked)}
                                 />
                             </th>
-                            <th>ID</th>
-                            <th>{t('components.status')}</th>
-                            <th>{t('editor.name')}</th>
-                            <th>{t('components.group')}</th>
-                            <th>{t('components.type')}</th>
-                            <th>URL</th>
-                            <th>{t('landingColumns.lastEvent')}</th>
+                            <th className="resizable-th">
+                                ID
+                                <ColumnResizeHandle rt={colResize} colId="id" />
+                            </th>
+                            <th className="resizable-th">
+                                {t('components.status')}
+                                <ColumnResizeHandle rt={colResize} colId="state" />
+                            </th>
+                            <th className="resizable-th">
+                                {t('editor.name')}
+                                <ColumnResizeHandle rt={colResize} colId="name" />
+                            </th>
+                            <th className="resizable-th">
+                                {t('components.group')}
+                                <ColumnResizeHandle rt={colResize} colId="group_name" />
+                            </th>
+                            <th className="resizable-th">
+                                {t('components.type')}
+                                <ColumnResizeHandle rt={colResize} colId="type" />
+                            </th>
+                            <th className="resizable-th">
+                                URL
+                                <ColumnResizeHandle rt={colResize} colId="url" />
+                            </th>
+                            <th className="resizable-th">
+                                {t('landingColumns.lastEvent')}
+                                <ColumnResizeHandle rt={colResize} colId="last_event" />
+                            </th>
 
                             {/* Dynamic metric columns */}
                             {chosenColumns.map((colId) => {
@@ -863,13 +904,17 @@ const Landings = ({ landings, refreshData }) => {
                                     <th
                                         key={colId}
                                         title={getReportMetricTooltip(def, t)}
-                                        className="text-right whitespace-nowrap"
+                                        className="text-right whitespace-nowrap resizable-th"
                                     >
                                         {def?.shortLabel || def?.label || colId}
+                                        <ColumnResizeHandle rt={colResize} colId={colId} />
                                     </th>
                                 );
                             })}
-                            <th className="text-right">{t('common.actions')}</th>
+                            <th className="text-right resizable-th">
+                                {t('common.actions')}
+                                <ColumnResizeHandle rt={colResize} colId="actions" />
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1053,6 +1098,7 @@ const Landings = ({ landings, refreshData }) => {
                     setColumnsModalOpen(false);
                 }}
                 mode="landings"
+                onResetColumnWidths={colResize.api.resetAll}
             />
         </div>
     );

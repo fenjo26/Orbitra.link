@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Activity, ArrowRightLeft, ShieldAlert, TerminalSquare, ServerCrash, FileStack, Filter, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import MobileCards from './common/MobileCards';
+import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle } from './common/ColumnResize';
 
 const API_URL = '/api.php';
 
@@ -34,6 +35,28 @@ const LogsPage = () => {
         const params = new URLSearchParams(window.location.search);
         // Auto-expand filters if any are set
         return !!(params.get('campaign_id') || params.get('route') !== 'all' || params.get('reason'));
+    });
+
+    // Click-log column resizing (traffic tab) — desktop table only; below lg
+    // the log renders as MobileCards and skips resizing entirely.
+    const isDesktop = useIsDesktop();
+    const colResize = useResizableTableColumns({
+        tableId: 'logs_traffic',
+        enabled: isDesktop,
+        columns: [
+            { id: 'time', width: 170 },
+            { id: 'click_id', width: 120 },
+            { id: 'subid', width: 100 },
+            { id: 'campaign', width: 180 },
+            { id: 'route', width: 100 },
+            { id: 'reason', width: 180 },
+            { id: 'destination', width: 160 },
+            { id: 'ip', width: 110 },
+            { id: 'geo', width: 160 },
+            { id: 'device', width: 100 },
+            { id: 'isp', width: 120 },
+            { id: 'asn', width: 110 }
+        ]
     });
 
     const tabs = {
@@ -192,21 +215,58 @@ const LogsPage = () => {
                         </div>
 
                         <div className="hidden lg:block">
-                            <table className="page-table">
+                            <table className="page-table" style={{ ...colResize.tableStyle }}>
+                                {colResize.colgroup}
                                 <thead>
                                     <tr>
-                                        <th>{t('logs.colTime')}</th>
-                                        <th>{t('logs.colClickId')}</th>
-                                        <th>{t('logs.colSubid')}</th>
-                                        <th>{t('logs.colCampaign')}</th>
-                                        <th>{t('logs.colRoute')}</th>
-                                        <th>{t('logs.colReason')}</th>
-                                        <th>{t('logs.colDestination')}</th>
-                                        <th>{t('logs.colIp')}</th>
-                                        <th>{t('logs.colGeo')}</th>
-                                        <th>{t('logs.colDevice')}</th>
-                                        <th>{t('logs.colIsp')}</th>
-                                        <th>{t('logs.colAsn')}</th>
+                                        <th className="resizable-th">
+                                            {t('logs.colTime')}
+                                            <ColumnResizeHandle rt={colResize} colId="time" />
+                                        </th>
+                                        <th className="resizable-th">
+                                            {t('logs.colClickId')}
+                                            <ColumnResizeHandle rt={colResize} colId="click_id" />
+                                        </th>
+                                        <th className="resizable-th">
+                                            {t('logs.colSubid')}
+                                            <ColumnResizeHandle rt={colResize} colId="subid" />
+                                        </th>
+                                        <th className="resizable-th">
+                                            {t('logs.colCampaign')}
+                                            <ColumnResizeHandle rt={colResize} colId="campaign" />
+                                        </th>
+                                        <th className="resizable-th">
+                                            {t('logs.colRoute')}
+                                            <ColumnResizeHandle rt={colResize} colId="route" />
+                                        </th>
+                                        <th className="resizable-th">
+                                            {t('logs.colReason')}
+                                            <ColumnResizeHandle rt={colResize} colId="reason" />
+                                        </th>
+                                        <th className="resizable-th">
+                                            {t('logs.colDestination')}
+                                            <ColumnResizeHandle rt={colResize} colId="destination" />
+                                        </th>
+                                        <th className="resizable-th">
+                                            {t('logs.colIp')}
+                                            <ColumnResizeHandle rt={colResize} colId="ip" />
+                                        </th>
+                                        <th className="resizable-th">
+                                            {t('logs.colGeo')}
+                                            <ColumnResizeHandle rt={colResize} colId="geo" />
+                                        </th>
+                                        <th className="resizable-th">
+                                            {t('logs.colDevice')}
+                                            <ColumnResizeHandle rt={colResize} colId="device" />
+                                        </th>
+                                        <th className="resizable-th">
+                                            {t('logs.colIsp')}
+                                            <ColumnResizeHandle rt={colResize} colId="isp" />
+                                        </th>
+                                        <th className="resizable-th">
+                                            {t('logs.colAsn')}
+                                            <ColumnResizeHandle rt={colResize} colId="asn" />
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>

@@ -231,6 +231,32 @@ $assert('guard stream weights untouched', $landingWeights(12) === [1 => 34, 2 =>
 $stmt = $pdo->prepare("SELECT COUNT(*) FROM stream_rotation_log WHERE rotation_key = 'rot_ccc'");
 $stmt->execute();
 $assert('no audit rows from the guard', (int) $stmt->fetchColumn() === 0);
+
+// The same zero-cost campaign, an EPC config: revenue ÷ clicks has no cost
+// term, so this must run and reallocate while the ROI config above is skipped.
+$seedClicks(13, 1, 20, [5 => 5, 6 => 5, 7 => 5, 8 => 5, 9 => 5, 10 => 5]);
+$seedClicks(13, 2, 20, [3 => 5, 4 => 5, 5 => 5]);
+$seedClicks(13, 3, 20, []);
+$epcCustom = $mkStreamCustom(json_encode([
+    'enabled' => true, 'key' => 'rot_epc', 'metric' => 'epc_confirmed',
+    'min_sample' => 3, 'lookback_days' => 7, 'floor_pct' => 5, 'cap_pct' => 70, 'interval_min' => 60,
+], JSON_UNESCAPED_UNICODE));
+$pdo->prepare("INSERT INTO streams (id, campaign_id, name, is_active, schema_type, schema_custom_json) VALUES (13, 1, 'EpcNoCost', 1, 'landing_offer', ?)")
+    ->execute([$epcCustom]);
+orbitraRunRotationOptimiser($pdo, ['force' => true, 'stream_id' => 13]);
+$autoE = $streamCustom(13)['auto']['landings'];
+$assert('EPC runs on the zero-cost campaign', ($autoE['last_status'] ?? '') === 'ok', var_export($autoE, true));
+$assert('EPC config not coerced to sales', ($autoE['metric'] ?? '') === 'epc_confirmed', var_export($autoE, true));
+$wE = $landingWeights(13);
+$assert('EPC reallocated toward the winner', $wE[1] > 34 && $wE[2] < 33, var_export($wE, true));
+$stmt = $pdo->prepare("SELECT COUNT(*), MAX(metric), MAX(metric_value) FROM stream_rotation_log WHERE rotation_key = 'rot_epc'");
+$stmt->execute();
+$rowE = $stmt->fetch(PDO::FETCH_NUM);
+$assert('audit rows written for the EPC run', (int) $rowE[0] > 0, var_export($rowE, true));
+$assert('audit rows record epc_confirmed', $rowE[1] === 'epc_confirmed', var_export($rowE, true));
+// EPC confirmed for LP1: 6 sales × 5 payout on 20 clicks (direct traffic →
+// the clicks fallback) = 1.5
+$assert('metric value matches report math (1.5)', $rowE[2] !== null && abs((float) $rowE[2] - 1.5) < 0.001, var_export($rowE, true));
 // Cost arrives (synced spend on the campaign's clicks) → the same config now runs.
 $pdo->exec('UPDATE clicks SET cost = 0.5 WHERE campaign_id = 1');
 $stmt = $pdo->prepare("UPDATE streams SET schema_custom_json = json_set(schema_custom_json, '$.auto.landings.last_status', NULL, '$.auto.landings.last_run_at', NULL) WHERE id = 12");

@@ -934,6 +934,10 @@
     overflow: hidden;
   }
 
+  .\!table {
+    display: table !important;
+  }
+
   .block {
     display: block;
   }
@@ -5383,6 +5387,67 @@ code {
 
 .tracker-table tbody tr:hover {
   background-color: var(--color-bg-hover);
+}
+
+.resizable-th {
+  position: relative;
+  overflow: hidden;
+}
+
+.col-resize-handle {
+  cursor: col-resize;
+  touch-action: none;
+  z-index: 3;
+  width: 8px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+}
+
+.col-resize-handle:before {
+  content: "";
+  background: var(--color-primary);
+  opacity: 0;
+  border-radius: 2px;
+  width: 3px;
+  transition: opacity .12s;
+  position: absolute;
+  top: 22%;
+  bottom: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.col-resize-handle:hover:before {
+  opacity: .55;
+}
+
+.col-resize-handle.is-dragging:before {
+  opacity: .9;
+}
+
+.col-resize-badge {
+  white-space: nowrap;
+  pointer-events: none;
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 2px 7px;
+  font-size: 11px;
+  font-weight: 600;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 2px 8px #0000002e;
+}
+
+body.col-resizing, body.col-resizing * {
+  cursor: col-resize !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
 }
 
 .form-input {

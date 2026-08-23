@@ -3,8 +3,8 @@ import GeoSelector from './GeoSelector';
 import HelpTooltip from './HelpTooltip';
 import { ArrowLeft, Plus, Check, Link, Copy, Settings, Trash2, ChevronDown, ChevronUp, AlertCircle, AlertTriangle, X, Shield, Globe, MousePointerClick, TrendingUp, Activity, BarChart2, BarChart3, DollarSign, RefreshCw, FileText, MoreVertical, Play, Code, Edit3, Eye, Info, Search, SlidersHorizontal } from 'lucide-react';
 import CampaignReports from './CampaignReports';
-import ConversionsLog from './ConversionsLog';
-import ClickDetailsModal from './ClickDetailsModal';
+import ConversionsLogModal from './ConversionsLogModal';
+import ClickLogModal from './ClickLogModal';
 import LandingEditor from './LandingEditor';
 import OfferEditor from './OfferEditor';
 import EntitySelectorModal from './EntitySelectorModal';
@@ -14,7 +14,9 @@ import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 import { cachedGet, cachedPost, invalidateCache } from '../utils/apiCache';
 import { getStayInEditorAfterSave } from '../utils/editorPreferences';
-import { buildSnippet, COUNTDOWN_THEMES, EXIT_BUTTON_COLORS, METHOD_INSTALL_HINTS } from '../utils/integrationSnippets';
+import { buildSnippet, COUNTDOWN_THEMES, EXIT_BUTTON_COLORS, METHOD_INSTALL_HINTS,
+         KCLIENT_PHP_DOCS_URL, kclientPhpSecondary, kclientPhpOfferLink, kclientPhpGetOffer } from '../utils/integrationSnippets';
+import { campaignLinkUrl } from '../utils/campaignUrl';
 import { ignoredBotIspEntries } from '../utils/botIspList';
 import ProxyInput from './common/ProxyInput';
 import PixelPicker from './common/PixelPicker';
@@ -212,8 +214,47 @@ const mergeDirectUrlQuery = (url, generated) => {
     return base + (parts.length ? '?' + parts.join('&') : '') + hash;
 };
 
+// The snippet <pre> look, shared by the main code block and the KClient (PHP)
+// sub-blocks so the panel reads as one document rather than three widgets.
+const SNIPPET_PRE_STYLE = {
+    fontFamily: 'monospace',
+    color: 'var(--color-text-secondary)',
+    background: 'var(--color-bg-soft)',
+    border: '1px solid var(--color-border)',
+    borderRadius: '8px',
+    padding: '12px',
+    margin: 0,
+    overflowX: 'auto',
+    overflowY: 'auto',
+    maxHeight: '280px',
+};
+
+// Rotation optimiser: total weight movement allowed per cron run. Mirror of
+// $maxMovePP in core/RotationOptimiser.php — keep in sync.
+const ROTATION_MAX_MOVE_PP = 20;
+
+// Plural pick from pipe-separated forms stored in locales: "offer|offers"
+// (one|other), "оффер|оффера|офферов" (one|few|many), single form for zh.
+const rotationPlural = (lang, n, formsStr) => {
+    const forms = String(formsStr || '').split('|');
+    if (forms.length < 2) return forms[0] || '';
+    const m100 = Math.abs(n) % 100;
+    const m10 = m100 % 10;
+    let i;
+    if (lang === 'ru' || lang === 'uk') {
+        i = (m100 > 10 && m100 < 20) ? 2 : (m10 >= 2 && m10 <= 4) ? 1 : (m10 === 1 ? 0 : 2);
+    } else if (lang === 'zh') {
+        i = 0;
+    } else {
+        i = n === 1 ? 0 : 1;
+    }
+    return forms[Math.min(i, forms.length - 1)];
+};
+
+const fillTpl = (tpl, params) => String(tpl || '').replace(/\{(\w+)\}/g, (_, k) => (params[k] != null ? String(params[k]) : ''));
+
 const CampaignEditor = ({ campaignId, onClose }) => {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [activeTab, setActiveTab] = useState('general');
     const [loading, setLoading] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
@@ -239,14 +280,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     }, [streamMenuOpen]);
 
     // Modal states
-    const [showLogModal, setShowLogModal] = useState(false);
-    // Click Log modal: segmented route filter (is_safe_page) and the optional
-    // time window the cloak diagnostics link carries with it (24h).
-    const [clickLogRoute, setClickLogRoute] = useState('all'); // 'all' | 'safe' | 'money'
-    const [clickLogHours, setClickLogHours] = useState(0); // 0 = no window
-    const [clickLogStreamId, setClickLogStreamId] = useState(0); // 0 = all streams
-    const [clickLogsLoading, setClickLogsLoading] = useState(false);
-    const [selectedClickId, setSelectedClickId] = useState(null);
+    // Click Log modal: null when closed, otherwise the pre-filter it opens
+    // with — route (is_safe_page), the optional time window the cloak
+    // diagnostics link carries (24h), and a single stream. The modal itself
+    // lives in ClickLogModal so the Campaigns list can open the same screen.
+    const [clickLogRequest, setClickLogRequest] = useState(null);
     const [showCostModal, setShowCostModal] = useState(false);
     const [showClearModal, setShowClearModal] = useState(false);
     const [showReportsMenu, setShowReportsMenu] = useState(false);
@@ -259,6 +297,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const [trackingMethod, setTrackingMethod] = useState('kclient_js');
     const [snippetCopied, setSnippetCopied] = useState(false);
     const [showWidgetPreview, setShowWidgetPreview] = useState(false);
+    // KClient (PHP): getOffer() is a recipe, not an execution mode — it lives
+    // behind a disclosure under the snippet instead of in a dropdown that made
+    // the buyer choose before knowing what the choices were.
+    const [showPhpAdvanced, setShowPhpAdvanced] = useState(false);
+    const [phpBlockCopied, setPhpBlockCopied] = useState('');
     const [trackOpts, setTrackOpts] = useState({
         // Countdown Timer
         hours: 2,
@@ -286,7 +329,6 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         // KClient
         base64: false,
         sendParams: true,           // PHP only: kclient.js always passes page params
-        phpMode: 'redirect',        // redirect | show_html | get_link
         // Tracking Pixel
         pixelType: 'click',         // click | conversion
         convStatus: 'lead',
@@ -341,9 +383,6 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
     const emptyPixelForm = { type: '', pixel_id: '', token: '', events: 'PageView,Lead', event_source_url: '', is_active: 1, mapping: {}, test_event_code: '', proxy_url: '' };
 
-    // Log data
-    const [clickLogs, setClickLogs] = useState([]);
-
     // Select options state
     const [groups, setGroups] = useState([]);
     const [sources, setSources] = useState([]);
@@ -361,8 +400,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     });
     // W2: Cloak diagnostics summary for campaign editor
     const [cloakSummary, setCloakSummary] = useState(null);
-    // Rotation auto-optimisation: cost availability (gates the ROI/EPC metric
-    // options) + the recent optimiser decisions shown under each Auto toggle.
+    // Rotation auto-optimisation: cost availability (gates the ROI metric
+    // option) + the recent optimiser decisions shown under each Auto toggle.
     const [rotationStatus, setRotationStatus] = useState(null);
     // Which list's Conditions popover is open: { streamIdx, type } | null.
     const [autoPopover, setAutoPopover] = useState(null);
@@ -601,7 +640,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     // Get campaign URL
     const getCampaignUrl = () => {
         const domain = domains.find(d => d.id == formData.domain_id);
-        const baseUrl = domain ? `https://${domain.name}` : window.location.origin;
+        const url = campaignLinkUrl(formData.alias, domain ? domain.name : null);
         // Non-empty parameter values (macros like {{ad.id}}) become the query
         // string the user pastes into the ad network — Keitaro's Campaign URL.
         const pairs = Object.entries(formData.parameters || {})
@@ -617,7 +656,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     .replace(/%3A/gi, ':');
                 return `${encodeURIComponent(k)}=${safeVal}`;
             });
-        return pairs.length ? `${baseUrl}/${formData.alias}?${pairs.join('&')}` : `${baseUrl}/${formData.alias}`;
+        return pairs.length ? `${url}?${pairs.join('&')}` : url;
     };
 
     // Map a traffic source's [{alias, param, macro}] into the campaign's
@@ -802,41 +841,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         }
     };
 
-    // Fetch click logs. route segments the log by is_safe_page ('all'|'safe'|
-    // 'money'), hours > 0 narrows it to a recent window (diagnostics links use
-    // their own 24h panel window). The cache is dropped first so re-opening the
-    // modal always reflects traffic that just arrived.
-    const fetchClickLogs = async (route = clickLogRoute, hours = clickLogHours, streamId = clickLogStreamId) => {
-        if (!activeCampaignId) return;
-        setClickLogsLoading(true);
-        try {
-            const params = { campaign_id: activeCampaignId, limit: 100 };
-            if (route && route !== 'all') params.route = route;
-            if (hours > 0) params.hours = hours;
-            if (streamId > 0) params.stream_id = streamId;
-            invalidateCache('campaign_logs');
-            const { data } = await cachedGet('campaign_logs', params, 0);
-            if (data.status === 'success') {
-                setClickLogs(data.data);
-            } else {
-                setClickLogs([]);
-            }
-        } catch (e) {
-            console.error('Error fetching logs:', e);
-            setClickLogs([]);
-        } finally {
-            setClickLogsLoading(false);
-        }
-    };
-
     // Open the Click Log modal, optionally pre-filtered (the cloak diagnostics
-    // panel passes route='safe' with its 24h window).
+    // panel passes route='safe' with its 24h window). Fetching belongs to
+    // ClickLogModal, which is mounted only while open — so a fresh open is
+    // always a fresh read of the log.
     const openClickLog = ({ route = 'all', hours = 0, streamId = 0 } = {}) => {
-        setClickLogRoute(route);
-        setClickLogHours(hours);
-        setClickLogStreamId(streamId);
-        fetchClickLogs(route, hours, streamId);
-        setShowLogModal(true);
+        setClickLogRequest({ route, hours, streamId });
     };
 
     useEffect(() => {
@@ -1430,11 +1440,13 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     // campaign; the cron (rotation_optimiser_cron.php) rewrites the weights
     // while enabled. While Auto is on the weights belong to the cron: inputs
     // go read-only and Split Evenly is disabled.
+    // needsCost mirrors the backend's orbitraRotationMetricNeedsCost(): only
+    // ROI (profit ÷ spend) requires cost; EPC/EPV are revenue-per-click.
     const ROTATION_METRICS = [
         { id: 'sales', label: t('rotationAuto.metricSales') },
         { id: 'cr', label: t('rotationAuto.metricCr') },
         { id: 'epv_confirmed', label: t('rotationAuto.metricEpv') },
-        { id: 'epc_confirmed', label: t('rotationAuto.metricEpc'), needsCost: true },
+        { id: 'epc_confirmed', label: t('rotationAuto.metricEpc') },
         { id: 'roi_confirmed', label: t('rotationAuto.metricRoi'), needsCost: true },
     ];
     const ROTATION_DEFAULTS = { metric: 'epv_confirmed', min_sample: 3, lookback_days: 7, floor_pct: 5, cap_pct: 70, interval_min: 60 };
@@ -1517,7 +1529,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             <SlidersHorizontal className="w-3 h-3" />
                             {t('rotationAuto.conditions')}
                         </button>
-                        {autoPopover && autoPopover.streamIdx === streamIdx && autoPopover.type === type && renderAutoConditionsPopover(streamIdx, type)}
+                        {autoPopover && autoPopover.streamIdx === streamIdx && autoPopover.type === type && renderAutoConditionsPopover(streamIdx, type, list)}
                     </div>
                 )}
             </div>
@@ -1526,33 +1538,88 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
     // Conditions popover: metric + thresholds. Cost-dependent metrics are
     // disabled with the reason right there when the campaign has no cost.
-    const renderAutoConditionsPopover = (streamIdx, type) => {
+    // Field labels are buyer sentences with the input inline ("Never send
+    // less than [5] %"), one hint under each field, and a live example line
+    // that recomputes from the current settings and THIS list on every edit.
+    const renderAutoConditionsPopover = (streamIdx, type, list) => {
         const stream = formData.streams[streamIdx];
         const cfg = { ...ROTATION_DEFAULTS, ...getAutoCfg(stream, type) };
         const costAvailable = rotationStatus ? !!rotationStatus.cost_available : true;
-        const numField = (field, label, lo, hi) => (
-            <label key={field} className="flex flex-col gap-1">
-                <span className="text-[11px] font-semibold" style={{ color: 'var(--color-text-muted)' }}>{label}</span>
-                <input
-                    type="number"
-                    min={lo}
-                    max={hi}
-                    value={cfg[field]}
-                    onChange={e => {
-                        const v = Math.max(lo, Math.min(hi, parseInt(e.target.value, 10) || lo));
-                        setAutoCfg(streamIdx, type, { [field]: v });
-                    }}
-                    className="w-full rounded-lg px-2 py-1 text-xs"
-                    style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
-                />
-            </label>
+
+        // Live example: equal share over the ENABLED items of this list, and
+        // the hourly drift budget (20pp is per optimiser RUN; the cron runs
+        // every interval_min, so the hourly budget scales with it).
+        const enabledCount = (list || []).filter(isSchemaItemEnabled).length;
+        const equalShare = enabledCount > 0 ? 100 / enabledCount : 0;
+        // Bare number: the % (and its locale spacing) lives in the templates.
+        const shareTxt = enabledCount > 0
+            ? (Number.isInteger(equalShare) ? `${equalShare}` : `${Math.floor(equalShare)}-${Math.ceil(equalShare)}`)
+            : '';
+        const movePerHour = Math.round(ROTATION_MAX_MOVE_PP * 60 / (cfg.interval_min || 60) * 10) / 10;
+        const itemOne = t(type === 'offers' ? 'rotationAuto.itemOfferOne' : 'rotationAuto.itemLandingOne');
+        const cap1 = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+        const example = enabledCount >= 2 ? [
+            fillTpl(t('rotationAuto.exampleShare'), {
+                count: enabledCount,
+                items: rotationPlural(language, enabledCount, t(type === 'offers' ? 'rotationAuto.itemOfferForms' : 'rotationAuto.itemLandingForms')),
+                share: shareTxt,
+            }),
+            fillTpl(t('rotationAuto.exampleNeeds'), {
+                item: itemOne,
+                Item: cap1(itemOne),
+                min: cfg.min_sample,
+                sales: rotationPlural(language, cfg.min_sample, t('rotationAuto.salesForms')),
+                days: cfg.lookback_days,
+                daysWord: rotationPlural(language, cfg.lookback_days, t('rotationAuto.daysForms')),
+            }),
+            fillTpl(t('rotationAuto.exampleBounds'), {
+                floor: cfg.floor_pct,
+                cap: cfg.cap_pct,
+                move: movePerHour,
+                points: rotationPlural(language, movePerHour, t('rotationAuto.pointsForms')),
+            }),
+        ].join(' ') : t('rotationAuto.exampleFew');
+
+        const hintEl = (key) => (
+            <span className="text-[10.5px] leading-snug" style={{ color: 'var(--color-text-muted)' }}>{t(key)}</span>
+        );
+        const numInput = (field, lo, hi, cls) => (
+            <input
+                type="number"
+                min={lo}
+                max={hi}
+                value={cfg[field]}
+                onChange={e => {
+                    const v = Math.max(lo, Math.min(hi, parseInt(e.target.value, 10) || lo));
+                    setAutoCfg(streamIdx, type, { [field]: v });
+                }}
+                className={cls || 'w-full rounded-lg px-2 py-1 text-xs'}
+                style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
+            />
+        );
+        // Sentence label with the number inline: "Look at the last [7] days".
+        // The unit word pluralises with the value (day/days, Tag/Tagen…).
+        const sentenceField = (field, prefixKey, suffix, lo, hi, hintKey) => (
+            <div key={field} className="flex flex-col gap-1">
+                <label className="flex flex-wrap items-center gap-1.5 text-[11px] font-semibold" style={{ color: 'var(--color-text-muted)' }}>
+                    <span>{t(prefixKey)}</span>
+                    {numInput(field, lo, hi, 'w-14 text-center px-1.5 py-1 text-xs rounded-lg')}
+                    <span>{suffix}</span>
+                </label>
+                {hintEl(hintKey)}
+            </div>
         );
         return (
             <>
                 <div className="fixed inset-0 z-40" onClick={() => setAutoPopover(null)} />
                 <div
                     className="absolute right-0 top-full mt-1.5 w-80 rounded-2xl shadow-lg p-3.5 space-y-3 z-50 text-left"
-                    style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}
+                    style={{
+                        backgroundColor: 'var(--color-bg-card)',
+                        border: '1px solid var(--color-border)',
+                        maxHeight: 'calc(100vh - 140px)',
+                        overflowY: 'auto'
+                    }}
                     onClick={e => e.stopPropagation()}
                 >
                     <div className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>
@@ -1580,15 +1647,22 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             </span>
                         )}
                     </label>
-                    <div className="grid grid-cols-2 gap-2.5">
-                        {numField('min_sample', t('rotationAuto.minSample'), 1, 10000)}
-                        {numField('lookback_days', t('rotationAuto.lookback'), 1, 90)}
-                        {numField('floor_pct', t('rotationAuto.floor'), 1, 50)}
-                        {numField('cap_pct', t('rotationAuto.cap'), 10, 100)}
-                        {numField('interval_min', t('rotationAuto.interval'), 5, 1440)}
+                    <div className="space-y-2.5">
+                        {/* min_sample keeps the stacked shape — its label is a full sentence. */}
+                        <div className="flex flex-col gap-1">
+                            <label className="flex flex-col gap-1 text-[11px] font-semibold" style={{ color: 'var(--color-text-muted)' }}>
+                                <span>{t('rotationAuto.minSampleLabel')}</span>
+                                {numInput('min_sample', 1, 10000)}
+                            </label>
+                            {hintEl('rotationAuto.minSampleHint')}
+                        </div>
+                        {sentenceField('lookback_days', 'rotationAuto.lookbackPrefix', rotationPlural(language, cfg.lookback_days, t('rotationAuto.lookbackUnitForms')), 1, 90, 'rotationAuto.lookbackHint')}
+                        {sentenceField('floor_pct', 'rotationAuto.floorPrefix', t('rotationAuto.pctSuffix'), 1, 50, 'rotationAuto.floorHint')}
+                        {sentenceField('cap_pct', 'rotationAuto.capPrefix', t('rotationAuto.pctSuffix'), 10, 100, 'rotationAuto.capHint')}
+                        {sentenceField('interval_min', 'rotationAuto.intervalPrefix', t('rotationAuto.intervalSuffix'), 5, 1440, 'rotationAuto.intervalHint')}
                     </div>
                     <p className="text-[10.5px] leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
-                        {t('rotationAuto.conditionsHint')}
+                        {example}
                     </p>
                 </div>
             </>
@@ -3194,18 +3268,6 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
                                                     {trackingMethod === 'kclient_php' && (
                                                         <>
-                                                            <div>
-                                                                <label className="form-label">{t('tracking.phpMode', 'Execution mode')}</label>
-                                                                <select
-                                                                    className="form-select"
-                                                                    value={trackOpts.phpMode}
-                                                                    onChange={e => setTrackOpts({ ...trackOpts, phpMode: e.target.value })}
-                                                                >
-                                                                    <option value="redirect">{t('tracking.phpRedirect', 'Redirect to offer')}</option>
-                                                                    <option value="show_html">{t('tracking.phpShowHtml', 'Show as HTML (content in page body)')}</option>
-                                                                    <option value="get_link">{t('tracking.phpGetLink', 'Get offer link into a variable')}</option>
-                                                                </select>
-                                                            </div>
                                                             <label className="flex items-center gap-2 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
                                                                 <input
                                                                     type="checkbox"
@@ -3409,6 +3471,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                             : <><Copy className="w-3.5 h-3.5" /> {t('tracking.copyCode', 'Copy code')}</>}
                                                     </button>
                                                 </div>
+                                                {trackingMethod === 'kclient_php' && (
+                                                    <p className="text-xs mb-2" style={{ color: 'var(--color-text-muted)' }}>
+                                                        {t('tracking.phpStreamNote', "What the visitor gets — a local page, a redirect, or the white page — is decided by the campaign's streams, not by this snippet.")}
+                                                    </p>
+                                                )}
                                                 <pre
                                                     className="text-xs"
                                                     style={{
@@ -3426,6 +3493,93 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                 >
                                                     {buildSnippet(trackingMethod, snippetCtx(), trackOpts)}
                                                 </pre>
+
+                                                {/* KClient (PHP) — the pieces Keitaro ships next to the main
+                                                    snippet: secondary pages, the offer link, and getOffer() as
+                                                    an advanced recipe rather than an execution mode. */}
+                                                {trackingMethod === 'kclient_php' && (
+                                                    <div className="space-y-4 mt-4">
+                                                        <div>
+                                                            <div className="flex items-center justify-between mb-1">
+                                                                <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                                                                    {t('tracking.phpSecondaryTitle', 'Code for secondary pages (optional)')}
+                                                                </span>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={async () => {
+                                                                        await copyIntegrationSnippet(kclientPhpSecondary(snippetCtx()));
+                                                                        setPhpBlockCopied('secondary');
+                                                                        setTimeout(() => setPhpBlockCopied(''), 2000);
+                                                                    }}
+                                                                    className={phpBlockCopied === 'secondary' ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'}
+                                                                    style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 10px', fontSize: '12px' }}
+                                                                    title={t('common.copy')}
+                                                                >
+                                                                    {phpBlockCopied === 'secondary'
+                                                                        ? <><Check className="w-3.5 h-3.5" /> {t('tracking.copied', 'Copied!')}</>
+                                                                        : <><Copy className="w-3.5 h-3.5" /> {t('tracking.copyCode', 'Copy code')}</>}
+                                                                </button>
+                                                            </div>
+                                                            <p className="text-xs mb-2" style={{ color: 'var(--color-text-muted)' }}>
+                                                                {t('tracking.phpSecondaryHint', 'For pages the landing sends visitors on to: the click keeps being tracked instead of a new one being registered.')}
+                                                            </p>
+                                                            <pre className="text-xs" style={SNIPPET_PRE_STYLE}>
+                                                                {kclientPhpSecondary(snippetCtx())}
+                                                            </pre>
+                                                        </div>
+
+                                                        <div>
+                                                            <div className="flex items-center justify-between mb-1">
+                                                                <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                                                                    {t('tracking.phpOfferLinkTitle', 'How to link to the offer')}
+                                                                </span>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={async () => {
+                                                                        await copyIntegrationSnippet(kclientPhpOfferLink());
+                                                                        setPhpBlockCopied('offer');
+                                                                        setTimeout(() => setPhpBlockCopied(''), 2000);
+                                                                    }}
+                                                                    className={phpBlockCopied === 'offer' ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'}
+                                                                    style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 10px', fontSize: '12px' }}
+                                                                    title={t('common.copy')}
+                                                                >
+                                                                    {phpBlockCopied === 'offer'
+                                                                        ? <><Check className="w-3.5 h-3.5" /> {t('tracking.copied', 'Copied!')}</>
+                                                                        : <><Copy className="w-3.5 h-3.5" /> {t('tracking.copyCode', 'Copy code')}</>}
+                                                                </button>
+                                                            </div>
+                                                            <pre className="text-xs" style={SNIPPET_PRE_STYLE}>
+                                                                {kclientPhpOfferLink()}
+                                                            </pre>
+                                                            <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
+                                                                {t('tracking.phpOfferLinkHint', 'getOffer(42) picks a specific offer of the stream instead of the one the tracker chose.')}
+                                                            </p>
+                                                        </div>
+
+                                                        <div>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setShowPhpAdvanced(!showPhpAdvanced)}
+                                                                className="btn btn-secondary btn-sm"
+                                                                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 10px', fontSize: '12px' }}
+                                                            >
+                                                                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showPhpAdvanced ? 'rotate-180' : ''}`} />
+                                                                {t('tracking.phpAdvanced', 'Get the offer link into a variable')}
+                                                            </button>
+                                                            {showPhpAdvanced && (
+                                                                <div className="mt-2">
+                                                                    <p className="text-xs mb-2" style={{ color: 'var(--color-text-muted)' }}>
+                                                                        {t('tracking.phpAdvancedHint', 'getOffer() hands you the offer URL without letting the tracker act on the page — for a button you draw yourself.')}
+                                                                    </p>
+                                                                    <pre className="text-xs" style={SNIPPET_PRE_STYLE}>
+                                                                        {kclientPhpGetOffer()}
+                                                                    </pre>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
 
                                                     {(trackingMethod === 'countdown' || trackingMethod === 'exit_intent') && (
                                                         <div className="space-y-2">
@@ -3473,6 +3627,17 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                             <div className="text-xs leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
                                                                 {t(METHOD_INSTALL_HINTS[trackingMethod] || 'tracking.instWidgets')}
                                                             </div>
+                                                            {trackingMethod === 'kclient_php' && (
+                                                                <a
+                                                                    href={KCLIENT_PHP_DOCS_URL}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="text-xs"
+                                                                    style={{ color: 'var(--color-primary)', display: 'inline-block', marginTop: '6px' }}
+                                                                >
+                                                                    {t('tracking.phpDocs', 'Tracking Client (PHP) — full reference')}
+                                                                </a>
+                                                            )}
                                                         </div>
                                                     </div>
                                             </div>
@@ -4903,138 +5068,15 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 </div>
             )}
 
-            {/* Click Log Modal */}
-            {showLogModal && (
-                <div className="modal-overlay">
-                    <div className="modal-content" style={{ maxWidth: '960px' }}>
-                        <div className="modal-header">
-                            <h3 className="modal-title">{t('campaignEditor.clickLogTitle')}</h3>
-                            <button onClick={() => setShowLogModal(false)} className="action-btn">
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-
-                        {/* SAFE / MONEY / ALL segmented filter, driven by is_safe_page */}
-                        <div className="flex items-center gap-1 p-1 rounded-lg" style={{ backgroundColor: 'var(--color-bg-soft)' }}>
-                            {[
-                                ['all', t('campaignEditor.clickLogFilterAll', 'ALL')],
-                                ['safe', t('campaignEditor.clickLogFilterSafe', 'SAFE')],
-                                ['money', t('campaignEditor.clickLogFilterMoney', 'MONEY')]
-                            ].map(([value, label]) => (
-                                <button
-                                    key={value}
-                                    onClick={() => { setClickLogRoute(value); fetchClickLogs(value, clickLogHours, clickLogStreamId); }}
-                                    className={`flex-1 px-3 py-2 rounded-md text-xs font-semibold tracking-wide transition-colors ${clickLogRoute === value
-                                        ? 'bg-[var(--color-bg)] shadow-sm'
-                                        : 'hover:text-[var(--color-text-primary)]'
-                                        }`}
-                                    style={{ color: clickLogRoute === value ? 'var(--color-primary)' : 'var(--color-text-secondary)' }}
-                                >
-                                    {label}
-                                </button>
-                            ))}
-                        </div>
-                        {clickLogHours > 0 && (
-                            <div className="text-[11px] mt-2" style={{ color: 'var(--color-text-muted)' }}>
-                                {t('campaignEditor.clickLogLast24h', 'Last 24 hours')}
-                            </div>
-                        )}
-
-                        <div className="overflow-y-auto mt-2" style={{ maxHeight: '58vh' }}>
-                            {clickLogsLoading ? (
-                                <div className="text-center py-10" style={{ color: 'var(--color-text-muted)' }}>{t('common.loading', 'Loading...')}</div>
-                            ) : clickLogs.length === 0 ? (
-                                <div className="text-center py-10" style={{ color: 'var(--color-text-muted)' }}>{t('campaignEditor.clickLogNoClicks')}</div>
-                            ) : (
-                                <div className="space-y-3">
-                                    {clickLogs.map((log) => {
-                                        // Reasons arrive as comma-separated `code:evidence`
-                                        // strings; split on the FIRST ':' only so evidence
-                                        // containing colons (IPv6 CIDR) survives intact.
-                                        const reasons = (log.cloak_reasons || '').split(',').map(s => s.trim()).filter(Boolean);
-                                        return (
-                                            <div
-                                                key={log.id}
-                                                onClick={() => setSelectedClickId(log.id)}
-                                                className="rounded-xl p-3 transition-colors hover:border-[var(--color-primary)]"
-                                                style={{ border: '1px solid var(--color-border)', cursor: 'pointer' }}
-                                                title={t('campaignEditor.clickLogOpenDetails', 'Open click details')}
-                                            >
-                                                <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                                                    <div className="flex items-center gap-2 flex-wrap">
-                                                        <span className="text-[11px] font-mono" style={{ color: 'var(--color-text-muted)' }}>{log.created_at}</span>
-                                                        <span className={`status-badge ${log.is_safe_page === 1 ? 'status-inactive' : 'status-active'} text-[11px]`}>
-                                                            {log.is_safe_page === 1 ? t('logs.routeSafe') : t('logs.routeMoney')}
-                                                        </span>
-                                                        <span className="text-[11px]" style={{ color: 'var(--color-text-secondary)' }}>
-                                                            {t('campaignEditor.clickLogVerdict')}: <b style={{ color: 'var(--color-text-primary)' }}>{log.cloak_verdict || '—'}</b>
-                                                        </span>
-                                                    </div>
-                                                    <span className="text-[11px] font-mono" style={{ color: 'var(--color-text-muted)' }}>#{log.id}</span>
-                                                </div>
-
-                                                {/* Reason chips: the code plus the evidence that matched, visible inline */}
-                                                {reasons.length === 0 ? (
-                                                    <span className="text-[11px]" style={{ color: 'var(--color-text-muted)' }}>—</span>
-                                                ) : (
-                                                    <div className="flex flex-wrap gap-1">
-                                                        {reasons.map((reason, idx) => {
-                                                            const colon = reason.indexOf(':');
-                                                            const code = colon === -1 ? reason : reason.slice(0, colon);
-                                                            const evidence = colon === -1 ? '' : reason.slice(colon + 1);
-                                                            return (
-                                                                <span
-                                                                    key={idx}
-                                                                    className="text-[10px] px-1.5 py-0.5 rounded font-mono inline-flex items-center gap-1"
-                                                                    style={{
-                                                                        backgroundColor: 'var(--color-bg-soft)',
-                                                                        color: 'var(--color-text-secondary)',
-                                                                        border: '1px solid var(--color-border)'
-                                                                    }}
-                                                                    title={t(`cloakReasons.${code}`, '') || code}
-                                                                >
-                                                                    {code}
-                                                                    {evidence && (
-                                                                        <b style={{ color: 'var(--color-primary)', fontWeight: 600 }}>{evidence}</b>
-                                                                    )}
-                                                                </span>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                )}
-
-                                                {/* ISP / ASN / proxy type */}
-                                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2 text-[11px]" style={{ color: 'var(--color-text-primary)' }}>
-                                                    <div className="truncate" title={log.isp || ''}>
-                                                        <span style={{ color: 'var(--color-text-muted)' }}>{t('campaignEditor.clickLogIsp')}: </span>{log.isp || '—'}
-                                                    </div>
-                                                    <div className="truncate font-mono" title={log.asn || ''}>
-                                                        <span style={{ color: 'var(--color-text-muted)' }}>{t('campaignEditor.clickLogAsn')}: </span>{log.asn || '—'}
-                                                    </div>
-                                                    <div className="truncate font-mono" title={log.proxy_type || ''}>
-                                                        <span style={{ color: 'var(--color-text-muted)' }}>{t('campaignEditor.clickLogProxyType')}: </span>{log.proxy_type || '—'}
-                                                    </div>
-                                                </div>
-
-                                                {/* Full User-Agent */}
-                                                <div className="mt-2 text-[11px] font-mono break-all" style={{ color: 'var(--color-text-secondary)' }}>
-                                                    <span style={{ color: 'var(--color-text-muted)' }}>{t('campaignEditor.clickLogUserAgent')}: </span>{log.user_agent || '—'}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Click Log → single-click detail modal */}
-            {selectedClickId && (
-                <ClickDetailsModal
-                    clickId={selectedClickId}
-                    onClose={() => setSelectedClickId(null)}
+            {/* Click Log — the shared modal, also opened from the Campaigns list */}
+            {clickLogRequest && activeCampaignId && (
+                <ClickLogModal
+                    campaignId={activeCampaignId}
+                    campaignName={formData.name}
+                    initialRoute={clickLogRequest.route}
+                    initialHours={clickLogRequest.hours}
+                    initialStreamId={clickLogRequest.streamId}
+                    onClose={() => setClickLogRequest(null)}
                 />
             )}
 
@@ -5202,20 +5244,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             )}
 
             {showConversionsLog && activeCampaignId && (
-                <div className="modal-overlay" style={{ zIndex: 1100, top: '88px', height: 'calc(100vh - 88px)' }}>
-                    <div className="modal-content" style={{ maxWidth: '1200px', maxHeight: '100%', overflow: 'auto' }}>
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="modal-title">{t('editor.conversionsLog')}</h3>
-                            <button onClick={() => setShowConversionsLog(false)} className="btn btn-ghost btn-icon">
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-                        <ConversionsLog
-                            campaignId={activeCampaignId}
-                            onClose={() => setShowConversionsLog(false)}
-                        />
-                    </div>
-                </div>
+                <ConversionsLogModal
+                    campaignId={activeCampaignId}
+                    campaignName={formData.name}
+                    onClose={() => setShowConversionsLog(false)}
+                />
             )}
 
             {/* Traffic Simulation Modal */}

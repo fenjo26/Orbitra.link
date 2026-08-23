@@ -68,5 +68,10 @@ remote_leadforge_backup/
 tests/offers/
 # Test database files
 database.db
-.claude/worktrees/
 data/tracker.db
+
+# Local agent state (Claude Code: settings, worktrees, verification screenshots)
+.claude/
+
+# One-off browser probe scripts from verification sessions
+/tmp_*.js

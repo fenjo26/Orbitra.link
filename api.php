@@ -2665,9 +2665,10 @@ try {
             $havingClause = isset($_GET['limit']) ? "HAVING clicks > 0" : "";
 
             $stmt = $pdo->prepare("
-                SELECT c.*, 
+                SELECT c.*,
                        cg.name as group_name,
                        ts.name as source_name,
+                       d.name as domain_name,
                        COUNT(cl.id) as clicks,
                        SUM(cl.uniq_campaign) as unique_clicks,
                        SUM(cl.uniq_stream) as unique_clicks_stream,
@@ -2700,6 +2701,7 @@ try {
                 FROM campaigns c
                 LEFT JOIN campaign_groups cg ON c.group_id = cg.id
                 LEFT JOIN traffic_sources ts ON c.source_id = ts.id
+                LEFT JOIN domains d ON c.domain_id = d.id
                 LEFT JOIN clicks cl ON c.id = cl.campaign_id $joinCondition
                 LEFT JOIN $convAggSql cv ON cv.click_id = cl.id
                 $realJoin
@@ -2991,7 +2993,7 @@ try {
 
         case 'rotation_status':
             // Rotation auto-optimisation state for the campaign editor:
-            // whether cost-dependent metrics (ROI/EPC) may be selected, plus
+            // whether cost-dependent metrics (ROI) may be selected, plus
             // the recent optimiser decisions the stream cards surface under
             // the Auto toggle. Rows are matched to a list by rotation key.
             $rotCampaignId = (int) ($_GET['campaign_id'] ?? 0);

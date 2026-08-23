@@ -1,16 +1,20 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Plus, Search, Trash2, Edit3, Settings2, DollarSign, XCircle, ChevronUp, ChevronDown, ChevronsUpDown, RefreshCw, X, Copy, BarChart2, SlidersHorizontal, GripVertical, MoreVertical, AlertTriangle } from 'lucide-react';
+import { Plus, Search, Trash2, Edit3, Settings2, DollarSign, XCircle, ChevronUp, ChevronDown, ChevronsUpDown, RefreshCw, X, Copy, BarChart2, SlidersHorizontal, GripVertical, MoreVertical, AlertTriangle, Link2, FileText, Target, ExternalLink } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import GroupsModal from './GroupsModal';
 import PaginationToolbar from './common/PaginationToolbar';
 import MobileCards from './common/MobileCards';
+import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle } from './common/ColumnResize';
 import CampaignReports from './CampaignReports';
+import ClickLogModal from './ClickLogModal';
+import ConversionsLogModal from './ConversionsLogModal';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getDefaultTemplateColumns, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard } from '../utils/clipboard';
+import { campaignLinkUrl } from '../utils/campaignUrl';
 import { financeVisibility, financeHiddenMetric } from '../utils/permissions';
 
 const API_URL = '/api.php';
@@ -28,11 +32,14 @@ const SortIcon = ({ sortBy, colKey }) => {
 // The drag source is the GRIP, not the <th>: a native drag never starts on
 // an interactive descendant, so a grip inside the sort <button> was dead.
 // The <th> itself stays the drop target (highlight + onDrop).
-const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', alignRight = false, draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd }) => {
+// `resize` (the shared column-resize controller) mounts a resize handle on
+// the header's right edge and suspends the reorder grip while a resize drag
+// is in flight, so both gestures coexist on the same header.
+const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', alignRight = false, draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd, resize }) => {
     const isActive = sortBy.key === colKey;
     return (
         <th
-            className={`${alignRight ? 'text-right' : 'text-left'} whitespace-nowrap transition-all`}
+            className={`${alignRight ? 'text-right' : 'text-left'} whitespace-nowrap transition-all resizable-th`}
             aria-sort={isActive ? (sortBy.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
             title={fullTitle}
             onDragOver={onDragOver}
@@ -48,7 +55,7 @@ const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', alignRight =
             <div className={`inline-flex items-center gap-1.5 ${alignRight ? 'justify-end w-full' : ''}`}>
                 {draggable && (
                     <span
-                        draggable
+                        draggable={!resize?.resizingId}
                         onDragStart={onDragStart}
                         className="cursor-grab active:cursor-grabbing flex-shrink-0 -ml-1"
                     >
@@ -68,6 +75,7 @@ const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', alignRight =
                     <SortIcon sortBy={sortBy} colKey={colKey} />
                 </button>
             </div>
+            {resize && <ColumnResizeHandle rt={resize} colId={colKey} />}
         </th>
     );
 };
@@ -90,6 +98,11 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     // Row action dropdown (⋮): one menu replaces the four always-visible
     // buttons that multiplied visual noise across 50–100 rows.
     const [menuAnchor, setMenuAnchor] = useState(null);
+    // Quick actions open the very same overlays the campaign editor uses; the
+    // row only has to say which campaign, and the campaign name rides along so
+    // the modal header names it — from a list of 50 rows, "Click Log" alone
+    // does not tell you whose clicks you are looking at.
+    const [logModal, setLogModal] = useState(null); // { type: 'clicks'|'conversions', id, name }
 
     // Pagination for high-volume lists. "All" restores the previous behaviour.
     const [rowsPerPage, setRowsPerPage] = useState(() => {
@@ -149,7 +162,9 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     const campaignEnabled = (camp) => (campaignStateOverrides[camp.id] ?? camp.state ?? 'active') !== 'disabled';
 
     const handleCopyCampaignLink = async (camp) => {
-        const url = `${window.location.origin}/${camp.alias}`;
+        // domain_name arrives from the list query's LEFT JOIN on domains; when
+        // the campaign has no tracking domain the panel origin serves the route.
+        const url = campaignLinkUrl(camp.alias, camp.domain_name || null);
         // utils/clipboard works on HTTP/IP too; the alert with the raw URL
         // stays as the last resort when even execCommand is unavailable.
         const ok = await copyToClipboard(url);
@@ -158,6 +173,57 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         } else {
             alert(url);
         }
+    };
+
+    // The campaign link is worth seeing as often as it is worth copying, so
+    // the row menu offers opening it as well — in a new tab, because losing
+    // the campaigns list to a landing page is not what anyone wanted.
+    const handleOpenCampaignLink = (camp) => {
+        const url = campaignLinkUrl(camp.alias, camp.domain_name || null);
+        window.open(url, '_blank', 'noopener,noreferrer');
+    };
+
+    // Three icon-only buttons, shared by the desktop Actions cell and the
+    // mobile card header so the two never drift apart. Icons only on purpose:
+    // the Actions column has to stay narrow next to a dozen metric columns —
+    // the tooltip carries the label. `hit-44` extends the tap area to 44px on
+    // touch devices without inflating the visual (see index.css).
+    const renderQuickActions = (camp, { size = 'w-4 h-4', touch = false } = {}) => {
+        const btnClass = `${touch ? 'hit-44 ' : ''}p-1.5 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5`;
+        return (
+            <>
+                <button
+                    type="button"
+                    onClick={() => handleCopyCampaignLink(camp)}
+                    className={btnClass}
+                    style={{ color: 'var(--color-text-muted)' }}
+                    title={t('table.campaignUrl')}
+                    aria-label={t('table.campaignUrl')}
+                >
+                    <Link2 className={size} />
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setLogModal({ type: 'clicks', id: camp.id, name: camp.name })}
+                    className={btnClass}
+                    style={{ color: 'var(--color-text-muted)' }}
+                    title={t('table.clickLog')}
+                    aria-label={t('table.clickLog')}
+                >
+                    <FileText className={size} />
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setLogModal({ type: 'conversions', id: camp.id, name: camp.name })}
+                    className={btnClass}
+                    style={{ color: 'var(--color-text-muted)' }}
+                    title={t('table.conversionLog')}
+                    aria-label={t('table.conversionLog')}
+                >
+                    <Target className={size} />
+                </button>
+            </>
+        );
     };
 
     const handleDuplicateCampaign = async (camp) => {
@@ -261,6 +327,20 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         () => chosenColumns.filter(id => !financeHiddenMetric(id, financeVis)),
         [chosenColumns, financeVis]
     );
+
+    // Resizable columns — desktop table only; below lg the list renders as
+    // MobileCards and skips resizing entirely.
+    const isDesktop = useIsDesktop();
+    const columnDefs = useMemo(() => ([
+        { id: 'check', width: 40 },
+        { id: 'id', width: 70 },
+        { id: 'state', width: 90 },
+        { id: 'name', width: 300 },
+        { id: 'group_name', width: 140 },
+        ...visibleColumns.map(id => ({ id, width: 120 })),
+        { id: 'actions', width: 110 }
+    ]), [visibleColumns]);
+    const colResize = useResizableTableColumns({ tableId: 'campaigns', columns: columnDefs, enabled: isDesktop });
 
     // Fetch groups on mount
     const fetchGroups = () => {
@@ -918,7 +998,8 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                 Both render the same paged rows and the same customiser-driven
                 metric set. */}
             <div className="tracker-table-container hidden lg:block">
-                <table className="page-table tracker-table" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                <table className="page-table tracker-table" style={{ fontVariantNumeric: 'tabular-nums', ...colResize.tableStyle }}>
+                    {colResize.colgroup}
                     <thead>
                         <tr>
                             <th className="w-8" style={{ textAlign: 'left' }}>
@@ -933,10 +1014,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                     style={{ accentColor: 'var(--color-primary)' }}
                                 />
                             </th>
-                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="id" label="ID" defaultDir="desc" />
-                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="state" label={t('common.status')} defaultDir="asc" />
-                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="name" label={t('campaigns.campaign')} defaultDir="asc" />
-                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="group_name" label={t('campaigns.group')} defaultDir="asc" />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="id" label="ID" defaultDir="desc" resize={colResize} />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="state" label={t('common.status')} defaultDir="asc" resize={colResize} />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="name" label={t('campaigns.campaign')} defaultDir="asc" resize={colResize} />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="group_name" label={t('campaigns.group')} defaultDir="asc" resize={colResize} />
 
                             {/* Dynamically configured metric columns */}
                             {visibleColumns.map((colId, colIdx) => {
@@ -952,6 +1033,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                         defaultDir="desc"
                                         alignRight={true}
                                         draggable={true}
+                                        resize={colResize}
                                         isDragOver={thDragOverIdx === colIdx && thDragIdx !== null && thDragIdx !== colIdx}
                                         onDragStart={(e) => handleThDragStart(e, colIdx)}
                                         onDragOver={(e) => handleThDragOver(e, colIdx)}
@@ -961,7 +1043,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                 );
                             })}
 
-                            <th className="text-right" style={{ textAlign: 'right' }}>{t('common.actions')}</th>
+                            <th className="text-right resizable-th" style={{ textAlign: 'right' }}>
+                                {t('common.actions')}
+                                <ColumnResizeHandle rt={colResize} colId="actions" />
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1041,15 +1126,18 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                     ))}
 
                                     <td style={{ textAlign: 'right' }}>
-                                        <button
-                                            type="button"
-                                            onClick={(event) => handleToggleMenu(event, camp.id)}
-                                            className="p-1.5 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5"
-                                            style={{ color: menuAnchor?.id === camp.id ? 'var(--color-primary)' : 'var(--color-text-muted)' }}
-                                            title={t('table.actions')}
-                                        >
-                                            <MoreVertical className="w-4 h-4" />
-                                        </button>
+                                        <div className="inline-flex items-center justify-end gap-0.5">
+                                            {renderQuickActions(camp)}
+                                            <button
+                                                type="button"
+                                                onClick={(event) => handleToggleMenu(event, camp.id)}
+                                                className="p-1.5 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                                                style={{ color: menuAnchor?.id === camp.id ? 'var(--color-primary)' : 'var(--color-text-muted)' }}
+                                                title={t('table.actions')}
+                                            >
+                                                <MoreVertical className="w-4 h-4" />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))
@@ -1145,14 +1233,15 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                             >
                                 <span className="inline-block h-3 w-3 transform rounded-full bg-white shadow transition-transform" style={{ transform: campaignEnabled(camp) ? 'translateX(12px)' : 'translateX(2px)' }} />
                             </button>
+                            {renderQuickActions(camp, { size: 'w-4 h-4', touch: true })}
                             <button
                                 type="button"
                                 onClick={(event) => handleToggleMenu(event, camp.id)}
-                                className="hit-44 flex items-center justify-center rounded-lg"
+                                className="hit-44 p-1.5 flex items-center justify-center rounded-lg"
                                 style={{ color: menuAnchor?.id === camp.id ? 'var(--color-primary)' : 'var(--color-text-muted)' }}
                                 title={t('table.actions')}
                             >
-                                <MoreVertical className="w-5 h-5" />
+                                <MoreVertical className="w-4 h-4" />
                             </button>
                         </>
                     )}
@@ -1193,6 +1282,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                 selectedColumns={chosenColumns}
                 onSaveColumns={handleSaveColumns}
                 mode="campaigns"
+                onResetColumnWidths={colResize.api.resetAll}
             />
 
             {/* Pause Safety Confirmation — stopping a campaign with linked ad
@@ -1338,6 +1428,22 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                 />
             )}
 
+            {logModal?.type === 'clicks' && (
+                <ClickLogModal
+                    campaignId={logModal.id}
+                    campaignName={logModal.name}
+                    onClose={() => setLogModal(null)}
+                />
+            )}
+
+            {logModal?.type === 'conversions' && (
+                <ConversionsLogModal
+                    campaignId={logModal.id}
+                    campaignName={logModal.name}
+                    onClose={() => setLogModal(null)}
+                />
+            )}
+
             {menuAnchor && typeof document !== 'undefined' && createPortal(
                 (() => {
                     const camp = campaignList.find((campaign) => campaign.id === menuAnchor.id);
@@ -1364,6 +1470,9 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                             </button>
                             <button onClick={() => { setMenuAnchor(null); handleCopyCampaignLink(camp); }} className="w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition" style={{ color: 'var(--color-text-primary)' }}>
                                 <Copy className="w-3.5 h-3.5" /> {t('table.copyLink')}
+                            </button>
+                            <button onClick={() => { setMenuAnchor(null); handleOpenCampaignLink(camp); }} className="w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition" style={{ color: 'var(--color-text-primary)' }}>
+                                <ExternalLink className="w-3.5 h-3.5" /> {t('table.openInNewTab')}
                             </button>
                             <button onClick={() => { setMenuAnchor(null); handleDuplicateCampaign(camp); }} className="w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition" style={{ color: 'var(--color-text-primary)' }}>
                                 <ChevronsUpDown className="w-3.5 h-3.5 rotate-90" /> {t('table.duplicate')}

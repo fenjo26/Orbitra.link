@@ -41,6 +41,14 @@ try {
 $configPath = defined('ORBITRA_NGINX_CONFIG_PATH') ? ORBITRA_NGINX_CONFIG_PATH : '/etc/nginx/sites-available/orbitra';
 
 if (!file_exists($configPath)) {
+    // Server-side regression test: on a host with nginx installed a missing
+    // config is the regression it guards against. On a dev machine without
+    // nginx at all there is nothing to validate — skip instead of failing.
+    $nginxBinary = trim((string) shell_exec('command -v nginx 2>/dev/null'));
+    if ($nginxBinary === '') {
+        echo "SKIP: no nginx on this host (server-side regression test)\n";
+        exit(0);
+    }
     echo "ERROR: Nginx config not found at $configPath\n";
     echo "Run: sudo php cli/nginx_sync.php\n";
     exit(1);

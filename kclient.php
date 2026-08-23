@@ -174,12 +174,28 @@ class KClickClient
         return $this;
     }
 
-    /** Restore from _subid/_token in the URL (links the client appends). */
+    /** Restore from the _subid the tracker appends to the URL it sent the
+     *  visitor to (and that the site carries forward in its own links). */
     public function restoreFromQuery()
     {
         if (!empty($_GET['_subid'])) {
             $this->clickId = (string) $_GET['_subid'];
             $this->restored = true;
+
+            // The URL carries the click, not the offer, so getOffer() would come
+            // back empty on a secondary page — which is exactly where the
+            // integration panel tells people to put this. When the same site
+            // started the visit, the session still holds the offer for THIS
+            // click; the id comparison is what keeps a stale session from
+            // handing over some other click's offer.
+            if ($this->offerUrl === null) {
+                $this->startSession();
+                if (!empty($_SESSION['orbitra_kclient_subid'])
+                    && $_SESSION['orbitra_kclient_subid'] === $this->clickId
+                    && !empty($_SESSION['orbitra_kclient_offer'])) {
+                    $this->offerUrl = $_SESSION['orbitra_kclient_offer'];
+                }
+            }
         }
         return $this;
     }
@@ -215,15 +231,29 @@ class KClickClient
 
     /**
      * The offer URL of the selected stream, or $default when the tracker did
-     * not resolve one. $opts with array('offer_id' => N) picks a specific offer
-     * of the stream (the URL carries offer_id — the tracker honors it on the
-     * landing→offer transition).
+     * not resolve one. A bare id — getOffer(42) — or array('offer_id' => N)
+     * picks a specific offer of the stream (the URL carries offer_id — the
+     * tracker honors it on the landing→offer transition).
+     *
+     * The bare-id form is what the integration panel documents, so it must
+     * keep working: an id arrives as an int from PHP code and as a numeric
+     * string from a template.
      */
     public function getOffer($opts = null, $default = null)
     {
         $this->perform();
         $url = $this->offerUrl;
-        if (is_array($opts) && !empty($opts['offer_id'])) {
+        if (is_int($opts) || (is_string($opts) && ctype_digit($opts))) {
+            $opts = array('offer_id' => (int) $opts);
+        }
+        if ($url !== null && is_array($opts) && !empty($opts['offer_id'])) {
+            // The tracker already put its own offer_id on the transition link,
+            // so appending a second one leaves the URL carrying both. Take the
+            // existing one out first and the caller's choice is the only one
+            // there — a parser that reads the FIRST occurrence would otherwise
+            // silently send the visitor to the offer the tracker picked.
+            $url = preg_replace('/([?&])offer_id=[^&]*/', '$1', (string) $url);
+            $url = preg_replace('/[?&]+$/', '', str_replace(array('?&', '&&'), array('?', '&'), $url));
             $sep = strpos($url, '?') === false ? '?' : '&';
             $url = $url . $sep . 'offer_id=' . (int) $opts['offer_id'];
         }
