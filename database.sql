@@ -629,4 +629,28 @@ CREATE INDEX idx_offers_network_archived ON offers(affiliate_network_id, is_arch
 CREATE INDEX idx_s2s_postbacks_inflight ON s2s_postbacks_log(status, updated_at);
 CREATE INDEX idx_s2s_postbacks_queue ON s2s_postbacks_log(status, next_retry_at);
 CREATE INDEX idx_streams_campaign_id ON streams(campaign_id);
+
+-- Stream rotation auto-optimisation audit log (migration 39): one row per
+-- item whose weight the optimiser cron changed, with the metric value and
+-- sample size the decision was based on and the rolling window it looked at.
+CREATE TABLE stream_rotation_log (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        campaign_id INTEGER NOT NULL,
+        rotation_key TEXT NOT NULL,
+        stream_id INTEGER,
+        stream_name TEXT,
+        list_type TEXT NOT NULL,                          -- 'landings' | 'offers'
+        item_id INTEGER NOT NULL,
+        item_name TEXT,
+        old_weight INTEGER NOT NULL,
+        new_weight INTEGER NOT NULL,
+        metric TEXT NOT NULL,
+        metric_value REAL,
+        sample_size INTEGER NOT NULL DEFAULT 0,
+        window_from TEXT NOT NULL,
+        window_to TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_stream_rotation_log_key ON stream_rotation_log(rotation_key, created_at);
+CREATE INDEX idx_stream_rotation_log_campaign ON stream_rotation_log(campaign_id, created_at);
 CREATE INDEX idx_traffic_sources_http_status ON traffic_sources(http_status);

@@ -21,6 +21,7 @@ if (!is_dir(__DIR__ . '/var/logs')) {
 // api.php - JSON API для React Dashboard
 require_once 'config.php';
 require_once __DIR__ . '/core/ReportMetrics.php';
+require_once __DIR__ . '/core/RotationOptimiser.php';
 require_once __DIR__ . '/core/ConversionAttribution.php';
 require_once __DIR__ . '/core/ExtensionAdsStats.php';
 require_once 'version.php';
@@ -2988,6 +2989,44 @@ try {
             }
             break;
 
+        case 'rotation_status':
+            // Rotation auto-optimisation state for the campaign editor:
+            // whether cost-dependent metrics (ROI/EPC) may be selected, plus
+            // the recent optimiser decisions the stream cards surface under
+            // the Auto toggle. Rows are matched to a list by rotation key.
+            $rotCampaignId = (int) ($_GET['campaign_id'] ?? 0);
+            if ($rotCampaignId <= 0) {
+                echo json_encode(['status' => 'error', 'message' => 'Missing campaign_id']);
+                break;
+            }
+            try {
+                $costAvailable = orbitraRotationCostAvailable($pdo, $rotCampaignId);
+                $decisions = [];
+                try {
+                    $stmtRot = $pdo->prepare("
+                        SELECT rotation_key, stream_name, list_type, item_id, item_name,
+                               old_weight, new_weight, metric, metric_value, sample_size,
+                               window_from, window_to, created_at
+                        FROM stream_rotation_log
+                        WHERE campaign_id = ?
+                        ORDER BY created_at DESC, id DESC
+                        LIMIT 200
+                    ");
+                    $stmtRot->execute([$rotCampaignId]);
+                    $decisions = $stmtRot->fetchAll(PDO::FETCH_ASSOC);
+                } catch (\Throwable $e) {
+                    // Pre-migration database without the audit table: the
+                    // editor shows the toggle without history rather than failing.
+                }
+                echo json_encode(['status' => 'success', 'data' => [
+                    'cost_available' => $costAvailable,
+                    'decisions' => $decisions,
+                ]]);
+            } catch (\Exception $e) {
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
         case 'save_campaign':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);
@@ -3140,6 +3179,20 @@ try {
                     if (is_array($data['parameters'] ?? null)) {
                         $pdo->prepare("UPDATE campaigns SET parameters_json = ? WHERE id = ?")
                             ->execute([json_encode($data['parameters'], JSON_UNESCAPED_UNICODE), (int) $id]);
+                    }
+
+                    // Rotation auto-optimisation, before the streams are
+                    // replaced wholesale: sanitise the auto configs (refuse
+                    // cost metrics on a campaign without cost, backstop
+                    // rotation keys), then hand the cron-owned weights back —
+                    // the editor round-trips a stale copy, and a save must
+                    // never resurrect weights the optimiser already moved.
+                    if (is_array($streams) && $id) {
+                        $stmtOldStreams = $pdo->prepare("SELECT id, schema_custom_json FROM streams WHERE campaign_id = ?");
+                        $stmtOldStreams->execute([$id]);
+                        $oldStreamRows = $stmtOldStreams->fetchAll(PDO::FETCH_ASSOC);
+                        $streams = orbitraSanitizeAutoConfigs($pdo, (int) $id, $streams);
+                        $streams = orbitraMergeAutoWeights($oldStreamRows, $streams);
                     }
 
                     // For MVP: delete old streams and insert new ones. The name
@@ -3453,7 +3506,11 @@ try {
                             $stream['filters_json'],
                             (($stream['filters_logic'] ?? 'and') === 'or') ? 'or' : 'and',
                             $stream['schema_type'],
-                            $stream['action_payload'], $stream['schema_custom_json'],
+                            $stream['action_payload'],
+                            // The copy inherits auto-optimisation conditions,
+                            // but with fresh rotation keys so its audit trail
+                            // doesn't interleave with the original's.
+                            orbitraRegenerateRotationKeys($stream['schema_custom_json']),
                             $stream['name'] ?? '',
                             (int) ($stream['collect_clicks'] ?? 1) === 0 ? 0 : 1
                         ]);

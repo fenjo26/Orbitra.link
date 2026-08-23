@@ -459,6 +459,21 @@ if ! crontab -u www-data -l 2>/dev/null | grep -qF "$IPRANGES_CRON_MARKER"; then
       || echo "  > NOTE: could not write the crontab. Add this line manually: 23 4 * * * php /var/www/orbitra/ipranges_cron.php"
 fi
 
+# Stream rotation auto-optimiser. Recomputes landing/offer rotation weights
+# from report metrics; every stream carries its own re-evaluation interval,
+# and non-due streams are skipped cheaply, so a */5 cadence is safe. Streams
+# without auto enabled never match the prefilter — this is a no-op for them.
+echo "  > Scheduling the rotation optimiser..."
+ROTATION_CRON_MARKER="# orbitra-rotation"
+if ! crontab -u www-data -l 2>/dev/null | grep -qF "$ROTATION_CRON_MARKER"; then
+    {
+        crontab -u www-data -l 2>/dev/null
+        echo "*/5 * * * * php /var/www/orbitra/rotation_optimiser_cron.php >> /var/www/orbitra/var/logs/rotation_optimiser.log 2>&1 $ROTATION_CRON_MARKER"
+    } | crontab -u www-data - 2>/dev/null \
+      && echo "  > Optimiser scheduled (every 5 minutes)." \
+      || echo "  > NOTE: could not write the crontab. Add this line manually: */5 * * * * php /var/www/orbitra/rotation_optimiser_cron.php"
+fi
+
 echo "  > Handing the installation over to www-data..."
 chown -R www-data:www-data /var/www/orbitra
 # Permissions are re-applied only where a root step created files. node_modules

@@ -73,7 +73,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 38;
+    $LATEST_SCHEMA_VERSION = 39;
 
     $schemaVersion = 0;
     try {
@@ -2097,6 +2097,51 @@ try {
                 }
             }
 
+            if ($schemaVersion < 39) {
+                // Migration 39: Stream rotation auto-optimisation audit log.
+                //
+                // Every weight reallocation the rotation optimiser cron makes
+                // writes one row per changed item: stream, item, old/new
+                // weight, the metric value and sample size the decision was
+                // based on, and the rolling window it looked at — so "why is
+                // LP2 now at 34%" is a query, not a guess.
+                //
+                // Rows are keyed by the rotation key stored inside the
+                // stream's schema_custom_json (campaign save DELETEs and
+                // re-INSERTs stream rows, so stream ids churn); stream_id and
+                // stream_name are informational snapshots of the decision
+                // moment.
+
+                try {
+                    $pdo->exec("
+                        CREATE TABLE IF NOT EXISTS stream_rotation_log (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            campaign_id INTEGER NOT NULL,
+                            rotation_key TEXT NOT NULL,
+                            stream_id INTEGER,
+                            stream_name TEXT,
+                            list_type TEXT NOT NULL,
+                            item_id INTEGER NOT NULL,
+                            item_name TEXT,
+                            old_weight INTEGER NOT NULL,
+                            new_weight INTEGER NOT NULL,
+                            metric TEXT NOT NULL,
+                            metric_value REAL,
+                            sample_size INTEGER NOT NULL DEFAULT 0,
+                            window_from TEXT NOT NULL,
+                            window_to TEXT NOT NULL,
+                            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                        )
+                    ");
+                    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_stream_rotation_log_key
+                                ON stream_rotation_log(rotation_key, created_at)");
+                    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_stream_rotation_log_campaign
+                                ON stream_rotation_log(campaign_id, created_at)");
+                } catch (\Throwable $e) {
+                    // Table/index already present on a half-migrated DB.
+                }
+            }
+
             // Mark schema as up-to-date. This must be last.
             $pdo->exec("PRAGMA user_version = " . (int) $LATEST_SCHEMA_VERSION . ";");
             $schemaVersion = $LATEST_SCHEMA_VERSION;
@@ -2127,6 +2172,35 @@ try {
         )");
     } catch (\Throwable $e) {
         // Read-only or locked DB: cloak_summary degrades gracefully without it.
+    }
+
+    // Same self-heal contract for the rotation optimiser's audit table (see
+    // the note above on why version-stamped DBs can miss a migration).
+    try {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS stream_rotation_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            campaign_id INTEGER NOT NULL,
+            rotation_key TEXT NOT NULL,
+            stream_id INTEGER,
+            stream_name TEXT,
+            list_type TEXT NOT NULL,
+            item_id INTEGER NOT NULL,
+            item_name TEXT,
+            old_weight INTEGER NOT NULL,
+            new_weight INTEGER NOT NULL,
+            metric TEXT NOT NULL,
+            metric_value REAL,
+            sample_size INTEGER NOT NULL DEFAULT 0,
+            window_from TEXT NOT NULL,
+            window_to TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )");
+        $pdo->exec("CREATE INDEX IF NOT EXISTS idx_stream_rotation_log_key
+                    ON stream_rotation_log(rotation_key, created_at)");
+        $pdo->exec("CREATE INDEX IF NOT EXISTS idx_stream_rotation_log_campaign
+                    ON stream_rotation_log(campaign_id, created_at)");
+    } catch (\Throwable $e) {
+        // Read-only or locked DB: the optimiser cron skips audit writes.
     }
 
     // Override hardcoded postback_key with the one from settings table for routers
