@@ -1893,6 +1893,29 @@ function queueSslInstallation($pdo, $domainId = null) {
     return $queued;
 }
 
+/**
+ * W3.4: does any active campaign run a cloak stream whose safe-page clicks
+ * must stay out of reports? Every date-filtered report surface (campaigns,
+ * landings, offers) and the no-campaign dashboard branch ask this same
+ * question through this helper so the surfaces cannot drift apart.
+ */
+function orbitraSafePageExclusionNeeded(PDO $pdo): bool
+{
+    try {
+        $stmt = $pdo->query("
+            SELECT COUNT(*) FROM streams s
+            JOIN campaigns c ON s.campaign_id = c.id
+            WHERE s.schema_type = 'cloak'
+            AND s.schema_custom_json IS NOT NULL AND s.schema_custom_json != '' AND s.schema_custom_json != '{}'
+            AND c.state = 'active'
+            LIMIT 1
+        ");
+        return ((int) $stmt->fetchColumn()) > 0;
+    } catch (\Throwable $e) {
+        return false;
+    }
+}
+
 function getDashboardFilters($prefix = '')
 {
     global $dbTzOffset;
@@ -1968,21 +1991,15 @@ function getDashboardFilters($prefix = '')
         }
     } else {
         // No campaign filter - check if ANY active campaign has a cloak stream with exclude_safe_from_reports
-        $stmt = $pdo->query("
-            SELECT COUNT(*) FROM streams s
-            JOIN campaigns c ON s.campaign_id = c.id
-            WHERE s.schema_type = 'cloak'
-            AND s.schema_custom_json IS NOT NULL AND s.schema_custom_json != '' AND s.schema_custom_json != '{}'
-            AND c.state = 'active'
-            LIMIT 1
-        ");
-        if ($stmt->fetchColumn() > 0) {
-            $safePageFilterNeeded = true;
-        }
+        $safePageFilterNeeded = orbitraSafePageExclusionNeeded($pdo);
     }
 
     if ($safePageFilterNeeded) {
-        $conditions[] = "{$prefix}is_safe_page = 0";
+        // COALESCE: a NULL is_safe_page (pre-v38 rows on a half-migrated DB, or
+        // any writer that leaves the column unset) is money-side traffic, and
+        // in SQLite "is_safe_page = 0" excludes NULL — those clicks would
+        // silently vanish from every report using this filter.
+        $conditions[] = "COALESCE({$prefix}is_safe_page, 0) = 0";
     }
 
     $whereClause = !empty($conditions) ? "WHERE " . implode(" AND ", $conditions) : "";
@@ -2620,6 +2637,15 @@ try {
                 $paramsCl = $dashboardParams;
             } else {
                 $joinCondition = $joinConds ? 'AND ' . implode(' AND ', $joinConds) : '';
+                // W3.4 parity with landings/offers/getDashboardFilters: a
+                // date-filtered Campaigns list is the surface the operator
+                // reconciles against the cloak panel, so it must exclude
+                // safe-page clicks for the very same campaigns. This branch
+                // used to be the only date-filtered surface without the
+                // filter, leaking safe hits into clicks/cost/CR.
+                if ($joinConds && orbitraSafePageExclusionNeeded($pdo)) {
+                    $joinCondition .= ' AND COALESCE(cl.is_safe_page, 0) = 0';
+                }
             }
 
             // Cast to int and inlined rather than bound: the branch above owns the
@@ -2777,17 +2803,22 @@ try {
         case 'cloak_summary':
             // W2: Cloak diagnostics summary for campaign editor
             $campaignId = isset($_GET['campaign_id']) ? (int) $_GET['campaign_id'] : 0;
-            $from = $_GET['from'] ?? gmdate('Y-m-d', strtotime('-24 hours'));
-            $to = $_GET['to'] ?? gmdate('Y-m-d');
+            // The window is bucketed in the report timezone — the same one the
+            // Campaigns list buckets its days by (users.timezone, overridable
+            // via ?timezone= exactly like the report pages). It used to floor
+            // the days in UTC, so a panel sitting next to the list counted a
+            // different period than the list itself, which read as a bug.
+            $from = $_GET['from'] ?? date('Y-m-d', strtotime('-1 day'));
+            $to = $_GET['to'] ?? date('Y-m-d');
 
             if ($campaignId <= 0) {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid campaign_id']);
                 break;
             }
 
-            // Time range filter (UTC)
-            $fromTime = $from . ' 00:00:00';
-            $toTime = $to . ' 23:59:59';
+            // Time range filter, in the report timezone: created_at is stored
+            // UTC and $dbTzOffset shifts it the same way getDashboardFilters()
+            // shifts every other report surface.
 
             // Get stream schema to check if it's a cloak stream
             $stmt = $pdo->prepare("SELECT s.schema_type, s.schema_custom_json FROM streams s
@@ -2799,22 +2830,33 @@ try {
             $stmt = $pdo->prepare("
                 SELECT
                     COUNT(*) as total,
-                    SUM(CASE WHEN is_safe_page = 0 THEN 1 ELSE 0 END) as money,
+                    SUM(CASE WHEN COALESCE(is_safe_page, 0) = 0 THEN 1 ELSE 0 END) as money,
                     SUM(CASE WHEN is_safe_page = 1 THEN 1 ELSE 0 END) as safe
                 FROM clicks
-                WHERE campaign_id = ? AND created_at >= ? AND created_at <= ?
+                WHERE campaign_id = ?
+                  AND date(created_at, '$dbTzOffset') >= date(?)
+                  AND date(created_at, '$dbTzOffset') <= date(?)
             ");
-            $stmt->execute([$campaignId, $fromTime, $toTime]);
+            $stmt->execute([$campaignId, $from, $to]);
             $counts = $stmt->fetch();
 
-            // Get suppressed count from cloak_suppressed_stats
-            $stmtSuppressed = $pdo->prepare("
-                SELECT COALESCE(SUM(hits), 0) as suppressed
-                FROM cloak_suppressed_stats
-                WHERE campaign_id = ? AND day >= ? AND day <= ?
-            ");
-            $stmtSuppressed->execute([$campaignId, $from, $to]);
-            $suppressed = $stmtSuppressed->fetch();
+            // Get suppressed count from cloak_suppressed_stats.
+            // The day column stores UTC days (see orbitraRecordSuppressedHit),
+            // so at timezone boundaries it can sit one day off the click
+            // window above — an auxiliary counter, labeled by `window` below.
+            // The table is created by migration + config self-heal DDL, but a
+            // degraded database must not take the whole diagnostics panel down.
+            try {
+                $stmtSuppressed = $pdo->prepare("
+                    SELECT COALESCE(SUM(hits), 0) as suppressed
+                    FROM cloak_suppressed_stats
+                    WHERE campaign_id = ? AND day >= ? AND day <= ?
+                ");
+                $stmtSuppressed->execute([$campaignId, $from, $to]);
+                $suppressed = $stmtSuppressed->fetch();
+            } catch (\Throwable $e) {
+                $suppressed = ['suppressed' => 0];
+            }
 
             // Get reason breakdown
             $stmtReasons = $pdo->prepare("
@@ -2823,24 +2865,30 @@ try {
                     cloak_reasons as reasons,
                     COUNT(*) as count
                 FROM clicks
-                WHERE campaign_id = ? AND created_at >= ? AND created_at <= ?
+                WHERE campaign_id = ?
+                  AND date(created_at, '$dbTzOffset') >= date(?)
+                  AND date(created_at, '$dbTzOffset') <= date(?)
                     AND cloak_reasons IS NOT NULL AND cloak_reasons != ''
                 GROUP BY cloak_verdict, cloak_reasons
             ");
-            $stmtReasons->execute([$campaignId, $fromTime, $toTime]);
+            $stmtReasons->execute([$campaignId, $from, $to]);
             $reasonRows = $stmtReasons->fetchAll();
 
             // Parse reason codes - each click may have multiple comma-separated reasons
+            // Strip evidence (code:evidence → code) so aggregation groups by detection layer
+            require_once __DIR__ . '/core/CloakDetector.php';
             $byReason = [];
             foreach ($reasonRows as $row) {
                 $codes = explode(',', $row['reasons']);
                 foreach ($codes as $code) {
                     $code = trim($code);
                     if ($code === '') continue;
-                    if (!isset($byReason[$code])) {
-                        $byReason[$code] = 0;
+                    // Strip evidence: 'crawler_or_tool_ua:curl/' → 'crawler_or_tool_ua'
+                    $codeOnly = CloakDetector::reasonCode($code);
+                    if (!isset($byReason[$codeOnly])) {
+                        $byReason[$codeOnly] = 0;
                     }
-                    $byReason[$code] += (int) $row['count'];
+                    $byReason[$codeOnly] += (int) $row['count'];
                 }
             }
 
@@ -2889,6 +2937,13 @@ try {
                     'geo_ready' => $geoReady,
                     'px12_installed' => $px12Installed,
                     'sensitivity' => $sensitivity,
+                    // Explicit window: two numbers on adjacent screens must
+                    // never be computed over different periods silently.
+                    'window' => [
+                        'from' => $from,
+                        'to' => $to,
+                        'timezone' => $userTimezone,
+                    ],
                 ]
             ]);
             break;
@@ -3984,16 +4039,9 @@ try {
             if ($dateConditions) {
                 // W3.4: Add is_safe_page filter for campaigns with exclude_safe_from_reports
                 // Check if any active campaign has cloaking with exclude_safe_from_reports
-                $stmtCheck = $pdo->query("
-                    SELECT COUNT(*) FROM streams s
-                    JOIN campaigns c ON s.campaign_id = c.id
-                    WHERE s.schema_type = 'cloak'
-                    AND s.schema_custom_json IS NOT NULL AND s.schema_custom_json != '' AND s.schema_custom_json != '{}'
-                    AND c.state = 'active'
-                    LIMIT 1
-                ");
-                if ($stmtCheck->fetchColumn() > 0) {
-                    $dateConditions[] = "cl.is_safe_page = 0";
+                if (orbitraSafePageExclusionNeeded($pdo)) {
+                    // COALESCE keeps NULL (pre-v38) rows visible — see getDashboardFilters.
+                    $dateConditions[] = "COALESCE(cl.is_safe_page, 0) = 0";
                 }
                 $joinCondition = 'AND ' . implode(' AND ', $dateConditions);
             } else {
@@ -5497,16 +5545,9 @@ try {
                 }
                 // W3.4: Add is_safe_page filter for campaigns with exclude_safe_from_reports
                 // Check if any active campaign has cloaking with exclude_safe_from_reports
-                $stmtCheck = $pdo->query("
-                    SELECT COUNT(*) FROM streams s
-                    JOIN campaigns c ON s.campaign_id = c.id
-                    WHERE s.schema_type = 'cloak'
-                    AND s.schema_custom_json IS NOT NULL AND s.schema_custom_json != '' AND s.schema_custom_json != '{}'
-                    AND c.state = 'active'
-                    LIMIT 1
-                ");
-                if ($stmtCheck->fetchColumn() > 0) {
-                    $joinConds[] = "cl.is_safe_page = 0";
+                if (orbitraSafePageExclusionNeeded($pdo)) {
+                    // COALESCE keeps NULL (pre-v38) rows visible — see getDashboardFilters.
+                    $joinConds[] = "COALESCE(cl.is_safe_page, 0) = 0";
                 }
                 $joinCondition = $joinConds ? 'AND ' . implode(' AND ', $joinConds) : '';
             } else {
@@ -6596,7 +6637,9 @@ try {
                 }
 
                 if ($route === 'money') {
-                    $whereConditions[] = 'cl.is_safe_page = 0';
+                    // NULL is_safe_page = money-side traffic (pre-v38 rows);
+                    // a plain "= 0" would hide them from the money filter.
+                    $whereConditions[] = 'COALESCE(cl.is_safe_page, 0) = 0';
                 } elseif ($route === 'safe') {
                     $whereConditions[] = 'cl.is_safe_page = 1';
                 }
@@ -9549,9 +9592,33 @@ try {
             }
 
             $limit = (int) ($_GET['limit'] ?? 100);
+            // Click Log modal filters: route segments the log by is_safe_page,
+            // hours narrows it to a recent window (the cloak diagnostics panel
+            // links here with its own 24h window).
+            $route = $_GET['route'] ?? 'all'; // 'all' | 'money' | 'safe'
+            $hours = max(0, (int) ($_GET['hours'] ?? 0));
+            $streamId = (int) ($_GET['stream_id'] ?? 0);
+            $whereParts = ['cl.campaign_id = ?'];
+            $whereParams = [$campaignId];
+            if ($route === 'money') {
+                // COALESCE: NULL is money-side traffic (pre-v38 rows) — the
+                // cloak panel's money count uses the same rule, the log must agree.
+                $whereParts[] = 'COALESCE(cl.is_safe_page, 0) = 0';
+            } elseif ($route === 'safe') {
+                $whereParts[] = 'cl.is_safe_page = 1';
+            }
+            if ($streamId > 0) {
+                $whereParts[] = 'cl.stream_id = ?';
+                $whereParams[] = $streamId;
+            }
+            if ($hours > 0) {
+                $whereParts[] = "cl.created_at >= datetime('now', ?)";
+                $whereParams[] = "-{$hours} hours";
+            }
             $stmt = $pdo->prepare("
-                SELECT 
+                SELECT
                     cl.id,
+                    cl.stream_id,
                     datetime(cl.created_at, '$dbTzOffset') as created_at,
                     cl.ip,
                     cl.user_agent,
@@ -9566,6 +9633,12 @@ try {
                     cl.browser,
                     cl.is_conversion,
                     cl.revenue,
+                    cl.cloak_verdict,
+                    cl.cloak_reasons,
+                    cl.is_safe_page,
+                    cl.isp,
+                    cl.asn,
+                    cl.proxy_type,
                     c.name as campaign_name,
                     o.name as offer_name,
                     s.name as stream_name
@@ -9573,11 +9646,11 @@ try {
                 LEFT JOIN campaigns c ON cl.campaign_id = c.id
                 LEFT JOIN offers o ON cl.offer_id = o.id
                 LEFT JOIN streams s ON cl.stream_id = s.id
-                WHERE cl.campaign_id = ?
+                WHERE " . implode(' AND ', $whereParts) . "
                 ORDER BY cl.created_at DESC
                 LIMIT ?
             ");
-            $stmt->execute([$campaignId, $limit]);
+            $stmt->execute(array_merge($whereParams, [$limit]));
             $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             // Format logs with ClickContext-style text

@@ -17602,7 +17602,8 @@ const ru = {
       "finance": "Финансы",
       "parameters": "Параметры",
       "geoDevice": "ГЕО & Устройство",
-      "calendar": "Календарь"
+      "calendar": "Календарь",
+      "cloak": "Клоакинг"
     },
     "fields": {
       "campaign": "Кампания",
@@ -17620,6 +17621,9 @@ const ru = {
       "streamId": "ID потока",
       "sourceId": "ID источника",
       "ip": "IP",
+      "isp": "Провайдер",
+      "asn": "ASN",
+      "proxyType": "Тип прокси",
       "botScanner": "Bot / Scanner",
       "cost": "Расход",
       "revenue": "Доход",
@@ -17643,7 +17647,10 @@ const ru = {
       "browser": "Браузер",
       "userAgent": "User Agent",
       "dateTime": "Дата и Время",
-      "conversion": "Конверсия"
+      "conversion": "Конверсия",
+      "route": "Маршрут",
+      "cloakVerdict": "Вердикт клоакинга",
+      "cloakReasons": "Причины клоакинга"
     }
   },
   "archive": {
@@ -18091,8 +18098,9 @@ const ru = {
   },
   "botSettings": {
     "ispTitle": "Глобальный чёрный список Bot ISP",
-    "ispHint": "Ключевые слова через запятую, проверяются по ISP и ASN посетителя. Потоки Cloak с включённым фильтром Bot ISP направляют таких посетителей на белую страницу.",
-    "ispPlaceholder": "facebook, meta, amazon, aws, hetzner, ...",
+    "ispHint": "Один провайдер на строку, сравнивается целиком с ISP и ASN посетителя (списки через запятую по-прежнему работают). Потоки Cloak с включённым фильтром Bot ISP направляют таких посетителей на белую страницу.",
+    "ispPlaceholder": "Один провайдер на строку, напр. Amazon.com, Inc.",
+    "ispIgnoredWarning": "Проигнорированные записи (слишком короткие или общий корпоративный суффикс — они совпали бы почти с каждым ISP)",
     "save": "Сохранить",
     "saved": "Сохранено!",
     "saving": "Сохранение...",
@@ -18240,7 +18248,19 @@ const ru = {
   "campaignEditor": {
     "clickLogTitle": "Лог кликов",
     "clickLog": "Лог кликов",
-    "reports": "Отчёты"
+    "reports": "Отчёты",
+    "clickLogFilterAll": "ВСЕ",
+    "clickLogFilterSafe": "SAFE",
+    "clickLogFilterMoney": "MONEY",
+    "clickLogVerdict": "Вердикт",
+    "clickLogReasons": "Причины",
+    "clickLogIsp": "ISP",
+    "clickLogAsn": "ASN",
+    "clickLogProxyType": "Прокси",
+    "clickLogUserAgent": "User-Agent",
+    "clickLogNoClicks": "Нет кликов в этой категории",
+    "clickLogLast24h": "За последние 24 часа",
+    "clickLogOpenDetails": "Открыть детали клика"
   },
   "dataTables": {
     "records": "записей"
@@ -19070,8 +19090,9 @@ const ru = {
     "allowOnly": "Только выбранные",
     "blockSelected": "Блокировать выбранные",
     "blockBotIsps": "Блокировать ботов и датацентр-провайдеров (Facebook, Google, Amazon, Hetzner и др.)",
-    "botIspPlaceholder": "Локальный список: facebook, hetzner, ... (пусто — использовать глобальный)",
-    "botIspHint": "Проверяется по ISP и ASN посетителя. Оставьте пустым, чтобы использовать глобальный список из Настройки → Боты.",
+    "botIspPlaceholder": "Локальный список: один провайдер на строку (пусто — использовать глобальный)",
+    "botIspHint": "Один провайдер на строку, проверяется по ISP и ASN посетителя. Оставьте пустым, чтобы использовать глобальный список из Настройки → Боты.",
+    "botIspIgnoredWarning": "Проигнорированные записи (слишком короткие или общий корпоративный суффикс — они совпали бы почти с каждым ISP)",
     "jsChallenge": "Проверка JavaScript",
     "jsChallengeHint": "Посетитель сначала видит белую страницу; фоновая проверка браузера решает, пускать ли его на money page. Всё, что не выполняет JS, остаётся на белой. Добавляет один переход — включайте, если пассивных слоёв не хватает.",
     "mode": "Cloaking",
@@ -19100,6 +19121,7 @@ const ru = {
     "moneyPageHint": "Показывается реальным посетителям. Работает как схема лендинг+оффер.",
     "noGeoDbWarning": "Каждый посетитель определяется как страна Unknown, поэтому этот фильтр отправит 100% вашего трафика на Safe Page.",
     "diagnosticsTitle": "Последние 24ч",
+    "diagnosticsWindow": "Окно: {from} — {to} ({tz})",
     "diagnosticsEmpty": "Пока нет кликов",
     "diagnosticsStats": "{hits} хитов  →  {money} деньги  ·  {safe} safe",
     "diagnosticsTopReasons": "Топ причин:",
@@ -19151,7 +19173,17 @@ const ru = {
     "webdriver": "Browser automation detected via JavaScript challenge.",
     "js_missing": "JavaScript did not execute.",
     "js_fingerprint": "Browser fingerprint challenge failed.",
-    "bot_blocklist": "IP совпал с известным чёрным списком ботов."
+    "bot_blocklist": "IP совпал с известным чёрным списком ботов.",
+    "bot_isp": "ISP посетителя найден в списке ботов/датацентров.",
+    "no_user_agent": "Запрос без User-Agent — так не делает ни один реальный браузер.",
+    "missing_accept_language": "Запрос без заголовка Accept-Language — нетипично для реальных браузеров.",
+    "ip2proxy_bot": "IP2Proxy пометил адрес как известного краулера/паука (SES/AIC).",
+    "ip2proxy_threat": "IP2Proxy пометил адрес как известную угрозу.",
+    "ip2proxy_high_fraud": "Fraud-скор IP2Proxy для адреса — 80 и выше.",
+    "datacenter_asn": "ASN принадлежит известному датацентру или хостингу.",
+    "vpn_proxy_asn": "ASN принадлежит известному VPN или прокси-провайдеру.",
+    "iprange_datacenter": "IP попадает в опубликованный диапазон датацентра/краулера.",
+    "hosting_isp": "В названии ISP/организации найдено ключевое слово хостинга."
   },
   "extCosts": {
     "title": "Dolphin / FBTool API",
@@ -19687,7 +19719,9 @@ const ru = {
     "deleteTemplateConfirm": 'Удалить шаблон "{name}"?',
     "renameTemplatePrompt": "Название шаблона:",
     "makeDefault": "Сделать по умолчанию",
-    "defaultTemplateActive": "Шаблон по умолчанию — нажмите, чтобы убрать"
+    "defaultTemplateActive": "Шаблон по умолчанию — нажмите, чтобы убрать",
+    "makeDefaultGroup": "Сделать группировкой по умолчанию",
+    "defaultGroupActive": "Группировка по умолчанию — нажмите, чтобы убрать"
   },
   "dateRangePicker": {
     "today": "Сегодня",
@@ -21142,7 +21176,8 @@ const en = {
       "finance": "Finance",
       "parameters": "Parameters",
       "geoDevice": "GEO & Device",
-      "calendar": "Calendar"
+      "calendar": "Calendar",
+      "cloak": "Cloak"
     },
     "fields": {
       "campaign": "Campaign",
@@ -21160,6 +21195,9 @@ const en = {
       "streamId": "Stream ID",
       "sourceId": "Source ID",
       "ip": "IP",
+      "isp": "ISP",
+      "asn": "ASN",
+      "proxyType": "Proxy Type",
       "botScanner": "Bot / Scanner",
       "cost": "Cost",
       "revenue": "Revenue",
@@ -21183,7 +21221,10 @@ const en = {
       "browser": "Browser",
       "userAgent": "User Agent",
       "dateTime": "Date and Time",
-      "conversion": "Conversion"
+      "conversion": "Conversion",
+      "route": "Route",
+      "cloakVerdict": "Cloak Verdict",
+      "cloakReasons": "Cloak Reasons"
     }
   },
   "archive": {
@@ -21631,8 +21672,9 @@ const en = {
   },
   "botSettings": {
     "ispTitle": "Global Bot ISP Blacklist",
-    "ispHint": "Comma-separated keywords checked against the visitor's ISP and ASN. Cloak streams with the Bot ISP filter enabled route these visitors to the Safe Page.",
-    "ispPlaceholder": "facebook, meta, amazon, aws, hetzner, ...",
+    "ispHint": "One provider per line, matched as a whole phrase against the visitor's ISP and ASN (legacy comma-separated lists still work). Cloak streams with the Bot ISP filter enabled route these visitors to the Safe Page.",
+    "ispPlaceholder": "One provider per line, e.g. Amazon.com, Inc.",
+    "ispIgnoredWarning": "Ignored entries (too short or a generic corporate suffix — they would match almost every ISP)",
     "save": "Save",
     "saved": "Saved!",
     "saving": "Saving...",
@@ -21780,7 +21822,19 @@ const en = {
   "campaignEditor": {
     "clickLogTitle": "Click Log",
     "clickLog": "Click Log",
-    "reports": "Reports"
+    "reports": "Reports",
+    "clickLogFilterAll": "ALL",
+    "clickLogFilterSafe": "SAFE",
+    "clickLogFilterMoney": "MONEY",
+    "clickLogVerdict": "Verdict",
+    "clickLogReasons": "Reasons",
+    "clickLogIsp": "ISP",
+    "clickLogAsn": "ASN",
+    "clickLogProxyType": "Proxy",
+    "clickLogUserAgent": "User-Agent",
+    "clickLogNoClicks": "No clicks in this category",
+    "clickLogLast24h": "Last 24 hours",
+    "clickLogOpenDetails": "Open click details"
   },
   "geoProfiles": {
     "title": "Geo Profiles",
@@ -22610,8 +22664,9 @@ const en = {
     "allowOnly": "Allow only",
     "blockSelected": "Block selected",
     "blockBotIsps": "Block Bot & Datacenter ISPs (Facebook, Google, Amazon, Hetzner, etc.)",
-    "botIspPlaceholder": "Local override: facebook, hetzner, ... (leave empty for the global list)",
-    "botIspHint": "Matched against the visitor's ISP and ASN. Leave empty to use the global list from Settings → Bots.",
+    "botIspPlaceholder": "Local override: one provider per line (leave empty for the global list)",
+    "botIspHint": "One provider per line, matched against the visitor's ISP and ASN. Leave empty to use the global list from Settings → Bots.",
+    "botIspIgnoredWarning": "Ignored entries (too short or a generic corporate suffix — they would match almost every ISP)",
     "jsChallenge": "JavaScript check",
     "jsChallengeHint": "The visitor sees the safe page first; a background browser check decides whether to forward them to the money page. Anything that does not run JS stays on the safe page. Costs one extra hop — enable when the passive layers are not enough.",
     "mode": "Cloaking",
@@ -22640,6 +22695,7 @@ const en = {
     "moneyPageHint": "Shown to real visitors. Behaves like the landing+offer schema.",
     "noGeoDbWarning": "Every visitor resolves as country Unknown, so this filter will send 100% of your traffic to the Safe Page.",
     "diagnosticsTitle": "Last 24h",
+    "diagnosticsWindow": "Window: {from} — {to} ({tz})",
     "diagnosticsEmpty": "No clicks yet",
     "diagnosticsStats": "{hits} hits  →  {money} money  ·  {safe} safe",
     "diagnosticsTopReasons": "Top reasons:",
@@ -22691,7 +22747,17 @@ const en = {
     "webdriver": "Browser automation detected via JavaScript challenge.",
     "js_missing": "JavaScript did not execute.",
     "js_fingerprint": "Browser fingerprint challenge failed.",
-    "bot_blocklist": "IP matched a known bot or crawler blocklist."
+    "bot_blocklist": "IP matched a known bot or crawler blocklist.",
+    "bot_isp": "Visitor's ISP matched the bot/datacenter ISP list.",
+    "no_user_agent": "Request sent no User-Agent at all — no real browser does that.",
+    "missing_accept_language": "Request sent no Accept-Language header — uncommon for real browsers.",
+    "ip2proxy_bot": "IP2Proxy flagged this address as a known crawler/spider (SES/AIC).",
+    "ip2proxy_threat": "IP2Proxy flagged this address as a known threat.",
+    "ip2proxy_high_fraud": "IP2Proxy fraud score for this address is 80 or higher.",
+    "datacenter_asn": "ASN belongs to a known datacenter or hosting provider.",
+    "vpn_proxy_asn": "ASN belongs to a known VPN or proxy provider.",
+    "iprange_datacenter": "IP falls inside a published datacenter/crawler range.",
+    "hosting_isp": "ISP/organization name contains a hosting provider keyword."
   },
   "extCosts": {
     "title": "Dolphin / FBTool API",
@@ -23227,7 +23293,9 @@ const en = {
     "deleteTemplateConfirm": 'Delete template "{name}"?',
     "renameTemplatePrompt": "Template name:",
     "makeDefault": "Set as default",
-    "defaultTemplateActive": "Default template — click to remove"
+    "defaultTemplateActive": "Default template — click to remove",
+    "makeDefaultGroup": "Set as default grouping",
+    "defaultGroupActive": "Default grouping — click to remove"
   },
   "dateRangePicker": {
     "today": "Today",
@@ -24682,7 +24750,8 @@ const uk = {
       "finance": "Фінанси",
       "parameters": "Параметри",
       "geoDevice": "GEO та пристрій",
-      "calendar": "Календар"
+      "calendar": "Календар",
+      "cloak": "Клоакінг"
     },
     "fields": {
       "campaign": "Кампанія",
@@ -24700,6 +24769,9 @@ const uk = {
       "streamId": "ID потоку",
       "sourceId": "Ідентифікатор джерела",
       "ip": "IP",
+      "isp": "ISP",
+      "asn": "ASN",
+      "proxyType": "Тип проксі",
       "botScanner": "Бот / Сканер",
       "cost": "Вартість",
       "revenue": "Дохід",
@@ -24723,7 +24795,10 @@ const uk = {
       "browser": "Браузер",
       "userAgent": "Агент користувача",
       "dateTime": "Дата і час",
-      "conversion": "Перетворення"
+      "conversion": "Перетворення",
+      "route": "Маршрут",
+      "cloakVerdict": "Вердикт клоакінгу",
+      "cloakReasons": "Причини клоакінгу"
     }
   },
   "archive": {
@@ -25171,8 +25246,9 @@ const uk = {
   },
   "botSettings": {
     "ispTitle": "Глобальний чорний список Bot ISP",
-    "ispHint": "Ключові слова через кому, перевіряються за ISP та ASN відвідувача. Потоки Cloak із увімкненим фільтром Bot ISP спрямовують таких відвідувачів на білу сторінку.",
-    "ispPlaceholder": "facebook, meta, amazon, aws, hetzner, ...",
+    "ispHint": "Один провайдер на рядок, порівнюється цілісно з ISP та ASN відвідувача (списки через коми надалі працюють). Потоки Cloak із увімкненим фільтром Bot ISP спрямовують таких відвідувачів на білу сторінку.",
+    "ispPlaceholder": "Один провайдер на рядок, напр. Amazon.com, Inc.",
+    "ispIgnoredWarning": "Проігноровані записи (занадто короткі або загальний корпоративний суфікс — вони збігалися б майже з кожним ISP)",
     "save": "Зберегти",
     "saved": "Збережено!",
     "saving": "Збереження...",
@@ -25318,9 +25394,21 @@ const uk = {
     "loadingDbs": "Завантаження інформації про базу даних..."
   },
   "campaignEditor": {
-    "clickLogTitle": "Натисніть Журнал",
+    "clickLogTitle": "Журнал кліків",
     "clickLog": "Натисніть Журнал",
-    "reports": "Звіти"
+    "reports": "Звіти",
+    "clickLogFilterAll": "ВСІ",
+    "clickLogFilterSafe": "SAFE",
+    "clickLogFilterMoney": "MONEY",
+    "clickLogVerdict": "Вердикт",
+    "clickLogReasons": "Причини",
+    "clickLogIsp": "ISP",
+    "clickLogAsn": "ASN",
+    "clickLogProxyType": "Проксі",
+    "clickLogUserAgent": "User-Agent",
+    "clickLogNoClicks": "Немає кліків у цій категорії",
+    "clickLogLast24h": "За останні 24 години",
+    "clickLogOpenDetails": "Відкрити деталі кліку"
   },
   "geoProfiles": {
     "title": "Географічні профілі",
@@ -26150,8 +26238,9 @@ const uk = {
     "allowOnly": "Лише обрані",
     "blockSelected": "Заблокувати обрані",
     "blockBotIsps": "Блокувати ботів і датацентр-провайдерів (Facebook, Google, Amazon, Hetzner та ін.)",
-    "botIspPlaceholder": "Локальний список: facebook, hetzner, ... (порожньо — глобальний список)",
-    "botIspHint": "Перевіряється за ISP та ASN відвідувача. Залиште порожнім, щоб використовувати глобальний список із Налаштування → Боти.",
+    "botIspPlaceholder": "Локальний список: один провайдер на рядок (порожньо — глобальний список)",
+    "botIspHint": "Один провайдер на рядок, перевіряється за ISP та ASN відвідувача. Залиште порожнім, щоб використовувати глобальний список із Налаштування → Боти.",
+    "botIspIgnoredWarning": "Проігноровані записи (занадто короткі або загальний корпоративний суфікс — вони збігалися б майже з кожним ISP)",
     "jsChallenge": "Перевірка JavaScript",
     "jsChallengeHint": "Відвідувач спершу бачить білу сторінку; фонова перевірка браузера вирішує, чи пускати його на money page. Усе, що не виконує JS, лишається на білій. Додає один перехід.",
     "mode": "Cloaking",
@@ -26180,6 +26269,7 @@ const uk = {
     "moneyPageHint": "Показується реальним відвідувачам. Працює як схема лендинг+оффер.",
     "noGeoDbWarning": "Кожен відвідувач визначається як країна Unknown, тому цей фільтр відправить 100% вашого трафіку на Safe Page.",
     "diagnosticsTitle": "Останні 24год",
+    "diagnosticsWindow": "Вікно: {from} — {to} ({tz})",
     "diagnosticsEmpty": "Поки немає кліків",
     "diagnosticsStats": "{hits} хітів  →  {money} гроші  ·  {safe} safe",
     "diagnosticsTopReasons": "Топ причин:",
@@ -26231,7 +26321,17 @@ const uk = {
     "webdriver": "Browser automation detected via JavaScript challenge.",
     "js_missing": "JavaScript did not execute.",
     "js_fingerprint": "Browser fingerprint challenge failed.",
-    "bot_blocklist": "IP збігся з відомим чорним списком ботів."
+    "bot_blocklist": "IP збігся з відомим чорним списком ботів.",
+    "bot_isp": "ISP відвідувача знайдено у списку ботів/датацентрів.",
+    "no_user_agent": "Запит без User-Agent — так не робить жоден реальний браузер.",
+    "missing_accept_language": "Запит без заголовка Accept-Language — нетипово для реальних браузерів.",
+    "ip2proxy_bot": "IP2Proxy позначив адресу як відомого краулера/павука (SES/AIC).",
+    "ip2proxy_threat": "IP2Proxy позначив адресу як відому загрозу.",
+    "ip2proxy_high_fraud": "Fraud-скор IP2Proxy для адреси — 80 і вище.",
+    "datacenter_asn": "ASN належить відомому датацентру або хостингу.",
+    "vpn_proxy_asn": "ASN належить відомому VPN або проксі-провайдеру.",
+    "iprange_datacenter": "IP потрапляє в опублікований діапазон датацентру/краулера.",
+    "hosting_isp": "У назві ISP/організації знайдено ключове слово хостингу."
   },
   "extCosts": {
     "title": "Dolphin / FBTool API",
@@ -26767,7 +26867,9 @@ const uk = {
     "deleteTemplateConfirm": 'Видалити шаблон "{name}"?',
     "renameTemplatePrompt": "Назва шаблону:",
     "makeDefault": "Зробити за замовчуванням",
-    "defaultTemplateActive": "Шаблон за замовчуванням — натисніть, щоб прибрати"
+    "defaultTemplateActive": "Шаблон за замовчуванням — натисніть, щоб прибрати",
+    "makeDefaultGroup": "Зробити групуванням за замовчуванням",
+    "defaultGroupActive": "Групування за замовчуванням — натисніть, щоб прибрати"
   },
   "dateRangePicker": {
     "today": "Сьогодні",
@@ -28222,7 +28324,8 @@ const es = {
       "finance": "Finanzas",
       "parameters": "Parámetros",
       "geoDevice": "GEO y dispositivo",
-      "calendar": "Calendario"
+      "calendar": "Calendario",
+      "cloak": "Cloaking"
     },
     "fields": {
       "campaign": "Campaña",
@@ -28240,6 +28343,9 @@ const es = {
       "streamId": "ID de transmisión",
       "sourceId": "ID de fuente",
       "ip": "IP",
+      "isp": "ISP",
+      "asn": "ASN",
+      "proxyType": "Tipo de proxy",
       "botScanner": "Robot / Escáner",
       "cost": "Costo",
       "revenue": "Ingresos",
@@ -28263,7 +28369,10 @@ const es = {
       "browser": "Navegador",
       "userAgent": "Agente de usuario",
       "dateTime": "Fecha y hora",
-      "conversion": "Conversión"
+      "conversion": "Conversión",
+      "route": "Ruta",
+      "cloakVerdict": "Veredicto de cloaking",
+      "cloakReasons": "Motivos de cloaking"
     }
   },
   "archive": {
@@ -28711,8 +28820,9 @@ const es = {
   },
   "botSettings": {
     "ispTitle": "Lista negra global de ISP de bots",
-    "ispHint": "Palabras clave separadas por comas que se comparan con el ISP y el ASN del visitante. Los flujos Cloak con el filtro de ISP de bots activado envían a estos visitantes a la página segura.",
-    "ispPlaceholder": "facebook, meta, amazon, aws, hetzner, ...",
+    "ispHint": "Un proveedor por línea, se compara como frase completa con el ISP y el ASN del visitante (las listas separadas por comas siguen funcionando). Los flujos Cloak con el filtro de ISP de bots activado envían a estos visitantes a la página segura.",
+    "ispPlaceholder": "Un proveedor por línea, p. ej. Amazon.com, Inc.",
+    "ispIgnoredWarning": "Entradas ignoradas (demasiado cortas o sufijo corporativo genérico — coincidirían con casi cualquier ISP)",
     "save": "Guardar",
     "saved": "¡Guardado!",
     "saving": "Guardando...",
@@ -28858,9 +28968,21 @@ const es = {
     "loadingDbs": "Cargando información de la base de datos..."
   },
   "campaignEditor": {
-    "clickLogTitle": "Haga clic en Iniciar sesión",
+    "clickLogTitle": "Registro de clics",
     "clickLog": "Haga clic en Iniciar sesión",
-    "reports": "Informes"
+    "reports": "Informes",
+    "clickLogFilterAll": "TODO",
+    "clickLogFilterSafe": "SAFE",
+    "clickLogFilterMoney": "MONEY",
+    "clickLogVerdict": "Veredicto",
+    "clickLogReasons": "Razones",
+    "clickLogIsp": "ISP",
+    "clickLogAsn": "ASN",
+    "clickLogProxyType": "Proxy",
+    "clickLogUserAgent": "User-Agent",
+    "clickLogNoClicks": "No hay clics en esta categoría",
+    "clickLogLast24h": "Últimas 24 horas",
+    "clickLogOpenDetails": "Ver detalles del clic"
   },
   "geoProfiles": {
     "title": "Perfiles geográficos",
@@ -29690,8 +29812,9 @@ const es = {
     "allowOnly": "Solo los seleccionados",
     "blockSelected": "Bloquear los seleccionados",
     "blockBotIsps": "Bloquear ISP de bots y centros de datos (Facebook, Google, Amazon, Hetzner, etc.)",
-    "botIspPlaceholder": "Lista local: facebook, hetzner, ... (vacío = lista global)",
-    "botIspHint": "Se compara con el ISP y el ASN del visitante. Déjalo vacío para usar la lista global de Configuración → Bots.",
+    "botIspPlaceholder": "Lista local: un proveedor por línea (vacío = lista global)",
+    "botIspHint": "Un proveedor por línea, se compara con el ISP y el ASN del visitante. Déjalo vacío para usar la lista global de Configuración → Bots.",
+    "botIspIgnoredWarning": "Entradas ignoradas (demasiado cortas o sufijo corporativo genérico — coincidirían con casi cualquier ISP)",
     "jsChallenge": "Comprobación de JavaScript",
     "jsChallengeHint": "El visitante ve primero la página segura; una comprobación del navegador en segundo plano decide si pasa a la money page. Lo que no ejecuta JS se queda en la página segura. Añade un salto extra.",
     "mode": "Cloaking",
@@ -29720,6 +29843,7 @@ const es = {
     "moneyPageHint": "Se muestra a visitantes reales. Se comporta como el esquema landing+oferta.",
     "noGeoDbWarning": "Cada visitante se resuelve como país Unknown, por lo que este filtro enviará el 100% de tu tráfico a la Safe Page.",
     "diagnosticsTitle": "Últimas 24h",
+    "diagnosticsWindow": "Ventana: {from} — {to} ({tz})",
     "diagnosticsEmpty": "Aún no hay clics",
     "diagnosticsStats": "{hits} clics  →  {money} dinero  ·  {safe} safe",
     "diagnosticsTopReasons": "Principales razones:",
@@ -29771,7 +29895,17 @@ const es = {
     "webdriver": "Browser automation detected via JavaScript challenge.",
     "js_missing": "JavaScript did not execute.",
     "js_fingerprint": "Browser fingerprint challenge failed.",
-    "bot_blocklist": "IP coincide con una lista de bloqueo de bots conocida."
+    "bot_blocklist": "IP coincide con una lista de bloqueo de bots conocida.",
+    "bot_isp": "El ISP del visitante está en la lista de bots/centros de datos.",
+    "no_user_agent": "Petición sin User-Agent — ningún navegador real hace eso.",
+    "missing_accept_language": "Petición sin encabezado Accept-Language — poco común en navegadores reales.",
+    "ip2proxy_bot": "IP2Proxy marcó la dirección como crawler/araña conocida (SES/AIC).",
+    "ip2proxy_threat": "IP2Proxy marcó la dirección como amenaza conocida.",
+    "ip2proxy_high_fraud": "La puntuación de fraude de IP2Proxy es 80 o superior.",
+    "datacenter_asn": "El ASN pertenece a un centro de datos o hosting conocido.",
+    "vpn_proxy_asn": "El ASN pertenece a un proveedor de VPN o proxy conocido.",
+    "iprange_datacenter": "La IP cae en un rango publicado de centro de datos/crawler.",
+    "hosting_isp": "El nombre del ISP/organización contiene una palabra clave de hosting."
   },
   "extCosts": {
     "title": "Dolphin / FBTool API",
@@ -30307,7 +30441,9 @@ const es = {
     "deleteTemplateConfirm": '¿Eliminar la plantilla "{name}"?',
     "renameTemplatePrompt": "Nombre de la plantilla:",
     "makeDefault": "Establecer como predeterminada",
-    "defaultTemplateActive": "Plantilla predeterminada — haz clic para quitar"
+    "defaultTemplateActive": "Plantilla predeterminada — haz clic para quitar",
+    "makeDefaultGroup": "Establecer como agrupación predeterminada",
+    "defaultGroupActive": "Agrupación predeterminada — haz clic para quitar"
   },
   "dateRangePicker": {
     "today": "Hoy",
@@ -31762,7 +31898,8 @@ const zh = {
       "finance": "金融",
       "parameters": "参数",
       "geoDevice": "地理与设备",
-      "calendar": "日历"
+      "calendar": "日历",
+      "cloak": "隐藏"
     },
     "fields": {
       "campaign": "活动",
@@ -31780,6 +31917,9 @@ const zh = {
       "streamId": "码流ID",
       "sourceId": "源ID",
       "ip": "IP",
+      "isp": "ISP",
+      "asn": "ASN",
+      "proxyType": "代理类型",
       "botScanner": "机器人/扫描仪",
       "cost": "成本",
       "revenue": "收入",
@@ -31803,7 +31943,10 @@ const zh = {
       "browser": "浏览器",
       "userAgent": "用户代理",
       "dateTime": "日期和时间",
-      "conversion": "转化"
+      "conversion": "转化",
+      "route": "路线",
+      "cloakVerdict": "隐藏裁决",
+      "cloakReasons": "隐藏原因"
     }
   },
   "archive": {
@@ -32251,8 +32394,9 @@ const zh = {
   },
   "botSettings": {
     "ispTitle": "全局 Bot ISP 黑名单",
-    "ispHint": "以逗号分隔的关键词，与访客的 ISP 和 ASN 匹配。启用 Bot ISP 过滤的 Cloak 流会将此类访客导向安全页。",
-    "ispPlaceholder": "facebook, meta, amazon, aws, hetzner, ...",
+    "ispHint": "每行一个服务商，作为完整短语与访客的 ISP 和 ASN 匹配（逗号分隔的旧列表仍然有效）。启用了 Bot ISP 过滤的 Cloak 流会将此类访客导向安全页。",
+    "ispPlaceholder": "每行一个服务商，例如 Amazon.com, Inc.",
+    "ispIgnoredWarning": "已忽略的条目（过短或通用公司后缀——它们会匹配几乎所有 ISP）",
     "save": "保存",
     "saved": "已保存！",
     "saving": "保存中...",
@@ -32400,7 +32544,19 @@ const zh = {
   "campaignEditor": {
     "clickLogTitle": "单击日志",
     "clickLog": "单击日志",
-    "reports": "报告"
+    "reports": "报告",
+    "clickLogFilterAll": "全部",
+    "clickLogFilterSafe": "安全",
+    "clickLogFilterMoney": "盈利",
+    "clickLogVerdict": "判定",
+    "clickLogReasons": "原因",
+    "clickLogIsp": "ISP",
+    "clickLogAsn": "ASN",
+    "clickLogProxyType": "代理",
+    "clickLogUserAgent": "User-Agent",
+    "clickLogNoClicks": "此分类下没有点击",
+    "clickLogLast24h": "最近 24 小时",
+    "clickLogOpenDetails": "查看点击详情"
   },
   "geoProfiles": {
     "title": "地理概况",
@@ -33230,8 +33386,9 @@ const zh = {
     "allowOnly": "仅允许所选",
     "blockSelected": "屏蔽所选",
     "blockBotIsps": "屏蔽 Bot 与数据中心 ISP（Facebook、Google、Amazon、Hetzner 等）",
-    "botIspPlaceholder": "本地覆盖：facebook, hetzner, ...（留空使用全局列表）",
-    "botIspHint": "与访客的 ISP 和 ASN 匹配。留空则使用 设置 → Bots 中的全局列表。",
+    "botIspPlaceholder": "本地覆盖：每行一个服务商（留空使用全局列表）",
+    "botIspHint": "每行一个服务商，与访客的 ISP 和 ASN 匹配。留空则使用 设置 → Bots 中的全局列表。",
+    "botIspIgnoredWarning": "已忽略的条目（过短或通用公司后缀——它们会匹配几乎所有 ISP）",
     "jsChallenge": "JavaScript 校验",
     "jsChallengeHint": "访客先看到安全页；后台浏览器校验决定是否放行到 money page。不执行 JS 的一律停留在安全页。会多一次跳转。",
     "mode": "Cloaking",
@@ -33260,6 +33417,7 @@ const zh = {
     "moneyPageHint": "展示给真实访客。行为与落地页+offer 模式相同。",
     "noGeoDbWarning": "每个访客都会被解析为 Unknown 国家，因此此过滤器会将 100% 的流量发送到安全页。",
     "diagnosticsTitle": "最近 24 小时",
+    "diagnosticsWindow": "时间窗口：{from} — {to}（{tz}）",
     "diagnosticsEmpty": "暂无点击",
     "diagnosticsStats": "{hits} 次点击  →  {money} 盈利  ·  {safe} 安全",
     "diagnosticsTopReasons": "主要原因：",
@@ -33311,7 +33469,17 @@ const zh = {
     "webdriver": "Browser automation detected via JavaScript challenge.",
     "js_missing": "JavaScript did not execute.",
     "js_fingerprint": "Browser fingerprint challenge failed.",
-    "bot_blocklist": "IP 与已知的机器人黑名单匹配。"
+    "bot_blocklist": "IP 与已知的机器人黑名单匹配。",
+    "bot_isp": "访客的 ISP 命中了机器人/数据中心名单。",
+    "no_user_agent": "请求未携带任何 User-Agent——真实浏览器不会这样。",
+    "missing_accept_language": "请求未携带 Accept-Language 头——真实浏览器中少见。",
+    "ip2proxy_bot": "IP2Proxy 将该地址标记为已知爬虫/蜘蛛（SES/AIC）。",
+    "ip2proxy_threat": "IP2Proxy 将该地址标记为已知威胁。",
+    "ip2proxy_high_fraud": "该地址的 IP2Proxy 欺诈分达到 80 或以上。",
+    "datacenter_asn": "ASN 属于已知数据中心或主机商。",
+    "vpn_proxy_asn": "ASN 属于已知 VPN 或代理服务商。",
+    "iprange_datacenter": "IP 落在已公布的数据中心/爬虫网段内。",
+    "hosting_isp": "ISP/组织名称中含有主机商关键词。"
   },
   "extCosts": {
     "title": "Dolphin / FBTool API",
@@ -33847,7 +34015,9 @@ const zh = {
     "deleteTemplateConfirm": "确定删除模板“{name}”吗？",
     "renameTemplatePrompt": "模板名称：",
     "makeDefault": "设为默认",
-    "defaultTemplateActive": "默认模板 — 点击可取消"
+    "defaultTemplateActive": "默认模板 — 点击可取消",
+    "makeDefaultGroup": "设为默认分组",
+    "defaultGroupActive": "默认分组 — 点击可取消"
   },
   "dateRangePicker": {
     "today": "今天",
@@ -35302,7 +35472,8 @@ const fr = {
       "finance": "Finance",
       "parameters": "Paramètres",
       "geoDevice": "GEO et appareil",
-      "calendar": "Calendrier"
+      "calendar": "Calendrier",
+      "cloak": "Cloaking"
     },
     "fields": {
       "campaign": "Campagne",
@@ -35320,6 +35491,9 @@ const fr = {
       "streamId": "ID de flux",
       "sourceId": "ID de source",
       "ip": "IP",
+      "isp": "ISP",
+      "asn": "ASN",
+      "proxyType": "Type de proxy",
       "botScanner": "Bot/Scanner",
       "cost": "Coût",
       "revenue": "Revenu",
@@ -35343,7 +35517,10 @@ const fr = {
       "browser": "Navigateur",
       "userAgent": "Agent utilisateur",
       "dateTime": "Date et heure",
-      "conversion": "Conversion"
+      "conversion": "Conversion",
+      "route": "Route",
+      "cloakVerdict": "Verdict de cloaking",
+      "cloakReasons": "Raisons de cloaking"
     }
   },
   "archive": {
@@ -35791,8 +35968,9 @@ const fr = {
   },
   "botSettings": {
     "ispTitle": "Liste noire globale des ISP de bots",
-    "ispHint": "Mots-clés séparés par des virgules, comparés à l’ISP et à l’ASN du visiteur. Les flux Cloak avec le filtre ISP de bots activé dirigent ces visiteurs vers la page sûre.",
-    "ispPlaceholder": "facebook, meta, amazon, aws, hetzner, ...",
+    "ispHint": "Un fournisseur par ligne, comparé comme une phrase entière à l'ISP et à l'ASN du visiteur (les listes séparées par des virgules restent prises en charge). Les flux Cloak avec le filtre ISP de bots activé dirigent ces visiteurs vers la page sûre.",
+    "ispPlaceholder": "Un fournisseur par ligne, p. ex. Amazon.com, Inc.",
+    "ispIgnoredWarning": "Entrées ignorées (trop courtes ou suffixe d'entreprise générique — elles correspondraient à presque tous les FAI)",
     "save": "Enregistrer",
     "saved": "Enregistré !",
     "saving": "Enregistrement...",
@@ -35940,7 +36118,19 @@ const fr = {
   "campaignEditor": {
     "clickLogTitle": "Journal des clics",
     "clickLog": "Journal des clics",
-    "reports": "Rapports"
+    "reports": "Rapports",
+    "clickLogFilterAll": "TOUT",
+    "clickLogFilterSafe": "SAFE",
+    "clickLogFilterMoney": "MONEY",
+    "clickLogVerdict": "Verdict",
+    "clickLogReasons": "Raisons",
+    "clickLogIsp": "ISP",
+    "clickLogAsn": "ASN",
+    "clickLogProxyType": "Proxy",
+    "clickLogUserAgent": "User-Agent",
+    "clickLogNoClicks": "Aucun clic dans cette catégorie",
+    "clickLogLast24h": "24 dernières heures",
+    "clickLogOpenDetails": "Voir les détails du clic"
   },
   "geoProfiles": {
     "title": "Profils géographiques",
@@ -36772,8 +36962,9 @@ const fr = {
     "allowOnly": "Uniquement la sélection",
     "blockSelected": "Bloquer la sélection",
     "blockBotIsps": "Bloquer les ISP de bots et datacenters (Facebook, Google, Amazon, Hetzner, etc.)",
-    "botIspPlaceholder": "Liste locale : facebook, hetzner, ... (vide = liste globale)",
-    "botIspHint": "Comparé à l'ISP et à l'ASN du visiteur. Laissez vide pour utiliser la liste globale de Paramètres → Bots.",
+    "botIspPlaceholder": "Liste locale : un fournisseur par ligne (vide = liste globale)",
+    "botIspHint": "Un fournisseur par ligne, comparé à l'ISP et à l'ASN du visiteur. Laissez vide pour utiliser la liste globale de Paramètres → Bots.",
+    "botIspIgnoredWarning": "Entrées ignorées (trop courtes ou suffixe d'entreprise générique — elles correspondraient à presque tous les FAI)",
     "jsChallenge": "Vérification JavaScript",
     "jsChallengeHint": "Le visiteur voit d'abord la page sûre ; une vérification du navigateur en arrière-plan décide de le rediriger vers la money page. Tout ce qui n'exécute pas JS reste sur la page sûre. Ajoute un aller-retour.",
     "mode": "Cloaking",
@@ -36802,6 +36993,7 @@ const fr = {
     "moneyPageHint": "Affichée aux vrais visiteurs. Se comporte comme le schéma landing+offre.",
     "noGeoDbWarning": "Chaque visiteur est résolu comme pays Unknown, donc ce filtre enverra 100% de votre trafic vers la Safe Page.",
     "diagnosticsTitle": "Dernières 24h",
+    "diagnosticsWindow": "Fenêtre : {from} — {to} ({tz})",
     "diagnosticsEmpty": "Pas encore de clics",
     "diagnosticsStats": "{hits} hits  →  {money} argent  ·  {safe} safe",
     "diagnosticsTopReasons": "Raisons principales :",
@@ -36853,7 +37045,17 @@ const fr = {
     "webdriver": "Browser automation detected via JavaScript challenge.",
     "js_missing": "JavaScript did not execute.",
     "js_fingerprint": "Browser fingerprint challenge failed.",
-    "bot_blocklist": "IP correspond à une liste de blocage de bots connue."
+    "bot_blocklist": "IP correspond à une liste de blocage de bots connue.",
+    "bot_isp": "Le FAI du visiteur figure dans la liste bots/centres de données.",
+    "no_user_agent": "Requête sans User-Agent — aucun vrai navigateur ne fait ça.",
+    "missing_accept_language": "Requête sans en-tête Accept-Language — rare chez les vrais navigateurs.",
+    "ip2proxy_bot": "IP2Proxy a marqué cette adresse comme crawler/robot connu (SES/AIC).",
+    "ip2proxy_threat": "IP2Proxy a marqué cette adresse comme menace connue.",
+    "ip2proxy_high_fraud": "Le score de fraude IP2Proxy est de 80 ou plus.",
+    "datacenter_asn": "L'ASN appartient à un centre de données ou hébergeur connu.",
+    "vpn_proxy_asn": "L'ASN appartient à un fournisseur VPN ou proxy connu.",
+    "iprange_datacenter": "L'IP tombe dans une plage publiée de centre de données/crawler.",
+    "hosting_isp": "Le nom du FAI/organisation contient un mot-clé d'hébergement."
   },
   "extCosts": {
     "title": "Dolphin / FBTool API",
@@ -37389,7 +37591,9 @@ const fr = {
     "deleteTemplateConfirm": "Supprimer le modèle « {name} » ?",
     "renameTemplatePrompt": "Nom du modèle :",
     "makeDefault": "Définir par défaut",
-    "defaultTemplateActive": "Modèle par défaut — cliquer pour retirer"
+    "defaultTemplateActive": "Modèle par défaut — cliquer pour retirer",
+    "makeDefaultGroup": "Définir comme groupement par défaut",
+    "defaultGroupActive": "Groupement par défaut — cliquer pour retirer"
   },
   "dateRangePicker": {
     "today": "Aujourd'hui",
@@ -38844,7 +39048,8 @@ const de = {
       "finance": "Finanzen",
       "parameters": "Parameter",
       "geoDevice": "GEO & Gerät",
-      "calendar": "Kalender"
+      "calendar": "Kalender",
+      "cloak": "Cloaking"
     },
     "fields": {
       "campaign": "Kampagne",
@@ -38862,6 +39067,9 @@ const de = {
       "streamId": "Stream ID",
       "sourceId": "Source ID",
       "ip": "IP",
+      "isp": "ISP",
+      "asn": "ASN",
+      "proxyType": "Proxy-Typ",
       "botScanner": "Bot / Scanner",
       "cost": "Cost",
       "revenue": "Revenue",
@@ -38885,7 +39093,10 @@ const de = {
       "browser": "Browser",
       "userAgent": "Benutzeragent",
       "dateTime": "Datum und Uhrzeit",
-      "conversion": "Konvertierung"
+      "conversion": "Konvertierung",
+      "route": "Route",
+      "cloakVerdict": "Cloak-Urteil",
+      "cloakReasons": "Cloak-Gründe"
     }
   },
   "archive": {
@@ -39333,8 +39544,9 @@ const de = {
   },
   "botSettings": {
     "ispTitle": "Globale Bot-ISP-Blacklist",
-    "ispHint": "Durch Kommas getrennte Schlüsselwörter, die gegen ISP und ASN des Besuchers geprüft werden. Cloak-Streams mit aktiviertem Bot-ISP-Filter leiten diese Besucher auf die sichere Seite.",
-    "ispPlaceholder": "facebook, meta, amazon, aws, hetzner, ...",
+    "ispHint": "Ein Anbieter pro Zeile, wird als ganze Phrase gegen ISP und ASN des Besuchers geprüft (ältere kommagetrennte Listen funktionieren weiterhin). Cloak-Streams mit aktiviertem Bot-ISP-Filter leiten diese Besucher auf die sichere Seite.",
+    "ispPlaceholder": "Ein Anbieter pro Zeile, z. B. Amazon.com, Inc.",
+    "ispIgnoredWarning": "Ignorierte Einträge (zu kurz oder generischer Firmenzusatz — sie würden nahezu jeden ISP treffen)",
     "save": "Speichern",
     "saved": "Gespeichert!",
     "saving": "Speichern...",
@@ -39480,9 +39692,21 @@ const de = {
     "loadingDbs": "Datenbankinformationen werden geladen..."
   },
   "campaignEditor": {
-    "clickLogTitle": "Auf Protokoll klicken",
+    "clickLogTitle": "Klick-Logbuch",
     "clickLog": "Auf Protokoll klicken",
-    "reports": "Berichte"
+    "reports": "Berichte",
+    "clickLogFilterAll": "ALLE",
+    "clickLogFilterSafe": "SAFE",
+    "clickLogFilterMoney": "MONEY",
+    "clickLogVerdict": "Entscheidung",
+    "clickLogReasons": "Gründe",
+    "clickLogIsp": "ISP",
+    "clickLogAsn": "ASN",
+    "clickLogProxyType": "Proxy",
+    "clickLogUserAgent": "User-Agent",
+    "clickLogNoClicks": "Keine Klicks in dieser Kategorie",
+    "clickLogLast24h": "Letzte 24 Stunden",
+    "clickLogOpenDetails": "Klickdetails öffnen"
   },
   "geoProfiles": {
     "title": "Geoprofile",
@@ -40312,8 +40536,9 @@ const de = {
     "allowOnly": "Nur Auswahl",
     "blockSelected": "Auswahl blockieren",
     "blockBotIsps": "Bot- und Rechenzentrums-ISP blockieren (Facebook, Google, Amazon, Hetzner usw.)",
-    "botIspPlaceholder": "Lokale Überschreibung: facebook, hetzner, ... (leer = globale Liste)",
-    "botIspHint": "Wird gegen ISP und ASN des Besuchers geprüft. Leer lassen, um die globale Liste unter Einstellungen → Bots zu verwenden.",
+    "botIspPlaceholder": "Lokale Überschreibung: ein Anbieter pro Zeile (leer = globale Liste)",
+    "botIspHint": "Ein Anbieter pro Zeile, geprüft gegen ISP und ASN des Besuchers. Leer lassen, um die globale Liste unter Einstellungen → Bots zu verwenden.",
+    "botIspIgnoredWarning": "Ignorierte Einträge (zu kurz oder generischer Firmenzusatz — sie würden nahezu jeden ISP treffen)",
     "jsChallenge": "JavaScript-Prüfung",
     "jsChallengeHint": "Der Besucher sieht zuerst die sichere Seite; eine Browser-Prüfung im Hintergrund entscheidet über die Weiterleitung zur Money-Page. Alles ohne JS bleibt auf der sicheren Seite. Kostet einen zusätzlichen Aufruf.",
     "mode": "Cloaking",
@@ -40342,6 +40567,7 @@ const de = {
     "moneyPageHint": "Wird echten Besuchern gezeigt. Verhält sich wie das Landing+Angebot-Schema.",
     "noGeoDbWarning": "Jeder Besucher wird als Land Unknown aufgelöst, daher wird dieser Filter 100% Ihres Traffics an die Safe Page senden.",
     "diagnosticsTitle": "Letzte 24h",
+    "diagnosticsWindow": "Zeitraum: {from} — {to} ({tz})",
     "diagnosticsEmpty": "Noch keine Klicks",
     "diagnosticsStats": "{hits} Hits  →  {money} Geld  ·  {safe} Safe",
     "diagnosticsTopReasons": "Häufigste Gründe:",
@@ -40393,7 +40619,17 @@ const de = {
     "webdriver": "Browser automation detected via JavaScript challenge.",
     "js_missing": "JavaScript did not execute.",
     "js_fingerprint": "Browser fingerprint challenge failed.",
-    "bot_blocklist": "IP stimmt mit einer bekannten Bot-Sperrliste überein."
+    "bot_blocklist": "IP stimmt mit einer bekannten Bot-Sperrliste überein.",
+    "bot_isp": "Der ISP des Besuchers steht auf der Bot-/Rechenzentrums-Liste.",
+    "no_user_agent": "Anfrage ganz ohne User-Agent — kein echter Browser tut das.",
+    "missing_accept_language": "Anfrage ohne Accept-Language-Header — bei echten Browsern unüblich.",
+    "ip2proxy_bot": "IP2Proxy kennzeichnete die Adresse als bekannten Crawler/Spider (SES/AIC).",
+    "ip2proxy_threat": "IP2Proxy kennzeichnete die Adresse als bekannte Bedrohung.",
+    "ip2proxy_high_fraud": "IP2Proxy-Fraud-Score der Adresse liegt bei 80 oder höher.",
+    "datacenter_asn": "ASN gehört zu einem bekannten Rechenzentrum oder Hosting-Anbieter.",
+    "vpn_proxy_asn": "ASN gehört zu einem bekannten VPN- oder Proxy-Anbieter.",
+    "iprange_datacenter": "IP liegt in einem veröffentlichten Rechenzentrums-/Crawler-Bereich.",
+    "hosting_isp": "Im ISP-/Organisationsnamen steckt ein Hosting-Schlüsselwort."
   },
   "extCosts": {
     "title": "Dolphin / FBTool API",
@@ -40929,7 +41165,9 @@ const de = {
     "deleteTemplateConfirm": 'Vorlage "{name}" löschen?',
     "renameTemplatePrompt": "Vorlagenname:",
     "makeDefault": "Als Standard festlegen",
-    "defaultTemplateActive": "Standardvorlage – zum Entfernen klicken"
+    "defaultTemplateActive": "Standardvorlage – zum Entfernen klicken",
+    "makeDefaultGroup": "Als Standardgruppierung festlegen",
+    "defaultGroupActive": "Standardgruppierung – zum Entfernen klicken"
   },
   "dateRangePicker": {
     "today": "Heute",
@@ -54553,7 +54791,49 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
               /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.sourceId"), value: data.source_id }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t("clickDetails.sections.connection") }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.ip"), value: data.ip }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.isp"), value: data.isp }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.asn"), value: data.asn }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.proxyType"), value: data.proxy_type }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.botScanner"), value: t("clickDetails.noData") }),
+              (data.cloak_verdict || data.cloak_reasons || data.is_safe_page !== void 0) && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t("clickDetails.sections.cloak") }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  DetailRow,
+                  {
+                    label: t("clickDetails.fields.route"),
+                    value: data.is_safe_page === 1 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "status-badge status-inactive text-[11px]", children: t("logs.routeSafe") }) : data.is_safe_page === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "status-badge status-active text-[11px]", children: t("logs.routeMoney") }) : "-"
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.cloakVerdict"), value: data.cloak_verdict }),
+                data.cloak_reasons && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  DetailRow,
+                  {
+                    label: t("clickDetails.fields.cloakReasons"),
+                    value: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1", children: data.cloak_reasons.split(",").filter(Boolean).map((reason, idx) => {
+                      const colon = reason.indexOf(":");
+                      const code = colon === -1 ? reason : reason.slice(0, colon);
+                      const evidence = colon === -1 ? "" : reason.slice(colon + 1);
+                      return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        "span",
+                        {
+                          className: "text-[10px] px-1.5 py-0.5 rounded font-mono",
+                          style: {
+                            backgroundColor: "var(--color-bg-soft)",
+                            color: "var(--color-text-secondary)",
+                            border: "1px solid var(--color-border)"
+                          },
+                          title: t(`cloakReasons.${code}`, "") || code,
+                          children: [
+                            code,
+                            evidence ? /* @__PURE__ */ jsxRuntimeExports.jsx("b", { style: { color: "var(--color-primary)", fontWeight: 600 }, children: ` ${evidence}` }) : null
+                          ]
+                        },
+                        idx
+                      );
+                    }) })
+                  }
+                )
+              ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(SectionHeader, { title: t("clickDetails.sections.finance") }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.cost"), value: formatMoney(data.cost) }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(DetailRow, { label: t("clickDetails.fields.revenue"), value: formatMoney(data.revenue) }),
@@ -58088,6 +58368,10 @@ const getDimensionLabel = (dim, t) => {
 };
 const TEMPLATES_KEY = "orbitra_column_templates";
 const DEFAULT_TEMPLATE_KEY = "orbitra_default_template_id";
+const DEFAULT_GROUP_KEY = "orbitra_default_group_id";
+const GROUP_TEMPLATES_KEY = "orbitra_report_group_templates";
+const LAST_GROUP_BY_KEY = "orbitra_report_group_by";
+const DEFAULT_REPORT_LAYERS = ["country"];
 const arraysEqual = (a, b) => Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v, i) => v === b[i]);
 let nextTemplateId = Date.now();
 const loadColumnTemplates = () => {
@@ -58119,6 +58403,20 @@ const persistDefaultTemplateId = (id) => {
   } catch {
   }
 };
+const loadDefaultGroupId = () => {
+  try {
+    return localStorage.getItem(DEFAULT_GROUP_KEY);
+  } catch {
+    return null;
+  }
+};
+const persistDefaultGroupId = (id) => {
+  try {
+    if (id) localStorage.setItem(DEFAULT_GROUP_KEY, id);
+    else localStorage.removeItem(DEFAULT_GROUP_KEY);
+  } catch {
+  }
+};
 const getDefaultTemplateColumns = () => {
   const id = loadDefaultTemplateId();
   if (!id) return null;
@@ -58126,6 +58424,46 @@ const getDefaultTemplateColumns = () => {
   const tpl = loadColumnTemplates().find((t) => t.id === id);
   return tpl ? normalizeReportMetricIds(tpl.columns) : null;
 };
+const loadGroupTemplates = () => {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(GROUP_TEMPLATES_KEY) || "[]");
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((tpl) => tpl && typeof tpl.id === "string" && typeof tpl.name === "string" && Array.isArray(tpl.layers));
+  } catch {
+    return [];
+  }
+};
+const isUsableGrouping = (dims) => Array.isArray(dims) && dims.length > 0 && dims.every((dim) => typeof dim === "string" && (REPORT_DIMENSION_LABELS[dim] || dim.startsWith("param_")));
+const getDefaultGroupLayers = (layerPresets = []) => {
+  const id = loadDefaultGroupId();
+  if (!id) return null;
+  const preset = layerPresets.find((p) => p && p.id === id);
+  const candidate = preset ? preset.layers : loadGroupTemplates().find((tpl) => tpl.id === id)?.layers;
+  return isUsableGrouping(candidate) ? [...candidate] : null;
+};
+const getLastAppliedGroupBy = () => {
+  try {
+    const raw = localStorage.getItem(LAST_GROUP_BY_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return isUsableGrouping(parsed) ? [...parsed] : null;
+  } catch {
+    return null;
+  }
+};
+const persistLastAppliedGroupBy = (dims) => {
+  try {
+    localStorage.setItem(LAST_GROUP_BY_KEY, JSON.stringify(dims));
+  } catch {
+  }
+};
+const clearLastAppliedGroupBy = () => {
+  try {
+    localStorage.removeItem(LAST_GROUP_BY_KEY);
+  } catch {
+  }
+};
+const resolveInitialGroupLayers = (layerPresets = []) => getDefaultGroupLayers(layerPresets) || getLastAppliedGroupBy() || [...DEFAULT_REPORT_LAYERS];
 const SYSTEM_PRESETS = [
   ["best", "presetBest"],
   ["finance", "presetFinance"],
@@ -58153,19 +58491,13 @@ const ReportCustomizerModal = ({
   const [orderedMetricIds, setOrderedMetricIds] = reactExports.useState(() => [...DEFAULT_METRIC_ORDER]);
   const [selectedSet, setSelectedSet] = reactExports.useState(() => new Set(PRESETS.best));
   const [layers, setLayers] = reactExports.useState([]);
-  const [customGroupTemplates, setCustomGroupTemplates] = reactExports.useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem("orbitra_report_group_templates")) || [];
-    } catch {
-      return [];
-    }
-  });
+  const [customGroupTemplates, setCustomGroupTemplates] = reactExports.useState(() => loadGroupTemplates());
   const [groupSaveDialogOpen, setGroupSaveDialogOpen] = reactExports.useState(false);
   const [groupTemplateName, setGroupTemplateName] = reactExports.useState("");
   const persistGroupTemplates = (templates2) => {
     setCustomGroupTemplates(templates2);
     try {
-      localStorage.setItem("orbitra_report_group_templates", JSON.stringify(templates2));
+      localStorage.setItem(GROUP_TEMPLATES_KEY, JSON.stringify(templates2));
     } catch {
     }
   };
@@ -58178,6 +58510,7 @@ const ReportCustomizerModal = ({
   };
   const handleDeleteGroupTemplate = (tplId) => {
     persistGroupTemplates(customGroupTemplates.filter((tpl) => tpl.id !== tplId));
+    if (defaultGroupId === tplId) handleToggleDefaultGroup(tplId);
   };
   const [filters, setFilters] = reactExports.useState([]);
   const [templates, setTemplates] = reactExports.useState([]);
@@ -58186,6 +58519,7 @@ const ReportCustomizerModal = ({
   const [saveDialogOpen, setSaveDialogOpen] = reactExports.useState(false);
   const [templateName, setTemplateName] = reactExports.useState("");
   const [templateAsDefault, setTemplateAsDefault] = reactExports.useState(false);
+  const [defaultGroupId, setDefaultGroupId] = reactExports.useState(null);
   const draggedIdRef = reactExports.useRef(null);
   const [draggedId, setDraggedId] = reactExports.useState(null);
   const [dragOverId, setDragOverId] = reactExports.useState(null);
@@ -58204,6 +58538,7 @@ const ReportCustomizerModal = ({
       setSearchQuery("");
       setTemplates(loadColumnTemplates());
       setDefaultTemplateId(loadDefaultTemplateId());
+      setDefaultGroupId(loadDefaultGroupId());
       setLastAppliedTemplateId(null);
       setSaveDialogOpen(false);
       setTemplateName("");
@@ -58232,11 +58567,22 @@ const ReportCustomizerModal = ({
   };
   const handleRestoreDefault = () => {
     handleApplyTemplate("best");
+    if (mode === "report") {
+      setLayers([...DEFAULT_REPORT_LAYERS]);
+      setDefaultGroupId(null);
+      persistDefaultGroupId(null);
+      clearLastAppliedGroupBy();
+    }
   };
   const handleToggleDefault = (templateId) => {
     const next = defaultTemplateId === templateId ? null : templateId;
     setDefaultTemplateId(next);
     persistDefaultTemplateId(next);
+  };
+  const handleToggleDefaultGroup = (groupId) => {
+    const next = defaultGroupId === groupId ? null : groupId;
+    setDefaultGroupId(next);
+    persistDefaultGroupId(next);
   };
   const handleSaveTemplate = () => {
     const name = templateName.trim();
@@ -58829,30 +59175,48 @@ const ReportCustomizerModal = ({
             ] }),
             layerPresets.map((preset) => {
               const active = arraysEqual(layers, preset.layers);
-              return /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
+              const isDefault = defaultGroupId === preset.id;
+              return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "div",
                 {
-                  type: "button",
+                  role: "button",
+                  tabIndex: 0,
                   onClick: () => setLayers([...preset.layers]),
-                  className: "text-xs px-3 py-1.5 rounded-xl border transition-colors",
+                  className: "group inline-flex items-center gap-1 text-xs pl-3 pr-1.5 py-1.5 rounded-xl border transition-colors cursor-pointer hover:border-[var(--color-primary)]",
                   style: {
                     backgroundColor: active ? "var(--color-primary-light)" : "var(--color-bg-soft)",
                     borderColor: active ? "var(--color-primary)" : "var(--color-border)",
                     color: active ? "var(--color-primary)" : "var(--color-text-primary)",
                     fontWeight: active ? 600 : 400
                   },
-                  children: preset.label
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: preset.label }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: (e) => {
+                          e.stopPropagation();
+                          handleToggleDefaultGroup(preset.id);
+                        },
+                        className: `p-0.5 rounded flex-shrink-0 transition-opacity hover:text-[var(--color-primary)] ${isDefault ? "text-[var(--color-primary)]" : "text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100"}`,
+                        title: isDefault ? t("reportCustomizer.defaultGroupActive", "Default grouping — click to remove") : t("reportCustomizer.makeDefaultGroup", "Set as default grouping"),
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(Star, { className: `w-3 h-3 ${isDefault ? "fill-current" : ""}` })
+                      }
+                    )
+                  ]
                 },
                 preset.id
               );
             }),
             customGroupTemplates.map((tpl) => {
               const active = arraysEqual(layers, tpl.layers);
+              const isDefault = defaultGroupId === tpl.id;
               return /* @__PURE__ */ jsxRuntimeExports.jsxs(
                 "div",
                 {
                   onClick: () => setLayers([...tpl.layers]),
-                  className: "group inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-xl border transition-colors cursor-pointer",
+                  className: "group inline-flex items-center gap-1 text-xs pl-3 pr-1.5 py-1.5 rounded-xl border transition-colors cursor-pointer",
                   style: {
                     backgroundColor: active ? "var(--color-primary-light)" : "var(--color-bg-soft)",
                     borderColor: active ? "var(--color-primary)" : "var(--color-border)",
@@ -58861,6 +59225,19 @@ const ReportCustomizerModal = ({
                   },
                   children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: tpl.name }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      "button",
+                      {
+                        type: "button",
+                        onClick: (e) => {
+                          e.stopPropagation();
+                          handleToggleDefaultGroup(tpl.id);
+                        },
+                        className: `p-0.5 rounded flex-shrink-0 transition-opacity hover:text-[var(--color-primary)] ${isDefault ? "text-[var(--color-primary)]" : "text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100"}`,
+                        title: isDefault ? t("reportCustomizer.defaultGroupActive", "Default grouping — click to remove") : t("reportCustomizer.makeDefaultGroup", "Set as default grouping"),
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(Star, { className: `w-3 h-3 ${isDefault ? "fill-current" : ""}` })
+                      }
+                    ),
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
                       "button",
                       {
@@ -59235,8 +59612,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
       setTimeout(() => setToggleNotice(null), 4e3);
     }
   };
-  const defaultLayers = ["country"];
-  const [layers, setLayers] = reactExports.useState(defaultLayers);
+  const [layers, setLayers] = reactExports.useState(() => resolveInitialGroupLayers(REPORT_LAYER_PRESETS));
   const [filters, setFilters] = reactExports.useState([]);
   const todayPreset = getPresetDates("last7Days") || getPresetDates("today");
   const [dateFrom, setDateFrom] = reactExports.useState(todayPreset?.from || formatDate$1(/* @__PURE__ */ new Date()));
@@ -59288,7 +59664,9 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     localStorage.setItem("orbitra_report_columns", JSON.stringify(cols));
   };
   const handleSaveLayers = (newLayers) => {
-    setLayers(newLayers.length > 0 ? newLayers : ["country"]);
+    const normalized = newLayers.length > 0 ? newLayers : [...DEFAULT_REPORT_LAYERS];
+    setLayers(normalized);
+    persistLastAppliedGroupBy(normalized);
   };
   const handleSaveFilters = (newFilters) => {
     setFilters(newFilters);
@@ -60463,6 +60841,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
   };
   const allSelected = visibleCampaigns.length > 0 && visibleCampaigns.every((c) => selectedCampaignIds.has(c.id));
   const someSelected = visibleCampaigns.some((c) => selectedCampaignIds.has(c.id));
+  const reportTargetCampaign = selectedCampaignIds.size === 1 ? campaignList.find((c) => c.id === [...selectedCampaignIds][0]) ?? null : null;
   const handleBulkDeleteSelected = async () => {
     const ids = Array.from(selectedCampaignIds);
     if (ids.length === 0) return;
@@ -60661,7 +61040,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
           /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-3.5 h-3.5" }),
           t("common.create")
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => setShowGlobalReports(true), className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium", title: t("campaignReports.report"), children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => setShowGlobalReports(true), className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium", title: reportTargetCampaign ? `${t("campaignReports.report")}: ${reportTargetCampaign.name}` : t("campaignReports.report"), children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(ChartNoAxesColumn, { className: "w-3.5 h-3.5" }),
           t("campaignReports.report")
         ] }),
@@ -61024,8 +61403,8 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     showGlobalReports && /* @__PURE__ */ jsxRuntimeExports.jsx(
       CampaignReports,
       {
-        campaignId: null,
-        campaignName: null,
+        campaignId: reportTargetCampaign ? reportTargetCampaign.id : null,
+        campaignName: reportTargetCampaign ? reportTargetCampaign.name : null,
         onClose: () => setShowGlobalReports(false)
       }
     ),
@@ -71165,6 +71544,54 @@ const ProfileSettings = () => {
     ) })
   ] });
 };
+const GENERIC_ISP_SUFFIXES = /* @__PURE__ */ new Set([
+  "inc",
+  "ltd",
+  "llc",
+  "limited",
+  "gmbh",
+  "corp",
+  "co",
+  "sa",
+  "ag",
+  "bv",
+  "oy",
+  "pty",
+  "plc",
+  "network",
+  "services"
+]);
+const isIgnorableEntry = (entry) => {
+  if ([...entry].length < 3) return true;
+  const probe = entry.toLowerCase().replace(/[.\s]+$/, "");
+  return GENERIC_ISP_SUFFIXES.has(probe);
+};
+const toEntries = (raw) => {
+  if (Array.isArray(raw)) {
+    return raw.map(String).map((entry) => entry.trim()).filter(Boolean);
+  }
+  const entries = [];
+  for (const line of String(raw ?? "").split(/\r\n|\r|\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    const segments = trimmed.split(",").map((segment) => segment.trim()).filter(Boolean);
+    if (segments.length > 0 && segments.every((segment) => !isIgnorableEntry(segment))) {
+      entries.push(...segments);
+    } else {
+      entries.push(trimmed);
+    }
+  }
+  return entries;
+};
+const parseBotIspEntries = (raw) => {
+  const seen = /* @__PURE__ */ new Set();
+  return toEntries(raw).filter((entry) => {
+    if (seen.has(entry) || isIgnorableEntry(entry)) return false;
+    seen.add(entry);
+    return true;
+  });
+};
+const ignoredBotIspEntries = (raw) => toEntries(raw).filter(isIgnorableEntry);
 const API_URL$i = "/api.php";
 const PAGE_SIZE = 200;
 const BATCH_CHUNK_SIZE = 2e3;
@@ -71220,7 +71647,7 @@ const BotSettings = () => {
         const data = await res.json();
         if (!cancelled && data.status === "success") {
           const raw = data.data?.bot_isp_list ?? "";
-          const items = raw.split(/[\r\n,]+/).map((s) => s.trim().replace(/^"|"$/g, "")).filter(Boolean);
+          const items = parseBotIspEntries(raw).map((s) => s.trim().replace(/^"|"$/g, "")).filter(Boolean);
           setIspList(items);
         }
       } catch (e) {
@@ -71337,7 +71764,11 @@ const BotSettings = () => {
   };
   const handleAddIsp = async (rawText = newIspKeywords) => {
     if (!rawText.trim()) return;
-    const items = rawText.split(/[\r\n,]+/).map((s) => s.trim().replace(/^"|"$/g, "")).filter(Boolean);
+    const items = parseBotIspEntries(rawText).map((s) => s.trim().replace(/^"|"$/g, "")).filter(Boolean);
+    if (items.length === 0) {
+      setNewIspKeywords("");
+      return;
+    }
     const existingSet = new Set(ispList.map((s) => s.toLowerCase()));
     const newItems = items.filter((s) => !existingSet.has(s.toLowerCase()));
     if (newItems.length === 0) {
@@ -71376,6 +71807,7 @@ const BotSettings = () => {
     const searchLower = ispSearch.toLowerCase();
     return ispList.filter((s) => s.toLowerCase().includes(searchLower));
   };
+  const ignoredIspPreview = [...new Set(ignoredBotIspEntries(newIspKeywords))];
   const renderList = (type) => {
     const list = lists[type];
     const hasMore = list.items.length < list.filtered;
@@ -71441,6 +71873,29 @@ const BotSettings = () => {
             style: { fontFamily: "monospace", fontSize: "13px" }
           }
         ),
+        ignoredIspPreview.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+          marginTop: "8px",
+          padding: "8px 10px",
+          background: "var(--color-warning-bg)",
+          borderRadius: "8px",
+          fontSize: "11px",
+          color: "var(--color-warning)",
+          display: "flex",
+          alignItems: "flex-start",
+          gap: "6px",
+          lineHeight: 1.5
+        }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { size: 14, className: "shrink-0", style: { marginTop: "1px" } }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+            t("botSettings.ispIgnoredWarning"),
+            ":",
+            " ",
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("b", { children: [
+              ignoredIspPreview.slice(0, 8).join(", "),
+              ignoredIspPreview.length > 8 ? ` +${ignoredIspPreview.length - 8}` : ""
+            ] })
+          ] })
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-2 mt-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
@@ -80744,16 +81199,27 @@ $wpdb->query("DELETE FROM " . $wpdb->prefix . "options WHERE option_name LIKE '_
 const API_URL$a = "/api.php";
 const LogsPage = () => {
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = reactExports.useState("traffic");
+  const [activeTab, setActiveTab] = reactExports.useState(() => {
+    if (typeof window === "undefined") return "traffic";
+    const params = new URLSearchParams(window.location.search);
+    return params.get("tab") || "traffic";
+  });
   const [logs, setLogs] = reactExports.useState([]);
   const [loading, setLoading] = reactExports.useState(true);
-  const [filters, setFilters] = reactExports.useState({
-    campaign_id: "",
-    route: "all",
-    // 'all', 'money', 'safe'
-    reason: ""
+  const [filters, setFilters] = reactExports.useState(() => {
+    if (typeof window === "undefined") return { campaign_id: "", route: "all", reason: "" };
+    const params = new URLSearchParams(window.location.search);
+    return {
+      campaign_id: params.get("campaign_id") || "",
+      route: params.get("route") || "all",
+      reason: params.get("reason") || ""
+    };
   });
-  const [showFilters, setShowFilters] = reactExports.useState(false);
+  const [showFilters, setShowFilters] = reactExports.useState(() => {
+    if (typeof window === "undefined") return false;
+    const params = new URLSearchParams(window.location.search);
+    return !!(params.get("campaign_id") || params.get("route") !== "all" || params.get("reason"));
+  });
   const tabs = {
     traffic: { name: t("logs.traffic"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(Activity, { className: "w-4 h-4" }) },
     postbacks: { name: t("logs.incomingPostbacks"), icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRightLeft, { className: "w-4 h-4" }) },
@@ -80873,20 +81339,28 @@ const LogsPage = () => {
                 if (!log.cloak_reasons) return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-[var(--color-text-muted)]", children: "-" });
                 const reasons = log.cloak_reasons.split(",").filter(Boolean);
                 if (reasons.length === 0) return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-[var(--color-text-muted)]", children: "-" });
-                return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1", children: reasons.map((reason, idx) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "span",
-                  {
-                    className: "text-[10px] px-1.5 py-0.5 rounded",
-                    style: {
-                      backgroundColor: "var(--color-bg-soft)",
-                      color: "var(--color-text-secondary)",
-                      border: "1px solid var(--color-border)"
+                return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1", children: reasons.map((reason, idx) => {
+                  const colon = reason.indexOf(":");
+                  const code = colon === -1 ? reason : reason.slice(0, colon);
+                  const evidence = colon === -1 ? "" : reason.slice(colon + 1);
+                  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    "span",
+                    {
+                      className: "text-[10px] px-1.5 py-0.5 rounded font-mono",
+                      style: {
+                        backgroundColor: "var(--color-bg-soft)",
+                        color: "var(--color-text-secondary)",
+                        border: "1px solid var(--color-border)"
+                      },
+                      title: t(`cloakReasons.${code}`, "") || code,
+                      children: [
+                        code,
+                        evidence ? /* @__PURE__ */ jsxRuntimeExports.jsx("b", { style: { color: "var(--color-primary)", fontWeight: 600 }, children: ` ${evidence}` }) : null
+                      ]
                     },
-                    title: t(`cloakReasons.${reason.trim()}`, reason),
-                    children: reason
-                  },
-                  idx
-                )) });
+                    idx
+                  );
+                }) });
               };
               const renderDestination = () => {
                 if (log.landing_name) return log.landing_name;
@@ -85753,6 +86227,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   const [saveSuccess, setSaveSuccess] = reactExports.useState(false);
   const [copySuccess, setCopySuccess] = reactExports.useState(false);
   const [showLogModal, setShowLogModal] = reactExports.useState(false);
+  const [clickLogRoute, setClickLogRoute] = reactExports.useState("all");
+  const [clickLogHours, setClickLogHours] = reactExports.useState(0);
+  const [clickLogStreamId, setClickLogStreamId] = reactExports.useState(0);
+  const [clickLogsLoading, setClickLogsLoading] = reactExports.useState(false);
+  const [selectedClickId, setSelectedClickId] = reactExports.useState(null);
   const [showCostModal, setShowCostModal] = reactExports.useState(false);
   const [showClearModal, setShowClearModal] = reactExports.useState(false);
   const [showReportsMenu, setShowReportsMenu] = reactExports.useState(false);
@@ -86197,16 +86676,34 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       alert(t("common.error"));
     }
   };
-  const fetchClickLogs = async () => {
+  const fetchClickLogs = async (route = clickLogRoute, hours = clickLogHours, streamId = clickLogStreamId) => {
     if (!activeCampaignId) return;
+    setClickLogsLoading(true);
     try {
-      const { data } = await cachedGet("campaign_logs", { campaign_id: activeCampaignId });
+      const params = { campaign_id: activeCampaignId, limit: 100 };
+      if (route && route !== "all") params.route = route;
+      if (hours > 0) params.hours = hours;
+      if (streamId > 0) params.stream_id = streamId;
+      invalidateCache("campaign_logs");
+      const { data } = await cachedGet("campaign_logs", params, 0);
       if (data.status === "success") {
         setClickLogs(data.data);
+      } else {
+        setClickLogs([]);
       }
     } catch (e) {
       console.error("Error fetching logs:", e);
+      setClickLogs([]);
+    } finally {
+      setClickLogsLoading(false);
     }
+  };
+  const openClickLog = ({ route = "all", hours = 0, streamId = 0 } = {}) => {
+    setClickLogRoute(route);
+    setClickLogHours(hours);
+    setClickLogStreamId(streamId);
+    fetchClickLogs(route, hours, streamId);
+    setShowLogModal(true);
   };
   reactExports.useEffect(() => {
     const fetchDeps = async () => {
@@ -87112,10 +87609,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: copyUrl, className: "btn btn-ghost btn-icon", title: t("editor.copyUrl"), children: copySuccess ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-5 h-5" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-5 h-5" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => {
-            fetchClickLogs();
-            setShowLogModal(true);
-          }, className: "btn btn-ghost btn-icon", title: t("campaignEditor.clickLog"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "w-5 h-5" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => openClickLog(), className: "btn btn-ghost btn-icon", title: t("campaignEditor.clickLog"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(FileText, { className: "w-5 h-5" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowReportsMenu(!showReportsMenu), className: "btn btn-ghost btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(EllipsisVertical, { className: "w-5 h-5" }) }),
             showReportsMenu && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute right-0 top-full mt-1 w-56 rounded-2xl shadow-xl z-50 py-2", style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, children: [
@@ -88975,7 +89469,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                       if (!cloakSummary) {
                         return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-3 rounded-xl mt-3", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-[var(--color-text-muted)]", children: t("cloaking.diagnosticsEmpty") }) });
                       }
-                      const { total, money, safe, suppressed, by_reason } = cloakSummary;
+                      const { total, money, safe, suppressed, by_reason, window: cloakWindow } = cloakSummary;
                       const totalHits = total + suppressed;
                       const safeRatio = totalHits > 0 ? safe / totalHits : 0;
                       const showWarning = safeRatio >= 0.9 && totalHits >= 10;
@@ -88995,13 +89489,19 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         ] }),
                         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-3 rounded-xl", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, children: [
                           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-2", children: [
-                            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-muted)" }, children: t("cloaking.diagnosticsTitle") }),
+                            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-muted)" }, children: cloakWindow ? t("cloaking.diagnosticsWindow", {
+                              from: cloakWindow.from,
+                              to: cloakWindow.to,
+                              tz: cloakWindow.timezone
+                            }).replace("{from}", String(cloakWindow.from ?? "")).replace("{to}", String(cloakWindow.to ?? "")).replace("{tz}", String(cloakWindow.timezone ?? "")) : t("cloaking.diagnosticsTitle") }),
                             /* @__PURE__ */ jsxRuntimeExports.jsx(
-                              "a",
+                              "button",
                               {
-                                href: `/logs?tab=traffic&campaign_id=${activeCampaignId}`,
-                                className: "text-xs",
-                                style: { color: "var(--color-primary)" },
+                                onClick: () => {
+                                  openClickLog({ route: "safe", hours: 24, streamId: Number(stream.id) > 0 ? Number(stream.id) : 0 });
+                                },
+                                className: "text-xs hover:underline",
+                                style: { color: "var(--color-primary)", background: "none", border: "none", cursor: "pointer", padding: 0 },
                                 children: t("cloaking.diagnosticsViewLogs")
                               }
                             )
@@ -89185,12 +89685,39 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             {
                               rows: 2,
                               className: "form-input text-xs font-mono py-1.5 rounded-xl",
-                              placeholder: t("cloaking.botIspPlaceholder", "Local override: facebook, hetzner, ... (leave empty for the global list)"),
+                              placeholder: t("cloaking.botIspPlaceholder", "Local override: one provider per line (leave empty for the global list)"),
                               value: sc.custom_bot_isps || "",
                               onChange: (e) => setCloakField("custom_bot_isps", e.target.value)
                             }
                           ),
-                          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t("cloaking.botIspHint", "Matched against the visitor's ISP and ASN. Leave empty to use the global list from Settings → Bots.") }),
+                          (() => {
+                            const ignored = [...new Set(ignoredBotIspEntries(sc.custom_bot_isps || ""))];
+                            if (ignored.length === 0) return null;
+                            return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
+                              marginTop: "4px",
+                              padding: "6px 8px",
+                              background: "var(--color-warning-bg)",
+                              borderRadius: "8px",
+                              fontSize: "10px",
+                              color: "var(--color-warning)",
+                              display: "flex",
+                              alignItems: "flex-start",
+                              gap: "6px",
+                              lineHeight: 1.4
+                            }, children: [
+                              /* @__PURE__ */ jsxRuntimeExports.jsx(TriangleAlert, { className: "w-3 h-3 shrink-0", style: { marginTop: "1px" } }),
+                              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                                t("cloaking.botIspIgnoredWarning"),
+                                ":",
+                                " ",
+                                /* @__PURE__ */ jsxRuntimeExports.jsxs("b", { children: [
+                                  ignored.slice(0, 8).join(", "),
+                                  ignored.length > 8 ? ` +${ignored.length - 8}` : ""
+                                ] })
+                              ] })
+                            ] });
+                          })(),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs mt-1", style: { color: "var(--color-text-muted)", lineHeight: 1.5 }, children: t("cloaking.botIspHint", "One provider per line, matched against the visitor's ISP and ASN. Leave empty to use the global list from Settings → Bots.") }),
                           geoTargetingReady.asn === false && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
                             marginTop: "8px",
                             padding: "8px 10px",
@@ -89674,16 +90201,119 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: saveFilter, disabled: !newFilter.payload?.trim(), className: "btn btn-primary", children: filterModal.filterIdx !== null ? t("common.save") : t("common.add") })
       ] })
     ] }) }),
-    showLogModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "800px" }, children: [
+    showLogModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "960px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-header", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("editor.clickLog") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("campaignEditor.clickLogTitle") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowLogModal(false), className: "action-btn", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-y-auto", style: { maxHeight: "60vh" }, children: clickLogs.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-10", style: { color: "var(--color-text-muted)" }, children: t("editor.noLogs") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-4", children: clickLogs.map((log, idx) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-2xl p-4 text-xs font-mono", style: { border: "1px solid var(--color-border)" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-2", style: { color: "var(--color-text-secondary)" }, children: log.created_at }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "whitespace-pre-wrap", style: { color: "var(--color-text-primary)" }, children: log.log_text })
-      ] }, idx)) }) })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-1 p-1 rounded-lg", style: { backgroundColor: "var(--color-bg-soft)" }, children: [
+        ["all", t("campaignEditor.clickLogFilterAll", "ALL")],
+        ["safe", t("campaignEditor.clickLogFilterSafe", "SAFE")],
+        ["money", t("campaignEditor.clickLogFilterMoney", "MONEY")]
+      ].map(([value, label]) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          onClick: () => {
+            setClickLogRoute(value);
+            fetchClickLogs(value, clickLogHours, clickLogStreamId);
+          },
+          className: `flex-1 px-3 py-2 rounded-md text-xs font-semibold tracking-wide transition-colors ${clickLogRoute === value ? "bg-[var(--color-bg)] shadow-sm" : "hover:text-[var(--color-text-primary)]"}`,
+          style: { color: clickLogRoute === value ? "var(--color-primary)" : "var(--color-text-secondary)" },
+          children: label
+        },
+        value
+      )) }),
+      clickLogHours > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] mt-2", style: { color: "var(--color-text-muted)" }, children: t("campaignEditor.clickLogLast24h", "Last 24 hours") }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-y-auto mt-2", style: { maxHeight: "58vh" }, children: clickLogsLoading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-10", style: { color: "var(--color-text-muted)" }, children: t("common.loading", "Loading...") }) : clickLogs.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-10", style: { color: "var(--color-text-muted)" }, children: t("campaignEditor.clickLogNoClicks") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-3", children: clickLogs.map((log) => {
+        const reasons = (log.cloak_reasons || "").split(",").map((s) => s.trim()).filter(Boolean);
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            onClick: () => setSelectedClickId(log.id),
+            className: "rounded-xl p-3 transition-colors hover:border-[var(--color-primary)]",
+            style: { border: "1px solid var(--color-border)", cursor: "pointer" },
+            title: t("campaignEditor.clickLogOpenDetails", "Open click details"),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center justify-between gap-2 mb-2", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 flex-wrap", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] font-mono", style: { color: "var(--color-text-muted)" }, children: log.created_at }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `status-badge ${log.is_safe_page === 1 ? "status-inactive" : "status-active"} text-[11px]`, children: log.is_safe_page === 1 ? t("logs.routeSafe") : t("logs.routeMoney") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-[11px]", style: { color: "var(--color-text-secondary)" }, children: [
+                    t("campaignEditor.clickLogVerdict"),
+                    ": ",
+                    /* @__PURE__ */ jsxRuntimeExports.jsx("b", { style: { color: "var(--color-text-primary)" }, children: log.cloak_verdict || "—" })
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-[11px] font-mono", style: { color: "var(--color-text-muted)" }, children: [
+                  "#",
+                  log.id
+                ] })
+              ] }),
+              reasons.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px]", style: { color: "var(--color-text-muted)" }, children: "—" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1", children: reasons.map((reason, idx) => {
+                const colon = reason.indexOf(":");
+                const code = colon === -1 ? reason : reason.slice(0, colon);
+                const evidence = colon === -1 ? "" : reason.slice(colon + 1);
+                return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "span",
+                  {
+                    className: "text-[10px] px-1.5 py-0.5 rounded font-mono inline-flex items-center gap-1",
+                    style: {
+                      backgroundColor: "var(--color-bg-soft)",
+                      color: "var(--color-text-secondary)",
+                      border: "1px solid var(--color-border)"
+                    },
+                    title: t(`cloakReasons.${code}`, "") || code,
+                    children: [
+                      code,
+                      evidence && /* @__PURE__ */ jsxRuntimeExports.jsx("b", { style: { color: "var(--color-primary)", fontWeight: 600 }, children: evidence })
+                    ]
+                  },
+                  idx
+                );
+              }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2 text-[11px]", style: { color: "var(--color-text-primary)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "truncate", title: log.isp || "", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)" }, children: [
+                    t("campaignEditor.clickLogIsp"),
+                    ": "
+                  ] }),
+                  log.isp || "—"
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "truncate font-mono", title: log.asn || "", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)" }, children: [
+                    t("campaignEditor.clickLogAsn"),
+                    ": "
+                  ] }),
+                  log.asn || "—"
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "truncate font-mono", title: log.proxy_type || "", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)" }, children: [
+                    t("campaignEditor.clickLogProxyType"),
+                    ": "
+                  ] }),
+                  log.proxy_type || "—"
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 text-[11px] font-mono break-all", style: { color: "var(--color-text-secondary)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)" }, children: [
+                  t("campaignEditor.clickLogUserAgent"),
+                  ": "
+                ] }),
+                log.user_agent || "—"
+              ] })
+            ]
+          },
+          log.id
+        );
+      }) }) })
     ] }) }),
+    selectedClickId && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ClickDetailsModal,
+      {
+        clickId: selectedClickId,
+        onClose: () => setSelectedClickId(null)
+      }
+    ),
     showAddCostConnModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content max-w-md w-full rounded-2xl shadow-2xl p-6", style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between pb-3 mb-4", style: { borderBottom: "1px solid var(--color-border)" }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "text-base font-bold", style: { color: "var(--color-text-primary)" }, children: t("streamRefine.addCostConnection", "Add Cost Connection") }),

@@ -2110,6 +2110,25 @@ try {
 
     $runMigrations();
 
+    // Self-heal DDL that must hold on EVERY schema version: databases stamped
+    // with the current version by an earlier build of the same migration (the
+    // cloak observability migration was iterated after installs had already
+    // bumped to its number) never re-run that migration, so these objects can
+    // be missing. CREATE ... IF NOT EXISTS is idempotent and cheap.
+    try {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS cloak_suppressed_stats (
+            campaign_id INTEGER NOT NULL,
+            stream_id   INTEGER,
+            day         TEXT NOT NULL,
+            verdict     TEXT NOT NULL,
+            reason      TEXT NOT NULL DEFAULT '',
+            hits        INTEGER NOT NULL DEFAULT 0,
+            PRIMARY KEY (campaign_id, stream_id, day, verdict, reason)
+        )");
+    } catch (\Throwable $e) {
+        // Read-only or locked DB: cloak_summary degrades gracefully without it.
+    }
+
     // Override hardcoded postback_key with the one from settings table for routers
     try {
         $stmt = $pdo->query("SELECT value FROM settings WHERE key = 'postback_key'");

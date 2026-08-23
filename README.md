@@ -1,4 +1,4 @@
-# Orbitra v1.1.10 Tracker
+# Orbitra v1.1.11 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,7 +11,25 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.1.10
+## 🆕 What's New in v1.1.11
+
+### Fixed
+
+- **🩹 Cloak numbers disagreed between screens** — the date-filtered Campaigns list counted safe-page clicks while Landings/Offers and the dashboard excluded them (M+N next to M); all four surfaces now ask one shared helper, and `COALESCE(is_safe_page, 0)` keeps pre-observability rows (NULL = money-side traffic) visible instead of silently vanishing them from reports
+- **🕐 Cloak panel window vs report timezone** — `cloak_summary` floored its days in UTC while the Campaigns list next to it bucketed days in the report timezone; the panel now uses the same timezone (overridable via `?timezone=`) and returns the exact window it computed, so two numbers on adjacent screens are never silently different periods
+- **🛟 Diagnostics panel survives a degraded database** — a missing `cloak_suppressed_stats` no longer takes the cloak panel down (falls back to 0 with the table recreated by the self-heal DDL below)
+
+### Added
+
+- **🔍 Evidence in every cloak reason** — reason codes now carry the fact that triggered them: `crawler_or_tool_ua:curl/` (the signature), `iprange_datacenter:52.95.0.0/8` (the matched CIDR), `bot_isp:hetzner` (the matched entry), `geo_country:US`, `ip2proxy_high_fraud:87`; shown in the Click Log and click details, while aggregation strips the evidence so thresholds and grouping stay by detection layer
+- **🔗 Cloak panel → Click Log deep link** — the diagnostics card opens the log pre-filtered (route, 24h window, stream); the Click Log modal gets ALL/SAFE/MONEY tabs plus hours/stream filters, and click details show the network facts behind the verdict (ISP, ASN, proxy type, verdict/reasons)
+- **🛠️ Self-heal DDL for `cloak_suppressed_stats`** — databases stamped with the current schema version by an earlier build of the cloak migration never re-ran it and were missing the table (the root cause behind "empty cloak diagnostics" support cases); the table is now recreated idempotently on every boot
+- **📋 Bot-ISP blocklist in the Keitaro format** — one provider per line, matched as a whole phrase (the commas/dots/apostrophes belong to the name: "Amazon.com, Inc."); generic corporate suffixes ("Inc", "Ltd", "GmbH") and sub-3-character entries are ignored by the router and warned about next to the settings textareas (PHP/JS mirror pair); matching tolerates a trailing period ("ZSCALER, INC." hits a dot-less ISP string)
+- **⭐ Group By star + last-applied in report settings** — star a grouping to make it the default for new reports (falls back to the last applied grouping, then country); the "Report" button in Campaigns follows a single ticked checkbox and opens that campaign's report
+
+**AFTER UPDATING, HARD-RELOAD THE PANEL ONCE (Ctrl/Cmd+Shift+R)** — index.js has a stable filename and browsers cache the old build.
+
+### Previous Highlights (v1.1.10)
 
 ### Fixed
 
@@ -525,18 +543,21 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.1.10 (2026-08-23)
+### Current release — v1.1.11 (2026-08-23)
 
 **Fixed**
-- 🩹 **CRITICAL: Landings table rendered as dashes in v1.1.9** (column object passed to the cell renderer + one-column shift) — rows render fully again
-- 🖱️ **Column drag-and-drop fixed** in Campaigns/Offers (grip was trapped inside the sort button; header remounted mid-drag; Firefox never started without a payload)
-- 🎛️ **Navbar dropdowns render above report overlays** (layer raised; modals and the mobile drawer keep their order)
+- 🩹 **Cloak numbers disagreed between screens** — the date-filtered Campaigns list counted safe-page clicks while Landings/Offers/dashboard excluded them; one shared helper on all four surfaces, `COALESCE(is_safe_page, 0)` keeps pre-observability (NULL) rows visible
+- 🕐 **Cloak panel window buckets in the report timezone** (was UTC) and returns the exact window it computed
+- 🛟 **Cloak diagnostics survive a degraded database** (missing table → fallback, no fatal)
 
 **Added**
-- 🔌 **Traffic-source-driven parameter buttons** — both buttons derive from the campaign's traffic source ({alias, param, macro} contract); Direct-URL preset merges into the existing query (hand-typed values win, no duplicate keys)
-- ⚖️ **"Split Evenly" + live share badges** in stream Offers/Landings lists (enabled-only split matching the router; weight / enabled-total badge instead of the static "%"). Hard-reload the panel once after updating.
+- 🔍 **Evidence in every cloak reason** — `crawler_or_tool_ua:curl/`, `iprange_datacenter:52.95.0.0/8`, `bot_isp:hetzner`, `geo_country:US`; shown in the Click Log and click details, stripped for aggregation/thresholds
+- 🔗 **Cloak panel → Click Log deep link** + ALL/SAFE/MONEY tabs, hours/stream filters, ISP/ASN/proxy-type/verdict in click details
+- 🛠️ **Self-heal DDL for `cloak_suppressed_stats`** — the table is recreated on boot for databases the migration's earlier build had already stamped (root cause of empty-diagnostics support cases)
+- 📋 **Bot-ISP blocklist in the Keitaro format** — per-line providers matched as whole phrases; generic suffixes (Inc/Ltd/GmbH) and <3-char entries ignored with settings warnings (PHP/JS mirror)
+- ⭐ **Group By star + last-applied** in report settings; "Report" in Campaigns follows a single ticked checkbox. Hard-reload the panel once after updating.
 
-Previous releases — v1.1.9: 🩹 double-`?` auto-heal, 🔍 cloak observability (W1–W4), 📊 Landings/Offers metric parity; v1.1.8: 🎯 entity filters in Analytics (Trends/Cohort) with the dist-rebuild fix; v1.1.7: 🛟 nginx asset-loop hotfix (`nginx_sync.php` once); v1.1.6: 🔀 SSL mode selector, 🧰 smoke tests + landing diagnostics, 🧩 asset-loading guarantees, 🗑️ bulk import removed; v1.1.5: 🔐 SSL management (ORB-014), 🧠 SUBID in traffic logs.
+Previous releases — v1.1.10: 🩹 CRITICAL Landings dashes hotfix, 🖱️ column drag-and-drop fix, 🎛️ navbar layer, 🔌 source-driven parameter buttons, ⚖️ Split Evenly + live share badges; v1.1.9: 🩹 double-`?` auto-heal, 🔍 cloak observability (W1–W4), 📊 Landings/Offers metric parity; v1.1.8: 🎯 entity filters in Analytics (Trends/Cohort) with the dist-rebuild fix; v1.1.7: 🛟 nginx asset-loop hotfix (`nginx_sync.php` once); v1.1.6: 🔀 SSL mode selector, 🧰 smoke tests + landing diagnostics, 🧩 asset-loading guarantees, 🗑️ bulk import removed; v1.1.5: 🔐 SSL management (ORB-014), 🧠 SUBID in traffic logs.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { X, Download, Filter, BarChart3, Plus, Trash2, SlidersHorizontal, GripVertical, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
-import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, REPORT_DIMENSION_LABELS, getDimensionLabel, getDefaultTemplateColumns, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
+import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getDimensionLabel, getDefaultTemplateColumns, getReportMetricTooltip, normalizeReportMetricIds, resolveInitialGroupLayers, persistLastAppliedGroupBy, DEFAULT_REPORT_LAYERS } from './ReportCustomizerModal';
 import { resolveConversionColor } from '../utils/conversionColors';
 
 const API_URL = '/api.php';
@@ -96,8 +96,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     // A flat, single-dimension report by default — the multi-level drill-down is
     // an opt-in via the layer builder. Starting layered made every report look
     // like duplicated subtotal rows.
-    const defaultLayers = ['country'];
-    const [layers, setLayers] = useState(defaultLayers);
+    const [layers, setLayers] = useState(() => resolveInitialGroupLayers(REPORT_LAYER_PRESETS));
     const [filters, setFilters] = useState([]);
 
     // Date & Timezone Picker
@@ -162,7 +161,9 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     };
 
     const handleSaveLayers = (newLayers) => {
-        setLayers(newLayers.length > 0 ? newLayers : ['country']);
+        const normalized = newLayers.length > 0 ? newLayers : [...DEFAULT_REPORT_LAYERS];
+        setLayers(normalized);
+        persistLastAppliedGroupBy(normalized);
     };
 
     const handleSaveFilters = (newFilters) => {

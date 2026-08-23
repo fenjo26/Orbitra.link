@@ -6,16 +6,34 @@ const API_URL = '/api.php';
 
 const LogsPage = () => {
     const { t } = useLanguage();
-    const [activeTab, setActiveTab] = useState('traffic');
+
+    // W3: Initialize from URL params (for deep-linking from diagnostics panel)
+    const [activeTab, setActiveTab] = useState(() => {
+        if (typeof window === 'undefined') return 'traffic';
+        const params = new URLSearchParams(window.location.search);
+        return params.get('tab') || 'traffic';
+    });
+
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(true);
+
     // W2: Cloak observability filters
-    const [filters, setFilters] = useState({
-        campaign_id: '',
-        route: 'all', // 'all', 'money', 'safe'
-        reason: ''
+    const [filters, setFilters] = useState(() => {
+        if (typeof window === 'undefined') return { campaign_id: '', route: 'all', reason: '' };
+        const params = new URLSearchParams(window.location.search);
+        return {
+            campaign_id: params.get('campaign_id') || '',
+            route: params.get('route') || 'all',
+            reason: params.get('reason') || ''
+        };
     });
-    const [showFilters, setShowFilters] = useState(false);
+
+    const [showFilters, setShowFilters] = useState(() => {
+        if (typeof window === 'undefined') return false;
+        const params = new URLSearchParams(window.location.search);
+        // Auto-expand filters if any are set
+        return !!(params.get('campaign_id') || params.get('route') !== 'all' || params.get('reason'));
+    });
 
     const tabs = {
         traffic: { name: t('logs.traffic'), icon: <Activity className="w-4 h-4" /> },
@@ -145,27 +163,34 @@ const LogsPage = () => {
                                         );
                                     };
 
-                                    // W2: Render reason chips
+                                    // W2: Render reason chips. Reasons are `code:evidence`
+                                    // (crawler_or_tool_ua:curl/) — split on the FIRST ':'
+                                    // so the label resolves and the evidence stays visible.
                                     const renderReasonChips = () => {
                                         if (!log.cloak_reasons) return <span className="text-xs text-[var(--color-text-muted)]">-</span>;
                                         const reasons = log.cloak_reasons.split(',').filter(Boolean);
                                         if (reasons.length === 0) return <span className="text-xs text-[var(--color-text-muted)]">-</span>;
                                         return (
                                             <div className="flex flex-wrap gap-1">
-                                                {reasons.map((reason, idx) => (
-                                                    <span
-                                                        key={idx}
-                                                        className="text-[10px] px-1.5 py-0.5 rounded"
-                                                        style={{
-                                                            backgroundColor: 'var(--color-bg-soft)',
-                                                            color: 'var(--color-text-secondary)',
-                                                            border: '1px solid var(--color-border)'
-                                                        }}
-                                                        title={t(`cloakReasons.${reason.trim()}`, reason)}
-                                                    >
-                                                        {reason}
-                                                    </span>
-                                                ))}
+                                                {reasons.map((reason, idx) => {
+                                                    const colon = reason.indexOf(':');
+                                                    const code = colon === -1 ? reason : reason.slice(0, colon);
+                                                    const evidence = colon === -1 ? '' : reason.slice(colon + 1);
+                                                    return (
+                                                        <span
+                                                            key={idx}
+                                                            className="text-[10px] px-1.5 py-0.5 rounded font-mono"
+                                                            style={{
+                                                                backgroundColor: 'var(--color-bg-soft)',
+                                                                color: 'var(--color-text-secondary)',
+                                                                border: '1px solid var(--color-border)'
+                                                            }}
+                                                            title={t(`cloakReasons.${code}`, '') || code}
+                                                        >
+                                                            {code}{evidence ? <b style={{ color: 'var(--color-primary)', fontWeight: 600 }}>{` ${evidence}`}</b> : null}
+                                                        </span>
+                                                    );
+                                                })}
                                             </div>
                                         );
                                     };

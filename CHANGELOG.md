@@ -7,6 +7,61 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.1.11] — 2026-08-23
+
+Cloak evidence + reconciliation release: every cloak reason now names the fact
+that triggered it, the numbers finally agree across every report surface, and
+the diagnostics panel survives databases the earlier migration build had
+already stamped.
+
+### Fixed
+
+- **Cloak numbers disagreed between screens**: the date-filtered Campaigns list
+  counted safe-page clicks (M+N) while Landings/Offers and the dashboard
+  excluded them (M). All four surfaces now share `orbitraSafePageExclusionNeeded()`,
+  and the filter is `COALESCE(is_safe_page, 0) = 0` everywhere — pre-observability
+  rows (NULL = money-side) stay visible instead of silently vanishing (SQLite
+  `= 0` excludes NULL).
+- **`cloak_summary` window vs report timezone**: the panel floored its days in
+  UTC while the Campaigns list bucketed in the report timezone; it now uses the
+  same `$dbTzOffset` shift (users.timezone, `?timezone=` override) and returns
+  the exact window it computed (`window: from/to/timezone`).
+- **Diagnostics panel survives a degraded database**: missing
+  `cloak_suppressed_stats` no longer fatals the panel (suppressed falls back to 0).
+
+### Added
+
+- **Evidence in every cloak reason**: `crawler_or_tool_ua:curl/`,
+  `iprange_datacenter:52.95.0.0/8` (the matched CIDR — `IpRanges::match()`
+  returns the list's own line), `bot_isp:hetzner`, `bot_blocklist:<rule>`,
+  `geo_country:US`, `device_type:Mobile`, `ip2proxy_high_fraud:87`,
+  `hosting_isp:aws`. Split on the first `:` (IPv6 CIDRs safe); commas/newlines
+  stripped, evidence capped at 64 chars; pre-change rows without `:` stay valid.
+  Threshold logic and aggregation go through `reasonCode()` so verdicts and
+  grouping are unchanged.
+- **Cloak panel → Click Log deep link**: the diagnostics card opens the log
+  pre-filtered (route, 24h window, stream); the Click Log modal gets
+  ALL/SAFE/MONEY tabs + hours/stream filters, and click details show ISP, ASN,
+  proxy type, verdict and reasons.
+- **Self-heal DDL for `cloak_suppressed_stats`**: databases stamped with the
+  current schema version by an earlier build of the cloak migration never re-ran
+  it and were missing the table (root cause of "empty cloak diagnostics"
+  support cases); the table is recreated idempotently on every boot.
+- **Bot-ISP blocklist in the Keitaro format**: one provider per line matched as
+  a whole phrase (commas/dots/apostrophes belong to the name); a line splits on
+  commas only when every segment is a plausible standalone entry (legacy
+  format); generic corporate suffixes (inc/ltd/llc/limited/gmbh/corp/co/sa/ag/
+  bv/oy/pty/plc/network/services) and sub-3-char entries are ignored by the
+  router and warned about next to the settings textareas via the mirrored
+  `frontend/src/utils/botIspList.js`; lookaround matching so "ZSCALER, INC."
+  hits a dot-less haystack.
+- **Group By star + last-applied** in the report customizer (starred default →
+  last applied → country; stored under `orbitra_report_group_by`); the Report
+  button in Campaigns follows a single ticked checkbox.
+
+Suite: 45 PASS (4 known env-dependent fails). Locales at 3366-key parity (7
+languages). dist rebuilt.
+
 ## [1.1.10] — 2026-08-23
 
 Hotfix + editor usability release. The Landings table fix is critical for anyone on 1.1.9.

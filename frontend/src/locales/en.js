@@ -23,7 +23,6 @@ export default {
         "addParam": "Add Parameter",
         "additionalSubIds": "Sub IDs (sub_id_1 .. sub_id_30)",
         "sourceDrivenHint": "The parameter list comes from the campaign's traffic source — it stays generic until one is picked.",
-
         "placement": "Placement (utm_placement)",
         "facebookParams": "Facebook Parameters",
         "facebookParamsHint": "Copy Facebook Ads URL Parameters (without leading ?) for pasting into Meta Ads Manager"
@@ -1205,7 +1204,8 @@ export default {
             "finance": "Finance",
             "parameters": "Parameters",
             "geoDevice": "GEO & Device",
-            "calendar": "Calendar"
+            "calendar": "Calendar",
+            "cloak": "Cloak"
         },
         "fields": {
             "campaign": "Campaign",
@@ -1223,6 +1223,9 @@ export default {
             "streamId": "Stream ID",
             "sourceId": "Source ID",
             "ip": "IP",
+            "isp": "ISP",
+            "asn": "ASN",
+            "proxyType": "Proxy Type",
             "botScanner": "Bot / Scanner",
             "cost": "Cost",
             "revenue": "Revenue",
@@ -1246,7 +1249,10 @@ export default {
             "browser": "Browser",
             "userAgent": "User Agent",
             "dateTime": "Date and Time",
-            "conversion": "Conversion"
+            "conversion": "Conversion",
+            "route": "Route",
+            "cloakVerdict": "Cloak Verdict",
+            "cloakReasons": "Cloak Reasons"
         }
     },
     "archive": {
@@ -1694,8 +1700,9 @@ export default {
     },
     "botSettings": {
         "ispTitle": "Global Bot ISP Blacklist",
-        "ispHint": "Comma-separated keywords checked against the visitor's ISP and ASN. Cloak streams with the Bot ISP filter enabled route these visitors to the Safe Page.",
-        "ispPlaceholder": "facebook, meta, amazon, aws, hetzner, ...",
+        "ispHint": "One provider per line, matched as a whole phrase against the visitor's ISP and ASN (legacy comma-separated lists still work). Cloak streams with the Bot ISP filter enabled route these visitors to the Safe Page.",
+        "ispPlaceholder": "One provider per line, e.g. Amazon.com, Inc.",
+        "ispIgnoredWarning": "Ignored entries (too short or a generic corporate suffix — they would match almost every ISP)",
         "save": "Save",
         "saved": "Saved!",
         "saving": "Saving...",
@@ -1843,7 +1850,19 @@ export default {
     "campaignEditor": {
         "clickLogTitle": "Click Log",
         "clickLog": "Click Log",
-        "reports": "Reports"
+        "reports": "Reports",
+        "clickLogFilterAll": "ALL",
+        "clickLogFilterSafe": "SAFE",
+        "clickLogFilterMoney": "MONEY",
+        "clickLogVerdict": "Verdict",
+        "clickLogReasons": "Reasons",
+        "clickLogIsp": "ISP",
+        "clickLogAsn": "ASN",
+        "clickLogProxyType": "Proxy",
+        "clickLogUserAgent": "User-Agent",
+        "clickLogNoClicks": "No clicks in this category",
+        "clickLogLast24h": "Last 24 hours",
+        "clickLogOpenDetails": "Open click details"
     },
     "geoProfiles": {
         "title": "Geo Profiles",
@@ -2050,7 +2069,6 @@ export default {
         "actions": "Actions",
         "selectAll": "Select all rows",
     },
-
     "extension": {
         "title": "Orbitra Ads Manager Overlay",
         "last3Days": "Last 3 Days",
@@ -2070,7 +2088,6 @@ export default {
         "cpl": "CPL",
         "cps": "CPS",
     },
-
     "automation": {
         "status": "Status",
         "active": "Active",
@@ -2675,8 +2692,9 @@ export default {
         "allowOnly": "Allow only",
         "blockSelected": "Block selected",
         "blockBotIsps": "Block Bot & Datacenter ISPs (Facebook, Google, Amazon, Hetzner, etc.)",
-        "botIspPlaceholder": "Local override: facebook, hetzner, ... (leave empty for the global list)",
-        "botIspHint": "Matched against the visitor's ISP and ASN. Leave empty to use the global list from Settings → Bots.",
+        "botIspPlaceholder": "Local override: one provider per line (leave empty for the global list)",
+        "botIspHint": "One provider per line, matched against the visitor's ISP and ASN. Leave empty to use the global list from Settings → Bots.",
+        "botIspIgnoredWarning": "Ignored entries (too short or a generic corporate suffix — they would match almost every ISP)",
         "jsChallenge": "JavaScript check",
         "jsChallengeHint": "The visitor sees the safe page first; a background browser check decides whether to forward them to the money page. Anything that does not run JS stays on the safe page. Costs one extra hop — enable when the passive layers are not enough.",
         "mode": "Cloaking",
@@ -2705,6 +2723,7 @@ export default {
         "moneyPageHint": "Shown to real visitors. Behaves like the landing+offer schema.",
         "noGeoDbWarning": "Every visitor resolves as country Unknown, so this filter will send 100% of your traffic to the Safe Page.",
         "diagnosticsTitle": "Last 24h",
+        "diagnosticsWindow": "Window: {from} — {to} ({tz})",
         "diagnosticsEmpty": "No clicks yet",
         "diagnosticsStats": "{hits} hits  →  {money} money  ·  {safe} safe",
         "diagnosticsTopReasons": "Top reasons:",
@@ -2756,7 +2775,17 @@ export default {
         "webdriver": "Browser automation detected via JavaScript challenge.",
         "js_missing": "JavaScript did not execute.",
         "js_fingerprint": "Browser fingerprint challenge failed.",
-        "bot_blocklist": "IP matched a known bot or crawler blocklist."
+        "bot_blocklist": "IP matched a known bot or crawler blocklist.",
+        "bot_isp": "Visitor's ISP matched the bot/datacenter ISP list.",
+        "no_user_agent": "Request sent no User-Agent at all — no real browser does that.",
+        "missing_accept_language": "Request sent no Accept-Language header — uncommon for real browsers.",
+        "ip2proxy_bot": "IP2Proxy flagged this address as a known crawler/spider (SES/AIC).",
+        "ip2proxy_threat": "IP2Proxy flagged this address as a known threat.",
+        "ip2proxy_high_fraud": "IP2Proxy fraud score for this address is 80 or higher.",
+        "datacenter_asn": "ASN belongs to a known datacenter or hosting provider.",
+        "vpn_proxy_asn": "ASN belongs to a known VPN or proxy provider.",
+        "iprange_datacenter": "IP falls inside a published datacenter/crawler range.",
+        "hosting_isp": "ISP/organization name contains a hosting provider keyword."
     },
     "extCosts": {
         "title": "Dolphin / FBTool API",
@@ -3293,7 +3322,9 @@ export default {
         "deleteTemplateConfirm": "Delete template \"{name}\"?",
         "renameTemplatePrompt": "Template name:",
         "makeDefault": "Set as default",
-        "defaultTemplateActive": "Default template — click to remove"
+        "defaultTemplateActive": "Default template — click to remove",
+        "makeDefaultGroup": "Set as default grouping",
+        "defaultGroupActive": "Default grouping — click to remove"
     },
     "dateRangePicker": {
         "today": "Today",

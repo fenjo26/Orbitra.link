@@ -45,11 +45,35 @@ $cases = [
     'empty haystack never matches'                   => [[], 'US', 'Desktop', '  ', 'hetzner', []],
     'empty global list never matches'                => [[], 'US', 'Desktop', 'Hetzner Online', '', []],
 
+    // Bot-ISP list is the Keitaro "Провайдеры" format (cpa.rip ISP base): one
+    // provider per LINE, matched whole. Word-splitting such a list used to
+    // leave standalone 'Inc'/'Ltd'/'Limited' tokens that matched nearly every
+    // ISP on earth ("Reliance Jio Infocomm Limited" contains "Limited") and
+    // routed real traffic to the safe page.
+    'CPA.RIP multiline list keeps phrases whole'     => [[], 'IN', 'Mobile', 'Reliance Jio Infocomm Limited AS55836', "Amazon.com, Inc.\nCloudflare Sydney, LLC\nZSCALER, INC.\nUniversity of California\nMicrosoft GmbH ueber c/o Eurotel GmbH\nHetzner Online GmbH\nHostinger International Limited", []],
+    'CPA.RIP multiline list still catches the host'  => [[], 'DE', 'Desktop', 'Hetzner Online GmbH AS24940', "Amazon.com, Inc.\nCloudflare Sydney, LLC\nZSCALER, INC.\nUniversity of California\nMicrosoft GmbH ueber c/o Eurotel GmbH\nHetzner Online GmbH\nHostinger International Limited", ['bot_isp']],
+    'provider name with internal comma matches whole' => [[], 'AU', 'Mobile', 'Cloudflare Sydney, LLC AS13335', "Amazon.com, Inc.\nCloudflare Sydney, LLC\nZSCALER, INC.", ['bot_isp']],
+    'trailing period in haystack still matches'      => [[], 'US', 'Desktop', 'ZSCALER, INC. AS139042', "Amazon.com, Inc.\nCloudflare Sydney, LLC\nZSCALER, INC.", ['bot_isp']],
+    'comma-name entry does not match a shorter name' => [[], 'US', 'Desktop', 'Amazon Technologies Inc. AS16509', "Amazon.com, Inc.\nCloudflare Sydney, LLC\nZSCALER, INC.", []],
+    'apostrophe entry matches whole'                 => [[], 'IN', 'Desktop', "Google India's Corporate Network AS139190", "Google India's Corporate Network", ['bot_isp']],
+    'bare corporate suffix entries are ignored'      => [[], 'IN', 'Mobile', 'Reliance Jio Infocomm Limited AS55836', "Inc\nLtd\nLimited\nGmbH\nLLC\nnetwork\nservices", []],
+    'suffix with trailing period is still generic'   => [[], 'US', 'Desktop', 'Facebook, Inc. AS32934', "Inc.\nLtd.", []],
+    'entries shorter than 3 chars are ignored'       => [[], 'US', 'Desktop', 'OVH SAS AS16276', "ov\nhz\n1", []],
+    'phrase entry does not match scattered words'    => [[], 'US', 'Desktop', 'Oceanic Digital Communications AS', 'digital ocean', []],
+    'comma-separated single-word list still matches' => [[], 'US', 'Desktop', 'Hetzner Online AS24940', 'hetzner, ovh, amazon', ['bot_isp']],
+    // The shipped default (config.php bot_isp_list) is a comma list WITH
+    // multi-word segments — it must keep splitting exactly as before.
+    'default config list still splits and matches'   => [[], 'US', 'Desktop', 'University of California AS73', 'facebook,meta,amazon,aws,amazon web services,google,googlebot,google cloud,google fiber,google proxy,digital ocean,digitalocean,hetzner,netstack,beget,kaspersky,microsoft,bingbot,azure,ovh,cloudflare,university of california,terrahost,web hosted group,zscaler,linode,vultr,centurylink,level3,qwarta,host europe,hostinger', ['bot_isp']],
+    'default config list leaves Reliance Jio alone'  => [[], 'IN', 'Mobile', 'Reliance Jio Infocomm Limited AS55836', 'facebook,meta,amazon,aws,amazon web services,google,googlebot,google cloud,google fiber,google proxy,digital ocean,digitalocean,hetzner,netstack,beget,kaspersky,microsoft,bingbot,azure,ovh,cloudflare,university of california,terrahost,web hosted group,zscaler,linode,vultr,centurylink,level3,qwarta,host europe,hostinger', []],
+
     'reasons accumulate across filters'              => [['countries' => 'US', 'devices' => 'mobile'], 'DE', 'Desktop', 'Facebook Inc.', 'facebook', ['geo_country', 'device_type', 'bot_isp']],
 ];
 
 foreach ($cases as $name => [$targeting, $country, $device, $isp, $globalList, $expected]) {
-    $got = CloakDetector::targetingReasons($targeting, $country, $device, $isp, $globalList);
+    // Reasons carry ':evidence' suffixes (bot_isp:hetzner); assertions are
+    // about which codes fire, so compare through reasonCode() as every other
+    // consumer of these strings does.
+    $got = array_map([CloakDetector::class, 'reasonCode'], CloakDetector::targetingReasons($targeting, $country, $device, $isp, $globalList));
     if ($got !== $expected) {
         $failures[] = "$name: expected [" . implode(', ', $expected) . '], got [' . implode(', ', $got) . ']';
     }

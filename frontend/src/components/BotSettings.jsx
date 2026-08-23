@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { ShieldBan, Plus, Trash2, RotateCcw, Search, Upload, CheckCircle2, Save, FileText } from 'lucide-react';
+import { ShieldBan, Plus, Trash2, RotateCcw, Search, Upload, CheckCircle2, Save, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { ignoredBotIspEntries, parseBotIspEntries } from '../utils/botIspList';
 
 const API_URL = '/api.php';
 const PAGE_SIZE = 200;
@@ -68,8 +69,9 @@ const BotSettings = () => {
                 const data = await res.json();
                 if (!cancelled && data.status === 'success') {
                     const raw = data.data?.bot_isp_list ?? '';
-                    // Parse comma/newline-separated string into array
-                    const items = raw.split(/[\r\n,]+/)
+                    // Same parser as the backend (CloakDetector::parseBotIspEntries):
+                    // one provider per line, commas split only legacy lists.
+                    const items = parseBotIspEntries(raw)
                         .map(s => s.trim().replace(/^"|"$/g, ''))
                         .filter(Boolean);
                     setIspList(items);
@@ -205,9 +207,17 @@ const BotSettings = () => {
     // ISP list handlers (client-side management)
     const handleAddIsp = async (rawText = newIspKeywords) => {
         if (!rawText.trim()) return;
-        const items = rawText.split(/[\r\n,]+/)
+        // Same parser as the backend: one provider per line, so pasted
+        // Keitaro lines like "Amazon.com, Inc." stay a single entry.
+        const items = parseBotIspEntries(rawText)
             .map(s => s.trim().replace(/^"|"$/g, ''))
             .filter(Boolean);
+        if (items.length === 0) {
+            // Everything was ignored (too short / bare corporate suffix) — the
+            // warning under the textarea already names the entries.
+            setNewIspKeywords('');
+            return;
+        }
 
         // Deduplicate against existing list
         const existingSet = new Set(ispList.map(s => s.toLowerCase()));
@@ -257,6 +267,10 @@ const BotSettings = () => {
         const searchLower = ispSearch.toLowerCase();
         return ispList.filter(s => s.toLowerCase().includes(searchLower));
     };
+
+    // Mirrors CloakDetector::parseBotIspEntries(): entries the tracker will
+    // silently drop from the pasted list (too short / bare corporate suffix).
+    const ignoredIspPreview = [...new Set(ignoredBotIspEntries(newIspKeywords))];
 
     const renderList = (type) => {
         const list = lists[type];
@@ -346,6 +360,29 @@ const BotSettings = () => {
                         className="form-input"
                         style={{ fontFamily: 'monospace', fontSize: '13px' }}
                     />
+                    {ignoredIspPreview.length > 0 && (
+                        <div style={{
+                            marginTop: '8px',
+                            padding: '8px 10px',
+                            background: 'var(--color-warning-bg)',
+                            borderRadius: '8px',
+                            fontSize: '11px',
+                            color: 'var(--color-warning)',
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            gap: '6px',
+                            lineHeight: 1.5
+                        }}>
+                            <AlertTriangle size={14} className="shrink-0" style={{ marginTop: '1px' }} />
+                            <span>
+                                {t('botSettings.ispIgnoredWarning')}:{' '}
+                                <b>
+                                    {ignoredIspPreview.slice(0, 8).join(', ')}
+                                    {ignoredIspPreview.length > 8 ? ` +${ignoredIspPreview.length - 8}` : ''}
+                                </b>
+                            </span>
+                        </div>
+                    )}
                     <div className="flex flex-wrap items-center gap-2 mt-2">
                         <button
                             type="button"

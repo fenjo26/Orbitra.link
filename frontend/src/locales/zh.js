@@ -23,7 +23,6 @@ export default {
         "addParam": "添加参数",
         "additionalSubIds": "附加子 ID (sub_id_1 .. sub_id_30)",
         "sourceDrivenHint": "参数列表来自广告系列流量源——未选择之前保持通用。",
-
         "placement": "版位 (utm_placement)",
         "facebookParams": "Facebook 参数",
         "facebookParamsHint": "复制 Facebook Ads URL 参数（不含开头的问号）以便粘贴到 Meta Ads Manager",
@@ -1205,7 +1204,8 @@ export default {
             "finance": "金融",
             "parameters": "参数",
             "geoDevice": "地理与设备",
-            "calendar": "日历"
+            "calendar": "日历",
+            "cloak": "隐藏"
         },
         "fields": {
             "campaign": "活动",
@@ -1223,6 +1223,9 @@ export default {
             "streamId": "码流ID",
             "sourceId": "源ID",
             "ip": "IP",
+            "isp": "ISP",
+            "asn": "ASN",
+            "proxyType": "代理类型",
             "botScanner": "机器人/扫描仪",
             "cost": "成本",
             "revenue": "收入",
@@ -1246,7 +1249,10 @@ export default {
             "browser": "浏览器",
             "userAgent": "用户代理",
             "dateTime": "日期和时间",
-            "conversion": "转化"
+            "conversion": "转化",
+            "route": "路线",
+            "cloakVerdict": "隐藏裁决",
+            "cloakReasons": "隐藏原因"
         }
     },
     "archive": {
@@ -1694,8 +1700,9 @@ export default {
     },
     "botSettings": {
         "ispTitle": "全局 Bot ISP 黑名单",
-        "ispHint": "以逗号分隔的关键词，与访客的 ISP 和 ASN 匹配。启用 Bot ISP 过滤的 Cloak 流会将此类访客导向安全页。",
-        "ispPlaceholder": "facebook, meta, amazon, aws, hetzner, ...",
+        "ispHint": "每行一个服务商，作为完整短语与访客的 ISP 和 ASN 匹配（逗号分隔的旧列表仍然有效）。启用了 Bot ISP 过滤的 Cloak 流会将此类访客导向安全页。",
+        "ispPlaceholder": "每行一个服务商，例如 Amazon.com, Inc.",
+        "ispIgnoredWarning": "已忽略的条目（过短或通用公司后缀——它们会匹配几乎所有 ISP）",
         "save": "保存",
         "saved": "已保存！",
         "saving": "保存中...",
@@ -1843,7 +1850,19 @@ export default {
     "campaignEditor": {
         "clickLogTitle": "单击日志",
         "clickLog": "单击日志",
-        "reports": "报告"
+        "reports": "报告",
+        "clickLogFilterAll": "全部",
+        "clickLogFilterSafe": "安全",
+        "clickLogFilterMoney": "盈利",
+        "clickLogVerdict": "判定",
+        "clickLogReasons": "原因",
+        "clickLogIsp": "ISP",
+        "clickLogAsn": "ASN",
+        "clickLogProxyType": "代理",
+        "clickLogUserAgent": "User-Agent",
+        "clickLogNoClicks": "此分类下没有点击",
+        "clickLogLast24h": "最近 24 小时",
+        "clickLogOpenDetails": "查看点击详情"
     },
     "geoProfiles": {
         "title": "地理概况",
@@ -2050,7 +2069,6 @@ export default {
         "actions": "操作",
         "selectAll": "全选所有行",
     },
-
     "extension": {
         "title": "Orbitra 广告管理工具悬浮层",
         "last3Days": "最近 3 天",
@@ -2070,7 +2088,6 @@ export default {
         "cpl": "CPL",
         "cps": "CPS",
     },
-
     "automation": {
         "status": "状态",
         "active": "已启用",
@@ -2675,8 +2692,9 @@ export default {
         "allowOnly": "仅允许所选",
         "blockSelected": "屏蔽所选",
         "blockBotIsps": "屏蔽 Bot 与数据中心 ISP（Facebook、Google、Amazon、Hetzner 等）",
-        "botIspPlaceholder": "本地覆盖：facebook, hetzner, ...（留空使用全局列表）",
-        "botIspHint": "与访客的 ISP 和 ASN 匹配。留空则使用 设置 → Bots 中的全局列表。",
+        "botIspPlaceholder": "本地覆盖：每行一个服务商（留空使用全局列表）",
+        "botIspHint": "每行一个服务商，与访客的 ISP 和 ASN 匹配。留空则使用 设置 → Bots 中的全局列表。",
+        "botIspIgnoredWarning": "已忽略的条目（过短或通用公司后缀——它们会匹配几乎所有 ISP）",
         "jsChallenge": "JavaScript 校验",
         "jsChallengeHint": "访客先看到安全页；后台浏览器校验决定是否放行到 money page。不执行 JS 的一律停留在安全页。会多一次跳转。",
         "mode": "Cloaking",
@@ -2705,6 +2723,7 @@ export default {
         "moneyPageHint": "展示给真实访客。行为与落地页+offer 模式相同。",
         "noGeoDbWarning": "每个访客都会被解析为 Unknown 国家，因此此过滤器会将 100% 的流量发送到安全页。",
         "diagnosticsTitle": "最近 24 小时",
+        "diagnosticsWindow": "时间窗口：{from} — {to}（{tz}）",
         "diagnosticsEmpty": "暂无点击",
         "diagnosticsStats": "{hits} 次点击  →  {money} 盈利  ·  {safe} 安全",
         "diagnosticsTopReasons": "主要原因：",
@@ -2756,7 +2775,17 @@ export default {
         "webdriver": "Browser automation detected via JavaScript challenge.",
         "js_missing": "JavaScript did not execute.",
         "js_fingerprint": "Browser fingerprint challenge failed.",
-        "bot_blocklist": "IP 与已知的机器人黑名单匹配。"
+        "bot_blocklist": "IP 与已知的机器人黑名单匹配。",
+        "bot_isp": "访客的 ISP 命中了机器人/数据中心名单。",
+        "no_user_agent": "请求未携带任何 User-Agent——真实浏览器不会这样。",
+        "missing_accept_language": "请求未携带 Accept-Language 头——真实浏览器中少见。",
+        "ip2proxy_bot": "IP2Proxy 将该地址标记为已知爬虫/蜘蛛（SES/AIC）。",
+        "ip2proxy_threat": "IP2Proxy 将该地址标记为已知威胁。",
+        "ip2proxy_high_fraud": "该地址的 IP2Proxy 欺诈分达到 80 或以上。",
+        "datacenter_asn": "ASN 属于已知数据中心或主机商。",
+        "vpn_proxy_asn": "ASN 属于已知 VPN 或代理服务商。",
+        "iprange_datacenter": "IP 落在已公布的数据中心/爬虫网段内。",
+        "hosting_isp": "ISP/组织名称中含有主机商关键词。"
     },
     "extCosts": {
         "title": "Dolphin / FBTool API",
@@ -3293,7 +3322,9 @@ export default {
         "deleteTemplateConfirm": "确定删除模板“{name}”吗？",
         "renameTemplatePrompt": "模板名称：",
         "makeDefault": "设为默认",
-        "defaultTemplateActive": "默认模板 — 点击可取消"
+        "defaultTemplateActive": "默认模板 — 点击可取消",
+        "makeDefaultGroup": "设为默认分组",
+        "defaultGroupActive": "默认分组 — 点击可取消"
     },
     "dateRangePicker": {
         "today": "今天",
@@ -3333,7 +3364,6 @@ export default {
         "passthroughParams": "添加所有跟踪参数",
         "passthroughHint": "添加所有 Facebook 和 UTM 跟踪参数并转发到目标地址",
         "passthroughHelp": "自动添加 Facebook 和 UTM 宏",
-
     },
     "suite": {
         "leadforge": "LeadForge",

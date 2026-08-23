@@ -23,7 +23,6 @@ export default {
         "addParam": "Додати параметр",
         "additionalSubIds": "Додаткові Sub ID (sub_id_1 .. sub_id_30)",
         "sourceDrivenHint": "Список параметрів береться з джерела трафіку кампанії — доки воно не обране, список універсальний.",
-
         "placement": "Плейсмент (utm_placement)",
         "facebookParams": "Параметри Facebook",
         "facebookParamsHint": "Скопіювати URL-параметри Facebook Ads (без початкового «?») для вставки в Meta Ads Manager",
@@ -1205,7 +1204,8 @@ export default {
             "finance": "Фінанси",
             "parameters": "Параметри",
             "geoDevice": "GEO та пристрій",
-            "calendar": "Календар"
+            "calendar": "Календар",
+            "cloak": "Клоакінг"
         },
         "fields": {
             "campaign": "Кампанія",
@@ -1223,6 +1223,9 @@ export default {
             "streamId": "ID потоку",
             "sourceId": "Ідентифікатор джерела",
             "ip": "IP",
+            "isp": "ISP",
+            "asn": "ASN",
+            "proxyType": "Тип проксі",
             "botScanner": "Бот / Сканер",
             "cost": "Вартість",
             "revenue": "Дохід",
@@ -1246,7 +1249,10 @@ export default {
             "browser": "Браузер",
             "userAgent": "Агент користувача",
             "dateTime": "Дата і час",
-            "conversion": "Перетворення"
+            "conversion": "Перетворення",
+            "route": "Маршрут",
+            "cloakVerdict": "Вердикт клоакінгу",
+            "cloakReasons": "Причини клоакінгу"
         }
     },
     "archive": {
@@ -1694,8 +1700,9 @@ export default {
     },
     "botSettings": {
         "ispTitle": "Глобальний чорний список Bot ISP",
-        "ispHint": "Ключові слова через кому, перевіряються за ISP та ASN відвідувача. Потоки Cloak із увімкненим фільтром Bot ISP спрямовують таких відвідувачів на білу сторінку.",
-        "ispPlaceholder": "facebook, meta, amazon, aws, hetzner, ...",
+        "ispHint": "Один провайдер на рядок, порівнюється цілісно з ISP та ASN відвідувача (списки через коми надалі працюють). Потоки Cloak із увімкненим фільтром Bot ISP спрямовують таких відвідувачів на білу сторінку.",
+        "ispPlaceholder": "Один провайдер на рядок, напр. Amazon.com, Inc.",
+        "ispIgnoredWarning": "Проігноровані записи (занадто короткі або загальний корпоративний суфікс — вони збігалися б майже з кожним ISP)",
         "save": "Зберегти",
         "saved": "Збережено!",
         "saving": "Збереження...",
@@ -1841,9 +1848,21 @@ export default {
         "loadingDbs": "Завантаження інформації про базу даних..."
     },
     "campaignEditor": {
-        "clickLogTitle": "Натисніть Журнал",
+        "clickLogTitle": "Журнал кліків",
         "clickLog": "Натисніть Журнал",
-        "reports": "Звіти"
+        "reports": "Звіти",
+        "clickLogFilterAll": "ВСІ",
+        "clickLogFilterSafe": "SAFE",
+        "clickLogFilterMoney": "MONEY",
+        "clickLogVerdict": "Вердикт",
+        "clickLogReasons": "Причини",
+        "clickLogIsp": "ISP",
+        "clickLogAsn": "ASN",
+        "clickLogProxyType": "Проксі",
+        "clickLogUserAgent": "User-Agent",
+        "clickLogNoClicks": "Немає кліків у цій категорії",
+        "clickLogLast24h": "За останні 24 години",
+        "clickLogOpenDetails": "Відкрити деталі кліку"
     },
     "geoProfiles": {
         "title": "Географічні профілі",
@@ -2050,7 +2069,6 @@ export default {
         "actions": "Дії",
         "selectAll": "Обрати всі рядки",
     },
-
     "extension": {
         "title": "Оверлей Orbitra для Ads Manager",
         "last3Days": "Останні 3 дні",
@@ -2070,7 +2088,6 @@ export default {
         "cpl": "CPL",
         "cps": "CPS",
     },
-
     "automation": {
         "status": "Статус",
         "active": "Активно",
@@ -2675,8 +2692,9 @@ export default {
         "allowOnly": "Лише обрані",
         "blockSelected": "Заблокувати обрані",
         "blockBotIsps": "Блокувати ботів і датацентр-провайдерів (Facebook, Google, Amazon, Hetzner та ін.)",
-        "botIspPlaceholder": "Локальний список: facebook, hetzner, ... (порожньо — глобальний список)",
-        "botIspHint": "Перевіряється за ISP та ASN відвідувача. Залиште порожнім, щоб використовувати глобальний список із Налаштування → Боти.",
+        "botIspPlaceholder": "Локальний список: один провайдер на рядок (порожньо — глобальний список)",
+        "botIspHint": "Один провайдер на рядок, перевіряється за ISP та ASN відвідувача. Залиште порожнім, щоб використовувати глобальний список із Налаштування → Боти.",
+        "botIspIgnoredWarning": "Проігноровані записи (занадто короткі або загальний корпоративний суфікс — вони збігалися б майже з кожним ISP)",
         "jsChallenge": "Перевірка JavaScript",
         "jsChallengeHint": "Відвідувач спершу бачить білу сторінку; фонова перевірка браузера вирішує, чи пускати його на money page. Усе, що не виконує JS, лишається на білій. Додає один перехід.",
         "mode": "Cloaking",
@@ -2705,6 +2723,7 @@ export default {
         "moneyPageHint": "Показується реальним відвідувачам. Працює як схема лендинг+оффер.",
         "noGeoDbWarning": "Кожен відвідувач визначається як країна Unknown, тому цей фільтр відправить 100% вашого трафіку на Safe Page.",
         "diagnosticsTitle": "Останні 24год",
+        "diagnosticsWindow": "Вікно: {from} — {to} ({tz})",
         "diagnosticsEmpty": "Поки немає кліків",
         "diagnosticsStats": "{hits} хітів  →  {money} гроші  ·  {safe} safe",
         "diagnosticsTopReasons": "Топ причин:",
@@ -2756,7 +2775,17 @@ export default {
         "webdriver": "Browser automation detected via JavaScript challenge.",
         "js_missing": "JavaScript did not execute.",
         "js_fingerprint": "Browser fingerprint challenge failed.",
-        "bot_blocklist": "IP збігся з відомим чорним списком ботів."
+        "bot_blocklist": "IP збігся з відомим чорним списком ботів.",
+        "bot_isp": "ISP відвідувача знайдено у списку ботів/датацентрів.",
+        "no_user_agent": "Запит без User-Agent — так не робить жоден реальний браузер.",
+        "missing_accept_language": "Запит без заголовка Accept-Language — нетипово для реальних браузерів.",
+        "ip2proxy_bot": "IP2Proxy позначив адресу як відомого краулера/павука (SES/AIC).",
+        "ip2proxy_threat": "IP2Proxy позначив адресу як відому загрозу.",
+        "ip2proxy_high_fraud": "Fraud-скор IP2Proxy для адреси — 80 і вище.",
+        "datacenter_asn": "ASN належить відомому датацентру або хостингу.",
+        "vpn_proxy_asn": "ASN належить відомому VPN або проксі-провайдеру.",
+        "iprange_datacenter": "IP потрапляє в опублікований діапазон датацентру/краулера.",
+        "hosting_isp": "У назві ISP/організації знайдено ключове слово хостингу."
     },
     "extCosts": {
         "title": "Dolphin / FBTool API",
@@ -3293,7 +3322,9 @@ export default {
         "deleteTemplateConfirm": "Видалити шаблон \"{name}\"?",
         "renameTemplatePrompt": "Назва шаблону:",
         "makeDefault": "Зробити за замовчуванням",
-        "defaultTemplateActive": "Шаблон за замовчуванням — натисніть, щоб прибрати"
+        "defaultTemplateActive": "Шаблон за замовчуванням — натисніть, щоб прибрати",
+        "makeDefaultGroup": "Зробити групуванням за замовчуванням",
+        "defaultGroupActive": "Групування за замовчуванням — натисніть, щоб прибрати"
     },
     "dateRangePicker": {
         "today": "Сьогодні",
@@ -3333,7 +3364,6 @@ export default {
         "passthroughParams": "Додати всі трекінг-параметри",
         "passthroughHint": "Додати всі параметри Facebook та UTM для передачі на цільову адресу",
         "passthroughHelp": "Автоматично додати макроси Facebook та UTM",
-
     },
     "suite": {
         "leadforge": "LeadForge",

@@ -23,7 +23,6 @@ export default {
         "addParam": "Añadir parámetro",
         "additionalSubIds": "Sub IDs adicionales (sub_id_1 .. sub_id_30)",
         "sourceDrivenHint": "La lista de parámetros proviene de la fuente de tráfico de la campaña: sigue siendo genérica hasta que se elija una.",
-
         "placement": "Ubicación (utm_placement)",
         "facebookParams": "Parámetros de Facebook",
         "facebookParamsHint": "Copiar los parámetros de URL de Facebook Ads (sin el signo de interrogación inicial) para pegarlos en Meta Ads Manager",
@@ -1205,7 +1204,8 @@ export default {
             "finance": "Finanzas",
             "parameters": "Parámetros",
             "geoDevice": "GEO y dispositivo",
-            "calendar": "Calendario"
+            "calendar": "Calendario",
+            "cloak": "Cloaking"
         },
         "fields": {
             "campaign": "Campaña",
@@ -1223,6 +1223,9 @@ export default {
             "streamId": "ID de transmisión",
             "sourceId": "ID de fuente",
             "ip": "IP",
+            "isp": "ISP",
+            "asn": "ASN",
+            "proxyType": "Tipo de proxy",
             "botScanner": "Robot / Escáner",
             "cost": "Costo",
             "revenue": "Ingresos",
@@ -1246,7 +1249,10 @@ export default {
             "browser": "Navegador",
             "userAgent": "Agente de usuario",
             "dateTime": "Fecha y hora",
-            "conversion": "Conversión"
+            "conversion": "Conversión",
+            "route": "Ruta",
+            "cloakVerdict": "Veredicto de cloaking",
+            "cloakReasons": "Motivos de cloaking"
         }
     },
     "archive": {
@@ -1694,8 +1700,9 @@ export default {
     },
     "botSettings": {
         "ispTitle": "Lista negra global de ISP de bots",
-        "ispHint": "Palabras clave separadas por comas que se comparan con el ISP y el ASN del visitante. Los flujos Cloak con el filtro de ISP de bots activado envían a estos visitantes a la página segura.",
-        "ispPlaceholder": "facebook, meta, amazon, aws, hetzner, ...",
+        "ispHint": "Un proveedor por línea, se compara como frase completa con el ISP y el ASN del visitante (las listas separadas por comas siguen funcionando). Los flujos Cloak con el filtro de ISP de bots activado envían a estos visitantes a la página segura.",
+        "ispPlaceholder": "Un proveedor por línea, p. ej. Amazon.com, Inc.",
+        "ispIgnoredWarning": "Entradas ignoradas (demasiado cortas o sufijo corporativo genérico — coincidirían con casi cualquier ISP)",
         "save": "Guardar",
         "saved": "¡Guardado!",
         "saving": "Guardando...",
@@ -1841,9 +1848,21 @@ export default {
         "loadingDbs": "Cargando información de la base de datos..."
     },
     "campaignEditor": {
-        "clickLogTitle": "Haga clic en Iniciar sesión",
+        "clickLogTitle": "Registro de clics",
         "clickLog": "Haga clic en Iniciar sesión",
-        "reports": "Informes"
+        "reports": "Informes",
+        "clickLogFilterAll": "TODO",
+        "clickLogFilterSafe": "SAFE",
+        "clickLogFilterMoney": "MONEY",
+        "clickLogVerdict": "Veredicto",
+        "clickLogReasons": "Razones",
+        "clickLogIsp": "ISP",
+        "clickLogAsn": "ASN",
+        "clickLogProxyType": "Proxy",
+        "clickLogUserAgent": "User-Agent",
+        "clickLogNoClicks": "No hay clics en esta categoría",
+        "clickLogLast24h": "Últimas 24 horas",
+        "clickLogOpenDetails": "Ver detalles del clic"
     },
     "geoProfiles": {
         "title": "Perfiles geográficos",
@@ -2050,7 +2069,6 @@ export default {
         "actions": "Acciones",
         "selectAll": "Seleccionar todas las filas",
     },
-
     "extension": {
         "title": "Superposición de Orbitra para Ads Manager",
         "last3Days": "Últimos 3 días",
@@ -2070,7 +2088,6 @@ export default {
         "cpl": "CPL",
         "cps": "CPS",
     },
-
     "automation": {
         "status": "Estado",
         "active": "Activo",
@@ -2675,8 +2692,9 @@ export default {
         "allowOnly": "Solo los seleccionados",
         "blockSelected": "Bloquear los seleccionados",
         "blockBotIsps": "Bloquear ISP de bots y centros de datos (Facebook, Google, Amazon, Hetzner, etc.)",
-        "botIspPlaceholder": "Lista local: facebook, hetzner, ... (vacío = lista global)",
-        "botIspHint": "Se compara con el ISP y el ASN del visitante. Déjalo vacío para usar la lista global de Configuración → Bots.",
+        "botIspPlaceholder": "Lista local: un proveedor por línea (vacío = lista global)",
+        "botIspHint": "Un proveedor por línea, se compara con el ISP y el ASN del visitante. Déjalo vacío para usar la lista global de Configuración → Bots.",
+        "botIspIgnoredWarning": "Entradas ignoradas (demasiado cortas o sufijo corporativo genérico — coincidirían con casi cualquier ISP)",
         "jsChallenge": "Comprobación de JavaScript",
         "jsChallengeHint": "El visitante ve primero la página segura; una comprobación del navegador en segundo plano decide si pasa a la money page. Lo que no ejecuta JS se queda en la página segura. Añade un salto extra.",
         "mode": "Cloaking",
@@ -2705,6 +2723,7 @@ export default {
         "moneyPageHint": "Se muestra a visitantes reales. Se comporta como el esquema landing+oferta.",
         "noGeoDbWarning": "Cada visitante se resuelve como país Unknown, por lo que este filtro enviará el 100% de tu tráfico a la Safe Page.",
         "diagnosticsTitle": "Últimas 24h",
+        "diagnosticsWindow": "Ventana: {from} — {to} ({tz})",
         "diagnosticsEmpty": "Aún no hay clics",
         "diagnosticsStats": "{hits} clics  →  {money} dinero  ·  {safe} safe",
         "diagnosticsTopReasons": "Principales razones:",
@@ -2756,7 +2775,17 @@ export default {
         "webdriver": "Browser automation detected via JavaScript challenge.",
         "js_missing": "JavaScript did not execute.",
         "js_fingerprint": "Browser fingerprint challenge failed.",
-        "bot_blocklist": "IP coincide con una lista de bloqueo de bots conocida."
+        "bot_blocklist": "IP coincide con una lista de bloqueo de bots conocida.",
+        "bot_isp": "El ISP del visitante está en la lista de bots/centros de datos.",
+        "no_user_agent": "Petición sin User-Agent — ningún navegador real hace eso.",
+        "missing_accept_language": "Petición sin encabezado Accept-Language — poco común en navegadores reales.",
+        "ip2proxy_bot": "IP2Proxy marcó la dirección como crawler/araña conocida (SES/AIC).",
+        "ip2proxy_threat": "IP2Proxy marcó la dirección como amenaza conocida.",
+        "ip2proxy_high_fraud": "La puntuación de fraude de IP2Proxy es 80 o superior.",
+        "datacenter_asn": "El ASN pertenece a un centro de datos o hosting conocido.",
+        "vpn_proxy_asn": "El ASN pertenece a un proveedor de VPN o proxy conocido.",
+        "iprange_datacenter": "La IP cae en un rango publicado de centro de datos/crawler.",
+        "hosting_isp": "El nombre del ISP/organización contiene una palabra clave de hosting."
     },
     "extCosts": {
         "title": "Dolphin / FBTool API",
@@ -3293,7 +3322,9 @@ export default {
         "deleteTemplateConfirm": "¿Eliminar la plantilla \"{name}\"?",
         "renameTemplatePrompt": "Nombre de la plantilla:",
         "makeDefault": "Establecer como predeterminada",
-        "defaultTemplateActive": "Plantilla predeterminada — haz clic para quitar"
+        "defaultTemplateActive": "Plantilla predeterminada — haz clic para quitar",
+        "makeDefaultGroup": "Establecer como agrupación predeterminada",
+        "defaultGroupActive": "Agrupación predeterminada — haz clic para quitar"
     },
     "dateRangePicker": {
         "today": "Hoy",
@@ -3333,7 +3364,6 @@ export default {
         "passthroughParams": "Añadir todos los parámetros de seguimiento",
         "passthroughHint": "Añadir todos los parámetros de seguimiento de Facebook y UTM para reenviarlos al destino",
         "passthroughHelp": "Añadir macros de Facebook y UTM automáticamente",
-
     },
     "suite": {
         "leadforge": "LeadForge",

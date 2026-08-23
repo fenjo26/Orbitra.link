@@ -172,7 +172,62 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
 
                             <SectionHeader title={t('clickDetails.sections.connection')} />
                             <DetailRow label={t('clickDetails.fields.ip')} value={data.ip} />
+                            <DetailRow label={t('clickDetails.fields.isp')} value={data.isp} />
+                            <DetailRow label={t('clickDetails.fields.asn')} value={data.asn} />
+                            <DetailRow label={t('clickDetails.fields.proxyType')} value={data.proxy_type} />
                             <DetailRow label={t('clickDetails.fields.botScanner')} value={t('clickDetails.noData')} />
+
+                            {/* W3: Cloak verdict and reasons */}
+                            {(data.cloak_verdict || data.cloak_reasons || data.is_safe_page !== undefined) && (
+                                <>
+                                    <SectionHeader title={t('clickDetails.sections.cloak')} />
+                                    <DetailRow
+                                        label={t('clickDetails.fields.route')}
+                                        value={
+                                            data.is_safe_page === 1 ? (
+                                                <span className="status-badge status-inactive text-[11px]">
+                                                    {t('logs.routeSafe')}
+                                                </span>
+                                            ) : data.is_safe_page === 0 ? (
+                                                <span className="status-badge status-active text-[11px]">
+                                                    {t('logs.routeMoney')}
+                                                </span>
+                                            ) : '-'
+                                        }
+                                    />
+                                    <DetailRow label={t('clickDetails.fields.cloakVerdict')} value={data.cloak_verdict} />
+                                    {data.cloak_reasons && (
+                                        <DetailRow
+                                            label={t('clickDetails.fields.cloakReasons')}
+                                            value={
+                                                <div className="flex flex-wrap gap-1">
+                                                    {data.cloak_reasons.split(',').filter(Boolean).map((reason, idx) => {
+                                                        // `code:evidence` — split on the FIRST ':' so the
+                                                        // label resolves and evidence stays visible.
+                                                        const colon = reason.indexOf(':');
+                                                        const code = colon === -1 ? reason : reason.slice(0, colon);
+                                                        const evidence = colon === -1 ? '' : reason.slice(colon + 1);
+                                                        return (
+                                                            <span
+                                                                key={idx}
+                                                                className="text-[10px] px-1.5 py-0.5 rounded font-mono"
+                                                                style={{
+                                                                    backgroundColor: 'var(--color-bg-soft)',
+                                                                    color: 'var(--color-text-secondary)',
+                                                                    border: '1px solid var(--color-border)'
+                                                                }}
+                                                                title={t(`cloakReasons.${code}`, '') || code}
+                                                            >
+                                                                {code}{evidence ? <b style={{ color: 'var(--color-primary)', fontWeight: 600 }}>{` ${evidence}`}</b> : null}
+                                                            </span>
+                                                        );
+                                                    })}
+                                                </div>
+                                            }
+                                        />
+                                    )}
+                                </>
+                            )}
 
                             <SectionHeader title={t('clickDetails.sections.finance')} />
                             <DetailRow label={t('clickDetails.fields.cost')} value={formatMoney(data.cost)} />

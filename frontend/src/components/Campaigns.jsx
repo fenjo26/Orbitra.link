@@ -565,6 +565,13 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     const allSelected = visibleCampaigns.length > 0 && visibleCampaigns.every(c => selectedCampaignIds.has(c.id));
     const someSelected = visibleCampaigns.some(c => selectedCampaignIds.has(c.id));
 
+    // The toolbar Report button follows the checkbox selection: exactly one
+    // ticked campaign opens that campaign's report; with nothing (or several)
+    // ticked it stays the all-campaigns report.
+    const reportTargetCampaign = selectedCampaignIds.size === 1
+        ? (campaignList.find(c => c.id === [...selectedCampaignIds][0]) ?? null)
+        : null;
+
     const handleBulkDeleteSelected = async () => {
         const ids = Array.from(selectedCampaignIds);
         if (ids.length === 0) return;
@@ -792,7 +799,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                         <Plus className="w-3.5 h-3.5" />
                         {t('common.create')}
                     </button>
-                    <button onClick={() => setShowGlobalReports(true)} className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium" title={t('campaignReports.report')}>
+                    <button onClick={() => setShowGlobalReports(true)} className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium" title={reportTargetCampaign ? `${t('campaignReports.report')}: ${reportTargetCampaign.name}` : t('campaignReports.report')}>
                         <BarChart2 className="w-3.5 h-3.5" />
                         {t('campaignReports.report')}
                     </button>
@@ -1219,11 +1226,12 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                 />
             )}
 
-            {/* Global Report Modal */}
+            {/* Global Report Modal (follows the checkbox selection: exactly one
+                ticked campaign opens that campaign's report, otherwise all) */}
             {showGlobalReports && (
                 <CampaignReports
-                    campaignId={null}
-                    campaignName={null}
+                    campaignId={reportTargetCampaign ? reportTargetCampaign.id : null}
+                    campaignName={reportTargetCampaign ? reportTargetCampaign.name : null}
                     onClose={() => setShowGlobalReports(false)}
                 />
             )}

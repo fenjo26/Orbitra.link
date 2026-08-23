@@ -177,6 +177,14 @@ export const getDimensionLabel = (dim, t) => {
 // --- User-saved column templates (localStorage) ---
 const TEMPLATES_KEY = 'orbitra_column_templates';
 const DEFAULT_TEMPLATE_KEY = 'orbitra_default_template_id';
+const DEFAULT_GROUP_KEY = 'orbitra_default_group_id';
+const GROUP_TEMPLATES_KEY = 'orbitra_report_group_templates';
+export const LAST_GROUP_BY_KEY = 'orbitra_report_group_by';
+
+// A flat, single-dimension report — the multi-level drill-down is opt-in via
+// the layer builder. Shared with CampaignReports so "restore to default" and
+// the initial load agree on the same shape.
+export const DEFAULT_REPORT_LAYERS = ['country'];
 
 const arraysEqual = (a, b) => Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v, i) => v === b[i]);
 
@@ -221,6 +229,23 @@ const persistDefaultTemplateId = (id) => {
     }
 };
 
+const loadDefaultGroupId = () => {
+    try {
+        return localStorage.getItem(DEFAULT_GROUP_KEY);
+    } catch {
+        return null;
+    }
+};
+
+const persistDefaultGroupId = (id) => {
+    try {
+        if (id) localStorage.setItem(DEFAULT_GROUP_KEY, id);
+        else localStorage.removeItem(DEFAULT_GROUP_KEY);
+    } catch {
+        // Storage full/unavailable — default choice won't survive the session
+    }
+};
+
 // Columns of the user's default template (system preset id or custom template
 // id), or null when no default is set. Pages use this as the initial shape
 // when no per-page column selection has been saved yet.
@@ -231,6 +256,71 @@ export const getDefaultTemplateColumns = () => {
     const tpl = loadColumnTemplates().find(t => t.id === id);
     return tpl ? normalizeReportMetricIds(tpl.columns) : null;
 };
+
+const loadGroupTemplates = () => {
+    try {
+        const parsed = JSON.parse(localStorage.getItem(GROUP_TEMPLATES_KEY) || '[]');
+        if (!Array.isArray(parsed)) return [];
+        return parsed.filter(tpl => tpl && typeof tpl.id === 'string' && typeof tpl.name === 'string' && Array.isArray(tpl.layers));
+    } catch {
+        // Corrupt storage entry — fall back to no saved grouping templates
+        return [];
+    }
+};
+
+// A grouping is only usable if every dimension still exists. URL params
+// (`param_*`) are user-defined and always valid; the rest must be known
+// dimensions. An unusable grouping falls through to the next fallback rather
+// than producing an empty report.
+const isUsableGrouping = (dims) =>
+    Array.isArray(dims) && dims.length > 0
+    && dims.every(dim => typeof dim === 'string' && (REPORT_DIMENSION_LABELS[dim] || dim.startsWith('param_')));
+
+// Layers of the user's starred grouping (system preset id or saved template
+// id), or null when nothing is starred / the starred entry no longer exists.
+export const getDefaultGroupLayers = (layerPresets = []) => {
+    const id = loadDefaultGroupId();
+    if (!id) return null;
+    const preset = layerPresets.find(p => p && p.id === id);
+    const candidate = preset ? preset.layers : loadGroupTemplates().find(tpl => tpl.id === id)?.layers;
+    return isUsableGrouping(candidate) ? [...candidate] : null;
+};
+
+// The grouping the user last applied, or null when nothing was stored / the
+// stored dimensions no longer exist.
+export const getLastAppliedGroupBy = () => {
+    try {
+        const raw = localStorage.getItem(LAST_GROUP_BY_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        return isUsableGrouping(parsed) ? [...parsed] : null;
+    } catch {
+        return null;
+    }
+};
+
+export const persistLastAppliedGroupBy = (dims) => {
+    try {
+        localStorage.setItem(LAST_GROUP_BY_KEY, JSON.stringify(dims));
+    } catch {
+        // Storage full/unavailable — the grouping just won't survive a reopen
+    }
+};
+
+export const clearLastAppliedGroupBy = () => {
+    try {
+        localStorage.removeItem(LAST_GROUP_BY_KEY);
+    } catch {
+        // Nothing to do — the stale value is harmless, it validates on read
+    }
+};
+
+// Grouping to show when the report opens: the starred one, else the last
+// applied one, else the built-in default.
+export const resolveInitialGroupLayers = (layerPresets = []) =>
+    getDefaultGroupLayers(layerPresets)
+    || getLastAppliedGroupBy()
+    || [...DEFAULT_REPORT_LAYERS];
 
 // System preset chips: [preset key, locale key under reportCustomizer.*]
 const SYSTEM_PRESETS = [
@@ -268,20 +358,14 @@ const ReportCustomizerModal = ({
 
     // User-saved grouping combos (localStorage). System presets arrive via the
     // layerPresets prop; these are the user's own hierarchies.
-    const [customGroupTemplates, setCustomGroupTemplates] = useState(() => {
-        try {
-            return JSON.parse(localStorage.getItem('orbitra_report_group_templates')) || [];
-        } catch {
-            return [];
-        }
-    });
+    const [customGroupTemplates, setCustomGroupTemplates] = useState(() => loadGroupTemplates());
     const [groupSaveDialogOpen, setGroupSaveDialogOpen] = useState(false);
     const [groupTemplateName, setGroupTemplateName] = useState('');
 
     const persistGroupTemplates = (templates) => {
         setCustomGroupTemplates(templates);
         try {
-            localStorage.setItem('orbitra_report_group_templates', JSON.stringify(templates));
+            localStorage.setItem(GROUP_TEMPLATES_KEY, JSON.stringify(templates));
         } catch {
             // Private mode / quota — the in-memory copy still works this session.
         }
@@ -297,6 +381,7 @@ const ReportCustomizerModal = ({
 
     const handleDeleteGroupTemplate = (tplId) => {
         persistGroupTemplates(customGroupTemplates.filter((tpl) => tpl.id !== tplId));
+        if (defaultGroupId === tplId) handleToggleDefaultGroup(tplId);
     };
     // Filters
     const [filters, setFilters] = useState([]);
@@ -309,6 +394,9 @@ const ReportCustomizerModal = ({
     const [saveDialogOpen, setSaveDialogOpen] = useState(false);
     const [templateName, setTemplateName] = useState('');
     const [templateAsDefault, setTemplateAsDefault] = useState(false);
+
+    // Default grouping preset/template (starred)
+    const [defaultGroupId, setDefaultGroupId] = useState(null);
 
     // Drag-and-drop state, tracked in ref + state so drops never lose the ID
     const draggedIdRef = useRef(null);
@@ -334,6 +422,7 @@ const ReportCustomizerModal = ({
 
             setTemplates(loadColumnTemplates());
             setDefaultTemplateId(loadDefaultTemplateId());
+            setDefaultGroupId(loadDefaultGroupId());
             setLastAppliedTemplateId(null);
             setSaveDialogOpen(false);
             setTemplateName('');
@@ -368,12 +457,27 @@ const ReportCustomizerModal = ({
 
     const handleRestoreDefault = () => {
         handleApplyTemplate('best');
+        if (mode === 'report') {
+            // Grouping goes back to the built-in single-dimension report, and
+            // both remembered choices (starred preset, last applied grouping)
+            // are dropped so reopening the report lands on the same default.
+            setLayers([...DEFAULT_REPORT_LAYERS]);
+            setDefaultGroupId(null);
+            persistDefaultGroupId(null);
+            clearLastAppliedGroupBy();
+        }
     };
 
     const handleToggleDefault = (templateId) => {
         const next = defaultTemplateId === templateId ? null : templateId;
         setDefaultTemplateId(next);
         persistDefaultTemplateId(next);
+    };
+
+    const handleToggleDefaultGroup = (groupId) => {
+        const next = defaultGroupId === groupId ? null : groupId;
+        setDefaultGroupId(next);
+        persistDefaultGroupId(next);
     };
 
     const handleSaveTemplate = () => {
@@ -965,12 +1069,14 @@ const ReportCustomizerModal = ({
                                 </span>
                                 {layerPresets.map((preset) => {
                                     const active = arraysEqual(layers, preset.layers);
+                                    const isDefault = defaultGroupId === preset.id;
                                     return (
-                                        <button
+                                        <div
                                             key={preset.id}
-                                            type="button"
+                                            role="button"
+                                            tabIndex={0}
                                             onClick={() => setLayers([...preset.layers])}
-                                            className="text-xs px-3 py-1.5 rounded-xl border transition-colors"
+                                            className="group inline-flex items-center gap-1 text-xs pl-3 pr-1.5 py-1.5 rounded-xl border transition-colors cursor-pointer hover:border-[var(--color-primary)]"
                                             style={{
                                                 backgroundColor: active ? 'var(--color-primary-light)' : 'var(--color-bg-soft)',
                                                 borderColor: active ? 'var(--color-primary)' : 'var(--color-border)',
@@ -978,17 +1084,30 @@ const ReportCustomizerModal = ({
                                                 fontWeight: active ? 600 : 400
                                             }}
                                         >
-                                            {preset.label}
-                                        </button>
+                                            <span>{preset.label}</span>
+                                            <button
+                                                type="button"
+                                                onClick={(e) => { e.stopPropagation(); handleToggleDefaultGroup(preset.id); }}
+                                                className={`p-0.5 rounded flex-shrink-0 transition-opacity hover:text-[var(--color-primary)] ${isDefault
+                                                    ? 'text-[var(--color-primary)]'
+                                                    : 'text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100'}`}
+                                                title={isDefault
+                                                    ? t('reportCustomizer.defaultGroupActive', 'Default grouping — click to remove')
+                                                    : t('reportCustomizer.makeDefaultGroup', 'Set as default grouping')}
+                                            >
+                                                <Star className={`w-3 h-3 ${isDefault ? 'fill-current' : ''}`} />
+                                            </button>
+                                        </div>
                                     );
                                 })}
                                 {customGroupTemplates.map((tpl) => {
                                     const active = arraysEqual(layers, tpl.layers);
+                                    const isDefault = defaultGroupId === tpl.id;
                                     return (
                                         <div
                                             key={tpl.id}
                                             onClick={() => setLayers([...tpl.layers])}
-                                            className="group inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-xl border transition-colors cursor-pointer"
+                                            className="group inline-flex items-center gap-1 text-xs pl-3 pr-1.5 py-1.5 rounded-xl border transition-colors cursor-pointer"
                                             style={{
                                                 backgroundColor: active ? 'var(--color-primary-light)' : 'var(--color-bg-soft)',
                                                 borderColor: active ? 'var(--color-primary)' : 'var(--color-border)',
@@ -997,6 +1116,18 @@ const ReportCustomizerModal = ({
                                             }}
                                         >
                                             <span>{tpl.name}</span>
+                                            <button
+                                                type="button"
+                                                onClick={(e) => { e.stopPropagation(); handleToggleDefaultGroup(tpl.id); }}
+                                                className={`p-0.5 rounded flex-shrink-0 transition-opacity hover:text-[var(--color-primary)] ${isDefault
+                                                    ? 'text-[var(--color-primary)]'
+                                                    : 'text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100'}`}
+                                                title={isDefault
+                                                    ? t('reportCustomizer.defaultGroupActive', 'Default grouping — click to remove')
+                                                    : t('reportCustomizer.makeDefaultGroup', 'Set as default grouping')}
+                                            >
+                                                <Star className={`w-3 h-3 ${isDefault ? 'fill-current' : ''}`} />
+                                            </button>
                                             <button
                                                 type="button"
                                                 onClick={(e) => {

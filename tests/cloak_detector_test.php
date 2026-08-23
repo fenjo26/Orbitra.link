@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../core/CloakDetector.php';
+require_once __DIR__ . '/../core/IpRanges.php';
 
 $browserUa = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
     . 'AppleWebKit/537.36 Chrome/127.0.0.0 Safari/537.36';
@@ -57,8 +58,12 @@ foreach ($cases as [$name, $caseVisitor, $caseConfig, $expectedSuspicious, $expe
         $failures[] = "$name: expected suspicious=" . ($expectedSuspicious ? 'true' : 'false')
             . ', got ' . ($result['is_suspicious'] ? 'true' : 'false');
     }
+    // Reasons carry ':evidence' suffixes (hosting_isp:ovh); assertions are
+    // about which codes fire, so compare through reasonCode() like every
+    // other consumer of these strings.
+    $reasonCodes = array_map([CloakDetector::class, 'reasonCode'], $result['reasons']);
     foreach ($expectedReasons as $reason) {
-        if (!in_array($reason, $result['reasons'], true)) {
+        if (!in_array($reason, $reasonCodes, true)) {
             $failures[] = "$name: missing reason $reason";
         }
     }
@@ -99,10 +104,79 @@ $botSignatureResult = CloakDetector::detect(
     $visitor(['asn' => '', 'isp' => '', 'user_agent' => 'Mozilla/5.0 KnownBadBot']),
     $config('low')
 );
-if (!$botSignatureResult['is_suspicious'] || !in_array('bot_blocklist', $botSignatureResult['reasons'], true)) {
+$botSignatureCodes = array_map([CloakDetector::class, 'reasonCode'], $botSignatureResult['reasons']);
+if (!$botSignatureResult['is_suspicious'] || !in_array('bot_blocklist', $botSignatureCodes, true)) {
     $failures[] = 'Known bot signature was not detected outside index.php';
 }
+if (!in_array('bot_blocklist:KnownBadBot', $botSignatureResult['reasons'], true)) {
+    $failures[] = 'bot_blocklist evidence must name the matched blocklist row, got: '
+        . implode(',', $botSignatureResult['reasons']);
+}
 unset($GLOBALS['pdo']);
+
+// --- Evidence format: a reason is `code:evidence`, readers split on the FIRST ':' ---
+// Rows written before evidence existed stay valid bare codes.
+if (CloakDetector::reasonCode('iprange_datacenter:2001:db8::/32') !== 'iprange_datacenter'
+    || CloakDetector::reasonEvidence('iprange_datacenter:2001:db8::/32') !== '2001:db8::/32'
+    || CloakDetector::reasonCode('crawler_or_tool_ua') !== 'crawler_or_tool_ua'
+    || CloakDetector::reasonEvidence('crawler_or_tool_ua') !== '') {
+    $failures[] = 'reasonCode/reasonEvidence must split on the first colon only';
+}
+
+// The tool signature that matched is the evidence — the actionable part, and it
+// cannot bloat the row the way a full UA would.
+$curlDetect = CloakDetector::detect(
+    ['ip' => '73.1.2.3', 'user_agent' => 'curl/8.4.0', 'asn' => '', 'isp' => '', 'accept_language' => ''],
+    ['sensitivity' => 'low']
+);
+if (!in_array('crawler_or_tool_ua:curl/', $curlDetect['reasons'], true)) {
+    $failures[] = 'curl/8.4.0 must record crawler_or_tool_ua:curl/ exactly, got: ' . implode(',', $curlDetect['reasons']);
+}
+
+// The matched CIDR is the iprange_datacenter evidence. Self-adjusting: probes
+// an address inside the first usable range of whatever list is installed, so
+// the assertion survives daily list refreshes. Skipped when lists were never
+// downloaded (the layer is inactive in that install).
+if (is_readable(IpRanges::fileV4())) {
+    $probeLine = null;
+    foreach (file(IpRanges::fileV4(), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+        $line = trim($line);
+        if ($line === '' || $line[0] === '#') {
+            continue;
+        }
+        [$net, $prefix] = array_pad(explode('/', $line, 2), 2, '32');
+        if ((int) $prefix <= 30 && ip2long($net) !== false) {
+            $probeLine = $line;
+            $probeIp = long2ip(ip2long($net) + 1);
+            break;
+        }
+    }
+    if ($probeLine !== null) {
+        $iprangeDetect = CloakDetector::detect(
+            ['ip' => $probeIp, 'user_agent' => $browserUa, 'asn' => '', 'isp' => '', 'accept_language' => 'en-US'],
+            ['sensitivity' => 'low']
+        );
+        if (!in_array('iprange_datacenter:' . $probeLine, $iprangeDetect['reasons'], true)) {
+            $failures[] = "iprange_datacenter evidence must be the matched CIDR ({$probeLine}), got: "
+                . implode(',', $iprangeDetect['reasons']);
+        }
+    }
+}
+
+// Evidence is capped at 64 chars so a long keyword cannot bloat the
+// clicks.cloak_reasons row.
+$longKeyword = str_repeat('a', 100);
+$ispEvidence = CloakDetector::targetingReasons(
+    ['block_bot_isps' => true, 'custom_bot_isps' => $longKeyword],
+    'US',
+    'Desktop',
+    $longKeyword,
+    ''
+);
+$expectedCapped = 'bot_isp:' . str_repeat('a', 64);
+if (!in_array($expectedCapped, $ispEvidence, true)) {
+    $failures[] = 'bot_isp evidence must be capped at 64 chars, got: ' . implode(',', $ispEvidence);
+}
 
 if ($failures) {
     fwrite(STDERR, implode(PHP_EOL, $failures) . PHP_EOL);

@@ -150,12 +150,18 @@ class IpRanges
         return $out;
     }
 
-    /** Есть ли IP в каком-либо диапазоне из списков. */
-    public static function match(string $ip): bool
+    /**
+     * Есть ли IP в каком-либо диапазоне из списков.
+     *
+     * @return string|null matched CIDR (the list's own line, e.g. '52.0.0.0/8')
+     *                     or null when the address is outside every range.
+     *                     Truthy/falsy like the former bool for `if (match())`.
+     */
+    public static function match(string $ip): ?string
     {
         $ip = trim($ip);
         if ($ip === '') {
-            return false;
+            return null;
         }
         if (strpos($ip, ':') === false) {
             return self::matchV4($ip);
@@ -165,17 +171,18 @@ class IpRanges
 
     // ————————————————————————————————————————————————————————————
 
-    private static function matchV4(string $ip): bool
+    /** @return string|null matched CIDR or null */
+    private static function matchV4(string $ip): ?string
     {
         if (self::$cacheV4 === null) {
             self::$cacheV4 = self::loadV4();
         }
         if (!self::$cacheV4['loaded']) {
-            return false;
+            return null;
         }
         $needle = ip2long($ip);
         if ($needle === false) {
-            return false;
+            return null;
         }
         $ranges = self::$cacheV4['ranges'];
         $lo = 0;
@@ -187,10 +194,10 @@ class IpRanges
             } elseif ($ranges[$mid][0] > $needle) {
                 $hi = $mid - 1;
             } else {
-                return true;
+                return $ranges[$mid][2];
             }
         }
-        return false;
+        return null;
     }
 
     private static function loadV4(): array
@@ -207,7 +214,9 @@ class IpRanges
             }
             $cidr = self::parseCidrV4($line);
             if ($cidr) {
-                $ranges[] = $cidr;
+                // [start, end, source line] — the line is the evidence the
+                // click log shows for iprange_datacenter matches.
+                $ranges[] = [$cidr[0], $cidr[1], $line];
             }
         }
         usort($ranges, fn($a, $b) => $a[0] <=> $b[0]);
@@ -227,17 +236,18 @@ class IpRanges
         return [$start, $end];
     }
 
-    private static function matchV6(string $ip): bool
+    /** @return string|null matched CIDR or null */
+    private static function matchV6(string $ip): ?string
     {
         if (self::$cacheV6 === null) {
             self::$cacheV6 = self::loadV6();
         }
         if (!self::$cacheV6['loaded']) {
-            return false;
+            return null;
         }
         $needle = @inet_pton($ip);
         if ($needle === false) {
-            return false;
+            return null;
         }
         $ranges = self::$cacheV6['ranges'];
         $lo = 0;
@@ -249,10 +259,10 @@ class IpRanges
             } elseif (strcmp($ranges[$mid][0], $needle) > 0) {
                 $hi = $mid - 1;
             } else {
-                return true;
+                return $ranges[$mid][2];
             }
         }
-        return false;
+        return null;
     }
 
     private static function loadV6(): array
@@ -283,7 +293,7 @@ class IpRanges
             $start = $start & $mask;
             // Конец диапазона: старт | инверсия маски.
             $end = $start | (~$mask & str_repeat("\xff", 16));
-            $ranges[] = [$start, $end];
+            $ranges[] = [$start, $end, $line];
         }
         usort($ranges, fn($a, $b) => strcmp($a[0], $b[0]));
         return ['loaded' => !empty($ranges), 'ranges' => $ranges];

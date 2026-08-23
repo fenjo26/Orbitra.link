@@ -21,6 +21,13 @@ class CloakDetector
      */
     private static $asnSets = null;
 
+    /**
+     * Maximum length of the evidence part of a `code:evidence` reason string.
+     * A full desktop Chrome UA is ~120 chars; without a cap a single reason
+     * could dominate the clicks.cloak_reasons column.
+     */
+    private const EVIDENCE_MAX = 64;
+
     private static function configBool(array $config, string $key, bool $default): bool
     {
         if (!array_key_exists($key, $config)) {
@@ -28,6 +35,58 @@ class CloakDetector
         }
         $parsed = filter_var($config[$key], FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
         return $parsed ?? $default;
+    }
+
+    /**
+     * Build a `code:evidence` reason string.
+     *
+     * Readers split on the FIRST ':' only, so evidence may itself contain ':'
+     * (an IPv6 CIDR, for example). Commas are the reason-list separator in
+     * clicks.cloak_reasons and are stripped here so a single evidence value can
+     * never be mistaken for two reasons. Empty evidence degrades to the bare
+     * code, which stays valid for readers of pre-change rows.
+     */
+    private static function withEvidence(string $code, $evidence): string
+    {
+        $evidence = trim((string) $evidence);
+        if ($evidence === '') {
+            return $code;
+        }
+        // Commas separate reasons; newlines would break the error_log line.
+        $evidence = str_replace([',', "\r", "\n"], ' ', $evidence);
+        $evidence = trim(preg_replace('/\s+/', ' ', $evidence));
+        if ($evidence === '') {
+            return $code;
+        }
+        if (function_exists('mb_substr')) {
+            $evidence = mb_substr($evidence, 0, self::EVIDENCE_MAX, 'UTF-8');
+        } else {
+            $evidence = substr($evidence, 0, self::EVIDENCE_MAX);
+        }
+        return $code . ':' . $evidence;
+    }
+
+    /**
+     * Strip the evidence from a reason string, leaving the bare code.
+     *
+     * Threshold logic and any other code that compares reasons must go through
+     * this: 'crawler_or_tool_ua:curl/' has to still count as the hard signal
+     * 'crawler_or_tool_ua'. Rows written before evidence was added contain no
+     * ':' and pass through unchanged.
+     */
+    public static function reasonCode(string $reason): string
+    {
+        $pos = strpos($reason, ':');
+        return $pos === false ? $reason : substr($reason, 0, $pos);
+    }
+
+    /**
+     * The evidence half of a `code:evidence` reason, or '' when absent.
+     */
+    public static function reasonEvidence(string $reason): string
+    {
+        $pos = strpos($reason, ':');
+        return $pos === false ? '' : substr($reason, $pos + 1);
     }
 
     /**
@@ -86,39 +145,66 @@ class CloakDetector
      * nothing when called from the traffic simulator or another entry point. Keep
      * that helper as the first choice for backwards compatibility, then query the
      * tables directly when a PDO connection is available.
+     *
+     * @return string|null Null if no match, otherwise the matched rule (IP or UA signature)
      */
-    private static function matchesBotBlocklist(array $visitor): bool
+    private static function matchesBotBlocklist(array $visitor): ?string
     {
         $ip = (string) ($visitor['ip'] ?? '');
         $ua = (string) ($visitor['user_agent'] ?? '');
 
         if (function_exists('isBot')) {
             global $pdo;
-            return isset($pdo) && isBot($pdo, $ip, $ua);
+            // isBot() answers yes/no only. Keep it as the authority on the verdict
+            // — widening the match here would change which visitors get cloaked —
+            // and query the tables separately just to name what it hit.
+            if (!isset($pdo) || !isBot($pdo, $ip, $ua)) {
+                return null;
+            }
+            return self::findBlocklistRow($pdo, $ip, $ua) ?? 'listed';
         }
 
         $pdo = $visitor['pdo'] ?? ($GLOBALS['pdo'] ?? null);
         if (!($pdo instanceof PDO)) {
-            return false;
+            return null;
+        }
+
+        return self::findBlocklistRow($pdo, $ip, $ua);
+    }
+
+    /**
+     * The bot_ips / bot_signatures row that this visitor matches, or null.
+     *
+     * Returns the row's own text (the IP/CIDR or the UA signature) so the click
+     * log can name the rule instead of just saying "blocklisted".
+     */
+    private static function findBlocklistRow($pdo, string $ip, string $ua): ?string
+    {
+        if (!($pdo instanceof PDO)) {
+            return null;
         }
 
         try {
-            $stmt = $pdo->prepare('SELECT id FROM bot_ips WHERE ip_or_cidr = ? LIMIT 1');
+            $stmt = $pdo->prepare('SELECT ip_or_cidr FROM bot_ips WHERE ip_or_cidr = ? LIMIT 1');
             $stmt->execute([$ip]);
-            if ($stmt->fetchColumn()) {
-                return true;
+            $matchedIp = $stmt->fetchColumn();
+            if ($matchedIp !== false && $matchedIp !== null && $matchedIp !== '') {
+                return (string) $matchedIp;
             }
 
             if ($ua !== '') {
-                $stmt = $pdo->prepare("SELECT id FROM bot_signatures WHERE trim(signature) <> '' AND ? LIKE '%' || signature || '%' LIMIT 1");
+                $stmt = $pdo->prepare("SELECT signature FROM bot_signatures WHERE trim(signature) <> '' AND ? LIKE '%' || signature || '%' LIMIT 1");
                 $stmt->execute([$ua]);
-                return (bool) $stmt->fetchColumn();
+                $matchedSig = $stmt->fetchColumn();
+                if ($matchedSig !== false && $matchedSig !== null && $matchedSig !== '') {
+                    return (string) $matchedSig;
+                }
             }
         } catch (Throwable $e) {
             // A missing/old table must not route legitimate traffic to the safe page.
         }
 
-        return false;
+        return null;
     }
 
     /**
@@ -160,6 +246,100 @@ class CloakDetector
     }
 
     /**
+     * Entries that are nothing but a generic corporate suffix. "Reliance Jio
+     * Infocomm Limited" contains "Limited", "Facebook, Inc." contains "Inc" —
+     * nearly every ISP on earth carries one of these words, so an entry that
+     * IS one would route all real traffic to the safe page.
+     * Mirrored in frontend/src/utils/botIspList.js — keep the two in sync.
+     */
+    private const GENERIC_ISP_SUFFIXES = [
+        'inc', 'ltd', 'llc', 'limited', 'gmbh', 'corp', 'co', 'sa', 'ag',
+        'bv', 'oy', 'pty', 'plc', 'network', 'services',
+    ];
+
+    /**
+     * Whether a bot-ISP entry is unusable as a standalone entry: shorter than
+     * 3 characters, or nothing but a generic corporate suffix ("Inc", "Ltd.",
+     * "GmbH") — such entries match nearly every ISP on earth.
+     */
+    private static function ispEntryIgnorable(string $entry): bool
+    {
+        $length = function_exists('mb_strlen') ? mb_strlen($entry, 'UTF-8') : strlen($entry);
+        if ($length < 3) {
+            return true;
+        }
+        // "Inc." / "LTD." are the same suffix with a trailing period.
+        return in_array(rtrim(strtolower($entry), '. '), self::GENERIC_ISP_SUFFIXES, true);
+    }
+
+    /**
+     * Parse a bot-ISP blocklist into matchable entries.
+     *
+     * The list is the Keitaro "Провайдеры" format (cpa.rip/services/
+     * keitaro-isp-base): ONE PROVIDER PER LINE, matched as a whole phrase.
+     * Names carry their own punctuation — commas ("Amazon.com, Inc.",
+     * "ZSCALER, INC."), dots, parentheses, slashes, apostrophes — so a line is
+     * split on commas only when every segment is itself a plausible standalone
+     * entry (the legacy comma-separated list format; spaces never split).
+     * When any segment would be dropped by the guards, the commas belong to
+     * the name and the whole line stays one entry.
+     *
+     * The guards: entries shorter than 3 characters and entries that are
+     * nothing but a generic corporate suffix are ignored — word-splitting a
+     * multi-line list used to leave standalone "Inc"/"Ltd"/"Limited" keywords
+     * that matched almost every ISP ("Reliance Jio Infocomm Limited" contains
+     * "Limited") and routed real visitors to the safe page. The settings
+     * textareas mirror this and warn about the ignored entries.
+     *
+     * @param string|array $raw array elements are taken as one entry each
+     * @return string[] kept entries, deduplicated, original case preserved
+     */
+    public static function parseBotIspEntries($raw): array
+    {
+        if (is_array($raw)) {
+            $entries = [];
+            foreach ($raw as $item) {
+                $item = trim((string) $item);
+                if ($item !== '') {
+                    $entries[] = $item;
+                }
+            }
+        } else {
+            $entries = [];
+            foreach (preg_split('/\R/', (string) $raw) ?: [] as $line) {
+                $line = trim($line);
+                if ($line === '') {
+                    continue;
+                }
+                $segments = array_values(array_filter(array_map('trim', explode(',', $line)), static fn ($s) => $s !== ''));
+                $isLegacyList = $segments !== [];
+                foreach ($segments as $segment) {
+                    if (self::ispEntryIgnorable($segment)) {
+                        $isLegacyList = false;
+                        break;
+                    }
+                }
+                if ($isLegacyList) {
+                    foreach ($segments as $segment) {
+                        $entries[] = $segment;
+                    }
+                } else {
+                    $entries[] = $line;
+                }
+            }
+        }
+
+        $kept = [];
+        foreach ($entries as $entry) {
+            if ($entry === '' || isset($kept[$entry]) || self::ispEntryIgnorable($entry)) {
+                continue;
+            }
+            $kept[$entry] = true;
+        }
+        return array_keys($kept);
+    }
+
+    /**
      * Quick targeting filters from the cloak card (schema_custom_json):
      * country allow/block, device allow/block and the Bot ISP blocklist.
      *
@@ -170,15 +350,16 @@ class CloakDetector
      *                          array; empty disables the filter), geo_mode
      *                          ('allow'|'deny'), devices (string/array, empty
      *                          disables), device_mode, block_bot_isps (bool,
-     *                          default true), custom_bot_isps (comma-separated
-     *                          local override of the global list), geo_unknown_action
-     *                          ('safe'|'money', default 'safe')
+     *                          default true), custom_bot_isps (comma/newline-
+     *                          separated entries; multi-word entries match as
+     *                          whole phrases; local override of the global list),
+     *                          geo_unknown_action ('safe'|'money', default 'safe')
      * @param string $countryCode    visitor country, e.g. 'US' (or 'Unknown')
      * @param string $deviceType     Mobile/Tablet/Desktop or a known alias
      * @param string $ispHaystack    visitor "isp asn" string, any case
-     * @param string $globalBotIspList comma-separated keywords from settings.bot_isp_list
+     * @param string $globalBotIspList comma/newline-separated entries from settings.bot_isp_list
      * @param bool   $geoReady      true when a geo database is installed and readable
-     * @return array reason codes: geo_country / geo_unknown / device_type / bot_isp (may be empty)
+     * @return array reason codes with evidence: geo_country:US / device_type:Mobile / bot_isp:hetzner (may be empty)
      */
     public static function targetingReasons(array $targeting, string $countryCode, string $deviceType, string $ispHaystack, string $globalBotIspList, bool $geoReady = true): array
     {
@@ -212,7 +393,7 @@ class CloakDetector
                 // If geo_unknown_action === 'money', no reason is emitted and
                 // the visitor passes through to the money page
             } elseif ($deny ? $inList : !$inList) {
-                $reasons[] = 'geo_country';
+                $reasons[] = self::withEvidence('geo_country', $countryUpper ?: 'Unknown');
             }
         }
 
@@ -226,27 +407,37 @@ class CloakDetector
             $inList = orbitraDeviceGroupMatches($deviceType, $devices);
             $deny = ($targeting['device_mode'] ?? 'allow') === 'deny';
             if ($deny ? $inList : !$inList) {
-                $reasons[] = 'device_type';
+                $reasons[] = self::withEvidence('device_type', $deviceType ?: 'Unknown');
             }
         }
 
-        // 3. Bot ISP blocklist: keywords from the stream's local list, or the
+        // 3. Bot ISP blocklist: entries from the stream's local list, or the
         //    global settings.bot_isp_list when the local one is empty, matched
-        //    against the visitor's ISP + ASN string. Word boundaries matter:
-        //    'meta' must not hit 'Metronet', 'aws' must not hit 'Lawson' — a
-        //    residential ISP whose name merely contains a cloud vendor's would
-        //    otherwise land its real users on the safe page.
+        //    against the visitor's ISP + ASN string. Each entry is a whole
+        //    phrase (Keitaro provider line: multi-word, punctuation kept) and
+        //    the boundaries at the ends matter: 'meta' must not hit
+        //    'Metronet', 'aws' must not hit 'Lawson' — a residential ISP whose
+        //    name merely contains a cloud vendor's would otherwise land its
+        //    real users on the safe page. parseBotIspEntries() also drops bare
+        //    corporate suffixes ('Inc', 'Ltd') and sub-3-char entries: they
+        //    match nearly every ISP on earth.
         if (self::configBool($targeting, 'block_bot_isps', true)) {
             $rawList = trim((string) ($targeting['custom_bot_isps'] ?? ''));
             if ($rawList === '') {
                 $rawList = trim($globalBotIspList);
             }
-            $keywords = $normalize($rawList);
-            $haystack = strtolower(trim($ispHaystack));
+            $keywords = self::parseBotIspEntries($rawList);
+            $haystack = preg_replace('/\s+/', ' ', strtolower(trim($ispHaystack)));
             if (!empty($keywords) && $haystack !== '') {
                 foreach ($keywords as $keyword) {
-                    if (preg_match('/\b' . preg_quote(strtolower($keyword), '/') . '\b/', $haystack)) {
-                        $reasons[] = 'bot_isp';
+                    // Lookarounds instead of \b: entries may end in
+                    // punctuation ("ZSCALER, INC."), where a trailing \b can
+                    // never match. For word-character entries
+                    // (?<!\w)x(?!\w) is exactly \bx\b. A trailing period is
+                    // optional so "INC." also matches a dot-less haystack.
+                    $probe = rtrim(strtolower($keyword), '. ');
+                    if ($probe !== '' && preg_match('/(?<!\w)' . preg_quote($probe, '/') . '(?!\w)/', $haystack)) {
+                        $reasons[] = self::withEvidence('bot_isp', $keyword);
                         break;
                     }
                 }
@@ -268,9 +459,12 @@ class CloakDetector
     /**
      * Classify a User-Agent.
      *
-     * Returns a reason code or null. 'no_user_agent' and 'crawler_or_tool_ua' are
-     * treated as HARD signals by detect(): a request that self-identifies as curl or
-     * Googlebot, or sends no UA at all, is not a browser under any reasonable doubt.
+     * Returns a reason code with evidence, or null. 'no_user_agent' and
+     * 'crawler_or_tool_ua:signature' are treated as HARD signals by detect():
+     * a request that self-identifies as curl or Googlebot, or sends no UA at all,
+     * is not a browser under any reasonable doubt.
+     *
+     * @return string|null Null if no match, otherwise 'code' or 'code:evidence'
      */
     private static function classifyUa(string $ua): ?string
     {
@@ -304,7 +498,9 @@ class CloakDetector
         ];
         foreach ($toolSignatures as $sig) {
             if (strpos($uaLower, $sig) !== false) {
-                return 'crawler_or_tool_ua';
+                // Name the signature, not the whole UA: it is the actionable part
+                // and it cannot bloat the row.
+                return self::withEvidence('crawler_or_tool_ua', $sig);
             }
         }
         return null;
@@ -347,33 +543,34 @@ class CloakDetector
 
         if (!in_array($proxyType, $unsupported, true)) {
             if ($proxyType === 'DCH' && $detectDatacenter) {
-                $reasons[] = 'ip2proxy_datacenter';
+                $reasons[] = self::withEvidence('ip2proxy_datacenter', $proxyType);
             } elseif (in_array($proxyType, ['SES', 'AIC'], true) && $detectBots) {
-                $reasons[] = 'ip2proxy_bot';
+                $reasons[] = self::withEvidence('ip2proxy_bot', $proxyType);
             } elseif ($detectVpn && in_array($proxyType, ['VPN', 'TOR', 'PUB', 'WEB', 'RES', 'CPN', 'EPN'], true)) {
-                $reasons[] = 'ip2proxy_vpn_proxy';
+                $reasons[] = self::withEvidence('ip2proxy_vpn_proxy', $proxyType);
             }
         } elseif ($detectVpn && $isProxy === 1) {
             $reasons[] = 'ip2proxy_vpn_proxy';
         }
 
         if ($detectBots && !in_array($proxyThreat, $unsupported, true)) {
-            $reasons[] = 'ip2proxy_threat';
+            $reasons[] = self::withEvidence('ip2proxy_threat', $proxyThreat);
         }
         if (($detectVpn || $detectBots) && is_numeric($proxyFraudScore) && (int) $proxyFraudScore >= 80) {
-            $reasons[] = 'ip2proxy_high_fraud';
+            $reasons[] = self::withEvidence('ip2proxy_high_fraud', $proxyFraudScore);
         }
 
         // --- Layer 2: ASN datacenter / hosting ---
         if ($detectDatacenter || $detectVpn) {
-            $asnInt = self::asnToInt((string) ($visitor['asn'] ?? ''));
+            $asnRaw = (string) ($visitor['asn'] ?? '');
+            $asnInt = self::asnToInt($asnRaw);
             if ($asnInt !== null) {
                 $sets = self::loadAsnSets();
                 if ($detectDatacenter && isset($sets['datacenter_hosting'][$asnInt])) {
-                    $reasons[] = 'datacenter_asn';
+                    $reasons[] = self::withEvidence('datacenter_asn', $asnRaw);
                 }
                 if ($detectVpn && isset($sets['vpn_proxy'][$asnInt])) {
-                    $reasons[] = 'vpn_proxy_asn';
+                    $reasons[] = self::withEvidence('vpn_proxy_asn', $asnRaw);
                 }
             }
 
@@ -388,8 +585,13 @@ class CloakDetector
                 // first cloak visit with stale/missing lists schedules a
                 // background download (after the response is sent, zero latency).
                 IpRanges::ensureFreshBackground();
-                if (IpRanges::available() && IpRanges::match((string) $visitor['ip'])) {
-                    $reasons[] = 'iprange_datacenter';
+                if (IpRanges::available()) {
+                    $matchedRange = IpRanges::match((string) $visitor['ip']);
+                    if ($matchedRange !== null) {
+                        // The evidence is the matched CIDR itself (e.g. 52.0.0.0/8):
+                        // the actionable fact for the operator checking the click log.
+                        $reasons[] = self::withEvidence('iprange_datacenter', $matchedRange);
+                    }
                 }
             }
 
@@ -407,8 +609,16 @@ class CloakDetector
                     'selectel', 'kamatera', 'upcloud', 'oracle cloud'];
                 foreach ($hostingKeywords as $kw) {
                     if (strpos($isp, $kw) !== false) {
-                        if ($detectDatacenter && !in_array('datacenter_asn', $reasons, true)) {
-                            $reasons[] = 'hosting_isp';
+                        // Check if any datacenter_asn reason already exists (by code)
+                        $hasDatacenterAsn = false;
+                        foreach ($reasons as $r) {
+                            if (self::reasonCode($r) === 'datacenter_asn') {
+                                $hasDatacenterAsn = true;
+                                break;
+                            }
+                        }
+                        if ($detectDatacenter && !$hasDatacenterAsn) {
+                            $reasons[] = self::withEvidence('hosting_isp', $kw);
                         }
                         break;
                     }
@@ -417,8 +627,11 @@ class CloakDetector
         }
 
         // --- Layer 3: existing bot blocklists (bot_ips / bot_signatures) ---
-        if ($detectBots && self::matchesBotBlocklist($visitor)) {
-            $reasons[] = 'bot_blocklist';
+        if ($detectBots) {
+            $blocklisted = self::matchesBotBlocklist($visitor);
+            if ($blocklisted !== null) {
+                $reasons[] = self::withEvidence('bot_blocklist', $blocklisted);
+            }
         }
 
         // --- Layer 4: User-Agent heuristics ---
@@ -448,14 +661,22 @@ class CloakDetector
         //
         // These must stay distinct — an earlier version had medium collapse into high
         // because `$blocklistHit || !empty($reasons)` reduces to `!empty($reasons)`.
-        $hardSignals = [
+        $hardSignalCodes = [
             'bot_blocklist', 'datacenter_asn', 'vpn_proxy_asn',
             'no_user_agent', 'crawler_or_tool_ua',
             'ip2proxy_datacenter', 'ip2proxy_bot', 'ip2proxy_vpn_proxy',
             'ip2proxy_threat', 'ip2proxy_high_fraud',
         ];
-        $hardHits = array_intersect($hardSignals, $reasons);
-        $softHits = array_diff($reasons, $hardSignals);
+        $hardHits = [];
+        $softHits = [];
+        foreach ($reasons as $r) {
+            $code = self::reasonCode($r);
+            if (in_array($code, $hardSignalCodes, true)) {
+                $hardHits[] = $r;
+            } else {
+                $softHits[] = $r;
+            }
+        }
         $blocklistHit = !empty($hardHits);
 
         if ($sensitivity === 'high') {

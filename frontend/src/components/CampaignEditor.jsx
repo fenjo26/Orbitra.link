@@ -4,6 +4,7 @@ import HelpTooltip from './HelpTooltip';
 import { ArrowLeft, Plus, Check, Link, Copy, Settings, Trash2, ChevronDown, ChevronUp, AlertCircle, AlertTriangle, X, Shield, Globe, MousePointerClick, TrendingUp, Activity, BarChart2, BarChart3, DollarSign, RefreshCw, FileText, MoreVertical, Play, Code, Edit3, Eye, Info, Search } from 'lucide-react';
 import CampaignReports from './CampaignReports';
 import ConversionsLog from './ConversionsLog';
+import ClickDetailsModal from './ClickDetailsModal';
 import LandingEditor from './LandingEditor';
 import OfferEditor from './OfferEditor';
 import EntitySelectorModal from './EntitySelectorModal';
@@ -14,6 +15,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { cachedGet, cachedPost, invalidateCache } from '../utils/apiCache';
 import { getStayInEditorAfterSave } from '../utils/editorPreferences';
 import { buildSnippet, COUNTDOWN_THEMES, EXIT_BUTTON_COLORS, METHOD_INSTALL_HINTS } from '../utils/integrationSnippets';
+import { ignoredBotIspEntries } from '../utils/botIspList';
 import ProxyInput from './common/ProxyInput';
 import PixelPicker from './common/PixelPicker';
 
@@ -219,6 +221,13 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
     // Modal states
     const [showLogModal, setShowLogModal] = useState(false);
+    // Click Log modal: segmented route filter (is_safe_page) and the optional
+    // time window the cloak diagnostics link carries with it (24h).
+    const [clickLogRoute, setClickLogRoute] = useState('all'); // 'all' | 'safe' | 'money'
+    const [clickLogHours, setClickLogHours] = useState(0); // 0 = no window
+    const [clickLogStreamId, setClickLogStreamId] = useState(0); // 0 = all streams
+    const [clickLogsLoading, setClickLogsLoading] = useState(false);
+    const [selectedClickId, setSelectedClickId] = useState(null);
     const [showCostModal, setShowCostModal] = useState(false);
     const [showClearModal, setShowClearModal] = useState(false);
     const [showReportsMenu, setShowReportsMenu] = useState(false);
@@ -769,17 +778,41 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         }
     };
 
-    // Fetch click logs
-    const fetchClickLogs = async () => {
+    // Fetch click logs. route segments the log by is_safe_page ('all'|'safe'|
+    // 'money'), hours > 0 narrows it to a recent window (diagnostics links use
+    // their own 24h panel window). The cache is dropped first so re-opening the
+    // modal always reflects traffic that just arrived.
+    const fetchClickLogs = async (route = clickLogRoute, hours = clickLogHours, streamId = clickLogStreamId) => {
         if (!activeCampaignId) return;
+        setClickLogsLoading(true);
         try {
-            const { data } = await cachedGet('campaign_logs', { campaign_id: activeCampaignId });
+            const params = { campaign_id: activeCampaignId, limit: 100 };
+            if (route && route !== 'all') params.route = route;
+            if (hours > 0) params.hours = hours;
+            if (streamId > 0) params.stream_id = streamId;
+            invalidateCache('campaign_logs');
+            const { data } = await cachedGet('campaign_logs', params, 0);
             if (data.status === 'success') {
                 setClickLogs(data.data);
+            } else {
+                setClickLogs([]);
             }
         } catch (e) {
             console.error('Error fetching logs:', e);
+            setClickLogs([]);
+        } finally {
+            setClickLogsLoading(false);
         }
+    };
+
+    // Open the Click Log modal, optionally pre-filtered (the cloak diagnostics
+    // panel passes route='safe' with its 24h window).
+    const openClickLog = ({ route = 'all', hours = 0, streamId = 0 } = {}) => {
+        setClickLogRoute(route);
+        setClickLogHours(hours);
+        setClickLogStreamId(streamId);
+        fetchClickLogs(route, hours, streamId);
+        setShowLogModal(true);
     };
 
     useEffect(() => {
@@ -1817,7 +1850,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         </button>
 
                         {/* Log button */}
-                        <button onClick={() => { fetchClickLogs(); setShowLogModal(true); }} className="btn btn-ghost btn-icon" title={t('campaignEditor.clickLog')}>
+                        <button onClick={() => openClickLog()} className="btn btn-ghost btn-icon" title={t('campaignEditor.clickLog')}>
                             <FileText className="w-5 h-5" />
                         </button>
 
@@ -3723,7 +3756,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                         </div>
                                                                     );
                                                                 }
-                                                                const { total, money, safe, suppressed, by_reason } = cloakSummary;
+                                                                const { total, money, safe, suppressed, by_reason, window: cloakWindow } = cloakSummary;
                                                                 const totalHits = total + suppressed;
                                                                 const safeRatio = totalHits > 0 ? safe / totalHits : 0;
                                                                 const showWarning = safeRatio >= 0.9 && totalHits >= 10;
@@ -3753,15 +3786,30 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                         <div className="p-3 rounded-xl" style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}>
                                                                             <div className="flex items-center justify-between mb-2">
                                                                                 <span className="text-xs font-semibold" style={{ color: 'var(--color-text-muted)' }}>
-                                                                                    {t('cloaking.diagnosticsTitle')}
+                                                                                    {/* Window is stated explicitly: the panel and the
+                                                                                        Campaigns list must never be compared across
+                                                                                        different periods or timezones silently. */}
+                                                                                    {cloakWindow
+                                                                                        ? t('cloaking.diagnosticsWindow', {
+                                                                                            from: cloakWindow.from,
+                                                                                            to: cloakWindow.to,
+                                                                                            tz: cloakWindow.timezone
+                                                                                        }).replace('{from}', String(cloakWindow.from ?? '')).replace('{to}', String(cloakWindow.to ?? '')).replace('{tz}', String(cloakWindow.timezone ?? ''))
+                                                                                        : t('cloaking.diagnosticsTitle')}
                                                                                 </span>
-                                                                                <a
-                                                                                    href={`/logs?tab=traffic&campaign_id=${activeCampaignId}`}
-                                                                                    className="text-xs"
-                                                                                    style={{ color: 'var(--color-primary)' }}
+                                                                                <button
+                                                                                    onClick={() => {
+                                                                                        // W3: open the Click Log modal
+                                                                                        // pre-filtered to this campaign's safe
+                                                                                        // traffic, same 24h window as the
+                                                                                        // diagnostics panel above.
+                                                                                        openClickLog({ route: 'safe', hours: 24, streamId: Number(stream.id) > 0 ? Number(stream.id) : 0 });
+                                                                                    }}
+                                                                                    className="text-xs hover:underline"
+                                                                                    style={{ color: 'var(--color-primary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                                                                                 >
                                                                                     {t('cloaking.diagnosticsViewLogs')}
-                                                                                </a>
+                                                                                </button>
                                                                             </div>
                                                                             <div className="text-sm font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
                                                                                 {t('cloaking.diagnosticsStats', {
@@ -3964,12 +4012,42 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                             <textarea
                                                                                 rows={2}
                                                                                 className="form-input text-xs font-mono py-1.5 rounded-xl"
-                                                                                placeholder={t('cloaking.botIspPlaceholder', 'Local override: facebook, hetzner, ... (leave empty for the global list)')}
+                                                                                placeholder={t('cloaking.botIspPlaceholder', 'Local override: one provider per line (leave empty for the global list)')}
                                                                                 value={sc.custom_bot_isps || ''}
                                                                                 onChange={e => setCloakField('custom_bot_isps', e.target.value)}
                                                                             />
+                                                                            {(() => {
+                                                                                // Mirrors CloakDetector::parseBotIspEntries():
+                                                                                // entries the tracker will drop (too short / bare
+                                                                                // corporate suffix — they match almost every ISP).
+                                                                                const ignored = [...new Set(ignoredBotIspEntries(sc.custom_bot_isps || ''))];
+                                                                                if (ignored.length === 0) return null;
+                                                                                return (
+                                                                                    <div style={{
+                                                                                        marginTop: '4px',
+                                                                                        padding: '6px 8px',
+                                                                                        background: 'var(--color-warning-bg)',
+                                                                                        borderRadius: '8px',
+                                                                                        fontSize: '10px',
+                                                                                        color: 'var(--color-warning)',
+                                                                                        display: 'flex',
+                                                                                        alignItems: 'flex-start',
+                                                                                        gap: '6px',
+                                                                                        lineHeight: 1.4
+                                                                                    }}>
+                                                                                        <AlertTriangle className="w-3 h-3 shrink-0" style={{ marginTop: '1px' }} />
+                                                                                        <span>
+                                                                                            {t('cloaking.botIspIgnoredWarning')}:{' '}
+                                                                                            <b>
+                                                                                                {ignored.slice(0, 8).join(', ')}
+                                                                                                {ignored.length > 8 ? ` +${ignored.length - 8}` : ''}
+                                                                                            </b>
+                                                                                        </span>
+                                                                                    </div>
+                                                                                );
+                                                                            })()}
                                                                             <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
-                                                                                {t('cloaking.botIspHint', "Matched against the visitor's ISP and ASN. Leave empty to use the global list from Settings → Bots.")}
+                                                                                {t('cloaking.botIspHint', "One provider per line, matched against the visitor's ISP and ASN. Leave empty to use the global list from Settings → Bots.")}
                                                                             </p>
                                                                             {/* W4: ASN database degradation warning */}
                                                                             {geoTargetingReady.asn === false && (
@@ -4529,29 +4607,136 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             {/* Click Log Modal */}
             {showLogModal && (
                 <div className="modal-overlay">
-                    <div className="modal-content" style={{ maxWidth: '800px' }}>
+                    <div className="modal-content" style={{ maxWidth: '960px' }}>
                         <div className="modal-header">
-                            <h3 className="modal-title">{t('editor.clickLog')}</h3>
+                            <h3 className="modal-title">{t('campaignEditor.clickLogTitle')}</h3>
                             <button onClick={() => setShowLogModal(false)} className="action-btn">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
-                        <div className="overflow-y-auto" style={{ maxHeight: '60vh' }}>
-                            {clickLogs.length === 0 ? (
-                                <div className="text-center py-10" style={{ color: 'var(--color-text-muted)' }}>{t('editor.noLogs')}</div>
+
+                        {/* SAFE / MONEY / ALL segmented filter, driven by is_safe_page */}
+                        <div className="flex items-center gap-1 p-1 rounded-lg" style={{ backgroundColor: 'var(--color-bg-soft)' }}>
+                            {[
+                                ['all', t('campaignEditor.clickLogFilterAll', 'ALL')],
+                                ['safe', t('campaignEditor.clickLogFilterSafe', 'SAFE')],
+                                ['money', t('campaignEditor.clickLogFilterMoney', 'MONEY')]
+                            ].map(([value, label]) => (
+                                <button
+                                    key={value}
+                                    onClick={() => { setClickLogRoute(value); fetchClickLogs(value, clickLogHours, clickLogStreamId); }}
+                                    className={`flex-1 px-3 py-2 rounded-md text-xs font-semibold tracking-wide transition-colors ${clickLogRoute === value
+                                        ? 'bg-[var(--color-bg)] shadow-sm'
+                                        : 'hover:text-[var(--color-text-primary)]'
+                                        }`}
+                                    style={{ color: clickLogRoute === value ? 'var(--color-primary)' : 'var(--color-text-secondary)' }}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
+                        {clickLogHours > 0 && (
+                            <div className="text-[11px] mt-2" style={{ color: 'var(--color-text-muted)' }}>
+                                {t('campaignEditor.clickLogLast24h', 'Last 24 hours')}
+                            </div>
+                        )}
+
+                        <div className="overflow-y-auto mt-2" style={{ maxHeight: '58vh' }}>
+                            {clickLogsLoading ? (
+                                <div className="text-center py-10" style={{ color: 'var(--color-text-muted)' }}>{t('common.loading', 'Loading...')}</div>
+                            ) : clickLogs.length === 0 ? (
+                                <div className="text-center py-10" style={{ color: 'var(--color-text-muted)' }}>{t('campaignEditor.clickLogNoClicks')}</div>
                             ) : (
-                                <div className="space-y-4">
-                                    {clickLogs.map((log, idx) => (
-                                        <div key={idx} className="rounded-2xl p-4 text-xs font-mono" style={{ border: '1px solid var(--color-border)' }}>
-                                            <div className="mb-2" style={{ color: 'var(--color-text-secondary)' }}>{log.created_at}</div>
-                                            <pre className="whitespace-pre-wrap" style={{ color: 'var(--color-text-primary)' }}>{log.log_text}</pre>
-                                        </div>
-                                    ))}
+                                <div className="space-y-3">
+                                    {clickLogs.map((log) => {
+                                        // Reasons arrive as comma-separated `code:evidence`
+                                        // strings; split on the FIRST ':' only so evidence
+                                        // containing colons (IPv6 CIDR) survives intact.
+                                        const reasons = (log.cloak_reasons || '').split(',').map(s => s.trim()).filter(Boolean);
+                                        return (
+                                            <div
+                                                key={log.id}
+                                                onClick={() => setSelectedClickId(log.id)}
+                                                className="rounded-xl p-3 transition-colors hover:border-[var(--color-primary)]"
+                                                style={{ border: '1px solid var(--color-border)', cursor: 'pointer' }}
+                                                title={t('campaignEditor.clickLogOpenDetails', 'Open click details')}
+                                            >
+                                                <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        <span className="text-[11px] font-mono" style={{ color: 'var(--color-text-muted)' }}>{log.created_at}</span>
+                                                        <span className={`status-badge ${log.is_safe_page === 1 ? 'status-inactive' : 'status-active'} text-[11px]`}>
+                                                            {log.is_safe_page === 1 ? t('logs.routeSafe') : t('logs.routeMoney')}
+                                                        </span>
+                                                        <span className="text-[11px]" style={{ color: 'var(--color-text-secondary)' }}>
+                                                            {t('campaignEditor.clickLogVerdict')}: <b style={{ color: 'var(--color-text-primary)' }}>{log.cloak_verdict || '—'}</b>
+                                                        </span>
+                                                    </div>
+                                                    <span className="text-[11px] font-mono" style={{ color: 'var(--color-text-muted)' }}>#{log.id}</span>
+                                                </div>
+
+                                                {/* Reason chips: the code plus the evidence that matched, visible inline */}
+                                                {reasons.length === 0 ? (
+                                                    <span className="text-[11px]" style={{ color: 'var(--color-text-muted)' }}>—</span>
+                                                ) : (
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {reasons.map((reason, idx) => {
+                                                            const colon = reason.indexOf(':');
+                                                            const code = colon === -1 ? reason : reason.slice(0, colon);
+                                                            const evidence = colon === -1 ? '' : reason.slice(colon + 1);
+                                                            return (
+                                                                <span
+                                                                    key={idx}
+                                                                    className="text-[10px] px-1.5 py-0.5 rounded font-mono inline-flex items-center gap-1"
+                                                                    style={{
+                                                                        backgroundColor: 'var(--color-bg-soft)',
+                                                                        color: 'var(--color-text-secondary)',
+                                                                        border: '1px solid var(--color-border)'
+                                                                    }}
+                                                                    title={t(`cloakReasons.${code}`, '') || code}
+                                                                >
+                                                                    {code}
+                                                                    {evidence && (
+                                                                        <b style={{ color: 'var(--color-primary)', fontWeight: 600 }}>{evidence}</b>
+                                                                    )}
+                                                                </span>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                )}
+
+                                                {/* ISP / ASN / proxy type */}
+                                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2 text-[11px]" style={{ color: 'var(--color-text-primary)' }}>
+                                                    <div className="truncate" title={log.isp || ''}>
+                                                        <span style={{ color: 'var(--color-text-muted)' }}>{t('campaignEditor.clickLogIsp')}: </span>{log.isp || '—'}
+                                                    </div>
+                                                    <div className="truncate font-mono" title={log.asn || ''}>
+                                                        <span style={{ color: 'var(--color-text-muted)' }}>{t('campaignEditor.clickLogAsn')}: </span>{log.asn || '—'}
+                                                    </div>
+                                                    <div className="truncate font-mono" title={log.proxy_type || ''}>
+                                                        <span style={{ color: 'var(--color-text-muted)' }}>{t('campaignEditor.clickLogProxyType')}: </span>{log.proxy_type || '—'}
+                                                    </div>
+                                                </div>
+
+                                                {/* Full User-Agent */}
+                                                <div className="mt-2 text-[11px] font-mono break-all" style={{ color: 'var(--color-text-secondary)' }}>
+                                                    <span style={{ color: 'var(--color-text-muted)' }}>{t('campaignEditor.clickLogUserAgent')}: </span>{log.user_agent || '—'}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             )}
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* Click Log → single-click detail modal */}
+            {selectedClickId && (
+                <ClickDetailsModal
+                    clickId={selectedClickId}
+                    onClose={() => setSelectedClickId(null)}
+                />
             )}
 
             {/* Add Cost Connection Modal */}
