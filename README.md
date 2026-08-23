@@ -1,4 +1,4 @@
-# Orbitra v1.1.11 Tracker
+# Orbitra v1.2.0 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,7 +11,23 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.1.11
+## 🆕 What's New in v1.2.0
+
+### Fixed
+
+- **📱 The panel was a 980px desktop on phones** — the frontend shipped no viewport meta at all, so mobile browsers rendered a virtual desktop and every `lg:` breakpoint already in the code never fired; one tag (`width=device-width, viewport-fit=cover`) plus the mobile work below makes the panel genuinely usable on a phone
+- **🧭 "Create stream" menu was dead on touchscreens** — it opened on hover; now on click, with 44px touch targets
+- **🛟 router.php ate real root files** — `/sw.js` (and any real file at the domain root) fell into the campaign-alias branch and died as an empty 200; a `file_exists` guard now mirrors Apache's `RewriteCond !-f`
+
+### Added
+
+- **📱 Mobile layout** — five list screens (Campaigns, Offers, Landings, Conversions, Logs) switch to card rows below `lg` via a shared MobileCards component; the campaign editor lays out in one column; pagination and report toolbars wrap
+- **📲 PWA** — the manifest is served by admin.php itself, so `start_url` always matches the real entry (/admin.php or the secret admin path — a static file could never cover both); icons 192/512 + maskable + apple-touch; installable to the home screen
+- **⚙️ Service worker** — panel shell network-first (offline fallback only), hashed dist assets stale-while-revalidate; new builds swap on reload via an "update available" toast — never mid-session
+- **#️⃣ Content-hashed build assets** — vite emits `index-[hash].js|css` and admin.php resolves them through `.vite/manifest.json` (also heals a stale shell after a partial deploy); the `?v=filemtime` cache-buster and the "hard-reload after update" advice are retired
+- **🔄 Rotation auto-optimiser** — flip a stream's landing/offer list to *Auto* and pick a metric (confirmed sales, CR, EPV, EPC, ROI); a */5 cron recomputes weights from the same report-metrics engine over a rolling 7-day window (safe-page clicks excluded, bots kept), moves are budgeted (cap 70%, floor 5%, ≤20pp per run), every decision is audited per item in `stream_rotation_log`, and campaign saves hand cron-owned weights back instead of resurrecting stale ones
+
+### Previous Highlights (v1.1.11)
 
 ### Fixed
 
@@ -26,8 +42,6 @@ Orbitra is a modern traffic management and conversion tracking system. A simpler
 - **🛠️ Self-heal DDL for `cloak_suppressed_stats`** — databases stamped with the current schema version by an earlier build of the cloak migration never re-ran it and were missing the table (the root cause behind "empty cloak diagnostics" support cases); the table is now recreated idempotently on every boot
 - **📋 Bot-ISP blocklist in the Keitaro format** — one provider per line, matched as a whole phrase (the commas/dots/apostrophes belong to the name: "Amazon.com, Inc."); generic corporate suffixes ("Inc", "Ltd", "GmbH") and sub-3-character entries are ignored by the router and warned about next to the settings textareas (PHP/JS mirror pair); matching tolerates a trailing period ("ZSCALER, INC." hits a dot-less ISP string)
 - **⭐ Group By star + last-applied in report settings** — star a grouping to make it the default for new reports (falls back to the last applied grouping, then country); the "Report" button in Campaigns follows a single ticked checkbox and opens that campaign's report
-
-**AFTER UPDATING, HARD-RELOAD THE PANEL ONCE (Ctrl/Cmd+Shift+R)** — index.js has a stable filename and browsers cache the old build.
 
 ### Previous Highlights (v1.1.10)
 
@@ -543,7 +557,20 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.1.11 (2026-08-23)
+### Current release — v1.2.0 (2026-08-23)
+
+**Fixed**
+- 📱 **Panel was a 980px desktop on phones** — no viewport meta at all: every `lg:` breakpoint never fired; one tag + the mobile layout makes the panel usable on a phone
+- 🧭 **"Create stream" menu dead on touch** — hover → click, 44px touch targets
+- 🛟 **router.php ate real root files** — `/sw.js` died as an empty 200 in the campaign-alias branch; `file_exists` guard mirrors Apache's `RewriteCond !-f`
+
+**Added**
+- 📱 **Mobile layout** — five list screens switch to card rows below `lg` (shared MobileCards); campaign editor in one column; toolbars wrap
+- 📲 **PWA + service worker** — manifest from admin.php (`start_url` matches the real entry, incl. the secret path); icons + maskable + apple-touch; shell network-first, hashed assets stale-while-revalidate; updates swap on reload via a toast, never mid-session
+- #️⃣ **Hashed build assets** — `index-[hash].js|css` resolved via `.vite/manifest.json`; `?v=` cache-buster and hard-reload advice retired
+- 🔄 **Rotation auto-optimiser** — Auto per landing/offer list + metric (sales/CR/EPV/EPC/ROI); */5 cron, rolling 7-day window, safe-page excluded, bots kept; cap 70% / floor 5% / ≤20pp per run; audited per item (`stream_rotation_log`); campaign save hands cron-owned weights back
+
+Previous releases — v1.1.11:
 
 **Fixed**
 - 🩹 **Cloak numbers disagreed between screens** — the date-filtered Campaigns list counted safe-page clicks while Landings/Offers/dashboard excluded them; one shared helper on all four surfaces, `COALESCE(is_safe_page, 0)` keeps pre-observability (NULL) rows visible
@@ -555,9 +582,9 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 - 🔗 **Cloak panel → Click Log deep link** + ALL/SAFE/MONEY tabs, hours/stream filters, ISP/ASN/proxy-type/verdict in click details
 - 🛠️ **Self-heal DDL for `cloak_suppressed_stats`** — the table is recreated on boot for databases the migration's earlier build had already stamped (root cause of empty-diagnostics support cases)
 - 📋 **Bot-ISP blocklist in the Keitaro format** — per-line providers matched as whole phrases; generic suffixes (Inc/Ltd/GmbH) and <3-char entries ignored with settings warnings (PHP/JS mirror)
-- ⭐ **Group By star + last-applied** in report settings; "Report" in Campaigns follows a single ticked checkbox. Hard-reload the panel once after updating.
+- ⭐ **Group By star + last-applied** in report settings; "Report" in Campaigns follows a single ticked checkbox.
 
-Previous releases — v1.1.10: 🩹 CRITICAL Landings dashes hotfix, 🖱️ column drag-and-drop fix, 🎛️ navbar layer, 🔌 source-driven parameter buttons, ⚖️ Split Evenly + live share badges; v1.1.9: 🩹 double-`?` auto-heal, 🔍 cloak observability (W1–W4), 📊 Landings/Offers metric parity; v1.1.8: 🎯 entity filters in Analytics (Trends/Cohort) with the dist-rebuild fix; v1.1.7: 🛟 nginx asset-loop hotfix (`nginx_sync.php` once); v1.1.6: 🔀 SSL mode selector, 🧰 smoke tests + landing diagnostics, 🧩 asset-loading guarantees, 🗑️ bulk import removed; v1.1.5: 🔐 SSL management (ORB-014), 🧠 SUBID in traffic logs.
+v1.1.10: 🩹 CRITICAL Landings dashes hotfix, 🖱️ column drag-and-drop fix, 🎛️ navbar layer, 🔌 source-driven parameter buttons, ⚖️ Split Evenly + live share badges; v1.1.9: 🩹 double-`?` auto-heal, 🔍 cloak observability (W1–W4), 📊 Landings/Offers metric parity; v1.1.8: 🎯 entity filters in Analytics (Trends/Cohort) with the dist-rebuild fix; v1.1.7: 🛟 nginx asset-loop hotfix (`nginx_sync.php` once); v1.1.6: 🔀 SSL mode selector, 🧰 smoke tests + landing diagnostics, 🧩 asset-loading guarantees, 🗑️ bulk import removed; v1.1.5: 🔐 SSL management (ORB-014), 🧠 SUBID in traffic logs.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

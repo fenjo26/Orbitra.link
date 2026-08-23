@@ -16890,6 +16890,34 @@ const ru = {
     "copied": "Скопировано",
     "copyErrors": "Ошибок"
   },
+  "rotationAuto": {
+    "auto": "Авто",
+    "toggleOnHint": "Автооптимизация включена: крон пересчитывает веса по выбранной метрике. Выключите, чтобы заморозить и править вручную.",
+    "toggleOffHint": "Включите, чтобы оптимизатор пересчитывал веса ротации автоматически",
+    "conditions": "Условия",
+    "conditionsTitle": "Условия оптимизации",
+    "metricLabel": "Метрика",
+    "metricSales": "Подтверждённые продажи",
+    "metricCr": "CR (подтверждённый)",
+    "metricEpv": "EPV (подтверждённый)",
+    "metricEpc": "EPC (подтверждённый)",
+    "metricRoi": "ROI (подтверждённый)",
+    "needsCost": "нужны затраты",
+    "needsCostHint": "ROI и EPC требуют затрат: подключите синк расходов или задайте ручную стоимость кампании.",
+    "minSample": "Мин. выборка на элемент",
+    "lookback": "Окно, дней",
+    "floor": "Пол, %",
+    "cap": "Потолок, %",
+    "interval": "Переоценка, мин",
+    "conditionsHint": "Элементы без выборки сохраняют равную долю и не участвуют в конкуренции. Включённые не падают ниже пола и не превышают потолок; один проход двигает максимум 20 пунктов.",
+    "lastUpdated": "Обновлено",
+    "waitingFirstRun": "Ожидание первого прохода оптимизатора…",
+    "skippedNoCost": "Пропущено: у кампании нет затрат",
+    "window": "окно",
+    "sampleLabel": "выборка",
+    "managedWeight": "Управляется автооптимизацией — вес пересчитывает крон",
+    "equalizeBlocked": "«Разделить поровну» недоступно, пока списком управляет Авто"
+  },
   "editor": {
     "collectClicks": "Собирать клики",
     "collectClicksHint": "Записывать клики в статистику и отчеты для этого потока. Выключено: посетитель всё равно получает направление, но строка клика не пишется — конверсии с этого потока не к чему привязать.",
@@ -18569,6 +18597,8 @@ const ru = {
     "networkError": "Ошибка сети"
   },
   "branding": {
+    "saveError": "Не удалось сохранить настройки. Попробуйте ещё раз.",
+    "saving": "Сохранение...",
     "themeTitle": "Тема интерфейса",
     "light": "Светлая",
     "lightDesc": "Чистый SaaS стиль",
@@ -19968,6 +19998,14 @@ const ru = {
     "subId3": "Sub ID 3",
     "subId4": "Sub ID 4",
     "subId5": "Sub ID 5"
+  },
+  pwa: {
+    "updateAvailable": "Доступна новая версия",
+    "reload": "Перезагрузить"
+  },
+  mobileCards: {
+    "showMore": "Ещё",
+    "showLess": "Свернуть"
   }
 };
 const en = {
@@ -20463,6 +20501,34 @@ const en = {
     "bulkCopyConfirm": "Copy selected campaigns? Copies with new aliases and tokens will be created.",
     "copied": "Copied",
     "copyErrors": "Errors"
+  },
+  "rotationAuto": {
+    "auto": "Auto",
+    "toggleOnHint": "Auto-optimisation is on: the cron rewrites these weights on the chosen metric. Turn off to freeze and edit manually.",
+    "toggleOffHint": "Turn on to let the optimiser reweight this rotation automatically",
+    "conditions": "Conditions",
+    "conditionsTitle": "Optimisation conditions",
+    "metricLabel": "Metric",
+    "metricSales": "Confirmed sales",
+    "metricCr": "CR (confirmed)",
+    "metricEpv": "EPV (confirmed)",
+    "metricEpc": "EPC (confirmed)",
+    "metricRoi": "ROI (confirmed)",
+    "needsCost": "needs cost",
+    "needsCostHint": "ROI and EPC need spend: connect a cost sync or set a manual campaign cost to enable them.",
+    "minSample": "Min sample per item",
+    "lookback": "Lookback, days",
+    "floor": "Floor, %",
+    "cap": "Cap, %",
+    "interval": "Re-check, min",
+    "conditionsHint": "Items below the sample keep an equal share and don't compete. Enabled items never drop under the floor or exceed the cap; one run moves at most 20 points.",
+    "lastUpdated": "Updated",
+    "waitingFirstRun": "Waiting for the first optimiser run…",
+    "skippedNoCost": "Skipped: the campaign has no cost",
+    "window": "window",
+    "sampleLabel": "sample",
+    "managedWeight": "Managed by auto-optimisation — the cron rewrites this weight",
+    "equalizeBlocked": "Split Evenly is unavailable while Auto manages this list"
   },
   "editor": {
     "collectClicks": "Collect clicks",
@@ -22317,6 +22383,8 @@ const en = {
     "instruction": "Add this script before the closing </body> tag. Replace CONFIG_KEY with your actual config key."
   },
   "branding": {
+    "saveError": "Failed to save settings. Please try again.",
+    "saving": "Saving...",
     "themeTitle": "Interface Theme",
     "light": "Light",
     "lightDesc": "Clean SaaS style",
@@ -23542,6 +23610,14 @@ const en = {
     "subId3": "Sub ID 3",
     "subId4": "Sub ID 4",
     "subId5": "Sub ID 5"
+  },
+  pwa: {
+    "updateAvailable": "New version available",
+    "reload": "Reload"
+  },
+  mobileCards: {
+    "showMore": "More",
+    "showLess": "Less"
   }
 };
 const uk = {
@@ -24037,6 +24113,34 @@ const uk = {
     "bulkCopyConfirm": "Копіювати вибрані кампанії? Буде створено копії з новими псевдонімами та маркерами.",
     "copied": "Скопійовано",
     "copyErrors": "Помилки"
+  },
+  "rotationAuto": {
+    "auto": "Авто",
+    "toggleOnHint": "Автооптимізація увімкнена: cron перераховує ваги за обраною метрикою. Вимкніть, щоб заморозити й редагувати вручну.",
+    "toggleOffHint": "Увімкніть, щоб оптимізатор автоматично перебудовував ваги ротації",
+    "conditions": "Умови",
+    "conditionsTitle": "Умови оптимізації",
+    "metricLabel": "Метрика",
+    "metricSales": "Підтверджені продажі",
+    "metricCr": "CR (підтверджений)",
+    "metricEpv": "EPV (підтверджений)",
+    "metricEpc": "EPC (підтверджений)",
+    "metricRoi": "ROI (підтверджений)",
+    "needsCost": "потрібні витрати",
+    "needsCostHint": "ROI і EPC потребують витрат: підключіть синк витрат або задайте ручну вартість кампанії.",
+    "minSample": "Мін. вибірка на елемент",
+    "lookback": "Вікно, днів",
+    "floor": "Підлога, %",
+    "cap": "Стеля, %",
+    "interval": "Переоцінка, хв",
+    "conditionsHint": "Елементи без вибірки зберігають рівну частку і не конкурують. Увімкнені не падають нижче підлоги й не перевищують стелю; один прохід рухає максимум 20 пунктів.",
+    "lastUpdated": "Оновлено",
+    "waitingFirstRun": "Очікування першого проходу оптимізатора…",
+    "skippedNoCost": "Пропущено: у кампанії немає витрат",
+    "window": "вікно",
+    "sampleLabel": "вибірка",
+    "managedWeight": "Керується автооптимізацією — вагу перераховує cron",
+    "equalizeBlocked": "«Поділити порівну» недоступне, поки списком керує Авто"
   },
   "editor": {
     "collectClicks": "Збирати кліки",
@@ -25891,6 +25995,8 @@ const uk = {
     "instruction": "Додайте цей сценарій перед закриваючим тегом </body>. Замініть CONFIG_KEY на фактичний ключ конфігурації."
   },
   "branding": {
+    "saveError": "Не вдалося зберегти налаштування. Спробуйте ще раз.",
+    "saving": "Збереження...",
     "themeTitle": "Тема інтерфейсу",
     "light": "світло",
     "lightDesc": "Чистий стиль SaaS",
@@ -27116,6 +27222,14 @@ const uk = {
     "subId3": "Sub ID 3",
     "subId4": "Sub ID 4",
     "subId5": "Sub ID 5"
+  },
+  pwa: {
+    "updateAvailable": "Доступна нова версія",
+    "reload": "Перезавантажити"
+  },
+  mobileCards: {
+    "showMore": "Більше",
+    "showLess": "Згорнути"
   }
 };
 const es = {
@@ -27611,6 +27725,34 @@ const es = {
     "bulkCopyConfirm": "¿Copiar campañas seleccionadas? Se crearán copias con nuevos alias y tokens.",
     "copied": "Copiado",
     "copyErrors": "Errores"
+  },
+  "rotationAuto": {
+    "auto": "Auto",
+    "toggleOnHint": "Autooptimización activada: el cron recalcula los pesos según la métrica elegida. Desactívala para congelarlos y editar a mano.",
+    "toggleOffHint": "Activa para que el optimizador reasigne los pesos de esta rotación automáticamente",
+    "conditions": "Condiciones",
+    "conditionsTitle": "Condiciones de optimización",
+    "metricLabel": "Métrica",
+    "metricSales": "Ventas confirmadas",
+    "metricCr": "CR (confirmado)",
+    "metricEpv": "EPV (confirmado)",
+    "metricEpc": "EPC (confirmado)",
+    "metricRoi": "ROI (confirmado)",
+    "needsCost": "requiere coste",
+    "needsCostHint": "ROI y EPC necesitan gasto: conecta una sincronización de costes o define un coste manual de campaña.",
+    "minSample": "Muestra mínima por elemento",
+    "lookback": "Ventana, días",
+    "floor": "Suelo, %",
+    "cap": "Techo, %",
+    "interval": "Reevaluación, min",
+    "conditionsHint": "Los elementos sin muestra conservan una parte igual y no compiten. Los activados no bajan del suelo ni superan el techo; una pasada mueve como máximo 20 puntos.",
+    "lastUpdated": "Actualizado",
+    "waitingFirstRun": "Esperando la primera pasada del optimizador…",
+    "skippedNoCost": "Omitido: la campaña no tiene coste",
+    "window": "ventana",
+    "sampleLabel": "muestra",
+    "managedWeight": "Gestionado por la autooptimización — el cron reescribe este peso",
+    "equalizeBlocked": "«Dividir equitativamente» no disponible mientras Auto gestiona esta lista"
   },
   "editor": {
     "collectClicks": "Recopilar clics",
@@ -29465,6 +29607,8 @@ const es = {
     "instruction": "Agregue este script antes de la etiqueta </body> de cierre. Reemplace CONFIG_KEY con su clave de configuración real."
   },
   "branding": {
+    "saveError": "No se pudo guardar la configuración. Inténtalo de nuevo.",
+    "saving": "Guardando...",
     "themeTitle": "Tema de interfaz",
     "light": "Luz",
     "lightDesc": "Estilo SaaS limpio",
@@ -30690,6 +30834,14 @@ const es = {
     "subId3": "Sub ID 3",
     "subId4": "Sub ID 4",
     "subId5": "Sub ID 5"
+  },
+  pwa: {
+    "updateAvailable": "Nueva versión disponible",
+    "reload": "Recargar"
+  },
+  mobileCards: {
+    "showMore": "Más",
+    "showLess": "Menos"
   }
 };
 const zh = {
@@ -31185,6 +31337,34 @@ const zh = {
     "bulkCopyConfirm": "复制选定的广告活动？将创建具有新别名和令牌的副本。",
     "copied": "已复制",
     "copyErrors": "错误"
+  },
+  "rotationAuto": {
+    "auto": "自动",
+    "toggleOnHint": "自动优化已开启：计划任务按所选指标重算权重。关闭可冻结并手动编辑。",
+    "toggleOffHint": "开启后，优化器将自动重新分配该轮播的权重",
+    "conditions": "条件",
+    "conditionsTitle": "优化条件",
+    "metricLabel": "指标",
+    "metricSales": "确认销量",
+    "metricCr": "CR（确认）",
+    "metricEpv": "EPV（确认）",
+    "metricEpc": "EPC（确认）",
+    "metricRoi": "ROI（确认）",
+    "needsCost": "需要成本",
+    "needsCostHint": "ROI 和 EPC 需要花费数据：连接成本同步或设置手动 campaign 成本。",
+    "minSample": "每项最小样本",
+    "lookback": "窗口，天",
+    "floor": "下限，%",
+    "cap": "上限，%",
+    "interval": "重估间隔，分钟",
+    "conditionsHint": "未达样本的项保持均分且不参与竞争。启用项不会低于下限、不会超过上限；单次最多移动 20 个百分点。",
+    "lastUpdated": "更新于",
+    "waitingFirstRun": "等待优化器首次运行…",
+    "skippedNoCost": "已跳过：campaign 无成本",
+    "window": "窗口",
+    "sampleLabel": "样本",
+    "managedWeight": "由自动优化管理 — 权重由计划任务重写",
+    "equalizeBlocked": "Auto 管理此列表时不可用「平均分配」"
   },
   "editor": {
     "collectClicks": "收集点击",
@@ -33039,6 +33219,8 @@ const zh = {
     "instruction": "将此脚本添加到结束 </body> 标记之前。将 CONFIG_KEY 替换为您的实际配置密钥。"
   },
   "branding": {
+    "saveError": "保存设置失败，请重试。",
+    "saving": "保存中...",
     "themeTitle": "界面主题",
     "light": "光",
     "lightDesc": "干净的 SaaS 风格",
@@ -34264,6 +34446,14 @@ const zh = {
     "subId3": "Sub ID 3",
     "subId4": "Sub ID 4",
     "subId5": "Sub ID 5"
+  },
+  pwa: {
+    "updateAvailable": "新版本可用",
+    "reload": "重新加载"
+  },
+  mobileCards: {
+    "showMore": "更多",
+    "showLess": "收起"
   }
 };
 const fr = {
@@ -34759,6 +34949,34 @@ const fr = {
     "bulkCopyConfirm": "Copier les campagnes sélectionnées ? Des copies avec de nouveaux alias et jetons seront créées.",
     "copied": "Copié",
     "copyErrors": "Erreurs"
+  },
+  "rotationAuto": {
+    "auto": "Auto",
+    "toggleOnHint": "Auto-optimisation active — le cron recalcule les poids selon la métrique choisie. Désactivez-la pour les figer et les éditer à la main.",
+    "toggleOffHint": "Activez pour que l'optimiseur répartisse automatiquement les poids de cette rotation",
+    "conditions": "Conditions",
+    "conditionsTitle": "Conditions d'optimisation",
+    "metricLabel": "Métrique",
+    "metricSales": "Ventes confirmées",
+    "metricCr": "CR (confirmé)",
+    "metricEpv": "EPV (confirmé)",
+    "metricEpc": "EPC (confirmé)",
+    "metricRoi": "ROI (confirmé)",
+    "needsCost": "nécessite un coût",
+    "needsCostHint": "ROI et EPC exigent des dépenses — connectez une synchronisation des coûts ou définissez un coût manuel de campagne.",
+    "minSample": "Échantillon min. par élément",
+    "lookback": "Fenêtre, jours",
+    "floor": "Plancher, %",
+    "cap": "Plafond, %",
+    "interval": "Réévaluation, min",
+    "conditionsHint": "Les éléments sans échantillon gardent une part égale et ne concourent pas. Les éléments actifs ne descendent pas sous le plancher ni au-dessus du plafond ; une passe déplace au plus 20 points.",
+    "lastUpdated": "Mis à jour",
+    "waitingFirstRun": "En attente de la première passe de l'optimiseur…",
+    "skippedNoCost": "Ignoré — la campagne n'a pas de coût",
+    "window": "fenêtre",
+    "sampleLabel": "échantillon",
+    "managedWeight": "Géré par l'auto-optimisation — le cron réécrit ce poids",
+    "equalizeBlocked": "« Répartir uniformément » indisponible tant que Auto gère cette liste"
   },
   "editor": {
     "collectClicks": "Collecter les clics",
@@ -36613,6 +36831,8 @@ const fr = {
     "instruction": "Ajoutez ce script avant la balise de fermeture </body>. Remplacez CONFIG_KEY par votre clé de configuration actuelle."
   },
   "branding": {
+    "saveError": "Échec de l'enregistrement des paramètres. Veuillez réessayer.",
+    "saving": "Enregistrement...",
     "themeTitle": "Thème d'interface",
     "light": "Clair",
     "lightDesc": "Style SaaS épuré",
@@ -37840,6 +38060,14 @@ const fr = {
     "subId3": "Sub ID 3",
     "subId4": "Sub ID 4",
     "subId5": "Sub ID 5"
+  },
+  pwa: {
+    "updateAvailable": "Nouvelle version disponible",
+    "reload": "Recharger"
+  },
+  mobileCards: {
+    "showMore": "Plus",
+    "showLess": "Moins"
   }
 };
 const de = {
@@ -38335,6 +38563,34 @@ const de = {
     "bulkCopyConfirm": "Ausgewählte Kampagnen kopieren? Es werden Kopien mit neuen Aliasen und Token erstellt.",
     "copied": "Kopiert",
     "copyErrors": "Fehler"
+  },
+  "rotationAuto": {
+    "auto": "Auto",
+    "toggleOnHint": "Auto-Optimierung aktiv — der Cron gewichtet anhand der gewählten Metrik neu. Ausschalten friert die Gewichte ein.",
+    "toggleOffHint": "Einschalten, damit der Optimierer diese Rotation automatisch neu gewichtet",
+    "conditions": "Bedingungen",
+    "conditionsTitle": "Optimierungsbedingungen",
+    "metricLabel": "Metrik",
+    "metricSales": "Bestätigte Verkäufe",
+    "metricCr": "CR (bestätigt)",
+    "metricEpv": "EPV (bestätigt)",
+    "metricEpc": "EPC (bestätigt)",
+    "metricRoi": "ROI (bestätigt)",
+    "needsCost": "benötigt Kosten",
+    "needsCostHint": "ROI und EPC brauchen Ausgaben — verbinde eine Kosten-Synchronisierung oder hinterlege manuelle Kampagnenkosten.",
+    "minSample": "Min. Stichprobe pro Element",
+    "lookback": "Zeitfenster, Tage",
+    "floor": "Untergrenze, %",
+    "cap": "Obergrenze, %",
+    "interval": "Neubewertung, Min.",
+    "conditionsHint": "Elemente ohne Stichprobe behalten einen gleichen Anteil und konkurrieren nicht. Aktive Elemente bleiben zwischen Unter- und Obergrenze; ein Durchlauf bewegt höchstens 20 Punkte.",
+    "lastUpdated": "Aktualisiert",
+    "waitingFirstRun": "Warte auf den ersten Optimierer-Lauf…",
+    "skippedNoCost": "Übersprungen — die Kampagne hat keine Kosten",
+    "window": "Fenster",
+    "sampleLabel": "Stichprobe",
+    "managedWeight": "Von der Auto-Optimierung verwaltet — der Cron schreibt dieses Gewicht neu",
+    "equalizeBlocked": "« Gleichmäßig verteilen » ist deaktiviert, solange Auto diese Liste verwaltet"
   },
   "editor": {
     "collectClicks": "Klicks erfassen",
@@ -40189,6 +40445,8 @@ const de = {
     "instruction": "Fügen Sie dieses Skript vor dem schließenden </body>-Tag hinzu. Ersetzen Sie CONFIG_KEY durch Ihren tatsächlichen Konfigurationsschlüssel."
   },
   "branding": {
+    "saveError": "Speichern der Einstellungen fehlgeschlagen. Bitte erneut versuchen.",
+    "saving": "Speichern...",
     "themeTitle": "Oberflächendesign",
     "light": "Hell",
     "lightDesc": "Sauberer SaaS-Stil",
@@ -41414,6 +41672,14 @@ const de = {
     "subId3": "Sub-ID 3",
     "subId4": "Sub-ID 4",
     "subId5": "Sub-ID 5"
+  },
+  pwa: {
+    "updateAvailable": "Neue Version verfügbar",
+    "reload": "Neu laden"
+  },
+  mobileCards: {
+    "showMore": "Mehr",
+    "showLess": "Weniger"
   }
 };
 const translations = { ru, en, uk, es, zh, fr, de };
@@ -57702,7 +57968,7 @@ const PaginationToolbar = ({
       type: "button",
       disabled,
       onClick,
-      className: "px-2.5 py-1 rounded-lg border text-xs font-medium transition disabled:opacity-40",
+      className: "touch-min-44 px-2.5 py-1 rounded-lg border text-xs font-medium transition disabled:opacity-40",
       style: navBtnStyle,
       children: label
     }
@@ -57739,7 +58005,10 @@ const PaginationToolbar = ({
               }
             )
           ] }),
-          !isAll && totalPages > 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1", children: [
+          !isAll && totalPages > 1 && /* flex-wrap: without it the 9-button cluster keeps its
+          ~480px min-content width and drags the whole page past
+          a phone viewport. */
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-1", children: [
             navBtn(t("table.first", "First"), currentPage === 0, () => onPageChange(0)),
             navBtn(t("table.prev", "Prev"), currentPage === 0, () => onPageChange(currentPage - 1)),
             getPageNumbers().map((num) => {
@@ -57768,6 +58037,98 @@ const PaginationToolbar = ({
     }
   );
 };
+const MobileCards = ({
+  rows,
+  getId,
+  renderTitle,
+  renderSubtitle,
+  renderHeaderRight,
+  fields,
+  primaryIds = [],
+  header,
+  emptyState,
+  className = ""
+}) => {
+  const { t } = useLanguage();
+  const [expanded, setExpanded] = reactExports.useState(() => /* @__PURE__ */ new Set());
+  if (!rows || rows.length === 0) {
+    return emptyState || null;
+  }
+  const primarySet = new Set(primaryIds);
+  const primary = [];
+  const more = [];
+  fields.forEach((f) => (primarySet.has(f.id) ? primary : more).push(f));
+  if (primary.length === 0 && more.length > 0) {
+    primary.push(...more.splice(0, Math.min(4, more.length)));
+  }
+  const toggle = (id) => {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `space-y-3 ${className}`, children: [
+    header,
+    rows.map((row) => {
+      const id = getId(row);
+      const isOpen = expanded.has(id);
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "div",
+        {
+          className: "rounded-xl border overflow-hidden",
+          style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)" },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start justify-between gap-2 px-3.5 pt-3 pb-2.5", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0 flex-1", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-2 flex-wrap", children: renderTitle(row) }),
+                renderSubtitle && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] mt-1 truncate", style: { color: "var(--color-text-muted)" }, children: renderSubtitle(row) })
+              ] }),
+              renderHeaderRight && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-1.5 flex-shrink-0", children: renderHeaderRight(row) })
+            ] }),
+            primary.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-2 gap-x-3 gap-y-2.5 px-3.5 pb-3", children: primary.map((f) => /* @__PURE__ */ jsxRuntimeExports.jsx(CardField, { label: f.label, value: f.render(row) }, f.id)) }),
+            more.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                "button",
+                {
+                  type: "button",
+                  onClick: () => toggle(id),
+                  className: "w-full flex items-center justify-center gap-1.5 text-xs font-medium",
+                  style: { borderTop: "1px solid var(--color-border)", color: "var(--color-primary)", minHeight: 44 },
+                  children: [
+                    isOpen ? t("mobileCards.showLess") : t("mobileCards.showMore"),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: `w-3.5 h-3.5 transition-transform ${isOpen ? "rotate-180" : ""}` })
+                  ]
+                }
+              ),
+              isOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: "grid grid-cols-2 gap-x-3 gap-y-2.5 px-3.5 py-3 border-t",
+                  style: { borderColor: "var(--color-border)", backgroundColor: "var(--color-bg-soft)" },
+                  children: more.map((f) => /* @__PURE__ */ jsxRuntimeExports.jsx(CardField, { label: f.label, value: f.render(row) }, f.id))
+                }
+              )
+            ] })
+          ]
+        },
+        id
+      );
+    })
+  ] });
+};
+const CardField = ({ label, value }) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[10px] font-semibold uppercase tracking-wide truncate", style: { color: "var(--color-text-muted)" }, children: label }),
+  /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "div",
+    {
+      className: "text-[13px] font-medium truncate",
+      style: { color: "var(--color-text-primary)", fontVariantNumeric: "tabular-nums" },
+      children: value
+    }
+  )
+] });
 const TIMEZONES = [
   { value: "UTC", label: "UTC (UTC+00:00)" },
   { value: "Europe/London", label: "London (UTC+01:00 / +00:00)" },
@@ -58031,21 +58392,21 @@ const DateRangePicker = ({
           backgroundColor: "var(--color-bg-card)",
           border: "1px solid var(--color-border)",
           color: "var(--color-text-primary)",
-          minWidth: "540px",
+          // min(): a fixed 540px minWidth would beat maxWidth on
+          // a phone (CSS resolves min-width over max-width) and
+          // push the whole page into horizontal scroll.
+          minWidth: "min(540px, calc(100vw - 24px))",
           maxWidth: "calc(100vw - 24px)"
         },
         children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex gap-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col sm:flex-row gap-4", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
               "div",
               {
-                className: "flex flex-col gap-1 pr-3",
-                style: {
-                  width: "160px",
-                  borderRight: "1px solid var(--color-border)"
-                },
+                className: "flex sm:flex-col gap-1 w-full sm:w-[160px] sm:flex-shrink-0 overflow-x-auto sm:overflow-visible pb-1 sm:pb-0 border-b sm:border-b-0 sm:border-r",
+                style: { borderColor: "var(--color-border)" },
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold uppercase px-2 mb-1", style: { color: "var(--color-text-muted)" }, children: t("reportCustomizer.presets") }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "hidden sm:block text-xs font-semibold uppercase px-2 mb-1", style: { color: "var(--color-text-muted)" }, children: t("reportCustomizer.presets") }),
                   presets.map((p) => {
                     const isSelected = activePreset === p.id;
                     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -58053,7 +58414,7 @@ const DateRangePicker = ({
                       {
                         type: "button",
                         onClick: () => handleSelectPreset(p.id),
-                        className: "text-left text-xs px-2.5 py-1.5 rounded-lg transition-colors flex items-center justify-between",
+                        className: "touch-min-44 text-left text-xs px-2.5 py-1.5 rounded-lg transition-colors flex items-center justify-between whitespace-nowrap",
                         style: {
                           backgroundColor: isSelected ? "var(--color-primary-light)" : "transparent",
                           color: isSelected ? "var(--color-primary)" : "var(--color-text-secondary)",
@@ -58166,7 +58527,7 @@ const DateRangePicker = ({
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "div",
             {
-              className: "flex items-center justify-between pt-3",
+              className: "flex items-center justify-between flex-wrap gap-2 pt-3",
               style: { borderTop: "1px solid var(--color-border)" },
               children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
@@ -58851,7 +59212,7 @@ const ReportCustomizerModal = ({
                           e.stopPropagation();
                           handleToggleDefault(pKey);
                         },
-                        className: `p-0.5 rounded flex-shrink-0 transition-opacity hover:text-[var(--color-primary)] ${isDefault ? "text-[var(--color-primary)]" : "text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100"}`,
+                        className: `p-0.5 rounded flex-shrink-0 transition-opacity hover:text-[var(--color-primary)] ${isDefault ? "text-[var(--color-primary)]" : "text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 max-lg:opacity-100"}`,
                         title: isDefault ? t("reportCustomizer.defaultTemplateActive", "Default template — click to remove") : t("reportCustomizer.makeDefault", "Set as default"),
                         children: /* @__PURE__ */ jsxRuntimeExports.jsx(Star, { className: `w-3 h-3 ${isDefault ? "fill-current" : ""}` })
                       }
@@ -58887,7 +59248,7 @@ const ReportCustomizerModal = ({
                           e.stopPropagation();
                           handleToggleDefault(tpl.id);
                         },
-                        className: `p-0.5 rounded flex-shrink-0 transition-opacity hover:text-[var(--color-primary)] ${isDefault ? "text-[var(--color-primary)]" : "text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100"}`,
+                        className: `p-0.5 rounded flex-shrink-0 transition-opacity hover:text-[var(--color-primary)] ${isDefault ? "text-[var(--color-primary)]" : "text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 max-lg:opacity-100"}`,
                         title: isDefault ? t("reportCustomizer.defaultTemplateActive", "Default template — click to remove") : t("reportCustomizer.makeDefault", "Set as default"),
                         children: /* @__PURE__ */ jsxRuntimeExports.jsx(Star, { className: `w-3 h-3 ${isDefault ? "fill-current" : ""}` })
                       }
@@ -58900,7 +59261,7 @@ const ReportCustomizerModal = ({
                           e.stopPropagation();
                           handleRenameTemplate(tpl);
                         },
-                        className: "p-0.5 rounded flex-shrink-0 text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 hover:text-[var(--color-primary)] transition-opacity",
+                        className: "p-0.5 rounded flex-shrink-0 text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 max-lg:opacity-100 hover:text-[var(--color-primary)] transition-opacity",
                         title: t("common.edit", "Edit"),
                         children: /* @__PURE__ */ jsxRuntimeExports.jsx(Pencil, { className: "w-3 h-3" })
                       }
@@ -58913,7 +59274,7 @@ const ReportCustomizerModal = ({
                           e.stopPropagation();
                           handleDeleteTemplate(tpl);
                         },
-                        className: "p-0.5 rounded flex-shrink-0 text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 hover:text-red-500 transition-opacity",
+                        className: "p-0.5 rounded flex-shrink-0 text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 max-lg:opacity-100 hover:text-red-500 transition-opacity",
                         title: t("common.delete", "Delete"),
                         children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-3 h-3" })
                       }
@@ -59083,7 +59444,7 @@ const ReportCustomizerModal = ({
                       /* @__PURE__ */ jsxRuntimeExports.jsxs(
                         "div",
                         {
-                          className: "flex items-center gap-0.5 flex-shrink-0 opacity-40 group-hover:opacity-100 transition-opacity",
+                          className: "flex items-center gap-0.5 flex-shrink-0 opacity-40 group-hover:opacity-100 max-lg:opacity-100 transition-opacity",
                           onClick: (e) => e.stopPropagation(),
                           children: [
                             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -59092,7 +59453,7 @@ const ReportCustomizerModal = ({
                                 type: "button",
                                 disabled: isFirst,
                                 onClick: () => handleMoveMetric(metric.id, "up"),
-                                className: "p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-20 text-[var(--color-text-muted)] transition-colors",
+                                className: "touch-min-44 p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-20 text-[var(--color-text-muted)] transition-colors",
                                 title: "Move up",
                                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5" })
                               }
@@ -59103,7 +59464,7 @@ const ReportCustomizerModal = ({
                                 type: "button",
                                 disabled: isLast,
                                 onClick: () => handleMoveMetric(metric.id, "down"),
-                                className: "p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-20 text-[var(--color-text-muted)] transition-colors",
+                                className: "touch-min-44 p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-20 text-[var(--color-text-muted)] transition-colors",
                                 title: "Move down",
                                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5" })
                               }
@@ -59199,7 +59560,7 @@ const ReportCustomizerModal = ({
                           e.stopPropagation();
                           handleToggleDefaultGroup(preset.id);
                         },
-                        className: `p-0.5 rounded flex-shrink-0 transition-opacity hover:text-[var(--color-primary)] ${isDefault ? "text-[var(--color-primary)]" : "text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100"}`,
+                        className: `p-0.5 rounded flex-shrink-0 transition-opacity hover:text-[var(--color-primary)] ${isDefault ? "text-[var(--color-primary)]" : "text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 max-lg:opacity-100"}`,
                         title: isDefault ? t("reportCustomizer.defaultGroupActive", "Default grouping — click to remove") : t("reportCustomizer.makeDefaultGroup", "Set as default grouping"),
                         children: /* @__PURE__ */ jsxRuntimeExports.jsx(Star, { className: `w-3 h-3 ${isDefault ? "fill-current" : ""}` })
                       }
@@ -59233,7 +59594,7 @@ const ReportCustomizerModal = ({
                           e.stopPropagation();
                           handleToggleDefaultGroup(tpl.id);
                         },
-                        className: `p-0.5 rounded flex-shrink-0 transition-opacity hover:text-[var(--color-primary)] ${isDefault ? "text-[var(--color-primary)]" : "text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100"}`,
+                        className: `p-0.5 rounded flex-shrink-0 transition-opacity hover:text-[var(--color-primary)] ${isDefault ? "text-[var(--color-primary)]" : "text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 max-lg:opacity-100"}`,
                         title: isDefault ? t("reportCustomizer.defaultGroupActive", "Default grouping — click to remove") : t("reportCustomizer.makeDefaultGroup", "Set as default grouping"),
                         children: /* @__PURE__ */ jsxRuntimeExports.jsx(Star, { className: `w-3 h-3 ${isDefault ? "fill-current" : ""}` })
                       }
@@ -59246,7 +59607,7 @@ const ReportCustomizerModal = ({
                           e.stopPropagation();
                           handleDeleteGroupTemplate(tpl.id);
                         },
-                        className: "p-0.5 opacity-0 group-hover:opacity-100 transition-opacity",
+                        className: "p-0.5 opacity-0 group-hover:opacity-100 max-lg:opacity-100 transition-opacity",
                         style: { color: "var(--color-danger)" },
                         title: t("common.delete"),
                         children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-3 h-3" })
@@ -61156,7 +61517,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         )
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tracker-table-container", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table tracker-table", style: { fontVariantNumeric: "tabular-nums" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tracker-table-container hidden lg:block", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table tracker-table", style: { fontVariantNumeric: "tabular-nums" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-8", style: { textAlign: "left" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
@@ -61280,6 +61641,105 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", {})
       ] }) })
     ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "lg:hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      MobileCards,
+      {
+        rows: pagedCampaigns,
+        getId: (camp) => camp.id,
+        header: visibleCampaigns.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "rounded-xl border px-3.5 py-2.5 flex items-center gap-x-4 gap-y-1.5 flex-wrap", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-[11px] font-bold uppercase whitespace-nowrap", style: { color: "var(--color-text-primary)" }, children: [
+            t("campaignReports.total", "Totals"),
+            " (",
+            visibleCampaigns.length,
+            ")"
+          ] }),
+          ["clicks", "conversions", "cost", "roi"].filter((id) => visibleColumns.includes(id)).map((id) => {
+            const def = ALL_REPORT_METRICS.find((m) => m.id === id);
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-[11px] flex items-center gap-1 whitespace-nowrap", style: { color: "var(--color-text-secondary)" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)" }, children: [
+                def?.shortLabel || def?.label || id,
+                ":"
+              ] }),
+              formatMetricCell(id, grandTotals)
+            ] }, id);
+          })
+        ] }),
+        renderTitle: (camp) => /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "checkbox",
+              checked: selectedCampaignIds.has(camp.id),
+              onChange: (e) => toggleSelected(camp.id, e.target.checked),
+              className: "rounded flex-shrink-0",
+              style: { accentColor: "var(--color-primary)" },
+              "aria-label": camp.name
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "span",
+            {
+              className: "font-semibold text-sm cursor-pointer truncate",
+              style: { color: "var(--color-primary)" },
+              onClick: () => handleEdit(camp.id),
+              title: camp.name,
+              children: camp.name
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "span",
+            {
+              className: "text-[10px] font-mono px-1 rounded border flex-shrink-0",
+              style: { color: "var(--color-text-muted)", borderColor: "var(--color-border)" },
+              children: camp.alias
+            }
+          )
+        ] }),
+        renderSubtitle: (camp) => `#${camp.id}${camp.group_name ? ` · ${camp.group_name}` : ""}`,
+        renderHeaderRight: (camp) => /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              disabled: togglingCampaignIds.has(camp.id),
+              onClick: () => handleRequestToggleState(camp),
+              className: "hit-44 relative inline-flex h-4 w-7 flex-shrink-0 items-center rounded-full transition-colors",
+              style: {
+                background: campaignEnabled(camp) ? "var(--color-success, #10b981)" : "var(--color-border)",
+                opacity: togglingCampaignIds.has(camp.id) ? 0.5 : 1,
+                cursor: "pointer"
+              },
+              title: campaignEnabled(camp) ? t("automation.clickToPause") : t("automation.clickToResume"),
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "inline-block h-3 w-3 transform rounded-full bg-white shadow transition-transform", style: { transform: campaignEnabled(camp) ? "translateX(12px)" : "translateX(2px)" } })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: (event) => handleToggleMenu(event, camp.id),
+              className: "hit-44 flex items-center justify-center rounded-lg",
+              style: { color: menuAnchor?.id === camp.id ? "var(--color-primary)" : "var(--color-text-muted)" },
+              title: t("table.actions"),
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(EllipsisVertical, { className: "w-5 h-5" })
+            }
+          )
+        ] }),
+        fields: visibleColumns.map((colId) => {
+          const def = ALL_REPORT_METRICS.find((m) => m.id === colId);
+          return {
+            id: colId,
+            label: def?.shortLabel || def?.label || colId,
+            render: (row) => formatMetricCell(colId, row)
+          };
+        }),
+        primaryIds: ["clicks", "conversions", "cost", "roi"],
+        emptyState: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("campaigns.noCampaignsCreated") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("campaigns.createFirstCampaign") })
+        ] }) })
+      }
+    ) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       PaginationToolbar,
       {
@@ -63741,6 +64201,15 @@ const Landings = ({ landings, refreshData }) => {
     const p = (n) => String(n).padStart(2, "0");
     return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
   };
+  const entityLabel = (colId) => ({
+    id: "ID",
+    name: t("editor.name"),
+    state: t("components.status"),
+    group_name: t("components.group"),
+    type: t("components.type"),
+    url: "URL",
+    last_event: t("landingColumns.lastEvent")
+  })[colId] || colId;
   const formatMetricCell = (metricId, row) => {
     const val = row[metricId];
     const num = Number(val) || 0;
@@ -64267,7 +64736,7 @@ const Landings = ({ landings, refreshData }) => {
         t("common.clear")
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tracker-table-container", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table tracker-table", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tracker-table-container hidden lg:block", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table tracker-table", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
@@ -64325,6 +64794,65 @@ const Landings = ({ landings, refreshData }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", {})
       ] }) })
     ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "lg:hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      MobileCards,
+      {
+        rows: pagedLandings,
+        getId: (landing) => landing.id,
+        renderTitle: (landing) => /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "checkbox",
+              checked: selectedLandingIds.has(landing.id),
+              onChange: (e) => toggleSelected(landing.id, e.target.checked),
+              className: "rounded flex-shrink-0",
+              style: { accentColor: "var(--color-primary)" },
+              "aria-label": landing.name
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "span",
+            {
+              className: "font-semibold text-sm cursor-pointer truncate",
+              style: { color: "var(--color-primary)" },
+              onClick: () => handleEdit(landing.id),
+              title: landing.name,
+              children: landing.name
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2 py-0.5 rounded text-[10px] font-semibold flex-shrink-0", style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" }, children: landing.type })
+        ] }),
+        renderSubtitle: (landing) => `#${landing.id}${landing.group_name ? ` · ${landing.group_name}` : ""}`,
+        renderHeaderRight: (landing) => /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center text-xs font-medium mr-1", style: { color: landing.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-2 h-2 rounded-full mr-1.5", style: { backgroundColor: landing.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" } }),
+            landing.state === "active" ? t("components.active") : t("components.archive")
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(landing.id), className: "action-btn text-blue", title: t("common.edit") || t("components.edit"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-4 h-4" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleDelete(landing.id), className: "action-btn text-red", title: t("common.delete"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Trash2, { className: "w-4 h-4" }) })
+        ] }),
+        fields: [
+          ...chosenColumns.map((colId) => {
+            const def = ALL_REPORT_METRICS.find((m) => m.id === colId);
+            return {
+              id: colId,
+              label: def?.shortLabel || def?.label || colId,
+              render: (row) => formatMetricCell(colId, row)
+            };
+          }),
+          { id: "group_name", label: entityLabel("group_name"), render: (l) => l.group_name || "-" },
+          { id: "type", label: entityLabel("type"), render: (l) => l.type },
+          { id: "url", label: "URL", render: (l) => l.type !== "local" && l.type !== "action" && l.url ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "break-all whitespace-normal", children: l.url }) : "-" },
+          { id: "last_event", label: entityLabel("last_event"), render: (l) => formatLastEvent(l.last_event) }
+        ],
+        primaryIds: ["clicks", "conversions", "cost", "roi"],
+        emptyState: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("landings.noLandings") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("landings.noLandingsDesc") })
+        ] }) })
+      }
+    ) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       PaginationToolbar,
       {
@@ -67301,7 +67829,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
         );
       })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tracker-table-container", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table tracker-table", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "tracker-table-container hidden lg:block", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table tracker-table", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "w-10", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
           "input",
@@ -67398,6 +67926,82 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", {})
       ] }) })
     ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "lg:hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      MobileCards,
+      {
+        rows: pagedOffers,
+        getId: (offer) => offer.id,
+        renderTitle: (offer) => /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "checkbox",
+              checked: selectedOfferIds.has(offer.id),
+              onChange: (e) => toggleSelected(offer.id, e.target.checked),
+              className: "rounded flex-shrink-0",
+              style: { accentColor: "var(--color-primary)" },
+              "aria-label": offer.name
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "span",
+            {
+              className: "font-semibold text-sm cursor-pointer truncate",
+              style: { color: "var(--color-primary)" },
+              onClick: () => handleEdit(offer.id),
+              title: offer.name,
+              children: offer.name
+            }
+          ),
+          offer.is_local && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] font-medium flex-shrink-0", style: { color: "var(--color-accent-purple)" }, children: t("offers.localOffer") })
+        ] }),
+        renderSubtitle: (offer) => `#${offer.id}${offer.group_name ? ` · ${offer.group_name}` : ""}`,
+        renderHeaderRight: (offer) => /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "flex items-center text-xs font-medium mr-1", style: { color: offer.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "w-2 h-2 rounded-full mr-1.5", style: { backgroundColor: offer.state === "active" ? "var(--color-success)" : "var(--color-text-muted)" } }),
+            offer.state === "active" ? t("components.active") : t("components.archive")
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => handleEdit(offer.id), className: "action-btn text-blue", title: t("common.edit") || t("components.edit"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-4 h-4" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: (e) => handleToggleMenu(e, offer.id), className: "action-btn text-gray-500", title: t("common.more"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(EllipsisVertical, { className: "w-4 h-4" }) })
+        ] }),
+        fields: [
+          ...chosenColumns.map((colId) => {
+            const def = ALL_REPORT_METRICS.find((m) => m.id === colId);
+            return {
+              id: colId,
+              label: def?.shortLabel || def?.label || colId,
+              render: (row) => formatMetricCell(colId, row)
+            };
+          }),
+          {
+            id: "geo",
+            label: "GEO",
+            render: (o) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2 py-0.5 rounded text-[11px] font-semibold", style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" }, children: o.geo || t("offerColumns.allGeo") })
+          },
+          {
+            id: "payout",
+            label: t("offerColumns.payout"),
+            render: (o) => o.payout_auto ? t("offerColumns.payoutAuto") : `$${parseFloat(o.payout_value || 0).toFixed(2)} (${String(o.payout_type || "cpa").toUpperCase()})`
+          },
+          {
+            id: "redirect_type",
+            label: t("components.type"),
+            render: (o) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "px-2 py-0.5 rounded text-[11px] font-semibold", style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" }, children: o.redirect_type === "redirect" ? t("offers.redirect") : o.redirect_type === "frame" ? t("offers.iframe") : o.redirect_type === "local" ? t("offers.local") : o.redirect_type === "js" ? t("redirectTypes.jsName") : o.redirect_type === "meta_refresh" ? t("redirectTypes.metaName") : o.redirect_type === "form_submit" ? t("redirectTypes.formName") : o.redirect_type === "preload" ? t("offerEditor.preloadCurl") : o.redirect_type === "curl_proxy" ? t("redirectTypes.curlProxyName") : o.redirect_type })
+          },
+          { id: "affiliate_network_name", label: t("offers.network"), render: (o) => o.affiliate_network_name || "-" },
+          {
+            id: "url",
+            label: "URL",
+            render: (o) => !o.is_local && o.url ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "break-all whitespace-normal", children: o.url }) : "-"
+          }
+        ],
+        primaryIds: ["clicks", "conversions", "cost", "roi"],
+        emptyState: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: offers.length === 0 ? t("offers.noOffers") : t("offers.noOffersFiltered") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: offers.length === 0 ? t("offers.noOffersDesc") : t("offers.changeFilters") })
+        ] }) })
+      }
+    ) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       PaginationToolbar,
       {
@@ -68658,7 +69262,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
       ] })
     ] }) }),
     loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", justifyContent: "center", alignItems: "center", height: "200px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "32px", height: "32px", border: "3px solid var(--color-border)", borderTopColor: "var(--color-primary)", borderRadius: "50%", animation: "spin 1s linear infinite" } }) }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", style: { padding: 0 }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto hidden lg:block", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "ID" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: "Click ID" }),
@@ -68720,6 +69324,53 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
           ) })
         ] }, conv.id)) })
       ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "lg:hidden p-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        MobileCards,
+        {
+          rows: conversions,
+          getId: (conv) => conv.id,
+          renderTitle: (conv) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: () => setSelectedClickId(conv.click_id),
+              className: "font-mono text-xs px-2 py-1 rounded-md",
+              style: {
+                color: "var(--color-primary)",
+                backgroundColor: "var(--color-bg-soft)",
+                border: "none",
+                cursor: "pointer"
+              },
+              children: conv.click_id
+            }
+          ),
+          renderHeaderRight: (conv) => getStatusBadge(conv.status),
+          fields: [
+            {
+              id: "payout",
+              label: t("conversions.payout"),
+              render: (c) => /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-success)", fontWeight: 500 }, children: [
+                "$",
+                Number(c.payout || 0).toFixed(2)
+              ] })
+            },
+            { id: "campaign", label: t("conversions.campaign"), render: (c) => c.campaign_name || "-" },
+            { id: "offer", label: t("conversions.offer"), render: (c) => c.offer_name || "-" },
+            {
+              id: "created",
+              label: t("conversions.date"),
+              render: (c) => new Date(c.created_at).toLocaleString("ru-RU")
+            },
+            { id: "id", label: "ID", render: (c) => c.id },
+            { id: "tid", label: "TID", render: (c) => c.tid || "-" },
+            { id: "ip", label: "IP", render: (c) => c.ip || "-" }
+          ],
+          primaryIds: ["payout", "campaign", "offer", "created"],
+          emptyState: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center py-10", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("conversions.noConversions") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("conversions.noConversionsText") })
+          ] }) })
+        }
+      ) }),
       pagination.total_pages > 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: {
         display: "flex",
         alignItems: "center",
@@ -81255,7 +81906,52 @@ const LogsPage = () => {
     if (loading) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-8 text-center text-[var(--color-text-muted)]", children: t("logs.loadingLogs") });
     if (!logs.length) return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-8 text-center text-[var(--color-text-muted)]", children: t("logs.noData") });
     switch (activeTab) {
-      case "traffic":
+      case "traffic": {
+        const renderRouteBadge = (log) => {
+          if (!log.cloak_verdict && !log.is_safe_page) {
+            return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-[var(--color-text-muted)]", children: t("logs.routeNone") });
+          }
+          const isMoney = !log.is_safe_page;
+          const label = isMoney ? t("logs.routeMoney") : t("logs.routeSafe");
+          const className = isMoney ? "status-active" : "status-inactive";
+          return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `status-badge ${className} text-[11px]`, children: label });
+        };
+        const renderReasonChips = (log) => {
+          if (!log.cloak_reasons) return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-[var(--color-text-muted)]", children: "-" });
+          const reasons = log.cloak_reasons.split(",").filter(Boolean);
+          if (reasons.length === 0) return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-[var(--color-text-muted)]", children: "-" });
+          return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1", children: reasons.map((reason, idx) => {
+            const colon = reason.indexOf(":");
+            const code = colon === -1 ? reason : reason.slice(0, colon);
+            const evidence = colon === -1 ? "" : reason.slice(colon + 1);
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "span",
+              {
+                className: "text-[10px] px-1.5 py-0.5 rounded font-mono",
+                style: {
+                  backgroundColor: "var(--color-bg-soft)",
+                  color: "var(--color-text-secondary)",
+                  border: "1px solid var(--color-border)"
+                },
+                title: t(`cloakReasons.${code}`, "") || code,
+                children: [
+                  code,
+                  evidence ? /* @__PURE__ */ jsxRuntimeExports.jsx("b", { style: { color: "var(--color-primary)", fontWeight: 600 }, children: ` ${evidence}` }) : null
+                ]
+              },
+              idx
+            );
+          }) });
+        };
+        const renderDestination = (log) => {
+          if (log.landing_name) return log.landing_name;
+          if (log.offer_name) return log.offer_name;
+          return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-[var(--color-text-muted)]", children: "-" });
+        };
+        const renderGeo = (log) => /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "whitespace-normal break-words", children: [
+          log.country_code || "-",
+          [log.region, log.city].filter(Boolean).length > 0 && ` · ${[log.region, log.city].filter(Boolean).join(", ")}`
+        ] });
         return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4 p-3 rounded-xl border", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex items-center gap-2 mb-2", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -81310,7 +82006,7 @@ const LogsPage = () => {
               )
             ] })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "hidden lg:block", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colTime") }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colClickId") }),
@@ -81325,69 +82021,51 @@ const LogsPage = () => {
               /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colIsp") }),
               /* @__PURE__ */ jsxRuntimeExports.jsx("th", { children: t("logs.colAsn") })
             ] }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: logs.map((log, i) => {
-              const renderRouteBadge = () => {
-                if (!log.cloak_verdict && !log.is_safe_page) {
-                  return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-[var(--color-text-muted)]", children: t("logs.routeNone") });
-                }
-                const isMoney = !log.is_safe_page;
-                const label = isMoney ? t("logs.routeMoney") : t("logs.routeSafe");
-                const className = isMoney ? "status-active" : "status-inactive";
-                return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `status-badge ${className} text-[11px]`, children: label });
-              };
-              const renderReasonChips = () => {
-                if (!log.cloak_reasons) return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-[var(--color-text-muted)]", children: "-" });
-                const reasons = log.cloak_reasons.split(",").filter(Boolean);
-                if (reasons.length === 0) return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-[var(--color-text-muted)]", children: "-" });
-                return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex flex-wrap gap-1", children: reasons.map((reason, idx) => {
-                  const colon = reason.indexOf(":");
-                  const code = colon === -1 ? reason : reason.slice(0, colon);
-                  const evidence = colon === -1 ? "" : reason.slice(colon + 1);
-                  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                    "span",
-                    {
-                      className: "text-[10px] px-1.5 py-0.5 rounded font-mono",
-                      style: {
-                        backgroundColor: "var(--color-bg-soft)",
-                        color: "var(--color-text-secondary)",
-                        border: "1px solid var(--color-border)"
-                      },
-                      title: t(`cloakReasons.${code}`, "") || code,
-                      children: [
-                        code,
-                        evidence ? /* @__PURE__ */ jsxRuntimeExports.jsx("b", { style: { color: "var(--color-primary)", fontWeight: 600 }, children: ` ${evidence}` }) : null
-                      ]
-                    },
-                    idx
-                  );
-                }) });
-              };
-              const renderDestination = () => {
-                if (log.landing_name) return log.landing_name;
-                if (log.offer_name) return log.offer_name;
-                return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs text-[var(--color-text-muted)]", children: "-" });
-              };
-              return /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.created_at }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-mono text-xs", children: log.click_id }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.subid || "-" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.campaign_name || t("logs.direct") }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: renderRouteBadge() }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: renderReasonChips() }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-xs", children: renderDestination() }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.ip }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: log.country_code || "-" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-[var(--color-text-muted)]", children: [log.region, log.city].filter(Boolean).join(", ") || "-" }),
-                  log.geo_timezone ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] text-[var(--color-text-muted)]", children: log.geo_timezone }) : null
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.device_type || "-" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-xs text-[var(--color-text-muted)]", children: log.isp || "-" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-xs font-mono text-[var(--color-text-muted)]", children: log.asn || "-" })
-              ] }, i);
-            }) })
-          ] })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: logs.map((log, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.created_at }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "font-mono text-xs", children: log.click_id }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.subid || "-" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.campaign_name || t("logs.direct") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: renderRouteBadge(log) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: renderReasonChips(log) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-xs", children: renderDestination(log) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.ip }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { children: log.country_code || "-" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs text-[var(--color-text-muted)]", children: [log.region, log.city].filter(Boolean).join(", ") || "-" }),
+                log.geo_timezone ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-[11px] text-[var(--color-text-muted)]", children: log.geo_timezone }) : null
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: log.device_type || "-" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-xs text-[var(--color-text-muted)]", children: log.isp || "-" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-xs font-mono text-[var(--color-text-muted)]", children: log.asn || "-" })
+            ] }, i)) })
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "lg:hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            MobileCards,
+            {
+              rows: logs,
+              getId: (log, i) => log.click_id || `log-${i}`,
+              renderTitle: (log) => /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold text-sm truncate", style: { color: "var(--color-text-primary)" }, children: log.campaign_name || t("logs.direct") }),
+                renderRouteBadge(log)
+              ] }),
+              renderSubtitle: (log) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-mono", children: log.click_id }),
+              fields: [
+                { id: "created_at", label: t("logs.colTime"), render: (log) => log.created_at },
+                { id: "destination", label: t("logs.colDestination"), render: renderDestination },
+                { id: "ip", label: t("logs.colIp"), render: (log) => log.ip },
+                { id: "geo", label: t("logs.colGeo"), render: renderGeo },
+                { id: "subid", label: t("logs.colSubid"), render: (log) => log.subid || "-" },
+                { id: "reasons", label: t("logs.colReason"), render: renderReasonChips },
+                { id: "device", label: t("logs.colDevice"), render: (log) => log.device_type || "-" },
+                { id: "isp", label: t("logs.colIsp"), render: (log) => log.isp || "-" },
+                { id: "asn", label: t("logs.colAsn"), render: (log) => log.asn || "-" }
+              ],
+              primaryIds: ["created_at", "destination", "ip", "geo"]
+            }
+          ) })
         ] });
+      }
       case "postbacks":
         return /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
@@ -86226,6 +86904,22 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   const [loading, setLoading] = reactExports.useState(false);
   const [saveSuccess, setSaveSuccess] = reactExports.useState(false);
   const [copySuccess, setCopySuccess] = reactExports.useState(false);
+  const [streamMenuOpen, setStreamMenuOpen] = reactExports.useState(false);
+  const streamMenuRef = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    if (!streamMenuOpen) return void 0;
+    const close = (e) => {
+      if (streamMenuRef.current && !streamMenuRef.current.contains(e.target)) {
+        setStreamMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", close);
+    document.addEventListener("touchstart", close);
+    return () => {
+      document.removeEventListener("mousedown", close);
+      document.removeEventListener("touchstart", close);
+    };
+  }, [streamMenuOpen]);
   const [showLogModal, setShowLogModal] = reactExports.useState(false);
   const [clickLogRoute, setClickLogRoute] = reactExports.useState("all");
   const [clickLogHours, setClickLogHours] = reactExports.useState(0);
@@ -86332,6 +87026,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     proxy: null
   });
   const [cloakSummary, setCloakSummary] = reactExports.useState(null);
+  const [rotationStatus, setRotationStatus] = reactExports.useState(null);
+  const [autoPopover, setAutoPopover] = reactExports.useState(null);
   const [cloakSummaryLoading, setCloakSummaryLoading] = reactExports.useState(false);
   const [quickCreate, setQuickCreate] = reactExports.useState(null);
   const [pickerState, setPickerState] = reactExports.useState({ open: false, streamIdx: null, type: null });
@@ -86831,6 +87527,16 @@ const CampaignEditor = ({ campaignId, onClose }) => {
       setCloakSummaryLoading(false);
     });
   }, [activeCampaignId]);
+  reactExports.useEffect(() => {
+    if (!activeCampaignId) {
+      setRotationStatus(null);
+      return;
+    }
+    cachedGet("rotation_status", { campaign_id: activeCampaignId, _: Date.now() }, 0).then(({ data }) => {
+      if (data.status === "success") setRotationStatus(data.data);
+      else setRotationStatus(null);
+    }).catch(() => setRotationStatus(null));
+  }, [activeCampaignId]);
   const syncCostConnection = async (connId) => {
     setSyncingConnId(connId);
     setSyncResult(null);
@@ -87211,6 +87917,229 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     return true;
   };
   const schemaEnabledWeight = (list) => (list || []).filter(isSchemaItemEnabled).reduce((sum, it) => sum + (parseInt(it.weight, 10) || 0), 0);
+  const ROTATION_METRICS = [
+    { id: "sales", label: t("rotationAuto.metricSales") },
+    { id: "cr", label: t("rotationAuto.metricCr") },
+    { id: "epv_confirmed", label: t("rotationAuto.metricEpv") },
+    { id: "epc_confirmed", label: t("rotationAuto.metricEpc"), needsCost: true },
+    { id: "roi_confirmed", label: t("rotationAuto.metricRoi"), needsCost: true }
+  ];
+  const ROTATION_DEFAULTS = { metric: "epv_confirmed", min_sample: 3, lookback_days: 7, floor_pct: 5, cap_pct: 70, interval_min: 60 };
+  const genRotationKey = () => `rot_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+  const getAutoCfg = (stream, type) => stream?.schema_custom?.auto?.[type] || {};
+  const isAutoRotationOn = (stream, type) => !!getAutoCfg(stream, type).enabled;
+  const setAutoCfg = (streamIdx, type, patch) => {
+    setFormData((prev) => {
+      const s = prev.streams[streamIdx];
+      if (!s) return prev;
+      const sc = { ...s.schema_custom || {} };
+      const auto = { ...sc.auto || {} };
+      auto[type] = { ...ROTATION_DEFAULTS, ...auto[type] || {}, ...patch };
+      sc.auto = auto;
+      const streams = [...prev.streams];
+      streams[streamIdx] = { ...s, schema_custom: sc };
+      return { ...prev, streams };
+    });
+  };
+  const toggleAutoRotation = (streamIdx, type, on) => {
+    const stream = formData.streams[streamIdx];
+    if (on && !getAutoCfg(stream, type).key) {
+      setAutoCfg(streamIdx, type, { key: genRotationKey() });
+    }
+    setAutoCfg(streamIdx, type, { enabled: on });
+  };
+  const renderSchemaAutoControls = (streamIdx, type, list) => {
+    const stream = formData.streams[streamIdx];
+    const on = isAutoRotationOn(stream, type);
+    const enabledCount = (list || []).filter(isSchemaItemEnabled).length;
+    const canToggle = on || enabledCount >= 2;
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1.5", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          disabled: !canToggle,
+          onClick: () => toggleAutoRotation(streamIdx, type, !on),
+          className: "relative inline-flex h-4 w-7 flex-shrink-0 items-center rounded-full transition-colors",
+          style: {
+            background: on ? "var(--color-primary)" : "var(--color-border)",
+            cursor: canToggle ? "pointer" : "not-allowed",
+            opacity: canToggle ? 1 : 0.5
+          },
+          title: on ? t("rotationAuto.toggleOnHint") : t("rotationAuto.toggleOffHint"),
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "span",
+            {
+              className: "inline-block h-3 w-3 transform rounded-full bg-white transition-transform",
+              style: { transform: on ? "translateX(14px)" : "translateX(2px)" }
+            }
+          )
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "span",
+        {
+          className: "text-[11px] font-bold uppercase tracking-wide whitespace-nowrap",
+          style: { color: on ? "var(--color-primary)" : "var(--color-text-muted)" },
+          children: t("rotationAuto.auto")
+        }
+      ),
+      on && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            type: "button",
+            onClick: () => setAutoPopover((prev) => prev && prev.streamIdx === streamIdx && prev.type === type ? null : { streamIdx, type }),
+            className: "text-[11px] px-2 py-0.5 rounded-lg border font-semibold flex items-center gap-1 transition-colors",
+            style: {
+              backgroundColor: autoPopover && autoPopover.streamIdx === streamIdx && autoPopover.type === type ? "var(--color-primary-light)" : "var(--color-bg-card)",
+              borderColor: "var(--color-border)",
+              color: "var(--color-primary)"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SlidersHorizontal, { className: "w-3 h-3" }),
+              t("rotationAuto.conditions")
+            ]
+          }
+        ),
+        autoPopover && autoPopover.streamIdx === streamIdx && autoPopover.type === type && renderAutoConditionsPopover(streamIdx, type)
+      ] })
+    ] });
+  };
+  const renderAutoConditionsPopover = (streamIdx, type) => {
+    const stream = formData.streams[streamIdx];
+    const cfg = { ...ROTATION_DEFAULTS, ...getAutoCfg(stream, type) };
+    const costAvailable = rotationStatus ? !!rotationStatus.cost_available : true;
+    const numField = (field, label, lo, hi) => /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex flex-col gap-1", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] font-semibold", style: { color: "var(--color-text-muted)" }, children: label }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          type: "number",
+          min: lo,
+          max: hi,
+          value: cfg[field],
+          onChange: (e) => {
+            const v = Math.max(lo, Math.min(hi, parseInt(e.target.value, 10) || lo));
+            setAutoCfg(streamIdx, type, { [field]: v });
+          },
+          className: "w-full rounded-lg px-2 py-1 text-xs",
+          style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)", color: "var(--color-text-primary)" }
+        }
+      )
+    ] }, field);
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 z-40", onClick: () => setAutoPopover(null) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "div",
+        {
+          className: "absolute right-0 top-full mt-1.5 w-80 rounded-2xl shadow-lg p-3.5 space-y-3 z-50 text-left",
+          style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" },
+          onClick: (e) => e.stopPropagation(),
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-bold uppercase tracking-wider", style: { color: "var(--color-text-primary)" }, children: t("rotationAuto.conditionsTitle", "Optimisation conditions") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "flex flex-col gap-1", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[11px] font-semibold", style: { color: "var(--color-text-muted)" }, children: t("rotationAuto.metricLabel") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "select",
+                {
+                  value: cfg.metric,
+                  onChange: (e) => setAutoCfg(streamIdx, type, { metric: e.target.value }),
+                  className: "form-select text-xs",
+                  children: ROTATION_METRICS.map((m) => {
+                    const blocked = m.needsCost && !costAvailable;
+                    return /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: m.id, disabled: blocked, children: [
+                      m.label,
+                      blocked ? ` — ${t("rotationAuto.needsCost")}` : ""
+                    ] }, m.id);
+                  })
+                }
+              ),
+              !costAvailable && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10.5px] leading-snug", style: { color: "var(--color-warning, #f59e0b)" }, children: t("rotationAuto.needsCostHint") })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-2 gap-2.5", children: [
+              numField("min_sample", t("rotationAuto.minSample"), 1, 1e4),
+              numField("lookback_days", t("rotationAuto.lookback"), 1, 90),
+              numField("floor_pct", t("rotationAuto.floor"), 1, 50),
+              numField("cap_pct", t("rotationAuto.cap"), 10, 100),
+              numField("interval_min", t("rotationAuto.interval"), 5, 1440)
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-[10.5px] leading-relaxed", style: { color: "var(--color-text-muted)" }, children: t("rotationAuto.conditionsHint") })
+          ]
+        }
+      )
+    ] });
+  };
+  const renderAutoStatusPanel = (streamIdx, type) => {
+    const stream = formData.streams[streamIdx];
+    const cfg = { ...getAutoCfg(stream, type) };
+    if (!cfg.enabled) return null;
+    const decisions = (rotationStatus?.decisions || []).filter((d) => d.rotation_key === cfg.key).slice(0, 6);
+    const metricLabel = (id) => (ROTATION_METRICS.find((m) => m.id === id) || {}).label || id;
+    const fmtValue = (d) => {
+      const v = parseFloat(d.metric_value);
+      if (!isFinite(v)) return "—";
+      return ["epv_confirmed", "epc_confirmed"].includes(d.metric) ? v.toFixed(4) : String(Math.round(v * 100) / 100);
+    };
+    const fmtTime = (iso) => {
+      if (!iso) return "";
+      const d = /* @__PURE__ */ new Date(String(iso).replace(" ", "T") + (String(iso).includes("Z") ? "" : "Z"));
+      return isNaN(d.getTime()) ? String(iso) : d.toLocaleString();
+    };
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-2 rounded-xl px-3 py-2 space-y-1.5", style: {
+      backgroundColor: "color-mix(in srgb, var(--color-primary) 5%, transparent)",
+      border: "1px solid var(--color-border)"
+    }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]", style: { color: "var(--color-text-secondary)" }, children: [
+        cfg.last_updated_at ? /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)" }, children: [
+            t("rotationAuto.lastUpdated"),
+            ":"
+          ] }),
+          " ",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", children: fmtTime(cfg.last_updated_at) })
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)" }, children: t("rotationAuto.waitingFirstRun") }),
+        cfg.last_status === "skipped_no_cost" && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-semibold", style: { color: "var(--color-warning, #f59e0b)" }, children: [
+          "⚠ ",
+          t("rotationAuto.skippedNoCost")
+        ] }),
+        cfg.metric && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)" }, children: [
+            t("rotationAuto.metricLabel"),
+            ":"
+          ] }),
+          " ",
+          metricLabel(cfg.metric),
+          " · ",
+          t("rotationAuto.window"),
+          " ",
+          cfg.lookback_days ?? 7,
+          "d"
+        ] })
+      ] }),
+      decisions.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1", children: decisions.map((d, i) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap items-center gap-x-2 text-[11px]", style: { color: "var(--color-text-secondary)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold truncate max-w-[140px]", title: d.item_name, style: { color: "var(--color-text-primary)" }, children: d.item_name }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-mono", children: [
+          d.old_weight,
+          "% → ",
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-primary)" }, children: [
+            d.new_weight,
+            "%"
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)" }, children: [
+          metricLabel(d.metric),
+          " ",
+          fmtValue(d),
+          " · ",
+          t("rotationAuto.sampleLabel"),
+          ": ",
+          d.sample_size
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "ml-auto whitespace-nowrap", style: { color: "var(--color-text-muted)" }, children: fmtTime(d.created_at) })
+      ] }, i)) })
+    ] });
+  };
   const handleEqualizeSchemaWeights = (streamIdx, type) => {
     setFormData((prev) => {
       const stream = prev.streams[streamIdx];
@@ -87234,14 +88163,16 @@ const CampaignEditor = ({ campaignId, onClose }) => {
   };
   const renderSchemaEqualizeButton = (streamIdx, type, list) => {
     const enabledCount = (list || []).filter(isSchemaItemEnabled).length;
+    const autoOn = isAutoRotationOn(formData.streams[streamIdx], type);
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(
       "button",
       {
         type: "button",
-        disabled: enabledCount < 2,
+        disabled: enabledCount < 2 || autoOn,
         onClick: () => handleEqualizeSchemaWeights(streamIdx, type),
         className: "btn btn-secondary btn-sm text-xs py-1 px-2.5 rounded-lg flex items-center gap-1 font-semibold",
-        title: t("editor.equalizeSplit", "Split Evenly"),
+        title: autoOn ? t("rotationAuto.equalizeBlocked") : t("editor.equalizeSplit", "Split Evenly"),
+        style: autoOn ? { opacity: 0.5, cursor: "not-allowed" } : void 0,
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "⚖" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: t("editor.equalizeSplit", "Split Evenly") })
@@ -87340,6 +88271,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const enabledTotal = schemaEnabledWeight(list);
     const w = list.length === 1 ? 100 : parseInt(item.weight, 10) || 0;
     const paused = !isSchemaItemEnabled(item);
+    const autoOn = isAutoRotationOn(formData.streams[streamIdx], type);
     const share = !paused && enabledTotal > 0 ? `${(w / enabledTotal * 100).toFixed(1)}%` : "—";
     return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-1 flex-shrink-0", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -87347,15 +88279,15 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         {
           type: "number",
           value: list.length === 1 ? 100 : item.weight,
-          disabled: list.length === 1,
+          disabled: list.length === 1 || autoOn,
           onChange: (e) => updateSchemaItem(streamIdx, type, itemIdx, "weight", parseInt(e.target.value)),
           className: "w-14 text-center rounded-lg px-1 py-1 text-xs",
           style: {
-            backgroundColor: list.length === 1 ? "var(--color-bg-soft)" : "var(--color-bg-card)",
+            backgroundColor: list.length === 1 || autoOn ? "var(--color-bg-soft)" : "var(--color-bg-card)",
             border: "1px solid var(--color-border)",
-            color: list.length === 1 ? "var(--color-text-muted)" : "var(--color-text-primary)"
+            color: list.length === 1 || autoOn ? "var(--color-text-muted)" : "var(--color-text-primary)"
           },
-          title: t("editor.weight")
+          title: autoOn ? t("rotationAuto.managedWeight") : t("editor.weight")
         }
       ),
       /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -87564,9 +88496,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     setFormData({ ...formData, streams: s });
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "h-[calc(100vh-80px)] w-full flex flex-col overflow-hidden rounded-[24px] shadow-lg", style: { backgroundColor: "var(--color-bg-card)", border: "none" }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center px-6 py-4 flex-shrink-0", style: { borderBottom: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-soft)" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full lg:h-[calc(100vh-80px)] flex flex-col rounded-[24px] shadow-lg", style: { backgroundColor: "var(--color-bg-card)", border: "none" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center flex-wrap gap-2 px-4 py-3 lg:px-6 lg:py-4 flex-shrink-0", style: { borderBottom: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-soft)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3 min-w-0", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
@@ -87577,13 +88509,13 @@ const CampaignEditor = ({ campaignId, onClose }) => {
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { className: "w-5 h-5" })
             }
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-xl font-bold", style: { color: "var(--color-text-primary)" }, children: activeCampaignId ? `${t("editor.campaign")}: ${formData.name}` : t("editor.createCampaign") }),
-          formData.alias && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm font-mono px-2 py-1 rounded-lg", style: { color: "var(--color-text-muted)", backgroundColor: "var(--color-bg-hover)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-base lg:text-xl font-bold truncate", style: { color: "var(--color-text-primary)" }, children: activeCampaignId ? `${t("editor.campaign")}: ${formData.name}` : t("editor.createCampaign") }),
+          formData.alias && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "hidden sm:inline text-sm font-mono px-2 py-1 rounded-lg", style: { color: "var(--color-text-muted)", backgroundColor: "var(--color-bg-hover)" }, children: [
             "/",
             formData.alias
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center space-x-2", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center flex-wrap gap-2 lg:space-x-2 lg:gap-0", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
@@ -87693,13 +88625,13 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: requestClose, className: "btn btn-secondary", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: requestClose, className: "btn btn-secondary hidden lg:flex", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5 mr-2" }),
           t("common.close")
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex overflow-hidden", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-[30%] min-w-[300px] flex flex-col", style: { borderRight: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-soft)" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col lg:flex-row", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "w-full lg:w-[30%] min-w-0 lg:min-w-[300px] flex flex-col border-b lg:border-b-0", style: { borderColor: "var(--color-border)", backgroundColor: "var(--color-bg-soft)" }, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex px-2 pt-2 overflow-x-auto no-scrollbar", style: { borderBottom: "1px solid var(--color-border)" }, children: [
             { key: "general", label: t("editor.general") },
             { key: "finance", label: t("editor.finance") },
@@ -87712,7 +88644,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             "button",
             {
               onClick: () => setActiveTab(tab.key),
-              className: "px-4 py-2 text-sm font-medium border-b-2 transition whitespace-nowrap rounded-t-lg",
+              className: "px-4 max-lg:py-3 py-2 text-sm font-medium border-b-2 transition whitespace-nowrap rounded-t-lg",
               style: {
                 borderColor: activeTab === tab.key ? "var(--color-primary)" : "transparent",
                 color: activeTab === tab.key ? "var(--color-primary)" : "var(--color-text-secondary)",
@@ -87722,7 +88654,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             },
             tab.key
           )) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto p-5", style: { backgroundColor: "var(--color-bg-card)" }, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-10 flex flex-col items-center", style: { color: "var(--color-text-muted)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 p-4 lg:p-5 lg:overflow-y-auto", style: { backgroundColor: "var(--color-bg-card)" }, children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center py-10 flex flex-col items-center", style: { color: "var(--color-text-muted)" }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-8 w-8 border-b-2 mb-2", style: { borderColor: "var(--color-primary)" } }),
             t("common.loading")
           ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
@@ -89008,9 +89940,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             ) })
           ] }) })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col overflow-hidden", style: { backgroundColor: "var(--color-bg-main)" }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 flex justify-between items-center shadow-sm z-10", style: { borderBottom: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "font-bold text-lg", style: { color: "var(--color-text-primary)" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1 flex flex-col border-t lg:border-t-0", style: { borderColor: "var(--color-border)", backgroundColor: "var(--color-bg-main)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 flex justify-between items-center flex-wrap gap-2 shadow-sm z-10", style: { borderBottom: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-card)" }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("h3", { className: "font-bold text-base lg:text-lg", style: { color: "var(--color-text-primary)" }, children: [
               t("editor.streams"),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "font-normal text-sm ml-1", style: { color: "var(--color-text-muted)" }, children: [
                 "(",
@@ -89018,29 +89950,38 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 ")"
               ] })
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative group", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "btn btn-primary", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "relative", ref: streamMenuRef, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { type: "button", className: "btn btn-primary", onClick: () => setStreamMenuOpen(!streamMenuOpen), children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-4 h-4" }),
                 t("editor.createStream"),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-4 h-4 ml-1 opacity-70" })
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: `w-4 h-4 ml-1 opacity-70 transition-transform ${streamMenuOpen ? "rotate-180" : ""}` })
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute right-0 top-full mt-1 w-48 rounded-2xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 py-2", style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => addStream("intercepting"), className: "w-full text-left px-4 py-2 text-sm flex items-center gap-2", style: { color: "var(--color-text-primary)" }, children: [
+              streamMenuOpen && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "absolute right-0 top-full mt-1 w-48 rounded-2xl shadow-lg transition-all duration-200 z-50 py-2", style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                  setStreamMenuOpen(false);
+                  addStream("intercepting");
+                }, className: "w-full text-left px-4 py-2 text-sm flex items-center gap-2", style: { color: "var(--color-text-primary)" }, children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-2 h-2 rounded-full bg-orange-500" }),
                   t("editor.streamIntercepting")
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => addStream("regular"), className: "w-full text-left px-4 py-2 text-sm flex items-center gap-2", style: { color: "var(--color-text-primary)" }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                  setStreamMenuOpen(false);
+                  addStream("regular");
+                }, className: "w-full text-left px-4 py-2 text-sm flex items-center gap-2", style: { color: "var(--color-text-primary)" }, children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-2 h-2 rounded-full bg-blue-500" }),
                   t("editor.streamRegular")
                 ] }),
-                !formData.streams.find((s) => s.type === "fallback") && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => addStream("fallback"), className: "w-full text-left px-4 py-2 text-sm flex items-center gap-2", style: { color: "var(--color-text-primary)" }, children: [
+                !formData.streams.find((s) => s.type === "fallback") && /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
+                  setStreamMenuOpen(false);
+                  addStream("fallback");
+                }, className: "w-full text-left px-4 py-2 text-sm flex items-center gap-2", style: { color: "var(--color-text-primary)" }, children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-2 h-2 rounded-full", style: { backgroundColor: "var(--color-text-muted)" } }),
                   t("editor.streamFallback")
                 ] })
               ] })
             ] })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 overflow-y-auto p-6", children: formData.streams.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "h-full flex flex-col items-center justify-center text-center max-w-sm mx-auto", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex-1 p-4 lg:p-6 lg:overflow-y-auto", children: formData.streams.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "h-full flex flex-col items-center justify-center text-center max-w-sm mx-auto", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-20 h-20 rounded-full flex items-center justify-center mb-6", style: { backgroundColor: "var(--color-bg-soft)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Plus, { className: "w-8 h-8", style: { color: "var(--color-text-muted)" } }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("h4", { className: "text-lg font-bold mb-2", style: { color: "var(--color-text-primary)" }, children: t("editor.noStreamsTitle") }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm", style: { color: "var(--color-text-secondary)" }, children: t("editor.noStreamsDesc") })
@@ -89077,7 +90018,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
               borderLeftWidth: "4px",
               borderLeftColor: stream.type === "intercepting" ? "#f97316" : stream.type === "fallback" ? "var(--color-text-muted)" : "#3b82f6"
             }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between px-4 py-2", style: { borderBottom: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-soft)" }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between flex-wrap gap-2 px-4 py-2", style: { borderBottom: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-soft)" }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-3", children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-bold uppercase", style: {
                     color: stream.type === "intercepting" ? "#f97316" : stream.type === "fallback" ? "var(--color-text-muted)" : "#3b82f6"
@@ -89088,7 +90029,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                       type: "text",
                       value: stream.name || "",
                       onChange: (e) => updateStream(idx, "name", e.target.value),
-                      className: "bg-transparent border-none font-semibold px-0 w-48",
+                      className: "bg-transparent border-none font-semibold px-0 w-full sm:w-48 min-w-0",
                       style: { color: "var(--color-text-primary)" },
                       placeholder: t("editor.streamName")
                     }
@@ -89271,9 +90212,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 })(),
                 stream.schema_type === "landing_offer" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-3 rounded-2xl p-3", style: { border: "1px solid var(--color-border)", backgroundColor: "rgba(59, 130, 246, 0.05)" }, children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-2", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center flex-wrap gap-2 mb-2", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.landings") }),
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                        renderSchemaAutoControls(idx, "landings", stream.schema_custom?.landings),
                         renderSchemaEqualizeButton(idx, "landings", stream.schema_custom?.landings),
                         /* @__PURE__ */ jsxRuntimeExports.jsx(
                           AddDropdownButton,
@@ -89286,12 +90228,14 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         )
                       ] })
                     ] }),
+                    renderAutoStatusPanel(idx, "landings"),
                     (stream.schema_custom?.landings || []).length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs py-3 px-4 rounded-xl border border-dashed text-center", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-muted)" }, children: t("editor.noLandingsAdded") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (stream.schema_custom?.landings || []).map((l, lIdx, list) => renderLandingRow(idx, l, lIdx, list)) })
                   ] }),
                   /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-3", style: { borderTop: "1px solid var(--color-border)" }, children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-2", children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center flex-wrap gap-2 mb-2", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.offers") }),
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                        renderSchemaAutoControls(idx, "offers", stream.schema_custom?.offers),
                         renderSchemaEqualizeButton(idx, "offers", stream.schema_custom?.offers),
                         /* @__PURE__ */ jsxRuntimeExports.jsx(
                           AddDropdownButton,
@@ -89304,6 +90248,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         )
                       ] })
                     ] }),
+                    renderAutoStatusPanel(idx, "offers"),
                     (stream.schema_custom?.offers || []).length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs py-3 px-4 rounded-xl border border-dashed text-center", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-muted)" }, children: t("editor.noOffersAdded") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (stream.schema_custom?.offers || []).map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list)) }),
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 pt-3", style: { borderTop: "1px dashed var(--color-border)" }, children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs font-semibold mb-1", style: { color: "var(--color-text-primary)" }, children: t("editor.offerSelection") }),
@@ -89876,9 +90821,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         t("streamRefine.moneyPageTitle", "Money Page (For Real Visitors)")
                       ] }),
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-1.5", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center flex-wrap gap-2 mb-1.5", children: [
                           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("editor.landings") }),
                           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                            renderSchemaAutoControls(idx, "landings", sc.landings),
                             renderSchemaEqualizeButton(idx, "landings", sc.landings),
                             /* @__PURE__ */ jsxRuntimeExports.jsx(
                               AddDropdownButton,
@@ -89891,12 +90837,14 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             )
                           ] })
                         ] }),
+                        renderAutoStatusPanel(idx, "landings"),
                         (sc.landings || []).length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs py-3 px-4 rounded-xl border border-dashed text-center", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-muted)" }, children: t("editor.noLandingsAdded") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (sc.landings || []).map((l, lIdx, list) => renderLandingRow(idx, l, lIdx, list)) })
                       ] }),
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pt-2", style: { borderTop: "1px solid var(--color-border)" }, children: [
-                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-1.5", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center flex-wrap gap-2 mb-1.5", children: [
                           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-secondary)" }, children: t("editor.offers") }),
                           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                            renderSchemaAutoControls(idx, "offers", sc.offers),
                             renderSchemaEqualizeButton(idx, "offers", sc.offers),
                             /* @__PURE__ */ jsxRuntimeExports.jsx(
                               AddDropdownButton,
@@ -89909,6 +90857,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             )
                           ] })
                         ] }),
+                        renderAutoStatusPanel(idx, "offers"),
                         (sc.offers || []).length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs py-3 px-4 rounded-xl border border-dashed text-center", style: { backgroundColor: "var(--color-bg-soft)", borderColor: "var(--color-border)", color: "var(--color-text-muted)" }, children: t("editor.noOffersAdded") }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-1.5", children: (sc.offers || []).map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list)) })
                       ] })
                     ] })
@@ -90020,6 +90969,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center", children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold", style: { color: "var(--color-text-primary)" }, children: t("editor.offers") }),
                         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
+                          renderSchemaAutoControls(idx, "offers", sc.offers),
                           renderSchemaEqualizeButton(idx, "offers", sc.offers),
                           /* @__PURE__ */ jsxRuntimeExports.jsx(
                             AddDropdownButton,
@@ -90032,6 +90982,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                           )
                         ] })
                       ] }),
+                      renderAutoStatusPanel(idx, "offers"),
                       (() => {
                         const offers = sc.offers || [];
                         const totalWeight = offers.reduce((sum, o) => sum + (parseInt(o.weight) || 0), 0);
@@ -90051,7 +91002,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                   ] });
                 })(),
                 stream.type !== "fallback" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center mb-2", children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex justify-between items-center flex-wrap gap-2 mb-2", children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs font-semibold uppercase", style: { color: "var(--color-text-muted)" }, children: t("editor.filters") }),
                       stream.filters && stream.filters.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "inline-flex rounded-lg p-0.5", style: { backgroundColor: "var(--color-bg-soft)", border: "1px solid var(--color-border)" }, title: t("editor.filtersLogicHint"), children: ["and", "or"].map((mode) => {
@@ -103845,6 +104796,98 @@ function App() {
     ] }) })
   ] });
 }
+const UpdateToast = () => {
+  const { t } = useLanguage();
+  const [waitingWorker, setWaitingWorker] = reactExports.useState(null);
+  const [dismissed, setDismissed] = reactExports.useState(false);
+  const reloadingRef = reactExports.useRef(false);
+  reactExports.useEffect(() => {
+    if (!("serviceWorker" in navigator)) return void 0;
+    if (!window.isSecureContext && !["localhost", "127.0.0.1"].includes(window.location.hostname)) {
+      return void 0;
+    }
+    let registration = null;
+    const onControllerChange = () => {
+      if (reloadingRef.current) window.location.reload();
+    };
+    navigator.serviceWorker.addEventListener("controllerchange", onControllerChange);
+    const watchWaiting = (reg) => {
+      if (reg.waiting && navigator.serviceWorker.controller) {
+        setWaitingWorker(reg.waiting);
+      }
+    };
+    const panelParam = encodeURIComponent(window.location.pathname || "/admin.php");
+    navigator.serviceWorker.register(`/sw.js?panel=${panelParam}`, { scope: "/" }).then((reg) => {
+      registration = reg;
+      watchWaiting(reg);
+      reg.addEventListener("updatefound", () => {
+        const worker = reg.installing;
+        if (!worker) return;
+        worker.addEventListener("statechange", () => {
+          if (worker.state === "installed" && navigator.serviceWorker.controller) {
+            setWaitingWorker(worker);
+          }
+        });
+      });
+    }).catch(() => {
+    });
+    const onVisible = () => {
+      if (document.visibilityState === "visible" && registration) {
+        registration.update().catch(() => {
+        });
+      }
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      navigator.serviceWorker.removeEventListener("controllerchange", onControllerChange);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, []);
+  const applyUpdate = () => {
+    if (!waitingWorker) return;
+    reloadingRef.current = true;
+    waitingWorker.postMessage("SKIP_WAITING");
+  };
+  if (!waitingWorker || dismissed) return null;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      role: "status",
+      className: "fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 z-[2500] flex items-center gap-3 rounded-2xl border shadow-2xl px-4 py-3",
+      style: { backgroundColor: "var(--color-bg-card)", borderColor: "var(--color-border)" },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(RefreshCw, { className: "w-5 h-5 flex-shrink-0", style: { color: "var(--color-primary)" } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-sm font-medium", style: { color: "var(--color-text-primary)" }, children: t("pwa.updateAvailable") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2 ml-auto flex-shrink-0", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: applyUpdate,
+              className: "btn btn-primary text-xs py-2.5 px-4 rounded-xl font-semibold",
+              style: { minHeight: 44 },
+              children: t("pwa.reload")
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: () => setDismissed(true),
+              className: "p-2 rounded-lg",
+              style: { color: "var(--color-text-muted)", minHeight: 44, minWidth: 44 },
+              "aria-label": t("common.close"),
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-4 h-4" })
+            }
+          )
+        ] })
+      ]
+    }
+  );
+};
 clientExports.createRoot(document.getElementById("root")).render(
-  /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(LanguageProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) })
+  /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(LanguageProvider, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(UpdateToast, {}),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(App, {})
+  ] }) })
 );

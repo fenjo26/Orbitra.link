@@ -7,6 +7,55 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.2.0] — 2026-08-23
+
+Mobile + PWA + rotation auto-optimiser release: the panel is finally usable on
+a phone, installs to the home screen, ships content-hashed assets (the
+"hard-reload after update" era is over), and streams can hand their
+landing/offer weights to a cron that reweights them by real performance.
+
+### Fixed
+
+- **The panel was a 980px desktop on phones**: the frontend shipped no viewport
+  meta at all, so mobile browsers rendered a virtual desktop and every `lg:`
+  breakpoint already in the code never fired. One tag
+  (`width=device-width, viewport-fit=cover`) plus the mobile layout below.
+- **"Create stream" menu was dead on touchscreens**: opened on hover; now on
+  click, with 44px touch targets.
+- **router.php ate real root files**: `/sw.js` (and any real file at the domain
+  root) fell into the campaign-alias branch and died as an empty 200; a
+  `file_exists` guard mirrors Apache's `RewriteCond !-f`.
+
+### Added
+
+- **Mobile layout**: five list screens (Campaigns, Offers, Landings,
+  Conversions, Logs) switch to card rows below `lg` via a shared MobileCards
+  component; the campaign editor lays out in one column; pagination and report
+  toolbars wrap.
+- **PWA**: the manifest is served by admin.php itself so `start_url` always
+  matches the real entry (/admin.php or the secret admin path — a static file
+  could never cover both); icons 192/512 + maskable + apple-touch; installable
+  to the home screen.
+- **Service worker**: panel shell network-first (offline fallback only),
+  hashed dist assets stale-while-revalidate; new builds swap on reload via an
+  update toast — never mid-session. No skipWaiting.
+- **Content-hashed build assets**: vite emits `index-[hash].js|css`, admin.php
+  resolves them through `.vite/manifest.json` (also heals a stale shell after
+  a partial deploy); the `?v=filemtime` cache-buster and the hard-reload
+  advice are retired.
+- **Rotation auto-optimiser**: an Auto toggle per stream landing/offer list
+  with a metric (confirmed sales, CR, EPV, EPC, ROI); a */5 cron recomputes
+  weights from the same report-metrics engine over a rolling 7-day window
+  (safe-page clicks excluded, bots kept); moves are budgeted (cap 70%, floor
+  5%, ≤20pp per run, warm-up items keep their share, rounding always totals
+  100); every decision is audited per item in `stream_rotation_log` (migration
+  39, keyed by a rotation key inside `schema_custom_json` — stream ids churn
+  on campaign save); `save_campaign` sanitises auto configs (cost-dependent
+  metrics require cost, clamps) and hands cron-owned weights back — the editor
+  round-trips a stale copy that must never resurrect moved weights.
+  `rotation_status` feeds the editor cost availability + recent decisions;
+  install.sh schedules the cron.
+
 ## [1.1.11] — 2026-08-23
 
 Cloak evidence + reconciliation release: every cloak reason now names the fact
