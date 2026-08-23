@@ -1824,6 +1824,8 @@ export default {
         "networkError": "Netzwerkfehler",
         "deleteConfirm": "Gruppe löschen? Die Gruppierung der Angebote in dieser Gruppe wird aufgehoben.",
         "deleteError": "Löschfehler",
+        "rename": "Umbenennen",
+        "renameError": "Fehler beim Umbenennen",
         "close": "Schließen",
         "loading": "Laden..."
     },

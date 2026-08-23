@@ -3569,6 +3569,31 @@ try {
             }
             break;
 
+        // campaign_groups has no UNIQUE index on name (unlike the other three
+        // group tables), so uniqueness is enforced by an explicit check here —
+        // the same rule the other rename_*_group cases get from their
+        // constraint plus the try/catch below.
+        case 'rename_campaign_group':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $data = json_decode(orbitraRequestBody(), true);
+                $id = isset($data['id']) ? (int) $data['id'] : 0;
+                $name = trim((string) ($data['name'] ?? ''));
+                if ($id > 0 && $name !== '') {
+                    $dup = $pdo->prepare("SELECT COUNT(*) FROM campaign_groups WHERE name = ? AND id != ?");
+                    $dup->execute([$name, $id]);
+                    if ($dup->fetchColumn() > 0) {
+                        echo json_encode(['status' => 'error', 'message' => 'Group name already exists']);
+                        break;
+                    }
+                    $stmt = $pdo->prepare("UPDATE campaign_groups SET name = ? WHERE id = ?");
+                    $stmt->execute([$name, $id]);
+                    echo json_encode(['status' => 'success']);
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Missing ID or name']);
+                }
+            }
+            break;
+
         case 'delete_campaign_group':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);
@@ -4052,6 +4077,27 @@ try {
             } else {
                 $stmt = $pdo->query("SELECT * FROM landing_groups ORDER BY name ASC");
                 echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
+            }
+            break;
+
+        // landing_groups.name is UNIQUE: the constraint covers races the
+        // explicit check below cannot, so both are kept.
+        case 'rename_landing_group':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $data = json_decode(orbitraRequestBody(), true);
+                $id = isset($data['id']) ? (int) $data['id'] : 0;
+                $name = trim((string) ($data['name'] ?? ''));
+                if ($id > 0 && $name !== '') {
+                    try {
+                        $stmt = $pdo->prepare("UPDATE landing_groups SET name = ? WHERE id = ?");
+                        $stmt->execute([$name, $id]);
+                        echo json_encode(['status' => 'success']);
+                    } catch (\Exception $e) {
+                        echo json_encode(['status' => 'error', 'message' => 'Group name already exists']);
+                    }
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Missing ID or name']);
+                }
             }
             break;
 
@@ -6007,6 +6053,27 @@ try {
             }
             break;
 
+        // domain_groups.name is UNIQUE; the duplicate message mirrors the
+        // create path above.
+        case 'rename_domain_group':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $data = json_decode(orbitraRequestBody(), true);
+                $id = isset($data['id']) ? (int) $data['id'] : 0;
+                $name = trim((string) ($data['name'] ?? ''));
+                if ($id > 0 && $name !== '') {
+                    try {
+                        $stmt = $pdo->prepare("UPDATE domain_groups SET name = ? WHERE id = ?");
+                        $stmt->execute([$name, $id]);
+                        echo json_encode(['status' => 'success']);
+                    } catch (\Exception $e) {
+                        echo json_encode(['status' => 'error', 'message' => 'Группа с таким названием уже существует']);
+                    }
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Missing ID or name']);
+                }
+            }
+            break;
+
         case 'delete_domain_group':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);
@@ -6213,6 +6280,27 @@ try {
                 }
             }
             echo json_encode(['status' => 'success', 'data' => $result]);
+            break;
+
+        // offer_groups.name is UNIQUE; the duplicate message mirrors the
+        // create path above.
+        case 'rename_offer_group':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $data = json_decode(orbitraRequestBody(), true);
+                $id = isset($data['id']) ? (int) $data['id'] : 0;
+                $name = trim((string) ($data['name'] ?? ''));
+                if ($id > 0 && $name !== '') {
+                    try {
+                        $stmt = $pdo->prepare("UPDATE offer_groups SET name = ? WHERE id = ?");
+                        $stmt->execute([$name, $id]);
+                        echo json_encode(['status' => 'success']);
+                    } catch (\Exception $e) {
+                        echo json_encode(['status' => 'error', 'message' => 'Группа с таким названием уже существует']);
+                    }
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Missing ID or name']);
+                }
+            }
             break;
 
         case 'delete_offer_group':

@@ -1824,6 +1824,8 @@ export default {
         "networkError": "Network error",
         "deleteConfirm": "Delete group? Offers in this group will be ungrouped.",
         "deleteError": "Deletion error",
+        "rename": "Rename",
+        "renameError": "Rename error",
         "close": "Close",
         "loading": "Loading..."
     },

@@ -1824,6 +1824,8 @@ export default {
         "networkError": "网络错误",
         "deleteConfirm": "删除群组？该组中的优惠将被取消分组。",
         "deleteError": "删除错误",
+        "rename": "重命名",
+        "renameError": "重命名失败",
         "close": "关闭",
         "loading": "正在加载..."
     },

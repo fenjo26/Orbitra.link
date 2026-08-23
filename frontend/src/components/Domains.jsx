@@ -287,8 +287,19 @@ const Domains = ({ campaigns }) => {
         try {
             const { data } = await cachedGet('domains');
             if (data.status === 'success') {
-                setDomains(data.data);
-                setFilteredDomains(data.data);
+                // The 5s SSL poll below calls this repeatedly while a domain
+                // is stuck in a non-final state. Writing an identical (but
+                // fresh-object) payload would re-render the whole page —
+                // modals included — every ~30s for nothing, so the write is
+                // gated on the payload actually changing. cache_age is a
+                // per-request counter the UI never reads, so it is excluded
+                // from the comparison.
+                const payload = JSON.stringify(data.data, (key, value) => key === 'cache_age' ? undefined : value);
+                if (payload !== lastDomainsPayloadRef.current) {
+                    lastDomainsPayloadRef.current = payload;
+                    setDomains(data.data);
+                    setFilteredDomains(data.data);
+                }
                 setServerIp(data.server_ip || t('common.notSet'));
             }
         } catch (e) {
@@ -402,17 +413,23 @@ const Domains = ({ campaigns }) => {
         localStorage.setItem('domains_ignore_dns_ui', ignoreDnsUi ? '1' : '0');
     }, [ignoreDnsUi]);
 
-    // Poll for SSL status updates every 5 seconds when there are pending/installing domains
+    // Poll for SSL status updates every 5 seconds when there are pending/installing domains.
+    // The pending check reads a ref so the interval is created once instead of
+    // being torn down and rebuilt on every domains array replacement.
+    const pendingSslRef = useRef(false);
     useEffect(() => {
-        const interval = setInterval(async () => {
-            // Only poll if there are domains with pending/installing SSL
-            const hasPending = domains.some(d => ['pending', 'installing', 'waiting_dns'].includes(d.ssl_status));
-            if (hasPending) {
-                await fetchDomains();
-            }
-        }, 5000); // Check every 5 seconds
-        return () => clearInterval(interval);
+        pendingSslRef.current = domains.some(d => ['pending', 'installing', 'waiting_dns'].includes(d.ssl_status));
     }, [domains]);
+    const lastDomainsPayloadRef = useRef(null);
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (pendingSslRef.current) fetchDomains();
+        }, 5000);
+        return () => clearInterval(interval);
+        // fetchDomains is re-created every render but always reads the same
+        // refs and setters, so a single interval is enough.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const handleEdit = (domain) => {
         setFormData({

@@ -1824,6 +1824,8 @@ export default {
         "networkError": "error de red",
         "deleteConfirm": "¿Eliminar grupo? Las ofertas de este grupo se desagruparán.",
         "deleteError": "Error de eliminación",
+        "rename": "Renombrar",
+        "renameError": "Error al renombrar",
         "close": "Cerrar",
         "loading": "Cargando..."
     },

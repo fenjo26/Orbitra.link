@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2 } from 'lucide-react';
+import { X, Plus, Trash2, Edit2, Check } from 'lucide-react';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
+import { invalidateCache } from '../utils/apiCache';
 
 const API_URL = '/api.php';
 
@@ -10,6 +11,11 @@ const GroupsModal = ({ type, onClose, onGroupCreated }) => {
     const [groups, setGroups] = useState([]);
     const [loading, setLoading] = useState(true);
     const [newGroupName, setNewGroupName] = useState('');
+    // Inline rename: the row's name span swaps for an input while
+    // editingId matches; Enter/check saves, Escape cancels.
+    const [editingId, setEditingId] = useState(null);
+    const [editingName, setEditingName] = useState('');
+    const [renaming, setRenaming] = useState(false);
 
     const getEndpoint = () => {
         switch (type) {
@@ -28,6 +34,16 @@ const GroupsModal = ({ type, onClose, onGroupCreated }) => {
             case 'campaign': return 'delete_campaign_group';
             case 'domain': return 'delete_domain_group';
             default: return 'delete_offer_group';
+        }
+    };
+
+    const getRenameEndpoint = () => {
+        switch (type) {
+            case 'offer': return 'rename_offer_group';
+            case 'landing': return 'rename_landing_group';
+            case 'campaign': return 'rename_campaign_group';
+            case 'domain': return 'rename_domain_group';
+            default: return 'rename_offer_group';
         }
     };
 
@@ -62,6 +78,7 @@ const GroupsModal = ({ type, onClose, onGroupCreated }) => {
             if (res.data.status === 'success') {
                 const created = { id: res.data.data?.id, name: newGroupName.trim() };
                 setNewGroupName('');
+                invalidateCache(endpoint);
                 fetchGroups();
                 // Let the caller (e.g. a "+" button next to a group select) select
                 // the new group immediately instead of reopening the dropdown.
@@ -75,8 +92,35 @@ const GroupsModal = ({ type, onClose, onGroupCreated }) => {
         if (!window.confirm(t('groupsModal.deleteConfirm'))) return;
         try {
             await axios.post(`${API_URL}?action=${getDeleteEndpoint()}`, { id });
+            invalidateCache(endpoint);
             fetchGroups();
         } catch { alert(t('groupsModal.deleteError')); }
+    };
+
+    const startRename = (group) => {
+        setEditingId(group.id);
+        setEditingName(group.name);
+    };
+
+    const cancelRename = () => {
+        setEditingId(null);
+        setEditingName('');
+    };
+
+    const saveRename = async () => {
+        const name = editingName.trim();
+        if (!name || editingId == null || renaming) return;
+        setRenaming(true);
+        try {
+            const res = await axios.post(`${API_URL}?action=${getRenameEndpoint()}`, { id: editingId, name });
+            if (res.data.status === 'success') {
+                cancelRename();
+                invalidateCache(endpoint);
+                fetchGroups();
+            }
+            else alert(res.data.message || t('groupsModal.renameError'));
+        } catch { alert(t('groupsModal.networkError')); }
+        finally { setRenaming(false); }
     };
 
     return (
@@ -116,13 +160,44 @@ const GroupsModal = ({ type, onClose, onGroupCreated }) => {
                         <ul className="divide-y" style={{ borderColor: 'var(--color-border)' }}>
                             {groups.map((group) => (
                                 <li key={group.id} className="flex items-center justify-between px-6 py-3 transition" style={{ borderColor: 'var(--color-border)' }}>
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{group.name}</span>
-                                        <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>ID: {group.id}</span>
-                                    </div>
-                                    <button onClick={() => handleDelete(group.id)} className="action-btn" title={t('groups.delete')}>
-                                        <Trash2 className="w-4 h-4" style={{ color: 'var(--color-text-muted)' }} />
-                                    </button>
+                                    {editingId === group.id ? (
+                                        <>
+                                            <input
+                                                type="text"
+                                                value={editingName}
+                                                onChange={(e) => setEditingName(e.target.value)}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') { e.preventDefault(); saveRename(); }
+                                                    else if (e.key === 'Escape') { e.preventDefault(); cancelRename(); }
+                                                }}
+                                                className="form-input text-sm flex-1"
+                                                autoFocus
+                                            />
+                                            <div className="flex items-center gap-1 ml-2">
+                                                <button onClick={saveRename} disabled={!editingName.trim() || renaming} className="action-btn" title={t('common.save')}>
+                                                    <Check className="w-4 h-4" style={{ color: 'var(--color-primary)' }} />
+                                                </button>
+                                                <button onClick={cancelRename} className="action-btn" title={t('common.cancel')}>
+                                                    <X className="w-4 h-4" style={{ color: 'var(--color-text-muted)' }} />
+                                                </button>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{group.name}</span>
+                                                <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>ID: {group.id}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <button onClick={() => startRename(group)} className="action-btn" title={t('groupsModal.rename')}>
+                                                    <Edit2 className="w-4 h-4" style={{ color: 'var(--color-text-muted)' }} />
+                                                </button>
+                                                <button onClick={() => handleDelete(group.id)} className="action-btn" title={t('groups.delete')}>
+                                                    <Trash2 className="w-4 h-4" style={{ color: 'var(--color-text-muted)' }} />
+                                                </button>
+                                            </div>
+                                        </>
+                                    )}
                                 </li>
                             ))}
                         </ul>
