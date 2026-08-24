@@ -18919,6 +18919,13 @@ const ru = {
     "updateAvailable": "Доступно обновление!",
     "updateDesc": "Версия {version} готова к установке. Нажмите для перехода к обновлению."
   },
+  "workerHealth": {
+    "title": "Фоновые задачи требуют внимания",
+    "queueWorkerMissing": "Обработчик очереди постбеков / CAPI не запущен: в очереди {count} событий, самое старое ждёт {minutes} мин. Конверсии не доходят до Facebook, TikTok и партнёрок. Установите крон: * * * * * php /var/www/orbitra/postback_queue_cron.php",
+    "queueStalled": "Очередь постбеков / CAPI не разгружается: {count} событий, самое старое ждёт {minutes} мин.",
+    "aggregatorNotScheduled": "Агрегатор расходов не запускается по расписанию — расход обновляется только по кнопке «Синхронизировать». Установите крон: */15 * * * * php /var/www/orbitra/aggregator_cron.php",
+    "shadowedStatuses": "Пользовательские типы конверсий {statuses} перекрывают встроенный статус, для которого не задано событие Meta — такие конверсии не уходят в Conversions API."
+  },
   "mainChart": {
     "chartError": "Ошибка отображения графика",
     "invalidData": "Некорректный формат данных"
@@ -22100,6 +22107,13 @@ const en = {
     "updated": "Updated:",
     "updateAvailable": "Update Available!",
     "updateDesc": "Version {version} is ready to install. Click to go to update."
+  },
+  "workerHealth": {
+    "title": "Background workers need attention",
+    "queueWorkerMissing": "The postback / CAPI queue worker is not running: {count} event(s) pending, the oldest for {minutes} minute(s). Conversions are not reaching Facebook, TikTok or your networks. Install the cron: * * * * * php /var/www/orbitra/postback_queue_cron.php",
+    "queueStalled": "The postback / CAPI queue is not draining: {count} event(s) pending, the oldest for {minutes} minute(s).",
+    "aggregatorNotScheduled": "The cost aggregator has not run on a schedule; spend only updates on a manual Sync. Install the cron: */15 * * * * php /var/www/orbitra/aggregator_cron.php",
+    "shadowedStatuses": "Custom conversion type(s) {statuses} shadow a built-in status with no Meta event mapped — conversions with that status are not sent to the Conversions API."
   },
   "mainChart": {
     "chartError": "Chart rendering error",
@@ -25743,6 +25757,13 @@ const uk = {
     "updateAvailable": "Оновлення доступне!",
     "updateDesc": "Версія {version} готова до встановлення. Натисніть, щоб перейти до оновлення."
   },
+  "workerHealth": {
+    "title": "Фонові задачі потребують уваги",
+    "queueWorkerMissing": "Обробник черги постбеків / CAPI не запущено: у черзі {count} подій, найстаріша чекає {minutes} хв. Конверсії не доходять до Facebook, TikTok і партнерок. Встановіть крон: * * * * * php /var/www/orbitra/postback_queue_cron.php",
+    "queueStalled": "Черга постбеків / CAPI не розвантажується: {count} подій, найстаріша чекає {minutes} хв.",
+    "aggregatorNotScheduled": "Агрегатор витрат не запускається за розкладом — витрати оновлюються лише вручну. Встановіть крон: */15 * * * * php /var/www/orbitra/aggregator_cron.php",
+    "shadowedStatuses": "Користувацькі типи конверсій {statuses} перекривають вбудований статус без події Meta — такі конверсії не надсилаються до Conversions API."
+  },
   "mainChart": {
     "chartError": "Помилка відтворення діаграми",
     "invalidData": "Недійсний формат даних"
@@ -29384,6 +29405,13 @@ const es = {
     "updated": "Actualizado:",
     "updateAvailable": "¡Actualización disponible!",
     "updateDesc": "La versión {version} está lista para instalarse. Haga clic para ir a la actualización."
+  },
+  "workerHealth": {
+    "title": "Los procesos en segundo plano necesitan atención",
+    "queueWorkerMissing": "El worker de la cola de postbacks / CAPI no se está ejecutando: {count} evento(s) pendientes, el más antiguo desde hace {minutes} minuto(s). Las conversiones no llegan a Facebook, TikTok ni a tus redes. Instala el cron: * * * * * php /var/www/orbitra/postback_queue_cron.php",
+    "queueStalled": "La cola de postbacks / CAPI no se está vaciando: {count} evento(s) pendientes, el más antiguo desde hace {minutes} minuto(s).",
+    "aggregatorNotScheduled": "El agregador de costes no se ejecuta de forma programada; el gasto solo se actualiza con una sincronización manual. Instala el cron: */15 * * * * php /var/www/orbitra/aggregator_cron.php",
+    "shadowedStatuses": "Los tipos de conversión personalizados {statuses} ocultan un estado integrado sin evento de Meta asignado: esas conversiones no se envían a la Conversions API."
   },
   "mainChart": {
     "chartError": "Error de representación del gráfico",
@@ -33027,6 +33055,13 @@ const zh = {
     "updateAvailable": "更新可用！",
     "updateDesc": "版本 {version} 已准备好安装。点击前往更新。"
   },
+  "workerHealth": {
+    "title": "后台任务需要处理",
+    "queueWorkerMissing": "回传 / CAPI 队列处理程序未运行：{count} 个事件待发送，最早的已等待 {minutes} 分钟。转化未送达 Facebook、TikTok 和联盟。请安装定时任务：* * * * * php /var/www/orbitra/postback_queue_cron.php",
+    "queueStalled": "回传 / CAPI 队列未在清空：{count} 个事件待发送，最早的已等待 {minutes} 分钟。",
+    "aggregatorNotScheduled": "成本聚合器未按计划运行，花费仅在手动同步时更新。请安装定时任务：*/15 * * * * php /var/www/orbitra/aggregator_cron.php",
+    "shadowedStatuses": "自定义转化类型 {statuses} 覆盖了未映射 Meta 事件的内置状态 — 这些转化不会发送到 Conversions API。"
+  },
   "mainChart": {
     "chartError": "图表渲染错误",
     "invalidData": "数据格式无效"
@@ -36668,6 +36703,13 @@ const fr = {
     "updated": "Mise à jour :",
     "updateAvailable": "Mise à jour disponible !",
     "updateDesc": "La version {version} est prêt à installer. Cliquez pour procéder à la mise à jour."
+  },
+  "workerHealth": {
+    "title": "Les tâches de fond nécessitent votre attention",
+    "queueWorkerMissing": "Le worker de la file postbacks / CAPI ne tourne pas : {count} événement(s) en attente, le plus ancien depuis {minutes} minute(s). Les conversions n'arrivent ni à Facebook, ni à TikTok, ni à vos réseaux. Installez le cron : * * * * * php /var/www/orbitra/postback_queue_cron.php",
+    "queueStalled": "La file postbacks / CAPI ne se vide pas : {count} événement(s) en attente, le plus ancien depuis {minutes} minute(s).",
+    "aggregatorNotScheduled": "L'agrégateur de coûts ne s'exécute pas selon une planification ; les dépenses ne se mettent à jour que sur une synchronisation manuelle. Installez le cron : */15 * * * * php /var/www/orbitra/aggregator_cron.php",
+    "shadowedStatuses": "Les types de conversion personnalisés {statuses} masquent un statut intégré sans événement Meta associé — ces conversions ne partent pas vers la Conversions API."
   },
   "mainChart": {
     "chartError": "Erreur de rendu du graphique",
@@ -40312,6 +40354,13 @@ const de = {
     "updated": "Aktualisiert:",
     "updateAvailable": "Update verfügbar!",
     "updateDesc": "Version {version} ist zur Installation bereit. Klicken Sie hier, um zum Aktualisieren zu gelangen."
+  },
+  "workerHealth": {
+    "title": "Hintergrunddienste benötigen Aufmerksamkeit",
+    "queueWorkerMissing": "Der Postback-/CAPI-Queue-Worker läuft nicht: {count} Ereignis(se) warten, das älteste seit {minutes} Minute(n). Konversionen erreichen Facebook, TikTok und Ihre Netzwerke nicht. Cron einrichten: * * * * * php /var/www/orbitra/postback_queue_cron.php",
+    "queueStalled": "Die Postback-/CAPI-Queue wird nicht abgearbeitet: {count} Ereignis(se) warten, das älteste seit {minutes} Minute(n).",
+    "aggregatorNotScheduled": "Der Kosten-Aggregator läuft nicht nach Zeitplan; Ausgaben aktualisieren sich nur bei manueller Synchronisierung. Cron einrichten: */15 * * * * php /var/www/orbitra/aggregator_cron.php",
+    "shadowedStatuses": "Eigene Konversionstypen {statuses} überdecken einen eingebauten Status ohne zugeordnetes Meta-Ereignis — solche Konversionen gehen nicht an die Conversions API."
   },
   "mainChart": {
     "chartError": "Fehler bei der Darstellung des Diagramms",
@@ -58600,7 +58649,7 @@ const ColumnResizeHandle = ({ rt, colId }) => {
       onPointerMove: handlePointerMove,
       onPointerUp: (e) => endDrag(e, { commit: true }),
       onPointerCancel: (e) => endDrag(e, { revert: true }),
-      onLostPointerCapture: (e) => endDrag(e, { revert: true }),
+      onLostPointerCapture: (e) => endDrag(e, { commit: true }),
       onDoubleClick: (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -58618,6 +58667,193 @@ const ColumnResizeHandle = ({ rt, colId }) => {
       ] })
     }
   );
+};
+const SortIcon = ({ sortBy, colKey }) => {
+  if (sortBy.key !== colKey) return /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 opacity-40" });
+  return sortBy.dir === "asc" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } });
+};
+const SortableTh = ({ colKey, label, fullTitle, defaultDir = "asc", alignRight = false, draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd, resize }) => {
+  const isActive = sortBy.key === colKey;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "th",
+    {
+      className: `${alignRight ? "text-right" : "text-left"} whitespace-nowrap transition-all resizable-th`,
+      "aria-sort": isActive ? sortBy.dir === "asc" ? "ascending" : "descending" : "none",
+      title: fullTitle,
+      onDragOver,
+      onDrop,
+      onDragEnd,
+      style: {
+        textAlign: alignRight ? "right" : "left",
+        userSelect: "none",
+        boxShadow: isDragOver ? "inset 2px 0 0 var(--color-primary)" : "none",
+        backgroundColor: isDragOver ? "var(--color-bg-soft)" : void 0
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `inline-flex items-center gap-1.5 ${alignRight ? "justify-end w-full" : ""}`, children: [
+          draggable && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "span",
+            {
+              draggable: !resize?.resizingId,
+              onDragStart,
+              className: "cursor-grab active:cursor-grabbing flex-shrink-0 -ml-1",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3 h-3 opacity-25 hover:opacity-75" })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: () => requestSort(colKey, defaultDir),
+              className: "inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap cursor-pointer",
+              style: {
+                color: isActive ? "var(--color-primary)" : "var(--color-text-secondary)",
+                textAlign: alignRight ? "right" : "left"
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { sortBy, colKey })
+              ]
+            }
+          )
+        ] }),
+        resize && /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: resize, colId: colKey })
+      ]
+    }
+  );
+};
+const NUMERIC_METRIC_KEYS = /* @__PURE__ */ new Set([
+  "id",
+  "payout_value",
+  "clicks",
+  "unique_clicks",
+  "visits",
+  "unique_visits",
+  "lp_clicks",
+  "lp_ctr",
+  "conversions",
+  "leads",
+  "sales",
+  "rejected",
+  "trash",
+  "approve_rate",
+  "revenue",
+  "revenue_confirmed",
+  "cost",
+  "cr",
+  "epc",
+  "epc_confirmed",
+  "epv",
+  "cpc",
+  "cpv",
+  "profit",
+  "profit_confirmed",
+  "roi",
+  "roi_confirmed",
+  // All derived metrics from orbitraComputeDerivedMetrics
+  "cpa",
+  "cpl",
+  "cps",
+  "cpr",
+  "cpd",
+  "cr_sales",
+  "cr_holds",
+  "cr_leads",
+  "cr_registrations",
+  "cr_deposits",
+  "registrations",
+  "deposits",
+  "uc_rate",
+  "bot_rate",
+  "uepc",
+  "uepc_confirmed",
+  "epc_hold",
+  "uepc_hold",
+  "epc_registration",
+  "uepc_registration",
+  "ucpc",
+  "ecpm_all",
+  "ecpm_confirmed",
+  "earnings_per_conv",
+  "ec_confirmed",
+  "revenue_hold",
+  "revenue_rejected",
+  "revenue_trash",
+  "revenue_registration",
+  "revenue_deposit",
+  "real_revenue",
+  "real_profit",
+  "real_roi",
+  "bots",
+  "proxies",
+  "empty_referrers",
+  "unique_clicks_stream",
+  "unique_clicks_global"
+]);
+const sortRows = (rows, sortBy) => {
+  if (!sortBy?.key) return rows;
+  const dirMul = sortBy.dir === "asc" ? 1 : -1;
+  const isNumeric = NUMERIC_METRIC_KEYS.has(sortBy.key);
+  const getVal = (row) => {
+    const val = row[sortBy.key];
+    if (val === null || val === void 0) return "";
+    if (typeof val === "number") return val;
+    return String(val);
+  };
+  return rows.map((row, idx) => ({ row, idx })).sort((a, b) => {
+    const av = getVal(a.row);
+    const bv = getVal(b.row);
+    const cmp = isNumeric ? (Number(av) || 0) - (Number(bv) || 0) : String(av).localeCompare(String(bv), void 0, { sensitivity: "base" });
+    if (cmp !== 0) return cmp * dirMul;
+    return a.idx - b.idx;
+  }).map((x) => x.row);
+};
+const nextSortState = (prev, key, defaultDir = "asc") => prev.key === key ? { key, dir: prev.dir === "asc" ? "desc" : "asc" } : { key, dir: defaultDir };
+const STORAGE_KEY = "orbitra_tz";
+const DEFAULT_TIMEZONE = "UTC";
+const readStored = () => {
+  try {
+    return localStorage.getItem(STORAGE_KEY) || DEFAULT_TIMEZONE;
+  } catch {
+    return DEFAULT_TIMEZONE;
+  }
+};
+let currentTimezone = readStored();
+const subscribers = /* @__PURE__ */ new Set();
+const getTimezone = () => currentTimezone;
+const setTimezone = (next) => {
+  const value = next || DEFAULT_TIMEZONE;
+  if (value === currentTimezone) return;
+  currentTimezone = value;
+  try {
+    localStorage.setItem(STORAGE_KEY, value);
+  } catch {
+  }
+  subscribers.forEach((fn) => fn(value));
+};
+const subscribeTimezone = (fn) => {
+  subscribers.add(fn);
+  return () => subscribers.delete(fn);
+};
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (e) => {
+    if (e.key !== STORAGE_KEY || !e.newValue || e.newValue === currentTimezone) return;
+    currentTimezone = e.newValue;
+    subscribers.forEach((fn) => fn(currentTimezone));
+  });
+}
+function useTimezone() {
+  const [value, setValue] = reactExports.useState(currentTimezone);
+  reactExports.useEffect(() => {
+    if (value !== currentTimezone) setValue(currentTimezone);
+    return subscribeTimezone(setValue);
+  }, []);
+  return [value, setTimezone];
+}
+const formatTimezoneChip = (tz) => {
+  const parts = String(tz || "").split("/");
+  const city = parts.length > 1 ? parts[parts.length - 1] : parts[0];
+  return city.replace(/_/g, " ");
 };
 const TIMEZONES = [
   { value: "UTC", label: "UTC (UTC+00:00)" },
@@ -58710,7 +58946,7 @@ const DateRangePicker = ({
   const [tempTo, setTempTo] = reactExports.useState(dateTo || formatDate$1(/* @__PURE__ */ new Date()));
   const [hoverDate, setHoverDate] = reactExports.useState(null);
   const [selectionStep, setSelectionStep] = reactExports.useState(0);
-  const [timezone, setTimezone] = reactExports.useState(selectedTimezone || localStorage.getItem("orbitra_tz") || "UTC");
+  const [timezone, setTimezone$1] = reactExports.useState(selectedTimezone || getTimezone());
   const containerRef = reactExports.useRef(null);
   const [computedAlign, setComputedAlign] = reactExports.useState("right");
   reactExports.useEffect(() => {
@@ -58789,9 +59025,9 @@ const DateRangePicker = ({
   };
   const handleApply = () => {
     onChange(tempFrom, tempTo);
+    setTimezone(timezone);
     if (onTimezoneChange) {
       onTimezoneChange(timezone);
-      localStorage.setItem("orbitra_tz", timezone);
     }
     setIsOpen(false);
   };
@@ -58869,7 +59105,7 @@ const DateRangePicker = ({
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar$1, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: formatDisplay() }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs px-1.5 py-0.5 rounded", style: { backgroundColor: "var(--color-bg-soft)", color: "var(--color-text-muted)" }, children: timezone.split("/")[1] || timezone }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs px-1.5 py-0.5 rounded", style: { backgroundColor: "var(--color-bg-soft)", color: "var(--color-text-muted)" }, children: formatTimezoneChip(timezone) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs", style: { color: "var(--color-text-muted)" }, children: "▾" })
         ]
       }
@@ -59026,7 +59262,7 @@ const DateRangePicker = ({
                     "select",
                     {
                       value: timezone,
-                      onChange: (e) => setTimezone(e.target.value),
+                      onChange: (e) => setTimezone$1(e.target.value),
                       className: "form-select text-xs py-1 px-2 rounded-lg",
                       style: { width: "200px" },
                       children: TIMEZONES.map((tz) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: tz.value, children: tz.label }, tz.value))
@@ -59590,7 +59826,7 @@ const ReportCustomizerModal = ({
     copy[index2] = { ...copy[index2], [key]: val };
     setFilters(copy);
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", style: { padding: "24px 16px", zIndex: 1200 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", style: { padding: "24px 16px", zIndex: 2100 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
       className: "modal-content rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150",
@@ -60486,7 +60722,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
   const todayPreset = getPresetDates("last7Days") || getPresetDates("today");
   const [dateFrom, setDateFrom] = reactExports.useState(todayPreset?.from || formatDate$1(/* @__PURE__ */ new Date()));
   const [dateTo, setDateTo] = reactExports.useState(todayPreset?.to || formatDate$1(/* @__PURE__ */ new Date()));
-  const [timezone, setTimezone] = reactExports.useState(() => localStorage.getItem("orbitra_tz") || "UTC");
+  const [timezone, setTimezone2] = useTimezone();
   const [customizerOpen, setCustomizerOpen] = reactExports.useState(false);
   const [chosenColumns, setChosenColumns] = reactExports.useState(() => {
     try {
@@ -60555,8 +60791,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         date_to: dateTo
       };
       if (campaignId) params.campaign_id = campaignId;
-      const tz = localStorage.getItem("orbitra_tz");
-      if (tz) params.timezone = tz;
+      if (timezone) params.timezone = timezone;
       if (filters.length > 0) {
         params.filters = JSON.stringify(filters);
       }
@@ -60576,7 +60811,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
   };
   reactExports.useEffect(() => {
     fetchReport();
-  }, [campaignId, layers.join(","), dateFrom, dateTo, JSON.stringify(filters)]);
+  }, [campaignId, layers.join(","), dateFrom, dateTo, JSON.stringify(filters), timezone]);
   const displayRows = reactExports.useMemo(() => {
     const createEmptyAgg = () => ({
       clicks: 0,
@@ -60943,7 +61178,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     link.click();
     document.body.removeChild(link);
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fixed top-[88px] left-0 right-0 bottom-0 z-[1100] flex bg-black/60 backdrop-blur-sm", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "fixed top-[88px] left-0 right-0 bottom-0 z-[2000] flex bg-black/60 backdrop-blur-sm", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col w-full h-full", style: { backgroundColor: "var(--color-bg-main)", color: "var(--color-text-primary)" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "div",
@@ -61053,7 +61288,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                   setDateTo(to2);
                 },
                 selectedTimezone: timezone,
-                onTimezoneChange: setTimezone
+                onTimezoneChange: setTimezone2
               }
             ) })
           ]
@@ -61393,7 +61628,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
   const todayPreset = getPresetDates("today");
   const [dateFrom, setDateFrom] = reactExports.useState(todayPreset?.from || formatDate$1(/* @__PURE__ */ new Date()));
   const [dateTo, setDateTo] = reactExports.useState(todayPreset?.to || formatDate$1(/* @__PURE__ */ new Date()));
-  const [timezone, setTimezone] = reactExports.useState(() => localStorage.getItem("orbitra_tz") || "UTC");
+  const [timezone, setTimezone2] = useTimezone();
   const isDesktop = useIsDesktop();
   const colResize = useResizableTableColumns({
     tableId: "conversions",
@@ -61421,6 +61656,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
       if (dateFrom) params.append("date_from", dateFrom);
       if (dateTo) params.append("date_to", dateTo);
       if (effectiveCampaignId) params.append("campaign_id", effectiveCampaignId);
+      if (timezone) params.append("timezone", timezone);
       const res = await axios.get(`${API_URL$z}?${params.toString()}`);
       if (res.data.status === "success") {
         setConversions(res.data.data);
@@ -61434,7 +61670,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
   };
   reactExports.useEffect(() => {
     fetchConversions(1);
-  }, [statusFilter, dateFrom, dateTo, effectiveCampaignId]);
+  }, [statusFilter, dateFrom, dateTo, effectiveCampaignId, timezone]);
   reactExports.useEffect(() => {
     axios.get(`${API_URL$z}?action=conversion_types`).then((res) => {
       if (res.data.status === "success") setConversionTypes(res.data.data || []);
@@ -61555,7 +61791,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
             setDateTo(to2);
           },
           selectedTimezone: timezone,
-          onTimezoneChange: setTimezone
+          onTimezoneChange: setTimezone2
         }
       ),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", gap: "8px" }, children: [
@@ -61783,7 +62019,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
 const ConversionsLogModal = ({ campaignId, campaignName, onClose }) => {
   const { t } = useLanguage();
   if (!campaignId) return null;
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", style: { zIndex: 1100, top: "88px", height: "calc(100vh - 88px)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "1200px", maxHeight: "100%", overflow: "auto" }, children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", style: { top: "88px", height: "calc(100vh - 88px)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "1200px", maxHeight: "100%", overflow: "auto" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("editor.conversionsLog") }),
@@ -61845,60 +62081,6 @@ function campaignLinkUrl(alias, domainName) {
   return `${baseUrl}/${alias}`;
 }
 const API_URL$y = "/api.php";
-const SortIcon$1 = ({ sortBy, colKey }) => {
-  if (sortBy.key !== colKey) return /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 opacity-40" });
-  return sortBy.dir === "asc" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } });
-};
-const SortableTh$1 = ({ colKey, label, fullTitle, defaultDir = "asc", alignRight = false, draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd, resize }) => {
-  const isActive = sortBy.key === colKey;
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    "th",
-    {
-      className: `${alignRight ? "text-right" : "text-left"} whitespace-nowrap transition-all resizable-th`,
-      "aria-sort": isActive ? sortBy.dir === "asc" ? "ascending" : "descending" : "none",
-      title: fullTitle,
-      onDragOver,
-      onDrop,
-      onDragEnd,
-      style: {
-        textAlign: alignRight ? "right" : "left",
-        userSelect: "none",
-        boxShadow: isDragOver ? "inset 2px 0 0 var(--color-primary)" : "none",
-        backgroundColor: isDragOver ? "var(--color-bg-soft)" : void 0
-      },
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `inline-flex items-center gap-1.5 ${alignRight ? "justify-end w-full" : ""}`, children: [
-          draggable && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "span",
-            {
-              draggable: !resize?.resizingId,
-              onDragStart,
-              className: "cursor-grab active:cursor-grabbing flex-shrink-0 -ml-1",
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3 h-3 opacity-25 hover:opacity-75" })
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              type: "button",
-              onClick: () => requestSort(colKey, defaultDir),
-              className: "inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap cursor-pointer",
-              style: {
-                color: isActive ? "var(--color-primary)" : "var(--color-text-secondary)",
-                textAlign: alignRight ? "right" : "left"
-              },
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon$1, { sortBy, colKey })
-              ]
-            }
-          )
-        ] }),
-        resize && /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: resize, colId: colKey })
-      ]
-    }
-  );
-};
 const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, setEditingCampaignId, user }) => {
   const { t } = useLanguage();
   const [actionModal, setActionModal] = reactExports.useState({ type: null, campaignId: null });
@@ -62074,7 +62256,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
   const todayPreset = getPresetDates("today");
   const [dateFrom, setDateFrom] = reactExports.useState(todayPreset?.from || formatDate$1(/* @__PURE__ */ new Date()));
   const [dateTo, setDateTo] = reactExports.useState(todayPreset?.to || formatDate$1(/* @__PURE__ */ new Date()));
-  const [timezone, setTimezone] = reactExports.useState(() => localStorage.getItem("orbitra_tz") || "UTC");
+  const [timezone, setTimezone2] = useTimezone();
   const [campaignList, setCampaignList] = reactExports.useState(initialCampaigns || []);
   const [columnsFilterOpen, setColumnsFilterOpen] = reactExports.useState(false);
   const [chosenColumns, setChosenColumns] = reactExports.useState(() => {
@@ -62124,6 +62306,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         date_to: dateTo
       };
       if (selectedGroupId) params.group_id = selectedGroupId;
+      if (timezone) params.timezone = timezone;
       const res = await axios.get(`${API_URL$y}?action=campaigns`, { params });
       if (res.data.status === "success") {
         setCampaignList(res.data.data || []);
@@ -62136,7 +62319,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
   };
   reactExports.useEffect(() => {
     fetchCampaigns();
-  }, [dateFrom, dateTo, selectedGroupId]);
+  }, [dateFrom, dateTo, selectedGroupId, timezone]);
   const handleDateChange = (from2, to2) => {
     setDateFrom(from2);
     setDateTo(to2);
@@ -62670,7 +62853,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             dateTo,
             onChange: handleDateChange,
             selectedTimezone: timezone,
-            onTimezoneChange: setTimezone
+            onTimezoneChange: setTimezone2
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -62702,14 +62885,14 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             style: { accentColor: "var(--color-primary)" }
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh$1, { sortBy, requestSort, colKey: "id", label: "ID", defaultDir: "desc", resize: colResize }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh$1, { sortBy, requestSort, colKey: "state", label: t("common.status"), defaultDir: "asc", resize: colResize }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh$1, { sortBy, requestSort, colKey: "name", label: t("campaigns.campaign"), defaultDir: "asc", resize: colResize }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh$1, { sortBy, requestSort, colKey: "group_name", label: t("campaigns.group"), defaultDir: "asc", resize: colResize }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "id", label: "ID", defaultDir: "desc", resize: colResize }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "state", label: t("common.status"), defaultDir: "asc", resize: colResize }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "name", label: t("campaigns.campaign"), defaultDir: "asc", resize: colResize }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "group_name", label: t("campaigns.group"), defaultDir: "asc", resize: colResize }),
         visibleColumns.map((colId, colIdx) => {
           const def = ALL_REPORT_METRICS.find((m) => m.id === colId);
           return /* @__PURE__ */ jsxRuntimeExports.jsx(
-            SortableTh$1,
+            SortableTh,
             {
               sortBy,
               requestSort,
@@ -64972,7 +65155,7 @@ ${note}` : t("landingEditor.archiveUploaded"));
                   ...editorFullscreen ? {
                     position: "fixed",
                     inset: "12px",
-                    zIndex: 1400,
+                    zIndex: 2050,
                     border: "1px solid var(--color-border)",
                     borderRadius: "16px",
                     boxShadow: "0 24px 80px rgba(0,0,0,.45)"
@@ -65222,8 +65405,12 @@ const Landings = ({ landings, refreshData }) => {
   const colResize = useResizableTableColumns({ tableId: "landings", columns: columnDefs, enabled: isDesktop });
   const [dateFrom, setDateFrom] = reactExports.useState(() => getPresetDates("today")?.from || formatDate$1(/* @__PURE__ */ new Date()));
   const [dateTo, setDateTo] = reactExports.useState(() => getPresetDates("today")?.to || formatDate$1(/* @__PURE__ */ new Date()));
-  const [timezone, setTimezone] = reactExports.useState(() => localStorage.getItem("orbitra_tz") || "UTC");
+  const [timezone, setTimezone2] = useTimezone();
+  const [sortBy, setSortBy] = reactExports.useState({ key: null, dir: "desc" });
   const landingRequestId = reactExports.useRef(0);
+  const requestSort = (key, defaultDir = "asc") => {
+    setSortBy((prev) => nextSortState(prev, key, defaultDir));
+  };
   const fetchLandings = reactExports.useCallback(async () => {
     const requestId = ++landingRequestId.current;
     setRefreshing(true);
@@ -65318,7 +65505,7 @@ const Landings = ({ landings, refreshData }) => {
       return true;
     });
   }, [landingList, search, typeFilter, stateFilter, groupTab]);
-  const visibleLandings = filteredLandings;
+  const visibleLandings = reactExports.useMemo(() => sortRows(filteredLandings, sortBy), [filteredLandings, sortBy]);
   const pagedLandings = reactExports.useMemo(() => {
     if (pageSize === "All") return visibleLandings;
     const start = currentPage * pageSize;
@@ -65621,7 +65808,7 @@ const Landings = ({ landings, refreshData }) => {
       case "unique_visits":
         return num.toLocaleString();
       case "conversions":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", style: { color: "var(--color-success)" }, children: num.toLocaleString() });
+        return num > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", style: { color: "var(--color-success)" }, children: num.toLocaleString() }) : "0";
       case "lp_ctr":
       case "approve_rate":
       case "cr":
@@ -65770,7 +65957,7 @@ const Landings = ({ landings, refreshData }) => {
             dateTo,
             onChange: handleDateChange,
             selectedTimezone: timezone,
-            onTimezoneChange: setTimezone
+            onTimezoneChange: setTimezone2
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -65967,45 +66154,26 @@ const Landings = ({ landings, refreshData }) => {
             onChange: (e) => toggleSelectAll(e.target.checked)
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
-          "ID",
-          /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "id" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
-          t("components.status"),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "state" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
-          t("editor.name"),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "name" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
-          t("components.group"),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "group_name" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
-          t("components.type"),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "type" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
-          "URL",
-          /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "url" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
-          t("landingColumns.lastEvent"),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "last_event" })
-        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "id", label: "ID", defaultDir: "desc", resize: colResize }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "state", label: t("components.status"), resize: colResize }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "name", label: t("editor.name"), resize: colResize }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "group_name", label: t("components.group"), resize: colResize }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "type", label: t("components.type"), resize: colResize }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "url", label: "URL", resize: colResize }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "last_event", label: t("landingColumns.lastEvent"), defaultDir: "desc", resize: colResize }),
         chosenColumns.map((colId) => {
           const def = ALL_REPORT_METRICS.find((m) => m.id === colId);
-          return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "th",
+          return /* @__PURE__ */ jsxRuntimeExports.jsx(
+            SortableTh,
             {
-              title: getReportMetricTooltip(def, t),
-              className: "text-right whitespace-nowrap resizable-th",
-              children: [
-                def?.shortLabel || def?.label || colId,
-                /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId })
-              ]
+              sortBy,
+              requestSort,
+              colKey: colId,
+              label: def?.shortLabel || def?.label || colId,
+              fullTitle: getReportMetricTooltip(def, t),
+              defaultDir: "desc",
+              alignRight: true,
+              resize: colResize
             },
             colId
           );
@@ -66029,13 +66197,13 @@ const Landings = ({ landings, refreshData }) => {
         ] }) })
       ] }, landing.id)) }),
       visibleLandings.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tfoot", { style: { background: "var(--color-bg-soft)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "font-semibold", style: { color: "var(--color-text-primary)" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "px-4 py-3", colSpan: 7, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", {}),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { colSpan: 7, children: [
           "Σ Total (",
           visibleLandings.length,
           ")"
         ] }),
-        chosenColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-right", children: formatTotalCell(colId) }, colId)),
+        chosenColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: formatTotalCell(colId) }, colId)),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", {})
       ] }) })
     ] }) }),
@@ -67634,7 +67802,7 @@ ${file}`)) return;
                     })()
                   ] })
                 ] }),
-                formData.is_local && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded-2xl", style: { border: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-soft)" }, children: [
+                Boolean(formData.is_local) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-4 rounded-2xl", style: { border: "1px solid var(--color-border)", backgroundColor: "var(--color-bg-soft)" }, children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "font-semibold mb-2 text-sm", style: { color: "var(--color-text-primary)" }, children: t("offerEditor.uploadZip", "Upload ZIP") }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx(
                     FileDropzone,
@@ -67942,7 +68110,7 @@ ${file}`)) return;
                   ...editorFullscreen ? {
                     position: "fixed",
                     inset: "12px",
-                    zIndex: 1400,
+                    zIndex: 2050,
                     border: "1px solid var(--color-border)",
                     borderRadius: "16px",
                     boxShadow: "0 24px 80px rgba(0,0,0,.45)"
@@ -68161,68 +68329,36 @@ ${file}`)) return;
   ] });
 };
 const API_URL$s = "/api.php";
+const FIXED_OFFER_COLUMNS = [
+  { id: "checkbox", label: "", fixed: true },
+  { id: "id", label: "ID", fixed: true },
+  { id: "state", label: "Status", fixed: true },
+  { id: "name", label: "Name", fixed: true },
+  { id: "group_name", label: "Group", fixed: true },
+  { id: "affiliate_network_name", label: "Affiliate Network", fixed: true },
+  { id: "geo", label: "GEO", fixed: true },
+  { id: "payout", label: "Payout", fixed: true },
+  { id: "redirect_type", label: "Type", fixed: true }
+];
 const OFFER_COLUMNS_KEY = "orbitra_offer_columns";
+const FIXED_OFFER_COLUMN_IDS = new Set(FIXED_OFFER_COLUMNS.map((c) => c.id));
+const sanitizeOfferMetricIds = (ids) => normalizeReportMetricIds(ids).filter((id) => !FIXED_OFFER_COLUMN_IDS.has(id) && ALL_REPORT_METRICS.some((m) => m.id === id));
 const loadOfferColumns = () => {
   try {
     const saved = localStorage.getItem(OFFER_COLUMNS_KEY);
-    if (saved) return normalizeReportMetricIds(JSON.parse(saved));
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      const cleaned = sanitizeOfferMetricIds(parsed);
+      if (cleaned.length) {
+        if (JSON.stringify(cleaned) !== JSON.stringify(parsed)) {
+          localStorage.setItem(OFFER_COLUMNS_KEY, JSON.stringify(cleaned));
+        }
+        return cleaned;
+      }
+    }
   } catch (e) {
   }
-  return normalizeReportMetricIds(PRESETS.best);
-};
-const SortIcon = ({ sortBy, colKey }) => {
-  if (sortBy.key !== colKey) return /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 opacity-40" });
-  return sortBy.dir === "asc" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } });
-};
-const SortableTh = ({ colKey, label, fullTitle, defaultDir = "asc", alignRight = false, draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd, resize }) => {
-  const isActive = sortBy.key === colKey;
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    "th",
-    {
-      className: `${alignRight ? "text-right" : "text-left"} whitespace-nowrap transition-all resizable-th`,
-      "aria-sort": isActive ? sortBy.dir === "asc" ? "ascending" : "descending" : "none",
-      title: fullTitle,
-      onDragOver,
-      onDrop,
-      onDragEnd,
-      style: {
-        textAlign: alignRight ? "right" : "left",
-        userSelect: "none",
-        boxShadow: isDragOver ? "inset 2px 0 0 var(--color-primary)" : "none",
-        backgroundColor: isDragOver ? "var(--color-bg-soft)" : void 0
-      },
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: `inline-flex items-center gap-1.5 ${alignRight ? "justify-end w-full" : ""}`, children: [
-          draggable && /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "span",
-            {
-              draggable: !resize?.resizingId,
-              onDragStart,
-              className: "cursor-grab active:cursor-grabbing flex-shrink-0 -ml-1",
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(GripVertical, { className: "w-3 h-3 opacity-25 hover:opacity-75" })
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "button",
-            {
-              type: "button",
-              onClick: () => requestSort(colKey, defaultDir),
-              className: "inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap cursor-pointer",
-              style: {
-                color: isActive ? "var(--color-primary)" : "var(--color-text-secondary)",
-                textAlign: alignRight ? "right" : "left"
-              },
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { sortBy, colKey })
-              ]
-            }
-          )
-        ] }),
-        resize && /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: resize, colId: colKey })
-      ]
-    }
-  );
+  return sanitizeOfferMetricIds(PRESETS.best);
 };
 const Offers = ({ offers: initialOffers = [], refreshData }) => {
   const { t } = useLanguage();
@@ -68266,7 +68402,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
   const [offers, setOffers] = reactExports.useState(initialOffers);
   const [dateFrom, setDateFrom] = reactExports.useState(() => getPresetDates("today")?.from || formatDate$1(/* @__PURE__ */ new Date()));
   const [dateTo, setDateTo] = reactExports.useState(() => getPresetDates("today")?.to || formatDate$1(/* @__PURE__ */ new Date()));
-  const [timezone, setTimezone] = reactExports.useState(() => localStorage.getItem("orbitra_tz") || "UTC");
+  const [timezone, setTimezone2] = useTimezone();
   const fetchSequence = reactExports.useRef(0);
   const fetchOffers = reactExports.useCallback(async ({ showSpinner = true } = {}) => {
     const sequence = ++fetchSequence.current;
@@ -68301,8 +68437,9 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
     setDateTo(to2);
   };
   const handleSaveColumns = (cols) => {
-    setChosenColumns(cols);
-    localStorage.setItem(OFFER_COLUMNS_KEY, JSON.stringify(cols));
+    const cleaned = sanitizeOfferMetricIds(cols);
+    setChosenColumns(cleaned);
+    localStorage.setItem(OFFER_COLUMNS_KEY, JSON.stringify(cleaned));
   };
   const handleThDragStart = (e, idx) => {
     e.dataTransfer.setData("text/plain", String(idx));
@@ -68384,103 +68521,9 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
     return true;
   });
   const requestSort = (key, defaultDir = "asc") => {
-    setSortBy((prev) => {
-      if (prev.key === key) {
-        return { key, dir: prev.dir === "asc" ? "desc" : "asc" };
-      }
-      return { key, dir: defaultDir };
-    });
+    setSortBy((prev) => nextSortState(prev, key, defaultDir));
   };
-  const visibleOffers = reactExports.useMemo(() => {
-    if (!sortBy.key) return filteredOffers;
-    const dirMul = sortBy.dir === "asc" ? 1 : -1;
-    const getVal = (o) => {
-      const val = o[sortBy.key];
-      if (val === null || val === void 0) return "";
-      if (typeof val === "number") return val;
-      return String(val);
-    };
-    const isNumeric = [
-      "id",
-      "payout_value",
-      "clicks",
-      "unique_clicks",
-      "visits",
-      "unique_visits",
-      "lp_clicks",
-      "lp_ctr",
-      "conversions",
-      "leads",
-      "sales",
-      "rejected",
-      "trash",
-      "approve_rate",
-      "revenue",
-      "revenue_confirmed",
-      "cost",
-      "cr",
-      "epc",
-      "epc_confirmed",
-      "epv",
-      "cpc",
-      "cpv",
-      "profit",
-      "profit_confirmed",
-      "roi",
-      "roi_confirmed",
-      // All derived metrics from orbitraComputeDerivedMetrics
-      "cpa",
-      "cpl",
-      "cps",
-      "cpr",
-      "cpd",
-      "cr_sales",
-      "cr_holds",
-      "cr_leads",
-      "cr_registrations",
-      "cr_deposits",
-      "registrations",
-      "deposits",
-      "uc_rate",
-      "bot_rate",
-      "uepc",
-      "uepc_confirmed",
-      "epc_hold",
-      "uepc_hold",
-      "epc_registration",
-      "uepc_registration",
-      "ucpc",
-      "ecpm_all",
-      "ecpm_confirmed",
-      "earnings_per_conv",
-      "ec_confirmed",
-      "revenue_hold",
-      "revenue_rejected",
-      "revenue_trash",
-      "revenue_registration",
-      "revenue_deposit",
-      "real_revenue",
-      "real_profit",
-      "real_roi",
-      "bots",
-      "proxies",
-      "empty_referrers",
-      "unique_clicks_stream",
-      "unique_clicks_global"
-    ].includes(sortBy.key);
-    return filteredOffers.map((offer, idx) => ({ offer, idx })).sort((a, b) => {
-      const av = getVal(a.offer);
-      const bv = getVal(b.offer);
-      let cmp = 0;
-      if (isNumeric) {
-        cmp = (Number(av) || 0) - (Number(bv) || 0);
-      } else {
-        cmp = String(av).localeCompare(String(bv), void 0, { sensitivity: "base" });
-      }
-      if (cmp !== 0) return cmp * dirMul;
-      return a.idx - b.idx;
-    }).map((x) => x.offer);
-  }, [filteredOffers, sortBy]);
+  const visibleOffers = reactExports.useMemo(() => sortRows(filteredOffers, sortBy), [filteredOffers, sortBy]);
   const pagedOffers = reactExports.useMemo(() => {
     if (pageSize === "All") return visibleOffers;
     const start = currentPage * pageSize;
@@ -68779,7 +68822,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
       case "empty_referrers":
         return num.toLocaleString();
       case "conversions":
-        return /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", style: { color: "var(--color-success)" }, children: num.toLocaleString() });
+        return num > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-semibold", style: { color: "var(--color-success)" }, children: num.toLocaleString() }) : "0";
       case "lp_ctr":
       case "approve_rate":
       case "cr":
@@ -69025,7 +69068,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
           dateTo,
           onChange: handleDateChange,
           selectedTimezone: timezone,
-          onTimezoneChange: setTimezone
+          onTimezoneChange: setTimezone2
         }
       )
     ] }),
@@ -69177,7 +69220,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
             }
           ),
           !offer.is_local && offer.url && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-text-muted)", fontSize: "12px" }, className: "truncate max-w-[200px]", title: offer.url, children: offer.url }),
-          offer.is_local && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-accent-purple)", fontSize: "12px" }, children: t("offers.localOffer") })
+          Boolean(offer.is_local) && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-accent-purple)", fontSize: "12px" }, children: t("offers.localOffer") })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: offer.group_name || "-" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: offer.affiliate_network_name || "-" }),
@@ -69191,13 +69234,13 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
         ] }) })
       ] }, offer.id)) }),
       visibleOffers.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tfoot", { style: { background: "var(--color-bg-soft)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { className: "font-semibold", style: { color: "var(--color-text-primary)" }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { className: "px-4 py-3", colSpan: 8, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", {}),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { colSpan: 8, children: [
           "Σ Total (",
           visibleOffers.length,
           ")"
         ] }),
-        chosenColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "px-4 py-3 text-right", children: formatTotalCell(colId) }, colId)),
+        chosenColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { className: "text-right", children: formatTotalCell(colId) }, colId)),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", {})
       ] }) })
     ] }) }),
@@ -69228,7 +69271,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
               children: offer.name
             }
           ),
-          offer.is_local && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] font-medium flex-shrink-0", style: { color: "var(--color-accent-purple)" }, children: t("offers.localOffer") })
+          Boolean(offer.is_local) && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-[10px] font-medium flex-shrink-0", style: { color: "var(--color-accent-purple)" }, children: t("offers.localOffer") })
         ] }),
         renderSubtitle: (offer) => `#${offer.id}${offer.group_name ? ` · ${offer.group_name}` : ""}`,
         renderHeaderRight: (offer) => /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
@@ -72532,7 +72575,7 @@ const GeoProfilesPage = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Globe, { size: 18, style: { color: "var(--color-primary)" } }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium", children: profile.name }),
-          profile.is_template && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs px-2 py-0.5 rounded", style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" }, children: t("geoProfiles.template") })
+          Boolean(profile.is_template) && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-xs px-2 py-0.5 rounded", style: { backgroundColor: "var(--color-primary-light)", color: "var(--color-primary)" }, children: t("geoProfiles.template") })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap gap-1 max-w-lg", children: [
           (profile.countries || []).slice(0, 10).map((code) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -88122,17 +88165,19 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const firstStream = formData.streams?.[0];
     const offerId = parseInt(firstStream?.schema_custom?.offers?.[0]?.id || firstStream?.offer_id, 10);
     const offerObj = offerId ? allOffers.find((o) => parseInt(o.id, 10) === offerId) : null;
-    let baseName = (formData.name || "").split(" - ")[0].trim();
-    if (!baseName && offerObj) baseName = offerObj.name.replace(/\s*\[.*?\]\s*/g, "").trim();
-    if (!baseName) baseName = t("editor.newCampaign");
     const sourceObj = sources.find((s) => s.id == formData.source_id);
     const sourceName = sourceObj ? sourceObj.name : t("editor.nameSourceOrganic");
+    const escapeRe = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    let baseName = (formData.name || "").trim().replace(/\s*-\s*\[[^\]]*\]\s*$/, "").replace(new RegExp(`\\s*-\\s*${escapeRe(sourceName)}\\s*$`, "i"), "").trim();
+    if (baseName.toLowerCase() === sourceName.toLowerCase()) baseName = "";
+    if (!baseName && offerObj) baseName = offerObj.name.replace(/\s*\[.*?\]\s*/g, "").trim();
     let geo = offerObj?.geo ? String(offerObj.geo).split(",")[0].trim().toUpperCase() : "";
     if (!geo) {
       const countryFilter = (firstStream?.filters || []).find((f) => f.name === "Country" && (f.mode || "include") === "include");
       geo = String(countryFilter?.payload?.[0] || "").trim().toUpperCase();
     }
-    return `${baseName} - ${sourceName} - [${geo || "GLOBAL"}]`;
+    const head = baseName ? `${baseName} - ${sourceName}` : sourceName;
+    return `${head} - [${geo || "GLOBAL"}]`;
   };
   const suggestedName = buildStandardName();
   const displayParameters = reactExports.useMemo(() => {
@@ -92425,7 +92470,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         onClose: () => setShowConversionsLog(false)
       }
     ),
-    showTrafficSimModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", style: { zIndex: 1100 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "600px" }, children: [
+    showTrafficSimModal && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "600px" }, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-4", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("editor.trafficSimulation") }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => setShowTrafficSimModal(false), className: "btn btn-ghost btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
@@ -103225,7 +103270,7 @@ const DashboardSettingsModal = ({ preferences, setPreferences, onClose }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     "div",
     {
-      className: "fixed inset-0 z-[1100] flex items-center justify-center p-4",
+      className: "fixed inset-0 z-[2000] flex items-center justify-center p-4",
       style: { backgroundColor: "rgba(0, 0, 0, 0.65)", backdropFilter: "blur(4px)" },
       children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "div",
@@ -105393,6 +105438,8 @@ function App() {
   const [loading, setLoading] = reactExports.useState(true);
   const [updateAvailable, setUpdateAvailable] = reactExports.useState(null);
   const [dismissUpdate, setDismissUpdate] = reactExports.useState(false);
+  const [workerHealth, setWorkerHealth] = reactExports.useState(null);
+  const [dismissWorkerHealth, setDismissWorkerHealth] = reactExports.useState(false);
   const [editingCampaignId, setEditingCampaignId] = reactExports.useState(null);
   const [serverTime, setServerTime] = reactExports.useState("");
   const [activeMetrics, setActiveMetrics] = reactExports.useState(() => loadActiveMetrics(user));
@@ -105402,6 +105449,7 @@ function App() {
     custom_from: null,
     custom_to: null
   });
+  const [dashboardTimezone] = useTimezone();
   reactExports.useEffect(() => {
     const getCsrfToken = () => {
       const metaToken = document.querySelector('meta[name="csrf-token"]')?.content;
@@ -105539,8 +105587,7 @@ function App() {
         params.append("custom_from", fDate(dashboardFilters.custom_from));
         params.append("custom_to", fDate(dashboardFilters.custom_to));
       }
-      const dashTz = localStorage.getItem("orbitra_tz");
-      if (dashTz) params.append("timezone", dashTz);
+      if (dashboardTimezone) params.append("timezone", dashboardTimezone);
       const pStr = params.toString() ? `&${params.toString()}` : "";
       const [resMetrics, resChart, resCampaigns, resOffers, resLogs, resLandings, resSources] = await Promise.all([
         axios.get(`${API_URL}?action=metrics${pStr}`),
@@ -105578,7 +105625,7 @@ function App() {
       const interval = setInterval(fetchData, 1e4);
       return () => clearInterval(interval);
     }
-  }, [user, dashboardFilters]);
+  }, [user, dashboardFilters, dashboardTimezone]);
   reactExports.useEffect(() => {
     const fetchGlobalSettings = async () => {
       try {
@@ -105605,6 +105652,22 @@ function App() {
     };
     if (user) {
       checkUpdate();
+    }
+  }, [user]);
+  reactExports.useEffect(() => {
+    const checkWorkers = async () => {
+      try {
+        const res = await axios.get(`${API_URL}?action=worker_health`);
+        if (res.data.status === "success") {
+          setWorkerHealth(res.data.data);
+        }
+      } catch (e) {
+      }
+    };
+    if (user) {
+      checkWorkers();
+      const interval = setInterval(checkWorkers, 3e5);
+      return () => clearInterval(interval);
     }
   }, [user]);
   reactExports.useEffect(() => {
@@ -105693,6 +105756,23 @@ function App() {
           {
             onClick: () => setDismissUpdate(true),
             className: "p-1 hover:bg-amber-100 rounded",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5 text-amber-600" })
+          }
+        )
+      ] }),
+      workerHealth && !workerHealth.healthy && !dismissWorkerHealth && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-4 bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start justify-between gap-3", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(CircleAlert, { className: "w-6 h-6 text-amber-600 flex-shrink-0" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-medium text-amber-800", children: t("workerHealth.title") }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { className: "mt-1 space-y-0.5", children: workerHealth.issues.map((issue, i) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { className: "text-amber-700 text-sm", children: t(`workerHealth.${issue.key}`).replace("{count}", issue.count ?? 0).replace("{minutes}", issue.minutes ?? 0).replace("{statuses}", (issue.statuses || []).join(", ")) }, i)) })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            onClick: () => setDismissWorkerHealth(true),
+            className: "p-1 hover:bg-amber-100 rounded flex-shrink-0",
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5 text-amber-600" })
           }
         )

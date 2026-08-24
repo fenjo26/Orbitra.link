@@ -2050,6 +2050,13 @@ export default {
         "updateAvailable": "更新可用！",
         "updateDesc": "版本 {version} 已准备好安装。点击前往更新。"
     },
+    "workerHealth": {
+        "title": "后台任务需要处理",
+        "queueWorkerMissing": "回传 / CAPI 队列处理程序未运行：{count} 个事件待发送，最早的已等待 {minutes} 分钟。转化未送达 Facebook、TikTok 和联盟。请安装定时任务：* * * * * php /var/www/orbitra/postback_queue_cron.php",
+        "queueStalled": "回传 / CAPI 队列未在清空：{count} 个事件待发送，最早的已等待 {minutes} 分钟。",
+        "aggregatorNotScheduled": "成本聚合器未按计划运行，花费仅在手动同步时更新。请安装定时任务：*/15 * * * * php /var/www/orbitra/aggregator_cron.php",
+        "shadowedStatuses": "自定义转化类型 {statuses} 覆盖了未映射 Meta 事件的内置状态 — 这些转化不会发送到 Conversions API。"
+    },
     "mainChart": {
         "chartError": "图表渲染错误",
         "invalidData": "数据格式无效"

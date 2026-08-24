@@ -2050,6 +2050,13 @@ export default {
         "updateAvailable": "Оновлення доступне!",
         "updateDesc": "Версія {version} готова до встановлення. Натисніть, щоб перейти до оновлення."
     },
+    "workerHealth": {
+        "title": "Фонові задачі потребують уваги",
+        "queueWorkerMissing": "Обробник черги постбеків / CAPI не запущено: у черзі {count} подій, найстаріша чекає {minutes} хв. Конверсії не доходять до Facebook, TikTok і партнерок. Встановіть крон: * * * * * php /var/www/orbitra/postback_queue_cron.php",
+        "queueStalled": "Черга постбеків / CAPI не розвантажується: {count} подій, найстаріша чекає {minutes} хв.",
+        "aggregatorNotScheduled": "Агрегатор витрат не запускається за розкладом — витрати оновлюються лише вручну. Встановіть крон: */15 * * * * php /var/www/orbitra/aggregator_cron.php",
+        "shadowedStatuses": "Користувацькі типи конверсій {statuses} перекривають вбудований статус без події Meta — такі конверсії не надсилаються до Conversions API."
+    },
     "mainChart": {
         "chartError": "Помилка відтворення діаграми",
         "invalidData": "Недійсний формат даних"

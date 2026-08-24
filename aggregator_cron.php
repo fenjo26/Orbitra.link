@@ -211,7 +211,7 @@ foreach ($connections as $conn) {
             require_once __DIR__ . '/core/CostImporter.php';
 
             $pdo->beginTransaction();
-            $costStats = CostImporter::import($pdo, (int) $conn['id'], $records, $fieldMapping);
+            $costStats = CostImporter::import($pdo, (int) $conn['id'], $records, $fieldMapping, ['credentials' => is_array($credentials) ? $credentials : []]);
             $fetched  = $costStats['fetched'];
             $matched  = $costStats['matched'];
             $newCount = $costStats['new'];
@@ -230,7 +230,7 @@ foreach ($connections as $conn) {
             $totalNew += $newCount;
             $unmatched = $costStats['unmatched'];
             $costCurrency = $costStats['currency'];
-            cron_log("[$connName] ✓ Done (cost, $connDateFrom→$connDateTo). Fetched: $fetched, Matched: $matched, Unmatched: $unmatched, New: $newCount, Updated: $updatedCount, Currency: $costCurrency ({$durationMs}ms)");
+            cron_log("[$connName] ✓ Done (cost, {$connDateFrom}→{$connDateTo}). Fetched: $fetched, Matched: $matched, Unmatched: $unmatched, New: $newCount, Updated: $updatedCount, Currency: $costCurrency ({$durationMs}ms)");
             if ($fetched > 0 && $matched === 0) {
                 // The single most common misconfiguration: spend arrives, but the
                 // campaign URL carries no {{ad.id}}/{{adset.id}}, so none of it can
@@ -325,6 +325,16 @@ foreach ($connections as $conn) {
 
         cron_log("[$connName] ✗ ERROR: " . $e->getMessage() . " ({$durationMs}ms)");
     }
+}
+
+try {
+    $pdo->prepare("
+        INSERT INTO settings (key, value, updated_at)
+        VALUES ('aggregator_last_run_at', datetime('now'), datetime('now'))
+        ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = datetime('now')
+    ")->execute();
+} catch (\Throwable $e) {
+    // Heartbeat is diagnostics only — never fail a completed sync over it.
 }
 
 cron_log("=== Cron Complete. Total — Fetched: $totalFetched, Matched: $totalMatched, New: $totalNew ===");

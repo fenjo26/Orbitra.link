@@ -2050,6 +2050,13 @@ export default {
         "updateAvailable": "¡Actualización disponible!",
         "updateDesc": "La versión {version} está lista para instalarse. Haga clic para ir a la actualización."
     },
+    "workerHealth": {
+        "title": "Los procesos en segundo plano necesitan atención",
+        "queueWorkerMissing": "El worker de la cola de postbacks / CAPI no se está ejecutando: {count} evento(s) pendientes, el más antiguo desde hace {minutes} minuto(s). Las conversiones no llegan a Facebook, TikTok ni a tus redes. Instala el cron: * * * * * php /var/www/orbitra/postback_queue_cron.php",
+        "queueStalled": "La cola de postbacks / CAPI no se está vaciando: {count} evento(s) pendientes, el más antiguo desde hace {minutes} minuto(s).",
+        "aggregatorNotScheduled": "El agregador de costes no se ejecuta de forma programada; el gasto solo se actualiza con una sincronización manual. Instala el cron: */15 * * * * php /var/www/orbitra/aggregator_cron.php",
+        "shadowedStatuses": "Los tipos de conversión personalizados {statuses} ocultan un estado integrado sin evento de Meta asignado: esas conversiones no se envían a la Conversions API."
+    },
     "mainChart": {
         "chartError": "Error de representación del gráfico",
         "invalidData": "Formato de datos no válido"

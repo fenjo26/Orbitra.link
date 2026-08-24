@@ -87,9 +87,44 @@ class FacebookAdsEngine
             return [
                 'success' => true,
                 'message' => "Connected to \"$name\" — currency $currency, timezone $tz.",
+                // Cost is reported by the ad account's calendar day, so the importer
+                // needs this to match spend against UTC click timestamps.
+                'timezone' => $tz !== '?' ? $tz : null,
             ];
         } catch (\Throwable $e) {
             return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * IANA timezone the ad account reports in, or null if it cannot be read.
+     * Meta reports insights by the account's own calendar day; matching those days
+     * against UTC click dates is what makes an IST account reconcile to zero.
+     */
+    public static function accountTimezone(array $credentials): ?string
+    {
+        try {
+            $token = trim((string) ($credentials['token'] ?? ''));
+            $accountId = self::normalizeAccountId((string) ($credentials['ad_account_id'] ?? ''));
+            if ($token === '' || $accountId === '') {
+                return null;
+            }
+
+            $url = self::apiBase($credentials) . '/' . $accountId . '?' . http_build_query([
+                'access_token' => $token,
+                'fields'       => 'timezone_name',
+            ]);
+
+            $response = self::httpGet($url, $credentials, 15);
+            if ($response['error'] !== null) {
+                return null;
+            }
+
+            $account = json_decode($response['body'], true);
+            $tz = trim((string) ($account['timezone_name'] ?? ''));
+            return $tz !== '' ? $tz : null;
+        } catch (\Throwable $e) {
+            return null;
         }
     }
 

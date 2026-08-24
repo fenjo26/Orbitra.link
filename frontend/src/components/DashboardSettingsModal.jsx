@@ -149,7 +149,7 @@ const DashboardSettingsModal = ({ preferences, setPreferences, onClose }) => {
 
     return (
         <div
-            className="fixed inset-0 z-[1100] flex items-center justify-center p-4"
+            className="fixed inset-0 z-[2000] flex items-center justify-center p-4"
             style={{ backgroundColor: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(4px)' }}
         >
             <div

@@ -5,7 +5,9 @@ import OfferEditor from './OfferEditor';
 import GroupsModal from './GroupsModal';
 import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
 import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle } from './common/ColumnResize';
+import { SortableTh, sortRows, nextSortState } from './common/SortableTh';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
+import { useTimezone } from '../utils/useTimezone';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 import { entityDeleteErrorText } from '../utils/entityInUseError';
@@ -30,74 +32,34 @@ const FIXED_OFFER_COLUMNS = [
 
 const OFFER_COLUMNS_KEY = 'orbitra_offer_columns';
 
+// The saved list holds *metric* ids only. An entity field that ends up in there —
+// `name`, `state`, `affiliate_network_name` — misses ALL_REPORT_METRICS.find(), and
+// the dynamic header falls back to `|| colId`, printing the raw DB column name in a
+// second column beside the properly labelled fixed one. Drop anything that is not a
+// real metric, and anything already rendered as a fixed column.
+const FIXED_OFFER_COLUMN_IDS = new Set(FIXED_OFFER_COLUMNS.map(c => c.id));
+
+const sanitizeOfferMetricIds = (ids) => normalizeReportMetricIds(ids)
+    .filter(id => !FIXED_OFFER_COLUMN_IDS.has(id) && ALL_REPORT_METRICS.some(m => m.id === id));
+
 const loadOfferColumns = () => {
     try {
         const saved = localStorage.getItem(OFFER_COLUMNS_KEY);
-        if (saved) return normalizeReportMetricIds(JSON.parse(saved));
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            const cleaned = sanitizeOfferMetricIds(parsed);
+            if (cleaned.length) {
+                // Write the cleaned list back, so a bad id is repaired once rather
+                // than re-filtered on every mount until the user happens to save.
+                if (JSON.stringify(cleaned) !== JSON.stringify(parsed)) {
+                    localStorage.setItem(OFFER_COLUMNS_KEY, JSON.stringify(cleaned));
+                }
+                return cleaned;
+            }
+        }
     } catch (e) {}
     // Fallback to 'best' preset for offers (revenue-focused metrics)
-    return normalizeReportMetricIds(PRESETS.best);
-};
-
-// Module scope on purpose: a component defined in the render body is a new
-// type on every render, so React remounts its DOM — and a remounted <th>
-// cancels a column drag in flight (the dragover highlight re-renders it).
-const SortIcon = ({ sortBy, colKey }) => {
-    if (sortBy.key !== colKey) return <ChevronsUpDown className="w-3.5 h-3.5 opacity-40" />;
-    return sortBy.dir === 'asc'
-        ? <ChevronUp className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />
-        : <ChevronDown className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />;
-};
-
-// The drag source is the GRIP, not the <th>: a native drag never starts on
-// an interactive descendant, so a grip inside the sort <button> was dead.
-// The <th> itself stays the drop target (highlight + onDrop).
-// `resize` (the shared column-resize controller) mounts a resize handle on
-// the header's right edge and suspends the reorder grip while a resize drag
-// is in flight, so both gestures coexist on the same header.
-const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', alignRight = false, draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd, resize }) => {
-    const isActive = sortBy.key === colKey;
-    return (
-        <th
-            className={`${alignRight ? 'text-right' : 'text-left'} whitespace-nowrap transition-all resizable-th`}
-            aria-sort={isActive ? (sortBy.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
-            title={fullTitle}
-            onDragOver={onDragOver}
-            onDrop={onDrop}
-            onDragEnd={onDragEnd}
-            style={{
-                textAlign: alignRight ? 'right' : 'left',
-                userSelect: 'none',
-                boxShadow: isDragOver ? 'inset 2px 0 0 var(--color-primary)' : 'none',
-                backgroundColor: isDragOver ? 'var(--color-bg-soft)' : undefined
-            }}
-        >
-            <div className={`inline-flex items-center gap-1.5 ${alignRight ? 'justify-end w-full' : ''}`}>
-                {draggable && (
-                    <span
-                        draggable={!resize?.resizingId}
-                        onDragStart={onDragStart}
-                        className="cursor-grab active:cursor-grabbing flex-shrink-0 -ml-1"
-                    >
-                        <GripVertical className="w-3 h-3 opacity-25 hover:opacity-75" />
-                    </span>
-                )}
-                <button
-                    type="button"
-                    onClick={() => requestSort(colKey, defaultDir)}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap cursor-pointer"
-                    style={{
-                        color: isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                        textAlign: alignRight ? 'right' : 'left'
-                    }}
-                >
-                    <span>{label}</span>
-                    <SortIcon sortBy={sortBy} colKey={colKey} />
-                </button>
-            </div>
-            {resize && <ColumnResizeHandle rt={resize} colId={colKey} />}
-        </th>
-    );
+    return sanitizeOfferMetricIds(PRESETS.best);
 };
 
 const Offers = ({ offers: initialOffers = [], refreshData }) => {
@@ -154,7 +116,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
     const [offers, setOffers] = useState(initialOffers);
     const [dateFrom, setDateFrom] = useState(() => getPresetDates('today')?.from || formatDate(new Date()));
     const [dateTo, setDateTo] = useState(() => getPresetDates('today')?.to || formatDate(new Date()));
-    const [timezone, setTimezone] = useState(() => localStorage.getItem('orbitra_tz') || 'UTC');
+    const [timezone, setTimezone] = useTimezone();
     const fetchSequence = useRef(0);
 
     const fetchOffers = useCallback(async ({ showSpinner = true } = {}) => {
@@ -194,8 +156,11 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
     };
 
     const handleSaveColumns = (cols) => {
-        setChosenColumns(cols);
-        localStorage.setItem(OFFER_COLUMNS_KEY, JSON.stringify(cols));
+        // Sanitise on the way in as well as on load, so a bad id never reaches
+        // storage in the first place.
+        const cleaned = sanitizeOfferMetricIds(cols);
+        setChosenColumns(cleaned);
+        localStorage.setItem(OFFER_COLUMNS_KEY, JSON.stringify(cleaned));
     };
 
     const handleThDragStart = (e, idx) => {
@@ -290,55 +255,10 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
     });
 
     const requestSort = (key, defaultDir = 'asc') => {
-        setSortBy(prev => {
-            if (prev.key === key) {
-                return { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' };
-            }
-            return { key, dir: defaultDir };
-        });
+        setSortBy(prev => nextSortState(prev, key, defaultDir));
     };
 
-    const visibleOffers = useMemo(() => {
-        if (!sortBy.key) return filteredOffers;
-        const dirMul = sortBy.dir === 'asc' ? 1 : -1;
-
-        const getVal = (o) => {
-            const val = o[sortBy.key];
-            if (val === null || val === undefined) return '';
-            if (typeof val === 'number') return val;
-            return String(val);
-        };
-
-        const isNumeric = [
-            'id', 'payout_value', 'clicks', 'unique_clicks', 'visits', 'unique_visits',
-            'lp_clicks', 'lp_ctr', 'conversions', 'leads', 'sales', 'rejected', 'trash',
-            'approve_rate', 'revenue', 'revenue_confirmed', 'cost', 'cr', 'epc', 'epc_confirmed',
-            'epv', 'cpc', 'cpv', 'profit', 'profit_confirmed', 'roi', 'roi_confirmed',
-            // All derived metrics from orbitraComputeDerivedMetrics
-            'cpa', 'cpl', 'cps', 'cpr', 'cpd', 'cr_sales', 'cr_holds', 'cr_leads', 'cr_registrations',
-            'cr_deposits', 'registrations', 'deposits', 'uc_rate', 'bot_rate', 'uepc', 'uepc_confirmed',
-            'epc_hold', 'uepc_hold', 'epc_registration', 'uepc_registration', 'ucpc', 'ecpm_all', 'ecpm_confirmed',
-            'earnings_per_conv', 'ec_confirmed', 'revenue_hold', 'revenue_rejected', 'revenue_trash',
-            'revenue_registration', 'revenue_deposit', 'real_revenue', 'real_profit', 'real_roi',
-            'bots', 'proxies', 'empty_referrers', 'unique_clicks_stream', 'unique_clicks_global'
-        ].includes(sortBy.key);
-
-        return filteredOffers
-            .map((offer, idx) => ({ offer, idx }))
-            .sort((a, b) => {
-                const av = getVal(a.offer);
-                const bv = getVal(b.offer);
-                let cmp = 0;
-                if (isNumeric) {
-                    cmp = (Number(av) || 0) - (Number(bv) || 0);
-                } else {
-                    cmp = String(av).localeCompare(String(bv), undefined, { sensitivity: 'base' });
-                }
-                if (cmp !== 0) return cmp * dirMul;
-                return a.idx - b.idx; // stable
-            })
-            .map(x => x.offer);
-    }, [filteredOffers, sortBy]);
+    const visibleOffers = useMemo(() => sortRows(filteredOffers, sortBy), [filteredOffers, sortBy]);
 
     // The paged slice the table renders. Totals footer and CSV export stay
     // over the whole filtered list — paging must not change TOTAL.
@@ -648,7 +568,9 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
             case 'empty_referrers':
                 return num.toLocaleString();
             case 'conversions':
-                return <span className="font-semibold" style={{ color: 'var(--color-success)' }}>{num.toLocaleString()}</span>;
+                // Match the row formatter: a totals row reading 0 in success green
+                // reads as a positive signal when scanning the table.
+                return num > 0 ? <span className="font-semibold" style={{ color: 'var(--color-success)' }}>{num.toLocaleString()}</span> : '0';
             case 'lp_ctr':
             case 'approve_rate':
             case 'cr':
@@ -1067,7 +989,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                                                     {offer.url}
                                                 </span>
                                             )}
-                                            {offer.is_local && (
+                                            {Boolean(offer.is_local) && (
                                                 <span style={{ color: 'var(--color-accent-purple)', fontSize: '12px' }}>{t('offers.localOffer')}</span>
                                             )}
                                         </div>
@@ -1117,10 +1039,10 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                     {visibleOffers.length > 0 && (
                         <tfoot style={{ background: 'var(--color-bg-soft)' }}>
                             <tr className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-                                <td className="px-4 py-3"></td>
-                                <td className="px-4 py-3" colSpan={8}>Σ Total ({visibleOffers.length})</td>
+                                <td></td>
+                                <td colSpan={8}>Σ Total ({visibleOffers.length})</td>
                                 {chosenColumns.map((colId) => (
-                                    <td key={colId} className="px-4 py-3 text-right">
+                                    <td key={colId} className="text-right">
                                         {formatTotalCell(colId)}
                                     </td>
                                 ))}
@@ -1156,7 +1078,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                             >
                                 {offer.name}
                             </span>
-                            {offer.is_local && (
+                            {Boolean(offer.is_local) && (
                                 <span className="text-[10px] font-medium flex-shrink-0" style={{ color: 'var(--color-accent-purple)' }}>{t('offers.localOffer')}</span>
                             )}
                         </>

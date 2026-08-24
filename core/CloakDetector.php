@@ -139,12 +139,13 @@ class CloakDetector
     }
 
     /**
-     * Check the shared bot blocklists without depending on index.php helpers.
+     * Check the shared bot blocklists.
      *
-     * index.php historically supplied isBot(), which meant the same detector did
-     * nothing when called from the traffic simulator or another entry point. Keep
-     * that helper as the first choice for backwards compatibility, then query the
-     * tables directly when a PDO connection is available.
+     * index.php historically supplied an isBot() helper and this method preferred it,
+     * which meant the same detector did nothing when called from the traffic
+     * simulator or any other entry point that never loaded index.php. That helper is
+     * gone; the tables are queried directly, from every entry point, through the one
+     * implementation below.
      *
      * @return string|null Null if no match, otherwise the matched rule (IP or UA signature)
      */
@@ -152,17 +153,6 @@ class CloakDetector
     {
         $ip = (string) ($visitor['ip'] ?? '');
         $ua = (string) ($visitor['user_agent'] ?? '');
-
-        if (function_exists('isBot')) {
-            global $pdo;
-            // isBot() answers yes/no only. Keep it as the authority on the verdict
-            // — widening the match here would change which visitors get cloaked —
-            // and query the tables separately just to name what it hit.
-            if (!isset($pdo) || !isBot($pdo, $ip, $ua)) {
-                return null;
-            }
-            return self::findBlocklistRow($pdo, $ip, $ua) ?? 'listed';
-        }
 
         $pdo = $visitor['pdo'] ?? ($GLOBALS['pdo'] ?? null);
         if (!($pdo instanceof PDO)) {

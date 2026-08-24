@@ -120,8 +120,9 @@ const ColumnsOrderModal = ({ columns, selectedIds, defaultIds, onClose, onSave }
         onSave(result.length > 0 ? result : defaultIds);
     };
 
+    // Opens on top of another modal, so it sits one step above the 2000 base.
     return (
-        <div className="modal-overlay" style={{ padding: '24px 16px', zIndex: 1200 }}>
+        <div className="modal-overlay" style={{ padding: '24px 16px', zIndex: 2100 }}>
             <div
                 className="modal-content rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150"
                 style={{

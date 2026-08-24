@@ -7,6 +7,128 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.3.1] — 2026-08-25
+
+Bugfix release from a 22-item audit of a live Facebook-Ads COD setup
+(India, cloak stream active): five silent data-corruption faults, the
+timezone family, and a sweep of panel correctness issues.
+
+### Fixed — cost & attribution
+
+- **CostImporter matched UTC click dates against platform-timezone spend**
+  — ad platforms report spend by the ad account's calendar day; comparing
+  it to `date(created_at)` (UTC) put every pre-morning click on the wrong
+  day, so a non-UTC account (here `Asia/Kolkata`) reconciled to nothing.
+  The importer now resolves the account's timezone (explicit override →
+  connection field mapping → engine credentials → cached live Graph
+  lookup, one call cached for a day) and shifts `created_at` per spend day
+  — evaluated on the day itself, so DST boundaries land correctly.
+- **Cost no longer attributed to safe-page (cloaked) clicks** — reports
+  exclude safe-page traffic, so spend spread over it vanished from every
+  surface; attribution now targets money-side clicks, with a fallback to
+  all clicks for periods that have none (pure crawler days), counted in
+  the returned stats.
+- **`campaign_report` ignored the safe-page exclusion** — v1.1.11 applied
+  it to Campaigns, Landings, Offers and the dashboard but missed the
+  report; on the audited data the report showed 363 clicks where ~90 were
+  real, with every derived metric wrong to match.
+
+### Fixed — CAPI delivery
+
+- **Unmapped conversion statuses dropped silently** — `enqueue()` returned
+  without a trace when `resolveEvent()` found no Meta event, which is what
+  a custom conversion type shadowing a built-in status (`hold` in COD)
+  does; both the Facebook and TikTok paths now write a system log line
+  (INFO for deliberately blank mappings, WARNING otherwise).
+- **Pixel Vault test button hardcoded `proxy_url => ''`** — the profile
+  itself carries no proxy (it lives on `campaign_pixels`), so a dead proxy
+  tested healthy and then failed in production; the test now exercises
+  every distinct transport the profile is actually delivered through, with
+  proxy credentials stripped from the response.
+- **curl pinned to IPv4 with a 10s connect budget** — `graph.facebook.com`
+  publishes unroutable AAAA records; curl burned its connect timeout on
+  v6 and the failure read as a resolver fault. Applied to the direct CAPI
+  send, the TikTok send (which also honors the row's proxy now) and the
+  queue worker.
+- **The queue worker and aggregator ship scheduled** — `install.sh` now
+  installs `postback_queue_cron.php` (every minute; the worker takes a
+  lock, so overlaps are free) and `aggregator_cron.php` (*/15), with the
+  same marker/idempotent pattern as the existing crons.
+
+### Fixed — timezones
+
+- **Campaigns and the Conversions Log never sent `?timezone=`** — every
+  timezone change issued a byte-identical request; both now send it and
+  list it in their fetch dependencies.
+- **One shared timezone store** — six components each kept a private
+  `useState(localStorage)` copy, so two mounted views could show
+  different periods and CampaignReports could disagree with itself; a
+  `useTimezone` hook (module-level value + subscribers + cross-tab
+  `storage` sync) replaces them all, and the dashboard refetches on a
+  zone change.
+- **`$dbTzOffset` no longer taken at request time** — the SQLite offset
+  applied to *historical* conditions is now anchored to the midpoint of
+  the requested range (exact for any range inside one DST period; a range
+  straddling a transition picks the offset covering most of it, leaving
+  at most an hour wrong at the boundary instead of a whole range).
+
+### Fixed — panel correctness
+
+- **Modals render beneath the navbar** — the navbar sits at z-1500 and
+  five overlays overrode `.modal-overlay` downward (1100/1200) or skipped
+  the class; the modal scale is documented in `index.css` (2000 overlays,
+  2050 in-modal fullscreen panes, 2100 secondary modals) and every
+  override removed or raised.
+- **Column widths never persisted** — Chrome can fire
+  `lostpointercapture` before `pointerup`; the reverting handler won the
+  race, snapped the column back and the commit call returned at the
+  guard. Both release paths commit now; the `moved` guard still rejects
+  genuine orphaned drags.
+- **Entity field ids leaked into Offers' metric columns** — restored
+  metric ids are validated on load (and repaired once in storage) against
+  the real metric table minus the fixed columns, so `name` / `state` /
+  `affiliate_network_name` can no longer render as raw column names.
+- **Totals footer misaligned** — Landings/Offers footer cells added
+  `px-4 py-3` on top of the `.tracker-table tfoot td` rule; the 14px
+  horizontal padding is now documented as a contract with the body cells.
+- **Zero conversions in success green** — footer formatters in
+  Landings/Offers match their row formatters (`0` renders plain).
+- **SQLite integer booleans rendered as `0`** — `Boolean(...)` guards on
+  the `is_local` / `is_template` conditional renders.
+- **Campaign name suggestion is idempotent** — re-applying no longer
+  echoes the traffic source into the product segment
+  (`Facebook Ads - Facebook Ads - [IN]`); the parts the builder appends
+  are stripped back off first, and an empty product is omitted rather
+  than padded with a placeholder.
+- **Timezone chip shows real city names** — tz-database underscores are
+  stripped (`New_York` → `New York`).
+- **IP2Location sentinel strings passed through as values** — the "This
+  parameter is unavailable in selected .BIN data file" placeholder (and
+  its relatives) became every visitor's ISP, disabling ISP-based bot
+  filtering; `normalizeGeoString` treats them as empty, including on the
+  fallback-DB fill path.
+- **Dead `isBot()` removed from index.php** — defined and never called;
+  `CloakDetector::matchedBotList()` already performs the same check
+  against the same tables from every entry point (the
+  `function_exists('isBot')` detour is gone from the detector too).
+- **Unicode arrow glued to a variable in a log string** — the aggregator
+  cron's `→` is now outside the interpolation.
+
+### Added
+
+- **Worker health** — a `worker_health` API action plus an amber panel
+  banner (7 locales) surface the three failures that are invisible by
+  design: the postback/CAPI queue worker not scheduled or stalled (pending
+  events age), the cost aggregator not running on its cadence (heartbeat
+  written by the cron), and custom conversion types shadowing a built-in
+  status with no Meta event mapped.
+- **Sortable Landings headers** — the byte-identical private
+  `SortableTh` copies in Campaigns and Offers moved to one shared module
+  (`common/SortableTh.jsx`, with `sortRows` / `nextSortState`), and
+  Landings joins them.
+- **`FacebookAdsEngine::accountTimezone()`** — reads the ad account's
+  IANA timezone from Graph for the importer's live lookup.
+
 ## [1.3.0] — 2026-08-23
 
 Working-analyzer release: resizable columns in every table, Click/Conversions

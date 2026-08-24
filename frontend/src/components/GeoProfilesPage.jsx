@@ -192,7 +192,7 @@ const GeoProfilesPage = () => {
                                         <div className="flex items-center gap-2">
                                             <Globe size={18} style={{ color: 'var(--color-primary)' }} />
                                             <span className="font-medium">{profile.name}</span>
-                                            {profile.is_template && (
+                                            {Boolean(profile.is_template) && (
                                                 <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>
                                                     {t('geoProfiles.template')}
                                                 </span>

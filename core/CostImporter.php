@@ -39,11 +39,32 @@ class CostImporter
      *                         ad_id, adset_id, date, raw_json}
      * @param array $fieldMapping Optional overrides: ad_id_param, adset_id_param,
      *                            campaign_id_param — the click parameter each ID
-     *                            actually arrives in.
-     * @return array {fetched, new, updated, matched, unmatched, currency, converted}
+     *                            actually arrives in. 'timezone' overrides the
+     *                            ad-account timezone used for date matching.
+     * @param array $options      credentials  — connection credentials, used to look
+     *                                          up the ad-account timezone;
+     *                            timezone     — explicit IANA name, wins over both;
+     *                            exclude_safe_page — override the auto-detected
+     *                                          cloak-stream exclusion.
+     * @return array {fetched, new, updated, matched, unmatched, currency, converted,
+     *                timezone, safe_page_excluded}
      */
-    public static function import(PDO $pdo, int $connectionId, array $records, array $fieldMapping = []): array
+    public static function import(PDO $pdo, int $connectionId, array $records, array $fieldMapping = [], array $options = []): array
     {
+        // Ad platforms report spend by *their* calendar day, in the ad account's
+        // timezone. clicks.created_at is UTC. Comparing the two directly puts every
+        // click before the account's midnight-offset on the previous day, so the
+        // platform's spend for a day matches none of that day's clicks — the whole
+        // import reconciles to nothing on any non-UTC account.
+        $platformTz = self::resolveTimezone($pdo, $connectionId, $fieldMapping, $options);
+
+        // Cost spread across safe-page (cloaked) clicks is spend the reports then
+        // exclude, so it disappears from every surface. With crawler traffic
+        // cloaked correctly that is most of the raw click volume.
+        $excludeSafePage = array_key_exists('exclude_safe_page', $options)
+            ? (bool) $options['exclude_safe_page']
+            : self::safePageExclusionNeeded($pdo);
+
         $findExisting = $pdo->prepare("SELECT id, amount FROM cost_records WHERE connection_id = ? AND external_id = ?");
         $insertCost = $pdo->prepare("
             INSERT INTO cost_records
@@ -62,18 +83,25 @@ class CostImporter
         // Prepared lookups are built lazily per parameter name and reused: the key
         // set is small and fixed, the record loop is not.
         $lookupCache = [];
-        $lookup = function (string $param) use ($pdo, &$lookupCache) {
-            if (!isset($lookupCache[$param])) {
+        $lookup = function (string $param, string $tzModifier, bool $moneyOnly) use ($pdo, &$lookupCache) {
+            $cacheKey = $param . '|' . $tzModifier . '|' . ($moneyOnly ? '1' : '0');
+            if (!isset($lookupCache[$cacheKey])) {
                 // json_extract's path is not a bindable parameter, so the name is
                 // stripped of anything that could break out of the path literal.
                 $safe = preg_replace('/[^A-Za-z0-9_]/', '', $param);
-                $lookupCache[$param] = $pdo->prepare(
+                // $tzModifier is generated from an integer minute count below, never
+                // from user input, so it is safe to inline into the modifier literal.
+                $dateExpr = $tzModifier === '' ? 'date(created_at)' : "date(created_at, '{$tzModifier}')";
+                // COALESCE, not "= 0": a NULL is_safe_page (pre-v38 rows) is
+                // money-side traffic and must not be filtered out.
+                $safeCond = $moneyOnly ? " AND COALESCE(is_safe_page, 0) = 0" : '';
+                $lookupCache[$cacheKey] = $pdo->prepare(
                     "SELECT id FROM clicks
                      WHERE json_extract(parameters_json, '$." . $safe . "') = ?
-                       AND date(created_at) = ?"
+                       AND {$dateExpr} = ?" . $safeCond
                 );
             }
-            return $lookupCache[$param];
+            return $lookupCache[$cacheKey];
         };
 
         $keys = self::resolveKeys($fieldMapping);
@@ -87,6 +115,9 @@ class CostImporter
             'unmatched' => 0,
             'currency'  => $trackerCurrency,
             'converted' => 0,
+            'timezone'  => $platformTz ?? 'UTC',
+            'safe_page_excluded' => $excludeSafePage,
+            'safe_page_fallbacks' => 0,
         ];
 
         foreach ($records as $rec) {
@@ -130,6 +161,10 @@ class CostImporter
             // ad → adset → campaign. The adset step is what the Facebook template's
             // {{adset.id}} exists for; without it, spend on any campaign whose ad IDs
             // the tracker never saw falls all the way back to campaign level or is lost.
+            // Offset for the spend day itself, not for "now": a DST account would
+            // otherwise have its historical days shifted by today's offset.
+            $tzModifier = self::offsetModifier($platformTz, $clickDate);
+
             $clickIds = [];
             foreach ([['ad', $adId], ['adset', $adsetId], ['campaign', $campaignId]] as $level) {
                 [$levelName, $value] = $level;
@@ -137,11 +172,26 @@ class CostImporter
                     continue;
                 }
                 foreach ($keys[$levelName] as $param) {
-                    $stmt = $lookup($param);
+                    if ($excludeSafePage) {
+                        $stmt = $lookup($param, $tzModifier, true);
+                        $stmt->execute([$value, $clickDate]);
+                        $found = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                        if (!empty($found)) {
+                            $clickIds = $found;
+                            break;
+                        }
+                    }
+                    // Fallback: a period with no money-side clicks at all (pure
+                    // crawler day, or cloaking misconfigured) still gets its spend
+                    // attributed rather than silently dropped as unmatched.
+                    $stmt = $lookup($param, $tzModifier, false);
                     $stmt->execute([$value, $clickDate]);
                     $found = $stmt->fetchAll(PDO::FETCH_COLUMN);
                     if (!empty($found)) {
                         $clickIds = $found;
+                        if ($excludeSafePage) {
+                            $stats['safe_page_fallbacks']++;
+                        }
                         break;
                     }
                 }
@@ -179,6 +229,151 @@ class CostImporter
         }
 
         return $stats;
+    }
+
+    /**
+     * IANA timezone of the ad account this connection reports for, or null when it
+     * is unknown (and UTC is therefore the only honest assumption).
+     *
+     * Order: explicit option, field_mapping override, whatever the engine stored in
+     * credentials, then a cached live lookup. The live answer is cached in settings
+     * for a day — it changes about never, and the import loop must not make a Graph
+     * call per record.
+     */
+    private static function resolveTimezone(PDO $pdo, int $connectionId, array $fieldMapping, array $options): ?string
+    {
+        $candidates = [
+            $options['timezone'] ?? null,
+            $fieldMapping['timezone'] ?? null,
+        ];
+
+        $credentials = is_array($options['credentials'] ?? null) ? $options['credentials'] : [];
+        $engine = '';
+        try {
+            $row = $pdo->prepare("SELECT engine, credentials_json, field_mapping_json FROM aggregator_connections WHERE id = ? LIMIT 1");
+            $row->execute([$connectionId]);
+            $conn = $row->fetch(PDO::FETCH_ASSOC) ?: [];
+            $engine = strtolower((string) ($conn['engine'] ?? ''));
+            if (!$credentials && !empty($conn['credentials_json'])) {
+                $decoded = json_decode((string) $conn['credentials_json'], true);
+                $credentials = is_array($decoded) ? $decoded : [];
+            }
+            if (!empty($conn['field_mapping_json'])) {
+                $fm = json_decode((string) $conn['field_mapping_json'], true);
+                if (is_array($fm) && !empty($fm['timezone'])) {
+                    $candidates[] = $fm['timezone'];
+                }
+            }
+        } catch (\Throwable $e) {
+        }
+
+        $candidates[] = $credentials['timezone'] ?? null;
+        $candidates[] = $credentials['timezone_name'] ?? null;
+
+        foreach ($candidates as $candidate) {
+            $name = trim((string) ($candidate ?? ''));
+            if ($name !== '' && self::isValidTimezone($name)) {
+                return $name;
+            }
+        }
+
+        // Cached live lookup.
+        $cacheKey = 'aggregator_tz_' . $connectionId;
+        try {
+            $cached = $pdo->prepare("SELECT value, updated_at FROM settings WHERE key = ? LIMIT 1");
+            $cached->execute([$cacheKey]);
+            $cachedRow = $cached->fetch(PDO::FETCH_ASSOC);
+            if ($cachedRow && !empty($cachedRow['value'])) {
+                $age = time() - (int) strtotime((string) ($cachedRow['updated_at'] ?? '') . ' UTC');
+                if ($age < 86400 && self::isValidTimezone((string) $cachedRow['value'])) {
+                    return (string) $cachedRow['value'];
+                }
+            }
+        } catch (\Throwable $e) {
+        }
+
+        $live = null;
+        if ($engine === 'facebook' || $engine === 'facebook_ads') {
+            $enginePath = __DIR__ . '/../aggregator_engines/FacebookAdsEngine.php';
+            if (is_file($enginePath)) {
+                require_once $enginePath;
+                if (method_exists('FacebookAdsEngine', 'accountTimezone')) {
+                    try {
+                        $live = FacebookAdsEngine::accountTimezone($credentials);
+                    } catch (\Throwable $e) {
+                        $live = null;
+                    }
+                }
+            }
+        }
+
+        if ($live !== null && self::isValidTimezone($live)) {
+            try {
+                $pdo->prepare("
+                    INSERT INTO settings (key, value, updated_at) VALUES (?, ?, datetime('now'))
+                    ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = datetime('now')
+                ")->execute([$cacheKey, $live]);
+            } catch (\Throwable $e) {
+            }
+            return $live;
+        }
+
+        return null;
+    }
+
+    private static function isValidTimezone(string $name): bool
+    {
+        try {
+            new DateTimeZone($name);
+            return true;
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    /**
+     * SQLite date() modifier that turns a UTC created_at into the ad account's local
+     * date, evaluated for the spend day itself so DST boundaries land correctly.
+     */
+    private static function offsetModifier(?string $timezone, string $date): string
+    {
+        if ($timezone === null || $timezone === '') {
+            return '';
+        }
+        try {
+            $tz = new DateTimeZone($timezone);
+            $ref = DateTime::createFromFormat('Y-m-d H:i:s', $date . ' 12:00:00', $tz);
+            if (!$ref) {
+                $ref = new DateTime('now', $tz);
+            }
+            $minutes = (int) round($tz->getOffset($ref) / 60);
+        } catch (\Throwable $e) {
+            return '';
+        }
+
+        return $minutes === 0 ? '' : sprintf('%+d minutes', $minutes);
+    }
+
+    /**
+     * Does any active campaign run a cloak stream whose safe-page clicks are kept out
+     * of reports? Mirrors orbitraSafePageExclusionNeeded() in api.php, restated here
+     * because the cron never loads api.php.
+     */
+    private static function safePageExclusionNeeded(PDO $pdo): bool
+    {
+        try {
+            $stmt = $pdo->query("
+                SELECT COUNT(*) FROM streams s
+                JOIN campaigns c ON s.campaign_id = c.id
+                WHERE s.schema_type = 'cloak'
+                  AND s.schema_custom_json IS NOT NULL AND s.schema_custom_json != '' AND s.schema_custom_json != '{}'
+                  AND c.state = 'active'
+                LIMIT 1
+            ");
+            return ((int) $stmt->fetchColumn()) > 0;
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     /**

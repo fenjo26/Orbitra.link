@@ -228,6 +228,12 @@ class FacebookConversions
 
         $event = self::resolveEvent($pixel, (string) ($ctx['status'] ?? ''));
         if ($event === null) {
+            // No queue row, no HTTP call, no trace. That is correct for statuses
+            // deliberately mapped to nothing (rejected/trash) and silent data loss for
+            // everything else: a custom conversion type named after a lead status --
+            // "hold" in COD -- shadows the built-in mapping and drops every lead.
+            // Always leave a line behind so the loss is diagnosable.
+            self::logSkippedStatus($pdo, $pixel, (string) ($ctx['status'] ?? ''), $conversionId);
             return false;
         }
 
@@ -251,6 +257,50 @@ class FacebookConversions
     }
 
     /**
+     * Record a conversion that produced no CAPI event.
+     *
+     * A status explicitly mapped to '' is an operator decision and logs at INFO.
+     * A status with no mapping at all logs at WARNING: it is nearly always a
+     * misconfiguration, and the one that bites hardest is a custom conversion type
+     * whose name collides with a built-in status.
+     */
+    private static function logSkippedStatus(PDO $pdo, array $pixel, string $status, ?int $conversionId): void
+    {
+        try {
+            $needle = strtolower(trim($status));
+            if ($needle === '') {
+                return;
+            }
+
+            $mapping = [];
+            if (!empty($pixel['mapping_json'])) {
+                $decoded = json_decode((string) $pixel['mapping_json'], true);
+                if (is_array($decoded)) {
+                    $mapping = array_change_key_case($decoded, CASE_LOWER);
+                }
+            }
+            $deliberate = array_key_exists($needle, $mapping)
+                || array_key_exists($needle, self::defaultMapping());
+
+            $stmt = $pdo->prepare("INSERT INTO system_logs (level, message, context) VALUES (?, ?, ?)");
+            $stmt->execute([
+                $deliberate ? 'INFO' : 'WARNING',
+                $deliberate
+                    ? "Facebook CAPI: status '{$status}' is mapped to no Meta event - conversion not sent."
+                    : "Facebook CAPI: status '{$status}' has no Meta event mapping - conversion NOT sent. "
+                        . "A custom conversion type named after a built-in status shadows the built-in mapping.",
+                json_encode([
+                    'pixel_id'      => (string) ($pixel['pixel_id'] ?? ''),
+                    'conversion_id' => $conversionId,
+                    'status'        => $status,
+                ], JSON_UNESCAPED_UNICODE),
+            ]);
+        } catch (\Throwable $e) {
+            // Logging must never break delivery.
+        }
+    }
+
+    /**
      * Send immediately, bypassing the queue. Used by the "Send test event" button —
      * an operator pressing test wants the answer now, not in a cron tick.
      *
@@ -266,7 +316,12 @@ class FacebookConversions
         curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
         curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 6);
+        // graph.facebook.com publishes AAAA records that are unroutable from plenty of
+        // hosts. curl tries v6 first, waits out the connect timeout, then falls back --
+        // which reads as "Resolving timed out" on an otherwise healthy box. Pin v4 and
+        // leave enough room for a slow proxy handshake.
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
         curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
 
         $proxy = trim((string) ($pixel['proxy_url'] ?? ''));

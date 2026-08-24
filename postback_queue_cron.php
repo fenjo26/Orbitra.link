@@ -215,7 +215,12 @@ try {
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, PQ_HTTP_TIMEOUT);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 4);
+        // 4s was not enough for a proxied Meta call, and graph.facebook.com's AAAA
+        // records are unroutable from many hosts: curl tries v6, burns the whole
+        // connect budget waiting, and the row fails as "Resolving timed out" on a
+        // perfectly healthy box. Pin v4 and give a proxy handshake room to finish.
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
         curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_MAXREDIRS, 3);

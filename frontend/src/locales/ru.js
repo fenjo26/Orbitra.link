@@ -2510,6 +2510,13 @@ export default {
         "updateAvailable": "Доступно обновление!",
         "updateDesc": "Версия {version} готова к установке. Нажмите для перехода к обновлению."
     },
+    "workerHealth": {
+        "title": "Фоновые задачи требуют внимания",
+        "queueWorkerMissing": "Обработчик очереди постбеков / CAPI не запущен: в очереди {count} событий, самое старое ждёт {minutes} мин. Конверсии не доходят до Facebook, TikTok и партнёрок. Установите крон: * * * * * php /var/www/orbitra/postback_queue_cron.php",
+        "queueStalled": "Очередь постбеков / CAPI не разгружается: {count} событий, самое старое ждёт {minutes} мин.",
+        "aggregatorNotScheduled": "Агрегатор расходов не запускается по расписанию — расход обновляется только по кнопке «Синхронизировать». Установите крон: */15 * * * * php /var/www/orbitra/aggregator_cron.php",
+        "shadowedStatuses": "Пользовательские типы конверсий {statuses} перекрывают встроенный статус, для которого не задано событие Meta — такие конверсии не уходят в Conversions API."
+    },
     "mainChart": {
         "chartError": "Ошибка отображения графика",
         "invalidData": "Некорректный формат данных"

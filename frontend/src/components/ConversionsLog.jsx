@@ -8,6 +8,7 @@ import MobileCards from './common/MobileCards';
 import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle } from './common/ColumnResize';
 import { resolveConversionColor } from '../utils/conversionColors';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
+import { useTimezone } from '../utils/useTimezone';
 
 const API_URL = '/api.php';
 
@@ -28,7 +29,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
     const todayPreset = getPresetDates('today');
     const [dateFrom, setDateFrom] = useState(todayPreset?.from || formatDate(new Date()));
     const [dateTo, setDateTo] = useState(todayPreset?.to || formatDate(new Date()));
-    const [timezone, setTimezone] = useState(() => localStorage.getItem('orbitra_tz') || 'UTC');
+    const [timezone, setTimezone] = useTimezone();
 
     // Resizable columns — desktop table only; below lg the list renders as
     // MobileCards and skips resizing entirely.
@@ -63,6 +64,9 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
             if (dateFrom) params.append('date_from', dateFrom);
             if (dateTo) params.append('date_to', dateTo);
             if (effectiveCampaignId) params.append('campaign_id', effectiveCampaignId);
+            // Date bucketing happens server-side against this; sending only
+            // date_from/date_to left the selector with nothing to act on.
+            if (timezone) params.append('timezone', timezone);
 
             const res = await axios.get(`${API_URL}?${params.toString()}`);
             if (res.data.status === 'success') {
@@ -78,7 +82,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
 
     useEffect(() => {
         fetchConversions(1);
-    }, [statusFilter, dateFrom, dateTo, effectiveCampaignId]);
+    }, [statusFilter, dateFrom, dateTo, effectiveCampaignId, timezone]);
 
     // Label colors live on the conversion_types rows — one fetch per mount.
     useEffect(() => {

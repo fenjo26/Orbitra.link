@@ -17,7 +17,7 @@ const ConversionsLogModal = ({ campaignId, campaignName, onClose }) => {
     if (!campaignId) return null;
 
     return (
-        <div className="modal-overlay" style={{ zIndex: 1100, top: '88px', height: 'calc(100vh - 88px)' }}>
+        <div className="modal-overlay" style={{ top: '88px', height: 'calc(100vh - 88px)' }}>
             <div className="modal-content" style={{ maxWidth: '1200px', maxHeight: '100%', overflow: 'auto' }}>
                 <div className="flex items-center justify-between mb-4">
                     <div className="min-w-0">

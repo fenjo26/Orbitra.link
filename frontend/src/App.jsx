@@ -28,6 +28,7 @@ import LeadForgePage from './components/LeadForgePage';
 import CRMPage from './components/CRMPage';
 import { canAccessTab, firstAllowedTab } from './utils/permissions';
 import { applyCustomThemeVars, clearInverseText } from './utils/themeContrast';
+import { useTimezone } from './utils/useTimezone';
 
 // In development, Vite runs on port 5173 and the API on 8080.
 // In production they are served from the same domain.
@@ -129,6 +130,11 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [updateAvailable, setUpdateAvailable] = useState(null);
   const [dismissUpdate, setDismissUpdate] = useState(false);
+  // Background workers that fail by being silent: the queue that delivers every
+  // S2S postback and CAPI event, and the cost aggregator. Nothing else in the panel
+  // says when they are not running.
+  const [workerHealth, setWorkerHealth] = useState(null);
+  const [dismissWorkerHealth, setDismissWorkerHealth] = useState(false);
   const [editingCampaignId, setEditingCampaignId] = useState(null);
 
   const [serverTime, setServerTime] = useState('');
@@ -139,6 +145,10 @@ function App() {
     custom_from: null,
     custom_to: null
   });
+
+  // Shared with every list view, so applying a timezone anywhere moves the
+  // dashboard too instead of leaving it on the period it mounted with.
+  const [dashboardTimezone] = useTimezone();
 
   // Handle API Session Expiration (401 Unauthorized) globally
   useEffect(() => {
@@ -312,8 +322,7 @@ function App() {
       }
       // The date-range picker persists its timezone here; the API shifts every
       // date condition by it, so without this param the selector was decorative.
-      const dashTz = localStorage.getItem('orbitra_tz');
-      if (dashTz) params.append('timezone', dashTz);
+      if (dashboardTimezone) params.append('timezone', dashboardTimezone);
 
       const pStr = params.toString() ? `&${params.toString()}` : '';
 
@@ -354,7 +363,9 @@ function App() {
       const interval = setInterval(fetchData, 10000);
       return () => clearInterval(interval);
     }
-  }, [user, dashboardFilters]);
+    // dashboardTimezone: the dashboard's own numbers are bucketed by it server-side,
+    // so a timezone change has to refetch, not just relabel.
+  }, [user, dashboardFilters, dashboardTimezone]);
 
   // Fetch global settings (e.g., default currency) once per session.
   useEffect(() => {
@@ -387,6 +398,26 @@ function App() {
     };
     if (user) {
       checkUpdate();
+    }
+  }, [user]);
+
+  // Worker health. Polled slowly — this answers "is the cron installed", which does
+  // not change minute to minute.
+  useEffect(() => {
+    const checkWorkers = async () => {
+      try {
+        const res = await axios.get(`${API_URL}?action=worker_health`);
+        if (res.data.status === 'success') {
+          setWorkerHealth(res.data.data);
+        }
+      } catch (e) {
+        // Silently fail — a health check must never block the panel.
+      }
+    };
+    if (user) {
+      checkWorkers();
+      const interval = setInterval(checkWorkers, 300000);
+      return () => clearInterval(interval);
     }
   }, [user]);
 
@@ -508,6 +539,34 @@ function App() {
                 <button
                   onClick={() => setDismissUpdate(true)}
                   className="p-1 hover:bg-amber-100 rounded"
+                >
+                  <X className="w-5 h-5 text-amber-600" />
+                </button>
+              </div>
+            )}
+
+            {/* Background worker warnings — see worker_health in api.php */}
+            {workerHealth && !workerHealth.healthy && !dismissWorkerHealth && (
+              <div className="mb-4 bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-6 h-6 text-amber-600 flex-shrink-0" />
+                  <div>
+                    <span className="font-medium text-amber-800">{t('workerHealth.title')}</span>
+                    <ul className="mt-1 space-y-0.5">
+                      {workerHealth.issues.map((issue, i) => (
+                        <li key={i} className="text-amber-700 text-sm">
+                          {t(`workerHealth.${issue.key}`)
+                            .replace('{count}', issue.count ?? 0)
+                            .replace('{minutes}', issue.minutes ?? 0)
+                            .replace('{statuses}', (issue.statuses || []).join(', '))}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setDismissWorkerHealth(true)}
+                  className="p-1 hover:bg-amber-100 rounded flex-shrink-0"
                 >
                   <X className="w-5 h-5 text-amber-600" />
                 </button>

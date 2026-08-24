@@ -1320,11 +1320,72 @@ if (!empty($_GET['timezone']) && in_array((string) $_GET['timezone'], DateTimeZo
     date_default_timezone_set($userTimezone);
 }
 
-// Calculate SQLite offset string for the current timezone
+// SQLite offset modifier for the selected timezone.
+//
+// This one string is applied to *historical* date conditions, so taking the offset
+// at request time is wrong for any DST zone: querying last November from a London
+// session in July shifts every one of those rows by BST rather than GMT. Anchor it
+// to the range being queried instead, which is exact for any range that sits inside
+// one DST period — the overwhelming majority. SQLite carries no timezone database,
+// so a range that straddles a transition still has to pick one offset; it picks the
+// one covering most of the range, leaving at most an hour wrong at the boundary
+// instead of a whole range wrong.
+/**
+ * The moment whose UTC offset should be applied to this request's date conditions:
+ * the midpoint of the requested range when the request carries one, otherwise now.
+ */
+function orbitraTzAnchorMoment(DateTimeZone $dz): DateTime
+{
+    $pick = static function (array $keys): ?string {
+        foreach ($keys as $key) {
+            $value = $_GET[$key] ?? null;
+            if (is_string($value) && preg_match('/^\d{4}-\d{2}-\d{2}/', $value)) {
+                return substr($value, 0, 10);
+            }
+        }
+        return null;
+    };
+
+    $from = $pick(['date_from', 'custom_from', 'from']);
+    $to   = $pick(['date_to', 'custom_to', 'to']);
+
+    // Named ranges the picker sends instead of explicit dates.
+    if ($from === null && $to === null) {
+        $range = (string) ($_GET['date_range'] ?? '');
+        $named = [
+            'yesterday'    => ['-1 day', '-1 day'],
+            'last_7_days'  => ['-7 days', 'now'],
+            'last_30_days' => ['-30 days', 'now'],
+            'this_month'   => ['first day of this month', 'now'],
+            'last_month'   => ['first day of last month', 'last day of last month'],
+        ];
+        if (isset($named[$range])) {
+            $from = (new DateTime($named[$range][0], $dz))->format('Y-m-d');
+            $to   = (new DateTime($named[$range][1], $dz))->format('Y-m-d');
+        }
+    }
+
+    if ($from === null && $to === null) {
+        return new DateTime('now', $dz);
+    }
+
+    try {
+        $start = new DateTime(($from ?? $to) . ' 00:00:00', $dz);
+        $end   = new DateTime(($to ?? $from) . ' 23:59:59', $dz);
+    } catch (\Throwable $e) {
+        return new DateTime('now', $dz);
+    }
+
+    $mid = (int) (($start->getTimestamp() + $end->getTimestamp()) / 2);
+    $anchor = new DateTime('now', $dz);
+    $anchor->setTimestamp($mid);
+    return $anchor;
+}
+
 $dz = new DateTimeZone($userTimezone);
-$dt = new DateTime('now', $dz);
-$offsetOffset = $dz->getOffset($dt);
+$offsetOffset = $dz->getOffset(orbitraTzAnchorMoment($dz));
 $dbTzOffset = sprintf('%+03d:%02d', intval($offsetOffset / 3600), abs($offsetOffset % 3600) / 60);
+
 
 // Logging Helpers
 function logSystem($pdo, $level, $message, $context = null)
@@ -10666,6 +10727,15 @@ try {
                 }
             }
 
+            // v1.1.11 added this exclusion to Campaigns, Landings, Offers and the
+            // dashboard and missed campaign_report, so the report counted cloaked
+            // crawler traffic the rest of the panel had already dropped — a 4x click
+            // overstatement on a live cloak stream, with CPC/CR/EPC wrong to match.
+            if (orbitraSafePageExclusionNeeded($pdo)) {
+                // COALESCE keeps NULL (pre-v38) rows visible — see getDashboardFilters.
+                $conds[] = 'COALESCE(clicks.is_safe_page, 0) = 0';
+            }
+
             $where = $conds ? implode(' AND ', $conds) : '1=1';
 
             // One pass over conversions / revenue_records, joined on click id — the
@@ -11014,6 +11084,160 @@ try {
                     'example' => "$postbackUrl?subid=CLICKID&status=lead&payout=10"
                 ]
             ]);
+            break;
+
+        // Worker health. The two background jobs whose absence is invisible: the
+        // outbound queue that delivers every S2S postback and CAPI event, and the
+        // cost aggregator. Neither says anything when it is simply not scheduled, so
+        // a stock install can look healthy while no conversion ever reaches Meta and
+        // spend only moves when someone presses Sync. Cheap enough to poll from the
+        // dashboard on every load.
+        case 'worker_health':
+            try {
+                $issues = [];
+                $now = time();
+
+                // --- Outbound postback / CAPI queue -------------------------------
+                $queue = [
+                    'pending' => 0,
+                    'oldest_pending_minutes' => null,
+                    'last_ping_minutes' => null,
+                    'scheduled' => false,
+                ];
+                try {
+                    $qRow = $pdo->query("
+                        SELECT COUNT(*) AS pending, MIN(created_at) AS oldest
+                        FROM s2s_postbacks_log
+                        WHERE status IN ('pending', 'in_flight')
+                    ")->fetch(PDO::FETCH_ASSOC) ?: [];
+                    $queue['pending'] = (int) ($qRow['pending'] ?? 0);
+                    if (!empty($qRow['oldest'])) {
+                        $oldestTs = strtotime((string) $qRow['oldest'] . ' UTC');
+                        if ($oldestTs) {
+                            $queue['oldest_pending_minutes'] = (int) floor(($now - $oldestTs) / 60);
+                        }
+                    }
+
+                    $ping = $pdo->query("SELECT value FROM settings WHERE key = 'postback_queue_last_ping_at'")->fetchColumn();
+                    if ($ping) {
+                        $pingTs = strtotime((string) $ping . ' UTC');
+                        if ($pingTs) {
+                            $queue['last_ping_minutes'] = (int) floor(($now - $pingTs) / 60);
+                        }
+                    }
+                    // The worker pings on every run, so a recent ping is proof it is
+                    // scheduled; anything older than 15 minutes is not a live cron.
+                    $queue['scheduled'] = $queue['last_ping_minutes'] !== null && $queue['last_ping_minutes'] <= 15;
+                } catch (\Throwable $e) {
+                }
+
+                if (!$queue['scheduled'] && $queue['pending'] > 0) {
+                    $issues[] = [
+                        'level' => 'error',
+                        'key' => 'queueWorkerMissing',
+                        'count' => $queue['pending'],
+                        'minutes' => $queue['oldest_pending_minutes'],
+                    ];
+                } elseif ($queue['oldest_pending_minutes'] !== null && $queue['oldest_pending_minutes'] > 15) {
+                    $issues[] = [
+                        'level' => 'warning',
+                        'key' => 'queueStalled',
+                        'count' => $queue['pending'],
+                        'minutes' => $queue['oldest_pending_minutes'],
+                    ];
+                }
+
+                // --- Cost aggregator ----------------------------------------------
+                $aggregator = ['connections' => 0, 'last_run_minutes' => null, 'scheduled' => false];
+                try {
+                    $aggregator['connections'] = (int) $pdo->query(
+                        "SELECT COUNT(*) FROM aggregator_connections WHERE is_active = 1"
+                    )->fetchColumn();
+
+                    $lastRun = $pdo->query("SELECT value FROM settings WHERE key = 'aggregator_last_run_at'")->fetchColumn();
+                    if ($lastRun) {
+                        $runTs = strtotime((string) $lastRun . ' UTC');
+                        if ($runTs) {
+                            $aggregator['last_run_minutes'] = (int) floor(($now - $runTs) / 60);
+                        }
+                    }
+                    // Shipped cron cadence is */15; allow four missed ticks before shouting.
+                    $aggregator['scheduled'] = $aggregator['last_run_minutes'] !== null && $aggregator['last_run_minutes'] <= 60;
+                } catch (\Throwable $e) {
+                }
+
+                if ($aggregator['connections'] > 0 && !$aggregator['scheduled']) {
+                    $issues[] = [
+                        'level' => 'warning',
+                        'key' => 'aggregatorNotScheduled',
+                        'minutes' => $aggregator['last_run_minutes'],
+                    ];
+                }
+
+                // --- Conversion statuses shadowed by a custom conversion type ------
+                // A custom type named after a built-in status takes precedence in
+                // mapStatus(), and if it carries no Meta event every conversion with
+                // that status is dropped without a trace. "hold" in COD is the one
+                // that bites: it IS the lead event.
+                $shadowed = [];
+                try {
+                    $builtIns = ['lead', 'sale', 'rejected', 'registration', 'deposit', 'trash'];
+                    $customNames = $pdo->query("SELECT name FROM conversion_types")->fetchAll(PDO::FETCH_COLUMN) ?: [];
+                    $customLower = array_map(static fn($n) => strtolower(trim((string) $n)), $customNames);
+
+                    require_once __DIR__ . '/core/FacebookConversions.php';
+                    $defaults = FacebookConversions::defaultMapping();
+
+                    $pixelRows = $pdo->query("
+                        SELECT DISTINCT COALESCE(mapping_json, '') AS mapping_json
+                        FROM campaign_pixels
+                        WHERE pixel_id IS NOT NULL AND TRIM(pixel_id) != ''
+                          AND token IS NOT NULL AND TRIM(token) != ''
+                    ")->fetchAll(PDO::FETCH_COLUMN) ?: [];
+
+                    foreach ($customLower as $name) {
+                        if ($name === '' || in_array($name, $builtIns, true)) {
+                            continue;
+                        }
+                        // Only interesting when it collides with something the default
+                        // table would otherwise have mapped to a real Meta event.
+                        if (($defaults[$name] ?? '') === '') {
+                            continue;
+                        }
+                        foreach ($pixelRows as $mappingJson) {
+                            $decoded = $mappingJson !== '' ? json_decode((string) $mappingJson, true) : null;
+                            $mapping = is_array($decoded) ? array_change_key_case($decoded, CASE_LOWER) : [];
+                            if (!array_key_exists($name, $mapping) || trim((string) $mapping[$name]) === '') {
+                                $shadowed[] = $name;
+                                break;
+                            }
+                        }
+                    }
+                    $shadowed = array_values(array_unique($shadowed));
+                } catch (\Throwable $e) {
+                }
+
+                if ($shadowed) {
+                    $issues[] = [
+                        'level' => 'warning',
+                        'key' => 'shadowedStatuses',
+                        'statuses' => $shadowed,
+                    ];
+                }
+
+                echo json_encode([
+                    'status' => 'success',
+                    'data' => [
+                        'healthy' => empty($issues),
+                        'issues' => $issues,
+                        'queue' => $queue,
+                        'aggregator' => $aggregator,
+                        'shadowed_statuses' => $shadowed,
+                    ],
+                ]);
+            } catch (\Throwable $e) {
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
             break;
 
         case 'system_status':
@@ -14848,17 +15072,63 @@ try {
                 break;
             }
 
+            // A test that does not use the production transport is not a test. The
+            // profile itself carries no proxy; the campaign pixels attached to it do,
+            // and that is the path a real conversion takes. Test every distinct
+            // transport the profile is actually delivered through, so a dead proxy
+            // fails here instead of silently in production.
+            $transports = [];
+            if ($id > 0) {
+                try {
+                    $txStmt = $pdo->prepare("
+                        SELECT DISTINCT
+                            COALESCE(NULLIF(TRIM(proxy_url), ''), '')   AS proxy_url,
+                            COALESCE(NULLIF(TRIM(api_version), ''), '') AS api_version
+                        FROM campaign_pixels
+                        WHERE pixel_profile_id = ?
+                    ");
+                    $txStmt->execute([$id]);
+                    $transports = $txStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                } catch (\Throwable $e) {
+                    $transports = [];
+                }
+            }
+            if (array_key_exists('proxy_url', $data)) {
+                // Explicit override from the editor form wins.
+                $transports = [[
+                    'proxy_url'   => trim((string) $data['proxy_url']),
+                    'api_version' => trim((string) ($data['api_version'] ?? '')),
+                ]];
+            }
+            if (!$transports) {
+                $transports = [['proxy_url' => '', 'api_version' => '']];
+            }
+
+            // Proxy credentials must not travel back to the browser.
+            $describeResult = static function (array $r): string {
+                $proxy = (string) ($r['proxy_url'] ?? '');
+                if ($proxy === '') {
+                    return $r['message'] . ' (direct, no proxy)';
+                }
+                $safe = preg_replace('#^([a-z0-9+.-]+://)[^@/]*@#i', '$1', $proxy);
+                return $r['message'] . ' (via proxy ' . $safe . ')';
+            };
+            $summariseResults = static function (array $results) use ($describeResult): array {
+                $failed = array_values(array_filter($results, static fn($r) => empty($r['success'])));
+                $shown = $failed ?: $results;
+                return [
+                    'status' => $failed ? 'error' : 'success',
+                    'message' => implode(' | ', array_map($describeResult, $shown)),
+                    'data' => [
+                        'response' => $shown[0]['response'] ?? null,
+                        'transports_tested' => count($results),
+                        'results' => $results,
+                    ],
+                ];
+            };
+
             if ($source === 'facebook') {
                 require_once __DIR__ . '/core/FacebookConversions.php';
-                $pixel = [
-                    'pixel_id' => $profile['pixel_id'],
-                    'token' => $profile['token'],
-                    'mapping_json' => null,
-                    'test_event_code' => $profile['test_event_code'] ?? '',
-                    'proxy_url' => '',
-                    'api_version' => '',
-                    'event_source_url' => $profile['event_url'] ?? '',
-                ];
                 $click = [
                     'ip' => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
                     'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'Orbitra/Pixel-Vault-test',
@@ -14870,49 +15140,61 @@ try {
                     'parameters_json' => '{}',
                     'created_at' => date('Y-m-d H:i:s'),
                 ];
-                $payload = FacebookConversions::buildPayload($pixel, $click, [
-                    'event_name' => $data['event_name'] ?? 'Lead',
-                    'event_time' => time(),
-                    'event_id' => 'orbitra_vault_test_' . bin2hex(random_bytes(6)),
-                    'payout' => 1,
-                    'currency' => 'USD',
-                    'click_params' => [],
-                    'extra' => [],
-                ]);
-                $result = FacebookConversions::send($pixel, $payload);
-                echo json_encode([
-                    'status' => $result['success'] ? 'success' : 'error',
-                    'message' => $result['message'],
-                    'data' => ['response' => $result['response']],
-                ]);
+                $results = [];
+                foreach ($transports as $tx) {
+                    $pixel = [
+                        'pixel_id' => $profile['pixel_id'],
+                        'token' => $profile['token'],
+                        'mapping_json' => null,
+                        'test_event_code' => $profile['test_event_code'] ?? '',
+                        'proxy_url' => (string) ($tx['proxy_url'] ?? ''),
+                        'api_version' => (string) ($tx['api_version'] ?? ''),
+                        'event_source_url' => $profile['event_url'] ?? '',
+                    ];
+                    $payload = FacebookConversions::buildPayload($pixel, $click, [
+                        'event_name' => $data['event_name'] ?? 'Lead',
+                        'event_time' => time(),
+                        'event_id' => 'orbitra_vault_test_' . bin2hex(random_bytes(6)),
+                        'payout' => 1,
+                        'currency' => 'USD',
+                        'click_params' => [],
+                        'extra' => [],
+                    ]);
+                    $result = FacebookConversions::send($pixel, $payload);
+                    $result['proxy_url'] = $pixel['proxy_url'];
+                    $results[] = $result;
+                }
+                echo json_encode($summariseResults($results));
                 break;
             }
 
             if ($source === 'tiktok') {
                 require_once __DIR__ . '/core/TikTokConversions.php';
-                $pixel = [
-                    'pixel_id' => $profile['pixel_id'],
-                    'token' => $profile['token'],
-                    'event_source_url' => $profile['event_url'] ?? '',
-                ];
                 $click = [
                     'ip' => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
                     'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'Orbitra/Pixel-Vault-test',
                     'referer' => '',
                 ];
-                $payload = TikTokConversions::buildPayload($pixel, $click, [
-                    'event_name' => $data['event_name'] ?? 'CompleteRegistration',
-                    'event_time' => time(),
-                    'event_id' => 'orbitra_vault_test_' . bin2hex(random_bytes(6)),
-                    'click_params' => [],
-                    'extra' => [],
-                ]);
-                $result = TikTokConversions::send($pixel, $payload);
-                echo json_encode([
-                    'status' => $result['success'] ? 'success' : 'error',
-                    'message' => $result['message'],
-                    'data' => ['response' => $result['response']],
-                ]);
+                $results = [];
+                foreach ($transports as $tx) {
+                    $pixel = [
+                        'pixel_id' => $profile['pixel_id'],
+                        'token' => $profile['token'],
+                        'proxy_url' => (string) ($tx['proxy_url'] ?? ''),
+                        'event_source_url' => $profile['event_url'] ?? '',
+                    ];
+                    $payload = TikTokConversions::buildPayload($pixel, $click, [
+                        'event_name' => $data['event_name'] ?? 'CompleteRegistration',
+                        'event_time' => time(),
+                        'event_id' => 'orbitra_vault_test_' . bin2hex(random_bytes(6)),
+                        'click_params' => [],
+                        'extra' => [],
+                    ]);
+                    $result = TikTokConversions::send($pixel, $payload);
+                    $result['proxy_url'] = $pixel['proxy_url'];
+                    $results[] = $result;
+                }
+                echo json_encode($summariseResults($results));
                 break;
             }
 
@@ -16594,7 +16876,7 @@ try {
                                     require_once __DIR__ . '/core/CostImporter.php';
 
                                     $pdo->beginTransaction();
-                                    $costStats = CostImporter::import($pdo, (int) $connectionId, $records, is_array($fieldMapping) ? $fieldMapping : []);
+                                    $costStats = CostImporter::import($pdo, (int) $connectionId, $records, is_array($fieldMapping) ? $fieldMapping : [], ['credentials' => is_array($credentials) ? $credentials : []]);
                                     $pdo->commit();
 
                                     $fetched  = $costStats['fetched'];

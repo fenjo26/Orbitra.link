@@ -1,4 +1,4 @@
-# Orbitra v1.3.0 Tracker
+# Orbitra v1.3.1 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,7 +11,22 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.3.0
+## 🆕 What's New in v1.3.1
+
+### Fixed
+
+- **💸 Cost matches the ad account's timezone** — platforms report spend by the account's calendar day; comparing it to UTC click dates put every pre-morning click on the wrong day, so a non-UTC account reconciled to nothing. The importer resolves the account's zone (override → mapping → credentials → cached live lookup) and shifts per spend day, DST-correct
+- **🧣 Safe-page clicks excluded from cost and `campaign_report`** — spend no longer vanishes into cloaked-crawler traffic the reports already exclude (with a fallback for crawler-only periods), and the report's 4x click overstatement on a live cloak stream is gone
+- **📤 CAPI: no more silent drops** — conversions skipped for an unmapped or shadowed status (a custom `hold` shadowing the COD lead event) leave a log line; the Pixel Vault test button tests every real transport the profile is attached to, including its proxy; curl pins IPv4 with a 10s connect budget so graph.facebook.com's unroutable AAAA records stop reading as resolver failures; `install.sh` schedules the queue worker and the aggregator
+- **🕐 The timezone selector works everywhere** — Campaigns and the Conversions Log actually send `?timezone=`; one shared timezone store keeps every mounted view and the dashboard on the same zone; report offsets are anchored to the queried range instead of "now" (DST-correct)
+- **🩺 Worker-health banner** — a missing queue worker, a stalled queue, an unscheduled cost aggregator and shadowed conversion statuses surface in the panel before they cost data
+- **🪟 Modals layer above the navbar again** (documented z-index scale), **🖱️ column widths persist** (Chrome's lostpointercapture/pointerup race), entity ids no longer leak into Offers' metric columns, totals footers align with body cells, SQLite `0` flags no longer render as stray zeros, zero conversions no longer read green, the campaign name suggestion is idempotent, the tz chip shows real city names, and IP2Location sentinel strings stop posing as ISP values
+
+### Added
+
+- **🔃 Sortable Landings headers** — the byte-identical private `SortableTh` copies in Campaigns/Offers became one shared module, and Landings joins them
+
+### Previous Highlights (v1.3.0)
 
 ### Added
 
@@ -27,82 +42,8 @@ Orbitra is a modern traffic management and conversion tracking system. A simpler
 - **🔄 EPC no longer cost-gated in the rotation optimiser** — earnings per click has no spend term, so EPC configs run on zero-cost campaigns (only ROI still requires cost); pinned in the allocator and cron tests
 - **🧪 Test suite fully green** — four stale tests aligned with shipped behavior: the TikTok `resolveEvent` pixel-first signature, unknown postback statuses recording for retroactive mapping instead of a 400, and the DNS/nginx regression tests skipping on hosts without the fixtures
 
-### Previous Highlights (v1.2.0)
 
-### Fixed
-
-- **📱 The panel was a 980px desktop on phones** — the frontend shipped no viewport meta at all, so mobile browsers rendered a virtual desktop and every `lg:` breakpoint already in the code never fired; one tag (`width=device-width, viewport-fit=cover`) plus the mobile work below makes the panel genuinely usable on a phone
-- **🧭 "Create stream" menu was dead on touchscreens** — it opened on hover; now on click, with 44px touch targets
-- **🛟 router.php ate real root files** — `/sw.js` (and any real file at the domain root) fell into the campaign-alias branch and died as an empty 200; a `file_exists` guard now mirrors Apache's `RewriteCond !-f`
-
-### Added
-
-- **📱 Mobile layout** — five list screens (Campaigns, Offers, Landings, Conversions, Logs) switch to card rows below `lg` via a shared MobileCards component; the campaign editor lays out in one column; pagination and report toolbars wrap
-- **📲 PWA** — the manifest is served by admin.php itself, so `start_url` always matches the real entry (/admin.php or the secret admin path — a static file could never cover both); icons 192/512 + maskable + apple-touch; installable to the home screen
-- **⚙️ Service worker** — panel shell network-first (offline fallback only), hashed dist assets stale-while-revalidate; new builds swap on reload via an "update available" toast — never mid-session
-- **#️⃣ Content-hashed build assets** — vite emits `index-[hash].js|css` and admin.php resolves them through `.vite/manifest.json` (also heals a stale shell after a partial deploy); the `?v=filemtime` cache-buster and the "hard-reload after update" advice are retired
-- **🔄 Rotation auto-optimiser** — flip a stream's landing/offer list to *Auto* and pick a metric (confirmed sales, CR, EPV, EPC, ROI); a */5 cron recomputes weights from the same report-metrics engine over a rolling 7-day window (safe-page clicks excluded, bots kept), moves are budgeted (cap 70%, floor 5%, ≤20pp per run), every decision is audited per item in `stream_rotation_log`, and campaign saves hand cron-owned weights back instead of resurrecting stale ones
-
-### Previous Highlights (v1.1.11)
-
-### Fixed
-
-- **🩹 Cloak numbers disagreed between screens** — the date-filtered Campaigns list counted safe-page clicks while Landings/Offers and the dashboard excluded them (M+N next to M); all four surfaces now ask one shared helper, and `COALESCE(is_safe_page, 0)` keeps pre-observability rows (NULL = money-side traffic) visible instead of silently vanishing them from reports
-- **🕐 Cloak panel window vs report timezone** — `cloak_summary` floored its days in UTC while the Campaigns list next to it bucketed days in the report timezone; the panel now uses the same timezone (overridable via `?timezone=`) and returns the exact window it computed, so two numbers on adjacent screens are never silently different periods
-- **🛟 Diagnostics panel survives a degraded database** — a missing `cloak_suppressed_stats` no longer takes the cloak panel down (falls back to 0 with the table recreated by the self-heal DDL below)
-
-### Added
-
-- **🔍 Evidence in every cloak reason** — reason codes now carry the fact that triggered them: `crawler_or_tool_ua:curl/` (the signature), `iprange_datacenter:52.95.0.0/8` (the matched CIDR), `bot_isp:hetzner` (the matched entry), `geo_country:US`, `ip2proxy_high_fraud:87`; shown in the Click Log and click details, while aggregation strips the evidence so thresholds and grouping stay by detection layer
-- **🔗 Cloak panel → Click Log deep link** — the diagnostics card opens the log pre-filtered (route, 24h window, stream); the Click Log modal gets ALL/SAFE/MONEY tabs plus hours/stream filters, and click details show the network facts behind the verdict (ISP, ASN, proxy type, verdict/reasons)
-- **🛠️ Self-heal DDL for `cloak_suppressed_stats`** — databases stamped with the current schema version by an earlier build of the cloak migration never re-ran it and were missing the table (the root cause behind "empty cloak diagnostics" support cases); the table is now recreated idempotently on every boot
-- **📋 Bot-ISP blocklist in the Keitaro format** — one provider per line, matched as a whole phrase (the commas/dots/apostrophes belong to the name: "Amazon.com, Inc."); generic corporate suffixes ("Inc", "Ltd", "GmbH") and sub-3-character entries are ignored by the router and warned about next to the settings textareas (PHP/JS mirror pair); matching tolerates a trailing period ("ZSCALER, INC." hits a dot-less ISP string)
-- **⭐ Group By star + last-applied in report settings** — star a grouping to make it the default for new reports (falls back to the last applied grouping, then country); the "Report" button in Campaigns follows a single ticked checkbox and opens that campaign's report
-
-### Previous Highlights (v1.1.10)
-
-### Fixed
-
-- **🩹 CRITICAL: Landings table was blank in v1.1.9** — the rewrite passed the column object into the cell renderer, so every fixed column (ID, Status, Name, Group, Type, URL, Last Event) rendered as "-" and metrics sat one column left of their header; rows render fully again
-- **🖱️ Column drag-and-drop never started** — the grip was inside the sort button (a native drag cannot begin on an interactive descendant), the header component remounted on every render killing the drag mid-flight, and the drag payload was never set (Firefox refused to start); fixed in Campaigns + Offers, Firefox payload fix in CampaignReports
-- **🎛️ Navbar dropdowns behind report overlays** — the navbar layer is raised above page-level overlays (report + dashboard settings); true modals and the mobile drawer keep their order
-
-### Added
-
-- **🔌 Traffic-source-driven parameter buttons** — "Facebook Parameters" and "Add All Tracking Parameters" both derive from the campaign's traffic source (`parameters_json`, the same {alias, param, macro} contract the click path uses); the Direct-URL preset now merges into the existing query instead of wiping hand-typed parameters (user values win, no duplicate keys); generic Facebook defaults + a hint until a source is picked
-- **⚖️ "Split Evenly" + live share badges in stream Offers/Landings lists** — splits weights across enabled items only (the exact set the router rotates), paused rows keep their weight; the static "%" becomes a live share badge (weight / enabled-total, one decimal, "-" while paused)
-
-**AFTER UPDATING, HARD-RELOAD THE PANEL ONCE (Ctrl/Cmd+Shift+R)** — index.js has a stable filename and browsers cache the old build.
-
-### Previous Highlights (v1.1.9)
-
-### Added
-
-- **🩹 Auto-heal for double-`?` URLs** — a leading `?` in the Facebook Ads URL-parameters box (or a cloaker concatenating onto a URL that already had one) corrupted the first routing parameter and lost the click; healing now runs before campaign routing in all 3 entry points, repairs the corrupted value and recovers every swallowed key (`utm_placement` is captured too)
-- **📘 Facebook Parameters copy button** in the campaign editor — copies the clean tracking-parameter string (no leading `?`) straight into Meta Ads Manager
-- **➡️ "Add All Tracking Parameters" preset** for Direct-URL streams; unresolved `{macros}` are stripped from redirect URLs so literals never reach the affiliate network
-- **🔍 Cloak observability** — every routing decision is persisted and visible: verdict + reason codes + ISP/ASN on each click, Route/Reason/Destination columns in Analytics → Clicks with filters, per-day suppressed-hit counter ("zero clicks" can never hide real traffic), safe clicks logged by default and excludable from reports, and geo-targeting safety warnings (missing geo DB → `geo_unknown` + configurable action) in the editor and Geo Databases page. Full guide: `docs/cloak-how-it-works.md`
-- **📊 Full metric parity on Landings/Offers** — registrations, deposits, bots/proxies, per-status revenue and the real-revenue family are actually computed (previously always 0, real_roi showed a bogus −100%); both pages get the customizable metric table with presets and totals
-
-### Fixed
-
-- **🎛️ Stream rotation honors per-item disable toggles** — a paused offer/landing inside a custom schema no longer receives traffic; weighted selection filters disabled items
-- **🌍 Locales at full parity in all 7 languages** (new keys shipped English-only before); Chrome-extension floating widget remembers its position
-- **AFTER UPDATING, HARD-RELOAD THE PANEL ONCE (Ctrl/Cmd+Shift+R)** — index.js has a stable filename and browsers cache the old build
-
-### Previous Highlights (v1.1.8)
-
-- **🎯 Entity filters in Analytics** — multi-select filters by campaigns, offers and landings (dropdown groups, search, select all / clear, active-filter badges) in both Trends and Cohort views; the earlier attempt never showed up because the feature commits never rebuilt `frontend/dist`
-
-### Older (v1.1.7)
-
-- **🛟 Landing assets: nginx redirect loop (500s)** — flattened `/_internal_assets/` location (nested regex broke alias inheritance); fail-safe detects the broken config variant until `nginx_sync.php` runs
-
-### Older (v1.1.6)
-
-- **🔀 SSL mode selector in Domains** — Let's Encrypt / Cloudflare / Custom, all 7 languages
-- **🧰 Install smoke tests + `cli/check_landings.php` diagnostics**
-- **🧩 Guaranteed landing/offers asset loading** — relative-path rewriting, campaign-URL referer fallback, PHP streaming fail-safe
+Older releases (v1.2.0 and earlier): see the [full changelog](CHANGELOG.md).
 
 ## 🖥 Live Demo
 
@@ -573,29 +514,18 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.3.0 (2026-08-23)
-
-**Added**
-- 🖱️ **Resizable columns in every table** — drag any header edge (Campaigns, Offers, Landings, Logs, Conversions, campaign report, report customizer); widths persist per table and restore to default; one shared `ColumnResize` module
-- 📋 **Click Log & Conversions Log modals** — cloak quick-filters (ALL/SAFE/MONEY) + W1/W2 fields, opened from the Campaigns list and the editor's stream cards
-- 🔗 **Shared `campaignUrl` helper**; 🌐 **Domain column in Campaigns**
-- 🧩 **kclient.php 2.0** — secondary pages restore this click's offer from the session (id-matched); `getOffer(42)` bare-id form; picking an offer *replaces* the tracker's `offer_id` instead of stacking a second; new `docs/tracking-client-php.md` linked from the integration panel
-- 🏷️ **KClient direct-destination macros** — `{subid}`, `{ip}`, `{country}` substituted like the campaign-link path; `{subid}` offer URLs no longer arrive empty
+### Current release — v1.3.1 (2026-08-25)
 
 **Fixed**
-- 🔄 **EPC no longer cost-gated in the rotation optimiser** — EPC configs run on zero-cost campaigns (only ROI requires cost), pinned in tests
-- 🧪 **Test suite fully green** — four stale tests aligned with shipped behavior (TikTok `resolveEvent` signature, unknown postback statuses recording for retroactive mapping, DNS/nginx env-skips)
-
-Previous releases — v1.2.0:
+- 💸 **Cost matches the ad account's timezone** (an Asia/Kolkata account reconciles to zero unmatched for the first time, DST-correct per spend day); 🧣 **safe-page clicks excluded from cost and `campaign_report`** (4x click overstatement gone, crawler-only periods still attributed via fallback)
+- 📤 **CAPI silent drops are gone** — skipped conversions log a line (custom `hold` shadowing the COD lead no longer vanishes); the Pixel Vault test button tests the real transport incl. proxy; curl pins IPv4 + 10s connect; `install.sh` schedules the queue worker and aggregator
+- 🕐 **Timezone selector works everywhere** — Campaigns & Conversions Log send `?timezone=`; one shared store across views + dashboard; offsets anchored to the queried range (DST-correct); 🩺 **worker-health banner** for missing queue worker / stalled queue / unscheduled aggregator / shadowed statuses
+- 🪟 **Modals above the navbar** (documented z-index scale); 🖱️ **column widths persist** (Chrome lostpointercapture race); 🧹 entity-id leaks in Offers' columns, footer alignment, `0`-boolean renders, zero-conversions green, idempotent name suggestion, tz chip underscores, IP2Location sentinels as ISP
 
 **Added**
-- 📱 **Mobile layout** — five list screens switch to card rows below `lg` (shared MobileCards); campaign editor in one column; toolbars wrap
-- 📲 **PWA + service worker** — manifest from admin.php (`start_url` matches the real entry, incl. the secret path); icons + maskable + apple-touch; shell network-first, hashed assets stale-while-revalidate; updates swap on reload via a toast, never mid-session
-- #️⃣ **Hashed build assets** — `index-[hash].js|css` resolved via `.vite/manifest.json`; `?v=` cache-buster and hard-reload advice retired
-- 🔄 **Rotation auto-optimiser** — Auto per landing/offer list + metric (sales/CR/EPV/EPC/ROI); */5 cron, rolling 7-day window, safe-page excluded, bots kept; cap 70% / floor 5% / ≤20pp per run; audited per item (`stream_rotation_log`); campaign save hands cron-owned weights back
-- 🛟 **router.php no longer eats real root files** (`/sw.js` died as an empty 200); 📱 viewport meta + touch-friendly "Create stream" menu
+- 🔃 **Sortable Landings headers** via the shared `SortableTh` module (extracted from Campaigns/Offers)
 
-v1.1.11: 🩹 cloak-числа по 4 поверхностям (один хелпер + COALESCE), 🔍 evidence в причинах cloak, 🔗 cloak-панель → Click Log с табами ALL/SAFE/MONEY, 🛠️ self-heal DDL `cloak_suppressed_stats`, 📋 bot-ISP в формате Keitaro, ⭐ Group By star; v1.1.10: 🩹 CRITICAL Landings dashes hotfix, 🖱️ column drag-and-drop fix, 🎛️ navbar layer, 🔌 source-driven parameter buttons, ⚖️ Split Evenly + live share badges; v1.1.9: 🩹 double-`?` auto-heal, 🔍 cloak observability (W1–W4), 📊 Landings/Offers metric parity; v1.1.8: 🎯 entity filters in Analytics (Trends/Cohort) with the dist-rebuild fix; v1.1.7: 🛟 nginx asset-loop hotfix (`nginx_sync.php` once); v1.1.6: 🔀 SSL mode selector, 🧰 smoke tests + landing diagnostics, 🧩 asset-loading guarantees, 🗑️ bulk import removed; v1.1.5: 🔐 SSL management (ORB-014), 🧠 SUBID in traffic logs.
+Previous releases — v1.3.0: 🖱️ resizable columns everywhere, 📋 Click/Conversions Log modals, 🧩 kclient.php 2.0, 🏷️ KClient macros, 🔄 optimiser EPC fix; v1.2.0: 📱 mobile layout, 📲 PWA + hashed assets, 🔄 rotation auto-optimiser.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

@@ -38,13 +38,36 @@ require_once __DIR__ . '/core/CrmVault.php';
 require_once __DIR__ . '/core/ip_access.php';
 require_once __DIR__ . '/session_bootstrap.php';
 
+/**
+ * Sentinel strings that geo databases return in place of a value they do not carry.
+ *
+ * IP2Location LITE answers every field its .BIN does not include with the literal
+ * sentence "This parameter is unavailable in selected .BIN data file". Passed
+ * through, it becomes the ISP of every single visitor, which silently disables
+ * every ISP/ASN blocklist — nothing ever matches a filter rule again.
+ */
+function orbitraIsGeoSentinel(string $value): bool
+{
+    $lower = strtolower($value);
+
+    if ($lower === '' || $lower === '-' || $lower === 'unknown' || $lower === 'n/a' || $lower === '?') {
+        return true;
+    }
+
+    return str_contains($lower, 'unavailable in selected')
+        || str_contains($lower, 'not supported')
+        || str_contains($lower, 'invalid ip address')
+        || str_contains($lower, 'demo version')
+        || str_contains($lower, 'this parameter is unavailable');
+}
+
 function normalizeGeoString($value, $default = '')
 {
     if (!is_string($value)) {
         return $default;
     }
     $value = trim($value);
-    if ($value === '' || $value === '-' || strtolower($value) === 'unknown') {
+    if (orbitraIsGeoSentinel($value)) {
         return $default;
     }
     return $value;
@@ -55,7 +78,12 @@ function fillGeoData(array &$target, array $source)
     $stringKeys = ['country_code', 'region', 'city', 'zipcode', 'timezone', 'isp', 'asn'];
     foreach ($stringKeys as $key) {
         if ((empty($target[$key]) || $target[$key] === 'Unknown') && !empty($source[$key])) {
-            $target[$key] = (string) $source[$key];
+            // Same door the sentinel came through: a provider's placeholder must not
+            // become a real-looking value just because it arrived from a fallback DB.
+            $candidate = normalizeGeoString((string) $source[$key], '');
+            if ($candidate !== '') {
+                $target[$key] = $candidate;
+            }
         }
     }
 
@@ -2647,21 +2675,10 @@ $stmt = $pdo->prepare("SELECT * FROM streams WHERE campaign_id = ? AND is_active
 $stmt->execute([$campaignId]);
 $allStreams = $stmt->fetchAll();
 
-function isBot($pdo, $ip, $userAgent)
-{
-    $stmt = $pdo->prepare("SELECT id FROM bot_ips WHERE ip_or_cidr = ? LIMIT 1");
-    $stmt->execute([$ip]);
-    if ($stmt->fetch())
-        return true;
-
-    if ($userAgent) {
-        $stmt = $pdo->prepare("SELECT id FROM bot_signatures WHERE trim(signature) <> '' AND ? LIKE '%' || signature || '%' LIMIT 1");
-        $stmt->execute([$userAgent]);
-        if ($stmt->fetch())
-            return true;
-    }
-    return false;
-}
+// isBot() used to live here, defined and never called — it duplicated a check that
+// CloakDetector::matchedBotList() already performs against the same bot_ips /
+// bot_signatures tables, inside the cloak pipeline that actually runs. Removed
+// rather than wired up: two copies of a blocklist check drift.
 
 // Case-insensitive equality of a payload token against a value.
 function filterTokenEquals($token, $value)

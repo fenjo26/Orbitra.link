@@ -6,10 +6,12 @@ import GroupsModal from './GroupsModal';
 import PaginationToolbar from './common/PaginationToolbar';
 import MobileCards from './common/MobileCards';
 import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle } from './common/ColumnResize';
+import { SortableTh, nextSortState } from './common/SortableTh';
 import CampaignReports from './CampaignReports';
 import ClickLogModal from './ClickLogModal';
 import ConversionsLogModal from './ConversionsLogModal';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
+import { useTimezone } from '../utils/useTimezone';
 import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getDefaultTemplateColumns, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -18,67 +20,6 @@ import { campaignLinkUrl } from '../utils/campaignUrl';
 import { financeVisibility, financeHiddenMetric } from '../utils/permissions';
 
 const API_URL = '/api.php';
-
-// Module scope on purpose: a component defined in the render body is a new
-// type on every render, so React remounts its DOM — and a remounted <th>
-// cancels a column drag in flight (the dragover highlight re-renders it).
-const SortIcon = ({ sortBy, colKey }) => {
-    if (sortBy.key !== colKey) return <ChevronsUpDown className="w-3.5 h-3.5 opacity-40" />;
-    return sortBy.dir === 'asc'
-        ? <ChevronUp className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />
-        : <ChevronDown className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />;
-};
-
-// The drag source is the GRIP, not the <th>: a native drag never starts on
-// an interactive descendant, so a grip inside the sort <button> was dead.
-// The <th> itself stays the drop target (highlight + onDrop).
-// `resize` (the shared column-resize controller) mounts a resize handle on
-// the header's right edge and suspends the reorder grip while a resize drag
-// is in flight, so both gestures coexist on the same header.
-const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', alignRight = false, draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd, resize }) => {
-    const isActive = sortBy.key === colKey;
-    return (
-        <th
-            className={`${alignRight ? 'text-right' : 'text-left'} whitespace-nowrap transition-all resizable-th`}
-            aria-sort={isActive ? (sortBy.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
-            title={fullTitle}
-            onDragOver={onDragOver}
-            onDrop={onDrop}
-            onDragEnd={onDragEnd}
-            style={{
-                textAlign: alignRight ? 'right' : 'left',
-                userSelect: 'none',
-                boxShadow: isDragOver ? 'inset 2px 0 0 var(--color-primary)' : 'none',
-                backgroundColor: isDragOver ? 'var(--color-bg-soft)' : undefined
-            }}
-        >
-            <div className={`inline-flex items-center gap-1.5 ${alignRight ? 'justify-end w-full' : ''}`}>
-                {draggable && (
-                    <span
-                        draggable={!resize?.resizingId}
-                        onDragStart={onDragStart}
-                        className="cursor-grab active:cursor-grabbing flex-shrink-0 -ml-1"
-                    >
-                        <GripVertical className="w-3 h-3 opacity-25 hover:opacity-75" />
-                    </span>
-                )}
-                <button
-                    type="button"
-                    onClick={() => requestSort(colKey, defaultDir)}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap cursor-pointer"
-                    style={{
-                        color: isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                        textAlign: alignRight ? 'right' : 'left'
-                    }}
-                >
-                    <span>{label}</span>
-                    <SortIcon sortBy={sortBy} colKey={colKey} />
-                </button>
-            </div>
-            {resize && <ColumnResizeHandle rt={resize} colId={colKey} />}
-        </th>
-    );
-};
 
 const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, setEditingCampaignId, user }) => {
     const { t } = useLanguage();
@@ -298,7 +239,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     const todayPreset = getPresetDates('today');
     const [dateFrom, setDateFrom] = useState(todayPreset?.from || formatDate(new Date()));
     const [dateTo, setDateTo] = useState(todayPreset?.to || formatDate(new Date()));
-    const [timezone, setTimezone] = useState(() => localStorage.getItem('orbitra_tz') || 'UTC');
+    const [timezone, setTimezone] = useTimezone();
 
     // Active Campaign Data (fetched with date & group parameters)
     const [campaignList, setCampaignList] = useState(initialCampaigns || []);
@@ -366,6 +307,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                 date_to: dateTo
             };
             if (selectedGroupId) params.group_id = selectedGroupId;
+            // Without this the timezone selector was decorative here: the request was
+            // byte-identical whichever zone was picked, so the click counts never moved.
+            // Landings and Offers already send it; Campaigns was the outlier.
+            if (timezone) params.timezone = timezone;
             const res = await axios.get(`${API_URL}?action=campaigns`, { params });
             if (res.data.status === 'success') {
                 setCampaignList(res.data.data || []);
@@ -379,7 +324,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
 
     useEffect(() => {
         fetchCampaigns();
-    }, [dateFrom, dateTo, selectedGroupId]);
+    }, [dateFrom, dateTo, selectedGroupId, timezone]);
 
     const handleDateChange = (from, to) => {
         setDateFrom(from);

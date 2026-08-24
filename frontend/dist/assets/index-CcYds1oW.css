@@ -701,10 +701,6 @@
     z-index: 1000;
   }
 
-  .z-\[1100\] {
-    z-index: 1100;
-  }
-
   .z-\[1499\] {
     z-index: 1499;
   }
@@ -1630,6 +1626,12 @@
 
   .gap-7 {
     gap: calc(var(--spacing) * 7);
+  }
+
+  :where(.space-y-0\.5 > :not(:last-child)) {
+    --tw-space-y-reverse: 0;
+    margin-block-start: calc(calc(var(--spacing) * .5) * var(--tw-space-y-reverse));
+    margin-block-end: calc(calc(var(--spacing) * .5) * calc(1 - var(--tw-space-y-reverse)));
   }
 
   :where(.space-y-1 > :not(:last-child)) {
@@ -5639,7 +5641,7 @@ body.col-resizing, body.col-resizing * {
 }
 
 .modal-overlay {
-  z-index: 1100;
+  z-index: 2000;
   background-color: #00000080;
   justify-content: center;
   align-items: center;

@@ -529,17 +529,34 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         const firstStream = formData.streams?.[0];
         const offerId = parseInt(firstStream?.schema_custom?.offers?.[0]?.id || firstStream?.offer_id, 10);
         const offerObj = offerId ? allOffers.find(o => parseInt(o.id, 10) === offerId) : null;
-        let baseName = (formData.name || '').split(' - ')[0].trim();
-        if (!baseName && offerObj) baseName = offerObj.name.replace(/\s*\[.*?\]\s*/g, '').trim();
-        if (!baseName) baseName = t('editor.newCampaign');
         const sourceObj = sources.find(s => s.id == formData.source_id);
         const sourceName = sourceObj ? sourceObj.name : t('editor.nameSourceOrganic');
+
+        // The product segment is whatever is left of the current name once the parts
+        // this function itself appends are stripped back off. Taking `split(' - ')[0]`
+        // instead made the suggestion non-idempotent: applied to an already-formatted
+        // name it read the traffic source as the product and produced
+        // "Facebook Ads - Facebook Ads - [IN]". Stripping also keeps product names
+        // that legitimately contain " - " intact.
+        const escapeRe = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        let baseName = (formData.name || '')
+            .trim()
+            .replace(/\s*-\s*\[[^\]]*\]\s*$/, '')                                  // trailing " - [GEO]"
+            .replace(new RegExp(`\\s*-\\s*${escapeRe(sourceName)}\\s*$`, 'i'), '')     // trailing " - <source>"
+            .trim();
+        if (baseName.toLowerCase() === sourceName.toLowerCase()) baseName = '';
+        if (!baseName && offerObj) baseName = offerObj.name.replace(/\s*\[.*?\]\s*/g, '').trim();
+
         let geo = offerObj?.geo ? String(offerObj.geo).split(',')[0].trim().toUpperCase() : '';
         if (!geo) {
             const countryFilter = (firstStream?.filters || []).find(f => f.name === 'Country' && (f.mode || 'include') === 'include');
             geo = String(countryFilter?.payload?.[0] || '').trim().toUpperCase();
         }
-        return `${baseName} - ${sourceName} - [${geo || 'GLOBAL'}]`;
+
+        // No product to name: omit the segment rather than padding it with a
+        // placeholder that the next apply would then treat as the product.
+        const head = baseName ? `${baseName} - ${sourceName}` : sourceName;
+        return `${head} - [${geo || 'GLOBAL'}]`;
     };
     const suggestedName = buildStandardName();
     const displayParameters = useMemo(() => {
@@ -5253,7 +5270,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
             {/* Traffic Simulation Modal */}
             {showTrafficSimModal && (
-                <div className="modal-overlay" style={{ zIndex: 1100 }}>
+                <div className="modal-overlay">
                     <div className="modal-content" style={{ maxWidth: '600px' }}>
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="modal-title">{t('editor.trafficSimulation')}</h3>

@@ -2050,6 +2050,13 @@ export default {
         "updateAvailable": "Update Available!",
         "updateDesc": "Version {version} is ready to install. Click to go to update."
     },
+    "workerHealth": {
+        "title": "Background workers need attention",
+        "queueWorkerMissing": "The postback / CAPI queue worker is not running: {count} event(s) pending, the oldest for {minutes} minute(s). Conversions are not reaching Facebook, TikTok or your networks. Install the cron: * * * * * php /var/www/orbitra/postback_queue_cron.php",
+        "queueStalled": "The postback / CAPI queue is not draining: {count} event(s) pending, the oldest for {minutes} minute(s).",
+        "aggregatorNotScheduled": "The cost aggregator has not run on a schedule; spend only updates on a manual Sync. Install the cron: */15 * * * * php /var/www/orbitra/aggregator_cron.php",
+        "shadowedStatuses": "Custom conversion type(s) {statuses} shadow a built-in status with no Meta event mapped — conversions with that status are not sent to the Conversions API."
+    },
     "mainChart": {
         "chartError": "Chart rendering error",
         "invalidData": "Invalid data format"

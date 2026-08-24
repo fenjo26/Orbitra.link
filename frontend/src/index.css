@@ -1111,6 +1111,11 @@ code {
   border-right: none;
 }
 
+/* Horizontal padding MUST match `.tracker-table td` above, or every totals figure
+   sits offset from the column it belongs to. The vertical value is deliberately
+   larger — the footer is a heavier row — but the 14px is a contract, not a taste
+   choice. Landings/Offers used to add `px-4 py-3` on their footer cells on top of
+   this, which is exactly how the two drifted apart. */
 .tracker-table tfoot td {
   padding: 9px 14px;
   background-color: var(--color-bg-soft);
@@ -1394,10 +1399,18 @@ body.col-resizing * {
    Modal
    ======================================== */
 
+/* Modal stacking scale — the navbar is fixed at z-1500, so anything below that is
+   a modal whose title bar and close button sit underneath it and cannot be reached:
+     1500  navbar
+     2000  modal overlays (this rule)
+     2050  full-screen panes opened *inside* an editor modal
+     2100  secondary modals opened on top of a modal (column pickers, customisers)
+     2500  toasts
+   Never override this downward on an individual overlay. */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 1100;
+  z-index: 2000;
   display: flex;
   align-items: center;
   justify-content: center;

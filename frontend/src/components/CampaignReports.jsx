@@ -3,6 +3,7 @@ import axios from 'axios';
 import { X, Download, Filter, BarChart3, Plus, Trash2, SlidersHorizontal, GripVertical, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
+import { useTimezone } from '../utils/useTimezone';
 import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getDimensionLabel, getDefaultTemplateColumns, getReportMetricTooltip, normalizeReportMetricIds, resolveInitialGroupLayers, persistLastAppliedGroupBy, DEFAULT_REPORT_LAYERS } from './ReportCustomizerModal';
 import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle } from './common/ColumnResize';
 import { resolveConversionColor } from '../utils/conversionColors';
@@ -104,7 +105,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     const todayPreset = getPresetDates('last7Days') || getPresetDates('today');
     const [dateFrom, setDateFrom] = useState(todayPreset?.from || formatDate(new Date()));
     const [dateTo, setDateTo] = useState(todayPreset?.to || formatDate(new Date()));
-    const [timezone, setTimezone] = useState(() => localStorage.getItem('orbitra_tz') || 'UTC');
+    const [timezone, setTimezone] = useTimezone();
 
     // Column customizer state
     const [customizerOpen, setCustomizerOpen] = useState(false);
@@ -190,8 +191,10 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             };
             if (campaignId) params.campaign_id = campaignId;
             // The picker's timezone decides which day a click belongs to — send it.
-            const tz = localStorage.getItem('orbitra_tz');
-            if (tz) params.timezone = tz;
+            // Read the state, not localStorage: this fetch used to read the key
+            // directly while the header rendered React state, so the two could
+            // disagree about which period was on screen.
+            if (timezone) params.timezone = timezone;
             if (filters.length > 0) {
                 params.filters = JSON.stringify(filters);
             }
@@ -212,7 +215,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
 
     useEffect(() => {
         fetchReport();
-    }, [campaignId, layers.join(','), dateFrom, dateTo, JSON.stringify(filters)]);
+    }, [campaignId, layers.join(','), dateFrom, dateTo, JSON.stringify(filters), timezone]);
 
     // Build the hierarchical tree from flat rows, then flatten into display rows
     const displayRows = useMemo(() => {
@@ -612,7 +615,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     };
 
     return (
-        <div className="fixed top-[88px] left-0 right-0 bottom-0 z-[1100] flex bg-black/60 backdrop-blur-sm">
+        <div className="fixed top-[88px] left-0 right-0 bottom-0 z-[2000] flex bg-black/60 backdrop-blur-sm">
             <div className="flex flex-col w-full h-full" style={{ backgroundColor: 'var(--color-bg-main)', color: 'var(--color-text-primary)' }}>
                 {/* Header Toolbar */}
                 <div

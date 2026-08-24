@@ -5,9 +5,11 @@ import LandingEditor from './LandingEditor';
 import GroupsModal from './GroupsModal';
 import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
 import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle } from './common/ColumnResize';
+import { SortableTh, sortRows, nextSortState } from './common/SortableTh';
 import PaginationToolbar from './common/PaginationToolbar';
 import MobileCards from './common/MobileCards';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
+import { useTimezone } from '../utils/useTimezone';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 import { entityDeleteErrorText } from '../utils/entityInUseError';
@@ -80,8 +82,14 @@ const Landings = ({ landings, refreshData }) => {
 
     const [dateFrom, setDateFrom] = useState(() => getPresetDates('today')?.from || formatDate(new Date()));
     const [dateTo, setDateTo] = useState(() => getPresetDates('today')?.to || formatDate(new Date()));
-    const [timezone, setTimezone] = useState(() => localStorage.getItem('orbitra_tz') || 'UTC');
+    const [timezone, setTimezone] = useTimezone();
+    // key=null keeps the API's own order, same contract as Campaigns and Offers.
+    const [sortBy, setSortBy] = useState({ key: null, dir: 'desc' });
     const landingRequestId = useRef(0);
+
+    const requestSort = (key, defaultDir = 'asc') => {
+        setSortBy(prev => nextSortState(prev, key, defaultDir));
+    };
 
     const fetchLandings = useCallback(async () => {
         const requestId = ++landingRequestId.current;
@@ -190,7 +198,7 @@ const Landings = ({ landings, refreshData }) => {
         });
     }, [landingList, search, typeFilter, stateFilter, groupTab]);
 
-    const visibleLandings = filteredLandings;
+    const visibleLandings = useMemo(() => sortRows(filteredLandings, sortBy), [filteredLandings, sortBy]);
 
     // The paged slice the table renders. Totals footer and CSV export stay
     // over the whole filtered list — paging must not change TOTAL.
@@ -507,7 +515,9 @@ const Landings = ({ landings, refreshData }) => {
             case 'unique_visits':
                 return num.toLocaleString();
             case 'conversions':
-                return <span className="font-semibold" style={{ color: 'var(--color-success)' }}>{num.toLocaleString()}</span>;
+                // Match the row formatter: a totals row reading 0 in success green
+                // reads as a positive signal when scanning the table.
+                return num > 0 ? <span className="font-semibold" style={{ color: 'var(--color-success)' }}>{num.toLocaleString()}</span> : '0';
             case 'lp_ctr':
             case 'approve_rate':
             case 'cr':
@@ -868,47 +878,29 @@ const Landings = ({ landings, refreshData }) => {
                                     onChange={(e) => toggleSelectAll(e.target.checked)}
                                 />
                             </th>
-                            <th className="resizable-th">
-                                ID
-                                <ColumnResizeHandle rt={colResize} colId="id" />
-                            </th>
-                            <th className="resizable-th">
-                                {t('components.status')}
-                                <ColumnResizeHandle rt={colResize} colId="state" />
-                            </th>
-                            <th className="resizable-th">
-                                {t('editor.name')}
-                                <ColumnResizeHandle rt={colResize} colId="name" />
-                            </th>
-                            <th className="resizable-th">
-                                {t('components.group')}
-                                <ColumnResizeHandle rt={colResize} colId="group_name" />
-                            </th>
-                            <th className="resizable-th">
-                                {t('components.type')}
-                                <ColumnResizeHandle rt={colResize} colId="type" />
-                            </th>
-                            <th className="resizable-th">
-                                URL
-                                <ColumnResizeHandle rt={colResize} colId="url" />
-                            </th>
-                            <th className="resizable-th">
-                                {t('landingColumns.lastEvent')}
-                                <ColumnResizeHandle rt={colResize} colId="last_event" />
-                            </th>
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="id" label="ID" defaultDir="desc" resize={colResize} />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="state" label={t('components.status')} resize={colResize} />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="name" label={t('editor.name')} resize={colResize} />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="group_name" label={t('components.group')} resize={colResize} />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="type" label={t('components.type')} resize={colResize} />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="url" label="URL" resize={colResize} />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="last_event" label={t('landingColumns.lastEvent')} defaultDir="desc" resize={colResize} />
 
                             {/* Dynamic metric columns */}
                             {chosenColumns.map((colId) => {
                                 const def = ALL_REPORT_METRICS.find(m => m.id === colId);
                                 return (
-                                    <th
+                                    <SortableTh
                                         key={colId}
-                                        title={getReportMetricTooltip(def, t)}
-                                        className="text-right whitespace-nowrap resizable-th"
-                                    >
-                                        {def?.shortLabel || def?.label || colId}
-                                        <ColumnResizeHandle rt={colResize} colId={colId} />
-                                    </th>
+                                        sortBy={sortBy}
+                                        requestSort={requestSort}
+                                        colKey={colId}
+                                        label={def?.shortLabel || def?.label || colId}
+                                        fullTitle={getReportMetricTooltip(def, t)}
+                                        defaultDir="desc"
+                                        alignRight
+                                        resize={colResize}
+                                    />
                                 );
                             })}
                             <th className="text-right resizable-th">
@@ -960,10 +952,10 @@ const Landings = ({ landings, refreshData }) => {
                     {visibleLandings.length > 0 && (
                         <tfoot style={{ background: 'var(--color-bg-soft)' }}>
                             <tr className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-                                <td className="px-4 py-3"></td>
-                                <td className="px-4 py-3" colSpan={7}>Σ Total ({visibleLandings.length})</td>
+                                <td></td>
+                                <td colSpan={7}>Σ Total ({visibleLandings.length})</td>
                                 {chosenColumns.map((colId) => (
-                                    <td key={colId} className="px-4 py-3 text-right">
+                                    <td key={colId} className="text-right">
                                         {formatTotalCell(colId)}
                                     </td>
                                 ))}

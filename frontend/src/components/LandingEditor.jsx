@@ -1035,7 +1035,7 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                             style={{
                                 backgroundColor: 'var(--color-bg-soft)',
                                 ...(editorFullscreen ? {
-                                    position: 'fixed', inset: '12px', zIndex: 1400,
+                                    position: 'fixed', inset: '12px', zIndex: 2050,
                                     border: '1px solid var(--color-border)', borderRadius: '16px',
                                     boxShadow: '0 24px 80px rgba(0,0,0,.45)'
                                 } : {})

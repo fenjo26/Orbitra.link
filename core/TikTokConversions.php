@@ -127,6 +127,8 @@ class TikTokConversions
         }
         $event = self::resolveEvent($pixel, (string) ($ctx['status'] ?? ''));
         if ($event === null) {
+            // Same silent-drop hazard as the Meta path: leave a trace behind.
+            self::logSkippedStatus($pdo, $pixel, (string) ($ctx['status'] ?? ''), $conversionId);
             return false;
         }
         $ctx['event_name'] = $event;
@@ -147,6 +149,46 @@ class TikTokConversions
         return true;
     }
 
+    /**
+     * Record a conversion that produced no CAPI event, so an unmapped or shadowed
+     * status is diagnosable instead of silently dropped.
+     */
+    private static function logSkippedStatus(PDO $pdo, array $pixel, string $status, ?int $conversionId): void
+    {
+        try {
+            $needle = strtolower(trim($status));
+            if ($needle === '') {
+                return;
+            }
+
+            $mapping = [];
+            if (!empty($pixel['mapping_json'])) {
+                $decoded = json_decode((string) $pixel['mapping_json'], true);
+                if (is_array($decoded)) {
+                    $mapping = array_change_key_case($decoded, CASE_LOWER);
+                }
+            }
+            $deliberate = array_key_exists($needle, $mapping)
+                || array_key_exists($needle, self::defaultMapping());
+
+            $stmt = $pdo->prepare("INSERT INTO system_logs (level, message, context) VALUES (?, ?, ?)");
+            $stmt->execute([
+                $deliberate ? 'INFO' : 'WARNING',
+                $deliberate
+                    ? "TikTok Events API: status '{$status}' is mapped to no event - conversion not sent."
+                    : "TikTok Events API: status '{$status}' has no event mapping - conversion NOT sent. "
+                        . "A custom conversion type named after a built-in status shadows the built-in mapping.",
+                json_encode([
+                    'pixel_id'      => (string) ($pixel['pixel_id'] ?? ''),
+                    'conversion_id' => $conversionId,
+                    'status'        => $status,
+                ], JSON_UNESCAPED_UNICODE),
+            ]);
+        } catch (\Throwable $e) {
+            // Logging must never break delivery.
+        }
+    }
+
     public static function send(array $pixel, array $payload): array
     {
         $ch = curl_init(self::ENDPOINT);
@@ -155,10 +197,21 @@ class TikTokConversions
             CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
             CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Access-Token: ' . (string) ($pixel['token'] ?? '')],
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_CONNECTTIMEOUT => 6,
+            CURLOPT_CONNECTTIMEOUT => 10,
+            CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
             CURLOPT_TIMEOUT => 15,
             CURLOPT_PROTOCOLS => CURLPROTO_HTTPS,
         ]);
+
+        // The queue worker honours the row's proxy; the direct path used by the test
+        // button did not, so a profile behind a dead proxy tested healthy and then
+        // failed in production. Same transport on both paths.
+        $proxy = trim((string) ($pixel['proxy_url'] ?? ''));
+        if ($proxy !== '') {
+            require_once __DIR__ . '/FacebookConversions.php';
+            FacebookConversions::applyProxy($ch, $proxy);
+        }
+
         $response = curl_exec($ch);
         $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $curlError = curl_error($ch);

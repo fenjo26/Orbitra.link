@@ -474,6 +474,37 @@ if ! crontab -u www-data -l 2>/dev/null | grep -qF "$ROTATION_CRON_MARKER"; then
       || echo "  > NOTE: could not write the crontab. Add this line manually: */5 * * * * php /var/www/orbitra/rotation_optimiser_cron.php"
 fi
 
+# Outbound postback / CAPI queue worker. Every server-side conversion -- affiliate
+# postbacks and Facebook/TikTok Conversions API events alike -- is written to
+# s2s_postbacks_log as 'pending' and delivered from there. Without this worker the
+# queue never drains and nothing sends, while the Pixel Vault test button (which
+# posts directly) keeps reporting healthy. Every minute: the worker takes a lock,
+# so overlapping runs are free.
+echo "  > Scheduling the postback / CAPI queue worker..."
+QUEUE_CRON_MARKER="# orbitra-postback-queue"
+if ! crontab -u www-data -l 2>/dev/null | grep -qF "$QUEUE_CRON_MARKER"; then
+    {
+        crontab -u www-data -l 2>/dev/null
+        echo "* * * * * php /var/www/orbitra/postback_queue_cron.php >> /var/www/orbitra/var/logs/postback_queue.log 2>&1 $QUEUE_CRON_MARKER"
+    } | crontab -u www-data - 2>/dev/null \
+      && echo "  > Queue worker scheduled (every minute)." \
+      || echo "  > NOTE: could not write the crontab. Add this line manually: * * * * * php /var/www/orbitra/postback_queue_cron.php"
+fi
+
+# Cost aggregator. Pulls spend from the connected ad platforms and attributes it to
+# clicks. Not scheduled, spend only moves when someone presses Sync -- and nothing
+# in the panel says so, which reads as "the integration is broken".
+echo "  > Scheduling the cost aggregator..."
+AGGREGATOR_CRON_MARKER="# orbitra-aggregator"
+if ! crontab -u www-data -l 2>/dev/null | grep -qF "$AGGREGATOR_CRON_MARKER"; then
+    {
+        crontab -u www-data -l 2>/dev/null
+        echo "*/15 * * * * php /var/www/orbitra/aggregator_cron.php >> /var/www/orbitra/var/logs/aggregator.log 2>&1 $AGGREGATOR_CRON_MARKER"
+    } | crontab -u www-data - 2>/dev/null \
+      && echo "  > Aggregator scheduled (every 15 minutes)." \
+      || echo "  > NOTE: could not write the crontab. Add this line manually: */15 * * * * php /var/www/orbitra/aggregator_cron.php"
+fi
+
 echo "  > Handing the installation over to www-data..."
 chown -R www-data:www-data /var/www/orbitra
 # Permissions are re-applied only where a root step created files. node_modules

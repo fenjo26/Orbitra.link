@@ -1,6 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Calendar, ChevronLeft, ChevronRight, Globe, Check } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getTimezone, setTimezone as setSharedTimezone } from '../utils/useTimezone';
+
+// tz-database identifiers use underscores for spaces: the chip read "New_York",
+// "Sao_Paulo", "Ho_Chi_Minh". Show the city the way it is spelled.
+export const formatTimezoneChip = (tz) => {
+    const parts = String(tz || '').split('/');
+    const city = parts.length > 1 ? parts[parts.length - 1] : parts[0];
+    return city.replace(/_/g, ' ');
+};
 
 export const TIMEZONES = [
     { value: 'UTC', label: 'UTC (UTC+00:00)' },
@@ -103,7 +112,8 @@ const DateRangePicker = ({
     const [hoverDate, setHoverDate] = useState(null);
     const [selectionStep, setSelectionStep] = useState(0); // 0 = ready for start, 1 = picking end
 
-    const [timezone, setTimezone] = useState(selectedTimezone || localStorage.getItem('orbitra_tz') || 'UTC');
+    // Draft selection: local until Apply, which is what commits it to the shared store.
+    const [timezone, setTimezone] = useState(selectedTimezone || getTimezone());
     const containerRef = useRef(null);
 
     // Which edge of the trigger the panel hangs from: 'right' keeps the
@@ -199,9 +209,11 @@ const DateRangePicker = ({
 
     const handleApply = () => {
         onChange(tempFrom, tempTo);
+        // Commit through the shared store so every mounted view moves together,
+        // not just the one that owns this picker.
+        setSharedTimezone(timezone);
         if (onTimezoneChange) {
             onTimezoneChange(timezone);
-            localStorage.setItem('orbitra_tz', timezone);
         }
         setIsOpen(false);
     };
@@ -293,7 +305,7 @@ const DateRangePicker = ({
                 <Calendar className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />
                 <span className="font-medium">{formatDisplay()}</span>
                 <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: 'var(--color-bg-soft)', color: 'var(--color-text-muted)' }}>
-                    {timezone.split('/')[1] || timezone}
+                    {formatTimezoneChip(timezone)}
                 </span>
                 <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>▾</span>
             </button>

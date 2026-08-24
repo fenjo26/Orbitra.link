@@ -247,10 +247,14 @@ export const ColumnResizeHandle = ({ rt, colId }) => {
             onPointerMove={handlePointerMove}
             onPointerUp={(e) => endDrag(e, { commit: true })}
             onPointerCancel={(e) => endDrag(e, { revert: true })}
-            // Abnormal capture loss (element unmounted mid-drag): pointerup
-            // already ended the drag in the normal path and nulls dragRef,
-            // so this only fires for real orphans — snap back, don't commit.
-            onLostPointerCapture={(e) => endDrag(e, { revert: true })}
+            // Chrome does not guarantee pointerup before lostpointercapture on
+            // release. When lostpointercapture wins the race, a reverting handler
+            // here snapped the column back, nulled dragRef, and the pointerup that
+            // followed returned at the guard — so setWidth() was never reached and
+            // no resize ever persisted. Commit from whichever fires first; the
+            // `d.moved` guard inside endDrag still rejects genuine orphaned drags,
+            // and the second call is a no-op because dragRef is already null.
+            onLostPointerCapture={(e) => endDrag(e, { commit: true })}
             onDoubleClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
