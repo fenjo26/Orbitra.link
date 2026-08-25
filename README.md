@@ -1,4 +1,4 @@
-# Orbitra v1.3.1 Tracker
+# Orbitra v1.3.2 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,39 +11,32 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.3.1
+## 🆕 What's New in v1.3.2
+
+Ported from the tester's verified live install (13-item audit addendum).
 
 ### Fixed
 
-- **💸 Cost matches the ad account's timezone** — platforms report spend by the account's calendar day; comparing it to UTC click dates put every pre-morning click on the wrong day, so a non-UTC account reconciled to nothing. The importer resolves the account's zone (override → mapping → credentials → cached live lookup) and shifts per spend day, DST-correct
-- **🧣 Safe-page clicks excluded from cost and `campaign_report`** — spend no longer vanishes into cloaked-crawler traffic the reports already exclude (with a fallback for crawler-only periods), and the report's 4x click overstatement on a live cloak stream is gone
-- **📤 CAPI: no more silent drops** — conversions skipped for an unmapped or shadowed status (a custom `hold` shadowing the COD lead event) leave a log line; the Pixel Vault test button tests every real transport the profile is attached to, including its proxy; curl pins IPv4 with a 10s connect budget so graph.facebook.com's unroutable AAAA records stop reading as resolver failures; `install.sh` schedules the queue worker and the aggregator
-- **🕐 The timezone selector works everywhere** — Campaigns and the Conversions Log actually send `?timezone=`; one shared timezone store keeps every mounted view and the dashboard on the same zone; report offsets are anchored to the queried range instead of "now" (DST-correct)
-- **🩺 Worker-health banner** — a missing queue worker, a stalled queue, an unscheduled cost aggregator and shadowed conversion statuses surface in the panel before they cost data
-- **🪟 Modals layer above the navbar again** (documented z-index scale), **🖱️ column widths persist** (Chrome's lostpointercapture/pointerup race), entity ids no longer leak into Offers' metric columns, totals footers align with body cells, SQLite `0` flags no longer render as stray zeros, zero conversions no longer read green, the campaign name suggestion is idempotent, the tz chip shows real city names, and IP2Location sentinel strings stop posing as ISP values
+- **▶️ The report's play-pause toggles read real ad state** — a new `ad_entity_statuses` endpoint answers internal campaigns from the DB and ad/adset/ad-campaign ids from the Graph API, one request per id: Graph v26 removed the `?ids=` batch parameter (and enforces v26 behaviour regardless of the requested version), and the silent failure made every row render ACTIVE. Failed reads leave an `error_log` line; the frontend merge lets the server win (only in-flight toggles keep their optimistic mark), so a pause survives reopening the report; rows badge **Disapproved / In review** states the tree cannot show
+- **🔌 IPv4 pinned on every aggregator Graph call** — the engine had missed the earlier CAPI fix (`httpGet` + `updateEntityStatus`)
+- **🧹 Landings' saved metric columns get the Offers guard** — entity field ids no longer leak into the customizer list
+- **🧱 Campaigns table correctness** — the colgroup matches render order (a desync drew every later column at a neighbour's width, silently); Actions moved to fifth position next to the name; the six fixed columns are locked with stale stored widths purged; sort chevrons hidden on ID/Status/Group; alias chips and the row menu's duplicated entries removed
+- **📋 Copy-link without `window.alert()`** — silent copy + transient toast, with a theme-aware URL modal as the fallback when every clipboard transport fails; Postback Settings, Feedback and MCP copy through `utils/clipboard` so plain-HTTP panels stop failing silently
+- **📅 Conversions Log no longer clips the date picker** — Apply/Cancel and the timezone select are reachable (scroll moved onto the table's own wrapper); the tz chip no longer wraps mid-date
 
-### Added
+### Operations
 
-- **🔃 Sortable Landings headers** — the byte-identical private `SortableTh` copies in Campaigns/Offers became one shared module, and Landings joins them
+- **🪵 `install.sh` enables php-fpm `catch_workers_output`** — application `error_log()` output was being discarded with the stock pool config; **⏱️ the rotation optimiser cron runs every minute** so 5-minute re-check intervals mean 5 minutes
 
-### Previous Highlights (v1.3.0)
+### Changed
 
-### Added
+- **`floor_pct` left the optimiser conditions UI** (its default still applies; saved configs unchanged)
 
-- **🖱️ Resizable columns in every table** — drag any header edge in Campaigns, Offers, Landings, Logs, Conversions, the campaign report and the report customizer; widths persist per table and restore to default, live during the drag — one shared `ColumnResize` module instead of per-page hacks
-- **📋 Click Log & Conversions Log modals** — the Click Log keeps its cloak quick-filters (ALL/SAFE/MONEY) and W1/W2 detail fields, now opening from both the Campaigns list and the campaign editor's stream cards; a matching Conversions Log modal rides along
-- **🔗 Shared campaign URL builder** — Campaigns and the campaign editor build campaign URLs through one `campaignUrl` helper
-- **🌐 Domain column in the Campaigns table** — `api.php` joins `domains` on `campaigns.domain_id`
-- **🧩 kclient.php 2.0** — on secondary pages of the same site `restoreFromQuery()` picks the click back up from `_subid` and restores *this* click's offer from the session (id-matched, so a stale session can't hand over another click's offer); `getOffer(42)` keeps working in the bare-id form the integration panel documents; choosing a specific offer now *replaces* the tracker's own `offer_id` on the transition link instead of appending a second one; new docs page `docs/tracking-client-php.md`, linked from the integration panel
-- **🏷️ KClient direct-destination macros** — `{subid}`, `{ip}` and `{country}` are substituted exactly like the campaign-link path, so an offer URL written with `{subid}` (the spelling most networks ask for) no longer reaches the network empty
+### Previous Highlights (v1.3.1)
 
-### Fixed
+- 💸 **Cost matches the ad account's timezone** (a non-UTC account reconciles to zero unmatched for the first time); 🧣 **safe-page clicks excluded from cost and `campaign_report`**; 📤 **CAPI silent drops gone** (skipped conversions log, IPv4 pins, queue worker scheduled by `install.sh`); 🕐 **one shared timezone store** across every view; 🩺 **worker-health banner**; 🪟 modals above the navbar; 🖱️ column widths persist through Chrome's pointer race; 🔃 sortable Landings headers via the shared `SortableTh` module
 
-- **🔄 EPC no longer cost-gated in the rotation optimiser** — earnings per click has no spend term, so EPC configs run on zero-cost campaigns (only ROI still requires cost); pinned in the allocator and cron tests
-- **🧪 Test suite fully green** — four stale tests aligned with shipped behavior: the TikTok `resolveEvent` pixel-first signature, unknown postback statuses recording for retroactive mapping instead of a 400, and the DNS/nginx regression tests skipping on hosts without the fixtures
-
-
-Older releases (v1.2.0 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.3.0 and earlier): see the [full changelog](CHANGELOG.md).
 
 ## 🖥 Live Demo
 
@@ -514,18 +507,19 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.3.1 (2026-08-25)
+### Current release — v1.3.2 (2026-08-25)
 
 **Fixed**
-- 💸 **Cost matches the ad account's timezone** (an Asia/Kolkata account reconciles to zero unmatched for the first time, DST-correct per spend day); 🧣 **safe-page clicks excluded from cost and `campaign_report`** (4x click overstatement gone, crawler-only periods still attributed via fallback)
-- 📤 **CAPI silent drops are gone** — skipped conversions log a line (custom `hold` shadowing the COD lead no longer vanishes); the Pixel Vault test button tests the real transport incl. proxy; curl pins IPv4 + 10s connect; `install.sh` schedules the queue worker and aggregator
-- 🕐 **Timezone selector works everywhere** — Campaigns & Conversions Log send `?timezone=`; one shared store across views + dashboard; offsets anchored to the queried range (DST-correct); 🩺 **worker-health banner** for missing queue worker / stalled queue / unscheduled aggregator / shadowed statuses
-- 🪟 **Modals above the navbar** (documented z-index scale); 🖱️ **column widths persist** (Chrome lostpointercapture race); 🧹 entity-id leaks in Offers' columns, footer alignment, `0`-boolean renders, zero-conversions green, idempotent name suggestion, tz chip underscores, IP2Location sentinels as ISP
+- ▶️ **Report play-pause toggles read real ad state** — new `ad_entity_statuses` endpoint (DB for tracker campaigns, Graph per-id reads for ad entities; Graph v26 killed the `?ids=` batch); server-wins merge so a pause survives reopening; **Disapproved / In review badges**; IPv4 pinned on every aggregator Graph call
+- 🧹 **Landings saved-columns guard** (entity ids no longer leak); 🧱 **Campaigns colgroup matches render order**, Actions fifth, six fixed columns locked + stale widths purged, menu/alias trimmed; 📋 **copy-link toast + URL-modal fallback** (no more `window.alert`); **Postback/Feedback/MCP copy via utils/clipboard**; 📅 **Conversions Log stops clipping the date picker**; tz chip no-wrap
 
-**Added**
-- 🔃 **Sortable Landings headers** via the shared `SortableTh` module (extracted from Campaigns/Offers)
+**Operations**
+- 🪵 `install.sh` enables php-fpm `catch_workers_output` (app `error_log` was discarded); ⏱️ rotation optimiser cron every minute
 
-Previous releases — v1.3.0: 🖱️ resizable columns everywhere, 📋 Click/Conversions Log modals, 🧩 kclient.php 2.0, 🏷️ KClient macros, 🔄 optimiser EPC fix; v1.2.0: 📱 mobile layout, 📲 PWA + hashed assets, 🔄 rotation auto-optimiser.
+**Changed**
+- `floor_pct` removed from the optimiser conditions UI (default still applies, saved configs unchanged)
+
+Previous releases — v1.3.1: 💸 cost in the ad account's timezone, 🧣 safe-page cost exclusion, 📤 CAPI silent drops, 🕐 shared timezone store, 🩺 worker-health banner, 🪟 modal layering, 🖱️ column-width persistence; v1.3.0: 🖱️ resizable columns everywhere, 📋 Click/Conversions Log modals, 🧩 kclient.php 2.0, 🏷️ KClient macros, 🔄 optimiser EPC fix; v1.2.0: 📱 mobile layout, 📲 PWA + hashed assets, 🔄 rotation auto-optimiser.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

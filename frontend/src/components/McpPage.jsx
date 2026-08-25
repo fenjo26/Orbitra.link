@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Sparkles, Copy, Check, Key, Terminal, Cpu, Link2 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { copyToClipboard } from '../utils/clipboard';
 
 const McpPage = () => {
     const { t } = useLanguage();
@@ -26,10 +27,12 @@ const McpPage = () => {
         }
     }, null, 2);
 
-    const copyConfig = () => {
-        navigator.clipboard.writeText(config);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 1800);
+    const copyConfig = async () => {
+        // execCommand fallback for plain-HTTP panels (no navigator.clipboard).
+        if (await copyToClipboard(config)) {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1800);
+        }
     };
 
     const cardStyle = {

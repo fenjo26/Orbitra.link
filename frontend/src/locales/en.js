@@ -2160,6 +2160,8 @@ export default {
         "noConnection": "No Facebook API connection found — connect the ad account in Cost Import first",
         "unsupportedNetwork": "This ad network is not supported yet",
         "invalidId": "Invalid entity id",
+        "statusDisapproved": "Disapproved",
+        "statusInReview": "In review",
         "title": "Cron & Automation",
         "backorderCronTitle": "Backorder: scheduled domain checks",
         "backorderCronDesc": "Domain availability checks are executed by a separate cron script and process 1 domain per run. Here you can enable/disable execution and copy a ready-to-use cron command.",

@@ -24,7 +24,7 @@ export const SortIcon = ({ sortBy, colKey }) => {
 // `resize` (the shared column-resize controller) mounts a resize handle on
 // the header's right edge and suspends the reorder grip while a resize drag
 // is in flight, so both gestures coexist on the same header.
-export const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', alignRight = false, draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd, resize }) => {
+export const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', alignRight = false, draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd, resize, hideSortIcon = false }) => {
     const isActive = sortBy.key === colKey;
     return (
         <th
@@ -61,7 +61,9 @@ export const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', align
                     }}
                 >
                     <span>{label}</span>
-                    <SortIcon sortBy={sortBy} colKey={colKey} />
+                    {/* hideSortIcon: the column still sorts on click, but rows
+                        nobody re-orders don't need the affordance shouting. */}
+                    {!hideSortIcon && <SortIcon sortBy={sortBy} colKey={colKey} />}
                 </button>
             </div>
             {resize && <ColumnResizeHandle rt={resize} colId={colKey} />}

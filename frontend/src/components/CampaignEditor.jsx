@@ -1674,7 +1674,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             {hintEl('rotationAuto.minSampleHint')}
                         </div>
                         {sentenceField('lookback_days', 'rotationAuto.lookbackPrefix', rotationPlural(language, cfg.lookback_days, t('rotationAuto.lookbackUnitForms')), 1, 90, 'rotationAuto.lookbackHint')}
-                        {sentenceField('floor_pct', 'rotationAuto.floorPrefix', t('rotationAuto.pctSuffix'), 1, 50, 'rotationAuto.floorHint')}
+                        {/* floor_pct deliberately has no field: the default from
+                            ROTATION_DEFAULTS (spread first by setAutoCfg) is what
+                            every config needs, so the saved value is unchanged and
+                            the cron's floor_pct >= cap_pct guard still holds. */}
                         {sentenceField('cap_pct', 'rotationAuto.capPrefix', t('rotationAuto.pctSuffix'), 10, 100, 'rotationAuto.capHint')}
                         {sentenceField('interval_min', 'rotationAuto.intervalPrefix', t('rotationAuto.intervalSuffix'), 5, 1440, 'rotationAuto.intervalHint')}
                     </div>

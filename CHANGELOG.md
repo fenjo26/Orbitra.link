@@ -7,6 +7,106 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.3.2] — 2026-08-25
+
+Bugfix release ported from the tester's verified live install (the 13-item
+addendum to the v1.3.0 audit). Server-side these changes are already running
+and verified against a live Facebook-Ads account; this release brings the
+repository level with them.
+
+### Fixed — ad status reads (report play/pause toggles)
+
+- **Graph v26 removed the `?ids=` batch parameter — every ad status read
+  failed silently.** `fetchEntityStatuses()` (new in the aggregator engine)
+  reads paused/active state one request per id
+  (`/{entity-id}?fields=id,status,effective_status`): Graph answers
+  `HTTP 500, code 100 "The ids query parameter is deprecated in v26.0+"` on
+  the batch form and enforces v26 behaviour regardless of the requested
+  version. Non-2xx answers now leave an `error_log()` line with the id and
+  HTTP code — before the fix, the failure passed through four layers that
+  each discarded it, and every toggle rendered ACTIVE, indistinguishable
+  from "nothing is paused".
+- **New `ad_entity_statuses` api.php action** — the read side the toggles
+  were missing: internal (`tracker_`) campaigns answer from the campaigns
+  table, ad / adset / ad-campaign ids from the Graph API through the same
+  connection resolver as the toggle (extracted into
+  `orbitraResolveFacebookConnectionId()`, shared so read and write can never
+  disagree about whose token to use). Partial answers are success;
+  `catch (\Throwable)` still returns whatever resolved locally.
+- **`entityStatus` merge made the first value permanent** (CampaignReports)
+  — `setEntityStatus(prev => ({ ...data.data, ...prev }))` spread `prev`
+  last, so stale keys overrode every subsequent server read for the
+  component's lifetime and a pause never survived reopening the report.
+  Server wins by default now; only ids with a toggle in flight keep their
+  optimistic value, and `togglingIds` joined the dependency array so the
+  post-flight re-read reconciles a failed command.
+- **`CURLOPT_IPRESOLVE_V4` on every Graph call the aggregator engine
+  makes** — the engine had missed the §1.1 CAPI fix; `httpGet()` (account
+  reads, insights, status reads) and `updateEntityStatus()` now pin IPv4
+  like the rest of the Facebook paths.
+
+### Fixed — panel
+
+- **Entity ids leaking into Landings' saved metric columns** — the Offers
+  guard (`FIXED_OFFER_COLUMN_IDS` + write-back repair) ported verbatim;
+  Landings' fixed set is wider (`url`, `last_event`, `type`, `group_name`
+  beyond `name`/`state`), so more ids could leak.
+- **Campaigns `columnDefs` desynced from render order** — the colgroup
+  listed `actions` last while the table drew it fifth, so every column
+  after the mismatch drew at a neighbour's width with no error anywhere.
+  The list now mirrors render order (with a comment stating the
+  constraint), and the table layout changed with it: **Actions moved from
+  the far right to fifth position** (with a dozen metric columns to the
+  right, far-edge actions needed horizontal scrolling to reach), **the six
+  fixed columns are locked** (no resize handles, explicit widths, one-time
+  purge of stale stored widths — stored widths take precedence over
+  `col.width`), sort chevrons hidden on ID / Status / Group, alias chips
+  removed from the row and the mobile card (alias stays in the URL builders
+  and search), the 320px name cap removed, and the row menu trimmed to
+  Update costs / Duplicate / Clear stats / Delete (Edit, Copy link and
+  Open in new tab duplicated the name click and the Actions icons).
+- **Copy-link `window.alert()` replaced** — silent copy plus a transient
+  toast; a new theme-aware `CampaignUrlModal` (URL as one continuous
+  selectable run, macros highlighted) is the fallback shown only when
+  `copyToClipboard()` returns false — on plain-HTTP panels that is the one
+  surface where the URL can be selected by hand.
+- **Three components bypassed `utils/clipboard` and failed silently on
+  plain-HTTP installs** — Postback Settings, the Feedback page and the MCP
+  page called `navigator.clipboard.writeText` directly; all three now go
+  through the shared helper (execCommand fallback) and only report success
+  when a transport actually worked.
+- **`.modal-content`'s `overflow-y: auto` clipped the DateRangePicker
+  popover in the Conversions Log** — Apply/Cancel and the timezone select
+  were unreachable. Vertical scrolling moved inward to the conversions
+  table's own wrapper; `overflow: visible` on this modal only. (Third
+  distinct ancestor found clipping that popover; porting it to
+  `document.body` remains the recommended upstream fix.)
+- **Timezone chip wrapped mid-date** — the trigger button got
+  `whitespace-nowrap`. (The last-segment + underscore rendering was already
+  correct in the repo.)
+
+### Operations
+
+- **`install.sh` enables php-fpm `catch_workers_output`** — the stock
+  pool config ships it commented, so every application `error_log()` line
+  went to a discarded stderr; several silent failures in this batch were
+  invisible for exactly that reason. Best-effort sed across the installed
+  pools, non-fatal.
+- **Rotation optimiser cron runs every minute** (was `*/5`) — a stream set
+  to a 5-minute re-check interval must actually be re-checked every 5
+  minutes; non-due streams are skipped cheaply.
+
+### Changed (not regressions)
+
+- **`floor_pct` removed from the optimisation conditions UI** — the panel
+  exposes Metric / min confirmed sales / lookback days / cap % / re-check
+  interval. `floor_pct` still ships at its default via `ROTATION_DEFAULTS`
+  (spread first by `setAutoCfg`), so saved configs are unchanged and the
+  cron's `floor_pct >= cap_pct` guard still holds.
+- **Effective-status badges in the report** — rows badge `Disapproved` /
+  `In review` only, states the toggle itself cannot show; parent pauses are
+  deliberately not badged (the parent row already displays them).
+
 ## [1.3.1] — 2026-08-25
 
 Bugfix release from a 22-item audit of a live Facebook-Ads COD setup

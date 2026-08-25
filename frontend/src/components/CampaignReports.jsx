@@ -35,6 +35,12 @@ const ENTITY_TYPE_BY_DIMENSION = {
     ad_id: 'ad'
 };
 
+// ad_entity_statuses entries are { status, effective }; an optimistic toggle
+// writes a bare string. Both shapes must keep rendering (cached responses,
+// in-flight marks).
+const entityToggleStatus = (entry) => (typeof entry === 'string' ? entry : (entry && typeof entry === 'object' ? entry.status : undefined));
+const entityEffectiveStatus = (entry) => (entry && typeof entry === 'object' && typeof entry.effective === 'string' ? entry.effective : null);
+
 const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     const { t } = useLanguage();
     const formatDimensionLabel = (dimension) => getDimensionLabel(dimension, t);
@@ -67,7 +73,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         const entityType = ENTITY_TYPE_BY_DIMENSION[dimKey];
         if (!entityType) return;
 
-        const nextStatus = (entityStatus[entityId] || 'ACTIVE') === 'ACTIVE' ? 'PAUSED' : 'ACTIVE';
+        const nextStatus = (entityToggleStatus(entityStatus[entityId]) || 'ACTIVE') === 'ACTIVE' ? 'PAUSED' : 'ACTIVE';
         setTogglingIds(prev => new Set(prev).add(entityId));
         try {
             const res = await axios.post(`${API_URL}?action=ad_entity_toggle_status`, {
@@ -341,6 +347,44 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         [...root.children.entries()].sort((a, b) => b[1].clicks - a[1].clicks).forEach(([, child]) => walk(child, 0));
         return out;
     }, [rows, layers.length]);
+
+    // Server truth for the play-pause toggles: one read per report shape.
+    // Server wins by default — only ids with a toggle in flight keep their
+    // optimistic value, and the re-run when the flight ends reconciles the
+    // mark against what the network actually reports. Spreading `prev` last
+    // instead made the first fetched value permanent: a pause never survived
+    // closing and reopening the report.
+    useEffect(() => {
+        const byType = new Map();
+        displayRows.forEach(r => {
+            const entityType = ENTITY_TYPE_BY_DIMENSION[layers[r.depth]];
+            if (!entityType || !r.dimId || r.dimId === 'Unknown' || r.dimId === 'none') return;
+            const entityId = String(r.dimId).trim();
+            if (!/^\d+$/.test(entityId)) return;
+            if (!byType.has(entityType)) byType.set(entityType, new Set());
+            byType.get(entityType).add(entityId);
+        });
+        if (byType.size === 0) return undefined;
+
+        const items = [...byType.entries()].flatMap(([entity_type, ids]) =>
+            [...ids].map(entity_id => ({ entity_type, entity_id })));
+        let cancelled = false;
+        axios.post(`${API_URL}?action=ad_entity_statuses`, { items })
+            .then(res => {
+                if (cancelled || res.data.status !== 'success' || !res.data.data) return;
+                const fetched = res.data.data;
+                setEntityStatus(prev => {
+                    const next = { ...prev, ...fetched };
+                    togglingIds.forEach(id => { if (id in prev) next[id] = prev[id]; });
+                    return next;
+                });
+            })
+            .catch(() => {});
+        return () => { cancelled = true; };
+        // togglingIds on purpose: the optimistic mark protects the id while
+        // the command is in flight, and the post-flight change re-reads the
+        // server so a failed command cannot leave a stale PAUSED behind.
+    }, [displayRows, layers, togglingIds]);
 
     const grandTotal = useMemo(() => {
         const t0 = {
@@ -846,7 +890,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                                     if (!ENTITY_TYPE_BY_DIMENSION[dimKey] || !r.dimId || r.dimId === 'Unknown' || r.dimId === 'none') return null;
                                                                     const entityId = String(r.dimId).trim();
                                                                     const validEntityId = /^\d+$/.test(entityId);
-                                                                    const paused = entityStatus[entityId] === 'PAUSED';
+                                                                    const paused = entityToggleStatus(entityStatus[entityId]) === 'PAUSED';
                                                                     const busy = togglingIds.has(entityId);
                                                                     return (
                                                                         <button
@@ -879,6 +923,30 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                                         #{r.dimId}
                                                                     </span>
                                                                 )}
+                                                                {(() => {
+                                                                    // Effective-status badge: the two states the
+                                                                    // toggle itself cannot show — an ad rejected by
+                                                                    // moderation or still waiting for it.
+                                                                    const eff = entityEffectiveStatus(entityStatus[String(r.dimId ?? '').trim()]);
+                                                                    if (eff !== 'DISAPPROVED' && eff !== 'PENDING_REVIEW') return null;
+                                                                    const disapproved = eff === 'DISAPPROVED';
+                                                                    const color = disapproved ? 'var(--color-danger)' : 'var(--color-warning, #f59e0b)';
+                                                                    return (
+                                                                        <span
+                                                                            className="text-[10px] px-1.5 py-0.5 rounded font-semibold border whitespace-nowrap"
+                                                                            style={{
+                                                                                color: color,
+                                                                                borderColor: `color-mix(in srgb, ${color} 35%, transparent)`,
+                                                                                backgroundColor: `color-mix(in srgb, ${color} 10%, transparent)`
+                                                                            }}
+                                                                            title={eff}
+                                                                        >
+                                                                            {disapproved
+                                                                                ? t('campaignReports.statusDisapproved', 'Disapproved')
+                                                                                : t('campaignReports.statusInReview', 'In review')}
+                                                                        </span>
+                                                                    );
+                                                                })()}
                                                                 {isSubtotal && r.childrenCount > 0 && (
                                                                     <span style={{ color: 'var(--color-text-muted)', fontSize: '11px' }}>({r.childrenCount})</span>
                                                                 )}

@@ -2160,6 +2160,8 @@ export default {
         "noConnection": "Keine Facebook-API-Verbindung gefunden — zuerst das Werbekonto im Kostenimport verbinden",
         "unsupportedNetwork": "Dieses Werbenetzwerk wird noch nicht unterstützt",
         "invalidId": "Ungültige Entitäts-ID",
+        "statusDisapproved": "Abgelehnt",
+        "statusInReview": "In Prüfung",
         "title": "Cron & Automatisierung",
         "backorderCronTitle": "Backorder: geplante Domain-Prüfungen",
         "backorderCronDesc": "Domain-Verfügbarkeitsprüfungen werden von einem ausgeführt Separates Cron-Skript und Verarbeitung einer Domäne pro Lauf. Hier können Sie die Ausführung aktivieren/deaktivieren und einen gebrauchsfertigen Cron-Befehl kopieren.",

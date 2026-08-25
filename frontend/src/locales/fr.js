@@ -2160,6 +2160,8 @@ export default {
         "noConnection": "Aucune connexion à l’API Facebook trouvée — connectez d’abord le compte publicitaire dans l’import de coûts",
         "unsupportedNetwork": "Ce réseau publicitaire n’est pas encore pris en charge",
         "invalidId": "Identifiant d’entité non valide",
+        "statusDisapproved": "Refusé",
+        "statusInReview": "En cours de vérification",
         "title": "Cron et automatisation",
         "backorderCronTitle": "Recommandation : vérifications de domaines planifiées",
         "backorderCronDesc": "Les vérifications de disponibilité des domaines sont exécutées par un Séparez le script cron et traitez 1 domaine par exécution. Ici, vous pouvez activer/désactiver l'exécution et copier une commande cron prête à l'emploi.",

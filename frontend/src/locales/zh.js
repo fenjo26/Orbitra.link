@@ -2160,6 +2160,8 @@ export default {
         "noConnection": "未找到 Facebook API 连接 — 请先在成本导入中绑定广告账户",
         "unsupportedNetwork": "暂不支持该广告网络",
         "invalidId": "无效的对象 ID",
+        "statusDisapproved": "已拒登",
+        "statusInReview": "审核中",
         "title": "计划与自动化",
         "backorderCronTitle": "延期交货：计划的域名检查",
         "backorderCronDesc": "域可用性检查由单独的 cron 脚本执行，每次运行处理 1 个域。您可以在此处启用/禁用执行并复制现成的 cron 命令。",

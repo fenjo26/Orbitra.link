@@ -295,7 +295,7 @@ const DateRangePicker = ({
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="btn btn-secondary flex items-center gap-2 text-xs py-1.5 px-3 rounded-xl"
+                className="btn btn-secondary flex items-center gap-2 text-xs py-1.5 px-3 rounded-xl whitespace-nowrap"
                 style={{
                     backgroundColor: 'var(--color-bg-card)',
                     border: '1px solid var(--color-border)',

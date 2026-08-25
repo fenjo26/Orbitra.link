@@ -199,6 +199,61 @@ class FacebookAdsEngine
     }
 
     /**
+     * Текущее состояние объявлений / адсетов / рекламных кампаний Meta для
+     * play-pause тумблеров в отчёте. Трекер не источник правды о состоянии
+     * в сети — этот метод читает её.
+     *
+     * Один запрос на id: батч-форма `?ids=<id,id,...>` удалена в Graph v26
+     * (HTTP 500, code 100 "The ids query parameter is deprecated in v26.0+")
+     * причём Graph применяет поведение v26 независимо от запрошенной версии.
+     *
+     * @param array $credentials credentials_json подключения
+     * @param array $entityIds   числовые id объектов Graph API
+     * @return array<string, array{status:string, effective:string}> разрешённые id;
+     *         неразрешённые просто отсутствуют — частичный ответ лучше пустого
+     */
+    public static function fetchEntityStatuses(array $credentials, array $entityIds): array
+    {
+        $token = trim((string) ($credentials['token'] ?? ''));
+        if ($token === '') {
+            return [];
+        }
+
+        $out = [];
+        foreach ($entityIds as $entityId) {
+            $entityId = trim((string) $entityId);
+            if ($entityId === '' || !ctype_digit($entityId)) {
+                continue;
+            }
+
+            $url = self::apiBase($credentials) . '/' . $entityId . '?' . http_build_query([
+                'access_token' => $token,
+                'fields'       => 'id,status,effective_status',
+            ]);
+
+            // Partial answers are fine: unknown ids simply stay unset. But a
+            // total failure must leave a trace — the pre-fix batch call failed
+            // here silently for weeks and every toggle rendered ACTIVE.
+            $response = self::httpGet($url, $credentials, 15);
+            if ($response['error'] !== null) {
+                error_log('FacebookAdsEngine::fetchEntityStatuses: id=' . $entityId . ' ' . $response['error']);
+                continue;
+            }
+
+            $decoded = json_decode($response['body'], true);
+            if (!is_array($decoded) || !isset($decoded['id'])) {
+                continue;
+            }
+            $out[(string) $decoded['id']] = [
+                'status'    => (string) ($decoded['status'] ?? ''),
+                'effective' => (string) ($decoded['effective_status'] ?? ''),
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
      * Пауза/запуск объявления, адсета или кампании Meta прямо из трекера.
      * Трекер — не источник правды о состоянии в сети, поэтому это команда:
      * подтвердили ответ Graph API и всё, UI ведёт свою оптимистичную отметку.
@@ -224,6 +279,8 @@ class FacebookAdsEngine
         curl_setopt($ch, CURLOPT_TIMEOUT, 15);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
         curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+        // Same unroutable-AAAA hazard as the GET paths (§1.12).
+        curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
         self::applyProxy($ch, $credentials);
 
         $body = curl_exec($ch);
@@ -273,6 +330,11 @@ class FacebookAdsEngine
         curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
         curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+        // graph.facebook.com's AAAA records are unroutable from many tracker
+        // hosts: without the pin the resolver can land on IPv6 and the read
+        // reads as a resolver failure (§1.1 fix family — keep it on every
+        // Graph call this engine makes).
+        curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 
         // Прокси: Facebook периодически вводит гео/IP-ограничения, и запрос с IP
         // сервера трекера начинает получать капчу или отказ. Тот же прокси, что

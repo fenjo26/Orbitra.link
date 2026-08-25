@@ -4,6 +4,7 @@ import { Save, Copy, RefreshCw, TestTube, Plus, Trash2, AlertCircle, CheckCircle
 import InfoBanner from './InfoBanner';
 import HelpTooltip from './HelpTooltip';
 import { useLanguage } from '../contexts/LanguageContext';
+import { copyToClipboard as copyText } from '../utils/clipboard';
 
 const API_URL = '/api.php';
 
@@ -107,11 +108,14 @@ const PostbackSettings = () => {
         }
     };
 
-    const copyToClipboard = (text) => {
-        navigator.clipboard.writeText(text);
-        setCopied(true);
-        showSuccess(t('postback.copied'));
-        setTimeout(() => setCopied(false), 2000);
+    const copyToClipboard = async (text) => {
+        // utils/clipboard falls back to execCommand: plain-HTTP panels have
+        // no navigator.clipboard and the old direct call threw into the void.
+        if (await copyText(text)) {
+            setCopied(true);
+            showSuccess(t('postback.copied'));
+            setTimeout(() => setCopied(false), 2000);
+        }
     };
 
     const addAlias = (param) => {

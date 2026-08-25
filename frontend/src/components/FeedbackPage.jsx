@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { MessageSquare, Copy, Check, Heart, Mail, MessageCircle } from 'lucide-react';
+import { copyToClipboard } from '../utils/clipboard';
 
 const FeedbackPage = () => {
     const { t } = useLanguage();
@@ -8,10 +9,12 @@ const FeedbackPage = () => {
 
     const cryptoAddress = 'TN7v2NArTXd5J2eMuGFpXmgzAFsoZpWcZu';
 
-    const handleCopy = () => {
-        navigator.clipboard.writeText(cryptoAddress);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+    const handleCopy = async () => {
+        // execCommand fallback for plain-HTTP panels (no navigator.clipboard).
+        if (await copyToClipboard(cryptoAddress)) {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
     };
 
     return (

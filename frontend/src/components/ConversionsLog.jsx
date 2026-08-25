@@ -251,7 +251,14 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
                 </div>
             ) : (
                 <div className="page-card" style={{ padding: 0 }}>
-                    <div className="overflow-x-auto hidden lg:block">
+                    {/* The modal frame no longer scrolls (it clipped the date
+                        picker popover), so the table itself owns the vertical
+                        scroll here. The bound leaves room for the toolbar,
+                        header and pagination row below this wrapper. */}
+                    <div
+                        className="overflow-x-auto hidden lg:block"
+                        style={{ maxHeight: 'calc(100vh - 400px)', overflowY: 'auto' }}
+                    >
                         <table className="page-table" style={{ ...colResize.tableStyle }}>
                             {colResize.colgroup}
                             <thead>
@@ -358,8 +365,9 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
                     </div>
 
                     {/* Mobile stacked cards (below lg) — one card per conversion,
-                        click_id opens the click details modal. */}
-                    <div className="lg:hidden p-3">
+                        click_id opens the click details modal. Own scroll bound:
+                        the modal frame's overflow is visible now. */}
+                    <div className="lg:hidden p-3" style={{ maxHeight: 'calc(100vh - 330px)', overflowY: 'auto' }}>
                         <MobileCards
                             rows={conversions}
                             getId={(conv) => conv.id}

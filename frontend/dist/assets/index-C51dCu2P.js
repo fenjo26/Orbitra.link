@@ -18537,6 +18537,8 @@ const ru = {
     "noConnection": "API-подключение Facebook не найдено — сначала подключите рекламный кабинет в импорте расходов",
     "unsupportedNetwork": "Эта рекламная сеть пока не поддерживается",
     "invalidId": "Неверный id сущности",
+    "statusDisapproved": "Отклонено",
+    "statusInReview": "На проверке",
     "title": "Cron и автоматические задачи",
     "backorderCronTitle": "Backorder: автоматическая проверка доменов",
     "backorderCronDesc": "Проверка доступности доменов запускается отдельным cron-скриптом и обрабатывает 1 домен за запуск. Здесь можно включить/выключить выполнение и получить готовую команду.",
@@ -22218,6 +22220,8 @@ const en = {
     "noConnection": "No Facebook API connection found — connect the ad account in Cost Import first",
     "unsupportedNetwork": "This ad network is not supported yet",
     "invalidId": "Invalid entity id",
+    "statusDisapproved": "Disapproved",
+    "statusInReview": "In review",
     "title": "Cron & Automation",
     "backorderCronTitle": "Backorder: scheduled domain checks",
     "backorderCronDesc": "Domain availability checks are executed by a separate cron script and process 1 domain per run. Here you can enable/disable execution and copy a ready-to-use cron command.",
@@ -25867,6 +25871,8 @@ const uk = {
     "noConnection": "API-підключення Facebook не знайдено — спочатку підключіть рекламний кабінет в імпорті витрат",
     "unsupportedNetwork": "Ця рекламна мережа ще не підтримується",
     "invalidId": "Невірний id сутності",
+    "statusDisapproved": "Відхилено",
+    "statusInReview": "На перевірці",
     "title": "Cron і автоматизація",
     "backorderCronTitle": "Замовлення: заплановані перевірки домену",
     "backorderCronDesc": "Перевірка доступності домену виконується окремим сценарієм cron і обробляє 1 домен за один запуск. Тут ви можете ввімкнути/вимкнути виконання та скопіювати готову до використання команду cron.",
@@ -29516,6 +29522,8 @@ const es = {
     "noConnection": "No se encontró conexión a la API de Facebook — conecte primero la cuenta publicitaria en la importación de costos",
     "unsupportedNetwork": "Esta red publicitaria aún no es compatible",
     "invalidId": "ID de entidad no válido",
+    "statusDisapproved": "Rechazado",
+    "statusInReview": "En revisión",
     "title": "Cron y automatización",
     "backorderCronTitle": "Pedido pendiente: comprobaciones de dominio programadas",
     "backorderCronDesc": "Las comprobaciones de disponibilidad de dominio se ejecutan mediante un script cron independiente y procesan 1 dominio por ejecución. Aquí puede habilitar/deshabilitar la ejecución y copiar un comando cron listo para usar.",
@@ -33165,6 +33173,8 @@ const zh = {
     "noConnection": "未找到 Facebook API 连接 — 请先在成本导入中绑定广告账户",
     "unsupportedNetwork": "暂不支持该广告网络",
     "invalidId": "无效的对象 ID",
+    "statusDisapproved": "已拒登",
+    "statusInReview": "审核中",
     "title": "计划与自动化",
     "backorderCronTitle": "延期交货：计划的域名检查",
     "backorderCronDesc": "域可用性检查由单独的 cron 脚本执行，每次运行处理 1 个域。您可以在此处启用/禁用执行并复制现成的 cron 命令。",
@@ -36814,6 +36824,8 @@ const fr = {
     "noConnection": "Aucune connexion à l’API Facebook trouvée — connectez d’abord le compte publicitaire dans l’import de coûts",
     "unsupportedNetwork": "Ce réseau publicitaire n’est pas encore pris en charge",
     "invalidId": "Identifiant d’entité non valide",
+    "statusDisapproved": "Refusé",
+    "statusInReview": "En cours de vérification",
     "title": "Cron et automatisation",
     "backorderCronTitle": "Recommandation : vérifications de domaines planifiées",
     "backorderCronDesc": "Les vérifications de disponibilité des domaines sont exécutées par un Séparez le script cron et traitez 1 domaine par exécution. Ici, vous pouvez activer/désactiver l'exécution et copier une commande cron prête à l'emploi.",
@@ -40465,6 +40477,8 @@ const de = {
     "noConnection": "Keine Facebook-API-Verbindung gefunden — zuerst das Werbekonto im Kostenimport verbinden",
     "unsupportedNetwork": "Dieses Werbenetzwerk wird noch nicht unterstützt",
     "invalidId": "Ungültige Entitäts-ID",
+    "statusDisapproved": "Abgelehnt",
+    "statusInReview": "In Prüfung",
     "title": "Cron & Automatisierung",
     "backorderCronTitle": "Backorder: geplante Domain-Prüfungen",
     "backorderCronDesc": "Domain-Verfügbarkeitsprüfungen werden von einem ausgeführt Separates Cron-Skript und Verarbeitung einer Domäne pro Lauf. Hier können Sie die Ausführung aktivieren/deaktivieren und einen gebrauchsfertigen Cron-Befehl kopieren.",
@@ -58672,7 +58686,7 @@ const SortIcon = ({ sortBy, colKey }) => {
   if (sortBy.key !== colKey) return /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronsUpDown, { className: "w-3.5 h-3.5 opacity-40" });
   return sortBy.dir === "asc" ? /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronUp, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronDown, { className: "w-3.5 h-3.5", style: { color: "var(--color-primary)" } });
 };
-const SortableTh = ({ colKey, label, fullTitle, defaultDir = "asc", alignRight = false, draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd, resize }) => {
+const SortableTh = ({ colKey, label, fullTitle, defaultDir = "asc", alignRight = false, draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd, resize, hideSortIcon = false }) => {
   const isActive = sortBy.key === colKey;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "th",
@@ -58712,7 +58726,7 @@ const SortableTh = ({ colKey, label, fullTitle, defaultDir = "asc", alignRight =
               },
               children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: label }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { sortBy, colKey })
+                !hideSortIcon && /* @__PURE__ */ jsxRuntimeExports.jsx(SortIcon, { sortBy, colKey })
               ]
             }
           )
@@ -59096,7 +59110,7 @@ const DateRangePicker = ({
       {
         type: "button",
         onClick: () => setIsOpen(!isOpen),
-        className: "btn btn-secondary flex items-center gap-2 text-xs py-1.5 px-3 rounded-xl",
+        className: "btn btn-secondary flex items-center gap-2 text-xs py-1.5 px-3 rounded-xl whitespace-nowrap",
         style: {
           backgroundColor: "var(--color-bg-card)",
           border: "1px solid var(--color-border)",
@@ -60665,6 +60679,8 @@ const ENTITY_TYPE_BY_DIMENSION = {
   adset_id: "adset",
   ad_id: "ad"
 };
+const entityToggleStatus = (entry) => typeof entry === "string" ? entry : entry && typeof entry === "object" ? entry.status : void 0;
+const entityEffectiveStatus = (entry) => entry && typeof entry === "object" && typeof entry.effective === "string" ? entry.effective : null;
 const CampaignReports = ({ campaignId, campaignName, onClose }) => {
   const { t } = useLanguage();
   const formatDimensionLabel = (dimension) => getDimensionLabel(dimension, t);
@@ -60686,7 +60702,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     if (!/^\d+$/.test(entityId) || togglingIds.has(entityId)) return;
     const entityType = ENTITY_TYPE_BY_DIMENSION[dimKey];
     if (!entityType) return;
-    const nextStatus = (entityStatus[entityId] || "ACTIVE") === "ACTIVE" ? "PAUSED" : "ACTIVE";
+    const nextStatus = (entityToggleStatus(entityStatus[entityId]) || "ACTIVE") === "ACTIVE" ? "PAUSED" : "ACTIVE";
     setTogglingIds((prev) => new Set(prev).add(entityId));
     try {
       const res = await axios.post(`${API_URL$A}?action=ad_entity_toggle_status`, {
@@ -60927,6 +60943,35 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     [...root.children.entries()].sort((a, b) => b[1].clicks - a[1].clicks).forEach(([, child]) => walk(child, 0));
     return out;
   }, [rows, layers.length]);
+  reactExports.useEffect(() => {
+    const byType = /* @__PURE__ */ new Map();
+    displayRows.forEach((r2) => {
+      const entityType = ENTITY_TYPE_BY_DIMENSION[layers[r2.depth]];
+      if (!entityType || !r2.dimId || r2.dimId === "Unknown" || r2.dimId === "none") return;
+      const entityId = String(r2.dimId).trim();
+      if (!/^\d+$/.test(entityId)) return;
+      if (!byType.has(entityType)) byType.set(entityType, /* @__PURE__ */ new Set());
+      byType.get(entityType).add(entityId);
+    });
+    if (byType.size === 0) return void 0;
+    const items = [...byType.entries()].flatMap(([entity_type, ids]) => [...ids].map((entity_id) => ({ entity_type, entity_id })));
+    let cancelled = false;
+    axios.post(`${API_URL$A}?action=ad_entity_statuses`, { items }).then((res) => {
+      if (cancelled || res.data.status !== "success" || !res.data.data) return;
+      const fetched = res.data.data;
+      setEntityStatus((prev) => {
+        const next = { ...prev, ...fetched };
+        togglingIds.forEach((id) => {
+          if (id in prev) next[id] = prev[id];
+        });
+        return next;
+      });
+    }).catch(() => {
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [displayRows, layers, togglingIds]);
   const grandTotal = reactExports.useMemo(() => {
     const t0 = {
       clicks: 0,
@@ -61398,7 +61443,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                         if (!ENTITY_TYPE_BY_DIMENSION[dimKey] || !r2.dimId || r2.dimId === "Unknown" || r2.dimId === "none") return null;
                         const entityId = String(r2.dimId).trim();
                         const validEntityId = /^\d+$/.test(entityId);
-                        const paused = entityStatus[entityId] === "PAUSED";
+                        const paused = entityToggleStatus(entityStatus[entityId]) === "PAUSED";
                         const busy = togglingIds.has(entityId);
                         return /* @__PURE__ */ jsxRuntimeExports.jsx(
                           "button",
@@ -61425,6 +61470,25 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                         "#",
                         r2.dimId
                       ] }),
+                      (() => {
+                        const eff = entityEffectiveStatus(entityStatus[String(r2.dimId ?? "").trim()]);
+                        if (eff !== "DISAPPROVED" && eff !== "PENDING_REVIEW") return null;
+                        const disapproved = eff === "DISAPPROVED";
+                        const color2 = disapproved ? "var(--color-danger)" : "var(--color-warning, #f59e0b)";
+                        return /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          "span",
+                          {
+                            className: "text-[10px] px-1.5 py-0.5 rounded font-semibold border whitespace-nowrap",
+                            style: {
+                              color: color2,
+                              borderColor: `color-mix(in srgb, ${color2} 35%, transparent)`,
+                              backgroundColor: `color-mix(in srgb, ${color2} 10%, transparent)`
+                            },
+                            title: eff,
+                            children: disapproved ? t("campaignReports.statusDisapproved", "Disapproved") : t("campaignReports.statusInReview", "In review")
+                          }
+                        );
+                      })(),
                       isSubtotal && r2.childrenCount > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { style: { color: "var(--color-text-muted)", fontSize: "11px" }, children: [
                         "(",
                         r2.childrenCount,
@@ -61816,97 +61880,104 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
       ] })
     ] }) }),
     loading ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "page-card", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { display: "flex", justifyContent: "center", alignItems: "center", height: "200px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { width: "32px", height: "32px", border: "3px solid var(--color-border)", borderTopColor: "var(--color-primary)", borderRadius: "50%", animation: "spin 1s linear infinite" } }) }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "page-card", style: { padding: 0 }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "overflow-x-auto hidden lg:block", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", style: { ...colResize.tableStyle }, children: [
-        colResize.colgroup,
-        /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
-            "ID",
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "id" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
-            "Click ID",
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "click_id" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
-            "TID",
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "tid" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
-            t("conversions.status"),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "status" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
-            t("conversions.payout"),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "payout" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
-            t("conversions.campaign"),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "campaign" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
-            t("conversions.offer"),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "offer" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
-            "IP",
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "ip" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
-            t("conversions.date"),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "date" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "div",
+        {
+          className: "overflow-x-auto hidden lg:block",
+          style: { maxHeight: "calc(100vh - 400px)", overflowY: "auto" },
+          children: /* @__PURE__ */ jsxRuntimeExports.jsxs("table", { className: "page-table", style: { ...colResize.tableStyle }, children: [
+            colResize.colgroup,
+            /* @__PURE__ */ jsxRuntimeExports.jsx("thead", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+                "ID",
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "id" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+                "Click ID",
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "click_id" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+                "TID",
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "tid" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+                t("conversions.status"),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "status" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+                t("conversions.payout"),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "payout" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+                t("conversions.campaign"),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "campaign" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+                t("conversions.offer"),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "offer" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+                "IP",
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "ip" })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "resizable-th", children: [
+                t("conversions.date"),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "date" })
+              ] })
+            ] }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: conversions.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 9, className: "text-center", style: { padding: "48px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("conversions.noConversions") }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("conversions.noConversionsText") })
+            ] }) }) }) : conversions.map((conv) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: conv.id }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  onClick: () => setSelectedClickId(conv.click_id),
+                  style: {
+                    fontFamily: "monospace",
+                    fontSize: "12px",
+                    color: "var(--color-primary)",
+                    background: "var(--color-bg-soft)",
+                    padding: "4px 8px",
+                    borderRadius: "6px",
+                    border: "none",
+                    cursor: "pointer",
+                    transition: "all 0.2s"
+                  },
+                  children: conv.click_id
+                }
+              ) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: conv.tid || "-" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: getStatusBadge(conv.status) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { style: { color: "var(--color-success)", fontWeight: 500 }, children: [
+                "$",
+                Number(conv.payout || 0).toFixed(2)
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-primary)" }, children: conv.campaign_name || "-" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-primary)" }, children: conv.offer_name || "-" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-muted)", fontSize: "14px" }, children: conv.ip || "-" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  onClick: () => setSelectedClickId(conv.click_id),
+                  style: {
+                    color: "var(--color-text-secondary)",
+                    fontSize: "14px",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    padding: 0,
+                    transition: "color 0.2s"
+                  },
+                  children: new Date(conv.created_at).toLocaleString("ru-RU")
+                }
+              ) })
+            ] }, conv.id)) })
           ] })
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: conversions.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 9, className: "text-center", style: { padding: "48px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("conversions.noConversions") }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-text", children: t("conversions.noConversionsText") })
-        ] }) }) }) : conversions.map((conv) => /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: conv.id }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              onClick: () => setSelectedClickId(conv.click_id),
-              style: {
-                fontFamily: "monospace",
-                fontSize: "12px",
-                color: "var(--color-primary)",
-                background: "var(--color-bg-soft)",
-                padding: "4px 8px",
-                borderRadius: "6px",
-                border: "none",
-                cursor: "pointer",
-                transition: "all 0.2s"
-              },
-              children: conv.click_id
-            }
-          ) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: conv.tid || "-" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: getStatusBadge(conv.status) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("td", { style: { color: "var(--color-success)", fontWeight: 500 }, children: [
-            "$",
-            Number(conv.payout || 0).toFixed(2)
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-primary)" }, children: conv.campaign_name || "-" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-primary)" }, children: conv.offer_name || "-" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-muted)", fontSize: "14px" }, children: conv.ip || "-" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              onClick: () => setSelectedClickId(conv.click_id),
-              style: {
-                color: "var(--color-text-secondary)",
-                fontSize: "14px",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                padding: 0,
-                transition: "color 0.2s"
-              },
-              children: new Date(conv.created_at).toLocaleString("ru-RU")
-            }
-          ) })
-        ] }, conv.id)) })
-      ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "lg:hidden p-3", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "lg:hidden p-3", style: { maxHeight: "calc(100vh - 330px)", overflowY: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
         MobileCards,
         {
           rows: conversions,
@@ -62019,7 +62090,7 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
 const ConversionsLogModal = ({ campaignId, campaignName, onClose }) => {
   const { t } = useLanguage();
   if (!campaignId) return null;
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", style: { top: "88px", height: "calc(100vh - 88px)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "1200px", maxHeight: "100%", overflow: "auto" }, children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", style: { top: "88px", height: "calc(100vh - 88px)" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-content", style: { maxWidth: "1200px", maxHeight: "100%", overflow: "visible" }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-4", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("editor.conversionsLog") }),
@@ -62076,6 +62147,69 @@ async function copyToClipboard(text) {
     textarea?.remove();
   }
 }
+const CampaignUrlModal = ({ name, url, onClose }) => {
+  const { t } = useLanguage();
+  const [copied, setCopied] = reactExports.useState(false);
+  const renderUrl = (value) => {
+    const parts = String(value || "").split(/(\{[^{}]+\})/g);
+    return parts.map((part, i) => /^\{[^{}]+\}$/.test(part) ? /* @__PURE__ */ jsxRuntimeExports.jsx("span", { style: { color: "var(--color-primary)", fontWeight: 600 }, children: part }, i) : /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: part }, i));
+  };
+  const handleCopy = async () => {
+    const ok = await copyToClipboard(url);
+    if (ok) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2e3);
+    }
+  };
+  if (!url) return null;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "modal-overlay", onClick: onClose, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "modal-content max-w-xl w-full rounded-2xl p-6",
+      style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)" },
+      onClick: (e) => e.stopPropagation(),
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center justify-between mb-4", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-w-0", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { className: "modal-title", children: t("table.campaignUrl") }),
+            name && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-xs truncate mt-0.5", style: { color: "var(--color-text-muted)" }, title: name, children: name })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: onClose, className: "btn btn-ghost btn-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "w-5 h-5" }) })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "div",
+          {
+            className: "rounded-xl px-3.5 py-3 font-mono text-xs leading-relaxed",
+            style: {
+              backgroundColor: "var(--color-bg-soft)",
+              border: "1px solid var(--color-border)",
+              color: "var(--color-text-primary)",
+              wordBreak: "break-all",
+              userSelect: "text",
+              WebkitUserSelect: "text"
+            },
+            children: renderUrl(url)
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "modal-footer flex justify-end gap-2.5 pt-4", style: { borderTop: "1px solid var(--color-border)" }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onClose, className: "btn btn-secondary text-xs py-1.5 px-3 rounded-xl", children: t("common.close") }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: handleCopy,
+              className: "btn btn-primary text-xs py-1.5 px-4 rounded-xl flex items-center gap-1.5 font-medium",
+              children: [
+                copied ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-3.5 h-3.5", style: { color: "var(--color-text-inverse, #fff)" } }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-3.5 h-3.5" }),
+                copied ? t("common.copied") : t("table.copyLink")
+              ]
+            }
+          )
+        ] })
+      ]
+    }
+  ) });
+};
 function campaignLinkUrl(alias, domainName) {
   const baseUrl = domainName ? `https://${domainName}` : window.location.origin;
   return `${baseUrl}/${alias}`;
@@ -62094,6 +62228,8 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
   const [campaignStateOverrides, setCampaignStateOverrides] = reactExports.useState({});
   const [menuAnchor, setMenuAnchor] = reactExports.useState(null);
   const [logModal, setLogModal] = reactExports.useState(null);
+  const [copyToast, setCopyToast] = reactExports.useState(null);
+  const [urlModal, setUrlModal] = reactExports.useState(null);
   const [rowsPerPage, setRowsPerPage] = reactExports.useState(() => {
     const saved = localStorage.getItem("orbitra_table_page_size");
     return saved === "All" ? "All" : [25, 50, 100, 250].includes(Number(saved)) ? Number(saved) : 50;
@@ -62139,14 +62275,11 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     const url = campaignLinkUrl(camp.alias, camp.domain_name || null);
     const ok = await copyToClipboard(url);
     if (ok) {
-      alert(`${t("common.copied")}: ${url}`);
+      setCopyToast(true);
+      setTimeout(() => setCopyToast(null), 2e3);
     } else {
-      alert(url);
+      setUrlModal({ name: camp.name, url });
     }
-  };
-  const handleOpenCampaignLink = (camp) => {
-    const url = campaignLinkUrl(camp.alias, camp.domain_name || null);
-    window.open(url, "_blank", "noopener,noreferrer");
   };
   const renderQuickActions = (camp, { size = "w-4 h-4", touch = false } = {}) => {
     const btnClass = `${touch ? "hit-44 " : ""}p-1.5 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5`;
@@ -62277,16 +62410,22 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     [chosenColumns, financeVis]
   );
   const isDesktop = useIsDesktop();
+  const FIXED_COLUMN_IDS = ["check", "id", "state", "name", "actions", "group_name"];
   const columnDefs = reactExports.useMemo(() => [
     { id: "check", width: 40 },
     { id: "id", width: 70 },
     { id: "state", width: 90 },
     { id: "name", width: 300 },
+    { id: "actions", width: 110 },
     { id: "group_name", width: 140 },
-    ...visibleColumns.map((id) => ({ id, width: 120 })),
-    { id: "actions", width: 110 }
+    ...visibleColumns.map((id) => ({ id, width: 120 }))
   ], [visibleColumns]);
   const colResize = useResizableTableColumns({ tableId: "campaigns", columns: columnDefs, enabled: isDesktop });
+  reactExports.useEffect(() => {
+    FIXED_COLUMN_IDS.forEach((id) => {
+      if (id in colResize.api.widths) colResize.api.resetColumn(id);
+    });
+  }, []);
   const fetchGroups = () => {
     axios.get(`${API_URL$y}?action=campaign_groups`).then((res) => {
       if (res.data.status === "success") {
@@ -62885,10 +63024,11 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             style: { accentColor: "var(--color-primary)" }
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "id", label: "ID", defaultDir: "desc", resize: colResize }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "state", label: t("common.status"), defaultDir: "asc", resize: colResize }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "name", label: t("campaigns.campaign"), defaultDir: "asc", resize: colResize }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "group_name", label: t("campaigns.group"), defaultDir: "asc", resize: colResize }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "id", label: "ID", defaultDir: "desc", hideSortIcon: true }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "state", label: t("common.status"), defaultDir: "asc", hideSortIcon: true }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "name", label: t("campaigns.campaign"), defaultDir: "asc" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("th", { className: "text-right resizable-th", style: { textAlign: "right" }, children: t("common.actions") }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(SortableTh, { sortBy, requestSort, colKey: "group_name", label: t("campaigns.group"), defaultDir: "asc", hideSortIcon: true }),
         visibleColumns.map((colId, colIdx) => {
           const def = ALL_REPORT_METRICS.find((m) => m.id === colId);
           return /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -62911,11 +63051,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             },
             colId
           );
-        }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("th", { className: "text-right resizable-th", style: { textAlign: "right" }, children: [
-          t("common.actions"),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(ColumnResizeHandle, { rt: colResize, colId: "actions" })
-        ] })
+        })
       ] }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("tbody", { children: visibleCampaigns.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("tr", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("td", { colSpan: 6 + visibleColumns.length, className: "text-center py-12", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "empty-state", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "empty-state-title", children: t("campaigns.noCampaignsCreated") }),
@@ -62948,29 +63084,16 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "inline-block h-3 w-3 transform rounded-full bg-white shadow transition-transform", style: { transform: campaignEnabled(camp) ? "translateX(12px)" : "translateX(2px)" } })
           }
         ) }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-2", style: { maxWidth: 320 }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "span",
-            {
-              className: "font-medium text-xs truncate cursor-pointer hover:underline",
-              style: { color: "var(--color-text-primary)" },
-              onClick: () => handleEdit(camp.id),
-              title: camp.name,
-              children: camp.name
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "span",
-            {
-              className: "text-[10px] font-mono px-1 rounded border flex-shrink-0",
-              style: { color: "var(--color-text-muted)", borderColor: "var(--color-border)" },
-              title: camp.alias,
-              children: camp.alias
-            }
-          )
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: camp.group_name || "-" }),
-        visibleColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums" }, children: formatMetricCell(colId, camp) }, colId)),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "span",
+          {
+            className: "font-medium text-xs truncate cursor-pointer hover:underline",
+            style: { color: "var(--color-text-primary)" },
+            onClick: () => handleEdit(camp.id),
+            title: camp.name,
+            children: camp.name
+          }
+        ) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "inline-flex items-center justify-end gap-0.5", children: [
           renderQuickActions(camp),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -62984,7 +63107,9 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(EllipsisVertical, { className: "w-4 h-4" })
             }
           )
-        ] }) })
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { color: "var(--color-text-secondary)" }, children: camp.group_name || "-" }),
+        visibleColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums" }, children: formatMetricCell(colId, camp) }, colId))
       ] }, camp.id)) }),
       visibleCampaigns.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx("tfoot", { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("tr", { style: { backgroundColor: "var(--color-bg-soft)", borderTop: "2px solid var(--color-border)", fontWeight: 700 }, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", {}),
@@ -62996,9 +63121,9 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
           visibleCampaigns.length,
           ")"
         ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("td", {}),
         /* @__PURE__ */ jsxRuntimeExports.jsx("td", { children: "-" }),
-        visibleColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums" }, children: formatMetricCell(colId, grandTotals) }, colId)),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("td", {})
+        visibleColumns.map((colId) => /* @__PURE__ */ jsxRuntimeExports.jsx("td", { style: { textAlign: "right", fontVariantNumeric: "tabular-nums" }, children: formatMetricCell(colId, grandTotals) }, colId))
       ] }) })
     ] }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "lg:hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -63044,14 +63169,6 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
               onClick: () => handleEdit(camp.id),
               title: camp.name,
               children: camp.name
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "span",
-            {
-              className: "text-[10px] font-mono px-1 rounded border flex-shrink-0",
-              style: { color: "var(--color-text-muted)", borderColor: "var(--color-border)" },
-              children: camp.alias
             }
           )
         ] }),
@@ -63266,35 +63383,11 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
                 setMenuAnchor(null);
-                handleEdit(camp.id);
-              }, className: "w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition", style: { color: "var(--color-text-primary)" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "w-3.5 h-3.5" }),
-                " ",
-                t("common.edit")
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
-                setMenuAnchor(null);
                 setActionModal({ type: "update_costs", campaignId: camp.id });
               }, className: "w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition", style: { color: "var(--color-text-primary)" }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(DollarSign, { className: "w-3.5 h-3.5" }),
                 " ",
                 t("campaigns.updateCosts")
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
-                setMenuAnchor(null);
-                handleCopyCampaignLink(camp);
-              }, className: "w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition", style: { color: "var(--color-text-primary)" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Copy, { className: "w-3.5 h-3.5" }),
-                " ",
-                t("table.copyLink")
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
-                setMenuAnchor(null);
-                handleOpenCampaignLink(camp);
-              }, className: "w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition", style: { color: "var(--color-text-primary)" }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(ExternalLink, { className: "w-3.5 h-3.5" }),
-                " ",
-                t("table.openInNewTab")
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => {
                 setMenuAnchor(null);
@@ -63326,6 +63419,25 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         );
       })(),
       document.body
+    ),
+    copyToast && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed", style: { bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 2100 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "flex items-center gap-2 px-3.5 py-2 rounded-xl shadow-2xl text-xs font-medium whitespace-nowrap",
+        style: { backgroundColor: "var(--color-bg-card)", border: "1px solid var(--color-border)", color: "var(--color-text-primary)" },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { className: "w-4 h-4", style: { color: "var(--color-success)" } }),
+          t("common.copied")
+        ]
+      }
+    ) }),
+    urlModal && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      CampaignUrlModal,
+      {
+        name: urlModal.name,
+        url: urlModal.url,
+        onClose: () => setUrlModal(null)
+      }
     )
   ] });
 };
@@ -65360,13 +65472,24 @@ const FIXED_LANDING_COLUMNS = [
   { id: "last_event", label: "Last Event", fixed: true }
 ];
 const LANDING_COLUMNS_KEY = "orbitra_landing_columns";
+const FIXED_LANDING_COLUMN_IDS = new Set(FIXED_LANDING_COLUMNS.map((c) => c.id));
+const sanitizeLandingMetricIds = (ids) => normalizeReportMetricIds(ids).filter((id) => !FIXED_LANDING_COLUMN_IDS.has(id) && ALL_REPORT_METRICS.some((m) => m.id === id));
 const loadLandingColumns = () => {
   try {
     const saved = localStorage.getItem(LANDING_COLUMNS_KEY);
-    if (saved) return normalizeReportMetricIds(JSON.parse(saved));
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      const cleaned = sanitizeLandingMetricIds(parsed);
+      if (cleaned.length) {
+        if (JSON.stringify(cleaned) !== JSON.stringify(parsed)) {
+          localStorage.setItem(LANDING_COLUMNS_KEY, JSON.stringify(cleaned));
+        }
+        return cleaned;
+      }
+    }
   } catch (e) {
   }
-  return normalizeReportMetricIds(PRESETS.lander_to_offer);
+  return sanitizeLandingMetricIds(PRESETS.lander_to_offer);
 };
 const Landings = ({ landings, refreshData }) => {
   const { t } = useLanguage();
@@ -70488,11 +70611,12 @@ const PostbackSettings = () => {
       });
     }
   };
-  const copyToClipboard2 = (text) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    showSuccess(t("postback.copied"));
-    setTimeout(() => setCopied(false), 2e3);
+  const copyToClipboard$1 = async (text) => {
+    if (await copyToClipboard(text)) {
+      setCopied(true);
+      showSuccess(t("postback.copied"));
+      setTimeout(() => setCopied(false), 2e3);
+    }
   };
   const addAlias = (param) => {
     const newAlias = prompt(t("common.create") + ":");
@@ -70536,7 +70660,7 @@ const PostbackSettings = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",
           {
-            onClick: () => copyToClipboard2(postbackUrl),
+            onClick: () => copyToClipboard$1(postbackUrl),
             className: "btn btn-primary btn-sm",
             style: { flexShrink: 0 },
             children: [
@@ -83863,10 +83987,11 @@ const McpPage = () => {
       }
     }
   }, null, 2);
-  const copyConfig = () => {
-    navigator.clipboard.writeText(config);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1800);
+  const copyConfig = async () => {
+    if (await copyToClipboard(config)) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    }
   };
   const cardStyle = {
     background: "var(--color-bg-soft)",
@@ -85406,10 +85531,11 @@ const FeedbackPage = () => {
   const { t } = useLanguage();
   const [copied, setCopied] = reactExports.useState(false);
   const cryptoAddress = "TN7v2NArTXd5J2eMuGFpXmgzAFsoZpWcZu";
-  const handleCopy = () => {
-    navigator.clipboard.writeText(cryptoAddress);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2e3);
+  const handleCopy = async () => {
+    if (await copyToClipboard(cryptoAddress)) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2e3);
+    }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "grid grid-cols-1 lg:grid-cols-2 gap-6", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-6 md:p-8 rounded-[24px] shadow-sm border border-[var(--color-border)] relative overflow-hidden flex flex-col", style: { background: "var(--color-bg-card)", backdropFilter: "blur(10px)" }, children: [
@@ -89131,7 +89257,6 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 hintEl("rotationAuto.minSampleHint")
               ] }),
               sentenceField("lookback_days", "rotationAuto.lookbackPrefix", rotationPlural(language, cfg.lookback_days, t("rotationAuto.lookbackUnitForms")), 1, 90, "rotationAuto.lookbackHint"),
-              sentenceField("floor_pct", "rotationAuto.floorPrefix", t("rotationAuto.pctSuffix"), 1, 50, "rotationAuto.floorHint"),
               sentenceField("cap_pct", "rotationAuto.capPrefix", t("rotationAuto.pctSuffix"), 10, 100, "rotationAuto.capHint"),
               sentenceField("interval_min", "rotationAuto.intervalPrefix", t("rotationAuto.intervalSuffix"), 5, 1440, "rotationAuto.intervalHint")
             ] }),

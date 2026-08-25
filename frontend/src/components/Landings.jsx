@@ -31,13 +31,34 @@ const FIXED_LANDING_COLUMNS = [
 
 const LANDING_COLUMNS_KEY = 'orbitra_landing_columns';
 
+// The saved list holds *metric* ids only. An entity field that ends up in
+// there (`name`, `url`, `last_event`…) misses ALL_REPORT_METRICS.find(), and
+// the dynamic header falls back to `|| colId`, printing the raw DB column
+// name in a second column beside the properly labelled fixed one. Landings'
+// fixed set is wider than Offers' — more ids can leak — so the same guard
+// applies. Drop anything that is not a real metric or is already a fixed
+// column, and write the repaired list back once.
+const FIXED_LANDING_COLUMN_IDS = new Set(FIXED_LANDING_COLUMNS.map(c => c.id));
+
+const sanitizeLandingMetricIds = (ids) => normalizeReportMetricIds(ids)
+    .filter(id => !FIXED_LANDING_COLUMN_IDS.has(id) && ALL_REPORT_METRICS.some(m => m.id === id));
+
 const loadLandingColumns = () => {
     try {
         const saved = localStorage.getItem(LANDING_COLUMNS_KEY);
-        if (saved) return normalizeReportMetricIds(JSON.parse(saved));
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            const cleaned = sanitizeLandingMetricIds(parsed);
+            if (cleaned.length) {
+                if (JSON.stringify(cleaned) !== JSON.stringify(parsed)) {
+                    localStorage.setItem(LANDING_COLUMNS_KEY, JSON.stringify(cleaned));
+                }
+                return cleaned;
+            }
+        }
     } catch (e) {}
     // Fallback to 'lander_to_offer' preset for landings
-    return normalizeReportMetricIds(PRESETS.lander_to_offer);
+    return sanitizeLandingMetricIds(PRESETS.lander_to_offer);
 };
 
 const Landings = ({ landings, refreshData }) => {

@@ -1,15 +1,16 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Plus, Search, Trash2, Edit3, Settings2, DollarSign, XCircle, ChevronUp, ChevronDown, ChevronsUpDown, RefreshCw, X, Copy, BarChart2, SlidersHorizontal, GripVertical, MoreVertical, AlertTriangle, Link2, FileText, Target, ExternalLink } from 'lucide-react';
+import { Plus, Search, Trash2, Settings2, DollarSign, XCircle, ChevronUp, ChevronDown, ChevronsUpDown, RefreshCw, X, Copy, BarChart2, SlidersHorizontal, GripVertical, MoreVertical, AlertTriangle, Link2, FileText, Target, Check } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import GroupsModal from './GroupsModal';
 import PaginationToolbar from './common/PaginationToolbar';
 import MobileCards from './common/MobileCards';
-import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle } from './common/ColumnResize';
+import { useIsDesktop, useResizableTableColumns } from './common/ColumnResize';
 import { SortableTh, nextSortState } from './common/SortableTh';
 import CampaignReports from './CampaignReports';
 import ClickLogModal from './ClickLogModal';
 import ConversionsLogModal from './ConversionsLogModal';
+import CampaignUrlModal from './CampaignUrlModal';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 import { useTimezone } from '../utils/useTimezone';
 import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getDefaultTemplateColumns, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
@@ -44,6 +45,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     // the modal header names it — from a list of 50 rows, "Click Log" alone
     // does not tell you whose clicks you are looking at.
     const [logModal, setLogModal] = useState(null); // { type: 'clicks'|'conversions', id, name }
+    // Copy-link feedback: transient toast on success, URL modal only when
+    // every clipboard transport failed.
+    const [copyToast, setCopyToast] = useState(null);
+    const [urlModal, setUrlModal] = useState(null); // { name, url }
 
     // Pagination for high-volume lists. "All" restores the previous behaviour.
     const [rowsPerPage, setRowsPerPage] = useState(() => {
@@ -106,22 +111,17 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         // domain_name arrives from the list query's LEFT JOIN on domains; when
         // the campaign has no tracking domain the panel origin serves the route.
         const url = campaignLinkUrl(camp.alias, camp.domain_name || null);
-        // utils/clipboard works on HTTP/IP too; the alert with the raw URL
-        // stays as the last resort when even execCommand is unavailable.
+        // Silent copy + a transient toast. The theme-aware URL modal stays as
+        // the fallback for the one surface where even execCommand is dead
+        // (plain-HTTP IPs): there the URL can at least be selected by hand,
+        // and the failure path is visibly different from the success path.
         const ok = await copyToClipboard(url);
         if (ok) {
-            alert(`${t('common.copied')}: ${url}`);
+            setCopyToast(true);
+            setTimeout(() => setCopyToast(null), 2000);
         } else {
-            alert(url);
+            setUrlModal({ name: camp.name, url });
         }
-    };
-
-    // The campaign link is worth seeing as often as it is worth copying, so
-    // the row menu offers opening it as well — in a new tab, because losing
-    // the campaigns list to a landing page is not what anyone wanted.
-    const handleOpenCampaignLink = (camp) => {
-        const url = campaignLinkUrl(camp.alias, camp.domain_name || null);
-        window.open(url, '_blank', 'noopener,noreferrer');
     };
 
     // Three icon-only buttons, shared by the desktop Actions cell and the
@@ -272,16 +272,32 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     // Resizable columns — desktop table only; below lg the list renders as
     // MobileCards and skips resizing entirely.
     const isDesktop = useIsDesktop();
+    // The six fixed columns are locked (no handles, explicit widths); only
+    // the metric columns resize. ORDER MUST MIRROR RENDER ORDER: this list
+    // feeds the <colgroup>, and a desync here draws every column after the
+    // mismatch at a neighbour's width with no error anywhere.
+    const FIXED_COLUMN_IDS = ['check', 'id', 'state', 'name', 'actions', 'group_name'];
     const columnDefs = useMemo(() => ([
         { id: 'check', width: 40 },
         { id: 'id', width: 70 },
         { id: 'state', width: 90 },
         { id: 'name', width: 300 },
+        { id: 'actions', width: 110 },
         { id: 'group_name', width: 140 },
-        ...visibleColumns.map(id => ({ id, width: 120 })),
-        { id: 'actions', width: 110 }
+        ...visibleColumns.map(id => ({ id, width: 120 }))
     ]), [visibleColumns]);
     const colResize = useResizableTableColumns({ tableId: 'campaigns', columns: columnDefs, enabled: isDesktop });
+
+    // One-time purge: stored widths take precedence over col.width, so a
+    // width the user once dragged onto a now-fixed column would override its
+    // locked width forever. The handles are gone, so after this runs the keys
+    // cannot come back.
+    useEffect(() => {
+        FIXED_COLUMN_IDS.forEach(id => {
+            if (id in colResize.api.widths) colResize.api.resetColumn(id);
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // Fetch groups on mount
     const fetchGroups = () => {
@@ -959,10 +975,16 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                     style={{ accentColor: 'var(--color-primary)' }}
                                 />
                             </th>
-                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="id" label="ID" defaultDir="desc" resize={colResize} />
-                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="state" label={t('common.status')} defaultDir="asc" resize={colResize} />
-                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="name" label={t('campaigns.campaign')} defaultDir="asc" resize={colResize} />
-                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="group_name" label={t('campaigns.group')} defaultDir="asc" resize={colResize} />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="id" label="ID" defaultDir="desc" hideSortIcon />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="state" label={t('common.status')} defaultDir="asc" hideSortIcon />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="name" label={t('campaigns.campaign')} defaultDir="asc" />
+                            {/* Actions sits fifth, right after the name: with a
+                                dozen metric columns to the right, far-edge
+                                actions needed horizontal scrolling to reach. */}
+                            <th className="text-right resizable-th" style={{ textAlign: 'right' }}>
+                                {t('common.actions')}
+                            </th>
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="group_name" label={t('campaigns.group')} defaultDir="asc" hideSortIcon />
 
                             {/* Dynamically configured metric columns */}
                             {visibleColumns.map((colId, colIdx) => {
@@ -987,11 +1009,6 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                     />
                                 );
                             })}
-
-                            <th className="text-right resizable-th" style={{ textAlign: 'right' }}>
-                                {t('common.actions')}
-                                <ColumnResizeHandle rt={colResize} colId="actions" />
-                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1041,35 +1058,18 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                         </div>
                                     </td>
                                     <td>
-                                        {/* One line: name, alias — a second line for the
-                                            alias halved how many campaigns fit on screen. */}
-                                        <div className="flex items-center gap-2" style={{ maxWidth: 320 }}>
-                                            <span
-                                                className="font-medium text-xs truncate cursor-pointer hover:underline"
-                                                style={{ color: 'var(--color-text-primary)' }}
-                                                onClick={() => handleEdit(camp.id)}
-                                                title={camp.name}
-                                            >
-                                                {camp.name}
-                                            </span>
-                                            <span
-                                                className="text-[10px] font-mono px-1 rounded border flex-shrink-0"
-                                                style={{ color: 'var(--color-text-muted)', borderColor: 'var(--color-border)' }}
-                                                title={camp.alias}
-                                            >
-                                                {camp.alias}
-                                            </span>
-                                        </div>
+                                        {/* The alias stays in the URL builders and the search
+                                            filter; the chip doubled the column's visual weight
+                                            for something nobody reads row-by-row. */}
+                                        <span
+                                            className="font-medium text-xs truncate cursor-pointer hover:underline"
+                                            style={{ color: 'var(--color-text-primary)' }}
+                                            onClick={() => handleEdit(camp.id)}
+                                            title={camp.name}
+                                        >
+                                            {camp.name}
+                                        </span>
                                     </td>
-                                    <td style={{ color: 'var(--color-text-secondary)' }}>{camp.group_name || '-'}</td>
-
-                                    {/* Render dynamic metric cells */}
-                                    {visibleColumns.map((colId) => (
-                                        <td key={colId} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
-                                            {formatMetricCell(colId, camp)}
-                                        </td>
-                                    ))}
-
                                     <td style={{ textAlign: 'right' }}>
                                         <div className="inline-flex items-center justify-end gap-0.5">
                                             {renderQuickActions(camp)}
@@ -1084,12 +1084,21 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                             </button>
                                         </div>
                                     </td>
+                                    <td style={{ color: 'var(--color-text-secondary)' }}>{camp.group_name || '-'}</td>
+
+                                    {/* Render dynamic metric cells */}
+                                    {visibleColumns.map((colId) => (
+                                        <td key={colId} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                                            {formatMetricCell(colId, camp)}
+                                        </td>
+                                    ))}
                                 </tr>
                             ))
                         )}
                     </tbody>
 
-                    {/* Sticky Grand Totals Footer */}
+                    {/* Sticky Grand Totals Footer — cell order mirrors thead:
+                        check, id(Σ), state, name(Totals), actions, group, metrics. */}
                     {visibleCampaigns.length > 0 && (
                         <tfoot>
                             <tr style={{ backgroundColor: 'var(--color-bg-soft)', borderTop: '2px solid var(--color-border)', fontWeight: 700 }}>
@@ -1097,13 +1106,13 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                 <td>Σ</td>
                                 <td></td>
                                 <td>{t('campaignReports.total', 'Totals')} ({visibleCampaigns.length})</td>
+                                <td></td>
                                 <td>-</td>
                                 {visibleColumns.map(colId => (
                                     <td key={colId} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
                                         {formatMetricCell(colId, grandTotals)}
                                     </td>
                                 ))}
-                                <td></td>
                             </tr>
                         </tfoot>
                     )}
@@ -1152,12 +1161,6 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                 title={camp.name}
                             >
                                 {camp.name}
-                            </span>
-                            <span
-                                className="text-[10px] font-mono px-1 rounded border flex-shrink-0"
-                                style={{ color: 'var(--color-text-muted)', borderColor: 'var(--color-border)' }}
-                            >
-                                {camp.alias}
                             </span>
                         </>
                     )}
@@ -1407,17 +1410,11 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                             }}
                             onClick={(event) => event.stopPropagation()}
                         >
-                            <button onClick={() => { setMenuAnchor(null); handleEdit(camp.id); }} className="w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition" style={{ color: 'var(--color-text-primary)' }}>
-                                <Edit3 className="w-3.5 h-3.5" /> {t('common.edit')}
-                            </button>
+                            {/* Trimmed to what the row itself doesn't already do:
+                                the name opens the editor, the Actions icons copy
+                                the link and open the logs. */}
                             <button onClick={() => { setMenuAnchor(null); setActionModal({ type: 'update_costs', campaignId: camp.id }); }} className="w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition" style={{ color: 'var(--color-text-primary)' }}>
                                 <DollarSign className="w-3.5 h-3.5" /> {t('campaigns.updateCosts')}
-                            </button>
-                            <button onClick={() => { setMenuAnchor(null); handleCopyCampaignLink(camp); }} className="w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition" style={{ color: 'var(--color-text-primary)' }}>
-                                <Copy className="w-3.5 h-3.5" /> {t('table.copyLink')}
-                            </button>
-                            <button onClick={() => { setMenuAnchor(null); handleOpenCampaignLink(camp); }} className="w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition" style={{ color: 'var(--color-text-primary)' }}>
-                                <ExternalLink className="w-3.5 h-3.5" /> {t('table.openInNewTab')}
                             </button>
                             <button onClick={() => { setMenuAnchor(null); handleDuplicateCampaign(camp); }} className="w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition" style={{ color: 'var(--color-text-primary)' }}>
                                 <ChevronsUpDown className="w-3.5 h-3.5 rotate-90" /> {t('table.duplicate')}
@@ -1433,6 +1430,29 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                     );
                 })(),
                 document.body
+            )}
+
+            {/* Copy-link feedback: transient toast, layered above the modal
+                ladder (2000) so it reads over any open overlay. */}
+            {copyToast && (
+                <div className="fixed" style={{ bottom: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 2100 }}>
+                    <div
+                        className="flex items-center gap-2 px-3.5 py-2 rounded-xl shadow-2xl text-xs font-medium whitespace-nowrap"
+                        style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)' }}
+                    >
+                        <Check className="w-4 h-4" style={{ color: 'var(--color-success)' }} />
+                        {t('common.copied')}
+                    </div>
+                </div>
+            )}
+
+            {/* URL fallback — only when every clipboard transport failed */}
+            {urlModal && (
+                <CampaignUrlModal
+                    name={urlModal.name}
+                    url={urlModal.url}
+                    onClose={() => setUrlModal(null)}
+                />
             )}
         </div>
     );

@@ -2160,6 +2160,8 @@ export default {
         "noConnection": "No se encontró conexión a la API de Facebook — conecte primero la cuenta publicitaria en la importación de costos",
         "unsupportedNetwork": "Esta red publicitaria aún no es compatible",
         "invalidId": "ID de entidad no válido",
+        "statusDisapproved": "Rechazado",
+        "statusInReview": "En revisión",
         "title": "Cron y automatización",
         "backorderCronTitle": "Pedido pendiente: comprobaciones de dominio programadas",
         "backorderCronDesc": "Las comprobaciones de disponibilidad de dominio se ejecutan mediante un script cron independiente y procesan 1 dominio por ejecución. Aquí puede habilitar/deshabilitar la ejecución y copiar un comando cron listo para usar.",

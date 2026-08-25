@@ -18,7 +18,13 @@ const ConversionsLogModal = ({ campaignId, campaignName, onClose }) => {
 
     return (
         <div className="modal-overlay" style={{ top: '88px', height: 'calc(100vh - 88px)' }}>
-            <div className="modal-content" style={{ maxWidth: '1200px', maxHeight: '100%', overflow: 'auto' }}>
+            {/* overflow stays visible HERE and lives on the conversions
+                table's own wrapper instead: the DateRangePicker panel is
+                position:absolute inside this modal, and any scrolling
+                ancestor clips its Apply/Cancel row out of existence. This
+                is the third ancestor found clipping that popover — the
+                pattern, not a one-off. */}
+            <div className="modal-content" style={{ maxWidth: '1200px', maxHeight: '100%', overflow: 'visible' }}>
                 <div className="flex items-center justify-between mb-4">
                     <div className="min-w-0">
                         <h3 className="modal-title">{t('editor.conversionsLog')}</h3>

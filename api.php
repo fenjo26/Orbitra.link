@@ -1756,6 +1756,37 @@ function orbitraBotListEndpoint($pdo, $table, $column, $payloadKey)
 
 // === REMOTE AD-STATUS SYNC (campaign toggle fan-out) ===
 /**
+ * The Facebook connection that owns an ad-network entity: the one whose cost
+ * records mention its id; without a cost record, an unambiguous single
+ * connected account still works. Shared by the status toggle and the status
+ * read so the two can never disagree about whose token to use.
+ */
+function orbitraResolveFacebookConnectionId(PDO $pdo, string $type, string $entityId): ?int
+{
+    $costIdColumn = [
+        'ad' => 'ad_id',
+        'adset' => 'adset_id',
+        'ad_campaign' => 'source_campaign_id',
+    ][$type] ?? null;
+    if ($costIdColumn === null) {
+        return null;
+    }
+    $stmt = $pdo->prepare("
+        SELECT cr.connection_id FROM cost_records cr
+        JOIN aggregator_connections ac ON ac.id = cr.connection_id
+        WHERE ac.engine = 'facebook' AND ac.is_active = 1
+          AND cr.{$costIdColumn} = ?
+        ORDER BY cr.id DESC LIMIT 1");
+    $stmt->execute([$entityId]);
+    $connId = $stmt->fetchColumn();
+    if ($connId) {
+        return (int) $connId;
+    }
+    $fbIds = $pdo->query("SELECT id FROM aggregator_connections WHERE engine = 'facebook' AND is_active = 1 ORDER BY id LIMIT 2")->fetchAll(PDO::FETCH_COLUMN);
+    return count($fbIds) === 1 ? (int) $fbIds[0] : null;
+}
+
+/**
  * Ad-network entity ids a tracker campaign forwarded traffic from. The network
  * ids live in clicks.parameters_json (captured from the source URL macros).
  * Campaign-level ids win; adset/ad ids are only used when no campaign id was
@@ -6220,28 +6251,9 @@ try {
                 break;
             }
 
-            // Facebook only for now: the connection that owns the entity is
-            // the one whose cost records mention its id; without a cost
-            // record, an unambiguous single connected account still works.
-            $costIdColumn = [
-                'ad' => 'ad_id',
-                'adset' => 'adset_id',
-                'ad_campaign' => 'source_campaign_id',
-            ][$type];
-            $stmt = $pdo->prepare("
-                SELECT cr.connection_id FROM cost_records cr
-                JOIN aggregator_connections ac ON ac.id = cr.connection_id
-                WHERE ac.engine = 'facebook' AND ac.is_active = 1
-                  AND cr.{$costIdColumn} = ?
-                ORDER BY cr.id DESC LIMIT 1");
-            $stmt->execute([$entityId]);
-            $connId = $stmt->fetchColumn();
-            if (!$connId) {
-                $fbIds = $pdo->query("SELECT id FROM aggregator_connections WHERE engine = 'facebook' AND is_active = 1 ORDER BY id LIMIT 2")->fetchAll(PDO::FETCH_COLUMN);
-                if (count($fbIds) === 1) {
-                    $connId = $fbIds[0];
-                }
-            }
+            // Facebook only for now; the shared resolver picks the connection
+            // whose cost records mention the entity (single-account fallback).
+            $connId = orbitraResolveFacebookConnectionId($pdo, $type, $entityId);
             if (!$connId) {
                 echo json_encode(['status' => 'error', 'code' => 'no_connection', 'message' => 'No Facebook API connection found for this entity']);
                 break;
@@ -6261,6 +6273,82 @@ try {
                 echo json_encode(['status' => 'success', 'new_status' => $targetStatus, 'network' => 'facebook']);
             } else {
                 echo json_encode(['status' => 'error', 'message' => $res['message'] ?? 'Failed to update status on Facebook']);
+            }
+            break;
+
+        case 'ad_entity_statuses':
+            // Read side of the report's play-pause toggles: current state of
+            // internal campaigns and ad-network entities. Tracker campaigns
+            // answer from the campaigns table; ad / adset / ad_campaign ids
+            // are read from the network's API. Partial answers are success —
+            // an entity that cannot be resolved simply stays unset and the
+            // toggle keeps its optimistic mark.
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST method required']);
+                break;
+            }
+            $data = json_decode(orbitraRequestBody(), true);
+            if (!is_array($data)) {
+                $data = [];
+            }
+            $items = $data['items'] ?? [];
+            if (!is_array($items) || $items === []) {
+                echo json_encode(['status' => 'error', 'message' => 'items required']);
+                break;
+            }
+
+            $out = [];
+            $trackerIds = [];
+            // Network entity ids grouped by the connection that owns them:
+            // entities from different ad accounts share one read pass per token.
+            $networkByConn = [];
+            try {
+                foreach ($items as $item) {
+                    $type = (string) (($item ?? [])['entity_type'] ?? '');
+                    $entityId = trim((string) (($item ?? [])['entity_id'] ?? ''));
+                    if ($entityId === '' || $entityId === 'Unknown' || !ctype_digit($entityId)) {
+                        continue;
+                    }
+                    if ($type === 'campaign' || $type === 'tracker_campaign') {
+                        $trackerIds[] = $entityId;
+                    } elseif (in_array($type, ['ad', 'adset', 'ad_campaign'], true)) {
+                        $connId = orbitraResolveFacebookConnectionId($pdo, $type, $entityId);
+                        if ($connId) {
+                            $networkByConn[$connId][] = $entityId;
+                        }
+                    }
+                }
+
+                if ($trackerIds) {
+                    $ph = implode(',', array_fill(0, count($trackerIds), '?'));
+                    $stmt = $pdo->prepare("SELECT id, state FROM campaigns WHERE id IN ($ph)");
+                    $stmt->execute($trackerIds);
+                    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                        $st = ($row['state'] ?? '') === 'active' ? 'ACTIVE' : 'PAUSED';
+                        $out[(string) $row['id']] = ['status' => $st, 'effective' => $st];
+                    }
+                }
+
+                if ($networkByConn) {
+                    require_once __DIR__ . '/aggregator_engines/FacebookAdsEngine.php';
+                    $stmt = $pdo->prepare("SELECT credentials_json FROM aggregator_connections WHERE id = ?");
+                    foreach ($networkByConn as $connId => $entityIds) {
+                        $stmt->execute([(int) $connId]);
+                        $credentials = json_decode((string) $stmt->fetchColumn(), true);
+                        if (!is_array($credentials)) {
+                            $credentials = [];
+                        }
+                        foreach (FacebookAdsEngine::fetchEntityStatuses($credentials, $entityIds) as $id => $st) {
+                            $out[(string) $id] = $st;
+                        }
+                    }
+                }
+
+                echo json_encode(['status' => 'success', 'data' => $out]);
+            } catch (\Throwable $e) {
+                // Whatever resolved locally is still better than nothing; the
+                // failure itself has already left a trace in the engine log.
+                echo json_encode(['status' => 'success', 'data' => $out]);
             }
             break;
 

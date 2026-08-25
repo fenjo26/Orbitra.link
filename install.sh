@@ -338,6 +338,16 @@ rm -f /etc/nginx/sites-enabled/default
 sed -i "s/upload_max_filesize = .*/upload_max_filesize = 256M/" /etc/php/${PHP_V}/fpm/php.ini
 sed -i "s/post_max_size = .*/post_max_size = 256M/" /etc/php/${PHP_V}/fpm/php.ini
 
+# Application error_log() must actually land somewhere. The stock www.conf
+# ships with `;catch_workers_output = yes` commented out, so every app-level
+# error goes to a discarded stderr — hours of silent-failure diagnosis
+# (dead proxies, unqueued postbacks, deprecated Graph params) trace back to
+# this one line. Enable it in every fpm pool config present.
+for POOL_CONF in /etc/php/${PHP_V}/fpm/pool.d/*.conf; do
+    [ -f "$POOL_CONF" ] || continue
+    sed -i "s/^;[[:space:]]*catch_workers_output[[:space:]]*=.*/catch_workers_output = yes/" "$POOL_CONF"
+done
+
 systemctl restart php${PHP_V}-fpm
 systemctl restart nginx
 
@@ -461,17 +471,19 @@ fi
 
 # Stream rotation auto-optimiser. Recomputes landing/offer rotation weights
 # from report metrics; every stream carries its own re-evaluation interval,
-# and non-due streams are skipped cheaply, so a */5 cadence is safe. Streams
-# without auto enabled never match the prefilter — this is a no-op for them.
+# and non-due streams are skipped cheaply, so a per-minute cadence is safe.
+# Streams without auto enabled never match the prefilter — this is a no-op
+# for them. Every minute (not */5): a stream set to a 5-minute re-check
+# interval must actually be re-checked every 5 minutes.
 echo "  > Scheduling the rotation optimiser..."
 ROTATION_CRON_MARKER="# orbitra-rotation"
 if ! crontab -u www-data -l 2>/dev/null | grep -qF "$ROTATION_CRON_MARKER"; then
     {
         crontab -u www-data -l 2>/dev/null
-        echo "*/5 * * * * php /var/www/orbitra/rotation_optimiser_cron.php >> /var/www/orbitra/var/logs/rotation_optimiser.log 2>&1 $ROTATION_CRON_MARKER"
+        echo "* * * * * php /var/www/orbitra/rotation_optimiser_cron.php >> /var/www/orbitra/var/logs/rotation_optimiser.log 2>&1 $ROTATION_CRON_MARKER"
     } | crontab -u www-data - 2>/dev/null \
-      && echo "  > Optimiser scheduled (every 5 minutes)." \
-      || echo "  > NOTE: could not write the crontab. Add this line manually: */5 * * * * php /var/www/orbitra/rotation_optimiser_cron.php"
+      && echo "  > Optimiser scheduled (every minute)." \
+      || echo "  > NOTE: could not write the crontab. Add this line manually: * * * * * php /var/www/orbitra/rotation_optimiser_cron.php"
 fi
 
 # Outbound postback / CAPI queue worker. Every server-side conversion -- affiliate
