@@ -15,12 +15,32 @@
     href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
   <title>Orbitra.link</title>
-  <script type="module" crossorigin src="/frontend/dist/assets/index-C51dCu2P.js"></script>
-  <link rel="stylesheet" crossorigin href="/frontend/dist/assets/index-BRl5fwSU.css">
+  <script>
+    // Apply the saved theme before first paint so dark themes don't flash
+    // the light default while the bundle parses. Shape-check only — App.jsx
+    // owns the theme list; an unknown id matches no CSS block and React
+    // canonicalizes on mount. 'custom' is skipped: it has no CSS block, its
+    // colors are applied by JS after mount.
+    (function () {
+      try {
+        var m = localStorage.getItem('orbitra_mode');
+        if (m && m !== 'custom' && /^[a-z][a-z0-9-]{0,31}$/.test(m)) {
+          document.documentElement.setAttribute('data-theme', m);
+          document.documentElement.setAttribute('data-mode', m);
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <script type="module" crossorigin src="/frontend/dist/assets/index-CTDJZML3.js"></script>
+  <link rel="stylesheet" crossorigin href="/frontend/dist/assets/index-C2Lfm4Sc.css">
 </head>
 
 <body>
-  <div id="root"></div>
+  <div id="root">
+    <!-- Static placeholder replaced by React on mount; without it nothing
+         paints until the bundle finishes parsing. -->
+    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;color:var(--color-text-muted);opacity:.6">Orbitra.link</div>
+  </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </body>
 

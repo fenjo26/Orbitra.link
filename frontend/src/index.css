@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Vite writes hashed output into ../dist, which Tailwind's automatic source
+   detection would otherwise scan — each build would change what the next
+   build sees, so content hashes never stabilize. Keep dist out of the scan. */
+@source not "../dist";
+
 /* CSS Variables for Theming */
 :root {
   /* Base */
@@ -40,8 +45,10 @@
   --color-success-bg: #d1fae5;
   --color-warning: #f59e0b;
   --color-warning-bg: #fef3c7;
+  --color-warning-border: #fde68a;
   --color-danger: #ef4444;
   --color-danger-bg: #fee2e2;
+  --color-danger-border: #fecaca;
   --color-info: #3b82f6;
   --color-info-bg: #dbeafe;
 

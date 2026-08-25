@@ -7,6 +7,80 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.3.3] — 2026-08-25
+
+Bugfix release porting the portable half of the tester's addendum II. The
+other half of that report (aurora/carbon/terminal/ash/slate-mono themes, the
+neon retune, a 17-theme pre-paint) targeted the tester's own forked theme
+system, which has never been part of this repository and stays out.
+
+### Fixed — build size
+
+- **Production builds shipped unminified.** `build.minify: false` in
+  vite.config.js read like a debugging convenience that was never reverted.
+  `minify: 'esbuild'` ships identical behaviour at 3.16 MB / 891 kB gzipped
+  instead of 5.26 MB / 1.11 MB gzipped. The follow-on chunk-size warning is
+  acknowledged; `manualChunks` vendor splitting was deliberately deferred
+  because it touches import structure.
+- **Rebuilds were not reproducible: content hashes changed on every build.**
+  Tailwind v4's automatic source detection scanned `frontend/dist/` (tracked,
+  so not ignored), so each build's output changed what the next build saw —
+  a control rebuild could never come back clean. `@source not "../dist"` in
+  index.css pins the scan surface; consecutive builds now produce
+  byte-identical assets (and ~0.5 kB less CSS compiled out of build-output
+  strings).
+
+### Fixed — report dimensions
+
+- **`isp` and `asn` were collected but unreachable** — populated clicks
+  columns absent from `$allowed_dimensions` (campaign_report). Added with
+  `NULLIF(..., '')` so unresolved lookups group as Unknown instead of
+  forming a bucket of their own.
+- **Seven dimensions added to the Group By picker**: Campaign Name, AdSet
+  Name, Ad Name, UTM Placement, Source, ISP, ASN. The name/label dimensions
+  resolve through the existing generic `param_*` / `custom_*`
+  parameters_json handler (no backend entry needed); verified live —
+  `param_source` groups real `google` clicks.
+- **The picker's dimension list was the fourth copy of a list that must
+  agree with three others** — label map, i18n map, and a hardcoded inline
+  array that ended at `sub_id_5`; nothing enforced agreement, and a missing
+  entry made the dimension invisible with no error. ReportCustomizerModal
+  now declares a single `REPORT_DIMENSIONS` registry: the picker renders
+  from it and both maps are derived. New labels added to all 7 locales.
+
+### Fixed — panel chrome
+
+- **The login screen ignored the theme system entirely** — a hardcoded gray
+  gradient page, white card, indigo accents and slate borders meant the
+  first screen of the product was a white rectangle on dark themes. Rebuilt
+  on `--color-*` tokens across all 12 modes; the fake terminal in the
+  password-recovery modal stays dark by design. `:root` also gained the
+  missing `--color-warning-border` / `--color-danger-border` (light
+  palettes inherited nothing before).
+- **Dark themes flashed the light default on every cold load** — the
+  attribute was only set once App.jsx's theme effect ran. index.html now
+  applies the saved theme before first paint with a shape-checked inline
+  script (no duplicated allowlist: an unknown id matches no CSS block and
+  React canonicalizes on mount; `custom` is skipped), and paints a static
+  splash inside `#root` that React replaces on mount.
+- **Update and worker-health banners hardcoded six amber Tailwind classes**
+  — unreadable on dark themes despite the warning tokens existing in every
+  theme block. Both banners use the tokens now, banner text uses text
+  tokens (the icon carries the signal), and the clickable area gained a
+  keyboard path (role/tabIndex/Enter/Space).
+- **Update dismissal never persisted** — the ✕ was component state only,
+  so the banner returned on every reload. It now writes
+  `orbitra_update_dismissed` with the version it dismissed, and the
+  `check_update` response compares against `latest_version`: dismissing
+  1.3.3 silences 1.3.3; 1.3.4 appears normally.
+- **Boot and loading states hardcoded `bg-gray-900` / `border-blue-600`** —
+  the boot screen drops its own background (inherits the themed body) and
+  both spinners use the primary token.
+- **Closing the report overlay left the campaign selection armed** —
+  CampaignReports is rendered by Campaigns.jsx, so the list never unmounted
+  and "Delete selected (1)" stayed live against rows scrolled out of view.
+  `onClose` clears the selection now.
+
 ## [1.3.2] — 2026-08-25
 
 Bugfix release ported from the tester's verified live install (the 13-item

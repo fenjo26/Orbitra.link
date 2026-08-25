@@ -1372,7 +1372,13 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                 <CampaignReports
                     campaignId={reportTargetCampaign ? reportTargetCampaign.id : null}
                     campaignName={reportTargetCampaign ? reportTargetCampaign.name : null}
-                    onClose={() => setShowGlobalReports(false)}
+                    onClose={() => {
+                        setShowGlobalReports(false);
+                        // The overlay hides the selection it was opened from;
+                        // leaving it armed keeps "Delete selected" aimed at
+                        // rows scrolled out of view.
+                        setSelectedCampaignIds(new Set());
+                    }}
                 />
             )}
 

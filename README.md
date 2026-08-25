@@ -1,4 +1,4 @@
-# Orbitra v1.3.2 Tracker
+# Orbitra v1.3.3 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,32 +11,29 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.3.2
+## 🆕 What's New in v1.3.3
 
-Ported from the tester's verified live install (13-item audit addendum).
+The portable half of the tester's addendum II — the rest of that report targeted his own forked theme system, which has never been part of this repository.
 
 ### Fixed
 
-- **▶️ The report's play-pause toggles read real ad state** — a new `ad_entity_statuses` endpoint answers internal campaigns from the DB and ad/adset/ad-campaign ids from the Graph API, one request per id: Graph v26 removed the `?ids=` batch parameter (and enforces v26 behaviour regardless of the requested version), and the silent failure made every row render ACTIVE. Failed reads leave an `error_log` line; the frontend merge lets the server win (only in-flight toggles keep their optimistic mark), so a pause survives reopening the report; rows badge **Disapproved / In review** states the tree cannot show
-- **🔌 IPv4 pinned on every aggregator Graph call** — the engine had missed the earlier CAPI fix (`httpGet` + `updateEntityStatus`)
-- **🧹 Landings' saved metric columns get the Offers guard** — entity field ids no longer leak into the customizer list
-- **🧱 Campaigns table correctness** — the colgroup matches render order (a desync drew every later column at a neighbour's width, silently); Actions moved to fifth position next to the name; the six fixed columns are locked with stale stored widths purged; sort chevrons hidden on ID/Status/Group; alias chips and the row menu's duplicated entries removed
-- **📋 Copy-link without `window.alert()`** — silent copy + transient toast, with a theme-aware URL modal as the fallback when every clipboard transport fails; Postback Settings, Feedback and MCP copy through `utils/clipboard` so plain-HTTP panels stop failing silently
-- **📅 Conversions Log no longer clips the date picker** — Apply/Cancel and the timezone select are reachable (scroll moved onto the table's own wrapper); the tz chip no longer wraps mid-date
-
-### Operations
-
-- **🪵 `install.sh` enables php-fpm `catch_workers_output`** — application `error_log()` output was being discarded with the stock pool config; **⏱️ the rotation optimiser cron runs every minute** so 5-minute re-check intervals mean 5 minutes
+- **📦 Production builds minified again** — `minify: 'esbuild'`: the JS bundle drops from 5.26 MB to 3.16 MB (891 kB gzipped) with identical behaviour; a debugging convenience was shipping to every install. Rebuilds are also reproducible again: Tailwind's source detection was scanning `dist/` itself, so every rebuild changed the next build's hashes (`@source not "../dist"`)
+- **📊 Seven new report dimensions + isp/asn group-by** — Campaign Name, AdSet Name, Ad Name, UTM Placement, Source, ISP and ASN join the Group By picker; `NULLIF` buckets unresolved ISP/ASN lookups as Unknown, and `param_*` names resolve through the existing generic `parameters_json` handler. The picker, the label map and the i18n keys are now derived from a single `REPORT_DIMENSIONS` registry — previously four lists had to agree and three of them failed silently. Labels shipped in all 7 locales
+- **🎨 The login screen follows the theme system** — hardcoded gray/indigo/white replaced with tokens across all 12 modes; the fake terminal in the recovery modal stays dark by design
+- **🌗 No light-theme flash on cold load** — `index.html` applies the saved theme before first paint (shape-checked inline script, no duplicated allowlist) and paints a splash inside `#root` until React mounts
+- **🟡 Update & worker-health banners on warning tokens** — readable on dark themes; the update dismissal is version-scoped and survives reloads (dismissing 1.3.3 silences 1.3.3, not 1.3.4); the clickable area got a keyboard path
+- **🖱️ Closing a report clears the armed campaign selection** — "Delete selected" can no longer stay live against rows scrolled out of view
+- **⏳ Boot/loading spinners use the primary token** — the boot screen drops its hardcoded `bg-gray-900` and inherits the themed body
 
 ### Changed
 
-- **`floor_pct` left the optimiser conditions UI** (its default still applies; saved configs unchanged)
+- **`:root` gains `--color-warning-border` / `--color-danger-border`** — light palettes inherited nothing before
 
-### Previous Highlights (v1.3.1)
+### Previous Highlights (v1.3.2)
 
-- 💸 **Cost matches the ad account's timezone** (a non-UTC account reconciles to zero unmatched for the first time); 🧣 **safe-page clicks excluded from cost and `campaign_report`**; 📤 **CAPI silent drops gone** (skipped conversions log, IPv4 pins, queue worker scheduled by `install.sh`); 🕐 **one shared timezone store** across every view; 🩺 **worker-health banner**; 🪟 modals above the navbar; 🖱️ column widths persist through Chrome's pointer race; 🔃 sortable Landings headers via the shared `SortableTh` module
+- ▶️ **Report play-pause toggles read real ad state** (`ad_entity_statuses`, per-id Graph v26 reads, Disapproved/In review badges); 🔌 IPv4 pinned on every aggregator Graph call; 🧱 Campaigns colgroup/render sync with six locked fixed columns; 📋 copy-link toast + URL modal fallback with `utils/clipboard` everywhere; 📅 Conversions Log date picker unclipped; 🪵 `install.sh` enables php-fpm `catch_workers_output` + an every-minute optimiser cron
 
-Older releases (v1.3.0 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.3.1 and earlier): see the [full changelog](CHANGELOG.md).
 
 ## 🖥 Live Demo
 

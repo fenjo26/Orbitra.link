@@ -3640,7 +3640,14 @@ export default {
         "subId2": "Sub ID 2",
         "subId3": "Sub ID 3",
         "subId4": "Sub ID 4",
-        "subId5": "Sub ID 5"
+        "subId5": "Sub ID 5",
+        "campaignName": "广告系列名称",
+        "adsetName": "广告组名称",
+        "adName": "广告名称",
+        "utmPlacement": "UTM 版位",
+        "paramSource": "来源",
+        "isp": "ISP 运营商",
+        "asn": "ASN"
     },
     pwa: {
         "updateAvailable": "新版本可用",

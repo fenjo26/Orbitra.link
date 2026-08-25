@@ -76,24 +76,24 @@ const Login = ({ onLogin }) => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-[var(--color-bg-main)] flex items-center justify-center p-4">
             <div className="w-full max-w-md">
                 {/* Logo */}
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-white flex justify-center items-center">
-                        <span className="text-indigo-500 mr-1">Orbitra</span>.link
+                    <h1 className="text-3xl font-bold text-[var(--color-text-primary)] flex justify-center items-center">
+                        <span className="text-[var(--color-primary)] mr-1">Orbitra</span>.link
                     </h1>
-                    <p className="text-slate-400 mt-2">{t('login.subtitle')}</p>
+                    <p className="text-[var(--color-text-secondary)] mt-2">{t('login.subtitle')}</p>
                 </div>
 
                 {/* Login Form */}
-                <div className="bg-white rounded-xl shadow-2xl p-8">
+                <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-xl shadow-2xl p-8">
                     <h2 className="text-xl font-semibold text-[var(--color-text-primary)] mb-6 text-center">
                         {t('login.title')}
                     </h2>
 
                     {error && (
-                        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-4 text-sm flex items-center gap-2">
+                        <div className="bg-[var(--color-danger-bg)] border border-[var(--color-danger-border)] text-[var(--color-danger)] px-4 py-3 rounded-lg mb-4 text-sm flex items-center gap-2">
                             <AlertCircle size={16} />
                             {error}
                         </div>
@@ -103,11 +103,11 @@ const Login = ({ onLogin }) => {
                         <div className="space-y-4">
                             {/* Username */}
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">
+                                <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
                                     {t('login.usernameLabel')}
                                 </label>
                                 <div className="relative">
-                                    <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" />
+                                    <User className="absolute left-3 top-2.5 h-5 w-5 text-[var(--color-text-muted)] pointer-events-none" />
                                     <input
                                         ref={usernameRef}
                                         type="text"
@@ -122,7 +122,7 @@ const Login = ({ onLogin }) => {
                                         onFocus={() => setUsernameReady(true)}
                                         onMouseDown={() => setUsernameReady(true)}
                                         onChange={(e) => setUsername(e.target.value)}
-                                        className="w-full !pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg transition-all placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                        className="w-full !pl-10 pr-4 py-2.5 border border-[var(--color-border)] rounded-lg transition-all placeholder:text-[var(--color-text-muted)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
                                         placeholder={t('login.usernamePlaceholder')}
                                     />
                                 </div>
@@ -130,11 +130,11 @@ const Login = ({ onLogin }) => {
 
                             {/* Password */}
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">
+                                <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
                                     {t('login.passwordLabel')}
                                 </label>
                                 <div className="relative">
-                                    <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" />
+                                    <Lock className="absolute left-3 top-2.5 h-5 w-5 text-[var(--color-text-muted)] pointer-events-none" />
                                     <input
                                         ref={passwordRef}
                                         type={showPassword ? 'text' : 'password'}
@@ -149,13 +149,13 @@ const Login = ({ onLogin }) => {
                                         onFocus={() => setPasswordReady(true)}
                                         onMouseDown={() => setPasswordReady(true)}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="w-full !pl-10 !pr-10 py-2.5 border border-slate-300 rounded-lg transition-all placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                        className="w-full !pl-10 !pr-10 py-2.5 border border-[var(--color-border)] rounded-lg transition-all placeholder:text-[var(--color-text-muted)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
                                         placeholder={t('login.passwordPlaceholder')}
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] focus:outline-none"
                                     >
                                         {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                     </button>
@@ -166,7 +166,7 @@ const Login = ({ onLogin }) => {
                             <div className="flex items-center justify-between">
                                 <label className="flex items-center">
                                     <input type="checkbox" className="w-4 h-4 accent-[var(--color-primary)] border-[var(--color-border)] rounded focus:ring-[var(--color-primary)]" />
-                                    <span className="ml-2 text-sm text-gray-600">{t('login.rememberMe')}</span>
+                                    <span className="ml-2 text-sm text-[var(--color-text-secondary)]">{t('login.rememberMe')}</span>
                                 </label>
                                 <button
                                     type="button"
@@ -181,11 +181,11 @@ const Login = ({ onLogin }) => {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full py-2.5 bg-[var(--color-primary)] text-[var(--color-text-inverse)] rounded-lg hover:bg-[color-mix(in_srgb,var(--color-primary)_85%,black)] transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {loading ? (
                                     <span className="flex items-center justify-center">
-                                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[var(--color-text-inverse)] mr-2"></div>
                                         {t('login.loggingIn')}
                                     </span>
                                 ) : t('login.loginButton')}
@@ -195,7 +195,7 @@ const Login = ({ onLogin }) => {
                 </div>
 
                 {/* Footer */}
-                <p className="text-center text-slate-500 text-sm mt-6">
+                <p className="text-center text-[var(--color-text-secondary)] text-sm mt-6">
                     © 2026 Orbitra.link. {t('login.allRightsReserved')}
                 </p>
             </div>
@@ -203,19 +203,19 @@ const Login = ({ onLogin }) => {
             {/* Password Recovery Modal */}
             {showRecoveryModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6">
+                    <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-xl shadow-2xl w-full max-w-md p-6">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">{t('login.recoveryTitle')}</h3>
                             <button
                                 onClick={() => setShowRecoveryModal(false)}
-                                className="text-gray-400 hover:text-gray-600"
+                                className="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
                             >
                                 <X size={20} />
                             </button>
                         </div>
 
                         <div className="space-y-4">
-                            <p className="text-gray-600 text-sm">
+                            <p className="text-[var(--color-text-secondary)] text-sm">
                                 {t('login.recoveryInstruction')}
                             </p>
 
@@ -229,16 +229,16 @@ const Login = ({ onLogin }) => {
                                 </code>
                             </div>
 
-                            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                                <p className="text-amber-800 text-xs">
+                            <div className="bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] rounded-lg p-3">
+                                <p className="text-[var(--color-text-primary)] text-xs">
                                     <strong>{t('login.alternativeSqLite')}</strong>
                                 </p>
-                                <code className="text-amber-700 text-xs block mt-1 overflow-x-auto whitespace-nowrap">
+                                <code className="text-[var(--color-text-primary)] text-xs block mt-1 overflow-x-auto whitespace-nowrap">
                                     {t('login.cliSqlite')}
                                 </code>
                             </div>
 
-                            <p className="text-gray-500 text-xs">
+                            <p className="text-[var(--color-text-secondary)] text-xs">
                                 {t('login.recoveryFooter')}
                             </p>
                         </div>

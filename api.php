@@ -10713,6 +10713,10 @@ try {
                 'os'             => 'clicks.os',
                 'browser'        => 'clicks.browser',
                 'language'       => 'clicks.language',
+                // Network attribution. NULLIF keeps empty strings (unresolved
+                // lookups) out of a bucket of their own — they group as Unknown.
+                'isp'            => "NULLIF(clicks.isp, '')",
+                'asn'            => "NULLIF(clicks.asn, '')",
                 'stream_id'      => 'clicks.stream_id',
                 'source_id'      => 'clicks.source_id',
                 'offer_id'       => 'clicks.offer_id',

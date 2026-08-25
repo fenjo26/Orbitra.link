@@ -18,7 +18,7 @@ export default defineConfig({
     react(),
   ],
   build: {
-    minify: false,
+    minify: 'esbuild',
     // Content-hashed filenames (Vite's default [name]-[hash] pattern): a
     // rebuild changes the URL, so browsers pick a new release up on a normal
     // reload. admin.php resolves the entry through .vite/manifest.json —

@@ -96,70 +96,61 @@ export const getReportMetricTooltip = (metric, t) => {
     if (!metric) return '';
     return metric.hintKey ? t(`metrics.${metric.hintKey}`, metric.hint || metric.label) : metric.label;
 };
-export const REPORT_DIMENSION_LABELS = {
-    // Tracker entities
-    campaign_id: 'Campaign',
-    stream_id: 'Stream',
-    landing_id: 'Landing Page',
-    offer_id: 'Offer',
-    source_id: 'Traffic Source',
-
-    // Geography and devices
-    country: 'Country',
-    region: 'Region',
-    city: 'City',
-    device_type: 'Device Type',
-    os: 'Operating System',
-    browser: 'Browser',
-    language: 'Language',
+// Single source of truth for report dimensions: the picker grid, the label
+// map and the i18n map are all derived from this list. To expose a new
+// dimension: add it here, add its SQL expression to $allowed_dimensions in
+// api.php (campaign_report), and its label to the "dimensions" section of
+// all 7 locale files — nothing else. Order below is the picker order.
+// isp/asn are real clicks columns; param_* names resolve through the generic
+// parameters_json handler in the same api.php block (no backend entry needed).
+const REPORT_DIMENSIONS = [
+    // Geography, devices and network
+    { id: 'country', label: 'Country', i18n: 'country' },
+    { id: 'city', label: 'City', i18n: 'city' },
+    { id: 'region', label: 'Region', i18n: 'region' },
+    { id: 'device_type', label: 'Device Type', i18n: 'deviceType' },
+    { id: 'os', label: 'Operating System', i18n: 'os' },
+    { id: 'browser', label: 'Browser', i18n: 'browser' },
+    { id: 'language', label: 'Language', i18n: 'language' },
+    { id: 'isp', label: 'ISP', i18n: 'isp' },
+    { id: 'asn', label: 'ASN', i18n: 'asn' },
 
     // Time
-    day: 'Date (Day)',
-    hour: 'Hour',
+    { id: 'day', label: 'Date (Day)', i18n: 'day' },
+    { id: 'hour', label: 'Hour', i18n: 'hour' },
+
+    // Tracker entities
+    { id: 'campaign_id', label: 'Campaign', i18n: 'campaign' },
+    { id: 'source_id', label: 'Traffic Source', i18n: 'source' },
+    { id: 'stream_id', label: 'Stream', i18n: 'stream' },
+    { id: 'landing_id', label: 'Landing Page', i18n: 'landing' },
+    { id: 'offer_id', label: 'Offer', i18n: 'offer' },
 
     // Ad parameters
-    ad_campaign_id: 'Ad Campaign ID',
-    adset_id: 'AdSet ID',
-    ad_id: 'Ad ID',
-    keyword: 'Keyword',
-    creative_id: 'Creative ID',
-    external_id: 'External ID',
+    { id: 'ad_campaign_id', label: 'Ad Campaign ID', i18n: 'adCampaignId' },
+    { id: 'adset_id', label: 'AdSet ID', i18n: 'adsetId' },
+    { id: 'ad_id', label: 'Ad ID', i18n: 'adId' },
+    { id: 'keyword', label: 'Keyword', i18n: 'keyword' },
+    { id: 'creative_id', label: 'Creative ID', i18n: 'creativeId' },
+    { id: 'external_id', label: 'External ID', i18n: 'externalId' },
+
+    // Human-readable names and labels from parameters_json
+    { id: 'param_campaign_name', label: 'Campaign Name', i18n: 'campaignName' },
+    { id: 'param_adset_name', label: 'AdSet Name', i18n: 'adsetName' },
+    { id: 'param_ad_name', label: 'Ad Name', i18n: 'adName' },
+    { id: 'param_utm_placement', label: 'UTM Placement', i18n: 'utmPlacement' },
+    { id: 'param_source', label: 'Source', i18n: 'paramSource' },
 
     // SubIDs
-    sub_id_1: 'Sub ID 1',
-    sub_id_2: 'Sub ID 2',
-    sub_id_3: 'Sub ID 3',
-    sub_id_4: 'Sub ID 4',
-    sub_id_5: 'Sub ID 5'
-};
+    { id: 'sub_id_1', label: 'Sub ID 1', i18n: 'subId1' },
+    { id: 'sub_id_2', label: 'Sub ID 2', i18n: 'subId2' },
+    { id: 'sub_id_3', label: 'Sub ID 3', i18n: 'subId3' },
+    { id: 'sub_id_4', label: 'Sub ID 4', i18n: 'subId4' },
+    { id: 'sub_id_5', label: 'Sub ID 5', i18n: 'subId5' }
+];
 
-const DIMENSION_I18N_KEYS = {
-    campaign_id: 'campaign',
-    stream_id: 'stream',
-    landing_id: 'landing',
-    offer_id: 'offer',
-    source_id: 'source',
-    country: 'country',
-    region: 'region',
-    city: 'city',
-    device_type: 'deviceType',
-    os: 'os',
-    browser: 'browser',
-    language: 'language',
-    day: 'day',
-    hour: 'hour',
-    ad_campaign_id: 'adCampaignId',
-    adset_id: 'adsetId',
-    ad_id: 'adId',
-    keyword: 'keyword',
-    creative_id: 'creativeId',
-    external_id: 'externalId',
-    sub_id_1: 'subId1',
-    sub_id_2: 'subId2',
-    sub_id_3: 'subId3',
-    sub_id_4: 'subId4',
-    sub_id_5: 'subId5'
-};
+export const REPORT_DIMENSION_LABELS = Object.fromEntries(REPORT_DIMENSIONS.map(d => [d.id, d.label]));
+const DIMENSION_I18N_KEYS = Object.fromEntries(REPORT_DIMENSIONS.map(d => [d.id, d.i18n]));
 
 export const getDimensionLabel = (dim, t) => {
     if (!dim) return '';
@@ -1202,12 +1193,7 @@ const ReportCustomizerModal = ({
                         )}
 
                         <div className="grid grid-cols-2 gap-2">
-                            {[
-                                'country', 'city', 'region', 'device_type', 'os', 'browser', 'language',
-                                'day', 'hour', 'campaign_id', 'source_id', 'stream_id', 'landing_id', 'offer_id',
-                                'ad_campaign_id', 'adset_id', 'ad_id', 'keyword', 'creative_id', 'external_id',
-                                'sub_id_1', 'sub_id_2', 'sub_id_3', 'sub_id_4', 'sub_id_5'
-                            ].map((dim) => {
+                            {REPORT_DIMENSIONS.map(({ id: dim }) => {
                                 const isChosen = layers.includes(dim);
                                 const layerIndex = layers.indexOf(dim);
 

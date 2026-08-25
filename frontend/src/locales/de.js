@@ -3640,7 +3640,14 @@ export default {
         "subId2": "Sub-ID 2",
         "subId3": "Sub-ID 3",
         "subId4": "Sub-ID 4",
-        "subId5": "Sub-ID 5"
+        "subId5": "Sub-ID 5",
+        "campaignName": "Kampagnenname",
+        "adsetName": "Anzeigengruppenname",
+        "adName": "Anzeigename",
+        "utmPlacement": "UTM-Platzierung",
+        "paramSource": "Quelle",
+        "isp": "ISP",
+        "asn": "ASN"
     },
     pwa: {
         "updateAvailable": "Neue Version verfügbar",

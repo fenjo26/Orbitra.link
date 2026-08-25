@@ -390,6 +390,8 @@ function App() {
       try {
         const res = await axios.get(`${API_URL}?action=check_update`);
         if (res.data.status === 'success' && res.data.data.update_available) {
+          // Version-scoped dismissal: silencing 1.3.x must not silence 1.3.y
+          setDismissUpdate(localStorage.getItem('orbitra_update_dismissed') === res.data.data.latest_version);
           setUpdateAvailable(res.data.data);
         }
       } catch (e) {
@@ -474,8 +476,8 @@ function App() {
   // Show loading while checking setup
   if (needsSetup === null) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--color-primary)]"></div>
       </div>
     );
   }
@@ -495,7 +497,7 @@ function App() {
       <main className="pt-32 px-4 md:px-6 w-full mx-auto">
         {loading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--color-primary)]"></div>
           </div>
         ) : (
           <>
@@ -528,33 +530,48 @@ function App() {
 
             {/* Update Available Banner */}
             {updateAvailable && !dismissUpdate && (
-              <div className="mb-4 bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('admin_update')}>
-                  <AlertCircle className="w-6 h-6 text-amber-600" />
+              <div className="mb-4 bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] rounded-lg p-4 flex items-center justify-between">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setActiveTab('admin_update')}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setActiveTab('admin_update');
+                    }
+                  }}
+                  className="flex items-center gap-3 cursor-pointer"
+                >
+                  <AlertCircle className="w-6 h-6 text-[var(--color-warning)]" />
                   <div>
-                    <span className="font-medium text-amber-800">{t('app.updateAvailable')}</span>
-                    <span className="text-amber-700 ml-2">{t('app.updateDesc').replace('{version}', updateAvailable.latest_version)}</span>
+                    <span className="font-medium text-[var(--color-text-primary)]">{t('app.updateAvailable')}</span>
+                    <span className="text-[var(--color-text-secondary)] ml-2">{t('app.updateDesc').replace('{version}', updateAvailable.latest_version)}</span>
                   </div>
                 </div>
                 <button
-                  onClick={() => setDismissUpdate(true)}
-                  className="p-1 hover:bg-amber-100 rounded"
+                  onClick={() => {
+                    setDismissUpdate(true);
+                    localStorage.setItem('orbitra_update_dismissed', updateAvailable.latest_version || '');
+                  }}
+                  aria-label={t('common.close')}
+                  className="p-1 hover:bg-[var(--color-bg-hover)] rounded"
                 >
-                  <X className="w-5 h-5 text-amber-600" />
+                  <X className="w-5 h-5 text-[var(--color-warning)]" />
                 </button>
               </div>
             )}
 
             {/* Background worker warnings — see worker_health in api.php */}
             {workerHealth && !workerHealth.healthy && !dismissWorkerHealth && (
-              <div className="mb-4 bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start justify-between gap-3">
+              <div className="mb-4 bg-[var(--color-warning-bg)] border border-[var(--color-warning-border)] rounded-lg p-4 flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
-                  <AlertCircle className="w-6 h-6 text-amber-600 flex-shrink-0" />
+                  <AlertCircle className="w-6 h-6 text-[var(--color-warning)] flex-shrink-0" />
                   <div>
-                    <span className="font-medium text-amber-800">{t('workerHealth.title')}</span>
+                    <span className="font-medium text-[var(--color-text-primary)]">{t('workerHealth.title')}</span>
                     <ul className="mt-1 space-y-0.5">
                       {workerHealth.issues.map((issue, i) => (
-                        <li key={i} className="text-amber-700 text-sm">
+                        <li key={i} className="text-[var(--color-text-secondary)] text-sm">
                           {t(`workerHealth.${issue.key}`)
                             .replace('{count}', issue.count ?? 0)
                             .replace('{minutes}', issue.minutes ?? 0)
@@ -566,9 +583,10 @@ function App() {
                 </div>
                 <button
                   onClick={() => setDismissWorkerHealth(true)}
-                  className="p-1 hover:bg-amber-100 rounded flex-shrink-0"
+                  aria-label={t('common.close')}
+                  className="p-1 hover:bg-[var(--color-bg-hover)] rounded flex-shrink-0"
                 >
-                  <X className="w-5 h-5 text-amber-600" />
+                  <X className="w-5 h-5 text-[var(--color-warning)]" />
                 </button>
               </div>
             )}
