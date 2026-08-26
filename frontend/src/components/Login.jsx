@@ -69,7 +69,7 @@ const Login = ({ onLogin }) => {
                 setError(data.message || t('login.invalidStatus'));
             }
         } catch (err) {
-            setError(t('common.networkError'));
+            setError((err?.message ? String(err.message) : t('common.networkError')));
         } finally {
             setLoading(false);
         }

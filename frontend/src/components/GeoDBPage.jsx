@@ -88,7 +88,7 @@ const GeoDBPage = () => {
                 setUpdateProgress(prev => ({ ...prev, [id]: { status: 'error', message: data.message } }));
             }
         } catch (e) {
-            setError(t('common.networkError') + ': ' + e.message);
+            setError((e?.message ? String(e.message) : t('common.networkError')) + ': ' + e.message);
             setUpdateProgress(prev => ({ ...prev, [id]: { status: 'error', message: e.message } }));
         }
     };
@@ -117,7 +117,7 @@ const GeoDBPage = () => {
                 setError(data.message || t('geoDb.updateError'));
             }
         } catch (e) {
-            setError(t('common.networkError') + ': ' + e.message);
+            setError((e?.message ? String(e.message) : t('common.networkError')) + ': ' + e.message);
         } finally {
             setUploadLoading(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
@@ -141,7 +141,7 @@ const GeoDBPage = () => {
                 setError(data.message || t('geoDb.keySaveError'));
             }
         } catch (e) {
-            setError(t('common.networkError') + ': ' + e.message);
+            setError((e?.message ? String(e.message) : t('common.networkError')) + ': ' + e.message);
         } finally {
             setSavingKey(false);
         }

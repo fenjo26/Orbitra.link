@@ -131,6 +131,9 @@ class CurrencyRates
         curl_setopt($ch, CURLOPT_TIMEOUT, self::HTTP_TIMEOUT);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 4);
         curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+        // A host with a broken IPv6 route burns the whole timeout budget on a
+        // stalled AAAA connect before IPv4 is ever reached.
+        curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
         $body = curl_exec($ch);
         $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);

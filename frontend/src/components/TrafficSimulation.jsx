@@ -43,7 +43,7 @@ const TrafficSimulation = () => {
                 alert(res.data.message);
             }
         } catch (err) {
-            alert(t('common.networkError') + ': ' + err.message);
+            alert((err?.message ? String(err.message) : t('common.networkError')) + ': ' + err.message);
         } finally {
             setLoading(false);
         }

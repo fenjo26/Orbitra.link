@@ -122,7 +122,7 @@ const ConversionTypesSettings = () => {
                 setMessage({ text: data.message || t('common.error'), type: 'error' });
             }
         } catch (error) {
-            setMessage({ text: t('common.networkError'), type: 'error' });
+            setMessage({ text: (error?.message ? String(error.message) : t('common.networkError')), type: 'error' });
         } finally {
             setSaving(false);
         }
@@ -208,7 +208,7 @@ const ConversionTypesSettings = () => {
                 setMessage({ text: updateData.message || t('common.error'), type: 'error' });
             }
         } catch (error) {
-            setMessage({ text: t('common.networkError'), type: 'error' });
+            setMessage({ text: (error?.message ? String(error.message) : t('common.networkError')), type: 'error' });
         }
     };
 

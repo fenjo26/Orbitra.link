@@ -725,9 +725,13 @@ function orbitraCloudflareCfgForDomain(PDO $pdo, array $domain): array
  * Point a domain's A record at the tracker through Cloudflare. On success (and
  * when the proxy is on) the domain's SSL is served by the CF edge, so its
  * ssl_status becomes 'cloudflare' and certbot leaves it alone.
+ *
+ * $proxiedOverride: the panel's per-domain proxy flag, when the caller is
+ * switching it — parking passes null to use the account's default.
+ *
  * @return array{ok:bool,message:string}
  */
-function orbitraCloudflareSyncDomain(PDO $pdo, array $domain, ?array $cfg = null): array
+function orbitraCloudflareSyncDomain(PDO $pdo, array $domain, ?array $cfg = null, ?bool $proxiedOverride = null): array
 {
     require_once __DIR__ . '/core/CloudflareApi.php';
     // No explicit cfg: the account pinned to the domain wins, then the default
@@ -739,13 +743,14 @@ function orbitraCloudflareSyncDomain(PDO $pdo, array $domain, ?array $cfg = null
     if ($cfg['server_ip'] === '') {
         return ['ok' => false, 'message' => 'Server IP is unknown — set it in the Cloudflare integration'];
     }
+    $proxied = $proxiedOverride ?? (bool) $cfg['proxied'];
 
     $zone = CloudflareApi::findZoneForHost($cfg['token'], (string) $domain['name']);
     if (!$zone) {
         return ['ok' => false, 'message' => 'Zone not found in Cloudflare account'];
     }
 
-    $dns = CloudflareApi::upsertDnsRecord($cfg['token'], $zone, (string) $domain['name'], $cfg['server_ip'], (bool) $cfg['proxied']);
+    $dns = CloudflareApi::upsertDnsRecord($cfg['token'], $zone, (string) $domain['name'], $cfg['server_ip'], $proxied);
     if (!$dns['ok']) {
         return $dns;
     }
@@ -753,7 +758,7 @@ function orbitraCloudflareSyncDomain(PDO $pdo, array $domain, ?array $cfg = null
     // SSL mode of the zone: best-effort — a refused setting must not undo the DNS work.
     CloudflareApi::setSslMode($cfg['token'], (string) $zone['id'], (string) $cfg['ssl_mode']);
 
-    if (!empty($cfg['proxied'])) {
+    if ($proxied) {
         // SSL now comes from the CF edge — take the domain out of the certbot queue.
         try {
             $pdo->prepare("UPDATE domains SET ssl_status = 'cloudflare', ssl_error = NULL WHERE id = ?")->execute([(int) $domain['id']]);
@@ -8437,6 +8442,20 @@ try {
                 try {
                     // EDIT MODE: Update existing domain
                     if ($id) {
+                        // The previous proxy flag, read BEFORE the UPDATE: only an
+                        // actual change should reach Cloudflare, otherwise every save
+                        // of a CF-managed domain fires a needless DNS write.
+                        $prevProxy = null;
+                        try {
+                            $stmtPrev = $pdo->prepare("SELECT cloudflare_proxy FROM domains WHERE id = ?");
+                            $stmtPrev->execute([$id]);
+                            $prevVal = $stmtPrev->fetchColumn();
+                            if ($prevVal !== false) {
+                                $prevProxy = ((int) $prevVal) === 1;
+                            }
+                        } catch (\Throwable $e) {
+                            error_log('save_domain: previous cloudflare_proxy read failed for id ' . $id . ': ' . $e->getMessage());
+                        }
                         $stmt = $pdo->prepare("UPDATE domains SET name=?, index_campaign_id=?, catch_404=?, group_id=?, is_noindex=?, https_only=?, admin_access=?, cloudflare_proxy=?, registrar=?, dns_provider=?, dns_account_id=?, status=?, custom_ssl_cert=?, custom_ssl_key=?, ssl_source=? WHERE id=?");
                         $stmt->execute([$name, $indexCampId, $catch404, $groupId, $isNoindex, $httpsOnly, $adminAccess, $cfProxy, $registrar, $dnsProvider, $dnsAccountId, $domainStatus, $customSslCert, $customSslKey, $sslSource, $id]);
                         logAudit($pdo, 'UPDATE', 'Domain', $id, "Name: $name");
@@ -8462,6 +8481,34 @@ try {
                             $sslQueued = true;
                         }
 
+                        // The proxy toggle must change the record at Cloudflare,
+                        // not only this row. Without this, turning the proxy off
+                        // left the orange cloud in place, the SSL queue's
+                        // pre-flight kept seeing edge IPs (waiting_dns), and the
+                        // next queue run's auto-detect flipped the flag back —
+                        // the toggle appeared dead and self-reverting.
+                        $cfSync = null;
+                        if ($prevProxy !== null && $prevProxy !== ($cfProxy === 1) && strcasecmp($dnsProvider, 'cloudflare') === 0) {
+                            $cfSync = orbitraCloudflareSyncDomain($pdo, [
+                                'id' => $id,
+                                'name' => $name,
+                                'dns_provider' => $dnsProvider,
+                                'dns_account_id' => $dnsAccountId,
+                            ], null, $cfProxy === 1);
+                            if (empty($cfSync['ok'])) {
+                                error_log("save_domain: Cloudflare proxy switch failed for $name: " . ($cfSync['message'] ?? 'unknown error'));
+                            } else {
+                                // The A record just changed target — the cached
+                                // dns_status describes the old resolution and would
+                                // otherwise stick until someone presses Check DNS.
+                                try {
+                                    $pdo->prepare("UPDATE domains SET dns_status = NULL, dns_checked_at = NULL WHERE id = ?")->execute([$id]);
+                                } catch (\Throwable $e) {
+                                    error_log('save_domain: dns cache clear failed for id ' . $id . ': ' . $e->getMessage());
+                                }
+                            }
+                        }
+
                         // Nginx first: the ACME challenge is served from the config
                         // this writes, so issuing a certificate before it exists fails.
                         $nginxResult = updateNginxConfig($pdo);
@@ -8474,6 +8521,9 @@ try {
                         }
 
                         $response = ['status' => 'success', 'nginx' => $nginxResult];
+                        if ($cfSync !== null) {
+                            $response['cloudflare_sync'] = ['ok' => (bool) ($cfSync['ok'] ?? false), 'message' => (string) ($cfSync['message'] ?? '')];
+                        }
                         if ($sslQueued) {
                             $response['ssl'] = 'SSL сертификат устанавливается в фоновом режиме (1-2 минуты)';
                         }

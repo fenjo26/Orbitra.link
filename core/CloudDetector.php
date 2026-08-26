@@ -172,6 +172,9 @@ class CloudDetector
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
         curl_setopt($ch, CURLOPT_HEADER, true);
         curl_setopt($ch, CURLOPT_NOBODY, true);
+        // A host with a broken IPv6 route burns the whole timeout budget on a
+        // stalled AAAA connect before IPv4 is ever reached.
+        curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 
         // Only disable SSL verification in local development environment
         $isLocalEnv = isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'local'

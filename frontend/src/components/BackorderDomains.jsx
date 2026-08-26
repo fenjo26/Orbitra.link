@@ -344,7 +344,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
                 setEditError(res.data.message || t('common.error'));
             }
         } catch (e2) {
-            setEditError(t('common.networkError'));
+            setEditError((e2?.message ? String(e2.message) : t('common.networkError')));
         }
     };
 
@@ -370,7 +370,7 @@ const BackorderDomains = ({ onOpenAutomation = null }) => {
                 setImportError(res.data.message || t('common.error'));
             }
         } catch (e2) {
-            setImportError(t('common.networkError'));
+            setImportError((e2?.message ? String(e2.message) : t('common.networkError')));
         }
     };
 

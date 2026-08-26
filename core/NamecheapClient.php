@@ -65,6 +65,9 @@ class NamecheapClient
             curl_setopt($ch, CURLOPT_TIMEOUT, 25);
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
             curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+            // A host with a broken IPv6 route burns the whole timeout budget on a
+            // stalled AAAA connect before IPv4 is ever reached.
+            curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
             $xml = curl_exec($ch);
             $err = (string) curl_error($ch);
         }

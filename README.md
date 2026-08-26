@@ -1,4 +1,4 @@
-# Orbitra v1.3.3 Tracker
+# Orbitra v1.3.4 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,29 +11,27 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.3.3
+## 🆕 What's New in v1.3.4
 
-The portable half of the tester's addendum II — the rest of that report targeted his own forked theme system, which has never been part of this repository.
+The tester's addendum III — the part targeting this repository (his fork-only dialog component, zone automation and click-spill file stay out).
 
 ### Fixed
 
-- **📦 Production builds minified again** — `minify: 'esbuild'`: the JS bundle drops from 5.26 MB to 3.16 MB (891 kB gzipped) with identical behaviour; a debugging convenience was shipping to every install. Rebuilds are also reproducible again: Tailwind's source detection was scanning `dist/` itself, so every rebuild changed the next build's hashes (`@source not "../dist"`)
-- **📊 Seven new report dimensions + isp/asn group-by** — Campaign Name, AdSet Name, Ad Name, UTM Placement, Source, ISP and ASN join the Group By picker; `NULLIF` buckets unresolved ISP/ASN lookups as Unknown, and `param_*` names resolve through the existing generic `parameters_json` handler. The picker, the label map and the i18n keys are now derived from a single `REPORT_DIMENSIONS` registry — previously four lists had to agree and three of them failed silently. Labels shipped in all 7 locales
-- **🎨 The login screen follows the theme system** — hardcoded gray/indigo/white replaced with tokens across all 12 modes; the fake terminal in the recovery modal stays dark by design
-- **🌗 No light-theme flash on cold load** — `index.html` applies the saved theme before first paint (shape-checked inline script, no duplicated allowlist) and paints a splash inside `#root` until React mounts
-- **🟡 Update & worker-health banners on warning tokens** — readable on dark themes; the update dismissal is version-scoped and survives reloads (dismissing 1.3.3 silences 1.3.3, not 1.3.4); the clickable area got a keyboard path
-- **🖱️ Closing a report clears the armed campaign selection** — "Delete selected" can no longer stay live against rows scrolled out of view
-- **⏳ Boot/loading spinners use the primary token** — the boot screen drops its hardcoded `bg-gray-900` and inherits the themed body
+- **📥 Import from Namecheap works again** — the toolbar button passed the React event as an account id, so the request never left the browser; the handler now guards with a `typeof` check
+- **🔐 Opening and saving a domain no longer resets its SSL configuration** — the edit modal never loaded `ssl_source`/custom-certificate paths, and Save wrote the defaults (including empty cert paths) over the stored values
+- **☁️ The Cloudflare proxy toggle actually switches the DNS record now** — `save_domain` reads the previous flag and calls `upsertDnsRecord()` on a real change, clears the cached DNS status and reports `cloudflare_sync`; before, it rewrote only the database row while the record kept its orange cloud, and the next queue run flipped the flag back
+- **🎛️ `ssl_source` is the single source of truth for the SSL mode** — the Cloudflare button no longer lights up alongside Let's Encrypt, the proxy toggle and the mode buttons keep each other in step, Custom clears the proxy
+- **🛡️ One locked SQLite write no longer aborts the whole hourly SSL queue run** — the Cloudflare auto-detect UPDATE in `orbitraProcessSslQueue()` is wrapped in `try`/`catch`
+- **🔌 IPv4 pinned on the Namecheap / Cloudflare / CloudDetector / currency-rate calls** — matching the ad APIs; a stalled IPv6 connect used to burn the whole timeout budget before IPv4 was tried
+- **🚨 Error messages show the real error** — 38 catch sites across the panel displayed a constant "network error"; all prefer `e.message` now (this is what made the Namecheap bug diagnosable in the first place)
+- **🏷️ Certificate source labelled beside the SSL status icon**; the Domain Management toolbar wraps as a unit and Check DNS is themed like every other control
+- **🌐 A duplicate i18n key (`domains.sslCloudflare`) is split** — the status tooltip silently overrode the SSL Mode button label in all 7 locales; `sslSelfSigned` added
 
-### Changed
+### Previous Highlights (v1.3.3)
 
-- **`:root` gains `--color-warning-border` / `--color-danger-border`** — light palettes inherited nothing before
+- 📦 **Production builds minified again** (5.26 MB → 3.16 MB / 891 kB gzip, byte-reproducible); 📊 seven new report dimensions (Campaign/AdSet/Ad Name, UTM Placement, Source, ISP, ASN) from a single `REPORT_DIMENSIONS` registry; 🎨 themed login screen; 🌗 no light-theme flash on cold load; 🟡 warning-token banners with version-scoped dismissal
 
-### Previous Highlights (v1.3.2)
-
-- ▶️ **Report play-pause toggles read real ad state** (`ad_entity_statuses`, per-id Graph v26 reads, Disapproved/In review badges); 🔌 IPv4 pinned on every aggregator Graph call; 🧱 Campaigns colgroup/render sync with six locked fixed columns; 📋 copy-link toast + URL modal fallback with `utils/clipboard` everywhere; 📅 Conversions Log date picker unclipped; 🪵 `install.sh` enables php-fpm `catch_workers_output` + an every-minute optimiser cron
-
-Older releases (v1.3.1 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.3.2 and earlier): see the [full changelog](CHANGELOG.md).
 
 ## 🖥 Live Demo
 

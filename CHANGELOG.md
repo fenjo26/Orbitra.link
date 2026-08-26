@@ -7,6 +7,88 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.3.4] — 2026-08-26
+
+Bugfix release porting the tester's addendum III — the part of that report
+targeting this repository. His fork-only work (a themed `Dialog` component to
+replace native `alert`/`confirm`, Cloudflare zone automation, the
+`clicks_unsaved.jsonl` spill file) stays out, as do the two host-configuration
+items (`ProtectSystem=full` drop-in, the `ssl-cert` group) which are documented
+in `CERTBOT_SETUP.md` territory, not source.
+
+### Fixed — domains & SSL
+
+- **Import from Namecheap was dead on Domain Management.** The toolbar button
+  wired `onClick={openImport}`, so React passed the `SyntheticEvent` as the
+  account id; the `??` chain accepted it and `JSON.stringify` threw on the
+  circular `__reactFiber$` reference — the request never left the browser and
+  the modal showed a generic network error. The handler now accepts only a
+  real numeric id (`typeof accountId === 'number'`) and falls through to the
+  active account, so future miswiring is inert.
+- **Opening and saving a domain reset its SSL configuration.** The edit modal
+  never loaded `ssl_source`, `custom_ssl_cert` or `custom_ssl_key`, so Save
+  wrote the defaults over the stored values — including wiping custom
+  certificate paths. All three load from the row now (the list API already
+  returns them via `SELECT d.*`).
+- **The Cloudflare proxy toggle changed the tracker's row and nothing else.**
+  `save_domain` never called `CloudflareApi::upsertDnsRecord()`, so turning
+  the proxy off left the orange cloud in place, the SSL queue's pre-flight
+  kept seeing edge IPs (`waiting_dns`), and the next hourly run's
+  auto-detect flipped the flag back — a control that appeared dead and
+  self-reverting. The previous flag is now read *before* the UPDATE and a real
+  change is pushed to Cloudflare through `orbitraCloudflareSyncDomain()`
+  (which gained a `$proxiedOverride` parameter; parking behaviour is
+  unchanged). Success clears the cached `dns_status`/`dns_checked_at` (the A
+  record just changed target) and the response carries `cloudflare_sync`;
+  failure is `error_log()`ed without aborting the save.
+- **The proxy toggle and the SSL Mode buttons contradicted each other.**
+  `ssl_source` is now the single source of truth: the Cloudflare button
+  highlights on `ssl_source` alone (it used to light simultaneously with
+  Let's Encrypt when the proxy was on), every writer keeps both fields in
+  step (proxy on promotes to `cloudflare_origin`, off demotes it back to
+  `auto`, Custom clears the proxy — an origin cert behind the proxy is Full
+  Strict, a different setup), and all writers use booleans instead of a
+  boolean/number mix. On load, an auto-detected proxied domain
+  (`ssl_source = 'auto'`, flag 1) still shows the flag on, so an unchanged
+  save cannot silently flip it.
+- **One locked write aborted the whole hourly SSL queue run.** The
+  Cloudflare auto-detect UPDATE inside `orbitraProcessSslQueue()` ran without
+  error handling, and a single contended SQLite write terminated the cron for
+  every remaining domain. Wrapped in `try`/`catch (\Throwable)` +
+  `error_log()`, matching the treatment the login and Namecheap counters
+  already received.
+- **Certificate source invisible in the SSL Status column.** The source
+  (`letsencrypt` / `cloudflare_origin` / `custom` / `self_signed`) lived only
+  in the icon's `title` attribute; it is now labelled beside the icon for the
+  `cloudflare` and `installed` states.
+- **Domain Management toolbar: labels wrapped mid-word and Check DNS ignored
+  the theme.** The row wraps as a unit (`flex-wrap`) with `whitespace-nowrap`
+  labels, and Check DNS is a `btn-secondary` instead of a hardcoded success
+  fill that outshouted the primary action and broke under theming.
+
+### Fixed — network & diagnostics
+
+- **Namecheap and Cloudflare calls could stall on IPv6.** The tester measured
+  `curl -6` failing outright on his host while `curl -4` succeeded;
+  `CURLOPT_CONNECTTIMEOUT` applies per connection attempt, so a stalled AAAA
+  connect consumed the whole `CURLOPT_TIMEOUT` budget before IPv4 was tried.
+  `CURLOPT_IPRESOLVE_V4` is now set in `NamecheapClient`, `CloudflareApi`,
+  `CloudDetector` and `CurrencyRates`, matching what the ad-API clients
+  already did.
+- **38 catch sites replaced the real error with a constant.** `t('common.networkError')`
+  swallowed `e` at every failure site in the panel, discarding diagnostics the
+  backend goes to real trouble to produce (the Namecheap IP-whitelist hint,
+  HTTP statuses) and hiding client-side exceptions that never touched the
+  network. All sites now prefer `e?.message` with the constant as fallback.
+
+### Fixed — i18n
+
+- **`domains.sslCloudflare` was defined twice in all 7 locales.** The SSL
+  status tooltip (line ~891) silently overrode the SSL Mode button label
+  (line ~837), so the button rendered the long tooltip text in every
+  language. The status key is renamed `sslCloudflareStatus`, and a
+  `sslSelfSigned` label joins the set for the status column.
+
 ## [1.3.3] — 2026-08-25
 
 Bugfix release porting the portable half of the tester's addendum II. The

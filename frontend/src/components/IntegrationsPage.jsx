@@ -839,7 +839,7 @@ const IntegrationsPage = () => {
                 setNcAccMessage('⚠ ' + (res.data.message || t('common.error')));
             }
         } catch (err) {
-            setNcAccMessage('⚠ ' + t('common.networkError'));
+            setNcAccMessage('⚠ ' + (err?.message ? String(err.message) : t('common.networkError')));
         } finally {
             setNcAccBusy(false);
         }
@@ -5374,7 +5374,7 @@ global \$wpdb;
                                                     try {
                                                         const res = await axios.post(`${API_URL}?action=cloudflare_options_save`, { server_ip: cfServerIp });
                                                         setCfMessage(res.data.status === 'success' ? '✓ ' + t('cloudflare.saved', 'Сохранено') : '⚠ ' + (res.data.message || t('common.error')));
-                                                    } catch (err) { setCfMessage('⚠ ' + t('common.networkError')); }
+                                                    } catch (err) { setCfMessage('⚠ ' + (err?.message ? String(err.message) : t('common.networkError'))); }
                                                     finally { setCfBusy(false); }
                                                 }}
                                             >
@@ -5402,7 +5402,7 @@ global \$wpdb;
                                                                 } else {
                                                                     setCfMessage('⚠ ' + (res.data.message || t('common.error')));
                                                                 }
-                                                            } catch (err) { setCfMessage('⚠ ' + t('common.networkError')); }
+                                                            } catch (err) { setCfMessage('⚠ ' + (err?.message ? String(err.message) : t('common.networkError'))); }
                                                             finally { setCfBusy(false); }
                                                         }}
                                                     >
@@ -5457,7 +5457,7 @@ global \$wpdb;
                                                                     setCfZones({ accountId: acc.id, accountName: acc.name, loading: false, zones: [], selected: {}, importing: false, message: res.data.message || t('common.error') });
                                                                 }
                                                             } catch (err) {
-                                                                setCfZones({ accountId: acc.id, accountName: acc.name, loading: false, zones: [], selected: {}, importing: false, message: t('common.networkError') });
+                                                                setCfZones({ accountId: acc.id, accountName: acc.name, loading: false, zones: [], selected: {}, importing: false, message: (err?.message ? String(err.message) : t('common.networkError')) });
                                                             }
                                                         }}
                                                     >
@@ -5478,7 +5478,7 @@ global \$wpdb;
                                                                 } else {
                                                                     setCfMessage('⚠ ' + (res.data.message || t('common.error')));
                                                                 }
-                                                            } catch (err) { setCfMessage('⚠ ' + t('common.networkError')); }
+                                                            } catch (err) { setCfMessage('⚠ ' + (err?.message ? String(err.message) : t('common.networkError'))); }
                                                             finally { setCfBusy(false); }
                                                         }}
                                                     >
@@ -5508,7 +5508,7 @@ global \$wpdb;
                                                                 } else {
                                                                     setCfMessage('⚠ ' + (res.data.message || t('common.error')));
                                                                 }
-                                                            } catch (err) { setCfMessage('⚠ ' + t('common.networkError')); }
+                                                            } catch (err) { setCfMessage('⚠ ' + (err?.message ? String(err.message) : t('common.networkError'))); }
                                                             finally { setCfBusy(false); }
                                                         }}
                                                     >
@@ -5624,7 +5624,7 @@ global \$wpdb;
                                                                     } else {
                                                                         setCfMessage('⚠ ' + (res.data.message || t('common.error')) + (res.data.detail?.error ? `: ${res.data.detail.error}` : ''));
                                                                     }
-                                                                } catch (err) { setCfMessage('⚠ ' + t('common.networkError')); }
+                                                                } catch (err) { setCfMessage('⚠ ' + (err?.message ? String(err.message) : t('common.networkError'))); }
                                                                 finally { setCfBusy(false); }
                                                             }}
                                                         >
@@ -5710,7 +5710,7 @@ global \$wpdb;
                                                                                 setCfZones({ ...cfZones, importing: false, message: res.data.message || t('common.error') });
                                                                             }
                                                                         } catch (err) {
-                                                                            setCfZones({ ...cfZones, importing: false, message: t('common.networkError') });
+                                                                            setCfZones({ ...cfZones, importing: false, message: (err?.message ? String(err.message) : t('common.networkError')) });
                                                                         }
                                                                     }}
                                                                 >

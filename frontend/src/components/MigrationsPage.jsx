@@ -102,7 +102,7 @@ const MigrationsPage = () => {
                 alert(t('common.error') + ': ' + (data.message || t('migrations.runError')));
             }
         } catch (e) {
-            alert(t('common.networkError') + ': ' + e.message);
+            alert((e?.message ? String(e.message) : t('common.networkError')) + ': ' + e.message);
         } finally {
             setActionLoading(null);
         }

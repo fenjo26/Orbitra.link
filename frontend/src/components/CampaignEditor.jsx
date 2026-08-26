@@ -1051,7 +1051,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 setSyncResult(`⚠ ${res.data.message || t('common.error')}`);
             }
         } catch (err) {
-            setSyncResult(`⚠ ${t('common.networkError')}`);
+            setSyncResult(`⚠ ${(err?.message ? String(err.message) : t('common.networkError'))}`);
         } finally {
             setSyncingConnId(null);
         }
@@ -1212,7 +1212,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 alert(`${t('common.error')}: ${res.data.message}`);
             }
         } catch (err) {
-            alert(t('common.networkError'));
+            alert((err?.message ? String(err.message) : t('common.networkError')));
         } finally {
             setLoading(false);
         }
@@ -1278,7 +1278,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 alert(`${t('common.error')}: ${res.data.message || 'Unknown error'}`);
             }
         } catch (e) {
-            alert(t('common.networkError'));
+            alert((e?.message ? String(e.message) : t('common.networkError')));
         } finally {
             setTokenBusy(false);
         }
@@ -1321,7 +1321,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             });
             setTrafficSimResult(res.data);
         } catch (e) {
-            setTrafficSimResult({ status: 'error', message: t('common.networkError') });
+            setTrafficSimResult({ status: 'error', message: (e?.message ? String(e.message) : t('common.networkError')) });
         } finally {
             setTrafficSimLoading(false);
         }

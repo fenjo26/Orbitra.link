@@ -190,7 +190,7 @@ const Domains = ({ campaigns }) => {
                 setRegMessage(data.message || t('common.error'));
             }
         } catch (e) {
-            setRegMessage(t('common.networkError'));
+            setRegMessage((e?.message ? String(e.message) : t('common.networkError')));
         } finally {
             setRegChecking(false);
         }
@@ -215,14 +215,17 @@ const Domains = ({ campaigns }) => {
                 setRegMessage(data.message || t('common.error'));
             }
         } catch (e) {
-            setRegMessage(t('common.networkError'));
+            setRegMessage((e?.message ? String(e.message) : t('common.networkError')));
         } finally {
             setRegBuying(false);
         }
     };
 
     const openImport = async (accountId) => {
-        const accId = accountId ?? activeNcAccount?.id ?? null;
+        // onClick passes the SyntheticEvent as the first argument; only a real
+        // numeric account id counts, anything else falls through to the active
+        // account. Guard here (not at call sites) so future miswiring is inert.
+        const accId = (typeof accountId === 'number' ? accountId : null) ?? activeNcAccount?.id ?? null;
         setShowImport(true);
         setNcImport({ loading: true, domains: [], selected: {}, importing: false, message: '', ipHint: '' });
         try {
@@ -245,7 +248,10 @@ const Domains = ({ campaigns }) => {
             fresh.forEach(d => { selected[d] = true; });
             setNcImport({ loading: false, domains: listRes.data.domains || [], selected, importing: false, message: '', ipHint: '' });
         } catch (e) {
-            setNcImport(s => ({ ...s, loading: false, message: t('common.networkError') }));
+            // The backend's diagnostic (whitelist IP hint, HTTP status) dies with
+            // e when it is swallowed — and so does a client-side exception that
+            // never touched the network, which this key used to hide entirely.
+            setNcImport(s => ({ ...s, loading: false, message: e?.message ? String(e.message) : t('common.networkError') }));
         }
     };
 
@@ -276,7 +282,7 @@ const Domains = ({ campaigns }) => {
                 setNcImport(s => ({ ...s, importing: false, message: data.message || t('common.error') }));
             }
         } catch (e) {
-            setNcImport(s => ({ ...s, importing: false, message: t('common.networkError') }));
+            setNcImport(s => ({ ...s, importing: false, message: (e?.message ? String(e.message) : t('common.networkError')) }));
         }
     };
 
@@ -432,6 +438,7 @@ const Domains = ({ campaigns }) => {
     }, []);
 
     const handleEdit = (domain) => {
+        const sslSource = domain.ssl_source || 'auto';
         setFormData({
             id: domain.id,
             name: domain.name,
@@ -441,11 +448,20 @@ const Domains = ({ campaigns }) => {
             is_noindex: domain.is_noindex === 1,
             admin_access: Number(domain.admin_access ?? 1) === 1,
             https_only: domain.https_only === 1,
-            cloudflare_proxy: Number(domain.cloudflare_proxy ?? 0) === 1,
+            // ssl_source is the single source of truth for the SSL mode. The
+            // proxy flag is derived from it on load, but a domain auto-detected
+            // as proxied (ssl_source 'auto', flag 1) must not silently flip to
+            // off just by opening and saving the dialog unchanged.
+            cloudflare_proxy: sslSource === 'cloudflare_origin' || Number(domain.cloudflare_proxy ?? 0) === 1,
             registrar: domain.registrar || '',
             dns_provider: domain.dns_provider || '',
             dns_account_id: domain.dns_account_id || null,
-            status: domain.status || 'OK'
+            status: domain.status || 'OK',
+            // All three must be loaded: Save writes them back, so omitting any
+            // resets the stored SSL configuration to the defaults.
+            ssl_source: sslSource,
+            custom_ssl_cert: domain.custom_ssl_cert || '',
+            custom_ssl_key: domain.custom_ssl_key || ''
         });
         setError('');
         setSaveNotice('');
@@ -525,6 +541,19 @@ const Domains = ({ campaigns }) => {
             // Not ours — Certbot output, shown verbatim.
         }
         return String(raw);
+    };
+
+    // Short certificate-source label for the SSL Status column. The source is
+    // already in the row but lived only in the icon's title attribute — invisible
+    // in screenshots and support conversations. 'auto' has no source to name.
+    const sslSourceShort = (domain) => {
+        switch (domain.ssl_source) {
+            case 'letsencrypt': return t('domains.sslLetsEncrypt', "Let's Encrypt");
+            case 'cloudflare_origin': return t('domains.sslCloudflare', 'Cloudflare');
+            case 'custom': return t('domains.sslCustom', 'Custom');
+            case 'self_signed': return t('domains.sslSelfSigned', 'Self-signed');
+            default: return '';
+        }
     };
 
     const runSslWorker = async () => {
@@ -652,7 +681,7 @@ const Domains = ({ campaigns }) => {
                 setError(res.data.message || t('common.error'));
             }
         } catch (e) {
-            setError(t('common.networkError'));
+            setError((e?.message ? String(e.message) : t('common.networkError')));
         }
     };
 
@@ -679,7 +708,10 @@ const Domains = ({ campaigns }) => {
                     )}
                 </div>
 
-                <div className="flex items-center gap-3">
+                {/* Wraps as a unit on narrow screens; each label stays on one
+                    line — a two-line "Check / DNS" read as clutter, not as two
+                    controls' worth of information. */}
+                <div className="flex flex-wrap items-center gap-3">
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--color-text-secondary)' }} />
                         <input
@@ -707,7 +739,7 @@ const Domains = ({ campaigns }) => {
                         <>
                             <button
                                 onClick={() => setBulkGroupModal(true)}
-                                className="btn btn-secondary flex items-center gap-2"
+                                className="btn btn-secondary flex items-center gap-2 whitespace-nowrap"
                                 title={t('domains.bulkChangeGroupTitle', 'Change group for selected domains')}
                             >
                                 <Folder size={16} />
@@ -715,7 +747,7 @@ const Domains = ({ campaigns }) => {
                             </button>
                             <button
                                 onClick={handleBulkDelete}
-                                className="btn btn-danger flex items-center gap-2"
+                                className="btn btn-danger flex items-center gap-2 whitespace-nowrap"
                                 title={t('domains.bulkDeleteTitle', 'Delete selected domains')}
                             >
                                 <Trash2 size={16} />
@@ -731,15 +763,12 @@ const Domains = ({ campaigns }) => {
                         />
                         <span style={{ color: 'var(--color-text-primary)' }}>{t('domains.ignoreDnsLabel')}</span>
                     </label>
+                    {/* btn-secondary, not a hardcoded success fill: the token
+                        system themes every other control in this row. */}
                     <button
                         onClick={forceCheckAllDns}
                         disabled={forceChecking}
-                        className="btn flex items-center gap-2"
-                        style={{
-                            background: forceChecking ? 'var(--color-bg-soft)' : 'var(--color-success, #10b981)',
-                            color: forceChecking ? 'var(--color-text-muted)' : 'white',
-                            cursor: forceChecking ? 'not-allowed' : 'pointer'
-                        }}
+                        className="btn btn-secondary flex items-center gap-2 whitespace-nowrap"
                         title={t('domains.forceCheckTitle')}
                     >
                         <RefreshCw size={16} className={forceChecking ? 'animate-spin' : ''} />
@@ -748,7 +777,7 @@ const Domains = ({ campaigns }) => {
                     <button
                         onClick={runSslWorker}
                         disabled={sslRunning}
-                        className="btn btn-secondary flex items-center gap-2"
+                        className="btn btn-secondary flex items-center gap-2 whitespace-nowrap"
                         title={t('domains.issueSslTitle')}
                     >
                         <ShieldAlert size={16} className={sslRunning ? 'animate-spin' : ''} />
@@ -756,7 +785,7 @@ const Domains = ({ campaigns }) => {
                     </button>
                     <button
                         onClick={() => setShowGroupsModal(true)}
-                        className="btn btn-secondary flex items-center gap-2"
+                        className="btn btn-secondary flex items-center gap-2 whitespace-nowrap"
                         title={t('domains.groupsTitle', 'Manage domain groups')}
                     >
                         <Folder size={16} />
@@ -766,14 +795,14 @@ const Domains = ({ campaigns }) => {
                         <>
                             <button
                                 onClick={() => { setShowRegister(true); setRegResult(null); setRegMessage(''); }}
-                                className="btn btn-secondary flex items-center gap-2"
+                                className="btn btn-secondary flex items-center gap-2 whitespace-nowrap"
                                 title={t('namecheap.registerHint', 'Купить домен через баланс Namecheap и припарковать его сюда одним кликом')}
                             >
                                 <ShoppingCart size={16} /> {t('namecheap.registerBtn', 'Register Domain')}
                             </button>
                             <button
                                 onClick={openImport}
-                                className="btn btn-secondary flex items-center gap-2"
+                                className="btn btn-secondary flex items-center gap-2 whitespace-nowrap"
                                 title={t('namecheap.importHint', 'Выбрать домены из аккаунта Namecheap и добавить их в трекер')}
                             >
                                 <Download size={16} /> {t('namecheap.importBtn', 'Import from Namecheap')}
@@ -787,7 +816,7 @@ const Domains = ({ campaigns }) => {
                             setSaveNotice('');
                             setShowModal(true);
                         }}
-                        className="btn btn-primary"
+                        className="btn btn-primary whitespace-nowrap"
                     >
                         <Plus size={16} /> {t('domains.addDomain')}
                     </button>
@@ -964,7 +993,10 @@ const Domains = ({ campaigns }) => {
                                             shows as done. The status is also no longer gated on
                                             https_only — every parked domain gets a certificate. */}
                                         {domain.ssl_status === 'cloudflare' ? (
-                                            <Cloud size={16} className="mx-auto" style={{ color: 'var(--color-primary)' }} title={t('domains.sslCloudflare', 'SSL от Cloudflare (проксированный домен)')} />
+                                            <span className="inline-flex items-center gap-1.5" title={t('domains.sslCloudflareStatus', 'SSL от Cloudflare (проксированный домен)')}>
+                                                <Cloud size={16} style={{ color: 'var(--color-primary)' }} />
+                                                <span className="text-xs whitespace-nowrap" style={{ color: 'var(--color-text-muted)' }}>{t('domains.sslCloudflare', 'Cloudflare')}</span>
+                                            </span>
                                         ) : domain.ssl_status === 'installed' && domain.https_active === false ? (
                                             <button
                                                 onClick={() => { setSslErrorDomain(domain); setShowSslErrorModal(true); }}
@@ -975,7 +1007,10 @@ const Domains = ({ campaigns }) => {
                                                 <AlertCircle size={16} className="text-orange-500" />
                                             </button>
                                         ) : domain.ssl_status === 'installed' ? (
-                                            <Check size={16} className="text-green-500 mx-auto" title={t('domains.sslInstalled')} />
+                                            <span className="inline-flex items-center gap-1.5" title={t('domains.sslInstalled')}>
+                                                <Check size={16} className="text-green-500" />
+                                                {sslSourceShort(domain) && <span className="text-xs whitespace-nowrap" style={{ color: 'var(--color-text-muted)' }}>{sslSourceShort(domain)}</span>}
+                                            </span>
                                         ) : domain.ssl_status === 'installing' ? (
                                             <RefreshCw size={16} className="text-blue-500 mx-auto animate-spin" title={t('domains.sslInstalling')} />
                                         ) : domain.ssl_status === 'waiting_dns' ? (
@@ -1232,7 +1267,16 @@ const Domains = ({ campaigns }) => {
                                         <div style={{ width: '120px', flexShrink: 0 }}>
                                             <ToggleGroup
                                                 value={formData.cloudflare_proxy ? 'on' : 'off'}
-                                                onChange={v => setFormData({ ...formData, cloudflare_proxy: v === 'on' })}
+                                                onChange={v => setFormData(f => ({
+                                                    ...f,
+                                                    cloudflare_proxy: v === 'on',
+                                                    // Keep ssl_source in step: proxy on means the
+                                                    // edge serves SSL; proxy off demotes an explicit
+                                                    // Cloudflare choice back to auto.
+                                                    ...(v === 'on'
+                                                        ? { ssl_source: 'cloudflare_origin' }
+                                                        : (f.ssl_source === 'cloudflare_origin' ? { ssl_source: 'auto' } : {}))
+                                                }))}
                                                 options={[
                                                     { value: 'on', label: t('domains.on') },
                                                     { value: 'off', label: t('domains.off') }
@@ -1248,27 +1292,31 @@ const Domains = ({ campaigns }) => {
                                         {t('domains.sslMode', 'SSL Mode')}
                                     </label>
                                     <div className="grid grid-cols-3 gap-2">
+                                        {/* Every writer keeps ssl_source and the proxy flag in
+                                            step — one decision, two stored columns. */}
                                         {/* Let's Encrypt */}
                                         <button
                                             type="button"
                                             className={`btn btn-sm ${formData.ssl_source === 'letsencrypt' ? 'btn-primary' : 'btn-secondary'}`}
-                                            onClick={() => setFormData({ ...formData, ssl_source: 'letsencrypt', cloudflare_proxy: 0 })}
+                                            onClick={() => setFormData({ ...formData, ssl_source: 'letsencrypt', cloudflare_proxy: false })}
                                         >
                                             {t('domains.sslLetsEncrypt', "Let's Encrypt")}
                                         </button>
-                                        {/* Cloudflare */}
+                                        {/* Cloudflare — highlight on ssl_source alone: mixing in
+                                            the proxy flag lit two mutually exclusive modes at once. */}
                                         <button
                                             type="button"
-                                            className={`btn btn-sm ${formData.ssl_source === 'cloudflare_origin' || formData.cloudflare_proxy ? 'btn-primary' : 'btn-secondary'}`}
-                                            onClick={() => setFormData({ ...formData, ssl_source: 'cloudflare_origin', cloudflare_proxy: 1 })}
+                                            className={`btn btn-sm ${formData.ssl_source === 'cloudflare_origin' ? 'btn-primary' : 'btn-secondary'}`}
+                                            onClick={() => setFormData({ ...formData, ssl_source: 'cloudflare_origin', cloudflare_proxy: true })}
                                         >
                                             {t('domains.sslCloudflare', 'Cloudflare')}
                                         </button>
-                                        {/* Custom */}
+                                        {/* Custom — an origin cert must not stay behind the proxy:
+                                            that combination is Full Strict, a different setup. */}
                                         <button
                                             type="button"
                                             className={`btn btn-sm ${formData.ssl_source === 'custom' ? 'btn-primary' : 'btn-secondary'}`}
-                                            onClick={() => setFormData({ ...formData, ssl_source: 'custom' })}
+                                            onClick={() => setFormData({ ...formData, ssl_source: 'custom', cloudflare_proxy: false })}
                                         >
                                             {t('domains.sslCustom', 'Custom')}
                                         </button>

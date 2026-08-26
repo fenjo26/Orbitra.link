@@ -80,7 +80,7 @@ const SetupWizard = ({ onComplete }) => {
                 setError(data.message || t('common.error'));
             }
         } catch (err) {
-            setError(t('common.networkError'));
+            setError((err?.message ? String(err.message) : t('common.networkError')));
         } finally {
             setLoading(false);
         }

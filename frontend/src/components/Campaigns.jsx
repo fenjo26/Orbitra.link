@@ -177,7 +177,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                 alert(res.data.message || t('common.error'));
             }
         } catch (e) {
-            alert(t('common.networkError'));
+            alert((e?.message ? String(e.message) : t('common.networkError')));
         }
     };
 
@@ -823,7 +823,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                 alert(res.data.message);
             }
         } catch (err) {
-            alert(t('common.networkError'));
+            alert((err?.message ? String(err.message) : t('common.networkError')));
         }
     };
 

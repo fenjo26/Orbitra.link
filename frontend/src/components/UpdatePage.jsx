@@ -76,7 +76,7 @@ const UpdatePage = () => {
             }
         } catch (e) {
             setUpdateStep('');
-            setError(t('common.networkError') + ': ' + e.message);
+            setError((e?.message ? String(e.message) : t('common.networkError')) + ': ' + e.message);
         } finally {
             setUpdating(false);
         }

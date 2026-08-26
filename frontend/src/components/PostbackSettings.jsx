@@ -58,7 +58,7 @@ const PostbackSettings = () => {
             }
         } catch (err) {
             console.error('Error fetching settings:', err);
-            setError(t('common.networkError'));
+            setError((err?.message ? String(err.message) : t('common.networkError')));
         } finally {
             setLoading(false);
         }
@@ -76,7 +76,7 @@ const PostbackSettings = () => {
             fetchSettings();
         } catch (err) {
             console.error('Error saving settings:', err);
-            setError(t('common.networkError'));
+            setError((err?.message ? String(err.message) : t('common.networkError')));
         } finally {
             setSaving(false);
         }

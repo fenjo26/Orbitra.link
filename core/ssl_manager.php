@@ -503,9 +503,16 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
         // Auto-detect Cloudflare proxy to avoid Certbot failures
         // Cloudflare-proxied domains resolve to CF IPs and can't validate through the edge
         if (CloudDetector::isCloudflareProxied($domain)) {
-            $pdo->prepare("UPDATE domains SET cloudflare_proxy = 1, ssl_status = 'cloudflare', ssl_error = NULL WHERE id = ?")
-                ->execute([$id]);
-            $result['cloudflare']++;
+            // Bookkeeping only: the domain is proxied whether or not this write
+            // lands, and one contended SQLite write must not abort processing
+            // for every domain after it in the queue run.
+            try {
+                $pdo->prepare("UPDATE domains SET cloudflare_proxy = 1, ssl_status = 'cloudflare', ssl_error = NULL WHERE id = ?")
+                    ->execute([$id]);
+                $result['cloudflare']++;
+            } catch (\Throwable $e) {
+                error_log('SSL queue: cloudflare flag update failed for domain id ' . $id . ' (' . $domain . '): ' . $e->getMessage());
+            }
             continue;
         }
 
