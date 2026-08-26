@@ -1855,13 +1855,64 @@ body.col-resizing * {
     border-radius: 14px !important;
   }
 
+  /* Phones: modals are full-height sheets, not centred dialogs — a floating
+     card left tall forms' footers below the fold and showed the page behind.
+     100dvh, not 100vh: iOS Safari's collapsing toolbar eats a vh footer.
+     safe-area insets need viewport-fit=cover, which index.html sets. */
   .modal-overlay {
-    padding: 56px 8px 8px 8px;
+    padding: 0;
+    align-items: stretch;
+    justify-content: stretch;
   }
 
   .modal-content {
-    border-radius: 14px;
-    padding: 14px;
+    /* !important: several modals carry inline width/padding/borderRadius on
+       .modal-content — a sheet must still be a sheet for them. Scoped to
+       this media block only. */
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+    padding: 14px !important;
+    padding-top: calc(14px + env(safe-area-inset-top)) !important;
+    padding-bottom: calc(14px + env(safe-area-inset-bottom)) !important;
+  }
+
+  /* Report tables: the pinned name column eats a phone's width — scroll the
+     whole table instead. !important overrides the inline sticky styles;
+     the class is applied to exactly the three left-pinned cells. */
+  .report-pinned-name {
+    position: static !important;
+    left: auto !important;
+  }
+
+  /* ConversionsLog filters: auto-fit collapses to one column below the
+     minmax floor; a cell that still spans two overflows the card. */
+  .conversions-filters {
+    grid-template-columns: 1fr !important;
+  }
+
+  .conversions-filters .conversions-search {
+    grid-column: span 1 !important;
+  }
+
+  /* Toolbar controls release their desktop widths so they can share rows
+     instead of stacking one per line. tb-search takes a full row (bigger
+     touch target for the main search field); tb-hide-sm drops labels the
+     icon or context already conveys. */
+  .tb-release {
+    width: auto !important;
+    min-width: 0 !important;
+  }
+
+  .tb-search {
+    width: 100% !important;
+  }
+
+  .tb-hide-sm {
+    display: none !important;
   }
 
   .btn,

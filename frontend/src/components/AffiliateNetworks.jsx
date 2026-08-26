@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Plus, Edit2, Trash2, Copy, ExternalLink, Check, Filter, RefreshCw, Settings2, X } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import AffiliateNetworkEditor from './AffiliateNetworkEditor';
+import MobileCards from './common/MobileCards';
 import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard as copyText } from '../utils/clipboard';
 import { cachedGet, cachedPost, invalidateCache } from '../utils/apiCache';
@@ -194,6 +195,37 @@ const AffiliateNetworks = () => {
         }
     };
 
+    // Shared renderers: the desktop table and the mobile cards call the same
+    // helpers, so the two views cannot drift apart.
+    const renderNetworkState = (network) => (
+        network.state === 'active' ? (
+            <span className="badge badge-success">{t('components.active')}</span>
+        ) : (
+            <span className="badge" style={{ background: 'var(--color-bg-soft)', color: 'var(--color-text-secondary)' }}>{t('common.disabled')}</span>
+        )
+    );
+
+    const renderNetworkActions = (network) => (
+        <div className="flex items-center gap-2">
+            <button
+                onClick={() => openEditor(network.id)}
+                className="hover:text-[var(--color-primary)] transition"
+                style={{ color: 'var(--color-text-muted)' }}
+                title={t('common.edit')}
+            >
+                <Edit2 className="w-4 h-4" />
+            </button>
+            <button
+                onClick={() => handleDelete(network.id)}
+                className="hover:text-red-500 transition"
+                style={{ color: 'var(--color-text-muted)' }}
+                title={t('common.delete')}
+            >
+                <Trash2 className="w-4 h-4" />
+            </button>
+        </div>
+    );
+
     if (loading) {
         return <div className="flex justify-center py-10">{t('common.loading')}</div>;
     }
@@ -260,18 +292,18 @@ const AffiliateNetworks = () => {
                 <div className="page-card" style={{ padding: '16px' }}>
                     <div className="flex flex-wrap gap-4 items-center">
                         <div className="flex items-center gap-2">
-                            <label className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{t('common.search')}:</label>
+                            <label className="text-sm tb-hide-sm" style={{ color: 'var(--color-text-secondary)' }}>{t('common.search')}:</label>
                             <input
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="form-input"
+                                className="form-input tb-release"
                                 style={{ width: 'auto', minWidth: '260px' }}
                                 placeholder={t('common.searchPlaceholder')}
                             />
                         </div>
                         <div className="flex items-center gap-2">
-                            <label className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{t('components.status')}:</label>
-                            <select value={stateFilter} onChange={(e) => setStateFilter(e.target.value)} className="form-select" style={{ width: 'auto', minWidth: '160px' }}>
+                            <label className="text-sm tb-hide-sm" style={{ color: 'var(--color-text-secondary)' }}>{t('components.status')}:</label>
+                            <select value={stateFilter} onChange={(e) => setStateFilter(e.target.value)} className="form-select tb-release" style={{ width: 'auto', minWidth: '160px' }}>
                                 <option value="all">{t('common.all')}</option>
                                 <option value="active">{t('sources.activePlural')}</option>
                                 <option value="paused">{t('sources.pausedPlural')}</option>
@@ -294,6 +326,11 @@ const AffiliateNetworks = () => {
                 </div>
             ) : (
                 <div className="page-card overflow-hidden" style={{ padding: 0 }}>
+                    {/* overflow-x-auto: postback URLs are wider than a tablet
+                        viewport — without a scroll container the column was
+                        simply cut off. Below lg the table is replaced by
+                        stacked cards. */}
+                    <div className="hidden lg:block overflow-x-auto">
                     <table className="page-table">
                         <thead>
                             <tr>
@@ -370,40 +407,69 @@ const AffiliateNetworks = () => {
                                         </span>
                                     </td>
                                     <td className="text-center">
-                                        {network.state === 'active' ? (
-                                            <span className="badge badge-success">
-                                                {t('components.active')}
-                                            </span>
-                                        ) : (
-                                            <span className="badge" style={{ background: 'var(--color-bg-soft)', color: 'var(--color-text-secondary)' }}>
-                                                {t('common.disabled')}
-                                            </span>
-                                        )}
+                                        {renderNetworkState(network)}
                                     </td>
                                     <td className="text-center">
-                                        <div className="flex justify-center space-x-2">
-                                            <button
-                                                onClick={() => openEditor(network.id)}
-                                                className="hover:text-[var(--color-primary)] transition"
-                                                style={{ color: 'var(--color-text-muted)' }}
-                                                title={t('common.edit')}
-                                            >
-                                                <Edit2 className="w-4 h-4" />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(network.id)}
-                                                className="hover:text-red-500 transition"
-                                                style={{ color: 'var(--color-text-muted)' }}
-                                                title={t('common.delete')}
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                        </div>
+                                        {renderNetworkActions(network)}
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
+                    </div>
+
+                    {/* Mobile: stacked cards (below lg). Status and actions come
+                        from the same renderers the table uses. */}
+                    <div className="lg:hidden">
+                        <MobileCards
+                            rows={filteredNetworks}
+                            getId={(n) => n.id}
+                            renderTitle={(n) => (
+                                <>
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedIds.has(n.id)}
+                                        onChange={(e) => toggleSelected(n.id, e.target.checked)}
+                                        className="rounded flex-shrink-0"
+                                        style={{ accentColor: 'var(--color-primary)' }}
+                                        aria-label={n.name}
+                                    />
+                                    <span className="font-semibold text-sm flex-1 min-w-0 line-clamp-2 break-words" style={{ color: 'var(--color-text-primary)' }}>{n.name}</span>
+                                </>
+                            )}
+                            renderSubtitle={(n) => n.template ? `${t('sources.template')}: ${n.template}` : `#${n.id}`}
+                            renderHeaderRight={renderNetworkActions}
+                            fields={[
+                                {
+                                    id: 'postback',
+                                    label: t('networks.postbackUrl'),
+                                    render: (n) => (
+                                        <code
+                                            onClick={() => copyToClipboard(getPostbackUrl(n), `pb-${n.id}`)}
+                                            className="text-xs px-2 py-1 rounded max-w-full truncate inline-block cursor-pointer select-all"
+                                            style={{ background: 'var(--color-bg-soft)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
+                                            title={getPostbackUrl(n)}
+                                        >
+                                            {getPostbackUrl(n)}
+                                        </code>
+                                    ),
+                                },
+                                {
+                                    id: 'params',
+                                    label: t('networks.offerParams'),
+                                    render: (n) => n.offer_params ? (
+                                        <code className="text-xs px-2 py-1 rounded" style={{ background: 'var(--color-bg-soft)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}>{n.offer_params}</code>
+                                    ) : (
+                                        <span style={{ color: 'var(--color-text-muted)' }}>{t('common.notSet')}</span>
+                                    ),
+                                },
+                                { id: 'offers', label: t('networks.offersCount'), render: (n) => n.offers_count || 0 },
+                                { id: 'state', label: t('components.status'), render: renderNetworkState },
+                            ]}
+                            primaryIds={['offers', 'state']}
+                            emptyState={<div className="text-center py-10" style={{ color: 'var(--color-text-secondary)' }}>{t('networks.noNetworksAdd')}</div>}
+                        />
+                    </div>
                 </div>
             )}
 

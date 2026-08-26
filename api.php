@@ -7169,18 +7169,24 @@ try {
             ");
             $domains = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // DNS Cache TTL: 30 minutes (1800 seconds) - increased for better performance
+            // DNS Cache TTL: 30 minutes. A row older than the TTL is stale: it
+            // still serves its last known status so the page render never
+            // waits on DNS, and is refreshed after the response has gone out
+            // (or inline when the deferred pass cannot run).
             $dnsCacheTtl = 1800;
             $currentTime = time();
             $needsUpdate = [];
+            $staleRows = [];
             $forceRefresh = isset($_GET['force_refresh']) && $_GET['force_refresh'] === '1';
 
             // Limit DNS lookups per request for performance (check 20 domains without cache at a time)
             $maxDnsLookups = 20;
             $dnsLookupsCount = 0;
 
-            // Compute dynamic DNS status with caching
-            // ONLY refresh if force_refresh=1 or cache is completely missing
+            // Compute dynamic DNS status with caching.
+            // Inline lookups happen only for rows with no cached status at all
+            // (or an explicit refresh); stale-but-cached rows are collected and
+            // resolved after the response, so a render is never blocked by them.
             foreach ($domains as &$domain) {
                 $domainId = (int)$domain['id'];
                 $hasCachedStatus = !empty($domain['dns_status']);
@@ -7193,18 +7199,17 @@ try {
                     }
                 }
 
-                // Use cached status if available (even if old) - for fast page load
-                // Only do DNS lookup if: force_refresh=1 OR no cached status at all
                 if ($hasCachedStatus && !$forceRefresh) {
-                    // Use cached status regardless of age for instant page load
+                    // Serve the cached status instantly, however old it is.
                     $domain['dns_state'] = $domain['dns_status'];
                     $domain['cache_age'] = $cacheAge;
-                } elseif (!$hasCachedStatus || $forceRefresh) {
-                    // Only do DNS lookup for domains without status OR when explicitly requested
-                    // Limit DNS lookups per request to prevent slow page loads with many domains
-
-                    // Skip DNS lookup if we've reached the limit and not forcing refresh
-                    // This ensures ALL domains eventually get checked, just not all at once
+                    if ($cacheAge > $dnsCacheTtl) {
+                        $staleRows[] = $domain;
+                    }
+                } else {
+                    // No cached status yet, or an explicit refresh. Capped so
+                    // the first render of a large install stays fast; every
+                    // domain is eventually checked, just not all at once.
                     if (!$hasCachedStatus && !$forceRefresh && $dnsLookupsCount >= $maxDnsLookups) {
                         $domain['dns_state'] = 'checking';
                     } else {
@@ -7213,9 +7218,6 @@ try {
                         $domain['dns_state'] = $result['status'];
                         $domain['dns_reason'] = $result['reason'];
                         $domainIp = $result['ip'];
-
-                        // Debug logging
-                        error_log("DNS Check: {$domain['name']} -> {$domainIp} (server: {$serverIp}), state: {$result['status']}, reason: {$result['reason']}");
 
                         // Mark for database update
                         $needsUpdate[] = [
@@ -7230,10 +7232,6 @@ try {
                             $dnsLookupsCount++;
                         }
                     }
-                } else {
-                    // Has cached status - use it
-                    $domain['dns_state'] = $domain['dns_status'];
-                    $domain['cache_age'] = $cacheAge;
                 }
             }
 
@@ -7246,6 +7244,33 @@ try {
             }
 
             echo json_encode(['status' => 'success', 'data' => $domains, 'server_ip' => $serverIp]);
+
+            // Bring stale rows back to date after the response is out: the
+            // browser already has the page and the worker finishes the
+            // lookups quietly. On non-FPM SAPIs (CLI, php -S dev server) the
+            // deferred pass cannot run, so fall back to an inline refresh
+            // with the remaining lookup budget — a stale status must not
+            // outlive the TTL just because FPM is absent.
+            if (!empty($staleRows)) {
+                $staleRows = array_slice($staleRows, 0, $maxDnsLookups);
+                $refreshStale = function (array $rows) use ($pdo, $serverIp): void {
+                    $updateStmt = $pdo->prepare("UPDATE domains SET dns_status = ?, dns_reason = ?, dns_ip = ?, dns_checked_at = CURRENT_TIMESTAMP WHERE id = ?");
+                    foreach ($rows as $row) {
+                        try {
+                            $result = orbitraResolveDomainDnsState($pdo, $row, $serverIp);
+                            $updateStmt->execute([$result['status'], $result['reason'], $result['ip'], (int)$row['id']]);
+                        } catch (\Throwable $e) {
+                            error_log('DNS deferred refresh failed for domain id ' . ($row['id'] ?? '?') . ': ' . $e->getMessage());
+                        }
+                    }
+                };
+                if (function_exists('fastcgi_finish_request')) {
+                    fastcgi_finish_request();
+                    $refreshStale($staleRows);
+                } elseif ($dnsLookupsCount < $maxDnsLookups) {
+                    $refreshStale(array_slice($staleRows, 0, $maxDnsLookups - $dnsLookupsCount));
+                }
+            }
             break;
 
         // Check DNS status for a single domain (non-blocking)
@@ -12835,7 +12860,9 @@ try {
                         ]
                     ]);
                 } else {
-                    echo json_encode(['status' => 'error', 'message' => 'Неверный логин или пароль']);
+                    // 'code' lets the frontend map known failures through t();
+                    // 'message' stays for API consumers and still-localised prose.
+                    echo json_encode(['status' => 'error', 'code' => 'invalid_credentials', 'message' => 'Неверный логин или пароль']);
                 }
             }
             break;

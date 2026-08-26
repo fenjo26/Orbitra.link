@@ -181,8 +181,12 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
             )}
             {/* Filters */}
             <div className="page-card">
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', alignItems: 'end' }}>
-                    <div style={{ gridColumn: 'span 2' }}>
+                {/* conversions-filters / conversions-search: below 480px the
+                    auto-fit grid collapses to one column and the search must
+                    stop spanning two (index.css, !important vs these inline
+                    styles). */}
+                <div className="conversions-filters" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', alignItems: 'end' }}>
+                    <div className="conversions-search" style={{ gridColumn: 'span 2' }}>
                         <label className="form-label">{t('conversions.search')}</label>
                         <div className="relative">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />

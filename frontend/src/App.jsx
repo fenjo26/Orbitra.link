@@ -494,7 +494,12 @@ function App() {
   return (
     <div className="min-h-screen relative pb-10">
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} user={user} onLogout={handleLogout} />
-      <main className="pt-32 px-4 md:px-6 w-full mx-auto">
+      {/* 84px of top padding below 480px: the navbar shrinks to 48px there,
+          pt-32 (128px) strands the page title in empty space. overflow-x clip
+          (not hidden): hidden would make <main> a scroll container and break
+          sticky table headers — clip only stops one wide child from dragging
+          the viewport sideways. */}
+      <main className="pt-32 max-[480px]:pt-[84px] px-4 md:px-6 w-full mx-auto [overflow-x:clip]">
         {loading ? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--color-primary)]"></div>

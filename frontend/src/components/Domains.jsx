@@ -3,6 +3,7 @@ import { Plus, Globe, Check, X, AlertCircle, Search, Copy, Edit2, Trash2, Shield
 import InfoBanner from './InfoBanner';
 import HelpTooltip from './HelpTooltip';
 import GroupsModal from './GroupsModal';
+import MobileCards from './common/MobileCards';
 import { useLanguage } from '../contexts/LanguageContext';
 import { cachedGet, cachedPost } from '../utils/apiCache';
 
@@ -515,6 +516,7 @@ const Domains = ({ campaigns }) => {
             certbot_no_output: 'domains.sslCertbotNoOutput',
             incomplete_chain: 'domains.sslIncompleteChain',
             dns_mismatch: 'domains.sslWaitingDns',
+            awaiting_dns_for_ssl_switch: 'domains.sslAwaitingDnsSwitch',
         };
         return keys[code] ? t(keys[code]) : String(code);
     };
@@ -555,6 +557,125 @@ const Domains = ({ campaigns }) => {
             default: return '';
         }
     };
+
+    // Shared renderers: the desktop table and the mobile cards call the same
+    // helpers, so the seven-branch status conditional, the SSL cell and the
+    // actions row never exist as two copies that can drift apart.
+    const renderDomainStatus = (domain) => (
+        String(domain.status) === 'Disabled' ? (
+            <span className="badge badge-danger"><X size={14} /> {t('domains.statusDisabled')}</span>
+        ) : ignoreDnsUi ? (
+            <span className="badge badge-success">
+                <Check size={14} /> {String(domain.status) === 'Active' ? t('domains.statusActive') : t('domains.ok')}
+            </span>
+        ) : domain.dns_state === 'active' ? (
+            <span className="badge badge-success">
+                {domain.dns_reason === 'cloudflare' ? (
+                    <><Cloud size={14} /> {t('domains.activeCloudflare')}</>
+                ) : domain.dns_reason === 'local' ? (
+                    <><Check size={14} /> {t('domains.activeLocalhost')}</>
+                ) : (
+                    <><Check size={14} /> {String(domain.status) === 'Active' ? t('domains.statusActive') : t('domains.ok')}</>
+                )}
+            </span>
+        ) : domain.dns_state === 'pending' && domain.dns_reason === 'no_resolve' ? (
+            <button
+                onClick={() => setShowDnsModal(true)}
+                className="badge badge-warning cursor-pointer hover:bg-yellow-500/20 transition"
+                title={t('domains.dnsReasonNoResolve')}
+            >
+                <Clock size={14} /> {t('domains.awaitingDns')}
+            </button>
+        ) : domain.dns_state === 'pending' && domain.dns_reason?.startsWith('wrong_ip:') ? (
+            <button
+                onClick={() => setShowDnsModal(true)}
+                className="badge badge-danger cursor-pointer hover:bg-red-500/20 transition"
+                title={t('domains.dnsReasonWrongIp', { ip: domain.dns_reason?.replace('wrong_ip:', '') })}
+            >
+                <ShieldAlert size={14} /> {t('domains.wrongIp')}
+            </button>
+        ) : (
+            <button
+                onClick={() => setShowDnsModal(true)}
+                className="badge badge-danger cursor-pointer hover:bg-red-500/20 transition"
+            >
+                <ShieldAlert size={14} /> {t('domains.awaitingDns')}
+            </button>
+        )
+    );
+
+    const renderDomainSsl = (domain) => (
+        /* A tick here used to mean "a certificate file exists", which is not
+           the same as "the browser gets it": nginx only serves it once its
+           config was rebuilt with the certificate already on disk.
+           https_active carries that distinction, so a certificate nobody
+           wired up no longer shows as done. The status is also no longer
+           gated on https_only — every parked domain gets a certificate. */
+        domain.ssl_status === 'cloudflare' ? (
+            <span className="inline-flex items-center gap-1.5" title={t('domains.sslCloudflareStatus', 'SSL от Cloudflare (проксированный домен)')}>
+                <Cloud size={16} style={{ color: 'var(--color-primary)' }} />
+                <span className="text-xs whitespace-nowrap" style={{ color: 'var(--color-text-muted)' }}>{t('domains.sslCloudflare', 'Cloudflare')}</span>
+            </span>
+        ) : domain.ssl_status === 'installed' && domain.https_active === false ? (
+            <button
+                onClick={() => { setSslErrorDomain(domain); setShowSslErrorModal(true); }}
+                className="hover:text-orange-400 transition"
+                style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                title={t('domains.sslNotWired')}
+            >
+                <AlertCircle size={16} className="text-orange-500" />
+            </button>
+        ) : domain.ssl_status === 'installed' ? (
+            <span className="inline-flex items-center gap-1.5" title={t('domains.sslInstalled')}>
+                <Check size={16} className="text-green-500" />
+                {sslSourceShort(domain) && <span className="text-xs whitespace-nowrap" style={{ color: 'var(--color-text-muted)' }}>{sslSourceShort(domain)}</span>}
+            </span>
+        ) : domain.ssl_status === 'installing' ? (
+            <RefreshCw size={16} className="text-blue-500 animate-spin" title={t('domains.sslInstalling')} />
+        ) : domain.ssl_status === 'waiting_dns' ? (
+            <button
+                onClick={() => { setSslErrorDomain(domain); setShowSslErrorModal(true); }}
+                className="hover:text-yellow-400 transition"
+                style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                title={describeSslError(domain.ssl_error) || t('domains.sslWaitingDns')}
+            >
+                <Clock size={16} className="text-yellow-500" />
+            </button>
+        ) : domain.ssl_status === 'failed' ? (
+            <button
+                onClick={() => { setSslErrorDomain(domain); setShowSslErrorModal(true); }}
+                className="hover:text-red-400 transition"
+                style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                title={`${t('domains.sslRetrying')}\n\n${describeSslError(domain.ssl_error)}`}
+            >
+                <AlertCircle size={16} className="text-red-500" />
+            </button>
+        ) : domain.ssl_status === 'pending' ? (
+            <Clock size={16} className="text-yellow-500" title={t('domains.sslPending')} />
+        ) : (
+            <Clock size={16} style={{ color: 'var(--color-text-muted)' }} title={t('domains.sslPending')} />
+        )
+    );
+
+    const renderDomainActions = (domain) => (
+        <div className="flex items-center gap-2">
+            <button
+                onClick={() => reissueSsl(domain.id, domain.name)}
+                disabled={reissuingSsl === domain.id}
+                className={`hover:text-[var(--color-primary)] transition ${reissuingSsl === domain.id ? 'text-blue-500' : ''}`}
+                style={{ color: reissuingSsl === domain.id ? 'var(--color-primary)' : 'var(--color-text-muted)', cursor: reissuingSsl === domain.id ? 'wait' : 'pointer' }}
+                title={t('domains.reissueSsl', 'Re-issue SSL certificate')}
+            >
+                <RefreshCw size={16} className={reissuingSsl === domain.id ? 'animate-spin' : ''} />
+            </button>
+            <button onClick={() => handleEdit(domain)} className="hover:text-[var(--color-primary)] transition" style={{ color: 'var(--color-text-muted)' }} title={t('components.edit')}>
+                <Edit2 size={16} />
+            </button>
+            <button onClick={() => handleDelete(domain.id)} className="hover:text-red-500 transition" style={{ color: 'var(--color-text-muted)' }} title={t('common.delete')}>
+                <Trash2 size={16} />
+            </button>
+        </div>
+    );
 
     const runSslWorker = async () => {
         setSslRunning(true);
@@ -697,7 +818,9 @@ const Domains = ({ campaigns }) => {
                         {t('domains.title')}
                     </h2>
                     {serverIp && (
-                        <div className="flex items-center px-3 py-1 rounded text-sm border" style={{ background: 'var(--color-bg-soft)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}>
+                        /* tb-hide-sm: the readout costs a full toolbar row on a
+                           phone; the IP stays one tap away in DNS check tooltips. */
+                        <div className="flex items-center px-3 py-1 rounded text-sm border tb-hide-sm" style={{ background: 'var(--color-bg-soft)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}>
                             <span className="font-medium mr-2">{t('domains.serverIp')}</span>
                             <span className="font-mono">{serverIp}</span>
                             <button onClick={copyIp} className="ml-2 hover:text-[var(--color-primary)] transition flex items-center gap-1" style={{ color: 'var(--color-text-secondary)' }} title={copiedIp ? t('migrations.copied') : t('common.copy')}>
@@ -726,7 +849,7 @@ const Domains = ({ campaigns }) => {
                     <select
                         value={selectedGroupId}
                         onChange={(e) => setSelectedGroupId(e.target.value)}
-                        className="form-select text-xs py-1.5 px-3 rounded-xl"
+                        className="form-select text-xs py-1.5 px-3 rounded-xl tb-release"
                         style={{ width: '150px' }}
                     >
                         <option value="">{t('domains.allGroups', 'All Groups')}</option>
@@ -849,7 +972,9 @@ const Domains = ({ campaigns }) => {
                 </div>
             )}
 
-            <div className="overflow-x-auto">
+            {/* Below lg the nine-column table is replaced by stacked cards;
+                the table keeps its scroll container for tablets. */}
+            <div className="hidden lg:block overflow-x-auto">
                 <table className="page-table">
                     <thead>
                         <tr>
@@ -939,129 +1064,65 @@ const Domains = ({ campaigns }) => {
                                             : <span style={{ color: 'var(--color-text-muted)' }}>—</span>}
                                     </td>
                                     <td>
-                                        {String(domain.status) === 'Disabled' ? (
-                                            <span className="badge badge-danger"><X size={14} /> {t('domains.statusDisabled')}</span>
-                                        ) : ignoreDnsUi ? (
-                                            <span className="badge badge-success">
-                                                <Check size={14} /> {String(domain.status) === 'Active' ? t('domains.statusActive') : t('domains.ok')}
-                                            </span>
-                                        ) : domain.dns_state === 'active' ? (
-                                            <span className="badge badge-success">
-                                                {domain.dns_reason === 'cloudflare' ? (
-                                                    <><Cloud size={14} /> {t('domains.activeCloudflare')}</>
-                                                ) : domain.dns_reason === 'local' ? (
-                                                    <><Check size={14} /> {t('domains.activeLocalhost')}</>
-                                                ) : (
-                                                    <><Check size={14} /> {String(domain.status) === 'Active' ? t('domains.statusActive') : t('domains.ok')}</>
-                                                )}
-                                            </span>
-                                        ) : domain.dns_state === 'pending' && domain.dns_reason === 'no_resolve' ? (
-                                            <button
-                                                onClick={() => setShowDnsModal(true)}
-                                                className="badge badge-warning cursor-pointer hover:bg-yellow-500/20 transition"
-                                                title={t('domains.dnsReasonNoResolve')}
-                                            >
-                                                <Clock size={14} /> {t('domains.awaitingDns')}
-                                            </button>
-                                        ) : domain.dns_state === 'pending' && domain.dns_reason?.startsWith('wrong_ip:') ? (
-                                            <button
-                                                onClick={() => setShowDnsModal(true)}
-                                                className="badge badge-danger cursor-pointer hover:bg-red-500/20 transition"
-                                                title={t('domains.dnsReasonWrongIp', { ip: domain.dns_reason?.replace('wrong_ip:', '') })}
-                                            >
-                                                <ShieldAlert size={14} /> {t('domains.wrongIp')}
-                                            </button>
-                                        ) : (
-                                            <button
-                                                onClick={() => setShowDnsModal(true)}
-                                                className="badge badge-danger cursor-pointer hover:bg-red-500/20 transition"
-                                            >
-                                                <ShieldAlert size={14} /> {t('domains.awaitingDns')}
-                                            </button>
-                                        )}
+                                        {renderDomainStatus(domain)}
                                     </td>
                                     <td>{domain.index_campaign_name || <span className="italic" style={{ color: 'var(--color-text-muted)' }}>{t('domains.notSelected')}</span>}</td>
                                     <td className="text-center">
                                         {domain.https_only ? <Check size={16} className="text-green-500 mx-auto" /> : <X size={16} className="mx-auto" style={{ color: 'var(--color-text-muted)' }} />}
                                     </td>
                                     <td className="text-center">
-                                        {/* A tick here used to mean "a certificate file exists",
-                                            which is not the same as "the browser gets it": nginx
-                                            only serves it once its config was rebuilt with the
-                                            certificate already on disk. https_active carries that
-                                            distinction, so a certificate nobody wired up no longer
-                                            shows as done. The status is also no longer gated on
-                                            https_only — every parked domain gets a certificate. */}
-                                        {domain.ssl_status === 'cloudflare' ? (
-                                            <span className="inline-flex items-center gap-1.5" title={t('domains.sslCloudflareStatus', 'SSL от Cloudflare (проксированный домен)')}>
-                                                <Cloud size={16} style={{ color: 'var(--color-primary)' }} />
-                                                <span className="text-xs whitespace-nowrap" style={{ color: 'var(--color-text-muted)' }}>{t('domains.sslCloudflare', 'Cloudflare')}</span>
-                                            </span>
-                                        ) : domain.ssl_status === 'installed' && domain.https_active === false ? (
-                                            <button
-                                                onClick={() => { setSslErrorDomain(domain); setShowSslErrorModal(true); }}
-                                                className="mx-auto hover:text-orange-400 transition"
-                                                style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                                                title={t('domains.sslNotWired')}
-                                            >
-                                                <AlertCircle size={16} className="text-orange-500" />
-                                            </button>
-                                        ) : domain.ssl_status === 'installed' ? (
-                                            <span className="inline-flex items-center gap-1.5" title={t('domains.sslInstalled')}>
-                                                <Check size={16} className="text-green-500" />
-                                                {sslSourceShort(domain) && <span className="text-xs whitespace-nowrap" style={{ color: 'var(--color-text-muted)' }}>{sslSourceShort(domain)}</span>}
-                                            </span>
-                                        ) : domain.ssl_status === 'installing' ? (
-                                            <RefreshCw size={16} className="text-blue-500 mx-auto animate-spin" title={t('domains.sslInstalling')} />
-                                        ) : domain.ssl_status === 'waiting_dns' ? (
-                                            <button
-                                                onClick={() => { setSslErrorDomain(domain); setShowSslErrorModal(true); }}
-                                                className="mx-auto hover:text-yellow-400 transition"
-                                                style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                                                title={describeSslError(domain.ssl_error) || t('domains.sslWaitingDns')}
-                                            >
-                                                <Clock size={16} className="text-yellow-500" />
-                                            </button>
-                                        ) : domain.ssl_status === 'failed' ? (
-                                            <button
-                                                onClick={() => { setSslErrorDomain(domain); setShowSslErrorModal(true); }}
-                                                className="mx-auto hover:text-red-400 transition"
-                                                style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                                                title={`${t('domains.sslRetrying')}\n\n${describeSslError(domain.ssl_error)}`}
-                                            >
-                                                <AlertCircle size={16} className="text-red-500" />
-                                            </button>
-                                        ) : domain.ssl_status === 'pending' ? (
-                                            <Clock size={16} className="text-yellow-500 mx-auto" title={t('domains.sslPending')} />
-                                        ) : (
-                                            <Clock size={16} className="mx-auto" style={{ color: 'var(--color-text-muted)' }} title={t('domains.sslPending')} />
-                                        )}
+                                        {renderDomainSsl(domain)}
                                     </td>
                                     <td className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>{domain.created_at}</td>
                                     <td className="text-right">
-                                        <div className="flex items-center justify-end gap-2">
-                                            <button
-                                                onClick={() => reissueSsl(domain.id, domain.name)}
-                                                disabled={reissuingSsl === domain.id}
-                                                className={`hover:text-[var(--color-primary)] transition ${reissuingSsl === domain.id ? 'text-blue-500' : ''}`}
-                                                style={{ color: reissuingSsl === domain.id ? 'var(--color-primary)' : 'var(--color-text-muted)', cursor: reissuingSsl === domain.id ? 'wait' : 'pointer' }}
-                                                title={t('domains.reissueSsl', 'Re-issue SSL certificate')}
-                                            >
-                                                <RefreshCw size={16} className={reissuingSsl === domain.id ? 'animate-spin' : ''} />
-                                            </button>
-                                            <button onClick={() => handleEdit(domain)} className="hover:text-[var(--color-primary)] transition" style={{ color: 'var(--color-text-muted)' }} title={t('components.edit')}>
-                                                <Edit2 size={16} />
-                                            </button>
-                                            <button onClick={() => handleDelete(domain.id)} className="hover:text-red-500 transition" style={{ color: 'var(--color-text-muted)' }} title={t('common.delete')}>
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
+                                        {renderDomainActions(domain)}
                                     </td>
                                 </tr>
                             ))
                         )}
                     </tbody>
                 </table>
+            </div>
+
+            {/* Mobile: stacked cards (below lg). Status, SSL and actions come
+                from the same renderers the table uses. */}
+            <div className="lg:hidden">
+                <MobileCards
+                    rows={visibleDomains}
+                    getId={(d) => d.id}
+                    renderTitle={(d) => (
+                        <>
+                            <input
+                                type="checkbox"
+                                checked={selectedDomainIds.has(d.id)}
+                                onChange={(e) => toggleSelected(d.id, e.target.checked)}
+                                className="w-3.5 h-3.5 rounded flex-shrink-0"
+                                style={{ accentColor: 'var(--color-primary)' }}
+                                aria-label={d.name}
+                            />
+                            <span className="font-semibold text-sm flex-1 min-w-0 line-clamp-2 break-words" style={{ color: 'var(--color-text-primary)' }}>{d.name}</span>
+                        </>
+                    )}
+                    renderSubtitle={(d) => `#${d.id}${d.created_at ? ` · ${d.created_at}` : ''}`}
+                    renderHeaderRight={renderDomainActions}
+                    fields={[
+                        {
+                            id: 'group',
+                            label: t('domains.group'),
+                            render: (d) => d.group_name ? (
+                                <span className="badge" style={{ background: 'color-mix(in srgb, var(--color-primary) 10%, transparent)', color: 'var(--color-primary)' }}>{d.group_name}</span>
+                            ) : (
+                                <span style={{ color: 'var(--color-text-muted)' }}>—</span>
+                            ),
+                        },
+                        { id: 'status', label: t('domains.status'), render: renderDomainStatus },
+                        { id: 'https', label: t('domains.https'), render: (d) => d.https_only ? <Check size={16} className="text-green-500" /> : <X size={16} style={{ color: 'var(--color-text-muted)' }} /> },
+                        { id: 'ssl', label: t('domains.sslStatus'), render: renderDomainSsl },
+                        { id: 'index', label: t('domains.indexPage'), render: (d) => d.index_campaign_name || <span style={{ color: 'var(--color-text-muted)' }}>{t('domains.notSelected')}</span> },
+                    ]}
+                    primaryIds={['status', 'ssl']}
+                    emptyState={<div className="text-center py-8" style={{ color: 'var(--color-text-muted)' }}>{t('domains.noDomains')}</div>}
+                />
             </div>
 
             {showModal && (

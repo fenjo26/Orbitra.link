@@ -722,7 +722,7 @@ const Landings = ({ landings, refreshData }) => {
                     <select
                         value={selectedGroupValue}
                         onChange={(e) => setGroupTab(e.target.value || 'all')}
-                        className="form-select text-xs font-semibold py-2 px-3.5 rounded-xl transition-all"
+                        className="form-select text-xs font-semibold py-2 px-3.5 rounded-xl transition-all tb-release"
                         style={{
                             backgroundColor: selectedGroupValue ? 'var(--color-primary-light)' : 'var(--color-bg-card)',
                             borderColor: selectedGroupValue ? 'var(--color-primary)' : 'var(--color-border)',
@@ -868,7 +868,7 @@ const Landings = ({ landings, refreshData }) => {
                 <div className="flex flex-wrap gap-4 items-center py-4 mb-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
                     <div className="flex items-center gap-2">
                         <label className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{t('components.type')}:</label>
-                        <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="form-select" style={{ width: 'auto', minWidth: '140px' }}>
+                        <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="form-select tb-release" style={{ width: 'auto', minWidth: '140px' }}>
                             <option value="">{t('common.all')}</option>
                             <option value="local">local</option>
                             <option value="redirect">redirect</option>
@@ -1005,7 +1005,7 @@ const Landings = ({ landings, refreshData }) => {
                                 aria-label={landing.name}
                             />
                             <span
-                                className="font-semibold text-sm cursor-pointer truncate"
+                                className="font-semibold text-sm cursor-pointer flex-1 min-w-0 line-clamp-2 break-words"
                                 style={{ color: 'var(--color-primary)' }}
                                 onClick={() => handleEdit(landing.id)}
                                 title={landing.name}

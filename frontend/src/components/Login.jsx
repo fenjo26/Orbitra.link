@@ -66,7 +66,11 @@ const Login = ({ onLogin }) => {
                 }
                 onLogin(data.data);
             } else {
-                setError(data.message || t('login.invalidStatus'));
+                // Known codes map through t(); anything else falls through
+                // verbatim so unmigrated backend prose keeps rendering as-is.
+                setError(data.code === 'invalid_credentials'
+                    ? t('login.invalidStatus')
+                    : (data.message || t('login.invalidStatus')));
             }
         } catch (err) {
             setError((err?.message ? String(err.message) : t('common.networkError')));

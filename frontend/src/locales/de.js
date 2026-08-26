@@ -916,6 +916,7 @@ export default {
         "sslRunFailed": "Fehlgeschlagen",
         "sslRunError": "Ausstellung konnte nicht gestartet werden",
         "sslWaitingDns": "Warten auf DNS — die Domain zeigt noch nicht auf diesen Server. Das Zertifikat wird ausgestellt, sobald der A-Eintrag verteilt ist.",
+        "sslAwaitingDnsSwitch": "DNS zeigt noch auf Cloudflare, daher kann das Origin-Zertifikat noch nicht ausgestellt werden. Das Proxy-Flag wurde an DNS angepasst; die Meldung verschwindet, sobald der Eintrag verbreitet ist.",
         "sslRetrying": "Der letzte Ausstellungsversuch ist fehlgeschlagen. Der Tracker versucht es automatisch weiter.",
         "sslNotWired": "Das Zertifikat existiert, wird vom Webserver aber noch nicht ausgeliefert — die Konfiguration wird neu erzeugt.",
         "sslFailed": "SSL-Fehler",

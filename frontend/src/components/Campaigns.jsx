@@ -862,13 +862,15 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                         }}
                     >
                         <SlidersHorizontal className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />
-                        <span>{t('reportCustomizer.columns')}</span>
+                        <span className="tb-hide-sm">{t('reportCustomizer.columns')}</span>
                         <span className="text-[10px] px-1.5 py-0.2 rounded-full" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>
                             {chosenColumns.length}
                         </span>
                     </button>
 
-                    <div className="relative" style={{ width: 220 }}>
+                    {/* tb-search: full-width search row below 480px (index.css)
+                        instead of a fixed 220px fighting the wrap. */}
+                    <div className="relative tb-search" style={{ width: 220 }}>
                         <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--color-text-muted)' }} />
                         <input
                             type="text"
@@ -911,7 +913,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                     <select
                         value={selectedGroupId}
                         onChange={(e) => setSelectedGroupId(e.target.value)}
-                        className="form-select text-xs py-1.5 px-3 rounded-xl"
+                        className="form-select text-xs py-1.5 px-3 rounded-xl tb-release"
                         style={{ width: '150px' }}
                     >
                         <option value="">{t('campaigns.allGroups', 'All groups')}</option>
@@ -924,7 +926,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                     <select
                         value={selectedSourceId}
                         onChange={(e) => setSelectedSourceId(e.target.value)}
-                        className="form-select text-xs py-1.5 px-3 rounded-xl"
+                        className="form-select text-xs py-1.5 px-3 rounded-xl tb-release"
                         style={{ width: '170px' }}
                     >
                         <option value="">{t('campaigns.allSources', 'All traffic sources')}</option>
@@ -1155,7 +1157,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                 aria-label={camp.name}
                             />
                             <span
-                                className="font-semibold text-sm cursor-pointer truncate"
+                                className="font-semibold text-sm cursor-pointer flex-1 min-w-0 line-clamp-2 break-words"
                                 style={{ color: 'var(--color-primary)' }}
                                 onClick={() => handleEdit(camp.id)}
                                 title={camp.name}

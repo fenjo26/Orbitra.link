@@ -323,7 +323,10 @@ const TrendsPage = () => {
                     </div>
                     <span style={{ fontSize: '14px', color: 'var(--color-text-muted)' }}>{tableData.length} {t('trends.records')}</span>
                 </div>
-                <div className="overflow-x-auto">
+                {/* min-w-0: without it the wrapper grows past the card instead
+                    of scrolling — overflow-x-auto alone is a no-op on a flex
+                    child with default min-width:auto. */}
+                <div className="overflow-x-auto min-w-0">
                     <table className="page-table">
                         <thead>
                             <tr>

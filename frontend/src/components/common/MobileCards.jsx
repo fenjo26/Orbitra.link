@@ -62,17 +62,24 @@ const MobileCards = ({
                         className="rounded-xl border overflow-hidden"
                         style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}
                     >
-                        <div className="flex items-start justify-between gap-2 px-3.5 pt-3 pb-2.5">
-                            <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-2 flex-wrap">{renderTitle(row)}</div>
-                                {renderSubtitle && (
-                                    <div className="text-[11px] mt-1 truncate" style={{ color: 'var(--color-text-muted)' }}>
-                                        {renderSubtitle(row)}
-                                    </div>
-                                )}
-                            </div>
-                            {renderHeaderRight && (
-                                <div className="flex items-center gap-1.5 flex-shrink-0">{renderHeaderRight(row)}</div>
+                        {/* Title takes the card's full width so a long name
+                            clamps to two lines instead of truncating to a
+                            prefix every sibling card shares; actions moved
+                            down to the subtitle row, keeping one header shape
+                            for short and long names alike. */}
+                        <div className="px-3.5 pt-3 pb-2.5">
+                            <div className="flex items-start gap-2 min-w-0">{renderTitle(row)}</div>
+                            {(renderSubtitle || renderHeaderRight) && (
+                                <div className="flex items-center justify-between gap-2 mt-1 min-w-0">
+                                    {renderSubtitle && (
+                                        <div className="text-[11px] truncate flex-1 min-w-0" style={{ color: 'var(--color-text-muted)' }}>
+                                            {renderSubtitle(row)}
+                                        </div>
+                                    )}
+                                    {renderHeaderRight && (
+                                        <div className="flex items-center gap-1.5 flex-shrink-0 flex-wrap justify-end">{renderHeaderRight(row)}</div>
+                                    )}
+                                </div>
                             )}
                         </div>
 

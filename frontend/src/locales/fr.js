@@ -916,6 +916,7 @@ export default {
         "sslRunFailed": "Échecs",
         "sslRunError": "Impossible de lancer l'émission",
         "sslWaitingDns": "En attente du DNS — le domaine ne pointe pas encore vers ce serveur. Le certificat sera émis dès la propagation de l'enregistrement A.",
+        "sslAwaitingDnsSwitch": "Le DNS pointe toujours vers Cloudflare, le certificat d'origine ne peut donc pas encore être émis. Le drapeau proxy a été rétabli pour correspondre au DNS, le message disparaîtra dès que l'enregistrement sera propagé.",
         "sslRetrying": "La dernière tentative d'émission a échoué. Le tracker continue automatiquement.",
         "sslNotWired": "Le certificat existe mais le serveur web ne le sert pas encore — la configuration est en cours de régénération.",
         "sslFailed": "Erreur SSL",

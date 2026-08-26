@@ -469,7 +469,7 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
         // Cloudflare-proxied domains are the exception — the edge serves their
         // certificate and certbot cannot validate through the proxy, so asking
         // Let's Encrypt would only burn the hourly failure budget.
-        $rows = $pdo->query("SELECT id, name, ssl_status, ssl_attempts, ssl_last_attempt, cloudflare_proxy FROM domains WHERE name IS NOT NULL AND name != '' ORDER BY id")
+        $rows = $pdo->query("SELECT id, name, ssl_status, ssl_attempts, ssl_last_attempt, cloudflare_proxy, ssl_source FROM domains WHERE name IS NOT NULL AND name != '' ORDER BY id")
             ->fetchAll(PDO::FETCH_ASSOC);
     } catch (\Throwable $e) {
         return $result;
@@ -503,12 +503,23 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
         // Auto-detect Cloudflare proxy to avoid Certbot failures
         // Cloudflare-proxied domains resolve to CF IPs and can't validate through the edge
         if (CloudDetector::isCloudflareProxied($domain)) {
+            // DNS still answers through Cloudflare, so certbot cannot validate
+            // the origin — asking Let's Encrypt would only burn its failure
+            // budget. When the admin explicitly chose an origin certificate
+            // source, say why the flag moved instead of silently clearing the
+            // error. NB: this reads ssl_source, which only works because the
+            // queue SELECT above selects it — a guard on an unfetched column
+            // fails open and silent.
+            $explicitSource = in_array((string)($row['ssl_source'] ?? 'auto'), ['letsencrypt', 'custom'], true);
+            $sslError = $explicitSource
+                ? json_encode(['code' => 'awaiting_dns_for_ssl_switch'], JSON_UNESCAPED_UNICODE)
+                : null;
             // Bookkeeping only: the domain is proxied whether or not this write
             // lands, and one contended SQLite write must not abort processing
             // for every domain after it in the queue run.
             try {
-                $pdo->prepare("UPDATE domains SET cloudflare_proxy = 1, ssl_status = 'cloudflare', ssl_error = NULL WHERE id = ?")
-                    ->execute([$id]);
+                $pdo->prepare("UPDATE domains SET cloudflare_proxy = 1, ssl_status = 'cloudflare', ssl_error = ? WHERE id = ?")
+                    ->execute([$sslError, $id]);
                 $result['cloudflare']++;
             } catch (\Throwable $e) {
                 error_log('SSL queue: cloudflare flag update failed for domain id ' . $id . ' (' . $domain . '): ' . $e->getMessage());

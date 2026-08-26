@@ -7,6 +7,80 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.3.5] — 2026-08-26
+
+Mobile-first bugfix release porting the tester's addendum IV — all 12 items
+of that report that exist in this repository. His fork-only work (the
+aurora theme arc, the ash theme removal, a content-fade wrapper) stays out,
+as does the `user_preferences` infrastructure proposal, which needs its own
+plan rather than a port.
+
+### Fixed — mobile panel
+
+- **Domains, Affiliate Networks and Traffic Sources render as stacked cards
+  below `lg`.** The three pages were still seven-to-nine-column tables
+  reached by dragging sideways on a phone. The complex cells — the domain
+  status badge (a seven-branch conditional), the SSL cell, the actions row,
+  the source URL cell (link + HTTP status + two conditional check buttons)
+  — are extracted into shared render helpers both views call, so the
+  desktop table and the mobile cards cannot drift apart.
+- **Modals below 480px are full-height sheets** (`100dvh`, safe-area
+  insets; `viewport-fit=cover` was already set). A centred floating card
+  left the footer of tall forms below the fold with the page visible
+  behind it. The sheet geometry is `!important` because several modals
+  carry inline width/padding/border-radius on `.modal-content` — scoped to
+  the media block only.
+- **Mobile card titles clamp to two lines** instead of truncating to a
+  shared prefix — `Facebook Ads - [IN] - P…` made four consecutive
+  campaigns indistinguishable. Actions moved down to the subtitle row, so
+  every card keeps one header shape.
+- **Toolbar controls release their fixed widths below 480px**
+  (`tb-release`/`tb-search`/`tb-hide-sm`): the fixed 140–260px inputs and
+  selects share rows instead of stacking one per line, the main search
+  takes a full row, and labels the icon already conveys (the word
+  "Columns", "Search:"/"Status:") hide.
+- **The report's pinned name column unpins below 480px** — at phone width
+  it consumed most of the table. Implemented with an explicit
+  `report-pinned-name` class on exactly the three left-pinned cells, not
+  an attribute selector, so the bottom-pinned totals row cannot be caught.
+- **The Conversions filter grid stops overflowing** — `auto-fit` collapses
+  to one column below the `minmax` floor while the search cell still
+  spanned two.
+- **Five `min-width: auto` overflow traps fixed** (the Update page git
+  block, the Campaign Reports and Trends tables, the Affiliate Networks
+  table that had no scroll container at all): `overflow-x: auto` without a
+  width constraint is a no-op when the flex item is free to grow instead.
+  `<main>` gets `overflow-x: clip` — not `hidden`, which would create a
+  scroll container and break sticky table headers — so one wide child can
+  never drag the viewport sideways. The report table also gets
+  `touch-action: pan-x` so iOS does not lock the sheet to one scroll axis.
+- **84px top padding below 480px** — `pt-32` (128px) is sized for the
+  desktop navbar and stranded the page title in empty space on phones.
+
+### Fixed — backend
+
+- **The domains endpoint honours its DNS cache TTL.** `$dnsCacheTtl` was
+  computed and never consulted — a cached status was served "regardless of
+  age", so it could be stale forever. Stale rows now serve their last known
+  status instantly and are refreshed after the response via
+  `fastcgi_finish_request()` (capped at the same 20 lookups; on non-FPM
+  SAPIs the deferred pass falls back to an inline refresh with the
+  remaining budget, so staleness cannot outlive the TTL on dev installs
+  either). The per-lookup debug `error_log` is gone — it turned
+  `php_errors.log`, the early-warning channel for click loss and the
+  Cloudflare automation, into routine chatter.
+- **The SSL queue selects `ssl_source`** and writes an
+  `awaiting_dns_for_ssl_switch` reason into `ssl_error` when the Cloudflare
+  auto-detect overrides an explicit Let's Encrypt/custom choice, instead of
+  silently clearing it. The column was missing from the queue's own SELECT
+  — a guard reading a column the query never fetched fails open and
+  silent. The code is translated in all 7 locales.
+- **Login failures return an `invalid_credentials` code** the frontend maps
+  through `t()`, falling through verbatim for anything else — an English
+  panel no longer greets a wrong password with Russian prose. The remaining
+  ~54 localised `message` strings migrate incrementally, one handler at a
+  time.
+
 ## [1.3.4] — 2026-08-26
 
 Bugfix release porting the tester's addendum III — the part of that report

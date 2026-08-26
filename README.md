@@ -1,4 +1,4 @@
-# Orbitra v1.3.4 Tracker
+# Orbitra v1.3.5 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,27 +11,29 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.3.4
+## 🆕 What's New in v1.3.5
 
-The tester's addendum III — the part targeting this repository (his fork-only dialog component, zone automation and click-spill file stay out).
+The tester's addendum IV — the mobile panel. All 12 items that exist in this repository (his fork-only theme arc stays out).
 
-### Fixed
+### Fixed — mobile
 
-- **📥 Import from Namecheap works again** — the toolbar button passed the React event as an account id, so the request never left the browser; the handler now guards with a `typeof` check
-- **🔐 Opening and saving a domain no longer resets its SSL configuration** — the edit modal never loaded `ssl_source`/custom-certificate paths, and Save wrote the defaults (including empty cert paths) over the stored values
-- **☁️ The Cloudflare proxy toggle actually switches the DNS record now** — `save_domain` reads the previous flag and calls `upsertDnsRecord()` on a real change, clears the cached DNS status and reports `cloudflare_sync`; before, it rewrote only the database row while the record kept its orange cloud, and the next queue run flipped the flag back
-- **🎛️ `ssl_source` is the single source of truth for the SSL mode** — the Cloudflare button no longer lights up alongside Let's Encrypt, the proxy toggle and the mode buttons keep each other in step, Custom clears the proxy
-- **🛡️ One locked SQLite write no longer aborts the whole hourly SSL queue run** — the Cloudflare auto-detect UPDATE in `orbitraProcessSslQueue()` is wrapped in `try`/`catch`
-- **🔌 IPv4 pinned on the Namecheap / Cloudflare / CloudDetector / currency-rate calls** — matching the ad APIs; a stalled IPv6 connect used to burn the whole timeout budget before IPv4 was tried
-- **🚨 Error messages show the real error** — 38 catch sites across the panel displayed a constant "network error"; all prefer `e.message` now (this is what made the Namecheap bug diagnosable in the first place)
-- **🏷️ Certificate source labelled beside the SSL status icon**; the Domain Management toolbar wraps as a unit and Check DNS is themed like every other control
-- **🌐 A duplicate i18n key (`domains.sslCloudflare`) is split** — the status tooltip silently overrode the SSL Mode button label in all 7 locales; `sslSelfSigned` added
+- **📱 Domains, Affiliate Networks & Traffic Sources render as stacked cards below `lg`** — the three pages were 7–9-column horizontal-scroll tables on a phone; the complex cells (domain status, SSL, actions, source URL) are extracted into shared render helpers, so the desktop table and the cards cannot drift
+- **📲 Modals below 480px are full-height sheets** (`100dvh` + safe-area insets) instead of centred dialogs that hid tall forms' footers below the fold
+- **🏷️ Card titles clamp to two lines** — `Facebook Ads - [IN] - P…` no longer makes four consecutive campaigns indistinguishable; actions share the subtitle row
+- **🎚️ Toolbars release their fixed widths below 480px** — controls share rows, the main search takes a full row, redundant labels hide
+- **📊 The report's pinned name column unpins on phones**; the Conversions filter grid stops overflowing; five `min-width:auto` overflow traps fixed; `<main>` uses `overflow-x: clip` (not `hidden` — that would break sticky headers); 84px top padding
 
-### Previous Highlights (v1.3.3)
+### Fixed — backend
 
-- 📦 **Production builds minified again** (5.26 MB → 3.16 MB / 891 kB gzip, byte-reproducible); 📊 seven new report dimensions (Campaign/AdSet/Ad Name, UTM Placement, Source, ISP, ASN) from a single `REPORT_DIMENSIONS` registry; 🎨 themed login screen; 🌗 no light-theme flash on cold load; 🟡 warning-token banners with version-scoped dismissal
+- **🌐 The DNS cache TTL actually works** — stale statuses serve instantly and refresh after the response (`fastcgi_finish_request`), instead of living forever; the per-lookup debug log is gone
+- **🔐 SSL queue: `ssl_source` added to the SELECT** + a translated `awaiting_dns_for_ssl_switch` reason when the Cloudflare auto-detect overrides an explicit Let's Encrypt/custom choice, instead of silently clearing the error
+- **🔑 Login failures return `invalid_credentials`** and map through `t()` — an English panel no longer shows Russian prose
 
-Older releases (v1.3.2 and earlier): see the [full changelog](CHANGELOG.md).
+### Previous Highlights (v1.3.4)
+
+- 📥 Namecheap import fixed; 🔐 domain save no longer wipes the SSL config; ☁️ the CF proxy toggle actually switches the DNS record; 🎛️ `ssl_source` is the SSL-mode SSOT; 🚨 real error messages at 38 catch sites; 🔌 IPv4 pinned on outbound calls; 🌐 split a duplicate i18n key
+
+Older releases (v1.3.3 and earlier): see the [full changelog](CHANGELOG.md).
 
 ## 🖥 Live Demo
 

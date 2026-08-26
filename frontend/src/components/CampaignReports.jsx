@@ -772,8 +772,12 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                             {/* Horizontal scroll for wide column sets (all 65 metrics
                                 used to be clipped by overflow:hidden — looked like
                                 "selecting columns does nothing"). The name column
-                                stays pinned while scrolling. */}
-                            <div style={{ overflowX: 'auto' }}>
+                                stays pinned while scrolling. minWidth 0 lets the
+                                wrapper actually shrink inside flex ancestors;
+                                pan-x keeps iOS from locking the sheet to one scroll
+                                axis — horizontal drags scroll the table, vertical
+                                ones pass through to the page/sheet. */}
+                            <div style={{ overflowX: 'auto', minWidth: 0, touchAction: 'pan-x' }}>
                     {toggleNotice && (
                         <div className={`alert ${toggleNotice.type === 'error' ? 'alert-danger' : 'alert-success'} mb-3 flex items-center gap-2`}>
                             {toggleNotice.type === 'error' ? <X size={14} /> : <BarChart3 size={14} />}
@@ -786,7 +790,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                 <thead>
                                     <tr>
                                         <th
-                                            className="resizable-th"
+                                            className="resizable-th report-pinned-name"
                                             style={{
                                                 textAlign: 'left',
                                                 position: 'sticky', left: 0,
@@ -854,7 +858,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                         <>
                                             {/* Sticky Summary Header Row */}
                                             <tr className="text-xs" style={{ backgroundColor: 'var(--color-bg-soft)', position: 'sticky', top: 0, fontWeight: 700, borderBottom: '2px solid var(--color-border)' }}>
-                                                <td className="font-bold" style={{ position: 'sticky', left: 0, zIndex: 2, backgroundColor: 'var(--color-bg-soft)' }}>{t('campaignReports.total', 'Totals')}</td>
+                                                <td className="font-bold report-pinned-name" style={{ position: 'sticky', left: 0, zIndex: 2, backgroundColor: 'var(--color-bg-soft)' }}>{t('campaignReports.total', 'Totals')}</td>
                                                 {chosenColumns.map(cId => (
                                                     <td key={cId} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
                                                         {formatMetricCell(cId, grandTotal, true)}
@@ -873,7 +877,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                             backgroundColor: isSubtotal ? 'color-mix(in srgb, var(--color-bg-soft) 40%, transparent)' : undefined
                                                         }}
                                                     >
-                                                        <td style={{
+                                                        <td className="report-pinned-name" style={{
                                                             paddingLeft: `${12 + r.depth * 20}px`,
                                                             fontWeight: isSubtotal ? 600 : 400,
                                                             color: isSubtotal ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',

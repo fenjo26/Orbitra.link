@@ -682,7 +682,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                     <button onClick={() => setIsGroupsModalOpen(true)} className="btn btn-secondary">
                         {t('campaigns.groups')}
                     </button>
-                    <div className="relative" style={{ width: 220 }}>
+                    <div className="relative tb-search" style={{ width: 220 }}>
                         <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--color-text-muted)' }} />
                         <input
                             type="text"
@@ -756,7 +756,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                     <select
                         value={filterGroup}
                         onChange={(e) => setFilterGroup(e.target.value)}
-                        className="form-select text-xs font-semibold py-2 px-3.5 rounded-xl transition-all"
+                        className="form-select text-xs font-semibold py-2 px-3.5 rounded-xl transition-all tb-release"
                         style={{
                             width: 'auto',
                             minWidth: '140px',
@@ -1071,7 +1071,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                                 aria-label={offer.name}
                             />
                             <span
-                                className="font-semibold text-sm cursor-pointer truncate"
+                                className="font-semibold text-sm cursor-pointer flex-1 min-w-0 line-clamp-2 break-words"
                                 style={{ color: 'var(--color-primary)' }}
                                 onClick={() => handleEdit(offer.id)}
                                 title={offer.name}

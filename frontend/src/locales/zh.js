@@ -916,6 +916,7 @@ export default {
         "sslRunFailed": "失败",
         "sslRunError": "无法启动签发",
         "sslWaitingDns": "等待 DNS —— 域名尚未指向此服务器。A 记录生效后将自动签发证书。",
+        "sslAwaitingDnsSwitch": "DNS 仍指向 Cloudflare，因此暂时无法签发源站证书。代理标记已恢复为与 DNS 一致；记录生效后此提示将自动清除。",
         "sslRetrying": "上次签发尝试失败。追踪器会自动继续重试。",
         "sslNotWired": "证书已签发，但 Web 服务器尚未使用它 —— 正在重新生成配置。",
         "sslFailed": "SSL error",

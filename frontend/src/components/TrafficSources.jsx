@@ -4,6 +4,7 @@ import { Plus, Edit, Trash2, Search, RefreshCw, ExternalLink, Copy, Settings2, F
 import InfoBanner from './InfoBanner';
 import TrafficSourceEditor from './TrafficSourceEditor';
 import BulkImportSources from './BulkImportSources';
+import MobileCards from './common/MobileCards';
 import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard } from '../utils/clipboard';
 
@@ -200,6 +201,67 @@ const TrafficSources = ({ refreshData }) => {
         refreshData && refreshData();
     };
 
+    // Shared renderers: the desktop table and the mobile cards call the same
+    // helpers so the two views cannot drift — the URL cell alone carries a
+    // link, an HTTP status and two conditional check buttons.
+    const renderSourceUrl = (source) => source.url ? (
+        <div className="flex flex-col gap-1">
+            <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-sm underline hover:text-primary">
+                {new URL(source.url, 'https://' + source.url).hostname}
+            </a>
+            {source.http_status && source.http_status !== 'unknown' && (
+                <div className="flex items-center gap-2">
+                    <span className={`text-xs ${source.http_status === '200' ? 'text-[var(--color-success,#10b981)]' : 'text-[var(--color-danger,#ef4444)]'}`}>
+                        {source.http_status === '200' ? '✓ OK' : `✗ ${source.http_status}`}
+                    </span>
+                    <button
+                        onClick={() => checkSourceUrl(source.id)}
+                        className="text-xs hover:underline"
+                        style={{ color: 'var(--color-primary)' }}
+                    >
+                        {t('sources.check')}
+                    </button>
+                </div>
+            )}
+            {!source.http_status || source.http_status === 'unknown' ? (
+                <button
+                    onClick={() => checkSourceUrl(source.id)}
+                    className="text-xs hover:underline"
+                    style={{ color: 'var(--color-primary)' }}
+                >
+                    {t('sources.check')}
+                </button>
+            ) : null}
+        </div>
+    ) : (
+        <span className="text-sm" style={{ color: 'var(--color-text-muted)' }}>—</span>
+    );
+
+    const renderSourceState = (source) => (
+        <span className={`status-badge ${source.state === 'active' ? 'status-active' : 'status-pending'}`}>
+            {source.state === 'active' ? t('components.active') : t('components.paused')}
+        </span>
+    );
+
+    const renderSourceActions = (source) => (
+        <div className="action-buttons">
+            <button
+                onClick={() => handleEdit(source.id)}
+                className="action-btn"
+                title={t('components.edit')}
+            >
+                <Edit size={16} />
+            </button>
+            <button
+                onClick={() => handleDelete(source.id)}
+                className="action-btn text-red"
+                title={t('common.delete')}
+            >
+                <Trash2 size={16} />
+            </button>
+        </div>
+    );
+
     return (
         <div className="space-y-4">
             <InfoBanner storageKey="help_traffic_sources" title={t('help.trafficSourceBannerTitle')}>
@@ -265,7 +327,7 @@ const TrafficSources = ({ refreshData }) => {
             {showFilters && (
                 <div className="page-card" style={{ padding: '16px' }}>
                     <div className="flex flex-wrap gap-4 items-center">
-                        <div className="relative min-w-[220px]">
+                        <div className="relative min-w-[220px] tb-release">
                             <Search 
                                 className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none select-none" 
                                 style={{ color: 'var(--color-text-muted)' }} 
@@ -297,7 +359,7 @@ const TrafficSources = ({ refreshData }) => {
                         <select
                             value={stateFilter}
                             onChange={(e) => setStateFilter(e.target.value)}
-                            className="form-select"
+                            className="form-select tb-release"
                             style={{ width: 'auto', minWidth: '160px' }}
                         >
                             <option value="all">{t('common.all')}</option>
@@ -321,7 +383,10 @@ const TrafficSources = ({ refreshData }) => {
                 </div>
             ) : (
                 <div className="page-card p-0 overflow-hidden">
-                    <div className="overflow-x-auto">
+                    {/* Below lg the nine-column table is replaced by stacked
+                        cards; the table keeps its scroll container for
+                        tablets. */}
+                    <div className="hidden lg:block overflow-x-auto">
                         <table className="page-table">
                             <thead>
                                 <tr>
@@ -369,38 +434,7 @@ const TrafficSources = ({ refreshData }) => {
                                                 )}
                                             </td>
                                             <td>
-                                                {source.url ? (
-                                                    <div className="flex flex-col gap-1">
-                                                        <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-sm underline hover:text-primary">
-                                                            {new URL(source.url, 'https://' + source.url).hostname}
-                                                        </a>
-                                                        {source.http_status && source.http_status !== 'unknown' && (
-                                                            <div className="flex items-center gap-2">
-                                                                <span className={`text-xs ${source.http_status === '200' ? 'text-[var(--color-success,#10b981)]' : 'text-[var(--color-danger,#ef4444)]'}`}>
-                                                                    {source.http_status === '200' ? '✓ OK' : `✗ ${source.http_status}`}
-                                                                </span>
-                                                                <button
-                                                                    onClick={() => checkSourceUrl(source.id)}
-                                                                    className="text-xs hover:underline"
-                                                                    style={{ color: 'var(--color-primary)' }}
-                                                                >
-                                                                    {t('sources.check')}
-                                                                </button>
-                                                            </div>
-                                                        )}
-                                                        {!source.http_status || source.http_status === 'unknown' ? (
-                                                            <button
-                                                                onClick={() => checkSourceUrl(source.id)}
-                                                                className="text-xs hover:underline"
-                                                                style={{ color: 'var(--color-primary)' }}
-                                                            >
-                                                                {t('sources.check')}
-                                                            </button>
-                                                        ) : null}
-                                                    </div>
-                                                ) : (
-                                                    <span className="text-sm" style={{ color: 'var(--color-text-muted)' }}>—</span>
-                                                )}
+                                                {renderSourceUrl(source)}
                                             </td>
                                             <td>
                                                 <span className="status-badge" style={{ backgroundColor: 'var(--color-bg-soft)', color: 'var(--color-text-secondary)' }}>
@@ -411,33 +445,50 @@ const TrafficSources = ({ refreshData }) => {
                                             <td>{source.clicks || 0}</td>
                                             <td>{source.conversions || 0}</td>
                                             <td>
-                                                <span className={`status-badge ${source.state === 'active' ? 'status-active' : 'status-pending'}`}>
-                                                    {source.state === 'active' ? t('components.active') : t('components.paused')}
-                                                </span>
+                                                {renderSourceState(source)}
                                             </td>
                                             <td>
-                                                <div className="action-buttons">
-                                                    <button
-                                                        onClick={() => handleEdit(source.id)}
-                                                        className="action-btn"
-                                                        title={t('components.edit')}
-                                                    >
-                                                        <Edit size={16} />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDelete(source.id)}
-                                                        className="action-btn text-red"
-                                                        title={t('common.delete')}
-                                                    >
-                                                        <Trash2 size={16} />
-                                                    </button>
-                                                </div>
+                                                {renderSourceActions(source)}
                                             </td>
                                         </tr>
                                     ))
                                 )}
                             </tbody>
                         </table>
+                    </div>
+
+                    {/* Mobile: stacked cards (below lg). URL, state and actions
+                        come from the same renderers the table uses. */}
+                    <div className="lg:hidden">
+                        <MobileCards
+                            rows={filteredSources}
+                            getId={(s) => s.id}
+                            renderTitle={(s) => (
+                                <>
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedIds.has(s.id)}
+                                        onChange={(e) => toggleSelected(s.id, e.target.checked)}
+                                        className="rounded flex-shrink-0"
+                                        style={{ accentColor: 'var(--color-primary)' }}
+                                        aria-label={s.name}
+                                    />
+                                    <span className="font-semibold text-sm flex-1 min-w-0 line-clamp-2 break-words" style={{ color: 'var(--color-text-primary)' }}>{s.name}</span>
+                                </>
+                            )}
+                            renderSubtitle={(s) => s.notes ? s.notes.substring(0, 60) : `#${s.id}`}
+                            renderHeaderRight={renderSourceActions}
+                            fields={[
+                                { id: 'url', label: t('sources.urlStatus'), render: renderSourceUrl },
+                                { id: 'template', label: t('sources.template'), render: (s) => s.template || t('sources.customTemplate') },
+                                { id: 'campaigns', label: t('campaigns.campaigns'), render: (s) => s.campaigns_count || 0 },
+                                { id: 'clicks', label: t('components.clicks'), render: (s) => s.clicks || 0 },
+                                { id: 'conversions', label: t('metrics.conversions'), render: (s) => s.conversions || 0 },
+                                { id: 'state', label: t('components.status'), render: renderSourceState },
+                            ]}
+                            primaryIds={['clicks', 'conversions', 'campaigns']}
+                            emptyState={<div className="text-center py-10" style={{ color: 'var(--color-text-muted)' }}>{search ? t('sources.notFound') : t('sources.noSourcesAdd')}</div>}
+                        />
                     </div>
                 </div>
             )}

@@ -912,6 +912,7 @@ export default {
         "sslRunFailed": "Failed",
         "sslRunError": "Could not start issuance",
         "sslWaitingDns": "Waiting for DNS — the domain does not point at this server yet. The certificate will be issued as soon as the A record propagates.",
+        "sslAwaitingDnsSwitch": "DNS still points to Cloudflare, so the origin certificate cannot be issued yet. The proxy flag was restored to match DNS; this clears itself once the record propagates.",
         "sslRetrying": "The last issuance attempt failed. The tracker keeps retrying automatically.",
         "sslNotWired": "The certificate exists but the web server is not serving it yet — the config is being rebuilt.",
         "sslFailed": "SSL error",

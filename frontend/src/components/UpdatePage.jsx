@@ -358,7 +358,11 @@ const UpdatePage = () => {
                             }}>
                                 <span style={{ fontSize: '16px' }}>📦</span>
                             </div>
-                            <div style={{ flex: 1 }}>
+                            {/* minWidth 0 on both flex child and scroll block:
+                                a flex item refuses to shrink below its content
+                                otherwise, and the page dragged sideways instead
+                                of the command block scrolling. */}
+                            <div style={{ flex: 1, minWidth: 0 }}>
                                 <p style={{ fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: '4px' }}>{t('update.gitUpdate')}</p>
                                 <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '12px' }}>
                                     {t('update.gitUpdateDesc')}
@@ -371,6 +375,8 @@ const UpdatePage = () => {
                                     fontSize: '13px',
                                     color: '#a3e635',
                                     overflowX: 'auto',
+                                    minWidth: 0,
+                                    maxWidth: '100%',
                                     whiteSpace: 'nowrap'
                                 }}>
                                     <code>cd /path/to/orbitra</code><br />
