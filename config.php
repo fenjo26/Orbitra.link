@@ -73,7 +73,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 39;
+    $LATEST_SCHEMA_VERSION = 40;
 
     $schemaVersion = 0;
     try {
@@ -2137,6 +2137,35 @@ try {
                                 ON stream_rotation_log(rotation_key, created_at)");
                     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_stream_rotation_log_campaign
                                 ON stream_rotation_log(campaign_id, created_at)");
+                } catch (\Throwable $e) {
+                    // Table/index already present on a half-migrated DB.
+                }
+            }
+
+            if ($schemaVersion < 40) {
+                // Migration 40: Ad-entity status cache for the report toggles.
+                //
+                // ad_entity_statuses does one live Graph call per ad / adset /
+                // ad_campaign row (~25 on an ad-level report). Under a rate
+                // limit every call failed and every report open retried all of
+                // them — the account never got a window to clear the limit.
+                // Successes cache for 5 minutes (only a status changed in
+                // Facebook's own UI can be missed; panel toggles write
+                // through ad_entity_toggle_status), failures for 15 minutes —
+                // a cached failure serves nothing rather than a fabricated
+                // ACTIVE, and the toggle keeps its optimistic mark.
+                try {
+                    $pdo->exec("
+                        CREATE TABLE IF NOT EXISTS ad_entity_status_cache (
+                            entity_id TEXT PRIMARY KEY,
+                            status TEXT NOT NULL DEFAULT '',
+                            effective TEXT NOT NULL DEFAULT '',
+                            ok INTEGER NOT NULL DEFAULT 0,
+                            fetched_at TEXT NOT NULL DEFAULT (datetime('now'))
+                        )
+                    ");
+                    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_ad_entity_status_cache_fetched
+                                ON ad_entity_status_cache(fetched_at)");
                 } catch (\Throwable $e) {
                     // Table/index already present on a half-migrated DB.
                 }

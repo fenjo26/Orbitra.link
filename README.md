@@ -1,4 +1,4 @@
-# Orbitra v1.3.5 Tracker
+# Orbitra v1.3.6 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,29 +11,28 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.3.5
+## 🆕 What's New in v1.3.6
 
-The tester's addendum IV — the mobile panel. All 12 items that exist in this repository (his fork-only theme arc stays out).
+The tester's addendum V — the 14 items real in this repository (the metric-semantics rewrite stays out: our formulas are pinned by the operator's own decision and tests).
 
-### Fixed — mobile
+### Fixed — metrics & backend
 
-- **📱 Domains, Affiliate Networks & Traffic Sources render as stacked cards below `lg`** — the three pages were 7–9-column horizontal-scroll tables on a phone; the complex cells (domain status, SSL, actions, source URL) are extracted into shared render helpers, so the desktop table and the cards cannot drift
-- **📲 Modals below 480px are full-height sheets** (`100dvh` + safe-area insets) instead of centred dialogs that hid tall forms' footers below the fold
-- **🏷️ Card titles clamp to two lines** — `Facebook Ads - [IN] - P…` no longer makes four consecutive campaigns indistinguishable; actions share the subtitle row
-- **🎚️ Toolbars release their fixed widths below 480px** — controls share rows, the main search takes a full row, redundant labels hide
-- **📊 The report's pinned name column unpins on phones**; the Conversions filter grid stops overflowing; five `min-width:auto` overflow traps fixed; `<main>` uses `overflow-x: clip` (not `hidden` — that would break sticky headers); 84px top padding
+- **👥 The Visitors column finally counts visitors** — it was a duplicate alias of the global-unique sum at four query sites, so the panel could show Clicks *higher* than Visitors; it now counts hits, uniqueness keeps its own column, and the totals row mirrors the backend formulas (cpv/epv/eCPC/eCPM) again
+- **🌐 The deferred DNS refresh survives its second domain** — the v1.3.5 statement was reused across the resolver's own queries and failed with SQLITE error 21 on FPM; prepared per iteration now, with a locked-retry
+- **⚡ New: ad-entity status cache (schema 40)** — report toggles answer from a 5-min success / 15-min failure cache instead of ~25 live Graph calls per report open, which under a rate limit never cleared
 
-### Fixed — backend
+### Fixed — panel
 
-- **🌐 The DNS cache TTL actually works** — stale statuses serve instantly and refresh after the response (`fastcgi_finish_request`), instead of living forever; the per-lookup debug log is gone
-- **🔐 SSL queue: `ssl_source` added to the SELECT** + a translated `awaiting_dns_for_ssl_switch` reason when the Cloudflare auto-detect overrides an explicit Let's Encrypt/custom choice, instead of silently clearing the error
-- **🔑 Login failures return `invalid_credentials`** and map through `t()` — an English panel no longer shows Russian prose
+- **📉 The dashboard poll is dashboard-scoped** — seven requests every 10s on *every* tab (~60k/day against one SQLite writer) now run only on Dashboard, at 15s, paused in hidden tabs — the real cause of "reports are slow"
+- **📅 The date range survives reloads** (Campaigns in localStorage, the report in sessionStorage; presets stored by id and re-derived — "today" still means today); **the report survives a refresh** (`#report/<id>` in the URL); the picker highlights the right preset chip
+- **📱 Mobile editor: rotation rows wrap** (the name is no longer squeezed out by the weight/edit/delete controls), the rotation toolbar wraps at all five sites, the Conditions popover and the date picker are bottom sheets, preset chips stop compressing
+- **🎛️ Campaigns Actions column sized for four controls; Namecheap buttons render disabled instead of reflowing the toolbar**
 
-### Previous Highlights (v1.3.4)
+### Previous Highlights (v1.3.5)
 
-- 📥 Namecheap import fixed; 🔐 domain save no longer wipes the SSL config; ☁️ the CF proxy toggle actually switches the DNS record; 🎛️ `ssl_source` is the SSL-mode SSOT; 🚨 real error messages at 38 catch sites; 🔌 IPv4 pinned on outbound calls; 🌐 split a duplicate i18n key
+- 📱 Stacked cards for Domains/Networks/Sources below `lg` with shared render helpers; 📲 modals are full-height sheets below 480px; 🏷️ two-line card titles; 🎚️ toolbars release fixed widths; 🌐 DNS cache TTL actually works (deferred refresh via `fastcgi_finish_request`); 🔐 `ssl_source` in the SSL queue SELECT + a translated override reason; 🔑 login errors map through `t()`
 
-Older releases (v1.3.3 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.3.4 and earlier): see the [full changelog](CHANGELOG.md).
 
 ## 🖥 Live Demo
 

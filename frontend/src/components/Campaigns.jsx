@@ -25,13 +25,18 @@ const API_URL = '/api.php';
 const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, setEditingCampaignId, user }) => {
     const { t } = useLanguage();
     const [actionModal, setActionModal] = useState({ type: null, campaignId: null });
-    const [selectedCampaignIds, setSelectedCampaignIds] = useState(() => new Set());
+    const [selectedCampaignIds, setSelectedCampaignIds] = useState(() => {
+        // Seeded from the URL hash (#report/<id>): a refresh inside a report
+        // returns to that report, not the campaign list (§ the hash mirror).
+        const m = /^#report(?:\/(\d+))?/.exec(window.location.hash || '');
+        return new Set(m && m[1] ? [Number(m[1])] : []);
+    });
     const [sortBy, setSortBy] = useState({ key: null, dir: 'desc' }); // key=null keeps API order
     const [search, setSearch] = useState('');
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [showGroupsModal, setShowGroupsModal] = useState(false);
-    const [showGlobalReports, setShowGlobalReports] = useState(false);
+    const [showGlobalReports, setShowGlobalReports] = useState(() => /^#report/.test(window.location.hash || ''));
 
     // One-click pause: flips campaigns.state; a disabled campaign stops serving
     // immediately (index.php answers 503). Optimistic — reverts on failure.
@@ -235,10 +240,23 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         handleToggleCampaignState(camp, 'PAUSED');
     };
 
-    // Date & Timezone Range Picker State
+    // Date & Timezone Range Picker State. The range persists across reloads
+    // and navigation (localStorage). A stored preset is re-derived through
+    // getPresetDates on mount, never replayed as literal dates — "today"
+    // must still mean today tomorrow, not yesterday's dates under a today
+    // label.
+    const savedRange = (() => {
+        try { return JSON.parse(localStorage.getItem('orbitra_campaigns_range') || 'null'); } catch (e) { return null; }
+    })();
     const todayPreset = getPresetDates('today');
-    const [dateFrom, setDateFrom] = useState(todayPreset?.from || formatDate(new Date()));
-    const [dateTo, setDateTo] = useState(todayPreset?.to || formatDate(new Date()));
+    const initialRange = (savedRange?.preset && savedRange.preset !== 'custom' && getPresetDates(savedRange.preset))
+        || {
+            from: savedRange?.from || todayPreset?.from || formatDate(new Date()),
+            to: savedRange?.to || todayPreset?.to || formatDate(new Date()),
+        };
+    const [datePreset, setDatePreset] = useState(savedRange?.preset || 'today');
+    const [dateFrom, setDateFrom] = useState(initialRange.from);
+    const [dateTo, setDateTo] = useState(initialRange.to);
     const [timezone, setTimezone] = useTimezone();
 
     // Active Campaign Data (fetched with date & group parameters)
@@ -282,7 +300,9 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         { id: 'id', width: 70 },
         { id: 'state', width: 90 },
         { id: 'name', width: 300 },
-        { id: 'actions', width: 110 },
+        // Four controls render here (three quick actions + the kebab); the
+        // old 110 was sized for three and the kebab landed on the Group cell.
+        { id: 'actions', width: 150 },
         { id: 'group_name', width: 140 },
         ...visibleColumns.map(id => ({ id, width: 120 }))
     ]), [visibleColumns]);
@@ -342,9 +362,15 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         fetchCampaigns();
     }, [dateFrom, dateTo, selectedGroupId, timezone]);
 
-    const handleDateChange = (from, to) => {
+    const handleDateChange = (from, to, preset) => {
         setDateFrom(from);
         setDateTo(to);
+        // The picker passes its preset id as an optional third argument; store
+        // it with the dates so the next mount re-derives the range instead of
+        // replaying frozen dates.
+        const p = preset || 'custom';
+        setDatePreset(p);
+        try { localStorage.setItem('orbitra_campaigns_range', JSON.stringify({ preset: p, from, to })); } catch (e) {}
     };
 
     const handleSaveColumns = (cols) => {
@@ -480,7 +506,9 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     const grandTotals = useMemo(() => {
         const t0 = {
             clicks: 0,
+            visitors: 0,
             unique_clicks: 0,
+            unique_clicks_global: 0,
             prelander_clicks: 0,
             lp_views: 0,
             lp_clicks: 0,
@@ -503,7 +531,9 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
 
         visibleCampaigns.forEach(c => {
             t0.clicks += Number(c.clicks) || 0;
+            t0.visitors += Number(c.visitors) || 0;
             t0.unique_clicks += Number(c.unique_clicks) || 0;
+            t0.unique_clicks_global += Number(c.unique_clicks_global) || 0;
             const lpViews = Number(c.lp_views ?? c.prelander_clicks ?? c.clicks) || 0;
             t0.prelander_clicks += lpViews;
             t0.lp_views += lpViews;
@@ -545,11 +575,19 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         const roi = t0.cost > 0 ? (t0.profit / t0.cost) * 100 : 0;
         const real_roi = t0.cost > 0 ? (t0.real_profit / t0.cost) * 100 : 0;
         const epc = lpClickDenominator > 0 ? t0.revenue / lpClickDenominator : 0;
-        const epv = t0.lp_views > 0 ? t0.revenue / t0.lp_views : 0;
         const uepc = t0.unique_clicks > 0 ? t0.revenue / t0.unique_clicks : 0;
         const cpc = lpClickDenominator > 0 ? t0.cost / lpClickDenominator : 0;
         const ucpc = t0.unique_clicks > 0 ? t0.cost / t0.unique_clicks : 0;
-        const cpv = t0.lp_views > 0 ? t0.cost / t0.lp_views : 0;
+        // CPV/EPV/eCPC/eCPM mirror orbitraComputeDerivedMetrics (the backend
+        // is the source of truth and its formulas are pinned in
+        // tests/report_metrics_test.php): all four are visit-denominated —
+        // ÷ clicks. The old frontend copies divided by lp_views, which the
+        // backend never did; totals-row and per-row values could disagree.
+        const cpv = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
+        const epv = t0.clicks > 0 ? t0.revenue / t0.clicks : 0;
+        const ecpc = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
+        const ecpm_all = t0.clicks > 0 ? (t0.profit / t0.clicks) * 1000 : 0;
+        const ecpm_confirmed = t0.clicks > 0 ? (profit_confirmed / t0.clicks) * 1000 : 0;
         const cpa = t0.conversions > 0 ? t0.cost / t0.conversions : 0;
         const earnings_per_conv = t0.conversions > 0 ? t0.revenue / t0.conversions : 0;
 
@@ -578,6 +616,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             cpc,
             ucpc,
             cpv,
+            epv,
+            ecpc,
+            ecpm_all,
+            ecpm_confirmed,
             cpa,
             earnings_per_conv
         };
@@ -613,6 +655,17 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     const reportTargetCampaign = selectedCampaignIds.size === 1
         ? (campaignList.find(c => c.id === [...selectedCampaignIds][0]) ?? null)
         : null;
+
+    // Mirror the report overlay in the URL hash (#report / #report/<id>), so a
+    // refresh returns to it. replaceState, not push — Back must leave the
+    // page, not walk through every open and close of the overlay.
+    useEffect(() => {
+        const base = window.location.pathname + window.location.search;
+        const hash = showGlobalReports
+            ? `#report${reportTargetCampaign ? '/' + reportTargetCampaign.id : ''}`
+            : '';
+        window.history.replaceState(null, '', base + hash);
+    }, [showGlobalReports, reportTargetCampaign]);
 
     const handleBulkDeleteSelected = async () => {
         const ids = Array.from(selectedCampaignIds);
@@ -841,7 +894,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                         <Plus className="w-3.5 h-3.5" />
                         {t('common.create')}
                     </button>
-                    <button onClick={() => setShowGlobalReports(true)} className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium" title={reportTargetCampaign ? `${t('campaignReports.report')}: ${reportTargetCampaign.name}` : t('campaignReports.report')}>
+                    <button onClick={() => { try { sessionStorage.removeItem('orbitra_reports_range'); } catch (e) {} setShowGlobalReports(true); }} className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium" title={reportTargetCampaign ? `${t('campaignReports.report')}: ${reportTargetCampaign.name}` : t('campaignReports.report')}>
                         <BarChart2 className="w-3.5 h-3.5" />
                         {t('campaignReports.report')}
                     </button>
@@ -940,6 +993,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                         dateFrom={dateFrom}
                         dateTo={dateTo}
                         onChange={handleDateChange}
+                        initialPreset={datePreset}
                         selectedTimezone={timezone}
                         onTimezoneChange={setTimezone}
                     />

@@ -2770,7 +2770,7 @@ try {
                        SUM(cl.uniq_campaign) as unique_clicks,
                        SUM(cl.uniq_stream) as unique_clicks_stream,
                        SUM(cl.uniq_global) as unique_clicks_global,
-                       SUM(cl.uniq_global) as visitors,
+                       COUNT(cl.id) as visitors,
                        SUM(cl.is_bot) as bots,
                        SUM(cl.is_proxy) as proxies,
                        SUM(CASE WHEN cl.referer IS NULL OR cl.referer = '' THEN 1 ELSE 0 END) as empty_referrers,
@@ -6275,6 +6275,13 @@ try {
             $res = FacebookAdsEngine::updateEntityStatus($credentials, $entityId, $targetStatus);
             if (!empty($res['success'])) {
                 logAudit($pdo, 'UPDATE', 'AdEntity', (int) $connId, "Facebook $type $entityId → $targetStatus");
+                // The status cache must not serve the pre-toggle state for the
+                // next five minutes (schema 40).
+                try {
+                    $pdo->prepare("DELETE FROM ad_entity_status_cache WHERE entity_id = ?")->execute([$entityId]);
+                } catch (\Throwable $e) {
+                    // A failed invalidation costs freshness, not the toggle.
+                }
                 echo json_encode(['status' => 'success', 'new_status' => $targetStatus, 'network' => 'facebook']);
             } else {
                 echo json_encode(['status' => 'error', 'message' => $res['message'] ?? 'Failed to update status on Facebook']);
@@ -6336,16 +6343,91 @@ try {
 
                 if ($networkByConn) {
                     require_once __DIR__ . '/aggregator_engines/FacebookAdsEngine.php';
-                    $stmt = $pdo->prepare("SELECT credentials_json FROM aggregator_connections WHERE id = ?");
+
+                    // Status cache (schema 40): fresh successes answer from the
+                    // DB, failures for 15 min. Before it, every report open
+                    // retried one live Graph call per entity, and under a rate
+                    // limit that meant ~25 doomed requests per open, forever.
+                    $freshOk = [];
+                    $skipIds = [];
+                    $needsLive = [];
+                    $idList = [];
+                    foreach ($networkByConn as $connEntityIds) {
+                        foreach ($connEntityIds as $nid) {
+                            $idList[(string) $nid] = true;
+                        }
+                    }
+                    try {
+                        $ph = implode(',', array_fill(0, count($idList), '?'));
+                        $cacheStmt = $pdo->prepare("SELECT entity_id, status, effective, ok, fetched_at FROM ad_entity_status_cache WHERE entity_id IN ($ph)");
+                        $cacheStmt->execute(array_keys($idList));
+                        $now = time();
+                        foreach ($cacheStmt->fetchAll(PDO::FETCH_ASSOC) as $cRow) {
+                            $eid = (string) $cRow['entity_id'];
+                            $age = $now - (int) (strtotime((string) $cRow['fetched_at']) ?: 0);
+                            if ((int) $cRow['ok'] === 1 && $age < 300) {
+                                $freshOk[$eid] = ['status' => (string) $cRow['status'], 'effective' => (string) $cRow['effective']];
+                            } elseif ((int) $cRow['ok'] === 0 && $age < 900) {
+                                // Cached failure: serve nothing rather than a
+                                // fabricated ACTIVE — the toggle keeps its mark.
+                                $skipIds[$eid] = true;
+                            } else {
+                                $needsLive[$eid] = true;
+                            }
+                        }
+                    } catch (\Throwable $e) {
+                        // Cache unavailable (locked / pre-migration): everyone
+                        // falls through to a live read, nothing is skipped.
+                    }
+                    foreach (array_keys($idList) as $eid) {
+                        if (!isset($freshOk[$eid]) && !isset($skipIds[$eid])) {
+                            $needsLive[$eid] = true;
+                        }
+                    }
+
                     foreach ($networkByConn as $connId => $entityIds) {
+                        $toFetch = [];
+                        foreach ($entityIds as $eid) {
+                            if (isset($needsLive[(string) $eid])) {
+                                $toFetch[] = $eid;
+                            }
+                        }
+                        if (!$toFetch) {
+                            continue;
+                        }
+                        // Prepared per connection: the engine's own queries run
+                        // between iterations on the same handle — a statement
+                        // reused across that boundary is left unusable (the
+                        // SQLITE error-21 lesson from the deferred DNS pass).
+                        $stmt = $pdo->prepare("SELECT credentials_json FROM aggregator_connections WHERE id = ?");
                         $stmt->execute([(int) $connId]);
                         $credentials = json_decode((string) $stmt->fetchColumn(), true);
                         if (!is_array($credentials)) {
                             $credentials = [];
                         }
-                        foreach (FacebookAdsEngine::fetchEntityStatuses($credentials, $entityIds) as $id => $st) {
-                            $out[(string) $id] = $st;
+                        $fetched = FacebookAdsEngine::fetchEntityStatuses($credentials, $toFetch);
+                        foreach ($toFetch as $eid) {
+                            $eid = (string) $eid;
+                            $ok = isset($fetched[$eid]) ? 1 : 0;
+                            $st = $fetched[$eid] ?? ['status' => '', 'effective' => ''];
+                            if ($ok === 1) {
+                                $out[$eid] = $st;
+                            }
+                            try {
+                                $pdo->prepare("INSERT INTO ad_entity_status_cache (entity_id, status, effective, ok, fetched_at)
+                                               VALUES (?, ?, ?, ?, datetime('now'))
+                                               ON CONFLICT(entity_id) DO UPDATE SET
+                                               status = excluded.status, effective = excluded.effective,
+                                               ok = excluded.ok, fetched_at = excluded.fetched_at")
+                                    ->execute([$eid, $st['status'], $st['effective'], $ok]);
+                            } catch (\Throwable $e) {
+                                // A failed cache write must not cost the answer.
+                            }
                         }
+                    }
+
+                    foreach ($freshOk as $eid => $st) {
+                        $out[$eid] = $st;
                     }
                 }
 
@@ -7254,11 +7336,30 @@ try {
             if (!empty($staleRows)) {
                 $staleRows = array_slice($staleRows, 0, $maxDnsLookups);
                 $refreshStale = function (array $rows) use ($pdo, $serverIp): void {
-                    $updateStmt = $pdo->prepare("UPDATE domains SET dns_status = ?, dns_reason = ?, dns_ip = ?, dns_checked_at = CURRENT_TIMESTAMP WHERE id = ?");
                     foreach ($rows as $row) {
                         try {
                             $result = orbitraResolveDomainDnsState($pdo, $row, $serverIp);
-                            $updateStmt->execute([$result['status'], $result['reason'], $result['ip'], (int)$row['id']]);
+                            // Prepare per iteration: the resolver issues its own
+                            // queries on this connection between iterations, and a
+                            // statement handle reused across that boundary is left
+                            // unusable — on the live FPM install the first domain
+                            // refreshed and every one after it failed with SQLITE
+                            // error 21. The write retries on lock contention: this
+                            // runs after the response alongside the every-minute
+                            // crons, and a lost locked refresh is a lost refresh.
+                            $attempts = 0;
+                            while (true) {
+                                try {
+                                    $pdo->prepare("UPDATE domains SET dns_status = ?, dns_reason = ?, dns_ip = ?, dns_checked_at = CURRENT_TIMESTAMP WHERE id = ?")
+                                        ->execute([$result['status'], $result['reason'], $result['ip'], (int)$row['id']]);
+                                    break;
+                                } catch (\Throwable $e) {
+                                    if (++$attempts >= 3 || stripos($e->getMessage(), 'locked') === false) {
+                                        throw $e;
+                                    }
+                                    usleep(250000);
+                                }
+                            }
                         } catch (\Throwable $e) {
                             error_log('DNS deferred refresh failed for domain id ' . ($row['id'] ?? '?') . ': ' . $e->getMessage());
                         }
@@ -10921,7 +11022,7 @@ try {
                     SUM(uniq_campaign) as unique_clicks,
                     SUM(uniq_stream) as unique_clicks_stream,
                     SUM(uniq_global) as unique_clicks_global,
-                    SUM(uniq_global) as visitors,
+                    COUNT(click_id) as visitors,
                     SUM(is_bot) as bots,
                     SUM(is_proxy) as proxies,
                     SUM(CASE WHEN referer IS NULL OR referer = '' THEN 1 ELSE 0 END) as empty_referrers,

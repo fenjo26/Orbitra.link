@@ -1629,13 +1629,21 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         return (
             <>
                 <div className="fixed inset-0 z-40" onClick={() => setAutoPopover(null)} />
+                {/* Below lg the popover is a bottom sheet: a 320px panel
+                    anchored right-0 to a button near the screen edge hangs off
+                    the left side and half its text is unreachable. The fixed
+                    backdrop above already provides the tap-outside exit. */}
                 <div
-                    className="absolute right-0 top-full mt-1.5 w-80 rounded-2xl shadow-lg p-3.5 space-y-3 z-50 text-left"
+                    className="fixed inset-x-0 bottom-0 rounded-t-2xl shadow-lg p-3.5 space-y-3 z-50 text-left lg:absolute lg:inset-x-auto lg:bottom-auto lg:right-0 lg:top-full lg:mt-1.5 lg:w-80 lg:rounded-2xl"
                     style={{
                         backgroundColor: 'var(--color-bg-card)',
                         border: '1px solid var(--color-border)',
-                        maxHeight: 'calc(100vh - 140px)',
-                        overflowY: 'auto'
+                        // dvh, not vh: iOS Safari's collapsing toolbar puts a
+                        // vh footer underneath it. Safe-area keeps the foot
+                        // clear of the home indicator (viewport-fit=cover).
+                        maxHeight: 'min(85dvh, 640px)',
+                        overflowY: 'auto',
+                        paddingBottom: 'calc(14px + env(safe-area-inset-bottom))'
                     }}
                     onClick={e => e.stopPropagation()}
                 >
@@ -2000,7 +2008,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         return (
             <div
                 key={lIdx}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl transition-opacity"
+                className="flex flex-wrap items-center gap-2 px-3 py-2 rounded-xl transition-opacity"
                 style={{
                     backgroundColor: 'var(--color-bg-card)',
                     border: empty ? '1px dashed var(--color-border)' : '1px solid var(--color-border)',
@@ -2023,7 +2031,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         />
                     </button>
                 )}
-                <div className="flex-1 min-w-0">
+                {/* basis-full below sm: the name and badges get their own line
+                    with the toggle, weight and controls wrapping beneath — at
+                    phone width the three flex-shrink-0 siblings otherwise
+                    squeeze this block to zero and truncate() removes the name
+                    entirely. sm+ restores the single-row layout unchanged. */}
+                <div className="flex-1 min-w-0 basis-full sm:basis-auto">
                     <div className="text-sm font-medium truncate" style={{ color: empty ? 'var(--color-warning)' : 'var(--color-text-primary)' }} title={name}>{name}</div>
                     {info && (
                         <div className="flex flex-wrap gap-1 mt-1">
@@ -2059,7 +2072,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         return (
             <div
                 key={oIdx}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl transition-opacity"
+                className="flex flex-wrap items-center gap-2 px-3 py-2 rounded-xl transition-opacity"
                 style={{
                     backgroundColor: 'var(--color-bg-card)',
                     border: empty ? '1px dashed var(--color-border)' : '1px solid var(--color-border)',
@@ -2082,7 +2095,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         />
                     </button>
                 )}
-                <div className="flex-1 min-w-0">
+                {/* basis-full below sm: the name and badges get their own line
+                    with the toggle, weight and controls wrapping beneath — at
+                    phone width the three flex-shrink-0 siblings otherwise
+                    squeeze this block to zero and truncate() removes the name
+                    entirely. sm+ restores the single-row layout unchanged. */}
+                <div className="flex-1 min-w-0 basis-full sm:basis-auto">
                     <div className="text-sm font-medium truncate" style={{ color: empty ? 'var(--color-warning)' : 'var(--color-text-primary)' }} title={name}>{name}</div>
                     {info && (
                         <div className="flex flex-wrap gap-1 mt-1">
@@ -3994,7 +4012,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                     <div>
                                                         <div className="flex justify-between items-center flex-wrap gap-2 mb-2">
                                                             <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('editor.landings')}</span>
-                                                            <div className="flex items-center gap-2">
+                                                            <div className="flex items-center gap-2 flex-wrap justify-end min-w-0">
                                                                 {renderSchemaAutoControls(idx, 'landings', stream.schema_custom?.landings)}
                                                                 {renderSchemaEqualizeButton(idx, 'landings', stream.schema_custom?.landings)}
                                                                 <AddDropdownButton
@@ -4019,7 +4037,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                         <div className="pt-3" style={{ borderTop: '1px solid var(--color-border)' }}>
                                                             <div className="flex justify-between items-center flex-wrap gap-2 mb-2">
                                                                 <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('editor.offers')}</span>
-                                                                <div className="flex items-center gap-2">
+                                                                <div className="flex items-center gap-2 flex-wrap justify-end min-w-0">
                                                                     {renderSchemaAutoControls(idx, 'offers', stream.schema_custom?.offers)}
                                                                     {renderSchemaEqualizeButton(idx, 'offers', stream.schema_custom?.offers)}
                                                                     <AddDropdownButton
@@ -4702,7 +4720,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                 <div>
                                                                     <div className="flex justify-between items-center flex-wrap gap-2 mb-1.5">
                                                                         <span className="text-xs font-semibold" style={{ color: 'var(--color-text-secondary)' }}>{t('editor.landings')}</span>
-                                                                        <div className="flex items-center gap-2">
+                                                                        <div className="flex items-center gap-2 flex-wrap justify-end min-w-0">
                                                                             {renderSchemaAutoControls(idx, 'landings', sc.landings)}
                                                                             {renderSchemaEqualizeButton(idx, 'landings', sc.landings)}
                                                                             <AddDropdownButton
@@ -4729,7 +4747,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                 <div className="pt-2" style={{ borderTop: '1px solid var(--color-border)' }}>
                                                                     <div className="flex justify-between items-center flex-wrap gap-2 mb-1.5">
                                                                         <span className="text-xs font-semibold" style={{ color: 'var(--color-text-secondary)' }}>{t('editor.offers')}</span>
-                                                                        <div className="flex items-center gap-2">
+                                                                        <div className="flex items-center gap-2 flex-wrap justify-end min-w-0">
                                                                             {renderSchemaAutoControls(idx, 'offers', sc.offers)}
                                                                             {renderSchemaEqualizeButton(idx, 'offers', sc.offers)}
                                                                             <AddDropdownButton
@@ -4872,7 +4890,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                 <div className="space-y-3">
                                                                     <div className="flex justify-between items-center">
                                                                         <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('editor.offers')}</span>
-                                                                        <div className="flex items-center gap-2">
+                                                                        <div className="flex items-center gap-2 flex-wrap justify-end min-w-0">
                                                                             {renderSchemaAutoControls(idx, 'offers', sc.offers)}
                                                                             {renderSchemaEqualizeButton(idx, 'offers', sc.offers)}
                                                                             <AddDropdownButton

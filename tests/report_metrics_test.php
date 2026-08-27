@@ -253,7 +253,10 @@ $assert('L1 bots', $lp[1]['bots'], 0, 0);
 $assert('L1 empty_referrers', $lp[1]['empty_referrers'], 1, 0);
 $assert('L1 unique_clicks_stream', $lp[1]['unique_clicks_stream'], 2, 0);
 $assert('L1 unique_clicks_global', $lp[1]['unique_clicks_global'], 2, 0);
-$assert('L1 visitors', $lp[1]['visitors'], 2, 0);
+// visitors counts logged hits (COUNT), not the global unique sum — the old
+// `SUM(uniq_global) as visitors` alias made the panel show Clicks > Visitors,
+// an impossible relationship. Uniqueness has its own column above.
+$assert('L1 visitors', $lp[1]['visitors'], 3, 0);
 $assert('L1 avg_lp_seconds', $lp[1]['avg_lp_seconds'], 95);
 $assert('L1 real_revenue', $lp[1]['real_revenue'], 12);
 $assert('L1 real_profit', $lp[1]['real_profit'], -4);

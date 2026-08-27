@@ -7,6 +7,95 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.3.6] — 2026-08-27
+
+Bugfix-and-performance release porting the tester's addendum V — the 14 items
+of that report that are real in this repository. Left out by decision: the
+§1.39 metric-semantics rewrite (our formulas are pinned by the operator's
+v0.9.9.2 resolution and tests), §1.40 safe-page per-campaign exclusion (the
+tester's own port broke his panel with 500s and he reverted it), and the
+bot-feed feature suite (a feature, not a fix — separate plan).
+
+### Fixed — metrics
+
+- **The Visitors column finally counts visitors.** `visitors` was a duplicate
+  alias of `SUM(uniq_global)` at four query sites (two in `api.php`, two in
+  `ReportMetrics.php`), so the panel could show Clicks *higher* than Visitors
+  — an impossible relationship, since a click cannot happen without a visit.
+  It is now `COUNT` over the same filtered rows; uniqueness keeps its own
+  `unique_clicks_global` column. The pinned test expectation was asserting
+  the old alias and is updated with a comment.
+- **The Campaigns totals row agrees with the backend again.** `grandTotals`
+  had no `visitors`/`unique_clicks_global` keys (the totals read 0 / dash
+  while rows totalled correctly), and its own copies of `cpv`/`epv` divided
+  by `lp_views` where the backend divides by clicks. The keys are added and
+  the formulas now mirror `orbitraComputeDerivedMetrics`, including eCPC and
+  eCPM which the totals row could not show at all.
+
+### Fixed — backend
+
+- **The deferred DNS refresh survives its second domain.** The v1.3.5
+  deferred pass prepared its UPDATE once and reused the handle across
+  iterations of `orbitraResolveDomainDnsState()` — which issues its own
+  queries on the same connection between them. On the live FPM install the
+  first domain refreshed and every one after failed with SQLITE error 21;
+  error 5 (lock contention against the every-minute crons) simply lost the
+  refresh. The statement is now prepared per iteration and the write retries
+  three times with a 250 ms pause on a `locked` message. The same
+  prepared-per-connection fix applies to the ad-credentials loop in
+  `ad_entity_statuses`, which had the identical reuse shape.
+- **New: ad-entity status cache (schema 40).** Every Ad/AdSet/Ad Campaign row
+  in a report carries a live status toggle, fed by one Graph call per entity
+  per open — roughly 25 requests on an ad-level report. Under a rate limit
+  every call failed and every open retried all of them, so the account never
+  got a window to clear the limit (1,064 logged `User request limit reached`
+  errors on the tester's install). Successes now cache for 5 minutes and
+  failures for 15; a cached failure serves nothing rather than a fabricated
+  ACTIVE, and the panel's own toggle invalidates its row on success.
+
+### Fixed — panel
+
+- **The dashboard poll no longer fires on every tab.** Seven parallel
+  requests every 10 seconds, gated on login alone — ~60,000 a day against
+  the single SQLite writer, and the actual cause of "reports are slow"
+  (the report SQL itself measures 47 ms). The interval is scoped to the
+  Dashboard tab, slowed to 15 s, and skipped while the tab is hidden.
+- **The date range survives reloads and navigation.** Campaigns persists its
+  range in localStorage, the report overlay in sessionStorage (the Report
+  button clears it, so every fresh open starts at the default). A stored
+  preset is kept by id and re-derived through `getPresetDates()` on mount —
+  "today" still means today tomorrow, not yesterday's dates under a today
+  label. The picker passes its preset id as an optional third `onChange`
+  argument and accepts an `initialPreset`, so a restored range highlights
+  the right chip; the other four callers are unchanged.
+- **A refresh inside a report returns to that report.** The overlay is
+  mirrored in the URL hash (`#report`, `#report/<id>`), read on mount to
+  seed both the overlay and the campaign selection, and kept in step via
+  `replaceState` — Back still leaves the page rather than walking through
+  every open and close.
+- **The Campaigns Actions column fits its four controls** (three quick
+  actions + kebab): 150px instead of the 110 sized for three, which landed
+  the kebab on the Group column's text.
+- **The Namecheap toolbar buttons no longer reflow the toolbar.** They
+  rendered only after the status fetch resolved, so the layout depended on
+  network timing. Both render from first paint, disabled until the status
+  answers (including on failure — a dead check must not leave dead buttons).
+- **Rotation rows wrap below `sm`.** The name block takes `basis-full` so
+  name and badges get their own line with the weight and controls beneath;
+  at phone width the three `flex-shrink-0` siblings squeezed the name to
+  zero and `truncate` removed it entirely. `sm+` restores the single-row
+  layout unchanged.
+- **The rotation toolbar group wraps at all five schema sites** — the inner
+  group holding AUTO / Split Evenly / Add had no wrap and ran past the card
+  once Auto added a fifth control.
+- **The Conditions popover is a bottom sheet below `lg`** (its 320px
+  right-anchored panel hung off the left edge of a phone); the existing
+  fixed backdrop provides the tap-outside exit. Desktop positioning is
+  untouched behind `lg:` prefixes.
+- **The date picker panel is a bottom sheet below `sm`** with
+  non-shrinkable preset chips — `whitespace-nowrap` does not stop a flex
+  child being squeezed, and the labels compressed into each other.
+
 ## [1.3.5] — 2026-08-26
 
 Mobile-first bugfix release porting the tester's addendum IV — all 12 items

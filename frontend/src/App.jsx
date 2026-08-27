@@ -358,14 +358,21 @@ function App() {
   };
 
   useEffect(() => {
-    if (user) {
-      fetchData();
-      const interval = setInterval(fetchData, 10000);
-      return () => clearInterval(interval);
-    }
+    if (!user) return;
+    fetchData();
+    // Only the dashboard renders this data. Polling on every tab fired seven
+    // requests per 10s at the single SQLite writer (~60k/day, queued behind
+    // the crons — the real cause of "reports are slow"). The interval is
+    // dashboard-scoped, 15s, and silent while the tab is hidden; the initial
+    // fetch still runs per tab change — a burst, not a stream.
+    if (activeTab !== 'dashboard') return;
+    const interval = setInterval(() => {
+      if (!document.hidden) fetchData();
+    }, 15000);
+    return () => clearInterval(interval);
     // dashboardTimezone: the dashboard's own numbers are bucketed by it server-side,
     // so a timezone change has to refetch, not just relabel.
-  }, [user, dashboardFilters, dashboardTimezone]);
+  }, [user, dashboardFilters, dashboardTimezone, activeTab]);
 
   // Fetch global settings (e.g., default currency) once per session.
   useEffect(() => {

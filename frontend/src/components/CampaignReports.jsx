@@ -107,10 +107,25 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     const [layers, setLayers] = useState(() => resolveInitialGroupLayers(REPORT_LAYER_PRESETS));
     const [filters, setFilters] = useState([]);
 
-    // Date & Timezone Picker
-    const todayPreset = getPresetDates('last7Days') || getPresetDates('today');
-    const [dateFrom, setDateFrom] = useState(todayPreset?.from || formatDate(new Date()));
-    const [dateTo, setDateTo] = useState(todayPreset?.to || formatDate(new Date()));
+    // Date & Timezone Picker. The range survives a reload of an open overlay
+    // (sessionStorage); opening from Campaigns clears the key, so every fresh
+    // open starts at the default. A stored preset is re-derived, not replayed
+    // as literal dates — "today" must still mean today tomorrow.
+    const savedRange = (() => {
+        try { return JSON.parse(sessionStorage.getItem('orbitra_reports_range') || 'null'); } catch (e) { return null; }
+    })();
+    const todayPreset = (savedRange?.preset && savedRange.preset !== 'custom' && getPresetDates(savedRange.preset))
+        || getPresetDates('last7Days') || getPresetDates('today');
+    const [dateFrom, setDateFrom] = useState(
+        savedRange?.preset === 'custom'
+            ? (savedRange?.from || todayPreset?.from || formatDate(new Date()))
+            : (todayPreset?.from || formatDate(new Date()))
+    );
+    const [dateTo, setDateTo] = useState(
+        savedRange?.preset === 'custom'
+            ? (savedRange?.to || todayPreset?.to || formatDate(new Date()))
+            : (todayPreset?.to || formatDate(new Date()))
+    );
     const [timezone, setTimezone] = useTimezone();
 
     // Column customizer state
@@ -751,10 +766,13 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                         <DateRangePicker
                             dateFrom={dateFrom}
                             dateTo={dateTo}
-                            onChange={(from, to) => {
+                            onChange={(from, to, preset) => {
                                 setDateFrom(from);
                                 setDateTo(to);
+                                const p = preset || 'custom';
+                                try { sessionStorage.setItem('orbitra_reports_range', JSON.stringify({ preset: p, from, to })); } catch (e) {}
                             }}
+                            initialPreset={savedRange?.preset || 'last7Days'}
                             selectedTimezone={timezone}
                             onTimezoneChange={setTimezone}
                         />

@@ -94,11 +94,15 @@ const DateRangePicker = ({
     onTimezoneChange,
     className = '',
     compact = false,
-    align = 'auto'
+    align = 'auto',
+    // Preset id that produced the initial dates, so a restored range
+    // highlights the right chip instead of always "today". Optional: callers
+    // that ignore preset persistence keep working unchanged.
+    initialPreset
 }) => {
     const { t } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
-    const [activePreset, setActivePreset] = useState('today');
+    const [activePreset, setActivePreset] = useState(initialPreset || 'today');
 
     // Calendar navigation state
     const [viewDate, setViewDate] = useState(() => {
@@ -208,7 +212,10 @@ const DateRangePicker = ({
     };
 
     const handleApply = () => {
-        onChange(tempFrom, tempTo);
+        // The preset id rides along as an optional third argument: callers
+        // that persist the range can store {preset, from, to} and re-derive
+        // on mount instead of replaying frozen dates.
+        onChange(tempFrom, tempTo, activePreset);
         // Commit through the shared store so every mounted view moves together,
         // not just the one that owns this picker.
         setSharedTimezone(timezone);
@@ -313,7 +320,7 @@ const DateRangePicker = ({
             {/* Dropdown Calendar Panel */}
             {isOpen && (
                 <div
-                    className={`absolute top-full mt-2 z-50 rounded-2xl shadow-2xl p-4 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150 ${computedAlign === 'left' ? 'left-0' : 'right-0'}`}
+                    className={`fixed inset-x-0 bottom-0 z-50 rounded-t-2xl shadow-2xl p-4 flex flex-col gap-4 animate-in fade-in duration-150 sm:absolute sm:inset-x-auto sm:bottom-auto sm:top-full sm:mt-2 sm:rounded-2xl sm:zoom-in-95 ${computedAlign === 'left' ? 'sm:left-0' : 'sm:right-0'}`}
                     style={{
                         backgroundColor: 'var(--color-bg-card)',
                         border: '1px solid var(--color-border)',
@@ -322,7 +329,14 @@ const DateRangePicker = ({
                         // a phone (CSS resolves min-width over max-width) and
                         // push the whole page into horizontal scroll.
                         minWidth: 'min(540px, calc(100vw - 24px))',
-                        maxWidth: 'calc(100vw - 24px)'
+                        maxWidth: 'calc(100vw - 24px)',
+                        // Below sm the panel is a bottom sheet: the anchor
+                        // calculation cannot fit a 540px panel next to a
+                        // right-edge trigger, so it stops trying. dvh, not vh
+                        // — iOS Safari's collapsing toolbar eats a vh footer.
+                        maxHeight: '85dvh',
+                        overflowY: 'auto',
+                        paddingBottom: 'calc(16px + env(safe-area-inset-bottom))'
                     }}
                 >
                     <div className="flex flex-col sm:flex-row gap-4">
@@ -342,7 +356,7 @@ const DateRangePicker = ({
                                         key={p.id}
                                         type="button"
                                         onClick={() => handleSelectPreset(p.id)}
-                                        className="touch-min-44 text-left text-xs px-2.5 py-1.5 rounded-lg transition-colors flex items-center justify-between whitespace-nowrap"
+                                        className="touch-min-44 text-left text-xs px-2.5 py-1.5 rounded-lg transition-colors flex items-center justify-between whitespace-nowrap flex-shrink-0 sm:flex-shrink"
                                         style={{
                                             backgroundColor: isSelected ? 'var(--color-primary-light)' : 'transparent',
                                             color: isSelected ? 'var(--color-primary)' : 'var(--color-text-secondary)',

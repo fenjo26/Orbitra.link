@@ -106,6 +106,10 @@ const Domains = ({ campaigns }) => {
     // Buyers keep several Namecheap accounts — both dialogs pick the one to
     // act through (namecheap_status returns them with balances).
     const [ncConnected, setNcConnected] = useState(false);
+    // Status answer arrived (success OR failure). Until it does, both NC
+    // buttons render disabled instead of appearing after the fetch and
+    // reflowing the toolbar — which layout you got was a network race.
+    const [ncResolved, setNcResolved] = useState(false);
     const [ncAccounts, setNcAccounts] = useState([]);
     const [ncAccountId, setNcAccountId] = useState(null);
     const [ncIntent, setNcIntent] = useState(null); // deep-link from Integrations cards
@@ -129,13 +133,19 @@ const Domains = ({ campaigns }) => {
         // otherwise stay invisible for the cache window.
         cachedGet('namecheap_status', {}, 0)
             .then(({ data }) => {
-                if (data.status !== 'success') return;
+                if (data.status !== 'success') {
+                    // A failed check must still resolve the buttons — leaving
+                    // them permanently dead is the failure this guards against.
+                    setNcResolved(true);
+                    return;
+                }
                 const accounts = data.data.accounts || [];
                 setNcAccounts(accounts);
                 setNcConnected(!!data.data.connected);
+                setNcResolved(true);
                 if (accounts.length) setNcAccountId(a => a || accounts[0].id);
             })
-            .catch(() => {});
+            .catch(() => setNcResolved(true));
         // Deep-link request from an Integrations account card (Buy / Import):
         // read once; the dialog opens from the effect below once the domain
         // list is loaded — the import dialog needs it to tell fresh domains
@@ -914,18 +924,22 @@ const Domains = ({ campaigns }) => {
                         <Folder size={16} />
                         {t('domains.groups', 'Groups')}
                     </button>
-                    {ncConnected && (
+                    {(!ncResolved || ncConnected) && (
                         <>
                             <button
                                 onClick={() => { setShowRegister(true); setRegResult(null); setRegMessage(''); }}
+                                disabled={!ncResolved}
                                 className="btn btn-secondary flex items-center gap-2 whitespace-nowrap"
+                                style={ncResolved ? undefined : { opacity: 0.5, cursor: 'default' }}
                                 title={t('namecheap.registerHint', 'Купить домен через баланс Namecheap и припарковать его сюда одним кликом')}
                             >
                                 <ShoppingCart size={16} /> {t('namecheap.registerBtn', 'Register Domain')}
                             </button>
                             <button
-                                onClick={openImport}
+                                onClick={() => openImport()}
+                                disabled={!ncResolved}
                                 className="btn btn-secondary flex items-center gap-2 whitespace-nowrap"
+                                style={ncResolved ? undefined : { opacity: 0.5, cursor: 'default' }}
                                 title={t('namecheap.importHint', 'Выбрать домены из аккаунта Namecheap и добавить их в трекер')}
                             >
                                 <Download size={16} /> {t('namecheap.importBtn', 'Import from Namecheap')}
