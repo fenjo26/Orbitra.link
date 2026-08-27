@@ -1091,6 +1091,7 @@ code {
   letter-spacing: 0.04em;
   white-space: nowrap;
   user-select: none;
+  vertical-align: middle;
   /* The container is the vertical scroll context, so sticky actually pins —
      with page-level scroll an overflow-x wrapper would silently not stick. */
   position: sticky;
@@ -1110,6 +1111,9 @@ code {
   font-size: 12.5px;
   height: 38px;
   white-space: nowrap;
+  /* Cells default to baseline alignment — inline-flex buttons (Actions) and
+     badges (Status/Group) then sit visibly off-centre against text rows. */
+  vertical-align: middle;
   border-bottom: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent);
   border-right: 1px solid color-mix(in srgb, var(--color-border) 50%, transparent);
 }

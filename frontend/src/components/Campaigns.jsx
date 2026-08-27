@@ -5,7 +5,7 @@ import InfoBanner from './InfoBanner';
 import GroupsModal from './GroupsModal';
 import PaginationToolbar from './common/PaginationToolbar';
 import MobileCards from './common/MobileCards';
-import { useIsDesktop, useResizableTableColumns } from './common/ColumnResize';
+import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle } from './common/ColumnResize';
 import { SortableTh, nextSortState } from './common/SortableTh';
 import CampaignReports from './CampaignReports';
 import ClickLogModal from './ClickLogModal';
@@ -290,11 +290,12 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     // Resizable columns — desktop table only; below lg the list renders as
     // MobileCards and skips resizing entirely.
     const isDesktop = useIsDesktop();
-    // The six fixed columns are locked (no handles, explicit widths); only
-    // the metric columns resize. ORDER MUST MIRROR RENDER ORDER: this list
-    // feeds the <colgroup>, and a desync here draws every column after the
-    // mismatch at a neighbour's width with no error anywhere.
-    const FIXED_COLUMN_IDS = ['check', 'id', 'state', 'name', 'actions', 'group_name'];
+    // Only the checkbox column stays locked (40px, nothing to resize); the
+    // identity columns (id/state/name/actions/group_name) carry resize
+    // handles like the metric columns. ORDER MUST MIRROR RENDER ORDER: this
+    // list feeds the <colgroup>, and a desync here draws every column after
+    // the mismatch at a neighbour's width with no error anywhere.
+    const FIXED_COLUMN_IDS = ['check'];
     const columnDefs = useMemo(() => ([
         { id: 'check', width: 40 },
         { id: 'id', width: 70 },
@@ -308,10 +309,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     ]), [visibleColumns]);
     const colResize = useResizableTableColumns({ tableId: 'campaigns', columns: columnDefs, enabled: isDesktop });
 
-    // One-time purge: stored widths take precedence over col.width, so a
-    // width the user once dragged onto a now-fixed column would override its
-    // locked width forever. The handles are gone, so after this runs the keys
-    // cannot come back.
+    // One-time purge for the columns that stay locked: stored widths take
+    // precedence over col.width, so a width the user once dragged onto a
+    // locked column would override it forever. Resizable columns keep their
+    // stored widths.
     useEffect(() => {
         FIXED_COLUMN_IDS.forEach(id => {
             if (id in colResize.api.widths) colResize.api.resetColumn(id);
@@ -1031,16 +1032,19 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                     style={{ accentColor: 'var(--color-primary)' }}
                                 />
                             </th>
-                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="id" label="ID" defaultDir="desc" hideSortIcon />
-                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="state" label={t('common.status')} defaultDir="asc" hideSortIcon />
-                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="name" label={t('campaigns.campaign')} defaultDir="asc" />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="id" label="ID" defaultDir="desc" resize={colResize} />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="state" label={t('common.status')} defaultDir="asc" resize={colResize} />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="name" label={t('campaigns.campaign')} defaultDir="asc" resize={colResize} />
                             {/* Actions sits fifth, right after the name: with a
                                 dozen metric columns to the right, far-edge
-                                actions needed horizontal scrolling to reach. */}
+                                actions needed horizontal scrolling to reach.
+                                Not sortable (nothing to sort); resizable like
+                                every other column. */}
                             <th className="text-right resizable-th" style={{ textAlign: 'right' }}>
                                 {t('common.actions')}
+                                <ColumnResizeHandle rt={colResize} colId="actions" />
                             </th>
-                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="group_name" label={t('campaigns.group')} defaultDir="asc" hideSortIcon />
+                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="group_name" label={t('campaigns.group')} defaultDir="asc" resize={colResize} />
 
                             {/* Dynamically configured metric columns */}
                             {visibleColumns.map((colId, colIdx) => {
@@ -1117,8 +1121,12 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                         {/* The alias stays in the URL builders and the search
                                             filter; the chip doubled the column's visual weight
                                             for something nobody reads row-by-row. */}
+                                        {/* block, not inline: overflow/text-
+                                            ellipsis are no-ops on inline
+                                            boxes — a long name rendered past
+                                            the cell onto Group and Actions. */}
                                         <span
-                                            className="font-medium text-xs truncate cursor-pointer hover:underline"
+                                            className="block font-medium text-xs truncate cursor-pointer hover:underline"
                                             style={{ color: 'var(--color-text-primary)' }}
                                             onClick={() => handleEdit(camp.id)}
                                             title={camp.name}
