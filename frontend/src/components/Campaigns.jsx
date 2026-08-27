@@ -5,7 +5,7 @@ import InfoBanner from './InfoBanner';
 import GroupsModal from './GroupsModal';
 import PaginationToolbar from './common/PaginationToolbar';
 import MobileCards from './common/MobileCards';
-import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle } from './common/ColumnResize';
+import { useIsDesktop, useResizableTableColumns } from './common/ColumnResize';
 import { SortableTh, nextSortState } from './common/SortableTh';
 import CampaignReports from './CampaignReports';
 import ClickLogModal from './ClickLogModal';
@@ -290,23 +290,39 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     // Resizable columns — desktop table only; below lg the list renders as
     // MobileCards and skips resizing entirely.
     const isDesktop = useIsDesktop();
-    // Only the checkbox column stays locked (40px, nothing to resize); the
-    // identity columns (id/state/name/actions/group_name) carry resize
-    // handles like the metric columns. ORDER MUST MIRROR RENDER ORDER: this
-    // list feeds the <colgroup>, and a desync here draws every column after
-    // the mismatch at a neighbour's width with no error anywhere.
+    // One reorderable list drives the WHOLE table — the fixed identity
+    // columns and the metric columns share it, so every column (except the
+    // checkbox anchor) carries the drag grip, the sort arrow and the resize
+    // handle with identical behaviour. The order persists separately from
+    // the customizer's visibility list (orbitra_campaign_col_order).
+    const FIXED_COLUMN_WIDTHS = { check: 40, id: 70, state: 90, name: 300, actions: 150, group_name: 140 };
+    const BASE_FIXED_ORDER = ['check', 'id', 'state', 'name', 'actions', 'group_name'];
+    const [columnOrder, setColumnOrder] = useState(() => {
+        try {
+            const saved = JSON.parse(localStorage.getItem('orbitra_campaign_col_order') || 'null');
+            if (Array.isArray(saved) && saved.length && saved.every(id => typeof id === 'string')) return saved;
+        } catch (e) {}
+        return [...BASE_FIXED_ORDER];
+    });
+    // Reconciliation: fixed ids always render (storage may predate one);
+    // metrics render only while visible — customizer changes, finance
+    // filtering and hand-edited storage all settle here without the stored
+    // order ever needing a migration. The fixed columns keep whatever
+    // position the user dragged them to — filtering columnOrder (not the
+    // canonical list) is what preserves that.
+    const orderedColumns = useMemo(() => {
+        const fixed = columnOrder.filter(id => BASE_FIXED_ORDER.includes(id));
+        for (const fid of BASE_FIXED_ORDER) if (!fixed.includes(fid)) fixed.push(fid);
+        const metrics = columnOrder.filter(id => !BASE_FIXED_ORDER.includes(id) && visibleColumns.includes(id));
+        const added = visibleColumns.filter(id => !columnOrder.includes(id));
+        return [...fixed, ...metrics, ...added];
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [columnOrder, visibleColumns]);
+    // ORDER MUST MIRROR RENDER ORDER: this list feeds the <colgroup>, and a
+    // desync here draws every column after the mismatch at a neighbour's
+    // width with no error anywhere.
     const FIXED_COLUMN_IDS = ['check'];
-    const columnDefs = useMemo(() => ([
-        { id: 'check', width: 40 },
-        { id: 'id', width: 70 },
-        { id: 'state', width: 90 },
-        { id: 'name', width: 300 },
-        // Four controls render here (three quick actions + the kebab); the
-        // old 110 was sized for three and the kebab landed on the Group cell.
-        { id: 'actions', width: 150 },
-        { id: 'group_name', width: 140 },
-        ...visibleColumns.map(id => ({ id, width: 120 }))
-    ]), [visibleColumns]);
+    const columnDefs = useMemo(() => orderedColumns.map(id => ({ id, width: FIXED_COLUMN_WIDTHS[id] ?? 120 })), [orderedColumns]);
     const colResize = useResizableTableColumns({ tableId: 'campaigns', columns: columnDefs, enabled: isDesktop });
 
     // One-time purge for the columns that stay locked: stored widths take
@@ -397,18 +413,15 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     const handleThDrop = (e, targetIdx) => {
         e.preventDefault();
         if (thDragIdx !== null && thDragIdx !== targetIdx) {
-            const sourceColId = visibleColumns[thDragIdx];
-            const targetColId = visibleColumns[targetIdx];
-            if (sourceColId && targetColId) {
-                const copy = [...chosenColumns];
-                const from = copy.indexOf(sourceColId);
-                const to = copy.indexOf(targetColId);
-                if (from !== -1 && to !== -1) {
-                    const [item] = copy.splice(from, 1);
-                    copy.splice(to, 0, item);
-                    setChosenColumns(copy);
-                    localStorage.setItem('orbitra_campaign_columns', JSON.stringify(copy));
-                }
+            // Reorder within the unified column order (fixed + metrics) and
+            // persist that list; the customizer's visibility list is a
+            // different concern and is not touched by dragging.
+            const copy = [...orderedColumns];
+            if (copy[thDragIdx] && copy[targetIdx]) {
+                const [item] = copy.splice(thDragIdx, 1);
+                copy.splice(targetIdx, 0, item);
+                setColumnOrder(copy);
+                try { localStorage.setItem('orbitra_campaign_col_order', JSON.stringify(copy)); } catch (err) {}
             }
         }
         setThDragIdx(null);
@@ -1020,52 +1033,57 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                     {colResize.colgroup}
                     <thead>
                         <tr>
-                            <th className="w-8" style={{ textAlign: 'left' }}>
-                                <input
-                                    type="checkbox"
-                                    checked={allSelected}
-                                    ref={(el) => {
-                                        if (el) el.indeterminate = !allSelected && someSelected;
-                                    }}
-                                    onChange={(e) => toggleSelectAll(e.target.checked)}
-                                    className="w-3.5 h-3.5 rounded"
-                                    style={{ accentColor: 'var(--color-primary)' }}
-                                />
-                            </th>
-                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="id" label="ID" defaultDir="desc" resize={colResize} />
-                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="state" label={t('common.status')} defaultDir="asc" resize={colResize} />
-                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="name" label={t('campaigns.campaign')} defaultDir="asc" resize={colResize} />
-                            {/* Actions sits fifth, right after the name: with a
-                                dozen metric columns to the right, far-edge
-                                actions needed horizontal scrolling to reach.
-                                Not sortable (nothing to sort); resizable like
-                                every other column. */}
-                            <th className="text-right resizable-th" style={{ textAlign: 'right' }}>
-                                {t('common.actions')}
-                                <ColumnResizeHandle rt={colResize} colId="actions" />
-                            </th>
-                            <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="group_name" label={t('campaigns.group')} defaultDir="asc" resize={colResize} />
-
-                            {/* Dynamically configured metric columns */}
-                            {visibleColumns.map((colId, colIdx) => {
+                            {orderedColumns.map((colId, colIdx) => {
+                                // Every column except the checkbox anchor is
+                                // draggable (grip), sortable where sorting makes
+                                // sense, and resizable (handle) — one behaviour
+                                // across the whole header.
+                                const dragProps = {
+                                    draggable: true,
+                                    resize: colResize,
+                                    sortBy,
+                                    requestSort,
+                                    isDragOver: thDragOverIdx === colIdx && thDragIdx !== null && thDragIdx !== colIdx,
+                                    onDragStart: (e) => handleThDragStart(e, colIdx),
+                                    onDragOver: (e) => handleThDragOver(e, colIdx),
+                                    onDrop: (e) => handleThDrop(e, colIdx),
+                                    onDragEnd: handleThDragEnd,
+                                };
+                                if (colId === 'check') {
+                                    return (
+                                        <th key="check" className="w-8">
+                                            <input
+                                                type="checkbox"
+                                                checked={allSelected}
+                                                ref={(el) => {
+                                                    if (el) el.indeterminate = !allSelected && someSelected;
+                                                }}
+                                                onChange={(e) => toggleSelectAll(e.target.checked)}
+                                                className="w-3.5 h-3.5 rounded"
+                                                style={{ accentColor: 'var(--color-primary)' }}
+                                            />
+                                        </th>
+                                    );
+                                }
+                                if (colId === 'actions') {
+                                    // Nothing to sort a row by here — grip and
+                                    // resize only.
+                                    return <SortableTh key="actions" {...dragProps} sortable={false} label={t('common.actions')} />;
+                                }
+                                if (colId === 'id') return <SortableTh key="id" {...dragProps} colKey="id" label="ID" defaultDir="desc" />;
+                                if (colId === 'state') return <SortableTh key="state" {...dragProps} colKey="state" label={t('common.status')} defaultDir="asc" />;
+                                if (colId === 'name') return <SortableTh key="name" {...dragProps} colKey="name" label={t('campaigns.campaign')} defaultDir="asc" />;
+                                if (colId === 'group_name') return <SortableTh key="group_name" {...dragProps} colKey="group_name" label={t('campaigns.group')} defaultDir="asc" />;
                                 const def = ALL_REPORT_METRICS.find(m => m.id === colId);
                                 return (
                                     <SortableTh
-                                                    sortBy={sortBy}
-                                                    requestSort={requestSort}
                                         key={colId}
+                                        {...dragProps}
                                         colKey={colId}
                                         label={def?.shortLabel || def?.label || colId}
                                         fullTitle={getReportMetricTooltip(def, t)}
                                         defaultDir="desc"
                                         alignRight={true}
-                                        draggable={true}
-                                        resize={colResize}
-                                        isDragOver={thDragOverIdx === colIdx && thDragIdx !== null && thDragIdx !== colIdx}
-                                        onDragStart={(e) => handleThDragStart(e, colIdx)}
-                                        onDragOver={(e) => handleThDragOver(e, colIdx)}
-                                        onDrop={(e) => handleThDrop(e, colIdx)}
-                                        onDragEnd={handleThDragEnd}
                                     />
                                 );
                             })}
@@ -1074,7 +1092,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                     <tbody>
                         {visibleCampaigns.length === 0 ? (
                             <tr>
-                                <td colSpan={6 + visibleColumns.length} className="text-center py-12">
+                                <td colSpan={orderedColumns.length} className="text-center py-12">
                                     <div className="empty-state">
                                         <p className="empty-state-title">{t('campaigns.noCampaignsCreated')}</p>
                                         <p className="empty-state-text">{t('campaigns.createFirstCampaign')}</p>
@@ -1084,99 +1102,122 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                         ) : (
                             pagedCampaigns.map((camp) => (
                                 <tr key={camp.id}>
-                                    <td>
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedCampaignIds.has(camp.id)}
-                                            onChange={(e) => toggleSelected(camp.id, e.target.checked)}
-                                            className="w-3.5 h-3.5 rounded"
-                                            style={{ accentColor: 'var(--color-primary)' }}
-                                        />
-                                    </td>
-                                    <td className="font-medium">
-                                        <span title={camp.keitaro_id ? `Keitaro ID: ${camp.keitaro_id}` : ''}>{camp.id}</span>
-                                    </td>
-                                    <td>
-                                        {/* Dedicated status column keeps the pause switch away
-                                            from the campaign name — a stray click while aiming
-                                            at the name used to stop live ads. */}
-                                        <div className="flex items-center justify-center">
-                                            <button
-                                                type="button"
-                                                disabled={togglingCampaignIds.has(camp.id)}
-                                                onClick={() => handleRequestToggleState(camp)}
-                                                className="relative inline-flex h-4 w-7 flex-shrink-0 items-center rounded-full transition-colors"
-                                                style={{
-                                                    background: campaignEnabled(camp) ? 'var(--color-success, #10b981)' : 'var(--color-border)',
-                                                    opacity: togglingCampaignIds.has(camp.id) ? 0.5 : 1,
-                                                    cursor: 'pointer'
-                                                }}
-                                                title={campaignEnabled(camp) ? t('automation.clickToPause') : t('automation.clickToResume')}
-                                            >
-                                                <span className="inline-block h-3 w-3 transform rounded-full bg-white shadow transition-transform" style={{ transform: campaignEnabled(camp) ? 'translateX(12px)' : 'translateX(2px)' }} />
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        {/* The alias stays in the URL builders and the search
-                                            filter; the chip doubled the column's visual weight
-                                            for something nobody reads row-by-row. */}
-                                        {/* block, not inline: overflow/text-
-                                            ellipsis are no-ops on inline
-                                            boxes — a long name rendered past
-                                            the cell onto Group and Actions. */}
-                                        <span
-                                            className="block font-medium text-xs truncate cursor-pointer hover:underline"
-                                            style={{ color: 'var(--color-text-primary)' }}
-                                            onClick={() => handleEdit(camp.id)}
-                                            title={camp.name}
-                                        >
-                                            {camp.name}
-                                        </span>
-                                    </td>
-                                    <td style={{ textAlign: 'right' }}>
-                                        <div className="inline-flex items-center justify-end gap-0.5">
-                                            {renderQuickActions(camp)}
-                                            <button
-                                                type="button"
-                                                onClick={(event) => handleToggleMenu(event, camp.id)}
-                                                className="p-1.5 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5"
-                                                style={{ color: menuAnchor?.id === camp.id ? 'var(--color-primary)' : 'var(--color-text-muted)' }}
-                                                title={t('table.actions')}
-                                            >
-                                                <MoreVertical className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td style={{ color: 'var(--color-text-secondary)' }}>{camp.group_name || '-'}</td>
-
-                                    {/* Render dynamic metric cells */}
-                                    {visibleColumns.map((colId) => (
-                                        <td key={colId} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
-                                            {formatMetricCell(colId, camp)}
-                                        </td>
-                                    ))}
+                                    {orderedColumns.map(colId => {
+                                        switch (colId) {
+                                            case 'check':
+                                                return (
+                                                    <td key="check">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={selectedCampaignIds.has(camp.id)}
+                                                            onChange={(e) => toggleSelected(camp.id, e.target.checked)}
+                                                            className="w-3.5 h-3.5 rounded"
+                                                            style={{ accentColor: 'var(--color-primary)' }}
+                                                        />
+                                                    </td>
+                                                );
+                                            case 'id':
+                                                return (
+                                                    <td key="id" className="font-medium">
+                                                        <span title={camp.keitaro_id ? `Keitaro ID: ${camp.keitaro_id}` : ''}>{camp.id}</span>
+                                                    </td>
+                                                );
+                                            case 'state':
+                                                return (
+                                                    /* Dedicated status column keeps the pause switch away
+                                                       from the campaign name — a stray click while aiming
+                                                       at the name used to stop live ads. */
+                                                    <td key="state">
+                                                        <div className="flex items-center justify-center">
+                                                            <button
+                                                                type="button"
+                                                                disabled={togglingCampaignIds.has(camp.id)}
+                                                                onClick={() => handleRequestToggleState(camp)}
+                                                                className="relative inline-flex h-4 w-7 flex-shrink-0 items-center rounded-full transition-colors"
+                                                                style={{
+                                                                    background: campaignEnabled(camp) ? 'var(--color-success, #10b981)' : 'var(--color-border)',
+                                                                    opacity: togglingCampaignIds.has(camp.id) ? 0.5 : 1,
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                                title={campaignEnabled(camp) ? t('automation.clickToPause') : t('automation.clickToResume')}
+                                                            >
+                                                                <span className="inline-block h-3 w-3 transform rounded-full bg-white shadow transition-transform" style={{ transform: campaignEnabled(camp) ? 'translateX(12px)' : 'translateX(2px)' }} />
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                );
+                                            case 'name':
+                                                return (
+                                                    <td key="name">
+                                                        {/* The alias stays in the URL builders and the search
+                                                            filter; the chip doubled the column's visual weight
+                                                            for something nobody reads row-by-row. */}
+                                                        {/* block, not inline: overflow/text-ellipsis are no-ops
+                                                            on inline boxes — a long name rendered past the cell
+                                                            onto Group and Actions. */}
+                                                        <span
+                                                            className="block font-medium text-xs truncate cursor-pointer hover:underline"
+                                                            style={{ color: 'var(--color-text-primary)' }}
+                                                            onClick={() => handleEdit(camp.id)}
+                                                            title={camp.name}
+                                                        >
+                                                            {camp.name}
+                                                        </span>
+                                                    </td>
+                                                );
+                                            case 'actions':
+                                                return (
+                                                    <td key="actions" style={{ textAlign: 'right' }}>
+                                                        <div className="inline-flex items-center justify-end gap-0.5">
+                                                            {renderQuickActions(camp)}
+                                                            <button
+                                                                type="button"
+                                                                onClick={(event) => handleToggleMenu(event, camp.id)}
+                                                                className="p-1.5 rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                                                                style={{ color: menuAnchor?.id === camp.id ? 'var(--color-primary)' : 'var(--color-text-muted)' }}
+                                                                title={t('table.actions')}
+                                                            >
+                                                                <MoreVertical className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                );
+                                            case 'group_name':
+                                                return <td key="group_name" style={{ color: 'var(--color-text-secondary)' }}>{camp.group_name || '-'}</td>;
+                                            default:
+                                                return (
+                                                    <td key={colId} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                                                        {formatMetricCell(colId, camp)}
+                                                    </td>
+                                                );
+                                        }
+                                    })}
                                 </tr>
                             ))
                         )}
                     </tbody>
 
-                    {/* Sticky Grand Totals Footer — cell order mirrors thead:
-                        check, id(Σ), state, name(Totals), actions, group, metrics. */}
+                    {/* Sticky Grand Totals Footer — cell order mirrors thead,
+                        driven by the same orderedColumns list. */}
                     {visibleCampaigns.length > 0 && (
                         <tfoot>
                             <tr style={{ backgroundColor: 'var(--color-bg-soft)', borderTop: '2px solid var(--color-border)', fontWeight: 700 }}>
-                                <td></td>
-                                <td>Σ</td>
-                                <td></td>
-                                <td>{t('campaignReports.total', 'Totals')} ({visibleCampaigns.length})</td>
-                                <td></td>
-                                <td>-</td>
-                                {visibleColumns.map(colId => (
-                                    <td key={colId} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
-                                        {formatMetricCell(colId, grandTotals)}
-                                    </td>
-                                ))}
+                                {orderedColumns.map(colId => {
+                                    switch (colId) {
+                                        case 'check': return <td key="check"></td>;
+                                        case 'id': return <td key="id">Σ</td>;
+                                        case 'state': return <td key="state"></td>;
+                                        case 'name': return <td key="name">{t('campaignReports.total', 'Totals')} ({visibleCampaigns.length})</td>;
+                                        case 'actions': return <td key="actions"></td>;
+                                        case 'group_name': return <td key="group_name">-</td>;
+                                        default:
+                                            return (
+                                                <td key={colId} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                                                    {formatMetricCell(colId, grandTotals)}
+                                                </td>
+                                            );
+                                    }
+                                })}
                             </tr>
                         </tfoot>
                     )}

@@ -1170,6 +1170,40 @@ code {
   overflow: hidden;
 }
 
+/* Header labels centre within their column: with user-resizable widths a
+   label hugging the left/right edge of a wide cell reads crooked. Data cells
+   keep their own alignment (numbers right, names left). !important beats the
+   per-column inline text-aligns left by older markup. */
+.tracker-table th,
+.page-table th {
+  text-align: center !important;
+}
+
+/* Vertical middle for the remaining tables (Domains, Networks, Sources,
+   Trends, Conversions) — .tracker-table already sets it. */
+.page-table th,
+.page-table td {
+  vertical-align: middle;
+}
+
+/* Opaque chip used as the drag image during column reorder. Lives offscreen;
+   setDragImage snapshots it as-is, so the floating ghost is a small solid
+   label instead of a translucent snapshot of the whole wide header. */
+.col-drag-ghost {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-primary);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-main);
+}
+
 .col-resize-handle {
   position: absolute;
   top: 0;

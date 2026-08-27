@@ -24,47 +24,82 @@ export const SortIcon = ({ sortBy, colKey }) => {
 // `resize` (the shared column-resize controller) mounts a resize handle on
 // the header's right edge and suspends the reorder grip while a resize drag
 // is in flight, so both gestures coexist on the same header.
-export const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', alignRight = false, draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd, resize, hideSortIcon = false }) => {
+// `sortable={false}` renders grip + label + resize for columns with nothing
+// to sort by (Actions) — they still reorder and resize like everything else.
+// Header labels centre within their column: with user-resizable widths a
+// label hugging the left/right edge of a wide cell reads crooked.
+export const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', alignRight = false, draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd, resize, hideSortIcon = false, sortable = true }) => {
     const isActive = sortBy.key === colKey;
+    const startColumnDrag = (e) => {
+        if (onDragStart) onDragStart(e);
+        // Compact drag image: the browser's default ghost is a snapshot of
+        // the whole (wide) header at partial opacity, floating over the
+        // table and making every header it passes unreadable. The opaque
+        // chip (.col-drag-ghost, index.css) only names the column.
+        try {
+            let ghost = document.getElementById('orbitra-col-drag-ghost');
+            if (!ghost) {
+                ghost = document.createElement('div');
+                ghost.id = 'orbitra-col-drag-ghost';
+                ghost.className = 'col-drag-ghost';
+                document.body.appendChild(ghost);
+            }
+            ghost.textContent = label;
+            e.dataTransfer.setDragImage(ghost, 24, 14);
+        } catch {
+            // setDragImage is best-effort; the native ghost still drags.
+        }
+    };
     return (
         <th
-            className={`${alignRight ? 'text-right' : 'text-left'} whitespace-nowrap transition-all resizable-th`}
+            className="whitespace-nowrap transition-all resizable-th"
             aria-sort={isActive ? (sortBy.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
             title={fullTitle}
             onDragOver={onDragOver}
             onDrop={onDrop}
             onDragEnd={onDragEnd}
             style={{
-                textAlign: alignRight ? 'right' : 'left',
                 userSelect: 'none',
+                /* Opaque drop target: a washed-out highlight under the
+                   floating ghost made the two headers unreadable together. */
                 boxShadow: isDragOver ? 'inset 2px 0 0 var(--color-primary)' : 'none',
-                backgroundColor: isDragOver ? 'var(--color-bg-soft)' : undefined
+                backgroundColor: isDragOver ? 'var(--color-bg-card)' : undefined
             }}
         >
-            <div className={`inline-flex items-center gap-1.5 ${alignRight ? 'justify-end w-full' : ''}`}>
+            <div className="inline-flex items-center gap-1.5 w-full justify-center min-w-0">
                 {draggable && (
                     <span
                         draggable={!resize?.resizingId}
-                        onDragStart={onDragStart}
+                        onDragStart={startColumnDrag}
                         className="cursor-grab active:cursor-grabbing flex-shrink-0 -ml-1"
                     >
                         <GripVertical className="w-3 h-3 opacity-25 hover:opacity-75" />
                     </span>
                 )}
-                <button
-                    type="button"
-                    onClick={() => requestSort(colKey, defaultDir)}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap cursor-pointer"
-                    style={{
-                        color: isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)',
-                        textAlign: alignRight ? 'right' : 'left'
-                    }}
-                >
-                    <span>{label}</span>
-                    {/* hideSortIcon: the column still sorts on click, but rows
+                {sortable ? (
+                    <button
+                        type="button"
+                        onClick={() => requestSort(colKey, defaultDir)}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap cursor-pointer min-w-0 max-w-full"
+                        style={{
+                            color: isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)'
+                        }}
+                    >
+                        {/* truncate: the label stays inside its own cell —
+                            clipping belongs to the header, not the table. */}
+                        <span className="truncate">{label}</span>
+                        {/* hideSortIcon: the column still sorts on click, but rows
                         nobody re-orders don't need the affordance shouting. */}
-                    {!hideSortIcon && <SortIcon sortBy={sortBy} colKey={colKey} />}
-                </button>
+                        {!hideSortIcon && <SortIcon sortBy={sortBy} colKey={colKey} />}
+                    </button>
+                ) : (
+                    <span
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap min-w-0 max-w-full"
+                        style={{ color: 'var(--color-text-secondary)' }}
+                    >
+                        <span className="truncate">{label}</span>
+                    </span>
+                )}
             </div>
             {resize && <ColumnResizeHandle rt={resize} colId={colKey} />}
         </th>
