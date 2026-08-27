@@ -7,6 +7,62 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.3.7] — 2026-08-27
+
+Table-UX release: the campaigns table's fixed identity columns become full
+peers of the metric columns, and every cell clips at its own boundary.
+
+### Added — table columns
+
+- **Full column reorder.** One unified, persisted column order
+  (`orbitra_campaign_col_order`) drives the header, the body rows, the
+  totals row and the colgroup — fixed columns (ID, Status, Campaign,
+  Actions, Group) and metrics drag alike, and the order survives reloads.
+  Header/body/colgroup desync is structurally impossible: there is only
+  one list. The old metric-only reorder (which rewrote the customizer's
+  visibility list) is replaced; reconciliation keeps the stored order in
+  step with customizer and finance-filter changes without storage
+  migrations — fixed ids always render, metrics only while visible, new
+  metrics append.
+- **Sort arrows and resize handles on the fixed columns.** ID, Status and
+  Group show their sort arrows again (the columns always sorted on click —
+  the affordance was hidden since v1.3.2), and all five carry resize
+  handles with per-browser width persistence. Actions renders through the
+  shared `SortableTh` with a new `sortable={false}` prop (grip + resize,
+  no arrow — nothing to sort by); the checkbox column stays locked as the
+  40px anchor.
+- **Readable drags.** A column reorder shows a compact opaque chip naming
+  the column (`setDragImage` + `.col-drag-ghost`) instead of the browser's
+  translucent snapshot of a whole wide header floating over the table; the
+  drop target highlights with an opaque card background and a primary
+  bar instead of a washed-out tint.
+
+### Fixed — tables
+
+- **Narrowed columns stop painting over their neighbours.** `overflow` on
+  `td` defaults to visible: with `table-layout: fixed` a narrowed column
+  rendered its nowrap content straight over the neighbouring cell's text
+  and icons, while only the header ever clipped (via `.resizable-th`).
+  Every `.tracker-table` th/td now has `overflow: hidden` +
+  `text-overflow: ellipsis` — long content becomes "Name…" or a hard cut
+  at the cell border. Rows paint an opaque background (the hover class
+  still swaps the whole row), and buttons/icons inside flex cells keep
+  their size (`flex-shrink: 0`) and are clipped rather than deformed.
+- **A long campaign name truncates inside its cell.** `truncate` is a
+  no-op on inline boxes and the name was an inline `<span>` in a
+  colgroup-fixed 300px cell — it rendered onto the Group and Actions
+  cells. The span is `block` now; the full name stays in the tooltip.
+- **Header labels centre within their column in every table**
+  (`.tracker-table` and `.page-table`; data cells keep semantic
+  alignment — numbers right, names left). Vertical middle alignment
+  extends to `.page-table` — Domains, Networks, Sources, Trends and
+  Conversions join the tables that already had it.
+- **The Actions column is sized for its four controls** (150px, was the
+  110 sized for three — the kebab landed on the Group column's text).
+  The Namecheap toolbar buttons render disabled until the status
+  resolves (including on failure) instead of popping in after the fetch
+  and reflowing the toolbar.
+
 ## [1.3.6] — 2026-08-27
 
 Bugfix-and-performance release porting the tester's addendum V — the 14 items

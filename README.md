@@ -1,4 +1,4 @@
-# Orbitra v1.3.6 Tracker
+# Orbitra v1.3.7 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,28 +11,27 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.3.6
+## 🆕 What's New in v1.3.7
 
-The tester's addendum V — the 14 items real in this repository (the metric-semantics rewrite stays out: our formulas are pinned by the operator's own decision and tests).
+The campaigns table, rebuilt around one idea: every column is a peer.
 
-### Fixed — metrics & backend
+### Added
 
-- **👥 The Visitors column finally counts visitors** — it was a duplicate alias of the global-unique sum at four query sites, so the panel could show Clicks *higher* than Visitors; it now counts hits, uniqueness keeps its own column, and the totals row mirrors the backend formulas (cpv/epv/eCPC/eCPM) again
-- **🌐 The deferred DNS refresh survives its second domain** — the v1.3.5 statement was reused across the resolver's own queries and failed with SQLITE error 21 on FPM; prepared per iteration now, with a locked-retry
-- **⚡ New: ad-entity status cache (schema 40)** — report toggles answer from a 5-min success / 15-min failure cache instead of ~25 live Graph calls per report open, which under a rate limit never cleared
+- **🔀 Full column reorder** — fixed columns (ID, Status, Campaign, Actions, Group) and metrics drag alike; one persisted order drives header, rows, totals and colgroup, and survives reloads — header/body desync is structurally impossible
+- **↔️ Sort arrows + resize handles on the fixed columns** (the arrows were hidden since v1.3.2 — sorting always worked); Actions gets grip + resize without a sort arrow
+- **🏷️ Readable drags** — an opaque chip naming the column instead of the browser's translucent header snapshot; the drop target highlights opaquely
 
-### Fixed — panel
+### Fixed
 
-- **📉 The dashboard poll is dashboard-scoped** — seven requests every 10s on *every* tab (~60k/day against one SQLite writer) now run only on Dashboard, at 15s, paused in hidden tabs — the real cause of "reports are slow"
-- **📅 The date range survives reloads** (Campaigns in localStorage, the report in sessionStorage; presets stored by id and re-derived — "today" still means today); **the report survives a refresh** (`#report/<id>` in the URL); the picker highlights the right preset chip
-- **📱 Mobile editor: rotation rows wrap** (the name is no longer squeezed out by the weight/edit/delete controls), the rotation toolbar wraps at all five sites, the Conditions popover and the date picker are bottom sheets, preset chips stop compressing
-- **🎛️ Campaigns Actions column sized for four controls; Namecheap buttons render disabled instead of reflowing the toolbar**
+- **✂️ Narrowed columns stop painting over their neighbours** — every th/td clips (`overflow: hidden` + ellipsis), rows are opaque, icons keep their size and get clipped instead of deforming
+- **… A long campaign name truncates inside its cell** (truncate was a no-op on an inline span — it rendered onto the Group and Actions cells)
+- **🎯 Header labels centre in every table**; vertical middle everywhere (Domains, Networks, Sources, Trends, Conversions included); Actions column sized for four controls; Namecheap buttons render disabled instead of reflowing the toolbar
 
-### Previous Highlights (v1.3.5)
+### Previous Highlights (v1.3.6)
 
-- 📱 Stacked cards for Domains/Networks/Sources below `lg` with shared render helpers; 📲 modals are full-height sheets below 480px; 🏷️ two-line card titles; 🎚️ toolbars release fixed widths; 🌐 DNS cache TTL actually works (deferred refresh via `fastcgi_finish_request`); 🔐 `ssl_source` in the SSL queue SELECT + a translated override reason; 🔑 login errors map through `t()`
+- 👥 Visitors counts visitors (was a unique-sum alias at four query sites); ⚡ ad-entity status cache (schema 40) — report toggles stop hammering Graph under a rate limit; 📉 dashboard-only polling (~60k req/day off SQLite); 📅 date ranges and the report overlay survive reloads; 🌐 the deferred DNS refresh survives its second domain
 
-Older releases (v1.3.4 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.3.5 and earlier): see the [full changelog](CHANGELOG.md).
 
 ## 🖥 Live Demo
 
