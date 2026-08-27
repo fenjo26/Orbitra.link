@@ -1099,6 +1099,11 @@ code {
   z-index: 10;
   background-color: var(--color-bg-soft);
   box-shadow: 0 1px 0 var(--color-border);
+  /* Hard clip + ellipsis on every header cell, not only the .resizable-th
+     ones — a narrowed column must never let its label run under the
+     neighbour. */
+  overflow: hidden;
+  text-overflow: ellipsis;
   border-right: 1px solid color-mix(in srgb, var(--color-border) 65%, transparent);
 }
 
@@ -1114,12 +1119,31 @@ code {
   /* Cells default to baseline alignment — inline-flex buttons (Actions) and
      badges (Status/Group) then sit visibly off-centre against text rows. */
   vertical-align: middle;
+  /* Hard clip at the cell boundary: with table-layout:fixed a narrowed
+     column used to let its nowrap content paint over the neighbour's cell.
+     Ellipsis turns long text into "Name…" instead of a raw cut. */
+  overflow: hidden;
+  text-overflow: ellipsis;
   border-bottom: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent);
   border-right: 1px solid color-mix(in srgb, var(--color-border) 50%, transparent);
 }
 
 .tracker-table td:last-child {
   border-right: none;
+}
+
+/* Opaque rows: transparent cells over a patterned/hovered underlay let
+   clipped edges read as see-through; the row itself paints solid and the
+   Tailwind hover class on <tr> still swaps it wholesale. */
+.tracker-table tbody tr {
+  background-color: var(--color-bg-card);
+}
+
+/* Icons and buttons inside flex cells must not deform while there is still
+   room — they keep their size and get clipped by the cell instead. */
+.tracker-table td button,
+.tracker-table td .action-btn {
+  flex-shrink: 0;
 }
 
 /* Horizontal padding MUST match `.tracker-table td` above, or every totals figure
