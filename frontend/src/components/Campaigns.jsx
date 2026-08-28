@@ -1051,7 +1051,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                 };
                                 if (colId === 'check') {
                                     return (
-                                        <th key="check" className="w-8">
+                                        <th key="check" className="col-check">
                                             <input
                                                 type="checkbox"
                                                 checked={allSelected}
@@ -1106,7 +1106,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                         switch (colId) {
                                             case 'check':
                                                 return (
-                                                    <td key="check">
+                                                    <td key="check" className="col-check">
                                                         <input
                                                             type="checkbox"
                                                             checked={selectedCampaignIds.has(camp.id)}
@@ -1118,7 +1118,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                                 );
                                             case 'id':
                                                 return (
-                                                    <td key="id" className="font-medium">
+                                                    <td key="id" className="font-medium cell-text">
                                                         <span title={camp.keitaro_id ? `Keitaro ID: ${camp.keitaro_id}` : ''}>{camp.id}</span>
                                                     </td>
                                                 );
@@ -1167,8 +1167,8 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                                 );
                                             case 'actions':
                                                 return (
-                                                    <td key="actions" style={{ textAlign: 'right' }}>
-                                                        <div className="inline-flex items-center justify-end gap-0.5">
+                                                    <td key="actions">
+                                                        <div className="inline-flex items-center justify-center gap-0.5">
                                                             {renderQuickActions(camp)}
                                                             <button
                                                                 type="button"
@@ -1183,10 +1183,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                                     </td>
                                                 );
                                             case 'group_name':
-                                                return <td key="group_name" style={{ color: 'var(--color-text-secondary)' }}>{camp.group_name || '-'}</td>;
+                                                return <td key="group_name" className="cell-text" style={{ color: 'var(--color-text-secondary)' }}>{camp.group_name || '-'}</td>;
                                             default:
                                                 return (
-                                                    <td key={colId} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                                                    <td key={colId} className="cell-text" style={{ fontVariantNumeric: 'tabular-nums' }}>
                                                         {formatMetricCell(colId, camp)}
                                                     </td>
                                                 );
@@ -1204,7 +1204,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                             <tr style={{ backgroundColor: 'var(--color-bg-soft)', borderTop: '2px solid var(--color-border)', fontWeight: 700 }}>
                                 {orderedColumns.map(colId => {
                                     switch (colId) {
-                                        case 'check': return <td key="check"></td>;
+                                        case 'check': return <td key="check" className="col-check"></td>;
                                         case 'id': return <td key="id">Σ</td>;
                                         case 'state': return <td key="state"></td>;
                                         case 'name': return <td key="name">{t('campaignReports.total', 'Totals')} ({visibleCampaigns.length})</td>;
@@ -1212,7 +1212,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                         case 'group_name': return <td key="group_name">-</td>;
                                         default:
                                             return (
-                                                <td key={colId} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                                                <td key={colId} className="cell-text" style={{ fontVariantNumeric: 'tabular-nums' }}>
                                                     {formatMetricCell(colId, grandTotals)}
                                                 </td>
                                             );

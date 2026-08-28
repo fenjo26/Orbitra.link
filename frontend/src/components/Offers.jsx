@@ -890,7 +890,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                     {colResize.colgroup}
                     <thead>
                         <tr>
-                            <th className="w-10">
+                            <th className="col-check">
                                 <input
                                     type="checkbox"
                                     checked={allFilteredSelected}
@@ -909,7 +909,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                             <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="group_name" label={t('components.group')} defaultDir="asc" resize={colResize} />
                             <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="affiliate_network_name" label={t('offers.network')} defaultDir="asc" resize={colResize} />
                             <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="geo" label="GEO" defaultDir="asc" resize={colResize} />
-                            <th className="resizable-th">
+                            <th className="resizable-th cell-text">
                                 {t('offerColumns.payout')}
                                 <ColumnResizeHandle rt={colResize} colId="payout" />
                             </th>
@@ -938,7 +938,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                                     />
                                 );
                             })}
-                            <th className="text-right resizable-th">
+                            <th className="resizable-th cell-text">
                                 {t('common.actions')}
                                 <ColumnResizeHandle rt={colResize} colId="actions" />
                             </th>
@@ -961,14 +961,14 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                         ) : (
                             pagedOffers.map((offer) => (
                                 <tr key={offer.id}>
-                                    <td>
+                                    <td className="col-check">
                                         <input
                                             type="checkbox"
                                             checked={selectedOfferIds.has(offer.id)}
                                             onChange={(e) => toggleSelected(offer.id, e.target.checked)}
                                         />
                                     </td>
-                                    <td className="font-medium">{offer.id}</td>
+                                    <td className="font-medium cell-text">{offer.id}</td>
                                     <td>
                                         <span className="flex items-center text-xs font-medium" style={{ color: offer.state === 'active' ? 'var(--color-success)' : 'var(--color-text-muted)' }}>
                                             <span className="w-2 h-2 rounded-full mr-1.5" style={{ backgroundColor: offer.state === 'active' ? 'var(--color-success)' : 'var(--color-text-muted)' }}></span>
@@ -994,10 +994,10 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                                             )}
                                         </div>
                                     </td>
-                                    <td style={{ color: 'var(--color-text-secondary)' }}>{offer.group_name || '-'}</td>
-                                    <td style={{ color: 'var(--color-text-secondary)' }}>{offer.affiliate_network_name || '-'}</td>
+                                    <td className="cell-text" style={{ color: 'var(--color-text-secondary)' }}>{offer.group_name || '-'}</td>
+                                    <td className="cell-text" style={{ color: 'var(--color-text-secondary)' }}>{offer.affiliate_network_name || '-'}</td>
                                     <td><span className="px-2 py-1 rounded text-xs font-semibold" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>{offer.geo || t('offerColumns.allGeo')}</span></td>
-                                    <td style={{ color: 'var(--color-text-secondary)' }}>
+                                    <td className="cell-text" style={{ color: 'var(--color-text-secondary)' }}>
                                         {offer.payout_auto ? t('offerColumns.payoutAuto') : `$${parseFloat(offer.payout_value || 0).toFixed(2)} (${String(offer.payout_type || 'cpa').toUpperCase()})`}
                                     </td>
                                     <td>
@@ -1016,13 +1016,13 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
 
                                     {/* Metric cells */}
                                     {chosenColumns.map((colId) => (
-                                        <td key={colId} className="text-right">
+                                        <td key={colId} className="cell-text">
                                             {formatMetricCell(colId, offer)}
                                         </td>
                                     ))}
 
-                                    <td className="text-right">
-                                        <div className="flex items-center justify-end gap-1">
+                                    <td>
+                                        <div className="flex items-center justify-center gap-1">
                                             <button onClick={() => handleEdit(offer.id)} className="action-btn text-blue" title={t('common.edit') || t('components.edit')}>
                                                 <Edit3 className="w-4 h-4" />
                                             </button>
@@ -1039,10 +1039,10 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                     {visibleOffers.length > 0 && (
                         <tfoot style={{ background: 'var(--color-bg-soft)' }}>
                             <tr className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-                                <td></td>
+                                <td className="col-check"></td>
                                 <td colSpan={8}>Σ Total ({visibleOffers.length})</td>
                                 {chosenColumns.map((colId) => (
-                                    <td key={colId} className="text-right">
+                                    <td key={colId} className="cell-text">
                                         {formatTotalCell(colId)}
                                     </td>
                                 ))}

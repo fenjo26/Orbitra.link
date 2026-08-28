@@ -835,7 +835,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                     title={getReportMetricTooltip(def, t)}
                                                     className="resizable-th"
                                                     style={{
-                                                        textAlign: 'right',
+                                                        textAlign: 'center',
                                                         cursor: 'grab',
                                                         userSelect: 'none',
                                                         whiteSpace: 'nowrap',
@@ -843,7 +843,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                         backgroundColor: isDragOver ? 'var(--color-bg-soft)' : undefined
                                                     }}
                                                 >
-                                                    <div className="inline-flex items-center justify-end gap-1 w-full">
+                                                    <div className="inline-flex items-center justify-center gap-1 w-full">
                                                         <GripVertical className="w-3 h-3 opacity-30 -ml-1" />
                                                         {STATUS_COLUMN_STATUSES[colId] && (
                                                             <span
@@ -878,7 +878,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                             <tr className="text-xs" style={{ backgroundColor: 'var(--color-bg-soft)', position: 'sticky', top: 0, fontWeight: 700, borderBottom: '2px solid var(--color-border)' }}>
                                                 <td className="font-bold report-pinned-name" style={{ position: 'sticky', left: 0, zIndex: 2, backgroundColor: 'var(--color-bg-soft)' }}>{t('campaignReports.total', 'Totals')}</td>
                                                 {chosenColumns.map(cId => (
-                                                    <td key={cId} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
+                                                    <td key={cId} className="cell-text" style={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
                                                         {formatMetricCell(cId, grandTotal, true)}
                                                     </td>
                                                 ))}
@@ -975,7 +975,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                             </div>
                                                         </td>
                                                         {chosenColumns.map(cId => (
-                                                            <td key={cId} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
+                                                            <td key={cId} className="cell-text" style={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
                                                                 {formatMetricCell(cId, r, isSubtotal)}
                                                             </td>
                                                         ))}

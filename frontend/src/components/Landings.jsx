@@ -587,7 +587,7 @@ const Landings = ({ landings, refreshData }) => {
         switch (colId) {
             case 'checkbox':
                 return (
-                    <td key={colId}>
+                    <td key={colId} className="col-check">
                         <input
                             type="checkbox"
                             checked={selectedLandingIds.has(landing.id)}
@@ -596,7 +596,7 @@ const Landings = ({ landings, refreshData }) => {
                     </td>
                 );
             case 'id':
-                return <td key={colId} className="font-medium">{landing.id}</td>;
+                return <td key={colId} className="font-medium cell-text">{landing.id}</td>;
             case 'state':
                 return (
                     <td key={colId}>
@@ -626,7 +626,7 @@ const Landings = ({ landings, refreshData }) => {
                     </td>
                 );
             case 'group_name':
-                return <td key={colId} style={{ color: 'var(--color-text-secondary)' }}>{landing.group_name || '-'}</td>;
+                return <td key={colId} className="cell-text" style={{ color: 'var(--color-text-secondary)' }}>{landing.group_name || '-'}</td>;
             case 'type':
                 return (
                     <td key={colId}>
@@ -637,12 +637,12 @@ const Landings = ({ landings, refreshData }) => {
                 );
             case 'url':
                 return (
-                    <td key={colId} style={{ color: 'var(--color-text-muted)', fontSize: '12px' }} className="truncate max-w-[200px]" title={landing.url}>
+                    <td key={colId} style={{ color: 'var(--color-text-muted)', fontSize: '12px' }} className="truncate max-w-[200px] cell-text" title={landing.url}>
                         {landing.url}
                     </td>
                 );
             case 'last_event':
-                return <td key={colId} style={{ color: 'var(--color-text-secondary)' }}>{formatLastEvent(landing.last_event)}</td>;
+                return <td key={colId} className="cell-text" style={{ color: 'var(--color-text-secondary)' }}>{formatLastEvent(landing.last_event)}</td>;
             default:
                 return <td key={colId}>-</td>;
         }
@@ -889,7 +889,7 @@ const Landings = ({ landings, refreshData }) => {
                     {colResize.colgroup}
                     <thead>
                         <tr>
-                            <th className="w-10">
+                            <th className="col-check">
                                 <input
                                     type="checkbox"
                                     checked={allSelected}
@@ -924,7 +924,7 @@ const Landings = ({ landings, refreshData }) => {
                                     />
                                 );
                             })}
-                            <th className="text-right resizable-th">
+                            <th className="resizable-th cell-text">
                                 {t('common.actions')}
                                 <ColumnResizeHandle rt={colResize} colId="actions" />
                             </th>
@@ -951,11 +951,11 @@ const Landings = ({ landings, refreshData }) => {
                                     )}
                                     {/* Metric cells */}
                                     {chosenColumns.map((colId) => (
-                                        <td key={colId} className="text-right">
+                                        <td key={colId} className="cell-text">
                                             {formatMetricCell(colId, landing)}
                                         </td>
                                     ))}
-                                    <td className="text-right">
+                                    <td>
                                         <div className="action-buttons">
                                             <button onClick={() => handleEdit(landing.id)} className="action-btn text-blue" title={t('common.edit') || t('components.edit')}>
                                                 <Edit3 className="w-4 h-4" />
@@ -973,10 +973,10 @@ const Landings = ({ landings, refreshData }) => {
                     {visibleLandings.length > 0 && (
                         <tfoot style={{ background: 'var(--color-bg-soft)' }}>
                             <tr className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-                                <td></td>
+                                <td className="col-check"></td>
                                 <td colSpan={7}>Σ Total ({visibleLandings.length})</td>
                                 {chosenColumns.map((colId) => (
-                                    <td key={colId} className="text-right">
+                                    <td key={colId} className="cell-text">
                                         {formatTotalCell(colId)}
                                     </td>
                                 ))}

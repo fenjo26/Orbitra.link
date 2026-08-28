@@ -1099,12 +1099,19 @@ code {
   z-index: 10;
   background-color: var(--color-bg-soft);
   box-shadow: 0 1px 0 var(--color-border);
-  /* Hard clip + ellipsis on every header cell, not only the .resizable-th
-     ones — a narrowed column must never let its label run under the
-     neighbour. */
+  /* Hard clip on every header cell, not only the .resizable-th ones — a
+     narrowed column must never let its label run under the neighbour. The
+     ellipsis lives on SortableTh's inner .truncate span, which is real text
+     and can actually be shortened; at th level it only ever appended a "…"
+     beside the intact flex row of grip + label + sort icon. */
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: clip;
   border-right: 1px solid color-mix(in srgb, var(--color-border) 65%, transparent);
+}
+
+/* Plain-text headers (Actions, Payout) have no inner truncate span. */
+.tracker-table th.cell-text {
+  text-overflow: ellipsis;
 }
 
 .tracker-table th:last-child {
@@ -1119,11 +1126,18 @@ code {
   /* Cells default to baseline alignment — inline-flex buttons (Actions) and
      badges (Status/Group) then sit visibly off-centre against text rows. */
   vertical-align: middle;
+  /* Header labels are centred (SortableTh), so values are too — a centred
+     header over a left-hugging value read crooked at every column width. */
+  text-align: center;
   /* Hard clip at the cell boundary: with table-layout:fixed a narrowed
      column used to let its nowrap content paint over the neighbour's cell.
-     Ellipsis turns long text into "Name…" instead of a raw cut. */
+     CLIP, not ellipsis: text-overflow cannot elide an atomic inline box (a
+     flex wrapper, an <input>, an icon button), so on a cell full of controls
+     it elided nothing and just painted a stray "…" beside intact icons the
+     moment the content box came up a fraction short. Cells that hold real
+     text opt back into the ellipsis through .cell-text below. */
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: clip;
   border-bottom: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent);
   border-right: 1px solid color-mix(in srgb, var(--color-border) 50%, transparent);
 }
@@ -1144,6 +1158,38 @@ code {
 .tracker-table td button,
 .tracker-table td .action-btn {
   flex-shrink: 0;
+}
+
+/* The ellipsis belongs to text, and only to text. A cell whose content is a
+   control renders an atomic inline box that cannot be shortened, so the
+   browser appends "…" next to fully visible content — which is what made the
+   marker appear "too early", with nothing actually hidden. Text cells ask for
+   it explicitly; .truncate spans (the campaign name) already carry their own. */
+.tracker-table td.cell-text,
+.tracker-table tfoot td.cell-text {
+  text-overflow: ellipsis;
+}
+
+/* The checkbox column is a fixed anchor: 40px in every <colgroup>, no resize
+   handle on its header, and no ellipsis. Its 14px box inside 2×14px of side
+   padding needs 42px — two more than the column has — which is exactly why a
+   "…" sat next to every checkbox. Zero side padding leaves it centred with
+   room to spare. */
+.tracker-table th.col-check,
+.tracker-table td.col-check {
+  width: 40px;
+  min-width: 40px;
+  padding-left: 0;
+  padding-right: 0;
+  text-align: center;
+  text-overflow: clip;
+}
+
+/* Report tree column: rows are indented with padding-left by depth, so the
+   centring above would flatten the hierarchy into one ragged stack. */
+.tracker-table td.report-pinned-name,
+.tracker-table th.report-pinned-name {
+  text-align: left;
 }
 
 /* Horizontal padding MUST match `.tracker-table td` above, or every totals figure
@@ -1648,7 +1694,8 @@ body.col-resizing * {
 
 .action-buttons {
   display: flex;
-  justify-content: flex-end;
+  /* Centred like every other cell: the header above it is centred too. */
+  justify-content: center;
   gap: 4px;
 }
 
