@@ -480,6 +480,34 @@ function orbitraValidateDomainForSsl(string $domain): array
 }
 
 /**
+ * Run one SQLite write, retrying while the database is locked.
+ *
+ * The every-minute crons (rotation optimiser, postback queue, aggregator) can
+ * hold the write lock past PDO's 5-second busy_timeout, and a certificate
+ * worker that dies on the first contended UPDATE leaves every domain after it
+ * unprocessed until the next hourly run. The queue's writes are idempotent
+ * status transitions, so re-running one after a lock is always safe.
+ *
+ * Rethrows anything that is not "database is locked", and rethrows the lock
+ * itself once the attempts are exhausted — the caller decides whether that is
+ * fatal (CLI) or per-domain (the queue logs it and moves on).
+ */
+function orbitraSslWriteWithRetry(PDO $pdo, string $sql, array $params, int $tries = 4): void
+{
+    for ($attempt = 1; ; $attempt++) {
+        try {
+            $pdo->prepare($sql)->execute($params);
+            return;
+        } catch (\PDOException $e) {
+            if ($attempt >= $tries || stripos((string) $e->getMessage(), 'database is locked') === false) {
+                throw $e;
+            }
+            sleep(2);
+        }
+    }
+}
+
+/**
  * Work the certificate queue once. Safe to call from cron every few minutes.
  *
  * @return array{checked: int, issued: int, waiting: int, failed: int, synced: bool}
@@ -545,8 +573,7 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
             // lands, and one contended SQLite write must not abort processing
             // for every domain after it in the queue run.
             try {
-                $pdo->prepare("UPDATE domains SET cloudflare_proxy = 1, ssl_status = 'cloudflare', ssl_error = ? WHERE id = ?")
-                    ->execute([$sslError, $id]);
+                orbitraSslWriteWithRetry($pdo, "UPDATE domains SET cloudflare_proxy = 1, ssl_status = 'cloudflare', ssl_error = ? WHERE id = ?", [$sslError, $id]);
                 $result['cloudflare']++;
             } catch (\Throwable $e) {
                 error_log('SSL queue: cloudflare flag update failed for domain id ' . $id . ' (' . $domain . '): ' . $e->getMessage());
@@ -577,8 +604,7 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
                     'code' => 'chain_unreadable',
                     'path' => $certFile,
                 ], JSON_UNESCAPED_UNICODE);
-                $pdo->prepare("UPDATE domains SET ssl_status = 'installed', ssl_error = ? WHERE id = ?")
-                    ->execute([$error, $id]);
+                orbitraSslWriteWithRetry($pdo, "UPDATE domains SET ssl_status = 'installed', ssl_error = ? WHERE id = ?", [$error, $id]);
                 $needsSync = true; // the LE server block must replace self-signed
                 continue;
             }
@@ -589,13 +615,12 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
                     'count' => $chain['count'],
                     'path' => $certFile,
                 ], JSON_UNESCAPED_UNICODE);
-                $pdo->prepare("UPDATE domains SET ssl_status = 'failed', ssl_error = ? WHERE id = ?")
-                    ->execute([$error, $id]);
+                orbitraSslWriteWithRetry($pdo, "UPDATE domains SET ssl_status = 'failed', ssl_error = ? WHERE id = ?", [$error, $id]);
                 $result['failed']++;
                 continue;
             }
             if (($row['ssl_status'] ?? '') !== 'installed') {
-                $pdo->prepare("UPDATE domains SET ssl_status = 'installed', ssl_error = NULL WHERE id = ?")->execute([$id]);
+                orbitraSslWriteWithRetry($pdo, "UPDATE domains SET ssl_status = 'installed', ssl_error = NULL WHERE id = ?", [$id]);
             }
             $needsSync = true; // orbitraSyncNginx() no-ops when the config already matches
             continue;
@@ -626,14 +651,13 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
                 'message' => $dnsCheck['error_message'],
                 'details' => $dnsCheck['details'],
             ], JSON_UNESCAPED_UNICODE);
-            $pdo->prepare("UPDATE domains SET ssl_status = 'waiting_dns', ssl_error = ? WHERE id = ?")
-                ->execute([$detail, $id]);
+            orbitraSslWriteWithRetry($pdo, "UPDATE domains SET ssl_status = 'waiting_dns', ssl_error = ? WHERE id = ?", [$detail, $id]);
             $result['waiting']++;
             continue;
         }
 
         $processed++;
-        $pdo->prepare("UPDATE domains SET ssl_status = 'installing' WHERE id = ?")->execute([$id]);
+        orbitraSslWriteWithRetry($pdo, "UPDATE domains SET ssl_status = 'installing' WHERE id = ?", [$id]);
 
         $output = (string) orbitraShell(orbitraCertbotCertonlyCommand($domain) . ' 2>&1');
 
@@ -654,8 +678,7 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
                     'code' => 'chain_unreadable',
                     'path' => $certFile,
                 ], JSON_UNESCAPED_UNICODE);
-                $pdo->prepare("UPDATE domains SET ssl_status = 'installed', ssl_error = ?, ssl_attempts = 0, ssl_last_attempt = datetime('now') WHERE id = ?")
-                    ->execute([$error, $id]);
+                orbitraSslWriteWithRetry($pdo, "UPDATE domains SET ssl_status = 'installed', ssl_error = ?, ssl_attempts = 0, ssl_last_attempt = datetime('now') WHERE id = ?", [$error, $id]);
                 $needsSync = true;
                 $result['issued']++;
                 continue;
@@ -667,13 +690,11 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
                     'count' => $chain['count'],
                     'path' => $certFile,
                 ], JSON_UNESCAPED_UNICODE);
-                $pdo->prepare("UPDATE domains SET ssl_status = 'failed', ssl_error = ?, ssl_attempts = ssl_attempts + 1, ssl_last_attempt = datetime('now') WHERE id = ?")
-                    ->execute([$error, $id]);
+                orbitraSslWriteWithRetry($pdo, "UPDATE domains SET ssl_status = 'failed', ssl_error = ?, ssl_attempts = ssl_attempts + 1, ssl_last_attempt = datetime('now') WHERE id = ?", [$error, $id]);
                 $result['failed']++;
                 continue;
             }
-            $pdo->prepare("UPDATE domains SET ssl_status = 'installed', ssl_error = NULL, ssl_attempts = 0, ssl_last_attempt = datetime('now') WHERE id = ?")
-                ->execute([$id]);
+            orbitraSslWriteWithRetry($pdo, "UPDATE domains SET ssl_status = 'installed', ssl_error = NULL, ssl_attempts = 0, ssl_last_attempt = datetime('now') WHERE id = ?", [$id]);
             $needsSync = true;
             $result['issued']++;
         } else {
@@ -682,8 +703,7 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
             $error = trim($output) !== ''
                 ? substr(trim($output), -500)
                 : json_encode(['code' => 'certbot_no_output'], JSON_UNESCAPED_UNICODE);
-            $pdo->prepare("UPDATE domains SET ssl_status = 'failed', ssl_error = ?, ssl_attempts = ssl_attempts + 1, ssl_last_attempt = datetime('now') WHERE id = ?")
-                ->execute([$error, $id]);
+            orbitraSslWriteWithRetry($pdo, "UPDATE domains SET ssl_status = 'failed', ssl_error = ?, ssl_attempts = ssl_attempts + 1, ssl_last_attempt = datetime('now') WHERE id = ?", [$error, $id]);
             $result['failed']++;
         }
     }

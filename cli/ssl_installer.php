@@ -17,7 +17,19 @@ if (PHP_SAPI !== 'cli') {
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../core/ssl_manager.php';
 
-$result = orbitraProcessSslQueue($pdo);
+// The every-minute crons can hold the SQLite write lock; a locked run is a
+// "try again", not a stack trace — especially for the operator who just
+// parked a domain and ran this by hand to get its certificate now.
+try {
+    $result = orbitraProcessSslQueue($pdo);
+} catch (\Throwable $e) {
+    fwrite(STDERR, sprintf(
+        "[%s] worker aborted: %s — the database was busy (every-minute crons); run me again\n",
+        date('Y-m-d H:i:s'),
+        $e->getMessage()
+    ));
+    exit(1);
+}
 
 // Output matters: this runs from cron, and a silent worker is one nobody can
 // debug when a domain never gets its certificate.
