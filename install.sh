@@ -468,13 +468,21 @@ fi
 # costs far more than the minutes a tighter schedule would save.
 echo "  > Scheduling the SSL certificate worker..."
 SSL_CRON_MARKER="# orbitra-ssl-renew"
-if ! crontab -u www-data -l 2>/dev/null | grep -qF "$SSL_CRON_MARKER"; then
+# Every 5 minutes: the queue gates every certbot call on DNS and the retry
+# ladder, so a tight cadence cannot burn Let's Encrypt's failure budget — it
+# only shortens the wait for a domain whose DNS landed a minute after save.
+# An existing hourly line from an older install is upgraded in place.
+if crontab -u www-data -l 2>/dev/null | grep -qF "$SSL_CRON_MARKER"; then
+    crontab -u www-data -l 2>/dev/null | grep -vF "$SSL_CRON_MARKER" | { cat; echo "*/5 * * * * php /var/www/orbitra/cli/ssl_installer.php >> /var/www/orbitra/var/logs/ssl_installer.log 2>&1 $SSL_CRON_MARKER"; } | crontab -u www-data - 2>/dev/null \
+      && echo "  > Worker schedule upgraded to every 5 minutes." \
+      || echo "  > NOTE: could not rewrite the crontab."
+else
     {
         crontab -u www-data -l 2>/dev/null
-        echo "17 * * * * php /var/www/orbitra/cli/ssl_installer.php >> /var/www/orbitra/var/logs/ssl_installer.log 2>&1 $SSL_CRON_MARKER"
+        echo "*/5 * * * * php /var/www/orbitra/cli/ssl_installer.php >> /var/www/orbitra/var/logs/ssl_installer.log 2>&1 $SSL_CRON_MARKER"
     } | crontab -u www-data - 2>/dev/null \
-      && echo "  > Worker scheduled (hourly)." \
-      || echo "  > NOTE: could not write the crontab. Add this line manually: 17 * * * * php /var/www/orbitra/cli/ssl_installer.php"
+      && echo "  > Worker scheduled (every 5 minutes)." \
+      || echo "  > NOTE: could not write the crontab. Add this line manually: */5 * * * * php /var/www/orbitra/cli/ssl_installer.php"
 fi
 
 # Cloaking feed. lord-alfred/ipranges refreshes its datacenter/crawler lists

@@ -1925,6 +1925,39 @@ function updateNginxConfig($pdo) {
  * Install SSL certificate for a single domain using Certbot
  * Tries synchronous first (user just clicked save), falls back to background
  */
+/**
+ * Run the SSL certificate worker once, synchronously, and report what it did.
+ *
+ * Every domain-save path used to fire `php cli/ssl_installer.php >
+ * /dev/null 2>&1 &` and hope. The background run died silently on the
+ * database contention the save itself caused (or issued the certificate
+ * without ever rebuilding nginx), and the domain then answered with a
+ * self-signed certificate until the next scheduled worker pass — while the
+ * panel showed a green tick. Running it here instead means the certificate,
+ * the nginx rebuild and the status row all land before the save response
+ * returns, and the outcome travels back to the panel instead of /dev/null.
+ *
+ * The worker is a separate PHP process with its own connection, so the save
+ * request cannot lock it out; its writes are lock-retried (788d949). A busy
+ * database still aborts it — reported as ok=false, the cron pass catches up.
+ */
+function orbitraRunSslWorkerNow(): array
+{
+    $cliPath = __DIR__ . '/cli/ssl_installer.php';
+    if (!file_exists($cliPath)) {
+        return ['ok' => false, 'summary' => 'ssl worker script missing'];
+    }
+    $out = (string) orbitraShell('php ' . escapeshellarg($cliPath) . ' 2>&1');
+    $line = trim($out);
+    if ($line !== '' && strpos($line, "\n") !== false) {
+        $line = trim(substr($line, strrpos($line, "\n") + 1));
+    }
+    return [
+        'ok' => $line !== '' && stripos($line, 'aborted') === false,
+        'summary' => $line !== '' ? $line : 'ssl worker produced no output',
+    ];
+}
+
 function installSslForDomain($domain) {
     require_once __DIR__ . '/core/nginx_config.php';
     require_once __DIR__ . '/core/ssl_manager.php';
@@ -8703,10 +8736,8 @@ try {
                         $nginxResult = updateNginxConfig($pdo);
 
                         if (!empty($sslQueued)) {
-                            $cliPath = __DIR__ . '/cli/ssl_installer.php';
-                            if (file_exists($cliPath)) {
-                                orbitraShell("php " . escapeshellarg($cliPath) . " > /dev/null 2>&1 &");
-                            }
+                            // Synchronous on purpose — see orbitraRunSslWorkerNow().
+                            $sslRun = orbitraRunSslWorkerNow();
                         }
 
                         $response = ['status' => 'success', 'nginx' => $nginxResult];
@@ -8714,7 +8745,7 @@ try {
                             $response['cloudflare_sync'] = ['ok' => (bool) ($cfSync['ok'] ?? false), 'message' => (string) ($cfSync['message'] ?? '')];
                         }
                         if ($sslQueued) {
-                            $response['ssl'] = 'SSL сертификат устанавливается в фоновом режиме (1-2 минуты)';
+                            $response['ssl'] = $sslRun['summary'] ?? 'ssl worker not run';
                         }
                         echo json_encode($response);
                     } else {
@@ -8821,13 +8852,8 @@ try {
                         // this writes, so issuing a certificate before it exists fails.
                         $nginxResult = updateNginxConfig($pdo);
 
-                        // Start background SSL installer if any domains need HTTPS
-                        if ($sslPending) {
-                            $cliPath = __DIR__ . '/cli/ssl_installer.php';
-                            if (file_exists($cliPath)) {
-                                orbitraShell("php " . escapeshellarg($cliPath) . " > /dev/null 2>&1 &");
-                            }
-                        }
+                        // Issue certificates synchronously — see orbitraRunSslWorkerNow().
+                        $sslRun = $sslPending ? orbitraRunSslWorkerNow() : null;
 
                         $response = [
                             'status' => 'success',
@@ -8836,7 +8862,7 @@ try {
                         ];
 
                         if ($sslPending) {
-                            $response['ssl'] = 'SSL сертификаты устанавливаются в фоновом режиме (1-2 минуты)';
+                            $response['ssl'] = $sslRun['summary'] ?? 'ssl worker not run';
                         }
 
                         if (!empty($errors)) {
@@ -9527,12 +9553,9 @@ try {
                     }
 
                     $nginxResult = updateNginxConfig($pdo);
-                    if ($sslQueued) {
-                        $cliPath = __DIR__ . '/cli/ssl_installer.php';
-                        if (file_exists($cliPath)) {
-                            orbitraShell("php " . escapeshellarg($cliPath) . " > /dev/null 2>&1 &");
-                        }
-                    }
+                    // Imported zones get their certificates now, not at the next
+                    // cron pass — see orbitraRunSslWorkerNow().
+                    $sslRun = $sslQueued ? orbitraRunSslWorkerNow() : null;
 
                     echo json_encode(['status' => 'success', 'data' => [
                         'added' => $added,
@@ -9978,10 +10001,11 @@ try {
 
                     $ncSync = orbitraNamecheapSyncDomain($pdo, ['id' => $newId, 'name' => $domain], $cfgNc);
                     $nginxResult = updateNginxConfig($pdo);
-                    $cliPath = __DIR__ . '/cli/ssl_installer.php';
-                    if (file_exists($cliPath)) {
-                        orbitraShell("php " . escapeshellarg($cliPath) . " > /dev/null 2>&1 &");
-                    }
+                    // Freshly bought domain — issue its certificate right away
+                    // (see orbitraRunSslWorkerNow()); Namecheap DNS may still be
+                    // propagating, in which case the worker records waiting_dns
+                    // and the cron pass finishes the job.
+                    $sslRun = orbitraRunSslWorkerNow();
 
                     echo json_encode(['status' => 'success', 'data' => [
                         'domain' => $domain,

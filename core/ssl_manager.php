@@ -64,11 +64,23 @@ function orbitraEnsureSslCron(): bool
 
     $current = (string) orbitraShell('crontab -l 2>/dev/null');
     if (strpos($current, $marker) !== false) {
-        return $done = true;
+        // Existing installs carry the old hourly line ("17 * * * *"): a parked
+        // domain whose DNS landed a minute after the save waited up to an hour
+        // for its certificate. Five minutes is still gentle on Let's Encrypt —
+        // the queue itself gates every certbot call on DNS and the backoff
+        // ladder — so an old schedule gets upgraded in place.
+        if (strpos($current, '*/5 * * * *') !== false) {
+            return $done = true;
+        }
+        $current = implode("\n", array_filter(
+            explode("\n", $current),
+            static fn($l) => strpos($l, $marker) === false
+        ));
+        // fall through: the append below writes the new schedule
     }
 
     $php = trim((string) orbitraShell('command -v php 2>/dev/null')) ?: 'php';
-    $line = "17 * * * * $php " . escapeshellarg($script) . ' >> ' . escapeshellarg($log) . " 2>&1 $marker";
+    $line = "*/5 * * * * $php " . escapeshellarg($script) . ' >> ' . escapeshellarg($log) . " 2>&1 $marker";
 
     $updated = rtrim($current, "\n");
     $updated = ($updated === '' ? '' : $updated . "\n") . $line . "\n";
