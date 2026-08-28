@@ -52,7 +52,11 @@ const PrivacySettings = () => {
             if (data.status === 'success') {
                 setMessage({ text: t('privacy.saveSuccess'), type: 'success' });
             } else {
-                setMessage({ text: data.message || t('privacy.saveError'), type: 'error' });
+                // The endpoint answers with codes for our own errors — the panel
+                // speaks seven languages, English sentences don't. unknown_settings
+                // carries the ignored key list and stays as sent.
+                const codeText = data.code === 'invalid_privacy_redirect_url' ? t('privacy.errRedirectUrl') : '';
+                setMessage({ text: codeText || data.message || t('privacy.saveError'), type: 'error' });
             }
         } catch (error) {
             setMessage({ text: t('privacy.networkError'), type: 'error' });

@@ -837,6 +837,7 @@ export default {
         "sslCloudflare": "Cloudflare",
         "sslCustom": "Custom",
         "sslSelfSigned": "Self-signed",
+        "sslModeAutoHint": "No mode chosen — Orbitra decides: Cloudflare for proxied domains, Let\u2019s Encrypt otherwise.",
         "sslLetsEncryptHint": "Auto-issued certificate. Point A record to server IP.",
         "sslCloudflareHint": "Cloudflare serves SSL certificate. Self-signed cert on origin for Full SSL mode.",
         "sslCustomHint": "Provide your own certificate and key file paths.",
@@ -2258,6 +2259,7 @@ export default {
         "blankPage": "Blank Page",
         "redirectUrl": "Redirect URL",
         "redirectUrlHint": "Where to send the user without campaign parameters.",
+        "errRedirectUrl": "The redirect action needs a valid http(s) URL — enter the full address the probe will be sent to.",
         "saveSuccess": "Settings successfully saved",
         "saveError": "Error",
         "networkError": "Network Error"

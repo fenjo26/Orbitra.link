@@ -837,6 +837,7 @@ export default {
         "sslCloudflare": "Cloudflare",
         "sslCustom": "Benutzerdefiniert",
         "sslSelfSigned": "Selbstsigniert",
+        "sslModeAutoHint": "Kein Modus gewählt — Orbitra entscheidet: Cloudflare für Proxy-Domains, sonst Let\u2019s Encrypt.",
         "sslLetsEncryptHint": "Automatisch ausgestelltes Zertifikat. A-Record auf Server-IP richten.",
         "sslCloudflareHint": "Cloudflare stellt SSL-Zertifikat bereit. Selbstsigniertes Zertifikat auf dem Ursprung für Full-SSL-Modus.",
         "sslCustomHint": "Pfade zu Ihrem eigenen Zertifikat und Schlüssel angeben.",
@@ -2258,6 +2259,7 @@ export default {
         "blankPage": "Leere Seite",
         "redirectUrl": "Umleitungs-URL",
         "redirectUrlHint": "Wohin der Benutzer ohne Kampagnenparameter weitergeleitet werden soll.",
+        "errRedirectUrl": "Die Aktion „Umleiten“ erfordert eine gültige http(s)-URL — geben Sie die vollständige Adresse an, an die solche Anfragen geschickt werden.",
         "saveSuccess": "Einstellungen erfolgreich gespeichert",
         "saveError": "Fehler",
         "networkError": "Netzwerkfehler"

@@ -837,6 +837,7 @@ export default {
         "sslCloudflare": "Cloudflare",
         "sslCustom": "Свой сертификат",
         "sslSelfSigned": "Самоподписанный",
+        "sslModeAutoHint": "Режим не выбран — Orbitra решит сама: Cloudflare для проксированных доменов, иначе Let\u2019s Encrypt.",
         "sslLetsEncryptHint": "Автоматически выпускаемый сертификат. Направьте A-запись на IP сервера.",
         "sslCloudflareHint": "Cloudflare обслуживает SSL-сертификат. Самоподписанный сертификат на сервере для режима Full SSL.",
         "sslCustomHint": "Укажите пути к собственным файлам сертификата и ключа.",
@@ -2226,6 +2227,7 @@ export default {
         "blankPage": "Пустая страница",
         "redirectUrl": "URL для перенаправления",
         "redirectUrlHint": "Куда отправлять пользователя без параметров кампании.",
+        "errRedirectUrl": "Для действия «Редирект» нужен валидный http(s)-URL — укажите полный адрес, куда отправлять запрос без параметров кампании.",
         "saveSuccess": "Настройки успешно сохранены",
         "saveError": "Ошибка",
         "networkError": "Ошибка сети"

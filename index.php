@@ -2553,6 +2553,47 @@ if (!$campaign && $fallbackCampaignId) {
 }
 
 if (!$campaign) {
+    // Bug 2 (docs/TZ_SSL_CHAIN_AND_PRIVACY.md): scan protection. An unknown
+    // alias/campaign used to answer "Campaign not found." with a 200 — an
+    // unambiguous tracker signature for anyone probing the domain. With the
+    // protection enabled the operator chooses what a probe sees: a 302 away,
+    // a plain 404, or a blank 200. Service routes never reach this branch:
+    // landing paths, local offers and the LeadForge handlers all exit earlier
+    // in the router, /.well-known/acme-challenge/ is served by nginx, and the
+    // panel / postbacks are separate entry files.
+    $privacy = [];
+    try {
+        $stmtPrivacy = $pdo->query("SELECT key, value FROM settings WHERE key IN ('privacy_enabled', 'privacy_action', 'privacy_redirect_url')");
+        foreach ($stmtPrivacy->fetchAll() as $pRow) {
+            $privacy[$pRow['key']] = $pRow['value'];
+        }
+    } catch (\Throwable $e) {
+        // Unreadable settings must not change what a visitor sees — fall
+        // through to the default response below.
+    }
+    if (($privacy['privacy_enabled'] ?? '0') === '1') {
+        $action = in_array(($privacy['privacy_action'] ?? 'redirect'), ['redirect', '404', 'blank'], true)
+            ? $privacy['privacy_action']
+            : 'redirect';
+        if ($action === 'redirect') {
+            $target = trim((string) ($privacy['privacy_redirect_url'] ?? ''));
+            // A configured-but-invalid target degrades to a 404 rather than a
+            // redirect to a broken URL — the api validates on save, this only
+            // guards against a hand-edited settings row.
+            if ($target !== '' && filter_var($target, FILTER_VALIDATE_URL) && preg_match('#^https?://#i', $target)) {
+                header('Location: ' . $target, true, 302);
+                exit;
+            }
+            http_response_code(404);
+            exit;
+        }
+        if ($action === 'blank') {
+            http_response_code(200);
+            exit;
+        }
+        http_response_code(404);
+        exit;
+    }
     die("Campaign not found.");
 }
 

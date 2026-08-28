@@ -837,6 +837,7 @@ export default {
         "sslCloudflare": "Cloudflare",
         "sslCustom": "自定义",
         "sslSelfSigned": "自签名",
+        "sslModeAutoHint": "未选择模式 —— 由 Orbitra 决定：代理域名用 Cloudflare，其余用 Let\u2019s Encrypt。",
         "sslLetsEncryptHint": "自动签发证书。将 A 记录指向服务器 IP。",
         "sslCloudflareHint": "由 Cloudflare 提供 SSL 证书。源站使用自签名证书以支持 Full SSL 模式。",
         "sslCustomHint": "提供您自己的证书和密钥文件路径。",
@@ -2258,6 +2259,7 @@ export default {
         "blankPage": "空白页",
         "redirectUrl": "重定向网址",
         "redirectUrlHint": "在没有活动参数的情况下将用户发送到哪里。",
+        "errRedirectUrl": "「重定向」操作需要有效的 http(s) 网址——请填写完整地址，用于接收此类探测请求。",
         "saveSuccess": "设置成功保存",
         "saveError": "错误",
         "networkError": "网络错误"

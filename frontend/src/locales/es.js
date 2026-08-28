@@ -837,6 +837,7 @@ export default {
         "sslCloudflare": "Cloudflare",
         "sslCustom": "Propio",
         "sslSelfSigned": "Autofirmado",
+        "sslModeAutoHint": "Modo no elegido: Orbitra decide — Cloudflare para dominios proxied, Let\u2019s Encrypt en el resto.",
         "sslLetsEncryptHint": "Certificado emitido automáticamente. Apunte el registro A a la IP del servidor.",
         "sslCloudflareHint": "Cloudflare sirve el certificado SSL. Certificado autofirmado en el origen para el modo Full SSL.",
         "sslCustomHint": "Indique las rutas a sus propios archivos de certificado y clave.",
@@ -2258,6 +2259,7 @@ export default {
         "blankPage": "Página en blanco",
         "redirectUrl": "URL de redireccionamiento",
         "redirectUrlHint": "Dónde enviar al usuario sin parámetros de campaña.",
+        "errRedirectUrl": "La acción de redirección necesita una URL http(s) válida: indica la dirección completa a la que se enviarán esas peticiones.",
         "saveSuccess": "Configuración guardada exitosamente",
         "saveError": "error",
         "networkError": "Error de red"

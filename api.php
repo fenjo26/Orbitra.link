@@ -11274,7 +11274,7 @@ try {
 
         case 'global_settings':
             if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-                $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token', 'allow_php_landings', 'php_landing_timeout', 'admin_path', 'stats_enabled', 'stats_retention_days', 'archive_retention_days', 'admin_ip_access', 'ignore_prefetch', 'bot_isp_list', 'server_ip_override')");
+                $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token', 'allow_php_landings', 'php_landing_timeout', 'admin_path', 'stats_enabled', 'stats_retention_days', 'archive_retention_days', 'admin_ip_access', 'ignore_prefetch', 'bot_isp_list', 'server_ip_override', 'privacy_enabled', 'privacy_action', 'privacy_redirect_url')");
                 $data = [];
                 while ($row = $stmt->fetch()) {
                     $data[$row['key']] = $row['value'];
@@ -11299,6 +11299,19 @@ try {
                 }
                 if (!isset($data['ignore_prefetch'])) {
                     $data['ignore_prefetch'] = '1';
+                }
+                // Bug 2: the scan-protection fields used to be absent from this
+                // SELECT's whitelist, so the form always showed its hardcoded
+                // defaults no matter what was saved. Backfill the canonical
+                // defaults the same way the retention fields above do.
+                if (!isset($data['privacy_enabled'])) {
+                    $data['privacy_enabled'] = '0';
+                }
+                if (!isset($data['privacy_action'])) {
+                    $data['privacy_action'] = 'redirect';
+                }
+                if (!isset($data['privacy_redirect_url'])) {
+                    $data['privacy_redirect_url'] = '';
                 }
 
                 // Add geo targeting readiness for Phase 0 cloak warnings
@@ -11333,11 +11346,39 @@ try {
                         $extra['admin_url'] = $check['value'] === '' ? '/admin.php' : '/' . $check['value'];
                     }
 
+                    // Bug 2 pre-flight: the scan-protection trio is validated as a
+                    // group because the redirect target only matters when
+                    // redirect is the action — a per-key loop cannot see both
+                    // values at once. An empty or non-URL target with the
+                    // redirect action chosen must not save: that combination
+                    // turns every unknown-alias hit into an error or a loop.
+                    if (isset($settings['privacy_enabled']) || isset($settings['privacy_action']) || isset($settings['privacy_redirect_url'])) {
+                        $actionVal = (string) ($settings['privacy_action'] ?? '');
+                        $urlVal = trim((string) ($settings['privacy_redirect_url'] ?? ''));
+                        if (!array_key_exists('privacy_action', $settings)) {
+                            $actionVal = (string) $pdo->query("SELECT value FROM settings WHERE key = 'privacy_action'")->fetchColumn() ?: 'redirect';
+                        }
+                        if (!array_key_exists('privacy_redirect_url', $settings)) {
+                            $urlVal = trim((string) ($pdo->query("SELECT value FROM settings WHERE key = 'privacy_redirect_url'")->fetchColumn() ?: ''));
+                        }
+                        if ($actionVal === 'redirect'
+                            && ($urlVal === '' || !filter_var($urlVal, FILTER_VALIDATE_URL) || !preg_match('#^https?://#i', $urlVal))) {
+                            echo json_encode([
+                                'status' => 'error',
+                                'code' => 'invalid_privacy_redirect_url',
+                                'message' => 'Scan protection: the redirect action needs a valid http(s) URL.',
+                            ]);
+                            break;
+                        }
+                    }
+
                     $stmt = $pdo->prepare("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value");
-                    foreach (['postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token',
+                    $whitelist = ['postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token',
                               'allow_php_landings', 'php_landing_timeout', 'admin_path',
                               'stats_enabled', 'stats_retention_days', 'archive_retention_days',
-                              'admin_ip_access', 'ignore_prefetch', 'bot_isp_list', 'server_ip_override'] as $key) {
+                              'admin_ip_access', 'ignore_prefetch', 'bot_isp_list', 'server_ip_override',
+                              'privacy_enabled', 'privacy_action', 'privacy_redirect_url'];
+                    foreach ($whitelist as $key) {
                         if (!isset($settings[$key])) {
                             continue;
                         }
@@ -11392,7 +11433,39 @@ try {
                             $days = (int) $value;
                             $value = (string) max(1, min($days > 0 ? $days : ($key === 'stats_retention_days' ? 256 : 30), 3650));
                         }
+                        // Bug 2: the scan-protection fields. A security control:
+                        // admin-only, booleans normalised, the action comes from a
+                        // fixed set, the URL is trimmed (its cross-field validity
+                        // was checked in the pre-flight above).
+                        if ($key === 'privacy_enabled' || $key === 'privacy_action' || $key === 'privacy_redirect_url') {
+                            if (($_SESSION['role'] ?? '') !== 'admin') {
+                                continue;
+                            }
+                            if ($key === 'privacy_enabled') {
+                                $value = ($value === '1' || $value === 1 || $value === true) ? '1' : '0';
+                            }
+                            if ($key === 'privacy_action') {
+                                $value = in_array($value, ['redirect', '404', 'blank'], true) ? $value : 'redirect';
+                            }
+                            if ($key === 'privacy_redirect_url') {
+                                $value = is_string($value) ? trim($value) : '';
+                            }
+                        }
                         $stmt->execute([$key, $value]);
+                    }
+                    // An unknown key used to be dropped silently while the
+                    // response said success — exactly the bug class that kept
+                    // the privacy settings from ever persisting. Fail loudly:
+                    // the caller sees precisely which keys went nowhere.
+                    $ignoredKeys = array_values(array_diff(array_keys($settings), $whitelist));
+                    if ($ignoredKeys) {
+                        echo json_encode([
+                            'status' => 'error',
+                            'code' => 'unknown_settings',
+                            'message' => 'Unknown settings keys were not saved: ' . implode(', ', $ignoredKeys),
+                            'data' => ['ignored' => $ignoredKeys],
+                        ]);
+                        break;
                     }
                 }
                 echo json_encode(array_merge(['status' => 'success'], $extra));
