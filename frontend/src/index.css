@@ -1092,6 +1092,10 @@ code {
   white-space: nowrap;
   user-select: none;
   vertical-align: middle;
+  /* Stated explicitly: .page-table th sets text-align:left and this rule sits
+     at equal specificity, so without it a table wearing both classes keeps the
+     left-aligned header over its centred value. */
+  text-align: center;
   /* The container is the vertical scroll context, so sticky actually pins —
      with page-level scroll an overflow-x wrapper would silently not stick. */
   position: sticky;

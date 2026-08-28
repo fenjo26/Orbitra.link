@@ -15,13 +15,20 @@ const cleanNameInput = (v) => v.toLowerCase().replace(/^https?:\/\//, '').replac
 // Cloudflare toggles. Segmented control over a hidden state pair — the same
 // visual language as the rest of the panel, theme vars included.
 const ToggleGroup = ({ value, options, onChange }) => (
+    /* whitespace-nowrap + px-3 is the whole point: the container clips
+       (overflow-hidden gives it its rounded corners), so a label that wrapped
+       or outgrew its half was silently cut to "Запр". Equal halves via
+       flex-auto, NOT flex-1: flex-1 forces basis 0 and splits the width in
+       equal halves, which is a hair too narrow for the longer of two labels
+       ("Deny access" against "Allow access"). flex-auto sizes each button from
+       its own text first and shares only the slack. */
     <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
         {options.map((opt, i) => (
             <button
                 key={opt.value}
                 type="button"
                 onClick={() => onChange(opt.value)}
-                className="flex-1 text-xs font-medium py-1.5 px-2 transition"
+                className="flex-auto text-xs font-medium py-1.5 px-3 transition whitespace-nowrap"
                 style={{
                     background: value === opt.value ? 'var(--color-primary)' : 'var(--color-bg-soft)',
                     color: value === opt.value ? 'var(--color-text-inverse, #fff)' : 'var(--color-text-secondary)',
@@ -696,7 +703,7 @@ const Domains = ({ campaigns }) => {
     );
 
     const renderDomainActions = (domain) => (
-        <div className="flex items-center gap-2">
+        <div className="inline-flex items-center justify-center gap-2">
             <button
                 onClick={() => reissueSsl(domain.id, domain.name)}
                 disabled={reissuingSsl === domain.id}
@@ -852,109 +859,36 @@ const Domains = ({ campaigns }) => {
             <InfoBanner storageKey="help_domains" title={t('help.domainBannerTitle')}>
                 <p>{t('help.domainBanner')}</p>
             </InfoBanner>
-            <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center gap-4">
-                    <h2 className="text-lg font-semibold flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+            {/* Two rows on purpose. One row with justify-between used to wrap
+                unpredictably: the primary "Add domain" button fell onto a second
+                line and landed beside the server-IP chip, while the page title
+                got squeezed onto two lines. Identity + primary action on top,
+                filters + secondary actions underneath, is the layout the rest of
+                the panel already uses and it cannot collapse into that mess. */}
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 mb-4">
+                <div className="flex items-center gap-3 min-w-0">
+                    <h2 className="text-lg font-semibold flex items-center gap-2 whitespace-nowrap" style={{ color: 'var(--color-text-primary)' }}>
                         <Globe size={20} style={{ color: 'var(--color-text-secondary)' }} />
                         {t('domains.title')}
                     </h2>
                     {serverIp && (
                         /* tb-hide-sm: the readout costs a full toolbar row on a
-                           phone; the IP stays one tap away in DNS check tooltips. */
-                        <div className="flex items-center px-3 py-1 rounded text-sm border tb-hide-sm" style={{ background: 'var(--color-bg-soft)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}>
-                            <span className="font-medium mr-2">{t('domains.serverIp')}</span>
-                            <span className="font-mono">{serverIp}</span>
-                            <button onClick={copyIp} className="ml-2 hover:text-[var(--color-primary)] transition flex items-center gap-1" style={{ color: 'var(--color-text-secondary)' }} title={copiedIp ? t('migrations.copied') : t('common.copy')}>
+                           phone; the IP stays one tap away in DNS check tooltips.
+                           whitespace-nowrap + flex-shrink-0: an IP that wraps or
+                           gets clipped mid-octet is worse than no IP at all. */
+                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs border whitespace-nowrap flex-shrink-0 tb-hide-sm" style={{ background: 'var(--color-bg-soft)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}>
+                            <span style={{ color: 'var(--color-text-secondary)' }}>{t('domains.serverIp')}</span>
+                            <span className="font-mono font-medium">{serverIp}</span>
+                            <button onClick={copyIp} className="hover:text-[var(--color-primary)] transition flex items-center gap-1" style={{ color: 'var(--color-text-secondary)' }} title={copiedIp ? t('migrations.copied') : t('common.copy')}>
                                 {copiedIp ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
-                                {copiedIp && <span className="text-xs text-green-500">{t('migrations.copied')}</span>}
                             </button>
                         </div>
                     )}
                 </div>
 
-                {/* Wraps as a unit on narrow screens; each label stays on one
-                    line — a two-line "Check / DNS" read as clutter, not as two
-                    controls' worth of information. */}
-                <div className="flex flex-wrap items-center gap-3">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--color-text-secondary)' }} />
-                        <input
-                            type="text"
-                            placeholder={t('domains.searchPlaceholder')}
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="form-input w-64"
-                            style={{ paddingLeft: '36px' }}
-                        />
-                    </div>
-                    <select
-                        value={selectedGroupId}
-                        onChange={(e) => setSelectedGroupId(e.target.value)}
-                        className="form-select text-xs py-1.5 px-3 rounded-xl tb-release"
-                        style={{ width: '150px' }}
-                    >
-                        <option value="">{t('domains.allGroups', 'All Groups')}</option>
-                        {domainGroups.map(g => (
-                            <option key={g.id} value={String(g.id)}>{g.name}</option>
-                        ))}
-                        <option value="__no_group__">{t('domains.noGroup')}</option>
-                    </select>
-                    {selectedDomainIds.size > 0 && (
-                        <>
-                            <button
-                                onClick={() => setBulkGroupModal(true)}
-                                className="btn btn-secondary flex items-center gap-2 whitespace-nowrap"
-                                title={t('domains.bulkChangeGroupTitle', 'Change group for selected domains')}
-                            >
-                                <Folder size={16} />
-                                {t('domains.bulkChangeGroup', 'Change Group')} ({selectedDomainIds.size})
-                            </button>
-                            <button
-                                onClick={handleBulkDelete}
-                                className="btn btn-danger flex items-center gap-2 whitespace-nowrap"
-                                title={t('domains.bulkDeleteTitle', 'Delete selected domains')}
-                            >
-                                <Trash2 size={16} />
-                                {t('common.deleteSelected', 'Delete')} ({selectedDomainIds.size})
-                            </button>
-                        </>
-                    )}
-                    <label className="inline-flex items-center gap-2 px-3 py-2 rounded text-sm border" style={{ background: 'var(--color-bg-soft)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }} title={t('domains.ignoreDnsHint')}>
-                        <input
-                            type="checkbox"
-                            checked={ignoreDnsUi}
-                            onChange={(e) => setIgnoreDnsUi(Boolean(e.target.checked))}
-                        />
-                        <span style={{ color: 'var(--color-text-primary)' }}>{t('domains.ignoreDnsLabel')}</span>
-                    </label>
-                    {/* btn-secondary, not a hardcoded success fill: the token
-                        system themes every other control in this row. */}
-                    <button
-                        onClick={forceCheckAllDns}
-                        disabled={forceChecking}
-                        className="btn btn-secondary flex items-center gap-2 whitespace-nowrap"
-                        title={t('domains.forceCheckTitle')}
-                    >
-                        <RefreshCw size={16} className={forceChecking ? 'animate-spin' : ''} />
-                        {forceChecking ? t('domains.checkingShort') : t('domains.checkDns')}
-                    </button>
-                    <button
-                        onClick={runSslWorker}
-                        disabled={sslRunning}
-                        className="btn btn-secondary flex items-center gap-2 whitespace-nowrap"
-                        title={t('domains.issueSslTitle')}
-                    >
-                        <ShieldAlert size={16} className={sslRunning ? 'animate-spin' : ''} />
-                        {sslRunning ? t('domains.checkingShort') : t('domains.issueSsl')}
-                    </button>
-                    <button
-                        onClick={() => setShowGroupsModal(true)}
-                        className="btn btn-secondary flex items-center gap-2 whitespace-nowrap"
-                        title={t('domains.groupsTitle', 'Manage domain groups')}
-                    >
-                        <Folder size={16} />
-                        {t('domains.groups', 'Groups')}
-                    </button>
+                {/* The primary action keeps its own corner. Mixed in among five
+                    secondary buttons it read as just another grey control. */}
+                <div className="flex items-center gap-2.5 flex-shrink-0">
                     {(!ncResolved || ncConnected) && (
                         <>
                             <button
@@ -991,6 +925,99 @@ const Domains = ({ campaigns }) => {
                 </div>
             </div>
 
+            {/* Filters left, table-wide actions right, one rule under both. */}
+            <div className="flex flex-wrap items-center gap-2.5 mb-5 pb-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--color-text-secondary)' }} />
+                    <input
+                        type="text"
+                        placeholder={t('domains.searchPlaceholder')}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="form-input w-56"
+                        style={{ paddingLeft: '36px' }}
+                    />
+                </div>
+                <select
+                    value={selectedGroupId}
+                    onChange={(e) => setSelectedGroupId(e.target.value)}
+                    className="form-select text-xs py-1.5 px-3 rounded-xl tb-release"
+                    style={{ width: '150px' }}
+                >
+                    <option value="">{t('domains.allGroups', 'All Groups')}</option>
+                    {domainGroups.map(g => (
+                        <option key={g.id} value={String(g.id)}>{g.name}</option>
+                    ))}
+                    <option value="__no_group__">{t('domains.noGroup')}</option>
+                </select>
+                <label className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs border cursor-pointer whitespace-nowrap" style={{ background: 'var(--color-bg-soft)', borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }} title={t('domains.ignoreDnsHint')}>
+                    <input
+                        type="checkbox"
+                        checked={ignoreDnsUi}
+                        onChange={(e) => setIgnoreDnsUi(Boolean(e.target.checked))}
+                    />
+                    <span style={{ color: 'var(--color-text-primary)' }}>{t('domains.ignoreDnsLabel')}</span>
+                </label>
+
+                {/* Pushes the action cluster to the far edge without
+                    justify-between, which would have split the filters apart the
+                    moment the row wrapped. */}
+                <div className="flex-1 min-w-0" />
+
+                {/* btn-secondary, not a hardcoded success fill: the token
+                    system themes every other control in this row. */}
+                <button
+                    onClick={forceCheckAllDns}
+                    disabled={forceChecking}
+                    className="btn btn-secondary flex items-center gap-2 whitespace-nowrap"
+                    title={t('domains.forceCheckTitle')}
+                >
+                    <RefreshCw size={16} className={forceChecking ? 'animate-spin' : ''} />
+                    {forceChecking ? t('domains.checkingShort') : t('domains.checkDns')}
+                </button>
+                <button
+                    onClick={runSslWorker}
+                    disabled={sslRunning}
+                    className="btn btn-secondary flex items-center gap-2 whitespace-nowrap"
+                    title={t('domains.issueSslTitle')}
+                >
+                    <ShieldAlert size={16} className={sslRunning ? 'animate-spin' : ''} />
+                    {sslRunning ? t('domains.checkingShort') : t('domains.issueSsl')}
+                </button>
+                <button
+                    onClick={() => setShowGroupsModal(true)}
+                    className="btn btn-secondary flex items-center gap-2 whitespace-nowrap"
+                    title={t('domains.groupsTitle', 'Manage domain groups')}
+                >
+                    <Folder size={16} />
+                    {t('domains.groups', 'Groups')}
+                </button>
+            </div>
+
+            {/* Selection actions get their own strip instead of appearing and
+                disappearing inside the filter row, which reflowed every control
+                beside them on each checkbox click. */}
+            {selectedDomainIds.size > 0 && (
+                <div className="flex flex-wrap items-center gap-2.5 mb-5 px-3 py-2.5 rounded-xl" style={{ background: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}>
+                    <button
+                        onClick={() => setBulkGroupModal(true)}
+                        className="btn btn-secondary btn-sm flex items-center gap-2 whitespace-nowrap"
+                        title={t('domains.bulkChangeGroupTitle', 'Change group for selected domains')}
+                    >
+                        <Folder size={15} />
+                        {t('domains.bulkChangeGroup', 'Change Group')} ({selectedDomainIds.size})
+                    </button>
+                    <button
+                        onClick={handleBulkDelete}
+                        className="btn btn-danger btn-sm flex items-center gap-2 whitespace-nowrap"
+                        title={t('domains.bulkDeleteTitle', 'Delete selected domains')}
+                    >
+                        <Trash2 size={15} />
+                        {t('common.deleteSelected', 'Delete')} ({selectedDomainIds.size})
+                    </button>
+                </div>
+            )}
+
             {/* Said once, on load, rather than only after clicking "Issue SSL".
                 A server that cannot run external commands never issues anything,
                 and a permanent "waiting for certificate" with no explanation is
@@ -1019,11 +1046,27 @@ const Domains = ({ campaigns }) => {
 
             {/* Below lg the nine-column table is replaced by stacked cards;
                 the table keeps its scroll container for tablets. */}
-            <div className="hidden lg:block overflow-x-auto">
-                <table className="page-table">
+            {/* Same table system as Campaigns / Offers / Landings: fixed
+                column widths, column dividers and centred cells. On plain
+                .page-table the columns were auto-sized with no dividers, so a
+                value never sat under its own header and long ones ran into the
+                neighbour. */}
+            <div className="tracker-table-container hidden lg:block">
+                <table className="page-table tracker-table" style={{ tableLayout: 'fixed', width: '100%', minWidth: '980px' }}>
+                    <colgroup>
+                        <col style={{ width: '40px' }} />
+                        <col style={{ width: '22%' }} />
+                        <col style={{ width: '12%' }} />
+                        <col style={{ width: '11%' }} />
+                        <col style={{ width: '15%' }} />
+                        <col style={{ width: '8%' }} />
+                        <col style={{ width: '13%' }} />
+                        <col style={{ width: '13%' }} />
+                        <col style={{ width: '116px' }} />
+                    </colgroup>
                     <thead>
                         <tr>
-                            <th className="w-8" style={{ textAlign: 'left' }}>
+                            <th className="col-check">
                                 <input
                                     type="checkbox"
                                     checked={allSelected}
@@ -1068,9 +1111,9 @@ const Domains = ({ campaigns }) => {
                                     <SortIcon colKey="status" />
                                 </button>
                             </th>
-                            <th>{t('domains.indexPage')}</th>
-                            <th className="text-center">{t('domains.https')}</th>
-                            <th className="text-center">{t('domains.sslStatus')}</th>
+                            <th className="cell-text">{t('domains.indexPage')}</th>
+                            <th className="cell-text">{t('domains.https')}</th>
+                            <th className="cell-text">{t('domains.sslStatus')}</th>
                             <th>
                                 <button
                                     type="button"
@@ -1082,7 +1125,7 @@ const Domains = ({ campaigns }) => {
                                     <SortIcon colKey="created_at" />
                                 </button>
                             </th>
-                            <th className="text-right">{t('domains.actions')}</th>
+                            <th className="cell-text">{t('domains.actions')}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1093,7 +1136,7 @@ const Domains = ({ campaigns }) => {
                         ) : (
                             visibleDomains.map(domain => (
                                 <tr key={domain.id}>
-                                    <td>
+                                    <td className="col-check">
                                         <input
                                             type="checkbox"
                                             checked={selectedDomainIds.has(domain.id)}
@@ -1102,7 +1145,9 @@ const Domains = ({ campaigns }) => {
                                             style={{ accentColor: 'var(--color-primary)' }}
                                         />
                                     </td>
-                                    <td className="font-medium" style={{ color: 'var(--color-text-primary)' }}>{domain.name}</td>
+                                    <td className="font-medium">
+                                        <span className="block truncate" style={{ color: 'var(--color-text-primary)' }} title={domain.name}>{domain.name}</span>
+                                    </td>
                                     <td>
                                         {domain.group_name
                                             ? <span className="badge" style={{ background: 'color-mix(in srgb, var(--color-primary) 10%, transparent)', color: 'var(--color-primary)' }}>{domain.group_name}</span>
@@ -1111,15 +1156,15 @@ const Domains = ({ campaigns }) => {
                                     <td>
                                         {renderDomainStatus(domain)}
                                     </td>
-                                    <td>{domain.index_campaign_name || <span className="italic" style={{ color: 'var(--color-text-muted)' }}>{t('domains.notSelected')}</span>}</td>
-                                    <td className="text-center">
+                                    <td className="cell-text">{domain.index_campaign_name || <span className="italic" style={{ color: 'var(--color-text-muted)' }}>{t('domains.notSelected')}</span>}</td>
+                                    <td>
                                         {domain.https_only ? <Check size={16} className="text-green-500 mx-auto" /> : <X size={16} className="mx-auto" style={{ color: 'var(--color-text-muted)' }} />}
                                     </td>
-                                    <td className="text-center">
+                                    <td>
                                         {renderDomainSsl(domain)}
                                     </td>
-                                    <td className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>{domain.created_at}</td>
-                                    <td className="text-right">
+                                    <td className="text-xs cell-text" style={{ color: 'var(--color-text-secondary)' }}>{domain.created_at}</td>
+                                    <td>
                                         {renderDomainActions(domain)}
                                     </td>
                                 </tr>
@@ -1311,66 +1356,80 @@ const Domains = ({ campaigns }) => {
 
                                 {/* === ПРАВАЯ КОЛОНКА (Безопасность, Доступ, Cloudflare) === */}
                                 <div className="space-y-4">
-                                    {/* 3 Переключателя доступа в ряд */}
-                                    <div className="grid grid-cols-3 gap-2.5">
-                                        <div>
-                                            <label className="block text-[11px] font-semibold mb-1 truncate" style={{ color: 'var(--color-text-secondary)' }}>{t('domains.searchRobots')}</label>
-                                            <ToggleGroup
-                                                value={formData.is_noindex ? 'disallow' : 'allow'}
-                                                onChange={v => setFormData({ ...formData, is_noindex: v === 'disallow' })}
-                                                options={[
-                                                    { value: 'allow', label: t('domains.allowRobotsShort') },
-                                                    { value: 'disallow', label: t('domains.disallowShort') }
-                                                ]}
-                                            />
+                                    {/* Label left, control right, one per row.
+                                        Three of these side by side left each
+                                        toggle ~110px for two labels, and the
+                                        container clipped the overflow — which is
+                                        how "Запретить" became "Запр". */}
+                                    <div className="rounded-xl border divide-y" style={{ borderColor: 'var(--color-border)', background: 'var(--color-bg-soft)' }}>
+                                        <div className="flex items-center justify-between gap-4 px-3.5 py-2.5">
+                                            <span className="text-xs font-semibold" style={{ color: 'var(--color-text-secondary)' }}>{t('domains.searchRobots')}</span>
+                                            <div className="flex-shrink-0" style={{ minWidth: '184px' }}>
+                                                <ToggleGroup
+                                                    value={formData.is_noindex ? 'disallow' : 'allow'}
+                                                    onChange={v => setFormData({ ...formData, is_noindex: v === 'disallow' })}
+                                                    options={[
+                                                        { value: 'allow', label: t('domains.allowRobotsShort') },
+                                                        { value: 'disallow', label: t('domains.disallowShort') }
+                                                    ]}
+                                                />
+                                            </div>
                                         </div>
-                                        <div>
-                                            <label className="block text-[11px] font-semibold mb-1 truncate" style={{ color: 'var(--color-text-secondary)' }}>{t('domains.adminDashboard')}</label>
-                                            <ToggleGroup
-                                                value={formData.admin_access ? 'allow' : 'deny'}
-                                                onChange={v => setFormData({ ...formData, admin_access: v === 'allow' })}
-                                                options={[
-                                                    { value: 'allow', label: t('domains.allowAccess') },
-                                                    { value: 'deny', label: t('domains.denyAccess') }
-                                                ]}
-                                            />
+
+                                        <div className="px-3.5 py-2.5" style={{ borderColor: 'var(--color-border)' }}>
+                                            <div className="flex items-center justify-between gap-4">
+                                                <span className="text-xs font-semibold" style={{ color: 'var(--color-text-secondary)' }}>{t('domains.adminDashboard')}</span>
+                                                <div className="flex-shrink-0" style={{ minWidth: '184px' }}>
+                                                    <ToggleGroup
+                                                        value={formData.admin_access ? 'allow' : 'deny'}
+                                                        onChange={v => setFormData({ ...formData, admin_access: v === 'allow' })}
+                                                        options={[
+                                                            { value: 'allow', label: t('domains.allowAccess') },
+                                                            { value: 'deny', label: t('domains.denyAccess') }
+                                                        ]}
+                                                    />
+                                                </div>
+                                            </div>
+                                            {/* Sits under the toggle it explains, not under all three. */}
+                                            {!formData.admin_access && (
+                                                <p className="text-[11px] mt-2" style={{ color: 'var(--color-text-muted)', lineHeight: 1.45 }}>
+                                                    {t('domains.adminAccessHint')}
+                                                </p>
+                                            )}
                                         </div>
-                                        <div>
-                                            <label className="block text-[11px] font-semibold mb-1 truncate flex items-center gap-0.5" style={{ color: 'var(--color-text-secondary)' }}>
+
+                                        <div className="flex items-center justify-between gap-4 px-3.5 py-2.5" style={{ borderColor: 'var(--color-border)' }}>
+                                            <span className="text-xs font-semibold flex items-center gap-1" style={{ color: 'var(--color-text-secondary)' }}>
                                                 {t('domains.httpsOnlyShort')} <HelpTooltip textKey="help.httpsTooltip" />
-                                            </label>
-                                            <ToggleGroup
-                                                value={formData.https_only ? 'on' : 'off'}
-                                                onChange={v => setFormData({ ...formData, https_only: v === 'on' })}
-                                                options={[
-                                                    { value: 'on', label: t('domains.on') },
-                                                    { value: 'off', label: t('domains.off') }
-                                                ]}
-                                            />
+                                            </span>
+                                            <div className="flex-shrink-0" style={{ minWidth: '184px' }}>
+                                                <ToggleGroup
+                                                    value={formData.https_only ? 'on' : 'off'}
+                                                    onChange={v => setFormData({ ...formData, https_only: v === 'on' })}
+                                                    options={[
+                                                        { value: 'on', label: t('domains.on') },
+                                                        { value: 'off', label: t('domains.off') }
+                                                    ]}
+                                                />
+                                            </div>
                                         </div>
                                     </div>
 
-                                    {/* Подсказка о закрытии админки */}
-                                    {!formData.admin_access && (
-                                        <p className="text-[11px] -mt-2" style={{ color: 'var(--color-text-muted)', lineHeight: 1.4 }}>
-                                            {t('domains.adminAccessHint')}
-                                        </p>
-                                    )}
-
                                     {/* Просторная плашка Cloudflare Proxy */}
                                     <div 
-                                        className="p-4 rounded-xl border flex items-center justify-between gap-4" 
+                                        className="p-3.5 rounded-xl border" 
                                         style={{ background: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}
                                     >
-                                        <div className="flex-1">
-                                            <div className="font-semibold text-xs mb-0.5" style={{ color: 'var(--color-text-primary)' }}>
+                                        {/* Title and control on the same line, the
+                                            long explanation underneath at full
+                                            width. Side by side, six lines of prose
+                                            left the toggle stranded in a corner of
+                                            its own whitespace. */}
+                                        <div className="flex items-center justify-between gap-4 mb-2">
+                                            <span className="font-semibold text-xs" style={{ color: 'var(--color-text-primary)' }}>
                                                 {t('domains.cloudflareProxy')}
-                                            </div>
-                                            <p className="text-[11px]" style={{ color: 'var(--color-text-muted)', lineHeight: 1.4 }}>
-                                                {t('domains.cfProxyHint')}
-                                            </p>
-                                        </div>
-                                        <div style={{ width: '120px', flexShrink: 0 }}>
+                                            </span>
+                                        <div style={{ minWidth: '184px', flexShrink: 0 }}>
                                             <ToggleGroup
                                                 value={formData.cloudflare_proxy ? 'on' : 'off'}
                                                 onChange={v => setFormData(f => ({
@@ -1389,21 +1448,31 @@ const Domains = ({ campaigns }) => {
                                                 ]}
                                             />
                                         </div>
+                                        </div>
+                                        <p className="text-[11px]" style={{ color: 'var(--color-text-muted)', lineHeight: 1.45 }}>
+                                            {t('domains.cfProxyHint')}
+                                        </p>
                                     </div>
-                                </div>
 
-                                {/* SSL Mode Selector */}
+                                {/* SSL Mode Selector — inside the right column on
+                                    purpose. As a third cell of the two-column grid
+                                    it opened a new row under the short column and
+                                    left half the modal empty. */}
                                 <div className="space-y-3">
                                     <label className="block text-xs font-semibold" style={{ color: 'var(--color-text-secondary)' }}>
                                         {t('domains.sslMode', 'SSL Mode')}
                                     </label>
                                     <div className="grid grid-cols-3 gap-2">
                                         {/* Every writer keeps ssl_source and the proxy flag in
-                                            step — one decision, two stored columns. */}
+                                            step — one decision, two stored columns.
+                                            whitespace-nowrap + a shared height: "Свой
+                                            сертификат" used to wrap onto two lines and
+                                            grow taller than the two buttons beside it. */}
                                         {/* Let's Encrypt */}
                                         <button
                                             type="button"
-                                            className={`btn btn-sm ${formData.ssl_source === 'letsencrypt' ? 'btn-primary' : 'btn-secondary'}`}
+                                            style={{ height: '38px' }}
+                                            className={`btn btn-sm whitespace-nowrap ${formData.ssl_source === 'letsencrypt' ? 'btn-primary' : 'btn-secondary'}`}
                                             onClick={() => setFormData({ ...formData, ssl_source: 'letsencrypt', cloudflare_proxy: false })}
                                         >
                                             {t('domains.sslLetsEncrypt', "Let's Encrypt")}
@@ -1412,7 +1481,8 @@ const Domains = ({ campaigns }) => {
                                             the proxy flag lit two mutually exclusive modes at once. */}
                                         <button
                                             type="button"
-                                            className={`btn btn-sm ${formData.ssl_source === 'cloudflare_origin' ? 'btn-primary' : 'btn-secondary'}`}
+                                            style={{ height: '38px' }}
+                                            className={`btn btn-sm whitespace-nowrap ${formData.ssl_source === 'cloudflare_origin' ? 'btn-primary' : 'btn-secondary'}`}
                                             onClick={() => setFormData({ ...formData, ssl_source: 'cloudflare_origin', cloudflare_proxy: true })}
                                         >
                                             {t('domains.sslCloudflare', 'Cloudflare')}
@@ -1421,13 +1491,19 @@ const Domains = ({ campaigns }) => {
                                             that combination is Full Strict, a different setup. */}
                                         <button
                                             type="button"
-                                            className={`btn btn-sm ${formData.ssl_source === 'custom' ? 'btn-primary' : 'btn-secondary'}`}
+                                            style={{ height: '38px' }}
+                                            className={`btn btn-sm whitespace-nowrap ${formData.ssl_source === 'custom' ? 'btn-primary' : 'btn-secondary'}`}
                                             onClick={() => setFormData({ ...formData, ssl_source: 'custom', cloudflare_proxy: false })}
                                         >
                                             {t('domains.sslCustom', 'Custom')}
                                         </button>
                                     </div>
                                     {/* Mode-specific hints */}
+                                    {(!formData.ssl_source || formData.ssl_source === 'auto') && (
+                                        <p className="text-[11px]" style={{ color: 'var(--color-text-muted)', lineHeight: 1.4 }}>
+                                            {t('domains.sslModeAutoHint')}
+                                        </p>
+                                    )}
                                     {formData.ssl_source === 'letsencrypt' && (
                                         <p className="text-[11px]" style={{ color: 'var(--color-text-muted)', lineHeight: 1.4 }}>
                                             {t('domains.sslLetsEncryptHint', 'Auto-issued certificate. Point A record to server IP.')}
@@ -1446,10 +1522,18 @@ const Domains = ({ campaigns }) => {
                                 </div>
 
                                 {/* ORB-014: Custom SSL Certificate (Full Strict) */}
-                                {(formData.cloudflare_proxy || formData.custom_ssl_cert || formData.custom_ssl_key) && (
+                                {/* ssl_source belongs in this condition: the Custom
+                                    button sets ssl_source='custom' AND clears
+                                    cloudflare_proxy, and a new domain has both
+                                    cert fields empty — so the panel could only
+                                    ever appear if it was already filled in.
+                                    Pressing "Свой сертификат" did nothing. */}
+                                {(formData.ssl_source === 'custom' || formData.cloudflare_proxy || formData.custom_ssl_cert || formData.custom_ssl_key) && (
                                     <div className="space-y-3" style={{ padding: '12px', borderRadius: '8px', backgroundColor: 'var(--color-bg-secondary)' }}>
                                         <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '8px' }}>
-                                            {t('domains.customSslCert', 'Custom SSL Certificate (Full Strict)')}
+                                            {formData.ssl_source === 'custom'
+                                                ? t('domains.sslCustom', 'Custom')
+                                                : t('domains.customSslCert', 'Custom SSL Certificate (Full Strict)')}
                                         </div>
                                         <p className="text-[11px]" style={{ color: 'var(--color-text-muted)', lineHeight: 1.4, marginBottom: '12px' }}>
                                             {t('domains.customSslHint', 'For Cloudflare Full Strict mode, paste the paths to your Cloudflare Origin CA certificate and key files on the server. Leave empty for automatic management (Let\'s Encrypt or self-signed).')}
@@ -1492,6 +1576,7 @@ const Domains = ({ campaigns }) => {
                                         )}
                                     </div>
                                 )}
+                                </div>
                             </div>
 
                             {/* Footer с кнопками сохранения */}
