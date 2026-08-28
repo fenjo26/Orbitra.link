@@ -4792,6 +4792,69 @@ try {
 
         // === LeadForge 2.0: Analyze → Build pipeline ===
 
+        case 'leadforge_networks':
+            // Single source of truth for the LeadForge network selector. The
+            // frontend used to hardcode its own list, which drifted from the
+            // order.php adapters — that is how networks without a send case
+            // became buildable and silently lost leads (Bug 4). Also returns
+            // the user's own affiliate networks (the Affiliate Networks tab)
+            // as a second selector group; this table is READ here only — it
+            // backs offers.affiliate_network_id and the postback pipeline.
+            try {
+                require_once __DIR__ . '/core/LeadForge.php';
+                $networks = [];
+                foreach (LeadForge::networks() as $id => $net) {
+                    $networks[] = [
+                        'id' => $id,
+                        'label' => $net['label'],
+                        'placeholder' => $net['placeholder'] ?? '',
+                        'default_currency' => $net['currency'] ?? 'USD',
+                        'default_payout' => (float) ($net['payout'] ?? 0),
+                        'has_adapter' => !empty($net['adapter']),
+                    ];
+                }
+                $sigs = [];
+                foreach (LeadForge::networks() as $id => $net) {
+                    foreach (($net['sigs'] ?? []) as $sig) {
+                        $sigs[$sig] = $id;
+                    }
+                }
+                $myStmt = $pdo->query(
+                    "SELECT id, name, offer_params FROM affiliate_networks
+                     WHERE state = 'active' AND is_archived = 0 AND name IS NOT NULL AND name != ''
+                     ORDER BY name"
+                );
+                $myNetworks = [];
+                foreach ($myStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                    $nameLower = mb_strtolower(trim((string) $row['name']));
+                    // Name matching a detection signature means a built-in
+                    // adapter already speaks this network — suggest it in the
+                    // UI (never substitute silently, the user confirms).
+                    $suggested = null;
+                    foreach ($sigs as $sig => $netId) {
+                        if ($sig !== '' && strpos($nameLower, $sig) !== false) {
+                            $suggested = $netId;
+                            break;
+                        }
+                    }
+                    $params = trim((string) $row['offer_params']);
+                    $myNetworks[] = [
+                        'id' => (int) $row['id'],
+                        'name' => (string) $row['name'],
+                        // An endpoint exists only when the params carry a full
+                        // URL; otherwise the custom field stays empty for the
+                        // user to fill from the network's API docs.
+                        'endpoint' => (preg_match('~https?://[^\s\'"<>]+~i', $params, $m) ? $m[0] : ''),
+                        'suggested_network' => $suggested,
+                    ];
+                }
+                echo json_encode(['status' => 'success', 'data' => ['networks' => $networks, 'my_networks' => $myNetworks]]);
+            } catch (\Throwable $e) {
+                error_log('leadforge_networks error: ' . $e->getMessage());
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
         case 'leadforge_analyze':
             // Stage 1: static inspection of uploaded bundles (up to 15 at a
             // time). Files are kept in data/leadforge_staging/<token>.zip with

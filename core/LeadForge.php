@@ -23,24 +23,39 @@ class LeadForge
 {
     private static ?array $allGeoRulesCache = null;
 
-    /** Networks the engine can detect and speak. Signatures are lowercase. */
+    /**
+     * The single source of truth for the LeadForge network list: detection
+     * signatures, UI metadata (placeholder / default currency / payout) and —
+     * critically — whether order.php carries a send adapter for the network.
+     *
+     * The frontend used to keep its own hardcoded list, and the three lists
+     * (frontend / this / the order.php switch) drifted apart: networks became
+     * selectable in the UI with no case in order.php, whose fallback then
+     * fabricated a 200 OK — silent lead loss (Bug 4). The selector is now fed
+     * from here via api.php?action=leadforge_networks, and a network with
+     * 'adapter' => false cannot be built at all.
+     *
+     * m1/monsterleads carry no adapter: their lead APIs are cabinet-only, and
+     * an adapter written blind ships fabricated fields — the CRM vault keeps
+     * every lead until a verified spec lands. 'offercify' was removed for the
+     * same reason (it never had a case).
+     */
     public static function networks(): array
     {
         return [
-            'drcash'      => ['label' => 'Dr.Cash',      'sigs' => ['dr.cash', 'drcash']],
-            'lemonad'     => ['label' => 'LemonAD',      'sigs' => ['lemonad']],
-            'webvork'     => ['label' => 'Webvork',      'sigs' => ['webvork']],
-            'leadbit'     => ['label' => 'Leadbit',      'sigs' => ['leadbit']],
-            'everad'      => ['label' => 'Everad',       'sigs' => ['everad']],
-            'kma'         => ['label' => 'KMA.biz',      'sigs' => ['kma.biz', 'kma']],
-            'terraleads'  => ['label' => 'TerraLeads',   'sigs' => ['terraleads', 't-api.org']],
-            'luckyonline' => ['label' => 'Lucky.online', 'sigs' => ['lucky.online', 'lucky']],
-            'ezaff'       => ['label' => 'Ezaff',        'sigs' => ['ezaff']],
-            'offercify'   => ['label' => 'Offercify',    'sigs' => ['offercify']],
-            'adcombo'     => ['label' => 'AdCombo',      'sigs' => ['adcombo']],
-            'm1'          => ['label' => 'M1-Shop',      'sigs' => ['m1-shop', 'm1shop']],
-            'monsterleads'=> ['label' => 'MonsterLeads', 'sigs' => ['monsterleads']],
-            'custom'      => ['label' => 'Custom API / Webhook', 'sigs' => []],
+            'drcash'      => ['label' => 'Dr.Cash',       'sigs' => ['dr.cash', 'drcash'], 'placeholder' => 'Stream Code (e.g. abcd1234)', 'currency' => 'USD', 'payout' => 25, 'adapter' => true],
+            'lemonad'     => ['label' => 'LemonAD',       'sigs' => ['lemonad'], 'placeholder' => 'Offer ID (e.g. 10452)', 'currency' => 'USD', 'payout' => 28, 'adapter' => true],
+            'webvork'     => ['label' => 'Webvork',       'sigs' => ['webvork'], 'placeholder' => 'Offer ID (e.g. 892)', 'currency' => 'EUR', 'payout' => 32, 'adapter' => true],
+            'leadbit'     => ['label' => 'Leadbit',       'sigs' => ['leadbit'], 'placeholder' => 'Flow Hash (e.g. a8b9c0d1)', 'currency' => 'USD', 'payout' => 22, 'adapter' => true],
+            'everad'      => ['label' => 'Everad',        'sigs' => ['everad'], 'placeholder' => 'Campaign ID (e.g. 54201)', 'currency' => 'USD', 'payout' => 26, 'adapter' => true],
+            'kma'         => ['label' => 'KMA.biz',       'sigs' => ['kma.biz', 'kma'], 'placeholder' => 'Channel / Offer ID (e.g. 7412)', 'currency' => 'RUB', 'payout' => 1200, 'adapter' => true],
+            'terraleads'  => ['label' => 'TerraLeads',    'sigs' => ['terraleads', 't-api.org'], 'placeholder' => 'Offer ID (e.g. 1290)', 'currency' => 'USD', 'payout' => 24, 'adapter' => true],
+            'luckyonline' => ['label' => 'Lucky.online',  'sigs' => ['lucky.online', 'lucky'], 'placeholder' => 'Offer ID', 'currency' => 'USD', 'payout' => 0, 'adapter' => true],
+            'ezaff'       => ['label' => 'Ezaff',         'sigs' => ['ezaff'], 'placeholder' => 'Offer ID', 'currency' => 'USD', 'payout' => 0, 'adapter' => true],
+            'adcombo'     => ['label' => 'AdCombo',       'sigs' => ['adcombo'], 'placeholder' => 'Offer ID (e.g. 29314)', 'currency' => 'USD', 'payout' => 20, 'adapter' => true],
+            'm1'          => ['label' => 'M1-Shop',       'sigs' => ['m1-shop', 'm1shop'], 'placeholder' => 'Product ID (e.g. 642)', 'currency' => 'RUB', 'payout' => 950, 'adapter' => false],
+            'monsterleads'=> ['label' => 'MonsterLeads',  'sigs' => ['monsterleads'], 'placeholder' => 'Offer ID (e.g. 1102)', 'currency' => 'USD', 'payout' => 21, 'adapter' => false],
+            'custom'      => ['label' => 'Custom API / Webhook', 'sigs' => [], 'placeholder' => 'https://api.domain.com/lead/create', 'currency' => 'USD', 'payout' => 20, 'adapter' => true],
         ];
     }
 
@@ -403,6 +418,29 @@ class LeadForge
             $log("Auto: source network detected as '{$network}' — routing to it");
         } elseif ($mode === 'cross' && !empty($card['network'])) {
             $log("Cross: replacing source network '{$card['network']}' with target '{$network}'");
+        }
+
+        // A network without a send adapter must not be buildable at all — that
+        // is how bundles used to ship whose order.php could only fabricate
+        // success (Bug 4). 'custom' is always allowed but needs the endpoint
+        // URL in offer_id, checked here at build time rather than at the
+        // visitor's form submit. Raw mode skips both checks: it generates no
+        // order.php and changes nothing about where leads go.
+        $netList = self::networks();
+        if (!array_key_exists($network, $netList)) {
+            return ['ok' => false, 'message' => 'unknown_network', 'logs' => $logs,
+                    'detail' => ['network' => $network]];
+        }
+        if ($generateOrder) {
+            if ($network !== 'custom' && empty($netList[$network]['adapter'])) {
+                return ['ok' => false, 'message' => 'no_adapter_for_network', 'logs' => $logs,
+                        'detail' => ['network' => $network,
+                                     'hint' => "No send adapter for this network yet — pick Custom API / Webhook and paste the network's lead endpoint URL."]];
+            }
+            if ($network === 'custom' && !filter_var(trim((string) ($opts['offer_id'] ?? '')), FILTER_VALIDATE_URL)) {
+                return ['ok' => false, 'message' => 'custom_endpoint_required', 'logs' => $logs,
+                        'detail' => ['hint' => 'Custom mode posts the form to the URL in the Offer ID field — enter a full https:// endpoint.']];
+            }
         }
 
         if (($generateOrder || $generateThankYou)) {
@@ -1026,6 +1064,7 @@ const TERRALEADS_API_DOMAIN = 'https://t-api.org';
 const LEADBIT_API_DOMAIN = 'http://wapi.leadbit.com';
 const LEMONAD_ENDPOINT = 'https://lemonad.com/api/v2/lead/create';
 const EZAFF_ENDPOINT = 'https://api.ezaff.com/send';
+const ADCOMBO_ENDPOINT = 'https://api.adcombo.com/lead/create';
 
 function lf_request_value(array $keys): string {
     foreach ($keys as $k) {
@@ -1525,12 +1564,38 @@ if ($isQa) {
                     'phone' => $cleanPhone ?: $rawPhone,
                     'country' => $country,
                     'click_id' => $subid,
-                    'publisher_sub_id' => $subParams['sub1'] ?? '',
+                    'publisher_sub_id' => $subParams['sub2'] ?? '',
                     'client_ip' => $ip,
                 ];
                 $netRequest['endpoint'] = EZAFF_ENDPOINT;
                 $netRequest['payload'] = $payload;
                 $res = lf_http_call(EZAFF_ENDPOINT, $payload, ['Content-Type: application/x-www-form-urlencoded'], false);
+                break;
+
+            case 'adcombo':
+                // Fields per AdCombo's Incoming Orders API: api_key + offer_id
+                // + the lead, with country_code as ISO-2 and the sub_id chain
+                // for attribution. base_url/referrer let their anti-fraud see
+                // the landing the visitor actually came from.
+                $payload = [
+                    'api_key' => $LF['api_key'],
+                    'offer_id' => $LF['offer_id'],
+                    'name' => $name,
+                    'phone' => $cleanPhone ?: $rawPhone,
+                    'country_code' => $country ?: $LF['geo'],
+                    'price' => $price,
+                    'address' => $_POST['address'] ?? '',
+                    'base_url' => $_SERVER['HTTP_REFERER'] ?? '',
+                    'referrer' => $_SERVER['HTTP_REFERER'] ?? '',
+                    'ip' => $ip,
+                    'sub_id' => $subid,
+                    'sub_id_2' => $subParams['sub2'] ?? '',
+                    'sub_id_3' => $subParams['sub3'] ?? '',
+                    'sub_id_4' => $subParams['utm_source'] ?? '',
+                ];
+                $netRequest['endpoint'] = ADCOMBO_ENDPOINT;
+                $netRequest['payload'] = $payload;
+                $res = lf_http_call(ADCOMBO_ENDPOINT, $payload, ['Content-Type: application/x-www-form-urlencoded'], false);
                 break;
 
             default:
@@ -1543,7 +1608,23 @@ if ($isQa) {
                     $netRequest['payload'] = 'form passthrough';
                     $res = lf_http_call($LF['offer_id'], $payload, ['Content-Type: application/x-www-form-urlencoded'], false);
                 } else {
-                    $res = ['http_code' => 200, 'body' => '{"status":"ok"}'];
+                    // No adapter speaks this network and offer_id is not a URL
+                    // to pass through — there is nowhere to send this lead. The
+                    // old fabricated 200 OK here made the thank-you page and
+                    // the tracker celebrate a lead that had silently evaporated.
+                    // Fail honestly: the snapshot still reaches the CRM vault
+                    // and the failsafe log below, the operator gets a log
+                    // event, and the visitor sees an error instead of a lie.
+                    lf_log_event('error', 'LeadForge: no send adapter for network — lead NOT delivered', [
+                        'network' => $LF['network'],
+                        'offer_id' => $LF['offer_id'],
+                        'subid' => $subid,
+                        'ip' => $ip,
+                    ]);
+                    $netRequest['endpoint'] = '(no adapter for this network)';
+                    $netRequest['payload'] = $data;
+                    $netResponse = ['http_code' => 0, 'body' => 'no_adapter'];
+                    $sendFailed = true;
                 }
                 break;
         }
@@ -1639,6 +1720,16 @@ if (!file_exists($leadLogPath)) {
     @file_put_contents($leadLogPath, "Date | Time | Name | Number | Subid\n", LOCK_EX);
 }
 @file_put_contents($leadLogPath, date('Y-m-d') . ' | ' . date('H:i:s') . ' | ' . str_replace('|', ' ', $name) . ' | ' . str_replace('|', ' ', $cleanPhone ?: $rawPhone) . ' | ' . str_replace('|', ' ', $subid) . "\n", FILE_APPEND | LOCK_EX);
+
+// === Honest failure gate ===============================================
+// A lead that could not be delivered must not be celebrated: no thank-you
+// page, no tracker conversion. The CRM vault above already holds the
+// snapshot, so the data survives — the visitor gets the same neutral error
+// as any other rejected order (diagnostic details live in system_logs).
+if (!empty($sendFailed) && !$isQa) {
+    http_response_code(502);
+    die('Unable to process your order. Please contact customer service or try again later.');
+}
 
 // === Tracker conversion =================================================
 if ($subid !== '' && (!$LF['crm_enabled'] || !$crmOk) && !$isQa) {

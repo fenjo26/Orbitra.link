@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import {
     Zap, Upload, FileArchive, CheckCircle2, AlertCircle, AlertTriangle, Download,
@@ -10,20 +10,11 @@ import { invalidateCache } from '../utils/apiCache';
 
 const API_URL = '/api.php';
 
-const CPA_NETWORKS = [
-    { id: 'drcash', name: 'Dr.Cash', defaultCurrency: 'USD', defaultPayout: 25, placeholder: 'Stream Code (e.g. abcd1234)' },
-    { id: 'lemonad', name: 'LemonAD', defaultCurrency: 'USD', defaultPayout: 28, placeholder: 'Offer ID (e.g. 10452)' },
-    { id: 'webvork', name: 'Webvork', defaultCurrency: 'EUR', defaultPayout: 32, placeholder: 'Offer ID (e.g. 892)' },
-    { id: 'leadbit', name: 'Leadbit', defaultCurrency: 'USD', defaultPayout: 22, placeholder: 'Flow Hash (e.g. a8b9c0d1)' },
-    { id: 'everad', name: 'Everad', defaultCurrency: 'USD', defaultPayout: 26, placeholder: 'Campaign ID (e.g. 54201)' },
-    { id: 'kma', name: 'KMA.biz', defaultCurrency: 'RUB', defaultPayout: 1200, placeholder: 'Channel / Offer ID (e.g. 7412)' },
-    { id: 'terraleads', name: 'TerraLeads', defaultCurrency: 'USD', defaultPayout: 24, placeholder: 'Offer ID (e.g. 1290)' },
-    { id: 'trafficlight', name: 'Traffic Light', defaultCurrency: 'RUB', defaultPayout: 1100, placeholder: 'Offer ID (e.g. 3310)' },
-    { id: 'adcombo', name: 'AdCombo', defaultCurrency: 'USD', defaultPayout: 20, placeholder: 'Offer ID (e.g. 29314)' },
-    { id: 'm1', name: 'M1-Shop', defaultCurrency: 'RUB', defaultPayout: 950, placeholder: 'Product ID (e.g. 642)' },
-    { id: 'monsterleads', name: 'MonsterLeads', defaultCurrency: 'USD', defaultPayout: 21, placeholder: 'Offer ID (e.g. 1102)' },
-    { id: 'custom', name: 'Custom API / Webhook', defaultCurrency: 'USD', defaultPayout: 20, placeholder: 'https://api.domain.com/lead/create' }
-];
+// The network list comes from the backend (GET leadforge_networks) — it is the
+// single source of truth and carries the has_adapter flag, so a network whose
+// order.php has no send case can never be picked. The old hardcoded copy here
+// had drifted from the adapters, which is how bundles silently lost leads.
+const NETWORK_FALLBACK = [{ id: 'drcash', label: 'Dr.Cash', placeholder: 'Stream Code (e.g. abcd1234)', default_currency: 'USD', default_payout: 25, has_adapter: true }];
 
 // Must stay in sync with core/LeadForge.php::geoMasks() — the backend owns
 // the actual phone masks; this list only feeds the GEO picker (regions, flags,
@@ -228,6 +219,13 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
     const [selectedOfferGroupId, setSelectedOfferGroupId] = useState('');
     const [offerGroups, setOfferGroups] = useState([]);
 
+    // Network selector data (SSOT from the backend; fallback keeps the config
+    // usable before the first fetch resolves). myNetworks feeds the second
+    // selector group — the user's own Affiliate Networks rows.
+    const [networks, setNetworks] = useState(NETWORK_FALLBACK);
+    const [myNetworks, setMyNetworks] = useState([]);
+    const [myNetSuggestion, setMyNetSuggestion] = useState(null);
+
     // Where the built bundle lands in the tracker: 'none' | 'lander' | 'offer' | 'both'
     const [destType, setDestType] = useState('lander');
 
@@ -256,6 +254,27 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
     const isRaw = mode === 'raw';
 
     useEffect(() => {
+        // Network selector SSOT: labels, placeholders and the has_adapter flag
+        // live in the backend; the second group ("My networks") comes from the
+        // Affiliate Networks tab. Not cached — a freshly added network must
+        // appear on the next visit to the tab.
+        axios.get(`${API_URL}?action=leadforge_networks`)
+            .then(res => {
+                if (res.data?.status === 'success' && Array.isArray(res.data.data?.networks) && res.data.data.networks.length) {
+                    const list = res.data.data.networks;
+                    setNetworks(list);
+                    setMyNetworks(res.data.data.my_networks || []);
+                    // A remembered network that has no send adapter (or was
+                    // removed from the backend list) must not silently stay
+                    // selected — that is how broken bundles used to build.
+                    const current = localStorage.getItem('orbitra_lf_network') || 'drcash';
+                    if (!list.some(n => n.id === current && n.has_adapter)) {
+                        localStorage.setItem('orbitra_lf_network', 'drcash');
+                        setSelectedNetwork('drcash');
+                    }
+                }
+            })
+            .catch(() => {});
         axios.get(`${API_URL}?action=landing_groups`)
             .then(res => {
                 if (res.data?.status === 'success') {
@@ -295,10 +314,31 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
         setSelectedNetwork(netId);
         localStorage.setItem('orbitra_lf_network', netId);
         setApiKey(localStorage.getItem(`orbitra_lf_key_${netId}`) || '');
-        const netObj = CPA_NETWORKS.find(n => n.id === netId);
+        setMyNetSuggestion(null);
+        const netObj = networks.find(n => n.id === netId);
         if (netObj) {
-            setCurrency(netObj.defaultCurrency);
-            setPayout(String(netObj.defaultPayout));
+            setCurrency(netObj.default_currency);
+            setPayout(String(netObj.default_payout));
+        }
+    };
+
+    // Selecting one of "My networks" (the Affiliate Networks tab rows): the
+    // bundle switches to the custom adapter — the generic form passthrough to
+    // the network's own endpoint. The endpoint is prefilled only when the row
+    // carries a full URL; a built-in adapter is OFFERED when the row's name
+    // matches a detection signature, never substituted silently.
+    const handleMyNetworkChange = (rowId) => {
+        const row = myNetworks.find(n => n.id === rowId);
+        if (!row) return;
+        setSelectedNetwork('custom');
+        localStorage.setItem('orbitra_lf_network', 'custom');
+        setApiKey(localStorage.getItem('orbitra_lf_key_custom') || '');
+        if (row.endpoint) setOfferId(row.endpoint);
+        setMyNetSuggestion(row.suggested_network ? { network: row.suggested_network, from: row.name } : null);
+        const custom = networks.find(n => n.id === 'custom');
+        if (custom) {
+            setCurrency(custom.default_currency);
+            setPayout(String(custom.default_payout));
         }
     };
 
@@ -433,13 +473,13 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
                 if (c.error) {
                     addLog(`❌ ${c.file_name}: ${c.error}`, 'error');
                 } else {
-                    const net = c.detected ? (CPA_NETWORKS.find(n => n.id === c.network)?.name || c.network) : t('leadforge.notDetected', 'No network detected');
+                                    const net = c.detected ? (networks.find(n => n.id === c.network)?.label || c.network) : t('leadforge.notDetected', 'No network detected');
                     addLog(t('leadforge.logAnalyzed', `🗂 ${c.file_name}: ${net} · ${c.forms_count} form(s) · ${c.ready_for_build ? 'READY' : 'NOT READY'}`, { name: c.file_name, network: net, forms: c.forms_count, ready: c.ready_for_build }), c.ready_for_build ? 'success' : 'step');
                 }
             });
             // Auto-route hint: first detected network/geo pre-fills the config.
             const firstDetected = cards.find(c => c.detected && c.network && c.network !== 'custom');
-            if (firstDetected?.network && CPA_NETWORKS.some(n => n.id === firstDetected.network)) {
+            if (firstDetected?.network && networks.some(n => n.id === firstDetected.network && n.has_adapter)) {
                 handleNetworkChange(firstDetected.network);
                 addLog(t('leadforge.logAutoRoute', `🧭 Auto: suggested network preset → ${firstDetected.network}`), 'step');
             }
@@ -777,7 +817,7 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
                                                     <span className="text-[var(--color-text-secondary)] px-1">{b.file_name}</span>
                                                     {b.detected ? (
                                                         <span className="px-2 py-0.5 rounded-full font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-950/70 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
-                                                            {CPA_NETWORKS.find(n => n.id === b.network)?.name || b.network}
+                                                            {networks.find(n => n.id === b.network)?.label || b.network}
                                                         </span>
                                                     ) : (
                                                         <span className="px-2 py-0.5 rounded-full font-medium bg-[var(--color-bg-hover)] text-[var(--color-text-secondary)]">
@@ -948,14 +988,44 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
                                     </label>
                                     <select
                                         value={selectedNetwork}
-                                        onChange={(e) => handleNetworkChange(e.target.value)}
+                                        onChange={(e) => {
+                                            const v = e.target.value;
+                                            if (v.startsWith('my:')) {
+                                                handleMyNetworkChange(parseInt(v.slice(3), 10));
+                                            } else {
+                                                handleNetworkChange(v);
+                                            }
+                                        }}
                                         className="w-full px-3.5 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                                         style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                                     >
-                                        {CPA_NETWORKS.map(net => (
-                                            <option key={net.id} value={net.id}>{net.name}</option>
-                                        ))}
+                                        <optgroup label={t('leadforge.builtInNetworks', 'CPA networks')}>
+                                            {networks.filter(n => n.has_adapter).map(net => (
+                                                <option key={net.id} value={net.id}>{net.label}</option>
+                                            ))}
+                                        </optgroup>
+                                        {myNetworks.length > 0 && (
+                                            <optgroup label={t('leadforge.myNetworks', 'My affiliate networks')}>
+                                                {myNetworks.map(net => (
+                                                    <option key={`my-${net.id}`} value={`my:${net.id}`}>{net.name}</option>
+                                                ))}
+                                            </optgroup>
+                                        )}
                                     </select>
+                                    {myNetSuggestion && (
+                                        <div className="flex items-center justify-between gap-2 rounded-xl px-3 py-2" style={{ backgroundColor: 'color-mix(in srgb, var(--color-warning, #f59e0b) 12%, transparent)' }}>
+                                            <span className="text-[11px]" style={{ color: 'var(--color-text-secondary)' }}>
+                                                {t('leadforge.suggestAdapter', 'Looks like the built-in {name} adapter fits this network better than a generic custom POST.', { name: networks.find(n => n.id === myNetSuggestion.network)?.label || myNetSuggestion.network })}
+                                            </span>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleNetworkChange(myNetSuggestion.network)}
+                                                className="btn btn-secondary text-xs py-1 px-2.5 rounded-lg whitespace-nowrap"
+                                            >
+                                                {networks.find(n => n.id === myNetSuggestion.network)?.label || myNetSuggestion.network}
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="space-y-2">
@@ -983,7 +1053,7 @@ const LeadForgePage = ({ setActiveTab, refreshData }) => {
                                         type="text"
                                         value={offerId}
                                         onChange={(e) => setOfferId(e.target.value)}
-                                        placeholder={CPA_NETWORKS.find(n => n.id === selectedNetwork)?.placeholder || 'Offer ID / Stream Token'}
+                                        placeholder={networks.find(n => n.id === selectedNetwork)?.placeholder || 'Offer ID / Stream Token'}
                                         className="w-full px-3.5 py-2.5 rounded-xl border bg-[var(--color-bg-main)] text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                                         style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-primary)' }}
                                     />
