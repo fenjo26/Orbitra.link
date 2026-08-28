@@ -7,6 +7,29 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.3.9] — 2026-08-28
+
+The SSL-and-lead-integrity release: four audited bugs fixed, the domain
+workflow rebuilt end to end.
+
+### Fixed — SSL (Bug 1, docs/TZ_SSL_CHAIN_AND_PRIVACY.md)
+
+- **incomplete_chain vs an unreadable file** — `orbitraChainVerdict()` is three-state (ok / incomplete_chain / chain_unreadable); unreadable keeps status installed with a stored warning and burns no retry attempt, shown as an amber warning in the panel. Reads and existence checks work through the web user (`orbitraReadPrivilegedFile` with sudoers rules for the PUBLIC chain files only — privkey never; `orbitraLetsEncryptCertExists` via `sudo certbot certificates` under the existing sudoers rule). The re-issue button really re-issues: `sudo certbot delete` (only when a line exists; exit code checked and surfaced) + `--force-renewal` on the manual path. Migration 41 resets the backoff of domains falsely failed with incomplete_chain; schema 40 → 41.
+- **Certificates issue on save** — `orbitraRunSslWorkerNow()` replaces the four `> /dev/null &` fire-and-forget sites: the worker (separate process, lock-retried writes) runs synchronously with its outcome in the response; PHP-FPM gets `set_time_limit(120)`; the sync run caps at 3 domains so bulk pastes answer fast. The worker cron moves hourly → every 5 minutes (upgraded in place by `orbitraEnsureSslCron()`), is flock-guarded (`var/ssl_worker.lock`) against certbot lock collisions, and survives locked-SQLite runs (`orbitraSslWriteWithRetry`). The Add-Domain submit shows a spinner with honest copy (domains.parkingSsl ×7).
+- **install.sh opens 80/443 in ufw** when it is active — a fresh cloud VM with an SSH-only firewall showed a perfectly green install that was unreachable from outside. Also ships `cli/ssl_diagnose.sh` (read-only, root-vs-web-user comparison with an automatic verdict).
+
+### Fixed — LeadForge (Bug 4)
+
+- **No more fabricated lead success** — the `default:` branch of the generated order.php returned `{"status":"ok"}` without any HTTP request for adapter-less networks (adcombo, m1, monsterleads, trafficlight were selectable). Now: error log event, CRM-vault snapshot, honest 502 to the visitor, no tracker conversion. `LeadForge::networks()` is the single source of truth (label/placeholder/currency/payout + adapter flag) served by `GET leadforge_networks`; the frontend's drifted hardcoded list is gone; `buildBundle` refuses unknown / adapter-less networks and custom without an endpoint URL. Real AdCombo adapter per the public Incoming Orders API; m1/monsterleads stay adapter-less on purpose (cabinet-only specs — a blind adapter ships fabricated fields). Selector gains a My affiliate networks group (active affiliate_networks rows, read-only) with endpoint prefill and built-in adapter suggestions by name signature — offered, never substituted silently.
+
+### Fixed — settings (Bug 2)
+
+- **Scan protection saves and works** — privacy_enabled/action/redirect_url added to both global_settings whitelists with cross-field validation (redirect requires a valid http(s) URL), admin-only writes, GET backfill; unknown settings keys fail loudly (`unknown_settings` + the ignored list) instead of being dropped with status:success. index.php applies the chosen 302 / 404 / blank to unknown-alias requests (service routes unaffected). Verified live per action on a repo copy.
+
+### Fixed — Domains (Bug 3 + rebuild)
+
+- Custom-SSL fields reachable (the gate omitted ssl_source while the Custom button clears cloudflare_proxy); the table joins the centred fixed-layout system (static 9-column colgroup, dividers, 0 overflowing cells); two-row toolbar with a separate bulk-actions bar; Add-Domain modal restructured (flex-auto labels, full-width toggles, SSL-mode block relocated); `.page-table th` left-align trap fixed for dual-class tables; domains.sslModeAutoHint ×7.
+
 ## [1.3.8] — 2026-08-28
 
 Table-polish follow-up to v1.3.7: the ellipsis only appears where something

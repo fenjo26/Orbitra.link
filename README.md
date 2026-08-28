@@ -1,4 +1,4 @@
-# Orbitra v1.3.8 Tracker
+# Orbitra v1.3.9 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,30 +11,31 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.3.8
+## 🆕 What's New in v1.3.9
 
-Table-polish follow-up: the ellipsis now appears only where something is
-actually hidden, and values line up under their headers.
+The SSL-and-lead-integrity release: four audited bugs fixed, the domain
+workflow rebuilt end to end.
 
-### Fixed
+### Fixed — SSL
 
-- **🧹 No more stray "…" markers** — `text-overflow` cannot shorten an atomic control (a flex wrapper, an input, an icon button), so a cell made of controls drew an ellipsis beside fully visible content the moment it came up a fraction short. Cells clip by default; only real-text cells (id, group, metrics, URL, totals) keep the ellipsis, with the full value in the tooltip
-- **☑️ The checkbox column never overflows** — 40px minus two 14px paddings left 12px for a 14px checkbox: a permanent overflow and a permanent "…" beside every checkbox. The column now has zero side padding and sits dead centre
-- **🎯 Values centred under their centred headers in every tracker table** — numbers included, action buttons follow; the report tree column stays left so its depth indents survive
+- **🧭 incomplete_chain stops lying about unreadable files** — a root-only /etc/letsencrypt made the chain check read 0 blocks for a healthy certificate: failed status, retry backoff, and a re-issue button that could not work (rm -rf without sudo, --keep-until-expiring keeping the line it was replacing). Three-state verdict now; unreadable = installed with a warning, never failed; privileged reads scoped to the PUBLIC chain files via sudoers; sudo certbot delete with the exit code checked; migration 41 resets the false backoff
+- **🅿️ Parking a domain issues its certificate before the save responds** — the old background attempt fired into /dev/null, died on database contention and left a green tick over a self-signed response; the worker now runs every 5 minutes (was hourly), is flock-guarded against certbot lock collisions, survives locked-SQLite runs, and a bulk paste shows a spinner instead of an apparent hang
+
+### Fixed — leads & settings
+
+- **🎯 LeadForge stops fabricating lead success** — four networks were selectable with no send adapter while order.php returned a fake 200 OK without any HTTP request: the thank-you page and the tracker celebrated a lead the network never received. The fake is gone (error logged, snapshot preserved in the CRM vault, honest error to the visitor), the selector is fed from the backend's single source of truth with a has_adapter flag, a real AdCombo adapter ships, and a My affiliate networks group offers endpoint prefill and built-in adapter suggestions
+- **🛡️ Scan protection actually saves and works** — the privacy settings were silently dropped by both whitelist spots while the API answered success; unknown settings keys now fail loudly, and an unknown alias answers with the operator's chosen 302 / 404 / blank instead of the tracker-signature "Campaign not found."
 
 ### Changed
 
-- **🧼 Code hygiene** — all 31 ESLint errors cleared in the tracker-table components: optional catch bindings with reason comments on intentionally ignored errors, dead state and an orphaned helper removed, a duplicate `epv` key dropped from the Campaigns totals; the 5 hook-dependency warnings remain, to be analysed case by case
+- **Domains page rebuilt**: custom-SSL fields reachable (the Custom button's gate omitted ssl_source), the table joins the centred fixed-layout system, the toolbar and the Add-Domain modal restructured
+- **Installer**: opens 80/443 in ufw when active (a fresh cloud VM with SSH-only firewall showed a perfectly green install that was unreachable), schedules the worker every 5 minutes, and ships cli/ssl_diagnose.sh — a read-only one-shot diagnosis for any server
 
-### Docs
+### Previous Highlights (v1.3.8)
 
-- 📋 **Next fix wave scoped** — `docs/TZ_SSL_CHAIN_AND_PRIVACY.md`: SSL chains stuck `failed / incomplete_chain`, privacy settings that never save, the hidden custom-SSL fields, and the LeadForge network selector (four adapter-less networks currently fake lead-submission success)
+- 🧹 Table polish — the ellipsis only appears where something is actually hidden; the checkbox column stops overflowing; values centre under their headers; all ESLint errors cleared in the tracker-table components
 
-### Previous Highlights (v1.3.7)
-
-- 🔀 Full column reorder — fixed columns become full peers of metrics, one persisted order driving header/rows/totals/colgroup; ✂️ narrowed columns clip instead of painting over neighbours; 🎯 centred header labels, opaque drag chips, Actions sized for its four controls
-
-Older releases (v1.3.6 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.3.7 and earlier): see the [full changelog](CHANGELOG.md).
 
 ## 🖥 Live Demo
 
@@ -505,19 +506,20 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.3.8 (2026-08-28)
+### Current release — v1.3.9 (2026-08-28)
 
-**Fixed**
-- 🧹 **Stray "…" markers gone** — `text-overflow` can't elide an atomic control (flex wrapper, input, icon button), so cells of controls drew an ellipsis beside intact content; the ellipsis now lives only on real-text cells (id, group, metrics, URL, totals)
-- ☑️ **Checkbox column de-overflowed** (zero side padding; 14px box + 2×14px padding needed 42px in a 40px column); 🎯 **values centred under their centred headers** in every tracker table, numbers included; the report tree keeps left alignment for its depth indents
+**Fixed — SSL**
+- 🧭 **incomplete_chain vs unreadable file separated** — three-state verdict, privileged chain reads (public files only, never privkeys), honest re-issue (sudo certbot delete + --force-renewal), migration 41 resets the false backoff
+- 🅿️ **Certificates issue on save** — synchronous issuance with the worker flock-guarded, every 5 minutes instead of hourly, locked-SQLite-proof, bulk paste with a spinner
+
+**Fixed — leads & settings**
+- 🎯 **LeadForge: no more fake lead success** — adapter-less networks cannot be built; AdCombo adapter; My affiliate networks group with endpoint prefill
+- 🛡️ **Scan protection saves and answers probes** — 302 / 404 / blank for unknown aliases; unknown settings keys fail loudly
 
 **Changed**
-- 🧼 All 31 ESLint errors cleared in the tracker-table components (optional catch bindings, dead code removed, duplicate `epv` key dropped); 5 hook-dependency warnings kept for case-by-case analysis
+- Domains page rebuilt (custom-SSL gate, centred table, toolbar, modal); installer opens ufw ports and ships cli/ssl_diagnose.sh
 
-**Docs**
-- 📋 Fix-wave specification: SSL `incomplete_chain` loop, dead-saving privacy settings, hidden custom-SSL fields, LeadForge network selector + the adapter-less networks that fake lead success (`docs/TZ_SSL_CHAIN_AND_PRIVACY.md`)
-
-Previous releases — v1.3.7: 🔀 full column reorder (fixed columns as metric peers), ✂️ hard cell clipping, 🎯 centred headers, opaque drag chips; v1.3.6: 👥 real visitors counts, ⚡ ad-status cache, 📉 dashboard-only polling, 📅 persistent date ranges; v1.3.5: 📱 MobileCards for Domains/Networks/Sources, 🪟 mobile sheets for modals, 🌐 DNS TTL + login error codes.
+Previous releases — v1.3.8: 🧹 stray ellipsis gone, centred values, checkbox column fixed, lint-zero tracker tables; v1.3.7: 🔀 full column reorder, ✂️ hard cell clipping, 🎯 centred headers; v1.3.6: 👥 real visitors counts, ⚡ ad-status cache, 📉 dashboard-only polling, 📅 persistent date ranges.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 
