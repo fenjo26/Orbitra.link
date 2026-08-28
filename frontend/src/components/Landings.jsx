@@ -56,7 +56,7 @@ const loadLandingColumns = () => {
                 return cleaned;
             }
         }
-    } catch (e) {}
+    } catch { /* unreadable saved metrics — preset below */ }
     // Fallback to 'lander_to_offer' preset for landings
     return sanitizeLandingMetricIds(PRESETS.lander_to_offer);
 };

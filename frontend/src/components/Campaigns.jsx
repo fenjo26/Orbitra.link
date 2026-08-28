@@ -6,7 +6,7 @@ import GroupsModal from './GroupsModal';
 import PaginationToolbar from './common/PaginationToolbar';
 import MobileCards from './common/MobileCards';
 import { useIsDesktop, useResizableTableColumns } from './common/ColumnResize';
-import { SortableTh, nextSortState } from './common/SortableTh';
+import { SortableTh } from './common/SortableTh';
 import CampaignReports from './CampaignReports';
 import ClickLogModal from './ClickLogModal';
 import ConversionsLogModal from './ConversionsLogModal';
@@ -33,7 +33,6 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     });
     const [sortBy, setSortBy] = useState({ key: null, dir: 'desc' }); // key=null keeps API order
     const [search, setSearch] = useState('');
-    const [settingsOpen, setSettingsOpen] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [showGroupsModal, setShowGroupsModal] = useState(false);
     const [showGlobalReports, setShowGlobalReports] = useState(() => /^#report/.test(window.location.hash || ''));
@@ -209,7 +208,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             } else {
                 alert(res.data.message || t('automation.statusUpdateError'));
             }
-        } catch (e) {
+        } catch {
             alert(t('automation.statusUpdateError'));
         } finally {
             setTogglingCampaignIds(prev => { const s = new Set(prev); s.delete(camp.id); return s; });
@@ -234,7 +233,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                 setConfirmPause({ camp, linked });
                 return;
             }
-        } catch (e) {
+        } catch {
             // No link info — fall through to a plain confirmed-by-absence pause.
         }
         handleToggleCampaignState(camp, 'PAUSED');
@@ -246,7 +245,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     // must still mean today tomorrow, not yesterday's dates under a today
     // label.
     const savedRange = (() => {
-        try { return JSON.parse(localStorage.getItem('orbitra_campaigns_range') || 'null'); } catch (e) { return null; }
+        try { return JSON.parse(localStorage.getItem('orbitra_campaigns_range') || 'null'); } catch { return null; }
     })();
     const todayPreset = getPresetDates('today');
     const initialRange = (savedRange?.preset && savedRange.preset !== 'custom' && getPresetDates(savedRange.preset))
@@ -268,7 +267,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         try {
             const saved = localStorage.getItem('orbitra_campaign_columns');
             if (saved) return normalizeReportMetricIds(JSON.parse(saved));
-        } catch (e) {}
+        } catch { /* unreadable saved value — fall through */ }
         // No per-page selection yet — fall back to the user's default template
         const fromDefaultTemplate = getDefaultTemplateColumns();
         if (fromDefaultTemplate) return fromDefaultTemplate;
@@ -301,7 +300,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         try {
             const saved = JSON.parse(localStorage.getItem('orbitra_campaign_col_order') || 'null');
             if (Array.isArray(saved) && saved.length && saved.every(id => typeof id === 'string')) return saved;
-        } catch (e) {}
+        } catch { /* unreadable saved value — fall through */ }
         return [...BASE_FIXED_ORDER];
     });
     // Reconciliation: fixed ids always render (storage may predate one);
@@ -387,7 +386,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         // replaying frozen dates.
         const p = preset || 'custom';
         setDatePreset(p);
-        try { localStorage.setItem('orbitra_campaigns_range', JSON.stringify({ preset: p, from, to })); } catch (e) {}
+        try { localStorage.setItem('orbitra_campaigns_range', JSON.stringify({ preset: p, from, to })); } catch { /* storage unavailable */ }
     };
 
     const handleSaveColumns = (cols) => {
@@ -421,7 +420,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                 const [item] = copy.splice(thDragIdx, 1);
                 copy.splice(targetIdx, 0, item);
                 setColumnOrder(copy);
-                try { localStorage.setItem('orbitra_campaign_col_order', JSON.stringify(copy)); } catch (err) {}
+                try { localStorage.setItem('orbitra_campaign_col_order', JSON.stringify(copy)); } catch { /* storage unavailable */ }
             }
         }
         setThDragIdx(null);
@@ -449,7 +448,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                 await axios.post(`${API_URL}?action=delete_campaign`, { id });
                 fetchCampaigns();
                 if (refreshData) refreshData();
-            } catch (err) {
+            } catch {
                 alert(t('common.deleteError'));
             }
         }
@@ -630,7 +629,6 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             cpc,
             ucpc,
             cpv,
-            epv,
             ecpc,
             ecpm_all,
             ecpm_confirmed,
@@ -691,7 +689,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             setSelectedCampaignIds(new Set());
             fetchCampaigns();
             if (refreshData) refreshData();
-        } catch (err) {
+        } catch {
             alert(t('common.deleteError'));
         }
     };
@@ -710,7 +708,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             try {
                 await axios.post(`${API_URL}?action=copy_campaign`, { id });
                 successCount++;
-            } catch (err) {
+            } catch {
                 errorCount++;
             }
         }
@@ -864,7 +862,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             fetchCampaigns();
             if (refreshData) refreshData();
             setActionModal({ type: null, campaignId: null });
-        } catch (err) {
+        } catch {
             alert(t('common.clearError'));
         }
     };
@@ -908,7 +906,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                         <Plus className="w-3.5 h-3.5" />
                         {t('common.create')}
                     </button>
-                    <button onClick={() => { try { sessionStorage.removeItem('orbitra_reports_range'); } catch (e) {} setShowGlobalReports(true); }} className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium" title={reportTargetCampaign ? `${t('campaignReports.report')}: ${reportTargetCampaign.name}` : t('campaignReports.report')}>
+                    <button onClick={() => { try { sessionStorage.removeItem('orbitra_reports_range'); } catch { /* storage unavailable */ } setShowGlobalReports(true); }} className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium" title={reportTargetCampaign ? `${t('campaignReports.report')}: ${reportTargetCampaign.name}` : t('campaignReports.report')}>
                         <BarChart2 className="w-3.5 h-3.5" />
                         {t('campaignReports.report')}
                     </button>

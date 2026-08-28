@@ -112,7 +112,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     // open starts at the default. A stored preset is re-derived, not replayed
     // as literal dates — "today" must still mean today tomorrow.
     const savedRange = (() => {
-        try { return JSON.parse(sessionStorage.getItem('orbitra_reports_range') || 'null'); } catch (e) { return null; }
+        try { return JSON.parse(sessionStorage.getItem('orbitra_reports_range') || 'null'); } catch { return null; }
     })();
     const todayPreset = (savedRange?.preset && savedRange.preset !== 'custom' && getPresetDates(savedRange.preset))
         || getPresetDates('last7Days') || getPresetDates('today');
@@ -134,7 +134,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         try {
             const saved = localStorage.getItem('orbitra_report_columns');
             if (saved) return normalizeReportMetricIds(JSON.parse(saved));
-        } catch (e) {}
+        } catch { /* unreadable saved value — fall through */ }
         // No per-page selection yet — fall back to the user's default template
         const fromDefaultTemplate = getDefaultTemplateColumns();
         if (fromDefaultTemplate) return fromDefaultTemplate;
@@ -770,7 +770,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                 setDateFrom(from);
                                 setDateTo(to);
                                 const p = preset || 'custom';
-                                try { sessionStorage.setItem('orbitra_reports_range', JSON.stringify({ preset: p, from, to })); } catch (e) {}
+                                try { sessionStorage.setItem('orbitra_reports_range', JSON.stringify({ preset: p, from, to })); } catch { /* storage unavailable */ }
                             }}
                             initialPreset={savedRange?.preset || 'last7Days'}
                             selectedTimezone={timezone}

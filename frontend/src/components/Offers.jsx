@@ -57,7 +57,7 @@ const loadOfferColumns = () => {
                 return cleaned;
             }
         }
-    } catch (e) {}
+    } catch { /* unreadable saved metrics — preset below */ }
     // Fallback to 'best' preset for offers (revenue-focused metrics)
     return sanitizeOfferMetricIds(PRESETS.best);
 };
@@ -654,18 +654,6 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
         if (refreshing) return;
         await fetchOffers();
     };
-
-    // Entity column label helper
-    const entityLabel = (colId) => ({
-        id: 'ID',
-        name: t('editor.name'),
-        state: t('components.status'),
-        affiliate_network_name: t('offers.network'),
-        group_name: t('components.group'),
-        redirect_type: t('components.type'),
-        geo: t('offerColumns.geo'),
-        payout: t('offerColumns.payout'),
-    }[colId] || colId);
 
     return (
         <div className="page-card">
