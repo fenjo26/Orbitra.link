@@ -7,6 +7,25 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.3.8] — 2026-08-28
+
+Table-polish follow-up to v1.3.7: the ellipsis only appears where something
+is actually hidden, and values line up under their headers.
+
+### Fixed — table cells
+
+- **Stray "…" markers** — `text-overflow` cannot elide an atomic inline box (a flex wrapper, an input, an icon button), so a cell made of controls drew an ellipsis beside fully visible content the moment the content box came up a fraction short. `td`/`th` clip by default now; only real-text cells (`.cell-text`: id, group, metrics, URL, totals) keep the ellipsis, where the title tooltip still shows the full value. Plain headers (Actions, Payout) opt in via `th.cell-text`; SortableTh's inner `.truncate` was always correct.
+- **Checkbox column** — 40px minus two 14px side paddings left 12px for a 14px checkbox: permanent overflow, permanent "…" next to every checkbox. `.col-check` gets zero side padding; verified non-overflowing across the tracker tables.
+- **Centred values** — every tracker-table value, numbers included, centres under its centred header (inline `textAlign: right` removed from Campaigns/Offers/Landings/CampaignReports; `.action-buttons` justifies centre); the report tree column keeps left alignment so its depth indents survive.
+
+### Changed — code hygiene
+
+- All 31 ESLint errors cleared in the four tracker-table components: optional catch bindings (with a reason comment where the error is intentionally ignored), dead `settingsOpen` state, an unused `nextSortState` import and the orphaned `entityLabel` helper removed, and the duplicate `epv` key dropped from the Campaigns totals object. The 5 `react-hooks/exhaustive-deps` warnings are deliberately kept — dependency changes alter runtime behaviour and need per-case analysis.
+
+### Docs
+
+- `docs/TZ_SSL_CHAIN_AND_PRIVACY.md` — specification for the next fix wave: SSL chains stuck in `failed / incomplete_chain` (unreadable cert files conflated with genuinely incomplete chains), privacy settings that never persist (whitelist gap + unimplemented feature), the custom-SSL fields hidden behind an inverted gate, and the LeadForge CPA network selector — including the four adapter-less networks (`adcombo`, `m1`, `monsterleads`, `trafficlight`) whose generated `order.php` returns a fake 200 without any HTTP request, silently dropping leads.
+
 ## [1.3.7] — 2026-08-27
 
 Table-UX release: the campaigns table's fixed identity columns become full

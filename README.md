@@ -1,4 +1,4 @@
-# Orbitra v1.3.7 Tracker
+# Orbitra v1.3.8 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,27 +11,30 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.3.7
+## 🆕 What's New in v1.3.8
 
-The campaigns table, rebuilt around one idea: every column is a peer.
-
-### Added
-
-- **🔀 Full column reorder** — fixed columns (ID, Status, Campaign, Actions, Group) and metrics drag alike; one persisted order drives header, rows, totals and colgroup, and survives reloads — header/body desync is structurally impossible
-- **↔️ Sort arrows + resize handles on the fixed columns** (the arrows were hidden since v1.3.2 — sorting always worked); Actions gets grip + resize without a sort arrow
-- **🏷️ Readable drags** — an opaque chip naming the column instead of the browser's translucent header snapshot; the drop target highlights opaquely
+Table-polish follow-up: the ellipsis now appears only where something is
+actually hidden, and values line up under their headers.
 
 ### Fixed
 
-- **✂️ Narrowed columns stop painting over their neighbours** — every th/td clips (`overflow: hidden` + ellipsis), rows are opaque, icons keep their size and get clipped instead of deforming
-- **… A long campaign name truncates inside its cell** (truncate was a no-op on an inline span — it rendered onto the Group and Actions cells)
-- **🎯 Header labels centre in every table**; vertical middle everywhere (Domains, Networks, Sources, Trends, Conversions included); Actions column sized for four controls; Namecheap buttons render disabled instead of reflowing the toolbar
+- **🧹 No more stray "…" markers** — `text-overflow` cannot shorten an atomic control (a flex wrapper, an input, an icon button), so a cell made of controls drew an ellipsis beside fully visible content the moment it came up a fraction short. Cells clip by default; only real-text cells (id, group, metrics, URL, totals) keep the ellipsis, with the full value in the tooltip
+- **☑️ The checkbox column never overflows** — 40px minus two 14px paddings left 12px for a 14px checkbox: a permanent overflow and a permanent "…" beside every checkbox. The column now has zero side padding and sits dead centre
+- **🎯 Values centred under their centred headers in every tracker table** — numbers included, action buttons follow; the report tree column stays left so its depth indents survive
 
-### Previous Highlights (v1.3.6)
+### Changed
 
-- 👥 Visitors counts visitors (was a unique-sum alias at four query sites); ⚡ ad-entity status cache (schema 40) — report toggles stop hammering Graph under a rate limit; 📉 dashboard-only polling (~60k req/day off SQLite); 📅 date ranges and the report overlay survive reloads; 🌐 the deferred DNS refresh survives its second domain
+- **🧼 Code hygiene** — all 31 ESLint errors cleared in the tracker-table components: optional catch bindings with reason comments on intentionally ignored errors, dead state and an orphaned helper removed, a duplicate `epv` key dropped from the Campaigns totals; the 5 hook-dependency warnings remain, to be analysed case by case
 
-Older releases (v1.3.5 and earlier): see the [full changelog](CHANGELOG.md).
+### Docs
+
+- 📋 **Next fix wave scoped** — `docs/TZ_SSL_CHAIN_AND_PRIVACY.md`: SSL chains stuck `failed / incomplete_chain`, privacy settings that never save, the hidden custom-SSL fields, and the LeadForge network selector (four adapter-less networks currently fake lead-submission success)
+
+### Previous Highlights (v1.3.7)
+
+- 🔀 Full column reorder — fixed columns become full peers of metrics, one persisted order driving header/rows/totals/colgroup; ✂️ narrowed columns clip instead of painting over neighbours; 🎯 centred header labels, opaque drag chips, Actions sized for its four controls
+
+Older releases (v1.3.6 and earlier): see the [full changelog](CHANGELOG.md).
 
 ## 🖥 Live Demo
 
@@ -502,19 +505,19 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.3.2 (2026-08-25)
+### Current release — v1.3.8 (2026-08-28)
 
 **Fixed**
-- ▶️ **Report play-pause toggles read real ad state** — new `ad_entity_statuses` endpoint (DB for tracker campaigns, Graph per-id reads for ad entities; Graph v26 killed the `?ids=` batch); server-wins merge so a pause survives reopening; **Disapproved / In review badges**; IPv4 pinned on every aggregator Graph call
-- 🧹 **Landings saved-columns guard** (entity ids no longer leak); 🧱 **Campaigns colgroup matches render order**, Actions fifth, six fixed columns locked + stale widths purged, menu/alias trimmed; 📋 **copy-link toast + URL-modal fallback** (no more `window.alert`); **Postback/Feedback/MCP copy via utils/clipboard**; 📅 **Conversions Log stops clipping the date picker**; tz chip no-wrap
-
-**Operations**
-- 🪵 `install.sh` enables php-fpm `catch_workers_output` (app `error_log` was discarded); ⏱️ rotation optimiser cron every minute
+- 🧹 **Stray "…" markers gone** — `text-overflow` can't elide an atomic control (flex wrapper, input, icon button), so cells of controls drew an ellipsis beside intact content; the ellipsis now lives only on real-text cells (id, group, metrics, URL, totals)
+- ☑️ **Checkbox column de-overflowed** (zero side padding; 14px box + 2×14px padding needed 42px in a 40px column); 🎯 **values centred under their centred headers** in every tracker table, numbers included; the report tree keeps left alignment for its depth indents
 
 **Changed**
-- `floor_pct` removed from the optimiser conditions UI (default still applies, saved configs unchanged)
+- 🧼 All 31 ESLint errors cleared in the tracker-table components (optional catch bindings, dead code removed, duplicate `epv` key dropped); 5 hook-dependency warnings kept for case-by-case analysis
 
-Previous releases — v1.3.1: 💸 cost in the ad account's timezone, 🧣 safe-page cost exclusion, 📤 CAPI silent drops, 🕐 shared timezone store, 🩺 worker-health banner, 🪟 modal layering, 🖱️ column-width persistence; v1.3.0: 🖱️ resizable columns everywhere, 📋 Click/Conversions Log modals, 🧩 kclient.php 2.0, 🏷️ KClient macros, 🔄 optimiser EPC fix; v1.2.0: 📱 mobile layout, 📲 PWA + hashed assets, 🔄 rotation auto-optimiser.
+**Docs**
+- 📋 Fix-wave specification: SSL `incomplete_chain` loop, dead-saving privacy settings, hidden custom-SSL fields, LeadForge network selector + the adapter-less networks that fake lead success (`docs/TZ_SSL_CHAIN_AND_PRIVACY.md`)
+
+Previous releases — v1.3.7: 🔀 full column reorder (fixed columns as metric peers), ✂️ hard cell clipping, 🎯 centred headers, opaque drag chips; v1.3.6: 👥 real visitors counts, ⚡ ad-status cache, 📉 dashboard-only polling, 📅 persistent date ranges; v1.3.5: 📱 MobileCards for Domains/Networks/Sources, 🪟 mobile sheets for modals, 🌐 DNS TTL + login error codes.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 
