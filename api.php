@@ -1947,7 +1947,17 @@ function orbitraRunSslWorkerNow(): array
     if (!file_exists($cliPath)) {
         return ['ok' => false, 'summary' => 'ssl worker script missing'];
     }
-    $out = (string) orbitraShell('php ' . escapeshellarg($cliPath) . ' 2>&1');
+    // Issuing a certificate takes ~5 s each, and PHP-FPM's default
+    // max_execution_time (30 s) kills the request mid-queue — observed live:
+    // first domain of a three-domain paste installed, the second left
+    // spinning on 'installing'. The sync run is capped at 3 domains so a
+    // bulk paste answers fast; the 5-minute cron works off the rest. The
+    // worker is also flock-guarded, so a concurrent cron tick cannot
+    // collide with certbot's own lock.
+    if (function_exists('set_time_limit')) {
+        @set_time_limit(120);
+    }
+    $out = (string) orbitraShell('php ' . escapeshellarg($cliPath) . ' 3 2>&1');
     $line = trim($out);
     if ($line !== '' && strpos($line, "\n") !== false) {
         $line = trim(substr($line, strrpos($line, "\n") + 1));

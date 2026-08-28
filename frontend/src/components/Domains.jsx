@@ -99,6 +99,7 @@ const Domains = ({ campaigns }) => {
     // "Add more": save, keep the modal open and the settings, clear the name.
     const [addMore, setAddMore] = useState(false);
     const [saveNotice, setSaveNotice] = useState('');
+    const [submitting, setSubmitting] = useState(false);
     const nameInputRef = useRef(null);
 
     // DNS Warning Modal State
@@ -823,6 +824,10 @@ const Domains = ({ campaigns }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        // Parking now issues certificates synchronously (~5 s per domain), so
+        // the save can legitimately take tens of seconds — without this state
+        // it read as a hang.
+        setSubmitting(true);
         try {
             const res = await cachedPost('save_domain', formData);
             if (res.data.status === 'success') {
@@ -851,6 +856,8 @@ const Domains = ({ campaigns }) => {
             }
         } catch (e) {
             setError((e?.message ? String(e.message) : t('common.networkError')));
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -1596,8 +1603,9 @@ const Domains = ({ campaigns }) => {
                                     <button type="button" onClick={() => setShowModal(false)} className="btn btn-secondary btn-sm">
                                         {t('common.cancel')}
                                     </button>
-                                    <button type="submit" className="btn btn-primary btn-sm">
-                                        {formData.id ? t('common.save') : t('common.add')}
+                                    <button type="submit" disabled={submitting} className="btn btn-primary btn-sm whitespace-nowrap inline-flex items-center gap-1.5">
+                                        {submitting && <RefreshCw size={14} className="animate-spin" />}
+                                        {submitting ? t('domains.parkingSsl') : (formData.id ? t('common.save') : t('common.add'))}
                                     </button>
                                 </div>
                             </div>

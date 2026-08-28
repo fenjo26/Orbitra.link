@@ -824,6 +824,7 @@ export default {
         "statusDisabled": "Disabled",
         "addMore": "Add more",
         "savedAddMore": "Saved — ready for the next domain",
+        "parkingSsl": "Parking — issuing certificates… (up to ~30 s, the rest within minutes)",
         "domainBulkHelper": "To add multiple domains, type a list separated by commas. HTTP(S) is cleaned automatically.",
         "adminAccessHint": "With access denied, the admin panel and the API return 404 on this domain. The panel stays reachable via other hosts and the server IP.",
         "cfProxyHint": "The Cloudflare edge terminates TLS for the visitor. The origin still needs to answer HTTPS on port 443, which Orbitra sets up automatically with a self-signed certificate. Use Cloudflare SSL mode 'Full'. 'Flexible' is not recommended: the leg between Cloudflare and the origin travels unencrypted.",

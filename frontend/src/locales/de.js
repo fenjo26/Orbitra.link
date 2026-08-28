@@ -824,6 +824,7 @@ export default {
         "statusDisabled": "Deaktiviert",
         "addMore": "Weitere hinzufügen",
         "savedAddMore": "Gespeichert — bereit für die nächste Domain",
+        "parkingSsl": "Parken — Zertifikate werden ausgestellt… (bis ~30 s, der Rest in wenigen Minuten)",
         "domainBulkHelper": "Um mehrere Domains hinzuzufügen, geben Sie eine durch Kommas getrennte Liste ein. HTTP(S) wird automatisch bereinigt.",
         "adminAccessHint": "Bei verweigertem Zugriff liefern Admin-Panel und API auf dieser Domain ein 404. Das Panel bleibt über andere Hosts und die Server-IP erreichbar.",
         "cfProxyHint": "Das Cloudflare-Edge terminiert TLS für den Besucher. Der Origin muss dennoch auf Port 443 per HTTPS antworten, was Orbitra automatisch mit einem selbstsignierten Zertifikat einrichtet. Verwenden Sie den Cloudflare-SSL-Modus ‘Full’. ‘Flexible’ wird nicht empfohlen: Die Verbindung zwischen Cloudflare und dem Origin ist unverschlüsselt.",

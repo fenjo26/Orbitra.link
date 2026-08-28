@@ -14,6 +14,25 @@ if (PHP_SAPI !== 'cli') {
     exit("This script may only be run from the command line.\n");
 }
 
+// Optional per-run domain limit (the panel's synchronous run passes a small
+// one so a bulk paste answers fast; cron takes the default 5).
+$workerLimit = max(1, min(10, (int) ($argv[1] ?? 5)));
+
+// One worker at a time. Certbot itself locks /var/lib/letsencrypt, and two
+// concurrent workers (the save-time synchronous run racing the cron tick)
+// used to collide on it — the loser failed its domain with a lock error.
+// A held lock means another instance is already working the queue: exit
+// quietly, it will do our share.
+$lockFile = __DIR__ . '/../var/ssl_worker.lock';
+if (!is_dir(dirname($lockFile))) {
+    @mkdir(dirname($lockFile), 0775, true);
+}
+$lockHandle = fopen($lockFile, 'c');
+if (!$lockHandle || !flock($lockHandle, LOCK_EX | LOCK_NB)) {
+    echo "[" . date('Y-m-d H:i:s') . "] another worker instance is running — nothing to do\n";
+    exit(0);
+}
+
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../core/ssl_manager.php';
 
@@ -21,7 +40,7 @@ require_once __DIR__ . '/../core/ssl_manager.php';
 // "try again", not a stack trace — especially for the operator who just
 // parked a domain and ran this by hand to get its certificate now.
 try {
-    $result = orbitraProcessSslQueue($pdo);
+    $result = orbitraProcessSslQueue($pdo, $workerLimit);
 } catch (\Throwable $e) {
     fwrite(STDERR, sprintf(
         "[%s] worker aborted: %s — the database was busy (every-minute crons); run me again\n",
