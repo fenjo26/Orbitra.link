@@ -8964,20 +8964,66 @@ try {
 
                 $certFile = ORBITRA_LETSENCRYPT_DIR . "/live/$domainName/fullchain.pem";
 
-                // Delete existing certificate if it exists to force re-issuance
-                if (is_dir(ORBITRA_LETSENCRYPT_DIR . "/live/$domainName")) {
-                    orbitraShell('rm -rf ' . escapeshellarg(ORBITRA_LETSENCRYPT_DIR . "/live/$domainName") . ' 2>&1');
+                // Delete the existing certificate line so the issue below cannot
+                // be short-circuited by "not yet due for renewal". `certbot
+                // delete` runs under the certbot sudoers rule install.sh already
+                // writes. The previous approach shelled `rm -rf` at root-owned
+                // directories from the web user — a guaranteed "Permission
+                // denied" whose return value was discarded, making the button a
+                // no-op that reported success. Only a line that exists gets
+                // deleted (delete on an unknown name is an error, and this
+                // button doubles as "issue now" for a first certificate); the
+                // exit code is checked, so a delete that actually failed stops
+                // the re-issue and says so.
+                if (orbitraLetsEncryptCertExists($domainName)) {
+                    $deleteRaw = (string) orbitraShell(
+                        'sudo certbot delete --cert-name ' . escapeshellarg($domainName) . ' -n 2>&1; echo "__ORBITRA_RC__$?"'
+                    );
+                    preg_match('/__ORBITRA_RC__(\d+)\s*$/', $deleteRaw, $rcMatch);
+                    $deleteRc = (int) ($rcMatch[1] ?? 1);
+                    if ($deleteRc !== 0) {
+                        // The reset above already ran, so put the domain back into
+                        // the queue's care instead of leaving it "installing".
+                        $pdo->prepare("UPDATE domains SET ssl_status = 'pending' WHERE id = ?")->execute([$domainId]);
+                        $deleteOut = trim(str_replace('__ORBITRA_RC__' . $deleteRc, '', $deleteRaw));
+                        echo json_encode([
+                            'status' => 'error',
+                            'code' => 'cert_delete_failed',
+                            'message' => 'Could not delete the old certificate',
+                            'data' => ['raw' => substr($deleteOut, -500)]
+                        ]);
+                        break;
+                    }
                 }
-                if (is_dir(ORBITRA_LETSENCRYPT_DIR . "/archive/$domainName")) {
-                    orbitraShell('rm -rf ' . escapeshellarg(ORBITRA_LETSENCRYPT_DIR . "/archive/$domainName") . ' 2>&1');
-                }
-                // Also remove any renewal config
-                orbitraShell('rm -f ' . escapeshellarg(ORBITRA_LETSENCRYPT_DIR . "/renewal/$domainName.conf") . ' 2>&1');
 
-                $output = (string) orbitraShell(orbitraCertbotCertonlyCommand($domainName) . ' 2>&1');
+                $output = (string) orbitraShell(orbitraCertbotCertonlyCommand($domainName, true) . ' 2>&1');
 
                 if (orbitraCertbotSucceeded($output, $domainName)) {
-                    // Verify certificate chain
+                    // Verify certificate chain. An unreadable file is not a
+                    // chain problem — certbot just wrote it as root into a tree
+                    // the panel may not open. That is installed-with-warning,
+                    // not failed-with-an-attempt.
+                    $verdict = orbitraChainVerdict($certFile);
+                    if ($verdict === 'chain_unreadable') {
+                        $error = json_encode([
+                            'code' => 'chain_unreadable',
+                            'path' => $certFile,
+                        ], JSON_UNESCAPED_UNICODE);
+                        $pdo->prepare("UPDATE domains SET ssl_status = 'installed', ssl_error = ?, ssl_attempts = 0, ssl_last_attempt = datetime('now') WHERE id = ?")
+                            ->execute([$error, $domainId]);
+                        try {
+                            orbitraSyncNginx($pdo);
+                        } catch (\Throwable $e) {
+                            // Non-fatal: the certificate exists
+                        }
+                        echo json_encode([
+                            'status' => 'success',
+                            'code' => 'chain_unreadable',
+                            'message' => 'SSL certificate issued (chain not verified by the panel)',
+                            'data' => ['domain' => $domainName, 'ssl_status' => 'installed']
+                        ]);
+                        break;
+                    }
                     $chain = orbitraCertificateChainComplete($certFile);
                     if (!$chain['ok']) {
                         $error = json_encode([
@@ -8989,6 +9035,7 @@ try {
                             ->execute([$error, $domainId]);
                         echo json_encode([
                             'status' => 'error',
+                            'code' => 'incomplete_chain',
                             'message' => 'Certificate issued but chain is incomplete',
                             'data' => ['chain' => $chain]
                         ]);

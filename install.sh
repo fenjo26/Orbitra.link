@@ -78,6 +78,16 @@ echo "www-data ALL=(ALL) NOPASSWD: /bin/systemctl reload nginx" >> $SUDOERS_FILE
 echo "www-data ALL=(ALL) NOPASSWD: /bin/cp /etc/nginx/sites-available/orbitra /tmp/orbitra_nginx_update.conf" >> $SUDOERS_FILE
 echo "www-data ALL=(ALL) NOPASSWD: /bin/cp /tmp/orbitra_nginx_update.conf /etc/nginx/sites-available/orbitra" >> $SUDOERS_FILE
 echo "www-data ALL=(ALL) NOPASSWD: /usr/bin/certbot" >> $SUDOERS_FILE
+# Root-visible reads of the PUBLIC chain files only. certbot writes
+# /etc/letsencrypt as root and the tree is root-only on many hosts, so the
+# panel's chain check needs these to see a certificate it must not misreport
+# as broken. privkey.pem is deliberately absent: the web user never needs
+# private key material, nginx reads it as root. Without these lines the
+# panel degrades to an honest "cannot read the certificate file" warning.
+for certfile in fullchain.pem chain.pem cert.pem; do
+    echo "www-data ALL=(ALL) NOPASSWD: /bin/cat /etc/letsencrypt/live/*/$certfile" >> $SUDOERS_FILE
+    echo "www-data ALL=(ALL) NOPASSWD: /bin/cat /etc/letsencrypt/archive/*/$certfile" >> $SUDOERS_FILE
+done
 chmod 0440 $SUDOERS_FILE
 
 echo "[3/5] Downloading Orbitra source code to /var/www/orbitra..."

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Plus, Globe, Check, X, AlertCircle, Search, Copy, Edit2, Trash2, ShieldAlert, RefreshCw, Clock, Cloud, ShoppingCart, Download, Folder, ChevronUp, ChevronDown, ChevronsUpDown, GripVertical } from 'lucide-react';
+import { Plus, Globe, Check, X, AlertCircle, CheckCircle2, Search, Copy, Edit2, Trash2, ShieldAlert, RefreshCw, Clock, Cloud, ShoppingCart, Download, Folder, ChevronUp, ChevronDown, ChevronsUpDown, GripVertical } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import HelpTooltip from './HelpTooltip';
 import GroupsModal from './GroupsModal';
@@ -525,10 +525,25 @@ const Domains = ({ campaigns }) => {
             acme_not_writable: 'domains.sslEnvAcmeNotWritable',
             certbot_no_output: 'domains.sslCertbotNoOutput',
             incomplete_chain: 'domains.sslIncompleteChain',
+            chain_unreadable: 'domains.sslChainUnreadable',
+            cert_delete_failed: 'domains.sslDeleteFailed',
             dns_mismatch: 'domains.sslWaitingDns',
             awaiting_dns_for_ssl_switch: 'domains.sslAwaitingDnsSwitch',
         };
         return keys[code] ? t(keys[code]) : String(code);
+    };
+
+    /**
+     * An installed domain whose only complaint is chain_unreadable: the
+     * certificate is issued and served, the panel just cannot open the file
+     * to verify the chain. Rendered as a warning, not an error.
+     */
+    const chainUnreadable = (domain) => {
+        try {
+            return JSON.parse(domain.ssl_error || '{}').code === 'chain_unreadable';
+        } catch {
+            return false;
+        }
     };
 
     /**
@@ -635,6 +650,19 @@ const Domains = ({ campaigns }) => {
             >
                 <AlertCircle size={16} className="text-orange-500" />
             </button>
+        ) : domain.ssl_status === 'installed' && chainUnreadable(domain) ? (
+            /* The certificate is issued and served — the panel just cannot read
+               the file to verify the chain (root-only /etc/letsencrypt). A
+               warning, never a failure: see Bug 1 in
+               docs/TZ_SSL_CHAIN_AND_PRIVACY.md. */
+            <button
+                onClick={() => { setSslErrorDomain(domain); setShowSslErrorModal(true); }}
+                className="hover:text-orange-400 transition"
+                style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                title={describeSslError(domain.ssl_error)}
+            >
+                <CheckCircle2 size={16} className="text-orange-500" />
+            </button>
         ) : domain.ssl_status === 'installed' ? (
             <span className="inline-flex items-center gap-1.5" title={t('domains.sslInstalled')}>
                 <Check size={16} className="text-green-500" />
@@ -721,11 +749,14 @@ const Domains = ({ campaigns }) => {
         setReissuingSsl(domainId);
         try {
             const { data } = await cachedPost('reissue_ssl', { id: domainId });
+            // The endpoint answers with a code when the wording is ours — the
+            // panel speaks seven languages, English sentences don't. Unmapped
+            // codes and raw certbot output stay as sent.
             if (data.status === 'success') {
-                alert(data.message || t('domains.sslIssued', 'SSL certificate issued successfully'));
+                alert(data.code ? translateSslCode(data.code) : (data.message || t('domains.sslIssued', 'SSL certificate issued successfully')));
                 fetchDomains();
             } else {
-                alert(data.message || t('domains.sslError', 'Failed to issue SSL certificate'));
+                alert(data.code ? translateSslCode(data.code) : (data.message || t('domains.sslError', 'Failed to issue SSL certificate')));
             }
         } catch (e) {
             alert(`${t('domains.sslError')}: ${e.response?.data?.message || e.message}`);

@@ -67,6 +67,34 @@ function orbitraCommandExists(string $command): bool
 }
 
 /**
+ * Read a file the web user may not be able to open directly.
+ *
+ * certbot writes /etc/letsencrypt as root, and on many hosts those directories
+ * stay root-only, so a plain file_get_contents() from PHP-FPM returns false
+ * for a perfectly healthy certificate. This tries the direct read first and
+ * falls back to `sudo -n cat`, which install.sh's sudoers file allows for the
+ * PUBLIC chain files only — never privkey.pem.
+ *
+ * @return string|null null means "could not read this file by any route";
+ *                     only a genuinely readable file returns its contents.
+ */
+function orbitraReadPrivilegedFile(string $path): ?string
+{
+    $raw = @file_get_contents($path);
+    if (is_string($raw) && $raw !== '') {
+        return $raw;
+    }
+    if (!orbitraShellAvailable() || !orbitraCommandExists('sudo')) {
+        return null;
+    }
+    // Without the matching sudoers rule sudo -n fails quietly, and the caller
+    // sees "unreadable" — which is the honest verdict for a panel that cannot
+    // read the file, not a fabricated "certificate is broken".
+    $out = orbitraShell('sudo -n cat ' . escapeshellarg($path) . ' 2>/dev/null');
+    return is_string($out) && $out !== '' ? $out : null;
+}
+
+/**
  * Delete a directory tree without shelling out to `rm -rf`.
  *
  * PHP can do this itself, and doing it in PHP removes one more dependency on a

@@ -180,15 +180,42 @@ function orbitraSudoCertbotAvailable(): array
  * openssl (which may not be on PATH here), and two is the floor: one issuer the
  * browser already trusts is all a chain needs to close.
  *
- * @return array{ok: bool, count: int}
+ * The read itself goes through orbitraReadPrivilegedFile(): certbot writes as
+ * root and /etc/letsencrypt is root-only on many hosts, and a file the panel
+ * cannot open must not be reported as "chain truncated" — those are different
+ * problems with different fixes.
+ *
+ * @return array{ok: bool, count: int, readable: bool}
+ *   readable=false means the contents could not be read by any route; count
+ *   is only meaningful when readable=true.
  */
 function orbitraCertificateChainComplete(string $certFile): array
 {
-    if (!is_file($certFile)) {
-        return ['ok' => false, 'count' => 0];
+    $raw = orbitraReadPrivilegedFile($certFile);
+    if (!is_string($raw)) {
+        return ['ok' => false, 'count' => 0, 'readable' => false];
     }
-    $count = substr_count((string) @file_get_contents($certFile), '-----BEGIN CERTIFICATE-----');
-    return ['ok' => $count >= 2, 'count' => $count];
+    $count = substr_count($raw, '-----BEGIN CERTIFICATE-----');
+    return ['ok' => $count >= 2, 'count' => $count, 'readable' => true];
+}
+
+/**
+ * Classify a fullchain.pem in one call: 'ok', 'incomplete_chain' (the file was
+ * read and genuinely carries less than a full chain) or 'chain_unreadable'
+ * (the panel cannot read the file at all — typically a root-only
+ * /etc/letsencrypt; nginx still reads and serves the certificate as root).
+ *
+ * The worker and the re-issue endpoint both branch on this verdict, and the
+ * third state must NOT mark the domain failed: the certificate exists and is
+ * being served, and failing it feeds the retry backoff for nothing.
+ */
+function orbitraChainVerdict(string $certFile): string
+{
+    $chain = orbitraCertificateChainComplete($certFile);
+    if (!$chain['readable']) {
+        return 'chain_unreadable';
+    }
+    return $chain['ok'] ? 'ok' : 'incomplete_chain';
 }
 
 /**
@@ -530,14 +557,33 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
         $certFile = ORBITRA_LETSENCRYPT_DIR . "/live/$domain/fullchain.pem";
 
         // Already covered. Make sure nginx knows about it, then move on.
-        if (file_exists($certFile)) {
+        // Root's view on existence: a root-only /etc/letsencrypt must not
+        // make a healthy certificate invisible to the queue (which would
+        // send the domain back to certbot and into the backoff).
+        if (orbitraLetsEncryptCertExists($domain)) {
             // A fullchain.pem with only the leaf is the Firefox-ok / Chrome-fail
             // case: it looks present but the chain is broken. Re-checking it on
             // every run catches a file that went wrong after the original issue
             // (a manual edit, a botched renewal) instead of leaving the domain
             // falsely green.
-            $chain = orbitraCertificateChainComplete($certFile);
-            if (!$chain['ok']) {
+            $verdict = orbitraChainVerdict($certFile);
+            if ($verdict === 'chain_unreadable') {
+                // The certificate exists (the line above said so, possibly via
+                // certbot's root view) but this process cannot read the file.
+                // nginx reads it as root and serves it, so the honest status is
+                // installed — with the reason stored for the panel's warning
+                // instead of a failure that would feed the retry backoff.
+                $error = json_encode([
+                    'code' => 'chain_unreadable',
+                    'path' => $certFile,
+                ], JSON_UNESCAPED_UNICODE);
+                $pdo->prepare("UPDATE domains SET ssl_status = 'installed', ssl_error = ? WHERE id = ?")
+                    ->execute([$error, $id]);
+                $needsSync = true; // the LE server block must replace self-signed
+                continue;
+            }
+            if ($verdict === 'incomplete_chain') {
+                $chain = orbitraCertificateChainComplete($certFile);
                 $error = json_encode([
                     'code' => 'incomplete_chain',
                     'count' => $chain['count'],
@@ -598,9 +644,24 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
             // red in Chrome (which will not), which is exactly the ticket that is
             // hardest to diagnose from the panel. Catching it here marks the
             // domain failed with a named reason instead of "installed", so the
-            // operator sees it before a visitor's browser does.
-            $chain = orbitraCertificateChainComplete($certFile);
-            if (!$chain['ok']) {
+            // operator sees it before a visitor's browser does. An UNREADABLE
+            // file, on the other hand, is not a chain problem: certbot just
+            // wrote it as root into a tree this process cannot open — installed
+            // with a stored warning, and no attempt burned.
+            $verdict = orbitraChainVerdict($certFile);
+            if ($verdict === 'chain_unreadable') {
+                $error = json_encode([
+                    'code' => 'chain_unreadable',
+                    'path' => $certFile,
+                ], JSON_UNESCAPED_UNICODE);
+                $pdo->prepare("UPDATE domains SET ssl_status = 'installed', ssl_error = ?, ssl_attempts = 0, ssl_last_attempt = datetime('now') WHERE id = ?")
+                    ->execute([$error, $id]);
+                $needsSync = true;
+                $result['issued']++;
+                continue;
+            }
+            if ($verdict === 'incomplete_chain') {
+                $chain = orbitraCertificateChainComplete($certFile);
                 $error = json_encode([
                     'code' => 'incomplete_chain',
                     'count' => $chain['count'],

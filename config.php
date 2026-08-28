@@ -73,7 +73,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 40;
+    $LATEST_SCHEMA_VERSION = 41;
 
     $schemaVersion = 0;
     try {
@@ -2168,6 +2168,28 @@ try {
                                 ON ad_entity_status_cache(fetched_at)");
                 } catch (\Throwable $e) {
                     // Table/index already present on a half-migrated DB.
+                }
+            }
+
+            if ($schemaVersion < 41) {
+                // Migration 41: reset the SSL backoff of domains falsely
+                // failed by the incomplete_chain conflation (Bug 1 in
+                // docs/TZ_SSL_CHAIN_AND_PRIVACY.md). A root-only
+                // /etc/letsencrypt made the chain check read 0 blocks, and the
+                // worker marked healthy certificates failed — each false
+                // verdict also fed the retry ladder, up to a 12-hour backoff.
+                // The worker re-verifies immediately now; these rows must not
+                // sit in the stale backoff until it expires on its own.
+                try {
+                    $pdo->exec("UPDATE domains
+                                SET ssl_status = 'pending',
+                                    ssl_error = NULL,
+                                    ssl_attempts = 0,
+                                    ssl_last_attempt = NULL
+                                WHERE ssl_status = 'failed'
+                                  AND ssl_error LIKE '%incomplete_chain%'");
+                } catch (\Throwable $e) {
+                    // Column set unchanged since the domains table exists.
                 }
             }
 

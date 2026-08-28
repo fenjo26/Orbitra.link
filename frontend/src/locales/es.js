@@ -894,6 +894,8 @@ export default {
         "sslEnvAcmeNotWritable": "El directorio de validación de Let's Encrypt no admite escritura: la validación del dominio fallará.",
         "sslCertbotNoOutput": "Certbot no devolvió nada: compruebe que está instalado y accesible para el servidor web vía sudo.",
         "sslIncompleteChain": "Al archivo de certificado le falta el intermedio — el sitio abre en Firefox pero no en Chrome. Vuelva a emitir el certificado.",
+        "sslChainUnreadable": "El certificado está emitido y el sitio funciona, pero el panel no puede leer el archivo del certificado para verificar la cadena: revise el acceso del usuario web a /etc/letsencrypt. Es un aviso, no un error.",
+        "sslDeleteFailed": "No se pudo eliminar el certificado antiguo antes de reemitir. Compruebe que el usuario web puede ejecutar sudo certbot.",
         "sslDnsMismatch": "El dominio no apunta a este servidor. No se puede emitir el certificado hasta que se propague el DNS.",
         "reissueSsl": "Reemitir certificado SSL",
         "reissueConfirm": "¿Seguro que quieres reemitir el certificado SSL para",

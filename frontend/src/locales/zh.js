@@ -894,6 +894,8 @@ export default {
         "sslEnvAcmeNotWritable": "Let's Encrypt 验证目录不可写 —— 域名验证将失败。",
         "sslCertbotNoOutput": "Certbot 没有任何输出 —— 请确认已安装且 Web 服务器可通过 sudo 调用。",
         "sslIncompleteChain": "证书文件缺少中间证书 —— 网站在 Firefox 能打开但在 Chrome 失败。请重新签发证书。",
+        "sslChainUnreadable": "证书已签发且站点正常运行，但面板无法读取证书文件以验证证书链——请检查 web 用户对 /etc/letsencrypt 的访问权限。这是警告，不是故障。",
+        "sslDeleteFailed": "重新签发前无法删除旧证书。请检查 web 用户是否可以运行 sudo certbot。",
         "sslDnsMismatch": "域名未指向此服务器。在 DNS 传播之前无法签发证书。",
         "reissueSsl": "重新签发 SSL 证书",
         "reissueConfirm": "确定要为该域名重新签发 SSL 证书吗：",

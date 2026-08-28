@@ -44,13 +44,58 @@ defined('ORBITRA_SELF_SIGNED_KEY') || define('ORBITRA_SELF_SIGNED_KEY', '/etc/or
  * block answers /.well-known/acme-challenge/ for any hostname, so validation
  * works even before the domain has a server block of its own.
  */
-function orbitraCertbotCertonlyCommand(string $domain): string
+function orbitraCertbotCertonlyCommand(string $domain, bool $force = false): string
 {
     @mkdir(ORBITRA_ACME_WEBROOT . '/.well-known/acme-challenge', 0775, true);
 
+    // --force-renewal is for the panel's "re-issue" button, which must actually
+    // re-issue: with --keep-until-expiring certbot prints "not yet due for
+    // renewal" and keeps the line it was asked to replace. The background
+    // worker keeps the gentle flag — renewals there should respect the limits.
+    $renewalFlag = $force ? '--force-renewal' : '--keep-until-expiring';
+
     return 'sudo certbot certonly --webroot -w ' . escapeshellarg(ORBITRA_ACME_WEBROOT)
         . ' -n -d ' . escapeshellarg($domain)
-        . ' --agree-tos --register-unsafely-without-email --keep-until-expiring';
+        . " --agree-tos --register-unsafely-without-email $renewalFlag";
+}
+
+/**
+ * Does a Let's Encrypt certificate line exist for this domain — root's view?
+ *
+ * `file_exists()` here runs as the web user, and on hosts where certbot's
+ * output stays root-only it answers false for a certificate that very much
+ * exists, which is how a healthy domain ends up classified self-signed and
+ * gets an ERR_CERT_AUTHORITY_INVALID in the browser. `sudo certbot
+ * certificates` reads the same tree as root and needs no sudoers entry
+ * beyond the one install.sh already writes for certbot itself; it lists
+ * certificate names and paths, never private key material.
+ *
+ * Cached per process: the worker asks once per domain per run.
+ */
+function orbitraLetsEncryptCertExists(string $domain): bool
+{
+    static $cache = [];
+    $domain = strtolower(trim($domain));
+    if ($domain === '') {
+        return false;
+    }
+    if (isset($cache[$domain])) {
+        return $cache[$domain];
+    }
+
+    if (file_exists(ORBITRA_LETSENCRYPT_DIR . "/live/$domain/fullchain.pem")) {
+        return $cache[$domain] = true;
+    }
+
+    if (!orbitraShellAvailable() || !orbitraCommandExists('sudo') || !orbitraCommandExists('certbot')) {
+        return false;
+    }
+
+    $listing = orbitraShell('sudo -n certbot certificates 2>/dev/null');
+    $found = is_string($listing)
+        && stripos($listing, 'Certificate Name: ' . $domain) !== false;
+
+    return $cache[$domain] = $found;
 }
 
 /**
@@ -58,7 +103,10 @@ function orbitraCertbotCertonlyCommand(string $domain): string
  */
 function orbitraCertbotSucceeded(?string $output, string $domain): bool
 {
-    if (file_exists(ORBITRA_LETSENCRYPT_DIR . "/live/$domain/fullchain.pem")) {
+    // Root's view, not the web user's: certbot writes as root, and on a
+    // root-only /etc/letsencrypt a plain file_exists() here would deny a
+    // certificate that was just written.
+    if (orbitraLetsEncryptCertExists($domain)) {
         return true;
     }
     if (!is_string($output) || $output === '') {
@@ -302,7 +350,7 @@ function orbitraBuildNginxConfig(array $domains, bool $withDefaultServer = true)
                 'key' => $customKey,
                 'source' => $sslSource,
             ];
-        } elseif (file_exists(ORBITRA_LETSENCRYPT_DIR . "/live/$domain/fullchain.pem")) {
+        } elseif (orbitraLetsEncryptCertExists($domain)) {
             $letsEncryptDomains[] = $domain;
         } elseif (!$cloudflareProxy) {
             // Non-cloudflare domains without LE cert get self-signed
