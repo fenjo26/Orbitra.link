@@ -361,6 +361,19 @@ done
 systemctl restart php${PHP_V}-fpm
 systemctl restart nginx
 
+# A fresh cloud VM often ships with ufw active and only SSH allowed — nginx
+# comes up perfectly and the panel is still unreachable from outside
+# (ERR_CONNECTION_TIMED_OUT on 80/443 while port 22 answers). install.sh
+# owns the web stack, so it opens the web ports too. Hosts without ufw, or
+# with it inactive, are left untouched; a provider-level firewall is beyond
+# reach and the panel output says so below.
+WEB_PORTS_OPENED=0
+if command -v ufw >/dev/null 2>&1 && ufw status 2>/dev/null | grep -q "Status: active"; then
+    ufw allow 80/tcp  >/dev/null 2>&1 && WEB_PORTS_OPENED=1
+    ufw allow 443/tcp >/dev/null 2>&1 && WEB_PORTS_OPENED=1
+    [ "$WEB_PORTS_OPENED" -eq 1 ] && echo "  > ufw is active — opened 80/tcp and 443/tcp."
+fi
+
 # Rebuild the config from the database so a reinstall restores the parked domains
 # and their HTTPS server blocks. Never fatal: the baseline config above already
 # serves the panel, and the user can re-run this command at any time.
@@ -577,6 +590,11 @@ echo " Complete the setup and create the first administrator:"
 echo " 🔗 http://$SERVER_IP/admin.php                        "
 echo ""
 echo " This address keeps working after you park domains."
+echo ""
+echo " If the address does not open from outside (times out):"
+echo "   - a provider-level firewall must allow inbound 80 and 443;"
+echo "   - with ufw active this installer opened them already."
+echo ""
 echo " If the panel ever stops responding, rebuild the"
 echo " web-server config from the database:"
 echo "   sudo php /var/www/orbitra/cli/nginx_sync.php"
