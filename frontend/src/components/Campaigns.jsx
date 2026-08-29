@@ -1153,9 +1153,12 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                                         {/* block, not inline: overflow/text-ellipsis are no-ops
                                                             on inline boxes — a long name rendered past the cell
                                                             onto Group and Actions. */}
+                                                        {/* Same treatment as the mobile card below: the name
+                                                            opens the editor, and both surfaces say so with
+                                                            --color-primary at font-semibold. */}
                                                         <span
-                                                            className="block font-medium text-xs truncate cursor-pointer hover:underline"
-                                                            style={{ color: 'var(--color-text-primary)' }}
+                                                            className="block font-semibold text-xs truncate cursor-pointer hover:underline"
+                                                            style={{ color: 'var(--color-primary)' }}
                                                             onClick={() => handleEdit(camp.id)}
                                                             title={camp.name}
                                                         >

@@ -7,6 +7,35 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.3.10] — 2026-08-30
+
+The mobile-usability release: two frontend fixes from tester Addendum VI,
+both verified in a real browser at 390 / 768 / 1280 px.
+
+### Fixed — Campaigns
+
+- **The name looks like what it is on both surfaces** — the desktop table cell
+  rendered the name in `--color-text-primary` at medium while the mobile card
+  used `--color-primary` at semibold; both have always opened the editor, now
+  both say so. Checked on the light default theme with the orange-red primary —
+  the combination the addendum explicitly left unchecked. Landings/Offers keep
+  their plain name cells on purpose: one surface first, per the addendum.
+
+### Fixed — CampaignEditor rotation rows
+
+- **Below 640px the row is a placed grid, not a wrapped flex line** — six
+  passes of flex-wrap / order / basis each fixed their stated aim and left the
+  row wrong: a wrapped desktop row is decided by content width, not design
+  (§2.70, whose author never saw his own grid build run). The row is
+  `grid-cols-[auto_1fr_auto]` with explicit placements — toggle | name, badges
+  and weight | action rail — and `sm:` restores the original single flex row
+  (`sm:contents` dissolves the rail); grid placements are inert in flex, so
+  nothing at 640px and above moves.
+- **The name wraps instead of truncating at phone width** — a truncated offer
+  name told the reader nothing (§2.62's original complaint); `break-words`
+  below sm keeps long names readable — a four-line wrap verified with zero
+  horizontal overflow at 390px.
+
 ## [1.3.9] — 2026-08-28
 
 The SSL-and-lead-integrity release: four audited bugs fixed, the domain

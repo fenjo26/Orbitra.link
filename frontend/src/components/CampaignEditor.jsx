@@ -1966,7 +1966,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         const autoOn = isAutoRotationOn(formData.streams[streamIdx], type);
         const share = !paused && enabledTotal > 0 ? `${((w / enabledTotal) * 100).toFixed(1)}%` : '—';
         return (
-            <div className="flex items-center gap-1 flex-shrink-0">
+            <div className="flex items-center gap-1 flex-shrink-0 col-start-2 row-start-2">
                 <input
                     type="number"
                     value={list.length === 1 ? 100 : item.weight}
@@ -2008,7 +2008,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         return (
             <div
                 key={lIdx}
-                className="flex flex-wrap items-center gap-2 px-3 py-2 rounded-xl transition-opacity"
+                className="grid grid-cols-[auto_1fr_auto] items-center gap-x-2 gap-y-1 px-3 py-2 rounded-xl transition-opacity sm:flex sm:flex-wrap sm:gap-2"
                 style={{
                     backgroundColor: 'var(--color-bg-card)',
                     border: empty ? '1px dashed var(--color-border)' : '1px solid var(--color-border)',
@@ -2021,7 +2021,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); updateSchemaItem(idx, 'landings', lIdx, 'state', isItemActive ? 'disabled' : 'active'); }}
-                        className="relative inline-flex h-4 w-7 flex-shrink-0 items-center rounded-full transition-colors cursor-pointer"
+                        className="relative inline-flex h-4 w-7 flex-shrink-0 items-center rounded-full transition-colors cursor-pointer col-start-1 row-start-1 row-span-2 self-center"
                         style={{ background: isItemActive ? 'var(--color-success, #10b981)' : 'var(--color-border)' }}
                         title={isItemActive ? t('automation.clickToPause', 'Click to pause') : t('automation.clickToResume', 'Click to resume')}
                     >
@@ -2031,13 +2031,13 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         />
                     </button>
                 )}
-                {/* basis-full below sm: the name and badges get their own line
-                    with the toggle, weight and controls wrapping beneath — at
-                    phone width the three flex-shrink-0 siblings otherwise
-                    squeeze this block to zero and truncate() removes the name
-                    entirely. sm+ restores the single-row layout unchanged. */}
-                <div className="flex-1 min-w-0 basis-full sm:basis-auto">
-                    <div className="text-sm font-medium truncate" style={{ color: empty ? 'var(--color-warning)' : 'var(--color-text-primary)' }} title={name}>{name}</div>
+                {/* Below sm the row is a 3-column grid — toggle | name stack |
+                    actions — with explicit placement: a wrapped flex line lets
+                    content width decide where the pieces land. sm+ restores
+                    the original single flex row, where the grid placement
+                    classes are ignored and flex-1/min-w-0 govern instead. */}
+                <div className="flex-1 min-w-0 col-start-2 row-start-1">
+                    <div className="text-sm font-medium break-words sm:truncate" style={{ color: empty ? 'var(--color-warning)' : 'var(--color-text-primary)' }} title={name}>{name}</div>
                     {info && (
                         <div className="flex flex-wrap gap-1 mt-1">
                             {schemaBadge(typeLabels[info.type] || info.type)}
@@ -2046,18 +2046,22 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     )}
                 </div>
                 {schemaWeightInput(idx, 'landings', l, lIdx, list)}
-                <button
-                    onClick={() => l.id && openLandingEdit(l.id, idx)}
-                    disabled={!l.id}
-                    className="action-btn"
-                    style={{ color: 'var(--color-primary)', opacity: l.id ? 1 : 0.4 }}
-                    title={t('editor.editLanding')}
-                >
-                    <Edit3 className="w-3.5 h-3.5" />
-                </button>
-                <button onClick={() => removeSchemaItem(idx, 'landings', lIdx)} className="action-btn text-red" title={t('common.delete')}>
-                    <X className="w-3.5 h-3.5" />
-                </button>
+                {/* One action rail in grid col 3, centered across the row;
+                    sm:contents dissolves it back into the plain flex row. */}
+                <div className="flex flex-col items-center gap-1 col-start-3 row-start-1 row-span-2 self-center sm:contents">
+                    <button
+                        onClick={() => l.id && openLandingEdit(l.id, idx)}
+                        disabled={!l.id}
+                        className="action-btn"
+                        style={{ color: 'var(--color-primary)', opacity: l.id ? 1 : 0.4 }}
+                        title={t('editor.editLanding')}
+                    >
+                        <Edit3 className="w-3.5 h-3.5" />
+                    </button>
+                    <button onClick={() => removeSchemaItem(idx, 'landings', lIdx)} className="action-btn text-red" title={t('common.delete')}>
+                        <X className="w-3.5 h-3.5" />
+                    </button>
+                </div>
             </div>
         );
     };
@@ -2072,7 +2076,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         return (
             <div
                 key={oIdx}
-                className="flex flex-wrap items-center gap-2 px-3 py-2 rounded-xl transition-opacity"
+                className="grid grid-cols-[auto_1fr_auto] items-center gap-x-2 gap-y-1 px-3 py-2 rounded-xl transition-opacity sm:flex sm:flex-wrap sm:gap-2"
                 style={{
                     backgroundColor: 'var(--color-bg-card)',
                     border: empty ? '1px dashed var(--color-border)' : '1px solid var(--color-border)',
@@ -2085,7 +2089,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); updateSchemaItem(idx, 'offers', oIdx, 'state', isItemActive ? 'disabled' : 'active'); }}
-                        className="relative inline-flex h-4 w-7 flex-shrink-0 items-center rounded-full transition-colors cursor-pointer"
+                        className="relative inline-flex h-4 w-7 flex-shrink-0 items-center rounded-full transition-colors cursor-pointer col-start-1 row-start-1 row-span-2 self-center"
                         style={{ background: isItemActive ? 'var(--color-success, #10b981)' : 'var(--color-border)' }}
                         title={isItemActive ? t('automation.clickToPause', 'Click to pause') : t('automation.clickToResume', 'Click to resume')}
                     >
@@ -2095,13 +2099,13 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         />
                     </button>
                 )}
-                {/* basis-full below sm: the name and badges get their own line
-                    with the toggle, weight and controls wrapping beneath — at
-                    phone width the three flex-shrink-0 siblings otherwise
-                    squeeze this block to zero and truncate() removes the name
-                    entirely. sm+ restores the single-row layout unchanged. */}
-                <div className="flex-1 min-w-0 basis-full sm:basis-auto">
-                    <div className="text-sm font-medium truncate" style={{ color: empty ? 'var(--color-warning)' : 'var(--color-text-primary)' }} title={name}>{name}</div>
+                {/* Below sm the row is a 3-column grid — toggle | name stack |
+                    actions — with explicit placement: a wrapped flex line lets
+                    content width decide where the pieces land. sm+ restores
+                    the original single flex row, where the grid placement
+                    classes are ignored and flex-1/min-w-0 govern instead. */}
+                <div className="flex-1 min-w-0 col-start-2 row-start-1">
+                    <div className="text-sm font-medium break-words sm:truncate" style={{ color: empty ? 'var(--color-warning)' : 'var(--color-text-primary)' }} title={name}>{name}</div>
                     {info && (
                         <div className="flex flex-wrap gap-1 mt-1">
                             {schemaBadge(info.is_local ? t('offers.local') : t('offers.redirect'))}
@@ -2113,18 +2117,21 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     )}
                 </div>
                 {schemaWeightInput(idx, 'offers', o, oIdx, list)}
-                <button
-                    onClick={() => o.id && openOfferEdit(o.id, idx)}
-                    disabled={!o.id}
-                    className="action-btn"
-                    style={{ color: 'var(--color-primary)', opacity: o.id ? 1 : 0.4 }}
-                    title={t('common.edit')}
-                >
-                    <Edit3 className="w-3.5 h-3.5" />
-                </button>
-                <button onClick={() => removeSchemaItem(idx, 'offers', oIdx)} className="action-btn text-red" title={t('common.delete')}>
-                    <X className="w-3.5 h-3.5" />
-                </button>
+                {/* Mirror of the landing row's action rail — keep in lockstep. */}
+                <div className="flex flex-col items-center gap-1 col-start-3 row-start-1 row-span-2 self-center sm:contents">
+                    <button
+                        onClick={() => o.id && openOfferEdit(o.id, idx)}
+                        disabled={!o.id}
+                        className="action-btn"
+                        style={{ color: 'var(--color-primary)', opacity: o.id ? 1 : 0.4 }}
+                        title={t('common.edit')}
+                    >
+                        <Edit3 className="w-3.5 h-3.5" />
+                    </button>
+                    <button onClick={() => removeSchemaItem(idx, 'offers', oIdx)} className="action-btn text-red" title={t('common.delete')}>
+                        <X className="w-3.5 h-3.5" />
+                    </button>
+                </div>
             </div>
         );
     };

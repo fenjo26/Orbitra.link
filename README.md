@@ -1,4 +1,4 @@
-# Orbitra v1.3.9 Tracker
+# Orbitra v1.3.10 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,31 +11,22 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.3.9
+## 🆕 What's New in v1.3.10
 
-The SSL-and-lead-integrity release: four audited bugs fixed, the domain
-workflow rebuilt end to end.
+The mobile-usability release: two frontend fixes from tester Addendum VI,
+both verified in a real browser at 390 / 768 / 1280 px.
 
-### Fixed — SSL
+### Fixed
 
-- **🧭 incomplete_chain stops lying about unreadable files** — a root-only /etc/letsencrypt made the chain check read 0 blocks for a healthy certificate: failed status, retry backoff, and a re-issue button that could not work (rm -rf without sudo, --keep-until-expiring keeping the line it was replacing). Three-state verdict now; unreadable = installed with a warning, never failed; privileged reads scoped to the PUBLIC chain files via sudoers; sudo certbot delete with the exit code checked; migration 41 resets the false backoff
-- **🅿️ Parking a domain issues its certificate before the save responds** — the old background attempt fired into /dev/null, died on database contention and left a green tick over a self-signed response; the worker now runs every 5 minutes (was hourly), is flock-guarded against certbot lock collisions, survives locked-SQLite runs, and a bulk paste shows a spinner instead of an apparent hang
+- **🎨 The campaign name reads as a link on both surfaces** — the desktop table cell kept plain white text while the mobile card already used the theme's primary colour at semibold; both have always opened the editor, now both look it (verified on the light default theme — the orange-red primary the addendum left unchecked; Landings/Offers keep their plain cells on purpose, one surface first)
+- **📱 Rotation rows are a placed grid at phone width** — six flex passes each fixed their stated aim and left the row wrong; below 640px it is now a 3-column grid (toggle | name/badges/weight | action rail) with explicit placements, and the name wraps instead of truncating, so a long offer name reads in full; from 640px up the single-row layout is untouched
+- **✅ Verified, not assumed** — the grid build shipped by the addendum was never seen on a phone; this one was: screenshots at 390 / 768 / 1280 px, both row types, a four-line wrapped name, zero horizontal overflow
 
-### Fixed — leads & settings
+### Previous Highlights (v1.3.9)
 
-- **🎯 LeadForge stops fabricating lead success** — four networks were selectable with no send adapter while order.php returned a fake 200 OK without any HTTP request: the thank-you page and the tracker celebrated a lead the network never received. The fake is gone (error logged, snapshot preserved in the CRM vault, honest error to the visitor), the selector is fed from the backend's single source of truth with a has_adapter flag, a real AdCombo adapter ships, and a My affiliate networks group offers endpoint prefill and built-in adapter suggestions
-- **🛡️ Scan protection actually saves and works** — the privacy settings were silently dropped by both whitelist spots while the API answered success; unknown settings keys now fail loudly, and an unknown alias answers with the operator's chosen 302 / 404 / blank instead of the tracker-signature "Campaign not found."
+- 🔒 SSL & lead integrity — three-state chain verdict (unreadable = installed with a warning, never failed), certificates issue before the save responds, LeadForge stops fabricating lead success, scan protection saves and works, Domains page rebuilt
 
-### Changed
-
-- **Domains page rebuilt**: custom-SSL fields reachable (the Custom button's gate omitted ssl_source), the table joins the centred fixed-layout system, the toolbar and the Add-Domain modal restructured
-- **Installer**: opens 80/443 in ufw when active (a fresh cloud VM with SSH-only firewall showed a perfectly green install that was unreachable), schedules the worker every 5 minutes, and ships cli/ssl_diagnose.sh — a read-only one-shot diagnosis for any server
-
-### Previous Highlights (v1.3.8)
-
-- 🧹 Table polish — the ellipsis only appears where something is actually hidden; the checkbox column stops overflowing; values centre under their headers; all ESLint errors cleared in the tracker-table components
-
-Older releases (v1.3.7 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.3.8 and earlier): see the [full changelog](CHANGELOG.md).
 
 ## 🖥 Live Demo
 
