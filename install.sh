@@ -556,6 +556,24 @@ chown -R www-data:www-data /var/www/orbitra
 find /var/www/orbitra/frontend/dist -type d -exec chmod 775 {} \; 2>/dev/null || true
 find /var/www/orbitra/frontend/dist -type f -exec chmod 664 {} \; 2>/dev/null || true
 
+# Postback key. The default that ships in the repository is public — anyone
+# can read fd12e72 in the open repo — so a fresh install must not keep it:
+# /fd12e72/postback accepts forged conversions from anyone who knows the
+# install is unmodified. The CLI below boots the database (a fresh install has
+# none until the first request) and swaps the default for a random key; a key
+# the operator already changed is kept, so re-running the installer never
+# breaks live postback URLs. Runs as www-data so a database created here is
+# owned by the web server, not root.
+echo "  > Generating a private postback key..."
+PB_KEY=$(sudo -u www-data php /var/www/orbitra/cli/generate_postback_key.php 2>/dev/null || true)
+if [[ "$PB_KEY" =~ ^[0-9a-f]{24}$ ]]; then
+    echo "  > ✓ Postback key generated (printed in the summary below)"
+else
+    PB_KEY=""
+    echo "  > NOTE: could not generate a postback key automatically. Change it"
+    echo "  >       manually in Settings -> Postback after setup."
+fi
+
 # Smoke tests to verify installation
 echo "  > Running smoke tests..."
 # Test 1: Verify _internal_assets location
@@ -598,6 +616,13 @@ echo " Complete the setup and create the first administrator:"
 echo " 🔗 http://$SERVER_IP/admin.php                        "
 echo ""
 echo " This address keeps working after you park domains."
+echo ""
+if [ -n "$PB_KEY" ]; then
+echo " Your postback endpoint — give this URL to your ad network:"
+echo " 🔗 http://$SERVER_IP/$PB_KEY/postback?subid={subid}&status={status}&payout={payout}"
+echo "    Your own parked domains (https) work the same way, and the key"
+echo "    stays changeable any time in Settings -> Postback."
+fi
 echo ""
 echo " If the address does not open from outside (times out):"
 echo "   - a provider-level firewall must allow inbound 80 and 443;"

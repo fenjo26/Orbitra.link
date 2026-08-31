@@ -1866,7 +1866,8 @@ function generateUuid()
 // Маршрутизация:
 // 1) campaign query param: site.com/r/my-camp
 // 2) alias from root path: site.com/my-camp
-// 3) direct campaign_id от паркованного домена
+// 3) direct campaign_id от паркованного домена: явный ?campaign_id= либо
+//    index_campaign_id домена (корень / и catch_404-пути)
 //
 // Heal double-"?" query strings (Facebook Ads URL parameters with a leading
 // "?", cloakers concatenating onto a URL that already had one) BEFORE any
@@ -1884,9 +1885,19 @@ $requestHost = $_SERVER['HTTP_HOST'] ?? '';
 // === DOMAIN OVERRIDES & SECURITY ===
 if ($requestHost) {
     // Look up the domain settings
-    $stmt = $pdo->prepare("SELECT is_noindex, https_only FROM domains WHERE name = ? LIMIT 1");
+    $stmt = $pdo->prepare("SELECT is_noindex, https_only, index_campaign_id, catch_404, status FROM domains WHERE name = ? LIMIT 1");
     $stmt->execute([explode(':', $requestHost)[0]]); // Strip port if present
     $domainInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // A manually disabled domain serves nothing: 404 the whole host before any
+    // routing, tracking included. router.php gives the same verdict on the dev
+    // server; in production this file IS the router nginx hands every unknown
+    // path to, so the verdict has to live here too.
+    if ($domainInfo && strtolower((string) ($domainInfo['status'] ?? 'OK')) === 'disabled') {
+        http_response_code(404);
+        header('Content-Type: text/plain; charset=utf-8');
+        exit('404 Not Found');
+    }
 
     if ($domainInfo) {
         // Enforce HTTPS
@@ -1911,6 +1922,24 @@ if ($requestHost) {
                 header('Content-Type: text/plain');
                 echo "User-agent: *\nDisallow: /\n";
                 exit;
+            }
+        }
+
+        // The domain's own campaign (domains.index_campaign_id). router.php
+        // resolves it before including this script on the dev server; production
+        // nginx hands "/" straight here, where nothing used to set it — a parked
+        // domain's "Campaign to serve on the root path" answered
+        // "Campaign not specified." With catch_404 the same campaign also takes
+        // the host's dead paths, and the alias lookup further down still runs
+        // first, so a live alias keeps winning over the domain's campaign.
+        // Only $directCampaignId is set, not $_GET: the routing id must not leak
+        // into the click's captured parameters, and an explicit ?campaign_id= in
+        // the URL keeps winning over the domain setting.
+        $domainRootCampaign = (int) ($domainInfo['index_campaign_id'] ?? 0);
+        if ($domainRootCampaign > 0 && empty($_GET['campaign_id'])) {
+            $domainPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+            if ($domainPath === '/' || $domainPath === '' || $domainPath === false || !empty($domainInfo['catch_404'])) {
+                $directCampaignId = $domainRootCampaign;
             }
         }
     }

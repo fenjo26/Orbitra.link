@@ -8,6 +8,9 @@ require_once __DIR__ . '/core/landing_path.php';
 require_once __DIR__ . '/core/StreamFilters.php';
 
 $db_file = __DIR__ . '/orbitra_db.sqlite';
+// Placeholder only: overridden from the settings table on every request
+// (see the override after $runMigrations()), so installs are not stuck on
+// this public value. install.sh randomizes it on fresh installs.
 $postback_key = 'fd12e72';
 
 try {
@@ -2254,7 +2257,10 @@ try {
         // Read-only or locked DB: the optimiser cron skips audit writes.
     }
 
-    // Override hardcoded postback_key with the one from settings table for routers
+    // Override hardcoded postback_key with the one from settings table for routers.
+    // Deliberately OUTSIDE the $runMigrations() closure: it must run on every
+    // request (schema state is irrelevant), so Settings rotations take effect
+    // on the live route immediately.
     try {
         $stmt = $pdo->query("SELECT value FROM settings WHERE key = 'postback_key'");
         if ($stmt) {

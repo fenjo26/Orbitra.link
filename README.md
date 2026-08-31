@@ -1,4 +1,4 @@
-# Orbitra v1.3.10 Tracker
+# Orbitra v1.3.11 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,22 +11,21 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.3.10
+## 🆕 What's New in v1.3.11
 
-The mobile-usability release: two frontend fixes from tester Addendum VI,
-both verified in a real browser at 390 / 768 / 1280 px.
+The parked-domain release: two community-issue fixes (#4, #5), both backend —
+no frontend files changed, so no rebuild is needed.
 
 ### Fixed
 
-- **🎨 The campaign name reads as a link on both surfaces** — the desktop table cell kept plain white text while the mobile card already used the theme's primary colour at semibold; both have always opened the editor, now both look it (verified on the light default theme — the orange-red primary the addendum left unchecked; Landings/Offers keep their plain cells on purpose, one surface first)
-- **📱 Rotation rows are a placed grid at phone width** — six flex passes each fixed their stated aim and left the row wrong; below 640px it is now a 3-column grid (toggle | name/badges/weight | action rail) with explicit placements, and the name wraps instead of truncating, so a long offer name reads in full; from 640px up the single-row layout is untouched
-- **✅ Verified, not assumed** — the grid build shipped by the addendum was never seen on a phone; this one was: screenshots at 390 / 768 / 1280 px, both row types, a four-line wrapped name, zero horizontal overflow
+- **🏠 A parked domain's root campaign works in production** — `index_campaign_id` ("Campaign to serve on the root path") was honoured only by the dev router, while nginx hands `/` straight to index.php, which never read the field, so a parked domain's root answered "Campaign not specified." Now the root serves the domain's campaign, catch_404 sends dead paths there too, and a Disabled domain 404s the whole host in production as well; an explicit `?campaign_id=` still wins and the routing id never leaks into the click's captured parameters
+- **🔑 Fresh installs get a private postback key** — the shipped default `fd12e72` is public (it lives in this open repository), so an unmodified install accepted forged conversions on `/fd12e72/postback`; install.sh now writes a random 24-char key into the database as www-data and prints the finished postback URL in the summary, while a key the operator already rotated survives a re-install (existing installs unaffected — rotate in Settings → Postback)
 
-### Previous Highlights (v1.3.9)
+### Previous Highlights (v1.3.10)
 
-- 🔒 SSL & lead integrity — three-state chain verdict (unreadable = installed with a warning, never failed), certificates issue before the save responds, LeadForge stops fabricating lead success, scan protection saves and works, Domains page rebuilt
+- 📱 Mobile-usability release — the campaign name reads as a link on both surfaces (primary colour + semibold in the desktop table, matching the mobile card), and rotation rows are a placed 3-column grid at phone width with the name wrapping instead of truncating; verified at 390 / 768 / 1280 px
 
-Older releases (v1.3.8 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.3.9 and earlier): see the [full changelog](CHANGELOG.md).
 
 ## 🖥 Live Demo
 
@@ -497,20 +496,13 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.3.9 (2026-08-28)
+### Current release — v1.3.11 (2026-08-31)
 
-**Fixed — SSL**
-- 🧭 **incomplete_chain vs unreadable file separated** — three-state verdict, privileged chain reads (public files only, never privkeys), honest re-issue (sudo certbot delete + --force-renewal), migration 41 resets the false backoff
-- 🅿️ **Certificates issue on save** — synchronous issuance with the worker flock-guarded, every 5 minutes instead of hourly, locked-SQLite-proof, bulk paste with a spinner
+**Fixed — parked domains & install security (issues #4, #5)**
+- 🏠 **A domain's root campaign resolves in production** — index_campaign_id and catch_404 used to live only in the dev router; nginx hands `/` straight to index.php, which never read the field ("Campaign not specified."). Now the root serves the domain's campaign, dead paths honour catch_404, a Disabled domain 404s the whole host, explicit `?campaign_id=` still wins
+- 🔑 **Fresh installs get a private postback key** — the public fd12e72 default is replaced with a random key by the installer (cli/generate_postback_key.php) and the finished postback URL is printed in the summary; rotated keys survive re-install
 
-**Fixed — leads & settings**
-- 🎯 **LeadForge: no more fake lead success** — adapter-less networks cannot be built; AdCombo adapter; My affiliate networks group with endpoint prefill
-- 🛡️ **Scan protection saves and answers probes** — 302 / 404 / blank for unknown aliases; unknown settings keys fail loudly
-
-**Changed**
-- Domains page rebuilt (custom-SSL gate, centred table, toolbar, modal); installer opens ufw ports and ships cli/ssl_diagnose.sh
-
-Previous releases — v1.3.8: 🧹 stray ellipsis gone, centred values, checkbox column fixed, lint-zero tracker tables; v1.3.7: 🔀 full column reorder, ✂️ hard cell clipping, 🎯 centred headers; v1.3.6: 👥 real visitors counts, ⚡ ad-status cache, 📉 dashboard-only polling, 📅 persistent date ranges.
+Previous releases — v1.3.10: 📱 rotation rows as a placed grid below 640px, 🎨 campaign-name link parity on both surfaces; v1.3.9: 🔒 SSL chain verdicts + certificates-on-save, 🎯 LeadForge honest failures, 🛡️ scan protection, Domains rebuilt; v1.3.8: 🧹 stray ellipsis gone, centred values, checkbox column fixed, lint-zero tracker tables; v1.3.7: 🔀 full column reorder, ✂️ hard cell clipping, 🎯 centred headers; v1.3.6: 👥 real visitors counts, ⚡ ad-status cache, 📉 dashboard-only polling, 📅 persistent date ranges.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

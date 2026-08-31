@@ -7,6 +7,48 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.3.11] — 2026-08-31
+
+The parked-domain release: two community-issue fixes, both backend — no
+frontend files changed, so no rebuild is needed. Reported in issues #4 and #5.
+
+### Fixed — parked domains in production (issue #4)
+
+- **A domain's root campaign now resolves in production** — `index_campaign_id`
+  ("Campaign to serve on the root path" in the domain form) was honoured only
+  by `router.php`, the dev-server entry point; production nginx hands `/` and
+  every unknown path straight to `index.php`, which never selected the field,
+  so a parked domain's root answered "Campaign not specified." The root now
+  serves the domain's campaign, and `catch_404` (previously dev-only as well)
+  sends the host's dead paths there too — the alias lookup still runs first,
+  so a live alias keeps winning over the domain setting.
+- **A Disabled domain 404s the whole host in production** — `router.php`
+  already refused everything on a disabled domain; `index.php` silently kept
+  serving it. Both entry points now agree.
+- An explicit `?campaign_id=` in the URL still wins over the domain setting
+  (the workaround from the report keeps working), and the routing id is
+  assigned to `$directCampaignId` only — it must not leak into the click's
+  captured parameters (`orbitraCollectClickParams` picks up `$_GET` for
+  cost-matching). Pinned by `tests/domain_root_campaign_test.php`: 21 checks
+  across child-process blocks and a real-HTTP e2e reproduction of the report.
+
+### Fixed — private postback key on install (issue #5)
+
+- **Fresh installs no longer ship the public default key.** The report's
+  premise (the settings-table override living inside the migration closure,
+  skipped once the schema is current) turned out to be a misreading — the
+  override sits outside the closure and runs on every request, and
+  `tests/postback_route_test.php` (its Test 4 covers exactly the rotation
+  scenario) passes. The report's underlying concern stands, though: `fd12e72`
+  is public, so an install that never rotated it accepts forged conversions.
+  `install.sh` now runs `cli/generate_postback_key.php` as www-data after the
+  ownership handover: it boots the database (a fresh install has none until
+  the first request), replaces the default with a random 24-hex key, and the
+  install summary prints the finished postback URL. A key the operator already
+  changed survives a re-install, existing installs are untouched (rotate in
+  Settings → Postback), and config.php now documents that the override is
+  deliberately outside the migration closure.
+
 ## [1.3.10] — 2026-08-30
 
 The mobile-usability release: two frontend fixes from tester Addendum VI,
