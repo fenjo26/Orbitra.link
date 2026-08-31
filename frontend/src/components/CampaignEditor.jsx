@@ -1342,7 +1342,12 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             filters: [],
             filters_logic: 'and',
             schema_custom: { landings: [], offers: [] },
-            offer_selection: 'before'
+            // "After the click" is the honest default: offer_id (and offer_at)
+            // land on the click only when the visitor actually leaves through
+            // the offer link, so LP clicks / LP CTR / real transitions measure
+            // the CTA, not the landing view. Streams saved without the field
+            // keep the legacy "before" behavior on the backend.
+            offer_selection: 'after'
         };
         setFormData(prev => ({ ...prev, streams: [...prev.streams, newStream] }));
     };
@@ -4067,20 +4072,38 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                             )}
 
                                                             <div className="mt-3 pt-3" style={{ borderTop: '1px dashed var(--color-border)' }}>
-                                                                <div className="text-xs font-semibold mb-1" style={{ color: 'var(--color-text-primary)' }}>{t('editor.offerSelection')}</div>
-                                                                <div className="flex gap-4">
-                                                                    {['before', 'after'].map(mode => (
-                                                                        <label key={mode} className="flex items-center gap-1 text-xs cursor-pointer" style={{ color: 'var(--color-text-secondary)' }}>
-                                                                            <input
-                                                                                type="radio"
-                                                                                checked={(stream.offer_selection || 'before') === mode}
-                                                                                onChange={() => updateStream(idx, 'offer_selection', mode)}
-                                                                            />
-                                                                            {mode === 'before' ? t('editor.offerSelectionBefore') : t('editor.offerSelectionAfter')}
-                                                                        </label>
-                                                                    ))}
+                                                                <div className="text-xs font-semibold mb-1.5" style={{ color: 'var(--color-text-primary)' }}>{t('editor.offerSelection')}</div>
+                                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                                                    {['before', 'after'].map(mode => {
+                                                                        const selected = (stream.offer_selection || 'before') === mode;
+                                                                        return (
+                                                                            <label
+                                                                                key={mode}
+                                                                                className="flex items-start gap-2 text-xs cursor-pointer p-2.5 rounded-xl border transition"
+                                                                                style={{
+                                                                                    borderColor: selected ? 'color-mix(in srgb, var(--color-primary) 45%, transparent)' : 'var(--color-border)',
+                                                                                    backgroundColor: selected ? 'color-mix(in srgb, var(--color-primary) 7%, transparent)' : 'transparent',
+                                                                                }}
+                                                                            >
+                                                                                <input
+                                                                                    type="radio"
+                                                                                    className="mt-0.5"
+                                                                                    checked={selected}
+                                                                                    onChange={() => updateStream(idx, 'offer_selection', mode)}
+                                                                                />
+                                                                                <span className="min-w-0">
+                                                                                    <span className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                                                                                        {mode === 'before' ? t('editor.offerSelectionBefore') : t('editor.offerSelectionAfter')}
+                                                                                    </span>
+                                                                                    <span className="block mt-0.5" style={{ fontSize: '11px', color: 'var(--color-text-muted)', lineHeight: 1.45 }}>
+                                                                                        {mode === 'before' ? t('editor.offerSelectionBeforeHint') : t('editor.offerSelectionAfterHint')}
+                                                                                    </span>
+                                                                                </span>
+                                                                            </label>
+                                                                        );
+                                                                    })}
                                                                 </div>
-                                                                <p className="mt-1" style={{ fontSize: '11.5px', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>{t('editor.offerSelectionHint')}</p>
+                                                                <p className="mt-1.5" style={{ fontSize: '11.5px', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>{t('editor.offerSelectionHint')}</p>
                                                             </div>
                                                         </div>
                                                     </div>

@@ -49,6 +49,16 @@ export const isAdminUser = (user) => user?.role === 'admin';
 const hasResourceAccess = (user, permKey) =>
     parsePermissions(user)[permKey]?.access !== 'none';
 
+// Write access mirrors the backend gate (core/resource_access.php): 'read'
+// is view-only and 'none' hides the tab; 'full', and the campaign-scoped
+// 'own'/'selected' levels, may mutate within their scope.
+export const canWriteResource = (user, resource) => {
+    if (!user) return false;
+    if (isAdminUser(user)) return true;
+    const access = parsePermissions(user)[resource]?.access;
+    return access !== 'read' && access !== 'none';
+};
+
 // A permission-keyed tab is hidden only when its access is explicitly 'none';
 // full/read/selected/own all keep the tab visible.
 export const canAccessTab = (user, tab) => {

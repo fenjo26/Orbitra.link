@@ -74,6 +74,17 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
         </div>
     );
 
+    // SQLite stores landing_at / offer_at as UTC "YYYY-MM-DD HH:MM:SS"; the
+    // delta is the Time-since-LP-click pair for this exact click.
+    const lpTimeDelta = (() => {
+        const parse = (v) => (v ? new Date(String(v).replace(' ', 'T') + 'Z').getTime() : NaN);
+        const from = parse(data?.landing_at);
+        const to = parse(data?.offer_at);
+        if (!isFinite(from) || !isFinite(to) || to < from) return null;
+        const s = Math.round((to - from) / 1000);
+        return s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${s % 60}s`;
+    })();
+
     const renderInPortal = (content) => {
         if (typeof document === 'undefined') return null;
         return createPortal(
@@ -269,6 +280,9 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
 
                             <SectionHeader title={t('clickDetails.sections.calendar')} />
                             <DetailRow label={t('clickDetails.fields.dateTime')} value={data.created_at} />
+                            <DetailRow label={t('clickDetails.fields.landingAt')} value={data.landing_at} />
+                            <DetailRow label={t('clickDetails.fields.offerAt')} value={data.offer_at} />
+                            <DetailRow label={t('clickDetails.fields.timeToOffer')} value={lpTimeDelta} />
                             <DetailRow label={t('clickDetails.fields.conversion')} value={data.is_conversion ? t('clickDetails.yes') : t('clickDetails.no')} />
                         </div>
 

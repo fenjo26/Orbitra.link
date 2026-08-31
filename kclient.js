@@ -19,6 +19,10 @@
  *
  * The subid lands in a first-party cookie so secondary pages and thank-you
  * pages can post a conversion back via /tracking.js.
+ *
+ * Offer links: a link with data-orbitra-offer (or href="{offer}") is pointed
+ * at the stream's signed transition once the click is registered — the
+ * landing→offer time is then measured on the tracker side.
  */
 (function () {
     'use strict';
@@ -31,7 +35,7 @@
     if (!cfg || !token) { return; }
     var base = String(cfg).replace(/\/+$/, '');
 
-    var state = { subid: null, info: null, done: false };
+    var state = { subid: null, info: null, done: false, loadTs: Date.now() };
 
     function cookie(name, value, ttlSeconds) {
         try {
@@ -81,6 +85,29 @@
             host.textContent = body;
         } else {
             host.innerHTML = body;
+        }
+    }
+
+    // Landing time for the tracker's Time-since-LP-click metric: appended to
+    // the tracker's own transition link only — a raw offer URL would pass the
+    // parameter straight through to the affiliate network.
+    function withLandingTime(url) {
+        if (String(url).indexOf('_lp=1') === -1) { return url; }
+        var elapsed = Math.round((Date.now() - state.loadTs) / 1000);
+        if (elapsed <= 0) { return url; }
+        return url + (String(url).indexOf('?') === -1 ? '?' : '&') + '_lt=' + Math.min(elapsed, 604800);
+    }
+
+    // Same offer-link contract as tracking.js: a link with data-orbitra-offer
+    // (or href="{offer}") points at the stream's offer through the signed
+    // transition, so the LP→offer transition is counted on the tracker side.
+    function fillOfferLinks() {
+        var info = state.info || {};
+        if (!info.offer_link) { return; }
+        var url = withLandingTime(String(info.offer_link));
+        var links = document.querySelectorAll('a[href="{offer}"], [data-orbitra-offer]');
+        for (var i = 0; i < links.length; i++) {
+            links[i].setAttribute('href', url);
         }
     }
 
@@ -138,6 +165,8 @@
         if (decoded.body !== null && decoded.body !== undefined) {
             injectBody(decoded.body, decoded.contentType);
         }
+        // After content injection so links inside the injected body are filled too.
+        fillOfferLinks();
         // Neither → "Do nothing": leave the site as is.
     }
 

@@ -28,6 +28,7 @@ const UsersPage = () => {
     const [showModal, setShowModal] = useState(false);
     const [showPermissionsModal, setShowPermissionsModal] = useState(false);
     const [showApiKeysModal, setShowApiKeysModal] = useState(false);
+    const [campaignOptions, setCampaignOptions] = useState([]);
     const [currentUser, setCurrentUser] = useState(null);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -152,12 +153,25 @@ const UsersPage = () => {
 
     const openPermissionsModal = (user) => {
         setCurrentUser(user);
-        setPermissions(
-            user.permissions && typeof user.permissions === 'object' && !Array.isArray(user.permissions)
-                ? { ...DEFAULT_PERMISSIONS(), ...user.permissions }
-                : DEFAULT_PERMISSIONS()
-        );
+        const stored = user.permissions && typeof user.permissions === 'object' && !Array.isArray(user.permissions)
+            ? { ...DEFAULT_PERMISSIONS(), ...user.permissions }
+            : DEFAULT_PERMISSIONS();
+        // 'selected'/'own' are real levels only for campaigns (owner +
+        // assigned items). On the other resources they were never enforced
+        // server-side and behave like 'full' — surface them as such.
+        Object.keys(stored).forEach((key) => {
+            if (key === 'campaigns') return;
+            const access = stored[key]?.access;
+            if (access === 'selected' || access === 'own') {
+                stored[key] = { ...stored[key], access: 'full' };
+            }
+        });
+        setPermissions(stored);
         setShowPermissionsModal(true);
+        // The items picker lists every campaign an admin can assign.
+        axios.get(`${API_URL}?action=campaigns_simple`).then((res) => {
+            if (res.data?.status === 'success') setCampaignOptions(res.data.data || []);
+        }).catch(() => setCampaignOptions([]));
     };
 
     const openApiKeysModal = async (user) => {
@@ -618,24 +632,49 @@ const UsersPage = () => {
                                     <h4 style={{ fontWeight: 500, marginBottom: '12px' }}>{t('users.permissions')}</h4>
                                     <div className="space-y-3">
                                         {resources.map((res) => (
-                                            <div key={res.key} className="flex items-center justify-between" style={{ padding: '8px 0', borderBottom: '1px solid var(--color-border)' }}>
-                                                <span>{res.label}</span>
-                                                <select
-                                                    value={permissions[res.key]?.access || 'full'}
-                                                    onChange={(e) => setPermissions({
-                                                        ...permissions,
-                                                        [res.key]: { ...permissions[res.key], access: e.target.value }
-                                                    })}
-                                                    className="form-select"
-                                                    style={{ width: 'auto' }}
-                                                >
-                                                    <option value="full">Full</option>
-                                                    <option value="read">Read only</option>
-                                                    <option value="selected">Selected</option>
-                                                    <option value="own">Own + Selected</option>
-                                                    <option value="none">None</option>
-                                                </select>
-                                            </div>
+                                            <React.Fragment key={res.key}>
+                                                <div className="flex items-center justify-between" style={{ padding: '8px 0', borderBottom: '1px solid var(--color-border)' }}>
+                                                    <span>{res.label}</span>
+                                                    <select
+                                                        value={permissions[res.key]?.access || 'full'}
+                                                        onChange={(e) => setPermissions({
+                                                            ...permissions,
+                                                            [res.key]: { ...permissions[res.key], access: e.target.value }
+                                                        })}
+                                                        className="form-select"
+                                                        style={{ width: 'auto' }}
+                                                    >
+                                                        <option value="full">Full</option>
+                                                        <option value="read">Read only</option>
+                                                        {res.key === 'campaigns' && <option value="own">Own + Selected</option>}
+                                                        {res.key === 'campaigns' && <option value="selected">Selected</option>}
+                                                        <option value="none">None</option>
+                                                    </select>
+                                                </div>
+                                                {res.key === 'campaigns' && (permissions.campaigns?.access === 'own' || permissions.campaigns?.access === 'selected') && (
+                                                    <div style={{ padding: '8px 0', borderBottom: '1px solid var(--color-border)' }}>
+                                                        <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 8 }}>{t('users.campaignItems')}</div>
+                                                        <div style={{ maxHeight: 170, overflowY: 'auto', display: 'flex', flexWrap: 'wrap', gap: '6px 14px' }}>
+                                                            {campaignOptions.map((c) => (
+                                                                <label key={c.id} className="flex items-center gap-1.5" style={{ fontSize: 12, cursor: 'pointer' }}>
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={(permissions.campaigns?.items || []).includes(c.id)}
+                                                                        onChange={(e) => setPermissions((prev) => {
+                                                                            const cur = prev.campaigns || { access: 'own', items: [] };
+                                                                            const items = e.target.checked
+                                                                                ? [...(cur.items || []), c.id]
+                                                                                : (cur.items || []).filter((idv) => idv !== c.id);
+                                                                            return { ...prev, campaigns: { ...cur, items } };
+                                                                        })}
+                                                                    />
+                                                                    {c.name}
+                                                                </label>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </React.Fragment>
                                         ))}
                                     </div>
                                 </div>

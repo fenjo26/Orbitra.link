@@ -126,6 +126,32 @@ foreach (['cpv', 'cpc', 'epv', 'epc'] as $metric) {
 }
 $assert('lp_ctr is a dash with a zero denominator', $funnelZero['lp_ctr'], null);
 
+// Honest transition counters: real_lp_clicks counts landing views whose
+// visitor actually left through the offer link (offer_at recorded); direct
+// clicks keep counting as real offer clicks. real_lp_ctr divides by the
+// same LP views the plain CTR uses.
+$honest = orbitraComputeDerivedMetrics([
+    'clicks' => 6, 'prelander_clicks' => 3, 'lp_clicks' => 3, 'offer_clicks' => 4,
+    'real_lp_clicks' => 2, 'real_offer_clicks' => 3,
+]);
+$assert('real_lp_clicks pass-through', $honest['real_lp_clicks'], 2, 0);
+$assert('real_offer_clicks pass-through', $honest['real_offer_clicks'], 3, 0);
+$assert('real_lp_ctr (2 real / 3 views)', $honest['real_lp_ctr'], 66.67);
+$assert('plain lp_ctr untouched by real counters', $honest['lp_ctr'], 100);
+// Legacy callers (no real counters in the raw row): counters stay 0 and the
+// honest CTR is a dash, never a fabricated number.
+$legacyRow = orbitraComputeDerivedMetrics([
+    'clicks' => 6, 'prelander_clicks' => 3, 'lp_clicks' => 3, 'offer_clicks' => 4,
+]);
+$assert('legacy row real_lp_clicks is 0', $legacyRow['real_lp_clicks'], 0, 0);
+$assert('legacy row real_offer_clicks is 0', $legacyRow['real_offer_clicks'], 0, 0);
+// Views exist, so the CTR is computable — it just reads 0 recorded
+// transitions. The dash stays reserved for "no landing at all".
+$assert('legacy row real_lp_ctr reads 0%', $legacyRow['real_lp_ctr'], 0);
+// No landing in the chain at all: both CTRs are dashes.
+$noLp = orbitraComputeDerivedMetrics(['clicks' => 6, 'prelander_clicks' => 0, 'lp_clicks' => 0]);
+$assert('no-landing real_lp_ctr is a dash', $noLp['real_lp_ctr'], null);
+
 // ---------------------------------------------------------------------------
 // Production SQL check for the Landings/Offers table pages: seed the mini
 // universe below, run the exact queries core/ReportMetrics.php ships, apply
@@ -197,6 +223,11 @@ $assert('Dashboard CPL', $dashboard['cpl'], 21);
 $assert('Dashboard CPS', $dashboard['cps'], 7);
 $assert('Dashboard LP CTR', $dashboard['lp_ctr'], 50);
 $assert('Dashboard bot rate', $dashboard['bot_rate'], 16.67);
+// Honest counters on the same seed: m1 and m4 completed the CTA transition
+// (offer_at set), m5 is a direct offer click; m2/m3 stayed on the landing.
+$assert('Dashboard real LP clicks', $dashboard['real_lp_clicks'], 2, 0);
+$assert('Dashboard real offer clicks', $dashboard['real_offer_clicks'], 3, 0);
+$assert('Dashboard real LP CTR', $dashboard['real_lp_ctr'], 50);
 
 // The derivation loop the landings/offers endpoints run after the SQL:
 // array_merge of ALL derived metrics — the same 65-metric parity the panel
@@ -280,6 +311,14 @@ $assert('L3 clicks', $lp[3]['clicks'], 0, 0);
 $assert('L3 lp_ctr', $lp[3]['lp_ctr'], null);
 $assert('L3 cpv', $lp[3]['cpv'], 0);
 $assert('L3 roi null', $lp[3]['roi'], null);
+// Honest transitions per landing: L1's only transition is m1 (m2/m3 never
+// left), L2's m4 went through, L3 has no traffic at all.
+$assert('L1 real_lp_clicks', $lp[1]['real_lp_clicks'], 1, 0);
+$assert('L1 real_offer_clicks', $lp[1]['real_offer_clicks'], 1, 0);
+$assert('L1 real_lp_ctr (1 real / 3 views)', $lp[1]['real_lp_ctr'], 33.33);
+$assert('L2 real_lp_clicks', $lp[2]['real_lp_clicks'], 1, 0);
+$assert('L2 real_lp_ctr (1 real / 1 view)', $lp[2]['real_lp_ctr'], 100);
+$assert('L3 real_lp_ctr is a dash', $lp[3]['real_lp_ctr'], null);
 
 // Date predicates belong in the click JOIN: an empty date must zero the
 // metrics without removing landing rows from the management table.
@@ -317,6 +356,14 @@ $assert('O8 revenue_rejected', $of[8]['revenue_rejected'], 5);
 $assert('O9 clicks', $of[9]['clicks'], 1, 0);
 $assert('O9 lp_clicks', $of[9]['lp_clicks'], 0, 0);
 $assert('O9 trash', $of[9]['trash'], 1, 0);
+// Honest counters per offer: landing offers only credit transitions, the
+// direct offer keeps counting (its click IS the transition).
+$assert('O7 real_lp_clicks', $of[7]['real_lp_clicks'], 1, 0);
+$assert('O7 real_offer_clicks', $of[7]['real_offer_clicks'], 1, 0);
+$assert('O8 real_lp_clicks', $of[8]['real_lp_clicks'], 1, 0);
+$assert('O8 real_offer_clicks', $of[8]['real_offer_clicks'], 1, 0);
+$assert('O9 real_lp_clicks (no landing — stays 0)', $of[9]['real_lp_clicks'], 0, 0);
+$assert('O9 real_offer_clicks (direct click counts)', $of[9]['real_offer_clicks'], 1, 0);
 
 @unlink($tmpDb);
 echo "Report metrics tests passed (" . count($expected) . " derived + landing/offer production-SQL checks).\n";

@@ -117,6 +117,11 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0
                                           AND cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END), 0) AS lp_clicks,
                    COALESCE(SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END), 0) AS offer_clicks,
+                   COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0
+                                          AND cl.offer_at IS NOT NULL THEN 1 ELSE 0 END), 0) AS real_lp_clicks,
+                   COALESCE(SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0
+                                          AND (cl.landing_id IS NULL OR cl.landing_id = 0 OR cl.offer_at IS NOT NULL)
+                                      THEN 1 ELSE 0 END), 0) AS real_offer_clicks,
                    COALESCE(SUM(cl.cost), 0) AS cost,
                    COALESCE(SUM(cva.cnt_any), 0) AS conversions,
                    COALESCE(SUM(cva.cnt_sale), 0) AS sales,
@@ -175,6 +180,8 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    AVG(CASE WHEN landing_at IS NOT NULL AND offer_at IS NOT NULL
                        THEN CAST(strftime('%s', offer_at) - strftime('%s', landing_at) AS REAL) END) as avg_lp_seconds,
                    COALESCE(SUM(via_landing), 0) as lp_clicks,
+                   COALESCE(SUM(CASE WHEN via_landing = 1 AND offer_at IS NOT NULL THEN 1 ELSE 0 END), 0) as real_lp_clicks,
+                   COALESCE(SUM(CASE WHEN via_landing = 0 OR offer_at IS NOT NULL THEN 1 ELSE 0 END), 0) as real_offer_clicks,
                    COALESCE(SUM(cnt_any), 0) as conversions,
                    COALESCE(SUM(rev_all), 0) as revenue,
                    COALESCE(SUM(rev_sale), 0) as revenue_confirmed,
@@ -256,6 +263,8 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    AVG(CASE WHEN landing_at IS NOT NULL AND offer_at IS NOT NULL
                        THEN CAST(strftime('%s', offer_at) - strftime('%s', landing_at) AS REAL) END) as avg_lp_seconds,
                    COALESCE(SUM(offer_clicked), 0) as lp_clicks,
+                   COALESCE(SUM(CASE WHEN offer_at IS NOT NULL THEN 1 ELSE 0 END), 0) as real_lp_clicks,
+                   COALESCE(SUM(CASE WHEN offer_at IS NOT NULL THEN 1 ELSE 0 END), 0) as real_offer_clicks,
                    COALESCE(SUM(cnt_any), 0) as conversions,
                    COALESCE(SUM(rev_all), 0) as revenue,
                    COALESCE(SUM(rev_sale), 0) as revenue_confirmed,
@@ -322,6 +331,13 @@ if (!function_exists('orbitraConversionStatusGroups')) {
         $lpViews         = (int) ($raw['prelander_clicks'] ?? $raw['lp_views'] ?? $clicks);
         $lpClicks        = (int) ($raw['lp_clicks'] ?? $raw['offer_clicks'] ?? 0);
         $offerClicks     = (int) ($raw['offer_clicks'] ?? $lpClicks);
+        // Honest transition counters (see the SQL providers): a landing click
+        // only counts once the visitor actually left through the offer link
+        // (offer_at recorded). Direct-to-offer clicks are their own transition,
+        // so they keep counting. Pre-feature rows (no offer_at) stay out of the
+        // landing funnel — the old columns keep their historical meaning.
+        $realLpClicks    = (int) ($raw['real_lp_clicks'] ?? 0);
+        $realOfferClicks = (int) ($raw['real_offer_clicks'] ?? 0);
         // Direct-to-offer traffic has no LP-click counter. Preserve useful CPC
         // and EPC values for that traffic while using LP clicks whenever they
         // exist, as required by the landing funnel definitions.
@@ -382,6 +398,10 @@ if (!function_exists('orbitraConversionStatusGroups')) {
             // there is no CTA to measure, so it is null (rendered as a dash),
             // never a made-up 0% or 100%.
             'lp_ctr'                  => $lpViews > 0 ? round(($lpClicks / $lpViews) * 100, 2) : null,
+            // Same CTR over the honest transitions only (offer_at recorded).
+            'real_lp_clicks'          => $realLpClicks,
+            'real_offer_clicks'       => $realOfferClicks,
+            'real_lp_ctr'             => $lpViews > 0 ? round(($realLpClicks / $lpViews) * 100, 2) : null,
             // Average landing→offer time, human-formatted ("1m 12s").
             'time_since_lp_click'     => self_fmtLpSeconds($raw['avg_lp_seconds'] ?? null),
 

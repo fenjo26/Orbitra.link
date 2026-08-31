@@ -7,7 +7,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard as copyText } from '../utils/clipboard';
 import { cachedGet, cachedPost, invalidateCache } from '../utils/apiCache';
 
-const AffiliateNetworks = () => {
+const AffiliateNetworks = ({ user }) => {
     const { t } = useLanguage();
     const [networks, setNetworks] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -278,13 +278,15 @@ const AffiliateNetworks = () => {
                             {(t('common.deleteSelected') || t('common.delete'))} ({selectedIds.size})
                         </button>
                     )}
-                    <button
-                        onClick={() => openEditor()}
-                        className="btn btn-primary"
-                    >
-                        <Plus className="w-4 h-4" />
-                        {t('common.create')}
-                    </button>
+                    {canWriteResource(user, 'networks') && (
+                        <button
+                            onClick={() => openEditor()}
+                            className="btn btn-primary"
+                        >
+                            <Plus className="w-4 h-4" />
+                            {t('common.create')}
+                        </button>
+                    )}
                 </div>
             </div>
 

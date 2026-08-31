@@ -7,6 +7,81 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.4.0] — 2026-08-31
+
+Two features in one release: honest landing-funnel metrics with landing→offer
+timing (a community report about inflated offer transitions), and real
+server-side role enforcement with per-campaign scoping (issue #6).
+
+### Added — honest LP funnel & landing→offer timing
+
+- **Honest transition counters** — *Real LP clicks*, *Real offer clicks* and
+  *Real LP CTR* count only clicks whose offer transition (`offer_at`) is
+  recorded. A landing view whose visitor never clicked the CTA is no longer an
+  "offer transition"; direct-to-offer clicks keep counting as their own
+  transition. The new columns sit alongside the legacy ones everywhere —
+  campaigns list, the campaign report constructor (with hover hints), the
+  offers and landings pages, and the Lander → Offer preset — and the legacy
+  columns keep their historical meaning.
+- **LP Time grouping** — a new report dimension buckets the landing→offer
+  seconds into 0-3s / 3-10s / 10-30s / 30-60s / 60s+ bands. The 0-3s band is
+  bot/double-click territory and is usually the answer to "the tracker shows
+  transitions but the network sees none". Pairs that never close group as
+  Unknown.
+- **Landing→offer timing now covers every landing type** — `landing_at` is
+  written for redirect and action landings as well (previously local only) and
+  by Click API v3 when the stream sends the visitor to an external landing.
+- **External landings report their landing time** — tracking.js, kclient.js
+  and kclient.php append the visitor's elapsed seconds (`_lt`) to the tracker's
+  signed `/?_lp=1` transition link (never to a raw offer URL, so nothing leaks
+  to the network); click.php synthesizes the landing→offer pair on its own row,
+  and the transition backfills `landing_at` only when the tracker never saw
+  the landing view. kclient.js also gains the `data-orbitra-offer` / `{offer}`
+  offer-link contract tracking.js already had.
+- **Click details** show Landing shown at, Offer transition at and the
+  computed Time to offer.
+
+### Changed — LP funnel defaults
+
+- **New landing_offer streams default to "Offer selection: After the click"** —
+  the offer is bound (and the transition counted) when the visitor actually
+  leaves through the offer link, so LP clicks and LP CTR measure the CTA
+  instead of reading ~100% by construction. Existing streams keep their
+  setting, and both editor options now carry plain-language captions stating
+  exactly what they count.
+
+### Security — roles enforced, per-campaign scoping (issue #6)
+
+- **Permission levels are enforced server-side** for non-admins across
+  campaigns, offers, landings, traffic sources, affiliate networks, domains
+  and logs: `none` → 403 on everything including the simple picker lists
+  (`campaigns_simple` used to hand every campaign to any logged-in user),
+  `read` → every write action 403s. The UI mirrors the rule: write buttons are
+  hidden for read-only users and the permission modal offers only the real
+  levels (Full / Read only / None; the never-implemented Selected/Own modes
+  are gone for the other resources).
+- **API-key minting is admin-only** — `generate_api_key` / `delete_api_key`
+  were open to any logged-in user, who could create a write key under any
+  `user_id`, including the admin's.
+- **Campaigns gain real per-campaign scoping**: Full / Read only /
+  Own + Selected / Selected / None. Migration 42 adds `campaigns.owner_user_id`
+  (legacy campaigns are backfilled to the first admin so upgrades never
+  orphan them) and a shared scope resolver filters the campaigns list, the
+  picker lists, get_campaign, every campaign mutation (save/delete/bulk/copy —
+  a copy belongs to the copier), conversions, logs, click details, postback
+  logs, trends, cohort, and the dashboard aggregates via
+  `getDashboardFilters`. Assigned campaigns are picked in the Users modal
+  (Own + Selected / Selected reveal a campaign checklist).
+- **Globally destructive actions stay out of scoped users' reach** — clear
+  stats, Keitaro SQL import, conversion import and retroactive remap are
+  admin/full-only and are not scoped per campaign.
+
+Pinned by `report_metrics_test` (57 checks), the new
+`tests/lp_transition_timing_test.php` (31 HTTP checks across the landing view,
+signed transition, `_lt` synthesis, honest counters and buckets) and the new
+`tests/resource_access_test.php` (52 checks over the admin/full/read/none/
+own/selected matrix).
+
 ## [1.3.11] — 2026-08-31
 
 The parked-domain release: two community-issue fixes, both backend — no

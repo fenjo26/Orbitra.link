@@ -257,7 +257,35 @@ class KClickClient
             $sep = strpos($url, '?') === false ? '?' : '&';
             $url = $url . $sep . 'offer_id=' . (int) $opts['offer_id'];
         }
+        if ($url !== null && strpos((string) $url, '_lp=1') !== false) {
+            // Landing time for the tracker's Time-since-LP-click metric. Only
+            // on the tracker's own transition link — a raw offer URL would pass
+            // the parameter straight through to the affiliate network.
+            $elapsed = $this->landingElapsedSeconds();
+            if ($elapsed !== null) {
+                $sep = strpos((string) $url, '?') === false ? '?' : '&';
+                $url = $url . $sep . '_lt=' . $elapsed;
+            }
+        }
         return $url !== null ? $url : $default;
+    }
+
+    /** Seconds since this session's visit began — null when unknown (sessions
+     *  disabled, no visit stored yet, or a nonsensical clock). */
+    private function landingElapsedSeconds()
+    {
+        if (!$this->useSessions) {
+            return null;
+        }
+        $this->startSession();
+        if (empty($_SESSION['orbitra_kclient_visit_ts']) || !is_numeric($_SESSION['orbitra_kclient_visit_ts'])) {
+            return null;
+        }
+        $elapsed = time() - (int) $_SESSION['orbitra_kclient_visit_ts'];
+        if ($elapsed <= 0) {
+            return null;
+        }
+        return min($elapsed, 604800);
     }
 
     /** Stream content ("Show as HTML/text") — banner blocks, content injection. */
@@ -344,6 +372,11 @@ class KClickClient
             $this->clickId = (string) $info['sub_id'];
             $this->startSession();
             $_SESSION['orbitra_kclient_subid'] = $this->clickId;
+            // When this visit began — the source of the _lt landing-time
+            // parameter getOffer() appends to the tracker's transition link.
+            if (empty($_SESSION['orbitra_kclient_visit_ts'])) {
+                $_SESSION['orbitra_kclient_visit_ts'] = time();
+            }
             @setcookie('orbitra_subid', $this->clickId, time() + 86400, '/');
         }
         // offer_link is the signed tracker-side transition (continues this click);

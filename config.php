@@ -76,7 +76,7 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 41;
+    $LATEST_SCHEMA_VERSION = 42;
 
     $schemaVersion = 0;
     try {
@@ -285,6 +285,7 @@ try {
         is_archived INTEGER DEFAULT 0,
         archived_at DATETIME,
         state TEXT DEFAULT 'active',                      -- play/pause toggle: 'disabled' stops serving (503)
+        owner_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,   -- issue #6: per-campaign scoping
         FOREIGN KEY (domain_id) REFERENCES domains(id) ON DELETE SET NULL,
         FOREIGN KEY (group_id) REFERENCES campaign_groups(id) ON DELETE SET NULL,
         FOREIGN KEY (source_id) REFERENCES traffic_sources(id) ON DELETE SET NULL
@@ -2193,6 +2194,32 @@ try {
                                   AND ssl_error LIKE '%incomplete_chain%'");
                 } catch (\Throwable $e) {
                     // Column set unchanged since the domains table exists.
+                }
+            }
+
+            if ($schemaVersion < 42) {
+                // Migration 42: per-campaign access scoping (issue #6).
+                // owner_user_id marks the user a campaign belongs to — the
+                // "Own + Selected" permission level resolves visibility from
+                // it plus the explicitly assigned ids in
+                // permissions_json.campaigns.items. Legacy campaigns are
+                // backfilled to the first admin so an upgrade never silently
+                // orphans existing campaigns away from full-scope workflows.
+                // Fresh installs already get the column from the base DDL.
+                // The ALTER carries no REFERENCES clause: SQLite would then
+                // enforce the FK on every insert, and hand-built DBs (and the
+                // migration-extraction tests) have no users table. A dangling
+                // owner_user_id resolves exactly like NULL — unowned.
+                try {
+                    $pdo->exec("ALTER TABLE campaigns ADD COLUMN owner_user_id INTEGER");
+                } catch (\Throwable $e) {
+                    // Column already exists (fresh install) — nothing to do.
+                }
+                try {
+                    $pdo->exec("UPDATE campaigns
+                                SET owner_user_id = (SELECT MIN(id) FROM users WHERE role = 'admin')
+                                WHERE owner_user_id IS NULL");
+                } catch (\Throwable $e) {
                 }
             }
 

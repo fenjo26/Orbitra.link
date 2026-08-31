@@ -247,6 +247,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             lp_views: 0,
             lp_clicks: 0,
             offer_clicks: 0,
+            real_lp_clicks: 0,
+            real_offer_clicks: 0,
             conversions: 0,
             purchases: 0,
             sales: 0,
@@ -273,6 +275,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             node.lp_views += lpViews;
             node.lp_clicks += Number(row.lp_clicks ?? row.offer_clicks) || 0;
             node.offer_clicks += Number(row.offer_clicks) || 0;
+            node.real_lp_clicks += Number(row.real_lp_clicks) || 0;
+            node.real_offer_clicks += Number(row.real_offer_clicks) || 0;
             node.conversions += Number(row.conversions) || 0;
             const purchases = Number(row.purchases ?? row.sales) || 0;
             node.purchases += purchases;
@@ -299,6 +303,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             node.leads = node.holds;
             node.uc_rate = node.clicks > 0 ? (node.unique_clicks / node.clicks) * 100 : 0;
             node.lp_ctr = node.lp_views > 0 ? (node.lp_clicks / node.lp_views) * 100 : 0;
+            node.real_lp_ctr = node.lp_views > 0 ? (node.real_lp_clicks / node.lp_views) * 100 : 0;
             node.cr = node.clicks > 0 ? (node.conversions / node.clicks) * 100 : 0;
             node.cr_all = node.cr;
             node.cr_sales = node.clicks > 0 ? (node.purchases / node.clicks) * 100 : 0;
@@ -409,6 +414,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             lp_views: 0,
             lp_clicks: 0,
             offer_clicks: 0,
+            real_lp_clicks: 0,
+            real_offer_clicks: 0,
             conversions: 0,
             purchases: 0,
             holds: 0,
@@ -433,6 +440,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             t0.lp_views += lpViews;
             t0.lp_clicks += Number(r.lp_clicks ?? r.offer_clicks) || 0;
             t0.offer_clicks += Number(r.offer_clicks) || 0;
+            t0.real_lp_clicks += Number(r.real_lp_clicks) || 0;
+            t0.real_offer_clicks += Number(r.real_offer_clicks) || 0;
             t0.conversions += Number(r.conversions) || 0;
             const purchases = Number(r.purchases ?? r.sales) || 0;
             t0.purchases += purchases;
@@ -454,6 +463,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         const uc_rate = t0.clicks > 0 ? (t0.unique_clicks / t0.clicks) * 100 : 0;
         const lpClickDenominator = t0.lp_clicks > 0 ? t0.lp_clicks : t0.clicks;
         const lp_ctr = t0.lp_views > 0 ? (t0.lp_clicks / t0.lp_views) * 100 : 0;
+        const real_lp_ctr = t0.lp_views > 0 ? (t0.real_lp_clicks / t0.lp_views) * 100 : 0;
         const cr = t0.clicks > 0 ? (t0.conversions / t0.clicks) * 100 : 0;
         const cr_sales = t0.clicks > 0 ? (t0.purchases / t0.clicks) * 100 : 0;
         const cr_holds = t0.clicks > 0 ? (t0.holds / t0.clicks) * 100 : 0;
@@ -488,6 +498,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             cps,
             uc_rate,
             lp_ctr,
+            real_lp_ctr,
             cr,
             cr_all: cr,
             cr_sales,
@@ -526,6 +537,8 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             case 'offer_clicks':
             case 'lp_views':
             case 'lp_clicks':
+            case 'real_lp_clicks':
+            case 'real_offer_clicks':
             case 'purchases':
             case 'sales':
             case 'holds':
@@ -560,6 +573,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             // Direct-to-offer streams have no CTA to measure — the backend
             // sends null, never a made-up 0%/100%.
             case 'lp_ctr':
+            case 'real_lp_ctr':
                 return val === null || val === undefined ? '—' : `${num.toFixed(2)}%`;
 
             case 'roi':

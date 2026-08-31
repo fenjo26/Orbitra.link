@@ -873,6 +873,17 @@ function orbitraClickApiV3(PDO $pdo): void
             // Honesty flags for the report metrics — same helper the router uses.
             require_once __DIR__ . '/ClickFlags.php';
             orbitraWriteClickFlags($pdo, $clickId, $ip, $userAgent, $campaign, $streamId, $geoData);
+
+            // Time-since-LP-click starts here for external landings too: the
+            // click carries the landing the visitor is being sent to, and the
+            // signed offer_link closes the pair on the /?_lp=1 transition.
+            if ($landingIdToLog) {
+                try {
+                    $pdo->prepare("UPDATE clicks SET landing_at = datetime('now') WHERE id = ? AND landing_at IS NULL")->execute([$clickId]);
+                } catch (Throwable $e) {
+                    // Timing is a nice-to-have.
+                }
+            }
         } catch (Throwable $e) {
             if ($wantLog) {
                 $log[] = "DB insert failed: " . $e->getMessage();

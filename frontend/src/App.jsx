@@ -326,15 +326,16 @@ function App() {
 
       const pStr = params.toString() ? `&${params.toString()}` : '';
 
-      const [resMetrics, resChart, resCampaigns, resOffers, resLogs, resLandings, resSources] = await Promise.all([
+      const results = await Promise.all([
         axios.get(`${API_URL}?action=metrics${pStr}`),
         axios.get(`${API_URL}?action=chart${pStr}`),
-        axios.get(`${API_URL}?action=campaigns${pStr}`), // Removed limit=10 to show all
-        axios.get(`${API_URL}?action=offers${pStr}`),
-        axios.get(`${API_URL}?action=logs${pStr}&dashboard=true&per_page=20`),
-        axios.get(`${API_URL}?action=landings${pStr}`),
-        axios.get(`${API_URL}?action=traffic_sources${pStr}`)
+        axios.get(`${API_URL}?action=campaigns${pStr}`).catch(err => ({ ok: false, error: err })), // Removed limit=10 to show all
+        axios.get(`${API_URL}?action=offers${pStr}`).catch(err => ({ ok: false, error: err })),
+        axios.get(`${API_URL}?action=logs${pStr}&dashboard=true&per_page=20`).catch(err => ({ ok: false, error: err })),
+        axios.get(`${API_URL}?action=landings${pStr}`).catch(err => ({ ok: false, error: err })),
+        axios.get(`${API_URL}?action=traffic_sources${pStr}`).catch(err => ({ ok: false, error: err }))
       ]);
+      const [resMetrics, resChart, resCampaigns, resOffers, resLogs, resLandings, resSources] = results;
 
       if (resMetrics.data.status === 'success') {
         setMetrics(resMetrics.data.data);
@@ -343,11 +344,14 @@ function App() {
         }
       }
       if (resChart.data.status === 'success') setChartData(resChart.data.data);
-      if (resCampaigns.data.status === 'success') setCampaigns(resCampaigns.data.data || []);
-      if (resOffers.data.status === 'success') setOffers(resOffers.data.data || []);
-      if (resLogs.data.status === 'success') setLogs(resLogs.data.data || []);
-      if (resLandings.data.status === 'success') setLandings(resLandings.data.data || []);
-      if (resSources.data.status === 'success') setSources(resSources.data.data || []);
+      // A 403 means the signed-in user's resource scope is 'none' (the tab is
+      // hidden too) — degrade to an empty list instead of failing the whole
+      // dashboard load.
+      if (resCampaigns.data?.status === 'success') setCampaigns(resCampaigns.data.data || []);
+      if (resOffers.data?.status === 'success') setOffers(resOffers.data.data || []);
+      if (resLogs.data?.status === 'success') setLogs(resLogs.data.data || []);
+      if (resLandings.data?.status === 'success') setLandings(resLandings.data.data || []);
+      if (resSources.data?.status === 'success') setSources(resSources.data.data || []);
     } catch (error) {
       if (error?.response?.status !== 401) {
         console.error("Error fetching data:", error);
@@ -629,7 +633,7 @@ function App() {
             )}
 
             {activeTab === 'domains' && (
-              <Domains campaigns={campaigns} />
+              <Domains campaigns={campaigns} user={user} />
             )}
 
             {activeTab === 'backorder' && (
@@ -652,19 +656,19 @@ function App() {
             )}
 
             {activeTab === 'landings' && (
-              <Landings landings={landings} refreshData={fetchData} />
+              <Landings landings={landings} refreshData={fetchData} user={user} />
             )}
 
             {activeTab === 'offers' && (
-              <Offers offers={offers} refreshData={fetchData} />
+              <Offers offers={offers} refreshData={fetchData} user={user} />
             )}
 
             {activeTab === 'sources' && (
-              <TrafficSources refreshData={fetchData} />
+              <TrafficSources refreshData={fetchData} user={user} />
             )}
 
             {activeTab === 'networks' && (
-              <AffiliateNetworks />
+              <AffiliateNetworks user={user} />
             )}
 
             {activeTab === 'conversions' && (

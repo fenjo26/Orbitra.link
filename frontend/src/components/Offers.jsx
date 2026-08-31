@@ -11,6 +11,7 @@ import { useTimezone } from '../utils/useTimezone';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 import { entityDeleteErrorText } from '../utils/entityInUseError';
+import { canWriteResource } from '../utils/permissions';
 import PaginationToolbar from './common/PaginationToolbar';
 import MobileCards from './common/MobileCards';
 
@@ -62,7 +63,7 @@ const loadOfferColumns = () => {
     return sanitizeOfferMetricIds(PRESETS.best);
 };
 
-const Offers = ({ offers: initialOffers = [], refreshData }) => {
+const Offers = ({ offers: initialOffers = [], refreshData, user }) => {
     const { t } = useLanguage();
     const [isEditorOpen, setIsEditorOpen] = useState(false);
     const [editingOfferId, setEditingOfferId] = useState(null);
@@ -273,6 +274,10 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
         setCurrentPage(0);
     }, [search, filterGroup, filterNetwork, filterState, typeTab, pageSize]);
 
+    // Mirrors core/resource_access.php — read-only users get 403 on writes,
+    // so the write controls stay hidden.
+    const canWriteOffers = canWriteResource(user, 'offers');
+
     const handleCreate = () => {
         setEditingOfferId(null);
         setIsEditorOpen(true);
@@ -391,7 +396,8 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
     const grandTotals = useMemo(() => {
         const t0 = {
             clicks: 0, unique_clicks: 0, visits: 0, unique_visits: 0,
-            lp_clicks: 0, lp_views: 0, conversions: 0, leads: 0, sales: 0,
+            lp_clicks: 0, lp_views: 0, real_lp_clicks: 0, real_offer_clicks: 0,
+            conversions: 0, leads: 0, sales: 0,
             rejected: 0, trash: 0, cost: 0, revenue: 0, revenue_confirmed: 0,
             revenue_hold: 0, revenue_rejected: 0, revenue_trash: 0,
             registrations: 0, deposits: 0, bots: 0, proxies: 0, empty_referrers: 0
@@ -404,6 +410,8 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
             t0.visits += lpViews;
             t0.lp_views += lpViews;
             t0.lp_clicks += Number(o.lp_clicks) || 0;
+            t0.real_lp_clicks += Number(o.real_lp_clicks) || 0;
+            t0.real_offer_clicks += Number(o.real_offer_clicks) || 0;
             t0.conversions += Number(o.conversions) || 0;
             t0.leads += Number(o.leads) || 0;
             t0.sales += Number(o.sales) || 0;
@@ -471,6 +479,8 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
             case 'empty_referrers':
             case 'lp_views':
             case 'lp_clicks':
+            case 'real_lp_clicks':
+            case 'real_offer_clicks':
             case 'sales':
             case 'leads':
             case 'registrations':
@@ -483,6 +493,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                 return num > 0 ? <span className="font-semibold" style={{ color: 'var(--color-success)' }}>{num.toLocaleString()}</span> : '0';
 
             case 'lp_ctr':
+            case 'real_lp_ctr':
             case 'approve_rate':
             case 'cr':
             case 'cr_sales':
@@ -557,6 +568,8 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
             case 'unique_clicks':
             case 'lp_views':
             case 'lp_clicks':
+            case 'real_lp_clicks':
+            case 'real_offer_clicks':
             case 'sales':
             case 'leads':
             case 'registrations':
@@ -572,6 +585,7 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                 // reads as a positive signal when scanning the table.
                 return num > 0 ? <span className="font-semibold" style={{ color: 'var(--color-success)' }}>{num.toLocaleString()}</span> : '0';
             case 'lp_ctr':
+            case 'real_lp_ctr':
             case 'approve_rate':
             case 'cr':
             case 'cr_sales':
@@ -663,10 +677,12 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
             {/* Header */}
             <div className="page-header">
                 <div className="flex flex-wrap gap-3">
-                    <button onClick={handleCreate} className="btn btn-primary">
-                        <Plus className="w-4 h-4" />
-                        {t('common.create')}
-                    </button>
+                    {canWriteOffers && (
+                        <button onClick={handleCreate} className="btn btn-primary">
+                            <Plus className="w-4 h-4" />
+                            {t('common.create')}
+                        </button>
+                    )}
                     <button onClick={() => setIsGroupsModalOpen(true)} className="btn btn-secondary">
                         {t('campaigns.groups')}
                     </button>
@@ -1201,17 +1217,19 @@ const Offers = ({ offers: initialOffers = [], refreshData }) => {
                     >
                         {t('common.edit')}
                     </button>
-                    <button
-                        type="button"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setMenuAnchor(null);
-                            handleDelete(menuAnchor.id);
-                        }}
-                        className="dropdown-item text-red-600"
-                    >
-                        {t('common.delete')}
-                    </button>
+                    {canWriteOffers && (
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setMenuAnchor(null);
+                                handleDelete(menuAnchor.id);
+                            }}
+                            className="dropdown-item text-red-600"
+                        >
+                            {t('common.delete')}
+                        </button>
+                    )}
                 </div>
             )}
 

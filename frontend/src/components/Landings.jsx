@@ -11,6 +11,7 @@ import MobileCards from './common/MobileCards';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 import { useTimezone } from '../utils/useTimezone';
 import axios from 'axios';
+import { canWriteResource } from '../utils/permissions';
 import { useLanguage } from '../contexts/LanguageContext';
 import { entityDeleteErrorText } from '../utils/entityInUseError';
 
@@ -61,7 +62,7 @@ const loadLandingColumns = () => {
     return sanitizeLandingMetricIds(PRESETS.lander_to_offer);
 };
 
-const Landings = ({ landings, refreshData }) => {
+const Landings = ({ landings, refreshData, user }) => {
     const { t } = useLanguage();
     const [landingList, setLandingList] = useState(() => landings || []);
     const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -365,6 +366,8 @@ const Landings = ({ landings, refreshData }) => {
             case 'unique_visits':
             case 'lp_views':
             case 'lp_clicks':
+            case 'real_lp_clicks':
+            case 'real_offer_clicks':
             case 'sales':
             case 'leads':
             case 'registrations':
@@ -380,6 +383,7 @@ const Landings = ({ landings, refreshData }) => {
                 return num > 0 ? <span className="font-semibold" style={{ color: 'var(--color-success)' }}>{num.toLocaleString()}</span> : '0';
 
             case 'lp_ctr':
+            case 'real_lp_ctr':
             case 'approve_rate':
             case 'cr':
             case 'cr_sales':
@@ -451,7 +455,8 @@ const Landings = ({ landings, refreshData }) => {
     const grandTotals = useMemo(() => {
         const t0 = {
             clicks: 0, unique_clicks: 0, visits: 0, unique_visits: 0,
-            lp_clicks: 0, lp_views: 0, conversions: 0, leads: 0, sales: 0,
+            lp_clicks: 0, lp_views: 0, real_lp_clicks: 0, real_offer_clicks: 0,
+            conversions: 0, leads: 0, sales: 0,
             rejected: 0, trash: 0, cost: 0, revenue: 0, revenue_confirmed: 0,
             revenue_hold: 0, revenue_rejected: 0, revenue_trash: 0,
             registrations: 0, deposits: 0, bots: 0, proxies: 0, empty_referrers: 0
@@ -464,6 +469,8 @@ const Landings = ({ landings, refreshData }) => {
             t0.visits += lpViews;
             t0.lp_views += lpViews;
             t0.lp_clicks += Number(l.lp_clicks) || 0;
+            t0.real_lp_clicks += Number(l.real_lp_clicks) || 0;
+            t0.real_offer_clicks += Number(l.real_offer_clicks) || 0;
             t0.conversions += Number(l.conversions) || 0;
             t0.leads += Number(l.leads) || 0;
             t0.sales += Number(l.sales) || 0;
@@ -523,6 +530,8 @@ const Landings = ({ landings, refreshData }) => {
             case 'unique_clicks':
             case 'lp_views':
             case 'lp_clicks':
+            case 'real_lp_clicks':
+            case 'real_offer_clicks':
             case 'sales':
             case 'leads':
             case 'registrations':
@@ -540,6 +549,7 @@ const Landings = ({ landings, refreshData }) => {
                 // reads as a positive signal when scanning the table.
                 return num > 0 ? <span className="font-semibold" style={{ color: 'var(--color-success)' }}>{num.toLocaleString()}</span> : '0';
             case 'lp_ctr':
+            case 'real_lp_ctr':
             case 'approve_rate':
             case 'cr':
             case 'cr_sales':
@@ -655,14 +665,16 @@ const Landings = ({ landings, refreshData }) => {
             </InfoBanner>
             <div className="page-header">
                 <div className="flex flex-wrap gap-3">
-                    <button onClick={handleCreate} className="btn btn-primary">
-                        <Plus className="w-4 h-4" />
-                        {t('common.create')}
-                    </button>
+                    {canWriteResource(user, 'landings') && (
+                        <button onClick={handleCreate} className="btn btn-primary">
+                            <Plus className="w-4 h-4" />
+                            {t('common.create')}
+                        </button>
+                    )}
                     <button onClick={() => setShowGroupsModal(true)} className="btn btn-secondary">
                         {t('campaigns.groups')}
                     </button>
-                    {selectedLandingIds.size > 0 && (
+                    {selectedLandingIds.size > 0 && canWriteResource(user, 'landings') && (
                         <button onClick={handleBulkDeleteSelected} className="btn btn-danger" title={t('common.deleteSelected')}>
                             <Trash2 className="w-4 h-4" />
                             {(t('common.deleteSelected') || t('common.delete'))} ({selectedLandingIds.size})

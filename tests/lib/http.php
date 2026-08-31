@@ -1116,6 +1116,7 @@ class OrbitraTestHarness
         // Copy necessary files from the repo root
         $filesToCopy = [
             'index.php',
+            'click.php',
             'postback.php',
             'router.php',
             'admin.php',

@@ -1232,6 +1232,8 @@ require_once __DIR__ . '/core/ip_access.php';
 
 require_once __DIR__ . '/core/finance_masking.php';
 
+require_once __DIR__ . '/core/resource_access.php';
+
 /**
  * Finance visibility flags for whoever is making this request (session user
  * or API-key owner). Static-cached — several endpoints may ask per request.
@@ -1299,6 +1301,10 @@ if (!in_array($action, $publicActions)) {
         echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
         exit;
     }
+
+    // Resource scopes from the users-page permissions (issue #6): 'none'
+    // denies every action of the resource, 'read' denies its write actions.
+    orbitraEnforceResourceAccess($pdo, $action, $_SERVER['REQUEST_METHOD'] ?? 'GET');
 }
 // =================================
 
@@ -2074,6 +2080,19 @@ function getDashboardFilters($prefix = '')
         $params[] = $campaign_id;
     }
 
+    // Per-campaign scope (issue #6): scope-limited users only ever aggregate
+    // their own/assigned campaigns — on the dashboard, in the campaigns list
+    // and in every resource list that reuses these dashboard filters.
+    global $pdo; // declared here too: the scope resolver needs it before the safe-page section below
+    $scope = orbitraCampaignScope($pdo);
+    list($scopeSql, $scopeParams) = orbitraCampaignScopeCondition($scope, "{$prefix}campaign_id");
+    if ($scopeSql !== '') {
+        $conditions[] = $scopeSql;
+        foreach ($scopeParams as $sp) {
+            $params[] = $sp;
+        }
+    }
+
     $dateColumn = "{$prefix}created_at";
 
     switch ($date_range) {
@@ -2794,6 +2813,12 @@ try {
             // endpoint fail with "number of bound variables does not match".
             $groupWhere = ($group_id !== null && $group_id > 0) ? " AND c.group_id = $group_id" : '';
 
+            // Per-campaign scope (issue #6): own/selected users only ever see
+            // their own/assigned rows, whatever the click stats say.
+            $campaignScope = orbitraCampaignScope($pdo);
+            $scopeWhere = orbitraCampaignScopeInSql($campaignScope, 'c.id');
+            $scopeWhere = $scopeWhere !== '' ? " AND $scopeWhere" : '';
+
             $convAggSql = orbitraConversionAggregateSql(getConversionsValueColumn($pdo));
             $revRecordsCol = getRevenueRecordsValueColumn($pdo);
             $realJoin = $revRecordsCol !== null
@@ -2822,6 +2847,9 @@ try {
                        SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 THEN 1 ELSE 0 END) as prelander_clicks,
                        SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END) as offer_clicks,
                        SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 AND cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END) as lp_clicks,
+                       SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 AND cl.offer_at IS NOT NULL THEN 1 ELSE 0 END) as real_lp_clicks,
+                       SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0
+                                AND (cl.landing_id IS NULL OR cl.landing_id = 0 OR cl.offer_at IS NOT NULL) THEN 1 ELSE 0 END) as real_offer_clicks,
                        COALESCE(SUM(cv.cnt_any), 0) as conversions,
                        COALESCE(SUM(cv.cnt_sale), 0) as purchases,
                        COALESCE(SUM(cv.cnt_hold), 0) as holds,
@@ -2845,7 +2873,7 @@ try {
                 LEFT JOIN clicks cl ON c.id = cl.campaign_id $joinCondition
                 LEFT JOIN $convAggSql cv ON cv.click_id = cl.id
                 $realJoin
-                WHERE c.is_archived = 0 $groupWhere
+                WHERE c.is_archived = 0 $groupWhere $scopeWhere
                 GROUP BY c.id
                 $havingClause
                 ORDER BY clicks DESC, c.created_at DESC
@@ -2868,6 +2896,8 @@ try {
 
         // Optimized campaigns list without heavy clicks JOIN (for dropdowns/quick loading)
         case 'campaigns_simple':
+            $scopeIn = orbitraCampaignScopeInSql(orbitraCampaignScope($pdo), 'c.id');
+            $scopeIn = $scopeIn !== '' ? " AND $scopeIn" : '';
             $stmt = $pdo->query("
                 SELECT c.id, c.name, c.alias, c.state, c.group_id,
                        cg.name as group_name,
@@ -2877,7 +2907,7 @@ try {
                 LEFT JOIN campaign_groups cg ON c.group_id = cg.id
                 LEFT JOIN traffic_sources ts ON c.source_id = ts.id
                 LEFT JOIN domains d ON c.domain_id = d.id
-                WHERE c.is_archived = 0
+                WHERE c.is_archived = 0 $scopeIn
                 ORDER BY c.created_at DESC
             ");
             echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
@@ -2915,6 +2945,7 @@ try {
                 echo json_encode(['status' => 'error', 'message' => 'Not found']);
                 break;
             }
+            orbitraAssertCampaignInScope(orbitraCampaignScope($pdo), $campaign, false);
 
             $stmtStr = $pdo->prepare("SELECT * FROM streams WHERE campaign_id = ? ORDER BY position ASC, id ASC");
             $stmtStr->execute([$id]);
@@ -2946,6 +2977,7 @@ try {
         case 'cloak_summary':
             // W2: Cloak diagnostics summary for campaign editor
             $campaignId = isset($_GET['campaign_id']) ? (int) $_GET['campaign_id'] : 0;
+            orbitraAssertCampaignInScope(orbitraCampaignScope($pdo), $campaignId, false);
             // The window is bucketed in the report timezone — the same one the
             // Campaigns list buckets its days by (users.timezone, overridable
             // via ?timezone= exactly like the report pages). It used to floor
@@ -3096,6 +3128,7 @@ try {
             // carry the ad-network IDs cost import matches on? This is the
             // "why don't my costs attach" answer, computed instead of guessed.
             $cmId = (int) ($_GET['campaign_id'] ?? 0);
+            orbitraAssertCampaignInScope(orbitraCampaignScope($pdo), $cmId, false);
             if ($cmId <= 0) {
                 echo json_encode(['status' => 'error', 'message' => 'Missing campaign_id']);
                 break;
@@ -3137,6 +3170,7 @@ try {
             // the recent optimiser decisions the stream cards surface under
             // the Auto toggle. Rows are matched to a list by rotation key.
             $rotCampaignId = (int) ($_GET['campaign_id'] ?? 0);
+            orbitraAssertCampaignInScope(orbitraCampaignScope($pdo), $rotCampaignId, false);
             if ($rotCampaignId <= 0) {
                 echo json_encode(['status' => 'error', 'message' => 'Missing campaign_id']);
                 break;
@@ -3173,6 +3207,17 @@ try {
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);
                 $id = !empty($data['id']) ? (int) $data['id'] : null;
+                // Per-campaign scope (issue #6): updates only inside the
+                // user's own/assigned set; 'selected' users cannot create at
+                // all — anything they'd create would belong to no one.
+                $campaignScope = orbitraCampaignScope($pdo);
+                if ($campaignScope !== null) {
+                    if ($id) {
+                        orbitraAssertCampaignInScope($campaignScope, $id, true);
+                    } elseif ($campaignScope['level'] !== 'own') {
+                        orbitraDenyResourceAccess();
+                    }
+                }
                 // A restricted editor loads a masked (null) cost_value; saving
                 // that back must not wipe the stored amount.
                 if ($id) {
@@ -3288,10 +3333,17 @@ try {
                         if ($token === null) {
                             $token = $generateCampaignToken();
                         }
+                        // A scope-limited creator becomes the owner of the
+                        // campaign (issue #6); admins/full users leave it
+                        // unowned, which the migration backfills to the first
+                        // admin on existing installs only.
+                        $ownerUserId = ($campaignScope !== null && $campaignScope['level'] === 'own')
+                            ? $campaignScope['user_id']
+                            : null;
                         $stmt = $pdo->prepare("
-                            INSERT INTO campaigns 
-                            (name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, rotation_type, token, catch_404_stream_id, challenge_type, challenge_custom_code)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            INSERT INTO campaigns
+                            (name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, rotation_type, token, catch_404_stream_id, challenge_type, challenge_custom_code, owner_user_id)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         ");
                         $stmt->execute([
                             $name,
@@ -3307,7 +3359,8 @@ try {
                             $token,
                             $catch404StreamId,
                             $challengeType,
-                            $challengeCustomCode
+                            $challengeCustomCode,
+                            $ownerUserId
                         ]);
                         $id = $pdo->lastInsertId();
                     }
@@ -3446,6 +3499,7 @@ try {
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);
                 if (!empty($data['id'])) {
+                    orbitraAssertCampaignInScope(orbitraCampaignScope($pdo), (int) $data['id'], true);
                     $pdo->prepare("UPDATE campaigns SET is_archived = 1, archived_at = datetime('now') WHERE id = ?")->execute([$data['id']]);
                     echo json_encode(['status' => 'success']);
                 } else {
@@ -3473,6 +3527,13 @@ try {
             if (empty($ids)) {
                 echo json_encode(['status' => 'success', 'data' => ['updated' => 0]]);
                 break;
+            }
+            // Scope-limited users may only archive campaigns from their own set.
+            $campaignScope = orbitraCampaignScope($pdo);
+            if ($campaignScope !== null) {
+                foreach ($ids as $sid) {
+                    orbitraAssertCampaignInScope($campaignScope, $sid, true);
+                }
             }
             try {
                 $pdo->beginTransaction();
@@ -3508,7 +3569,14 @@ try {
             $results = ['added' => 0, 'skipped' => 0, 'errors' => []];
             $checkStmt = $pdo->prepare("SELECT id FROM campaigns WHERE name = ? AND is_archived = 0");
             $checkAliasStmt = $pdo->prepare("SELECT id FROM campaigns WHERE alias = ? AND is_archived = 0");
-            $insertStmt = $pdo->prepare("INSERT INTO campaigns (name, alias, state) VALUES (?, ?, 'active')");
+            // Import creates campaigns: 'selected' users may not (nothing
+            // they create would be theirs), 'own' users own what they import.
+            $importScope = orbitraCampaignScope($pdo);
+            if ($importScope !== null && $importScope['level'] !== 'own') {
+                orbitraDenyResourceAccess();
+            }
+            $importOwnerId = $importScope !== null ? $importScope['user_id'] : null;
+            $insertStmt = $pdo->prepare("INSERT INTO campaigns (name, alias, state, owner_user_id) VALUES (?, ?, 'active', ?)");
 
             foreach ($items as $item) {
                 $name = $item['name'] ?? '';
@@ -3541,7 +3609,7 @@ try {
                 }
 
                 try {
-                    $insertStmt->execute([$name, $alias ?: null]);
+                    $insertStmt->execute([$name, $alias ?: null, $importOwnerId]);
                     $results['added']++;
                 } catch (\Exception $e) {
                     $results['errors'][] = ['row' => $name, 'error' => $e->getMessage()];
@@ -3564,6 +3632,7 @@ try {
                     $pdo->beginTransaction();
 
                     // Get original campaign
+                    orbitraAssertCampaignInScope(orbitraCampaignScope($pdo), $id, true);
                     $stmt = $pdo->prepare("SELECT * FROM campaigns WHERE id = ?");
                     $stmt->execute([$id]);
                     $campaign = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -3614,19 +3683,25 @@ try {
                     // Generate new token
                     $newToken = bin2hex(random_bytes(16));
 
-                    // Insert new campaign
+                    // Insert new campaign. A scope-limited copier becomes the
+                    // owner of the copy (issue #6).
+                    $copyScope = orbitraCampaignScope($pdo);
+                    $copyOwner = ($copyScope !== null && $copyScope['level'] === 'own')
+                        ? $copyScope['user_id']
+                        : null;
                     $stmt = $pdo->prepare("
                         INSERT INTO campaigns (
                             name, alias, domain_id, group_id, source_id,
                             cost_model, cost_value, uniqueness_method, uniqueness_hours,
-                            rotation_type, token, catch_404_stream_id
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            rotation_type, token, catch_404_stream_id, owner_user_id
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ");
                     $stmt->execute([
                         $newName, $newAlias, $campaign['domain_id'], $campaign['group_id'],
                         $campaign['source_id'], $campaign['cost_model'], $campaign['cost_value'],
                         $campaign['uniqueness_method'], $campaign['uniqueness_hours'],
-                        $campaign['rotation_type'], $newToken, $campaign['catch_404_stream_id']
+                        $campaign['rotation_type'], $newToken, $campaign['catch_404_stream_id'],
+                        $copyOwner
                     ]);
                     $newCampaignId = $pdo->lastInsertId();
 
@@ -6300,6 +6375,7 @@ try {
             // Which ad-network entities a tracker campaign would stop when
             // paused — powers the safety confirmation before the fan-out.
             $cid = (int) ($_GET['campaign_id'] ?? 0);
+            orbitraAssertCampaignInScope(orbitraCampaignScope($pdo), $cid, false);
             if ($cid <= 0) {
                 echo json_encode(['status' => 'error', 'message' => 'campaign_id required']);
                 break;
@@ -7263,6 +7339,7 @@ try {
             ");
             $stmt->execute([$clickId]);
             $clickInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+            orbitraAssertCampaignInScope(orbitraCampaignScope($pdo), $clickInfo ?: 0, false);
 
             if ($clickInfo) {
                 if ($clickInfo['parameters_json']) {
@@ -10202,6 +10279,7 @@ try {
 
         case 'campaign_logs':
             $campaignId = $_GET['campaign_id'] ?? null;
+            orbitraAssertCampaignInScope(orbitraCampaignScope($pdo), (int) $campaignId, false);
             if (!$campaignId) {
                 echo json_encode(['status' => 'error', 'message' => 'Missing campaign_id']);
                 break;
@@ -10314,6 +10392,7 @@ try {
                 $data = json_decode(orbitraRequestBody(), true);
                 $campaignId = $data['campaign_id'] ?? null;
                 if ($campaignId) {
+                    orbitraAssertCampaignInScope(orbitraCampaignScope($pdo), (int) $campaignId, true);
                     $pdo->prepare("DELETE FROM clicks WHERE campaign_id = ?")->execute([$campaignId]);
                     $pdo->prepare("DELETE FROM conversions WHERE campaign_id = ?")->execute([$campaignId]);
                     logAudit($pdo, 'CLEAR_STATS', 'Campaign', $campaignId);
@@ -10334,6 +10413,7 @@ try {
                 $uniqueOnly = !empty($data['unique_only']);
 
                 if ($campaignId && $totalCost > 0 && $startDate && $endDate) {
+                    orbitraAssertCampaignInScope(orbitraCampaignScope($pdo), (int) $campaignId, true);
                     $sql = "SELECT id FROM clicks WHERE campaign_id = ? AND created_at >= ? AND created_at <= ?";
                     $params = [$campaignId, $startDate . ' 00:00:00', $endDate . ' 23:59:59'];
                     if ($uniqueOnly) {
@@ -10645,6 +10725,12 @@ try {
             $offset = ($page - 1) * $perPage;
 
             $where = "1=1";
+            // Per-campaign scope (issue #6): scoped users only see
+            // conversions of their own/assigned campaigns.
+            $convScopeIn = orbitraCampaignScopeInSql(orbitraCampaignScope($pdo), 'cv.campaign_id');
+            if ($convScopeIn !== '') {
+                $where .= " AND $convScopeIn";
+            }
             $params = [];
 
             // Filters
@@ -10962,6 +11048,12 @@ try {
 
             $where = "1=1";
             $params = [];
+            // Per-campaign scope (issue #6): postback_logs rows carry only a
+            // click_id, so the scope resolves through the click's campaign.
+            $pbScopeIn = orbitraCampaignScopeInSql(orbitraCampaignScope($pdo), 'plc.campaign_id');
+            if ($pbScopeIn !== '') {
+                $where .= " AND EXISTS (SELECT 1 FROM clicks plc WHERE plc.id = pl.click_id AND $pbScopeIn)";
+            }
 
             if (!empty($_GET['is_success'])) {
                 $where .= " AND pl.is_success = ?";
@@ -11044,6 +11136,16 @@ try {
                 'campaign_id'    => 'clicks.campaign_id',
                 'day'            => "date(clicks.created_at, '$dbTzOffset')",
                 'hour'           => "strftime('%Y-%m-%d %H:00', clicks.created_at, '$dbTzOffset')",
+                // LP time buckets: the landing→offer delta in quality bands.
+                // 0-3s is bot/double-click territory — the bucket that explains
+                // "tracker says many transitions, the network sees almost none".
+                // NULL pair (direct clicks, views without a transition) → Unknown.
+                'lp_time'        => "CASE WHEN clicks.landing_at IS NULL OR clicks.offer_at IS NULL THEN NULL
+                    WHEN CAST(strftime('%s', clicks.offer_at) - strftime('%s', clicks.landing_at) AS INTEGER) < 3 THEN '0-3s'
+                    WHEN CAST(strftime('%s', clicks.offer_at) - strftime('%s', clicks.landing_at) AS INTEGER) < 10 THEN '3-10s'
+                    WHEN CAST(strftime('%s', clicks.offer_at) - strftime('%s', clicks.landing_at) AS INTEGER) < 30 THEN '10-30s'
+                    WHEN CAST(strftime('%s', clicks.offer_at) - strftime('%s', clicks.landing_at) AS INTEGER) < 60 THEN '30-60s'
+                    ELSE '60s+' END",
                 'ad_id'          => "json_extract(clicks.parameters_json, '\$.ad_id')",
                 'adset_id'       => "json_extract(clicks.parameters_json, '\$.adset_id')",
                 // Dedicated external campaign key first; the standard Facebook
@@ -11093,6 +11195,12 @@ try {
             if ($campaign_id > 0) {
                 $conds[] = 'clicks.campaign_id = ?';
                 $params[] = $campaign_id;
+            }
+            // Per-campaign scope (issue #6): reports aggregate only the
+            // campaigns the user owns or was assigned.
+            $reportScopeIn = orbitraCampaignScopeInSql(orbitraCampaignScope($pdo), 'clicks.campaign_id');
+            if ($reportScopeIn !== '') {
+                $conds[] = $reportScopeIn;
             }
             if ($date_from) {
                 $conds[] = "date(clicks.created_at, '$dbTzOffset') >= date(?)";
@@ -11175,6 +11283,9 @@ try {
                     SUM(CASE WHEN landing_id IS NOT NULL AND landing_id > 0 THEN 1 ELSE 0 END) as prelander_clicks,
                     SUM(CASE WHEN offer_id IS NOT NULL AND offer_id > 0 THEN 1 ELSE 0 END) as offer_clicks,
                     SUM(CASE WHEN landing_id IS NOT NULL AND landing_id > 0 AND offer_id IS NOT NULL AND offer_id > 0 THEN 1 ELSE 0 END) as lp_clicks,
+                    SUM(CASE WHEN landing_id IS NOT NULL AND landing_id > 0 AND offer_at IS NOT NULL THEN 1 ELSE 0 END) as real_lp_clicks,
+                    SUM(CASE WHEN offer_id IS NOT NULL AND offer_id > 0
+                             AND (landing_id IS NULL OR landing_id = 0 OR offer_at IS NOT NULL) THEN 1 ELSE 0 END) as real_offer_clicks,
                     COALESCE(SUM(cnt_any), 0) as conversions,
                     COALESCE(SUM(cnt_sale), 0) as purchases,
                     COALESCE(SUM(cnt_hold), 0) as holds,
@@ -13092,6 +13203,13 @@ try {
 
         case 'generate_api_key':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                // Keys may be minted under an arbitrary user_id — without this
+                // gate a non-admin could create a write key on an admin account.
+                if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+                    http_response_code(403);
+                    echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                    break;
+                }
                 $data = json_decode(orbitraRequestBody(), true);
                 $userId = $data['user_id'] ?? null;
                 $keyName = $data['key_name'] ?? 'API Key';
@@ -13118,6 +13236,11 @@ try {
 
         case 'delete_api_key':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+                    http_response_code(403);
+                    echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                    break;
+                }
                 $data = json_decode(orbitraRequestBody(), true);
                 $id = $data['id'] ?? null;
                 if (!$id) {
@@ -14285,6 +14408,10 @@ try {
 
             // Build WHERE clause from filters
             $whereClauses = ["cl.created_at >= ? AND cl.created_at <= ?"];
+            $trendScopeIn = orbitraCampaignScopeInSql(orbitraCampaignScope($pdo), 'cl.campaign_id');
+            if ($trendScopeIn !== '') {
+                $whereClauses[] = $trendScopeIn;
+            }
             $params = [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'];
 
             foreach ($filters as $f) {
@@ -14612,6 +14739,10 @@ try {
             // Applied to the clicks source; conversion/revenue sources inherit
             // the same range by joining clicks filtered identically.
             $clickWhere = ["cl.created_at >= ?", "cl.created_at <= ?"];
+            $cohortScopeIn = orbitraCampaignScopeInSql(orbitraCampaignScope($pdo), 'cl.campaign_id');
+            if ($cohortScopeIn !== '') {
+                $clickWhere[] = $cohortScopeIn;
+            }
             $params = [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'];
             $groupClause = '';
 
@@ -15050,6 +15181,7 @@ try {
                     break;
                 }
                 $campaign_id = $data['campaign_id'] ?? null;
+                orbitraAssertCampaignInScope(orbitraCampaignScope($pdo), (int) $campaign_id, true);
                 $type = $data['type'] ?? '';
                 $pixel_id = $data['pixel_id'] ?? '';
                 $id = $data['id'] ?? null;
@@ -16994,6 +17126,9 @@ try {
                 $data = json_decode(orbitraRequestBody(), true);
                 $id = $data['id'] ?? null;
                 if ($id) {
+                    $stmt = $pdo->prepare("SELECT campaign_id FROM campaign_pixels WHERE id = ?");
+                    $stmt->execute([$id]);
+                    orbitraAssertCampaignInScope(orbitraCampaignScope($pdo), $stmt->fetch() ?: 0, true);
                     $stmt = $pdo->prepare("DELETE FROM campaign_pixels WHERE id = ?");
                     $stmt->execute([$id]);
                     echo json_encode(['status' => 'success']);

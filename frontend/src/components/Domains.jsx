@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Plus, Globe, Check, X, AlertCircle, CheckCircle2, Search, Copy, Edit2, Trash2, ShieldAlert, RefreshCw, Clock, Cloud, ShoppingCart, Download, Folder, ChevronUp, ChevronDown, ChevronsUpDown, GripVertical } from 'lucide-react';
 import InfoBanner from './InfoBanner';
+import { canWriteResource } from '../utils/permissions';
 import HelpTooltip from './HelpTooltip';
 import GroupsModal from './GroupsModal';
 import MobileCards from './common/MobileCards';
@@ -42,7 +43,7 @@ const ToggleGroup = ({ value, options, onChange }) => (
     </div>
 );
 
-const Domains = ({ campaigns }) => {
+const Domains = ({ campaigns, user }) => {
     const { t } = useLanguage();
     const [domains, setDomains] = useState([]);
     const [filteredDomains, setFilteredDomains] = useState([]);
@@ -717,9 +718,11 @@ const Domains = ({ campaigns }) => {
             <button onClick={() => handleEdit(domain)} className="hover:text-[var(--color-primary)] transition" style={{ color: 'var(--color-text-muted)' }} title={t('components.edit')}>
                 <Edit2 size={16} />
             </button>
-            <button onClick={() => handleDelete(domain.id)} className="hover:text-red-500 transition" style={{ color: 'var(--color-text-muted)' }} title={t('common.delete')}>
-                <Trash2 size={16} />
-            </button>
+            {canWriteResource(user, 'domains') && (
+                <button onClick={() => handleDelete(domain.id)} className="hover:text-red-500 transition" style={{ color: 'var(--color-text-muted)' }} title={t('common.delete')}>
+                    <Trash2 size={16} />
+                </button>
+            )}
         </div>
     );
 
@@ -918,17 +921,19 @@ const Domains = ({ campaigns }) => {
                             </button>
                         </>
                     )}
-                    <button
-                        onClick={() => {
-                            setFormData(defaultFormData);
-                            setError('');
-                            setSaveNotice('');
-                            setShowModal(true);
-                        }}
-                        className="btn btn-primary whitespace-nowrap"
-                    >
-                        <Plus size={16} /> {t('domains.addDomain')}
-                    </button>
+                    {canWriteResource(user, 'domains') && (
+                        <button
+                            onClick={() => {
+                                setFormData(defaultFormData);
+                                setError('');
+                                setSaveNotice('');
+                                setShowModal(true);
+                            }}
+                            className="btn btn-primary whitespace-nowrap"
+                        >
+                            <Plus size={16} /> {t('domains.addDomain')}
+                        </button>
+                    )}
                 </div>
             </div>
 

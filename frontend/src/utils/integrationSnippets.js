@@ -169,7 +169,7 @@ export function kclientPhpGetOffer() {
 }
 
 function trackingScript({ trackerUrl, campaign }) {
-    return `<!-- Tracking script — into the <head> of every page of the site -->\n<script>\n  var orbitra_db_url = '${trackerUrl}';\n  var orbitra_campaign_token = '${campaign.token}';\n</script>\n<script src="${trackerUrl}/tracking.js"></script>\n\n<!-- "Thank you" page / conversion reporting: -->\n<script>\n  var revenue = 0;\n  var status = 'lead';\n  var tid = Math.floor(Math.random() * 1000000000);\n  KTracking.reportConversion(revenue, status, { tid: tid });\n</script>\n\n<!-- Offer button (the script fills in the link): -->\n<!-- <a href="{offer}" data-orbitra-offer>BUY NOW</a> -->`;
+    return `<!-- Tracking script — into the <head> of every page of the site -->\n<script>\n  var orbitra_db_url = '${trackerUrl}';\n  var orbitra_campaign_token = '${campaign.token}';\n</script>\n<script src="${trackerUrl}/tracking.js"></script>\n\n<!-- "Thank you" page / conversion reporting: -->\n<script>\n  var revenue = 0;\n  var status = 'lead';\n  var tid = Math.floor(Math.random() * 1000000000);\n  KTracking.reportConversion(revenue, status, { tid: tid });\n</script>\n\n<!-- Offer button (the script fills in the link and the landing time): -->\n<!-- <a href="{offer}" data-orbitra-offer>BUY NOW</a> -->`;
 }
 
 // ————————————————————————————————————————————————————————————————

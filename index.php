@@ -2538,8 +2538,25 @@ if (isset($_GET['_lp'])) {
     }
 
     // The landing→offer transition completes the Time-since-LP-click pair.
+    // A JS/PHP client that knows how long the visitor spent on the landing
+    // appends _lt (seconds): it backfills landing_at for clicks whose landing
+    // view never went through this tracker (a pure KClient site with no
+    // landing entity). A tracker-side landing_at (the authoritative serve
+    // time) is never overwritten.
+    $lpLandingBackfill = null;
+    if (isset($_GET['_lt']) && preg_match('/^\d{1,6}$/', (string) $_GET['_lt'])) {
+        $lpElapsed = min((int) $_GET['_lt'], 604800);
+        if ($lpElapsed > 0) {
+            $lpLandingBackfill = gmdate('Y-m-d H:i:s', time() - $lpElapsed);
+        }
+    }
     try {
-        $pdo->prepare("UPDATE clicks SET offer_at = datetime('now') WHERE id = ? AND offer_at IS NULL")->execute([$lpClickId]);
+        if ($lpLandingBackfill !== null) {
+            $pdo->prepare("UPDATE clicks SET offer_at = datetime('now'), landing_at = COALESCE(landing_at, ?) WHERE id = ? AND offer_at IS NULL")
+                ->execute([$lpLandingBackfill, $lpClickId]);
+        } else {
+            $pdo->prepare("UPDATE clicks SET offer_at = datetime('now') WHERE id = ? AND offer_at IS NULL")->execute([$lpClickId]);
+        }
     } catch (\Throwable $e) {
         // non-critical
     }
@@ -3536,16 +3553,18 @@ if ($actionToPerfrom) {
         if (!empty($offerIdToLog)) {
             setcookie('orbitra_offer', (string) $offerIdToLog, $lpCookieOpts);
         }
+        // Time-since-LP-click starts here: remember when the landing was shown.
+        // Every landing type counts — a redirect landing hands the visitor to an
+        // external page whose offer link (signed /?_lp=1) closes the same pair.
+        try {
+            $pdo->prepare("UPDATE clicks SET landing_at = datetime('now') WHERE id = ? AND landing_at IS NULL")->execute([$clickId]);
+        } catch (\Throwable $e) {
+            // Timing is a nice-to-have.
+        }
         // Lets serveLandingAsset() find the files behind this page's relative
         // paths, which the browser will request from the domain root.
         if (($landingType ?? '') === 'local') {
             setcookie('orbitra_lp', (string) $landingIdToLog, $lpCookieOpts);
-            // Time-since-LP-click starts here: remember when the landing was shown.
-            try {
-                $pdo->prepare("UPDATE clicks SET landing_at = datetime('now') WHERE id = ? AND landing_at IS NULL")->execute([$clickId]);
-            } catch (\Throwable $e) {
-                // Timing is a nice-to-have.
-            }
             // The landing is the page in play now — a leftover offer cookie from
             // an earlier visit would steal its asset requests.
             setcookie('orbitra_lo', '', ['expires' => time() - 3600, 'path' => '/']);

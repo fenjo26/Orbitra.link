@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { canWriteResource } from '../utils/permissions';
 import { Plus, Edit, Trash2, Search, RefreshCw, ExternalLink, Copy, Settings2, Filter, X, Upload, Globe } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import TrafficSourceEditor from './TrafficSourceEditor';
@@ -10,7 +11,7 @@ import { copyToClipboard } from '../utils/clipboard';
 
 const API_URL = '/api.php';
 
-const TrafficSources = ({ refreshData }) => {
+const TrafficSources = ({ refreshData, user }) => {
     const { t } = useLanguage();
     const [sources, setSources] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -307,16 +308,18 @@ const TrafficSources = ({ refreshData }) => {
                     <button type="button" onClick={() => setSettingsOpen(true)} className="btn btn-ghost btn-icon" title={t('common.settings')}>
                         <Settings2 className="w-5 h-5" />
                     </button>
-                    {selectedIds.size > 0 && (
+                    {selectedIds.size > 0 && canWriteResource(user, 'sources') && (
                         <button type="button" onClick={handleBulkDeleteSelected} className="btn btn-danger" title={t('common.deleteSelected')}>
                             <Trash2 size={18} />
                             <span>{(t('common.deleteSelected') || t('common.delete'))} ({selectedIds.size})</span>
                         </button>
                     )}
-                    <button type="button" onClick={handleCreate} className="btn btn-primary">
-                        <Plus size={18} />
-                        <span>{t('common.create')}</span>
-                    </button>
+                    {canWriteResource(user, 'sources') && (
+                        <button type="button" onClick={handleCreate} className="btn btn-primary">
+                            <Plus size={18} />
+                            <span>{t('common.create')}</span>
+                        </button>
+                    )}
                     <button type="button" onClick={() => setShowBulkImport(true)} className="btn btn-secondary">
                         <Upload size={18} />
                         <span>{t('sources.importBtn')}</span>

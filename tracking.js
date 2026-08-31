@@ -29,7 +29,7 @@
     var token = window.orbitra_campaign_token || '';
     var base = String(cfg).replace(/\/+$/, '');
 
-    var state = { subid: null, offerUrl: null, ready: false, cbs: [] };
+    var state = { subid: null, offerUrl: null, ready: false, cbs: [], loadTs: Date.now() };
 
     function readCookie(name) {
         try {
@@ -47,14 +47,25 @@
         applyOfferLinks();
     }
 
+    // Landing time for the tracker's Time-since-LP-click metric: appended to
+    // the tracker's own transition link only — a raw offer URL would pass the
+    // parameter straight through to the affiliate network.
+    function withLandingTime(url) {
+        if (String(url).indexOf('_lp=1') === -1) { return url; }
+        var elapsed = Math.round((Date.now() - state.loadTs) / 1000);
+        if (elapsed <= 0) { return url; }
+        return url + (String(url).indexOf('?') === -1 ? '?' : '&') + '_lt=' + Math.min(elapsed, 604800);
+    }
+
     // {offer} macro: any link carrying it (or data-orbitra-offer) points to the
     // stream's offer — via the tracker's signed transition, so the click and its
     // LP CTR are counted on the tracker side.
     function applyOfferLinks() {
         if (!state.offerUrl) { return; }
+        var url = withLandingTime(state.offerUrl);
         var links = document.querySelectorAll('a[href="{offer}"], [data-orbitra-offer]');
         for (var i = 0; i < links.length; i++) {
-            links[i].setAttribute('href', state.offerUrl);
+            links[i].setAttribute('href', url);
         }
     }
 

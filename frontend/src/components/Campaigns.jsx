@@ -18,7 +18,7 @@ import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard } from '../utils/clipboard';
 import { campaignLinkUrl } from '../utils/campaignUrl';
-import { financeVisibility, financeHiddenMetric } from '../utils/permissions';
+import { financeVisibility, financeHiddenMetric, canWriteResource } from '../utils/permissions';
 
 const API_URL = '/api.php';
 
@@ -281,6 +281,9 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     // Finance-restricted users never see money columns, whatever the
     // customizer says — the backend already nulls the values.
     const financeVis = useMemo(() => financeVisibility(user), [user]);
+    // Mirrors core/resource_access.php: 'read' users get 403 on every write
+    // action, so the write controls stay hidden instead of erroring.
+    const canWriteCampaigns = canWriteResource(user, 'campaigns');
     const visibleColumns = useMemo(
         () => chosenColumns.filter(id => !financeHiddenMetric(id, financeVis)),
         [chosenColumns, financeVis]
@@ -526,6 +529,8 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             lp_views: 0,
             lp_clicks: 0,
             offer_clicks: 0,
+            real_lp_clicks: 0,
+            real_offer_clicks: 0,
             conversions: 0,
             purchases: 0,
             holds: 0,
@@ -552,6 +557,8 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             t0.lp_views += lpViews;
             t0.lp_clicks += Number(c.lp_clicks ?? c.offer_clicks) || 0;
             t0.offer_clicks += Number(c.offer_clicks) || 0;
+            t0.real_lp_clicks += Number(c.real_lp_clicks) || 0;
+            t0.real_offer_clicks += Number(c.real_offer_clicks) || 0;
             t0.conversions += Number(c.conversions) || 0;
             t0.purchases += Number(c.purchases) || 0;
             t0.holds += Number(c.holds) || 0;
@@ -572,6 +579,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         const uc_rate = t0.clicks > 0 ? (t0.unique_clicks / t0.clicks) * 100 : 0;
         const lpClickDenominator = t0.lp_clicks > 0 ? t0.lp_clicks : t0.clicks;
         const lp_ctr = t0.lp_views > 0 ? (t0.lp_clicks / t0.lp_views) * 100 : 0;
+        const real_lp_ctr = t0.lp_views > 0 ? (t0.real_lp_clicks / t0.lp_views) * 100 : 0;
         const cr = t0.clicks > 0 ? (t0.conversions / t0.clicks) * 100 : 0;
         const cr_sales = t0.clicks > 0 ? (t0.purchases / t0.clicks) * 100 : 0;
         const cr_holds = t0.clicks > 0 ? (t0.holds / t0.clicks) * 100 : 0;
@@ -614,6 +622,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             cps,
             uc_rate,
             lp_ctr,
+            real_lp_ctr,
             cr,
             cr_sales,
             cr_holds,
@@ -742,6 +751,8 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             case 'offer_clicks':
             case 'lp_views':
             case 'lp_clicks':
+            case 'real_lp_clicks':
+            case 'real_offer_clicks':
             case 'purchases':
             case 'sales':
             case 'holds':
@@ -776,6 +787,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             // Direct-to-offer streams have no CTA to measure — the backend
             // sends null, never a made-up 0%/100%.
             case 'lp_ctr':
+            case 'real_lp_ctr':
                 return val === null || val === undefined ? '—' : `${num.toFixed(2)}%`;
 
             case 'roi':
@@ -902,10 +914,12 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             <div className="page-header flex-wrap gap-4">
                 {/* Left Side Action Buttons */}
                 <div className="flex flex-wrap gap-2.5 items-center">
-                    <button onClick={handleCreate} className="btn btn-primary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium">
-                        <Plus className="w-3.5 h-3.5" />
-                        {t('common.create')}
-                    </button>
+                    {canWriteCampaigns && (
+                        <button onClick={handleCreate} className="btn btn-primary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium">
+                            <Plus className="w-3.5 h-3.5" />
+                            {t('common.create')}
+                        </button>
+                    )}
                     <button onClick={() => { try { sessionStorage.removeItem('orbitra_reports_range'); } catch { /* storage unavailable */ } setShowGlobalReports(true); }} className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5 font-medium" title={reportTargetCampaign ? `${t('campaignReports.report')}: ${reportTargetCampaign.name}` : t('campaignReports.report')}>
                         <BarChart2 className="w-3.5 h-3.5" />
                         {t('campaignReports.report')}
@@ -960,14 +974,18 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
 
                     {selectedCampaignIds.size > 0 && (
                         <>
-                            <button onClick={handleBulkCopySelected} className="btn btn-success text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5" title={t('campaigns.copySelected')}>
-                                <Copy className="w-3.5 h-3.5" />
-                                {(t('campaigns.copySelected'))} ({selectedCampaignIds.size})
-                            </button>
-                            <button onClick={handleBulkDeleteSelected} className="btn btn-danger text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5" title={t('common.deleteSelected')}>
-                                <Trash2 className="w-3.5 h-3.5" />
-                                {(t('common.deleteSelected') || t('common.delete'))} ({selectedCampaignIds.size})
-                            </button>
+                            {canWriteCampaigns && (
+                                <button onClick={handleBulkCopySelected} className="btn btn-success text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5" title={t('campaigns.copySelected')}>
+                                    <Copy className="w-3.5 h-3.5" />
+                                    {(t('campaigns.copySelected'))} ({selectedCampaignIds.size})
+                                </button>
+                            )}
+                            {canWriteCampaigns && (
+                                <button onClick={handleBulkDeleteSelected} className="btn btn-danger text-xs py-1.5 px-3 rounded-xl flex items-center gap-1.5" title={t('common.deleteSelected')}>
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    {(t('common.deleteSelected') || t('common.delete'))} ({selectedCampaignIds.size})
+                                </button>
+                            )}
                         </>
                     )}
                 </div>
@@ -1524,20 +1542,31 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                         >
                             {/* Trimmed to what the row itself doesn't already do:
                                 the name opens the editor, the Actions icons copy
-                                the link and open the logs. */}
-                            <button onClick={() => { setMenuAnchor(null); setActionModal({ type: 'update_costs', campaignId: camp.id }); }} className="w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition" style={{ color: 'var(--color-text-primary)' }}>
-                                <DollarSign className="w-3.5 h-3.5" /> {t('campaigns.updateCosts')}
-                            </button>
-                            <button onClick={() => { setMenuAnchor(null); handleDuplicateCampaign(camp); }} className="w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition" style={{ color: 'var(--color-text-primary)' }}>
-                                <ChevronsUpDown className="w-3.5 h-3.5 rotate-90" /> {t('table.duplicate')}
-                            </button>
-                            <button onClick={() => { setMenuAnchor(null); setActionModal({ type: 'clear_stats', campaignId: camp.id }); }} className="w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition" style={{ color: 'var(--color-warning, #f59e0b)' }}>
-                                <XCircle className="w-3.5 h-3.5" /> {t('common.clearStats')}
-                            </button>
-                            <div className="my-1 border-t" style={{ borderColor: 'var(--color-border)' }}></div>
-                            <button onClick={() => { setMenuAnchor(null); handleDelete(camp.id); }} className="w-full text-left px-3.5 py-2 flex items-center gap-2.5 text-red-500 hover:bg-red-500/10 transition">
-                                <Trash2 className="w-3.5 h-3.5" /> {t('common.delete')}
-                            </button>
+                                the link and open the logs. Write actions only
+                                render for users whose scope allows writes. */}
+                            {canWriteCampaigns && (
+                                <button onClick={() => { setMenuAnchor(null); setActionModal({ type: 'update_costs', campaignId: camp.id }); }} className="w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition" style={{ color: 'var(--color-text-primary)' }}>
+                                    <DollarSign className="w-3.5 h-3.5" /> {t('campaigns.updateCosts')}
+                                </button>
+                            )}
+                            {canWriteCampaigns && (
+                                <button onClick={() => { setMenuAnchor(null); handleDuplicateCampaign(camp); }} className="w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition" style={{ color: 'var(--color-text-primary)' }}>
+                                    <ChevronsUpDown className="w-3.5 h-3.5 rotate-90" /> {t('table.duplicate')}
+                                </button>
+                            )}
+                            {canWriteCampaigns && (
+                                <button onClick={() => { setMenuAnchor(null); setActionModal({ type: 'clear_stats', campaignId: camp.id }); }} className="w-full text-left px-3.5 py-2 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/5 transition" style={{ color: 'var(--color-warning, #f59e0b)' }}>
+                                    <XCircle className="w-3.5 h-3.5" /> {t('common.clearStats')}
+                                </button>
+                            )}
+                            {canWriteCampaigns && (
+                                <>
+                                    <div className="my-1 border-t" style={{ borderColor: 'var(--color-border)' }}></div>
+                                    <button onClick={() => { setMenuAnchor(null); handleDelete(camp.id); }} className="w-full text-left px-3.5 py-2 flex items-center gap-2.5 text-red-500 hover:bg-red-500/10 transition">
+                                        <Trash2 className="w-3.5 h-3.5" /> {t('common.delete')}
+                                    </button>
+                                </>
+                            )}
                         </div>
                     );
                 })(),

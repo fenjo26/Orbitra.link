@@ -626,6 +626,23 @@ if ($statsEnabled && !$isDebounced && !$skipClickOnPrefetch && !$skipClickLoggin
     // Honesty flags for the report metrics — same helper the router uses.
     require_once __DIR__ . '/core/ClickFlags.php';
     orbitraWriteClickFlags($pdo, $clickId, $ip, $userAgent, $campaign ?? [], $streamId ?? 0, is_array($geoData ?? null) ? $geoData : []);
+
+    // A client-side landing timer (kclient.js / tracking.js append _lt to the
+    // offer click): synthesize the landing→offer pair so Time-since-LP-click
+    // also covers external landings whose visits never went through the
+    // tracker's router. The click.php row has no landing_id, so this counts
+    // as an offer transition, not an LP funnel click.
+    if (isset($_GET['_lt']) && preg_match('/^\d{1,6}$/', (string) $_GET['_lt'])) {
+        $lpElapsed = min((int) $_GET['_lt'], 604800);
+        if ($lpElapsed > 0) {
+            try {
+                $pdo->prepare("UPDATE clicks SET offer_at = datetime('now'), landing_at = COALESCE(landing_at, ?) WHERE id = ?")
+                    ->execute([gmdate('Y-m-d H:i:s', time() - $lpElapsed), $clickId]);
+            } catch (\Throwable $e) {
+                // Timing is a nice-to-have.
+            }
+        }
+    }
 } elseif ($statsEnabled && !$isDebounced && !$skipClickOnPrefetch && ($skipClickLogging || !$streamCollectsClicks)) {
     // Click was suppressed - record it for visibility (W3.3)
     $verdict = 'unknown';
