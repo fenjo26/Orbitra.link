@@ -3850,7 +3850,7 @@ export default {
         refresh: "刷新",
         exportCsv: "导出 CSV",
         vapidTitle: "VAPID 密钥",
-        vapidHint: "订阅使用您自己的密钥收集；私钥保存在本服务器上",
+vapidHint: "生成一次并自动接线 —— 每个 PWA 在页面输出时都会收到公钥。无需在任何地方手动填写。",
         vapidMissing: "尚未生成密钥 —— 在此之前订阅界面保持隐藏",
         rotateConfirm: "更换密钥将使所有现有订阅失效（浏览器需重新订阅）。是否继续？",
         rotateKeys: "更换密钥",

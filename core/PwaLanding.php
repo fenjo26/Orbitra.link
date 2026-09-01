@@ -825,6 +825,7 @@ SW;
   function pushAvailable() {
     return cfg.push && VAPID && 'PushManager' in window && 'Notification' in window && !pushDone;
   }
+  var pushBusy = false;
   function afterPush() {
     // The visitor answered the prompt INSIDE the installed app — mark the
     // offer as made and hand control to the configured app action.
@@ -840,9 +841,14 @@ SW;
     return arr;
   }
   function enablePush() {
+    if (pushBusy) return;
+    pushBusy = true;
     beacon('prompt'); // the permission dialog is about to be shown
+    // Fail-safe: if the subscribe flow cannot complete (broken SW, blocked
+    // endpoint) the visitor still flows to the offer instead of stalling.
+    var failSafe = setTimeout(afterPush, 10000);
     Notification.requestPermission().then(function (perm) {
-      if (perm !== 'granted') { beacon('decline'); afterPush(); return; }
+      if (perm !== 'granted') { clearTimeout(failSafe); beacon('decline'); afterPush(); return; }
       navigator.serviceWorker.ready.then(function (reg) {
         reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64ToU8(VAPID) })
           .then(function (sub) {
@@ -851,10 +857,10 @@ SW;
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ subid: subid, endpoint: s.endpoint, keys: s.keys, expirationTime: s.expirationTime || null })
-            }).then(afterPush).catch(afterPush);
-          }).catch(afterPush);
-      }).catch(afterPush);
-    });
+            }).then(function () { clearTimeout(failSafe); afterPush(); }).catch(function () { clearTimeout(failSafe); afterPush(); });
+          }).catch(function () { clearTimeout(failSafe); afterPush(); });
+      }).catch(function () { clearTimeout(failSafe); afterPush(); });
+    }).catch(function () { clearTimeout(failSafe); afterPush(); });
   }
   function showPush() {
     var el = document.getElementById('pwa-push');

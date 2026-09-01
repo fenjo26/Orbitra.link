@@ -3850,7 +3850,7 @@ export default {
         refresh: "Actualiser",
         exportCsv: "Exporter en CSV",
         vapidTitle: "Clés VAPID",
-        vapidHint: "Les abonnements sont collectés sous vos propres clés ; la clé privée reste sur ce serveur",
+vapidHint: "Générées une fois et câblées automatiquement — chaque PWA reçoit la clé publique au moment de servir sa page. Rien à coller nulle part.",
         vapidMissing: "Clés pas encore générées — l'écran d'abonnement reste masqué jusqu'à leur création",
         rotateConfirm: "Remplacer les clés invalide tous les abonnements existants (les navigateurs devront se réabonner). Continuer ?",
         rotateKeys: "Remplacer les clés",

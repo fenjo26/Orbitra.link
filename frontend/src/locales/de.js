@@ -3850,7 +3850,7 @@ export default {
         refresh: "Aktualisieren",
         exportCsv: "CSV exportieren",
         vapidTitle: "VAPID-Schlüssel",
-        vapidHint: "Abos werden unter deinen eigenen Schlüsseln gesammelt; der private Schlüssel bleibt auf diesem Server",
+vapidHint: "Einmal erzeugt und automatisch verdrahtet — jede PWA erhält den öffentlichen Schlüssel beim Ausliefern der Seite. Nirgendwo einzutragen.",
         vapidMissing: "Schlüssel noch nicht erzeugt — der Abo-Bildschirm bleibt verborgen, bis sie existieren",
         rotateConfirm: "Der Austausch der Schlüssel macht alle bestehenden Abos ungültig (Browser müssen sich neu abonnieren). Fortfahren?",
         rotateKeys: "Schlüssel ersetzen",

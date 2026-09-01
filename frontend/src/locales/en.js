@@ -3850,7 +3850,7 @@ export default {
         refresh: "Refresh",
         exportCsv: "Export CSV",
         vapidTitle: "VAPID keys",
-        vapidHint: "Subscriptions are collected under your own keys; the private key stays on this server",
+vapidHint: "Generated once and wired automatically — every PWA receives the public key when its page is served. Nothing to paste anywhere.",
         vapidMissing: "Keys are not generated yet — the subscribe screen stays hidden until they exist",
         rotateConfirm: "Replacing keys invalidates every existing subscription (browsers must re-subscribe). Continue?",
         rotateKeys: "Replace keys",

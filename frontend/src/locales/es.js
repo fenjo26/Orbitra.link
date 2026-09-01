@@ -3850,7 +3850,7 @@ export default {
         refresh: "Actualizar",
         exportCsv: "Exportar CSV",
         vapidTitle: "Claves VAPID",
-        vapidHint: "Las suscripciones se recogen bajo tus propias claves; la clave privada permanece en este servidor",
+vapidHint: "Se generan una vez y se conectan automáticamente — cada PWA recibe la clave pública al servir su página. No hay que pegarla en ningún sitio.",
         vapidMissing: "Las claves aún no se han generado — la pantalla de suscripción permanece oculta hasta que existan",
         rotateConfirm: "Reemplazar las claves invalida todas las suscripciones existentes (los navegadores deben suscribirse de nuevo). ¿Continuar?",
         rotateKeys: "Reemplazar claves",
