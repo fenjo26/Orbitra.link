@@ -117,7 +117,13 @@ try {
     // --- migration stamp ----------------------------------------------------
     $admin = $login('media_admin');
     $user = $login('media_user');
-    $check('migration stamps schema 44', '44', (string) $pdo->query('PRAGMA user_version')->fetchColumn());
+    // Read the expected stamp from config.php — a hardcoded number would fail
+    // on every future migration bump.
+    $expectedSchema = '';
+    if (preg_match('/\$LATEST_SCHEMA_VERSION\s*=\s*(\d+)/', file_get_contents($repoRoot . '/config.php'), $mSchema)) {
+        $expectedSchema = $mSchema[1];
+    }
+    $check("migration stamps schema $expectedSchema", $expectedSchema, (string) $pdo->query('PRAGMA user_version')->fetchColumn());
 
     // --- upload: happy path (admin) ------------------------------------------
     $resp = $postFiles('media_upload', $admin, [], [
