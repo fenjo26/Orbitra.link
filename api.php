@@ -4597,6 +4597,24 @@ try {
                 }
                 $configJson = json_encode($config, JSON_UNESCAPED_UNICODE);
 
+                $actionType = '';
+                $actionPayload = '';
+                if (($config['action_target'] ?? '') === 'to_campaign' && (int) ($config['action_campaign_id'] ?? 0) > 0) {
+                    $actionType = 'to_campaign';
+                    $actionPayload = (string) $config['action_campaign_id'];
+                } elseif (($config['action_target'] ?? '') === 'to_url' && trim((string) ($config['action_url'] ?? '')) !== '') {
+                    $actionType = 'to_url';
+                    $actionPayload = trim((string) $config['action_url']);
+                } elseif (($config['action_target'] ?? '') === 'not_found') {
+                    $actionType = 'not_found';
+                }
+                if ($actionType === 'to_campaign') {
+                    // A scope-limited user may only point the app at a campaign
+                    // they can actually see; admins bypass inside the helper.
+                    require_once __DIR__ . '/core/resource_access.php';
+                    orbitraAssertCampaignInScope(orbitraCampaignScope($pdo), (int) $config['action_campaign_id'], false);
+                }
+
                 if ($id > 0) {
                     $stmt = $pdo->prepare("SELECT slug FROM landings WHERE id = ? LIMIT 1");
                     $stmt->execute([$id]);
@@ -4608,8 +4626,8 @@ try {
                     // already live inside campaigns, and a silent rename would
                     // strand cached start_urls. Renaming stays in the plain
                     // landing editor, where the slug field is visible.
-                    $stmt = $pdo->prepare("UPDATE landings SET name=?, group_id=?, state=?, config_json=? WHERE id=?");
-                    $stmt->execute([$name, $groupId, $state, $configJson, $id]);
+                    $stmt = $pdo->prepare("UPDATE landings SET name=?, group_id=?, state=?, action_type=?, action_payload=?, config_json=? WHERE id=?");
+                    $stmt->execute([$name, $groupId, $state, $actionType, $actionPayload, $configJson, $id]);
                 } else {
                     // Same slug dance as save_landing: derive from the name and
                     // resolve collisions as name-2, name-3, … falling back to ''
@@ -4630,8 +4648,8 @@ try {
                         }
                     }
                     $slug = $slugCheck['ok'] ? $slugCheck['value'] : '';
-                    $stmt = $pdo->prepare("INSERT INTO landings (name, group_id, type, url, state, slug, config_json) VALUES (?, ?, 'local', '', ?, ?, ?)");
-                    $stmt->execute([$name, $groupId, $state, $slug, $configJson]);
+                    $stmt = $pdo->prepare("INSERT INTO landings (name, group_id, type, url, state, action_type, action_payload, slug, config_json) VALUES (?, ?, 'local', '', ?, ?, ?, ?, ?)");
+                    $stmt->execute([$name, $groupId, $state, $actionType, $actionPayload, $slug, $configJson]);
                     $id = (int) $pdo->lastInsertId();
                 }
 

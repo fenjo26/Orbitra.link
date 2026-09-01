@@ -203,6 +203,131 @@ try {
     assertContains('class="store-layout store-ios"', $prev, 'preview contains Apple App Store layout');
     assertContains('ios-metrics-ribbon', $prev, 'preview contains Apple metric strip');
     assertContains('ios-info-table', $prev, 'preview contains Apple information table');
+
+    // In-app screen (app_action=screen)
+    $screenConfig = array_merge($urlConfig, [
+        'app_action' => 'screen',
+        'app_screen_title' => 'VIP Casino Bonus',
+        'app_screen_text' => 'Spin & Win',
+        'app_screen_button' => 'Claim Bonus',
+        'app_screen_image' => '/assets/pwa-presets/lucky-casino/app-hero.png',
+    ]);
+    $prevScreen = PwaLanding::renderPreview($screenConfig, 'auto', 'screen');
+    assertContains('window.__PWA_FORCE_APP_SCREEN = true', $prevScreen, 'screen preview forces the in-app screen');
+    assertContains('id="pwa-app-screen"', $prevScreen, 'app screen container rendered');
+    assertContains('class="appscr-header"', $prevScreen, 'app screen has native header');
+    assertContains('class="appscr-balance-pill"', $prevScreen, 'app screen has balance pill');
+    assertContains('class="appscr-tiles-row"', $prevScreen, 'app screen has lobby feature tiles');
+    assertContains('class="appscr-tabbar"', $prevScreen, 'app screen has native tab bar');
+    assertContains('VIP Casino Bonus', $prevScreen, 'app screen custom title rendered');
+
+    // Action destinations: to_campaign, to_url, not_found
+    $campConfig = PwaLanding::normalizeConfig([
+        'pwa' => true,
+        'app_name' => 'Campaign Route App',
+        'action_target' => 'to_campaign',
+        'action_campaign_id' => 777,
+    ]);
+    assertTrue($campConfig['action_target'] === 'to_campaign' && $campConfig['action_campaign_id'] === 777, 'action_target to_campaign normalized');
+    $campLandingId = random_int(10000, 99999);
+    $campDir = orbitraLandingDir($pdo, $campLandingId);
+    $madeDirs[] = $campDir;
+    $pdo->prepare("INSERT INTO landings (id, name, type, url, state, config_json) VALUES (?, ?, 'local', '', 'active', ?)")
+        ->execute([$campLandingId, 'Camp Action Landing', json_encode($campConfig)]);
+    PwaLanding::generate($pdo, $campLandingId);
+    $campHtml = (string) file_get_contents($campDir . '/index.html');
+    assertContains('/?campaign_id=777&subid={subid}', $campHtml, 'to_campaign generates campaign transition link in JS');
+
+    $urlTargetConfig = PwaLanding::normalizeConfig([
+        'pwa' => true,
+        'app_name' => 'URL Route App',
+        'action_target' => 'to_url',
+        'action_url' => 'https://custom-destination.example.com/?subid={subid}',
+    ]);
+    $urlTargetLandingId = random_int(10000, 99999);
+    $urlTargetDir = orbitraLandingDir($pdo, $urlTargetLandingId);
+    $madeDirs[] = $urlTargetDir;
+    $pdo->prepare("INSERT INTO landings (id, name, type, url, state, config_json) VALUES (?, ?, 'local', '', 'active', ?)")
+        ->execute([$urlTargetLandingId, 'URL Action Landing', json_encode($urlTargetConfig)]);
+    PwaLanding::generate($pdo, $urlTargetLandingId);
+    $urlTargetHtml = (string) file_get_contents($urlTargetDir . '/index.html');
+    assertContains('https://custom-destination.example.com/?subid={subid}', $urlTargetHtml, 'to_url generates custom URL transition link in JS');
+
+    $notFoundConfig = PwaLanding::normalizeConfig([
+        'pwa' => true,
+        'app_name' => '404 App',
+        'action_target' => 'not_found',
+    ]);
+    $notFoundLandingId = random_int(10000, 99999);
+    $notFoundDir = orbitraLandingDir($pdo, $notFoundLandingId);
+    $madeDirs[] = $notFoundDir;
+    $pdo->prepare("INSERT INTO landings (id, name, type, url, state, config_json) VALUES (?, ?, 'local', '', 'active', ?)")
+        ->execute([$notFoundLandingId, '404 Action Landing', json_encode($notFoundConfig)]);
+    PwaLanding::generate($pdo, $notFoundLandingId);
+    $notFoundHtml = (string) file_get_contents($notFoundDir . '/index.html');
+    assertContains("var lpUrl = '/404';", $notFoundHtml, 'not_found generates 404 transition link in JS');
+
+    // Test Interactive 777 Slot Machine In-App Screen
+    $slotConfig = PwaLanding::normalizeConfig([
+        'pwa' => true,
+        'app_name' => 'Mega 777 Slots',
+        'app_action' => 'screen',
+        'app_screen_type' => 'slot',
+    ]);
+    $slotLandingId = random_int(10000, 99999);
+    $slotDir = orbitraLandingDir($pdo, $slotLandingId);
+    $madeDirs[] = $slotDir;
+    $pdo->prepare("INSERT INTO landings (id, name, type, url, state, config_json) VALUES (?, ?, 'local', '', 'active', ?)")
+        ->execute([$slotLandingId, 'Slot Screen Landing', json_encode($slotConfig)]);
+    PwaLanding::generate($pdo, $slotLandingId);
+    $slotHtml = (string) file_get_contents($slotDir . '/index.html');
+    assertContains('pwa-slot-cabinet', $slotHtml, 'slot mode generates slot cabinet');
+    assertContains('pwa-slot-spin-btn', $slotHtml, 'slot mode contains spin button');
+    assertContains('pwa-slot-win-modal', $slotHtml, 'slot mode contains win modal');
+    assertContains('pwa-countdown', $slotHtml, 'slot win modal includes countdown timer');
+    assertContains('window.orbitraRedirect = redirect;', $slotHtml, 'global redirect helper exposed');
+
+    // Test Interactive Fortune Wheel In-App Screen
+    $wheelConfig = PwaLanding::normalizeConfig([
+        'pwa' => true,
+        'app_name' => 'Lucky Fortune Wheel',
+        'app_action' => 'screen',
+        'app_screen_type' => 'wheel',
+    ]);
+    $wheelLandingId = random_int(10000, 99999);
+    $wheelDir = orbitraLandingDir($pdo, $wheelLandingId);
+    $madeDirs[] = $wheelDir;
+    $pdo->prepare("INSERT INTO landings (id, name, type, url, state, config_json) VALUES (?, ?, 'local', '', 'active', ?)")
+        ->execute([$wheelLandingId, 'Wheel Screen Landing', json_encode($wheelConfig)]);
+    PwaLanding::generate($pdo, $wheelLandingId);
+    $wheelHtml = (string) file_get_contents($wheelDir . '/index.html');
+    assertContains('pwa-wheel-disc', $wheelHtml, 'wheel mode generates fortune wheel SVG disc');
+    assertContains('pwa-wheel-spin-btn', $wheelHtml, 'wheel mode contains wheel spin button');
+    assertContains('pwa-wheel-win-modal', $wheelHtml, 'wheel mode contains wheel win modal');
+
+    // Test Custom HTML & JS In-App Screen & Global Code Injection
+    $customConfig = PwaLanding::normalizeConfig([
+        'pwa' => true,
+        'app_name' => 'Custom Roulette App',
+        'app_action' => 'screen',
+        'app_screen_type' => 'custom',
+        'app_screen_custom_html' => '<div id="custom-roulette-container">CUSTOM ROULETTE</div>',
+        'app_screen_custom_js' => 'console.log("custom game loaded");',
+        'custom_head_code' => '<!-- FB PIXEL 123456 -->',
+        'custom_js' => 'console.log("global custom js running");',
+    ]);
+    $customLandingId = random_int(10000, 99999);
+    $customDir = orbitraLandingDir($pdo, $customLandingId);
+    $madeDirs[] = $customDir;
+    $pdo->prepare("INSERT INTO landings (id, name, type, url, state, config_json) VALUES (?, ?, 'local', '', 'active', ?)")
+        ->execute([$customLandingId, 'Custom Code Landing', json_encode($customConfig)]);
+    PwaLanding::generate($pdo, $customLandingId);
+    $customHtml = (string) file_get_contents($customDir . '/index.html');
+    assertContains('<div id="custom-roulette-container">CUSTOM ROULETTE</div>', $customHtml, 'custom screen renders custom HTML');
+    assertContains('console.log("custom game loaded");', $customHtml, 'custom screen injects custom script');
+    assertContains('<!-- FB PIXEL 123456 -->', $customHtml, 'custom head code injected');
+    assertContains('console.log("global custom js running");', $customHtml, 'custom global JS injected');
+
     try {
         PwaLanding::renderPreview(['app_name' => 'no pwa flag'], 'auto');
         fwrite(STDERR, "FAILED: renderPreview must reject a non-PWA config\n");

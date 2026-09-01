@@ -40,6 +40,70 @@ const presetAssets = (id) => ({
     ],
 });
 
+const SLOT_BOILERPLATE = {
+    html: `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:radial-gradient(circle,#1a1a2e,#0f0f1b);color:#fff;text-align:center;font-family:sans-serif;">
+  <h2 style="font-size:24px;color:#ffd700;margin-bottom:8px;text-shadow:0 0 10px rgba(255,215,0,0.5);">🎰 TRIPLE 777 SLOTS</h2>
+  <p style="font-size:13px;color:#aaa;margin-bottom:20px;">Spin the lucky reels & win your exclusive bonus!</p>
+  <div style="display:flex;gap:12px;background:#000;padding:16px 24px;border:3px solid #ffd700;border-radius:18px;font-size:48px;box-shadow:0 0 25px rgba(255,215,0,0.4);">
+    <div id="slot-r1">🍒</div>
+    <div id="slot-r2">💎</div>
+    <div id="slot-r3">7️⃣</div>
+  </div>
+  <button id="custom-spin-btn" style="margin-top:24px;padding:14px 36px;font-size:18px;font-weight:bold;background:linear-gradient(135deg,#ff007f,#ff7700);color:#fff;border:none;border-radius:30px;cursor:pointer;box-shadow:0 6px 20px rgba(255,0,127,0.5);">SPIN NOW!</button>
+</div>`,
+    js: `document.getElementById('custom-spin-btn')?.addEventListener('click', function() {
+  const symbols = ['🍒', '💎', '7️⃣', '👑', '🔔'];
+  let count = 0;
+  const btn = this;
+  btn.disabled = true;
+  btn.textContent = 'SPINNING...';
+  const timer = setInterval(() => {
+    document.getElementById('slot-r1').textContent = symbols[Math.floor(Math.random() * symbols.length)];
+    document.getElementById('slot-r2').textContent = symbols[Math.floor(Math.random() * symbols.length)];
+    document.getElementById('slot-r3').textContent = symbols[Math.floor(Math.random() * symbols.length)];
+    count++;
+    if (count > 15) {
+      clearInterval(timer);
+      document.getElementById('slot-r1').textContent = '7️⃣';
+      document.getElementById('slot-r2').textContent = '7️⃣';
+      document.getElementById('slot-r3').textContent = '7️⃣';
+      btn.textContent = 'YOU WON! REDIRECTING...';
+      setTimeout(() => {
+        if (typeof window.orbitraRedirect === 'function') {
+          window.orbitraRedirect();
+        }
+      }, 1200);
+    }
+  }, 100);
+});`
+};
+
+const WHEEL_BOILERPLATE = {
+    html: `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:radial-gradient(circle,#141e30,#243b55);color:#fff;text-align:center;font-family:sans-serif;">
+  <h2 style="font-size:24px;color:#ffd700;margin-bottom:6px;text-shadow:0 0 10px rgba(255,215,0,0.5);">🎡 LUCKY BONUS WHEEL</h2>
+  <p style="font-size:13px;color:#cbd5e1;margin-bottom:24px;">Spin the wheel to claim your $1,000 Welcome Pack!</p>
+  <div style="position:relative;width:240px;height:240px;margin-bottom:24px;">
+    <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:24px;color:#ffd700;z-index:10;">▼</div>
+    <div id="roulette-wheel" style="width:100%;height:100%;border-radius:50%;background:conic-gradient(#e74c3c 0% 25%, #3498db 25% 50%, #2ecc71 50% 75%, #f1c40f 75% 100%);border:5px solid #fff;box-shadow:0 0 25px rgba(0,0,0,0.6);transition:transform 3s cubic-bezier(0.12,0.95,0.2,1);"></div>
+  </div>
+  <button id="custom-wheel-btn" style="padding:14px 36px;font-size:18px;font-weight:bold;background:#ffd700;color:#1e293b;border:none;border-radius:30px;cursor:pointer;box-shadow:0 6px 20px rgba(255,215,0,0.5);">SPIN WHEEL</button>
+</div>`,
+    js: `document.getElementById('custom-wheel-btn')?.addEventListener('click', function() {
+  const wheel = document.getElementById('roulette-wheel');
+  this.disabled = true;
+  this.textContent = 'SPINNING...';
+  if (wheel) {
+    wheel.style.transform = 'rotate(' + (1440 + 45) + 'deg)';
+  }
+  setTimeout(() => {
+    alert('CONGRATULATIONS! You won $1,000 Bonus!');
+    if (typeof window.orbitraRedirect === 'function') {
+      window.orbitraRedirect();
+    }
+  }, 3200);
+});`
+};
+
 const PRESETS = [
     {
         id: 'lucky-casino',
@@ -50,6 +114,9 @@ const PRESETS = [
             color_scheme: 'green',
             theme_mode: 'dark',
             button_text: 'Install',
+            app_screen_title: 'Welcome Bonus: $1,000 + 100 FS',
+            app_screen_text: 'Spin the lucky reels, hit the jackpot & withdraw instantly to your card!',
+            app_screen_button: 'Claim Bonus & Play',
             downloads: '10M+',
             ads_label: 'Contains ads · In-app purchases',
             description: 'Play {value} and get your welcome bonus! Thousands of players already win every day with {value1} games. Spin, bet and hit the jackpot — free chips every hour.',
@@ -71,6 +138,9 @@ const PRESETS = [
             color_scheme: 'blue',
             theme_mode: 'light',
             button_text: 'Get',
+            app_screen_title: 'Live Sportsbook · 100% Match Bonus',
+            app_screen_text: 'High odds on live football, tennis & cyber sports. Instant 1-click cashouts.',
+            app_screen_button: 'Claim Free Bet',
             downloads: '50M+',
             ads_label: 'Contains ads',
             description: '{value} — live scores, high odds and instant payouts. Bet on football, tennis, esports and more with {value1}.',
@@ -92,6 +162,9 @@ const PRESETS = [
             color_scheme: 'purple',
             theme_mode: 'dark',
             button_text: 'Play Now',
+            app_screen_title: 'Neon Vegas 777 · 1,000,000 Free Coins',
+            app_screen_text: 'Spin the glowing cyberpunk reels and win mega jackpots every hour!',
+            app_screen_button: 'Play Neon Slots',
             downloads: '5M+',
             ads_label: 'Contains ads',
             description: 'Neon lights, classic 777 slots and huge jackpots! {value} brings Vegas to your pocket — free coins every 4 hours from {value1}.',
@@ -112,6 +185,9 @@ const PRESETS = [
             color_scheme: 'orange',
             theme_mode: 'light',
             button_text: 'Install',
+            app_screen_title: 'Your Personal 30-Day Fitness Plan',
+            app_screen_text: 'Transform your body with tailored daily workouts, timers and coach guidance.',
+            app_screen_button: 'Start Workout Plan',
             downloads: '1M+',
             ads_label: 'No ads',
             description: 'Your personal trainer in your pocket. {value} builds a workout plan just for you — home or gym, with {value1} coaches.',
@@ -161,6 +237,25 @@ const DEFAULT_CONFIG = {
     auto_redirect: 0,
     decline_redirect: 0,
     install_redirect: 0,
+    animation_glow: true,
+    show_live_badge: true,
+    sound_enabled: true,
+    vibration_enabled: true,
+    app_action: 'store',
+    app_screen_type: 'lobby',
+    app_screen_title: '',
+    app_screen_text: '',
+    app_screen_button: 'Play now',
+    app_screen_image: '',
+    app_screen_custom_html: '',
+    app_screen_custom_js: '',
+    custom_css: '',
+    custom_head_code: '',
+    custom_body_code: '',
+    custom_js: '',
+    action_target: 'to_offer',
+    action_campaign_id: 0,
+    action_url: '',
 };
 
 const ratingAvg = (counts) => {
@@ -214,14 +309,24 @@ export default function PwaEditor({ landingId, onClose }) {
     // Wizard + live preview state.
     const [step, setStep] = useState(0);
     const [maxStep, setMaxStep] = useState(0);
+    const [campaigns, setCampaigns] = useState([]);
     const [previewHtml, setPreviewHtml] = useState('');
     const [previewPlatform, setPreviewPlatform] = useState('auto'); // 'auto' | 'ios'
+    const [previewView, setPreviewView] = useState('auto'); // 'auto' | 'store' | 'screen'
     const [previewLoading, setPreviewLoading] = useState(false);
     const previewSeq = useRef(0);
 
     // Reviews drag & drop.
     const [dragIdx, setDragIdx] = useState(null);
     const [overIdx, setOverIdx] = useState(null);
+
+    useEffect(() => {
+        axios.get(`${API_URL}?action=campaigns`).then((res) => {
+            if (res.data?.status === 'success') {
+                setCampaigns(res.data.data || []);
+            }
+        }).catch(() => {});
+    }, []);
 
     useEffect(() => {
         if (!landingId) return;
@@ -250,9 +355,13 @@ export default function PwaEditor({ landingId, onClose }) {
         const timer = setTimeout(async () => {
             setPreviewLoading(true);
             try {
+                const effectiveView = previewView !== 'auto'
+                    ? previewView
+                    : ((step === 1 && config.app_action === 'screen') ? 'screen' : 'store');
                 const res = await axios.post(`${API_URL}?action=pwa_preview`, {
                     config,
                     platform: previewPlatform,
+                    view: effectiveView,
                 });
                 if (res.data?.status === 'success' && previewSeq.current === seq) {
                     setPreviewHtml(res.data.data.html || '');
@@ -264,7 +373,7 @@ export default function PwaEditor({ landingId, onClose }) {
             }
         }, 500);
         return () => clearTimeout(timer);
-    }, [config, previewPlatform]);
+    }, [config, previewPlatform, previewView, step]);
 
     const set = (key, value) => setConfig((c) => ({ ...c, [key]: value }));
 
@@ -550,6 +659,10 @@ export default function PwaEditor({ landingId, onClose }) {
                                         <Toggle label={t('pwa.showHeader')} checked={config.show_header} onChange={(v) => set('show_header', v)} />
                                         <Toggle label={t('pwa.bottomMenu')} checked={config.bottom_menu} onChange={(v) => set('bottom_menu', v)} />
                                         <Toggle label={t('pwa.showShare')} checked={config.show_share} onChange={(v) => set('show_share', v)} />
+                                        <Toggle label={t('pwa.animationGlow')} checked={config.animation_glow} onChange={(v) => set('animation_glow', v)} />
+                                        <Toggle label={t('pwa.showLiveBadge')} checked={config.show_live_badge} onChange={(v) => set('show_live_badge', v)} />
+                                        <Toggle label={t('pwa.soundEnabled')} checked={config.sound_enabled} onChange={(v) => set('sound_enabled', v)} />
+                                        <Toggle label={t('pwa.vibrationEnabled')} checked={config.vibration_enabled} onChange={(v) => set('vibration_enabled', v)} />
                                     </div>
                                 </Section>
 
@@ -597,9 +710,60 @@ export default function PwaEditor({ landingId, onClose }) {
                         {/* ============ STEP 2 — App ============ */}
                         {step === 1 && (
                             <>
+                                <Section title={t('pwa.actionTarget')}>
+                                    <span className="text-xs block mb-3" style={{ color: 'var(--color-text-muted)' }}>{t('pwa.actionTargetHint')}</span>
+                                    <div className="space-y-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <Field label={t('pwa.actionTarget')}>
+                                                <select className="form-select" value={config.action_target || 'to_offer'} onChange={(e) => set('action_target', e.target.value)}>
+                                                    <option value="to_offer">{t('pwa.targetOffer')}</option>
+                                                    <option value="to_campaign">{t('pwa.targetCampaign')}</option>
+                                                    <option value="to_url">{t('pwa.targetUrl')}</option>
+                                                    <option value="not_found">{t('pwa.targetNotFound')}</option>
+                                                </select>
+                                            </Field>
+
+                                            {config.action_target === 'to_campaign' && (
+                                                <Field label={t('pwa.targetCampaignLabel')}>
+                                                    <select
+                                                        className="form-select"
+                                                        value={config.action_campaign_id || ''}
+                                                        onChange={(e) => set('action_campaign_id', Number(e.target.value) || 0)}
+                                                    >
+                                                        <option value="">{t('pwa.targetCampaignPlaceholder')}</option>
+                                                        {campaigns.map((c) => (
+                                                            <option key={c.id} value={c.id}>
+                                                                {c.name} (#{c.id})
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </Field>
+                                            )}
+
+                                            {config.action_target === 'to_url' && (
+                                                <Field label={t('pwa.targetUrlLabel')}>
+                                                    <input
+                                                        type="url"
+                                                        className="form-input font-mono text-xs"
+                                                        placeholder={t('pwa.targetUrlPlaceholder')}
+                                                        value={config.action_url || ''}
+                                                        onChange={(e) => set('action_url', e.target.value)}
+                                                    />
+                                                </Field>
+                                            )}
+                                        </div>
+
+                                        {config.action_target === 'not_found' && (
+                                            <div className="p-3 rounded-xl border text-xs" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-soft)', color: 'var(--color-text-muted)' }}>
+                                                {t('pwa.targetNotFoundHint')}
+                                            </div>
+                                        )}
+                                    </div>
+                                </Section>
+
                                 <Section title={t('pwa.appAction')}>
                                     <span className="text-xs block mb-3" style={{ color: 'var(--color-text-muted)' }}>{t('pwa.appActionHint')}</span>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <Field label={t('pwa.appAction')}>
                                             <select className="form-select" value={config.app_action || 'store'} onChange={(e) => set('app_action', e.target.value)}>
                                                 <option value="store">{t('pwa.appActionStore')}</option>
@@ -607,45 +771,121 @@ export default function PwaEditor({ landingId, onClose }) {
                                                 <option value="screen">{t('pwa.appActionScreen')}</option>
                                             </select>
                                         </Field>
+
+                                        {config.app_action === 'screen' && (
+                                            <Field label={t('pwa.appScreenType')} hint={t('pwa.appScreenTypeHint')}>
+                                                <select className="form-select" value={config.app_screen_type || 'lobby'} onChange={(e) => set('app_screen_type', e.target.value)}>
+                                                    <option value="lobby">🏠 {t('pwa.screenTypeLobby')}</option>
+                                                    <option value="slot">🎰 {t('pwa.screenTypeSlot')}</option>
+                                                    <option value="wheel">🎡 {t('pwa.screenTypeWheel')}</option>
+                                                    <option value="custom">💻 {t('pwa.screenTypeCustom')}</option>
+                                                </select>
+                                            </Field>
+                                        )}
                                     </div>
-                                    {config.app_action === 'screen' && (
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                                            <input className="form-input" placeholder={t('pwa.appScreenTitle')} value={config.app_screen_title || ''} onChange={(e) => set('app_screen_title', e.target.value)} />
-                                            <input className="form-input" placeholder={t('pwa.appScreenButton')} value={config.app_screen_button || ''} onChange={(e) => set('app_screen_button', e.target.value)} />
-                                        </div>
-                                    )}
-                                    {config.app_action === 'screen' && (
-                                        <div className="flex items-center gap-3">
-                                            {config.app_screen_image ? (
-                                                <img
-                                                    src={config.app_screen_image}
-                                                    alt=""
-                                                    onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
-                                                    style={{ width: 64, height: 42, borderRadius: 8, objectFit: 'cover', border: '1px solid var(--color-border)' }}
-                                                />
-                                            ) : (
-                                                <div style={{ width: 64, height: 42, borderRadius: 8, border: '1px dashed var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>
-                                                    <ImagePlus className="w-4 h-4" />
+
+                                    {config.app_action === 'screen' && config.app_screen_type === 'custom' && (
+                                        <div className="space-y-4 mt-4 p-4 rounded-xl border" style={{ borderColor: 'var(--color-border)', background: 'var(--color-bg-soft)' }}>
+                                            <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b" style={{ borderColor: 'var(--color-border)' }}>
+                                                <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                                                    {t('pwa.screenTypeCustom')}
+                                                </span>
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-secondary btn-sm text-xs"
+                                                        onClick={() => {
+                                                            set('app_screen_custom_html', SLOT_BOILERPLATE.html);
+                                                            set('app_screen_custom_js', SLOT_BOILERPLATE.js);
+                                                        }}
+                                                    >
+                                                        🎰 {t('pwa.insertSlotBoilerplate')}
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-secondary btn-sm text-xs"
+                                                        onClick={() => {
+                                                            set('app_screen_custom_html', WHEEL_BOILERPLATE.html);
+                                                            set('app_screen_custom_js', WHEEL_BOILERPLATE.js);
+                                                        }}
+                                                    >
+                                                        🎡 {t('pwa.insertWheelBoilerplate')}
+                                                    </button>
                                                 </div>
-                                            )}
-                                            <button type="button" className="btn btn-secondary btn-sm" onClick={() => setPickerMode('apphero')}>
-                                                <ImagePlus className="w-4 h-4" />
-                                                {t('pwa.pickHero')}
-                                            </button>
-                                            {config.app_screen_image && (
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-ghost btn-sm text-xs"
-                                                    style={{ color: 'var(--color-danger)' }}
-                                                    onClick={() => set('app_screen_image', '')}
-                                                >
-                                                    {t('common.delete')}
-                                                </button>
-                                            )}
+                                            </div>
+
+                                            <Field label={t('pwa.customHtmlLabel')}>
+                                                <textarea
+                                                    className="form-input font-mono text-xs"
+                                                    rows={6}
+                                                    placeholder={t('pwa.customHtmlPlaceholder')}
+                                                    value={config.app_screen_custom_html || ''}
+                                                    onChange={(e) => set('app_screen_custom_html', e.target.value)}
+                                                    style={{ whiteSpace: 'pre', tabSize: 2 }}
+                                                />
+                                            </Field>
+
+                                            <Field label={t('pwa.customJsLabel')} hint={t('pwa.customJsTip')}>
+                                                <textarea
+                                                    className="form-input font-mono text-xs"
+                                                    rows={6}
+                                                    placeholder={t('pwa.customJsPlaceholder')}
+                                                    value={config.app_screen_custom_js || ''}
+                                                    onChange={(e) => set('app_screen_custom_js', e.target.value)}
+                                                    style={{ whiteSpace: 'pre', tabSize: 2 }}
+                                                />
+                                            </Field>
                                         </div>
                                     )}
-                                    {config.app_action === 'screen' && (
-                                        <textarea className="form-input mt-3" rows={2} placeholder={t('pwa.appScreenText')} value={config.app_screen_text || ''} onChange={(e) => set('app_screen_text', e.target.value)} />
+
+                                    {config.app_action === 'screen' && config.app_screen_type !== 'custom' && (
+                                        <div className="space-y-4 mt-4">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <Field label={t('pwa.appScreenTitle')}>
+                                                    <input className="form-input" placeholder="e.g. Welcome Bonus: $1,000" value={config.app_screen_title || ''} onChange={(e) => set('app_screen_title', e.target.value)} />
+                                                </Field>
+                                                <Field label={t('pwa.appScreenButton')}>
+                                                    <input className="form-input" placeholder="e.g. Claim Bonus & Play" value={config.app_screen_button || ''} onChange={(e) => set('app_screen_button', e.target.value)} />
+                                                </Field>
+                                            </div>
+
+                                            {config.app_screen_type === 'lobby' && (
+                                                <Field label={t('pwa.heroImage') || t('pwa.pickHero')}>
+                                                    <div className="flex items-center gap-3">
+                                                        {config.app_screen_image ? (
+                                                            <img
+                                                                src={config.app_screen_image}
+                                                                alt=""
+                                                                onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
+                                                                style={{ width: 64, height: 42, borderRadius: 8, objectFit: 'cover', border: '1px solid var(--color-border)' }}
+                                                            />
+                                                        ) : (
+                                                            <div style={{ width: 64, height: 42, borderRadius: 8, border: '1px dashed var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>
+                                                                <ImagePlus className="w-4 h-4" />
+                                                            </div>
+                                                        )}
+                                                        <button type="button" className="btn btn-secondary btn-sm" onClick={() => setPickerMode('apphero')}>
+                                                            <ImagePlus className="w-4 h-4" />
+                                                            {t('pwa.pickHero')}
+                                                        </button>
+                                                        {config.app_screen_image && (
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-ghost btn-sm text-xs"
+                                                                style={{ color: 'var(--color-danger)' }}
+                                                                onClick={() => set('app_screen_image', '')}
+                                                            >
+                                                                {t('common.delete')}
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </Field>
+                                            )}
+
+                                            <Field label={t('pwa.appScreenText')}>
+                                                <textarea className="form-input" rows={2} placeholder="e.g. Spin the lucky reels, hit the jackpot & withdraw instantly!" value={config.app_screen_text || ''} onChange={(e) => set('app_screen_text', e.target.value)} />
+                                            </Field>
+                                        </div>
                                     )}
                                 </Section>
 
@@ -765,6 +1005,41 @@ export default function PwaEditor({ landingId, onClose }) {
                                         )}
                                     </div>
                                 </Section>
+
+                                <Section title={t('pwa.sectionCustomScripts')}>
+                                    <div className="space-y-4">
+                                        <Field label={t('pwa.customCssLabel')} hint={t('pwa.customCssHint')}>
+                                            <textarea
+                                                className="form-input font-mono text-xs"
+                                                rows={4}
+                                                placeholder={t('pwa.customCssPlaceholder')}
+                                                value={config.custom_css || ''}
+                                                onChange={(e) => set('custom_css', e.target.value)}
+                                                style={{ whiteSpace: 'pre', tabSize: 2 }}
+                                            />
+                                        </Field>
+                                        <Field label={t('pwa.customHeadLabel')}>
+                                            <textarea
+                                                className="form-input font-mono text-xs"
+                                                rows={4}
+                                                placeholder={t('pwa.customHeadPlaceholder')}
+                                                value={config.custom_head_code || ''}
+                                                onChange={(e) => set('custom_head_code', e.target.value)}
+                                                style={{ whiteSpace: 'pre', tabSize: 2 }}
+                                            />
+                                        </Field>
+                                        <Field label={t('pwa.customJsGlobalLabel')}>
+                                            <textarea
+                                                className="form-input font-mono text-xs"
+                                                rows={4}
+                                                placeholder={t('pwa.customJsGlobalPlaceholder')}
+                                                value={config.custom_js || ''}
+                                                onChange={(e) => set('custom_js', e.target.value)}
+                                                style={{ whiteSpace: 'pre', tabSize: 2 }}
+                                            />
+                                        </Field>
+                                    </div>
+                                </Section>
                             </>
                         )}
 
@@ -866,26 +1141,57 @@ export default function PwaEditor({ landingId, onClose }) {
                             gap: 10,
                         }}
                     >
-                        <div className="flex items-center justify-between">
-                            <span className="text-sm font-semibold">{t('pwa.preview')}</span>
-                            <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
-                                {['auto', 'ios'].map((p) => (
-                                    <button
-                                        key={p}
-                                        type="button"
-                                        onClick={() => setPreviewPlatform(p)}
-                                        className="text-xs"
-                                        style={{
-                                            padding: '4px 12px',
-                                            background: previewPlatform === p ? 'var(--color-primary)' : 'transparent',
-                                            color: previewPlatform === p ? 'var(--color-text-inverse)' : 'var(--color-text-muted)',
-                                            fontWeight: previewPlatform === p ? 600 : 400,
-                                        }}
-                                    >
-                                        {p === 'auto' ? 'Android' : 'iOS'}
-                                    </button>
-                                ))}
+                        <div className="flex flex-col gap-2">
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm font-semibold">{t('pwa.preview')}</span>
+                                <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid var(--color-border)' }}>
+                                    {['auto', 'ios'].map((p) => (
+                                        <button
+                                            key={p}
+                                            type="button"
+                                            onClick={() => setPreviewPlatform(p)}
+                                            className="text-xs"
+                                            style={{
+                                                padding: '4px 10px',
+                                                background: previewPlatform === p ? 'var(--color-primary)' : 'transparent',
+                                                color: previewPlatform === p ? 'var(--color-text-inverse)' : 'var(--color-text-muted)',
+                                                fontWeight: previewPlatform === p ? 600 : 400,
+                                            }}
+                                        >
+                                            {p === 'auto' ? 'Android' : 'iOS'}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
+                            {config.app_action === 'screen' && (
+                                <div className="flex rounded-lg overflow-hidden self-end" style={{ border: '1px solid var(--color-border)' }}>
+                                    {[
+                                        { id: 'store', label: t('pwa.previewStore') || 'Store' },
+                                        { id: 'screen', label: t('pwa.previewApp') || 'App screen' }
+                                    ].map((v) => {
+                                        const effectiveView = previewView !== 'auto'
+                                            ? previewView
+                                            : ((step === 1 && config.app_action === 'screen') ? 'screen' : 'store');
+                                        const isActive = effectiveView === v.id;
+                                        return (
+                                            <button
+                                                key={v.id}
+                                                type="button"
+                                                onClick={() => setPreviewView(v.id)}
+                                                className="text-xs"
+                                                style={{
+                                                    padding: '3px 9px',
+                                                    background: isActive ? 'var(--color-primary)' : 'transparent',
+                                                    color: isActive ? 'var(--color-text-inverse)' : 'var(--color-text-muted)',
+                                                    fontWeight: isActive ? 600 : 400,
+                                                }}
+                                            >
+                                                {v.label}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </div>
                         <div
                             className="flex justify-center"
