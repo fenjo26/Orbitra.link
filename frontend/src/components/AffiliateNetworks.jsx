@@ -6,6 +6,7 @@ import MobileCards from './common/MobileCards';
 import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard as copyText } from '../utils/clipboard';
 import { cachedGet, cachedPost, invalidateCache } from '../utils/apiCache';
+import { canWriteResource } from '../utils/permissions';
 
 const AffiliateNetworks = ({ user }) => {
     const { t } = useLanguage();
@@ -21,6 +22,11 @@ const AffiliateNetworks = ({ user }) => {
     const [stateFilter, setStateFilter] = useState('all');
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
+
+    // Mirrors the backend gate in core/resource_access.php: POST
+    // affiliate_networks (save), delete_affiliate_network and
+    // bulk_delete_affiliate_networks are all write actions.
+    const canWriteNetworks = canWriteResource(user, 'networks');
 
     useEffect(() => {
         fetchNetworks();
@@ -205,7 +211,9 @@ const AffiliateNetworks = ({ user }) => {
         )
     );
 
-    const renderNetworkActions = (network) => (
+    const renderNetworkActions = (network) => {
+        if (!canWriteNetworks) return null;
+        return (
         <div className="flex items-center gap-2">
             <button
                 onClick={() => openEditor(network.id)}
@@ -224,7 +232,8 @@ const AffiliateNetworks = ({ user }) => {
                 <Trash2 className="w-4 h-4" />
             </button>
         </div>
-    );
+        );
+    };
 
     if (loading) {
         return <div className="flex justify-center py-10">{t('common.loading')}</div>;
@@ -268,7 +277,7 @@ const AffiliateNetworks = ({ user }) => {
                     <button type="button" onClick={() => setSettingsOpen(true)} className="btn btn-ghost btn-icon" title={t('common.settings')}>
                         <Settings2 className="w-5 h-5" />
                     </button>
-                    {selectedIds.size > 0 && (
+                    {selectedIds.size > 0 && canWriteNetworks && (
                         <button
                             onClick={handleBulkDeleteSelected}
                             className="btn btn-danger"
@@ -278,7 +287,7 @@ const AffiliateNetworks = ({ user }) => {
                             {(t('common.deleteSelected') || t('common.delete'))} ({selectedIds.size})
                         </button>
                     )}
-                    {canWriteResource(user, 'networks') && (
+                    {canWriteNetworks && (
                         <button
                             onClick={() => openEditor()}
                             className="btn btn-primary"
