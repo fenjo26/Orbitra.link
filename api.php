@@ -11987,31 +11987,31 @@ try {
 
                 // Disk space warning
                 if ($diskUsedPercent > 90) {
-                    $warnings[] = ['level' => 'critical', 'message' => 'Критически мало места на диске! Освободите место.'];
+                    $warnings[] = ['level' => 'critical', 'messageKey' => 'diskCritical'];
                 } elseif ($diskUsedPercent > 80) {
-                    $warnings[] = ['level' => 'warning', 'message' => 'Мало места на диске. Рекомендуется очистить старые логи.'];
+                    $warnings[] = ['level' => 'warning', 'messageKey' => 'diskWarning'];
                 }
 
                 // CPU load warning
                 $loadPerCore = $cpuCores > 0 ? $load[0] / $cpuCores : $load[0];
                 if ($loadPerCore > 2) {
-                    $warnings[] = ['level' => 'critical', 'message' => 'Высокая нагрузка на CPU. Рассмотрите апгрейд сервера.'];
+                    $warnings[] = ['level' => 'critical', 'messageKey' => 'cpuCritical'];
                 } elseif ($loadPerCore > 1) {
-                    $warnings[] = ['level' => 'warning', 'message' => 'Повышенная нагрузка на CPU.'];
+                    $warnings[] = ['level' => 'warning', 'messageKey' => 'cpuWarning'];
                 }
 
                 // RAM warning
                 if ($usedMemPercent > 90) {
-                    $warnings[] = ['level' => 'critical', 'message' => 'Критически мало оперативной памяти!'];
+                    $warnings[] = ['level' => 'critical', 'messageKey' => 'ramCritical'];
                 } elseif ($usedMemPercent > 80) {
-                    $warnings[] = ['level' => 'warning', 'message' => 'Мало свободной оперативной памяти.'];
+                    $warnings[] = ['level' => 'warning', 'messageKey' => 'ramWarning'];
                 }
 
                 // Database size recommendation
                 if ($dbSize > 500 * 1024 * 1024) { // > 500MB
-                    $recommendations[] = ['level' => 'info', 'message' => 'База данных превышает 500MB. Рассмотрите переход на MySQL для лучшей производительности.'];
+                    $recommendations[] = ['level' => 'info', 'messageKey' => 'dbOver500'];
                 } elseif ($dbSize > 200 * 1024 * 1024) { // > 200MB
-                    $recommendations[] = ['level' => 'info', 'message' => 'База данных растёт. При достижении 500MB рекомендуется перейти на MySQL.'];
+                    $recommendations[] = ['level' => 'info', 'messageKey' => 'dbGrowing'];
                 }
 
                 // Geo DB recommendation

@@ -265,7 +265,7 @@ const StatusContent = () => {
                         {statusData.recommendations.map((r, idx) => (
                             <div key={idx} className="alert alert-info flex items-start gap-2">
                                 <span>ℹ️</span>
-                                <span>{r.message}</span>
+                                <span>{r.messageKey ? t(`admin.${r.messageKey}`) : r.message}</span>
                             </div>
                         ))}
                     </div>
