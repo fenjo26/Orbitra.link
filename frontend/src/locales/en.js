@@ -3790,6 +3790,7 @@ export default {
         iconHint: "Square 512×512 PNG/WebP recommended",
         pickIcon: "Choose icon from gallery",
         pickScreens: "Add screenshots from gallery",
+        pickHero: "Choose hero image from gallery",
         iconDrop: "Upload icon",
         iconDropHint: "Drag & drop an image here or click to browse",
         iconDropReplace: "Click or drop another image to replace",

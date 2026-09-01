@@ -3790,6 +3790,7 @@ export default {
         iconHint: "Carré 512×512 PNG/WebP recommandé",
         pickIcon: "Choisir l'icône dans la galerie",
         pickScreens: "Ajouter des captures depuis la galerie",
+        pickHero: "Choisir le fond de l'écran dans la galerie",
         iconDrop: "Téléverser l'icône",
         iconDropHint: "Glissez une image ici ou cliquez pour choisir",
         iconDropReplace: "Cliquez ou glissez une autre image pour remplacer",

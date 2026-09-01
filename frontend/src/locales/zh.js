@@ -3790,6 +3790,7 @@ export default {
         iconHint: "建议 512×512 正方形 PNG/WebP",
         pickIcon: "从图库选择图标",
         pickScreens: "从图库添加截图",
+        pickHero: "从图库选择背景图",
         iconDrop: "上传图标",
         iconDropHint: "拖拽图片到此处或点击选择",
         iconDropReplace: "点击或拖拽其他图片进行替换",

@@ -32,6 +32,7 @@ const TIMER_OPTIONS = [0, 30, 45, 60, 90, 120, 150, 180];
 // chrome — the operator edits them per app.
 const presetAssets = (id) => ({
     icon_url: `/assets/pwa-presets/${id}/icon.png`,
+    app_screen_image: `/assets/pwa-presets/${id}/app-hero.png`,
     screens: [
         `/assets/pwa-presets/${id}/screen-1.png`,
         `/assets/pwa-presets/${id}/screen-2.png`,
@@ -303,6 +304,8 @@ export default function PwaEditor({ landingId, onClose }) {
         if (!usable.length) return;
         if (mode === 'icon') {
             set('icon_url', usable[usable.length - 1].url);
+        } else if (mode === 'apphero') {
+            set('app_screen_image', usable[usable.length - 1].url);
         } else if (mode === 'screens') {
             setConfig((c) => ({
                 ...c,
@@ -609,6 +612,36 @@ export default function PwaEditor({ landingId, onClose }) {
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                                             <input className="form-input" placeholder={t('pwa.appScreenTitle')} value={config.app_screen_title || ''} onChange={(e) => set('app_screen_title', e.target.value)} />
                                             <input className="form-input" placeholder={t('pwa.appScreenButton')} value={config.app_screen_button || ''} onChange={(e) => set('app_screen_button', e.target.value)} />
+                                        </div>
+                                    )}
+                                    {config.app_action === 'screen' && (
+                                        <div className="flex items-center gap-3">
+                                            {config.app_screen_image ? (
+                                                <img
+                                                    src={config.app_screen_image}
+                                                    alt=""
+                                                    onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
+                                                    style={{ width: 64, height: 42, borderRadius: 8, objectFit: 'cover', border: '1px solid var(--color-border)' }}
+                                                />
+                                            ) : (
+                                                <div style={{ width: 64, height: 42, borderRadius: 8, border: '1px dashed var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>
+                                                    <ImagePlus className="w-4 h-4" />
+                                                </div>
+                                            )}
+                                            <button type="button" className="btn btn-secondary btn-sm" onClick={() => setPickerMode('apphero')}>
+                                                <ImagePlus className="w-4 h-4" />
+                                                {t('pwa.pickHero')}
+                                            </button>
+                                            {config.app_screen_image && (
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-ghost btn-sm text-xs"
+                                                    style={{ color: 'var(--color-danger)' }}
+                                                    onClick={() => set('app_screen_image', '')}
+                                                >
+                                                    {t('common.delete')}
+                                                </button>
+                                            )}
                                         </div>
                                     )}
                                     {config.app_action === 'screen' && (

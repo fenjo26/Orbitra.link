@@ -3790,6 +3790,7 @@ export default {
         iconHint: "Quadratisch 512×512 PNG/WebP empfohlen",
         pickIcon: "Icon aus der Galerie wählen",
         pickScreens: "Screenshots aus der Galerie hinzufügen",
+        pickHero: "Hintergrundbild aus der Galerie wählen",
         iconDrop: "Icon hochladen",
         iconDropHint: "Bild hierher ziehen oder klicken zum Auswählen",
         iconDropReplace: "Klicken oder anderes Bild ziehen zum Ersetzen",

@@ -34,7 +34,7 @@ class PwaLanding
      * page; the lander route regenerates stale statics on the next view, so
      * renderer upgrades reach already-created PWA landings without a re-save.
      */
-    public const RENDERER_VERSION = 6;
+    public const RENDERER_VERSION = 7;
 
     /** Keys the constructor is allowed to persist; everything else is dropped. */
     private static function configKeys(): array
@@ -47,7 +47,7 @@ class PwaLanding
             'support_email', 'support_address', 'verified_badge', 'theme_mode',
             'color_scheme', 'store_style', 'ios_flow', 'preloader', 'bottom_menu', 'show_header',
             'show_share', 'auto_redirect', 'decline_redirect', 'install_redirect', 'push_enabled',
-            'app_action', 'app_screen_title', 'app_screen_text', 'app_screen_button',
+            'app_action', 'app_screen_title', 'app_screen_text', 'app_screen_button', 'app_screen_image',
         ];
     }
 
@@ -93,6 +93,7 @@ class PwaLanding
             'app_screen_title'  => '',
             'app_screen_text'   => '',
             'app_screen_button' => 'Play now',
+            'app_screen_image'  => '',
         ];
     }
 
@@ -771,7 +772,11 @@ SW;
             $iconInner = $iconSrc !== ''
                 ? '<img src="' . self::esc($iconSrc) . '" alt="">'
                 : '<span class="appscr-letter">' . self::esc(mb_substr($appName, 0, 1)) . '</span>';
-            $appScreen = '<div id="pwa-app-screen" hidden>'
+            $hero = $c['app_screen_image'] !== ''
+                ? '<div class="appscr-hero"><img src="' . self::esc($c['app_screen_image']) . '" alt="" onerror="this.parentNode.style.display=\'none\'"></div>'
+                : '';
+            $appScreen = '<div id="pwa-app-screen" hidden' . ($c['app_screen_image'] !== '' ? ' class="has-hero"' : '') . '>'
+                . $hero
                 . '<div class="appscr-icon">' . $iconInner . '</div>'
                 . '<h2 class="appscr-title">' . self::esc($c['app_screen_title'] !== '' ? $c['app_screen_title'] : $appName) . '</h2>'
                 . '<p class="appscr-text">' . self::esc($c['app_screen_text']) . '</p>'
@@ -1078,6 +1083,11 @@ html:not([data-store="app_store"]) .store-ios{display:none!important}
 .appscr-title{font-size:22px;font-weight:600;color:var(--pwa-text)}
 .appscr-text{font-size:14px;color:var(--pwa-muted);max-width:320px;line-height:1.45}
 #pwa-app-screen .install-btn{width:auto;padding:12px 44px}
+.appscr-hero{position:absolute;top:0;left:0;right:0;height:46%;overflow:hidden}
+.appscr-hero img{width:100%;height:100%;object-fit:cover}
+#pwa-app-screen.has-hero{justify-content:flex-end;padding-bottom:40px}
+#pwa-app-screen>*:not(.appscr-hero){position:relative;z-index:1}
+.appscr-icon{width:96px;height:96px;border-radius:22px;overflow:hidden;box-shadow:0 10px 24px rgba(0,0,0,.18);border:2px solid var(--pwa-bg)}
 CSS;
 
         return '<!DOCTYPE html>
