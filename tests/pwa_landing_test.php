@@ -181,6 +181,10 @@ try {
     assertTrue(strpos($prev, '__PWA_FORCE_IOS = true') === false, 'auto preview does not set the iOS force flag');
     $prevIos = PwaLanding::renderPreview($urlConfig, 'ios');
     assertContains('window.__PWA_FORCE_IOS = true', $prevIos, 'ios preview forces the instruction overlay');
+    assertContains('class="store-layout store-gp"', $prev, 'preview contains Google Play store layout');
+    assertContains('class="store-layout store-ios"', $prev, 'preview contains Apple App Store layout');
+    assertContains('ios-metrics-ribbon', $prev, 'preview contains Apple metric strip');
+    assertContains('ios-info-table', $prev, 'preview contains Apple information table');
     try {
         PwaLanding::renderPreview(['app_name' => 'no pwa flag'], 'auto');
         fwrite(STDERR, "FAILED: renderPreview must reject a non-PWA config\n");

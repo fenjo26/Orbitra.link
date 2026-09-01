@@ -53,7 +53,7 @@ const PRESETS = [
             ads_label: 'Contains ads · In-app purchases',
             description: 'Play {value} and get your welcome bonus! Thousands of players already win every day with {value1} games. Spin, bet and hit the jackpot — free chips every hour.',
             tags: ['casino', 'slots', 'jackpot', 'bonus'],
-            rating_counts: [820, 160, 48, 12, 6],
+            rating_counts: [2610, 310, 62, 12, 4],
             comments: [
                 { name: 'Marco88', text: 'Withdrawn my first win in 2 days, app is smooth.', stars: 5, likes: 41, date: '2026-08-28', reply: 'Thanks for playing with us!' },
                 { name: 'LuckyStar', text: 'Daily free spins are the best part.', stars: 4, likes: 12, date: '2026-08-25', reply: '' },
@@ -74,7 +74,7 @@ const PRESETS = [
             ads_label: 'Contains ads',
             description: '{value} — live scores, high odds and instant payouts. Bet on football, tennis, esports and more with {value1}.',
             tags: ['sport', 'betting', 'live', 'odds'],
-            rating_counts: [640, 210, 70, 18, 9],
+            rating_counts: [1980, 240, 48, 8, 3],
             comments: [
                 { name: 'Denis_K', text: 'Odds are better than in my old app.', stars: 5, likes: 33, date: '2026-08-30', reply: '' },
                 { name: 'FootballFan', text: 'Live streaming works great.', stars: 4, likes: 15, date: '2026-08-26', reply: 'More leagues coming soon!' },
@@ -95,7 +95,7 @@ const PRESETS = [
             ads_label: 'Contains ads',
             description: 'Neon lights, classic 777 slots and huge jackpots! {value} brings Vegas to your pocket — free coins every 4 hours from {value1}.',
             tags: ['slots', '777', 'vegas', 'free coins'],
-            rating_counts: [510, 130, 55, 20, 11],
+            rating_counts: [1740, 210, 42, 7, 2],
             comments: [
                 { name: 'SlotQueen', text: 'The 777 machine is my favorite.', stars: 5, likes: 19, date: '2026-08-29', reply: '' },
                 { name: 'NightOwl', text: 'Runs fine even on my old phone.', stars: 4, likes: 6, date: '2026-08-24', reply: '' },
@@ -115,7 +115,7 @@ const PRESETS = [
             ads_label: 'No ads',
             description: 'Your personal trainer in your pocket. {value} builds a workout plan just for you — home or gym, with {value1} coaches.',
             tags: ['fitness', 'workout', 'health', 'trainer'],
-            rating_counts: [430, 95, 22, 5, 2],
+            rating_counts: [1430, 150, 28, 4, 1],
             comments: [
                 { name: 'KateFit', text: 'Lost 4 kg in a month with the plan.', stars: 5, likes: 52, date: '2026-08-27', reply: 'Amazing progress, keep going!' },
                 { name: 'RunnerOne', text: 'Clean interface, no ads.', stars: 5, likes: 14, date: '2026-08-22', reply: '' },
@@ -140,7 +140,7 @@ const DEFAULT_CONFIG = {
     version: '1.0.0',
     updated: new Date().toISOString().slice(0, 10),
     tags: [],
-    rating_counts: [120, 30, 10, 4, 2],
+    rating_counts: [820, 96, 20, 4, 2],
     comments: [],
     whats_new_enabled: false,
     whats_new_text: '',
@@ -150,6 +150,7 @@ const DEFAULT_CONFIG = {
     verified_badge: true,
     theme_mode: 'light',
     color_scheme: 'green',
+    store_style: 'auto',
     ios_flow: 'instruction',
     preloader: true,
     bottom_menu: false,
@@ -511,7 +512,14 @@ export default function PwaEditor({ landingId, onClose }) {
                                 </Section>
 
                                 <Section title={t('pwa.sectionDesign')}>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <Field label={t('pwa.storeStyle')}>
+                                            <select className="form-select" value={config.store_style || 'auto'} onChange={(e) => set('store_style', e.target.value)}>
+                                                <option value="auto">{t('pwa.storeStyleAuto')}</option>
+                                                <option value="google_play">{t('pwa.storeStyleGooglePlay')}</option>
+                                                <option value="app_store">{t('pwa.storeStyleAppStore')}</option>
+                                            </select>
+                                        </Field>
                                         <Field label={t('pwa.themeMode')}>
                                             <select className="form-select" value={config.theme_mode} onChange={(e) => set('theme_mode', e.target.value)}>
                                                 <option value="light">{t('pwa.themeLight')}</option>

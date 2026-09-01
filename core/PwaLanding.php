@@ -37,7 +37,7 @@ class PwaLanding
             'version', 'updated', 'tags', 'rating_counts', 'comments',
             'whats_new_enabled', 'whats_new_text', 'support_enabled',
             'support_email', 'support_address', 'verified_badge', 'theme_mode',
-            'color_scheme', 'ios_flow', 'preloader', 'bottom_menu', 'show_header',
+            'color_scheme', 'store_style', 'ios_flow', 'preloader', 'bottom_menu', 'show_header',
             'show_share', 'auto_redirect', 'decline_redirect', 'install_redirect',
         ];
     }
@@ -70,6 +70,7 @@ class PwaLanding
             'verified_badge'    => true,
             'theme_mode'        => 'light',
             'color_scheme'      => 'green',
+            'store_style'       => 'auto',
             'ios_flow'          => 'instruction',
             'preloader'         => true,
             'bottom_menu'       => false,
@@ -146,6 +147,9 @@ class PwaLanding
         $c['icon_url'] = is_string($c['icon_url'] ?? null) ? trim($c['icon_url']) : '';
         if (!in_array($c['theme_mode'], ['light', 'dark'], true)) {
             $c['theme_mode'] = 'light';
+        }
+        if (!in_array($c['store_style'], ['auto', 'google_play', 'app_store'], true)) {
+            $c['store_style'] = 'auto';
         }
         if (!in_array($c['ios_flow'], ['default', 'instruction'], true)) {
             $c['ios_flow'] = 'instruction';
@@ -281,7 +285,7 @@ class PwaLanding
         return array_sum(array_map('intval', $counts));
     }
 
-    private static function starsSvg(float $avg, string $color): string
+    private static function starsSvg(float $avg, string $color, int $size = 14): string
     {
         $full = (int) floor($avg);
         $half = ($avg - $full) >= 0.5 ? 1 : 0;
@@ -289,7 +293,7 @@ class PwaLanding
         for ($i = 1; $i <= 5; $i++) {
             $fill = $i <= $full ? 1 : ($i === $full + 1 && $half ? 0.5 : 0);
             $id = 'hs' . $i . '_' . mt_rand();
-            $out .= '<svg width="14" height="14" viewBox="0 0 24 24"><defs><linearGradient id="' . $id . '">'
+            $out .= '<svg width="' . $size . '" height="' . $size . '" viewBox="0 0 24 24"><defs><linearGradient id="' . $id . '">'
                 . '<stop offset="' . ($fill * 100) . '%" stop-color="' . $color . '"/>'
                 . '<stop offset="' . ($fill * 100) . '%" stop-color="rgba(128,128,128,.35)"/>'
                 . '</linearGradient></defs>'
@@ -378,20 +382,81 @@ SW;
     }
 
     /**
-     * Minimal visitor-facing strings for the install instruction overlay.
-     * One language per PWA (config.lang), en fallback — matches the phase-1
-     * decision not to ship per-locale content sets yet.
+     * Minimal visitor-facing strings for the install instruction overlay & store chrome.
      */
     private static function langDict(): array
     {
         return [
-            'en' => ['Install the app', 'Open this page in Safari', 'Tap the Share button', "Tap 'Add to Home Screen'", 'Launch the app from your home screen', 'Installing…', 'Close'],
-            'ru' => ['Установите приложение', 'Откройте страницу в Safari', 'Нажмите кнопку «Поделиться»', 'Выберите «На экран “Домой”»', 'Запустите приложение с домашнего экрана', 'Установка…', 'Закрыть'],
-            'uk' => ['Встановіть застосунок', 'Відкрийте сторінку в Safari', 'Натисніть кнопку «Поділитися»', 'Виберіть «На екран “Додому”»', 'Запустіть застосунок з головного екрана', 'Встановлення…', 'Закрити'],
-            'es' => ['Instala la aplicación', 'Abre esta página en Safari', 'Toca el botón Compartir', 'Toca «Añadir a inicio»', 'Abre la aplicación desde tu pantalla de inicio', 'Instalando…', 'Cerrar'],
-            'de' => ['App installieren', 'Öffne diese Seite in Safari', 'Tippe auf „Teilen“', 'Tippe auf „Zum Home-Bildschirm“', 'Öffne die App vom Home-Bildschirm', 'Wird installiert…', 'Schließen'],
-            'fr' => ['Installer l’application', 'Ouvrez cette page dans Safari', 'Touchez le bouton Partager', 'Touchez « Sur l’écran d’accueil »', 'Lancez l’application depuis l’écran d’accueil', 'Installation…', 'Fermer'],
-            'zh' => ['安装应用', '在 Safari 中打开此页面', '点击“分享”按钮', '点击“添加到主屏幕”', '从主屏幕启动应用', '安装中…', '关闭'],
+            'en' => [
+                0 => 'Install the app', 1 => 'Open this page in Safari', 2 => 'Tap the Share button', 3 => "Tap 'Add to Home Screen'", 4 => 'Launch the app from your home screen', 5 => 'Installing…', 6 => 'Close',
+                'get' => 'GET', 'in_app_purchases' => 'In-App Purchases', 'ratings_reviews' => 'Ratings & Reviews', 'see_all' => 'See All',
+                'whats_new' => "What's New", 'version_history' => 'Version History', 'version' => 'Version', 'preview' => 'Preview',
+                'information' => 'Information', 'provider' => 'Provider', 'size' => 'Size', 'category' => 'Category',
+                'compatibility' => 'Compatibility', 'compatibility_val' => 'Works on this iPhone', 'languages' => 'Languages', 'languages_val' => 'English and 6 more',
+                'age_rating' => 'Age Rating', 'age_val' => '17+', 'chart_rank' => '#1 in', 'developer_response' => 'Developer Response',
+                'ratings_count_label' => 'RATINGS', 'age_label' => 'AGE', 'chart_label' => 'CHART', 'dev_label' => 'DEVELOPER', 'lang_label' => 'LANGUAGE', 'size_label' => 'SIZE',
+                'today' => 'Today', 'games' => 'Games', 'apps' => 'Apps', 'arcade' => 'Arcade', 'search' => 'Search', 'about_app' => 'About this app', 'reviews' => 'Reviews', 'support' => 'Support'
+            ],
+            'ru' => [
+                0 => 'Установите приложение', 1 => 'Откройте страницу в Safari', 2 => 'Нажмите кнопку «Поделиться»', 3 => 'Выберите «На экран “Домой”»', 4 => 'Запустите приложение с домашнего экрана', 5 => 'Установка…', 6 => 'Закрыть',
+                'get' => 'ЗАГРУЗИТЬ', 'in_app_purchases' => 'Встроенные покупки', 'ratings_reviews' => 'Оценки и отзывы', 'see_all' => 'См. все',
+                'whats_new' => 'Что нового', 'version_history' => 'История версий', 'version' => 'Версия', 'preview' => 'Предпросмотр',
+                'information' => 'Информация', 'provider' => 'Продавец', 'size' => 'Размер', 'category' => 'Категория',
+                'compatibility' => 'Совместимость', 'compatibility_val' => 'Работает на этом iPhone', 'languages' => 'Языки', 'languages_val' => 'Русский и еще 6',
+                'age_rating' => 'Возраст', 'age_val' => '17+', 'chart_rank' => '#1 в', 'developer_response' => 'Ответ разработчика',
+                'ratings_count_label' => 'ОЦЕНОК', 'age_label' => 'ВОЗРАСТ', 'chart_label' => 'ЧАРТ', 'dev_label' => 'РАЗРАБОТЧИК', 'lang_label' => 'ЯЗЫК', 'size_label' => 'РАЗМЕР',
+                'today' => 'Сегодня', 'games' => 'Игры', 'apps' => 'Приложения', 'arcade' => 'Arcade', 'search' => 'Поиск', 'about_app' => 'О приложении', 'reviews' => 'Отзывы', 'support' => 'Поддержка'
+            ],
+            'uk' => [
+                0 => 'Встановіть застосунок', 1 => 'Відкрийте сторінку в Safari', 2 => 'Натисніть кнопку «Поділитися»', 3 => 'Виберіть «На екран “Додому”»', 4 => 'Запустіть застосунок з головного екрана', 5 => 'Встановлення…', 6 => 'Закрити',
+                'get' => 'ОТРИМАТИ', 'in_app_purchases' => 'Вбудовані покупки', 'ratings_reviews' => 'Оцінки та відгуки', 'see_all' => 'Див. всі',
+                'whats_new' => 'Що нового', 'version_history' => 'Історія версій', 'version' => 'Версія', 'preview' => 'Попередній перегляд',
+                'information' => 'Інформація', 'provider' => 'Розробник', 'size' => 'Розмір', 'category' => 'Категорія',
+                'compatibility' => 'Сумісність', 'compatibility_val' => 'Працює на цьому iPhone', 'languages' => 'Мови', 'languages_val' => 'Українська та ще 6',
+                'age_rating' => 'Вік', 'age_val' => '17+', 'chart_rank' => '#1 в', 'developer_response' => 'Відповідь розробника',
+                'ratings_count_label' => 'ОЦІНОК', 'age_label' => 'ВІК', 'chart_label' => 'ЧАРТ', 'dev_label' => 'РОЗРОБНИК', 'lang_label' => 'МОВА', 'size_label' => 'РОЗМІР',
+                'today' => 'Сьогодні', 'games' => 'Ігри', 'apps' => 'Додатки', 'arcade' => 'Arcade', 'search' => 'Пошук', 'about_app' => 'Про застосунок', 'reviews' => 'Відгуки', 'support' => 'Підтримка'
+            ],
+            'es' => [
+                0 => 'Instala la aplicación', 1 => 'Abre esta página en Safari', 2 => 'Toca el botón Compartir', 3 => 'Toca «Añadir a inicio»', 4 => 'Abre la aplicación desde tu pantalla de inicio', 5 => 'Instalando…', 6 => 'Cerrar',
+                'get' => 'OBTENER', 'in_app_purchases' => 'Compras dentro de la app', 'ratings_reviews' => 'Valoraciones y reseñas', 'see_all' => 'Ver todo',
+                'whats_new' => 'Novedades', 'version_history' => 'Historial de versiones', 'version' => 'Versión', 'preview' => 'Vista previa',
+                'information' => 'Información', 'provider' => 'Proveedor', 'size' => 'Tamaño', 'category' => 'Categoría',
+                'compatibility' => 'Compatibilidad', 'compatibility_val' => 'Funciona en este iPhone', 'languages' => 'Idiomas', 'languages_val' => 'Español y 6 más',
+                'age_rating' => 'Edad', 'age_val' => '17+', 'chart_rank' => '#1 en', 'developer_response' => 'Respuesta del desarrollador',
+                'ratings_count_label' => 'VALORACIONES', 'age_label' => 'EDAD', 'chart_label' => 'LISTAS', 'dev_label' => 'DESARROLLADOR', 'lang_label' => 'IDIOMA', 'size_label' => 'TAMAÑO',
+                'today' => 'Hoy', 'games' => 'Juegos', 'apps' => 'Apps', 'arcade' => 'Arcade', 'search' => 'Buscar', 'about_app' => 'Información de la app', 'reviews' => 'Reseñas', 'support' => 'Soporte'
+            ],
+            'de' => [
+                0 => 'App installieren', 1 => 'Öffne diese Seite in Safari', 2 => 'Tippe auf „Teilen“', 3 => 'Tippe auf „Zum Home-Bildschirm“', 4 => 'Öffne die App vom Home-Bildschirm', 5 => 'Wird installiert…', 6 => 'Schließen',
+                'get' => 'LADEN', 'in_app_purchases' => 'In-App-Käufe', 'ratings_reviews' => 'Bewertungen & Rezensionen', 'see_all' => 'Alle anzeigen',
+                'whats_new' => 'Neuheiten', 'version_history' => 'Versionsverlauf', 'version' => 'Version', 'preview' => 'Vorschau',
+                'information' => 'Informationen', 'provider' => 'Entwickler', 'size' => 'Größe', 'category' => 'Kategorie',
+                'compatibility' => 'Kompatibilität', 'compatibility_val' => 'Funktioniert auf diesem iPhone', 'languages' => 'Sprachen', 'languages_val' => 'Deutsch und 6 weitere',
+                'age_rating' => 'Alter', 'age_val' => '17+', 'chart_rank' => '#1 in', 'developer_response' => 'Entwicklerantwort',
+                'ratings_count_label' => 'BEWERTUNGEN', 'age_label' => 'ALTER', 'chart_label' => 'CHARTS', 'dev_label' => 'ENTWICKLER', 'lang_label' => 'SPRACHE', 'size_label' => 'GRÖSSE',
+                'today' => 'Heute', 'games' => 'Spiele', 'apps' => 'Apps', 'arcade' => 'Arcade', 'search' => 'Suchen', 'about_app' => 'Über diese App', 'reviews' => 'Bewertungen', 'support' => 'Support'
+            ],
+            'fr' => [
+                0 => 'Installer l’application', 1 => 'Ouvrez cette page dans Safari', 2 => 'Touchez le bouton Partager', 3 => 'Touchez « Sur l’écran d’accueil »', 4 => 'Lancez l’application depuis l’écran d’accueil', 5 => 'Installation…', 6 => 'Fermer',
+                'get' => 'OBTENIR', 'in_app_purchases' => 'Achats intégrés', 'ratings_reviews' => 'Notes et avis', 'see_all' => 'Tout afficher',
+                'whats_new' => 'Nouveautés', 'version_history' => 'Historique des versions', 'version' => 'Version', 'preview' => 'Aperçu',
+                'information' => 'Informations', 'provider' => 'Fournisseur', 'size' => 'Taille', 'category' => 'Catégorie',
+                'compatibility' => 'Compatibilité', 'compatibility_val' => 'Fonctionne sur cet iPhone', 'languages' => 'Langues', 'languages_val' => 'Français et 6 autres',
+                'age_rating' => 'Âge', 'age_val' => '17+', 'chart_rank' => '#1 dans', 'developer_response' => 'Réponse du développeur',
+                'ratings_count_label' => 'NOTES', 'age_label' => 'ÂGE', 'chart_label' => 'CLASSEMENT', 'dev_label' => 'DÉVELOPPEUR', 'lang_label' => 'LANGUE', 'size_label' => 'TAILLE',
+                'today' => 'Aujourd’hui', 'games' => 'Jeux', 'apps' => 'Apps', 'arcade' => 'Arcade', 'search' => 'Rechercher', 'about_app' => 'À propos de cette appli', 'reviews' => 'Avis', 'support' => 'Assistance'
+            ],
+            'zh' => [
+                0 => '安装应用', 1 => '在 Safari 中打开此页面', 2 => '点击“分享”按钮', 3 => '点击“添加到主屏幕”', 4 => '从主屏幕启动应用', 5 => '安装中…', 6 => '关闭',
+                'get' => '获取', 'in_app_purchases' => 'App 内购买项目', 'ratings_reviews' => '评分及评论', 'see_all' => '查看全部',
+                'whats_new' => '新功能', 'version_history' => '版本历史记录', 'version' => '版本', 'preview' => '预览',
+                'information' => '信息', 'provider' => '开发商', 'size' => '大小', 'category' => '类目',
+                'compatibility' => '兼容性', 'compatibility_val' => '可在此 iPhone 上使用', 'languages' => '语言', 'languages_val' => '中文等 6 种',
+                'age_rating' => '年龄分级', 'age_val' => '17+', 'chart_rank' => '#1 位于', 'developer_response' => '开发者回复',
+                'ratings_count_label' => '份评分', 'age_label' => '年龄', 'chart_label' => '排行榜', 'dev_label' => '开发商', 'lang_label' => '语言', 'size_label' => '大小',
+                'today' => 'Today', 'games' => '游戏', 'apps' => 'App', 'arcade' => 'Arcade', 'search' => '搜索', 'about_app' => '关于此 App', 'reviews' => '评论', 'support' => '技术支持'
+            ],
         ];
     }
 
@@ -399,12 +464,14 @@ SW;
     {
         $scheme = self::colorSchemes()[$c['color_scheme']] ?? '#01875f';
         $dark = $c['theme_mode'] === 'dark';
-        $bg = $dark ? '#0f1114' : '#ffffff';
-        $surface = $dark ? '#191c20' : '#f5f5f5';
-        $text = $dark ? '#e8eaed' : '#202124';
-        $muted = $dark ? '#9aa0a6' : '#5f6368';
-        $border = $dark ? '#2b2f33' : '#e0e0e0';
+        $bg = $dark ? '#000000' : '#ffffff';
+        $surface = $dark ? '#1c1c1e' : '#f2f2f7';
+        $text = $dark ? '#ffffff' : '#000000';
+        $muted = $dark ? '#8e8e93' : '#8e8e93';
+        $border = $dark ? '#38383a' : '#e5e5ea';
         $appName = $c['app_name'] !== '' ? $c['app_name'] : 'App';
+        $storeStyle = $c['store_style'] ?? 'auto';
+
         // Description macros resolve at generation time: the name/developer are
         // static page content here, unlike the click macros below.
         $description = str_replace(
@@ -425,8 +492,6 @@ SW;
         ];
 
         $iconSrc = self::iconSrc($c);
-        // A broken image (media asset archived, preset asset not shipped yet)
-        // must degrade to a clean page, not a torn-icon glyph.
         $iconHtml = $iconSrc !== ''
             ? '<img class="app-icon" src="' . self::esc($iconSrc) . '" alt="" onerror="this.style.display=\'none\'">'
             : '<div class="app-icon app-icon-fallback">' . self::esc(mb_substr($appName, 0, 1)) . '</div>';
@@ -453,9 +518,50 @@ SW;
                 . '<span class="hbar"><span class="hfill" style="width:' . $pct . '%"></span></span></div>';
         }
 
-        $reviewsHtml = '';
+        // Ratings count short format
+        $totalFormatted = $total >= 1000 ? round($total / 1000, 1) . 'K' : (string) $total;
+
+        // ------------------------------------------------------------------
+        // GOOGLE PLAY LAYOUT
+        // ------------------------------------------------------------------
+        $gpPage = '';
+        if ($c['show_header']) {
+            $gpPage .= '<header class="gp-head"><span class="gp-burger"></span><span class="gp-search">' . self::esc($appName) . '</span></header>';
+        }
+        $gpPage .= '<section class="hero gp-hero">'
+            . '<div class="hero-row">'
+            . $iconHtml
+            . '<div class="hero-info">'
+            . '<h1 class="app-name">' . self::esc($appName) . ($c['verified_badge'] ? ' <svg class="badge" width="14" height="14" viewBox="0 0 24 24"><path fill="#1a73e8" d="M12 1l2.4 2.5 3.4-.5 1 3.3 3 1.6-1.3 3.1 1.3 3.1-3 1.6-1 3.3-3.4-.5L12 23l-2.4-2.5-3.4.5-1-3.3-3-1.6 1.3-3.1L2.2 9.9l3-1.6 1-3.3 3.4.5z"/><path fill="#fff" d="M10.6 16.2L7 12.6l1.4-1.4 2.2 2.2 5-5 1.4 1.4z"/></svg>' : '')
+            . '</h1>'
+            . '<div class="dev">' . self::esc($c['developer']) . '</div>'
+            . '<div class="sub">' . self::esc($c['ads_label']) . ' · ' . self::esc($c['category']) . '</div>'
+            . '<div class="sub rating-line">' . number_format($avg, 1, '.', '') . ' <span class="mini-stars">' . self::starsSvg($avg, 'var(--pwa-star)') . '</span> · ' . $total . ' reviews · ' . self::esc($c['downloads']) . ' Downloads</div>'
+            . '</div></div>'
+            . '<button type="button" id="pwa-install-btn" class="install-btn install-trigger">' . self::esc($c['button_text']) . '</button>'
+            . '<div id="pwa-installing" class="installing" hidden>' . self::esc($t[5]) . '</div>'
+            . '</section>';
+
+        if ($screensHtml !== '') {
+            $gpPage .= '<section class="shots">' . $screensHtml . '</section>';
+        }
+        if ($c['whats_new_enabled'] && trim((string) $c['whats_new_text']) !== '') {
+            $gpPage .= '<section class="block"><h2>' . self::esc($t['whats_new'] ?? 'What’s new') . '</h2><p class="desc">' . nl2br(self::esc($c['whats_new_text'])) . '</p></section>';
+        }
+        if ($description !== '') {
+            $gpPage .= '<section class="block"><h2>' . self::esc($t['about_app'] ?? 'About this app') . '</h2><p class="desc">' . nl2br(self::esc($description)) . '</p>'
+                . ($tagsHtml !== '' ? '<div class="tags">' . $tagsHtml . '</div>' : '')
+                . '</section>';
+        }
+        if ($total > 0) {
+            $gpPage .= '<section class="block"><h2>' . self::esc($t['ratings_reviews'] ?? 'Ratings and reviews') . '</h2><div class="ratings-row">'
+                . '<div class="big-avg">' . number_format($avg, 1, '.', '') . '</div><div class="hist">' . $histogram . '</div>'
+                . '</div></section>';
+        }
+
+        $gpReviewsHtml = '';
         foreach (array_slice($c['comments'], 0, 12) as $cm) {
-            $reviewsHtml .= '<div class="review">'
+            $gpReviewsHtml .= '<div class="review">'
                 . '<div class="review-head">'
                 . '<span class="avatar">' . self::esc(mb_substr($cm['name'] !== '' ? $cm['name'] : 'A', 0, 1)) . '</span>'
                 . '<span class="review-name">' . self::esc($cm['name']) . '</span>'
@@ -468,53 +574,114 @@ SW;
                     : '')
                 . '</div>';
         }
-
-        $page = '';
-        if ($c['show_header']) {
-            $page .= '<header class="gp-head"><span class="gp-burger"></span><span class="gp-search">' . self::esc($appName) . '</span></header>';
-        }
-        $page .= '<section class="hero">'
-            . '<div class="hero-row">'
-            . $iconHtml
-            . '<div class="hero-info">'
-            . '<h1 class="app-name">' . self::esc($appName) . ($c['verified_badge'] ? ' <svg class="badge" width="14" height="14" viewBox="0 0 24 24"><path fill="#1a73e8" d="M12 1l2.4 2.5 3.4-.5 1 3.3 3 1.6-1.3 3.1 1.3 3.1-3 1.6-1 3.3-3.4-.5L12 23l-2.4-2.5-3.4.5-1-3.3-3-1.6 1.3-3.1L2.2 9.9l3-1.6 1-3.3 3.4.5z"/><path fill="#fff" d="M10.6 16.2L7 12.6l1.4-1.4 2.2 2.2 5-5 1.4 1.4z"/></svg>' : '')
-            . '</h1>'
-            . '<div class="dev">' . self::esc($c['developer']) . '</div>'
-            . '<div class="sub">' . self::esc($c['ads_label']) . ' · ' . self::esc($c['category']) . '</div>'
-            . '<div class="sub rating-line">' . number_format($avg, 1, '.', '') . ' <span class="mini-stars">' . self::starsSvg($avg, 'var(--pwa-star)') . '</span> · ' . $total . ' reviews · ' . self::esc($c['downloads']) . ' Downloads</div>'
-            . '</div></div>'
-            . '<button type="button" id="pwa-install-btn" class="install-btn">' . self::esc($c['button_text']) . '</button>'
-            . '<div id="pwa-installing" class="installing" hidden>' . self::esc($t[5]) . '</div>'
-            . '</section>';
-
-        if ($screensHtml !== '') {
-            $page .= '<section class="shots">' . $screensHtml . '</section>';
-        }
-        if ($c['whats_new_enabled'] && trim((string) $c['whats_new_text']) !== '') {
-            $page .= '<section class="block"><h2>What’s new</h2><p class="desc">' . nl2br(self::esc($c['whats_new_text'])) . '</p></section>';
-        }
-        if ($description !== '') {
-            $page .= '<section class="block"><h2>About this app</h2><p class="desc">' . nl2br(self::esc($description)) . '</p>'
-                . ($tagsHtml !== '' ? '<div class="tags">' . $tagsHtml . '</div>' : '')
-                . '</section>';
-        }
-        if ($total > 0) {
-            $page .= '<section class="block"><h2>Ratings and reviews</h2><div class="ratings-row">'
-                . '<div class="big-avg">' . number_format($avg, 1, '.', '') . '</div><div class="hist">' . $histogram . '</div>'
-                . '</div></section>';
-        }
-        if ($reviewsHtml !== '') {
-            $page .= '<section class="block"><h2>Reviews</h2>' . $reviewsHtml . '</section>';
+        if ($gpReviewsHtml !== '') {
+            $gpPage .= '<section class="block"><h2>' . self::esc($t['reviews'] ?? 'Reviews') . '</h2>' . $gpReviewsHtml . '</section>';
         }
         if ($c['support_enabled'] && ($c['support_email'] !== '' || $c['support_address'] !== '')) {
-            $page .= '<section class="block"><h2>Support</h2><p class="desc">'
+            $gpPage .= '<section class="block"><h2>' . self::esc($t['support'] ?? 'Support') . '</h2><p class="desc">'
                 . ($c['support_email'] !== '' ? self::esc($c['support_email']) . '<br>' : '')
                 . self::esc($c['support_address'])
                 . '</p></section>';
         }
         if ($c['bottom_menu']) {
-            $page .= '<nav class="bottom-menu"><span>🎮</span><span>📱</span><span>🔍</span><span>📚</span></nav>';
+            $gpPage .= '<nav class="bottom-menu"><span>🎮</span><span>📱</span><span>🔍</span><span>📚</span></nav>';
         }
+
+        // ------------------------------------------------------------------
+        // APPLE APP STORE LAYOUT
+        // ------------------------------------------------------------------
+        $iosReviewsCardsHtml = '';
+        foreach (array_slice($c['comments'], 0, 10) as $cm) {
+            $iosReviewsCardsHtml .= '<div class="ios-rev-card">'
+                . '<div class="ios-rev-header">'
+                . '<span class="ios-rev-title">' . self::esc($cm['name'] !== '' ? $cm['name'] : 'User') . '</span>'
+                . '<span class="ios-rev-date">' . self::esc($cm['date']) . '</span>'
+                . '</div>'
+                . '<div class="ios-rev-stars">' . self::starsSvg((float) $cm['stars'], '#fbbc04', 12) . '</div>'
+                . '<div class="ios-rev-body">' . nl2br(self::esc($cm['text'])) . '</div>'
+                . ($cm['reply'] !== ''
+                    ? '<div class="ios-rev-reply"><div class="ios-reply-head">' . self::esc($t['developer_response'] ?? 'Developer Response') . '</div>' . nl2br(self::esc($cm['reply'])) . '</div>'
+                    : '')
+                . '</div>';
+        }
+
+        $iosPage = '<div class="ios-store-wrap">'
+            . '<header class="ios-nav">'
+            . '<span class="ios-nav-back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg> ' . self::esc($t['apps'] ?? 'Apps') . '</span>'
+            . '<span class="ios-nav-share"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></span>'
+            . '</header>'
+            . '<section class="ios-hero">'
+            . $iconHtml
+            . '<div class="ios-hero-info">'
+            . '<h1 class="ios-app-title">' . self::esc($appName) . '</h1>'
+            . '<div class="ios-app-subtitle">' . self::esc($c['category']) . ' · ' . self::esc($c['developer']) . '</div>'
+            . '<div class="ios-action-row">'
+            . '<button type="button" id="pwa-install-btn-ios" class="ios-get-btn install-trigger">' . self::esc($t['get'] ?? 'GET') . '</button>'
+            . '<button type="button" class="ios-more-btn">···</button>'
+            . '</div>'
+            . '<div class="ios-in-app-text">' . self::esc($t['in_app_purchases'] ?? 'In-App Purchases') . '</div>'
+            . '</div>'
+            . '</section>'
+            . '<section class="ios-metrics-ribbon">'
+            . '<div class="ios-metric-col"><span class="ios-m-top">' . $totalFormatted . ' ' . self::esc($t['ratings_count_label'] ?? 'RATINGS') . '</span><span class="ios-m-main">' . number_format($avg, 1, '.', '') . '</span><span class="ios-m-sub mini-stars">' . self::starsSvg($avg, '#8e8e93', 10) . '</span></div>'
+            . '<div class="ios-metric-col"><span class="ios-m-top">' . self::esc($t['age_label'] ?? 'AGE') . '</span><span class="ios-m-main">17+</span><span class="ios-m-sub">' . self::esc($t['age_rating'] ?? 'Years Old') . '</span></div>'
+            . '<div class="ios-metric-col"><span class="ios-m-top">' . self::esc($t['chart_label'] ?? 'CHART') . '</span><span class="ios-m-main">#1</span><span class="ios-m-sub">' . self::esc(mb_strimwidth((string)$c['category'], 0, 10, '..')) . '</span></div>'
+            . '<div class="ios-metric-col"><span class="ios-m-top">' . self::esc($t['dev_label'] ?? 'DEVELOPER') . '</span><span class="ios-m-main"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span class="ios-m-sub">' . self::esc(mb_strimwidth((string)$c['developer'], 0, 10, '..')) . '</span></div>'
+            . '<div class="ios-metric-col"><span class="ios-m-top">' . self::esc($t['lang_label'] ?? 'LANGUAGE') . '</span><span class="ios-m-main">' . strtoupper(self::esc($lang)) . '</span><span class="ios-m-sub">+6 More</span></div>'
+            . '<div class="ios-metric-col"><span class="ios-m-top">' . self::esc($t['size_label'] ?? 'SIZE') . '</span><span class="ios-m-main">48.2</span><span class="ios-m-sub">MB</span></div>'
+            . '</section>';
+
+        if ($c['whats_new_enabled'] && trim((string) $c['whats_new_text']) !== '') {
+            $iosPage .= '<section class="ios-block">'
+                . '<div class="ios-block-header"><h2>' . self::esc($t['whats_new'] ?? 'What’s New') . '</h2><span class="ios-link">' . self::esc($t['version_history'] ?? 'Version History') . '</span></div>'
+                . '<div class="ios-ver-line">' . self::esc($t['version'] ?? 'Version') . ' ' . self::esc($c['version']) . ' · 2d ago</div>'
+                . '<p class="desc">' . nl2br(self::esc($c['whats_new_text'])) . '</p>'
+                . '</section>';
+        }
+
+        if ($screensHtml !== '') {
+            $iosPage .= '<section class="ios-block"><div class="ios-block-header"><h2>' . self::esc($t['preview'] ?? 'Preview') . '</h2><span class="ios-device-tag">iPhone</span></div>'
+                . '<div class="shots ios-shots">' . $screensHtml . '</div></section>';
+        }
+
+        if ($description !== '') {
+            $iosPage .= '<section class="ios-block">'
+                . '<p class="desc">' . nl2br(self::esc($description)) . '</p>'
+                . ($tagsHtml !== '' ? '<div class="tags">' . $tagsHtml . '</div>' : '')
+                . '</section>';
+        }
+
+        if ($total > 0 || $iosReviewsCardsHtml !== '') {
+            $iosPage .= '<section class="ios-block">'
+                . '<div class="ios-block-header"><h2>' . self::esc($t['ratings_reviews'] ?? 'Ratings & Reviews') . '</h2><span class="ios-link">' . self::esc($t['see_all'] ?? 'See All') . '</span></div>'
+                . '<div class="ratings-row ios-ratings-summary">'
+                . '<div class="big-avg">' . number_format($avg, 1, '.', '') . '<div class="ios-out-of">out of 5</div></div>'
+                . '<div class="hist">' . $histogram . '<div class="ios-ratings-total">' . $total . ' ' . self::esc($t['ratings_count_label'] ?? 'Ratings') . '</div></div>'
+                . '</div>'
+                . ($iosReviewsCardsHtml !== '' ? '<div class="ios-reviews-scroll">' . $iosReviewsCardsHtml . '</div>' : '')
+                . '</section>';
+        }
+
+        $iosPage .= '<section class="ios-block ios-info-table">'
+            . '<div class="ios-block-header"><h2>' . self::esc($t['information'] ?? 'Information') . '</h2></div>'
+            . '<div class="ios-info-row"><span class="ios-info-label">' . self::esc($t['provider'] ?? 'Provider') . '</span><span class="ios-info-val">' . self::esc($c['developer'] !== '' ? $c['developer'] : 'Orbitra LLC') . '</span></div>'
+            . '<div class="ios-info-row"><span class="ios-info-label">' . self::esc($t['size'] ?? 'Size') . '</span><span class="ios-info-val">48.2 MB</span></div>'
+            . '<div class="ios-info-row"><span class="ios-info-label">' . self::esc($t['category'] ?? 'Category') . '</span><span class="ios-info-val">' . self::esc($c['category']) . '</span></div>'
+            . '<div class="ios-info-row"><span class="ios-info-label">' . self::esc($t['compatibility'] ?? 'Compatibility') . '</span><span class="ios-info-val">' . self::esc($t['compatibility_val'] ?? 'Works on this iPhone') . '</span></div>'
+            . '<div class="ios-info-row"><span class="ios-info-label">' . self::esc($t['languages'] ?? 'Languages') . '</span><span class="ios-info-val">' . self::esc($t['languages_val'] ?? 'English and 6 more') . '</span></div>'
+            . '<div class="ios-info-row"><span class="ios-info-label">' . self::esc($t['age_rating'] ?? 'Age Rating') . '</span><span class="ios-info-val">' . self::esc($t['age_val'] ?? '17+') . '</span></div>'
+            . '</section>';
+
+        if ($c['bottom_menu']) {
+            $iosPage .= '<nav class="ios-tab-bar">'
+                . '<div class="ios-tab-item"><span class="ios-tab-icon">📰</span><span>' . self::esc($t['today'] ?? 'Today') . '</span></div>'
+                . '<div class="ios-tab-item active"><span class="ios-tab-icon">🚀</span><span>' . self::esc($t['games'] ?? 'Games') . '</span></div>'
+                . '<div class="ios-tab-item"><span class="ios-tab-icon">📱</span><span>' . self::esc($t['apps'] ?? 'Apps') . '</span></div>'
+                . '<div class="ios-tab-item"><span class="ios-tab-icon">🕹️</span><span>' . self::esc($t['arcade'] ?? 'Arcade') . '</span></div>'
+                . '<div class="ios-tab-item"><span class="ios-tab-icon">🔍</span><span>' . self::esc($t['search'] ?? 'Search') . '</span></div>'
+                . '</nav>';
+        }
+        $iosPage .= '</div>';
 
         $preloader = $c['preloader']
             ? '<div id="pwa-preloader" class="preloader"><span class="spin"></span></div>'
@@ -567,28 +734,30 @@ SW;
   var closeBtn = document.getElementById('pwa-ios-close');
   if (closeBtn) closeBtn.addEventListener('click', function () { iosOverlay(false); });
 
-  var btn = document.getElementById('pwa-install-btn');
-  if (btn) {
-    btn.addEventListener('click', function () {
-      beacon('intent');
-      if (isStandalone) { later(0, redirect); return; }
-      if (isIOS) { iosOverlay(true); return; }
-      if (deferred) {
-        if (installingEl) installingEl.hidden = false;
-        deferred.prompt();
-        deferred.userChoice.then(function (choice) {
-          deferred = null;
-          if (choice && choice.outcome === 'accepted') {
-            // appinstalled fires separately and drives the redirect.
-          } else {
-            if (installingEl) installingEl.hidden = true;
-            if (cfg.decline > 0) later(cfg.decline, redirect);
-          }
-        });
-      } else {
-        iosOverlay(true);
-      }
-    });
+  function handleInstallClick() {
+    beacon('intent');
+    if (isStandalone) { later(0, redirect); return; }
+    if (isIOS) { iosOverlay(true); return; }
+    if (deferred) {
+      if (installingEl) installingEl.hidden = false;
+      deferred.prompt();
+      deferred.userChoice.then(function (choice) {
+        deferred = null;
+        if (choice && choice.outcome === 'accepted') {
+          // appinstalled fires separately and drives the redirect.
+        } else {
+          if (installingEl) installingEl.hidden = true;
+          if (cfg.decline > 0) later(cfg.decline, redirect);
+        }
+      });
+    } else {
+      iosOverlay(true);
+    }
+  }
+
+  var triggers = document.querySelectorAll('.install-trigger');
+  for (var i = 0; i < triggers.length; i++) {
+    triggers[i].addEventListener('click', handleInstallClick);
   }
 
   window.addEventListener('beforeinstallprompt', function (e) {
@@ -635,11 +804,21 @@ JS;
         $css = <<<CSS
 :root{--pwa-primary:$scheme;--pwa-bg:$bg;--pwa-surface:$surface;--pwa-text:$text;--pwa-muted:$muted;--pwa-border:$border;--pwa-star:#fbbc04}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Roboto,-apple-system,'Segoe UI',Arial,sans-serif;background:var(--pwa-bg);color:var(--pwa-text);padding-bottom:64px}
+body{font-family:Roboto,-apple-system,'Segoe UI',Arial,sans-serif;background:var(--pwa-bg);color:var(--pwa-text);padding-bottom:64px;-webkit-font-smoothing:antialiased}
+
+/* Store style switching */
+html[data-store="app_store"] body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",sans-serif}
+html[data-store="app_store"] .store-gp{display:none!important}
+html[data-store="app_store"] .store-ios{display:block!important}
+html:not([data-store="app_store"]) .store-gp{display:block!important}
+html:not([data-store="app_store"]) .store-ios{display:none!important}
+
 .preloader{position:fixed;inset:0;background:var(--pwa-bg);display:flex;align-items:center;justify-content:center;z-index:50;transition:opacity .35s;opacity:1}
 .preloader.done{opacity:0;pointer-events:none}
 .spin{width:34px;height:34px;border-radius:50%;border:3px solid var(--pwa-border);border-top-color:var(--pwa-primary);animation:pspin .8s linear infinite}
 @keyframes pspin{to{transform:rotate(360deg)}}
+
+/* Google Play Styles */
 .gp-head{display:flex;align-items:center;gap:12px;padding:12px 14px;position:sticky;top:0;background:var(--pwa-bg);z-index:10}
 .gp-burger{width:18px;height:2px;background:var(--pwa-text);box-shadow:0 6px 0 var(--pwa-text),0 -6px 0 var(--pwa-text);border-radius:2px}
 .gp-search{flex:1;background:var(--pwa-surface);border-radius:22px;padding:9px 16px;font-size:14px;color:var(--pwa-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -654,7 +833,7 @@ body{font-family:Roboto,-apple-system,'Segoe UI',Arial,sans-serif;background:var
 .sub{color:var(--pwa-muted);font-size:12px;margin-top:3px}
 .rating-line{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
 .mini-stars{display:inline-flex;gap:1px}
-.install-btn{margin:16px 0 6px;background:var(--pwa-primary);color:#fff;border:none;border-radius:22px;padding:11px 38px;font-size:15px;font-weight:500;width:100%}
+.install-btn{margin:16px 0 6px;background:var(--pwa-primary);color:#fff;border:none;border-radius:22px;padding:11px 38px;font-size:15px;font-weight:500;width:100%;cursor:pointer}
 .installing{color:var(--pwa-primary);font-size:13px;text-align:center;padding-bottom:8px}
 .shots{display:flex;gap:10px;overflow-x:auto;padding:12px 16px;scrollbar-width:none}
 .shots::-webkit-scrollbar{display:none}
@@ -682,14 +861,67 @@ body{font-family:Roboto,-apple-system,'Segoe UI',Arial,sans-serif;background:var
 .review-text{font-size:14px;line-height:1.45}
 .review-reply{margin-top:10px;background:var(--pwa-surface);border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.4}
 .reply-author{font-weight:500;margin-bottom:4px}
+.bottom-menu{position:fixed;left:0;right:0;bottom:0;background:var(--pwa-bg);border-top:1px solid var(--pwa-border);display:flex;justify-content:space-around;padding:12px 0;font-size:20px;z-index:20}
+.share-row{display:flex;gap:14px;padding:6px 16px 12px}
+.share-btn{width:42px;height:42px;border-radius:50%;background:var(--pwa-surface);display:flex;align-items:center;justify-content:center;font-size:18px}
+
+/* Apple App Store Styles */
+.ios-store-wrap{padding-top:4px}
+.ios-nav{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 6px;position:sticky;top:0;background:var(--pwa-bg);z-index:10}
+.ios-nav-back{color:var(--pwa-primary);font-size:16px;display:flex;align-items:center;gap:4px;font-weight:400;cursor:pointer}
+.ios-nav-share{color:var(--pwa-primary);font-size:16px;cursor:pointer}
+.ios-hero{display:flex;gap:16px;padding:12px 18px 16px;align-items:flex-start}
+.ios-hero .app-icon{width:112px;height:112px;border-radius:24px;border:0.5px solid var(--pwa-border);box-shadow:0 6px 16px rgba(0,0,0,0.08)}
+.ios-hero-info{flex:1;min-width:0}
+.ios-app-title{font-size:21px;font-weight:700;letter-spacing:-0.4px;line-height:1.2;color:var(--pwa-text)}
+.ios-app-subtitle{font-size:13px;color:var(--pwa-muted);margin-top:3px;font-weight:400}
+.ios-action-row{display:flex;align-items:center;gap:10px;margin-top:12px}
+.ios-get-btn{background:var(--pwa-primary);color:#fff;border:none;border-radius:18px;padding:6px 20px;font-size:14px;font-weight:700;letter-spacing:0.3px;cursor:pointer}
+.ios-more-btn{width:30px;height:30px;border-radius:50%;background:var(--pwa-surface);border:none;color:var(--pwa-primary);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.ios-in-app-text{font-size:9px;color:var(--pwa-muted);margin-top:4px}
+.ios-metrics-ribbon{display:flex;overflow-x:auto;padding:14px 16px;border-top:0.5px solid var(--pwa-border);border-bottom:0.5px solid var(--pwa-border);margin:4px 0 16px;scrollbar-width:none}
+.ios-metrics-ribbon::-webkit-scrollbar{display:none}
+.ios-metric-col{flex:1;min-width:76px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;padding:0 8px}
+.ios-metric-col:not(:last-child)::after{content:'';position:absolute;right:0;top:15%;height:70%;width:0.5px;background:var(--pwa-border)}
+.ios-m-top{font-size:10px;font-weight:600;color:var(--pwa-muted);letter-spacing:0.2px}
+.ios-m-main{font-size:19px;font-weight:700;color:var(--pwa-text);margin:2px 0 1px;display:flex;align-items:center;justify-content:center;height:24px}
+.ios-m-sub{font-size:11px;color:var(--pwa-muted)}
+.ios-block{padding:14px 18px;border-bottom:0.5px solid var(--pwa-border)}
+.ios-block-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.ios-block-header h2{font-size:19px;font-weight:700;color:var(--pwa-text)}
+.ios-link{color:var(--pwa-primary);font-size:14px;font-weight:400;cursor:pointer}
+.ios-device-tag{font-size:12px;color:var(--pwa-muted);font-weight:500}
+.ios-ver-line{font-size:13px;color:var(--pwa-muted);margin-bottom:8px}
+.ios-shots .shot{height:320px;border-radius:18px;border:0.5px solid var(--pwa-border);box-shadow:0 4px 16px rgba(0,0,0,0.06)}
+.ios-ratings-summary .big-avg{font-size:52px;font-weight:700;letter-spacing:-1px}
+.ios-out-of{font-size:13px;color:var(--pwa-muted);font-weight:500;margin-top:-6px}
+.ios-ratings-total{font-size:12px;color:var(--pwa-muted);text-align:right;margin-top:4px}
+.ios-reviews-scroll{display:flex;gap:12px;overflow-x:auto;margin-top:16px;padding-bottom:6px;scrollbar-width:none}
+.ios-reviews-scroll::-webkit-scrollbar{display:none}
+.ios-rev-card{width:290px;flex:none;background:var(--pwa-surface);border-radius:14px;padding:14px 16px}
+.ios-rev-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.ios-rev-title{font-size:13px;font-weight:600;color:var(--pwa-text)}
+.ios-rev-date{font-size:11px;color:var(--pwa-muted)}
+.ios-rev-stars{display:flex;gap:1px;margin-bottom:6px}
+.ios-rev-body{font-size:13px;line-height:1.4;color:var(--pwa-text)}
+.ios-rev-reply{margin-top:10px;background:rgba(0,0,0,0.04);border-radius:10px;padding:8px 10px;font-size:12px}
+.ios-reply-head{font-weight:600;margin-bottom:2px}
+.ios-info-table{padding-bottom:6px}
+.ios-info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;font-size:13px;border-bottom:0.5px solid var(--pwa-border)}
+.ios-info-row:last-child{border-bottom:none}
+.ios-info-label{color:var(--pwa-muted)}
+.ios-info-val{color:var(--pwa-text);font-weight:500;text-align:right;max-width:60%}
+.ios-tab-bar{position:fixed;left:0;right:0;bottom:0;background:var(--pwa-bg);border-top:0.5px solid var(--pwa-border);display:flex;justify-content:space-around;padding:8px 0 20px;z-index:20}
+.ios-tab-item{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--pwa-muted);font-weight:500}
+.ios-tab-item.active{color:var(--pwa-primary)}
+.ios-tab-icon{font-size:18px}
+
+/* Instruction Overlay */
 .ios-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;z-index:60}
 .ios-card{background:var(--pwa-bg);color:var(--pwa-text);border-radius:18px 18px 0 0;padding:22px 20px;max-width:420px;width:100%}
 .ios-card h3{font-size:17px;margin-bottom:12px}
 .ios-card ol{padding-left:20px;font-size:14px;line-height:1.7}
-.ios-card button{margin-top:14px;background:var(--pwa-surface);border:none;border-radius:20px;padding:10px 26px;font-size:14px;color:var(--pwa-text);width:100%}
-.bottom-menu{position:fixed;left:0;right:0;bottom:0;background:var(--pwa-bg);border-top:1px solid var(--pwa-border);display:flex;justify-content:space-around;padding:12px 0;font-size:20px;z-index:20}
-.share-row{display:flex;gap:14px;padding:6px 16px 12px}
-.share-btn{width:42px;height:42px;border-radius:50%;background:var(--pwa-surface);display:flex;align-items:center;justify-content:center;font-size:18px}
+.ios-card button{margin-top:14px;background:var(--pwa-surface);border:none;border-radius:20px;padding:10px 26px;font-size:14px;color:var(--pwa-text);width:100%;cursor:pointer}
 CSS;
 
         return '<!DOCTYPE html>
@@ -701,11 +933,22 @@ CSS;
 <meta name="theme-color" content="' . self::esc($scheme) . '">
 <link rel="manifest" href="manifest.webmanifest">
 ' . ($iconSrc !== '' ? '<link rel="apple-touch-icon" href="' . self::esc($iconSrc) . '">' : '') . '
+<script>
+(function(){
+  var isIOS = window.__PWA_FORCE_IOS === true
+    || /iPad|iPhone|iPod/.test(navigator.userAgent)
+    || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  var storeStyle = ' . json_encode($storeStyle) . ';
+  var effective = (storeStyle === "app_store" || (storeStyle === "auto" && isIOS)) ? "app_store" : "google_play";
+  document.documentElement.setAttribute("data-store", effective);
+})();
+</script>
 <style>' . $css . '</style>
 </head>
 <body>
 ' . $preloader . '
-' . $page . '
+<div class="store-layout store-gp">' . $gpPage . '</div>
+<div class="store-layout store-ios">' . $iosPage . '</div>
 ' . $share . '
 ' . $iosOverlay . '
 <script>
