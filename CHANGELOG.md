@@ -7,6 +7,31 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.4.1] — 2026-09-01
+
+Bugfix release: two user-reported fixes, no schema changes.
+
+### Fixed
+
+- **Affiliate Networks page crash (issue #7)** — since v1.4.0 the page failed to
+  render with `ReferenceError: canWriteResource is not defined`: commit 606ec24
+  wrapped the Create button in a permission check but never imported the helper
+  from `utils/permissions.js`, and the bundler silently left the bare identifier
+  in the production bundle. The import is restored, the check is computed once as
+  `canWriteNetworks`, and it now gates every mutation control on the page (create,
+  row edit, row delete, bulk delete) — mirroring the write actions of the
+  `networks` resource in `core/resource_access.php`. A repo-wide sweep confirmed
+  no other module uses a `permissions.js` export without importing it.
+- **System Status messages follow the panel language** — the disk/CPU/RAM warnings
+  and the database-size recommendations returned by `action=system_status` were
+  literal Russian strings, so every user saw "Критически мало места на диске!"
+  regardless of the interface language. The API now emits stable `messageKey`
+  codes (`diskCritical`, `diskWarning`, `cpuCritical`, `cpuWarning`, `ramCritical`,
+  `ramWarning`, `dbOver500`, `dbGrowing`) — the same contract the geo-DB warning
+  already used — and the System Status page resolves them through the translation
+  dictionary (8 new keys across all 7 locales; the recommendations row learned the
+  `messageKey` handling the warnings row already had).
+
 ## [1.4.0] — 2026-08-31
 
 Two features in one release: honest landing-funnel metrics with landing→offer

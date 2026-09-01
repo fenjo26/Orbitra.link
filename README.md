@@ -1,4 +1,4 @@
-# Orbitra v1.4.0 Tracker
+# Orbitra v1.4.1 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,29 +11,29 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.4.0
+## 🆕 What's New in v1.4.1
 
-Two features in one release: honest landing-funnel metrics with landing→offer
-timing, and real role enforcement with per-campaign scoping (issue #6).
+Bugfix release — two user-reported fixes, no schema changes.
 
-### Added — honest LP funnel & timing
+### Fixed
 
-- **📊 Real transition counters** — *Real LP clicks / Real offer clicks / Real LP CTR* count only clicks that actually went through the offer link; a landing view whose visitor never clicked the CTA is no longer an "offer transition". The new columns sit alongside the legacy ones in the campaigns list, report constructor (with hover hints), offers and landings pages
-- **⏱ LP Time grouping** — bucket the landing→offer seconds into 0-3s / 3-10s / 10-30s / 30-60s / 60s+ bands; the 0-3s band is bot territory and usually explains "the tracker shows transitions but the network sees none". Click details now show landing shown / offer transition / time-to-offer
-- **🌐 External landings included** — `landing_at` is written for every landing type, and tracking.js / kclient.js / kclient.php pass the visitor's landing time (`_lt`) on the tracker's signed transition link; kclient.js also gained the `data-orbitra-offer` offer-link contract
-- **🎚 New landing_offer streams default to "After the click"** — the offer is bound when the visitor actually leaves the landing, so LP CTR measures the CTA; both editor options carry plain-language captions. Existing streams are untouched
+- **🐞 Affiliate Networks page crash (issue #7)** — since v1.4.0 the page died with
+  `canWriteResource is not defined`: the permission check wrapped the Create button
+  but the helper was never imported. The page loads again for everyone, and every
+  mutation control (create, edit, delete, bulk delete) now respects the user's
+  network write permission, mirroring the server-side gate
+- **🌍 System Status messages follow the panel language** — warnings and
+  recommendations ("Critically low disk space! Free up space.", CPU/RAM load, DB
+  size advice) were hardcoded in Russian in the API response regardless of the
+  interface language. The backend now sends message codes and the panel renders
+  them localized — all 7 languages
 
-### Security — roles enforced, per-campaign scoping (issue #6)
+### Previous Highlights (v1.4.0)
 
-- **🔐 Permission levels are enforced server-side** for non-admins across all six resources: `none` blocks everything (including picker lists), `read` blocks every write; the UI hides buttons that would 403 and the Users modal offers only the real levels
-- **🔑 API-key minting is admin-only** — any logged-in user could previously create a write key under any account, including the admin's
-- **👤 Campaigns gain real per-campaign scoping** — Full / Read only / Own + Selected / Selected / None, with an owner column (migration 42, legacy campaigns backfilled to the first admin), filtering across lists, reports, logs, dashboard aggregates and every mutation, plus a campaign assignment picker in the Users modal
+- 📊 **Honest LP-funnel metrics & landing→offer timing** — Real LP clicks / Real offer clicks / Real LP CTR count only clicks that actually went through the offer link; LP Time buckets (0-3s … 60s+) explain most "tracker shows transitions, network sees none" mismatches; external landings included
+- 🔐 **Roles enforced server-side + per-campaign scoping (issue #6)** — none/read/full across all six resources, campaign scoping (Own + Selected) filters lists, reports, logs and the dashboard, API-key minting is admin-only
 
-### Previous Highlights (v1.3.11)
-
-- 🏠 Parked-domain release — a domain's root campaign and catch_404 now resolve in production (not just the dev router), and fresh installs get a private random postback key instead of the public default; issues #4 and #5
-
-Older releases (v1.3.10 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.3.11 and earlier): see the [full changelog](CHANGELOG.md).
 
 ## 🖥 Live Demo
 
@@ -504,15 +504,13 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.4.0 (2026-08-31)
+### Current release — v1.4.1 (2026-09-01)
 
-**Added — honest LP funnel & timing + roles enforced (issue #6)**
-- 📊 **Honest transition counters** — Real LP clicks / Real offer clicks / Real LP CTR count only clicks that actually went through the offer link; landing views no longer inflate the funnel
-- ⏱ **LP Time grouping** — landing→offer seconds bucketed 0-3s / 3-10s / 10-30s / 30-60s / 60s+; the 0-3s band is bot territory and explains most "network sees none" mismatches; timing covers external landings too (`_lt` from tracking.js / kclient.js / kclient.php)
-- 🎚 **"After the click" is the default for new landing streams** — the offer is bound on the real CTA click; both editor options carry plain-language captions
-- 🔐 **Roles are enforced server-side** — none/read/full work across all six resources, per-campaign scoping (Own + Selected) filters lists, reports, logs and the dashboard, and API-key minting is admin-only (issue #6)
+**Fixed**
+- 🐞 **Affiliate Networks page crash (issue #7)** — `canWriteResource` was used without its import since v1.4.0; the page loads again and all mutation controls respect network write permission
+- 🌍 **System Status messages localized** — disk/CPU/RAM warnings and DB recommendations were hardcoded Russian in the API; now message codes rendered in the panel language (7 locales)
 
-Previous releases — v1.3.11: 🏠 domain-root campaigns in production, 🔑 private postback key on install; v1.3.10: 📱 rotation rows as a placed grid below 640px, 🎨 campaign-name link parity on both surfaces; v1.3.9: 🔒 SSL chain verdicts + certificates-on-save, 🎯 LeadForge honest failures, 🛡️ scan protection, Domains rebuilt; v1.3.8: 🧹 stray ellipsis gone, centred values, checkbox column fixed, lint-zero tracker tables; v1.3.7: 🔀 full column reorder, ✂️ hard cell clipping, 🎯 centred headers.
+Previous releases — v1.4.0: 📊 honest LP-funnel metrics (Real LP clicks / Real offer clicks / Real LP CTR), ⏱ landing→offer timing buckets, 🎚 "After the click" default for new landing streams, 🔐 roles enforced server-side + per-campaign scoping (issue #6); v1.3.11: 🏠 domain-root campaigns in production, 🔑 private postback key on install; v1.3.10: 📱 rotation rows as a placed grid below 640px, 🎨 campaign-name link parity on both surfaces; v1.3.9: 🔒 SSL chain verdicts + certificates-on-save, 🎯 LeadForge honest failures, 🛡️ scan protection, Domains rebuilt; v1.3.8: 🧹 stray ellipsis gone, centred values, checkbox column fixed, lint-zero tracker tables; v1.3.7: 🔀 full column reorder, ✂️ hard cell clipping, 🎯 centred headers.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 
