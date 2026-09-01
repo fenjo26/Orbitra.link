@@ -6,6 +6,7 @@ import {
     Smartphone, Monitor, Eye, RotateCw
 } from 'lucide-react';
 import axios from 'axios';
+import MediaPicker from './common/MediaPicker';
 import GeoSelector from './GeoSelector';
 import HelpTooltip from './HelpTooltip';
 import GroupsModal from './GroupsModal';
@@ -144,6 +145,9 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
     const [imageLoadError, setImageLoadError] = useState(false);
     const [assetNonce, setAssetNonce] = useState(0);
     const [editorFullscreen, setEditorFullscreen] = useState(false);
+    // Content Gallery picker: null = closed, 'replace' = swap the selected
+    // image, 'insert' = drop an <img> into the code editor.
+    const [mediaPickerMode, setMediaPickerMode] = useState(null);
     const assetInputRef = useRef(null);
     const replaceAssetInputRef = useRef(null);
     const codeEditorRef = useRef(null);
@@ -490,6 +494,50 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
         window.requestAnimationFrame(() => codeEditorRef.current?.setSelection(0, 0));
     };
 
+    // Content Gallery: write a copy of the picked library asset into the offer
+    // under the selected file's existing name, so every <img> link on the page
+    // keeps working — only the bytes change (docs/media-core-v1.md §6).
+    const replaceFromGallery = async (asset) => {
+        if (!asset || !selectedFile || !currentOfferId) return;
+        if (normalizedImageExtension(asset.url) !== normalizedImageExtension(selectedFile)) {
+            alert(t('landingEditor.replaceImageTypeError', 'Choose an image with the same file type so existing landing links keep working.'));
+            return;
+        }
+        try {
+            const blob = await (await fetch(asset.url)).blob();
+            const file = new File([blob], selectedFile.split('/').pop(), { type: asset.mime || blob.type });
+            const fd = new FormData();
+            fd.append('file', file);
+            fd.append('id', currentOfferId);
+            fd.append('path', selectedFile);
+            const res = await axios.post(`${API_URL}?action=upload_offer_file`, fd, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            if (res.data.status !== 'success') throw new Error(res.data.message || 'failed');
+            setAssetNonce(Date.now());
+            setPreviewNonce(Date.now());
+            setImageDimensions(null);
+            setImageLoadError(false);
+            setSavedSomething(true);
+            fetchOfferFiles(currentOfferId);
+        } catch (error) {
+            alert(`${t('landingEditor.fileOpError', 'Operation failed')}: ${error.response?.data?.message || error.message}`);
+        }
+    };
+
+    const insertImageFromGallery = (asset) => {
+        if (!asset) return;
+        const alt = String(asset.orig_name || '').replace(/\.[^.]+$/, '').replace(/"/g, '');
+        codeEditorRef.current?.insertText(`<img src="${asset.url}" alt="${alt}">`);
+    };
+
+    const handleMediaPicked = (asset) => {
+        const mode = mediaPickerMode;
+        setMediaPickerMode(null);
+        if (mode === 'replace') replaceFromGallery(asset);
+        else if (mode === 'insert') insertImageFromGallery(asset);
+    };
+
     const uploadOfferZip = async (id, file) => {
         if (!id || !file) return;
         setUploadingZip(true);
@@ -719,6 +767,10 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
                                 <Upload className="h-3.5 w-3.5" />
                                 {t('landingEditor.replaceImage', 'Replace image')}
                             </button>
+                            <button type="button" className="btn btn-secondary btn-sm" onClick={() => setMediaPickerMode('replace')}>
+                                <ImageIcon className="h-3.5 w-3.5" />
+                                {t('media.replaceFromGallery', 'Replace from gallery')}
+                            </button>
                             <input
                                 ref={replaceAssetInputRef}
                                 type="file"
@@ -733,15 +785,25 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
         }
 
         return (
-            <div className="h-full min-h-0 p-2">
-                <CodeEditor
-                    ref={codeEditorRef}
-                    value={fileContent}
-                    onChange={setFileContent}
-                    onSave={saveFileContent}
-                    language={selectedLanguage}
-                    ariaLabel={`${t('offerEditor.title', 'Offer Editor')}: ${selectedFile}`}
-                />
+            <div className="flex h-full min-h-0 flex-col gap-1.5 p-2">
+                {selectedLanguage === 'html' && (
+                    <div className="flex flex-wrap items-center gap-1.5">
+                        <button type="button" className="btn btn-secondary btn-sm" onClick={() => setMediaPickerMode('insert')}>
+                            <ImageIcon className="h-3.5 w-3.5" />
+                            {t('media.insertImage', 'Insert image')}
+                        </button>
+                    </div>
+                )}
+                <div className="min-h-0 flex-1">
+                    <CodeEditor
+                        ref={codeEditorRef}
+                        value={fileContent}
+                        onChange={setFileContent}
+                        onSave={saveFileContent}
+                        language={selectedLanguage}
+                        ariaLabel={`${t('offerEditor.title', 'Offer Editor')}: ${selectedFile}`}
+                    />
+                </div>
             </div>
         );
     };
@@ -1461,6 +1523,12 @@ const OfferEditor = ({ offerId, onClose, onCreated }) => {
                     postbackKey={postbackKey}
                 />
             )}
+
+            <MediaPicker
+                open={mediaPickerMode !== null}
+                onClose={() => setMediaPickerMode(null)}
+                onSelect={handleMediaPicked}
+            />
         </div>
     );
 };

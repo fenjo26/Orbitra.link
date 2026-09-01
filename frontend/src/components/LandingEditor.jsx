@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Save, X, Upload, FileText, FileCode, Image as ImageIcon, Palette, Code, Check, Plus, Eye, ExternalLink, LayoutTemplate, HardDrive, Layers3, Zap, Columns2, WandSparkles, Maximize2, Minimize2, Link2, Undo2, Search } from 'lucide-react';
 import axios from 'axios';
+import MediaPicker from './common/MediaPicker';
 import GroupsModal from './GroupsModal';
 import SegmentedControl from './common/SegmentedControl';
 import FileDropzone from './common/FileDropzone';
@@ -159,6 +160,9 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
     const [imageLoadError, setImageLoadError] = useState(false);
     const [assetNonce, setAssetNonce] = useState(0);
     const [editorFullscreen, setEditorFullscreen] = useState(false);
+    // Content Gallery picker: null = closed, 'replace' = swap the selected
+    // image, 'insert' = drop an <img> into the code editor.
+    const [mediaPickerMode, setMediaPickerMode] = useState(null);
     const assetInputRef = useRef(null);
     const replaceAssetInputRef = useRef(null);
     const codeEditorRef = useRef(null);
@@ -504,6 +508,50 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
         codeEditorRef.current?.insertText(snippet);
     };
 
+    // Content Gallery: write a copy of the picked library asset into the
+    // landing under the selected file's existing name, so every <img> link on
+    // the page keeps working — only the bytes change (docs/media-core-v1.md §6).
+    const replaceFromGallery = async (asset) => {
+        if (!asset || !selectedFile || !landingId) return;
+        if (normalizedImageExtension(asset.url) !== normalizedImageExtension(selectedFile)) {
+            alert(t('landingEditor.replaceImageTypeError', 'Choose an image with the same file type so existing landing links keep working.'));
+            return;
+        }
+        try {
+            const blob = await (await fetch(asset.url)).blob();
+            const file = new File([blob], selectedFile.split('/').pop(), { type: asset.mime || blob.type });
+            const fd = new FormData();
+            fd.append('file', file);
+            fd.append('id', landingId);
+            fd.append('path', selectedFile);
+            const res = await axios.post(`${API_URL}?action=upload_landing_file`, fd, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            if (res.data.status !== 'success') throw new Error(res.data.message || 'failed');
+            setAssetNonce(Date.now());
+            setPreviewNonce(Date.now());
+            setImageDimensions(null);
+            setImageLoadError(false);
+            setSavedSomething(true);
+            fetchLandingFiles(landingId);
+        } catch (error) {
+            alert(`${t('landingEditor.fileOpError', 'Operation failed')}: ${error.response?.data?.message || error.message}`);
+        }
+    };
+
+    const insertImageFromGallery = (asset) => {
+        if (!asset) return;
+        const alt = String(asset.orig_name || '').replace(/\.[^.]+$/, '').replace(/"/g, '');
+        insertAtCursor(`<img src="${asset.url}" alt="${alt}">`);
+    };
+
+    const handleMediaPicked = (asset) => {
+        const mode = mediaPickerMode;
+        setMediaPickerMode(null);
+        if (mode === 'replace') replaceFromGallery(asset);
+        else if (mode === 'insert') insertImageFromGallery(asset);
+    };
+
     const insertBeforeClosingTag = (snippet, tag) => {
         const duplicateMarker = tag === 'head' ? '/js/orbitra-adapter.js' : 'data-orbitra-back-trap';
         if (fileContent.includes(duplicateMarker)) {
@@ -597,6 +645,10 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                                 <Upload className="h-3.5 w-3.5" />
                                 {t('landingEditor.replaceImage', 'Replace image')}
                             </button>
+                            <button type="button" className="btn btn-secondary btn-sm" onClick={() => setMediaPickerMode('replace')}>
+                                <ImageIcon className="h-3.5 w-3.5" />
+                                {t('media.replaceFromGallery', 'Replace from gallery')}
+                            </button>
                             <input
                                 ref={replaceAssetInputRef}
                                 type="file"
@@ -611,15 +663,25 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
         }
 
         return (
-            <div className="h-full min-h-0 p-2">
-                <CodeEditor
-                    ref={codeEditorRef}
-                    value={fileContent}
-                    onChange={setFileContent}
-                    onSave={saveFileContent}
-                    language={selectedLanguage}
-                    ariaLabel={`${t('landingEditor.title')}: ${selectedFile}`}
-                />
+            <div className="flex h-full min-h-0 flex-col gap-1.5 p-2">
+                {canInsertHtmlSnippets && (
+                    <div className="flex flex-wrap items-center gap-1.5">
+                        <button type="button" className="btn btn-secondary btn-sm" onClick={() => setMediaPickerMode('insert')}>
+                            <ImageIcon className="h-3.5 w-3.5" />
+                            {t('media.insertImage', 'Insert image')}
+                        </button>
+                    </div>
+                )}
+                <div className="min-h-0 flex-1">
+                    <CodeEditor
+                        ref={codeEditorRef}
+                        value={fileContent}
+                        onChange={setFileContent}
+                        onSave={saveFileContent}
+                        language={selectedLanguage}
+                        ariaLabel={`${t('landingEditor.title')}: ${selectedFile}`}
+                    />
+                </div>
             </div>
         );
     };
@@ -1235,6 +1297,12 @@ const LandingEditor = ({ landingId: initialLandingId, onClose, onSaved }) => {
                     }}
                 />
             )}
+
+            <MediaPicker
+                open={mediaPickerMode !== null}
+                onClose={() => setMediaPickerMode(null)}
+                onSelect={handleMediaPicked}
+            />
         </div>
     );
 };

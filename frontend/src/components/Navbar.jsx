@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Home, LayoutDashboard, Globe, Users, DollarSign, Activity, PieChart, Tag, Bell, Search, Settings, Link, FileText, Mail, ChevronDown, UserCog, Palette, Map, Globe2, Plug, BarChart3, FileStack, Archive, Upload, Trash2, Database, ArrowRightLeft, RefreshCw, Server, LogOut, Palette as BrandIcon, TrendingUp, Sun, Moon, Menu, X, MessageSquare, Sparkles, Zap } from 'lucide-react';
+import { Home, LayoutDashboard, Globe, Users, DollarSign, Activity, PieChart, Tag, Bell, Search, Settings, Link, FileText, Mail, ChevronDown, UserCog, Palette, Map, Globe2, Plug, BarChart3, FileStack, Archive, Upload, Trash2, Database, ArrowRightLeft, RefreshCw, Server, LogOut, Palette as BrandIcon, TrendingUp, Sun, Moon, Menu, X, MessageSquare, Sparkles, Zap, Images } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { canAccessTab } from '../utils/permissions';
 
@@ -118,6 +118,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
         { icon: <Tag size={18} />, label: t('nav.campaigns'), tab: 'campaigns' },
         { icon: <Globe size={18} />, label: t('nav.landings'), tab: 'landings' },
         { icon: <DollarSign size={18} />, label: t('nav.offers'), tab: 'offers' },
+        { icon: <Images size={18} />, label: t('nav.mediaGallery'), tab: 'media' },
         { icon: <Users size={18} />, label: t('nav.networks'), tab: 'networks' },
         { icon: <Link size={18} />, label: t('nav.sources'), tab: 'sources' },
         { icon: <TrendingUp size={18} />, label: t('nav.analytics'), tab: 'trends' },
@@ -195,6 +196,9 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                             )}
                             {canAccessTab(user, 'offers') && (
                                 <NavItem icon={<DollarSign size={18} />} label={t('nav.offers')} active={activeTab === 'offers'} onClick={() => setActiveTab('offers')} />
+                            )}
+                            {canAccessTab(user, 'media') && (
+                                <NavItem icon={<Images size={18} />} label={t('nav.mediaGallery')} active={activeTab === 'media'} onClick={() => setActiveTab('media')} />
                             )}
                             {canAccessTab(user, 'networks') && (
                                 <NavItem icon={<Users size={18} />} label={t('nav.networks')} active={activeTab === 'networks'} onClick={() => setActiveTab('networks')} />

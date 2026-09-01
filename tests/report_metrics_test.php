@@ -172,12 +172,13 @@ $pdo->exec('CREATE TABLE clicks (id TEXT PRIMARY KEY, campaign_id INTEGER, offer
     revenue REAL DEFAULT 0, is_bot INTEGER DEFAULT 0, is_proxy INTEGER DEFAULT 0,
     referer TEXT, created_at TEXT DEFAULT "2026-01-01 10:00:00",
     uniq_campaign INTEGER DEFAULT 1, uniq_stream INTEGER DEFAULT 1, uniq_global INTEGER DEFAULT 1,
-    landing_at TEXT, offer_at TEXT)');
+    landing_at TEXT, offer_at TEXT,
+    pwa_intent_at TEXT, pwa_install_at TEXT, pwa_open_at TEXT, pwa_open_count INTEGER DEFAULT 0)');
 // "Real" revenue (aggregator payouts) lives in revenue_records, joined per
 // click exactly like the campaigns report does.
 $pdo->exec('CREATE TABLE revenue_records (id INTEGER PRIMARY KEY, click_id TEXT, amount REAL)');
 $pdo->exec('CREATE TABLE landings (id INTEGER PRIMARY KEY, name TEXT, type TEXT, url TEXT,
-    state TEXT, group_id INTEGER, is_archived INTEGER DEFAULT 0)');
+    state TEXT, group_id INTEGER, is_archived INTEGER DEFAULT 0, config_json TEXT)');
 $pdo->exec('CREATE TABLE landing_groups (id INTEGER PRIMARY KEY, name TEXT)');
 $pdo->exec('CREATE TABLE offers (id INTEGER PRIMARY KEY, name TEXT, group_id INTEGER,
     affiliate_network_id INTEGER, url TEXT, redirect_type TEXT, is_local INTEGER, geo TEXT,

@@ -76,7 +76,10 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    $LATEST_SCHEMA_VERSION = 42;
+    // 44 = media library (docs/media-core-v1.md); 43 = PWA landings. Both
+    // migration blocks are additive — whoever adds the next one bumps this and
+    // appends below, re-reading the file first (parallel-session rule).
+    $LATEST_SCHEMA_VERSION = 44;
 
     $schemaVersion = 0;
     try {
@@ -618,6 +621,33 @@ try {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (connection_id) REFERENCES aggregator_connections(id) ON DELETE CASCADE
     );
+
+    CREATE TABLE IF NOT EXISTS media_folders (
+        id            INTEGER PRIMARY KEY AUTOINCREMENT,
+        name          TEXT NOT NULL,
+        owner_user_id INTEGER,
+        created_at    DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS media_assets (
+        id            INTEGER PRIMARY KEY AUTOINCREMENT,
+        owner_user_id INTEGER,
+        folder_id     INTEGER,
+        orig_name     TEXT NOT NULL DEFAULT '',
+        stored_name   TEXT NOT NULL,
+        sha256        TEXT NOT NULL DEFAULT '',
+        mime          TEXT NOT NULL DEFAULT '',
+        size          INTEGER NOT NULL DEFAULT 0,
+        width         INTEGER,
+        height        INTEGER,
+        is_active     INTEGER NOT NULL DEFAULT 1,
+        created_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
+        deleted_at    DATETIME
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_media_assets_folder ON media_assets(folder_id, is_active);
+    CREATE INDEX IF NOT EXISTS idx_media_assets_owner  ON media_assets(owner_user_id);
+    CREATE INDEX IF NOT EXISTS idx_media_assets_sha256 ON media_assets(sha256);
 
     ";
 
@@ -2221,6 +2251,78 @@ try {
                                 WHERE owner_user_id IS NULL");
                 } catch (\Throwable $e) {
                 }
+            }
+
+            if ($schemaVersion < 43) {
+                // Migration 43: PWA landings + their funnel beacons.
+                //
+                // landings.config_json holds the PWA constructor config. The
+                // `pwa` key inside it marks a landing as a generated PWA —
+                // everything else stays a plain local landing, so the click
+                // router, rotation and cloak need no new type. The generator
+                // (core/PwaLanding.php) renders that config into static files
+                // inside the landing dir.
+                //
+                // clicks.pwa_* keep the honest funnel written by the
+                // /pixel.gif?action=pwa beacon:
+                //   pwa_intent_at  — tap on the Install button (before the prompt)
+                //   pwa_install_at — appinstalled (Android) / first standalone
+                //                    open on iOS; NULL-guard in the UPDATE is the
+                //                    dedup — the click row IS the install gate
+                //   pwa_open_at / pwa_open_count — standalone reopens, throttled
+                //                    by the endpoint (one per 10 min per click)
+                $alters = [
+                    "ALTER TABLE landings ADD COLUMN config_json TEXT",
+                    "ALTER TABLE clicks ADD COLUMN pwa_intent_at TEXT",
+                    "ALTER TABLE clicks ADD COLUMN pwa_install_at TEXT",
+                    "ALTER TABLE clicks ADD COLUMN pwa_open_at TEXT",
+                    "ALTER TABLE clicks ADD COLUMN pwa_open_count INTEGER DEFAULT 0",
+                ];
+                foreach ($alters as $sql) {
+                    try {
+                        $pdo->exec($sql);
+                    } catch (\Throwable $e) {
+                        // Column already present on a half-migrated DB.
+                    }
+                }
+            }
+
+            if ($schemaVersion < 44) {
+                // Migration 44: media library (docs/media-core-v1.md).
+                //
+                // Shared image library behind the MediaPicker: media_assets rows
+                // are metadata only — the bytes live in uploads/media/<ab>/ as
+                // server-named, extension-whitelisted image files (see
+                // orbitraMediaStoreUpload() in api.php). Soft delete keeps the
+                // picked-in pages intact: is_active = 0 hides the asset from the
+                // gallery and the picker, the file itself stays on disk. Deleting
+                // a folder never deletes files — they fall back to the root
+                // (folder_id NULL), mirroring the tracker convention the gallery
+                // was modelled on.
+                $pdo->exec("CREATE TABLE IF NOT EXISTS media_folders (
+                    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name          TEXT NOT NULL,
+                    owner_user_id INTEGER,
+                    created_at    DATETIME DEFAULT CURRENT_TIMESTAMP
+                )");
+                $pdo->exec("CREATE TABLE IF NOT EXISTS media_assets (
+                    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                    owner_user_id INTEGER,
+                    folder_id     INTEGER,
+                    orig_name     TEXT NOT NULL DEFAULT '',
+                    stored_name   TEXT NOT NULL,
+                    sha256        TEXT NOT NULL DEFAULT '',
+                    mime          TEXT NOT NULL DEFAULT '',
+                    size          INTEGER NOT NULL DEFAULT 0,
+                    width         INTEGER,
+                    height        INTEGER,
+                    is_active     INTEGER NOT NULL DEFAULT 1,
+                    created_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    deleted_at    DATETIME
+                )");
+                $pdo->exec("CREATE INDEX IF NOT EXISTS idx_media_assets_folder ON media_assets(folder_id, is_active)");
+                $pdo->exec("CREATE INDEX IF NOT EXISTS idx_media_assets_owner  ON media_assets(owner_user_id)");
+                $pdo->exec("CREATE INDEX IF NOT EXISTS idx_media_assets_sha256 ON media_assets(sha256)");
             }
 
             // Mark schema as up-to-date. This must be last.

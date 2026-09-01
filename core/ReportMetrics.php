@@ -122,6 +122,10 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    COALESCE(SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0
                                           AND (cl.landing_id IS NULL OR cl.landing_id = 0 OR cl.offer_at IS NOT NULL)
                                       THEN 1 ELSE 0 END), 0) AS real_offer_clicks,
+                   COALESCE(SUM(CASE WHEN cl.pwa_intent_at IS NOT NULL THEN 1 ELSE 0 END), 0) AS pwa_intents,
+                   COALESCE(SUM(CASE WHEN cl.pwa_install_at IS NOT NULL THEN 1 ELSE 0 END), 0) AS pwa_installs,
+                   COALESCE(SUM(CASE WHEN cl.pwa_install_at IS NOT NULL AND cl.is_bot = 0 THEN 1 ELSE 0 END), 0) AS pwa_installs_real,
+                   COALESCE(SUM(COALESCE(cl.pwa_open_count, 0)), 0) AS pwa_opens,
                    COALESCE(SUM(cl.cost), 0) AS cost,
                    COALESCE(SUM(cva.cnt_any), 0) AS conversions,
                    COALESCE(SUM(cva.cnt_sale), 0) AS sales,
@@ -251,7 +255,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
         $realSelect = $realValueColumn !== null ? 'COALESCE(SUM(real_rev), 0)' : '0';
         $realInner = $realValueColumn !== null ? 'rr.real_rev' : 'NULL as real_rev';
         return "
-            SELECT id, name, group_id, type, url, state, group_name,
+            SELECT id, name, group_id, type, url, state, group_name, config_json,
                    COUNT(click_id) as clicks,
                    COUNT(DISTINCT click_ip) as unique_clicks,
                    COALESCE(SUM(uniq_stream), 0) as unique_clicks_stream,
@@ -265,6 +269,10 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    COALESCE(SUM(offer_clicked), 0) as lp_clicks,
                    COALESCE(SUM(CASE WHEN offer_at IS NOT NULL THEN 1 ELSE 0 END), 0) as real_lp_clicks,
                    COALESCE(SUM(CASE WHEN offer_at IS NOT NULL THEN 1 ELSE 0 END), 0) as real_offer_clicks,
+                   COALESCE(SUM(CASE WHEN pwa_intent_at IS NOT NULL THEN 1 ELSE 0 END), 0) as pwa_intents,
+                   COALESCE(SUM(CASE WHEN pwa_install_at IS NOT NULL THEN 1 ELSE 0 END), 0) as pwa_installs,
+                   COALESCE(SUM(CASE WHEN pwa_install_at IS NOT NULL AND is_bot = 0 THEN 1 ELSE 0 END), 0) as pwa_installs_real,
+                   COALESCE(SUM(COALESCE(pwa_open_count, 0)), 0) as pwa_opens,
                    COALESCE(SUM(cnt_any), 0) as conversions,
                    COALESCE(SUM(rev_all), 0) as revenue,
                    COALESCE(SUM(rev_sale), 0) as revenue_confirmed,
@@ -283,7 +291,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    $realSelect as real_revenue,
                    MAX(click_created) as last_event
             FROM (
-                SELECT l.id, l.name, l.group_id, l.type, l.url, l.state,
+                SELECT l.id, l.name, l.group_id, l.type, l.url, l.state, l.config_json,
                        lg.name as group_name,
                        cl.id as click_id,
                        cl.ip as click_ip,
@@ -293,6 +301,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                        cl.is_bot, cl.is_proxy,
                        cl.referer as click_referer,
                        cl.landing_at, cl.offer_at,
+                       cl.pwa_intent_at, cl.pwa_install_at, cl.pwa_open_count,
                        CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END as offer_clicked,
                        cva.cnt_any, cva.rev_all, cva.rev_sale,
                        cva.cnt_sale, cva.cnt_hold, cva.cnt_rejected, cva.cnt_trash,
@@ -338,6 +347,13 @@ if (!function_exists('orbitraConversionStatusGroups')) {
         // landing funnel — the old columns keep their historical meaning.
         $realLpClicks    = (int) ($raw['real_lp_clicks'] ?? 0);
         $realOfferClicks = (int) ($raw['real_offer_clicks'] ?? 0);
+        // PWA funnel (core/PwaLanding.php): the install columns are written by
+        // the pixel beacon with a NULL-guard, so they are honest per click.
+        // pwa_open_count is a throttled counter, not a flag.
+        $pwaIntents      = (int) ($raw['pwa_intents'] ?? 0);
+        $pwaInstalls     = (int) ($raw['pwa_installs'] ?? 0);
+        $pwaInstallsReal = (int) ($raw['pwa_installs_real'] ?? 0);
+        $pwaOpens        = (int) ($raw['pwa_opens'] ?? 0);
         // Direct-to-offer traffic has no LP-click counter. Preserve useful CPC
         // and EPC values for that traffic while using LP clicks whenever they
         // exist, as required by the landing funnel definitions.
@@ -402,6 +418,15 @@ if (!function_exists('orbitraConversionStatusGroups')) {
             'real_lp_clicks'          => $realLpClicks,
             'real_offer_clicks'       => $realOfferClicks,
             'real_lp_ctr'             => $lpViews > 0 ? round(($realLpClicks / $lpViews) * 100, 2) : null,
+            // PWA funnel. The denominator of pwa_install_rate is the row's
+            // whole click count, so in a group-by-landing view of a PWA
+            // landing it IS view→install. Rows with zero installs render
+            // null (dash) — same honesty rule as lp_ctr.
+            'pwa_intents'             => $pwaIntents,
+            'pwa_installs'            => $pwaInstalls,
+            'real_pwa_installs'       => $pwaInstallsReal,
+            'pwa_opens'               => $pwaOpens,
+            'pwa_install_rate'        => $clicks > 0 && $pwaInstallsReal > 0 ? round(($pwaInstallsReal / $clicks) * 100, 2) : null,
             // Average landing→offer time, human-formatted ("1m 12s").
             'time_since_lp_click'     => self_fmtLpSeconds($raw['avg_lp_seconds'] ?? null),
 

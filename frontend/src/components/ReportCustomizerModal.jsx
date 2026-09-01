@@ -74,6 +74,11 @@ export const ALL_REPORT_METRICS = [
     { id: 'real_offer_clicks', label: 'Real offer clicks', shortLabel: 'Real Offer', hintKey: 'realOfferClicksHint', hint: 'Clicks that really reached the offer: direct clicks plus completed landing transitions' },
     { id: 'lp_ctr', label: 'LP CTR — LP Click-Through Rate', shortLabel: 'LP CTR', hintKey: 'lpCtrHint', hint: '(LP Clicks / LP Views) × 100% — dash on direct offers (no CTA)' },
     { id: 'real_lp_ctr', label: 'Real LP CTR', shortLabel: 'Real LP CTR', hintKey: 'realLpCtrHint', hint: '(Real LP clicks / LP Views) × 100% — the honest CTA conversion of the landing' },
+    { id: 'pwa_intents', label: 'PWA install intents', shortLabel: 'PWA Intent', hintKey: 'pwaIntentsHint', hint: 'Taps on the PWA landing Install button (before the browser prompt)' },
+    { id: 'pwa_installs', label: 'PWA installs', shortLabel: 'PWA Installs', hintKey: 'pwaInstallsHint', hint: 'Install events recorded for the PWA landing, bots included' },
+    { id: 'real_pwa_installs', label: 'Real PWA installs', shortLabel: 'Real PWA Inst', hintKey: 'realPwaInstallsHint', hint: 'PWA installs from non-bot clicks — appinstalled (Android) or first standalone open (iOS)' },
+    { id: 'pwa_opens', label: 'PWA opens', shortLabel: 'PWA Opens', hintKey: 'pwaOpensHint', hint: 'Reopens of the installed PWA from the home screen (throttled, one per 10 min per click)' },
+    { id: 'pwa_install_rate', label: 'PWA install rate', shortLabel: 'PWA CR', hintKey: 'pwaInstallRateHint', hint: '(Real PWA installs / clicks) × 100% — on a PWA landing row this IS view→install; dash when zero installs' },
     { id: 'cr_regs_to_deps', label: 'CR (regs to deps)', shortLabel: 'CR (r→d)' },
 ];
 
@@ -89,7 +94,7 @@ export const PRESETS = {
     best: ['profitability', 'clicks', 'unique_clicks', 'conversions', 'roi_confirmed', 'cost', 'revenue', 'profit', 'cr', 'epc', 'cpc', 'cpa'],
     finance: ['cost', 'revenue', 'revenue_confirmed', 'revenue_hold', 'revenue_rejected', 'profit', 'roi', 'profit_confirmed', 'roi_confirmed', 'cpa', 'epc'],
     cod: ['clicks', 'unique_clicks', 'leads', 'sales', 'approve_rate', 'rejected', 'trash', 'cost', 'cpl', 'cps', 'cpa', 'revenue_confirmed', 'profit_confirmed', 'roi_confirmed'],
-    lander_to_offer: ['clicks', 'unique_clicks', 'lp_views', 'lp_clicks', 'real_lp_clicks', 'real_lp_ctr', 'time_since_lp_click', 'conversions', 'cr', 'cpv', 'cpc', 'epv', 'epc', 'cpa', 'cost', 'revenue', 'profit', 'roi'],
+    lander_to_offer: ['clicks', 'unique_clicks', 'lp_views', 'lp_clicks', 'real_lp_clicks', 'real_lp_ctr', 'time_since_lp_click', 'pwa_intents', 'real_pwa_installs', 'pwa_opens', 'pwa_install_rate', 'conversions', 'cr', 'cpv', 'cpc', 'epv', 'epc', 'cpa', 'cost', 'revenue', 'profit', 'roi'],
     traffic: ['clicks', 'unique_clicks', 'visitors', 'unique_clicks_stream', 'unique_clicks_global', 'uc_rate', 'bots', 'bot_rate', 'proxies', 'empty_referrers', 'conversions', 'cr'],
     all: ALL_REPORT_METRICS.map(m => m.id),
 };

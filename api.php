@@ -1553,6 +1553,110 @@ function orbitraOfferEditableExtensions(): array
     return $list;
 }
 
+// ============================== Media library ==============================
+// Shared image library behind the gallery page and the MediaPicker
+// (docs/media-core-v1.md). Bytes live under uploads/media/<ab>/ with
+// server-generated names; this block only ever writes there through
+// orbitraMediaStoreUpload(), which rejects anything that is not a real image.
+
+/** Image extensions the library accepts. No SVG: active content, XSS vector. */
+function orbitraMediaAllowedExtensions(): array
+{
+    return ['webp', 'jpg', 'jpeg', 'png', 'gif'];
+}
+
+/** Absolute path of the media root, created on demand. */
+function orbitraMediaDir(): string
+{
+    $dir = __DIR__ . '/uploads/media';
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0775, true);
+    }
+    return $dir;
+}
+
+/** Public URL for a stored_name row value. */
+function orbitraMediaUrl(string $storedName): string
+{
+    return '/uploads/media/' . ltrim($storedName, '/');
+}
+
+/**
+ * Validate one uploaded image and move it into the library.
+ * getimagesize() is the hard gate: a text/script file wearing .png is rejected
+ * here no matter what its name claims. Returns [row, null] or [null, errorCode]
+ * where errorCode is a media.* message key.
+ */
+function orbitraMediaStoreUpload(array $file, int $ownerId, $folderId): array
+{
+    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+        return [null, 'media.err_upload'];
+    }
+    if ((int) $file['size'] > 10 * 1024 * 1024) {
+        return [null, 'media.err_too_large'];
+    }
+    $ext = strtolower(pathinfo((string) $file['name'], PATHINFO_EXTENSION));
+    if (!in_array($ext, orbitraMediaAllowedExtensions(), true)) {
+        return [null, 'media.err_extension'];
+    }
+    // is_uploaded_file guards against a crafted request bypassing the multipart
+    // path; move_uploaded_file already enforces it, but the check keeps the
+    // intent explicit before any filesystem work happens.
+    if (!is_uploaded_file((string) $file['tmp_name'])) {
+        return [null, 'media.err_upload'];
+    }
+    $info = @getimagesize((string) $file['tmp_name']);
+    if ($info === false || empty($info[0]) || empty($info[1])) {
+        return [null, 'media.err_not_image'];
+    }
+    $mime = (string) ($info['mime'] ?? '');
+    if (strpos($mime, 'image/') !== 0) {
+        return [null, 'media.err_not_image'];
+    }
+
+    $sha256 = hash_file('sha256', (string) $file['tmp_name']);
+    // Shard by the content hash prefix so no directory grows unbounded; the
+    // random suffix keeps two identical images from colliding on dedupe-free v1.
+    $name = substr($sha256, 0, 2) . '/' . substr($sha256, 0, 12) . '-' . bin2hex(random_bytes(4)) . '.' . $ext;
+    $target = orbitraMediaDir() . '/' . $name;
+    @mkdir(dirname($target), 0775, true);
+    if (!@move_uploaded_file((string) $file['tmp_name'], $target)) {
+        return [null, 'media.err_store'];
+    }
+    @chmod($target, 0644);
+
+    return [[
+        'owner_user_id' => $ownerId,
+        'folder_id'     => $folderId,
+        'orig_name'     => basename(str_replace('\\', '/', (string) $file['name'])),
+        'stored_name'   => $name,
+        'sha256'        => $sha256,
+        'mime'          => $mime,
+        'size'          => (int) $file['size'],
+        'width'         => (int) $info[0],
+        'height'        => (int) $info[1],
+    ], null];
+}
+
+/** media_assets row → the JSON shape every surface (page, picker) returns. */
+function orbitraMediaRow(array $row, array $ownerNames = []): array
+{
+    return [
+        'id'            => (int) $row['id'],
+        'orig_name'     => (string) $row['orig_name'],
+        'url'           => orbitraMediaUrl((string) $row['stored_name']),
+        'mime'          => (string) $row['mime'],
+        'size'          => (int) $row['size'],
+        'width'         => $row['width'] !== null ? (int) $row['width'] : null,
+        'height'        => $row['height'] !== null ? (int) $row['height'] : null,
+        'folder_id'     => $row['folder_id'] !== null ? (int) $row['folder_id'] : null,
+        'owner_user_id' => $row['owner_user_id'] !== null ? (int) $row['owner_user_id'] : null,
+        'owner_name'    => $row['owner_user_id'] !== null ? ($ownerNames[(int) $row['owner_user_id']] ?? null) : null,
+        'is_active'     => (int) $row['is_active'] === 1,
+        'created_at'    => (string) $row['created_at'],
+    ];
+}
+
 /**
  * Shared CRUD for the two bot blacklists (bot_ips, bot_signatures).
  *
@@ -4435,6 +4539,138 @@ try {
             }
             break;
 
+        case 'pwa_config_get':
+            // Full PWA constructor config for one landing. The landing row
+            // itself stays a normal local landing — this reads its config_json.
+            $id = (int) ($_GET['id'] ?? 0);
+            if ($id <= 0) {
+                echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
+                break;
+            }
+            require_once __DIR__ . '/core/PwaLanding.php';
+            $stmt = $pdo->prepare("SELECT id, name, slug, state, group_id, config_json FROM landings WHERE id = ? AND is_archived = 0 LIMIT 1");
+            $stmt->execute([$id]);
+            $pwaRow = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$pwaRow) {
+                echo json_encode(['status' => 'error', 'message' => 'Landing not found']);
+                break;
+            }
+            $pwaConfig = PwaLanding::configFromRow($pwaRow);
+            if ($pwaConfig === []) {
+                echo json_encode(['status' => 'error', 'message' => 'Not a PWA landing']);
+                break;
+            }
+            echo json_encode(['status' => 'success', 'data' => [
+                'id'       => (int) $pwaRow['id'],
+                'name'     => $pwaRow['name'],
+                'slug'     => (string) $pwaRow['slug'],
+                'state'    => $pwaRow['state'],
+                'group_id' => $pwaRow['group_id'] !== null ? (int) $pwaRow['group_id'] : null,
+                'config'   => $pwaConfig,
+            ]]);
+            break;
+
+        case 'pwa_config_save':
+            // Create or update a PWA landing and regenerate its static files.
+            try {
+                if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                    echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                    break;
+                }
+                $data = json_decode(orbitraRequestBody(), true);
+                if (!is_array($data) || trim((string) ($data['name'] ?? '')) === '') {
+                    echo json_encode(['status' => 'error', 'message' => 'Missing name']);
+                    break;
+                }
+                require_once __DIR__ . '/core/landing_path.php';
+                require_once __DIR__ . '/core/PwaLanding.php';
+                $id = isset($data['id']) ? (int) $data['id'] : 0;
+                $name = trim((string) $data['name']);
+                $groupId = !empty($data['group_id']) ? (int) $data['group_id'] : null;
+                $state = ($data['state'] ?? 'active') === 'paused' ? 'paused' : 'active';
+                // normalizeConfig() is the whitelist — unknown keys, junk types
+                // and out-of-range numbers are dropped there, not trusted here.
+                $config = PwaLanding::normalizeConfig($data['config'] ?? []);
+                if ($config === []) {
+                    echo json_encode(['status' => 'error', 'message' => 'Invalid PWA config']);
+                    break;
+                }
+                $configJson = json_encode($config, JSON_UNESCAPED_UNICODE);
+
+                if ($id > 0) {
+                    $stmt = $pdo->prepare("SELECT slug FROM landings WHERE id = ? LIMIT 1");
+                    $stmt->execute([$id]);
+                    if ($stmt->fetchColumn() === false) {
+                        echo json_encode(['status' => 'error', 'message' => 'Landing not found']);
+                        break;
+                    }
+                    // The slug keeps its existing value here: the folder is
+                    // already live inside campaigns, and a silent rename would
+                    // strand cached start_urls. Renaming stays in the plain
+                    // landing editor, where the slug field is visible.
+                    $stmt = $pdo->prepare("UPDATE landings SET name=?, group_id=?, state=?, config_json=? WHERE id=?");
+                    $stmt->execute([$name, $groupId, $state, $configJson, $id]);
+                } else {
+                    // Same slug dance as save_landing: derive from the name and
+                    // resolve collisions as name-2, name-3, … falling back to ''
+                    // (the id-fallback dir) when nothing is free.
+                    $slugRaw = orbitraSlugify($name);
+                    $slugCheck = orbitraValidateLandingSlug($pdo, $slugRaw, null);
+                    if (!$slugCheck['ok']) {
+                        $base = rtrim(substr($slugRaw, 0, 60), '-_');
+                        for ($n = 2; $n <= 50; $n++) {
+                            $candidate = orbitraValidateLandingSlug($pdo, $base . '-' . $n, null);
+                            if ($candidate['ok']) {
+                                $slugCheck = $candidate;
+                                break;
+                            }
+                        }
+                        if (!$slugCheck['ok']) {
+                            $slugCheck = ['ok' => true, 'value' => '', 'error' => ''];
+                        }
+                    }
+                    $slug = $slugCheck['ok'] ? $slugCheck['value'] : '';
+                    $stmt = $pdo->prepare("INSERT INTO landings (name, group_id, type, url, state, slug, config_json) VALUES (?, ?, 'local', '', ?, ?, ?)");
+                    $stmt->execute([$name, $groupId, $state, $slug, $configJson]);
+                    $id = (int) $pdo->lastInsertId();
+                }
+
+                $generated = PwaLanding::generate($pdo, $id);
+                $stmt = $pdo->prepare("SELECT slug FROM landings WHERE id = ? LIMIT 1");
+                $stmt->execute([$id]);
+                $slug = (string) $stmt->fetchColumn();
+                echo json_encode(['status' => 'success', 'data' => [
+                    'id'          => $id,
+                    'slug'        => $slug,
+                    'generated'   => $generated,
+                    'preview_url' => '/lander/' . ($slug !== '' ? rawurlencode($slug) : (string) $id) . '/?_preview=' . time(),
+                ]]);
+            } catch (\Throwable $e) {
+                error_log('pwa_config_save failed: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+                echo json_encode(['status' => 'error', 'message' => 'PWA save failed: ' . $e->getMessage()]);
+            }
+            break;
+
+        case 'pwa_preview':
+            // Live preview for the PWA constructor: renders the exact
+            // production template for the DRAFT config (nothing persisted,
+            // no disk checks, macros neutralized — see renderPreview()).
+            try {
+                if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                    echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                    break;
+                }
+                require_once __DIR__ . '/core/PwaLanding.php';
+                $data = json_decode(orbitraRequestBody(), true);
+                $platform = (is_array($data) && ($data['platform'] ?? '') === 'ios') ? 'ios' : 'auto';
+                $html = PwaLanding::renderPreview(is_array($data['config'] ?? null) ? $data['config'] : [], $platform);
+                echo json_encode(['status' => 'success', 'data' => ['html' => $html]]);
+            } catch (\Throwable $e) {
+                error_log('pwa_preview failed: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+                echo json_encode(['status' => 'error', 'message' => 'PWA preview failed: ' . $e->getMessage()]);
+            }
+            break;
+
         case 'save_landing':
             // Everything below runs inside a try: a Throwable escaping this
             // handler becomes a bare 500, and the panel can only report that as
@@ -5688,6 +5924,206 @@ try {
             echo json_encode(move_uploaded_file($_FILES['file']['tmp_name'], $target)
                 ? ['status' => 'success', 'data' => ['path' => $relative]]
                 : ['status' => 'error', 'message' => 'Could not store the file (check permissions)']);
+            break;
+
+        // ---------------- Media library (docs/media-core-v1.md) ----------------
+        // The library is SHARED: read/full access sees every user's assets (the
+        // team story — a designer uploads, buyers pick). Mutating rows is
+        // owner-or-admin only, enforced by appending the owner guard to the
+        // UPDATE; a partial success reports how many ids were denied.
+        case 'media_list':
+            $status = ($_GET['status'] ?? 'active') === 'inactive' ? 0 : 1;
+            $where = ['is_active = ?'];
+            $params = [$status];
+            if (isset($_GET['folder_id']) && $_GET['folder_id'] !== '' && $_GET['folder_id'] !== 'all') {
+                $where[] = 'folder_id = ?';
+                $params[] = (int) $_GET['folder_id'];
+            }
+            if (($_GET['q'] ?? '') !== '') {
+                $where[] = "orig_name LIKE ? ESCAPE '\\'";
+                $params[] = '%' . strtr((string) $_GET['q'], ['%' => '\%', '_' => '\_']) . '%';
+            }
+            if (($_SESSION['role'] ?? '') === 'admin' && (int) ($_GET['user_id'] ?? 0) > 0) {
+                $where[] = 'owner_user_id = ?';
+                $params[] = (int) $_GET['user_id'];
+            }
+            $whereSql = implode(' AND ', $where);
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM media_assets WHERE $whereSql");
+            $stmt->execute($params);
+            $total = (int) $stmt->fetchColumn();
+            $perPage = 50;
+            $pages = max(1, (int) ceil($total / $perPage));
+            $page = min(max(1, (int) ($_GET['page'] ?? 1)), $pages);
+            $ownerNames = [];
+            foreach ($pdo->query("SELECT id, username FROM users")->fetchAll(PDO::FETCH_ASSOC) as $u) {
+                $ownerNames[(int) $u['id']] = (string) $u['username'];
+            }
+            $stmt = $pdo->prepare("SELECT * FROM media_assets WHERE $whereSql ORDER BY id DESC LIMIT $perPage OFFSET " . (($page - 1) * $perPage));
+            $stmt->execute($params);
+            $items = array_map(fn($r) => orbitraMediaRow($r, $ownerNames), $stmt->fetchAll(PDO::FETCH_ASSOC));
+            $payload = ['items' => $items, 'total' => $total, 'page' => $page, 'pages' => $pages];
+            if (($_SESSION['role'] ?? '') === 'admin') {
+                // The per-user filter is a supervisor tool; regular users just
+                // get the shared library.
+                $payload['users'] = $pdo->query("SELECT id, username FROM users ORDER BY username")
+                    ->fetchAll(PDO::FETCH_ASSOC);
+            }
+            echo json_encode(['status' => 'success', 'data' => $payload]);
+            break;
+
+        case 'media_upload':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            $folderId = null;
+            if ((int) ($_POST['folder_id'] ?? 0) > 0) {
+                $folderId = (int) $_POST['folder_id'];
+            }
+            $ownerId = (int) ($_SESSION['user_id'] ?? 0);
+            $items = [];
+            $failed = [];
+            $names = $_FILES['files']['name'] ?? null;
+            if (!is_array($names)) {
+                echo json_encode(['status' => 'error', 'message' => 'media.err_no_files']);
+                break;
+            }
+            foreach ($names as $i => $name) {
+                $file = [
+                    'name'     => $names[$i],
+                    'type'     => $_FILES['files']['type'][$i],
+                    'tmp_name' => $_FILES['files']['tmp_name'][$i],
+                    'error'    => $_FILES['files']['error'][$i],
+                    'size'     => $_FILES['files']['size'][$i],
+                ];
+                [$row, $err] = orbitraMediaStoreUpload($file, $ownerId, $folderId);
+                if ($err !== null) {
+                    $failed[] = ['name' => (string) $name, 'reason' => $err];
+                    continue;
+                }
+                $stmt = $pdo->prepare("INSERT INTO media_assets
+                    (owner_user_id, folder_id, orig_name, stored_name, sha256, mime, size, width, height)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([
+                    $row['owner_user_id'], $row['folder_id'], $row['orig_name'], $row['stored_name'],
+                    $row['sha256'], $row['mime'], $row['size'], $row['width'], $row['height'],
+                ]);
+                $row['id'] = (int) $pdo->lastInsertId();
+                $row['is_active'] = 1;
+                $row['created_at'] = date('Y-m-d H:i:s');
+                $items[] = orbitraMediaRow($row);
+            }
+            echo json_encode(['status' => 'success', 'data' => ['items' => $items, 'failed' => $failed]]);
+            break;
+
+        case 'media_op':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            $data = json_decode(orbitraRequestBody(), true);
+            if (!is_array($data)) {
+                $data = [];
+            }
+            $op = (string) ($data['op'] ?? '');
+            $ids = array_values(array_filter(array_map('intval', (array) ($data['ids'] ?? [])), fn($v) => $v > 0));
+            if ($op === '' || !$ids) {
+                echo json_encode(['status' => 'error', 'message' => 'media.err_bad_request']);
+                break;
+            }
+            $placeholders = implode(',', array_fill(0, count($ids), '?'));
+            $ownerGuard = '';
+            $params = $ids;
+            if (($_SESSION['role'] ?? '') !== 'admin') {
+                $ownerGuard = ' AND owner_user_id = ?';
+                $params[] = (int) ($_SESSION['user_id'] ?? 0);
+            }
+            if ($op === 'move') {
+                $folderId = null;
+                if ((int) ($data['folder_id'] ?? 0) > 0) {
+                    $folderId = (int) $data['folder_id'];
+                }
+                $stmt = $pdo->prepare("UPDATE media_assets SET folder_id = ? WHERE id IN ($placeholders)$ownerGuard");
+                array_unshift($params, $folderId);
+                $stmt->execute($params);
+            } elseif ($op === 'delete') {
+                $stmt = $pdo->prepare("UPDATE media_assets SET is_active = 0, deleted_at = CURRENT_TIMESTAMP
+                    WHERE id IN ($placeholders) AND is_active = 1$ownerGuard");
+                $stmt->execute($params);
+            } elseif ($op === 'restore') {
+                $stmt = $pdo->prepare("UPDATE media_assets SET is_active = 1, deleted_at = NULL
+                    WHERE id IN ($placeholders) AND is_active = 0$ownerGuard");
+                $stmt->execute($params);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'media.err_bad_request']);
+                break;
+            }
+            $updated = $stmt->rowCount();
+            echo json_encode(['status' => 'success', 'data' => ['updated' => $updated, 'denied' => count($ids) - $updated]]);
+            break;
+
+        case 'media_folders':
+            $rows = $pdo->query("SELECT f.id, f.name,
+                    (SELECT COUNT(*) FROM media_assets a WHERE a.folder_id = f.id AND a.is_active = 1) AS asset_count
+                FROM media_folders f ORDER BY f.name")->fetchAll(PDO::FETCH_ASSOC);
+            echo json_encode(['status' => 'success', 'data' => [
+                'items' => array_map(fn($r) => [
+                    'id' => (int) $r['id'],
+                    'name' => (string) $r['name'],
+                    'asset_count' => (int) $r['asset_count'],
+                ], $rows),
+            ]]);
+            break;
+
+        case 'media_folder_op':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            $data = json_decode(orbitraRequestBody(), true);
+            if (!is_array($data)) {
+                $data = [];
+            }
+            $op = (string) ($data['op'] ?? '');
+            $name = trim((string) ($data['name'] ?? ''));
+            if ($op === 'create' || $op === 'rename') {
+                if ($name === '' || mb_strlen($name) > 50) {
+                    echo json_encode(['status' => 'error', 'message' => 'media.err_folder_name']);
+                    break;
+                }
+                $dup = $pdo->prepare("SELECT COUNT(*) FROM media_folders WHERE name = ? AND id != ?");
+                $dup->execute([$name, (int) ($data['id'] ?? 0)]);
+                if ((int) $dup->fetchColumn() > 0) {
+                    echo json_encode(['status' => 'error', 'message' => 'media.err_folder_exists']);
+                    break;
+                }
+            }
+            if ($op === 'create') {
+                $stmt = $pdo->prepare("INSERT INTO media_folders (name, owner_user_id) VALUES (?, ?)");
+                $stmt->execute([$name, (int) ($_SESSION['user_id'] ?? 0)]);
+                echo json_encode(['status' => 'success', 'data' => ['id' => (int) $pdo->lastInsertId()]]);
+            } elseif ($op === 'rename') {
+                $id = (int) ($data['id'] ?? 0);
+                if ($id <= 0) {
+                    echo json_encode(['status' => 'error', 'message' => 'media.err_bad_request']);
+                    break;
+                }
+                $pdo->prepare("UPDATE media_folders SET name = ? WHERE id = ?")->execute([$name, $id]);
+                echo json_encode(['status' => 'success']);
+            } elseif ($op === 'delete') {
+                $id = (int) ($data['id'] ?? 0);
+                if ($id <= 0) {
+                    echo json_encode(['status' => 'error', 'message' => 'media.err_bad_request']);
+                    break;
+                }
+                // Files survive the folder: they fall back to the root, exactly
+                // like the gallery this feature was modelled on.
+                $pdo->prepare("UPDATE media_assets SET folder_id = NULL WHERE folder_id = ?")->execute([$id]);
+                $pdo->prepare("DELETE FROM media_folders WHERE id = ?")->execute([$id]);
+                echo json_encode(['status' => 'success']);
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'media.err_bad_request']);
+            }
             break;
 
         case 'landing_files':
@@ -11286,6 +11722,10 @@ try {
                     SUM(CASE WHEN landing_id IS NOT NULL AND landing_id > 0 AND offer_at IS NOT NULL THEN 1 ELSE 0 END) as real_lp_clicks,
                     SUM(CASE WHEN offer_id IS NOT NULL AND offer_id > 0
                              AND (landing_id IS NULL OR landing_id = 0 OR offer_at IS NOT NULL) THEN 1 ELSE 0 END) as real_offer_clicks,
+                    SUM(CASE WHEN pwa_intent_at IS NOT NULL THEN 1 ELSE 0 END) as pwa_intents,
+                    SUM(CASE WHEN pwa_install_at IS NOT NULL THEN 1 ELSE 0 END) as pwa_installs,
+                    SUM(CASE WHEN pwa_install_at IS NOT NULL AND is_bot = 0 THEN 1 ELSE 0 END) as pwa_installs_real,
+                    COALESCE(SUM(pwa_open_count), 0) as pwa_opens,
                     COALESCE(SUM(cnt_any), 0) as conversions,
                     COALESCE(SUM(cnt_sale), 0) as purchases,
                     COALESCE(SUM(cnt_hold), 0) as holds,
@@ -11315,6 +11755,9 @@ try {
                            clicks.offer_at,
                            clicks.landing_id,
                            clicks.offer_id,
+                           clicks.pwa_intent_at,
+                           clicks.pwa_install_at,
+                           COALESCE(clicks.pwa_open_count, 0) as pwa_open_count,
                            clicks.cost as click_cost,
                            COALESCE(cv.cnt_any, 0) as cnt_any,
                            COALESCE(cv.rev_all, 0) as click_revenue,

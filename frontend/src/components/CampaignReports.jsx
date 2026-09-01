@@ -249,6 +249,10 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             offer_clicks: 0,
             real_lp_clicks: 0,
             real_offer_clicks: 0,
+            pwa_intents: 0,
+            pwa_installs: 0,
+            real_pwa_installs: 0,
+            pwa_opens: 0,
             conversions: 0,
             purchases: 0,
             sales: 0,
@@ -277,6 +281,10 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             node.offer_clicks += Number(row.offer_clicks) || 0;
             node.real_lp_clicks += Number(row.real_lp_clicks) || 0;
             node.real_offer_clicks += Number(row.real_offer_clicks) || 0;
+            node.pwa_intents += Number(row.pwa_intents) || 0;
+            node.pwa_installs += Number(row.pwa_installs) || 0;
+            node.real_pwa_installs += Number(row.real_pwa_installs) || 0;
+            node.pwa_opens += Number(row.pwa_opens) || 0;
             node.conversions += Number(row.conversions) || 0;
             const purchases = Number(row.purchases ?? row.sales) || 0;
             node.purchases += purchases;
@@ -304,6 +312,10 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             node.uc_rate = node.clicks > 0 ? (node.unique_clicks / node.clicks) * 100 : 0;
             node.lp_ctr = node.lp_views > 0 ? (node.lp_clicks / node.lp_views) * 100 : 0;
             node.real_lp_ctr = node.lp_views > 0 ? (node.real_lp_clicks / node.lp_views) * 100 : 0;
+            // Zero installs → null, rendered as a dash (backend honesty rule).
+            node.pwa_install_rate = node.clicks > 0 && node.real_pwa_installs > 0
+                ? (node.real_pwa_installs / node.clicks) * 100
+                : null;
             node.cr = node.clicks > 0 ? (node.conversions / node.clicks) * 100 : 0;
             node.cr_all = node.cr;
             node.cr_sales = node.clicks > 0 ? (node.purchases / node.clicks) * 100 : 0;
@@ -416,6 +428,10 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             offer_clicks: 0,
             real_lp_clicks: 0,
             real_offer_clicks: 0,
+            pwa_intents: 0,
+            pwa_installs: 0,
+            real_pwa_installs: 0,
+            pwa_opens: 0,
             conversions: 0,
             purchases: 0,
             holds: 0,
@@ -442,6 +458,10 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             t0.offer_clicks += Number(r.offer_clicks) || 0;
             t0.real_lp_clicks += Number(r.real_lp_clicks) || 0;
             t0.real_offer_clicks += Number(r.real_offer_clicks) || 0;
+            t0.pwa_intents += Number(r.pwa_intents) || 0;
+            t0.pwa_installs += Number(r.pwa_installs) || 0;
+            t0.real_pwa_installs += Number(r.real_pwa_installs) || 0;
+            t0.pwa_opens += Number(r.pwa_opens) || 0;
             t0.conversions += Number(r.conversions) || 0;
             const purchases = Number(r.purchases ?? r.sales) || 0;
             t0.purchases += purchases;
@@ -464,6 +484,9 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         const lpClickDenominator = t0.lp_clicks > 0 ? t0.lp_clicks : t0.clicks;
         const lp_ctr = t0.lp_views > 0 ? (t0.lp_clicks / t0.lp_views) * 100 : 0;
         const real_lp_ctr = t0.lp_views > 0 ? (t0.real_lp_clicks / t0.lp_views) * 100 : 0;
+        const pwa_install_rate = t0.clicks > 0 && t0.real_pwa_installs > 0
+            ? (t0.real_pwa_installs / t0.clicks) * 100
+            : null;
         const cr = t0.clicks > 0 ? (t0.conversions / t0.clicks) * 100 : 0;
         const cr_sales = t0.clicks > 0 ? (t0.purchases / t0.clicks) * 100 : 0;
         const cr_holds = t0.clicks > 0 ? (t0.holds / t0.clicks) * 100 : 0;
@@ -499,6 +522,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             uc_rate,
             lp_ctr,
             real_lp_ctr,
+            pwa_install_rate,
             cr,
             cr_all: cr,
             cr_sales,
@@ -539,6 +563,10 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             case 'lp_clicks':
             case 'real_lp_clicks':
             case 'real_offer_clicks':
+            case 'pwa_intents':
+            case 'pwa_installs':
+            case 'real_pwa_installs':
+            case 'pwa_opens':
             case 'purchases':
             case 'sales':
             case 'holds':
@@ -574,6 +602,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             // sends null, never a made-up 0%/100%.
             case 'lp_ctr':
             case 'real_lp_ctr':
+            case 'pwa_install_rate':
                 return val === null || val === undefined ? '—' : `${num.toFixed(2)}%`;
 
             case 'roi':

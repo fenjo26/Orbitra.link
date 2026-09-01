@@ -67,13 +67,13 @@ function orbitraResourceAccessMap(): array
         'landings' => [
             'read' => [
                 'landings', 'landings_simple', 'get_landing', 'landing_groups',
-                'landing_files', 'get_landing_file',
+                'landing_files', 'get_landing_file', 'pwa_config_get', 'pwa_preview',
             ],
             'write' => [
                 'save_landing', 'delete_landing', 'bulk_delete_landings',
                 'bulk_import_landings', 'upload_landing', 'rename_landing_group',
                 'delete_landing_group', 'landing_file_op', 'upload_landing_file',
-                'save_landing_file',
+                'save_landing_file', 'pwa_config_save',
             ],
             'hybrid' => ['landing_groups'],
         ],
@@ -113,6 +113,11 @@ function orbitraResourceAccessMap(): array
                 'backorder_remove_user_cron', 'postback_queue_install_user_cron',
                 'postback_queue_remove_user_cron', 'fix_nginx', 'regenerate_nginx',
             ],
+            'hybrid' => [],
+        ],
+        'media' => [
+            'read' => ['media_list', 'media_folders'],
+            'write' => ['media_upload', 'media_op', 'media_folder_op'],
             'hybrid' => [],
         ],
         'logs' => [

@@ -207,10 +207,14 @@ try {
     $own = $login('rbac_own');
     $sel = $login('rbac_sel');
 
-    // Migration 42 stamped the sandbox DB and the column exists.
+    // Migrations stamped the sandbox DB and the scoping column exists. The
+    // expected version is read from config.php so this check survives future
+    // bumps (it drifted and failed on 43 and 44 before becoming dynamic).
+    preg_match('/LATEST_SCHEMA_VERSION\s*=\s*(\d+)/', file_get_contents($repoRoot . '/config.php'), $schemaM);
+    $check('config schema version parsed', true, (int) ($schemaM[1] ?? 0) > 0);
     $columns = array_column($pdo->query("PRAGMA table_info(campaigns)")->fetchAll(PDO::FETCH_ASSOC), 'name');
     $check('migration 42: owner_user_id column exists', true, in_array('owner_user_id', $columns, true));
-    $check('migration 42: schema stamped', 42, (int) $pdo->query('PRAGMA user_version')->fetchColumn());
+    $check('migrations: schema stamped', (int) ($schemaM[1] ?? 0), (int) $pdo->query('PRAGMA user_version')->fetchColumn());
 
     $listIds = static function (array $ctx) use ($get) {
         $body = json_decode($get('campaigns', $ctx)['body'], true);

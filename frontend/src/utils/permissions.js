@@ -7,6 +7,7 @@ const TAB_PERMISSION_KEYS = {
     campaigns: 'campaigns',
     landings: 'landings',
     offers: 'offers',
+    media: 'media',
     networks: 'networks',
     sources: 'sources',
     domains: 'domains',

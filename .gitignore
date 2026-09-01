@@ -30,6 +30,8 @@ var/ipranges/
 !/landings/.gitkeep
 /offers/*
 !/offers/.gitkeep
+/uploads/*
+!/uploads/.gitkeep
 
 # macOS / OS files
 .DS_Store

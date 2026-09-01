@@ -26,6 +26,7 @@ import DashboardHeader from './components/DashboardHeader';
 import DashboardSettingsModal from './components/DashboardSettingsModal';
 import LeadForgePage from './components/LeadForgePage';
 import CRMPage from './components/CRMPage';
+import GalleryPage from './components/GalleryPage';
 import { canAccessTab, firstAllowedTab } from './utils/permissions';
 import { applyCustomThemeVars, clearInverseText } from './utils/themeContrast';
 import { useTimezone } from './utils/useTimezone';
@@ -661,6 +662,10 @@ function App() {
 
             {activeTab === 'offers' && (
               <Offers offers={offers} refreshData={fetchData} user={user} />
+            )}
+
+            {activeTab === 'media' && (
+              <GalleryPage user={user} />
             )}
 
             {activeTab === 'sources' && (

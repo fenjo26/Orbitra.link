@@ -245,6 +245,17 @@ class OrbitraTestHarness
     }
 
     /**
+     * The sandboxed working directory the server actually runs from (a /tmp
+     * copy of the repo with a patched config.php). Files the server must serve
+     * from disk (landing dirs, uploads) have to be mirrored here — a landing
+     * generated into the repo's landings/ is invisible to it.
+     */
+    public function getWorkingDir(): ?string
+    {
+        return $this->workingDir;
+    }
+
+    /**
      * Stop the test server and clean up resources.
      */
     public function stop(): void

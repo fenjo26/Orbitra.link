@@ -917,9 +917,17 @@ function orbitraServeLanderPath(PDO $pdo, string $slug, string $rest): void
         $html = $base . "\n" . $html;
     }
 
-    // No stream picked an offer for this view, so the macro resolves to the same
-    // entry point a hand-written Keitaro landing uses.
-    $html = str_replace('{offer}', '/?_lp=1', $html);
+    // Macros resolve from the orbitra_click cookie the click flow set before
+    // redirecting a PWA landing here. No cookie (preview, direct hit) → the
+    // placeholders take their no-click forms: {subid} empty so funnel beacons
+    // stay silent, {lp_url} plain so the /?_lp=1 cookie fallback still works
+    // for a real visitor. applyLandingMacros() covers {offer}, {subid},
+    // {lp_url} and friends in one pass.
+    $landerClickId = trim((string) ($_COOKIE['orbitra_click'] ?? ''));
+    $landerToken = $landerClickId !== ''
+        ? issueLpToken($landerClickId, $GLOBALS['settings']['postback_key'] ?? 'orbitra_secret')
+        : '';
+    $html = applyLandingMacros($html, $landerClickId, '', '', [], $landerToken);
 
     header('Content-Type: text/html; charset=utf-8');
     header('X-Robots-Tag: noindex, nofollow');
@@ -1526,6 +1534,12 @@ function applyLandingMacros($html, $clickId, $offerId, $offerUrl, array $clickPa
         // Not url-encoded: this lands in an href, so it has to stay a usable URL.
         '{offer}' => (string) $offerUrl !== '' ? (string) $offerUrl : '/?_lp=1',
         '{{offer}}' => (string) $offerUrl !== '' ? (string) $offerUrl : '/?_lp=1',
+        // LP→offer transition with the signed token bound to THIS click — the
+        // macro PWA landings use for their CTAs and redirect timers. An empty
+        // token (no click context) resolves to the plain link, whose cookie
+        // fallback still resolves a real visitor's click.
+        '{lp_url}' => (string) $lpToken !== '' ? '/?_lp=1&_token=' . urlencode((string) $lpToken) : '/?_lp=1',
+        '{{lp_url}}' => (string) $lpToken !== '' ? '/?_lp=1&_token=' . urlencode((string) $lpToken) : '/?_lp=1',
     ];
 
     foreach ($clickParams as $key => $val) {
@@ -2043,6 +2057,42 @@ if ($uriPath === '/pixel.gif') {
                     if ($pxDirty) {
                         $stmtPxUpd = $pdo->prepare("UPDATE clicks SET parameters_json = ? WHERE id = ?");
                         $stmtPxUpd->execute([json_encode($pxExisting, JSON_UNESCAPED_UNICODE), $pxSubid]);
+                    }
+                }
+            } catch (\Throwable $e) {
+                // The pixel must answer with the image no matter what.
+            }
+        }
+        $orbitraPixelHeaders();
+        echo $orbitraPixelGif;
+        exit;
+    }
+
+    if (($_GET['action'] ?? '') === 'pwa') {
+        // PWA landing funnel beacons (core/PwaLanding.php pages): intent = tap
+        // on Install, install = appinstalled / first iOS standalone open,
+        // open = standalone reopen. The click row is the dedup gate: the
+        // timestamped columns are only written while NULL, so a repeated or
+        // replayed beacon for the same click cannot inflate the funnel.
+        $pwaSubid = trim((string) ($_GET['subid'] ?? ''));
+        $pwaKind = (string) ($_GET['kind'] ?? '');
+        if ($pwaSubid !== '' && in_array($pwaKind, ['intent', 'install', 'open'], true)) {
+            try {
+                if ($pwaKind === 'intent') {
+                    $pdo->prepare("UPDATE clicks SET pwa_intent_at = datetime('now') WHERE id = ? AND pwa_intent_at IS NULL")
+                        ->execute([$pwaSubid]);
+                } elseif ($pwaKind === 'install') {
+                    $pdo->prepare("UPDATE clicks SET pwa_install_at = datetime('now') WHERE id = ? AND pwa_install_at IS NULL")
+                        ->execute([$pwaSubid]);
+                } else {
+                    // Standalone reopen — throttled to one count per 10 minutes
+                    // per click, so a parked tab cannot pump the counter.
+                    $openStmt = $pdo->prepare("SELECT pwa_open_at FROM clicks WHERE id = ? LIMIT 1");
+                    $openStmt->execute([$pwaSubid]);
+                    $lastOpen = (string) ($openStmt->fetchColumn() ?: '');
+                    if ($lastOpen === '' || strtotime($lastOpen) < time() - 600) {
+                        $pdo->prepare("UPDATE clicks SET pwa_open_at = datetime('now'), pwa_open_count = COALESCE(pwa_open_count, 0) + 1 WHERE id = ?")
+                            ->execute([$pwaSubid]);
                     }
                 }
             } catch (\Throwable $e) {
@@ -3573,6 +3623,24 @@ if ($actionToPerfrom) {
 
     if (isset($landingType) && $landingType !== 'redirect') {
         if ($landingType === 'local') {
+            // A PWA landing (config_json.pwa) must answer from its own
+            // /lander/<slug>/ scope: that folder IS the manifest scope, and
+            // Chrome only offers the install prompt to a page inside it. The
+            // cookies written above ride on this 302, so the served page's
+            // macros resolve the click exactly as an inline page would.
+            require_once __DIR__ . '/core/PwaLanding.php';
+            try {
+                $pwaStmt = $pdo->prepare("SELECT slug, config_json FROM landings WHERE id = ? LIMIT 1");
+                $pwaStmt->execute([$landingIdToLog]);
+                $pwaRow = $pwaStmt->fetch(PDO::FETCH_ASSOC) ?: [];
+            } catch (\Throwable $e) {
+                $pwaRow = [];
+            }
+            if (PwaLanding::isPwa($pwaRow) && (string) ($pwaRow['slug'] ?? '') !== '') {
+                header('Location: /lander/' . rawurlencode((string) $pwaRow['slug']) . '/', true, 302);
+                exit;
+            }
+
             // Resolves through single-nested folders and drops statcache — the
             // very first click after an upload must find the files too.
             $landingDir = orbitraLandingContentDir(orbitraLandingDir($pdo, $landingIdToLog));

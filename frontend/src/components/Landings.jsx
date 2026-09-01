@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { Plus, Trash2, Edit3, Settings2, Filter, RefreshCw, X, SlidersHorizontal } from 'lucide-react';
+import { Plus, Trash2, Edit3, Settings2, Filter, RefreshCw, X, SlidersHorizontal, Smartphone } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import LandingEditor from './LandingEditor';
+import PwaEditor from './PwaEditor';
 import GroupsModal from './GroupsModal';
 import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
 import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle } from './common/ColumnResize';
@@ -153,6 +154,24 @@ const Landings = ({ landings, refreshData, user }) => {
     const handleEdit = (id) => {
         setEditingLandingId(id);
         setIsEditorOpen(true);
+    };
+
+    // A PWA landing (config_json.pwa) is edited by its own constructor — the
+    // plain landing editor would show an empty local landing.
+    const isPwaLanding = (landing) => {
+        try {
+            return !!(JSON.parse(landing.config_json || '{}')?.pwa);
+        } catch {
+            return false;
+        }
+    };
+    const openEditorFor = (landing) => {
+        if (isPwaLanding(landing)) {
+            setEditingLandingId(landing.id);
+            setPwaEditorOpen(true);
+        } else {
+            handleEdit(landing.id);
+        }
     };
 
     const handleDelete = async (id) => {
@@ -327,6 +346,14 @@ const Landings = ({ landings, refreshData, user }) => {
 
     const handleEditorClose = (wasSaved) => {
         setIsEditorOpen(false);
+        if (wasSaved) {
+            fetchLandings();
+            refreshData?.();
+        }
+    };
+
+    const handlePwaEditorClose = (wasSaved) => {
+        setPwaEditorOpen(false);
         if (wasSaved) {
             fetchLandings();
             refreshData?.();
@@ -623,7 +650,7 @@ const Landings = ({ landings, refreshData, user }) => {
                             <span
                                 className="font-semibold cursor-pointer hover:underline"
                                 style={{ color: 'var(--color-primary)' }}
-                                onClick={() => handleEdit(landing.id)}
+                                onClick={() => openEditorFor(landing)}
                             >
                                 {landing.name}
                             </span>
@@ -640,9 +667,16 @@ const Landings = ({ landings, refreshData, user }) => {
             case 'type':
                 return (
                     <td key={colId}>
-                        <span className="px-2 py-1 rounded text-xs font-semibold" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>
-                            {landing.type}
-                        </span>
+                        {isPwaLanding(landing) ? (
+                            <span className="px-2 py-1 rounded text-xs font-semibold inline-flex items-center gap-1" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>
+                                <Smartphone className="w-3 h-3" />
+                                PWA
+                            </span>
+                        ) : (
+                            <span className="px-2 py-1 rounded text-xs font-semibold" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>
+                                {landing.type}
+                            </span>
+                        )}
                     </td>
                 );
             case 'url':
@@ -669,6 +703,16 @@ const Landings = ({ landings, refreshData, user }) => {
                         <button onClick={handleCreate} className="btn btn-primary">
                             <Plus className="w-4 h-4" />
                             {t('common.create')}
+                        </button>
+                    )}
+                    {canWriteResource(user, 'landings') && (
+                        <button
+                            onClick={() => { setEditingLandingId(null); setPwaEditorOpen(true); }}
+                            className="btn btn-secondary"
+                            title={t('pwa.title')}
+                        >
+                            <Smartphone className="w-4 h-4" />
+                            PWA
                         </button>
                     )}
                     <button onClick={() => setShowGroupsModal(true)} className="btn btn-secondary">
@@ -1019,7 +1063,7 @@ const Landings = ({ landings, refreshData, user }) => {
                             <span
                                 className="font-semibold text-sm cursor-pointer flex-1 min-w-0 line-clamp-2 break-words"
                                 style={{ color: 'var(--color-primary)' }}
-                                onClick={() => handleEdit(landing.id)}
+                                onClick={() => openEditorFor(landing)}
                                 title={landing.name}
                             >
                                 {landing.name}
@@ -1082,6 +1126,13 @@ const Landings = ({ landings, refreshData, user }) => {
                 <LandingEditor
                     landingId={editingLandingId}
                     onClose={handleEditorClose}
+                />
+            )}
+
+            {pwaEditorOpen && (
+                <PwaEditor
+                    landingId={editingLandingId}
+                    onClose={handlePwaEditorClose}
                 />
             )}
 
