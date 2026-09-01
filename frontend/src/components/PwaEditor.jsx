@@ -594,6 +594,28 @@ export default function PwaEditor({ landingId, onClose }) {
                         {/* ============ STEP 2 — App ============ */}
                         {step === 1 && (
                             <>
+                                <Section title={t('pwa.appAction')}>
+                                    <span className="text-xs block mb-3" style={{ color: 'var(--color-text-muted)' }}>{t('pwa.appActionHint')}</span>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <Field label={t('pwa.appAction')}>
+                                            <select className="form-select" value={config.app_action || 'store'} onChange={(e) => set('app_action', e.target.value)}>
+                                                <option value="store">{t('pwa.appActionStore')}</option>
+                                                <option value="offer">{t('pwa.appActionOffer')}</option>
+                                                <option value="screen">{t('pwa.appActionScreen')}</option>
+                                            </select>
+                                        </Field>
+                                    </div>
+                                    {config.app_action === 'screen' && (
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                                            <input className="form-input" placeholder={t('pwa.appScreenTitle')} value={config.app_screen_title || ''} onChange={(e) => set('app_screen_title', e.target.value)} />
+                                            <input className="form-input" placeholder={t('pwa.appScreenButton')} value={config.app_screen_button || ''} onChange={(e) => set('app_screen_button', e.target.value)} />
+                                        </div>
+                                    )}
+                                    {config.app_action === 'screen' && (
+                                        <textarea className="form-input mt-3" rows={2} placeholder={t('pwa.appScreenText')} value={config.app_screen_text || ''} onChange={(e) => set('app_screen_text', e.target.value)} />
+                                    )}
+                                </Section>
+
                                 <Section title={t('pwa.sectionMedia')}>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <Field label={t('pwa.icon')} hint={t('pwa.iconHint')}>

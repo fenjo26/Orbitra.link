@@ -34,7 +34,7 @@ class PwaLanding
      * page; the lander route regenerates stale statics on the next view, so
      * renderer upgrades reach already-created PWA landings without a re-save.
      */
-    public const RENDERER_VERSION = 5;
+    public const RENDERER_VERSION = 6;
 
     /** Keys the constructor is allowed to persist; everything else is dropped. */
     private static function configKeys(): array
@@ -47,6 +47,7 @@ class PwaLanding
             'support_email', 'support_address', 'verified_badge', 'theme_mode',
             'color_scheme', 'store_style', 'ios_flow', 'preloader', 'bottom_menu', 'show_header',
             'show_share', 'auto_redirect', 'decline_redirect', 'install_redirect', 'push_enabled',
+            'app_action', 'app_screen_title', 'app_screen_text', 'app_screen_button',
         ];
     }
 
@@ -88,6 +89,10 @@ class PwaLanding
             'auto_redirect'     => 0,
             'decline_redirect'  => 0,
             'install_redirect'  => 0,
+            'app_action'        => 'store',
+            'app_screen_title'  => '',
+            'app_screen_text'   => '',
+            'app_screen_button' => 'Play now',
         ];
     }
 
@@ -159,6 +164,13 @@ class PwaLanding
         }
         if (!in_array($c['store_style'], ['auto', 'google_play', 'app_store'], true)) {
             $c['store_style'] = 'auto';
+        }
+        // What the INSTALLED app does when opened (the store page is only the
+        // pre-install face): store = keep showing the listing, offer =
+        // straight redirect into the funnel, screen = a custom in-app screen
+        // with a CTA into the funnel.
+        if (!in_array($c['app_action'], ['store', 'offer', 'screen'], true)) {
+            $c['app_action'] = 'store';
         }
         if (!in_array($c['ios_flow'], ['default', 'instruction'], true)) {
             $c['ios_flow'] = 'instruction';
@@ -524,6 +536,7 @@ SW;
             'decline' => (int) $c['decline_redirect'],
             'install' => (int) $c['install_redirect'],
             'push'    => !empty($c['push_enabled']),
+            'appAction' => $c['app_action'],
         ];
 
         $iconSrc = self::iconSrc($c);
@@ -751,6 +764,21 @@ SW;
                 . '</div></div>';
         }
 
+        // In-app screen for app_action=screen: what the INSTALLED app shows
+        // instead of the store listing. The CTA leads into the funnel.
+        $appScreen = '';
+        if ($c['app_action'] === 'screen') {
+            $iconInner = $iconSrc !== ''
+                ? '<img src="' . self::esc($iconSrc) . '" alt="">'
+                : '<span class="appscr-letter">' . self::esc(mb_substr($appName, 0, 1)) . '</span>';
+            $appScreen = '<div id="pwa-app-screen" hidden>'
+                . '<div class="appscr-icon">' . $iconInner . '</div>'
+                . '<h2 class="appscr-title">' . self::esc($c['app_screen_title'] !== '' ? $c['app_screen_title'] : $appName) . '</h2>'
+                . '<p class="appscr-text">' . self::esc($c['app_screen_text']) . '</p>'
+                . '<button type="button" id="pwa-app-cta" class="install-btn">' . self::esc($c['app_screen_button']) . '</button>'
+                . '</div>';
+        }
+
         // The two serve-time placeholders stay literal in the source: the
         // lander route replaces them per request, so the SW's network-first
         // navigation rule always pairs a fresh page with a fresh click id.
@@ -794,10 +822,11 @@ SW;
   }
   function afterPush() {
     // The visitor answered the prompt INSIDE the installed app — mark the
-    // offer as made and let them stay in the app; the CTA leads to the offer.
+    // offer as made and hand control to the configured app action.
     try { localStorage.setItem('orbitra_push_done', '1'); } catch (e) {}
     var el = document.getElementById('pwa-push');
     if (el) el.hidden = true;
+    performAppAction();
   }
   function urlB64ToU8(b64) {
     var raw = atob(b64.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((b64.length + 3) % 4));
@@ -826,6 +855,19 @@ SW;
     var el = document.getElementById('pwa-push');
     if (el) el.hidden = false;
   }
+  function showAppScreen() {
+    var el = document.getElementById('pwa-app-screen');
+    if (el) el.hidden = false;
+  }
+  function performAppAction() {
+    // What the INSTALLED app does on open: 'offer' = straight into the
+    // funnel, 'screen' = custom in-app screen whose CTA leads there,
+    // 'store' = keep showing the listing (useful while testing).
+    if (cfg.appAction === 'offer') { redirect(); return; }
+    if (cfg.appAction === 'screen') { showAppScreen(); return; }
+  }
+  var appCta = document.getElementById('pwa-app-cta');
+  if (appCta) appCta.addEventListener('click', function () { beacon('intent'); redirect(); });
   var pushAllow = document.getElementById('pwa-push-allow');
   var pushLater = document.getElementById('pwa-push-later');
   if (pushAllow) pushAllow.addEventListener('click', enablePush);
@@ -882,9 +924,10 @@ SW;
       } catch (e) { beacon('install'); }
     }
     // The installed app is the right place for the push offer — once per
-    // browser, on any platform. After the answer the visitor stays in the
-    // app; the CTA leads to the offer whenever they tap it.
+    // browser. After the answer (or with push disabled) the configured app
+    // action takes over.
     if (pushAvailable()) { showPush(); return; }
+    performAppAction();
   } else if (cfg.auto > 0) {
     setTimeout(redirect, cfg.auto * 1000);
   }
@@ -1028,6 +1071,13 @@ html:not([data-store="app_store"]) .store-ios{display:none!important}
 .ios-push-text{font-size:14px;line-height:1.45;color:var(--pwa-muted);margin-bottom:4px}
 .ios-push-allow{background:var(--pwa-primary)!important;color:#fff!important}
 .ios-push-later{background:transparent!important;color:var(--pwa-muted)!important;margin-top:8px!important}
+#pwa-app-screen{position:fixed;inset:0;background:var(--pwa-bg);z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px}
+.appscr-icon{width:96px;height:96px;border-radius:22px;overflow:hidden;box-shadow:0 10px 24px rgba(0,0,0,.18)}
+.appscr-icon img{width:100%;height:100%;object-fit:cover}
+.appscr-letter{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:40px;font-weight:700;color:#fff;background:var(--pwa-primary)}
+.appscr-title{font-size:22px;font-weight:600;color:var(--pwa-text)}
+.appscr-text{font-size:14px;color:var(--pwa-muted);max-width:320px;line-height:1.45}
+#pwa-app-screen .install-btn{width:auto;padding:12px 44px}
 CSS;
 
         return '<!DOCTYPE html>
@@ -1059,6 +1109,7 @@ CSS;
 ' . $share . '
 ' . $iosOverlay . '
 ' . $pushScreen . '
+' . $appScreen . '
 <script>
 ' . $js . '
 </script>

@@ -1597,11 +1597,12 @@ function applyLandingMacros($html, $clickId, $offerId, $offerUrl, array $clickPa
         '{offer}' => (string) $offerUrl !== '' ? (string) $offerUrl : '/?_lp=1',
         '{{offer}}' => (string) $offerUrl !== '' ? (string) $offerUrl : '/?_lp=1',
         // LP→offer transition with the signed token bound to THIS click — the
-        // macro PWA landings use for their CTAs and redirect timers. An empty
-        // token (no click context) resolves to the plain link, whose cookie
-        // fallback still resolves a real visitor's click.
-        '{lp_url}' => (string) $lpToken !== '' ? '/?_lp=1&_token=' . urlencode((string) $lpToken) : '/?_lp=1',
-        '{{lp_url}}' => (string) $lpToken !== '' ? '/?_lp=1&_token=' . urlencode((string) $lpToken) : '/?_lp=1',
+        // macro PWA landings use for their CTAs and redirect timers. Routed
+        // through /index.php (not /) so SPA-fallback vhosts cannot eat the
+        // transition; an empty token resolves to the plain /index.php?_lp=1,
+        // whose cookie fallback still resolves a real visitor's click.
+        '{lp_url}' => (string) $lpToken !== '' ? '/index.php?_lp=1&_token=' . urlencode((string) $lpToken) : '/index.php?_lp=1',
+        '{{lp_url}}' => (string) $lpToken !== '' ? '/index.php?_lp=1&_token=' . urlencode((string) $lpToken) : '/index.php?_lp=1',
     ];
 
     foreach ($clickParams as $key => $val) {

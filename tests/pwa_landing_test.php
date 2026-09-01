@@ -169,6 +169,9 @@ try {
     // Ads label must surface in BOTH layouts (it lives under the iOS GET
     // button and in the Google Play hero line).
     assertContains('ios-in-app-text">Contains ads', $urlHtml, 'ads label visible on the iOS layout too');
+    // Default app behavior: opening the installed app stays on the listing
+    // unless the operator chose an action; the flag travels through cfg JSON.
+    assertContains('"appAction":"store"', $urlHtml, 'default app action is the store listing');
     // Regression: buckets are [5★..1★] (frontend order). Weighing index 0 as
     // one star rendered every preset listing at ~1.2★.
     assertContains('<div class="big-avg">4.8</div>', $urlHtml, 'average computed with frontend bucket order (4.8, not 1.2)');
@@ -287,7 +290,8 @@ try {
             . " body=" . substr((string) ($resp['body'] ?? ''), 0, 400) . "\n");
     }
     assertContains("subid = ''", $resp['body'] ?? '', 'no cookie → empty subid (beacons stay silent)');
-    assertContains("'/?_lp=1'", $resp['body'] ?? '', 'no cookie → plain /?_lp=1 transition');
+    assertContains("subid = ''", $resp['body'] ?? '', 'no cookie → empty subid (beacons stay silent)');
+    assertContains("lpUrl = '/index.php?_lp=1'", $resp['body'] ?? '', 'no cookie → plain /index.php?_lp=1 transition (SPA-vhost safe)');
 
     // ------------------------------------------------------------------
     // pixel.gif?action=pwa: dedup gates and throttle.
