@@ -6050,9 +6050,16 @@ try {
             $status = ($_GET['status'] ?? 'active') === 'inactive' ? 0 : 1;
             $where = ['is_active = ?'];
             $params = [$status];
+            // File-manager semantics: 'root' = only folderless files (the
+            // gallery's "All files" view), a numeric id = that folder's files,
+            // 'all' (MediaPicker) = no folder filter at all.
             if (isset($_GET['folder_id']) && $_GET['folder_id'] !== '' && $_GET['folder_id'] !== 'all') {
-                $where[] = 'folder_id = ?';
-                $params[] = (int) $_GET['folder_id'];
+                if ($_GET['folder_id'] === 'root') {
+                    $where[] = 'folder_id IS NULL';
+                } else {
+                    $where[] = 'folder_id = ?';
+                    $params[] = (int) $_GET['folder_id'];
+                }
             }
             if (($_GET['q'] ?? '') !== '') {
                 $where[] = "orig_name LIKE ? ESCAPE '\\'";

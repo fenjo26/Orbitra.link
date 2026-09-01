@@ -76,7 +76,10 @@ const GalleryPage = ({ user }) => {
         setLoading(true);
         try {
             const params = { action: 'media_list', status: filters.status, page: filters.page };
-            if (filters.folderId !== 'all') params.folder_id = filters.folderId;
+            // 'all' is the ROOT view: only folderless files (file-manager
+            // semantics — folder contents appear when the folder is opened).
+            // MediaPicker keeps sending 'all' → no filter → everything.
+            params.folder_id = filters.folderId === 'all' ? 'root' : filters.folderId;
             if (filters.userId) params.user_id = filters.userId;
             if (filters.q) params.q = filters.q;
             const res = await axios.get(API_URL, { params });
@@ -383,42 +386,6 @@ const GalleryPage = ({ user }) => {
                         {folderMenu !== null && (
                             <div className="fixed inset-0 z-[10]" onClick={() => setFolderMenu(null)} />
                         )}
-                        {folderId === 'all' && !inactive && folders.map(folder => (
-                            <div
-                                key={'folder-' + folder.id}
-                                className="relative flex min-h-[150px] cursor-pointer flex-col rounded-xl border p-2 transition"
-                                style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}
-                                onClick={() => { setFolderId(folder.id); loadItems({ folderId: folder.id }); }}
-                                title={t('media.openFolder', 'Open folder')}
-                            >
-                                <div className="relative mb-1.5 flex h-24 items-center justify-center rounded-lg" style={{ backgroundColor: 'var(--color-primary-light)' }}>
-                                    <Folder className="h-8 w-8" style={{ color: 'var(--color-primary)' }} />
-                                </div>
-                                <div className="truncate text-xs font-medium" style={{ color: 'var(--color-text-primary)' }}>{folder.name}</div>
-                                <div className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>{folder.asset_count ?? 0}</div>
-                                {canWrite && (
-                                    <button
-                                        type="button"
-                                        className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-md"
-                                        style={{ backgroundColor: 'var(--color-bg-card)', color: 'var(--color-text-muted)' }}
-                                        onClick={(e) => { e.stopPropagation(); setFolderMenu(folderMenu === folder.id ? null : folder.id); }}
-                                        title={t('media.folderMenu', 'Folder actions')}
-                                    >
-                                        <MoreVertical className="h-3.5 w-3.5" />
-                                    </button>
-                                )}
-                                {folderMenu === folder.id && (
-                                    <div className="absolute right-1 top-8 z-20 w-40 rounded-lg border py-1 shadow-lg" style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }} onClick={(e) => e.stopPropagation()}>
-                                        <button type="button" className="w-full px-3 py-1.5 text-left text-xs hover:opacity-80" onClick={(e) => { e.stopPropagation(); setFolderMenu(null); renameFolder(folder); }}>
-                                            {t('media.renameFolder', 'Rename folder')}
-                                        </button>
-                                        <button type="button" className="w-full px-3 py-1.5 text-left text-xs hover:opacity-80" style={{ color: 'var(--color-danger)' }} onClick={(e) => { e.stopPropagation(); setFolderMenu(null); deleteFolder(folder); }}>
-                                            {t('media.deleteFolder', 'Delete folder')}
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        ))}
                         {canWrite && !inactive && (
                             <div
                                 role="button"
@@ -458,6 +425,42 @@ const GalleryPage = ({ user }) => {
                                 </div>
                             </div>
                         )}
+                        {folderId === 'all' && !inactive && folders.map(folder => (
+                            <div
+                                key={'folder-' + folder.id}
+                                className="relative flex min-h-[150px] cursor-pointer flex-col rounded-xl border p-2 transition"
+                                style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}
+                                onClick={() => { setFolderId(folder.id); loadItems({ folderId: folder.id }); }}
+                                title={t('media.openFolder', 'Open folder')}
+                            >
+                                <div className="relative mb-1.5 flex h-24 items-center justify-center rounded-lg" style={{ backgroundColor: 'var(--color-primary-light)' }}>
+                                    <Folder className="h-8 w-8" style={{ color: 'var(--color-primary)' }} />
+                                </div>
+                                <div className="truncate text-xs font-medium" style={{ color: 'var(--color-text-primary)' }}>{folder.name}</div>
+                                <div className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>{folder.asset_count ?? 0}</div>
+                                {canWrite && (
+                                    <button
+                                        type="button"
+                                        className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-md"
+                                        style={{ backgroundColor: 'var(--color-bg-card)', color: 'var(--color-text-muted)' }}
+                                        onClick={(e) => { e.stopPropagation(); setFolderMenu(folderMenu === folder.id ? null : folder.id); }}
+                                        title={t('media.folderMenu', 'Folder actions')}
+                                    >
+                                        <MoreVertical className="h-3.5 w-3.5" />
+                                    </button>
+                                )}
+                                {folderMenu === folder.id && (
+                                    <div className="absolute right-1 top-8 z-20 w-40 rounded-lg border py-1 shadow-lg" style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }} onClick={(e) => e.stopPropagation()}>
+                                        <button type="button" className="w-full px-3 py-1.5 text-left text-xs hover:opacity-80" onClick={(e) => { e.stopPropagation(); setFolderMenu(null); renameFolder(folder); }}>
+                                            {t('media.renameFolder', 'Rename folder')}
+                                        </button>
+                                        <button type="button" className="w-full px-3 py-1.5 text-left text-xs hover:opacity-80" style={{ color: 'var(--color-danger)' }} onClick={(e) => { e.stopPropagation(); setFolderMenu(null); deleteFolder(folder); }}>
+                                            {t('media.deleteFolder', 'Delete folder')}
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
                         {items.map(item => {
                             const isSelected = selected.has(item.id);
                             return (
