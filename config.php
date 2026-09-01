@@ -2381,6 +2381,56 @@ try {
                         // Column already present on a half-migrated DB.
                     }
                 }
+
+                // Seed a "PWA Presets" gallery folder with the bundled
+                // constructor artwork (assets/pwa-presets/*/*.png). The
+                // constructor presets keep referencing the committed /assets/
+                // URLs — these rows are ordinary media copies so the base is
+                // discoverable and reusable through the ordinary gallery
+                // mechanics (select, copy URL, move, archive). Idempotent by
+                // folder+orig_name, so a retried migration never duplicates.
+                $presetRoot = __DIR__ . '/assets/pwa-presets';
+                if (is_dir($presetRoot)) {
+                    $presetFolderStmt = $pdo->query("SELECT id FROM media_folders WHERE name = 'PWA Presets' LIMIT 1");
+                    $presetFolderId = $presetFolderStmt ? $presetFolderStmt->fetchColumn() : false;
+                    if ($presetFolderId === false) {
+                        $pdo->exec("INSERT INTO media_folders (name) VALUES ('PWA Presets')");
+                        $presetFolderId = (int) $pdo->lastInsertId();
+                    }
+                    $presetFolderId = (int) $presetFolderId;
+                    $insPresetAsset = $pdo->prepare("INSERT INTO media_assets
+                        (owner_user_id, folder_id, orig_name, stored_name, sha256, mime, size, width, height)
+                        VALUES (NULL, ?, ?, ?, ?, 'image/png', ?, ?, ?)");
+                    foreach (glob($presetRoot . '/*/*.png') ?: [] as $presetFile) {
+                        $presetOrigName = 'pwa/' . basename(dirname($presetFile)) . '/' . basename($presetFile);
+                        $presetDup = $pdo->prepare("SELECT 1 FROM media_assets WHERE folder_id = ? AND orig_name = ? LIMIT 1");
+                        $presetDup->execute([$presetFolderId, $presetOrigName]);
+                        if ($presetDup->fetchColumn() !== false) {
+                            continue;
+                        }
+                        $presetInfo = @getimagesize($presetFile);
+                        if ($presetInfo === false) {
+                            continue;
+                        }
+                        $presetSha = hash_file('sha256', $presetFile);
+                        $presetStored = substr($presetSha, 0, 2) . '/' . substr($presetSha, 0, 12) . '-' . bin2hex(random_bytes(4)) . '.png';
+                        $presetTarget = __DIR__ . '/uploads/media/' . $presetStored;
+                        @mkdir(dirname($presetTarget), 0775, true);
+                        if (!@copy($presetFile, $presetTarget)) {
+                            continue;
+                        }
+                        @chmod($presetTarget, 0644);
+                        $insPresetAsset->execute([
+                            $presetFolderId,
+                            $presetOrigName,
+                            $presetStored,
+                            $presetSha,
+                            (int) filesize($presetFile),
+                            (int) $presetInfo[0],
+                            (int) $presetInfo[1],
+                        ]);
+                    }
+                }
             }
 
             // Mark schema as up-to-date. This must be last.
