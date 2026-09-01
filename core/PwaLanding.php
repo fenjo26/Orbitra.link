@@ -60,7 +60,7 @@ class PwaLanding
             'version'           => '1.0.0',
             'updated'           => '',
             'tags'              => [],
-            'rating_counts'     => [4, 3, 2, 1, 1],
+            'rating_counts'     => [4200, 480, 120, 30, 15],
             'comments'          => [],
             'whats_new_enabled' => false,
             'whats_new_text'    => '',
@@ -268,13 +268,18 @@ class PwaLanding
         return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8');
     }
 
+    /**
+     * Buckets follow the frontend/editor convention: index 0 = 5-star count,
+     * index 4 = 1-star count. Weighing index $i with $i stars instead would
+     * flip every listing's average to ~1.2 and make the histogram upside down.
+     */
     private static function ratingAvg(array $counts): float
     {
         $sum = 0;
         $total = 0;
-        for ($i = 1; $i <= 5; $i++) {
-            $n = (int) ($counts[$i - 1] ?? 0);
-            $sum += $n * $i;
+        for ($i = 0; $i < 5; $i++) {
+            $n = (int) ($counts[$i] ?? 0);
+            $sum += $n * (5 - $i);
             $total += $n;
         }
         return $total > 0 ? round($sum / $total, 1) : 0.0;
@@ -512,7 +517,7 @@ SW;
         $histogram = '';
         $maxCount = max(1, max($c['rating_counts']));
         for ($i = 5; $i >= 1; $i--) {
-            $n = (int) ($c['rating_counts'][$i - 1] ?? 0);
+            $n = (int) ($c['rating_counts'][5 - $i] ?? 0);
             $pct = (int) round($n / $maxCount * 100);
             $histogram .= '<div class="hrow"><span class="hnum">' . $i . '</span>'
                 . '<span class="hbar"><span class="hfill" style="width:' . $pct . '%"></span></span></div>';

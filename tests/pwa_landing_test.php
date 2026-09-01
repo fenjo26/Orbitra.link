@@ -165,6 +165,9 @@ try {
     assertContains('src="/uploads/media/ab/abcd1234-icon.png"', $urlHtml, 'icon_url from the media library rendered as the app icon');
     assertContains('onerror=', $urlHtml, 'broken images degrade silently (hide, not torn-icon glyph)');
     assertContains('4.8K reviews', $urlHtml, 'rating totals render compactly (K/M, not raw 4845)');
+    // Regression: buckets are [5★..1★] (frontend order). Weighing index 0 as
+    // one star rendered every preset listing at ~1.2★.
+    assertContains('<div class="big-avg">4.8</div>', $urlHtml, 'average computed with frontend bucket order (4.8, not 1.2)');
     assertContains('/uploads/media/cd/cdef5678-shot.png', $urlHtml, 'media-library screen URL survives generation');
     assertTrue(!strpos($urlHtml, 'gone-local.png'), 'missing local screen still dropped');
     $urlManifest = json_decode((string) file_get_contents($urlDir . '/manifest.webmanifest'), true);
