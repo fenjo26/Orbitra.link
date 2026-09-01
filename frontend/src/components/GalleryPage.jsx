@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import {
-    Check, FolderPlus, FolderPen, FolderMinus, ImagePlus, Loader2,
-    Pencil, RotateCcw, Search, Trash2, X
+    Check, Folder, FolderPlus, FolderPen, ImagePlus, Loader2,
+    MoreVertical, Pencil, RotateCcw, Search, Trash2, X
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard } from '../utils/clipboard';
@@ -34,9 +34,8 @@ const GalleryPage = ({ user }) => {
     const [userId, setUserId] = useState('');
     const [q, setQ] = useState('');
     const [selected, setSelected] = useState(new Set());
-    const [newFolderName, setNewFolderName] = useState('');
-    const [creatingFolder, setCreatingFolder] = useState(false);
     const [moveTarget, setMoveTarget] = useState(null); // folder picker modal
+    const [folderMenu, setFolderMenu] = useState(null); // open ⋮ menu folder id
     const [dragOver, setDragOver] = useState(false);
 
     const fileInputRef = useRef(null);
@@ -172,16 +171,30 @@ const GalleryPage = ({ user }) => {
         }
     };
 
-    const createFolder = async () => {
-        const name = newFolderName.trim();
+    const promptCreateFolder = async () => {
+        const name = (window.prompt(t('media.newFolder', 'New folder')) || '').trim();
         if (!name || !canWrite) return;
         setBusy(true);
         try {
             const res = await axios.post(`${API_URL}?action=media_folder_op`, { op: 'create', name });
             if (res.data?.status !== 'success') throw new Error(res.data?.message || 'failed');
-            setNewFolderName('');
-            setCreatingFolder(false);
             await loadFolders();
+        } catch (err) {
+            setError(apiError(err));
+        } finally {
+            setBusy(false);
+        }
+    };
+
+    const renameFile = async (item) => {
+        if (!canWrite) return;
+        const name = (window.prompt(t('media.renameFile', 'Rename file'), item.orig_name) || '').trim();
+        if (!name || name === item.orig_name) return;
+        setBusy(true);
+        try {
+            const res = await axios.post(`${API_URL}?action=media_op`, { op: 'rename', ids: [item.id], name });
+            if (res.data?.status !== 'success') throw new Error(res.data?.message || 'failed');
+            await loadItems();
         } catch (err) {
             setError(apiError(err));
         } finally {
@@ -270,8 +283,8 @@ const GalleryPage = ({ user }) => {
                 </div>
             </div>
 
-            {/* Folders strip */}
-            <div className="page-card">
+            {/* Breadcrumb bar — file-manager navigation */}
+            <div className="page-card" style={{ padding: '10px 16px' }}>
                 <div className="flex flex-wrap items-center gap-2">
                     <button
                         type="button"
@@ -283,59 +296,18 @@ const GalleryPage = ({ user }) => {
                     >
                         {t('media.allFiles', 'All files')}
                     </button>
-                    {folders.map(folder => (
-                        <span key={folder.id} className="inline-flex items-center overflow-hidden rounded-lg border" style={{ borderColor: 'var(--color-border)' }}>
-                            <button
-                                type="button"
-                                className="btn btn-sm"
-                                style={{
-                                    borderRadius: 0,
-                                    backgroundColor: folderId === folder.id ? 'var(--color-primary)' : 'var(--color-bg-soft)',
-                                    color: folderId === folder.id ? 'var(--color-text-inverse)' : 'var(--color-text-secondary)'
-                                }}
-                                onClick={() => { setFolderId(folder.id); loadItems({ folderId: folder.id }); }}
-                                title={folderId === folder.id ? t('media.allFiles', 'All files') : folder.name}
-                            >
-                                {folder.name} ({folder.asset_count})
-                            </button>
-                            {canWrite && (
-                                <>
-                                    <button type="button" className="px-1.5 py-1.5" style={{ backgroundColor: 'var(--color-bg-soft)', color: 'var(--color-text-muted)' }} onClick={() => renameFolder(folder)} title={t('media.renameFolder', 'Rename folder')}>
-                                        <Pencil className="h-3 w-3" />
-                                    </button>
-                                    <button type="button" className="px-1.5 py-1.5" style={{ backgroundColor: 'var(--color-bg-soft)', color: 'var(--color-danger)' }} onClick={() => deleteFolder(folder)} title={t('media.deleteFolder', 'Delete folder')}>
-                                        <FolderMinus className="h-3 w-3" />
-                                    </button>
-                                </>
-                            )}
+                    {folderId !== 'all' && (
+                        <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                            › {folderName(folderId) !== '—' ? folderName(folderId) : ''}
                         </span>
-                    ))}
-                    {canWrite && (creatingFolder ? (
-                        <span className="inline-flex items-center gap-1">
-                            <input
-                                type="text"
-                                className="form-input text-sm"
-                                style={{ width: '200px' }}
-                                maxLength={50}
-                                autoFocus
-                                placeholder={t('media.folderNamePlaceholder', 'Folder name (up to 50 characters)')}
-                                value={newFolderName}
-                                onChange={(e) => setNewFolderName(e.target.value)}
-                                onKeyDown={(e) => { if (e.key === 'Enter') createFolder(); if (e.key === 'Escape') setCreatingFolder(false); }}
-                            />
-                            <button type="button" className="btn btn-primary btn-sm" onClick={createFolder} disabled={busy || !newFolderName.trim()}>
-                                {t('common.create')}
-                            </button>
-                            <button type="button" className="btn btn-secondary btn-sm" onClick={() => { setCreatingFolder(false); setNewFolderName(''); }}>
-                                {t('common.cancel')}
-                            </button>
-                        </span>
-                    ) : (
-                        <button type="button" className="btn btn-secondary btn-sm" onClick={() => setCreatingFolder(true)}>
+                    )}
+                    <div className="flex-1" />
+                    {canWrite && folderId === 'all' && !inactive && (
+                        <button type="button" className="btn btn-secondary btn-sm" onClick={promptCreateFolder}>
                             <FolderPlus className="h-3.5 w-3.5" />
                             {t('media.newFolder', 'New folder')}
                         </button>
-                    ))}
+                    )}
                 </div>
             </div>
 
@@ -408,6 +380,45 @@ const GalleryPage = ({ user }) => {
                     <div className="py-12 text-center" style={{ color: 'var(--color-text-muted)' }}>{t('common.loading')}</div>
                 ) : (
                     <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))' }}>
+                        {folderMenu !== null && (
+                            <div className="fixed inset-0 z-[10]" onClick={() => setFolderMenu(null)} />
+                        )}
+                        {folderId === 'all' && !inactive && folders.map(folder => (
+                            <div
+                                key={'folder-' + folder.id}
+                                className="relative flex min-h-[150px] cursor-pointer flex-col rounded-xl border p-2 transition"
+                                style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}
+                                onClick={() => { setFolderId(folder.id); loadItems({ folderId: folder.id }); }}
+                                title={t('media.openFolder', 'Open folder')}
+                            >
+                                <div className="relative mb-1.5 flex h-24 items-center justify-center rounded-lg" style={{ backgroundColor: 'var(--color-primary-light)' }}>
+                                    <Folder className="h-8 w-8" style={{ color: 'var(--color-primary)' }} />
+                                </div>
+                                <div className="truncate text-xs font-medium" style={{ color: 'var(--color-text-primary)' }}>{folder.name}</div>
+                                <div className="text-[10px]" style={{ color: 'var(--color-text-muted)' }}>{folder.asset_count ?? 0}</div>
+                                {canWrite && (
+                                    <button
+                                        type="button"
+                                        className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-md"
+                                        style={{ backgroundColor: 'var(--color-bg-card)', color: 'var(--color-text-muted)' }}
+                                        onClick={(e) => { e.stopPropagation(); setFolderMenu(folderMenu === folder.id ? null : folder.id); }}
+                                        title={t('media.folderMenu', 'Folder actions')}
+                                    >
+                                        <MoreVertical className="h-3.5 w-3.5" />
+                                    </button>
+                                )}
+                                {folderMenu === folder.id && (
+                                    <div className="absolute right-1 top-8 z-20 w-40 rounded-lg border py-1 shadow-lg" style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }} onClick={(e) => e.stopPropagation()}>
+                                        <button type="button" className="w-full px-3 py-1.5 text-left text-xs hover:opacity-80" onClick={(e) => { e.stopPropagation(); setFolderMenu(null); renameFolder(folder); }}>
+                                            {t('media.renameFolder', 'Rename folder')}
+                                        </button>
+                                        <button type="button" className="w-full px-3 py-1.5 text-left text-xs hover:opacity-80" style={{ color: 'var(--color-danger)' }} onClick={(e) => { e.stopPropagation(); setFolderMenu(null); deleteFolder(folder); }}>
+                                            {t('media.deleteFolder', 'Delete folder')}
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
                         {canWrite && !inactive && (
                             <div
                                 role="button"
@@ -478,15 +489,28 @@ const GalleryPage = ({ user }) => {
                                         <span>· {folderName(item.folder_id)}</span>
                                         {isAdmin && item.owner_name && <span>· {item.owner_name}</span>}
                                     </div>
-                                    <button
-                                        type="button"
-                                        className="mt-1 text-[10px] hover:underline"
-                                        style={{ color: 'var(--color-primary)', width: 'fit-content' }}
-                                        onClick={async (e) => { e.stopPropagation(); await copyToClipboard(item.url); }}
-                                        title={t('media.copyUrl', 'Copy URL')}
-                                    >
-                                        {t('media.copyUrl', 'Copy URL')}
-                                    </button>
+                                    <div className="mt-1 flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            className="text-[10px] hover:underline"
+                                            style={{ color: 'var(--color-primary)' }}
+                                            onClick={async (e) => { e.stopPropagation(); await copyToClipboard(item.url); }}
+                                            title={t('media.copyUrl', 'Copy URL')}
+                                        >
+                                            {t('media.copyUrl', 'Copy URL')}
+                                        </button>
+                                        {canWrite && (
+                                            <button
+                                                type="button"
+                                                className="text-[10px] hover:underline flex items-center gap-0.5"
+                                                style={{ color: 'var(--color-text-muted)' }}
+                                                onClick={(e) => { e.stopPropagation(); renameFile(item); }}
+                                                title={t('media.renameFile', 'Rename file')}
+                                            >
+                                                <Pencil className="h-3 w-3" />
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             );
                         })}

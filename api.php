@@ -6161,6 +6161,17 @@ try {
                 $stmt = $pdo->prepare("UPDATE media_assets SET folder_id = ? WHERE id IN ($placeholders)$ownerGuard");
                 array_unshift($params, $folderId);
                 $stmt->execute($params);
+            } elseif ($op === 'rename') {
+                // Display-name rename only — stored_name/sha never change, so
+                // the served URL (and every page referencing it) stays valid.
+                $newName = trim((string) ($data['name'] ?? ''));
+                if (count($ids) !== 1 || $newName === '' || mb_strlen($newName) > 100) {
+                    echo json_encode(['status' => 'error', 'message' => 'media.err_bad_request']);
+                    break;
+                }
+                $stmt = $pdo->prepare("UPDATE media_assets SET orig_name = ? WHERE id IN ($placeholders)$ownerGuard");
+                array_unshift($params, $newName);
+                $stmt->execute($params);
             } elseif ($op === 'delete') {
                 $stmt = $pdo->prepare("UPDATE media_assets SET is_active = 0, deleted_at = CURRENT_TIMESTAMP
                     WHERE id IN ($placeholders) AND is_active = 1$ownerGuard");
