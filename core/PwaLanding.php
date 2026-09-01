@@ -425,13 +425,15 @@ SW;
         ];
 
         $iconSrc = self::iconSrc($c);
+        // A broken image (media asset archived, preset asset not shipped yet)
+        // must degrade to a clean page, not a torn-icon glyph.
         $iconHtml = $iconSrc !== ''
-            ? '<img class="app-icon" src="' . self::esc($iconSrc) . '" alt="">'
+            ? '<img class="app-icon" src="' . self::esc($iconSrc) . '" alt="" onerror="this.style.display=\'none\'">'
             : '<div class="app-icon app-icon-fallback">' . self::esc(mb_substr($appName, 0, 1)) . '</div>';
 
         $screensHtml = '';
         foreach ($c['screens'] as $shot) {
-            $screensHtml .= '<img class="shot" loading="lazy" src="' . self::esc($shot) . '" alt="">';
+            $screensHtml .= '<img class="shot" loading="lazy" src="' . self::esc($shot) . '" alt="" onerror="this.style.display=\'none\'">';
         }
 
         $tagsHtml = '';

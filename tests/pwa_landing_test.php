@@ -132,6 +132,7 @@ try {
     assertContains('{lp_url}', $html, 'index.html keeps {lp_url} as a serve-time placeholder');
     assertContains('{subid}', $html, 'index.html keeps {subid} as a serve-time placeholder');
     assertContains('pwa-install-btn', $html, 'index.html renders the install button');
+    assertContains('onerror=', $html, 'broken images degrade silently (hide, not torn-icon glyph)');
     assertContains('Best app by PlayBest Ltd, download Lucky Spin now', $html, 'description macros resolved at generation time');
     assertContains('id="pwa-ios"', $html, 'iOS instruction overlay present');
     assertNotContains($html, '_token=', 'no click token baked into the static page');

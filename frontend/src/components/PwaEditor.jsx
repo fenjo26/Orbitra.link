@@ -25,14 +25,26 @@ const SCHEMES = [
 const DOWNLOADS = ['500+', '1K+', '5K+', '10K+', '100K+', '1M+', '10M+', '50M+', '100M+', '500M+', '1B+'];
 const TIMER_OPTIONS = [0, 30, 45, 60, 90, 120, 150, 180];
 
-// Built-in starter packs (design + sample content). Names/descriptions are
-// visitor-facing SAMPLE CONTENT, deliberately not i18n chrome — the operator
-// edits them per app, same as Adset's template assets.
+// Built-in starter packs (design + sample content + bundled sample assets).
+// Assets live in /assets/pwa-presets/<id>/ — shipped files, no media-library
+// dependency; the operator replaces them via the picker whenever they want.
+// Names/labels are visitor-facing SAMPLE CONTENT, deliberately not i18n
+// chrome — the operator edits them per app.
+const presetAssets = (id) => ({
+    icon_url: `/assets/pwa-presets/${id}/icon.png`,
+    screens: [
+        `/assets/pwa-presets/${id}/screen-1.png`,
+        `/assets/pwa-presets/${id}/screen-2.png`,
+        `/assets/pwa-presets/${id}/screen-3.png`,
+    ],
+});
+
 const PRESETS = [
     {
         id: 'lucky-casino',
         label: 'Lucky Casino',
         patch: {
+            ...presetAssets('lucky-casino'),
             category: 'Casino',
             color_scheme: 'green',
             theme_mode: 'dark',
@@ -53,6 +65,7 @@ const PRESETS = [
         id: 'bet-sport',
         label: 'BetMaster Sport',
         patch: {
+            ...presetAssets('bet-sport'),
             category: 'Sport Betting',
             color_scheme: 'blue',
             theme_mode: 'light',
@@ -73,6 +86,7 @@ const PRESETS = [
         id: 'neon-slots',
         label: 'Neon Slots 777',
         patch: {
+            ...presetAssets('neon-slots'),
             category: 'Gambling',
             color_scheme: 'purple',
             theme_mode: 'dark',
@@ -92,6 +106,7 @@ const PRESETS = [
         id: 'fit-club',
         label: 'FitClub Pro',
         patch: {
+            ...presetAssets('fit-club'),
             category: 'Fitness',
             color_scheme: 'orange',
             theme_mode: 'light',
@@ -566,6 +581,7 @@ export default function PwaEditor({ landingId, onClose }) {
                                                     <img
                                                         src={config.icon_url || config.icon}
                                                         alt=""
+                                                        onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
                                                         style={{ width: 64, height: 64, borderRadius: 14, objectFit: 'cover', border: '1px solid var(--color-border)' }}
                                                     />
                                                 ) : (
