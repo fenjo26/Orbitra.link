@@ -151,7 +151,8 @@ const DEFAULT_CONFIG = {
     theme_mode: 'light',
     color_scheme: 'green',
     store_style: 'auto',
-    ios_flow: 'instruction',
+    ios_flow: 'default',
+    push_enabled: false,
     preloader: true,
     bottom_menu: false,
     show_header: true,
@@ -503,10 +504,18 @@ export default function PwaEditor({ landingId, onClose }) {
                                                 {CATEGORIES.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
                                             </select>
                                         </Field>
-                                        <Field label={t('pwa.language')}>
-                                            <select className="form-select" value={config.lang} onChange={(e) => set('lang', e.target.value)}>
-                                                {LANGS.map((lng) => <option key={lng} value={lng}>{lng.toUpperCase()}</option>)}
-                                            </select>
+                                        <Field label={t('pwa.language')} hint={t('pwa.languageHint')}>
+                                            <input
+                                                className="form-input"
+                                                list="pwa-lang-codes"
+                                                value={config.lang}
+                                                maxLength={10}
+                                                onChange={(e) => set('lang', e.target.value.trim())}
+                                                placeholder="en"
+                                            />
+                                            <datalist id="pwa-lang-codes">
+                                                {LANGS.map((lng) => <option key={lng} value={lng} />)}
+                                            </datalist>
                                         </Field>
                                     </div>
                                 </Section>
@@ -564,6 +573,10 @@ export default function PwaEditor({ landingId, onClose }) {
                                                 {TIMER_OPTIONS.map((sec) => <option key={sec} value={sec}>{sec === 0 ? t('pwa.timerImmediate') : `${sec}s`}</option>)}
                                             </select>
                                         </Field>
+                                    </div>
+                                    <div className="flex flex-wrap gap-4 mt-4">
+                                        <Toggle label={t('pwa.pushEnabled')} checked={config.push_enabled} onChange={(v) => set('push_enabled', v)} />
+                                        <span className="text-xs self-center" style={{ color: 'var(--color-text-muted)' }}>{t('pwa.pushEnabledHint')}</span>
                                     </div>
                                     <div className="mt-4">
                                         <Toggle label={t('pwa.supportEnabled')} checked={config.support_enabled} onChange={(v) => set('support_enabled', v)} />

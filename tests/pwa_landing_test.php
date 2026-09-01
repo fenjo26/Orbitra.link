@@ -107,6 +107,7 @@ try {
         'screens' => ['missing.png'],
         'color_scheme' => 'purple',
         'theme_mode' => 'dark',
+        'ios_flow' => 'instruction',
         'auto_redirect' => 45,
     ]);
     $pdo->prepare("INSERT INTO landings (name, url, type, state, slug, config_json) VALUES (?, '', 'local', 'active', ?, ?)")

@@ -113,13 +113,32 @@ try {
     // ------------------------------------------------------------------
     require_once __DIR__ . '/../core/landing_path.php';
     $slug = 'push-test-' . bin2hex(random_bytes(4));
-    $cfg = PwaLanding::normalizeConfig(['pwa' => true, 'app_name' => 'Push App', 'screens' => []]);
+    // push_enabled is OPT-IN by default — pass it explicitly for the screen.
+    $cfg = PwaLanding::normalizeConfig(['pwa' => true, 'app_name' => 'Push App', 'screens' => [], 'push_enabled' => true]);
+    $offConfig = PwaLanding::normalizeConfig(['pwa' => true, 'app_name' => 'Push Off', 'push_enabled' => false]);
+    assertTrue($cfg['push_enabled'] === true && $offConfig['push_enabled'] === false, 'push flag passes through normalizeConfig');
     $pdo->prepare("INSERT INTO landings (name, url, type, state, slug, config_json) VALUES (?, '', 'local', 'active', ?, ?)")
         ->execute(['Push PWA', $slug, json_encode($cfg, JSON_UNESCAPED_UNICODE)]);
     $landingId = (int) $pdo->lastInsertId();
     $dir = orbitraLandingDir($pdo, $landingId);
     $madeDirs[] = $dir;
     PwaLanding::generate($pdo, $landingId);
+    // Default-off regression: without the flag the page must not even ship
+    // the subscribe screen markup.
+    $offSlug = 'push-off-' . bin2hex(random_bytes(4));
+    $pdo->prepare("INSERT INTO landings (name, url, type, state, slug, config_json) VALUES (?, '', 'local', 'active', ?, ?)")
+        ->execute(['Push Off PWA', $offSlug, json_encode($offConfig, JSON_UNESCAPED_UNICODE)]);
+    $offLandingId = (int) $pdo->lastInsertId();
+    $madeDirs[] = orbitraLandingDir($pdo, $offLandingId);
+    PwaLanding::generate($pdo, $offLandingId);
+    $offDir = orbitraLandingDir($pdo, $offLandingId);
+    $sandboxOff = $harness->getWorkingDir() . '/landings/' . $offSlug;
+    @mkdir($sandboxOff, 0775, true);
+    foreach (['index.html', 'manifest.webmanifest', 'sw.js'] as $f) {
+        if (is_file($offDir . '/' . $f)) copy($offDir . '/' . $f, $sandboxOff . '/' . $f);
+    }
+    $offHtml = (string) file_get_contents($offDir . '/index.html');
+    assertTrue(strpos($offHtml, 'id="pwa-push"') === false, 'push disabled by default: no subscribe screen markup');
     $sandboxDir = $harness->getWorkingDir() . '/landings/' . $slug;
     @mkdir($sandboxDir, 0775, true);
     foreach (['index.html', 'manifest.webmanifest', 'sw.js'] as $f) {

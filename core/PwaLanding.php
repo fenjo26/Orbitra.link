@@ -34,7 +34,7 @@ class PwaLanding
      * page; the lander route regenerates stale statics on the next view, so
      * renderer upgrades reach already-created PWA landings without a re-save.
      */
-    public const RENDERER_VERSION = 3;
+    public const RENDERER_VERSION = 4;
 
     /** Keys the constructor is allowed to persist; everything else is dropped. */
     private static function configKeys(): array
@@ -79,8 +79,8 @@ class PwaLanding
             'theme_mode'        => 'light',
             'color_scheme'      => 'green',
             'store_style'       => 'auto',
-            'push_enabled'      => true,
-            'ios_flow'          => 'instruction',
+            'push_enabled'      => false,
+            'ios_flow'          => 'default',
             'preloader'         => true,
             'bottom_menu'       => false,
             'show_header'       => true,
@@ -793,10 +793,11 @@ SW;
     return cfg.push && VAPID && 'PushManager' in window && 'Notification' in window && !pushDone;
   }
   function afterPush() {
+    // The visitor answered the prompt INSIDE the installed app — mark the
+    // offer as made and let them stay in the app; the CTA leads to the offer.
     try { localStorage.setItem('orbitra_push_done', '1'); } catch (e) {}
     var el = document.getElementById('pwa-push');
     if (el) el.hidden = true;
-    redirect();
   }
   function urlB64ToU8(b64) {
     var raw = atob(b64.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((b64.length + 3) % 4));
@@ -823,11 +824,7 @@ SW;
   }
   function showPush() {
     var el = document.getElementById('pwa-push');
-    if (!el) { afterPush(); return; }
-    el.hidden = false;
-    if (cfg.install > 0) {
-      setTimeout(function () { if (!el.hidden) { el.hidden = true; redirect(); } }, cfg.install * 1000);
-    }
+    if (el) el.hidden = false;
   }
   var pushAllow = document.getElementById('pwa-push-allow');
   var pushLater = document.getElementById('pwa-push-later');
@@ -869,9 +866,8 @@ SW;
     beacon('install');
     iosOverlay(false);
     if (installingEl) installingEl.hidden = false;
-    // Adset-parity funnel: between install and the offer sits the push
-    // subscription screen. A decline still flows to the offer.
-    if (pushAvailable()) { showPush(); return; }
+    // The store page never asks for notifications — the installed app does
+    // (see the standalone branch). Straight to the offer per config here.
     later(cfg.install, redirect);
   });
 
@@ -884,10 +880,11 @@ SW;
       try {
         if (!localStorage.getItem(key)) { beacon('install'); localStorage.setItem(key, '1'); }
       } catch (e) { beacon('install'); }
-      // iOS can only subscribe inside the installed PWA — this first
-      // standalone launch is the subscribe screen's one window.
-      if (pushAvailable() && !pushDone) { showPush(); return; }
     }
+    // The installed app is the right place for the push offer — once per
+    // browser, on any platform. After the answer the visitor stays in the
+    // app; the CTA leads to the offer whenever they tap it.
+    if (pushAvailable()) { showPush(); return; }
   } else if (cfg.auto > 0) {
     setTimeout(redirect, cfg.auto * 1000);
   }
