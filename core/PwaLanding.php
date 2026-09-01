@@ -34,7 +34,7 @@ class PwaLanding
      * page; the lander route regenerates stale statics on the next view, so
      * renderer upgrades reach already-created PWA landings without a re-save.
      */
-    public const RENDERER_VERSION = 4;
+    public const RENDERER_VERSION = 5;
 
     /** Keys the constructor is allowed to persist; everything else is dropped. */
     private static function configKeys(): array
@@ -657,7 +657,7 @@ SW;
             . '<button type="button" id="pwa-install-btn-ios" class="ios-get-btn install-trigger">' . self::esc($t['get'] ?? 'GET') . '</button>'
             . '<button type="button" class="ios-more-btn">···</button>'
             . '</div>'
-            . '<div class="ios-in-app-text">' . self::esc($t['in_app_purchases'] ?? 'In-App Purchases') . '</div>'
+            . '<div class="ios-in-app-text">' . self::esc($c['ads_label']) . '</div>'
             . '</div>'
             . '</section>'
             . '<section class="ios-metrics-ribbon">'

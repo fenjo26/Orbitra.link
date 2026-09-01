@@ -166,6 +166,9 @@ try {
     assertContains('src="/uploads/media/ab/abcd1234-icon.png"', $urlHtml, 'icon_url from the media library rendered as the app icon');
     assertContains('onerror=', $urlHtml, 'broken images degrade silently (hide, not torn-icon glyph)');
     assertContains('4.8K reviews', $urlHtml, 'rating totals render compactly (K/M, not raw 4845)');
+    // Ads label must surface in BOTH layouts (it lives under the iOS GET
+    // button and in the Google Play hero line).
+    assertContains('ios-in-app-text">Contains ads', $urlHtml, 'ads label visible on the iOS layout too');
     // Regression: buckets are [5★..1★] (frontend order). Weighing index 0 as
     // one star rendered every preset listing at ~1.2★.
     assertContains('<div class="big-avg">4.8</div>', $urlHtml, 'average computed with frontend bucket order (4.8, not 1.2)');
