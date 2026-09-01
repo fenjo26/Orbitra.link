@@ -88,6 +88,60 @@ try {
         $schemaVersion = 0;
     }
 
+    /**
+     * Seed the "PWA Presets" gallery folder from the bundled artwork under
+     * assets/pwa-presets (one folder per preset, PNG files).
+     * Idempotent (folder+orig_name guard), safe to call repeatedly: called by
+     * migration 45 and every time the gallery lists its folders, so artwork
+     * added to the repo later is picked up without touching the DB version.
+     */
+    function orbitraSeedPwaGallery(PDO $pdo): void
+    {
+        $presetRoot = __DIR__ . '/assets/pwa-presets';
+        if (!is_dir($presetRoot)) {
+            return;
+        }
+        $folderStmt = $pdo->query("SELECT id FROM media_folders WHERE name = 'PWA Presets' LIMIT 1");
+        $presetFolderId = $folderStmt ? $folderStmt->fetchColumn() : false;
+        if ($presetFolderId === false) {
+            $pdo->exec("INSERT INTO media_folders (name) VALUES ('PWA Presets')");
+            $presetFolderId = (int) $pdo->lastInsertId();
+        }
+        $presetFolderId = (int) $presetFolderId;
+        $insAsset = $pdo->prepare("INSERT INTO media_assets
+            (owner_user_id, folder_id, orig_name, stored_name, sha256, mime, size, width, height)
+            VALUES (NULL, ?, ?, ?, ?, 'image/png', ?, ?, ?)");
+        foreach (glob($presetRoot . '/*/*.png') ?: [] as $presetFile) {
+            $origName = 'pwa/' . basename(dirname($presetFile)) . '/' . basename($presetFile);
+            $dup = $pdo->prepare("SELECT 1 FROM media_assets WHERE folder_id = ? AND orig_name = ? LIMIT 1");
+            $dup->execute([$presetFolderId, $origName]);
+            if ($dup->fetchColumn() !== false) {
+                continue;
+            }
+            $info = @getimagesize($presetFile);
+            if ($info === false) {
+                continue;
+            }
+            $sha = hash_file('sha256', $presetFile);
+            $stored = substr($sha, 0, 2) . '/' . substr($sha, 0, 12) . '-' . bin2hex(random_bytes(4)) . '.png';
+            $target = __DIR__ . '/uploads/media/' . $stored;
+            @mkdir(dirname($target), 0775, true);
+            if (!@copy($presetFile, $target)) {
+                continue;
+            }
+            @chmod($target, 0644);
+            $insAsset->execute([
+                $presetFolderId,
+                $origName,
+                $stored,
+                $sha,
+                (int) filesize($presetFile),
+                (int) $info[0],
+                (int) $info[1],
+            ]);
+        }
+    }
+
     $runMigrations = function () use ($pdo, $LATEST_SCHEMA_VERSION, &$schemaVersion, &$postback_key) : void {
         if ($schemaVersion >= $LATEST_SCHEMA_VERSION) {
             return;
@@ -2382,55 +2436,10 @@ try {
                     }
                 }
 
-                // Seed a "PWA Presets" gallery folder with the bundled
-                // constructor artwork (assets/pwa-presets/*/*.png). The
-                // constructor presets keep referencing the committed /assets/
-                // URLs — these rows are ordinary media copies so the base is
-                // discoverable and reusable through the ordinary gallery
-                // mechanics (select, copy URL, move, archive). Idempotent by
-                // folder+orig_name, so a retried migration never duplicates.
-                $presetRoot = __DIR__ . '/assets/pwa-presets';
-                if (is_dir($presetRoot)) {
-                    $presetFolderStmt = $pdo->query("SELECT id FROM media_folders WHERE name = 'PWA Presets' LIMIT 1");
-                    $presetFolderId = $presetFolderStmt ? $presetFolderStmt->fetchColumn() : false;
-                    if ($presetFolderId === false) {
-                        $pdo->exec("INSERT INTO media_folders (name) VALUES ('PWA Presets')");
-                        $presetFolderId = (int) $pdo->lastInsertId();
-                    }
-                    $presetFolderId = (int) $presetFolderId;
-                    $insPresetAsset = $pdo->prepare("INSERT INTO media_assets
-                        (owner_user_id, folder_id, orig_name, stored_name, sha256, mime, size, width, height)
-                        VALUES (NULL, ?, ?, ?, ?, 'image/png', ?, ?, ?)");
-                    foreach (glob($presetRoot . '/*/*.png') ?: [] as $presetFile) {
-                        $presetOrigName = 'pwa/' . basename(dirname($presetFile)) . '/' . basename($presetFile);
-                        $presetDup = $pdo->prepare("SELECT 1 FROM media_assets WHERE folder_id = ? AND orig_name = ? LIMIT 1");
-                        $presetDup->execute([$presetFolderId, $presetOrigName]);
-                        if ($presetDup->fetchColumn() !== false) {
-                            continue;
-                        }
-                        $presetInfo = @getimagesize($presetFile);
-                        if ($presetInfo === false) {
-                            continue;
-                        }
-                        $presetSha = hash_file('sha256', $presetFile);
-                        $presetStored = substr($presetSha, 0, 2) . '/' . substr($presetSha, 0, 12) . '-' . bin2hex(random_bytes(4)) . '.png';
-                        $presetTarget = __DIR__ . '/uploads/media/' . $presetStored;
-                        @mkdir(dirname($presetTarget), 0775, true);
-                        if (!@copy($presetFile, $presetTarget)) {
-                            continue;
-                        }
-                        @chmod($presetTarget, 0644);
-                        $insPresetAsset->execute([
-                            $presetFolderId,
-                            $presetOrigName,
-                            $presetStored,
-                            $presetSha,
-                            (int) filesize($presetFile),
-                            (int) $presetInfo[0],
-                            (int) $presetInfo[1],
-                        ]);
-                    }
-                }
+                // Seed the "PWA Presets" gallery folder (see the function above);
+                // the media_folders listing re-runs it to catch artwork added
+                // to the repo after this migration already stamped the DB.
+                orbitraSeedPwaGallery($pdo);
             }
 
             // Mark schema as up-to-date. This must be last.
