@@ -262,7 +262,17 @@ class PwaLanding
         $html = str_replace('{subid}', '', $html);
         $html = str_replace('{lp_url}', '#', $html);
         if ($platform === 'ios') {
-            $html .= "\n<script>window.__PWA_FORCE_IOS = true;</script>\n";
+            // The flag must exist BEFORE the store-picking script in <head>
+            // executes: appending it at the end left data-store on
+            // google_play, so both preview toggles showed the same layout.
+            // Injected this early it also drives the install-button behavior
+            // (instruction overlay instead of the native prompt).
+            $html = preg_replace(
+                '/<head[^>]*>/i',
+                "$0\n<script>window.__PWA_FORCE_IOS = true;</script>",
+                $html,
+                1
+            );
         }
         return $html;
     }

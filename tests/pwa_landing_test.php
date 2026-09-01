@@ -185,6 +185,13 @@ try {
     assertTrue(strpos($prev, '__PWA_FORCE_IOS = true') === false, 'auto preview does not set the iOS force flag');
     $prevIos = PwaLanding::renderPreview($urlConfig, 'ios');
     assertContains('window.__PWA_FORCE_IOS = true', $prevIos, 'ios preview forces the instruction overlay');
+    // Regression: the flag has to precede the store-picking script in <head>
+    // — injected late, both preview toggles rendered the same Google Play
+    // layout and the App Store design was unreachable from the constructor.
+    assertTrue(
+        strpos($prevIos, '__PWA_FORCE_IOS') < strpos($prevIos, 'data-store'),
+        'iOS flag injected before the store-picking script runs'
+    );
     assertContains('class="store-layout store-gp"', $prev, 'preview contains Google Play store layout');
     assertContains('class="store-layout store-ios"', $prev, 'preview contains Apple App Store layout');
     assertContains('ios-metrics-ribbon', $prev, 'preview contains Apple metric strip');
