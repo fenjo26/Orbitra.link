@@ -34,7 +34,7 @@ class PwaLanding
      * page; the lander route regenerates stale statics on the next view, so
      * renderer upgrades reach already-created PWA landings without a re-save.
      */
-    public const RENDERER_VERSION = 7;
+    public const RENDERER_VERSION = 8;
 
     /** Keys the constructor is allowed to persist; everything else is dropped. */
     private static function configKeys(): array
@@ -769,18 +769,91 @@ SW;
         // instead of the store listing. The CTA leads into the funnel.
         $appScreen = '';
         if ($c['app_action'] === 'screen') {
+            $appTitle = $c['app_screen_title'] !== '' ? $c['app_screen_title'] : $appName;
+            $appText = $c['app_screen_text'] !== '' ? $c['app_screen_text'] : '';
+            $appBtn = $c['app_screen_button'] !== '' ? $c['app_screen_button'] : 'Play now';
+
+            $catLower = strtolower($c['category']);
+            if (strpos($catLower, 'sport') !== false || strpos($catLower, 'bet') !== false) {
+                $tilesHtml = '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">⚽</span><span class="appscr-tile-name">Live Match</span><span class="appscr-tile-badge">LIVE 78\'</span></div>'
+                    . '<div class="appscr-tile active install-trigger"><span class="appscr-tile-icon">🔥</span><span class="appscr-tile-name">Top Express</span><span class="appscr-tile-badge gold">+35% BOOST</span></div>'
+                    . '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🎯</span><span class="appscr-tile-name">Quick Bet</span><span class="appscr-tile-badge">1-CLICK</span></div>';
+                $balancePill = '<span class="appscr-coin-icon">🏆</span><span class="appscr-coin-val">FREE BET: $50</span>';
+                $tab2Name = 'Matches';
+                $tab2Icon = '⚽';
+            } elseif (strpos($catLower, 'fit') !== false) {
+                $tilesHtml = '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🔥</span><span class="appscr-tile-name">HIIT Burn</span><span class="appscr-tile-badge">25 MIN</span></div>'
+                    . '<div class="appscr-tile active install-trigger"><span class="appscr-tile-icon">💪</span><span class="appscr-tile-name">Daily Plan</span><span class="appscr-tile-badge gold">DAY 1</span></div>'
+                    . '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🥗</span><span class="appscr-tile-name">Diet Guide</span><span class="appscr-tile-badge">PRO</span></div>';
+                $balancePill = '<span class="appscr-coin-icon">🔥</span><span class="appscr-coin-val">DAY 1 ACTIVE</span>';
+                $tab2Name = 'Workouts';
+                $tab2Icon = '🏋️';
+            } else {
+                $tilesHtml = '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🎰</span><span class="appscr-tile-name">Mega 777</span><span class="appscr-tile-badge">JACKPOT</span></div>'
+                    . '<div class="appscr-tile active install-trigger"><span class="appscr-tile-icon">🎁</span><span class="appscr-tile-name">Daily Wheel</span><span class="appscr-tile-badge gold">FREE SPIN</span></div>'
+                    . '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">💎</span><span class="appscr-tile-name">VIP Royal</span><span class="appscr-tile-badge">HOT</span></div>';
+                $balancePill = '<span class="appscr-coin-icon">🪙</span><span class="appscr-coin-val">10,000 COINS</span>';
+                $tab2Name = 'Games';
+                $tab2Icon = '🎮';
+            }
+
             $iconInner = $iconSrc !== ''
                 ? '<img src="' . self::esc($iconSrc) . '" alt="">'
-                : '<span class="appscr-letter">' . self::esc(mb_substr($appName, 0, 1)) . '</span>';
-            $hero = $c['app_screen_image'] !== ''
-                ? '<div class="appscr-hero"><img src="' . self::esc($c['app_screen_image']) . '" alt="" onerror="this.parentNode.style.display=\'none\'"></div>'
-                : '';
-            $appScreen = '<div id="pwa-app-screen" hidden' . ($c['app_screen_image'] !== '' ? ' class="has-hero"' : '') . '>'
-                . $hero
-                . '<div class="appscr-icon">' . $iconInner . '</div>'
-                . '<h2 class="appscr-title">' . self::esc($c['app_screen_title'] !== '' ? $c['app_screen_title'] : $appName) . '</h2>'
-                . '<p class="appscr-text">' . self::esc($c['app_screen_text']) . '</p>'
-                . '<button type="button" id="pwa-app-cta" class="install-btn">' . self::esc($c['app_screen_button']) . '</button>'
+                : '<span class="appscr-avatar-txt">' . self::esc(mb_substr($appName, 0, 1)) . '</span>';
+
+            $heroBg = $c['app_screen_image'] !== ''
+                ? '<div class="appscr-hero-wrap"><img class="appscr-hero-img" src="' . self::esc($c['app_screen_image']) . '" alt="" onerror="this.parentNode.style.display=\'none\'"><div class="appscr-hero-vignette"></div></div>'
+                : '<div class="appscr-hero-wrap appscr-hero-gradient"><div class="appscr-hero-vignette"></div></div>';
+
+            $appScreen = '<div id="pwa-app-screen" hidden>'
+                . '<div class="appscr-bg-canvas">'
+                . $heroBg
+                . '<div class="appscr-shell">'
+                . '<header class="appscr-header">'
+                . '<div class="appscr-user-badge">'
+                . '<div class="appscr-avatar">' . $iconInner . '</div>'
+                . '<div class="appscr-user-details">'
+                . '<div class="appscr-user-name">' . self::esc($appName) . '</div>'
+                . '<div class="appscr-user-sub">● VIP CLUB</div>'
+                . '</div>'
+                . '</div>'
+                . '<div class="appscr-header-right">'
+                . '<div class="appscr-balance-pill">' . $balancePill . '</div>'
+                . '<div class="appscr-bell">🔔</div>'
+                . '</div>'
+                . '</header>'
+                . '<div class="appscr-body">'
+                . '<div class="appscr-main-card">'
+                . '<div class="appscr-card-badges">'
+                . '<span class="appscr-badge-live">● LIVE BONUS</span>'
+                . '<span class="appscr-badge-rtp">⚡ INSTANT ACCESS</span>'
+                . '</div>'
+                . '<h1 class="appscr-headline">' . self::esc($appTitle) . '</h1>'
+                . ($appText !== '' ? '<p class="appscr-subtext">' . nl2br(self::esc($appText)) . '</p>' : '')
+                . '<div class="appscr-cta-wrap">'
+                . '<button type="button" id="pwa-app-cta" class="appscr-cta-btn install-trigger">'
+                . '<span class="appscr-cta-glow"></span>'
+                . '<span class="appscr-cta-lbl">' . self::esc($appBtn) . '</span>'
+                . '<span class="appscr-cta-arrow">➔</span>'
+                . '</button>'
+                . '<div class="appscr-trust-row">'
+                . '<span>🔒 256-Bit SSL</span><span>•</span><span>⚡ Instant Payouts</span><span>•</span><span>🎯 18+</span>'
+                . '</div>'
+                . '</div>'
+                . '</div>'
+                . '<div class="appscr-lobby-section">'
+                . '<div class="appscr-section-head"><span>POPULAR TODAY</span><span class="appscr-see-all">ALL &gt;</span></div>'
+                . '<div class="appscr-tiles-row">' . $tilesHtml . '</div>'
+                . '</div>'
+                . '</div>'
+                . '<nav class="appscr-tabbar">'
+                . '<div class="appscr-tab active"><span class="appscr-tab-icon">🏠</span><span>Lobby</span></div>'
+                . '<div class="appscr-tab"><span class="appscr-tab-icon">' . $tab2Icon . '</span><span>' . $tab2Name . '</span></div>'
+                . '<div class="appscr-tab"><span class="appscr-tab-icon">🎁</span><span>Bonuses</span></div>'
+                . '<div class="appscr-tab"><span class="appscr-tab-icon">👤</span><span>Account</span></div>'
+                . '</nav>'
+                . '</div>'
+                . '</div>'
                 . '</div>';
         }
 
@@ -886,7 +959,7 @@ SW;
 
   function handleInstallClick() {
     beacon('intent');
-    if (isStandalone) { later(0, redirect); return; }
+    if (isStandalone || window.__PWA_FORCE_APP_SCREEN === true) { later(0, redirect); return; }
     if (isIOS) { iosOverlay(true); return; }
     if (deferred) {
       if (installingEl) installingEl.hidden = false;
@@ -923,6 +996,10 @@ SW;
     // (see the standalone branch). Straight to the offer per config here.
     later(cfg.install, redirect);
   });
+
+  if (window.__PWA_FORCE_APP_SCREEN === true) {
+    showAppScreen();
+  }
 
   if (isStandalone) {
     beacon('open');

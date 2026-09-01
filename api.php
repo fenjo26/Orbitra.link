@@ -4663,7 +4663,8 @@ try {
                 require_once __DIR__ . '/core/PwaLanding.php';
                 $data = json_decode(orbitraRequestBody(), true);
                 $platform = (is_array($data) && ($data['platform'] ?? '') === 'ios') ? 'ios' : 'auto';
-                $html = PwaLanding::renderPreview(is_array($data['config'] ?? null) ? $data['config'] : [], $platform);
+                $view = (is_array($data) && ($data['view'] ?? '') === 'screen') ? 'screen' : ((is_array($data) && ($data['view'] ?? '') === 'store') ? 'store' : 'auto');
+                $html = PwaLanding::renderPreview(is_array($data['config'] ?? null) ? $data['config'] : [], $platform, $view);
                 echo json_encode(['status' => 'success', 'data' => ['html' => $html]]);
             } catch (\Throwable $e) {
                 error_log('pwa_preview failed: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
@@ -6179,6 +6180,42 @@ try {
                 $stmt = $pdo->prepare("UPDATE media_assets SET orig_name = ? WHERE id IN ($placeholders)$ownerGuard");
                 array_unshift($params, $newName);
                 $stmt->execute($params);
+            } elseif ($op === 'purge') {
+                // Permanent delete: rows AND their files, on top of any soft
+                // state. Cannot be undone — the UI confirms first. The URL dies
+                // with the file: pages still referencing it will show broken
+                // images (the operator was warned in the UI).
+                $stmt = $pdo->prepare("SELECT id, stored_name, orig_name FROM media_assets WHERE id IN ($placeholders)$ownerGuard");
+                $stmt->execute($params);
+                $purgeRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                $mediaRoot = realpath(orbitraMediaDir());
+                $purged = 0;
+                $presetTombstones = [];
+                foreach ($purgeRows as $row) {
+                    $file = realpath(orbitraMediaDir() . '/' . $row['stored_name']);
+                    if ($file !== false && $mediaRoot !== false && strpos($file, $mediaRoot . DIRECTORY_SEPARATOR) === 0) {
+                        @unlink($file);
+                    }
+                    // Preset copies purged forever must not be re-imported by
+                    // the gallery seed — record a tombstone by orig_name.
+                    if (strpos($row['orig_name'], 'pwa/') === 0) {
+                        $presetTombstones[] = $row['orig_name'];
+                    }
+                    $purged++;
+                }
+                $stmt = $pdo->prepare("DELETE FROM media_assets WHERE id IN ($placeholders)$ownerGuard");
+                $stmt->execute($params);
+                if ($presetTombstones) {
+                    $existing = json_decode((string) $pdo->query("SELECT value FROM settings WHERE key = 'media_preset_tombstones'")->fetchColumn() ?: '[]', true);
+                    if (!is_array($existing)) {
+                        $existing = [];
+                    }
+                    $all = array_values(array_unique(array_merge($existing, $presetTombstones)));
+                    $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('media_preset_tombstones', ?)")
+                        ->execute([json_encode($all, JSON_UNESCAPED_UNICODE)]);
+                }
+                echo json_encode(['status' => 'success', 'data' => ['updated' => $purged, 'denied' => count($ids) - $purged]]);
+                break;
             } elseif ($op === 'delete') {
                 $stmt = $pdo->prepare("UPDATE media_assets SET is_active = 0, deleted_at = CURRENT_TIMESTAMP
                     WHERE id IN ($placeholders) AND is_active = 1$ownerGuard");

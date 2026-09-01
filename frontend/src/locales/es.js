@@ -3719,6 +3719,8 @@ export default {
         "renameFile": "Renombrar archivo",
         "openFolder": "Abrir carpeta",
         "folderMenu": "Acciones de carpeta",
+        "purgeForever": "Eliminar para siempre",
+        "purgeConfirm": "¿Eliminar permanentemente {n} archivo(s)? Las páginas que los usen mostrarán imágenes rotas. No se puede deshacer.",
         "empty": "Aún no hay imágenes: sube la primera",
         "emptyInactive": "No hay archivos eliminados",
         "totalFiles": "Archivos: {n}",

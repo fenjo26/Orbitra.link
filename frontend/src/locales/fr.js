@@ -3719,6 +3719,8 @@ export default {
         "renameFile": "Renommer le fichier",
         "openFolder": "Ouvrir le dossier",
         "folderMenu": "Actions du dossier",
+        "purgeForever": "Supprimer définitivement",
+        "purgeConfirm": "Supprimer définitivement {n} fichier(s) ? Les pages qui les utilisent afficheront des images cassées. Irréversible.",
         "empty": "Aucune image pour l'instant — téléversez la première",
         "emptyInactive": "Aucun fichier supprimé",
         "totalFiles": "Fichiers : {n}",

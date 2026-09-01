@@ -340,6 +340,21 @@ const GalleryPage = ({ user }) => {
                             {t('common.delete')}
                         </button>
                     )}
+                    {inactive && canWrite && (
+                        <button
+                            type="button"
+                            className="btn btn-danger btn-sm"
+                            onClick={() => {
+                                if (window.confirm(tr('media.purgeConfirm', 'Permanently delete {n} file(s)? Pages using them will show broken images. This cannot be undone.', { n: selected.size }))) {
+                                    runOp('purge');
+                                }
+                            }}
+                            disabled={busy}
+                        >
+                            <Trash2 className="h-3.5 w-3.5" />
+                            {t('media.purgeForever', 'Delete forever')}
+                        </button>
+                    )}
                     <button type="button" className="btn btn-secondary btn-sm" onClick={() => setSelected(new Set())} disabled={busy}>
                         <X className="h-3.5 w-3.5" />
                         {t('common.clearSelection')}

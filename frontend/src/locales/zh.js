@@ -3719,6 +3719,8 @@ export default {
         "renameFile": "重命名文件",
         "openFolder": "打开文件夹",
         "folderMenu": "文件夹操作",
+        "purgeForever": "永久删除",
+        "purgeConfirm": "永久删除 {n} 个文件？使用它们的页面将显示破损图片。此操作无法撤销。",
         "empty": "还没有图片——上传第一张吧",
         "emptyInactive": "没有已删除的文件",
         "totalFiles": "文件数：{n}",

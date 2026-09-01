@@ -3719,6 +3719,8 @@ export default {
         "renameFile": "Rename file",
         "openFolder": "Open folder",
         "folderMenu": "Folder actions",
+        "purgeForever": "Delete forever",
+        "purgeConfirm": "Permanently delete {n} file(s)? Pages using them will show broken images. This cannot be undone.",
         "empty": "No images yet — upload the first one",
         "emptyInactive": "No deleted files",
         "totalFiles": "Files: {n}",

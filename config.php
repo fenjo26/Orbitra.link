@@ -108,11 +108,17 @@ try {
             $presetFolderId = (int) $pdo->lastInsertId();
         }
         $presetFolderId = (int) $presetFolderId;
+        // Names the operator purged forever must never re-import.
+        $tombStmt = $pdo->query("SELECT value FROM settings WHERE key = 'media_preset_tombstones' LIMIT 1");
+        $tombstones = $tombStmt ? (json_decode((string) $tombStmt->fetchColumn() ?: '[]', true) ?: []) : [];
         $insAsset = $pdo->prepare("INSERT INTO media_assets
             (owner_user_id, folder_id, orig_name, stored_name, sha256, mime, size, width, height)
             VALUES (NULL, ?, ?, ?, ?, 'image/png', ?, ?, ?)");
         foreach (glob($presetRoot . '/*/*.png') ?: [] as $presetFile) {
             $origName = 'pwa/' . basename(dirname($presetFile)) . '/' . basename($presetFile);
+            if (in_array($origName, $tombstones, true)) {
+                continue;
+            }
             $dup = $pdo->prepare("SELECT 1 FROM media_assets WHERE folder_id = ? AND orig_name = ? LIMIT 1");
             $dup->execute([$presetFolderId, $origName]);
             if ($dup->fetchColumn() !== false) {

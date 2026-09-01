@@ -3719,6 +3719,8 @@ export default {
         "renameFile": "Datei umbenennen",
         "openFolder": "Ordner öffnen",
         "folderMenu": "Ordner-Aktionen",
+        "purgeForever": "Endgültig löschen",
+        "purgeConfirm": "{n} Datei(en) endgültig löschen? Seiten, die sie verwenden, zeigen kaputte Bilder. Dies kann nicht rückgängig gemacht werden.",
         "empty": "Noch keine Bilder – lade das erste hoch",
         "emptyInactive": "Keine gelöschten Dateien",
         "totalFiles": "Dateien: {n}",
