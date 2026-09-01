@@ -518,8 +518,11 @@ SW;
                 . '<span class="hbar"><span class="hfill" style="width:' . $pct . '%"></span></span></div>';
         }
 
-        // Ratings count short format
-        $totalFormatted = $total >= 1000 ? round($total / 1000, 1) . 'K' : (string) $total;
+        // Ratings count short format — top-chart apps show hundreds of
+        // thousands of ratings, so totals render compactly (K/M).
+        $totalFormatted = $total >= 1000000
+            ? round($total / 1000000, 1) . 'M'
+            : ($total >= 1000 ? round($total / 1000, 1) . 'K' : (string) $total);
 
         // ------------------------------------------------------------------
         // GOOGLE PLAY LAYOUT
@@ -536,7 +539,7 @@ SW;
             . '</h1>'
             . '<div class="dev">' . self::esc($c['developer']) . '</div>'
             . '<div class="sub">' . self::esc($c['ads_label']) . ' · ' . self::esc($c['category']) . '</div>'
-            . '<div class="sub rating-line">' . number_format($avg, 1, '.', '') . ' <span class="mini-stars">' . self::starsSvg($avg, 'var(--pwa-star)') . '</span> · ' . $total . ' reviews · ' . self::esc($c['downloads']) . ' Downloads</div>'
+            . '<div class="sub rating-line">' . number_format($avg, 1, '.', '') . ' <span class="mini-stars">' . self::starsSvg($avg, 'var(--pwa-star)') . '</span> · ' . $totalFormatted . ' reviews · ' . self::esc($c['downloads']) . ' Downloads</div>'
             . '</div></div>'
             . '<button type="button" id="pwa-install-btn" class="install-btn install-trigger">' . self::esc($c['button_text']) . '</button>'
             . '<div id="pwa-installing" class="installing" hidden>' . self::esc($t[5]) . '</div>'
@@ -656,7 +659,7 @@ SW;
                 . '<div class="ios-block-header"><h2>' . self::esc($t['ratings_reviews'] ?? 'Ratings & Reviews') . '</h2><span class="ios-link">' . self::esc($t['see_all'] ?? 'See All') . '</span></div>'
                 . '<div class="ratings-row ios-ratings-summary">'
                 . '<div class="big-avg">' . number_format($avg, 1, '.', '') . '<div class="ios-out-of">out of 5</div></div>'
-                . '<div class="hist">' . $histogram . '<div class="ios-ratings-total">' . $total . ' ' . self::esc($t['ratings_count_label'] ?? 'Ratings') . '</div></div>'
+                . '<div class="hist">' . $histogram . '<div class="ios-ratings-total">' . $totalFormatted . ' ' . self::esc($t['ratings_count_label'] ?? 'Ratings') . '</div></div>'
                 . '</div>'
                 . ($iosReviewsCardsHtml !== '' ? '<div class="ios-reviews-scroll">' . $iosReviewsCardsHtml . '</div>' : '')
                 . '</section>';
