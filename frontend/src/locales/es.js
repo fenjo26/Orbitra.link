@@ -3722,6 +3722,7 @@ export default {
         "deniedNotice": "{n} archivos pertenecen a otro usuario y fueron omitidos.",
         "pickerTitle": "Elige una imagen",
         "selectButton": "Seleccionar",
+        "selectCount": "Seleccionar ({n})",
         "loadMore": "Mostrar más",
         "cropButton": "Recortar",
         "cropApply": "Aplicar y subir",

@@ -3722,6 +3722,7 @@ export default {
         "deniedNotice": "{n} 个文件属于其他用户，已跳过。",
         "pickerTitle": "选择图片",
         "selectButton": "选择",
+        "selectCount": "选择 ({n})",
         "loadMore": "显示更多",
         "cropButton": "裁剪",
         "cropApply": "应用并上传",

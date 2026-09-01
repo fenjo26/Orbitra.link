@@ -221,6 +221,9 @@ try {
     $loc = (string) ($resp['headers']['Location'] ?? '');
     assertTrue(in_array($resp['code'] ?? 0, [301, 302], true), "click request answers a redirect (got {$resp['code']})");
     assertTrue(strpos($loc, '/lander/' . $slug . '/') === 0, "redirect targets /lander/$slug/ (got $loc)");
+    // Long-lived attribution cookie rides the redirect response itself.
+    assertContains('orbitra_pwa_click', (string) ($resp['headers']['Set-Cookie'] ?? $resp['headers']['set-cookie'] ?? ''),
+        'PWA redirect sets the 30-day orbitra_pwa_click cookie');
     $row = $pdo->query("SELECT landing_at FROM clicks WHERE id = " . $pdo->quote($clickId))->fetch(PDO::FETCH_ASSOC);
     assertTrue($row && $row['landing_at'] !== null, 'landing_at stamped before the redirect');
 
@@ -237,6 +240,21 @@ try {
     assertContains('_token=', $resp['body'] ?? '', 'cookie click → {lp_url} carries a signed token');
     assertContains("subid = '$clickId'", $resp['body'] ?? '', 'cookie click → {subid} injected for beacons');
     assertNotContains($resp['body'] ?? '', '{lp_url}', 'placeholder fully replaced in serve');
+
+    // Token roundtrip: the {lp_url} the page carries must actually verify and
+    // redirect to the offer. The lander signs with the DB postback key loaded
+    // on the fly — $settings is NOT populated at lander dispatch time, and a
+    // fallback-constant signature would be rejected right here.
+    if (preg_match("/lpUrl = '([^']+)'/", (string) ($resp['body'] ?? ''), $m)) {
+        $lpResp = $harness->getWithHeaders($m[1], [
+            'User-Agent: ' . $mobileUa,
+            'Cookie: orbitra_click=' . $clickId,
+        ]);
+        assertTrue(in_array($lpResp['code'] ?? 0, [301, 302], true), "signed {lp_url} verifies and redirects (got {$lpResp['code']})");
+        assertContains('example.com', (string) ($lpResp['headers']['Location'] ?? ''), 'LP transition heads to the offer URL');
+    } else {
+        assertTrue(false, 'failed to extract lpUrl from the served page');
+    }
 
     // Without the cookie: silent beacons, plain transition link.
     $resp = $harness->getWithHeaders("/lander/$slug/", ['User-Agent: ' . $mobileUa]);

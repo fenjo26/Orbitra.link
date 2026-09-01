@@ -923,10 +923,31 @@ function orbitraServeLanderPath(PDO $pdo, string $slug, string $rest): void
     // stay silent, {lp_url} plain so the /?_lp=1 cookie fallback still works
     // for a real visitor. applyLandingMacros() covers {offer}, {subid},
     // {lp_url} and friends in one pass.
+    //
+    // The secret MUST come from the settings table, not $GLOBALS['settings']:
+    // this route dispatches before index.php loads $settings, so the global is
+    // empty here and the fallback constant would sign tokens the /?_lp=1
+    // verifier (which reads the DB) always rejects.
     $landerClickId = trim((string) ($_COOKIE['orbitra_click'] ?? ''));
-    $landerToken = $landerClickId !== ''
-        ? issueLpToken($landerClickId, $GLOBALS['settings']['postback_key'] ?? 'orbitra_secret')
-        : '';
+    if ($landerClickId === '') {
+        // Installed PWAs reopen for weeks: the long-lived cookie set on the
+        // original PWA click keeps their funnel attributed.
+        $landerClickId = trim((string) ($_COOKIE['orbitra_pwa_click'] ?? ''));
+    }
+    $landerToken = '';
+    if ($landerClickId !== '') {
+        $landerSecret = 'orbitra_secret';
+        try {
+            $landerSecretRow = $pdo->query("SELECT value FROM settings WHERE key = 'postback_key' LIMIT 1")->fetchColumn();
+            if (is_string($landerSecretRow) && $landerSecretRow !== '') {
+                $landerSecret = $landerSecretRow;
+            }
+        } catch (\Throwable $e) {
+            // A wrong key only rejects tokens, never accepts — same policy as
+            // the /?_lp=1 verifier.
+        }
+        $landerToken = issueLpToken($landerClickId, $landerSecret);
+    }
     $html = applyLandingMacros($html, $landerClickId, '', '', [], $landerToken);
 
     header('Content-Type: text/html; charset=utf-8');
@@ -3637,6 +3658,10 @@ if ($actionToPerfrom) {
                 $pwaRow = [];
             }
             if (PwaLanding::isPwa($pwaRow) && (string) ($pwaRow['slug'] ?? '') !== '') {
+                // Installed PWAs reopen for weeks — keep a long-lived
+                // attribution cookie beside the standard 24h one; the lander
+                // route prefers the fresh orbitra_click when both exist.
+                setcookie('orbitra_pwa_click', $clickId, ['expires' => time() + 2592000, 'path' => '/', 'secure' => orbitraIsHttps(), 'httponly' => false, 'samesite' => 'Lax']);
                 header('Location: /lander/' . rawurlencode((string) $pwaRow['slug']) . '/', true, 302);
                 exit;
             }

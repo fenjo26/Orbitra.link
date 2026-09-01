@@ -3722,6 +3722,7 @@ export default {
         "deniedNotice": "{n} файлів належать іншому користувачу та були пропущені.",
         "pickerTitle": "Виберіть зображення",
         "selectButton": "Вибрати",
+        "selectCount": "Вибрати ({n})",
         "loadMore": "Показати ще",
         "cropButton": "Обрізати",
         "cropApply": "Застосувати та завантажити",

@@ -35,6 +35,9 @@ export const MediaPicker = ({
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(0);
     const [selected, setSelected] = useState(null);
+    // multiple mode: a Set of picked ids; onSelect then resolves a LIST of
+    // assets so consumers (e.g. PWA screenshots) fill in one pass.
+    const [selectedMany, setSelectedMany] = useState(() => new Set());
     const [error, setError] = useState('');
     const [cropAsset, setCropAsset] = useState(null);
     const [cropRect, setCropRect] = useState(null); // natural-pixel frame
@@ -86,12 +89,21 @@ export const MediaPicker = ({
     useEffect(() => {
         if (!open) return;
         setSelected(null);
+        setSelectedMany(new Set());
         setCropAsset(null);
         setError('');
         loadFolders();
         loadItems();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open]);
+
+    const togglePicked = (id) => {
+        setSelectedMany((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id); else next.add(id);
+            return next;
+        });
+    };
 
     const apiError = (err, translate) => {
         const msg = err?.response?.data?.message || '';
@@ -119,6 +131,8 @@ export const MediaPicker = ({
                 const first = uploaded[0];
                 if (sizeContract?.crop && !fitsContract(first)) {
                     openCrop(first);
+                } else if (multiple) {
+                    togglePicked(first.id);
                 } else {
                     setSelected(first.id);
                 }
@@ -155,6 +169,13 @@ export const MediaPicker = ({
     };
 
     const confirmSelect = () => {
+        if (multiple) {
+            const picked = items.filter(i => selectedMany.has(i.id) && fitBadge(i)?.level !== 'small');
+            if (!picked.length) return;
+            onSelect?.(picked.map(item => ({ id: item.id, url: item.url, width: item.width, height: item.height, mime: item.mime })));
+            onClose?.();
+            return;
+        }
         const item = items.find(i => i.id === selected);
         if (!item) return;
         const badge = fitBadge(item);
@@ -296,7 +317,9 @@ export const MediaPicker = ({
             setCropImg(null);
             setCropRect(null);
             await loadItems({ page: 1 });
-            if (created) setSelected(created.id);
+            if (created) {
+                if (multiple) togglePicked(created.id); else setSelected(created.id);
+            }
         } catch (err) {
             setError(apiError(err, tr));
         } finally {
@@ -458,12 +481,12 @@ export const MediaPicker = ({
                                 <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))' }}>
                                     {items.map(item => {
                                         const badge = fitBadge(item);
-                                        const isSelected = selected === item.id;
+                                        const isSelected = multiple ? selectedMany.has(item.id) : selected === item.id;
                                         return (
                                             <button
                                                 key={item.id}
                                                 type="button"
-                                                onClick={() => setSelected(isSelected ? null : item.id)}
+                                                onClick={() => (multiple ? togglePicked(item.id) : setSelected(isSelected ? null : item.id))}
                                                 className="relative flex flex-col rounded-xl border p-1.5 text-left transition"
                                                 style={{
                                                     borderColor: isSelected ? 'var(--color-primary)' : 'var(--color-border)',
@@ -544,10 +567,12 @@ export const MediaPicker = ({
                                     type="button"
                                     className="btn btn-primary btn-sm"
                                     onClick={confirmSelect}
-                                    disabled={!selected || selectedBadge?.level === 'small'}
+                                    disabled={multiple ? selectedMany.size === 0 : (!selected || selectedBadge?.level === 'small')}
                                 >
                                     <FolderOpen className="h-3.5 w-3.5" />
-                                    {t('media.selectButton', 'Select')}
+                                    {multiple && selectedMany.size > 0
+                                        ? tr('media.selectCount', 'Select ({n})', { n: selectedMany.size })
+                                        : t('media.selectButton', 'Select')}
                                 </button>
                             </div>
                         </div>

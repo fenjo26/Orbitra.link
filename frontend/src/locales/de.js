@@ -3722,6 +3722,7 @@ export default {
         "deniedNotice": "{n} Dateien gehören einem anderen Benutzer und wurden übersprungen.",
         "pickerTitle": "Bild auswählen",
         "selectButton": "Auswählen",
+        "selectCount": "Auswählen ({n})",
         "loadMore": "Mehr anzeigen",
         "cropButton": "Zuschneiden",
         "cropApply": "Anwenden und hochladen",

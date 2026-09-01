@@ -268,13 +268,16 @@ export default function PwaEditor({ landingId, onClose }) {
     const onMediaPicked = (asset) => {
         const mode = pickerMode;
         setPickerMode(null);
-        if (!asset?.url) return;
+        // multiple mode resolves a LIST of assets; single resolves one.
+        const assets = Array.isArray(asset) ? asset : [asset];
+        const usable = assets.filter(a => a?.url);
+        if (!usable.length) return;
         if (mode === 'icon') {
-            set('icon_url', asset.url);
+            set('icon_url', usable[usable.length - 1].url);
         } else if (mode === 'screens') {
             setConfig((c) => ({
                 ...c,
-                screens: [...(c.screens || []).filter(Boolean), asset.url].slice(0, 10),
+                screens: [...(c.screens || []).filter(Boolean), ...usable.map(a => a.url)].slice(0, 10),
             }));
         }
     };
