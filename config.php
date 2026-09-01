@@ -76,10 +76,11 @@ try {
     //
     // We use SQLite PRAGMA user_version as a lightweight schema version marker.
     // DDL + seed is executed only when user_version is behind.
-    // 44 = media library (docs/media-core-v1.md); 43 = PWA landings. Both
-    // migration blocks are additive — whoever adds the next one bumps this and
-    // appends below, re-reading the file first (parallel-session rule).
-    $LATEST_SCHEMA_VERSION = 45;
+    // 46 = push sending (push_messages / push_queue / push_sends); 45 = push
+    // subscriber base; 44 = media library (docs/media-core-v1.md); 43 = PWA
+    // landings. All migration blocks are additive — whoever adds the next one
+    // bumps this and appends below, re-reading the file first (parallel-session rule).
+    $LATEST_SCHEMA_VERSION = 46;
 
     $schemaVersion = 0;
     try {
@@ -2446,6 +2447,55 @@ try {
                 // the media_folders listing re-runs it to catch artwork added
                 // to the repo after this migration already stamped the DB.
                 orbitraSeedPwaGallery($pdo);
+            }
+
+            if ($schemaVersion < 46) {
+                // Migration 46: push sending (phase 4). push_messages holds the
+                // RAW texts — {subid}-style macros expand at send time
+                // (PushMacros), so queued copies never go stale. push_queue is
+                // the cursor of the delivery worker: due = pending AND
+                // run_at <= now, batched ≤300 per run; a (message,
+                // subscription) pair is enqueued at most once (NOT EXISTS).
+                // push_sends is the per-delivery log behind the panel's
+                // sent/failed counters. clicks.push_clicks counts arrivals
+                // from push links (the link carries the subscriber's click_id
+                // as subid, so conversions attribute via regular postbacks).
+                $pdo->exec("CREATE TABLE IF NOT EXISTS push_messages (
+                    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                    title         TEXT NOT NULL DEFAULT '',
+                    text          TEXT NOT NULL DEFAULT '',
+                    icon_url      TEXT,
+                    link_url      TEXT,
+                    kind          TEXT NOT NULL DEFAULT 'manual',
+                    event         TEXT,
+                    delay_seconds INTEGER NOT NULL DEFAULT 0,
+                    segment       TEXT NOT NULL DEFAULT 'all',
+                    active        INTEGER NOT NULL DEFAULT 1,
+                    created_at    DATETIME DEFAULT CURRENT_TIMESTAMP
+                )");
+                $pdo->exec("CREATE TABLE IF NOT EXISTS push_queue (
+                    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                    message_id      INTEGER NOT NULL,
+                    subscription_id INTEGER NOT NULL,
+                    run_at          DATETIME,
+                    status          TEXT NOT NULL DEFAULT 'pending',
+                    attempts        INTEGER NOT NULL DEFAULT 0,
+                    last_code       INTEGER
+                )");
+                $pdo->exec("CREATE INDEX IF NOT EXISTS idx_push_queue_due ON push_queue(status, run_at)");
+                $pdo->exec("CREATE TABLE IF NOT EXISTS push_sends (
+                    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                    message_id      INTEGER NOT NULL,
+                    subscription_id INTEGER NOT NULL,
+                    ok              INTEGER NOT NULL DEFAULT 0,
+                    response_code   INTEGER,
+                    sent_at         DATETIME DEFAULT CURRENT_TIMESTAMP
+                )");
+                try {
+                    $pdo->exec("ALTER TABLE clicks ADD COLUMN push_clicks INTEGER DEFAULT 0");
+                } catch (\Throwable $e) {
+                    // Column already present on a half-migrated DB.
+                }
             }
 
             // Mark schema as up-to-date. This must be last.

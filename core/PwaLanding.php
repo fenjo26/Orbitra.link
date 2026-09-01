@@ -965,6 +965,20 @@ SW;
                     $balancePill = '<span class="appscr-coin-icon">🏆</span><span class="appscr-coin-val">FREE BET: $50</span>';
                     $tab2Name = 'Matches';
                     $tab2Icon = '⚽';
+                } elseif (strpos($catLower, 'dating') !== false || strpos($catLower, 'love') !== false) {
+                    $tilesHtml = '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">💃</span><span class="appscr-tile-name">New Match</span><span class="appscr-tile-badge gold">HOT</span></div>'
+                        . '<div class="appscr-tile active install-trigger"><span class="appscr-tile-icon">💬</span><span class="appscr-tile-name">Chat Now</span><span class="appscr-tile-badge">3 NEW</span></div>'
+                        . '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">❤️</span><span class="appscr-tile-name">Nearby</span><span class="appscr-tile-badge">2 KM</span></div>';
+                    $balancePill = '<span class="appscr-coin-icon">💖</span><span class="appscr-coin-val">99+ LIKES</span>';
+                    $tab2Name = 'Likes';
+                    $tab2Icon = '❤️';
+                } elseif (strpos($catLower, 'shop') !== false || strpos($catLower, 'market') !== false || strpos($catLower, 'ecom') !== false) {
+                    $tilesHtml = '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🛍️</span><span class="appscr-tile-name">Flash Sale</span><span class="appscr-tile-badge gold">-70%</span></div>'
+                        . '<div class="appscr-tile active install-trigger"><span class="appscr-tile-icon">🚚</span><span class="appscr-tile-name">Free Delivery</span><span class="appscr-tile-badge">24H</span></div>'
+                        . '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🛒</span><span class="appscr-tile-name">My Cart</span><span class="appscr-tile-badge">3 ITEMS</span></div>';
+                    $balancePill = '<span class="appscr-coin-icon">🛒</span><span class="appscr-coin-val">3 ITEMS</span>';
+                    $tab2Name = 'Cart';
+                    $tab2Icon = '🛒';
                 } elseif (strpos($catLower, 'fit') !== false) {
                     $tilesHtml = '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🔥</span><span class="appscr-tile-name">HIIT Burn</span><span class="appscr-tile-badge">25 MIN</span></div>'
                         . '<div class="appscr-tile active install-trigger"><span class="appscr-tile-icon">💪</span><span class="appscr-tile-name">Daily Plan</span><span class="appscr-tile-badge gold">DAY 1</span></div>'

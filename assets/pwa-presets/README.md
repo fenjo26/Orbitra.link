@@ -29,6 +29,13 @@ using these committed `/assets/` URLs — gallery copies are for humans.
 | `fit-club/icon.png` | FitClub Pro |
 | `fit-club/screen-1.png` … `screen-3.png` | FitClub Pro |
 | `fit-club/app-hero.png` | FitClub Pro — installed-app screen background (1080×1440) |
+| `love-match/icon.png` | LoveMatch Dating |
+| `love-match/screen-1.png` … `screen-3.png` | LoveMatch Dating |
+| `love-match/app-hero.png` | LoveMatch Dating — installed-app screen background (1080×1440) |
+| `shop-now/icon.png` | ShopNow Market |
+| `shop-now/screen-1.png` … `screen-3.png` | ShopNow Market |
+| `shop-now/app-hero.png` | ShopNow Market — installed-app screen background (1080×1440) |
+| `fit-club/app-hero.png` | FitClub Pro — installed-app screen background (1080×1440) |
 
 Missing files are simply not shown (the page hides broken images), so you can
 ship the folder incrementally. Operators can always override any image with

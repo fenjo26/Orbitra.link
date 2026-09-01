@@ -12,7 +12,7 @@ const API_URL = '/api.php';
 // preview and shipped page can never drift. Presets fill design & content
 // but never the internal name. Reviews reorder via drag & drop.
 
-const CATEGORIES = ['Casino', 'Gambling', 'Sport Betting', 'Entertainment', 'Games', 'Fitness', 'Dating', 'Other'];
+const CATEGORIES = ['Casino', 'Gambling', 'Sport Betting', 'Entertainment', 'Games', 'Fitness', 'Dating', 'Shopping', 'Other'];
 const LANGS = ['en', 'ru', 'uk', 'es', 'de', 'fr', 'zh'];
 const SCHEMES = [
     { id: 'green', label: 'Green' },
@@ -196,6 +196,54 @@ const PRESETS = [
             comments: [
                 { name: 'KateFit', text: 'Lost 4 kg in a month with the plan.', stars: 5, likes: 52, date: '2026-08-27', reply: 'Amazing progress, keep going!' },
                 { name: 'RunnerOne', text: 'Clean interface, no ads.', stars: 5, likes: 14, date: '2026-08-22', reply: '' },
+            ],
+        },
+    },
+    {
+        id: 'love-match',
+        label: 'LoveMatch Dating',
+        patch: {
+            ...presetAssets('love-match'),
+            category: 'Dating',
+            color_scheme: 'pink',
+            theme_mode: 'dark',
+            button_text: 'Start Dating',
+            app_screen_title: 'Find Your Match Tonight',
+            app_screen_text: 'Thousands of singles near you are already chatting. Swipe, match, meet — {value} makes it easy.',
+            app_screen_button: 'Start Matching',
+            downloads: '5M+',
+            ads_label: 'Contains ads',
+            description: '{value} — meet singles near you. Smart matching, free chat and verified profiles. Your next date is one swipe away with {value1}.',
+            tags: ['dating', 'singles', 'chat', 'match', 'love'],
+            rating_counts: [28600, 3800, 950, 260, 90],
+            comments: [
+                { name: 'Alex_M', text: 'Matched with 3 girls in the first hour.', stars: 5, likes: 38, date: '2026-08-30', reply: 'Good luck out there!' },
+                { name: 'Natalie_22', text: 'Best dating app, verified profiles only.', stars: 5, likes: 21, date: '2026-08-27', reply: '' },
+                { name: 'Dmitry_K', text: 'Chat works smooth, no bots so far.', stars: 4, likes: 7, date: '2026-08-24', reply: '' },
+            ],
+        },
+    },
+    {
+        id: 'shop-now',
+        label: 'ShopNow Market',
+        patch: {
+            ...presetAssets('shop-now'),
+            category: 'Shopping',
+            color_scheme: 'red',
+            theme_mode: 'light',
+            button_text: 'Shop Now',
+            app_screen_title: 'Flash Sale — Up to 70% Off',
+            app_screen_text: 'Millions of products with free 24h delivery. {value} — shop smart, pay less, get it tomorrow.',
+            app_screen_button: 'Shop the Sale',
+            downloads: '50M+',
+            ads_label: 'Contains ads',
+            description: '{value} — your one-stop marketplace. Flash deals every day, free returns and 24h delivery from {value1}.',
+            tags: ['shopping', 'deals', 'sale', 'delivery', 'marketplace'],
+            rating_counts: [62000, 8200, 2100, 520, 180],
+            comments: [
+                { name: 'Olena_S', text: 'Ordered on Monday, got it Tuesday. Amazing.', stars: 5, likes: 64, date: '2026-08-30', reply: 'Thanks for shopping with us!' },
+                { name: 'BargainHunter', text: 'Prices are the lowest I have seen.', stars: 5, likes: 29, date: '2026-08-28', reply: '' },
+                { name: 'Ivan_P', text: 'Good selection but app needs dark mode.', stars: 4, likes: 8, date: '2026-08-25', reply: 'Dark mode is coming!' },
             ],
         },
     },
