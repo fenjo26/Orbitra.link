@@ -827,7 +827,7 @@ function orbitraServeLanderPath(PDO $pdo, string $slug, string $rest): void
     };
 
     try {
-        $stmt = $pdo->prepare("SELECT id, type FROM landings WHERE slug = ? AND is_archived = 0 LIMIT 1");
+        $stmt = $pdo->prepare("SELECT id, type, config_json FROM landings WHERE slug = ? AND is_archived = 0 LIMIT 1");
         $stmt->execute([$slug]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
     } catch (\Throwable $e) {
@@ -899,6 +899,32 @@ function orbitraServeLanderPath(PDO $pdo, string $slug, string $rest): void
     }
 
     $html = (string) file_get_contents($file);
+
+    // Renderer auto-heal for PWA landings: their statics were written by
+    // whatever renderer version was live at save time, and a renderer upgrade
+    // (layout or bug fix) would otherwise never reach an already-created
+    // landing. The HTML serves through this route on every install, so check
+    // the version marker here and regenerate once behind a non-blocking lock —
+    // workers that lose the race serve the stale page this one last time.
+    require_once __DIR__ . '/core/PwaLanding.php';
+    if (PwaLanding::isPwa($row)
+        && strpos($html, 'name="orbitra-renderer" content="' . PwaLanding::RENDERER_VERSION . '"') === false) {
+        $regenLock = __DIR__ . '/var/locks/pwa-regen-' . $id . '.lock';
+        @mkdir(dirname($regenLock), 0775, true);
+        $regenFp = @fopen($regenLock, 'c');
+        if ($regenFp && @flock($regenFp, LOCK_EX | LOCK_NB)) {
+            try {
+                PwaLanding::generate($pdo, $id);
+                $html = (string) file_get_contents($file);
+            } catch (\Throwable $e) {
+                // Regeneration is best-effort; the stale page still serves.
+            }
+            @flock($regenFp, LOCK_UN);
+        }
+        if ($regenFp) {
+            fclose($regenFp);
+        }
+    }
 
     // The <base> Keitaro adds. Relative paths in the page ("img/a.png") resolve
     // under the landing's folder instead of the domain root, which is where they

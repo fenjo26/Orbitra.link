@@ -236,7 +236,9 @@ try {
     $row = $pdo->query("SELECT landing_at FROM clicks WHERE id = " . $pdo->quote($clickId))->fetch(PDO::FETCH_ASSOC);
     assertTrue($row && $row['landing_at'] !== null, 'landing_at stamped before the redirect');
 
-    // With the click cookie: fresh signed token + subid injected.
+    // Renderer auto-heal: statics written by an older renderer regenerate on
+    // the next HTML view, so renderer upgrades reach existing PWAs.
+    file_put_contents($sandboxDir . '/index.html', '<html><body>stale page</body></html>');
     $resp = $harness->getWithHeaders("/lander/$slug/", [
         'User-Agent: ' . $mobileUa,
         'Cookie: orbitra_click=' . $clickId,
@@ -246,6 +248,8 @@ try {
             . " body=" . substr((string) ($resp['body'] ?? ''), 0, 400) . "\n");
     }
     assertTrue(($resp['code'] ?? 0) === 200, 'lander route serves the PWA page (200)');
+    assertContains('orbitra-renderer', $resp['body'] ?? '', 'stale statics auto-healed to the current renderer version');
+    assertContains('pwa-install-btn', $resp['body'] ?? '', 'healed page is the full generated store page');
     assertContains('_token=', $resp['body'] ?? '', 'cookie click → {lp_url} carries a signed token');
     assertContains("subid = '$clickId'", $resp['body'] ?? '', 'cookie click → {subid} injected for beacons');
     assertNotContains($resp['body'] ?? '', '{lp_url}', 'placeholder fully replaced in serve');

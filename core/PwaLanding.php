@@ -28,6 +28,14 @@
 
 class PwaLanding
 {
+    /**
+     * Bumped whenever the rendered output changes meaningfully (layout, bug
+     * fixes in the markup). Embedded as a meta marker into every generated
+     * page; the lander route regenerates stale statics on the next view, so
+     * renderer upgrades reach already-created PWA landings without a re-save.
+     */
+    public const RENDERER_VERSION = 2;
+
     /** Keys the constructor is allowed to persist; everything else is dropped. */
     private static function configKeys(): array
     {
@@ -937,6 +945,7 @@ CSS;
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="orbitra-renderer" content="' . self::RENDERER_VERSION . '">
 <title>' . self::esc($appName) . '</title>
 <meta name="theme-color" content="' . self::esc($scheme) . '">
 <link rel="manifest" href="manifest.webmanifest">
