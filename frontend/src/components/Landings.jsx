@@ -67,6 +67,7 @@ const Landings = ({ landings, refreshData, user }) => {
     const { t } = useLanguage();
     const [landingList, setLandingList] = useState(() => landings || []);
     const [isEditorOpen, setIsEditorOpen] = useState(false);
+    const [pwaEditorOpen, setPwaEditorOpen] = useState(false);
     const [showGroupsModal, setShowGroupsModal] = useState(false);
     const [editingLandingId, setEditingLandingId] = useState(null);
     const [selectedLandingIds, setSelectedLandingIds] = useState(() => new Set());
