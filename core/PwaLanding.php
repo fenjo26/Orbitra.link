@@ -617,7 +617,9 @@ SW;
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
-      navigator.serviceWorker.register('sw.js').catch(function () {});
+      // Sandbox previews (constructor iframe without allow-same-origin)
+      // throw on the property ACCESS itself — .catch() would not help.
+      try { navigator.serviceWorker.register('sw.js').catch(function () {}); } catch (e) {}
     });
   }
 })();

@@ -262,7 +262,19 @@ export default function PwaEditor({ landingId, onClose }) {
         if (next === maxStep + 1 && (next !== 1 || canLeaveGeneral)) {
             setMaxStep(next);
             setStep(next);
+            setError('');
         }
+    };
+
+    const handleNext = () => {
+        // A blocked step must SAY so: a silently disabled button reads as a
+        // broken one (demo feedback 2026-09-01).
+        if (!stepValid(step)) {
+            setError(t('pwa.nameRequired'));
+            return;
+        }
+        setError('');
+        goToStep(step + 1);
     };
 
     const onMediaPicked = (asset) => {
@@ -741,8 +753,9 @@ export default function PwaEditor({ landingId, onClose }) {
                             <button
                                 type="button"
                                 className="btn btn-primary text-sm"
-                                onClick={() => goToStep(step + 1)}
-                                disabled={step === 2 || !stepValid(step) || step !== maxStep}
+                                onClick={handleNext}
+                                disabled={step === 2}
+                                style={stepValid(step) ? undefined : { opacity: 0.55 }}
                             >
                                 {t('pwa.next')}
                             </button>
