@@ -132,7 +132,6 @@ try {
     assertContains('{lp_url}', $html, 'index.html keeps {lp_url} as a serve-time placeholder');
     assertContains('{subid}', $html, 'index.html keeps {subid} as a serve-time placeholder');
     assertContains('pwa-install-btn', $html, 'index.html renders the install button');
-    assertContains('onerror=', $html, 'broken images degrade silently (hide, not torn-icon glyph)');
     assertContains('Best app by PlayBest Ltd, download Lucky Spin now', $html, 'description macros resolved at generation time');
     assertContains('id="pwa-ios"', $html, 'iOS instruction overlay present');
     assertNotContains($html, '_token=', 'no click token baked into the static page');
@@ -164,6 +163,7 @@ try {
     $urlDir = orbitraLandingDir($pdo, $urlLandingId);
     $urlHtml = (string) file_get_contents($urlDir . '/index.html');
     assertContains('src="/uploads/media/ab/abcd1234-icon.png"', $urlHtml, 'icon_url from the media library rendered as the app icon');
+    assertContains('onerror=', $urlHtml, 'broken images degrade silently (hide, not torn-icon glyph)');
     assertContains('/uploads/media/cd/cdef5678-shot.png', $urlHtml, 'media-library screen URL survives generation');
     assertTrue(!strpos($urlHtml, 'gone-local.png'), 'missing local screen still dropped');
     $urlManifest = json_decode((string) file_get_contents($urlDir . '/manifest.webmanifest'), true);
