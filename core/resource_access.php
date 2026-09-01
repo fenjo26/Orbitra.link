@@ -120,6 +120,11 @@ function orbitraResourceAccessMap(): array
             'write' => ['media_upload', 'media_op', 'media_folder_op'],
             'hybrid' => [],
         ],
+        'push' => [
+            'read' => ['push_subscribers', 'push_subscribers_export', 'push_vapid_status'],
+            'write' => ['push_vapid_generate', 'push_subscribers_op'],
+            'hybrid' => [],
+        ],
         'logs' => [
             'read' => ['logs'],
             'write' => [],

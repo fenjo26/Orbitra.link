@@ -79,7 +79,7 @@ try {
     // 44 = media library (docs/media-core-v1.md); 43 = PWA landings. Both
     // migration blocks are additive — whoever adds the next one bumps this and
     // appends below, re-reading the file first (parallel-session rule).
-    $LATEST_SCHEMA_VERSION = 44;
+    $LATEST_SCHEMA_VERSION = 45;
 
     $schemaVersion = 0;
     try {
@@ -648,6 +648,23 @@ try {
     CREATE INDEX IF NOT EXISTS idx_media_assets_folder ON media_assets(folder_id, is_active);
     CREATE INDEX IF NOT EXISTS idx_media_assets_owner  ON media_assets(owner_user_id);
     CREATE INDEX IF NOT EXISTS idx_media_assets_sha256 ON media_assets(sha256);
+
+    CREATE TABLE IF NOT EXISTS push_subscriptions (
+        id            INTEGER PRIMARY KEY AUTOINCREMENT,
+        click_id      TEXT,
+        endpoint      TEXT NOT NULL,
+        p256dh        TEXT NOT NULL,
+        auth          TEXT NOT NULL,
+        expiration_time INTEGER,
+        user_agent    TEXT,
+        country_code  TEXT,
+        language      TEXT,
+        is_active     INTEGER NOT NULL DEFAULT 1,
+        created_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
+        last_seen_at  DATETIME
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_push_subscriptions_endpoint ON push_subscriptions(endpoint);
+    CREATE INDEX IF NOT EXISTS idx_push_subscriptions_active ON push_subscriptions(is_active, created_at);
 
     ";
 
@@ -2323,6 +2340,47 @@ try {
                 $pdo->exec("CREATE INDEX IF NOT EXISTS idx_media_assets_folder ON media_assets(folder_id, is_active)");
                 $pdo->exec("CREATE INDEX IF NOT EXISTS idx_media_assets_owner  ON media_assets(owner_user_id)");
                 $pdo->exec("CREATE INDEX IF NOT EXISTS idx_media_assets_sha256 ON media_assets(sha256)");
+            }
+
+            if ($schemaVersion < 45) {
+                // Migration 45: push subscriber base (own VAPID, no intermediaries).
+                //
+                // One row per browser push endpoint — UNIQUE(endpoint) makes the
+                // upsert in /push_subscribe idempotent: a re-subscribe rotates the
+                // keys instead of duplicating the row. click_id keeps the funnel
+                // attribution (the PWA page posts it along with the subscription),
+                // is_active goes 0 when the endpoint starts answering 404/410
+                // (push bases age 10-20% per month). The clicks.push_* columns
+                // follow the pwa_* pattern: written by the pixel beacon with a
+                // NULL-guard, so the click row is the dedup gate.
+                $pdo->exec("CREATE TABLE IF NOT EXISTS push_subscriptions (
+                    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                    click_id      TEXT,
+                    endpoint      TEXT NOT NULL,
+                    p256dh        TEXT NOT NULL,
+                    auth          TEXT NOT NULL,
+                    expiration_time INTEGER,
+                    user_agent    TEXT,
+                    country_code  TEXT,
+                    language      TEXT,
+                    is_active     INTEGER NOT NULL DEFAULT 1,
+                    created_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    last_seen_at  DATETIME
+                )");
+                $pdo->exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_push_subscriptions_endpoint ON push_subscriptions(endpoint)");
+                $pdo->exec("CREATE INDEX IF NOT EXISTS idx_push_subscriptions_active ON push_subscriptions(is_active, created_at)");
+                $alters = [
+                    "ALTER TABLE clicks ADD COLUMN push_prompted_at TEXT",
+                    "ALTER TABLE clicks ADD COLUMN push_subscribed_at TEXT",
+                    "ALTER TABLE clicks ADD COLUMN push_declined_at TEXT",
+                ];
+                foreach ($alters as $sql) {
+                    try {
+                        $pdo->exec($sql);
+                    } catch (\Throwable $e) {
+                        // Column already present on a half-migrated DB.
+                    }
+                }
             }
 
             // Mark schema as up-to-date. This must be last.

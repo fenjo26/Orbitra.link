@@ -126,6 +126,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    COALESCE(SUM(CASE WHEN cl.pwa_install_at IS NOT NULL THEN 1 ELSE 0 END), 0) AS pwa_installs,
                    COALESCE(SUM(CASE WHEN cl.pwa_install_at IS NOT NULL AND cl.is_bot = 0 THEN 1 ELSE 0 END), 0) AS pwa_installs_real,
                    COALESCE(SUM(COALESCE(cl.pwa_open_count, 0)), 0) AS pwa_opens,
+                   COALESCE(SUM(CASE WHEN cl.push_subscribed_at IS NOT NULL THEN 1 ELSE 0 END), 0) AS push_subscribed,
                    COALESCE(SUM(cl.cost), 0) AS cost,
                    COALESCE(SUM(cva.cnt_any), 0) AS conversions,
                    COALESCE(SUM(cva.cnt_sale), 0) AS sales,
@@ -273,6 +274,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    COALESCE(SUM(CASE WHEN pwa_install_at IS NOT NULL THEN 1 ELSE 0 END), 0) as pwa_installs,
                    COALESCE(SUM(CASE WHEN pwa_install_at IS NOT NULL AND is_bot = 0 THEN 1 ELSE 0 END), 0) as pwa_installs_real,
                    COALESCE(SUM(COALESCE(pwa_open_count, 0)), 0) as pwa_opens,
+                   COALESCE(SUM(CASE WHEN push_subscribed_at IS NOT NULL THEN 1 ELSE 0 END), 0) as push_subscribed,
                    COALESCE(SUM(cnt_any), 0) as conversions,
                    COALESCE(SUM(rev_all), 0) as revenue,
                    COALESCE(SUM(rev_sale), 0) as revenue_confirmed,
@@ -302,6 +304,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                        cl.referer as click_referer,
                        cl.landing_at, cl.offer_at,
                        cl.pwa_intent_at, cl.pwa_install_at, cl.pwa_open_count,
+                       cl.push_subscribed_at,
                        CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END as offer_clicked,
                        cva.cnt_any, cva.rev_all, cva.rev_sale,
                        cva.cnt_sale, cva.cnt_hold, cva.cnt_rejected, cva.cnt_trash,
@@ -354,6 +357,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
         $pwaInstalls     = (int) ($raw['pwa_installs'] ?? 0);
         $pwaInstallsReal = (int) ($raw['pwa_installs_real'] ?? 0);
         $pwaOpens        = (int) ($raw['pwa_opens'] ?? 0);
+        $pushSubscribed  = (int) ($raw['push_subscribed'] ?? 0);
         // Direct-to-offer traffic has no LP-click counter. Preserve useful CPC
         // and EPC values for that traffic while using LP clicks whenever they
         // exist, as required by the landing funnel definitions.
@@ -427,6 +431,9 @@ if (!function_exists('orbitraConversionStatusGroups')) {
             'real_pwa_installs'       => $pwaInstallsReal,
             'pwa_opens'               => $pwaOpens,
             'pwa_install_rate'        => $clicks > 0 && $pwaInstallsReal > 0 ? round(($pwaInstallsReal / $clicks) * 100, 2) : null,
+            // Push base funnel (own VAPID): clicks whose visitor accepted the
+            // notification prompt and stored a subscription.
+            'push_subscribed'         => $pushSubscribed,
             // Average landing→offer time, human-formatted ("1m 12s").
             'time_since_lp_click'     => self_fmtLpSeconds($raw['avg_lp_seconds'] ?? null),
 

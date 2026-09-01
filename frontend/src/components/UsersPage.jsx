@@ -342,6 +342,7 @@ const UsersPage = () => {
         { key: 'offers', label: t('nav.offers') },
         { key: 'landings', label: t('nav.landings') },
         { key: 'media', label: t('nav.mediaGallery') },
+        { key: 'push', label: t('push.navLabel') },
         { key: 'sources', label: t('nav.sources') },
         { key: 'networks', label: t('nav.networks') },
         { key: 'domains', label: t('nav.domains') },

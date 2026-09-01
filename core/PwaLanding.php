@@ -34,7 +34,7 @@ class PwaLanding
      * page; the lander route regenerates stale statics on the next view, so
      * renderer upgrades reach already-created PWA landings without a re-save.
      */
-    public const RENDERER_VERSION = 2;
+    public const RENDERER_VERSION = 3;
 
     /** Keys the constructor is allowed to persist; everything else is dropped. */
     private static function configKeys(): array
@@ -46,7 +46,7 @@ class PwaLanding
             'whats_new_enabled', 'whats_new_text', 'support_enabled',
             'support_email', 'support_address', 'verified_badge', 'theme_mode',
             'color_scheme', 'store_style', 'ios_flow', 'preloader', 'bottom_menu', 'show_header',
-            'show_share', 'auto_redirect', 'decline_redirect', 'install_redirect',
+            'show_share', 'auto_redirect', 'decline_redirect', 'install_redirect', 'push_enabled',
         ];
     }
 
@@ -79,6 +79,7 @@ class PwaLanding
             'theme_mode'        => 'light',
             'color_scheme'      => 'green',
             'store_style'       => 'auto',
+            'push_enabled'      => true,
             'ios_flow'          => 'instruction',
             'preloader'         => true,
             'bottom_menu'       => false,
@@ -146,7 +147,7 @@ class PwaLanding
             ];
         }
         $c['comments'] = $clean;
-        foreach (['preloader', 'bottom_menu', 'show_header', 'show_share', 'support_enabled', 'whats_new_enabled', 'verified_badge'] as $bKey) {
+        foreach (['preloader', 'bottom_menu', 'show_header', 'show_share', 'support_enabled', 'whats_new_enabled', 'verified_badge', 'push_enabled'] as $bKey) {
             $c[$bKey] = !empty($c[$bKey]);
         }
         foreach (['auto_redirect', 'decline_redirect', 'install_redirect'] as $tKey) {
@@ -261,6 +262,9 @@ class PwaLanding
         $html = self::renderIndex($c, 0);
         $html = str_replace('{subid}', '', $html);
         $html = str_replace('{lp_url}', '#', $html);
+        // No VAPID in preview: the subscribe screen stays hidden, the page is
+        // about looks, not about collecting subscriptions from the operator.
+        $html = str_replace('{vapid_public}', '', $html);
         if ($platform === 'ios') {
             // The flag must exist BEFORE the store-picking script in <head>
             // executes: appending it at the end left data-store on
@@ -412,6 +416,7 @@ SW;
         return [
             'en' => [
                 0 => 'Install the app', 1 => 'Open this page in Safari', 2 => 'Tap the Share button', 3 => "Tap 'Add to Home Screen'", 4 => 'Launch the app from your home screen', 5 => 'Installing…', 6 => 'Close',
+                'push_title' => 'Enable notifications', 'push_text' => 'Get bonuses and updates right on your phone', 'push_allow' => 'Allow', 'push_later' => 'Not now',
                 'get' => 'GET', 'in_app_purchases' => 'In-App Purchases', 'ratings_reviews' => 'Ratings & Reviews', 'see_all' => 'See All',
                 'whats_new' => "What's New", 'version_history' => 'Version History', 'version' => 'Version', 'preview' => 'Preview',
                 'information' => 'Information', 'provider' => 'Provider', 'size' => 'Size', 'category' => 'Category',
@@ -422,6 +427,7 @@ SW;
             ],
             'ru' => [
                 0 => 'Установите приложение', 1 => 'Откройте страницу в Safari', 2 => 'Нажмите кнопку «Поделиться»', 3 => 'Выберите «На экран “Домой”»', 4 => 'Запустите приложение с домашнего экрана', 5 => 'Установка…', 6 => 'Закрыть',
+                'push_title' => 'Включите уведомления', 'push_text' => 'Получайте бонусы и обновления прямо на телефон', 'push_allow' => 'Разрешить', 'push_later' => 'Не сейчас',
                 'get' => 'ЗАГРУЗИТЬ', 'in_app_purchases' => 'Встроенные покупки', 'ratings_reviews' => 'Оценки и отзывы', 'see_all' => 'См. все',
                 'whats_new' => 'Что нового', 'version_history' => 'История версий', 'version' => 'Версия', 'preview' => 'Предпросмотр',
                 'information' => 'Информация', 'provider' => 'Продавец', 'size' => 'Размер', 'category' => 'Категория',
@@ -432,6 +438,7 @@ SW;
             ],
             'uk' => [
                 0 => 'Встановіть застосунок', 1 => 'Відкрийте сторінку в Safari', 2 => 'Натисніть кнопку «Поділитися»', 3 => 'Виберіть «На екран “Додому”»', 4 => 'Запустіть застосунок з головного екрана', 5 => 'Встановлення…', 6 => 'Закрити',
+                'push_title' => 'Увімкніть повідомлення', 'push_text' => 'Отримуйте бонуси та новини прямо на телефон', 'push_allow' => 'Дозволити', 'push_later' => 'Не зараз',
                 'get' => 'ОТРИМАТИ', 'in_app_purchases' => 'Вбудовані покупки', 'ratings_reviews' => 'Оцінки та відгуки', 'see_all' => 'Див. всі',
                 'whats_new' => 'Що нового', 'version_history' => 'Історія версій', 'version' => 'Версія', 'preview' => 'Попередній перегляд',
                 'information' => 'Інформація', 'provider' => 'Розробник', 'size' => 'Розмір', 'category' => 'Категорія',
@@ -442,6 +449,7 @@ SW;
             ],
             'es' => [
                 0 => 'Instala la aplicación', 1 => 'Abre esta página en Safari', 2 => 'Toca el botón Compartir', 3 => 'Toca «Añadir a inicio»', 4 => 'Abre la aplicación desde tu pantalla de inicio', 5 => 'Instalando…', 6 => 'Cerrar',
+                'push_title' => 'Activa las notificaciones', 'push_text' => 'Recibe bonos y novedades en tu teléfono', 'push_allow' => 'Permitir', 'push_later' => 'Ahora no',
                 'get' => 'OBTENER', 'in_app_purchases' => 'Compras dentro de la app', 'ratings_reviews' => 'Valoraciones y reseñas', 'see_all' => 'Ver todo',
                 'whats_new' => 'Novedades', 'version_history' => 'Historial de versiones', 'version' => 'Versión', 'preview' => 'Vista previa',
                 'information' => 'Información', 'provider' => 'Proveedor', 'size' => 'Tamaño', 'category' => 'Categoría',
@@ -452,6 +460,7 @@ SW;
             ],
             'de' => [
                 0 => 'App installieren', 1 => 'Öffne diese Seite in Safari', 2 => 'Tippe auf „Teilen“', 3 => 'Tippe auf „Zum Home-Bildschirm“', 4 => 'Öffne die App vom Home-Bildschirm', 5 => 'Wird installiert…', 6 => 'Schließen',
+                'push_title' => 'Benachrichtigungen aktivieren', 'push_text' => 'Erhalte Boni und Updates direkt aufs Handy', 'push_allow' => 'Erlauben', 'push_later' => 'Später',
                 'get' => 'LADEN', 'in_app_purchases' => 'In-App-Käufe', 'ratings_reviews' => 'Bewertungen & Rezensionen', 'see_all' => 'Alle anzeigen',
                 'whats_new' => 'Neuheiten', 'version_history' => 'Versionsverlauf', 'version' => 'Version', 'preview' => 'Vorschau',
                 'information' => 'Informationen', 'provider' => 'Entwickler', 'size' => 'Größe', 'category' => 'Kategorie',
@@ -462,6 +471,7 @@ SW;
             ],
             'fr' => [
                 0 => 'Installer l’application', 1 => 'Ouvrez cette page dans Safari', 2 => 'Touchez le bouton Partager', 3 => 'Touchez « Sur l’écran d’accueil »', 4 => 'Lancez l’application depuis l’écran d’accueil', 5 => 'Installation…', 6 => 'Fermer',
+                'push_title' => 'Activez les notifications', 'push_text' => 'Recevez bonus et actualités sur votre téléphone', 'push_allow' => 'Autoriser', 'push_later' => 'Plus tard',
                 'get' => 'OBTENIR', 'in_app_purchases' => 'Achats intégrés', 'ratings_reviews' => 'Notes et avis', 'see_all' => 'Tout afficher',
                 'whats_new' => 'Nouveautés', 'version_history' => 'Historique des versions', 'version' => 'Version', 'preview' => 'Aperçu',
                 'information' => 'Informations', 'provider' => 'Fournisseur', 'size' => 'Taille', 'category' => 'Catégorie',
@@ -472,6 +482,7 @@ SW;
             ],
             'zh' => [
                 0 => '安装应用', 1 => '在 Safari 中打开此页面', 2 => '点击“分享”按钮', 3 => '点击“添加到主屏幕”', 4 => '从主屏幕启动应用', 5 => '安装中…', 6 => '关闭',
+                'push_title' => '开启通知', 'push_text' => '在手机上第一时间获取奖励和更新', 'push_allow' => '允许', 'push_later' => '暂不',
                 'get' => '获取', 'in_app_purchases' => 'App 内购买项目', 'ratings_reviews' => '评分及评论', 'see_all' => '查看全部',
                 'whats_new' => '新功能', 'version_history' => '版本历史记录', 'version' => '版本', 'preview' => '预览',
                 'information' => '信息', 'provider' => '开发商', 'size' => '大小', 'category' => '类目',
@@ -512,6 +523,7 @@ SW;
             'auto'    => (int) $c['auto_redirect'],
             'decline' => (int) $c['decline_redirect'],
             'install' => (int) $c['install_redirect'],
+            'push'    => !empty($c['push_enabled']),
         ];
 
         $iconSrc = self::iconSrc($c);
@@ -726,6 +738,19 @@ SW;
                 . '</div></div>';
         }
 
+        // Push subscription screen (NOTIFICATION_* funnel step): shown by the
+        // page JS only when the serve-time {vapid_public} macro carries a key
+        // — no keys configured, no screen. Markup/strings stay inert otherwise.
+        $pushScreen = '';
+        if ($c['push_enabled']) {
+            $pushScreen = '<div id="pwa-push" class="ios-overlay" hidden><div class="ios-card">'
+                . '<h3>' . self::esc($t['push_title']) . '</h3>'
+                . '<p class="ios-push-text">' . self::esc($t['push_text']) . '</p>'
+                . '<button type="button" id="pwa-push-allow" class="ios-push-allow">' . self::esc($t['push_allow']) . '</button>'
+                . '<button type="button" id="pwa-push-later" class="ios-push-later">' . self::esc($t['push_later']) . '</button>'
+                . '</div></div>';
+        }
+
         // The two serve-time placeholders stay literal in the source: the
         // lander route replaces them per request, so the SW's network-first
         // navigation rule always pairs a fresh page with a fresh click id.
@@ -734,6 +759,7 @@ SW;
   var cfg = __CFG_JSON__;
   var subid = '__SUBID__';
   var lpUrl = '__LP_URL__';
+  var VAPID = '__VAPID_PUBLIC__';
   var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
   // __PWA_FORCE_IOS is set only by the constructor's iOS preview.
   var isIOS = window.__PWA_FORCE_IOS === true
@@ -759,6 +785,54 @@ SW;
   }
   var closeBtn = document.getElementById('pwa-ios-close');
   if (closeBtn) closeBtn.addEventListener('click', function () { iosOverlay(false); });
+
+  // --- Push subscription (NOTIFICATION_* funnel step) ----------------------
+  var pushDone = false;
+  try { pushDone = !!localStorage.getItem('orbitra_push_done'); } catch (e) {}
+  function pushAvailable() {
+    return cfg.push && VAPID && 'PushManager' in window && 'Notification' in window && !pushDone;
+  }
+  function afterPush() {
+    try { localStorage.setItem('orbitra_push_done', '1'); } catch (e) {}
+    var el = document.getElementById('pwa-push');
+    if (el) el.hidden = true;
+    redirect();
+  }
+  function urlB64ToU8(b64) {
+    var raw = atob(b64.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((b64.length + 3) % 4));
+    var arr = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+    return arr;
+  }
+  function enablePush() {
+    beacon('prompt'); // the permission dialog is about to be shown
+    Notification.requestPermission().then(function (perm) {
+      if (perm !== 'granted') { beacon('decline'); afterPush(); return; }
+      navigator.serviceWorker.ready.then(function (reg) {
+        reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64ToU8(VAPID) })
+          .then(function (sub) {
+            var s = sub.toJSON();
+            fetch('/push_subscribe?lang=' + encodeURIComponent(navigator.language || ''), {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ subid: subid, endpoint: s.endpoint, keys: s.keys, expirationTime: s.expirationTime || null })
+            }).then(afterPush).catch(afterPush);
+          }).catch(afterPush);
+      }).catch(afterPush);
+    });
+  }
+  function showPush() {
+    var el = document.getElementById('pwa-push');
+    if (!el) { afterPush(); return; }
+    el.hidden = false;
+    if (cfg.install > 0) {
+      setTimeout(function () { if (!el.hidden) { el.hidden = true; redirect(); } }, cfg.install * 1000);
+    }
+  }
+  var pushAllow = document.getElementById('pwa-push-allow');
+  var pushLater = document.getElementById('pwa-push-later');
+  if (pushAllow) pushAllow.addEventListener('click', enablePush);
+  if (pushLater) pushLater.addEventListener('click', afterPush);
 
   function handleInstallClick() {
     beacon('intent');
@@ -795,6 +869,9 @@ SW;
     beacon('install');
     iosOverlay(false);
     if (installingEl) installingEl.hidden = false;
+    // Adset-parity funnel: between install and the offer sits the push
+    // subscription screen. A decline still flows to the offer.
+    if (pushAvailable()) { showPush(); return; }
     later(cfg.install, redirect);
   });
 
@@ -807,6 +884,9 @@ SW;
       try {
         if (!localStorage.getItem(key)) { beacon('install'); localStorage.setItem(key, '1'); }
       } catch (e) { beacon('install'); }
+      // iOS can only subscribe inside the installed PWA — this first
+      // standalone launch is the subscribe screen's one window.
+      if (pushAvailable() && !pushDone) { showPush(); return; }
     }
   } else if (cfg.auto > 0) {
     setTimeout(redirect, cfg.auto * 1000);
@@ -822,8 +902,8 @@ SW;
 })();
 JS;
         $js = str_replace(
-            ['__CFG_JSON__', '__SUBID__', '__LP_URL__'],
-            [json_encode($cfgForJs, JSON_UNESCAPED_UNICODE), '{subid}', '{lp_url}'],
+            ['__CFG_JSON__', '__SUBID__', '__LP_URL__', '__VAPID_PUBLIC__'],
+            [json_encode($cfgForJs, JSON_UNESCAPED_UNICODE), '{subid}', '{lp_url}', '{vapid_public}'],
             $js
         );
 
@@ -948,6 +1028,9 @@ html:not([data-store="app_store"]) .store-ios{display:none!important}
 .ios-card h3{font-size:17px;margin-bottom:12px}
 .ios-card ol{padding-left:20px;font-size:14px;line-height:1.7}
 .ios-card button{margin-top:14px;background:var(--pwa-surface);border:none;border-radius:20px;padding:10px 26px;font-size:14px;color:var(--pwa-text);width:100%;cursor:pointer}
+.ios-push-text{font-size:14px;line-height:1.45;color:var(--pwa-muted);margin-bottom:4px}
+.ios-push-allow{background:var(--pwa-primary)!important;color:#fff!important}
+.ios-push-later{background:transparent!important;color:var(--pwa-muted)!important;margin-top:8px!important}
 CSS;
 
         return '<!DOCTYPE html>
@@ -978,6 +1061,7 @@ CSS;
 <div class="store-layout store-ios">' . $iosPage . '</div>
 ' . $share . '
 ' . $iosOverlay . '
+' . $pushScreen . '
 <script>
 ' . $js . '
 </script>

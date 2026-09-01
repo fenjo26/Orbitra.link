@@ -4671,6 +4671,121 @@ try {
             }
             break;
 
+        case 'push_vapid_status':
+            require_once __DIR__ . '/core/PushBase.php';
+            $vapidKeys = PushBase::getKeys($pdo);
+            echo json_encode(['status' => 'success', 'data' => [
+                'has_keys'   => $vapidKeys !== [],
+                'public_key' => $vapidKeys['public'] ?? '',
+            ]]);
+            break;
+
+        case 'push_vapid_generate':
+            // POST. Rotating keys invalidates every existing subscription
+            // (browsers reject payloads under a different application key), so
+            // replacing existing keys requires an explicit confirm flag.
+            try {
+                if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                    echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                    break;
+                }
+                require_once __DIR__ . '/core/PushBase.php';
+                $vapidBody = json_decode(orbitraRequestBody(), true) ?: [];
+                if (PushBase::getKeys($pdo) !== [] && empty($vapidBody['confirm'])) {
+                    echo json_encode(['status' => 'error', 'message' => 'push.keys_exist']);
+                    break;
+                }
+                $vapidKeys = PushBase::generateKeys();
+                PushBase::storeKeys($pdo, $vapidKeys);
+                echo json_encode(['status' => 'success', 'data' => ['public_key' => $vapidKeys['public']]]);
+            } catch (\Throwable $e) {
+                error_log('push_vapid_generate failed: ' . $e->getMessage());
+                echo json_encode(['status' => 'error', 'message' => 'Key generation failed']);
+            }
+            break;
+
+        case 'push_subscribers':
+            // The own-VAPID subscriber base. endpoint UNIQUE makes rows stable
+            // identities; is_active 0 marks endpoints answering 404/410.
+            $page = max(1, (int) ($_GET['page'] ?? 1));
+            $perPage = 50;
+            $conds = [];
+            $params = [];
+            $statusFilter = (string) ($_GET['status'] ?? 'all');
+            if ($statusFilter === 'active') {
+                $conds[] = 'is_active = 1';
+            } else if ($statusFilter === 'dead') {
+                $conds[] = 'is_active = 0';
+            }
+            if (!empty($_GET['country'])) {
+                $conds[] = 'country_code = ?';
+                $params[] = strtoupper((string) $_GET['country']);
+            }
+            if (!empty($_GET['q'])) {
+                $conds[] = '(endpoint LIKE ? OR click_id LIKE ?)';
+                $params[] = '%' . $_GET['q'] . '%';
+                $params[] = '%' . $_GET['q'] . '%';
+            }
+            $wherePush = $conds ? 'WHERE ' . implode(' AND ', $conds) : '';
+            $total = (int) $pdo->prepare("SELECT COUNT(*) FROM push_subscriptions $wherePush")->fetchColumn();
+            $stmt = $pdo->prepare("SELECT id, click_id, endpoint, country_code, language, user_agent,
+                                          is_active, created_at, last_seen_at
+                                   FROM push_subscriptions $wherePush
+                                   ORDER BY id DESC LIMIT $perPage OFFSET " . (($page - 1) * $perPage));
+            $stmt->execute($params);
+            $totalActive = (int) $pdo->query("SELECT COUNT(*) FROM push_subscriptions WHERE is_active = 1")->fetchColumn();
+            echo json_encode(['status' => 'success', 'data' => [
+                'rows'         => $stmt->fetchAll(PDO::FETCH_ASSOC),
+                'total'        => $total,
+                'total_active' => $totalActive,
+                'page'         => $page,
+                'pages'        => (int) ceil($total / $perPage),
+            ]]);
+            break;
+
+        case 'push_subscribers_export':
+            // CSV of the whole base — the operator owns it and can seed any
+            // push-sending platform with it.
+            header('Content-Type: text/csv; charset=utf-8');
+            header('Content-Disposition: attachment; filename="push_subscribers.csv"');
+            echo "id;created_at;status;country;language;click_id;endpoint\n";
+            $stmt = $pdo->query("SELECT id, created_at, is_active, country_code, language, click_id, endpoint
+                                 FROM push_subscriptions ORDER BY id");
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                echo implode(';', [
+                    $row['id'],
+                    $row['created_at'],
+                    (int) $row['is_active'] === 1 ? 'active' : 'dead',
+                    $row['country_code'],
+                    $row['language'],
+                    $row['click_id'],
+                    $row['endpoint'],
+                ]) . "\n";
+            }
+            exit;
+
+        case 'push_subscribers_op':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            $body = json_decode(orbitraRequestBody(), true) ?: [];
+            $ids = array_values(array_filter(array_map('intval', (array) ($body['ids'] ?? []))));
+            $op = (string) ($body['op'] ?? '');
+            if (!$ids || !in_array($op, ['deactivate', 'activate', 'delete'], true)) {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid operation']);
+                break;
+            }
+            $in = implode(',', $ids);
+            if ($op === 'delete') {
+                // The GDPR-style hard delete: a subscriber row is personal data.
+                $pdo->exec("DELETE FROM push_subscriptions WHERE id IN ($in)");
+            } else {
+                $pdo->exec("UPDATE push_subscriptions SET is_active = " . ($op === 'activate' ? 1 : 0) . " WHERE id IN ($in)");
+            }
+            echo json_encode(['status' => 'success']);
+            break;
+
         case 'save_landing':
             // Everything below runs inside a try: a Throwable escaping this
             // handler becomes a bare 500, and the panel can only report that as
@@ -11726,6 +11841,7 @@ try {
                     SUM(CASE WHEN pwa_install_at IS NOT NULL THEN 1 ELSE 0 END) as pwa_installs,
                     SUM(CASE WHEN pwa_install_at IS NOT NULL AND is_bot = 0 THEN 1 ELSE 0 END) as pwa_installs_real,
                     COALESCE(SUM(pwa_open_count), 0) as pwa_opens,
+                    SUM(CASE WHEN push_subscribed_at IS NOT NULL THEN 1 ELSE 0 END) as push_subscribed,
                     COALESCE(SUM(cnt_any), 0) as conversions,
                     COALESCE(SUM(cnt_sale), 0) as purchases,
                     COALESCE(SUM(cnt_hold), 0) as holds,
@@ -11758,6 +11874,7 @@ try {
                            clicks.pwa_intent_at,
                            clicks.pwa_install_at,
                            COALESCE(clicks.pwa_open_count, 0) as pwa_open_count,
+                           clicks.push_subscribed_at,
                            clicks.cost as click_cost,
                            COALESCE(cv.cnt_any, 0) as cnt_any,
                            COALESCE(cv.rev_all, 0) as click_revenue,

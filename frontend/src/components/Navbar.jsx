@@ -119,6 +119,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
         { icon: <Globe size={18} />, label: t('nav.landings'), tab: 'landings' },
         { icon: <DollarSign size={18} />, label: t('nav.offers'), tab: 'offers' },
         { icon: <Images size={18} />, label: t('nav.mediaGallery'), tab: 'media' },
+        { icon: <Bell size={18} />, label: t('push.navLabel'), tab: 'push' },
         { icon: <Users size={18} />, label: t('nav.networks'), tab: 'networks' },
         { icon: <Link size={18} />, label: t('nav.sources'), tab: 'sources' },
         { icon: <TrendingUp size={18} />, label: t('nav.analytics'), tab: 'trends' },
@@ -199,6 +200,9 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                             )}
                             {canAccessTab(user, 'media') && (
                                 <NavItem icon={<Images size={18} />} label={t('nav.mediaGallery')} active={activeTab === 'media'} onClick={() => setActiveTab('media')} />
+                            )}
+                            {canAccessTab(user, 'push') && (
+                                <NavItem icon={<Bell size={18} />} label={t('push.navLabel')} active={activeTab === 'push'} onClick={() => setActiveTab('push')} />
                             )}
                             {canAccessTab(user, 'networks') && (
                                 <NavItem icon={<Users size={18} />} label={t('nav.networks')} active={activeTab === 'networks'} onClick={() => setActiveTab('networks')} />

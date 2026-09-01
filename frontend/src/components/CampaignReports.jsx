@@ -253,6 +253,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             pwa_installs: 0,
             real_pwa_installs: 0,
             pwa_opens: 0,
+            push_subscribed: 0,
             conversions: 0,
             purchases: 0,
             sales: 0,
@@ -285,6 +286,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             node.pwa_installs += Number(row.pwa_installs) || 0;
             node.real_pwa_installs += Number(row.real_pwa_installs) || 0;
             node.pwa_opens += Number(row.pwa_opens) || 0;
+            node.push_subscribed += Number(row.push_subscribed) || 0;
             node.conversions += Number(row.conversions) || 0;
             const purchases = Number(row.purchases ?? row.sales) || 0;
             node.purchases += purchases;
@@ -432,6 +434,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             pwa_installs: 0,
             real_pwa_installs: 0,
             pwa_opens: 0,
+            push_subscribed: 0,
             conversions: 0,
             purchases: 0,
             holds: 0,
@@ -462,6 +465,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             t0.pwa_installs += Number(r.pwa_installs) || 0;
             t0.real_pwa_installs += Number(r.real_pwa_installs) || 0;
             t0.pwa_opens += Number(r.pwa_opens) || 0;
+            t0.push_subscribed += Number(r.push_subscribed) || 0;
             t0.conversions += Number(r.conversions) || 0;
             const purchases = Number(r.purchases ?? r.sales) || 0;
             t0.purchases += purchases;
@@ -563,6 +567,11 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             case 'lp_clicks':
             case 'real_lp_clicks':
             case 'real_offer_clicks':
+            case 'pwa_intents':
+            case 'pwa_installs':
+            case 'real_pwa_installs':
+            case 'pwa_opens':
+            case 'push_subscribed':
             case 'pwa_intents':
             case 'pwa_installs':
             case 'real_pwa_installs':

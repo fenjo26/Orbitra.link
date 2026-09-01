@@ -976,6 +976,21 @@ function orbitraServeLanderPath(PDO $pdo, string $slug, string $rest): void
     }
     $html = applyLandingMacros($html, $landerClickId, '', '', [], $landerToken);
 
+    // The VAPID public key feeds the in-app push subscription screen. It is
+    // served as a macro (never baked into the statics) so a key rotation
+    // reaches every already-generated PWA on its next view. Empty until the
+    // operator generates keys — the subscribe screen simply stays hidden then.
+    $vapidPublic = '';
+    try {
+        $vapidRow = $pdo->query("SELECT value FROM settings WHERE key = 'vapid_public_key' LIMIT 1")->fetchColumn();
+        if (is_string($vapidRow) && $vapidRow !== '') {
+            $vapidPublic = $vapidRow;
+        }
+    } catch (\Throwable $e) {
+        // Missing settings table row is fine — the screen stays hidden.
+    }
+    $html = str_replace('{vapid_public}', $vapidPublic, $html);
+
     header('Content-Type: text/html; charset=utf-8');
     header('X-Robots-Tag: noindex, nofollow');
     header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -2123,13 +2138,22 @@ if ($uriPath === '/pixel.gif') {
         // replayed beacon for the same click cannot inflate the funnel.
         $pwaSubid = trim((string) ($_GET['subid'] ?? ''));
         $pwaKind = (string) ($_GET['kind'] ?? '');
-        if ($pwaSubid !== '' && in_array($pwaKind, ['intent', 'install', 'open'], true)) {
+        if ($pwaSubid !== '' && in_array($pwaKind, ['intent', 'install', 'open', 'prompt', 'decline'], true)) {
             try {
                 if ($pwaKind === 'intent') {
                     $pdo->prepare("UPDATE clicks SET pwa_intent_at = datetime('now') WHERE id = ? AND pwa_intent_at IS NULL")
                         ->execute([$pwaSubid]);
                 } elseif ($pwaKind === 'install') {
                     $pdo->prepare("UPDATE clicks SET pwa_install_at = datetime('now') WHERE id = ? AND pwa_install_at IS NULL")
+                        ->execute([$pwaSubid]);
+                } elseif ($pwaKind === 'prompt') {
+                    // The native permission dialog was shown (NOTIFICATION_REQUEST).
+                    $pdo->prepare("UPDATE clicks SET push_prompted_at = datetime('now') WHERE id = ? AND push_prompted_at IS NULL")
+                        ->execute([$pwaSubid]);
+                } elseif ($pwaKind === 'decline') {
+                    // Permission denied (NOTIFICATION_DECLINE) — still counts as
+                    // a funnel answer; the visitor keeps flowing to the offer.
+                    $pdo->prepare("UPDATE clicks SET push_declined_at = datetime('now') WHERE id = ? AND push_declined_at IS NULL")
                         ->execute([$pwaSubid]);
                 } else {
                     // Standalone reopen — throttled to one count per 10 minutes
@@ -2230,6 +2254,67 @@ if ($uriPath === '/pixel.gif') {
 
     $orbitraPixelHeaders();
     echo $orbitraPixelGif;
+    exit;
+}
+
+// === Push subscribe ingest: POST /push_subscribe (own-VAPID base) ===
+// The generated PWA posts the browser PushSubscription here after the visitor
+// accepts the permission prompt. Same exposure model as the conversion pixel:
+// attaches to an existing click when one is named, never creates clicks.
+// UNIQUE(endpoint) makes re-subscribes idempotent — keys rotate in place.
+if ($uriPath === '/push_subscribe') {
+    header('Content-Type: application/json; charset=utf-8');
+    $pushBody = json_decode((string) file_get_contents('php://input'), true);
+    $pushEndpoint = is_array($pushBody) ? trim((string) ($pushBody['endpoint'] ?? '')) : '';
+    $pushKeys = is_array($pushBody['keys'] ?? null) ? $pushBody['keys'] : [];
+    if ($pushEndpoint === '' || !preg_match('#^https://#', $pushEndpoint) || strlen($pushEndpoint) > 2000
+        || empty($pushKeys['p256dh']) || empty($pushKeys['auth'])) {
+        http_response_code(400);
+        echo json_encode(['status' => 'error', 'message' => 'Invalid subscription']);
+        exit;
+    }
+    $pushSubid = trim((string) ($_GET['subid'] ?? ($pushBody['subid'] ?? '')));
+    try {
+        $pushCountry = '';
+        try {
+            require_once __DIR__ . '/core/click_api.php';
+            $pushGeo = orbitraClickApiGetGeoData(orbitraClickApiGetClientIp());
+            $pushCountry = (string) ($pushGeo['country_code'] ?? '');
+        } catch (\Throwable $e) {
+            // Geo is a nice-to-have on the subscriber row.
+        }
+        $stmtPush = $pdo->prepare("
+            INSERT INTO push_subscriptions (click_id, endpoint, p256dh, auth, expiration_time, user_agent, country_code, language)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(endpoint) DO UPDATE SET
+                click_id = excluded.click_id,
+                p256dh = excluded.p256dh,
+                auth = excluded.auth,
+                expiration_time = excluded.expiration_time,
+                is_active = 1,
+                last_seen_at = datetime('now')
+        ");
+        $stmtPush->execute([
+            $pushSubid !== '' ? $pushSubid : null,
+            $pushEndpoint,
+            (string) $pushKeys['p256dh'],
+            (string) $pushKeys['auth'],
+            !empty($pushBody['expirationTime']) ? (int) $pushBody['expirationTime'] : null,
+            (string) ($_SERVER['HTTP_USER_AGENT'] ?? ''),
+            $pushCountry,
+            substr((string) ($_GET['lang'] ?? ($pushBody['lang'] ?? '')), 0, 16),
+        ]);
+        if ($pushSubid !== '') {
+            // The click row is the dedup gate, same as every pwa_* flag.
+            $pdo->prepare("UPDATE clicks SET push_subscribed_at = datetime('now') WHERE id = ? AND push_subscribed_at IS NULL")
+                ->execute([$pushSubid]);
+        }
+        echo json_encode(['status' => 'success']);
+    } catch (\Throwable $e) {
+        error_log('push_subscribe failed: ' . $e->getMessage());
+        http_response_code(500);
+        echo json_encode(['status' => 'error', 'message' => 'Subscribe failed']);
+    }
     exit;
 }
 

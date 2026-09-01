@@ -79,6 +79,7 @@ export const ALL_REPORT_METRICS = [
     { id: 'real_pwa_installs', label: 'Real PWA installs', shortLabel: 'Real PWA Inst', hintKey: 'realPwaInstallsHint', hint: 'PWA installs from non-bot clicks — appinstalled (Android) or first standalone open (iOS)' },
     { id: 'pwa_opens', label: 'PWA opens', shortLabel: 'PWA Opens', hintKey: 'pwaOpensHint', hint: 'Reopens of the installed PWA from the home screen (throttled, one per 10 min per click)' },
     { id: 'pwa_install_rate', label: 'PWA install rate', shortLabel: 'PWA CR', hintKey: 'pwaInstallRateHint', hint: '(Real PWA installs / clicks) × 100% — on a PWA landing row this IS view→install; dash when zero installs' },
+    { id: 'push_subscribed', label: 'Push subscribers', shortLabel: 'Push subs', hintKey: 'pushSubscribedHint', hint: 'Clicks whose visitor accepted notifications and stored a subscription in the push base' },
     { id: 'cr_regs_to_deps', label: 'CR (regs to deps)', shortLabel: 'CR (r→d)' },
 ];
 
