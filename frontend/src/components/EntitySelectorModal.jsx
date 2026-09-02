@@ -207,6 +207,11 @@ const EntitySelectorModal = ({ type, items, existingIds, onClose, onAdd, singleS
                                                 <span className="font-medium" style={{ textDecoration: isExisting ? 'line-through' : 'none' }}>
                                                     {it.name}
                                                 </span>
+                                                {!!it.is_pwa && (
+                                                    <span className="ml-2 text-[10.5px] px-1.5 py-0.5 rounded-md" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)', border: '1px solid var(--color-border)' }}>
+                                                        PWA
+                                                    </span>
+                                                )}
                                                 {isExisting && (
                                                     <span className="ml-2 text-[10.5px] px-1.5 py-0.5 rounded-md" style={{ backgroundColor: 'var(--color-bg-soft)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}>
                                                         {t('picker.alreadyAdded')}

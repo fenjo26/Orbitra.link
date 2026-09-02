@@ -4543,13 +4543,23 @@ try {
         // Simple landings list for dropdowns (no heavy joins with clicks table)
         case 'landings_simple':
             $stmt = $pdo->query("
-                SELECT l.id, l.name, l.state, l.type, l.group_id, lg.name AS group_name
+                SELECT l.id, l.name, l.state, l.type, l.group_id, lg.name AS group_name, l.config_json
                 FROM landings l
                 LEFT JOIN landing_groups lg ON lg.id = l.group_id
                 WHERE l.is_archived = 0
                 ORDER BY l.name ASC
             ");
-            echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
+            // is_pwa mirrors orbitraValidatePwaLandingRef: type 'local' plus a
+            // 'pwa' key in config_json. The stream picker and rotation rows
+            // badge PWA landings with it so operators can tell them apart.
+            $rows = $stmt->fetchAll();
+            foreach ($rows as &$row) {
+                $decodedCfg = json_decode((string) ($row['config_json'] ?? ''), true);
+                $row['is_pwa'] = (($row['type'] ?? '') === 'local' && is_array($decodedCfg) && !empty($decodedCfg['pwa'])) ? 1 : 0;
+                unset($row['config_json']);
+            }
+            unset($row);
+            echo json_encode(['status' => 'success', 'data' => $rows]);
             break;
 
         case 'get_landing':

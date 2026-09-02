@@ -2045,7 +2045,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     <div className="text-sm font-medium break-words sm:truncate" style={{ color: empty ? 'var(--color-warning)' : 'var(--color-text-primary)' }} title={name}>{name}</div>
                     {info && (
                         <div className="flex flex-wrap gap-1 mt-1">
-                            {schemaBadge(typeLabels[info.type] || info.type)}
+                            {info.is_pwa ? schemaBadge('PWA') : schemaBadge(typeLabels[info.type] || info.type)}
                             {info.group_name && schemaBadge(info.group_name)}
                         </div>
                     )}
@@ -4142,7 +4142,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                 key={groupName || '__none__'}
                                                                 label={`📁 ${groupName || t('landings.noGroup', 'No group')}`}
                                                             >
-                                                                {groupItems.map(al => <option key={al.id} value={al.id}>{al.name}</option>)}
+                                                                {groupItems.map(al => <option key={al.id} value={al.id}>{al.name}{al.is_pwa ? ' · PWA' : ''}</option>)}
                                                             </optgroup>
                                                         ));
                                                     };
