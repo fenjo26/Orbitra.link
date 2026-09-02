@@ -11,8 +11,13 @@ Orbitra — это современная система управления т
 Для установки на чистый Ubuntu сервер выполните:
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/install.sh | bash
+wget -O orbitra-install.sh https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/install.sh && bash orbitra-install.sh
 ```
+
+Загрузка вынесена в отдельный шаг намеренно: `wget -qO- … | bash` при неудачной
+загрузке (у свежего сервера иногда не готов DNS в первую минуту) молча передаёт
+в bash пустоту — установка «завершается» вообще без вывода. Здесь неудачная
+загрузка останавливается на `&&`, и wget пишет причину.
 
 Установщик автоматически настроит Nginx, PHP 8.3, SQLite3 и SSL сертификат.
 

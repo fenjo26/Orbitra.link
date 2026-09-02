@@ -45,7 +45,7 @@ Try the full panel — no install required:
 
 > Shared demo instance — please don't store anything sensitive; data may be reset at any time.
 
-## 🚀 Quick Install (Ubuntu 20.04 / 22.04 / 24.04)
+## 🚀 Quick Install (Ubuntu 20.04+ / Debian 11+)
 
 To install automatically on a clean Linux server, run:
 

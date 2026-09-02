@@ -1,6 +1,6 @@
 #!/bin/bash
-# Orbitra v1.2.0 Tracker Auto-Installer
-# Supported OS: Ubuntu 20.04, 22.04, 24.04 / Debian 11, 12
+# Orbitra Tracker Auto-Installer
+# Supported OS: Ubuntu 20.04+ (incl. 26.04) / Debian 11+
 # Root privileges required (sudo)
 
 set -e
@@ -15,28 +15,133 @@ if [ "$EUID" -ne 0 ]; then
   exit
 fi
 
-# A freshly provisioned Ubuntu image boots straight into unattended-upgrades,
-# which holds the dpkg lock for the first minutes of the machine's life — the
-# package step below used to die right there ("Could not get lock
-# /var/lib/dpkg/lock-frontend", held by "unattended-upgr") before a single
-# package was installed. Three guards: make apt a patient one (wait up to ten
-# minutes for the lock instead of failing — the config drop covers every apt
-# call below and any re-run); stop the first-boot upgrade WORKERS — the unit
-# actually holding the lock is apt-daily-upgrade.service, not
-# unattended-upgrades.service (that one is the shutdown helper); and wait
-# with a visible line until no package process remains, so a slow first-boot
-# upgrade reads as waiting, not as a hang.
+# ---------------------------------------------------------------------------
+# First-boot package-lock guard.
+#
+# A freshly provisioned image boots straight into its own upgrade: both
+# apt-daily.timer and apt-daily-upgrade.timer are Persistent=true, so a machine
+# with no previous run stamp fires them within minutes of its first boot, and
+# the unattended-upgrade they start holds /var/lib/dpkg/lock-frontend for as
+# long as that first full upgrade takes. Waiting is not enough on its own — a
+# real install sat through apt's ten-minute wait and still died with "Could not
+# get lock /var/lib/dpkg/lock-frontend ... held by process N (unattended-upgr)".
+#
+# Three details decide whether this works, each one learned from a failed run:
+#   * the TIMERS have to be stopped first. Stopping only the service lets the
+#     timer start it again a minute later — which is exactly what happened: the
+#     wait found nothing to wait for, and apt met the upgrade right afterwards.
+#   * apt-daily-upgrade.service is KillMode=process, so `systemctl stop` signals
+#     the wrapper script only and leaves the unattended-upgrade child — the
+#     process that actually holds the lock — running. It has to be signalled by
+#     name, not through the unit.
+#   * SIGTERM, never SIGKILL. unattended-upgrade answers SIGTERM by finishing
+#     the dpkg call in flight and exiting; killing it outright orphans a dpkg
+#     that still holds the inner /var/lib/dpkg/lock (so the lock is not even
+#     released) and can leave the package database half-configured.
+# ---------------------------------------------------------------------------
+
+# Belt to the braces below: every apt call in this script — and in any re-run —
+# waits for the lock instead of failing outright. Understood by apt since
+# 1.9.11, which is older than every release this installer supports.
 echo 'DPkg::Lock::Timeout "600";' > /etc/apt/apt.conf.d/99orbitra-lock-wait
-systemctl stop apt-daily.service apt-daily-upgrade.service unattended-upgrades.service 2>/dev/null || true
-if pgrep -x 'dpkg|apt|apt-get|unattended-upgr' >/dev/null 2>&1; then
-    echo "  > First-boot auto-update is still running — waiting for it to release the package lock (up to 5 minutes)..."
-    for i in $(seq 1 60); do
-        pgrep -x 'dpkg|apt|apt-get|unattended-upgr' >/dev/null 2>&1 || break
-        sleep 5
+
+APT_TIMERS_STOPPED=""
+
+# Automatic security updates are switched off for the length of the install
+# only. cleanup_tmp further down calls this too, so the timers come back on
+# every exit path, successful or not.
+restore_apt_timers() {
+    [ -n "$APT_TIMERS_STOPPED" ] || return 0
+    systemctl start $APT_TIMERS_STOPPED >/dev/null 2>&1 || true
+    APT_TIMERS_STOPPED=""
+}
+trap restore_apt_timers EXIT
+
+# PID holding any apt/dpkg lock, nothing when all four are free. Reads
+# /proc/locks rather than fuser or lsof — minimal images ship neither, and apt,
+# the one way to install them, is the very thing that is blocked. Matching the
+# lock file's inode also beats guessing process names: it sees whoever holds
+# the lock, whatever that process happens to be called.
+apt_lock_holder() {
+    local f ino pid
+    for f in /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock \
+             /var/lib/apt/lists/lock /var/cache/apt/archives/lock; do
+        [ -e "$f" ] || continue
+        ino=$(stat -c %i "$f" 2>/dev/null) || continue
+        # "1: POSIX ADVISORY WRITE 2803 fe:00:688134 0 EOF" — the PID is the
+        # field before the device:inode one. A blocked lock adds a "->" column,
+        # so the fields are found by pattern rather than counted.
+        pid=$(awk -v ino="$ino" '{ for (i = 2; i <= NF; i++) if ($i ~ ("^[0-9a-f]+:[0-9a-f]+:" ino "$")) { print $(i-1); exit } }' /proc/locks 2>/dev/null)
+        if [ -n "$pid" ] && [ "$pid" != "0" ]; then
+            echo "$pid"
+            return 0
+        fi
     done
+    return 1
+}
+
+if [ -d /run/systemd/system ] && command -v systemctl >/dev/null 2>&1; then
+    for apt_unit in apt-daily.timer apt-daily-upgrade.timer; do
+        if systemctl is-active --quiet "$apt_unit" 2>/dev/null; then
+            if systemctl stop "$apt_unit" >/dev/null 2>&1; then
+                APT_TIMERS_STOPPED="$APT_TIMERS_STOPPED $apt_unit"
+            fi
+        fi
+    done
+    # --no-block: apt-daily-upgrade.service is TimeoutStopSec=900, and a plain
+    # stop would sit here for up to fifteen minutes waiting for a unit whose
+    # child gets signalled below anyway.
+    systemctl stop --no-block apt-daily.service apt-daily-upgrade.service unattended-upgrades.service >/dev/null 2>&1 || true
 fi
-# An upgrade killed mid-action can leave dpkg half-configured; this is a no-op
-# when nothing was interrupted and unblocks apt when something was.
+
+LOCK_PID="$(apt_lock_holder || true)"
+if [ -n "$LOCK_PID" ]; then
+    echo "  > A first-boot system update is holding the package lock. Asking it to finish (up to 5 minutes)..."
+    WAITED=0
+    while [ -n "$LOCK_PID" ] && [ "$WAITED" -lt 300 ]; do
+        LOCK_NAME="$(cat /proc/$LOCK_PID/comm 2>/dev/null || echo 'a package process')"
+        case "$LOCK_NAME" in
+            dpkg*)
+                # dpkg is never signalled: interrupting it mid-transaction is
+                # how a package database ends up broken. A single dpkg call is
+                # seconds, so waiting it out costs nothing.
+                : ;;
+            unattended-upgr*|apt.systemd*)
+                # Signalled by PID, and only when the holder is the automatic
+                # updater: a lock held by a human's own apt session, or by
+                # anything else, is waited out instead of being killed. Re-sent
+                # periodically rather than once, so an upgrade that started
+                # after the timers were stopped is caught as well.
+                # `pkill -f` is deliberately not used here — it matches command
+                # lines, and a command line that mentions unattended-upgrade
+                # (this installer's own, piped from a shell, for instance) would
+                # make the script kill its own parent.
+                if [ $((WAITED % 30)) -eq 0 ]; then
+                    kill -TERM "$LOCK_PID" 2>/dev/null || true
+                    pkill -TERM -x unattended-upgr >/dev/null 2>&1 || true
+                fi ;;
+            *)
+                # A human's apt/apt-get, or something unidentified: never
+                # signalled. apt's own lock timeout covers this case.
+                : ;;
+        esac
+        if [ $((WAITED % 15)) -eq 0 ] && [ "$WAITED" -gt 0 ]; then
+            echo "  > ...still waiting for $LOCK_NAME (pid $LOCK_PID), ${WAITED}s"
+        fi
+        sleep 5
+        WAITED=$((WAITED + 5))
+        LOCK_PID="$(apt_lock_holder || true)"
+    done
+    if [ -n "$LOCK_PID" ]; then
+        echo "  > Still locked after 5 minutes. Carrying on — apt waits as well;"
+        echo "    if this run does fail, simply run the installer again."
+    else
+        echo "  > Package lock released."
+    fi
+fi
+
+# An upgrade that stopped mid-action can leave dpkg half-configured; a no-op
+# when nothing was interrupted, and it unblocks apt when something was.
 dpkg --configure -a >/dev/null 2>&1 || true
 
 echo "[1/5] Updating system and installing packages (Nginx, PHP, SQLite)..."
@@ -71,14 +176,24 @@ if command -v node &> /dev/null; then
         echo "  > Removing old Node.js $CURRENT_NODE_V..."
         apt-get remove -y nodejs npm
         echo "  > Installing Node.js 20.x..."
-        curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+        if curl -fsSL https://deb.nodesource.com/setup_20.x -o /tmp/nodesource_setup.sh; then
+            bash /tmp/nodesource_setup.sh
+        else
+            echo "  > WARNING: could not reach deb.nodesource.com — falling back to the distribution's Node.js."
+        fi
+        rm -f /tmp/nodesource_setup.sh
         apt-get install -y nodejs
     else
         echo "  > Node.js $(node -v) already installed (version 20+) - skipping"
     fi
 else
     echo "  > Installing Node.js 20.x..."
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+    if curl -fsSL https://deb.nodesource.com/setup_20.x -o /tmp/nodesource_setup.sh; then
+        bash /tmp/nodesource_setup.sh
+    else
+        echo "  > WARNING: could not reach deb.nodesource.com — falling back to the distribution's Node.js."
+    fi
+    rm -f /tmp/nodesource_setup.sh
     apt-get install -y nodejs
 fi
 
@@ -129,6 +244,9 @@ TMP_SRC_DIR="$(mktemp -d /tmp/orbitra_src.XXXXXX)"
 # "часть каталога принадлежит другому пользователю" for the rest of that install's
 # life. Doing it from the trap means a half-finished install is still updatable.
 cleanup_tmp() {
+    # This trap replaces the earlier `trap restore_apt_timers EXIT`, so the
+    # timers stopped by the package-lock guard are restarted from here.
+    restore_apt_timers
     rm -rf "$TMP_SRC_DIR"
     if [ -d /var/www/orbitra ]; then
         chown -R www-data:www-data /var/www/orbitra 2>/dev/null || true
