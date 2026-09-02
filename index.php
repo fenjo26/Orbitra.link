@@ -2730,7 +2730,12 @@ if ($uriPath === '/push_subscribe') {
             INSERT INTO push_subscriptions (click_id, endpoint, p256dh, auth, expiration_time, user_agent, country_code, language)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(endpoint) DO UPDATE SET
-                click_id = excluded.click_id,
+                -- COALESCE, not a plain overwrite: the worker's own repair
+                -- paths (activate self-heal, pushsubscriptionchange) re-post
+                -- the SAME endpoint with no subid, and a bare assignment would
+                -- wipe the click attribution the attributed call just stored.
+                -- An attribution is only ever gained here, never lost.
+                click_id = COALESCE(excluded.click_id, push_subscriptions.click_id),
                 p256dh = excluded.p256dh,
                 auth = excluded.auth,
                 expiration_time = excluded.expiration_time,

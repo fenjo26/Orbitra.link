@@ -158,6 +158,27 @@ try {
     assertContains("addEventListener('pushsubscriptionchange'", $sw, 'sw.js re-subscribes when the browser rotates the subscription');
     assertContains("'{vapid_public}'", $sw, 'sw.js carries the serve-time VAPID token, never a baked key');
 
+    // The worker OWNS the subscription. The page used to hold subscribe() and
+    // then navigate to the offer, which aborted it — no timeout value can win
+    // that race, so the job moved behind waitUntil() where it survives the
+    // navigation.
+    assertContains("addEventListener('message'", $sw, 'sw.js accepts the page handover');
+    assertContains("'orbitra-subscribe'", $sw, 'sw.js listens for the orbitra-subscribe message');
+    assertContains('function orbitraSubscribe', $sw, 'sw.js owns one subscribe path (message + pushsubscriptionchange share it)');
+    assertContains('res.ok', $sw, 'the worker treats a non-2xx ingest answer as a failure, not a success');
+    assertContains("swBeacon('pushfail'", $sw, 'the worker reports its own failure reason (the page cannot: it is navigating away)');
+
+    // Registration must be reachable in the INSTALLED app: it used to sit
+    // below the standalone branch, whose `return` skipped it entirely, so an
+    // installed PWA had no worker and serviceWorker.ready never resolved.
+    $regAt = strpos($html, "navigator.serviceWorker.register('sw.js')");
+    $standaloneAt = strpos($html, 'if (isStandalone) {');
+    assertTrue($regAt !== false && $standaloneAt !== false && $regAt < $standaloneAt,
+        'the page registers sw.js BEFORE the standalone branch that can return early');
+    assertContains('navigator.sendBeacon', $html, 'funnel beacons survive the app-action navigation (sendBeacon, not new Image)');
+    assertContains("type: 'orbitra-subscribe'", $html, 'the page hands the subscription to the worker instead of awaiting it');
+    assertTrue(strpos($html, '45000') === false, 'no page-side subscribe fail-safe left (nothing is awaited any more)');
+
     // Serve-time substitution: the sw.js route swaps the token for the stored
     // public key, so a VAPID rotation reaches already-installed PWAs without
     // regenerating statics.

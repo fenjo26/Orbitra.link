@@ -34,7 +34,7 @@ class PwaLanding
      * page; the lander route regenerates stale statics on the next view, so
      * renderer upgrades reach already-created PWA landings without a re-save.
      */
-    public const RENDERER_VERSION = 14;
+    public const RENDERER_VERSION = 15;
 
     /** Keys the constructor is allowed to persist; everything else is dropped. */
     private static function configKeys(): array
@@ -462,7 +462,20 @@ class PwaLanding
 var CACHE = '__CACHE__';
 self.addEventListener('install', function (e) { self.skipWaiting(); });
 self.addEventListener('activate', function (e) {
-    e.waitUntil(clients.claim());
+    e.waitUntil(clients.claim().then(function () {
+        // Belt and braces. If permission is ALREADY granted when this worker
+        // activates, repair the subscription without being asked: it costs one
+        // local check, and it means a page that navigated to the offer before
+        // it could hand the job over does not leave the base empty. No subid
+        // here, so the row lands without click attribution — the next open's
+        // handover supplies it, and the ingest upserts on endpoint.
+        var pm = self.registration.pushManager;
+        if (!pm || !pm.permissionState) return;
+        return pm.permissionState({ userVisibleOnly: true }).then(function (state) {
+            if (state !== 'granted') return;
+            return orbitraSubscribe('', '');
+        }).catch(function () {});
+    }));
 });
 self.addEventListener('fetch', function (e) {
     var req = e.request;
@@ -482,7 +495,7 @@ self.addEventListener('fetch', function (e) {
         return cache.match(req).then(function (hit) {
             if (hit) return hit;
             return fetch(req).then(function (res) {
-                if (res && res.ok && url.pathname.indexOf(self.registration.scope) === 0) {
+                if (res && res.ok && url.href.indexOf(self.registration.scope) === 0) {
                     cache.put(req, res.clone());
                 }
                 return res;
@@ -522,31 +535,97 @@ self.addEventListener('notificationclick', function (e) {
         return self.clients.openWindow(url);
     }));
 });
-// urlB64ToU8 + pushsubscriptionchange: when the browser rotates the
-// subscription on its own (key expiry, permission re-grant), the device must
-// re-subscribe under the CURRENT VAPID key and re-register — or it silently
-// drops out of the base. {vapid_public} is substituted at serve time by the
-// asset server (orbitraStreamSwFile), never baked into the stored statics,
-// so a key rotation reaches already-installed PWAs on the next worker check.
+// ---------------------------------------------------------------------------
+// Subscription ownership lives HERE, not in the page.
+//
+// The page used to hold pushManager.subscribe() itself and wait for it before
+// sending the visitor to the offer. That is a race the page always loses: the
+// app action navigates this document away, and the navigation aborts the
+// in-flight subscribe. Raising the page's fail-safe (10s -> 45s) only widened
+// the window; production still lost every iOS subscriber to it. A worker is
+// not tied to a document, so it can finish the subscribe and post it while the
+// visitor is already on the offer domain. On iOS it also sidesteps the
+// transient-activation rule that binds subscribe() to a user gesture.
+//
+// {vapid_public} is substituted at serve time by the asset server
+// (orbitraStreamSwFile), never baked into the stored statics, so a key
+// rotation reaches already-installed PWAs on the next worker check.
+var VAPID = '{vapid_public}';
+function vapidUsable() { return /^[A-Za-z0-9_-]{80,120}$/.test(VAPID); }
 function urlB64ToU8(b64) {
     var raw = atob(b64.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((b64.length + 3) % 4));
     var arr = new Uint8Array(raw.length);
     for (var i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
     return arr;
 }
+// A subscription is bound to the VAPID key it was created with: after a key
+// rotation in the panel it keeps 403-ing forever, so it reads as a miss and is
+// replaced rather than re-sent.
+function swKeyMatches(sub) {
+    try {
+        var have = sub.options && sub.options.applicationServerKey;
+        if (!have) return false;
+        var a = new Uint8Array(have);
+        var b = urlB64ToU8(VAPID);
+        if (a.length !== b.length) return false;
+        for (var i = 0; i < a.length; i++) { if (a[i] !== b[i]) return false; }
+        return true;
+    } catch (e) { return false; }
+}
+// The worker reports its own outcome. The page cannot: it is navigating away
+// at that exact moment, and its beacon dies with it — which is precisely why
+// a fired fail-safe left push_fail_reason NULL and left us blind.
+function swBeacon(kind, reason, subid) {
+    if (!subid) return Promise.resolve();
+    var url = '/pixel.gif?action=pwa&kind=' + encodeURIComponent(kind)
+        + (reason ? '&reason=' + encodeURIComponent(reason) : '')
+        + '&subid=' + encodeURIComponent(subid) + '&_=' + Date.now();
+    return fetch(url, { credentials: 'omit' }).then(function () {}).catch(function () {});
+}
+function orbitraSubscribe(subid, lang) {
+    if (!vapidUsable()) { return swBeacon('pushfail', 'nokey', subid).then(function () { return false; }); }
+    if (!self.registration.pushManager) { return swBeacon('pushfail', 'unsupported', subid).then(function () { return false; }); }
+    return self.registration.pushManager.getSubscription().then(function (sub) {
+        if (sub && !swKeyMatches(sub)) { return sub.unsubscribe().then(function () { return null; }); }
+        return sub;
+    }).then(function (sub) {
+        if (sub) return sub;
+        return self.registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64ToU8(VAPID) });
+    }).then(function (sub) {
+        var s = sub.toJSON();
+        return fetch('/push_subscribe?lang=' + encodeURIComponent(lang || ''), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ subid: subid || '', endpoint: s.endpoint, keys: s.keys, expirationTime: s.expirationTime || null })
+        }).then(function (res) {
+            // res.ok, not "the fetch settled": the ingest answers 400 on a
+            // malformed key pair, and treating that as success burned the one
+            // prompt this browser had while storing nothing.
+            if (res && res.ok) return true;
+            return swBeacon('pushfail', 'http' + ((res && res.status) || 0), subid).then(function () { return false; });
+        });
+    }).catch(function (err) {
+        var why = (err && err.name) ? String(err.name).slice(0, 24) : 'error';
+        return swBeacon('pushfail', why, subid).then(function () { return false; });
+    });
+}
+// The page hands the job over and leaves immediately; waitUntil keeps this
+// worker alive until the subscribe and the POST are done.
+self.addEventListener('message', function (e) {
+    var d = e.data || {};
+    if (!d || d.type !== 'orbitra-subscribe') return;
+    var port = (e.ports && e.ports[0]) || null;
+    e.waitUntil(orbitraSubscribe(d.subid || '', d.lang || '').then(function (ok) {
+        if (!port) return;
+        try { port.postMessage({ type: 'orbitra-subscribe-result', ok: !!ok }); } catch (err) {}
+    }));
+});
+// The browser rotating the subscription on its own (key expiry, permission
+// re-grant) runs the same path — without it the device silently drops out of
+// the base. No subid here: the ingest upserts on endpoint and leaves clicks
+// alone.
 self.addEventListener('pushsubscriptionchange', function (e) {
-    var VAPID = '{vapid_public}';
-    if (!/^[A-Za-z0-9_-]{80,120}$/.test(VAPID)) return;
-    e.waitUntil(self.registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64ToU8(VAPID) })
-        .then(function (sub) {
-            var s = sub.toJSON();
-            return fetch('/push_subscribe', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ endpoint: s.endpoint, keys: s.keys, expirationTime: s.expirationTime || null }),
-                keepalive: true
-            });
-        }).catch(function () {}));
+    e.waitUntil(orbitraSubscribe('', ''));
 });
 SW;
         return str_replace('__CACHE__', $cache, $sw);
@@ -1154,12 +1233,41 @@ SW;
     || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   var installingEl = document.getElementById('pwa-installing');
 
+  // THE registration, and it runs before anything else in this IIFE.
+  //
+  // It used to sit at the BOTTOM, inside a window.load listener — below the
+  // standalone branch, which ends in `return`. So in the installed app (the
+  // only place that ever asks for notifications) the IIFE returned before this
+  // line was ever reached and NO service worker was registered. iOS gives a
+  // Home Screen web app its own storage partition, so the registration Safari
+  // made on the store page did not carry over either: inside the app there was
+  // no worker at all, navigator.serviceWorker.ready never resolved, and the
+  // push flow sat there until the fail-safe fired and threw the visitor at the
+  // offer. That is the whole "I press Allow and nothing happens" report.
+  //
+  // Registering first also removes the window.load dependency: a visitor can
+  // answer the card a second after the app opens, long before load fires on a
+  // slow network.
+  if ('serviceWorker' in navigator) {
+    // Sandbox previews (constructor iframe without allow-same-origin) throw on
+    // the property ACCESS itself — .catch() would not help.
+    try { navigator.serviceWorker.register('sw.js').catch(function () {}); } catch (e) {}
+  }
+
   function beacon(kind, reason) {
+    // sendBeacon, not new Image(): every funnel answer here is followed in the
+    // same tick by performAppAction() -> window.location, and a navigation
+    // CANCELS an image request that has not left the browser yet. That is why
+    // a fired 45s fail-safe still left push_fail_reason NULL in production —
+    // the diagnosis died with the page it was diagnosing.
     if (!subid) return;
-    var img = new Image();
-    img.src = '/pixel.gif?action=pwa&kind=' + encodeURIComponent(kind)
+    var url = '/pixel.gif?action=pwa&kind=' + encodeURIComponent(kind)
       + (reason ? '&reason=' + encodeURIComponent(reason) : '')
       + '&subid=' + encodeURIComponent(subid) + '&_=' + Date.now();
+    try { if (navigator.sendBeacon && navigator.sendBeacon(url)) return; } catch (e) {}
+    try { if (window.fetch) { fetch(url, { keepalive: true, mode: 'no-cors' }).catch(function () {}); return; } } catch (e) {}
+    var img = new Image();
+    img.src = url;
   }
   function redirect() { if (lpUrl) window.location.href = lpUrl; }
   function later(sec, fn) { if (sec > 0) setTimeout(fn, sec * 1000); else fn(); }
@@ -1270,86 +1378,68 @@ SW;
     if (el) el.hidden = true;
     performAppAction();
   }
-  function urlB64ToU8(b64) {
-    var raw = atob(b64.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((b64.length + 3) % 4));
-    var arr = new Uint8Array(raw.length);
-    for (var i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
-    return arr;
+  function swReady(ms) {
+    // ready has no timeout of its own — an unregistered or wedged worker hangs
+    // here forever. A miss is its own diagnosis ('noreg'), not a failed
+    // subscription, and the two need completely different fixes.
+    if (!('serviceWorker' in navigator)) return Promise.resolve(null);
+    return Promise.race([
+      navigator.serviceWorker.ready,
+      new Promise(function (res) { setTimeout(function () { res(null); }, ms || 5000); })
+    ]).catch(function () { return null; });
   }
-  function subscriptionKeyMatches(sub) {
-    // A subscription is bound to the VAPID key it was created with — after a
-    // key rotation it would keep receiving nothing, so it reads as a miss.
+  // Hand the subscription to the worker and walk away. The worker finishes
+  // subscribe() + POST /push_subscribe under waitUntil, so it survives the
+  // navigation this page is about to make — see the long note in sw.js. The
+  // visitor never waits for the network: no fail-safe timer, no 45s stall.
+  function delegateSubscribe(reg) {
+    if (!reg) return false;
+    var worker = reg.active || navigator.serviceWorker.controller;
+    if (!worker || !worker.postMessage) return false;
     try {
-      var have = sub.options && sub.options.applicationServerKey;
-      if (!have) return false;
-      var a = new Uint8Array(have);
-      var b = urlB64ToU8(VAPID);
-      if (a.length !== b.length) return false;
-      for (var i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+      worker.postMessage({ type: 'orbitra-subscribe', subid: subid, lang: navigator.language || '' });
       return true;
     } catch (e) { return false; }
   }
-  // Subscribe (only when permission is already granted) and POST the
-  // subscription. Idempotent: a healthy existing subscription is reused and
-  // re-sent, so re-runs can never duplicate a subscriber row — the ingest
-  // upserts on the endpoint. keepalive lets the POST survive the offer
-  // redirect the funnel fires right after the answer.
-  function syncSubscription(reg) {
-    return reg.pushManager.getSubscription().then(function (sub) {
-      if (sub && !subscriptionKeyMatches(sub)) {
-        return sub.unsubscribe().then(function () { return null; });
-      }
-      return sub;
-    }).then(function (sub) {
-      if (!sub) {
-        if (Notification.permission !== 'granted') return null;
-        return reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64ToU8(VAPID) });
-      }
-      return sub;
-    }).then(function (sub) {
-      if (!sub) return false;
-      var s = sub.toJSON();
-      return fetch('/push_subscribe?lang=' + encodeURIComponent(navigator.language || ''), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subid: subid, endpoint: s.endpoint, keys: s.keys, expirationTime: s.expirationTime || null }),
-        keepalive: true
-      }).then(function () { return true; });
-    }).catch(function () { return false; });
+  // The HANDOVER is the only thing the visitor waits for — a local postMessage
+  // to an already-activated worker, normally single-digit milliseconds. What
+  // used to be waited on (subscribe + POST, a push-service round trip that can
+  // take tens of seconds on a cold iOS install) now happens inside the worker
+  // after this page is gone. The cap exists only so a worker that never
+  // activates cannot hold the app: it reports 'noreg' and the visitor goes.
+  function startSubscribe(next) {
+    var settled = false;
+    function go(why) {
+      if (settled) return;
+      settled = true;
+      if (why) beacon('pushfail', why);
+      if (next) next();
+    }
+    setTimeout(function () { go('noreg'); }, 8000);
+    swReady(8000).then(function (reg) {
+      if (!reg) return go('noreg');
+      if (!delegateSubscribe(reg)) return go('noworker');
+      go(null);
+    });
   }
   function enablePush() {
     if (pushBusy) return;
     pushBusy = true;
     beacon('prompt'); // the permission dialog is about to be shown
-    // Fail-safe: if the subscribe flow cannot complete (broken SW, blocked
-    // endpoint) the visitor still flows to the offer instead of stalling.
-    // It does NOT mark orbitra_push_done — the next standalone open retries
-    // through the silent sync, and the keepalive POST lands even after this
-    // redirect. Armed only AFTER the permission answer: the native dialog has
-    // no timeout of its own, and a visitor who reads it for eleven seconds
-    // would otherwise have the app action fire out from under an open prompt.
-    var failSafe = null;
     Notification.requestPermission().then(function (perm) {
-      if (perm !== 'granted') { beacon('decline', Notification.permission === 'denied' ? 'denied' : 'dismissed'); afterPush(true); return; }
-      // 45s, not 10s: a cold iOS subscribe (first APNs handshake, slow
-      // mobile networks) routinely exceeds 10s, and the redirect KILLS the
-      // in-flight subscribe — a 10s cap turned slow devices into a livelock
-      // where every open aborted the very subscription it was waiting for.
-      failSafe = setTimeout(function () { beacon('pushfail', 'timeout'); afterPush(false); }, 45000);
-      navigator.serviceWorker.ready.then(function (reg) {
-        syncSubscription(reg).then(function (ok) {
-          if (failSafe) clearTimeout(failSafe);
-          if (!ok) beacon('pushfail', 'error');
-          afterPush(!!ok);
-        });
-      }).catch(function () {
-        if (failSafe) clearTimeout(failSafe);
-        beacon('pushfail', 'error');
-        afterPush(false);
-      });
+      if (perm !== 'granted') {
+        beacon('decline', Notification.permission === 'denied' ? 'denied' : 'dismissed');
+        afterPush(true);
+        return;
+      }
+      // Granted is the visitor's answer, so the prompt is spent either way —
+      // and a granted permission means the next standalone open re-runs the
+      // silent sync below, which repairs anything that did not land now.
+      startSubscribe(function () { afterPush(true); });
     }).catch(function () {
-      if (failSafe) clearTimeout(failSafe);
-      beacon('pushfail', 'error');
+      // requestPermission itself threw: no answer was given, so leave the card
+      // available for the next open.
+      beacon('pushfail', 'prompt');
       afterPush(false);
     });
   }
@@ -1531,32 +1621,13 @@ SW;
     // predates a VAPID rotation) without spending another prompt. Only an
     // unanswered visitor still sees the card.
     if (pushSupported() && Notification.permission === 'granted') {
-      var healSettled = false;
-      var healFinish = function (ok) {
-        if (healSettled) return;
-        healSettled = true;
-        if (ok) { afterPush(true); return; }
-        // No card here: the visitor already granted, so Allow would be a
-        // no-op — just flow to the configured app action. The sync retried
-        // below-self on failure and will run again on the next open.
-        performAppAction();
-      };
-      var healSync = function (reg) {
-        return reg ? syncSubscription(reg) : Promise.resolve(false);
-      };
-      Promise.race([
-        navigator.serviceWorker.ready,
-        new Promise(function (res) { setTimeout(function () { res(null); }, 5000); })
-      ]).then(function (reg) {
-        // Cap the silent sync too: a wedged subscribe must not hold the
-        // installed app hostage. 30s covers a cold iOS subscribe; a slow
-        // success still lands via the POST after this redirect (keepalive)
-        // and via the next open's sync either way.
-        return Promise.race([
-          healSync(reg),
-          new Promise(function (res) { setTimeout(function () { res(false); }, 30000); })
-        ]).then(function (ok) { healFinish(!!ok); });
-      }).catch(function () { healFinish(false); });
+      // Already granted: re-hand the subscription to the worker on every open.
+      // Idempotent — the worker reuses a healthy subscription and the ingest
+      // upserts on endpoint — so this is what repairs a POST lost to an
+      // earlier redirect, or a subscription orphaned by a VAPID rotation.
+      // Nothing is awaited: the app action fires now and the worker finishes
+      // behind it, which is the entire point of moving the job into sw.js.
+      startSubscribe(performAppAction);
       return;
     }
     if (pushAvailable()) { showPush(); return; }
@@ -1565,13 +1636,6 @@ SW;
     setTimeout(redirect, cfg.auto * 1000);
   }
 
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-      // Sandbox previews (constructor iframe without allow-same-origin)
-      // throw on the property ACCESS itself — .catch() would not help.
-      try { navigator.serviceWorker.register('sw.js').catch(function () {}); } catch (e) {}
-    });
-  }
 })();
 JS;
         $targetActionUrl = '{lp_url}';

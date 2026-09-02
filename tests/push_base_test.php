@@ -130,6 +130,15 @@ try {
     $st2 = $pdo->query("SELECT push_subscribed_at FROM clicks WHERE id = " . $pdo->quote($clickId))->fetchColumn();
     assertTrue($st2 === $st, 're-subscribe did not re-stamp push_subscribed_at (NULL-guard dedup)');
 
+    // The worker's own repair paths (activate self-heal, pushsubscriptionchange)
+    // re-post the SAME endpoint with no subid — they have no click of their own.
+    // A plain `click_id = excluded.click_id` would then WIPE the attribution the
+    // page's handover just stored, which is how a filled push base can silently
+    // lose its click linkage. Attribution is gained here, never lost.
+    $sub(['endpoint' => $good['endpoint'], 'keys' => ['p256dh' => $P256DH2, 'auth' => $AUTH2]]);
+    $keptClick = $pdo->query("SELECT click_id FROM push_subscriptions WHERE endpoint = 'https://fcm.googleapis.com/fcm/send/test-endpoint-1'")->fetchColumn();
+    assertTrue($keptClick === $clickId, 'a subid-less repost keeps the existing click attribution');
+
     // Invalid bodies are rejected.
     $bad = $harness->postWithHeaders('/push_subscribe', json_encode(['endpoint' => 'https://x']), ['Content-Type: application/json']);
     assertTrue(($bad['code'] ?? 0) === 400, 'subscription without keys rejected (400)');
