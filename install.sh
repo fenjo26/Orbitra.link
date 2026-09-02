@@ -15,6 +15,16 @@ if [ "$EUID" -ne 0 ]; then
   exit
 fi
 
+# A freshly provisioned Ubuntu image boots straight into unattended-upgrades,
+# which holds the dpkg lock for the first minutes of the machine's life — the
+# package step below used to die right there ("Could not get lock
+# /var/lib/dpkg/lock-frontend") before a single package was installed. Two
+# guards: make apt a patient one (wait up to ten minutes for the lock instead
+# of failing — this config drop also covers every apt call further down and
+# any re-run), and stop the auto-updater so the wait is usually seconds.
+echo 'DPkg::Lock::Timeout "600";' > /etc/apt/apt.conf.d/99orbitra-lock-wait
+systemctl stop unattended-upgrades.service 2>/dev/null || true
+
 echo "[1/5] Updating system and installing packages (Nginx, PHP, SQLite)..."
 apt-get update -y
 # php-intl is optional at runtime — landing slugs fall back to a built-in
