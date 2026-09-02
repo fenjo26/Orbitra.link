@@ -909,6 +909,8 @@ export default {
         "sslCertbotNoOutput": "Certbot hat nichts zurückgegeben — prüfen Sie, ob es installiert und für den Webserver per sudo erreichbar ist.",
         "sslIncompleteChain": "In der Zertifikatsdatei fehlt das Intermediate — die Seite öffnet sich in Firefox, aber nicht in Chrome. Stellen Sie das Zertifikat neu aus.",
         "sslChainUnreadable": "Das Zertifikat ist ausgestellt und die Seite wird ausgeliefert, aber das Panel kann die Zertifikatsdatei nicht lesen, um die Kette zu prüfen — kontrollieren Sie den Zugriff des Web-Benutzers auf /etc/letsencrypt. Dies ist eine Warnung, kein Fehler.",
+        "sslChainUnverified": "Das Zertifikat ist ausgestellt, aber das Panel hat die Kette noch nicht bestätigt: Die Zertifikatsdatei ist für das Panel nicht lesbar und die Domain antwortet noch nicht über HTTPS. Die Prüfung wiederholt sich automatisch — dies ist eine Warnung, kein Fehler.",
+        "sslChainCheckPending": "Kette nicht bestätigt",
         "sslDeleteFailed": "Das alte Zertifikat konnte vor der Neuausstellung nicht gelöscht werden. Prüfen Sie, ob der Web-Benutzer sudo certbot ausführen darf.",
         "sslDnsMismatch": "Domain zeigt nicht auf diesen Server. Zertifikat kann nicht ausgestellt werden, bis DNS verteilt ist.",
         "reissueSsl": "SSL-Zertifikat neu ausstellen",

@@ -909,6 +909,8 @@ export default {
         "sslCertbotNoOutput": "Certbot no devolvió nada: compruebe que está instalado y accesible para el servidor web vía sudo.",
         "sslIncompleteChain": "Al archivo de certificado le falta el intermedio — el sitio abre en Firefox pero no en Chrome. Vuelva a emitir el certificado.",
         "sslChainUnreadable": "El certificado está emitido y el sitio funciona, pero el panel no puede leer el archivo del certificado para verificar la cadena: revise el acceso del usuario web a /etc/letsencrypt. Es un aviso, no un error.",
+        "sslChainUnverified": "El certificado está emitido, pero el panel aún no ha confirmado la cadena: el archivo del certificado no es legible para el panel y el dominio todavía no responde por HTTPS. La comprobación se repetirá automáticamente: es un aviso, no un error.",
+        "sslChainCheckPending": "Cadena sin confirmar",
         "sslDeleteFailed": "No se pudo eliminar el certificado antiguo antes de reemitir. Compruebe que el usuario web puede ejecutar sudo certbot.",
         "sslDnsMismatch": "El dominio no apunta a este servidor. No se puede emitir el certificado hasta que se propague el DNS.",
         "reissueSsl": "Reemitir certificado SSL",

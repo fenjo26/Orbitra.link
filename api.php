@@ -10122,10 +10122,10 @@ try {
                     // chain problem — certbot just wrote it as root into a tree
                     // the panel may not open. That is installed-with-warning,
                     // not failed-with-an-attempt.
-                    $verdict = orbitraChainVerdict($certFile);
-                    if ($verdict === 'chain_unreadable') {
+                    $verdict = orbitraChainVerdict($certFile, $domainName);
+                    if ($verdict === 'chain_unverified') {
                         $error = json_encode([
-                            'code' => 'chain_unreadable',
+                            'code' => 'chain_unverified',
                             'path' => $certFile,
                         ], JSON_UNESCAPED_UNICODE);
                         $pdo->prepare("UPDATE domains SET ssl_status = 'installed', ssl_error = ?, ssl_attempts = 0, ssl_last_attempt = datetime('now') WHERE id = ?")
@@ -10137,7 +10137,7 @@ try {
                         }
                         echo json_encode([
                             'status' => 'success',
-                            'code' => 'chain_unreadable',
+                            'code' => 'chain_unverified',
                             'message' => 'SSL certificate issued (chain not verified by the panel)',
                             'data' => ['domain' => $domainName, 'ssl_status' => 'installed']
                         ]);

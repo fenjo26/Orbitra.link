@@ -535,6 +535,7 @@ const Domains = ({ campaigns, user }) => {
             certbot_no_output: 'domains.sslCertbotNoOutput',
             incomplete_chain: 'domains.sslIncompleteChain',
             chain_unreadable: 'domains.sslChainUnreadable',
+            chain_unverified: 'domains.sslChainUnverified',
             cert_delete_failed: 'domains.sslDeleteFailed',
             dns_mismatch: 'domains.sslWaitingDns',
             awaiting_dns_for_ssl_switch: 'domains.sslAwaitingDnsSwitch',
@@ -543,13 +544,16 @@ const Domains = ({ campaigns, user }) => {
     };
 
     /**
-     * An installed domain whose only complaint is chain_unreadable: the
-     * certificate is issued and served, the panel just cannot open the file
-     * to verify the chain. Rendered as a warning, not an error.
+     * An installed domain whose only complaint is an unverified chain —
+     * 'chain_unverified' (the panel could not read the file and the live HTTPS
+     * probe did not answer yet) or the legacy 'chain_unreadable' stored by
+     * older builds. The certificate is issued and being served; rendered as a
+     * warning, not an error.
      */
-    const chainUnreadable = (domain) => {
+    const chainWarning = (domain) => {
         try {
-            return JSON.parse(domain.ssl_error || '{}').code === 'chain_unreadable';
+            const code = JSON.parse(domain.ssl_error || '{}').code;
+            return code === 'chain_unverified' || code === 'chain_unreadable';
         } catch {
             return false;
         }
@@ -659,10 +663,10 @@ const Domains = ({ campaigns, user }) => {
             >
                 <AlertCircle size={16} className="text-orange-500" />
             </button>
-        ) : domain.ssl_status === 'installed' && chainUnreadable(domain) ? (
-            /* The certificate is issued and served — the panel just cannot read
-               the file to verify the chain (root-only /etc/letsencrypt). A
-               warning, never a failure: see Bug 1 in
+        ) : domain.ssl_status === 'installed' && chainWarning(domain) ? (
+            /* The certificate is issued and served — the panel just could not
+               confirm the chain (root-only /etc/letsencrypt, live probe has
+               not answered yet). A warning, never a failure: see Bug 1 in
                docs/TZ_SSL_CHAIN_AND_PRIVACY.md. */
             <button
                 onClick={() => { setSslErrorDomain(domain); setShowSslErrorModal(true); }}
@@ -1922,7 +1926,7 @@ const Domains = ({ campaigns, user }) => {
                                 }}>
                                     {sslErrorDomain.ssl_status === 'failed' && <X size={12} />}
                                     {sslErrorDomain.ssl_status === 'waiting_dns' && <Clock size={12} />}
-                                    {sslErrorDomain.ssl_status === 'failed' ? t('domains.sslFailed', 'Failed') : sslErrorDomain.ssl_status === 'waiting_dns' ? t('domains.sslWaitingDns', 'Waiting for DNS') : t('domains.sslNotWired', 'Not Wired')}
+                                    {sslErrorDomain.ssl_status === 'failed' ? t('domains.sslFailed', 'Failed') : sslErrorDomain.ssl_status === 'waiting_dns' ? t('domains.sslWaitingDns', 'Waiting for DNS') : chainWarning(sslErrorDomain) ? t('domains.sslChainCheckPending', 'Chain check pending') : t('domains.sslNotWired', 'Not Wired')}
                                 </div>
                             </div>
 

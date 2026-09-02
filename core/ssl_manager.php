@@ -212,20 +212,98 @@ function orbitraCertificateChainComplete(string $certFile): array
 }
 
 /**
- * Classify a fullchain.pem in one call: 'ok', 'incomplete_chain' (the file was
- * read and genuinely carries less than a full chain) or 'chain_unreadable'
- * (the panel cannot read the file at all — typically a root-only
- * /etc/letsencrypt; nginx still reads and serves the certificate as root).
+ * What chain does the domain actually serve over HTTPS right now?
  *
- * The worker and the re-issue endpoint both branch on this verdict, and the
- * third state must NOT mark the domain failed: the certificate exists and is
- * being served, and failing it feeds the retry backoff for nothing.
+ * When the panel cannot read /etc/letsencrypt (root-only tree, and no sudoers
+ * cat rule — true for every install that predates the rule and only ever
+ * updates via git pull), this is the check that needs no filesystem rights at
+ * all: it asks our own nginx for the certificate exactly the way a browser
+ * does and counts the links it sends. That is a stronger answer than the file,
+ * not a weaker one — the file could be fine while nginx still serves something
+ * else. The connection is pinned to this server's public IP so a stale DNS
+ * record or a CDN in front cannot answer for somebody else, and certificate
+ * verification is off because the point is to collect the chain, not to trust
+ * it (an unwired vhost or a self-signed placeholder must not abort the
+ * handshake before the chain is counted).
+ *
+ * @return array{reached: bool, count: int, subject: string, issuer: string}
+ *   reached=false means no TLS handshake happened (nothing wired, port closed,
+ *   no curl); subject/issuer are the leaf's DN strings when reached.
  */
-function orbitraChainVerdict(string $certFile): string
+function orbitraProbeServedChain(string $domain): array
+{
+    $out = ['reached' => false, 'count' => 0, 'subject' => '', 'issuer' => ''];
+    if ($domain === '' || !function_exists('curl_init')) {
+        return $out;
+    }
+    $ch = curl_init('https://' . $domain . '/');
+    if ($ch === false) {
+        return $out;
+    }
+    curl_setopt_array($ch, [
+        CURLOPT_NOBODY => true,
+        CURLOPT_FOLLOWLOCATION => false,
+        CURLOPT_CONNECTTIMEOUT => 5,
+        CURLOPT_TIMEOUT => 10,
+        CURLOPT_CERTINFO => true,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => 0,
+    ]);
+    $ip = orbitraServerIp();
+    if (is_string($ip) && filter_var($ip, FILTER_VALIDATE_IP)) {
+        curl_setopt($ch, CURLOPT_RESOLVE, [$domain . ':443:' . $ip]);
+    }
+    curl_exec($ch);
+    $certs = curl_getinfo($ch, CURLINFO_CERTINFO);
+    curl_close($ch);
+    if (is_array($certs) && $certs !== []) {
+        $out['reached'] = true;
+        $out['count'] = count($certs);
+        $out['subject'] = (string) ($certs[0]['Subject'] ?? '');
+        $out['issuer'] = (string) ($certs[0]['Issuer'] ?? '');
+    }
+    return $out;
+}
+
+/**
+ * Classify a fullchain.pem in one call: 'ok', 'incomplete_chain' (the chain
+ * was seen and genuinely carries less than a full chain) or 'chain_unverified'
+ * (the panel could not confirm the chain — file unreadable AND the live HTTPS
+ * probe could not answer).
+ *
+ * When the file can be read, the verdict is the block count, as before. When
+ * it cannot — root-only /etc/letsencrypt, and no sudoers cat rule on installs
+ * that predate it — the served chain decides instead: two or more links for
+ * this hostname is a verified chain, one link from Let's Encrypt is the real
+ * Firefox-ok / Chrome-fail truncation, and anything else (a self-signed
+ * placeholder still wired while the config rebuilds, a different vhost, no
+ * answer at all) stays 'chain_unverified'. That third state must NOT mark the
+ * domain failed: the certificate exists, nginx will be synced within the hour,
+ * and failing it feeds the retry backoff for nothing.
+ *
+ * $probeFn is an injection seam for tests; production never passes it.
+ */
+function orbitraChainVerdict(string $certFile, string $domain = '', ?callable $probeFn = null): string
 {
     $chain = orbitraCertificateChainComplete($certFile);
     if (!$chain['readable']) {
-        return 'chain_unreadable';
+        if ($domain === '') {
+            return 'chain_unverified';
+        }
+        $probe = ($probeFn ?? 'orbitraProbeServedChain')($domain);
+        if (!$probe['reached'] || stripos($probe['subject'], $domain) === false) {
+            return 'chain_unverified';
+        }
+        if ($probe['count'] >= 2) {
+            return 'ok';
+        }
+        // One link for our hostname: a real truncation only if Let's Encrypt
+        // signed it. A single self-signed cert with the right CN is the
+        // placeholder the fresh-issue flow wires up moments before the LE
+        // server block — not a failure.
+        $isLetsEncrypt = stripos($probe['issuer'], 'let') !== false
+            && stripos($probe['issuer'], 'encrypt') !== false;
+        return $isLetsEncrypt ? 'incomplete_chain' : 'chain_unverified';
     }
     return $chain['ok'] ? 'ok' : 'incomplete_chain';
 }
@@ -536,7 +614,7 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
         // Cloudflare-proxied domains are the exception — the edge serves their
         // certificate and certbot cannot validate through the proxy, so asking
         // Let's Encrypt would only burn the hourly failure budget.
-        $rows = $pdo->query("SELECT id, name, ssl_status, ssl_attempts, ssl_last_attempt, cloudflare_proxy, ssl_source FROM domains WHERE name IS NOT NULL AND name != '' ORDER BY id")
+        $rows = $pdo->query("SELECT id, name, ssl_status, ssl_error, ssl_attempts, ssl_last_attempt, cloudflare_proxy, ssl_source FROM domains WHERE name IS NOT NULL AND name != '' ORDER BY id")
             ->fetchAll(PDO::FETCH_ASSOC);
     } catch (\Throwable $e) {
         return $result;
@@ -605,15 +683,19 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
             // every run catches a file that went wrong after the original issue
             // (a manual edit, a botched renewal) instead of leaving the domain
             // falsely green.
-            $verdict = orbitraChainVerdict($certFile);
-            if ($verdict === 'chain_unreadable') {
+            $verdict = orbitraChainVerdict($certFile, $domain);
+            if ($verdict === 'chain_unverified') {
                 // The certificate exists (the line above said so, possibly via
-                // certbot's root view) but this process cannot read the file.
-                // nginx reads it as root and serves it, so the honest status is
-                // installed — with the reason stored for the panel's warning
-                // instead of a failure that would feed the retry backoff.
+                // certbot's root view) but the chain could not be confirmed —
+                // the file is unreadable to this process and the live HTTPS
+                // probe did not answer yet (or is still serving the
+                // self-signed placeholder). nginx reads the file as root and
+                // serves it, so the honest status is installed — with the
+                // reason stored for the panel's warning instead of a failure
+                // that would feed the retry backoff. The next run re-probes
+                // and clears the warning once the chain answers.
                 $error = json_encode([
-                    'code' => 'chain_unreadable',
+                    'code' => 'chain_unverified',
                     'path' => $certFile,
                 ], JSON_UNESCAPED_UNICODE);
                 orbitraSslWriteWithRetry($pdo, "UPDATE domains SET ssl_status = 'installed', ssl_error = ? WHERE id = ?", [$error, $id]);
@@ -631,7 +713,10 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
                 $result['failed']++;
                 continue;
             }
-            if (($row['ssl_status'] ?? '') !== 'installed') {
+            // Verified, by file or by the served chain. Clear a stale warning
+            // too: an unverified run stored an error on an already-installed
+            // domain, and nothing else ever removes it.
+            if (($row['ssl_status'] ?? '') !== 'installed' || ($row['ssl_error'] ?? null) !== null) {
                 orbitraSslWriteWithRetry($pdo, "UPDATE domains SET ssl_status = 'installed', ssl_error = NULL WHERE id = ?", [$id]);
             }
             $needsSync = true; // orbitraSyncNginx() no-ops when the config already matches
@@ -680,14 +765,15 @@ function orbitraProcessSslQueue(PDO $pdo, int $limit = 5): array
             // red in Chrome (which will not), which is exactly the ticket that is
             // hardest to diagnose from the panel. Catching it here marks the
             // domain failed with a named reason instead of "installed", so the
-            // operator sees it before a visitor's browser does. An UNREADABLE
-            // file, on the other hand, is not a chain problem: certbot just
-            // wrote it as root into a tree this process cannot open — installed
-            // with a stored warning, and no attempt burned.
-            $verdict = orbitraChainVerdict($certFile);
-            if ($verdict === 'chain_unreadable') {
+            // operator sees it before a visitor's browser does. An UNVERIFIABLE
+            // chain, on the other hand, is not a chain problem: certbot just
+            // wrote it as root into a tree this process cannot open, and the
+            // live probe needs the nginx sync that follows — installed with a
+            // stored warning, no attempt burned, re-probed on the next run.
+            $verdict = orbitraChainVerdict($certFile, $domain);
+            if ($verdict === 'chain_unverified') {
                 $error = json_encode([
-                    'code' => 'chain_unreadable',
+                    'code' => 'chain_unverified',
                     'path' => $certFile,
                 ], JSON_UNESCAPED_UNICODE);
                 orbitraSslWriteWithRetry($pdo, "UPDATE domains SET ssl_status = 'installed', ssl_error = ?, ssl_attempts = 0, ssl_last_attempt = datetime('now') WHERE id = ?", [$error, $id]);
