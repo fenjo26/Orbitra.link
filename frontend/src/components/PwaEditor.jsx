@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Smartphone, Trash2, ExternalLink, Loader2, Plus, ImagePlus, GripVertical, Check } from 'lucide-react';
+import { X, Smartphone, Trash2, ExternalLink, Loader2, Plus, ImagePlus, GripVertical, Check, Save } from 'lucide-react';
 import MediaPicker from './common/MediaPicker';
 import { useLanguage } from '../contexts/LanguageContext';
 import { cachedGet, cachedPost } from '../utils/apiCache';
+import { getStayInEditorAfterSave } from '../utils/editorPreferences';
 import axios from 'axios';
 
 const API_URL = '/api.php';
@@ -352,6 +353,7 @@ export default function PwaEditor({ landingId, onClose }) {
     // stores their URLs (PWA is a "URL world" page, unlike ZIP offers).
     const [pickerMode, setPickerMode] = useState(null);
     const [saving, setSaving] = useState(false);
+    const [saveSuccess, setSaveSuccess] = useState(false);
     const [error, setError] = useState('');
     const [previewUrl, setPreviewUrl] = useState('');
     const [savedId, setSavedId] = useState(landingId || null);
@@ -618,8 +620,8 @@ export default function PwaEditor({ landingId, onClose }) {
         }
     };
 
-    const handleSave = async () => {
-        if (saving) return;
+    const handleSave = async (forceClose = false) => {
+        if (saving || saveSuccess) return;
         setError('');
         if (!name.trim() || !config.app_name.trim()) {
             setError(t('pwa.nameRequired'));
@@ -646,6 +648,17 @@ export default function PwaEditor({ landingId, onClose }) {
             setSavedId(res.data.data.id);
             setConfig(nextConfig);
             setPreviewUrl(res.data.data.preview_url || '');
+            // Same save choreography as the other editors: a green "Saved!"
+            // flash on the button, then close unless the operator asked to
+            // stay. The PWA used to keep the modal open with no visible
+            // feedback at all, which read as the click doing nothing.
+            setSaveSuccess(true);
+            setTimeout(() => {
+                setSaveSuccess(false);
+                if (forceClose || !getStayInEditorAfterSave()) {
+                    onClose(true);
+                }
+            }, 1000);
         } catch (e) {
             setError(e?.response?.data?.message || e?.message || t('pwa.saveFailed'));
         } finally {
@@ -1525,11 +1538,22 @@ export default function PwaEditor({ landingId, onClose }) {
                         )}
                     </div>
                     <div className="flex gap-2">
-                        <button type="button" className="btn btn-secondary" onClick={handleClose} disabled={saving}>
+                        <button type="button" className="btn btn-secondary" onClick={handleClose} disabled={saving || saveSuccess}>
                             {t('common.cancel')}
                         </button>
-                        <button type="button" className="btn btn-primary" onClick={handleSave} disabled={saving}>
-                            {t('common.save')}
+                        <button type="button" className="btn btn-secondary" onClick={() => handleSave(true)} disabled={saving || saveSuccess}>
+                            <Save className="w-4 h-4" />
+                            {t('profile.saveAndClose')}
+                        </button>
+                        <button
+                            type="button"
+                            className="btn btn-primary"
+                            onClick={() => handleSave(false)}
+                            disabled={saving || saveSuccess}
+                            style={saveSuccess ? { backgroundColor: 'var(--color-success)' } : {}}
+                        >
+                            <Check className="w-4 h-4" />
+                            {saveSuccess ? t('editor.saved') : saving ? t('common.saving') : t('common.save')}
                         </button>
                     </div>
                 </div>
