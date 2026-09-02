@@ -18,3 +18,15 @@ export function pwaLandingUrl(slug, id, domainName) {
     if (!tail) return '';
     return `${origin}/lander/${tail}/`;
 }
+
+// The look-see address — what "Open preview" means. It is deliberately NOT the
+// campaign link above: a freshly bound domain may have no SSL yet or its DNS
+// may still point elsewhere, and the operator clicking preview would land on
+// an error page instead of their app. The panel itself serves the generated
+// statics at /lander/<slug>/ unconditionally, so the preview always works.
+export function pwaPreviewUrl(slug, id) {
+    const tail = slug ? encodeURIComponent(slug) : (id ? String(id) : '');
+    if (!tail) return '';
+    return `/lander/${tail}/`;
+}
+

@@ -3889,6 +3889,7 @@ export default {
         domainLabel: "Domain",
         domainNone: "— Not bound —",
         domainSaveFirst: "Save the PWA first, then you can bind a domain",
+        domainBindOnSave: "Pick the domain right away — it binds to this PWA on save",
         domainHint: "A visit to the domain opens this PWA straight from the domain root; the click is logged as organic. If an offer is selected below, the Offer button leads to that offer directly from the domain; without an offer it returns an honest 404 — pick an offer in the select below. If the domain is already bound to another PWA, saving here rebinds it to this one.",
         domainSaving: "Saving binding…",
         domainError: "Failed to save the domain binding",

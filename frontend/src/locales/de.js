@@ -3890,6 +3890,7 @@ export default {
         domainLabel: "Domain",
         domainNone: "— nicht verknüpft —",
         domainSaveFirst: "Speichere das PWA zuerst, um eine Domain zu verknüpfen",
+        domainBindOnSave: "Wähle die Domain sofort — sie wird beim Speichern verknüpft",
         domainHint: "Ein Besuch der Domain öffnet dieses PWA direkt vom Domain-Root; der Klick wird als organisch geloggt. Ist ein Offer ausgewählt, führt der Offer-Button direkt von der Domain zum Offer; ohne Offer gibt es eine ehrliche 404 — wähle einen Offer im Auswahlmenü unten. Ist die Domain bereits mit einem anderen PWA verknüpft, wird die Verknüpfung beim Speichern auf dieses übertragen.",
         domainSaving: "Verknüpfung wird gespeichert…",
         domainError: "Die Domain-Verknüpfung konnte nicht gespeichert werden",

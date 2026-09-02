@@ -3890,6 +3890,7 @@ export default {
         domainLabel: "Dominio",
         domainNone: "— Sin vincular —",
         domainSaveFirst: "Guarda la PWA antes de vincular un dominio",
+        domainBindOnSave: "Elige el dominio ahora mismo: se vinculará a esta PWA al guardar",
         domainHint: "Una visita al dominio abrirá esta PWA directamente desde la raíz del dominio; el clic se registra como orgánico. Si hay una oferta seleccionada, el botón «Offer» lleva a esa oferta directamente desde el dominio; sin oferta devolverá un 404 honesto — elige una oferta en el selector de abajo. Si el dominio ya está vinculado a otra PWA, al guardar se transfiere a esta.",
         domainSaving: "Guardando la vinculación…",
         domainError: "No se pudo guardar la vinculación del dominio",

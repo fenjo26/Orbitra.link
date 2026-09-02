@@ -10069,6 +10069,16 @@ try {
                         break;
                     }
                 }
+                // ONE domain per landing: binding this one releases whatever
+                // else still pointed at the landing. Two bound domains left
+                // the PWA's public address ambiguous — the list reported the
+                // lowest id while the editor showed the first by name — and
+                // the operator's select has exactly one domain in it.
+                if ($bindingLandingId !== null) {
+                    $pdo->prepare("UPDATE domains SET pwa_landing_id = NULL, pwa_offer_id = NULL
+                                   WHERE pwa_landing_id = ? AND id != ?")
+                        ->execute([$bindingLandingId, $bindingDomainId]);
+                }
                 $pdo->prepare("UPDATE domains SET pwa_landing_id = ?, pwa_offer_id = ? WHERE id = ?")
                     ->execute([$bindingLandingId, $bindingLandingId !== null ? $bindingOfferId : null, $bindingDomainId]);
                 logAudit($pdo, 'UPDATE', 'Domain', $bindingDomainId, 'PWA binding: ' . ($bindingLandingId !== null ? 'landing #' . $bindingLandingId . ($bindingOfferId !== null ? ', offer #' . $bindingOfferId : '') : 'detached'));

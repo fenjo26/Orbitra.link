@@ -3890,6 +3890,7 @@ export default {
         domainLabel: "Domaine",
         domainNone: "— non associé —",
         domainSaveFirst: "Enregistrez d'abord la PWA pour pouvoir associer un domaine",
+        domainBindOnSave: "Choisissez le domaine tout de suite — il sera associé à cette PWA à l'enregistrement",
         domainHint: "Une visite sur le domaine ouvre cette PWA directement à la racine du domaine; le clic est enregistré comme organique. Si une offre est sélectionnée, le bouton « Offer » mène à cette offre directement depuis le domaine; sans offre, un 404 honnête est renvoyé — choisissez une offre dans le sélecteur ci-dessous. Si le domaine est déjà associé à une autre PWA, l'enregistrement le transfère à celle-ci.",
         domainSaving: "Enregistrement de l'association…",
         domainError: "Impossible d'enregistrer l'association du domaine",

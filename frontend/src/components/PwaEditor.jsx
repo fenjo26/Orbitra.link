@@ -6,7 +6,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { cachedGet, cachedPost } from '../utils/apiCache';
 import { getStayInEditorAfterSave } from '../utils/editorPreferences';
 import { copyToClipboard } from '../utils/clipboard';
-import { pwaLandingUrl } from '../utils/pwaUrl';
+import { pwaLandingUrl, pwaPreviewUrl } from '../utils/pwaUrl';
 import axios from 'axios';
 
 const API_URL = '/api.php';
@@ -502,6 +502,11 @@ export default function PwaEditor({ landingId, onClose }) {
         ? (pwaLandingUrl(savedSlug, savedId, boundDomain ? boundDomain.name : null) || previewUrl)
         : '';
 
+    // The preview address — always the panel's own /lander/<slug>/, never the
+    // bound domain: a domain that was bound seconds ago may have no SSL yet or
+    // DNS still pointing elsewhere, and the operator asked to LOOK at the app.
+    const previewHref = savedId ? pwaPreviewUrl(savedSlug, savedId) : '';
+
     const handleCopyLink = async () => {
         if (!publicUrl) return;
         // Same two-tier copy as the Campaigns row menu: silent clipboard write
@@ -516,13 +521,16 @@ export default function PwaEditor({ landingId, onClose }) {
         }
     };
 
-    // Binding applies immediately, not on the general Save: the operator's
-    // intent is unambiguous and the domain must serve the new PWA right away.
-    // Taking a domain already bound to another PWA is allowed — the binding
-    // is overwritten; switching back to "not bound" unbinds (landing_id null).
+    // Binding applies immediately for a saved PWA, not on the general Save:
+    // the operator's intent is unambiguous and the domain must serve the PWA
+    // right away. A BRAND-NEW PWA has no landing id yet, so the pick is queued
+    // in domainChoice and handleSave applies it right after the first save.
+    // Taking a domain already bound to another PWA is allowed — the binding is
+    // overwritten; switching back to "not bound" unbinds (landing_id null).
     const handleDomainChange = async (value) => {
-        if (!savedId || domainSaving || value === domainValue) return;
+        if (domainSaving || value === domainValue) return;
         setDomainChoice(value);
+        if (!savedId) return; // unsaved PWA: applied by handleSave
         const unbind = value === '';
         const domainId = unbind ? (boundDomain ? boundDomain.id : null) : Number(value);
         if (domainId === null) return; // nothing was bound — no server change
@@ -579,12 +587,15 @@ export default function PwaEditor({ landingId, onClose }) {
             });
     }, [domainValue, offersLoaded, offersLoading]);
 
-    // Offer binding applies immediately, mirroring handleDomainChange: one
-    // save_pwa_domain_binding call carries domain, landing and offer; null
-    // clears the offer (the domain button then serves an honest 404).
+    // Offer binding applies immediately for a saved PWA, mirroring
+    // handleDomainChange: one save_pwa_domain_binding call carries domain,
+    // landing and offer; null clears the offer (the domain button then serves
+    // an honest 404). Pre-save the pick is queued for handleSave.
     const handleOfferChange = async (value) => {
-        if (!savedId || !boundDomain || offerSaving || value === offerValue) return;
+        if (offerSaving || value === offerValue) return;
         setOfferChoice(value);
+        if (!savedId) return; // unsaved PWA: applied by handleSave
+        if (!boundDomain) return; // nothing bound yet — nowhere to attach an offer
         setOfferSaving(true);
         try {
             const res = await cachedPost('save_pwa_domain_binding', {
@@ -688,6 +699,38 @@ export default function PwaEditor({ landingId, onClose }) {
             setSavedSlug(res.data.data.slug || '');
             setConfig(nextConfig);
             setPreviewUrl(res.data.data.public_url || res.data.data.preview_url || '');
+
+            // A domain (and its offer) picked BEFORE the first save was queued
+            // in local state — the landing id it needed did not exist yet.
+            // Apply it now, awaited: the "Saved!" flash must not promise a
+            // binding that failed. On failure the editor stays open with the
+            // error instead of closing over it.
+            if (savedId === null && domainChoice !== null && domainChoice !== '') {
+                try {
+                    const bindRes = await cachedPost('save_pwa_domain_binding', {
+                        domain_id: Number(domainChoice),
+                        landing_id: res.data.data.id,
+                        offer_id: (offerChoice !== null && offerChoice !== '') ? Number(offerChoice) : null,
+                    });
+                    if (bindRes.data?.status !== 'success') {
+                        throw new Error(bindRes.data?.message || 'binding save failed');
+                    }
+                    // Re-read the server truth so the selects reflect exactly
+                    // what is stored before the flash (and a possible close).
+                    const seq = ++domainSeq.current;
+                    const fresh = await cachedGet('pwa_domain_options', { landing_id: res.data.data.id, _: Date.now() }, 0);
+                    if (domainSeq.current === seq && fresh.data?.status === 'success') {
+                        setDomains(fresh.data.data?.domains || []);
+                    }
+                    setDomainChoice(null);
+                    setOfferChoice(null);
+                } catch {
+                    setError(t('pwa.domainError'));
+                    setSaving(false);
+                    return;
+                }
+            }
+
             // Same save choreography as the other editors: a green "Saved!"
             // flash on the button, then close unless the operator asked to
             // stay. The PWA used to keep the modal open with no visible
@@ -891,12 +934,12 @@ export default function PwaEditor({ landingId, onClose }) {
                                                     )}
                                                 </span>
                                             )}
-                                            hint={savedId ? t('pwa.domainHint') : t('pwa.domainSaveFirst')}
+                                            hint={savedId ? t('pwa.domainHint') : t('pwa.domainBindOnSave')}
                                         >
                                             <select
                                                 className="form-select"
                                                 value={domainValue}
-                                                disabled={!savedId || domainsLoading || domainSaving}
+                                                disabled={domainsLoading || domainSaving}
                                                 onChange={(e) => handleDomainChange(e.target.value)}
                                             >
                                                 <option value="">{t('pwa.domainNone')}</option>
@@ -922,12 +965,12 @@ export default function PwaEditor({ landingId, onClose }) {
                                                         )}
                                                     </span>
                                                 )}
-                                                hint={savedId ? t('pwa.domainHint') : t('pwa.domainSaveFirst')}
+                                                hint={savedId ? t('pwa.domainHint') : t('pwa.domainBindOnSave')}
                                             >
                                                 <select
                                                     className="form-select"
                                                     value={offerValue}
-                                                    disabled={!savedId || domainsLoading || domainSaving || offerSaving || offersLoading}
+                                                    disabled={domainsLoading || domainSaving || offerSaving || offersLoading}
                                                     onChange={(e) => handleOfferChange(e.target.value)}
                                                 >
                                                     <option value="">{t('pwa.offerNone')}</option>
@@ -1570,9 +1613,9 @@ export default function PwaEditor({ landingId, onClose }) {
                                 {t('pwa.saving')}
                             </span>
                         )}
-                        {!saving && publicUrl && (
+                        {!saving && (previewHref || publicUrl) && (
                             <div className="flex items-center gap-2 min-w-0">
-                                <a href={publicUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1 flex-shrink-0" style={{ color: 'var(--color-primary)' }}>
+                                <a href={previewHref} target="_blank" rel="noreferrer" className="flex items-center gap-1 flex-shrink-0" style={{ color: 'var(--color-primary)' }}>
                                     <ExternalLink className="w-4 h-4" />
                                     {t('pwa.openPreview')}
                                 </a>

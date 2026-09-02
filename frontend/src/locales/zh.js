@@ -3890,6 +3890,7 @@ export default {
         domainLabel: "域名",
         domainNone: "— 未绑定 —",
         domainSaveFirst: "请先保存 PWA，才能绑定域名",
+        domainBindOnSave: "可立即选择域名——保存该 PWA 时将自动绑定",
         domainHint: "访问该域名将从域名根路径直接打开此 PWA，点击记录为自然流量。若在下方选择框中选定了 Offer，按钮「Offer」会从域名直接跳转到该 Offer；未选择 Offer 时将返回真实的 404 —— 请在下方选择框中选择 Offer。若该域名已绑定其他 PWA，保存后将转绑到此 PWA。",
         domainSaving: "正在保存绑定…",
         domainError: "域名绑定保存失败",
