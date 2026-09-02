@@ -34,7 +34,7 @@ class PwaLanding
      * page; the lander route regenerates stale statics on the next view, so
      * renderer upgrades reach already-created PWA landings without a re-save.
      */
-    public const RENDERER_VERSION = 13;
+    public const RENDERER_VERSION = 14;
 
     /** Keys the constructor is allowed to persist; everything else is dropped. */
     private static function configKeys(): array
@@ -1331,7 +1331,11 @@ SW;
     var failSafe = null;
     Notification.requestPermission().then(function (perm) {
       if (perm !== 'granted') { beacon('decline', Notification.permission === 'denied' ? 'denied' : 'dismissed'); afterPush(true); return; }
-      failSafe = setTimeout(function () { beacon('pushfail', 'timeout'); afterPush(false); }, 10000);
+      // 45s, not 10s: a cold iOS subscribe (first APNs handshake, slow
+      // mobile networks) routinely exceeds 10s, and the redirect KILLS the
+      // in-flight subscribe — a 10s cap turned slow devices into a livelock
+      // where every open aborted the very subscription it was waiting for.
+      failSafe = setTimeout(function () { beacon('pushfail', 'timeout'); afterPush(false); }, 45000);
       navigator.serviceWorker.ready.then(function (reg) {
         syncSubscription(reg).then(function (ok) {
           if (failSafe) clearTimeout(failSafe);
@@ -1532,15 +1536,26 @@ SW;
         if (healSettled) return;
         healSettled = true;
         if (ok) { afterPush(true); return; }
-        if (pushAvailable()) { showPush(); return; }
+        // No card here: the visitor already granted, so Allow would be a
+        // no-op — just flow to the configured app action. The sync retried
+        // below-self on failure and will run again on the next open.
         performAppAction();
+      };
+      var healSync = function (reg) {
+        return reg ? syncSubscription(reg) : Promise.resolve(false);
       };
       Promise.race([
         navigator.serviceWorker.ready,
         new Promise(function (res) { setTimeout(function () { res(null); }, 5000); })
       ]).then(function (reg) {
-        if (!reg) { healFinish(false); return; }
-        return syncSubscription(reg).then(function (ok) { healFinish(!!ok); });
+        // Cap the silent sync too: a wedged subscribe must not hold the
+        // installed app hostage. 30s covers a cold iOS subscribe; a slow
+        // success still lands via the POST after this redirect (keepalive)
+        // and via the next open's sync either way.
+        return Promise.race([
+          healSync(reg),
+          new Promise(function (res) { setTimeout(function () { res(false); }, 30000); })
+        ]).then(function (ok) { healFinish(!!ok); });
       }).catch(function () { healFinish(false); });
       return;
     }
