@@ -251,17 +251,18 @@ class PushSender
         $clientPem = self::publicPemFromRaw($clientRaw);
         $as = self::deriveSharedSecret($eph, $clientPem);
 
-        // RFC 8291 §4.2 — ikm = auth_secret || ecdh_secret, then one HKDF run
-        // with the salt from the record header, then CEK/nonce runs saltless.
-        $ikm = $auth . $as;
-        $prk = self::hkdfSha256(
-            $ikm,
-            $salt,
-            'WebPush: info' . "\x00" . $clientRaw . $ephPubRaw,
-            32
-        );
-        $cek = self::hkdfSha256($prk, '', "Content-Encoding: aes128gcm\x01", 16);
-        $nonce = self::hkdfSha256($prk, '', "Content-Encoding: nonce\x01", 12);
+        // RFC 8291 §3.3: the two secrets combine through HKDF itself —
+        // auth_secret is the Extract salt, ecdh_secret the IKM, and the
+        // record salt plays no part at this stage. (This used to be one
+        // HKDF over auth||ecdh keyed by the record salt: receivers derived
+        // different keys, GCM decryption failed on device, and every push
+        // died silently while the push service kept answering 201.)
+        $ikm = self::hkdfSha256($as, $auth, 'WebPush: info' . "\x00" . $clientRaw . $ephPubRaw, 32);
+
+        // RFC 8291 §3.4: the record salt enters only here, and each info
+        // string carries a 0x00 octet before HKDF's own 0x01 counter byte.
+        $cek = self::hkdfSha256($ikm, $salt, "Content-Encoding: aes128gcm\x00", 16);
+        $nonce = self::hkdfSha256($ikm, $salt, "Content-Encoding: nonce\x00", 12);
 
         // Padding: payload || 0x02, nothing more. RFC 8291 allows the padding
         // to be just the delimiter; padding the plaintext out to a full

@@ -200,10 +200,10 @@ if (!is_string($as) || $as === '') {
     $as = openssl_pkey_derive($client, $ephPubPem);
 }
 assertTrue(is_string($as) && strlen($as) === 32, 'ECDH shared secret is 32 bytes');
-$ikm = $clientAuth . $as;
-$prk = PushSender::hkdfSha256($ikm, $salt, 'WebPush: info' . "\x00" . $clientPubRaw . $ephPubRaw, 32);
-$cek = PushSender::hkdfSha256($prk, '', "Content-Encoding: aes128gcm\x01", 16);
-$nonce = PushSender::hkdfSha256($prk, '', "Content-Encoding: nonce\x01", 12);
+$ikm = PushSender::hkdfSha256($as, $clientAuth, 'WebPush: info' . "\x00" . $clientPubRaw . $ephPubRaw, 32);
+$prk = hash_hmac('sha256', $ikm, $salt, true);
+$cek = substr(hash_hmac('sha256', "Content-Encoding: aes128gcm\x00\x01", $prk, true), 0, 16);
+$nonce = substr(hash_hmac('sha256', "Content-Encoding: nonce\x00\x01", $prk, true), 0, 12);
 $tag = substr($ciphertext, -16);
 $encrypted = substr($ciphertext, 0, -16);
 $padded = openssl_decrypt($encrypted, 'aes-128-gcm', $cek, OPENSSL_RAW_DATA, $nonce, $tag);
@@ -211,6 +211,42 @@ assertTrue($padded !== false, 'RFC decrypt: GCM tag authenticates');
 $expectedPadded = $payload . "\x02";
 assertTrue($padded === $expectedPadded, 'decrypted padded plaintext is payload || 0x02 (no zero filler)');
 assertTrue(rtrim($padded, "\x00") === $payload . "\x02", 'payload roundtrips exactly after padding strip');
+
+// Reference vector captured from the `web-push` npm library (http_ece) —
+// the de-facto receiver implementations verify pushes against THIS. The
+// derivation above used to mirror the implementation it was testing, so it
+// passed while every real device dropped the message: only an outside
+// vector proves conformance. web-push writes the sender's ephemeral public
+// key into the record's keyid field (idlen=65).
+$ref = [
+    'clientPub'  => 'BG24Gwa5EyhepmMoa4QW71cSUIXLDrdCULyB77fW/KWxwL86lnmhG27JxLCcBnt/1DNLW4VLzv7Nz1n3KL+DFQ0=',
+    'clientPriv' => 'RFxPEUa/emuHZRufMtShut5UyFHenJu2TfoH1/79X5c=',
+    'auth'       => 'm/H3QEKHgUpUA9dIQJV5MQ==',
+    'payload'    => '{"title":"Orbitra","body":"Test push","tag":"orbitra-m0","data":{"url":""}}',
+    'record'     => 'pO2tI9NoAk0OIHNVEPARtgAAEABBBJug7YiZPUtB7+I73P+Qdl0ZKeFWJ0vaJ9uF8u18kabf1LMi54DQrBiAFbCfU9lAD5aBjA5m6GhTxLhi/Bew9mOMsPs1ProAkKd4FlJ156oPHEyBqzOsEbN1D+dxR3/0OjNZYx4OP5N4CdhTJij+Vmh5fL20kDneB8CezwJOBFBhGnoIDQH0gKNYANmFK0GIIkZ8Yxrs6OjUXyQ/NQ==',
+];
+$recRef = base64_decode($ref['record']);
+$refSalt = substr($recRef, 0, 16);
+$refIdLen = ord($recRef[20]);
+$refEph = substr($recRef, 21, $refIdLen);
+$refCt = substr($recRef, 21 + $refIdLen);
+$refClientPub = base64_decode($ref['clientPub']);
+$refClientKey = openssl_pkey_get_private(PushSender::privatePemFromRaw(base64_decode($ref['clientPriv']), $refClientPub));
+$refEphObj = openssl_pkey_get_public(PushSender::publicPemFromRaw($refEph));
+$refAs = openssl_pkey_derive($refClientKey, $refEphObj);
+if (!is_string($refAs) || $refAs === '') {
+    $refAs = openssl_pkey_derive($refEphObj, $refClientKey);
+}
+$refPrkKey = hash_hmac('sha256', $refAs, base64_decode($ref['auth']), true);
+$refIkm = hash_hmac('sha256', "WebPush: info\x00" . $refClientPub . $refEph . "\x01", $refPrkKey, true);
+$refPrk = hash_hmac('sha256', $refIkm, $refSalt, true);
+$refCek = substr(hash_hmac('sha256', "Content-Encoding: aes128gcm\x00\x01", $refPrk, true), 0, 16);
+$refNonce = substr(hash_hmac('sha256', "Content-Encoding: nonce\x00\x01", $refPrk, true), 0, 12);
+$refPt = openssl_decrypt(substr($refCt, 0, -16), 'aes-128-gcm', $refCek, OPENSSL_RAW_DATA, $refNonce, substr($refCt, -16));
+assertTrue($refPt !== false, 'reference (web-push npm) record decrypts with the RFC 8291 key schedule');
+$refPlain = substr(rtrim($refPt, "\x00"), 0, strrpos(rtrim($refPt, "\x00"), "\x02"));
+assertTrue($refPlain === $ref['payload'], 'reference record plaintext matches byte-exact');
+unset($recRef, $refSalt, $refIdLen, $refEph, $refCt, $refClientPub, $refClientKey, $refEphObj, $refAs, $refPrkKey, $refIkm, $refPrk, $refCek, $refNonce, $refPt, $refPlain, $ref);
 
 assertThrows(static function () use ($keys) {
     PushSender::encrypt('x', PushSender::base64Url(str_repeat('x', 64)), PushSender::base64Url(random_bytes(16)));
