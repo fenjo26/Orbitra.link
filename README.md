@@ -50,8 +50,14 @@ Try the full panel — no install required:
 To install automatically on a clean Linux server, run:
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/install.sh | bash
+wget -O orbitra-install.sh https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/install.sh && bash orbitra-install.sh
 ```
+
+The download is a separate step on purpose: `wget -qO- … | bash` fails
+silently when the download fails (a fresh server's DNS is sometimes not ready
+in its first minute), and bash runs whatever arrived — in the worst case,
+nothing at all. This way a failed download stops before bash starts, and
+wget says why.
 
 The installer automatically:
 - Downloads the source code from GitHub
