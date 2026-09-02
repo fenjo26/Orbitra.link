@@ -18,12 +18,26 @@ fi
 # A freshly provisioned Ubuntu image boots straight into unattended-upgrades,
 # which holds the dpkg lock for the first minutes of the machine's life — the
 # package step below used to die right there ("Could not get lock
-# /var/lib/dpkg/lock-frontend") before a single package was installed. Two
-# guards: make apt a patient one (wait up to ten minutes for the lock instead
-# of failing — this config drop also covers every apt call further down and
-# any re-run), and stop the auto-updater so the wait is usually seconds.
+# /var/lib/dpkg/lock-frontend", held by "unattended-upgr") before a single
+# package was installed. Three guards: make apt a patient one (wait up to ten
+# minutes for the lock instead of failing — the config drop covers every apt
+# call below and any re-run); stop the first-boot upgrade WORKERS — the unit
+# actually holding the lock is apt-daily-upgrade.service, not
+# unattended-upgrades.service (that one is the shutdown helper); and wait
+# with a visible line until no package process remains, so a slow first-boot
+# upgrade reads as waiting, not as a hang.
 echo 'DPkg::Lock::Timeout "600";' > /etc/apt/apt.conf.d/99orbitra-lock-wait
-systemctl stop unattended-upgrades.service 2>/dev/null || true
+systemctl stop apt-daily.service apt-daily-upgrade.service unattended-upgrades.service 2>/dev/null || true
+if pgrep -x 'dpkg|apt|apt-get|unattended-upgr' >/dev/null 2>&1; then
+    echo "  > First-boot auto-update is still running — waiting for it to release the package lock (up to 5 minutes)..."
+    for i in $(seq 1 60); do
+        pgrep -x 'dpkg|apt|apt-get|unattended-upgr' >/dev/null 2>&1 || break
+        sleep 5
+    done
+fi
+# An upgrade killed mid-action can leave dpkg half-configured; this is a no-op
+# when nothing was interrupted and unblocks apt when something was.
+dpkg --configure -a >/dev/null 2>&1 || true
 
 echo "[1/5] Updating system and installing packages (Nginx, PHP, SQLite)..."
 apt-get update -y
