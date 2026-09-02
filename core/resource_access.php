@@ -73,7 +73,7 @@ function orbitraResourceAccessMap(): array
                 'save_landing', 'delete_landing', 'bulk_delete_landings',
                 'bulk_import_landings', 'upload_landing', 'rename_landing_group',
                 'delete_landing_group', 'landing_file_op', 'upload_landing_file',
-                'save_landing_file', 'pwa_config_save',
+                'save_landing_file', 'pwa_config_save', 'copy_landing',
             ],
             'hybrid' => ['landing_groups'],
         ],

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { Plus, Trash2, Edit3, Settings2, Filter, RefreshCw, X, SlidersHorizontal, Smartphone, Copy, Check } from 'lucide-react';
+import { Plus, Trash2, Edit3, Settings2, Filter, RefreshCw, X, SlidersHorizontal, Smartphone, Copy, CopyPlus, Check } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import LandingEditor from './LandingEditor';
 import PwaEditor from './PwaEditor';
@@ -221,6 +221,37 @@ const Landings = ({ landings, refreshData, user }) => {
             </button>
         );
     };
+
+    // Duplicate a landing the way Campaigns duplicates theirs: the backend
+    // creates a Copy #N row (a PWA copy regenerates its statics under a fresh
+    // slug), then the list refetches so the new row shows up at once.
+    const handleDuplicateLanding = async (landing) => {
+        try {
+            const res = await axios.post(`${API_URL}?action=copy_landing`, { id: landing.id });
+            if (res.data?.status === 'success') {
+                await Promise.all([
+                    fetchLandings(),
+                    Promise.resolve(refreshData?.()),
+                ]);
+            } else {
+                alert(res.data?.message || t('common.error'));
+            }
+        } catch (err) {
+            alert(err?.message || t('common.networkError'));
+        }
+    };
+
+    // Icon-only duplicate button, shared by the desktop Actions cell and the
+    // mobile card so the two never drift apart.
+    const renderDuplicateButton = (landing) => (
+        <button
+            onClick={() => handleDuplicateLanding(landing)}
+            className="action-btn"
+            title={t('table.duplicate')}
+        >
+            <CopyPlus className="w-4 h-4" />
+        </button>
+    );
 
     const handleDelete = async (id) => {
         if (window.confirm(t('common.deleteConfirm'))) {
@@ -1079,6 +1110,7 @@ const Landings = ({ landings, refreshData, user }) => {
                                                 <Edit3 className="w-4 h-4" />
                                             </button>
                                             {renderCopyLinkButton(landing)}
+                                            {renderDuplicateButton(landing)}
                                             <button onClick={() => handleDelete(landing.id)} className="action-btn text-red" title={t('common.delete')}>
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
@@ -1147,6 +1179,7 @@ const Landings = ({ landings, refreshData, user }) => {
                                 <Edit3 className="w-4 h-4" />
                             </button>
                             {renderCopyLinkButton(landing)}
+                            {renderDuplicateButton(landing)}
                             <button onClick={() => handleDelete(landing.id)} className="action-btn text-red" title={t('common.delete')}>
                                 <Trash2 className="w-4 h-4" />
                             </button>

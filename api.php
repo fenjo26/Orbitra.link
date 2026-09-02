@@ -4520,6 +4520,117 @@ try {
             }
             break;
 
+        case 'copy_landing':
+            // Duplicate a landing the way copy_campaign / copy_offer duplicate
+            // theirs: Copy #N naming, same group/state/config, a fresh row.
+            // A PWA copy additionally regenerates its statics under a fresh
+            // slug; a local landing with files on disk gets its directory
+            // copied — a row without its files would 404 on every asset.
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $data = json_decode(orbitraRequestBody(), true);
+                $id = !empty($data['id']) ? (int) $data['id'] : null;
+                if (!$id) {
+                    echo json_encode(['status' => 'error', 'message' => 'ID не передан']);
+                    break;
+                }
+                try {
+                    $stmt = $pdo->prepare("SELECT * FROM landings WHERE id = ?");
+                    $stmt->execute([$id]);
+                    $landing = $stmt->fetch(PDO::FETCH_ASSOC);
+                    if (!$landing) {
+                        echo json_encode(['status' => 'error', 'message' => 'Лендинг не найден']);
+                        break;
+                    }
+
+                    // Copy #N naming, the exact convention of campaigns/offers.
+                    $baseName = preg_replace('/^Copy #\d+ /', '', $landing['name']);
+                    $stmt = $pdo->prepare("SELECT name FROM landings WHERE name LIKE ?");
+                    $stmt->execute(["Copy %"]);
+                    $existingCopies = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                    $copyNum = 1;
+                    while (in_array("Copy #$copyNum $baseName", $existingCopies)) {
+                        $copyNum++;
+                    }
+                    $newName = "Copy #$copyNum $baseName";
+
+                    // Fresh slug from the new name, same collision dance as
+                    // save_landing / pwa_config_save: base-2, base-3, … and ''
+                    // (the id-fallback dir) when nothing is free.
+                    require_once __DIR__ . '/core/landing_path.php';
+                    $slugRaw = orbitraSlugify($newName);
+                    $slugCheck = orbitraValidateLandingSlug($pdo, $slugRaw, null);
+                    if (!$slugCheck['ok']) {
+                        $base = rtrim(substr($slugRaw, 0, 60), '-_');
+                        for ($n = 2; $n <= 50; $n++) {
+                            $candidate = orbitraValidateLandingSlug($pdo, $base . '-' . $n, null);
+                            if ($candidate['ok']) {
+                                $slugCheck = $candidate;
+                                break;
+                            }
+                        }
+                        if (!$slugCheck['ok']) {
+                            $slugCheck = ['ok' => true, 'value' => '', 'error' => ''];
+                        }
+                    }
+                    $newSlug = $slugCheck['ok'] ? $slugCheck['value'] : '';
+
+                    // keitaro_id is deliberately NOT copied: it is UNIQUE and
+                    // names the original import — a copy is a new landing.
+                    $stmt = $pdo->prepare("INSERT INTO landings (name, url, group_id, type, state, action_payload, slug, redirect_type, config_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    $stmt->execute([
+                        $newName, $landing['url'], $landing['group_id'], $landing['type'],
+                        $landing['state'], $landing['action_payload'], $newSlug,
+                        $landing['redirect_type'], $landing['config_json'],
+                    ]);
+                    $newId = (int) $pdo->lastInsertId();
+
+                    $isPwa = false;
+                    if ($landing['type'] === 'local') {
+                        require_once __DIR__ . '/core/PwaLanding.php';
+                        $isPwa = PwaLanding::isPwa($landing);
+                    }
+
+                    if ($isPwa) {
+                        // The statics are a pure function of config_json: render
+                        // them for the copy instead of copying a directory.
+                        PwaLanding::generate($pdo, $newId);
+                    } elseif ($newSlug !== '' && $landing['slug'] !== '') {
+                        // Plain local landing (uploaded ZIP): clone its file tree,
+                        // including nested dirs. Skip silently when the original
+                        // never had a directory (row-only local landing).
+                        $srcDir = orbitraLandingDir($pdo, $id);
+                        $dstDir = orbitraLandingDir($pdo, $newId);
+                        if (is_dir($srcDir)) {
+                            $copyTree = function (string $src, string $dst) use (&$copyTree): void {
+                                if (!is_dir($dst)) {
+                                    mkdir($dst, 0775, true);
+                                }
+                                foreach (scandir($src) ?: [] as $entry) {
+                                    if ($entry === '.' || $entry === '..') {
+                                        continue;
+                                    }
+                                    $s = $src . '/' . $entry;
+                                    $d = $dst . '/' . $entry;
+                                    if (is_dir($s)) {
+                                        $copyTree($s, $d);
+                                    } else {
+                                        copy($s, $d);
+                                    }
+                                }
+                            };
+                            $copyTree($srcDir, $dstDir);
+                        }
+                    }
+
+                    logAudit($pdo, 'COPY', 'Landing', $id, "Created copy: $newName (ID: $newId)");
+
+                    echo json_encode(['status' => 'success', 'id' => $newId, 'name' => $newName, 'slug' => $newSlug]);
+                } catch (Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
         case 'landings':
             $dateFrom = isset($_GET['date_from']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['date_from'])
                 ? (string) $_GET['date_from']
