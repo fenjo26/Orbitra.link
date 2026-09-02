@@ -3974,6 +3974,18 @@ vapidHint: "Générées une fois et câblées automatiquement — chaque PWA re�
         tooLong: "Titre : 250 caractères max, texte : 400 max",
         eventRequired: "Choisissez un événement pour le message",
         saveFailed: "Échec de l'enregistrement du message",
-        sendFailed: "Échec de la mise en file du message"
+        sendFailed: "Échec de la mise en file du message",
+        contactRequired: "Enregistrez d’abord un vrai contact d’expéditeur (mailto: ou https:) — Apple rejette le substitut avec une erreur 403 sur chaque envoi iOS",
+        rotateAffects: "Cela détachera {n} abonnements actifs ; chaque appareil se réabonne automatiquement à la prochaine ouverture de l’app.",
+        diagKeys: "Clés",
+        diagContact: "Contact",
+        diagWorker: "Worker",
+        diagWorkerNever: "jamais lancé",
+        diagWorkerAgo: "il y a {n} min",
+        fail403Hint: "403 — vérifiez le contact d’expéditeur : Apple rejette les adresses factices",
+        testSend: "Envoyer un push de test à cet abonné",
+        testDelivered: "Push de test accepté par le service — vérifiez l’appareil",
+        testDead: "L’endpoint n’existe plus (404/410) — cet abonnement va expirer",
+        testRejected: "Le service push a rejeté le test :",
     }
 };

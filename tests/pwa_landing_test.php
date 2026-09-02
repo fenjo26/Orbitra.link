@@ -101,6 +101,7 @@ try {
         'app_name' => 'Lucky Spin',
         'developer' => 'PlayBest Ltd',
         'description' => 'Best app by {value1}, download {value} now',
+        'icon_url' => '/media-library/lucky-spin.png',
         'tags' => ['casino', 'slots'],
         'rating_counts' => [120, 30, 10, 4, 2],
         'comments' => [['name' => 'Anna', 'text' => 'Works great', 'stars' => 5, 'likes' => 3, 'date' => '2026-08-30', 'reply' => 'Thanks!']],
@@ -141,9 +142,31 @@ try {
     $manifest = json_decode((string) file_get_contents($dir . '/manifest.webmanifest'), true);
     assertTrue(is_array($manifest) && $manifest['scope'] === './' && $manifest['display'] === 'standalone'
         && $manifest['start_url'] === './', 'manifest: relative scope/start_url, standalone');
+    $iconEntries = $manifest['icons'] ?? [];
+    $iconSrcs = array_column($iconEntries, 'src');
+    assertTrue(count($iconEntries) === 3
+        && in_array('192x192', array_column($iconEntries, 'sizes'), true)
+        && in_array('maskable', array_column($iconEntries, 'purpose'), true)
+        && count(array_unique($iconSrcs)) === 1 && $iconSrcs[0] !== '',
+        'manifest: 192+512 any and a 512 maskable entry from one icon source');
     $sw = (string) file_get_contents($dir . '/sw.js');
     assertContains("req.mode === 'navigate'", $sw, 'sw.js serves navigations network-first');
     assertContains('orbitra-pwa-' . $landingId, $sw, 'sw.js cache name scoped to the landing id');
+    assertContains("addEventListener('push'", $sw, 'sw.js has a push handler (delivered messages are shown, never discarded)');
+    assertContains('showNotification', $sw, 'sw.js renders showNotification (userVisibleOnly contract)');
+    assertContains("addEventListener('notificationclick'", $sw, 'sw.js handles notificationclick');
+    assertContains("addEventListener('pushsubscriptionchange'", $sw, 'sw.js re-subscribes when the browser rotates the subscription');
+    assertContains("'{vapid_public}'", $sw, 'sw.js carries the serve-time VAPID token, never a baked key');
+
+    // Serve-time substitution: the sw.js route swaps the token for the stored
+    // public key, so a VAPID rotation reaches already-installed PWAs without
+    // regenerating statics.
+    $testPubKey = 'B' . str_repeat('k', 86); // 87 chars = base64url of 65 bytes
+    $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('vapid_public_key', ?)")->execute([$testPubKey]);
+    $swResp = $harness->getWithHeaders("/lander/$slug/sw.js");
+    assertContains($testPubKey, (string) ($swResp['body'] ?? ''), 'sw.js route substitutes {vapid_public} with the stored key');
+    assertTrue(strpos((string) ($swResp['body'] ?? ''), '{vapid_public}') === false, 'no raw VAPID token reaches the client');
+    assertTrue(($swResp['headers']['Service-Worker-Allowed'] ?? '') === '/', 'sw.js response allows the root scope registration');
 
     // ------------------------------------------------------------------
     // Media-library URLs: icon_url wins, URL screens survive, missing local

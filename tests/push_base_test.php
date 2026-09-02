@@ -42,6 +42,7 @@ try {
     $cols = $pdo->query("PRAGMA table_info(clicks)")->fetchAll(PDO::FETCH_COLUMN, 1);
     assertTrue(in_array('push_prompted_at', $cols, true) && in_array('push_subscribed_at', $cols, true) && in_array('push_declined_at', $cols, true),
         'migration 45 added clicks.push_* columns');
+    assertTrue(in_array('push_fail_reason', $cols, true), 'migration 48 added clicks.push_fail_reason');
 
     // ------------------------------------------------------------------
     // Migration 46 (phase 4, sending): PRAGMA asserts. The expected stamp
@@ -96,13 +97,20 @@ try {
         ->execute([$clickId, $campaignId]);
 
     $UA = 'Mozilla/5.0 (Linux; Android 13) Chrome/120 Mobile';
+    // Browser-shaped keys: p256dh = 65-byte uncompressed EC point, auth =
+    // 16 bytes, both base64url — the ingest rejects any other shape now.
+    $b64u = function (string $raw): string { return rtrim(strtr(base64_encode($raw), '+/', '-_'), '='); };
+    $P256DH = $b64u("\x04" . str_repeat('A', 64));
+    $AUTH = $b64u(str_repeat('B', 16));
+    $P256DH2 = $b64u("\x04" . str_repeat('C', 64));
+    $AUTH2 = $b64u(str_repeat('D', 16));
     $sub = function (array $body) use ($harness, $UA) {
         return $harness->postWithHeaders('/push_subscribe', json_encode($body), [
             'User-Agent: ' . $UA,
             'Content-Type: application/json',
         ]);
     };
-    $good = ['subid' => $clickId, 'endpoint' => 'https://fcm.googleapis.com/fcm/send/test-endpoint-1', 'keys' => ['p256dh' => 'BPk2x', 'auth' => 'auth1']];
+    $good = ['subid' => $clickId, 'endpoint' => 'https://fcm.googleapis.com/fcm/send/test-endpoint-1', 'keys' => ['p256dh' => $P256DH, 'auth' => $AUTH]];
     $r = $sub($good);
     assertTrue(($r['code'] ?? 0) === 200, 'valid subscription accepted');
     $cnt = $pdo->query("SELECT COUNT(*) FROM push_subscriptions WHERE endpoint = 'https://fcm.googleapis.com/fcm/send/test-endpoint-1'")->fetchColumn();
@@ -113,18 +121,40 @@ try {
     assertTrue(is_string($st) && $st !== '', 'push_subscribed_at stamped on the click');
 
     // Re-subscribe same endpoint with new keys: rotates in place, no dup.
-    $rotated = ['subid' => $clickId, 'endpoint' => $good['endpoint'], 'keys' => ['p256dh' => 'NEW-p256dh', 'auth' => 'NEW-auth']];
+    $rotated = ['subid' => $clickId, 'endpoint' => $good['endpoint'], 'keys' => ['p256dh' => $P256DH2, 'auth' => $AUTH2]];
     $sub($rotated);
     $cnt = $pdo->query("SELECT COUNT(*) FROM push_subscriptions WHERE endpoint = 'https://fcm.googleapis.com/fcm/send/test-endpoint-1'")->fetchColumn();
     assertTrue((int) $cnt === 1, 're-subscribe did not duplicate the row');
     $p = $pdo->query("SELECT p256dh FROM push_subscriptions WHERE endpoint = 'https://fcm.googleapis.com/fcm/send/test-endpoint-1'")->fetchColumn();
-    assertTrue($p === 'NEW-p256dh', 're-subscribe rotated the keys in place');
+    assertTrue($p === $P256DH2, 're-subscribe rotated the keys in place');
     $st2 = $pdo->query("SELECT push_subscribed_at FROM clicks WHERE id = " . $pdo->quote($clickId))->fetchColumn();
     assertTrue($st2 === $st, 're-subscribe did not re-stamp push_subscribed_at (NULL-guard dedup)');
 
     // Invalid bodies are rejected.
     $bad = $harness->postWithHeaders('/push_subscribe', json_encode(['endpoint' => 'https://x']), ['Content-Type: application/json']);
     assertTrue(($bad['code'] ?? 0) === 400, 'subscription without keys rejected (400)');
+
+    // Malformed key shapes never reach the base: they would hard-fail the
+    // sender's AES128GCM layer on every send and burn queue retries forever.
+    $badShapes = [
+        'p256dh decodes to 64 bytes' => ['p256dh' => $b64u(str_repeat('A', 64)), 'auth' => $AUTH],
+        'p256dh decodes to 66 bytes' => ['p256dh' => $b64u(str_repeat('A', 66)), 'auth' => $AUTH],
+        'auth decodes to 15 bytes' => ['p256dh' => $P256DH, 'auth' => $b64u(str_repeat('B', 15))],
+        'auth decodes to 17 bytes' => ['p256dh' => $P256DH, 'auth' => $b64u(str_repeat('B', 17))],
+        'p256dh outside base64url' => ['p256dh' => $P256DH . '+', 'auth' => $AUTH],
+        'endpoint with credentials' => ['endpoint' => 'https://user:pass@fcm.googleapis.com/fcm/send/x', 'keys' => ['p256dh' => $P256DH, 'auth' => $AUTH]],
+        'endpoint with fragment' => ['endpoint' => 'https://fcm.googleapis.com/fcm/send/x#frag', 'keys' => ['p256dh' => $P256DH, 'auth' => $AUTH]],
+    ];
+    foreach ($badShapes as $label => $shape) {
+        $bad2 = $sub([
+            'subid' => $clickId,
+            'endpoint' => $shape['endpoint'] ?? 'https://fcm.googleapis.com/fcm/send/test-endpoint-bad',
+            'keys' => $shape['keys'] ?? $shape,
+        ]);
+        assertTrue(($bad2['code'] ?? 0) === 400, "malformed subscription rejected (400): $label");
+    }
+    $cnt = $pdo->query("SELECT COUNT(*) FROM push_subscriptions WHERE endpoint LIKE '%test-endpoint-bad%' OR endpoint LIKE '%user:pass%' OR endpoint LIKE '%#frag%'")->fetchColumn();
+    assertTrue((int) $cnt === 0, 'no malformed subscription row was written');
 
     // ------------------------------------------------------------------
     // pixel prompt/decline kinds.
@@ -137,6 +167,26 @@ try {
     assertTrue(($r['code'] ?? 0) === 200, 'decline beacon accepted');
     assertTrue($pdo->query("SELECT push_declined_at FROM clicks WHERE id = " . $pdo->quote($clickId))->fetchColumn() !== null,
         'decline beacon stamped push_declined_at');
+
+    // Decline carries its reason; the technical pushfail kind records a cause
+    // WITHOUT a funnel timestamp, both NULL-guarded (first write wins).
+    $reasonClickId = 'pushclk-' . bin2hex(random_bytes(6));
+    $pdo->prepare("INSERT INTO clicks (id, campaign_id, ip, user_agent) VALUES (?, ?, '1.2.3.4', 'UA')")
+        ->execute([$reasonClickId, $campaignId]);
+    $r = $harness->getWithHeaders("/pixel.gif?action=pwa&kind=decline&reason=denied&subid=$reasonClickId", ['User-Agent: t']);
+    assertTrue(($r['code'] ?? 0) === 200, 'decline beacon with reason accepted');
+    $rowR = $pdo->query("SELECT push_declined_at, push_fail_reason FROM clicks WHERE id = " . $pdo->quote($reasonClickId))->fetch(PDO::FETCH_ASSOC);
+    assertTrue($rowR['push_declined_at'] !== null && $rowR['push_fail_reason'] === 'denied', 'decline stamps the timestamp and the denied reason');
+    $harness->getWithHeaders("/pixel.gif?action=pwa&kind=pushfail&reason=nokey&subid=$reasonClickId", ['User-Agent: t']);
+    $rowR = $pdo->query("SELECT push_declined_at, push_fail_reason FROM clicks WHERE id = " . $pdo->quote($reasonClickId))->fetch(PDO::FETCH_ASSOC);
+    assertTrue($rowR['push_fail_reason'] === 'denied', 'pushfail cannot overwrite an already stored reason (write-once)');
+    $failClickId = 'pushclk-' . bin2hex(random_bytes(6));
+    $pdo->prepare("INSERT INTO clicks (id, campaign_id, ip, user_agent) VALUES (?, ?, '1.2.3.4', 'UA')")
+        ->execute([$failClickId, $campaignId]);
+    $harness->getWithHeaders("/pixel.gif?action=pwa&kind=pushfail&reason=insecure&subid=$failClickId", ['User-Agent: t']);
+    $rowF = $pdo->query("SELECT push_declined_at, push_prompted_at, push_fail_reason FROM clicks WHERE id = " . $pdo->quote($failClickId))->fetch(PDO::FETCH_ASSOC);
+    assertTrue($rowF['push_fail_reason'] === 'insecure' && $rowF['push_declined_at'] === null && $rowF['push_prompted_at'] === null,
+        'pushfail records the cause without touching funnel timestamps');
 
     // ------------------------------------------------------------------
     // PWA page: subscribe screen gated by the serve-time VAPID macro.

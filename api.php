@@ -4987,6 +4987,24 @@ try {
                 }
                 require_once __DIR__ . '/core/PushBase.php';
                 $vapidBody = json_decode(orbitraRequestBody(), true) ?: [];
+                // The contact is mandatory BEFORE the first generation: Apple's
+                // web.push.apple.com validates the JWT "sub" claim and answers
+                // 403 BadJwtToken to a placeholder address, killing every iOS
+                // subscription. Requiring it up front beats debugging a base of
+                // dead iOS sends later. push_vapid_contact_save already
+                // validates the shape; here only its presence is enforced.
+                $vapidContact = '';
+                try {
+                    $stmtVapidContact = $pdo->prepare("SELECT value FROM settings WHERE key = 'push_vapid_sub' LIMIT 1");
+                    $stmtVapidContact->execute();
+                    $vapidContact = trim((string) $stmtVapidContact->fetchColumn());
+                } catch (\Throwable $e) {
+                    $vapidContact = '';
+                }
+                if (stripos($vapidContact, 'mailto:') !== 0 && stripos($vapidContact, 'https://') !== 0) {
+                    echo json_encode(['status' => 'error', 'message' => 'push.contactRequired']);
+                    break;
+                }
                 if (PushBase::getKeys($pdo) !== [] && empty($vapidBody['confirm'])) {
                     echo json_encode(['status' => 'error', 'message' => 'push.keys_exist']);
                     break;
@@ -5212,6 +5230,50 @@ try {
             } catch (\Throwable $e) {
                 error_log('push_send_now failed: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
                 echo json_encode(['status' => 'error', 'message' => 'Send failed: ' . $e->getMessage()]);
+            }
+            break;
+
+        case 'push_test_send':
+            // POST subscription_id. Deliver a tiny test notification to ONE
+            // subscription right now, bypassing the queue and the cron tick:
+            // the operator proves the whole pipe (keys → JWT → push service →
+            // device) on a real subscriber without wiring a message first.
+            // Same exposure as push_send_now — a push write permission.
+            try {
+                if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                    echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                    break;
+                }
+                require_once __DIR__ . '/core/PushSender.php';
+                require_once __DIR__ . '/core/PushBase.php';
+                require_once __DIR__ . '/core/PushMacros.php';
+                $body = json_decode(orbitraRequestBody(), true) ?: [];
+                $subId = (int) ($body['subscription_id'] ?? 0);
+                $stmt = $pdo->prepare("SELECT * FROM push_subscriptions WHERE id = ?");
+                $stmt->execute([$subId]);
+                $subscription = $stmt->fetch(PDO::FETCH_ASSOC);
+                if (!$subscription) {
+                    echo json_encode(['status' => 'error', 'message' => 'Subscriber not found']);
+                    break;
+                }
+                // A fixed diagnostic payload: no message row, no macros, no
+                // segment — nothing between the operator and the device.
+                $testMessage = [
+                    'id'       => 0,
+                    'title'    => 'Orbitra',
+                    'text'     => 'Test push · ' . date('H:i:s'),
+                    'icon_url' => '',
+                    'link_url' => '',
+                ];
+                $result = PushSender::send($pdo, $subscription, $testMessage);
+                echo json_encode(['status' => 'success', 'data' => [
+                    'ok'    => (bool) $result['ok'],
+                    'code'  => $result['code'],
+                    'error' => $result['error'],
+                ]]);
+            } catch (\Throwable $e) {
+                error_log('push_test_send failed: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+                echo json_encode(['status' => 'error', 'message' => 'Test send failed: ' . $e->getMessage()]);
             }
             break;
 

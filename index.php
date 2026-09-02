@@ -572,6 +572,49 @@ function orbitraStreamAssetFile(string $file, string $mimeType): void
 }
 
 /**
+ * Stream a landing's sw.js with the {vapid_public} token substituted.
+ *
+ * The worker is the one landing asset whose bytes are per-request: the token
+ * feeds pushsubscriptionchange (the browser rotating the subscription on its
+ * own), so a VAPID key rotation has to reach already-installed PWAs without
+ * regenerating statics — the same serve-time macro the page HTML gets. The
+ * ETag therefore covers the SUBSTITUTED body: a raw mtime-size ETag would let
+ * the generic 304 below pin an installed app to the previous key forever.
+ */
+function orbitraStreamSwFile(string $file, string $mimeType): void
+{
+    $body = (string) file_get_contents($file);
+    try {
+        $vapidRow = ($GLOBALS['pdo'] ?? null)?->query("SELECT value FROM settings WHERE key = 'vapid_public_key' LIMIT 1")->fetchColumn();
+        if (is_string($vapidRow) && $vapidRow !== '') {
+            $body = str_replace('{vapid_public}', $vapidRow, $body);
+        }
+    } catch (\Throwable $e) {
+        // A missing settings row leaves the token literal; the worker treats
+        // an unusable key as "cannot re-subscribe" and skips the handler body.
+    }
+
+    $mtime = filemtime($file);
+    $etag = '"sw' . dechex((int) $mtime) . '-' . substr(md5($body), 0, 10) . '"';
+
+    header('Content-Type: ' . $mimeType);
+    header('X-Content-Type-Options: nosniff');
+    header('ETag: ' . $etag);
+    header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $mtime) . ' GMT');
+    header('Cache-Control: public, max-age=3600');
+
+    $ifNoneMatch = trim($_SERVER['HTTP_IF_NONE_MATCH'] ?? '');
+    if ($ifNoneMatch === $etag) {
+        http_response_code(304);
+        exit;
+    }
+
+    header('Content-Length: ' . strlen($body));
+    echo $body;
+    exit;
+}
+
+/**
  * Serve a file belonging to a local landing, addressed from the domain root.
  *
  * Local landings are printed at the campaign URL while their files sit in
@@ -691,11 +734,15 @@ function serveLandingAsset($landingId, $uriPath, $baseDir = null)
         header('Service-Worker-Allowed: /');
     }
 
-    $ifNoneMatch = trim($_SERVER['HTTP_IF_NONE_MATCH'] ?? '');
-    $ifModifiedSince = strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? '') ?: 0;
-    if ($ifNoneMatch === $etag || ($ifNoneMatch === '' && $ifModifiedSince >= $mtime)) {
-        http_response_code(304);
-        exit;
+    // sw.js skips the generic 304 below: its ETag must cover the substituted
+    // body ({vapid_public}), and orbitraStreamSwFile answers 304s itself.
+    if (basename($file) !== 'sw.js') {
+        $ifNoneMatch = trim($_SERVER['HTTP_IF_NONE_MATCH'] ?? '');
+        $ifModifiedSince = strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? '') ?: 0;
+        if ($ifNoneMatch === $etag || ($ifNoneMatch === '' && $ifModifiedSince >= $mtime)) {
+            http_response_code(304);
+            exit;
+        }
     }
 
     // A service worker is streamed by PHP itself instead of being handed to
@@ -711,7 +758,7 @@ function serveLandingAsset($landingId, $uriPath, $baseDir = null)
             header('X-Orbitra-Asset-Source: php_stream');
             header('X-Orbitra-Asset-Fallback: service_worker_scope_header');
         }
-        orbitraStreamAssetFile($file, $mimeTypes[$ext]);
+        orbitraStreamSwFile($file, $mimeTypes[$ext]);
     }
 
     // ORB-013: Use X-Accel-Redirect to hand off file serving to nginx.
@@ -2503,7 +2550,8 @@ if ($uriPath === '/pixel.gif') {
         // replayed beacon for the same click cannot inflate the funnel.
         $pwaSubid = trim((string) ($_GET['subid'] ?? ''));
         $pwaKind = (string) ($_GET['kind'] ?? '');
-        if ($pwaSubid !== '' && in_array($pwaKind, ['intent', 'install', 'open', 'prompt', 'decline'], true)) {
+        $pwaReason = substr(trim((string) ($_GET['reason'] ?? '')), 0, 32);
+        if ($pwaSubid !== '' && in_array($pwaKind, ['intent', 'install', 'open', 'prompt', 'decline', 'pushfail'], true)) {
             try {
                 if ($pwaKind === 'intent') {
                     $pdo->prepare("UPDATE clicks SET pwa_intent_at = datetime('now') WHERE id = ? AND pwa_intent_at IS NULL")
@@ -2516,10 +2564,18 @@ if ($uriPath === '/pixel.gif') {
                     $pdo->prepare("UPDATE clicks SET push_prompted_at = datetime('now') WHERE id = ? AND push_prompted_at IS NULL")
                         ->execute([$pwaSubid]);
                 } elseif ($pwaKind === 'decline') {
-                    // Permission denied (NOTIFICATION_DECLINE) — still counts as
+                    // Permission denied or the dialog dismissed — still counts as
                     // a funnel answer; the visitor keeps flowing to the offer.
-                    $pdo->prepare("UPDATE clicks SET push_declined_at = datetime('now') WHERE id = ? AND push_declined_at IS NULL")
-                        ->execute([$pwaSubid]);
+                    // The reason (denied/dismissed) rides the same first stamp.
+                    $pdo->prepare("UPDATE clicks SET push_declined_at = datetime('now'), push_fail_reason = NULLIF(?, '') WHERE id = ? AND push_declined_at IS NULL")
+                        ->execute([$pwaReason, $pwaSubid]);
+                } elseif ($pwaKind === 'pushfail') {
+                    // A technical cause (nokey/unsupported/insecure/error/timeout):
+                    // recorded once per click WITHOUT a funnel timestamp — this
+                    // was never a visitor answer, it is the pipe reporting why
+                    // there is no subscriber row behind this click.
+                    $pdo->prepare("UPDATE clicks SET push_fail_reason = NULLIF(?, '') WHERE id = ? AND push_fail_reason IS NULL")
+                        ->execute([$pwaReason, $pwaSubid]);
                 } else {
                     // Standalone reopen — throttled to one count per 10 minutes
                     // per click, so a parked tab cannot pump the counter.
@@ -2634,6 +2690,28 @@ if ($uriPath === '/push_subscribe') {
     $pushKeys = is_array($pushBody['keys'] ?? null) ? $pushBody['keys'] : [];
     if ($pushEndpoint === '' || !preg_match('#^https://#', $pushEndpoint) || strlen($pushEndpoint) > 2000
         || empty($pushKeys['p256dh']) || empty($pushKeys['auth'])) {
+        http_response_code(400);
+        echo json_encode(['status' => 'error', 'message' => 'Invalid subscription']);
+        exit;
+    }
+    // Key-shape gate (jellydash PushSubscriptionValidator contract): a
+    // malformed p256dh/auth would be stored and then hard-fail PushSender's
+    // AES128GCM layer on every send, burning queue retries forever. Browser
+    // shape: p256dh = 65-byte uncompressed EC point, auth = 16 bytes, both
+    // base64url; endpoint without credentials or fragment.
+    $pushEndpointParts = parse_url($pushEndpoint);
+    $pushKeysOk = is_array($pushEndpointParts)
+        && !isset($pushEndpointParts['user'])
+        && !isset($pushEndpointParts['pass'])
+        && !isset($pushEndpointParts['fragment']);
+    foreach (['p256dh' => 65, 'auth' => 16] as $pushKeyName => $pushKeyBytes) {
+        $pushKeyVal = (string) ($pushKeys[$pushKeyName] ?? '');
+        $pushKeyRaw = preg_match('/^[A-Za-z0-9_-]+$/', $pushKeyVal) === 1
+            ? base64_decode(strtr($pushKeyVal, '-_', '+/'), true)
+            : false;
+        $pushKeysOk = $pushKeysOk && $pushKeyRaw !== false && strlen($pushKeyRaw) === $pushKeyBytes;
+    }
+    if (!$pushKeysOk) {
         http_response_code(400);
         echo json_encode(['status' => 'error', 'message' => 'Invalid subscription']);
         exit;

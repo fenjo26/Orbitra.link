@@ -251,5 +251,26 @@ assertTrue(PushMacros::expand('no braces at all', 'c1') === 'no braces at all', 
 $many = PushMacros::expand('{a|b} {a|b} {a|b} {a|b} {a|b} {a|b} {a|b} {a|b}', '');
 assertTrue(preg_match('/^([ab] ){7}[ab]$/', $many) === 1, 'many independent choices resolve in one pass');
 
+// ----------------------------------------------------------------------
+// buildPayload: tag/badge/renotify/data contract + the soft-cap body trim.
+// ----------------------------------------------------------------------
+$msg = ['id' => 7, 'title' => 'Title', 'text' => 'Body', 'icon_url' => 'https://x/i.png', 'link_url' => 'https://go/1'];
+$arr = json_decode(PushSender::buildPayload($msg, 'clk-1'), true);
+assertTrue(is_array($arr) && $arr['tag'] === 'orbitra-m7', 'payload carries a per-message collapse tag');
+assertTrue($arr['badge'] === 'https://x/i.png' && $arr['icon'] === 'https://x/i.png', 'payload carries icon + badge');
+assertTrue($arr['renotify'] === true, 'payload re-alerts when a tagged slot is replaced');
+assertTrue($arr['data']['url'] === 'https://go/1' && $arr['data']['message_id'] === 7 && $arr['data']['subid'] === 'clk-1', 'payload data carries url + ids');
+
+// Oversized text is trimmed server-side — encrypt() throws above rs-34
+// bytes, so the JSON must stay under the ceiling instead of failing a send.
+$big = ['id' => 8, 'title' => 'T', 'text' => str_repeat('поле', 3000), 'icon_url' => '', 'link_url' => ''];
+$payloadBig = PushSender::buildPayload($big, 'clk-2');
+$arrBig = json_decode($payloadBig, true);
+assertTrue(strlen($payloadBig) <= PushSender::RECORD_SIZE - 34, 'oversized text trims under the aes128gcm plaintext ceiling');
+assertTrue(mb_strlen($arrBig['body']) > 0 && mb_substr($arrBig['body'], -1) === '…', 'trimmed body keeps a readable tail with an ellipsis');
+$hugeLink = ['id' => 9, 'title' => 'T', 'text' => 'b', 'icon_url' => '', 'link_url' => 'https://x/' . str_repeat('a', 5000)];
+$payloadLink = PushSender::buildPayload($hugeLink, 'clk-3');
+assertTrue(strlen($payloadLink) <= PushSender::RECORD_SIZE - 34, 'even a giant link cannot push the payload past the ceiling');
+
 echo $testPassed ? "\nALL TESTS PASSED\n" : "\nSOME TESTS FAILED\n";
 exit($testPassed ? 0 : 1);

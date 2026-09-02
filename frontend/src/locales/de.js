@@ -3974,6 +3974,18 @@ vapidHint: "Einmal erzeugt und automatisch verdrahtet — jede PWA erhält den �
         tooLong: "Titel bis 250 Zeichen, Text bis 400",
         eventRequired: "Ereignis für die Nachricht wählen",
         saveFailed: "Nachricht konnte nicht gespeichert werden",
-        sendFailed: "Nachricht konnte nicht in die Warteschlange gestellt werden"
+        sendFailed: "Nachricht konnte nicht in die Warteschlange gestellt werden",
+        contactRequired: "Speichern Sie zuerst eine echte Absender-Kontaktadresse (mailto: oder https:) — Apple lehnt den Platzhalter mit 403 bei jeder iOS-Zustellung ab",
+        rotateAffects: "Dies löst {n} aktive Abonnements; jedes Gerät abonniert beim nächsten Öffnen der App automatisch neu.",
+        diagKeys: "Schlüssel",
+        diagContact: "Kontaktadresse",
+        diagWorker: "Worker",
+        diagWorkerNever: "nie gelaufen",
+        diagWorkerAgo: "vor {n} Min.",
+        fail403Hint: "403 — prüfen Sie die Absender-Kontaktadresse: Apple lehnt Platzhalter ab",
+        testSend: "Test-Push an diesen Abonnenten senden",
+        testDelivered: "Test-Push vom Push-Service akzeptiert — Gerät prüfen",
+        testDead: "Endpoint existiert nicht mehr (404/410) — dieses Abonnement läuft aus",
+        testRejected: "Push-Service hat den Test abgelehnt:",
     }
 };

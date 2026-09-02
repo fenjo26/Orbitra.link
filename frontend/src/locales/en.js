@@ -3973,6 +3973,18 @@ vapidHint: "Generated once and wired automatically — every PWA receives the pu
         tooLong: "Title is limited to 250 characters, text to 400",
         eventRequired: "Pick an event for the event message",
         saveFailed: "Failed to save the message",
-        sendFailed: "Failed to queue the message"
+        sendFailed: "Failed to queue the message",
+        contactRequired: "Save a real sender contact (mailto: or https:) first — Apple rejects the built-in placeholder with 403 on every iOS send",
+        rotateAffects: "This detaches {n} active subscriptions; each device re-subscribes automatically the next time the app is opened.",
+        diagKeys: "Keys",
+        diagContact: "Contact",
+        diagWorker: "Worker",
+        diagWorkerNever: "never ran",
+        diagWorkerAgo: "{n} min ago",
+        fail403Hint: "403 — check the sender contact: Apple rejects placeholder addresses",
+        testSend: "Send test push to this subscriber",
+        testDelivered: "Test push accepted by the push service — check the device",
+        testDead: "Endpoint is gone (404/410) — this subscription will age out",
+        testRejected: "Push service rejected the test:",
     }
 };

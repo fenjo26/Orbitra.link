@@ -34,7 +34,7 @@ class PwaLanding
      * page; the lander route regenerates stale statics on the next view, so
      * renderer upgrades reach already-created PWA landings without a re-save.
      */
-    public const RENDERER_VERSION = 12;
+    public const RENDERER_VERSION = 13;
 
     /** Keys the constructor is allowed to persist; everything else is dropped. */
     private static function configKeys(): array
@@ -411,11 +411,32 @@ class PwaLanding
         $icons = [];
         $iconSrc = self::iconSrc($c);
         if ($iconSrc !== '') {
-            $icons[] = [
-                'src'     => $iconSrc,
-                'sizes'   => '512x512',
-                'type'    => self::iconMime($iconSrc),
-                'purpose' => 'any',
+            // The same file declared at both standard sizes plus a maskable
+            // slot: Android crops maskable icons into the round launcher
+            // shape, and a 192 entry stops older devices from upscaling.
+            // There is no GD in the runtime to downscale for real, so the
+            // source PNG is declared as-is — browsers scale, and Chrome
+            // accepts a size mismatch rather than dropping the icon.
+            $mime = self::iconMime($iconSrc);
+            $icons = [
+                [
+                    'src'     => $iconSrc,
+                    'sizes'   => '192x192',
+                    'type'    => $mime,
+                    'purpose' => 'any',
+                ],
+                [
+                    'src'     => $iconSrc,
+                    'sizes'   => '512x512',
+                    'type'    => $mime,
+                    'purpose' => 'any',
+                ],
+                [
+                    'src'     => $iconSrc,
+                    'sizes'   => '512x512',
+                    'type'    => $mime,
+                    'purpose' => 'maskable',
+                ],
             ];
         }
         $manifest = [
@@ -468,6 +489,64 @@ self.addEventListener('fetch', function (e) {
             });
         });
     }));
+});
+// The worker MUST own a push listener or the browser discards every message
+// the sender delivers — a subscription without this handler receives pushes
+// that are never displayed. Payload shape = core/PushSender.php:
+// { title, body, icon, data: { url } }.
+self.addEventListener('push', function (e) {
+    var data = {};
+    try { data = e.data ? e.data.json() : {}; } catch (err) { data = {}; }
+    var opts = {
+        body: data.body || '',
+        tag: data.tag || 'orbitra',
+        data: { url: (data.data && data.data.url) || './' }
+    };
+    if (data.icon) opts.icon = data.icon;
+    e.waitUntil(self.registration.showNotification(data.title || '', opts));
+});
+self.addEventListener('notificationclick', function (e) {
+    e.notification.close();
+    var url = (e.notification.data && e.notification.data.url) || './';
+    e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
+        for (var i = 0; i < list.length; i++) {
+            var client = list[i];
+            if ('focus' in client) {
+                client.focus();
+                if (url && url !== './' && 'navigate' in client) {
+                    try { client.navigate(url); } catch (err) {}
+                }
+                return;
+            }
+        }
+        return self.clients.openWindow(url);
+    }));
+});
+// urlB64ToU8 + pushsubscriptionchange: when the browser rotates the
+// subscription on its own (key expiry, permission re-grant), the device must
+// re-subscribe under the CURRENT VAPID key and re-register — or it silently
+// drops out of the base. {vapid_public} is substituted at serve time by the
+// asset server (orbitraStreamSwFile), never baked into the stored statics,
+// so a key rotation reaches already-installed PWAs on the next worker check.
+function urlB64ToU8(b64) {
+    var raw = atob(b64.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((b64.length + 3) % 4));
+    var arr = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+    return arr;
+}
+self.addEventListener('pushsubscriptionchange', function (e) {
+    var VAPID = '{vapid_public}';
+    if (!/^[A-Za-z0-9_-]{80,120}$/.test(VAPID)) return;
+    e.waitUntil(self.registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64ToU8(VAPID) })
+        .then(function (sub) {
+            var s = sub.toJSON();
+            return fetch('/push_subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ endpoint: s.endpoint, keys: s.keys, expirationTime: s.expirationTime || null }),
+                keepalive: true
+            });
+        }).catch(function () {}));
 });
 SW;
         return str_replace('__CACHE__', $cache, $sw);
@@ -1075,10 +1154,12 @@ SW;
     || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   var installingEl = document.getElementById('pwa-installing');
 
-  function beacon(kind) {
+  function beacon(kind, reason) {
     if (!subid) return;
     var img = new Image();
-    img.src = '/pixel.gif?action=pwa&kind=' + kind + '&subid=' + encodeURIComponent(subid) + '&r=' + Date.now();
+    img.src = '/pixel.gif?action=pwa&kind=' + encodeURIComponent(kind)
+      + (reason ? '&reason=' + encodeURIComponent(reason) : '')
+      + '&subid=' + encodeURIComponent(subid) + '&_=' + Date.now();
   }
   function redirect() { if (lpUrl) window.location.href = lpUrl; }
   function later(sec, fn) { if (sec > 0) setTimeout(fn, sec * 1000); else fn(); }
@@ -1157,21 +1238,34 @@ SW;
   if (closeBtn) closeBtn.addEventListener('click', function () { iosOverlay(false); });
 
   // --- Push subscription (NOTIFICATION_* funnel step) ----------------------
+  // Self-healing like any production push client: a visitor who already
+  // granted permission re-syncs the browser subscription on every open, so a
+  // POST lost to the funnel redirect (or a rotated VAPID key) repairs itself
+  // instead of silently dropping the subscriber. orbitra_push_done marks only
+  // answers the visitor actually gave — a transport failure must not burn
+  // the one prompt forever.
   var pushDone = false;
   try { pushDone = !!localStorage.getItem('orbitra_push_done'); } catch (e) {}
+  function pushSupported() {
+    return cfg.push && VAPID && 'PushManager' in window && 'Notification' in window;
+  }
   function pushAvailable() {
-    return cfg.push && VAPID && 'PushManager' in window && 'Notification' in window && !pushDone;
+    return pushSupported() && Notification.permission !== 'denied' && !pushDone;
   }
   var pushBusy = false;
   var pushSettled = false;
-  function afterPush() {
+  function afterPush(markDone) {
     // The visitor answered the prompt INSIDE the installed app — mark the
     // offer as made and hand control to the configured app action. Guarded:
     // the fail-safe timer and the real completion callback both land here,
     // and running performAppAction() twice would fire two redirects.
+    // markDone=false leaves orbitra_push_done unset so the next standalone
+    // open retries via the silent sync instead of never asking again.
     if (pushSettled) return;
     pushSettled = true;
-    try { localStorage.setItem('orbitra_push_done', '1'); } catch (e) {}
+    if (markDone) {
+      try { localStorage.setItem('orbitra_push_done', '1'); } catch (e) {}
+    }
     var el = document.getElementById('pwa-push');
     if (el) el.hidden = true;
     performAppAction();
@@ -1182,31 +1276,78 @@ SW;
     for (var i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
     return arr;
   }
+  function subscriptionKeyMatches(sub) {
+    // A subscription is bound to the VAPID key it was created with — after a
+    // key rotation it would keep receiving nothing, so it reads as a miss.
+    try {
+      var have = sub.options && sub.options.applicationServerKey;
+      if (!have) return false;
+      var a = new Uint8Array(have);
+      var b = urlB64ToU8(VAPID);
+      if (a.length !== b.length) return false;
+      for (var i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+      return true;
+    } catch (e) { return false; }
+  }
+  // Subscribe (only when permission is already granted) and POST the
+  // subscription. Idempotent: a healthy existing subscription is reused and
+  // re-sent, so re-runs can never duplicate a subscriber row — the ingest
+  // upserts on the endpoint. keepalive lets the POST survive the offer
+  // redirect the funnel fires right after the answer.
+  function syncSubscription(reg) {
+    return reg.pushManager.getSubscription().then(function (sub) {
+      if (sub && !subscriptionKeyMatches(sub)) {
+        return sub.unsubscribe().then(function () { return null; });
+      }
+      return sub;
+    }).then(function (sub) {
+      if (!sub) {
+        if (Notification.permission !== 'granted') return null;
+        return reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64ToU8(VAPID) });
+      }
+      return sub;
+    }).then(function (sub) {
+      if (!sub) return false;
+      var s = sub.toJSON();
+      return fetch('/push_subscribe?lang=' + encodeURIComponent(navigator.language || ''), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subid: subid, endpoint: s.endpoint, keys: s.keys, expirationTime: s.expirationTime || null }),
+        keepalive: true
+      }).then(function () { return true; });
+    }).catch(function () { return false; });
+  }
   function enablePush() {
     if (pushBusy) return;
     pushBusy = true;
     beacon('prompt'); // the permission dialog is about to be shown
     // Fail-safe: if the subscribe flow cannot complete (broken SW, blocked
     // endpoint) the visitor still flows to the offer instead of stalling.
-    // It is armed only AFTER the permission answer: the native dialog has no
-    // timeout of its own, and a visitor who reads it for eleven seconds would
-    // otherwise have the app action fire out from under an open prompt.
+    // It does NOT mark orbitra_push_done — the next standalone open retries
+    // through the silent sync, and the keepalive POST lands even after this
+    // redirect. Armed only AFTER the permission answer: the native dialog has
+    // no timeout of its own, and a visitor who reads it for eleven seconds
+    // would otherwise have the app action fire out from under an open prompt.
     var failSafe = null;
     Notification.requestPermission().then(function (perm) {
-      if (perm !== 'granted') { beacon('decline'); afterPush(); return; }
-      failSafe = setTimeout(afterPush, 10000);
+      if (perm !== 'granted') { beacon('decline', Notification.permission === 'denied' ? 'denied' : 'dismissed'); afterPush(true); return; }
+      failSafe = setTimeout(function () { beacon('pushfail', 'timeout'); afterPush(false); }, 10000);
       navigator.serviceWorker.ready.then(function (reg) {
-        reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64ToU8(VAPID) })
-          .then(function (sub) {
-            var s = sub.toJSON();
-            fetch('/push_subscribe?lang=' + encodeURIComponent(navigator.language || ''), {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ subid: subid, endpoint: s.endpoint, keys: s.keys, expirationTime: s.expirationTime || null })
-            }).then(function () { clearTimeout(failSafe); afterPush(); }).catch(function () { clearTimeout(failSafe); afterPush(); });
-          }).catch(function () { clearTimeout(failSafe); afterPush(); });
-      }).catch(function () { clearTimeout(failSafe); afterPush(); });
-    }).catch(function () { clearTimeout(failSafe); afterPush(); });
+        syncSubscription(reg).then(function (ok) {
+          if (failSafe) clearTimeout(failSafe);
+          if (!ok) beacon('pushfail', 'error');
+          afterPush(!!ok);
+        });
+      }).catch(function () {
+        if (failSafe) clearTimeout(failSafe);
+        beacon('pushfail', 'error');
+        afterPush(false);
+      });
+    }).catch(function () {
+      if (failSafe) clearTimeout(failSafe);
+      beacon('pushfail', 'error');
+      afterPush(false);
+    });
   }
   function showPush() {
     // The notification offer belongs to the INSTALLED app, never to the store
@@ -1365,9 +1506,44 @@ SW;
         if (!localStorage.getItem(key)) { beacon('install'); localStorage.setItem(key, '1'); }
       } catch (e) { beacon('install'); }
     }
+    // Diagnostic, not a funnel answer: report once per browser WHY this device
+    // can never see the push card (nokey / unsupported / insecure). It rides
+    // its own beacon kind so it never touches the funnel timestamps.
+    if (cfg.push && !pushSupported()) {
+      var pushWhy = !VAPID ? 'nokey'
+        : (!('PushManager' in window) ? (window.isSecureContext ? 'unsupported' : 'insecure') : 'unsupported');
+      try {
+        if (!localStorage.getItem('orbitra_push_fail_seen')) {
+          localStorage.setItem('orbitra_push_fail_seen', '1');
+          beacon('pushfail', pushWhy);
+        }
+      } catch (e) { /* private mode: skip rather than beacon on every open */ }
+    }
     // The installed app is the right place for the push offer — once per
     // browser. After the answer (or with push disabled) the configured app
     // action takes over.
+    // A visitor who already granted permission gets the silent sync first: it
+    // counts a subscription whose POST was lost to a redirect (or that
+    // predates a VAPID rotation) without spending another prompt. Only an
+    // unanswered visitor still sees the card.
+    if (pushSupported() && Notification.permission === 'granted') {
+      var healSettled = false;
+      var healFinish = function (ok) {
+        if (healSettled) return;
+        healSettled = true;
+        if (ok) { afterPush(true); return; }
+        if (pushAvailable()) { showPush(); return; }
+        performAppAction();
+      };
+      Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise(function (res) { setTimeout(function () { res(null); }, 5000); })
+      ]).then(function (reg) {
+        if (!reg) { healFinish(false); return; }
+        return syncSubscription(reg).then(function (ok) { healFinish(!!ok); });
+      }).catch(function () { healFinish(false); });
+      return;
+    }
     if (pushAvailable()) { showPush(); return; }
     performAppAction();
   } else if (cfg.auto > 0) {

@@ -3974,6 +3974,18 @@ vapidHint: "生成一次并自动接线 —— 每个 PWA 在页面输出时都�
         tooLong: "标题最多 250 字符，正文最多 400",
         eventRequired: "请为消息选择事件",
         saveFailed: "保存消息失败",
-        sendFailed: "消息入队失败"
+        sendFailed: "消息入队失败",
+        contactRequired: "请先保存真实的发件人联系方式（mailto: 或 https:）——Apple 会拒绝占位符并在所有 iOS 发送上返回 403",
+        rotateAffects: "这将解除 {n} 个活跃订阅；每台设备会在下次打开应用时自动重新订阅。",
+        diagKeys: "密钥",
+        diagContact: "联系方式",
+        diagWorker: "Worker",
+        diagWorkerNever: "从未运行",
+        diagWorkerAgo: "{n} 分钟前",
+        fail403Hint: "403 —— 请检查发件人联系方式：Apple 会拒绝占位符地址",
+        testSend: "向该订阅者发送测试推送",
+        testDelivered: "测试推送已被推送服务接受——请查看设备",
+        testDead: "Endpoint 不存在（404/410）——该订阅将被移出",
+        testRejected: "推送服务拒绝了测试：",
     }
 };

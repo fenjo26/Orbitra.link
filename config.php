@@ -87,7 +87,7 @@ try {
     // subscriber base; 44 = media library (docs/media-core-v1.md); 43 = PWA
     // landings. All migration blocks are additive — whoever adds the next one
     // bumps this and appends below, re-reading the file first (parallel-session rule).
-    $LATEST_SCHEMA_VERSION = 47;
+    $LATEST_SCHEMA_VERSION = 48;
 
     $schemaVersion = 0;
     try {
@@ -2543,6 +2543,23 @@ try {
                 $pdo->prepare("INSERT INTO campaigns (name, alias, token, is_archived, archived_at, state)
                     SELECT 'PWA organic (system)', 'orbitra-pwa-organic', 'organic', 1, datetime('now'), 'active'
                     WHERE NOT EXISTS (SELECT 1 FROM campaigns WHERE alias = 'orbitra-pwa-organic')")->execute();
+            }
+
+            if ($schemaVersion < 48) {
+                // Migration 48: WHY a visitor never became a push subscriber.
+                // push_declined_at answers "the visitor said no"; this column
+                // answers "the pipe broke" — nokey (VAPID not generated when
+                // the installed app was viewed), unsupported/insecure (no
+                // PushManager in this browser or context), error/timeout
+                // (subscribe or the subscribe POST failed), denied/dismissed
+                // (rides the decline stamp). Written by the pwa pixel kinds
+                // decline/pushfail; NULL-guarded at both write sites, so a
+                // replayed beacon cannot overwrite a stored cause.
+                try {
+                    $pdo->exec("ALTER TABLE clicks ADD COLUMN push_fail_reason TEXT");
+                } catch (\Throwable $e) {
+                    // Column already present on a half-migrated DB.
+                }
             }
 
             // Mark schema as up-to-date. This must be last.

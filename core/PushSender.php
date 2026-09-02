@@ -333,12 +333,7 @@ class PushSender
         $title = PushMacros::expand((string) ($message['title'] ?? ''), $subid);
         $body = PushMacros::expand((string) ($message['text'] ?? ''), $subid);
         $link = PushMacros::expand((string) ($message['link_url'] ?? ''), $subid);
-        $payload = json_encode([
-            'title' => $title,
-            'body'  => $body,
-            'icon'  => (string) ($message['icon_url'] ?? ''),
-            'data'  => ['url' => $link],
-        ], JSON_UNESCAPED_UNICODE);
+        $payload = self::buildPayload($message, $subid, $title, $body, $link);
 
         $sub = self::getVapidSub($pdo);
         try {
@@ -390,6 +385,59 @@ class PushSender
     private static function result(bool $ok, ?int $code, bool $dead, bool $retryable, ?int $retryAfter, ?string $error): array
     {
         return ['ok' => $ok, 'code' => $code, 'dead' => $dead, 'retryable' => $retryable, 'retry_after' => $retryAfter, 'error' => $error];
+    }
+
+    /**
+     * Notification payload for one send — public so tests can pin it without
+     * a network. Macro-expanded title/body/link come in pre-expanded; the tag
+     * collapses a series of pushes for the same message into one tray slot
+     * (renotify re-alerts on replacement), and data carries the ids the
+     * worker and the SW both read.
+     *
+     * The body is the only free-form part of the JSON, so when the whole
+     * payload approaches the aes128gcm plaintext ceiling (encrypt() throws
+     * above rs-34 = 4062 bytes) the body is cut first — UTF-8 safe, with an
+     * ellipsis — then the title, then the extras. A send should never die on
+     * an oversized text the operator pasted.
+     */
+    public static function buildPayload(array $message, string $subid, ?string $title = null, ?string $body = null, ?string $link = null): string
+    {
+        $title = $title ?? (string) ($message['title'] ?? '');
+        $body = $body ?? (string) ($message['text'] ?? '');
+        $link = $link ?? (string) ($message['link_url'] ?? '');
+        $icon = (string) ($message['icon_url'] ?? '');
+        $messageId = (int) ($message['id'] ?? 0);
+
+        $build = static function (string $t, string $b, string $l, string $i) use ($messageId, $subid): string {
+            return json_encode([
+                'title'     => $t,
+                'body'      => $b,
+                'icon'      => $i,
+                'badge'     => $i,
+                'tag'       => 'orbitra-m' . $messageId,
+                'renotify'  => true,
+                'data'      => ['url' => $l, 'message_id' => $messageId, 'subid' => $subid],
+            ], JSON_UNESCAPED_UNICODE);
+        };
+
+        $payload = $build($title, $body, $link, $icon);
+        $softCap = self::RECORD_SIZE - 96; // 4000: encrypt throws at rs-34
+        if (strlen($payload) <= $softCap) {
+            return $payload;
+        }
+        // Cut the body by the byte overflow (a removed char is ≥ 1 byte, so
+        // this always suffices) and rebuild; empty body, then a capped title,
+        // then a bare notification as the last resort.
+        $overflow = (int) ceil((strlen($payload) - $softCap));
+        $body = mb_substr($body, 0, max(0, mb_strlen($body) - $overflow)) . '…';
+        $payload = $build($title, $body, $link, $icon);
+        if (strlen($payload) > $softCap) {
+            $payload = $build(mb_substr($title, 0, 80), '', $link, $icon);
+        }
+        if (strlen($payload) > $softCap) {
+            $payload = $build('', '', '', '');
+        }
+        return $payload;
     }
 
     /**

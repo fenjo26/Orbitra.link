@@ -52,8 +52,20 @@ export default function PushBasePage({ user }) {
     const [form, setForm] = useState(EMPTY_FORM);
     const [saving, setSaving] = useState(false);
     const [info, setInfo] = useState('');
+    const [testSendingId, setTestSendingId] = useState(0);
 
     const canWrite = canWriteResource(user, 'push');
+
+    // The saved contact must be a real one: the API refuses key generation
+    // without it (Apple validates the JWT "sub" claim and answers 403 to the
+    // placeholder, killing every iOS send), so the UI mirrors that gate
+    // instead of letting the click fail with a bare error.
+    const contactValid = (() => {
+        const c = String(vapid.contact || '').trim();
+        if (!c) return false;
+        if (vapid.contact_default && c === vapid.contact_default) return false;
+        return /^mailto:/i.test(c) || /^https:\/\//i.test(c);
+    })();
 
     // Nothing in this panel sends a push: every message is queued and drained
     // by cli/push_cron.php. With that cron missing, "send now" reports
@@ -69,6 +81,16 @@ export default function PushBasePage({ user }) {
         const ts = Date.parse(stamp.replace(' ', 'T') + 'Z');
         if (Number.isNaN(ts)) return false;
         return Date.now() - ts > 15 * 60 * 1000;
+    })();
+
+    // Diagnostics strip (subscribers tab): when the delivery worker last ran.
+    const workerLastRunLabel = (() => {
+        const stamp = String(queue.last_run_at || '').trim();
+        if (!stamp) return t('push.diagWorkerNever');
+        const ts = Date.parse(stamp.replace(' ', 'T') + 'Z');
+        if (Number.isNaN(ts)) return t('push.diagWorkerNever');
+        const min = Math.max(0, Math.round((Date.now() - ts) / 60000));
+        return t('push.diagWorkerAgo').replace('{n}', min.toLocaleString());
     })();
 
     const segmentLabel = useCallback((seg) => ({
@@ -136,7 +158,7 @@ export default function PushBasePage({ user }) {
         } catch { /* status is cosmetic when the API denies */ }
     }, []);
 
-    useEffect(() => { loadVapid(); }, [loadVapid]);
+    useEffect(() => { loadVapid(); loadMessages(); /* eslint-disable-line */ }, [loadVapid]);
     useEffect(() => { load({ page: 1 }); setPage(1); /* eslint-disable-line */ }, [statusFilter]);
     useEffect(() => { if (tab === 'messages') loadMessages(); /* eslint-disable-line */ }, [tab]);
 
@@ -144,6 +166,7 @@ export default function PushBasePage({ user }) {
         const msg = e?.response?.data?.message || '';
         if (msg === 'push.keys_exist') return t('push.keysExist');
         if (msg === 'push.contactInvalid') return t('push.contactInvalid');
+        if (msg === 'push.contactRequired') return t('push.contactRequired');
         if (msg === 'push.titleTextRequired') return t('push.titleTextRequired');
         if (msg === 'push.tooLong') return t('push.tooLong');
         if (msg === 'push.eventRequired') return t('push.eventRequired');
@@ -152,9 +175,19 @@ export default function PushBasePage({ user }) {
 
     const generateKeys = async () => {
         if (!canWrite) return;
-        const confirmed = !vapid.has_keys
-            || window.confirm(t('push.rotateConfirm'));
-        if (!confirmed) return;
+        // The API refuses generation without a real contact — gate here so the
+        // operator fixes the field instead of reading a bare error.
+        if (!contactValid) {
+            setError(t('push.contactRequired'));
+            return;
+        }
+        if (vapid.has_keys) {
+            // Rotation mints a new keypair: every existing subscription stays
+            // bound to the old one (eternal 403s on sends) until each device
+            // reopens the app and silently re-subscribes under the new key.
+            const n = Number(totalActive) || 0;
+            if (!window.confirm(t('push.rotateConfirm') + ' ' + t('push.rotateAffects').replace('{n}', n.toLocaleString()))) return;
+        }
         try {
             const res = await axios.post(`${API_URL}?action=push_vapid_generate`, { confirm: vapid.has_keys });
             if (res.data?.status === 'success') {
@@ -193,6 +226,32 @@ export default function PushBasePage({ user }) {
             await axios.post(`${API_URL}?action=push_subscribers_op`, { ids: [id], op: action });
             load();
         } catch { setError(t('push.loadFailed')); }
+    };
+
+    // Direct test delivery to ONE subscriber, bypassing the queue: the answer
+    // (ok / 403 / 404 / other) is the fastest "why is my pipe dead" probe.
+    const sendTest = async (subscriptionId) => {
+        if (!canWrite || testSendingId) return;
+        setTestSendingId(subscriptionId);
+        setError('');
+        setInfo('');
+        try {
+            const res = await axios.post(`${API_URL}?action=push_test_send`, { subscription_id: subscriptionId });
+            const d = res.data?.data || {};
+            if (d.ok) {
+                setInfo(t('push.testDelivered'));
+            } else if (d.code === 403) {
+                setError(t('push.fail403Hint'));
+            } else if (d.code === 404 || d.code === 410) {
+                setError(t('push.testDead'));
+            } else {
+                setError(`${t('push.testRejected')} ${d.code || ''} ${d.error || ''}`.trim());
+            }
+        } catch (e) {
+            setError(translateApiError(e, t('push.sendFailed')));
+        } finally {
+            setTestSendingId(0);
+        }
     };
 
     const openNewMessage = () => {
@@ -347,6 +406,22 @@ export default function PushBasePage({ user }) {
                                             )}
                                         </div>
                                     </div>
+                                    {/* Why-no-subscribers strip: keys, contact,
+                                        worker liveness, base size and the last
+                                        delivery failure code — the five things
+                                        every "push does not work" report needs. */}
+                                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs mt-3" style={{ color: 'var(--color-text-muted)' }}>
+                                        <span>{t('push.diagKeys')}: <b style={{ color: vapid.has_keys ? 'var(--color-success)' : 'var(--color-danger)' }}>{vapid.has_keys ? '✓' : '✗'}</b></span>
+                                        <span>{t('push.diagContact')}: <b style={{ color: contactValid ? 'var(--color-success)' : 'var(--color-danger)' }}>{contactValid ? '✓' : '✗'}</b></span>
+                                        <span>{t('push.diagWorker')}: <b style={{ color: workerStalled ? 'var(--color-danger)' : 'var(--color-text-primary)' }}>{workerLastRunLabel}</b></span>
+                                        <span>{t('push.totalActive')}: <b style={{ color: 'var(--color-text-primary)' }}>{totalActive.toLocaleString()}</b></span>
+                                        {queue.last_fail_code != null && (
+                                            <span style={{ color: Number(queue.last_fail_code) === 403 ? 'var(--color-warning, #d97706)' : 'var(--color-danger)' }}>
+                                                {t('push.lastFailCode')}: <b>{queue.last_fail_code || t('push.failCodeNoReply')}</b>
+                                                {Number(queue.last_fail_code) === 403 ? <> — {t('push.fail403Hint')}</> : null}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                             {canWrite && (
@@ -412,14 +487,25 @@ export default function PushBasePage({ user }) {
                                         </td>
                                         {canWrite && (
                                             <td>
-                                                <button
-                                                    type="button"
-                                                    className="action-btn text-red"
-                                                    title={t('push.delete')}
-                                                    onClick={() => { if (window.confirm(t('push.deleteConfirm'))) op(r.id, 'delete'); }}
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
+                                                <div className="flex gap-1">
+                                                    <button
+                                                        type="button"
+                                                        className="action-btn"
+                                                        title={t('push.testSend')}
+                                                        disabled={testSendingId === r.id}
+                                                        onClick={() => sendTest(r.id)}
+                                                    >
+                                                        <Send className={`w-4 h-4 ${testSendingId === r.id ? 'animate-pulse' : ''}`} />
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className="action-btn text-red"
+                                                        title={t('push.delete')}
+                                                        onClick={() => { if (window.confirm(t('push.deleteConfirm'))) op(r.id, 'delete'); }}
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
                                             </td>
                                         )}
                                     </tr>

@@ -188,6 +188,10 @@ try {
         "push access 'read' blocks push_message_save");
     assertTrue(($post('push_message_delete', $read, ['id' => $msgDepId])['code'] ?? 0) === 403,
         "push access 'read' blocks push_message_delete");
+    assertTrue(($post('push_test_send', $none, ['subscription_id' => 1])['code'] ?? 0) === 403,
+        "push access 'none' blocks push_test_send");
+    assertTrue(($post('push_test_send', $read, ['subscription_id' => 1])['code'] ?? 0) === 403,
+        "push access 'read' blocks push_test_send");
 } catch (Throwable $e) {
     fwrite(STDERR, 'EXCEPTION: ' . $e->getMessage() . "\n" . $e->getTraceAsString() . "\n");
     $testPassed = false;

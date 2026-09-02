@@ -3974,6 +3974,18 @@ vapidHint: "Se generan una vez y se conectan automáticamente — cada PWA recib
         tooLong: "Título: hasta 250 caracteres, texto: hasta 400",
         eventRequired: "Elige un evento para el mensaje",
         saveFailed: "No se pudo guardar el mensaje",
-        sendFailed: "No se pudo poner el mensaje en cola"
+        sendFailed: "No se pudo poner el mensaje en cola",
+        contactRequired: "Guarda antes un contacto real del remitente (mailto: o https:) — Apple rechaza el marcador de posición con 403 en cada envío a iOS",
+        rotateAffects: "Esto desvinculará {n} suscripciones activas; cada dispositivo se vuelve a suscribir automáticamente al abrir la app de nuevo.",
+        diagKeys: "Claves",
+        diagContact: "Contacto",
+        diagWorker: "Worker",
+        diagWorkerNever: "nunca se ejecutó",
+        diagWorkerAgo: "hace {n} min",
+        fail403Hint: "403 — revisa el contacto del remitente: Apple rechaza direcciones de relleno",
+        testSend: "Enviar push de prueba a este suscriptor",
+        testDelivered: "Push de prueba aceptado por el servicio — revisa el dispositivo",
+        testDead: "El endpoint ya no existe (404/410) — esta suscripción caducará",
+        testRejected: "El servicio push rechazó la prueba:",
     }
 };

@@ -127,7 +127,7 @@ function orbitraResourceAccessMap(): array
             ],
             'write' => [
                 'push_vapid_generate', 'push_vapid_contact_save', 'push_subscribers_op',
-                'push_message_save', 'push_message_delete', 'push_send_now',
+                'push_message_save', 'push_message_delete', 'push_send_now', 'push_test_send',
             ],
             'hybrid' => [],
         ],
