@@ -45,7 +45,7 @@ Try the full panel — no install required:
 
 > Shared demo instance — please don't store anything sensitive; data may be reset at any time.
 
-## 🚀 Quick Install (Ubuntu 20.04+ / Debian 11+)
+## 🚀 Quick Install (Ubuntu 22.04+ / Debian 12+)
 
 To install automatically on a clean Linux server, run:
 
@@ -74,7 +74,7 @@ Orbitra is deliberately lightweight — it runs on plain **PHP + SQLite** behind
 - **CPU:** 1 vCPU (x86_64)
 - **RAM:** 1 GB (2 GB recommended)
 - **Disk:** 20 GB SSD
-- **OS:** Ubuntu 20.04 / 22.04 / 24.04 or Debian 11 / 12
+- **OS:** Ubuntu 22.04 through 26.04, or Debian 12 / 13
 - Clean server, no control panel; root/sudo access
 
 ### Sizing by traffic (guideline)

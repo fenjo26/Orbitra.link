@@ -89,11 +89,22 @@ function orbitraReadPrivilegedFile(string $path): ?string
     }
     // Without the matching sudoers rule sudo -n fails quietly, and the caller
     // sees "unreadable" — which is the honest verdict for a panel that cannot
-    // read the file, not a fabricated "certificate is broken". The command is
-    // spelled with its full path on purpose: sudo resolves a bare name through
-    // secure_path (/usr/bin first on usrmerged systems), and the sudoers entry
-    // written by install.sh names /bin/cat — full path on both sides removes
-    // the dependency on how any given sudo resolves one.
+    // read the file, not a fabricated "certificate is broken".
+    //
+    // The helper first. Its sudoers rule carries no argument pattern, which is
+    // what makes it work everywhere: the older rules spelled the path as
+    // /etc/letsencrypt/live/*/fullchain.pem, and sudo-rs — the default sudo on
+    // Ubuntu 25.10 and newer — rejects a wildcard in a command argument, so on
+    // those hosts every one of those rules was dropped as a parse error.
+    $out = orbitraShell('sudo -n /usr/local/bin/orbitra-catcert ' . escapeshellarg($path) . ' 2>/dev/null');
+    if (is_string($out) && $out !== '') {
+        return $out;
+    }
+    // Installs made before the helper existed still have the cat rules, and on
+    // a classic sudo they work. Spelled with a full path on purpose: sudo
+    // resolves a bare name through secure_path (/usr/bin first on usrmerged
+    // systems) while the old sudoers entry names /bin/cat — naming the full
+    // path on both sides removes the dependency on how a given sudo resolves.
     $out = orbitraShell('sudo -n /bin/cat ' . escapeshellarg($path) . ' 2>/dev/null');
     return is_string($out) && $out !== '' ? $out : null;
 }

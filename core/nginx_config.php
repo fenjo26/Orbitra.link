@@ -54,8 +54,22 @@ function orbitraCertbotCertonlyCommand(string $domain, bool $force = false): str
     // worker keeps the gentle flag — renewals there should respect the limits.
     $renewalFlag = $force ? '--force-renewal' : '--keep-until-expiring';
 
+    // The deploy hook is how a panel with no root of its own repairs the one
+    // permission it depends on. certbot creates live/ and archive/ as 0700
+    // root, and PHP running as the web user then cannot even traverse to the
+    // certificate — file_exists() answers false for a certificate that exists,
+    // which reads downstream as "chain broken" and picks the self-signed nginx
+    // block. certbot runs this hook as root, so the fix needs no new sudoers
+    // rule and no shell access from the operator; it also gets written into the
+    // certificate's renewal config, so every future renewal re-applies it.
+    // Only the directory bits move: private keys stay 0600 root-only files.
+    // `|| true` on purpose — a hook that exits non-zero is logged as a failure
+    // against an issuance that in fact succeeded.
+    $readableHook = 'chmod 0755 /etc/letsencrypt /etc/letsencrypt/live /etc/letsencrypt/archive 2>/dev/null || true';
+
     return 'sudo certbot certonly --webroot -w ' . escapeshellarg(ORBITRA_ACME_WEBROOT)
         . ' -n -d ' . escapeshellarg($domain)
+        . ' --deploy-hook ' . escapeshellarg($readableHook)
         . " --agree-tos --register-unsafely-without-email $renewalFlag";
 }
 

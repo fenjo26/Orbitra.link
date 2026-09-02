@@ -1,6 +1,6 @@
 #!/bin/bash
 # Orbitra Tracker Auto-Installer
-# Supported OS: Ubuntu 20.04+ (incl. 26.04) / Debian 11+
+# Supported OS: Ubuntu 22.04+ / Debian 12+ (20.04 and Debian 11 ship only PHP 7.4)
 # Root privileges required (sudo)
 
 set -e
@@ -153,7 +153,13 @@ apt-get update -y
 # both declare "ext-bcmath" as a hard requirement, so without it `composer install`
 # refuses the lock file entirely ("Your lock file does not contain a compatible set
 # of packages") and every install and in-panel update dies at the dependency step.
-apt-get install -y ca-certificates apt-transport-https software-properties-common curl git unzip nginx php-fpm php-cli php-sqlite3 php-curl php-mbstring php-xml php-zip php-intl php-bcmath
+apt-get install -y ca-certificates apt-transport-https curl git unzip nginx php-fpm php-cli php-sqlite3 php-curl php-mbstring php-xml php-zip php-intl php-bcmath
+# software-properties-common is an Ubuntu package; Debian 13 dropped it, and
+# nothing in this installer needs it there — it must not fail the whole
+# package step on a Debian release.
+if grep -qi '^ID=ubuntu' /etc/os-release 2>/dev/null; then
+    apt-get install -y software-properties-common
+fi
 
 # Determine installed PHP-FPM version
 PHP_V=$(php -v | head -n 1 | cut -d " " -f 2 | cut -f1-2 -d".")
@@ -217,22 +223,74 @@ echo "www-data ALL=(ALL) NOPASSWD: /bin/systemctl reload nginx" >> $SUDOERS_FILE
 echo "www-data ALL=(ALL) NOPASSWD: /bin/cp /etc/nginx/sites-available/orbitra /tmp/orbitra_nginx_update.conf" >> $SUDOERS_FILE
 echo "www-data ALL=(ALL) NOPASSWD: /bin/cp /tmp/orbitra_nginx_update.conf /etc/nginx/sites-available/orbitra" >> $SUDOERS_FILE
 echo "www-data ALL=(ALL) NOPASSWD: /usr/bin/certbot" >> $SUDOERS_FILE
-# Root-visible reads of the PUBLIC chain files only. certbot writes
-# /etc/letsencrypt as root and the tree is root-only on many hosts, so the
-# panel's chain check needs these to see a certificate it must not misreport
-# as broken. privkey.pem is deliberately absent: the web user never needs
-# private key material, nginx reads it as root. Without these lines the
-# panel degrades to an honest "cannot read the certificate file" warning.
-for certfile in fullchain.pem chain.pem cert.pem; do
-    echo "www-data ALL=(ALL) NOPASSWD: /bin/cat /etc/letsencrypt/live/*/$certfile" >> $SUDOERS_FILE
-    echo "www-data ALL=(ALL) NOPASSWD: /bin/cat /etc/letsencrypt/archive/*/$certfile" >> $SUDOERS_FILE
-    # /usr/bin duplicates: on usrmerged systems /bin is a symlink to /usr/bin,
-    # and which of the two a sudoers entry must name depends on the sudo build
-    # — listing both makes the rule match regardless.
-    echo "www-data ALL=(ALL) NOPASSWD: /usr/bin/cat /etc/letsencrypt/live/*/$certfile" >> $SUDOERS_FILE
-    echo "www-data ALL=(ALL) NOPASSWD: /usr/bin/cat /etc/letsencrypt/archive/*/$certfile" >> $SUDOERS_FILE
-done
+# Reading the PUBLIC half of /etc/letsencrypt back.
+#
+# certbot creates live/ and archive/ as 0700 root, so the web user cannot even
+# traverse to the certificate it has to read — and PHP's file_exists() then
+# answers "no certificate" for one that exists, which is how a healthy domain
+# gets classified self-signed and shows ERR_CERT_AUTHORITY_INVALID. Opening the
+# two directory levels exposes nothing on its own: the private keys are 0600
+# root-only FILES inside them, and nginx reads those as root.
+chmod 0755 /etc/letsencrypt /etc/letsencrypt/live /etc/letsencrypt/archive 2>/dev/null || true
+# The directories are created by the first issuance, which happens after this
+# script, and certbot re-applies 0700 on some renewals — so the same two chmods
+# run again after every issuance and renewal.
+mkdir -p /etc/letsencrypt/renewal-hooks/deploy
+cat > /etc/letsencrypt/renewal-hooks/deploy/00-orbitra-readable.sh <<'ORBITRA_HOOK'
+#!/bin/sh
+# Orbitra: keep the public half of /etc/letsencrypt readable by the web user.
+# Directory bits only — private key files keep their own 0600 root-only mode.
+chmod 0755 /etc/letsencrypt /etc/letsencrypt/live /etc/letsencrypt/archive 2>/dev/null || true
+ORBITRA_HOOK
+chmod 0755 /etc/letsencrypt/renewal-hooks/deploy/00-orbitra-readable.sh
+
+# Fallback for hosts where an administrator keeps /etc/letsencrypt closed.
+#
+# This used to be a list of sudoers rules of the form
+#   www-data ALL=(ALL) NOPASSWD: /bin/cat /etc/letsencrypt/live/*/fullchain.pem
+# and on Ubuntu 25.10 and newer every one of them is a parse error. Those
+# releases ship sudo-rs as the default sudo, and sudo-rs does not implement
+# wildcards in command arguments at all ("wildcards are not allowed in command
+# arguments"). The rules were dropped — so the panel could not read a
+# certificate it had just issued — and the parse errors were printed on the
+# stderr of every sudo call the panel made, including the certbot runs whose
+# output it parses. A helper with a fixed path needs no wildcard in sudoers:
+# the argument check lives in the script, where it can be exact.
+cat > /usr/local/bin/orbitra-catcert <<'ORBITRA_CATCERT'
+#!/bin/sh
+# Print ONE public certificate file from /etc/letsencrypt, and nothing else.
+# Reached through a NOPASSWD sudoers rule, so it must police its own argument:
+# a sudoers rule without arguments allows any. Private keys are not listed
+# below and `..` is refused outright — in `case`, a * matches slashes too, so
+# without that check "live/../../root/x/fullchain.pem" would pass the pattern.
+set -eu
+[ $# -eq 1 ] || { echo "usage: orbitra-catcert <path>" >&2; exit 2; }
+case "$1" in
+    *..*) exit 2 ;;
+esac
+case "$1" in
+    /etc/letsencrypt/live/*/fullchain.pem) ;;
+    /etc/letsencrypt/live/*/chain.pem) ;;
+    /etc/letsencrypt/live/*/cert.pem) ;;
+    /etc/letsencrypt/archive/*/fullchain*.pem) ;;
+    /etc/letsencrypt/archive/*/chain*.pem) ;;
+    /etc/letsencrypt/archive/*/cert*.pem) ;;
+    *) exit 2 ;;
+esac
+exec cat -- "$1"
+ORBITRA_CATCERT
+chmod 0755 /usr/local/bin/orbitra-catcert
+echo "www-data ALL=(ALL) NOPASSWD: /usr/local/bin/orbitra-catcert" >> $SUDOERS_FILE
 chmod 0440 $SUDOERS_FILE
+
+# A sudoers file with a parse error is skipped rule by rule and its complaint
+# goes to the stderr of every later sudo call, so a bad edit here is expensive
+# and silent. Check it while there is still a human watching the install.
+if command -v visudo >/dev/null 2>&1 && ! visudo -c -f $SUDOERS_FILE >/dev/null 2>&1; then
+    echo "  > WARNING: $SUDOERS_FILE did not pass visudo -c. Certificate reads may fall back to"
+    echo "    the file permissions above. Output of the check:"
+    visudo -c -f $SUDOERS_FILE 2>&1 | sed 's/^/    /'
+fi
 
 echo "[3/5] Downloading Orbitra source code to /var/www/orbitra..."
 TMP_SRC_DIR="$(mktemp -d /tmp/orbitra_src.XXXXXX)"
@@ -750,6 +808,51 @@ if nginx -t 2>&1 | grep -q "successful"; then
 else
     echo "  > ⚠ WARNING: Nginx configuration may have errors"
 fi
+
+# Test 5: the sudoers file this installer just wrote actually parses. A rule
+# rejected here is dropped silently and the panel loses a privilege it believes
+# it has — this is exactly how the wildcard `cat` rules died on Ubuntu 25.10,
+# where the default sudo is sudo-rs and rejects wildcards in command arguments.
+if command -v visudo >/dev/null 2>&1; then
+    if visudo -c -f "$SUDOERS_FILE" >/dev/null 2>&1; then
+        echo "  > ✓ sudo rules for the panel are valid"
+    else
+        echo "  > ⚠ WARNING: $SUDOERS_FILE has rules this sudo rejects:"
+        visudo -c -f "$SUDOERS_FILE" 2>&1 | sed 's/^/      /'
+    fi
+fi
+
+# Test 6: the web user can really run certbot without a password. Everything
+# about automatic SSL depends on this one answer.
+if sudo -u www-data sudo -n /usr/bin/certbot --version >/dev/null 2>&1; then
+    echo "  > ✓ The panel can run Certbot (automatic SSL will work)"
+else
+    echo "  > ⚠ WARNING: the panel cannot run Certbot without a password."
+    echo "      Automatic SSL will not work until $SUDOERS_FILE is fixed."
+fi
+
+# Test 7: the web user can read a certificate once one exists. Tested on the
+# directories, because that is where it fails: certbot makes them 0700 root,
+# and an unreadable certificate is reported by the panel as a broken one.
+if [ -d /etc/letsencrypt/live ]; then
+    if sudo -u www-data test -x /etc/letsencrypt/live; then
+        echo "  > ✓ The panel can read issued certificates"
+    else
+        echo "  > ⚠ WARNING: /etc/letsencrypt/live is closed to the web user —"
+        echo "      certificates would be reported as broken. Fix:"
+        echo "      sudo chmod 0755 /etc/letsencrypt /etc/letsencrypt/live /etc/letsencrypt/archive"
+    fi
+fi
+
+# Test 8: the panel answers over HTTP on this machine. Everything above can be
+# green while PHP-FPM is not actually serving, and the operator finds out only
+# when the browser shows a blank page.
+LOCAL_CODE="$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 http://127.0.0.1/admin.php || echo 000)"
+case "$LOCAL_CODE" in
+    200|302) echo "  > ✓ The panel answers on this server (HTTP $LOCAL_CODE)" ;;
+    000)     echo "  > ⚠ WARNING: the panel did not answer on 127.0.0.1 — check: systemctl status nginx php${PHP_V}-fpm" ;;
+    *)       echo "  > ⚠ WARNING: the panel answered HTTP $LOCAL_CODE on 127.0.0.1 — check /var/www/orbitra/var/logs/php_errors.log" ;;
+esac
 
 echo "  > Smoke tests completed."
 

@@ -22,8 +22,15 @@ try {
     ];
     $pdo = new PDO("sqlite:" . $db_file, null, null, $pdoOptions);
 
-    // Set busy timeout FIRST so subsequent commands will wait up to 5 seconds if DB is locked
-    $pdo->exec("PRAGMA busy_timeout = 5000;");
+    // Set busy timeout FIRST so subsequent commands wait instead of failing when
+    // the database is locked. The CLI gets far longer than a web request: the
+    // every-minute crons (rotation optimiser, postback queue) hold the write
+    // lock in bursts, and five seconds was not enough for the certificate
+    // worker — three consecutive runs of cli/ssl_installer.php aborted with
+    // "database is locked" on a fresh install, leaving a domain whose
+    // certificate had already been issued stuck showing "installing". A web
+    // request must still fail fast rather than hold a PHP-FPM worker.
+    $pdo->exec('PRAGMA busy_timeout = ' . (PHP_SAPI === 'cli' ? 30000 : 5000) . ';');
 
     try {
         // SQLite journal mode affects the presence of `*.sqlite-wal/*.sqlite-shm` files.
