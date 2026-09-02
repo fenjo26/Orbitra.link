@@ -1085,8 +1085,12 @@ code {
 }
 
 .tracker-table th {
-  padding: 8px 14px;
-  font-size: 11px;
+  /* Tight by design: the tracker tables carry twenty-odd columns, and every
+     px of horizontal padding is a px the numbers do not get. 10px here is a
+     contract with `.tracker-table td` and `tfoot td` below - all three must
+     match or the totals row sits offset from the column it sums. */
+  padding: 5px 10px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.04em;
   white-space: nowrap;
@@ -1123,9 +1127,9 @@ code {
 }
 
 .tracker-table td {
-  padding: 7px 14px;
+  padding: 6px 10px;
   font-size: 12.5px;
-  height: 38px;
+  height: 36px;
   white-space: nowrap;
   /* Cells default to baseline alignment — inline-flex buttons (Actions) and
      badges (Status/Group) then sit visibly off-centre against text rows. */
@@ -1189,6 +1193,74 @@ code {
   text-overflow: clip;
 }
 
+/* ---- Per-column alignment (common/tableColumns.js -> ColRow) ----
+   One definition of where a column reads from, stamped onto the header, the
+   body cells and the totals cell alike, so the three can never disagree.
+   Names and action rows read from the left; short tokens (ID, Status, GEO,
+   Type) centre, because a two-character value pinned to an edge reads as a
+   rendering fault; numbers go right so digits line up by place value, which is
+   the entire point of the tabular figures this table already asks for. */
+.tracker-table th.align-left,
+.tracker-table td.align-left,
+.tracker-table tfoot td.align-left {
+  text-align: left;
+}
+
+.tracker-table th.align-center,
+.tracker-table td.align-center,
+.tracker-table tfoot td.align-center {
+  text-align: center;
+}
+
+.tracker-table td.align-right,
+.tracker-table tfoot td.align-right {
+  text-align: right;
+}
+
+/* Metric HEADERS read from the left although their values are right-aligned:
+   a short label centred over a wide column drifts away from the table's
+   reading edge and drags the sort arrow with it, and the eye then has to find
+   each heading somewhere different. The values still line up on the right. */
+.tracker-table th.align-right {
+  text-align: left;
+}
+
+/* SortableTh's inner flex row is what actually positions grip + label + sort
+   icon, so it follows the same rule as the text alignment above. */
+.tracker-table th .th-inner {
+  justify-content: center;
+}
+
+.tracker-table th.align-left .th-inner,
+.tracker-table th.align-right .th-inner {
+  justify-content: flex-start;
+}
+
+/* The drag grip is invisible until its header is hovered. It keeps its box at
+   rest — opacity only, never `display` or `width: 0` — so nothing shifts when
+   it appears, and measureColumnContent() (ColumnResize.jsx) measures the same
+   width the column really occupies. Collapsing it instead is what gave the
+   reference implementation a phantom ~129px floor nobody could drag back
+   past. */
+.tracker-table th .col-grip {
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.tracker-table th:hover .col-grip {
+  opacity: 0.55;
+}
+
+.tracker-table th .col-grip:hover {
+  opacity: 0.9;
+}
+
+/* While a column drag is in flight the pointer is no longer over the source
+   header, so without this the grip the user is holding fades out under them. */
+.tracker-table th .col-grip:active {
+  opacity: 0.9;
+}
+
 /* Report tree column: rows are indented with padding-left by depth, so the
    centring above would flatten the hierarchy into one ragged stack. */
 .tracker-table td.report-pinned-name,
@@ -1198,11 +1270,11 @@ code {
 
 /* Horizontal padding MUST match `.tracker-table td` above, or every totals figure
    sits offset from the column it belongs to. The vertical value is deliberately
-   larger — the footer is a heavier row — but the 14px is a contract, not a taste
+   larger — the footer is a heavier row — but the 10px is a contract, not a taste
    choice. Landings/Offers used to add `px-4 py-3` on their footer cells on top of
    this, which is exactly how the two drifted apart. */
 .tracker-table tfoot td {
-  padding: 9px 14px;
+  padding: 8px 10px;
   background-color: var(--color-bg-soft);
   font-weight: 700;
   font-size: 12px;
@@ -1245,11 +1317,14 @@ code {
 }
 
 /* Header labels centre within their column: with user-resizable widths a
-   label hugging the left/right edge of a wide cell reads crooked. Data cells
-   keep their own alignment (numbers right, names left). !important beats the
-   per-column inline text-aligns left by older markup. */
-.tracker-table th,
-.page-table th {
+   label hugging the left/right edge of a wide cell reads crooked. !important
+   beats the per-column inline text-aligns left by older markup.
+   `:not([data-col])` is what lets the tracker tables opt out: a header stamped
+   by ColRow follows its own column's alignment (block below) instead, and an
+   !important here would win over every one of those rules. Tables that do not
+   use ColRow - CampaignReports, Domains, Trends - keep the centred default. */
+.tracker-table th:not([data-col]),
+.page-table th:not([data-col]) {
   text-align: center !important;
 }
 
@@ -2038,5 +2113,20 @@ body.col-resizing * {
   .btn-sm {
     padding: 6px 10px;
     font-size: 11px;
+  }
+}
+
+/* Mobile card metric grid: four across, so the eight metrics the card picker
+   allows (common/CardMetrics.jsx) fill two even rows. Two across on the
+   narrowest phones, where a quarter of the card leaves ~70px — not enough for
+   a currency figure, which would then truncate on every single card. */
+.card-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 380px) {
+  .card-metric-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }

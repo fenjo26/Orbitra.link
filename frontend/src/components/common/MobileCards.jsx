@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { CardMetricsButton, CardMetricsSheet } from './CardMetrics';
 
 /**
  * Stacked-card rendering of a data table for narrow viewports (below lg).
@@ -8,11 +9,15 @@ import { useLanguage } from '../../contexts/LanguageContext';
  * row identity on top, the metrics the user actually checks as label/value
  * pairs, and the remaining fields behind a per-card "More" expander.
  *
- * Which metrics appear is driven by the same column customiser the table
- * uses: pages pass `fields` for their visible columns (in customiser order)
- * plus a `primaryIds` priority list — a primary metric the user hid simply
- * does not appear, and if all of them are hidden the first visible columns
- * take their place so the card top is never empty.
+ * `primaryIds` is the ordered list of metrics on the face of the card, and it
+ * is the user's own choice (common/CardMetrics.jsx), not a slice of the desktop
+ * column set: a phone shows four to eight numbers at a glance where the table
+ * shows twenty. Pass `metricsPicker` to let them change it — the chip and the
+ * sheet only exist here, because the cards only exist here.
+ *
+ * `fields` should therefore cover the union of the visible desktop columns and
+ * the chosen card metrics, so a metric picked for the card still renders when
+ * it is hidden in the table. Anything not on the face falls to "More".
  */
 const MobileCards = ({
     rows,
@@ -22,21 +27,26 @@ const MobileCards = ({
     renderHeaderRight,
     fields,
     primaryIds = [],
+    metricsPicker = null,
     header,
     emptyState,
     className = '',
 }) => {
     const { t } = useLanguage();
     const [expanded, setExpanded] = useState(() => new Set());
+    const [pickerOpen, setPickerOpen] = useState(false);
 
     if (!rows || rows.length === 0) {
         return emptyState || null;
     }
 
-    const primarySet = new Set(primaryIds);
-    const primary = [];
-    const more = [];
-    fields.forEach(f => (primarySet.has(f.id) ? primary : more).push(f));
+    // The face of the card follows primaryIds' ORDER, not the order the page
+    // happened to list its fields in — that order is the one the user set in
+    // the picker, and reading it back from `fields` would silently ignore it.
+    const byId = new Map(fields.map(f => [f.id, f]));
+    const primary = primaryIds.map(id => byId.get(id)).filter(Boolean);
+    const primarySet = new Set(primary.map(f => f.id));
+    const more = fields.filter(f => !primarySet.has(f.id));
     if (primary.length === 0 && more.length > 0) {
         primary.push(...more.splice(0, Math.min(4, more.length)));
     }
@@ -52,6 +62,21 @@ const MobileCards = ({
 
     return (
         <div className={`space-y-3 ${className}`}>
+            {metricsPicker && (
+                <div className="flex justify-end">
+                    <CardMetricsButton count={primaryIds.length} onClick={() => setPickerOpen(true)} />
+                </div>
+            )}
+            {metricsPicker && (
+                <CardMetricsSheet
+                    open={pickerOpen}
+                    onClose={() => setPickerOpen(false)}
+                    options={metricsPicker.options}
+                    selected={primaryIds}
+                    onChange={metricsPicker.onChange}
+                    onReset={metricsPicker.onReset}
+                />
+            )}
             {header}
             {rows.map((row) => {
                 const id = getId(row);
@@ -84,7 +109,7 @@ const MobileCards = ({
                         </div>
 
                         {primary.length > 0 && (
-                            <div className="grid grid-cols-2 gap-x-3 gap-y-2.5 px-3.5 pb-3">
+                            <div className="card-metric-grid gap-x-3 gap-y-2.5 px-3.5 pb-3">
                                 {primary.map(f => <CardField key={f.id} label={f.label} value={f.render(row)} />)}
                             </div>
                         )}

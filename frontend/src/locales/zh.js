@@ -124,6 +124,8 @@ export default {
         "importBtn": "进口"
     },
     "common": {
+        "reset": "重置",
+        "done": "完成",
         "hide": "隐藏",
         "showDetails": "显示详情",
         "copied": "已复制",
@@ -3688,7 +3690,11 @@ export default {
     },
     mobileCards: {
         "showMore": "更多",
-        "showLess": "收起"
+        "showLess": "收起",
+        "cardMetrics": "卡片指标",
+        "cardMetricsHint": "按此顺序显示在每张卡片上",
+        "moveUp": "上移",
+        "moveDown": "下移"
     },
     "media": {
         "title": "内容图库",

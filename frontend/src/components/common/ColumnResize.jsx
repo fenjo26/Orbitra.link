@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { colAlignClass } from './tableColumns';
 
 // Shared resizable-table-column machinery. One implementation, used by every
 // list table (Campaigns, Landings, Offers, ConversionsLog, the traffic click
@@ -150,6 +151,127 @@ export function useResizableTableColumns({ tableId, columns, enabled = true }) {
     };
 }
 
+
+// --- content measurement -------------------------------------------------
+//
+// The narrowest a column may be dragged is the width its own content needs.
+// Without a floor a column collapses to MIN_COL_WIDTH and its heading is cut
+// mid-word - and `.tracker-table th` CLIPS rather than ellipses (see
+// index.css: text-overflow cannot shorten a flex row of grip + label + icon),
+// so "Leads" becomes "eads" and reads as a typo, not as truncation.
+
+const RULER_ID = 'orbitra-col-ruler';
+
+const getRuler = () => {
+    let ruler = document.getElementById(RULER_ID);
+    if (!ruler) {
+        ruler = document.createElement('div');
+        ruler.id = RULER_ID;
+        ruler.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(ruler);
+    }
+    // Off-screen rather than display:none - a hidden element has no layout and
+    // measures 0.
+    ruler.style.cssText = 'position:absolute;left:-99999px;top:0;visibility:hidden;pointer-events:none;';
+    return ruler;
+};
+
+/**
+ * Width, in px, that column `colId` needs to show its widest cell in full.
+ *
+ * Measured from detached clones in a ruler table that carries the SAME classes
+ * as the real one, so `.tracker-table` padding and font sizes apply - measuring
+ * a bare clone returns a number for a cell that does not exist.
+ *
+ * Only the resize handle is stripped, because it is absolutely positioned
+ * furniture that occupies no column width. Icons and the drag grip STAY: they
+ * are always laid out here (hover only changes their opacity, never their
+ * box), so a clone measures exactly what the column shows. Fade furniture in
+ * and out, never collapse it to `width: 0` - a clone parked off-screen has no
+ * hover, so it would report the expanded width and floor the column at a size
+ * the user can see no reason for and can never drag back past.
+ *
+ * Cells are matched by `data-col`, never by `nth-child`: columns reorder.
+ */
+export function measureColumnContent(tableEl, colId) {
+    if (!tableEl || !colId || typeof document === 'undefined') return 0;
+    let cells;
+    try {
+        cells = tableEl.querySelectorAll(`[data-col="${CSS.escape(String(colId))}"]`);
+    } catch {
+        return 0;
+    }
+    if (!cells.length) return 0;
+
+    const ruler = getRuler();
+    ruler.textContent = '';
+    const rulerTable = document.createElement('table');
+    rulerTable.className = tableEl.className;
+    // auto layout and no minimum: the clone must be free to report the width it
+    // WANTS, which is the whole measurement.
+    rulerTable.style.cssText = 'table-layout:auto;width:auto;min-width:0;position:static;';
+    const body = document.createElement('tbody');
+    rulerTable.appendChild(body);
+    ruler.appendChild(rulerTable);
+
+    const clones = [];
+    cells.forEach((cell) => {
+        const row = document.createElement('tr');
+        const clone = cell.cloneNode(true);
+        clone.querySelectorAll('.col-resize-handle').forEach(el => el.remove());
+        clone.style.width = 'auto';
+        clone.style.minWidth = '0';
+        clone.style.maxWidth = 'none';
+        clone.style.overflow = 'visible';
+        clone.style.textOverflow = 'clip';
+        clone.style.position = 'static';
+        row.appendChild(clone);
+        body.appendChild(row);
+        clones.push(clone);
+    });
+
+    // One layout pass for all of them, then read.
+    let widest = 0;
+    for (const clone of clones) {
+        widest = Math.max(widest, Math.ceil(clone.getBoundingClientRect().width));
+    }
+    ruler.textContent = '';
+    return widest;
+}
+
+/**
+ * A table row that stamps `data-col` and the alignment class onto its cells,
+ * by position, from the same ordered column list that feeds the <colgroup>.
+ *
+ * Doing it here instead of on forty individual <th>/<td> tags is what keeps the
+ * two in step. The colgroup maps <col> positionally, so a row whose cells drift
+ * out of the column list draws every column after the mismatch at a
+ * neighbour's width, with no error anywhere. This wrapper cannot drift, and it
+ * says so out loud in development when the counts disagree.
+ *
+ * `columns` takes either the columnDefs objects ({ id, width }) or bare ids.
+ */
+export const ColRow = ({ columns, children, ...rest }) => {
+    const cells = React.Children.toArray(children);
+    const idOf = (c) => (c && typeof c === 'object' ? c.id : c);
+    if (import.meta.env?.DEV && cells.length !== columns.length) {
+        console.error(
+            '[tracker-table] row rendered %d cells for %d columns (%s) - data-col and the colgroup are now out of step',
+            cells.length, columns.length, columns.map(idOf).join(',')
+        );
+    }
+    return (
+        <tr {...rest}>
+            {cells.map((cell, i) => {
+                const id = idOf(columns[i]);
+                if (id == null || !React.isValidElement(cell)) return cell;
+                const className = [cell.props.className, colAlignClass(id)].filter(Boolean).join(' ');
+                return React.cloneElement(cell, { 'data-col': id, className });
+            })}
+        </tr>
+    );
+};
+
 // The grab handle on a <th>'s right edge. Must be rendered inside its <th>
 // (it walks up to the th/col/table at pointerdown), and every mouse/touch
 // event it handles is stopped so the parent header's drag-to-reorder and
@@ -181,10 +303,16 @@ export const ColumnResizeHandle = ({ rt, colId }) => {
         const startW = Number.isFinite(assignedW) && assignedW > 0
             ? assignedW
             : th.getBoundingClientRect().width;
+        // Measured once, at grab time: the DOM does not change under the
+        // drag, and re-measuring per pointermove would be a layout pass per
+        // pixel.
+        const minW = Math.max(MIN_COL_WIDTH, measureColumnContent(table, colId));
+
         dragRef.current = {
             pointerId: e.pointerId,
             startX: e.clientX,
             startW,
+            minW,
             startTableW: parseFloat(table.style.width) || startW,
             colEl,
             tableEl: table,
@@ -207,7 +335,7 @@ export const ColumnResizeHandle = ({ rt, colId }) => {
         if (!d || e.pointerId !== d.pointerId) return;
         e.stopPropagation();
 
-        const w = Math.max(MIN_COL_WIDTH, Math.round(d.startW + (e.clientX - d.startX)));
+        const w = Math.max(d.minW ?? MIN_COL_WIDTH, Math.round(d.startW + (e.clientX - d.startX)));
         if (w === d.lastW) return;
         d.lastW = w;
         d.moved = true;

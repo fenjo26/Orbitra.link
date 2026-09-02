@@ -5,10 +5,12 @@ import LandingEditor from './LandingEditor';
 import PwaEditor from './PwaEditor';
 import GroupsModal from './GroupsModal';
 import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
-import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle } from './common/ColumnResize';
+import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle, ColRow } from './common/ColumnResize';
+import { colWidth } from './common/tableColumns';
 import { SortableTh, sortRows, nextSortState } from './common/SortableTh';
 import PaginationToolbar from './common/PaginationToolbar';
 import MobileCards from './common/MobileCards';
+import { useCardMetrics } from './common/CardMetrics';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 import { useTimezone } from '../utils/useTimezone';
 import axios from 'axios';
@@ -24,7 +26,10 @@ const API_URL = '/api.php';
 // Fixed entity columns for landings — these are always present and not part of
 // the metric customization. Metrics come from ALL_REPORT_METRICS.
 const FIXED_LANDING_COLUMNS = [
-    { id: 'checkbox', label: '', fixed: true },
+    // 'check', not 'checkbox': the same id the resize hook looks up, the
+    // colgroup is keyed by and ColRow stamps as data-col. A mismatch there
+    // measures nothing and reports no error.
+    { id: 'check', label: '', fixed: true },
     { id: 'id', label: 'ID', fixed: true },
     { id: 'state', label: 'Status', fixed: true },
     { id: 'name', label: 'Name', fixed: true },
@@ -33,6 +38,14 @@ const FIXED_LANDING_COLUMNS = [
     { id: 'url', label: 'URL', fixed: true },
     { id: 'last_event', label: 'Last Event', fixed: true },
 ];
+
+// What a card shows before the user says otherwise. Four numbers is what fits
+// above the fold on a phone; the picker goes up to eight.
+const CARD_METRIC_DEFAULTS = ['clicks', 'conversions', 'cost', 'roi'];
+// Module scope so the identity is stable: useCardMetrics keys its callbacks off
+// this set, and a fresh Set per render would rebuild them on every keystroke.
+const CARD_METRIC_ALLOWED = new Set(ALL_REPORT_METRICS.map(m => m.id));
+const CARD_METRIC_OPTIONS = ALL_REPORT_METRICS.map(m => ({ id: m.id, label: m.shortLabel || m.label || m.id }));
 
 const LANDING_COLUMNS_KEY = 'orbitra_landing_columns';
 
@@ -93,21 +106,95 @@ const Landings = ({ landings, refreshData, user }) => {
     const [chosenColumns, setChosenColumns] = useState(() => loadLandingColumns());
 
     // Resizable columns — desktop table only; below lg the list renders as
+    // Card metrics are the user's own, independent of the desktop columns:
+    // eight numbers on a phone, twenty in the table, one list each.
+    const cardMetrics = useCardMetrics('landings', CARD_METRIC_DEFAULTS, CARD_METRIC_ALLOWED);
+    // The card renders fields for the union of "chosen for the card" and
+    // "visible in the table", so a metric picked for the card still has a field
+    // to render when it is hidden on desktop.
+    const cardFieldIds = useMemo(() => {
+        const seen = new Set();
+        const out = [];
+        for (const id of [...cardMetrics.ids, ...chosenColumns]) {
+            if (seen.has(id)) continue;
+            seen.add(id);
+            out.push(id);
+        }
+        return out;
+    }, [cardMetrics.ids, chosenColumns]);
+
     // MobileCards and skips resizing entirely. Ids mirror FIXED_LANDING_COLUMNS.
     const isDesktop = useIsDesktop();
+    // The label matters: colWidth() measures it, and "Actions" in English is
+    // "Aktionen" in German. These must stay the same strings the header renders.
+    const fixedColLabels = useMemo(() => ({
+        id: 'ID',
+        state: t('components.status'),
+        name: t('editor.name'),
+        group_name: t('components.group'),
+        type: t('components.type'),
+        url: 'URL',
+        last_event: t('landingColumns.lastEvent'),
+        actions: t('common.actions'),
+    }), [t]);
+    // ORDER MUST MIRROR RENDER ORDER: this list feeds the <colgroup> AND the
+    // data-col stamping in ColRow. Widths come from common/tableColumns.js, so
+    // a metric is the same width here as on Campaigns and Offers.
     const columnDefs = useMemo(() => ([
-        { id: 'checkbox', width: 40 },
-        { id: 'id', width: 70 },
-        { id: 'state', width: 90 },
-        { id: 'name', width: 260 },
-        { id: 'group_name', width: 130 },
-        { id: 'type', width: 100 },
-        { id: 'url', width: 280 },
-        { id: 'last_event', width: 130 },
-        ...chosenColumns.map(id => ({ id, width: 120 })),
-        { id: 'actions', width: 110 }
-    ]), [chosenColumns]);
+        ...FIXED_LANDING_COLUMNS.map(c => c.id),
+        ...chosenColumns,
+        'actions',
+    ].map(id => {
+        const def = ALL_REPORT_METRICS.find(m => m.id === id);
+        const label = fixedColLabels[id] || def?.shortLabel || def?.label || id;
+        return { id, width: colWidth(id, label) };
+    })), [chosenColumns, fixedColLabels]);
     const colResize = useResizableTableColumns({ tableId: 'landings', columns: columnDefs, enabled: isDesktop });
+
+    // Metric column reordering by dragging the header grip. Landings never had
+    // this; Campaigns and Offers always did, and the shared SortableTh already
+    // carried every handler it needs.
+    const [thDragIdx, setThDragIdx] = useState(null);
+    const [thDragOverIdx, setThDragOverIdx] = useState(null);
+
+    const handleThDragStart = (e, idx) => {
+        // Firefox refuses to start a native drag until the payload is set.
+        e.dataTransfer.setData('text/plain', String(idx));
+        e.dataTransfer.effectAllowed = 'move';
+        setThDragIdx(idx);
+    };
+
+    const handleThDragOver = (e, idx) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (thDragOverIdx !== idx) setThDragOverIdx(idx);
+    };
+
+    const handleThDrop = (e, targetIdx) => {
+        e.preventDefault();
+        if (thDragIdx !== null && thDragIdx !== targetIdx) {
+            const sourceColId = chosenColumns[thDragIdx];
+            const targetColId = chosenColumns[targetIdx];
+            if (sourceColId && targetColId) {
+                const copy = [...chosenColumns];
+                const from = copy.indexOf(sourceColId);
+                const to = copy.indexOf(targetColId);
+                if (from !== -1 && to !== -1) {
+                    const [item] = copy.splice(from, 1);
+                    copy.splice(to, 0, item);
+                    setChosenColumns(copy);
+                    try { localStorage.setItem(LANDING_COLUMNS_KEY, JSON.stringify(copy)); } catch { /* storage unavailable */ }
+                }
+            }
+        }
+        setThDragIdx(null);
+        setThDragOverIdx(null);
+    };
+
+    const handleThDragEnd = () => {
+        setThDragIdx(null);
+        setThDragOverIdx(null);
+    };
 
     const [dateFrom, setDateFrom] = useState(() => getPresetDates('today')?.from || formatDate(new Date()));
     const [dateTo, setDateTo] = useState(() => getPresetDates('today')?.to || formatDate(new Date()));
@@ -701,7 +788,7 @@ const Landings = ({ landings, refreshData, user }) => {
     // Entity cell renderer for fixed columns
     const renderEntityCell = (landing, colId) => {
         switch (colId) {
-            case 'checkbox':
+            case 'check':
                 return (
                     <td key={colId} className="col-check">
                         <input
@@ -1033,7 +1120,9 @@ const Landings = ({ landings, refreshData, user }) => {
                 <table className="page-table tracker-table" style={{ ...colResize.tableStyle }}>
                     {colResize.colgroup}
                     <thead>
-                        <tr>
+                        {/* ColRow stamps data-col + the alignment class on every
+                            cell from the same list that feeds the <colgroup>. */}
+                        <ColRow columns={columnDefs}>
                             <th className="col-check">
                                 <input
                                     type="checkbox"
@@ -1053,7 +1142,7 @@ const Landings = ({ landings, refreshData, user }) => {
                             <SortableTh sortBy={sortBy} requestSort={requestSort} colKey="last_event" label={t('landingColumns.lastEvent')} defaultDir="desc" resize={colResize} />
 
                             {/* Dynamic metric columns */}
-                            {chosenColumns.map((colId) => {
+                            {chosenColumns.map((colId, colIdx) => {
                                 const def = ALL_REPORT_METRICS.find(m => m.id === colId);
                                 return (
                                     <SortableTh
@@ -1064,8 +1153,13 @@ const Landings = ({ landings, refreshData, user }) => {
                                         label={def?.shortLabel || def?.label || colId}
                                         fullTitle={getReportMetricTooltip(def, t)}
                                         defaultDir="desc"
-                                        alignRight
+                                        draggable
                                         resize={colResize}
+                                        isDragOver={thDragOverIdx === colIdx && thDragIdx !== null && thDragIdx !== colIdx}
+                                        onDragStart={(e) => handleThDragStart(e, colIdx)}
+                                        onDragOver={(e) => handleThDragOver(e, colIdx)}
+                                        onDrop={(e) => handleThDrop(e, colIdx)}
+                                        onDragEnd={handleThDragEnd}
                                     />
                                 );
                             })}
@@ -1073,7 +1167,7 @@ const Landings = ({ landings, refreshData, user }) => {
                                 {t('common.actions')}
                                 <ColumnResizeHandle rt={colResize} colId="actions" />
                             </th>
-                        </tr>
+                        </ColRow>
                     </thead>
                     <tbody>
                         {visibleLandings.length === 0 ? (
@@ -1087,9 +1181,9 @@ const Landings = ({ landings, refreshData, user }) => {
                             </tr>
                         ) : (
                             pagedLandings.map((landing) => (
-                                <tr key={landing.id}>
+                                <ColRow key={landing.id} columns={columnDefs}>
                                     {/* The checkbox cell renders here too — renderEntityCell
-                                        has the 'checkbox' case, and the body must keep the
+                                        has the 'check' case, and the body must keep the
                                         header's column count or every metric shifts left. */}
                                     {FIXED_LANDING_COLUMNS.map(col =>
                                         renderEntityCell(landing, col.id)
@@ -1116,7 +1210,7 @@ const Landings = ({ landings, refreshData, user }) => {
                                             </button>
                                         </div>
                                     </td>
-                                </tr>
+                                </ColRow>
                             ))
                         )}
                     </tbody>
@@ -1124,10 +1218,15 @@ const Landings = ({ landings, refreshData, user }) => {
                     {visibleLandings.length > 0 && (
                         <tfoot style={{ background: 'var(--color-bg-soft)' }}>
                             <tr className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                                {/* This row spans the entity columns, so its cell
+                                    count deliberately differs from the column list
+                                    and ColRow cannot stamp it - the alignment
+                                    classes are applied by hand instead, and must
+                                    keep matching common/tableColumns.js. */}
                                 <td className="col-check"></td>
-                                <td colSpan={7}>Σ Total ({visibleLandings.length})</td>
+                                <td className="align-left" colSpan={7}>Σ Total ({visibleLandings.length})</td>
                                 {chosenColumns.map((colId) => (
-                                    <td key={colId} className="cell-text">
+                                    <td key={colId} className="cell-text align-right">
                                         {formatTotalCell(colId)}
                                     </td>
                                 ))}
@@ -1186,7 +1285,7 @@ const Landings = ({ landings, refreshData, user }) => {
                         </>
                     )}
                     fields={[
-                        ...chosenColumns.map((colId) => {
+                        ...cardFieldIds.map((colId) => {
                             const def = ALL_REPORT_METRICS.find(m => m.id === colId);
                             return {
                                 id: colId,
@@ -1202,7 +1301,12 @@ const Landings = ({ landings, refreshData, user }) => {
                         } },
                         { id: 'last_event', label: entityLabel('last_event'), render: (l) => formatLastEvent(l.last_event) },
                     ]}
-                    primaryIds={['clicks', 'conversions', 'cost', 'roi']}
+                    primaryIds={cardMetrics.ids}
+                    metricsPicker={{
+                        options: CARD_METRIC_OPTIONS,
+                        onChange: cardMetrics.setIds,
+                        onReset: cardMetrics.reset,
+                    }}
                     emptyState={
                         <div className="text-center py-12">
                             <div className="empty-state">

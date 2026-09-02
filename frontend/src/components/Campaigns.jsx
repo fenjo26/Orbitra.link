@@ -5,7 +5,9 @@ import InfoBanner from './InfoBanner';
 import GroupsModal from './GroupsModal';
 import PaginationToolbar from './common/PaginationToolbar';
 import MobileCards from './common/MobileCards';
-import { useIsDesktop, useResizableTableColumns } from './common/ColumnResize';
+import { useCardMetrics } from './common/CardMetrics';
+import { useIsDesktop, useResizableTableColumns, ColRow } from './common/ColumnResize';
+import { colWidth } from './common/tableColumns';
 import { SortableTh } from './common/SortableTh';
 import CampaignReports from './CampaignReports';
 import ClickLogModal from './ClickLogModal';
@@ -19,6 +21,14 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard } from '../utils/clipboard';
 import { campaignLinkUrl } from '../utils/campaignUrl';
 import { financeVisibility, financeHiddenMetric, canWriteResource } from '../utils/permissions';
+
+// What a card shows before the user says otherwise. Four numbers is what fits
+// above the fold on a phone; the picker goes up to eight.
+const CARD_METRIC_DEFAULTS = ['clicks', 'conversions', 'cost', 'roi'];
+// Module scope so the identity is stable: useCardMetrics keys its callbacks off
+// this set, and a fresh Set per render would rebuild them on every keystroke.
+const CARD_METRIC_ALLOWED = new Set(ALL_REPORT_METRICS.map(m => m.id));
+const CARD_METRIC_OPTIONS = ALL_REPORT_METRICS.map(m => ({ id: m.id, label: m.shortLabel || m.label || m.id }));
 
 const API_URL = '/api.php';
 
@@ -289,6 +299,23 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         [chosenColumns, financeVis]
     );
 
+    // Card metrics are the user's own, independent of the desktop columns:
+    // eight numbers on a phone, twenty in the table, one list each.
+    const cardMetrics = useCardMetrics('campaigns', CARD_METRIC_DEFAULTS, CARD_METRIC_ALLOWED);
+    // The card renders fields for the union of "chosen for the card" and
+    // "visible in the table", so a metric picked for the card still has a field
+    // to render when it is hidden on desktop.
+    const cardFieldIds = useMemo(() => {
+        const seen = new Set();
+        const out = [];
+        for (const id of [...cardMetrics.ids, ...visibleColumns]) {
+            if (seen.has(id)) continue;
+            seen.add(id);
+            out.push(id);
+        }
+        return out;
+    }, [cardMetrics.ids, visibleColumns]);
+
     // Resizable columns — desktop table only; below lg the list renders as
     // MobileCards and skips resizing entirely.
     const isDesktop = useIsDesktop();
@@ -297,7 +324,6 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     // checkbox anchor) carries the drag grip, the sort arrow and the resize
     // handle with identical behaviour. The order persists separately from
     // the customizer's visibility list (orbitra_campaign_col_order).
-    const FIXED_COLUMN_WIDTHS = { check: 40, id: 70, state: 90, name: 300, actions: 150, group_name: 140 };
     const BASE_FIXED_ORDER = ['check', 'id', 'state', 'name', 'actions', 'group_name'];
     const [columnOrder, setColumnOrder] = useState(() => {
         try {
@@ -324,7 +350,23 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     // desync here draws every column after the mismatch at a neighbour's
     // width with no error anywhere.
     const FIXED_COLUMN_IDS = ['check'];
-    const columnDefs = useMemo(() => orderedColumns.map(id => ({ id, width: FIXED_COLUMN_WIDTHS[id] ?? 120 })), [orderedColumns]);
+    // Widths come from common/tableColumns.js so a metric is the same width on
+    // Campaigns, Offers and Landings, and every column is at least as wide as
+    // the heading it has to print.
+    // The label matters: colWidth() measures it, and "Actions" in English is
+    // "Aktionen" in German. These must stay the same strings the header renders.
+    const fixedColLabels = useMemo(() => ({
+        id: 'ID',
+        state: t('common.status'),
+        name: t('campaigns.campaign'),
+        actions: t('common.actions'),
+        group_name: t('campaigns.group'),
+    }), [t]);
+    const columnDefs = useMemo(() => orderedColumns.map(id => {
+        const def = ALL_REPORT_METRICS.find(m => m.id === id);
+        const label = fixedColLabels[id] || def?.shortLabel || def?.label || id;
+        return { id, width: colWidth(id, label) };
+    }), [orderedColumns, fixedColLabels]);
     const colResize = useResizableTableColumns({ tableId: 'campaigns', columns: columnDefs, enabled: isDesktop });
 
     // One-time purge for the columns that stay locked: stored widths take
@@ -1048,7 +1090,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                 <table className="page-table tracker-table" style={{ fontVariantNumeric: 'tabular-nums', ...colResize.tableStyle }}>
                     {colResize.colgroup}
                     <thead>
-                        <tr>
+                        {/* ColRow stamps data-col + the alignment class on every
+                            cell from the same list that feeds the <colgroup>, so
+                            the two cannot drift apart. */}
+                        <ColRow columns={orderedColumns}>
                             {orderedColumns.map((colId, colIdx) => {
                                 // Every column except the checkbox anchor is
                                 // draggable (grip), sortable where sorting makes
@@ -1084,7 +1129,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                 if (colId === 'actions') {
                                     // Nothing to sort a row by here — grip and
                                     // resize only.
-                                    return <SortableTh key="actions" {...dragProps} sortable={false} label={t('common.actions')} />;
+                                    // colKey is what the resize handle stores under and
+                                    // what ColRow matches cells by - without it the width
+                                    // landed under `undefined` and Actions never resized.
+                                    return <SortableTh key="actions" {...dragProps} colKey="actions" sortable={false} label={t('common.actions')} />;
                                 }
                                 if (colId === 'id') return <SortableTh key="id" {...dragProps} colKey="id" label="ID" defaultDir="desc" />;
                                 if (colId === 'state') return <SortableTh key="state" {...dragProps} colKey="state" label={t('common.status')} defaultDir="asc" />;
@@ -1099,11 +1147,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                         label={def?.shortLabel || def?.label || colId}
                                         fullTitle={getReportMetricTooltip(def, t)}
                                         defaultDir="desc"
-                                        alignRight={true}
                                     />
                                 );
                             })}
-                        </tr>
+                        </ColRow>
                     </thead>
                     <tbody>
                         {visibleCampaigns.length === 0 ? (
@@ -1117,7 +1164,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                             </tr>
                         ) : (
                             pagedCampaigns.map((camp) => (
-                                <tr key={camp.id}>
+                                <ColRow key={camp.id} columns={orderedColumns}>
                                     {orderedColumns.map(colId => {
                                         switch (colId) {
                                             case 'check':
@@ -1211,7 +1258,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                                 );
                                         }
                                     })}
-                                </tr>
+                                </ColRow>
                             ))
                         )}
                     </tbody>
@@ -1220,7 +1267,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                         driven by the same orderedColumns list. */}
                     {visibleCampaigns.length > 0 && (
                         <tfoot>
-                            <tr style={{ backgroundColor: 'var(--color-bg-soft)', borderTop: '2px solid var(--color-border)', fontWeight: 700 }}>
+                            <ColRow columns={orderedColumns} style={{ backgroundColor: 'var(--color-bg-soft)', borderTop: '2px solid var(--color-border)', fontWeight: 700 }}>
                                 {orderedColumns.map(colId => {
                                     switch (colId) {
                                         case 'check': return <td key="check" className="col-check"></td>;
@@ -1237,7 +1284,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                             );
                                     }
                                 })}
-                            </tr>
+                            </ColRow>
                         </tfoot>
                     )}
                 </table>
@@ -1317,7 +1364,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                             </button>
                         </>
                     )}
-                    fields={visibleColumns.map((colId) => {
+                    fields={cardFieldIds.map((colId) => {
                         const def = ALL_REPORT_METRICS.find(m => m.id === colId);
                         return {
                             id: colId,
@@ -1325,7 +1372,12 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                             render: (row) => formatMetricCell(colId, row),
                         };
                     })}
-                    primaryIds={['clicks', 'conversions', 'cost', 'roi']}
+                    primaryIds={cardMetrics.ids}
+                    metricsPicker={{
+                        options: CARD_METRIC_OPTIONS,
+                        onChange: cardMetrics.setIds,
+                        onReset: cardMetrics.reset,
+                    }}
                     emptyState={
                         <div className="text-center py-12">
                             <div className="empty-state">

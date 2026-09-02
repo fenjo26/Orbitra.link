@@ -124,6 +124,8 @@ export default {
         "importBtn": "Importar"
     },
     "common": {
+        "reset": "Restablecer",
+        "done": "Listo",
         "hide": "Ocultar",
         "showDetails": "Mostrar detalles",
         "copied": "Copiado",
@@ -3688,7 +3690,11 @@ export default {
     },
     mobileCards: {
         "showMore": "Más",
-        "showLess": "Menos"
+        "showLess": "Menos",
+        "cardMetrics": "Métricas de la tarjeta",
+        "cardMetricsHint": "Se muestran en cada tarjeta, en este orden",
+        "moveUp": "Subir",
+        "moveDown": "Bajar"
     },
     "media": {
         "title": "Galería de contenido",

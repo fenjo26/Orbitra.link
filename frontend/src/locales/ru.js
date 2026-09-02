@@ -124,6 +124,8 @@ export default {
         "importBtn": "Импортировать"
     },
     "common": {
+        "reset": "Сбросить",
+        "done": "Готово",
         "hide": "Скрыть",
         "showDetails": "Показать детали",
         "copied": "Скопировано",
@@ -3688,7 +3690,11 @@ export default {
     },
     mobileCards: {
         "showMore": "Ещё",
-        "showLess": "Свернуть"
+        "showLess": "Свернуть",
+        "cardMetrics": "Метрики карточки",
+        "cardMetricsHint": "Показываются на каждой карточке, в этом порядке",
+        "moveUp": "Вверх",
+        "moveDown": "Вниз"
     },
     "media": {
         "title": "Галерея контента",

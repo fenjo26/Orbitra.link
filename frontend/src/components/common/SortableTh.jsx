@@ -12,10 +12,10 @@ import { ColumnResizeHandle } from './ColumnResize';
 // type on every render, so React remounts its DOM — and a remounted <th>
 // cancels a column drag in flight (the dragover highlight re-renders it).
 export const SortIcon = ({ sortBy, colKey }) => {
-    if (sortBy.key !== colKey) return <ChevronsUpDown className="w-3.5 h-3.5 opacity-40" />;
+    if (sortBy.key !== colKey) return <ChevronsUpDown className="w-3 h-3 opacity-40" />;
     return sortBy.dir === 'asc'
-        ? <ChevronUp className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />
-        : <ChevronDown className="w-3.5 h-3.5" style={{ color: 'var(--color-primary)' }} />;
+        ? <ChevronUp className="w-3 h-3" style={{ color: 'var(--color-primary)' }} />
+        : <ChevronDown className="w-3 h-3" style={{ color: 'var(--color-primary)' }} />;
 };
 
 // The drag source is the GRIP, not the <th>: a native drag never starts on
@@ -28,7 +28,7 @@ export const SortIcon = ({ sortBy, colKey }) => {
 // to sort by (Actions) — they still reorder and resize like everything else.
 // Header labels centre within their column: with user-resizable widths a
 // label hugging the left/right edge of a wide cell reads crooked.
-export const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', alignRight = false, draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd, resize, hideSortIcon = false, sortable = true }) => {
+export const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd, resize, hideSortIcon = false, sortable = true, className = '', ...rest }) => {
     const isActive = sortBy.key === colKey;
     const startColumnDrag = (e) => {
         if (onDragStart) onDragStart(e);
@@ -52,7 +52,11 @@ export const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', align
     };
     return (
         <th
-            className="whitespace-nowrap transition-all resizable-th"
+            // ColRow clones `data-col` and the alignment class in from the
+            // column list that feeds the <colgroup>; both must reach the DOM,
+            // because the CSS and the resize floor key off them.
+            {...rest}
+            className={`whitespace-nowrap transition-all resizable-th ${className}`.trim()}
             aria-sort={isActive ? (sortBy.dir === 'asc' ? 'ascending' : 'descending') : 'none'}
             title={fullTitle}
             onDragOver={onDragOver}
@@ -66,21 +70,28 @@ export const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', align
                 backgroundColor: isDragOver ? 'var(--color-bg-card)' : undefined
             }}
         >
-            <div className="inline-flex items-center gap-1.5 w-full justify-center min-w-0">
+            {/* Justification is set in index.css from the column's alignment
+                class, so the header follows its column instead of every table
+                hard-coding centre. */}
+            <div className="th-inner inline-flex items-center gap-1 w-full min-w-0">
                 {draggable && (
                     <span
                         draggable={!resize?.resizingId}
                         onDragStart={startColumnDrag}
-                        className="cursor-grab active:cursor-grabbing flex-shrink-0 -ml-1"
+                        // col-grip: invisible until the header is hovered
+                        // (index.css). It keeps its 12px box at rest, so
+                        // nothing shifts when it appears and the resize floor
+                        // measures the same width the column really uses.
+                        className="col-grip cursor-grab active:cursor-grabbing flex-shrink-0 -ml-1"
                     >
-                        <GripVertical className="w-3 h-3 opacity-25 hover:opacity-75" />
+                        <GripVertical className="w-3 h-3" />
                     </span>
                 )}
                 {sortable ? (
                     <button
                         type="button"
                         onClick={() => requestSort(colKey, defaultDir)}
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap cursor-pointer min-w-0 max-w-full"
+                        className="inline-flex items-center gap-1 text-[10px] font-semibold whitespace-nowrap cursor-pointer min-w-0 max-w-full"
                         style={{
                             color: isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)'
                         }}
@@ -94,7 +105,7 @@ export const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', align
                     </button>
                 ) : (
                     <span
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold whitespace-nowrap min-w-0 max-w-full"
+                        className="inline-flex items-center gap-1 text-[10px] font-semibold whitespace-nowrap min-w-0 max-w-full"
                         style={{ color: 'var(--color-text-secondary)' }}
                     >
                         <span className="truncate">{label}</span>

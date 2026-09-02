@@ -124,6 +124,8 @@ export default {
         "importBtn": "Імпорт"
     },
     "common": {
+        "reset": "Скинути",
+        "done": "Готово",
         "hide": "Сховати",
         "showDetails": "Показати деталі",
         "copied": "Скопійовано",
@@ -3688,7 +3690,11 @@ export default {
     },
     mobileCards: {
         "showMore": "Більше",
-        "showLess": "Згорнути"
+        "showLess": "Згорнути",
+        "cardMetrics": "Метрики картки",
+        "cardMetricsHint": "Показуються на кожній картці, у цьому порядку",
+        "moveUp": "Вгору",
+        "moveDown": "Вниз"
     },
     "media": {
         "title": "Галерея контенту",

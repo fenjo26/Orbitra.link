@@ -4,7 +4,8 @@ import InfoBanner from './InfoBanner';
 import OfferEditor from './OfferEditor';
 import GroupsModal from './GroupsModal';
 import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
-import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle } from './common/ColumnResize';
+import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle, ColRow } from './common/ColumnResize';
+import { colWidth } from './common/tableColumns';
 import { SortableTh, sortRows, nextSortState } from './common/SortableTh';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 import { useTimezone } from '../utils/useTimezone';
@@ -14,6 +15,7 @@ import { entityDeleteErrorText } from '../utils/entityInUseError';
 import { canWriteResource } from '../utils/permissions';
 import PaginationToolbar from './common/PaginationToolbar';
 import MobileCards from './common/MobileCards';
+import { useCardMetrics } from './common/CardMetrics';
 
 const API_URL = '/api.php';
 
@@ -30,6 +32,14 @@ const FIXED_OFFER_COLUMNS = [
     { id: 'payout', label: 'Payout', fixed: true },
     { id: 'redirect_type', label: 'Type', fixed: true },
 ];
+
+// What a card shows before the user says otherwise. Four numbers is what fits
+// above the fold on a phone; the picker goes up to eight.
+const CARD_METRIC_DEFAULTS = ['clicks', 'conversions', 'cost', 'roi'];
+// Module scope so the identity is stable: useCardMetrics keys its callbacks off
+// this set, and a fresh Set per render would rebuild them on every keystroke.
+const CARD_METRIC_ALLOWED = new Set(ALL_REPORT_METRICS.map(m => m.id));
+const CARD_METRIC_OPTIONS = ALL_REPORT_METRICS.map(m => ({ id: m.id, label: m.shortLabel || m.label || m.id }));
 
 const OFFER_COLUMNS_KEY = 'orbitra_offer_columns';
 
@@ -91,21 +101,51 @@ const Offers = ({ offers: initialOffers = [], refreshData, user }) => {
     const [thDragOverIdx, setThDragOverIdx] = useState(null);
 
     // Resizable columns — desktop table only; below lg the list renders as
+    // Card metrics are the user's own, independent of the desktop columns:
+    // eight numbers on a phone, twenty in the table, one list each.
+    const cardMetrics = useCardMetrics('offers', CARD_METRIC_DEFAULTS, CARD_METRIC_ALLOWED);
+    // The card renders fields for the union of "chosen for the card" and
+    // "visible in the table", so a metric picked for the card still has a field
+    // to render when it is hidden on desktop.
+    const cardFieldIds = useMemo(() => {
+        const seen = new Set();
+        const out = [];
+        for (const id of [...cardMetrics.ids, ...chosenColumns]) {
+            if (seen.has(id)) continue;
+            seen.add(id);
+            out.push(id);
+        }
+        return out;
+    }, [cardMetrics.ids, chosenColumns]);
+
     // MobileCards and skips resizing entirely.
     const isDesktop = useIsDesktop();
+    // The label matters: colWidth() measures it, and "Actions" in English is
+    // "Aktionen" in German. These must stay the same strings the header renders.
+    const fixedColLabels = useMemo(() => ({
+        id: 'ID',
+        state: t('common.status'),
+        name: t('editor.name'),
+        group_name: t('components.group'),
+        affiliate_network_name: t('offers.network'),
+        geo: 'GEO',
+        payout: t('offerColumns.payout'),
+        redirect_type: t('components.type'),
+        actions: t('common.actions'),
+    }), [t]);
+    // ORDER MUST MIRROR RENDER ORDER: this list feeds the <colgroup> AND the
+    // data-col stamping in ColRow. Widths come from common/tableColumns.js, so
+    // a metric is the same width here as on Campaigns and Landings.
     const columnDefs = useMemo(() => ([
-        { id: 'check', width: 40 },
-        { id: 'id', width: 70 },
-        { id: 'state', width: 90 },
-        { id: 'name', width: 260 },
-        { id: 'group_name', width: 130 },
-        { id: 'affiliate_network_name', width: 140 },
-        { id: 'geo', width: 80 },
-        { id: 'payout', width: 110 },
-        { id: 'redirect_type', width: 110 },
-        ...chosenColumns.map(id => ({ id, width: 120 })),
-        { id: 'actions', width: 110 }
-    ]), [chosenColumns]);
+        'check', 'id', 'state', 'name', 'group_name', 'affiliate_network_name',
+        'geo', 'payout', 'redirect_type',
+        ...chosenColumns,
+        'actions',
+    ].map(id => {
+        const def = ALL_REPORT_METRICS.find(m => m.id === id);
+        const label = fixedColLabels[id] || def?.shortLabel || def?.label || id;
+        return { id, width: colWidth(id, label) };
+    })), [chosenColumns, fixedColLabels]);
     const colResize = useResizableTableColumns({ tableId: 'offers', columns: columnDefs, enabled: isDesktop });
 
     // Row action dropdown (⋮)
@@ -893,7 +933,9 @@ const Offers = ({ offers: initialOffers = [], refreshData, user }) => {
                 <table className="page-table tracker-table" style={{ ...colResize.tableStyle }}>
                     {colResize.colgroup}
                     <thead>
-                        <tr>
+                        {/* ColRow stamps data-col + the alignment class on every
+                            cell from the same list that feeds the <colgroup>. */}
+                        <ColRow columns={columnDefs}>
                             <th className="col-check">
                                 <input
                                     type="checkbox"
@@ -931,7 +973,6 @@ const Offers = ({ offers: initialOffers = [], refreshData, user }) => {
                                         label={def?.shortLabel || def?.label || colId}
                                         fullTitle={getReportMetricTooltip(def, t)}
                                         defaultDir="desc"
-                                        alignRight={true}
                                         draggable={true}
                                         resize={colResize}
                                         isDragOver={thDragOverIdx === colIdx && thDragIdx !== null && thDragIdx !== colIdx}
@@ -946,7 +987,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user }) => {
                                 {t('common.actions')}
                                 <ColumnResizeHandle rt={colResize} colId="actions" />
                             </th>
-                        </tr>
+                        </ColRow>
                     </thead>
                     <tbody>
                         {visibleOffers.length === 0 ? (
@@ -964,7 +1005,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user }) => {
                             </tr>
                         ) : (
                             pagedOffers.map((offer) => (
-                                <tr key={offer.id}>
+                                <ColRow key={offer.id} columns={columnDefs}>
                                     <td className="col-check">
                                         <input
                                             type="checkbox"
@@ -1035,7 +1076,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user }) => {
                                             </button>
                                         </div>
                                     </td>
-                                </tr>
+                                </ColRow>
                             ))
                         )}
                     </tbody>
@@ -1043,10 +1084,15 @@ const Offers = ({ offers: initialOffers = [], refreshData, user }) => {
                     {visibleOffers.length > 0 && (
                         <tfoot style={{ background: 'var(--color-bg-soft)' }}>
                             <tr className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                                {/* This row spans the entity columns, so its cell
+                                    count deliberately differs from the column list
+                                    and ColRow cannot stamp it - the alignment
+                                    classes are applied by hand instead, and must
+                                    keep matching common/tableColumns.js. */}
                                 <td className="col-check"></td>
-                                <td colSpan={8}>Σ Total ({visibleOffers.length})</td>
+                                <td className="align-left" colSpan={8}>Σ Total ({visibleOffers.length})</td>
                                 {chosenColumns.map((colId) => (
-                                    <td key={colId} className="cell-text">
+                                    <td key={colId} className="cell-text align-right">
                                         {formatTotalCell(colId)}
                                     </td>
                                 ))}
@@ -1103,7 +1149,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user }) => {
                         </>
                     )}
                     fields={[
-                        ...chosenColumns.map((colId) => {
+                        ...cardFieldIds.map((colId) => {
                             const def = ALL_REPORT_METRICS.find(m => m.id === colId);
                             return {
                                 id: colId,
@@ -1145,7 +1191,12 @@ const Offers = ({ offers: initialOffers = [], refreshData, user }) => {
                             render: (o) => (!o.is_local && o.url ? <span className="break-all whitespace-normal">{o.url}</span> : '-'),
                         },
                     ]}
-                    primaryIds={['clicks', 'conversions', 'cost', 'roi']}
+                    primaryIds={cardMetrics.ids}
+                    metricsPicker={{
+                        options: CARD_METRIC_OPTIONS,
+                        onChange: cardMetrics.setIds,
+                        onReset: cardMetrics.reset,
+                    }}
                     emptyState={
                         <div className="text-center py-12">
                             <div className="empty-state">
