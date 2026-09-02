@@ -103,6 +103,7 @@ file_put_contents($landingDir . '/app.css', "body{}\n");
 
 file_put_contents($tmp . '/fns.php', "<?php\n"
     . $extractFunction('orbitraStreamAssetFile') . "\n"
+    . $extractFunction('orbitraStreamSwFile') . "\n"
     . $extractFunction('serveLandingAsset') . "\n");
 file_put_contents($tmp . '/probe.php', <<<'PROBE'
 <?php

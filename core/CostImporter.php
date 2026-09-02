@@ -92,9 +92,10 @@ class CostImporter
                 // $tzModifier is generated from an integer minute count below, never
                 // from user input, so it is safe to inline into the modifier literal.
                 $dateExpr = $tzModifier === '' ? 'date(created_at)' : "date(created_at, '{$tzModifier}')";
-                // COALESCE, not "= 0": a NULL is_safe_page (pre-v38 rows) is
-                // money-side traffic and must not be filtered out.
-                $safeCond = $moneyOnly ? " AND COALESCE(is_safe_page, 0) = 0" : '';
+                // Money-side clicks only, resolved per campaign by
+                // safePagePredicate() - the same rule api.php's reports use, so
+                // cost lands on exactly the clicks the reports will count.
+                $safeCond = $moneyOnly ? ' AND ' . self::safePagePredicate() : '';
                 $lookupCache[$cacheKey] = $pdo->prepare(
                     "SELECT id FROM clicks
                      WHERE json_extract(parameters_json, '$." . $safe . "') = ?
@@ -355,9 +356,35 @@ class CostImporter
     }
 
     /**
-     * Does any active campaign run a cloak stream whose safe-page clicks are kept out
-     * of reports? Mirrors orbitraSafePageExclusionNeeded() in api.php, restated here
-     * because the cron never loads api.php.
+     * Per-row SQL for "this click counts", resolved from each campaign's own
+     * exclude_safe_from_reports flag. Mirrors orbitraSafePagePredicate() in
+     * api.php, restated here because the cron never loads api.php - keep the
+     * two in step.
+     *
+     * @param string $prefix Table alias including the dot, or '' for a bare
+     *                       "FROM clicks".
+     */
+    private static function safePagePredicate(string $prefix = ''): string
+    {
+        return "(COALESCE({$prefix}is_safe_page, 0) = 0 OR COALESCE({$prefix}campaign_id, -1) NOT IN (
+                    SELECT s.campaign_id FROM streams s
+                    WHERE s.schema_type = 'cloak'
+                      AND s.campaign_id IS NOT NULL
+                      AND s.schema_custom_json IS NOT NULL
+                      AND s.schema_custom_json != '' AND s.schema_custom_json != '{}'
+                      AND COALESCE(
+                            CASE WHEN json_valid(s.schema_custom_json)
+                                 THEN json_extract(s.schema_custom_json, '\$.exclude_safe_from_reports')
+                                 ELSE NULL END,
+                            1) NOT IN (0, 'false', '0')
+                ))";
+    }
+
+    /**
+     * Does ANY campaign run a cloak stream at all? Only a gate: when nothing in
+     * the account cloaks there is no point making the extra money-side lookup
+     * pass. Which clicks actually count is decided per campaign, in SQL, by
+     * safePagePredicate() - never by this boolean.
      */
     private static function safePageExclusionNeeded(PDO $pdo): bool
     {

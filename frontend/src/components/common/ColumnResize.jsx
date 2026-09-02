@@ -169,7 +169,18 @@ export const ColumnResizeHandle = ({ rt, colId }) => {
         e.preventDefault();
         e.stopPropagation();
 
-        const startW = th.getBoundingClientRect().width;
+        // The width this column actually owns, read off its <col> — not the
+        // header's rendered box. `tableStyle` carries `minWidth: 100%`, so
+        // whenever the columns sum to less than the container the browser
+        // stretches them and every rendered box is wider than its assigned
+        // width. Starting from the rendered box made the first drag commit that
+        // stretch as a real width for the column it touched: the column jumped
+        // wider the moment it was grabbed, the stretch it stole never came back,
+        // and repeating the gesture ratcheted it wider again.
+        const assignedW = parseFloat(colEl.style.width);
+        const startW = Number.isFinite(assignedW) && assignedW > 0
+            ? assignedW
+            : th.getBoundingClientRect().width;
         dragRef.current = {
             pointerId: e.pointerId,
             startX: e.clientX,

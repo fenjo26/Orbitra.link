@@ -2230,26 +2230,66 @@ function queueSslInstallation($pdo, $domainId = null) {
 }
 
 /**
- * W3.4: does any active campaign run a cloak stream whose safe-page clicks
- * must stay out of reports? Every date-filtered report surface (campaigns,
- * landings, offers) and the no-campaign dashboard branch ask this same
- * question through this helper so the surfaces cannot drift apart.
+ * Per-row SQL deciding whether a click counts towards reports, resolved from
+ * each campaign's own "Exclude Safe Page clicks from reports" setting.
+ *
+ * This replaces orbitraSafePageExclusionNeeded(), which answered a single
+ * global yes/no: it counted cloak streams on active campaigns and never read
+ * exclude_safe_from_reports at all, so it returned true whenever cloaking
+ * existed anywhere in the account. One campaign with the box ticked filtered
+ * every other campaign's numbers, and unticking it changed nothing anywhere.
+ *
+ * A click counts when it is money-side, OR when its campaign is not in the
+ * excluding set. The set is a subquery rather than an id list built in PHP: no
+ * stale snapshot, and no new bind parameters - getDashboardFilters has been
+ * broken before by a placeholder arriving in a branch that did not own the
+ * parameter list. It is uncorrelated, so SQLite materialises it once per query.
+ *
+ * Resolution rules:
+ *   - a cloak stream with the flag explicitly false -> include every hit
+ *   - the key absent -> exclude, because the checkbox renders ticked by default
+ *   - several cloak streams disagreeing -> exclude wins
+ *   - no cloak stream -> include, since Direct / Landing+Offer / Action streams
+ *     have no safe page and therefore nothing to exclude
+ *
+ * COALESCE on is_safe_page, not "= 0": a NULL (pre-v38 rows on a half-migrated
+ * DB, or any writer that leaves the column unset) is money-side traffic, and in
+ * SQLite "is_safe_page = 0" drops NULL rows silently.
+ *
+ * @param string $prefix Table alias including the dot, e.g. 'cl.' or 'clicks.'
  */
-function orbitraSafePageExclusionNeeded(PDO $pdo): bool
+function orbitraSafePagePredicate(string $prefix = ''): string
 {
-    try {
-        $stmt = $pdo->query("
-            SELECT COUNT(*) FROM streams s
-            JOIN campaigns c ON s.campaign_id = c.id
-            WHERE s.schema_type = 'cloak'
-            AND s.schema_custom_json IS NOT NULL AND s.schema_custom_json != '' AND s.schema_custom_json != '{}'
-            AND c.state = 'active'
-            LIMIT 1
-        ");
-        return ((int) $stmt->fetchColumn()) > 0;
-    } catch (\Throwable $e) {
-        return false;
+    return "(COALESCE({$prefix}is_safe_page, 0) = 0 OR COALESCE({$prefix}campaign_id, -1) NOT IN (
+                SELECT s.campaign_id FROM streams s
+                WHERE s.schema_type = 'cloak'
+                  AND s.campaign_id IS NOT NULL
+                  AND s.schema_custom_json IS NOT NULL
+                  AND s.schema_custom_json != '' AND s.schema_custom_json != '{}'
+                  AND COALESCE(
+                        CASE WHEN json_valid(s.schema_custom_json)
+                             THEN json_extract(s.schema_custom_json, '\$.exclude_safe_from_reports')
+                             ELSE NULL END,
+                        1) NOT IN (0, 'false', '0')
+            ))";
+}
+
+/**
+ * Turn a WHERE clause produced by getDashboardFilters() into a JOIN condition.
+ *
+ * This used to be a bare str_replace('WHERE ', 'AND ', ...) at four call sites,
+ * which rewrote EVERY "WHERE " in the string. The moment a filter grew a
+ * subquery - orbitraSafePagePredicate() - that turned its inner
+ * "FROM streams s WHERE ..." into "FROM streams s AND ..." and 500'd the
+ * campaigns, landings and offers lists. Only the leading keyword is the clause's
+ * own WHERE; anything deeper belongs to a subquery and must be left alone.
+ */
+function orbitraWhereToJoinCondition(string $whereClause): string
+{
+    if (trim($whereClause) === '') {
+        return '';
     }
+    return preg_replace('/^\s*WHERE\s+/i', 'AND ', $whereClause, 1);
 }
 
 function getDashboardFilters($prefix = '')
@@ -2315,41 +2355,11 @@ function getDashboardFilters($prefix = '')
             break;
     }
 
-    // W3.4: Exclude Safe Page clicks from reports when stream has exclude_safe_from_reports
-    // This prevents safe clicks from leaking into cost, CPC, and CR metrics
-    global $pdo;
-    $safePageFilterNeeded = false;
-    if ($campaign_id) {
-        // Check if this specific campaign has any cloak stream with exclude_safe_from_reports enabled
-        $stmt = $pdo->prepare("
-            SELECT s.schema_custom_json FROM streams s
-            WHERE s.campaign_id = ? AND s.schema_type = 'cloak'
-            AND s.schema_custom_json IS NOT NULL AND s.schema_custom_json != '' AND s.schema_custom_json != '{}'
-        ");
-        $stmt->execute([$campaign_id]);
-        $streamRows = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        foreach ($streamRows as $cloakConfig) {
-            $config = json_decode($cloakConfig, true);
-            if (is_array($config)) {
-                // Check if exclude_safe_from_reports is not explicitly false (default is true)
-                if (!isset($config['exclude_safe_from_reports']) || $config['exclude_safe_from_reports'] !== false) {
-                    $safePageFilterNeeded = true;
-                    break;
-                }
-            }
-        }
-    } else {
-        // No campaign filter - check if ANY active campaign has a cloak stream with exclude_safe_from_reports
-        $safePageFilterNeeded = orbitraSafePageExclusionNeeded($pdo);
-    }
-
-    if ($safePageFilterNeeded) {
-        // COALESCE: a NULL is_safe_page (pre-v38 rows on a half-migrated DB, or
-        // any writer that leaves the column unset) is money-side traffic, and
-        // in SQLite "is_safe_page = 0" excludes NULL — those clicks would
-        // silently vanish from every report using this filter.
-        $conditions[] = "COALESCE({$prefix}is_safe_page, 0) = 0";
-    }
+    // W3.4: Exclude Safe Page clicks from reports, resolved per campaign
+    // by orbitraSafePagePredicate(). Applied unconditionally - the predicate
+    // is a no-op for campaigns that keep their safe clicks, so there is
+    // nothing left to gate it on.
+    $conditions[] = orbitraSafePagePredicate($prefix);
 
     $whereClause = !empty($conditions) ? "WHERE " . implode(" AND ", $conditions) : "";
     return [$whereClause, $params];
@@ -2982,7 +2992,7 @@ try {
             if (empty($date_from) && empty($date_to)) {
                 // No explicit range: fall back to the dashboard's own filter set.
                 list($whereCl, $dashboardParams) = getDashboardFilters('cl.');
-                $joinCondition = !empty($whereCl) ? str_replace('WHERE ', 'AND ', $whereCl) : '';
+                $joinCondition = orbitraWhereToJoinCondition($whereCl);
                 $paramsCl = $dashboardParams;
             } else {
                 $joinCondition = $joinConds ? 'AND ' . implode(' AND ', $joinConds) : '';
@@ -2992,8 +3002,8 @@ try {
                 // safe-page clicks for the very same campaigns. This branch
                 // used to be the only date-filtered surface without the
                 // filter, leaking safe hits into clicks/cost/CR.
-                if ($joinConds && orbitraSafePageExclusionNeeded($pdo)) {
-                    $joinCondition .= ' AND COALESCE(cl.is_safe_page, 0) = 0';
+                if ($joinConds) {
+                    $joinCondition .= ' AND ' . orbitraSafePagePredicate('cl.');
                 }
             }
 
@@ -4054,7 +4064,7 @@ try {
             } else {
                 // Get traffic sources with stats
                 list($whereCl, $paramsCl) = getDashboardFilters('cl.');
-                $joinCondition = !empty($whereCl) ? str_replace("WHERE ", "AND ", $whereCl) : "";
+                $joinCondition = orbitraWhereToJoinCondition($whereCl);
                 $limitClause = isset($_GET['limit']) ? "LIMIT " . (int) $_GET['limit'] : "";
                 $havingClause = isset($_GET['limit']) ? "HAVING clicks > 0" : "";
 
@@ -4657,18 +4667,15 @@ try {
             }
 
             if ($dateConditions) {
-                // W3.4: Add is_safe_page filter for campaigns with exclude_safe_from_reports
-                // Check if any active campaign has cloaking with exclude_safe_from_reports
-                if (orbitraSafePageExclusionNeeded($pdo)) {
-                    // COALESCE keeps NULL (pre-v38) rows visible — see getDashboardFilters.
-                    $dateConditions[] = "COALESCE(cl.is_safe_page, 0) = 0";
-                }
+                // W3.4: safe-page exclusion, resolved per campaign — see
+                // orbitraSafePagePredicate() in place of the old global flag.
+                $dateConditions[] = orbitraSafePagePredicate('cl.');
                 $joinCondition = 'AND ' . implode(' AND ', $dateConditions);
             } else {
                 // Requests without an explicit Landings range retain the old
                 // dashboard-filter behavior for callers such as the overview.
                 list($whereCl, $paramsCl) = getDashboardFilters('cl.');
-                $joinCondition = !empty($whereCl) ? str_replace('WHERE ', 'AND ', $whereCl) : '';
+                $joinCondition = orbitraWhereToJoinCondition($whereCl);
             }
             $limitClause = isset($_GET['limit']) ? "LIMIT " . (int) $_GET['limit'] : "";
             $orderBy = isset($_GET['limit']) ? "ORDER BY clicks DESC, id DESC" : "ORDER BY id DESC";
@@ -7057,18 +7064,15 @@ try {
                     $joinConds[] = "date(cl.created_at, '$dbTzOffset') <= date(?)";
                     $paramsCl[] = $dateTo;
                 }
-                // W3.4: Add is_safe_page filter for campaigns with exclude_safe_from_reports
-                // Check if any active campaign has cloaking with exclude_safe_from_reports
-                if (orbitraSafePageExclusionNeeded($pdo)) {
-                    // COALESCE keeps NULL (pre-v38) rows visible — see getDashboardFilters.
-                    $joinConds[] = "COALESCE(cl.is_safe_page, 0) = 0";
-                }
+                // W3.4: safe-page exclusion, resolved per campaign — see
+                // orbitraSafePagePredicate() in place of the old global flag.
+                $joinConds[] = orbitraSafePagePredicate('cl.');
                 $joinCondition = $joinConds ? 'AND ' . implode(' AND ', $joinConds) : '';
             } else {
                 // Existing dashboard callers keep their date_range/custom_from
                 // behavior when no explicit offer period was requested.
                 list($whereCl, $paramsCl) = getDashboardFilters('cl.');
-                $joinCondition = !empty($whereCl) ? str_replace("WHERE ", "AND ", $whereCl) : "";
+                $joinCondition = orbitraWhereToJoinCondition($whereCl);
             }
             $limitClause = isset($_GET['limit']) ? "LIMIT " . (int) $_GET['limit'] : "";
             $orderBy = isset($_GET['limit']) ? "ORDER BY clicks DESC, created_at DESC" : "ORDER BY created_at DESC";
@@ -12540,10 +12544,7 @@ try {
             // dashboard and missed campaign_report, so the report counted cloaked
             // crawler traffic the rest of the panel had already dropped — a 4x click
             // overstatement on a live cloak stream, with CPC/CR/EPC wrong to match.
-            if (orbitraSafePageExclusionNeeded($pdo)) {
-                // COALESCE keeps NULL (pre-v38) rows visible — see getDashboardFilters.
-                $conds[] = 'COALESCE(clicks.is_safe_page, 0) = 0';
-            }
+            $conds[] = orbitraSafePagePredicate('clicks.');
 
             $where = $conds ? implode(' AND ', $conds) : '1=1';
 
@@ -16055,18 +16056,10 @@ try {
             $params = [$dateFrom . ' 00:00:00', $dateTo . ' 23:59:59'];
             $groupClause = '';
 
-            // W3.4: Add is_safe_page filter for campaigns with exclude_safe_from_reports
-            $stmtCheck = $pdo->query("
-                SELECT COUNT(*) FROM streams s
-                JOIN campaigns c ON s.campaign_id = c.id
-                WHERE s.schema_type = 'cloak'
-                AND s.schema_custom_json IS NOT NULL AND s.schema_custom_json != '' AND s.schema_custom_json != '{}'
-                AND c.state = 'active'
-                LIMIT 1
-            ");
-            if ($stmtCheck->fetchColumn() > 0) {
-                $clickWhere[] = "cl.is_safe_page = 0";
-            }
+            // W3.4: safe-page exclusion, resolved per campaign. This site used to
+            // carry an inlined copy of the old global check plus a bare
+            // "cl.is_safe_page = 0", which in SQLite also drops every NULL row.
+            $clickWhere[] = orbitraSafePagePredicate('cl.');
             if ($groupId !== '') {
                 $groupClause = " AND c.group_id = " . (int)$groupId;
             }
