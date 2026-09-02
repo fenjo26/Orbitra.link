@@ -89,8 +89,12 @@ function orbitraReadPrivilegedFile(string $path): ?string
     }
     // Without the matching sudoers rule sudo -n fails quietly, and the caller
     // sees "unreadable" — which is the honest verdict for a panel that cannot
-    // read the file, not a fabricated "certificate is broken".
-    $out = orbitraShell('sudo -n cat ' . escapeshellarg($path) . ' 2>/dev/null');
+    // read the file, not a fabricated "certificate is broken". The command is
+    // spelled with its full path on purpose: sudo resolves a bare name through
+    // secure_path (/usr/bin first on usrmerged systems), and the sudoers entry
+    // written by install.sh names /bin/cat — full path on both sides removes
+    // the dependency on how any given sudo resolves one.
+    $out = orbitraShell('sudo -n /bin/cat ' . escapeshellarg($path) . ' 2>/dev/null');
     return is_string($out) && $out !== '' ? $out : null;
 }
 

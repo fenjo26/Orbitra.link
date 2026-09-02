@@ -266,6 +266,30 @@ function orbitraProbeServedChain(string $domain): array
 }
 
 /**
+ * How many certificates does the domain serve on the wire, counted by openssl?
+ *
+ * The second witness behind the probe's fail verdict: libcurl's CERTINFO has
+ * been seen reporting only the leaf while the wire carries the full chain, and
+ * "served chain is truncated" marks a domain failed — that must never rest on
+ * one tool's word.
+ *
+ * @return int chain size, or -1 when openssl is unavailable or the connection
+ *             did not complete.
+ */
+function orbitraWireChainCount(string $domain): int
+{
+    if ($domain === '' || !orbitraCommandExists('openssl')) {
+        return -1;
+    }
+    $raw = orbitraShell('echo | openssl s_client -connect ' . escapeshellarg($domain . ':443')
+        . ' -servername ' . escapeshellarg($domain) . ' -showcerts 2>/dev/null');
+    if (!is_string($raw)) {
+        return -1;
+    }
+    return substr_count($raw, '-----BEGIN CERTIFICATE-----');
+}
+
+/**
  * Classify a fullchain.pem in one call: 'ok', 'incomplete_chain' (the chain
  * was seen and genuinely carries less than a full chain) or 'chain_unverified'
  * (the panel could not confirm the chain — file unreadable AND the live HTTPS
@@ -274,16 +298,19 @@ function orbitraProbeServedChain(string $domain): array
  * When the file can be read, the verdict is the block count, as before. When
  * it cannot — root-only /etc/letsencrypt, and no sudoers cat rule on installs
  * that predate it — the served chain decides instead: two or more links for
- * this hostname is a verified chain, one link from Let's Encrypt is the real
- * Firefox-ok / Chrome-fail truncation, and anything else (a self-signed
+ * this hostname is a verified chain, and one link is the real Firefox-ok /
+ * Chrome-fail truncation ONLY if a second tool (openssl, on the same wire)
+ * also counts one — curl's CERTINFO has undercounted on some builds, and this
+ * is the one verdict here that fails a domain. Anything else (a self-signed
  * placeholder still wired while the config rebuilds, a different vhost, no
  * answer at all) stays 'chain_unverified'. That third state must NOT mark the
  * domain failed: the certificate exists, nginx will be synced within the hour,
  * and failing it feeds the retry backoff for nothing.
  *
- * $probeFn is an injection seam for tests; production never passes it.
+ * $probeFn and $wireFn are injection seams for tests; production never passes
+ * them.
  */
-function orbitraChainVerdict(string $certFile, string $domain = '', ?callable $probeFn = null): string
+function orbitraChainVerdict(string $certFile, string $domain = '', ?callable $probeFn = null, ?callable $wireFn = null): string
 {
     $chain = orbitraCertificateChainComplete($certFile);
     if (!$chain['readable']) {
@@ -303,7 +330,14 @@ function orbitraChainVerdict(string $certFile, string $domain = '', ?callable $p
         // server block — not a failure.
         $isLetsEncrypt = stripos($probe['issuer'], 'let') !== false
             && stripos($probe['issuer'], 'encrypt') !== false;
-        return $isLetsEncrypt ? 'incomplete_chain' : 'chain_unverified';
+        if (!$isLetsEncrypt) {
+            return 'chain_unverified';
+        }
+        $wire = ($wireFn ?? 'orbitraWireChainCount')($domain);
+        if ($wire >= 2) {
+            return 'ok'; // curl undercounted; the wire carries the full chain
+        }
+        return $wire === 1 ? 'incomplete_chain' : 'chain_unverified';
     }
     return $chain['ok'] ? 'ok' : 'incomplete_chain';
 }

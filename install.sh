@@ -111,6 +111,11 @@ echo "www-data ALL=(ALL) NOPASSWD: /usr/bin/certbot" >> $SUDOERS_FILE
 for certfile in fullchain.pem chain.pem cert.pem; do
     echo "www-data ALL=(ALL) NOPASSWD: /bin/cat /etc/letsencrypt/live/*/$certfile" >> $SUDOERS_FILE
     echo "www-data ALL=(ALL) NOPASSWD: /bin/cat /etc/letsencrypt/archive/*/$certfile" >> $SUDOERS_FILE
+    # /usr/bin duplicates: on usrmerged systems /bin is a symlink to /usr/bin,
+    # and which of the two a sudoers entry must name depends on the sudo build
+    # — listing both makes the rule match regardless.
+    echo "www-data ALL=(ALL) NOPASSWD: /usr/bin/cat /etc/letsencrypt/live/*/$certfile" >> $SUDOERS_FILE
+    echo "www-data ALL=(ALL) NOPASSWD: /usr/bin/cat /etc/letsencrypt/archive/*/$certfile" >> $SUDOERS_FILE
 done
 chmod 0440 $SUDOERS_FILE
 

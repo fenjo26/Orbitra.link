@@ -92,9 +92,26 @@ $v = orbitraChainVerdict($unreadablePath, 'example.com', probe(['reached' => tru
 check("unreadable + probe full chain => ok", $v === 'ok');
 
 // 5. Unreadable file + probe answers with one LE-signed link for the domain
-//    => the real served-chain truncation, failed.
-$v = orbitraChainVerdict($unreadablePath, 'example.com', probe(['reached' => true, 'count' => 1]));
-check("unreadable + probe leaf-only LE => incomplete_chain", $v === 'incomplete_chain');
+//    and openssl AGREES the wire carries one => the real served-chain
+//    truncation, failed.
+$v = orbitraChainVerdict($unreadablePath, 'example.com',
+    probe(['reached' => true, 'count' => 1]),
+    fn () => 1);
+check("unreadable + probe leaf-only LE + wire agrees => incomplete_chain", $v === 'incomplete_chain');
+
+// 5b. Same curl answer, but openssl counts the full chain on the wire =>
+//     curl undercounted (CERTINFO leaf-only builds) — verified, NOT failed.
+$v = orbitraChainVerdict($unreadablePath, 'example.com',
+    probe(['reached' => true, 'count' => 1]),
+    fn () => 4);
+check("unreadable + probe leaf-only LE + wire full => ok", $v === 'ok');
+
+// 5c. Same curl answer, no openssl witness available => a fail verdict must
+//     never rest on a single tool's word.
+$v = orbitraChainVerdict($unreadablePath, 'example.com',
+    probe(['reached' => true, 'count' => 1]),
+    fn () => -1);
+check("unreadable + probe leaf-only LE + no witness => chain_unverified", $v === 'chain_unverified');
 
 // 6. Unreadable file + probe answers with one SELF-SIGNED link (the
 //    placeholder wired between issue and nginx sync) => NOT a failure.
