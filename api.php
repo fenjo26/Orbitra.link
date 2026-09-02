@@ -9828,7 +9828,14 @@ try {
                 $data = json_decode(orbitraRequestBody(), true);
                 $id = !empty($data['id']) ? (int) $data['id'] : null;
                 if ($id) {
-                    $pdo->prepare("DELETE FROM domains WHERE id=?")->execute([$id]);
+                    // Deleting a domain also regenerates the vhost, so this is
+                    // another deliberate, slow, one-at-a-time admin action that
+                    // must wait out a cron's write burst rather than dying on
+                    // "database is locked" and leaving the operator guessing
+                    // whether the domain went away.
+                    require_once __DIR__ . '/core/db_retry.php';
+                    orbitraDbAllowSlowWrites($pdo, 10000);
+                    orbitraDbWriteWithRetry($pdo, "DELETE FROM domains WHERE id=?", [$id]);
                     logAudit($pdo, 'DELETE', 'Domain', $id);
 
                     // Auto-update Nginx configuration
@@ -9859,13 +9866,15 @@ try {
                 }
                 unset($optionRow);
             }
-            // Optional filter: only the domains currently bound to one landing.
-            $optLandingId = (int) ($_GET['landing_id'] ?? 0);
-            if ($optLandingId > 0) {
-                $optionRows = array_values(array_filter($optionRows, static function (array $row) use ($optLandingId): bool {
-                    return (int) ($row['pwa_landing_id'] ?? 0) === $optLandingId;
-                }));
-            }
+            // `landing_id` is accepted and deliberately IGNORED. It used to filter
+            // the list down to the domains already bound to that landing, which
+            // made the picker useless the moment it had a landing to ask about:
+            // the PWA editor passes its own id, so right after the first save the
+            // select emptied out and no domain could ever be chosen. The client
+            // needs the whole list — it finds the bound one itself by matching
+            // `pwa_landing_id` against the landing it is editing, which is why
+            // every row carries that column. Kept in the signature so an older
+            // frontend bundle that still sends it keeps working unchanged.
             echo json_encode(['status' => 'success', 'data' => ['domains' => $optionRows]]);
             break;
 
@@ -10004,6 +10013,15 @@ try {
             }
             try {
                 require_once __DIR__ . '/core/ssl_manager.php';
+                require_once __DIR__ . '/core/db_retry.php';
+
+                // This action shells out to certbot for tens of seconds and is
+                // fired by hand, one domain at a time. The 5-second lock wait
+                // that protects ordinary page requests is the wrong trade here:
+                // an every-minute cron holding the write lock turned the button
+                // into "SQLSTATE[HY000]: General error: 5 database is locked",
+                // which the operator reasonably read as the tracker breaking.
+                orbitraDbAllowSlowWrites($pdo, 15000);
 
                 $input = json_decode((string) file_get_contents('php://input'), true);
                 $domainId = (int) ($input['id'] ?? 0);
@@ -10080,11 +10098,10 @@ try {
                 // PRE-FLIGHT CHECKS PASSED - Now we can make state changes
 
                 // Reset SSL status to trigger re-issuance
-                $pdo->prepare("UPDATE domains SET ssl_status = 'pending', ssl_error = NULL, ssl_attempts = 0, ssl_last_attempt = NULL WHERE id = ?")
-                    ->execute([$domainId]);
+                orbitraDbWriteWithRetry($pdo, "UPDATE domains SET ssl_status = 'pending', ssl_error = NULL, ssl_attempts = 0, ssl_last_attempt = NULL WHERE id = ?", [$domainId]);
 
                 // Set status to installing and attempt issuance
-                $pdo->prepare("UPDATE domains SET ssl_status = 'installing' WHERE id = ?")->execute([$domainId]);
+                orbitraDbWriteWithRetry($pdo, "UPDATE domains SET ssl_status = 'installing' WHERE id = ?", [$domainId]);
 
                 $certFile = ORBITRA_LETSENCRYPT_DIR . "/live/$domainName/fullchain.pem";
 
@@ -10108,7 +10125,7 @@ try {
                     if ($deleteRc !== 0) {
                         // The reset above already ran, so put the domain back into
                         // the queue's care instead of leaving it "installing".
-                        $pdo->prepare("UPDATE domains SET ssl_status = 'pending' WHERE id = ?")->execute([$domainId]);
+                        orbitraDbWriteWithRetry($pdo, "UPDATE domains SET ssl_status = 'pending' WHERE id = ?", [$domainId]);
                         $deleteOut = trim(str_replace('__ORBITRA_RC__' . $deleteRc, '', $deleteRaw));
                         echo json_encode([
                             'status' => 'error',
@@ -10133,8 +10150,7 @@ try {
                             'code' => 'chain_unverified',
                             'path' => $certFile,
                         ], JSON_UNESCAPED_UNICODE);
-                        $pdo->prepare("UPDATE domains SET ssl_status = 'installed', ssl_error = ?, ssl_attempts = 0, ssl_last_attempt = datetime('now') WHERE id = ?")
-                            ->execute([$error, $domainId]);
+                        orbitraDbWriteWithRetry($pdo, "UPDATE domains SET ssl_status = 'installed', ssl_error = ?, ssl_attempts = 0, ssl_last_attempt = datetime('now') WHERE id = ?", [$error, $domainId]);
                         try {
                             orbitraSyncNginx($pdo);
                         } catch (\Throwable $e) {
@@ -10155,8 +10171,7 @@ try {
                             'count' => $chain['count'],
                             'path' => $certFile,
                         ], JSON_UNESCAPED_UNICODE);
-                        $pdo->prepare("UPDATE domains SET ssl_status = 'failed', ssl_error = ?, ssl_attempts = ssl_attempts + 1, ssl_last_attempt = datetime('now') WHERE id = ?")
-                            ->execute([$error, $domainId]);
+                        orbitraDbWriteWithRetry($pdo, "UPDATE domains SET ssl_status = 'failed', ssl_error = ?, ssl_attempts = ssl_attempts + 1, ssl_last_attempt = datetime('now') WHERE id = ?", [$error, $domainId]);
                         echo json_encode([
                             'status' => 'error',
                             'code' => 'incomplete_chain',
@@ -10166,8 +10181,7 @@ try {
                         break;
                     }
 
-                    $pdo->prepare("UPDATE domains SET ssl_status = 'installed', ssl_error = NULL, ssl_attempts = 0, ssl_last_attempt = datetime('now') WHERE id = ?")
-                        ->execute([$domainId]);
+                    orbitraDbWriteWithRetry($pdo, "UPDATE domains SET ssl_status = 'installed', ssl_error = NULL, ssl_attempts = 0, ssl_last_attempt = datetime('now') WHERE id = ?", [$domainId]);
 
                     // Sync nginx config
                     try {
@@ -10185,8 +10199,7 @@ try {
                     $error = trim($output) !== ''
                         ? substr(trim($output), -500)
                         : json_encode(['code' => 'certbot_no_output'], JSON_UNESCAPED_UNICODE);
-                    $pdo->prepare("UPDATE domains SET ssl_status = 'failed', ssl_error = ?, ssl_attempts = ssl_attempts + 1, ssl_last_attempt = datetime('now') WHERE id = ?")
-                        ->execute([$error, $domainId]);
+                    orbitraDbWriteWithRetry($pdo, "UPDATE domains SET ssl_status = 'failed', ssl_error = ?, ssl_attempts = ssl_attempts + 1, ssl_last_attempt = datetime('now') WHERE id = ?", [$error, $domainId]);
                     echo json_encode([
                         'status' => 'error',
                         'message' => 'Failed to issue SSL certificate',

@@ -56,10 +56,36 @@ Findings from the v1.4.1 acceptance pass on the test server (PWA phases 1–4).
   a partial save reset the role to `user`, blanked the email and reset the language.
   Absent keys now keep their stored values, exactly as `permissions` already did.
 
+- **The PWA editor's domain picker was empty for anyone who had saved once** —
+  `pwa_domain_options` treated `landing_id` as a filter ("the domains bound to this
+  landing"), and the editor passes the landing it is editing. Before the first save
+  the select is disabled; after it, the endpoint answered with the domains bound to
+  a landing that was bound to nothing — an empty list, so no domain could ever be
+  chosen. The parameter is now accepted and ignored: the client already finds its
+  own binding by matching each row's `pwa_landing_id`, which is why every row
+  carries it. Older frontend bundles keep working without a rebuild.
+- **Every domain could sit at "waiting for DNS" with an empty server IP** —
+  `core/ssl_manager.php` carried a private copy of the server-address detection
+  ladder that did not know about the `server_ip_override` setting. On a machine
+  where autodetection fails (no outbound HTTP, or a NAT-private egress address),
+  the operator would set the address by hand, watch the settings banner confirm it,
+  and still see every certificate stall, because the SSL gate was comparing A
+  records against an empty string. It now delegates to the ORB-005 detector in
+  `core/server_ip.php` — the same one the banner reads — and that detector falls
+  back to a stale cache entry rather than answering "unknown" when a lookup fails.
+- **"Re-issue certificate" died on `database is locked`** — the button shells out
+  to certbot for tens of seconds and then writes, with the 5-second lock wait meant
+  for ordinary page requests. An every-minute cron holding the write lock turned it
+  into a raw `SQLSTATE[HY000]: General error: 5 database is locked` and changed
+  nothing. Certificate re-issue and domain deletion now wait longer and retry the
+  write, through the shared helper in `core/db_retry.php` — the same treatment the
+  SSL queue worker already gave itself.
+
 ### Added
 
-- `tests/lp_offer_macros_test.php` and `tests/session_lifetime_test.php` cover the
-  three fixes above that are worth a regression guard.
+- `tests/lp_offer_macros_test.php`, `tests/session_lifetime_test.php`,
+  `tests/pwa_domain_options_test.php` and `tests/ssl_server_ip_override_test.php`
+  cover the fixes above that are worth a regression guard.
 
 ## [1.4.1] — 2026-09-01
 

@@ -28,6 +28,7 @@
 require_once __DIR__ . '/nginx_config.php';
 require_once __DIR__ . '/shell.php';
 require_once __DIR__ . '/CloudDetector.php';
+require_once __DIR__ . '/server_ip.php';
 
 /**
  * Make sure the certificate worker is scheduled, without needing a reinstall.
@@ -364,56 +365,23 @@ function orbitraSslRetryDelay(int $attempts): int
 /**
  * This server's public address, as a domain's A record should point at it.
  *
- * Runs from cron as often as from a web request, so $_SERVER is not available;
- * the result is cached because the external lookup is the slow path.
+ * Delegates to the ORB-005 detector in core/server_ip.php — the single source
+ * of truth the settings banner already uses. This function used to carry its
+ * own copy of the detection ladder, and that copy did not know about the
+ * `server_ip_override` setting: on a machine where autodetection fails (no
+ * outbound HTTP, or an egress address that is private behind NAT), the operator
+ * would set the address by hand, watch the settings page confirm it, and still
+ * see every domain sit at "waiting for DNS" forever with an empty server IP,
+ * because the SSL gate below was comparing A records against an empty string.
+ *
+ * Runs from cron as often as from a web request, so $_SERVER is not available
+ * and $pdo is taken from the global the bootstrap builds; the detector caches
+ * so the external lookup happens once.
  */
 function orbitraServerIp(): string
 {
-    static $ip = null;
-    if ($ip !== null) {
-        return $ip;
-    }
-
-    $cacheFile = dirname(__DIR__) . '/var/server_ip_cache.txt';
-    if (is_file($cacheFile) && (time() - (int) @filemtime($cacheFile)) < 86400) {
-        $cached = trim((string) @file_get_contents($cacheFile));
-        if (filter_var($cached, FILTER_VALIDATE_IP)) {
-            return $ip = $cached;
-        }
-    }
-
-    $found = '';
-
-    // The address the machine actually egresses from, without any network call.
-    $sock = @stream_socket_client('udp://8.8.8.8:53', $errno, $errstr, 1);
-    if ($sock) {
-        $local = @stream_socket_get_name($sock, false);
-        @fclose($sock);
-        if (is_string($local) && strpos($local, ':') !== false) {
-            $candidate = substr($local, 0, strrpos($local, ':'));
-            if (filter_var($candidate, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE)) {
-                $found = $candidate;
-            }
-        }
-    }
-
-    if ($found === '') {
-        $ctx = stream_context_create(['http' => ['timeout' => 3]]);
-        foreach (['https://api.ipify.org', 'http://checkip.amazonaws.com'] as $url) {
-            $body = @file_get_contents($url, false, $ctx);
-            if (is_string($body) && filter_var(trim($body), FILTER_VALIDATE_IP)) {
-                $found = trim($body);
-                break;
-            }
-        }
-    }
-
-    if ($found !== '') {
-        @mkdir(dirname($cacheFile), 0775, true);
-        @file_put_contents($cacheFile, $found);
-    }
-
-    return $ip = $found;
+    $pdo = $GLOBALS['pdo'] ?? null;
+    return orbitraDetectServerIp($pdo instanceof PDO ? $pdo : null);
 }
 
 /**

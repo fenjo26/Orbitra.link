@@ -13,7 +13,8 @@
  * 4. Cloud metadata (AWS EC2)
  * 5. External services (checkip, ipify)
  * 6. SERVER_ADDR (only if public)
- * 7. Explicit failure (empty string, never 127.0.0.1)
+ * 7. Stale cache (any age) — a known address beats an empty one
+ * 8. Explicit failure (empty string, never 127.0.0.1)
  */
 
 /**
@@ -115,7 +116,20 @@ function orbitraDetectServerIp(?PDO $pdo = null): string
         }
     }
 
-    // 7. Explicit failure (return empty string, never 127.0.0.1)
+    // 7. A cache that is merely stale beats no answer at all. A server's public
+    //    address changes about as often as its hosting invoice, while the
+    //    lookups above fail for a night whenever outbound HTTP is blocked or a
+    //    resolver hiccups — and an empty answer here is not cosmetic: the SSL
+    //    gate compares A records against it, so every domain would report
+    //    "waiting for DNS" with an empty server IP until detection recovers.
+    if ($found === '' && is_file($cacheFile)) {
+        $stale = trim((string) @file_get_contents($cacheFile));
+        if ($isPublicIp($stale)) {
+            return $ip = $stale;
+        }
+    }
+
+    // 8. Explicit failure (return empty string, never 127.0.0.1)
     if ($found === '') {
         return $ip = '';
     }
