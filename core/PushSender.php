@@ -63,7 +63,7 @@ class PushSender
             . '.' . self::base64Url(json_encode($claims));
         return [
             'jwt' => $input . '.' . self::base64Url(self::signEs256($input, $keys)),
-            'key' => self::vapidKeyThumbprint($keys['public'] ?? ''),
+            'key' => self::vapidPublicKeyParam($keys['public'] ?? ''),
         ];
     }
 
@@ -139,19 +139,21 @@ class PushSender
     }
 
     /**
-     * RFC 7638 JWK thumbprint of the P-256 public key: SHA-256 over the
-     * lexicographically-canonical JSON {"crv","kty","x","y"}, base64url.
-     * The same string goes into the "k=" Authorization parameter.
+     * RFC 8292 §3.2: the "k=" Authorization parameter carries the PUBLIC KEY
+     * ITSELF — the 65-byte uncompressed P-256 point (0x04||X||Y), base64url,
+     * no padding. The push service takes the key from here and verifies the
+     * JWT against it. This used to be a JWK thumbprint (SHA-256 over the
+     * canonical JWK): the signature then verified against a key no push
+     * service had ever seen, and every send answered 403 BadJwtToken while
+     * subscriptions kept succeeding, because subscribing never involves k=.
      */
-    public static function vapidKeyThumbprint(string $publicKeyB64Url): string
+    public static function vapidPublicKeyParam(string $publicKeyB64Url): string
     {
         $raw = self::base64UrlDecode($publicKeyB64Url);
         if (strlen($raw) !== 65 || $raw[0] !== "\x04") {
             throw new RuntimeException('public key is not an uncompressed P-256 point');
         }
-        $jwk = '{"crv":"P-256","kty":"EC","x":"' . self::base64Url(substr($raw, 1, 32))
-            . '","y":"' . self::base64Url(substr($raw, 33, 32)) . '"}';
-        return self::base64Url(hash('sha256', $jwk, true));
+        return self::base64Url($raw);
     }
 
     /** "Authorization: vapid t=…, k=…" header value. */

@@ -150,11 +150,17 @@ assertTrue(PushSender::vapidAudience('http://localhost:8080/x') === 'http://loca
 assertThrows(static function () { PushSender::vapidAudience('not a url'); },
     'aud rejects an endpoint without a host');
 
-// RFC 7638 thumbprint, computed independently.
-$jwk = '{"crv":"P-256","kty":"EC","x":"' . PushSender::base64Url(substr($pubRaw, 1, 32))
-    . '","y":"' . PushSender::base64Url(substr($pubRaw, 33, 32)) . '"}';
-assertTrue($auth['key'] === PushSender::base64Url(hash('sha256', $jwk, true)),
-    'k= parameter equals the RFC 7638 JWK thumbprint');
+// RFC 8292 §3.2: k= carries the raw uncompressed POINT itself (base64url),
+// because the push service verifies the JWT against the key it names here —
+// a thumbprint in k= made Apple answer 403 BadJwtToken on every send.
+assertTrue($auth['key'] === PushSender::base64Url($pubRaw),
+    'k= parameter is the base64url raw public point, per RFC 8292');
+$kPub = openssl_pkey_get_public(spkiPem(b64url_decode($auth['key'])));
+assertTrue($kPub !== false
+    && openssl_verify($input, rawSigToDer($sig), $kPub, OPENSSL_ALGO_SHA256) === 1,
+    'the JWT signature verifies against the key carried in k= (what the push service does)');
+assertThrows(static function () { PushSender::vapidPublicKeyParam('BPk2x'); },
+    'k= builder rejects a key that is not a 65-byte uncompressed point');
 
 assertThrows(static function () { PushSender::derSignatureToRaw("\x02\x01\x00"); },
     'DER parser rejects a non-SEQUENCE blob');
