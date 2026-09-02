@@ -362,8 +362,13 @@ try {
         'X-Forwarded-For: 103.212.120.7',
     ]);
     $newClicks = $harness->getNewClicksSince($baseline);
-    assertTrue(count($newClicks) === 1, 'click row created for the PWA campaign');
-    $clickId = (string) $newClicks[0]['id'];
+    // The harness follows the 302 into /lander/<slug>/, and the cold lander
+    // view the campaign link points at now logs its own organic visit (the
+    // campaign-link entry contract) — so two clicks arrive: the campaign one
+    // and the organic one. Assert the campaign click by its campaign_id.
+    $campaignClicks = array_values(array_filter($newClicks, static fn ($c) => (int) ($c['campaign_id'] ?? 0) === $campaignId));
+    assertTrue(count($campaignClicks) === 1, 'click row created for the PWA campaign');
+    $clickId = (string) $campaignClicks[0]['id'];
     // The harness does not follow redirects: the click request must answer
     // 302 straight into the landing's own scope.
     $loc = (string) ($resp['headers']['Location'] ?? '');
@@ -408,15 +413,35 @@ try {
         assertTrue(false, 'failed to extract lpUrl from the served page');
     }
 
-    // Without the cookie: silent beacons, plain transition link.
+    // Without the cookie: the cold visit logs exactly one organic click
+    // attributed to the orbitra-pwa-organic system campaign, the fresh subid
+    // rides the page for the beacons, and the {lp_url} carries its signed
+    // token — the whole funnel a cold /lander/<slug>/ campaign link must have.
+    $baselineNoCookie = $harness->getClickCount();
     $resp = $harness->getWithHeaders("/lander/$slug/", ['User-Agent: ' . $mobileUa]);
     if (($resp['code'] ?? 0) !== 200) {
         fwrite(STDERR, "DEBUG lander-no-cookie code=" . ($resp['code'] ?? -1)
             . " body=" . substr((string) ($resp['body'] ?? ''), 0, 400) . "\n");
     }
-    assertContains("subid = ''", $resp['body'] ?? '', 'no cookie → empty subid (beacons stay silent)');
-    assertContains("subid = ''", $resp['body'] ?? '', 'no cookie → empty subid (beacons stay silent)');
-    assertContains("lpUrl = '/index.php?_lp=1'", $resp['body'] ?? '', 'no cookie → plain /index.php?_lp=1 transition (SPA-vhost safe)');
+    $organicClicks = $harness->getNewClicksSince($baselineNoCookie);
+    assertTrue(count($organicClicks) === 1, 'cold lander view logs exactly one organic click');
+    $organicId = (string) $organicClicks[0]['id'];
+    $organicAlias = (string) $pdo->query("SELECT c.alias FROM clicks k JOIN campaigns c ON c.id = k.campaign_id WHERE k.id = " . $pdo->quote($organicId))->fetchColumn();
+    assertContains('orbitra-pwa-organic', $organicAlias, 'cold visit attributes to the system organic campaign');
+    // The harness keeps only the LAST repeated Set-Cookie header; the lander
+    // response closes with the 30-day orbitra_pwa_click cookie, so its
+    // presence proves the whole cookie family (orbitra_click, subid,
+    // orbitra_lp) shipped in the same response.
+    assertContains('orbitra_pwa_click=', (string) ($resp['headers']['Set-Cookie'] ?? $resp['headers']['set-cookie'] ?? ''),
+        'cold visit sets the attribution cookies in the same response');
+    assertContains("subid = '$organicId'", $resp['body'] ?? '', 'cold visit → fresh organic subid injected for beacons');
+    assertContains('_token=', $resp['body'] ?? '', 'cold visit → {lp_url} carries a signed token');
+
+    // A ?_preview= look-see stays uncounted: the operator inspecting their own
+    // store must not manufacture organic traffic.
+    $baselinePreview = $harness->getClickCount();
+    $harness->getWithHeaders("/lander/$slug/?_preview=1788363413", ['User-Agent: ' . $mobileUa]);
+    assertTrue($harness->getClickCount() === $baselinePreview, '?_preview= look-sees log nothing');
 
     // ------------------------------------------------------------------
     // pixel.gif?action=pwa: dedup gates and throttle.

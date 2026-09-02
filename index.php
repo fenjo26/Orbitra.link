@@ -845,6 +845,116 @@ function orbitraBundleHandlers(bool $withApi = false): array
 }
 
 /**
+ * Log the organic visit behind a PWA opened cold, i.e. without the click
+ * cookie the campaign flow would normally set first: the /lander/<slug>/
+ * campaign link and the domain-root bridge both hand the store to visitors
+ * who never saw a ?campaign_id= redirect, and their offer hop needs a click
+ * to recover (cookie) or it fails with "original click not found".
+ *
+ * Attribution goes to the archived orbitra-pwa-organic system campaign, the
+ * same row the domain-root bridge uses. Returns the fresh click id, or ''
+ * when stats are off, the request is a prefetch probe, or the system
+ * campaign could not be resolved (the page still serves, no-click macros).
+ *
+ * Deliberately mirrors the domain-root bridge's inline block (the caller
+ * around the PWA root serve) — keep the two in sync. /lander/ skips the
+ * logging for ?_preview= requests so the operator's own look-sees stay out
+ * of the stats; the root bridge has no such parameter by construction.
+ */
+function orbitraLogPwaOrganicVisit(PDO $pdo, int $landingId): string
+{
+    $pwaSettings = [];
+    try {
+        foreach ($pdo->query("SELECT key, value FROM settings WHERE key IN ('stats_enabled', 'ignore_prefetch')") as $pwaSetRow) {
+            $pwaSettings[$pwaSetRow['key']] = $pwaSetRow['value'];
+        }
+    } catch (\Throwable $e) {
+        // Unreadable settings default to the same values the campaign flow assumes.
+    }
+    $pwaStatsEnabled = isset($pwaSettings['stats_enabled']) ? (int) $pwaSettings['stats_enabled'] : 1;
+    if (!$pwaStatsEnabled || orbitraShouldSkipClickOnPrefetch($pwaSettings['ignore_prefetch'] ?? '1')) {
+        return '';
+    }
+
+    $pwaOrganicId = 0;
+    try {
+        $pwaOrganicId = (int) $pdo->query("SELECT id FROM campaigns WHERE alias = 'orbitra-pwa-organic' LIMIT 1")->fetchColumn();
+    } catch (\Throwable $e) {
+        $pwaOrganicId = 0;
+    }
+    if ($pwaOrganicId === 0) {
+        try {
+            $pdo->prepare("INSERT INTO campaigns (name, alias, token, is_archived, archived_at, state)
+                SELECT 'PWA organic (system)', 'orbitra-pwa-organic', 'organic', 1, datetime('now'), 'active'
+                WHERE NOT EXISTS (SELECT 1 FROM campaigns WHERE alias = 'orbitra-pwa-organic')")->execute();
+            $pwaOrganicId = (int) $pdo->query("SELECT id FROM campaigns WHERE alias = 'orbitra-pwa-organic' LIMIT 1")->fetchColumn();
+        } catch (\Throwable $e) {
+            return '';
+        }
+    }
+    if ($pwaOrganicId === 0) {
+        return '';
+    }
+
+    $pwaIp = orbitraClientIp();
+    $pwaUserAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+    $pwaReferer = $_SERVER['HTTP_REFERER'] ?? '';
+    $pwaGeo = getGeoData($pwaIp);
+    $pwaDeviceType = getDeviceType($pwaUserAgent);
+    $pwaClickId = generateUuid();
+    $pwaParamsJson = json_encode(
+        orbitraCollectClickParams($pdo, $_GET, $_COOKIE, null),
+        JSON_UNESCAPED_UNICODE
+    );
+
+    if (!function_exists('orbitraBuildClickRow')) {
+        require_once __DIR__ . '/core/click_logger.php';
+    }
+    $pwaClickRow = orbitraBuildClickRow([
+        'click_id' => $pwaClickId,
+        'campaign_id' => $pwaOrganicId,
+        'offer_id' => null,
+        'stream_id' => null,
+        'source_id' => null,
+        'landing_id' => $landingId,
+        'ip' => $pwaIp,
+        'user_agent' => $pwaUserAgent,
+        'referer' => $pwaReferer,
+        'country' => $pwaGeo['country_code'],
+        'country_code' => $pwaGeo['country_code'],
+        'region' => $pwaGeo['region'],
+        'city' => $pwaGeo['city'],
+        'latitude' => $pwaGeo['latitude'],
+        'longitude' => $pwaGeo['longitude'],
+        'zipcode' => $pwaGeo['zipcode'],
+        'timezone' => $pwaGeo['timezone'],
+        'device_type' => $pwaDeviceType,
+        'os' => detectOs($pwaUserAgent),
+        'browser' => detectBrowser($pwaUserAgent),
+        'language' => (extractLanguageCodes(detectAcceptLanguageRaw())[0] ?? 'Unknown'),
+        'accept_language_raw' => detectAcceptLanguageRaw(),
+        'parameters_json' => $pwaParamsJson,
+    ]);
+    orbitraPersistClick($pdo, $pwaClickRow);
+
+    require_once __DIR__ . '/core/ClickFlags.php';
+    orbitraWriteClickFlags($pdo, $pwaClickId, $pwaIp, $pwaUserAgent, ['id' => $pwaOrganicId], 0, is_array($pwaGeo) ? $pwaGeo : []);
+
+    $pwaSecure = orbitraIsHttps();
+    $pwaCookieOpts = ['expires' => time() + 86400, 'path' => '/', 'secure' => $pwaSecure, 'httponly' => false, 'samesite' => 'Lax'];
+    setcookie('orbitra_click', $pwaClickId, $pwaCookieOpts);
+    setcookie('subid', $pwaClickId, $pwaCookieOpts);
+    setcookie('orbitra_lp', (string) $landingId, $pwaCookieOpts);
+    setcookie('orbitra_pwa_click', $pwaClickId, ['expires' => time() + 2592000, 'path' => '/', 'secure' => $pwaSecure, 'httponly' => false, 'samesite' => 'Lax']);
+    try {
+        $pdo->prepare("UPDATE clicks SET landing_at = datetime('now') WHERE id = ? AND landing_at IS NULL")->execute([$pwaClickId]);
+    } catch (\Throwable $e) {
+        // Timing is a nice-to-have.
+    }
+    return $pwaClickId;
+}
+
+/**
  * Serve a local landing at /lander/<slug>/, the way Keitaro does.
  *
  * Keitaro publishes a local landing at /lander/<name>/ and injects a <base> tag
@@ -855,13 +965,16 @@ function orbitraBundleHandlers(bool $withApi = false): array
  * click, through the orbitra_lp cookie. This is the route that makes the label
  * true, and what the editor's preview loads.
  *
- * Not a click: nothing is logged, no cookie is set, and {offer} has no stream to
- * resolve against, so it points at the campaign entry Keitaro uses for the same
- * job. PHP landing pages are not executed here — they need the click context this
- * route deliberately does not have. The LeadForge bundle handlers
- * (orbitraBundleHandlers()) are the exception: they are network actors, not
- * click-context pages, and answer their own POSTs under this URL like they do at
- * the root.
+ * Not a click for non-PWA pages, and never a click for ?_preview= look-sees
+ * or for a visitor who already carries a click cookie: those serve exactly as
+ * before. A PWA landing opened COLD is the exception — the /lander/<slug>/
+ * campaign link and a bookmarked store both arrive with no click to their
+ * name, so orbitraLogPwaOrganicVisit() writes the organic click + cookies the
+ * offer hop rides on. PHP landing pages are not executed here — they need the
+ * click context this route deliberately does not have. The LeadForge bundle
+ * handlers (orbitraBundleHandlers()) are the exception: they are network
+ * actors, not click-context pages, and answer their own POSTs under this URL
+ * like they do at the root.
  */
 function orbitraServeLanderPath(PDO $pdo, string $slug, string $rest): void
 {
@@ -989,18 +1102,31 @@ function orbitraServeLanderPath(PDO $pdo, string $slug, string $rest): void
         $html = $base . "\n" . $html;
     }
 
+    // A PWA opened COLD here — via the /lander/<slug>/ campaign link or a
+    // bookmarked store — has no click to its name: no cookie, empty {subid},
+    // and its offer hop would fail with "original click not found". Give the
+    // visit the same organic click + cookies the domain-root bridge writes.
+    // ?_preview= look-sees and visitors who already carry a click stay
+    // uncounted, exactly as before this block existed.
+    $freshPwaClickId = '';
+    if (PwaLanding::isPwa($row)
+        && !isset($_GET['_preview'])
+        && trim((string) ($_COOKIE['orbitra_click'] ?? '')) === ''
+        && trim((string) ($_COOKIE['orbitra_pwa_click'] ?? '')) === '') {
+        $freshPwaClickId = orbitraLogPwaOrganicVisit($pdo, $id);
+    }
+
     // Macros resolve from the orbitra_click cookie the click flow set before
     // redirecting a PWA landing here. No cookie (preview, direct hit) → the
     // placeholders take their no-click forms: {subid} empty so funnel beacons
     // stay silent, {lp_url} plain so the /?_lp=1 cookie fallback still works
     // for a real visitor. applyLandingMacros() covers {offer}, {subid},
-    // {lp_url} and friends in one pass.
-    //
-    // The secret MUST come from the settings table, not $GLOBALS['settings']:
-    // this route dispatches before index.php loads $settings, so the global is
-    // empty here and the fallback constant would sign tokens the /?_lp=1
-    // verifier (which reads the DB) always rejects.
-    $landerClickId = trim((string) ($_COOKIE['orbitra_click'] ?? ''));
+    // {lp_url} and friends in one pass. The freshly logged organic click (if
+    // any) rides the same path — setcookie() does not populate $_COOKIE this
+    // request, so its id is carried separately.
+    $landerClickId = $freshPwaClickId !== ''
+        ? $freshPwaClickId
+        : trim((string) ($_COOKIE['orbitra_click'] ?? ''));
     if ($landerClickId === '') {
         // Installed PWAs reopen for weeks: the long-lived cookie set on the
         // original PWA click keeps their funnel attributed.
@@ -1021,6 +1147,30 @@ function orbitraServeLanderPath(PDO $pdo, string $slug, string $rest): void
         $landerToken = issueLpToken($landerClickId, $landerSecret);
     }
     $html = applyLandingMacros($html, $landerClickId, '', '', [], $landerToken);
+
+    // The binding's offer closes the offer hop the same way the root bridge
+    // does: a cold PWA click carries no stream, so a bare /?_lp=1 hop would
+    // honestly answer "no offer attached". The host serving this /lander/
+    // request picks the domain — a campaign link rides the bound domain — and
+    // its pwa_offer_id decorates every lp link the macros just rendered. No
+    // matching binding (panel-host preview on an unbound host) → links stay
+    // bare and the hop answers honestly instead of guessing an offer.
+    $landerBindingOfferId = 0;
+    $landerHost = strtolower(preg_replace('/:\d+$/', '', (string) ($_SERVER['HTTP_HOST'] ?? '')));
+    if ($landerHost !== '') {
+        try {
+            $stmtLanderOffer = $pdo->prepare("SELECT pwa_offer_id FROM domains
+                                              WHERE LOWER(name) = ? AND pwa_landing_id = ? AND pwa_offer_id IS NOT NULL
+                                              LIMIT 1");
+            $stmtLanderOffer->execute([$landerHost, $id]);
+            $landerBindingOfferId = (int) $stmtLanderOffer->fetchColumn();
+        } catch (\Throwable $e) {
+            $landerBindingOfferId = 0;
+        }
+    }
+    if ($landerBindingOfferId > 0) {
+        $html = str_replace('/index.php?_lp=1', '/index.php?_lp=1&offer_id=' . $landerBindingOfferId, $html);
+    }
 
     // The VAPID public key feeds the in-app push subscription screen. It is
     // served as a macro (never baked into the statics) so a key rotation
