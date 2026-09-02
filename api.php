@@ -150,19 +150,21 @@ function orbitraPwaBoundDomains(PDO $pdo, ?array $landingIds = null): array
 /**
  * The address an operator actually pastes into an ad campaign for a PWA.
  *
- * A domain bound through domains.pwa_landing_id serves the app from its ROOT
- * (index.php resolves the binding before the campaign/stream hop), so that is
- * the public address; without a binding the panel origin still serves it at
- * /lander/<slug>/ — a relative path, because only the browser knows which host
- * the panel is being reached on.
+ * The path is ALWAYS /lander/<slug>/: it pins the link to THIS app. The bare
+ * domain root serves whatever PWA is bound at the moment, so a pasted link
+ * would silently change app on a rebind. A domain bound through
+ * domains.pwa_landing_id carries the link (https://<domain>/lander/<slug>/);
+ * without a binding the fallback is the panel's relative /lander/ path — the
+ * browser resolves it against whichever host the panel is reached on.
  */
 function orbitraPwaPublicUrl(PDO $pdo, int $landingId, string $slug): string
 {
     $bound = orbitraPwaBoundDomains($pdo, [$landingId]);
+    $tail = '/lander/' . ($slug !== '' ? rawurlencode($slug) : (string) $landingId) . '/';
     if (!empty($bound[$landingId])) {
-        return 'https://' . $bound[$landingId] . '/';
+        return 'https://' . $bound[$landingId] . $tail;
     }
-    return '/lander/' . ($slug !== '' ? rawurlencode($slug) : (string) $landingId) . '/';
+    return $tail;
 }
 
 /**
