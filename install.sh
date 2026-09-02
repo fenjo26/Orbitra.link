@@ -459,6 +459,12 @@ server {
         alias /var/www/orbitra/;
         expires 1h;
         add_header Cache-Control "public, immutable";
+        # X-Accel-Redirect drops the response headers PHP set that nginx does
+        # not know, so they are restored here. A PWA bound to a domain registers
+        # its sw.js with { scope: '/' }, which the browser refuses without
+        # Service-Worker-Allowed.
+        add_header Service-Worker-Allowed "/" always;
+        add_header X-Content-Type-Options "nosniff" always;
     }
 
     # Let's Encrypt HTTP-01 challenge.

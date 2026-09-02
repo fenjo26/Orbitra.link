@@ -4785,7 +4785,12 @@ try {
                 $params[] = '%' . $_GET['q'] . '%';
             }
             $wherePush = $conds ? 'WHERE ' . implode(' AND ', $conds) : '';
-            $total = (int) $pdo->prepare("SELECT COUNT(*) FROM push_subscriptions $wherePush")->fetchColumn();
+            // execute() before fetchColumn(): an unexecuted statement returns
+            // false, which reported "0 subscribers" (and 0 pages, so the list
+            // could not be paged) on a base that had them.
+            $countStmt = $pdo->prepare("SELECT COUNT(*) FROM push_subscriptions $wherePush");
+            $countStmt->execute($params);
+            $total = (int) $countStmt->fetchColumn();
             $stmt = $pdo->prepare("SELECT id, click_id, endpoint, country_code, language, user_agent,
                                           is_active, created_at, last_seen_at
                                    FROM push_subscriptions $wherePush
@@ -14047,24 +14052,37 @@ try {
                 $id = !empty($data['id']) ? (int) $data['id'] : null;
                 $username = $data['username'] ?? '';
                 $password = $data['password'] ?? '';
-                $email = $data['email'] ?? '';
-                $role = $data['role'] ?? 'user';
-                $language = $data['language'] ?? 'en';
-                // A request without the permissions key (the plain user edit
-                // modal) must not wipe stored rights — round-trip them.
-                if (!array_key_exists('permissions', $data) || $data['permissions'] === null) {
-                    $permissions = [];
-                    if ($id) {
-                        try {
-                            $stmtPerms = $pdo->prepare("SELECT permissions_json FROM users WHERE id = ?");
-                            $stmtPerms->execute([$id]);
-                            $storedPerms = $stmtPerms->fetchColumn();
-                            $decodedPerms = is_string($storedPerms) && $storedPerms !== '' ? json_decode($storedPerms, true) : [];
-                            $permissions = is_array($decodedPerms) ? $decodedPerms : [];
-                        } catch (Throwable $e) {
-                            $permissions = [];
-                        }
+
+                // "Absent = keep" applies to the whole row, not just to
+                // permissions. A partial save (anything that posts a username
+                // and one changed field) used to silently demote the user to
+                // `user`, blank their email and reset their language, because
+                // every unset key fell through to a default.
+                $existingUser = null;
+                if ($id) {
+                    try {
+                        $stmtExisting = $pdo->prepare("SELECT email, role, language, permissions_json FROM users WHERE id = ?");
+                        $stmtExisting->execute([$id]);
+                        $existingUser = $stmtExisting->fetch(PDO::FETCH_ASSOC) ?: null;
+                    } catch (Throwable $e) {
+                        $existingUser = null;
                     }
+                }
+
+                $email = array_key_exists('email', $data) && $data['email'] !== null
+                    ? (string) $data['email']
+                    : (string) ($existingUser['email'] ?? '');
+                $role = array_key_exists('role', $data) && (string) ($data['role'] ?? '') !== ''
+                    ? (string) $data['role']
+                    : (string) ($existingUser['role'] ?? 'user');
+                $language = array_key_exists('language', $data) && (string) ($data['language'] ?? '') !== ''
+                    ? (string) $data['language']
+                    : (string) ($existingUser['language'] ?? 'en');
+
+                if (!array_key_exists('permissions', $data) || $data['permissions'] === null) {
+                    $storedPerms = $existingUser['permissions_json'] ?? '';
+                    $decodedPerms = is_string($storedPerms) && $storedPerms !== '' ? json_decode($storedPerms, true) : [];
+                    $permissions = is_array($decodedPerms) ? $decodedPerms : [];
                 } else {
                     $permissions = is_array($data['permissions']) ? $data['permissions'] : [];
                 }
@@ -14077,10 +14095,8 @@ try {
 
                 // If saving permissions, check that target user is not admin
                 if ($id && !empty($permissions)) {
-                    $stmtCheck = $pdo->prepare("SELECT role FROM users WHERE id = ?");
-                    $stmtCheck->execute([$id]);
-                    $targetUser = $stmtCheck->fetch();
-                    if ($targetUser && $targetUser['role'] === 'admin') {
+                    $targetUser = $existingUser;
+                    if ($targetUser && ($targetUser['role'] ?? '') === 'admin') {
                         // Admins cannot have their permissions edited by other admins
                         $permissions = []; // Ignore permissions for admin users
                     }
@@ -18709,6 +18725,25 @@ try {
             echo json_encode(['status' => 'error', 'message' => 'Invalid action']);
     }
 } catch (\Exception $e) {
-    http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+    // SQLite write-lock contention is "try again in a moment", not a fault the
+    // operator can act on: the every-minute crons hold the lock in bursts, and
+    // a raw "SQLSTATE[HY000]: database is locked" in a toast reads like data
+    // loss. The real message still goes to the error log.
+    if (stripos($e->getMessage(), 'database is locked') !== false
+        || stripos($e->getMessage(), 'database table is locked') !== false) {
+        $lockedAction = isset($_GET['action']) && is_string($_GET['action']) ? $_GET['action'] : '?';
+        error_log('Orbitra API (' . $lockedAction . '): ' . $e->getMessage());
+        if (!headers_sent()) {
+            http_response_code(503);
+            header('Retry-After: 3');
+        }
+        echo json_encode([
+            'status'  => 'error',
+            'code'    => 'db_locked',
+            'message' => 'The database is busy with a background task. Nothing was changed — repeat the action in a few seconds.',
+        ]);
+    } else {
+        http_response_code(500);
+        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+    }
 }

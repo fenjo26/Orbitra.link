@@ -7,6 +7,60 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+Findings from the v1.4.1 acceptance pass on the test server (PWA phases 1–4).
+
+### Fixed
+
+- **`{subid}` reached the affiliate network as a literal string on the landing→offer
+  hop** — the `/?_lp=1` transition ran the destination URL through
+  `applyOfferMacros()`, which substituted `{clickid}` but not `{subid}`, while the
+  main click flow substituted both. Every funnel with a landing page in it and
+  `{subid}` in the offer URL therefore sent `cid={subid}` instead of the click id,
+  and the network's sub-id parsing had nothing to bind a conversion to. The two
+  paths now substitute the same set — `{clickid}`, `{subid}`, `{ip}`, `{country}`,
+  the extracted tracking parameters and `{offer_id}` — and both drop the macros a
+  click carried no value for, so a leftover `{utm_term}` no longer travels either.
+- **A domain-bound PWA could not register its service worker** — a PWA served from
+  a domain root registers `/lander/<slug>/sw.js` with `{ scope: '/' }`, which the
+  browser only accepts when the script response carries `Service-Worker-Allowed`.
+  PHP set that header, but `sw.js` was then handed to nginx with `X-Accel-Redirect`,
+  which carries only a fixed set of upstream headers into the response and dropped
+  it (along with `X-Content-Type-Options`) — so no worker was installed and push
+  subscription on a bound domain was impossible. Service workers are now streamed by
+  PHP itself (a few KB, once per install, so the freed-worker argument for X-Accel
+  does not apply), and the generated vhost — plus the `install.sh` baseline —
+  restores both headers on the internal assets location as a second line of defence.
+- **`session_lifetime` was dead weight, so the panel expired after 24 minutes** —
+  the setting has been seeded at 86400 since migration 8, but nothing ever read it:
+  PHP's own `gc_maxlifetime` default of 1440 seconds applied, and an admin who left
+  the panel open came back to every request answering 401 at once. The bootstrap now
+  resolves the lifetime (constant → environment `ORBITRA_SESSION_LIFETIME` → the
+  settings table, clamped to 5 minutes … 30 days), applies it to `gc_maxlifetime`,
+  sweeps its own session directory (which the distribution's cleanup cron never
+  sees), stamps each request so an active session never looks stale to an
+  mtime-based cleaner, and enforces the idle cut-off itself.
+- **The push subscriber list reported "0 subscribers" with subscribers in it** —
+  `push_subscribers` called `fetchColumn()` on a prepared but never executed
+  `COUNT(*)`, which returns `false`, so `total` was always 0 and the page count with
+  it (the list could not be paged past the first 50).
+- **A busy database answered with a raw SQLite error** — the every-minute crons hold
+  the write lock in bursts, and any action unlucky enough to collide with one showed
+  the operator `SQLSTATE[HY000]: database is locked`, which reads like data loss.
+  Lock contention now answers `503` with `Retry-After` and a plain "the database is
+  busy, nothing was changed, repeat in a few seconds"; the SQLite message goes to the
+  error log with the action that hit it.
+- **`save_user` silently demoted a user when the request omitted `role`** — the
+  round-trip that protects stored permissions did not cover the rest of the row, so
+  a partial save reset the role to `user`, blanked the email and reset the language.
+  Absent keys now keep their stored values, exactly as `permissions` already did.
+
+### Added
+
+- `tests/lp_offer_macros_test.php` and `tests/session_lifetime_test.php` cover the
+  three fixes above that are worth a regression guard.
+
 ## [1.4.1] — 2026-09-01
 
 Bugfix release: two user-reported fixes, no schema changes.

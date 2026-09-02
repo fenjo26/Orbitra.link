@@ -330,9 +330,24 @@ function detectBrowser($userAgent)
 }
 
 // Replace tracking macros in an offer URL and ensure it has a scheme.
-function applyOfferMacros($url, $clickId, $offerId, $params)
+//
+// This is the landing→offer hop (/?_lp=1). It must substitute exactly what the
+// main click flow substitutes: the stream editor tells the user that {subid},
+// {clickid}, {ip}, {country} and the extracted parameters work in a destination
+// URL, and this destination is the same one, reached one hop later. {subid} in
+// particular used to travel to the affiliate network as the literal string,
+// which breaks its sub-id parsing for every landing-page funnel.
+//
+// $context carries the originating click's own dimensions ('ip', 'country').
+function applyOfferMacros($url, $clickId, $offerId, $params, array $context = [])
 {
-    $url = str_replace('{clickid}', $clickId, (string) $url);
+    $url = str_replace(['{clickid}', '{subid}'], [$clickId, $clickId], (string) $url);
+    if (isset($context['ip'])) {
+        $url = str_replace('{ip}', urlencode((string) $context['ip']), $url);
+    }
+    if (isset($context['country'])) {
+        $url = str_replace('{country}', urlencode((string) $context['country']), $url);
+    }
     if (!empty($params) && is_array($params)) {
         foreach ($params as $key => $val) {
             $url = str_replace('{' . $key . '}', urlencode((string) $val), $url);
@@ -341,8 +356,14 @@ function applyOfferMacros($url, $clickId, $offerId, $params)
     if ($offerId) {
         $url = str_replace('{offer_id}', (string) $offerId, $url);
     }
+    // Drop the macros this click carried no value for ("{utm_term}" and
+    // friends): a literal "{...}" reaching the affiliate network breaks its
+    // sub-id parsing. The main click flow cleans leftovers the same way.
+    $url = preg_replace('#\{[a-zA-Z0-9_]+\}#', '', (string) $url);
     // Ensure URL has a scheme to prevent a relative redirect back to the tracker.
-    if (!preg_match('#^(https?:)?//#i', $url) && !preg_match('#^/#', $url) && !preg_match('#^(mailto|tel):#i', $url)) {
+    // An empty URL belongs to a direct local offer (served from the tracker, no
+    // redirect) and must stay empty rather than become "http://".
+    if ($url !== '' && !preg_match('#^(https?:)?//#i', $url) && !preg_match('#^/#', $url) && !preg_match('#^(mailto|tel):#i', $url)) {
         $url = 'http://' . ltrim($url, '/');
     }
     return $url;
@@ -675,6 +696,22 @@ function serveLandingAsset($landingId, $uriPath, $baseDir = null)
     if ($ifNoneMatch === $etag || ($ifNoneMatch === '' && $ifModifiedSince >= $mtime)) {
         http_response_code(304);
         exit;
+    }
+
+    // A service worker is streamed by PHP itself instead of being handed to
+    // nginx below. X-Accel-Redirect only carries a fixed set of upstream
+    // headers into the response — the `Service-Worker-Allowed: /` set above
+    // (and `X-Content-Type-Options`) is dropped on the way — and without that
+    // allowance the browser REJECTS the { scope: '/' } registration that a
+    // domain-bound PWA store makes, so no service worker means no push
+    // subscription. The worker-cost argument for X-Accel does not apply here:
+    // sw.js is a few KB, and a visitor fetches it once per install.
+    if (basename($file) === 'sw.js') {
+        if ($GLOBALS['orbitraLandingDebug'] ?? false) {
+            header('X-Orbitra-Asset-Source: php_stream');
+            header('X-Orbitra-Asset-Fallback: service_worker_scope_header');
+        }
+        orbitraStreamAssetFile($file, $mimeTypes[$ext]);
     }
 
     // ORB-013: Use X-Accel-Redirect to hand off file serving to nginx.
@@ -2921,7 +2958,10 @@ if (isset($_GET['_lp'])) {
         // non-critical
     }
 
-    $lpUrl = applyOfferMacros($lpOffer['url'], $lpClickId, $lpOfferId, $lpParams);
+    $lpUrl = applyOfferMacros($lpOffer['url'], $lpClickId, $lpOfferId, $lpParams, [
+        'ip'      => $lpClick['ip'] ?? null,
+        'country' => $lpClick['country'] ?? null,
+    ]);
 
     // A local offer is served from the tracker instead of the redirect — the
     // landing→offer click then lands on the offer's own uploaded page.

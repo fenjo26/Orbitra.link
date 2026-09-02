@@ -225,6 +225,14 @@ function orbitraNginxCommonBody(string $fpmSocket): string
     $b .= "        alias /var/www/orbitra/;\n";
     $b .= "        expires 1h;\n";
     $b .= "        add_header Cache-Control \"public, immutable\";\n";
+    $b .= "        # X-Accel-Redirect drops the response headers PHP set that\n";
+    $b .= "        # nginx does not know, so they are restored here. A PWA bound\n";
+    $b .= "        # to a domain registers its sw.js with { scope: '/' }, which\n";
+    $b .= "        # the browser refuses without Service-Worker-Allowed. (PHP\n";
+    $b .= "        # also streams sw.js itself now — this is the belt to that\n";
+    $b .= "        # brace, and it costs nothing on the other assets.)\n";
+    $b .= "        add_header Service-Worker-Allowed \"/\" always;\n";
+    $b .= "        add_header X-Content-Type-Options \"nosniff\" always;\n";
     $b .= "    }\n\n";
 
     $b .= "    # Let's Encrypt HTTP-01 challenge.\n";
