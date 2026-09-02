@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Bell, KeyRound, Download, RefreshCw, Trash2, Plus, Send, Pencil, MessageSquare } from 'lucide-react';
+import { Bell, KeyRound, Download, RefreshCw, Trash2, Plus, Send, Pencil, MessageSquare, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { canAccessTab, canWriteResource } from '../utils/permissions';
 import SegmentedControl from './common/SegmentedControl';
@@ -44,13 +44,32 @@ export default function PushBasePage({ user }) {
     // --- messages tab state (phase 4) ---
     const [messages, setMessages] = useState([]);
     const [messagesLoading, setMessagesLoading] = useState(false);
-    const [queue, setQueue] = useState({ pending: 0, done: 0, failed: 0 });
+    const [queue, setQueue] = useState({ pending: 0, done: 0, failed: 0, last_run_at: '', last_fail_code: null });
+    const [contactDraft, setContactDraft] = useState('');
+    const [contactSaving, setContactSaving] = useState(false);
+    const [contactSaved, setContactSaved] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [form, setForm] = useState(EMPTY_FORM);
     const [saving, setSaving] = useState(false);
     const [info, setInfo] = useState('');
 
     const canWrite = canWriteResource(user, 'push');
+
+    // Nothing in this panel sends a push: every message is queued and drained
+    // by cli/push_cron.php. With that cron missing, "send now" reports
+    // "queued: 1" forever and the phone never rings — which reads as broken
+    // push rather than as a missing crontab line. push_cron stamps
+    // push_cron_last_ping_at on every run, so a stamp older than 15 minutes
+    // (or absent) with rows waiting is proof the worker is not running.
+    const workerStalled = (() => {
+        if (!Number(queue.pending || 0)) return false;
+        const stamp = String(queue.last_run_at || '').trim();
+        if (!stamp) return true;
+        // SQLite writes 'YYYY-MM-DD HH:MM:SS' in UTC.
+        const ts = Date.parse(stamp.replace(' ', 'T') + 'Z');
+        if (Number.isNaN(ts)) return false;
+        return Date.now() - ts > 15 * 60 * 1000;
+    })();
 
     const segmentLabel = useCallback((seg) => ({
         all: t('push.segmentAll'),
@@ -110,7 +129,10 @@ export default function PushBasePage({ user }) {
     const loadVapid = useCallback(async () => {
         try {
             const res = await axios.get(API_URL, { params: { action: 'push_vapid_status' } });
-            if (res.data?.data) setVapid(res.data.data);
+            if (res.data?.data) {
+                setVapid(res.data.data);
+                setContactDraft(res.data.data.contact || '');
+            }
         } catch { /* status is cosmetic when the API denies */ }
     }, []);
 
@@ -121,6 +143,7 @@ export default function PushBasePage({ user }) {
     const translateApiError = useCallback((e, fallback) => {
         const msg = e?.response?.data?.message || '';
         if (msg === 'push.keys_exist') return t('push.keysExist');
+        if (msg === 'push.contactInvalid') return t('push.contactInvalid');
         if (msg === 'push.titleTextRequired') return t('push.titleTextRequired');
         if (msg === 'push.tooLong') return t('push.tooLong');
         if (msg === 'push.eventRequired') return t('push.eventRequired');
@@ -139,6 +162,29 @@ export default function PushBasePage({ user }) {
             }
         } catch (e) {
             setError(translateApiError(e, t('push.loadFailed')));
+        }
+    };
+
+    // The VAPID "sub" claim. Apple's push service validates it and answers
+    // 403 on a contact it rejects, so the placeholder default has to be
+    // replaceable from here — nothing else in the panel writes this row.
+    const saveContact = async () => {
+        if (!canWrite || contactSaving) return;
+        setContactSaving(true);
+        setError('');
+        try {
+            const res = await axios.post(`${API_URL}?action=push_vapid_contact_save`, { contact: contactDraft.trim() });
+            if (res.data?.status === 'success') {
+                setVapid((v) => ({ ...v, contact: res.data.data.contact }));
+                setContactSaved(true);
+                setTimeout(() => setContactSaved(false), 2500);
+            } else {
+                setError(res.data?.message === 'push.contactInvalid' ? t('push.contactInvalid') : t('push.loadFailed'));
+            }
+        } catch (e) {
+            setError(translateApiError(e, t('push.loadFailed')));
+        } finally {
+            setContactSaving(false);
         }
     };
 
@@ -277,6 +323,30 @@ export default function PushBasePage({ user }) {
                                     ) : (
                                         <div className="text-xs mt-2" style={{ color: 'var(--color-danger)' }}>{t('push.vapidMissing')}</div>
                                     )}
+                                    {/* VAPID "sub": the contact every push service is
+                                        handed with the JWT. Apple validates it and
+                                        answers 403 on one it does not accept, so the
+                                        built-in placeholder has to be replaceable. */}
+                                    <div className="mt-3">
+                                        <div className="text-xs font-medium">{t('push.contactLabel')}</div>
+                                        <div className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>{t('push.contactHint')}</div>
+                                        <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                                            <input
+                                                type="text"
+                                                className="form-input text-sm"
+                                                style={{ width: 'auto', minWidth: 260 }}
+                                                value={contactDraft}
+                                                placeholder={vapid.contact_default || 'mailto:you@example.com'}
+                                                onChange={(e) => setContactDraft(e.target.value)}
+                                                disabled={!canWrite || contactSaving}
+                                            />
+                                            {canWrite && (
+                                                <button type="button" className="btn btn-secondary text-sm" onClick={saveContact} disabled={contactSaving}>
+                                                    {contactSaved ? t('editor.saved') : t('common.save')}
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             {canWrite && (
@@ -385,11 +455,26 @@ export default function PushBasePage({ user }) {
                         </div>
                     )}
 
+                    {workerStalled && (
+                        <div className="alert flex items-start gap-2" style={{ background: 'color-mix(in srgb, var(--color-warning, #d97706) 12%, transparent)', color: 'var(--color-warning, #d97706)', margin: '12px 0', fontSize: '13px' }}>
+                            <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                            <span>
+                                {t('push.workerStalled')}
+                                <code className="block mt-1 select-all" style={{ fontSize: '12px' }}>
+                                    * * * * * php /var/www/orbitra/cli/push_cron.php --quiet &gt;&gt; /var/www/orbitra/var/logs/push.log 2&gt;&amp;1
+                                </code>
+                            </span>
+                        </div>
+                    )}
+
                     <div className="flex flex-wrap gap-3 items-center mb-3">
                         <span className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
                             {t('push.queued')}: <b style={{ color: 'var(--color-text-primary)' }}>{Number(queue.pending || 0).toLocaleString()}</b>
                             {' · '}{t('push.sent')}: {Number(queue.done || 0).toLocaleString()}
                             {' · '}{t('push.failed')}: {Number(queue.failed || 0).toLocaleString()}
+                            {Number(queue.failed || 0) > 0 && queue.last_fail_code != null && (
+                                <> {' · '}{t('push.lastFailCode')}: <b style={{ color: 'var(--color-danger)' }}>{queue.last_fail_code || t('push.failCodeNoReply')}</b></>
+                            )}
                         </span>
                         <button onClick={() => loadMessages()} className="btn btn-secondary btn-sm">
                             <RefreshCw className={`w-4 h-4 ${messagesLoading ? 'animate-spin' : ''}`} />

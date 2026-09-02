@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Smartphone, Trash2, ExternalLink, Loader2, Plus, ImagePlus, GripVertical, Check, Save } from 'lucide-react';
+import { X, Smartphone, Trash2, ExternalLink, Loader2, Plus, ImagePlus, GripVertical, Check, Save, Copy } from 'lucide-react';
 import MediaPicker from './common/MediaPicker';
+import CampaignUrlModal from './CampaignUrlModal';
 import { useLanguage } from '../contexts/LanguageContext';
 import { cachedGet, cachedPost } from '../utils/apiCache';
 import { getStayInEditorAfterSave } from '../utils/editorPreferences';
+import { copyToClipboard } from '../utils/clipboard';
+import { pwaLandingUrl } from '../utils/pwaUrl';
 import axios from 'axios';
 
 const API_URL = '/api.php';
@@ -357,6 +360,11 @@ export default function PwaEditor({ landingId, onClose }) {
     const [error, setError] = useState('');
     const [previewUrl, setPreviewUrl] = useState('');
     const [savedId, setSavedId] = useState(landingId || null);
+    // The slug is what /lander/<slug>/ is built from; it comes back with both
+    // the load and the save, and never changes once assigned.
+    const [savedSlug, setSavedSlug] = useState('');
+    const [copied, setCopied] = useState(false);
+    const [urlModal, setUrlModal] = useState(null); // { name, url } — copy fallback
 
     // Wizard + live preview state.
     const [step, setStep] = useState(0);
@@ -435,6 +443,8 @@ export default function PwaEditor({ landingId, onClose }) {
                     setState(data.state || 'active');
                     setGroupId(data.group_id ?? null);
                     setConfig({ ...DEFAULT_CONFIG, ...(data.config || {}) });
+                    setSavedSlug(data.slug || '');
+                    setPreviewUrl(data.public_url || '');
                 }
             } catch {
                 setError(t('pwa.loadFailed'));
@@ -474,8 +484,37 @@ export default function PwaEditor({ landingId, onClose }) {
     const set = (key, value) => setConfig((c) => ({ ...c, [key]: value }));
 
     // The domain currently bound to THIS landing: pwa_landing_id === savedId.
-    const boundDomain = domains.find((d) => Number(d.pwa_landing_id) === Number(savedId)) || null;
+    // Only meaningful once the landing exists — an unsaved PWA (savedId null)
+    // must not match, or Number(null) === Number(null) would pair it with
+    // every unbound domain and fake a binding that was never made.
+    const boundDomain = savedId
+        ? (domains.find((d) => Number(d.pwa_landing_id) === Number(savedId)) || null)
+        : null;
     const domainValue = domainChoice !== null ? domainChoice : (boundDomain ? String(boundDomain.id) : '');
+
+    // The address to paste into an ad campaign. Derived from the CURRENT
+    // binding rather than from the save response, so binding a domain in this
+    // very editor moves the footer link (and what the copy button puts on the
+    // clipboard) to that domain without another save round-trip. With nothing
+    // bound it stays the panel origin's /lander/<slug>/ — viewable, but the
+    // server address, which is why the footer says so.
+    const publicUrl = savedId
+        ? (pwaLandingUrl(savedSlug, savedId, boundDomain ? boundDomain.name : null) || previewUrl)
+        : '';
+
+    const handleCopyLink = async () => {
+        if (!publicUrl) return;
+        // Same two-tier copy as the Campaigns row menu: silent clipboard write
+        // with a transient tick, and the selectable-URL modal as the fallback
+        // for panels where every clipboard transport is blocked (plain HTTP).
+        const ok = await copyToClipboard(publicUrl);
+        if (ok) {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } else {
+            setUrlModal({ name: name || t('pwa.title'), url: publicUrl });
+        }
+    };
 
     // Binding applies immediately, not on the general Save: the operator's
     // intent is unambiguous and the domain must serve the new PWA right away.
@@ -646,8 +685,9 @@ export default function PwaEditor({ landingId, onClose }) {
                 throw new Error(res.data?.message || 'save failed');
             }
             setSavedId(res.data.data.id);
+            setSavedSlug(res.data.data.slug || '');
             setConfig(nextConfig);
-            setPreviewUrl(res.data.data.preview_url || '');
+            setPreviewUrl(res.data.data.public_url || res.data.data.preview_url || '');
             // Same save choreography as the other editors: a green "Saved!"
             // flash on the button, then close unless the operator asked to
             // stay. The PWA used to keep the modal open with no visible
@@ -1530,11 +1570,31 @@ export default function PwaEditor({ landingId, onClose }) {
                                 {t('pwa.saving')}
                             </span>
                         )}
-                        {!saving && previewUrl && (
-                            <a href={previewUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1" style={{ color: 'var(--color-primary)' }}>
-                                <ExternalLink className="w-4 h-4" />
-                                {t('pwa.openPreview')}
-                            </a>
+                        {!saving && publicUrl && (
+                            <div className="flex items-center gap-2 min-w-0">
+                                <a href={publicUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1 flex-shrink-0" style={{ color: 'var(--color-primary)' }}>
+                                    <ExternalLink className="w-4 h-4" />
+                                    {t('pwa.openPreview')}
+                                </a>
+                                <button
+                                    type="button"
+                                    onClick={handleCopyLink}
+                                    className="flex items-center gap-1 flex-shrink-0"
+                                    title={publicUrl}
+                                    style={{ color: copied ? 'var(--color-success)' : 'var(--color-text-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                                >
+                                    {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                    {copied ? t('common.copied') : t('pwa.copyLink')}
+                                </button>
+                                {/* Without a bound domain the only address is the panel's
+                                    own host — fine for a look, useless in an ad campaign,
+                                    and the operator has no other way to tell the two apart. */}
+                                {!boundDomain && (
+                                    <span className="text-xs truncate" style={{ color: 'var(--color-text-muted)' }}>
+                                        {t('pwa.linkServerAddress')}
+                                    </span>
+                                )}
+                            </div>
                         )}
                     </div>
                     <div className="flex gap-2">
@@ -1565,6 +1625,15 @@ export default function PwaEditor({ landingId, onClose }) {
                     multiple={pickerMode === 'screens'}
                     sizeContract={pickerMode === 'icon' ? { width: 512, height: 512, crop: true, label: '512×512' } : null}
                 />
+
+                {/* Copy fallback — only when every clipboard transport failed. */}
+                {urlModal && (
+                    <CampaignUrlModal
+                        name={urlModal.name}
+                        url={urlModal.url}
+                        onClose={() => setUrlModal(null)}
+                    />
+                )}
             </div>
         </div>
     );

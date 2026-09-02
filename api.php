@@ -112,6 +112,60 @@ function orbitraValidatePwaLandingRef(PDO $pdo, int $landingId): array
 }
 
 /**
+ * Name of the tracking domain bound to a PWA landing (domains.pwa_landing_id),
+ * or '' when nothing is bound.
+ *
+ * @param int[]|null $landingIds restrict the lookup; null = every bound domain
+ * @return array<int,string> landing id => domain name
+ */
+function orbitraPwaBoundDomains(PDO $pdo, ?array $landingIds = null): array
+{
+    try {
+        // Lowest id wins when an operator bound two domains to the same app:
+        // the copied link has to be ONE stable address, and "the first one you
+        // bound" is the only rule that does not change under the operator.
+        $sql = "SELECT pwa_landing_id, name FROM domains
+                WHERE pwa_landing_id IS NOT NULL AND pwa_landing_id > 0
+                  AND name IS NOT NULL AND name != ''
+                  AND status != 'Disabled'
+                ORDER BY id DESC";
+        $rows = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+    } catch (\Throwable $e) {
+        // Pre-migration DB without domains.pwa_landing_id — every landing
+        // reports as unbound rather than failing the caller outright.
+        return [];
+    }
+    $map = [];
+    $wanted = $landingIds !== null ? array_flip(array_map('intval', $landingIds)) : null;
+    foreach ($rows as $row) {
+        $lid = (int) $row['pwa_landing_id'];
+        if ($wanted !== null && !isset($wanted[$lid])) {
+            continue;
+        }
+        $map[$lid] = (string) $row['name']; // DESC order leaves the lowest id last
+    }
+    return $map;
+}
+
+/**
+ * The address an operator actually pastes into an ad campaign for a PWA.
+ *
+ * A domain bound through domains.pwa_landing_id serves the app from its ROOT
+ * (index.php resolves the binding before the campaign/stream hop), so that is
+ * the public address; without a binding the panel origin still serves it at
+ * /lander/<slug>/ — a relative path, because only the browser knows which host
+ * the panel is being reached on.
+ */
+function orbitraPwaPublicUrl(PDO $pdo, int $landingId, string $slug): string
+{
+    $bound = orbitraPwaBoundDomains($pdo, [$landingId]);
+    if (!empty($bound[$landingId])) {
+        return 'https://' . $bound[$landingId] . '/';
+    }
+    return '/lander/' . ($slug !== '' ? rawurlencode($slug) : (string) $landingId) . '/';
+}
+
+/**
  * Names of serving campaigns that still reference the given landing(s)/offer(s).
  *
  * A "delete" is an archive (is_archived = 1), and the serving path stops
@@ -4537,6 +4591,24 @@ try {
                 $lRow['unique_visits'] = $m['unique_clicks'];
             }
             unset($lRow);
+            // Slug + bound PWA domain, so the list can offer a "copy link"
+            // that matches what the PWA editor shows. Deliberately two small
+            // side queries rather than columns on the metric SQL: that query
+            // is shared with the reports engine and its tests, and neither
+            // slug nor domains belongs in a metrics aggregate. Both tolerate a
+            // pre-migration DB (missing column) by leaving the field empty.
+            try {
+                $landingSlugs = $pdo->query("SELECT id, slug FROM landings WHERE is_archived = 0")
+                    ->fetchAll(PDO::FETCH_KEY_PAIR);
+            } catch (\Throwable $e) {
+                $landingSlugs = [];
+            }
+            $landingPwaDomains = orbitraPwaBoundDomains($pdo);
+            foreach ($landingsData as &$lSlugRow) {
+                $lSlugRow['slug'] = (string) ($landingSlugs[$lSlugRow['id']] ?? '');
+                $lSlugRow['pwa_domain'] = (string) ($landingPwaDomains[(int) $lSlugRow['id']] ?? '');
+            }
+            unset($lSlugRow);
             echo json_encode(['status' => 'success', 'data' => $landingsData]);
             break;
 
@@ -4606,6 +4678,9 @@ try {
                 'state'    => $pwaRow['state'],
                 'group_id' => $pwaRow['group_id'] !== null ? (int) $pwaRow['group_id'] : null,
                 'config'   => $pwaConfig,
+                // So reopening the editor shows the same link the last save
+                // handed back, instead of an empty footer until the next save.
+                'public_url' => orbitraPwaPublicUrl($pdo, (int) $pwaRow['id'], (string) $pwaRow['slug']),
             ]]);
             break;
 
@@ -4696,11 +4771,17 @@ try {
                 $stmt = $pdo->prepare("SELECT slug FROM landings WHERE id = ? LIMIT 1");
                 $stmt->execute([$id]);
                 $slug = (string) $stmt->fetchColumn();
+                // The link the footer offers must be the address the app is
+                // actually served on: a bound domain serves it from its root,
+                // and sending the operator to the panel host instead hands
+                // them a URL they cannot put in an ad campaign.
+                $publicUrl = orbitraPwaPublicUrl($pdo, $id, $slug);
                 echo json_encode(['status' => 'success', 'data' => [
                     'id'          => $id,
                     'slug'        => $slug,
                     'generated'   => $generated,
-                    'preview_url' => '/lander/' . ($slug !== '' ? rawurlencode($slug) : (string) $id) . '/?_preview=' . time(),
+                    'public_url'  => $publicUrl,
+                    'preview_url' => $publicUrl . '?_preview=' . time(),
                 ]]);
             } catch (\Throwable $e) {
                 error_log('pwa_config_save failed: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
@@ -4731,11 +4812,55 @@ try {
 
         case 'push_vapid_status':
             require_once __DIR__ . '/core/PushBase.php';
+            require_once __DIR__ . '/core/PushSender.php';
             $vapidKeys = PushBase::getKeys($pdo);
+            $vapidContactRaw = '';
+            try {
+                $stmtSub = $pdo->prepare("SELECT value FROM settings WHERE key = ?");
+                $stmtSub->execute([PushSender::VAPID_SUB_SETTING]);
+                $vapidContactRaw = trim((string) $stmtSub->fetchColumn());
+            } catch (\Throwable $e) {
+                // cosmetic — getVapidSub() falls back on its own at send time
+            }
             echo json_encode(['status' => 'success', 'data' => [
                 'has_keys'   => $vapidKeys !== [],
                 'public_key' => $vapidKeys['public'] ?? '',
+                // The VAPID "sub" claim: the contact a push service can reach
+                // the sender at. Apple's web.push.apple.com validates it and
+                // answers 403 BadJwtToken on a contact it does not accept, so
+                // the placeholder default has to be visible and editable —
+                // otherwise every Apple subscriber silently fails to deliver.
+                'contact'         => $vapidContactRaw,
+                'contact_default' => PushSender::VAPID_SUB_DEFAULT,
             ]]);
+            break;
+
+        case 'push_vapid_contact_save':
+            // POST { contact }. Stored as a plain settings row, deliberately
+            // not through the global_settings whitelist (which drops unknown
+            // keys — same reason PushBase writes its keys directly).
+            try {
+                if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                    echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                    break;
+                }
+                require_once __DIR__ . '/core/PushSender.php';
+                $contactBody = json_decode(orbitraRequestBody(), true) ?: [];
+                $contactVal = trim((string) ($contactBody['contact'] ?? ''));
+                if ($contactVal !== ''
+                    && stripos($contactVal, 'mailto:') !== 0
+                    && stripos($contactVal, 'https:') !== 0) {
+                    echo json_encode(['status' => 'error', 'message' => 'push.contactInvalid']);
+                    break;
+                }
+                $stmtSub = $pdo->prepare("INSERT INTO settings (key, value) VALUES (?, ?)
+                                          ON CONFLICT(key) DO UPDATE SET value = excluded.value");
+                $stmtSub->execute([PushSender::VAPID_SUB_SETTING, $contactVal]);
+                echo json_encode(['status' => 'success', 'data' => ['contact' => $contactVal]]);
+            } catch (\Throwable $e) {
+                error_log('push_vapid_contact_save failed: ' . $e->getMessage());
+                echo json_encode(['status' => 'error', 'message' => 'Save failed']);
+            }
             break;
 
         case 'push_vapid_generate':
@@ -4991,7 +5116,25 @@ try {
             } catch (\Throwable $e) {
                 // cosmetic only
             }
-            echo json_encode(['status' => 'success', 'data' => $queueCounts + ['total' => array_sum($queueCounts), 'last_run_at' => $lastPing]]);
+            // The HTTP code of the most recent failure. Without it a failed
+            // queue is a dead end for the operator: 403 (a VAPID contact the
+            // push service rejects), 410 (the subscription is gone) and 0 (the
+            // server could not reach the push service at all) all read as
+            // "failed: 1" and need completely different fixes.
+            $lastFailCode = null;
+            try {
+                $lastFailCode = $pdo->query("SELECT last_code FROM push_queue
+                                             WHERE status = 'failed' AND last_code IS NOT NULL
+                                             ORDER BY id DESC LIMIT 1")->fetchColumn();
+                $lastFailCode = $lastFailCode === false ? null : (int) $lastFailCode;
+            } catch (\Throwable $e) {
+                // cosmetic only
+            }
+            echo json_encode(['status' => 'success', 'data' => $queueCounts + [
+                'total'          => array_sum($queueCounts),
+                'last_run_at'    => $lastPing,
+                'last_fail_code' => $lastFailCode,
+            ]]);
             break;
 
         case 'save_landing':

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { Plus, Trash2, Edit3, Settings2, Filter, RefreshCw, X, SlidersHorizontal, Smartphone } from 'lucide-react';
+import { Plus, Trash2, Edit3, Settings2, Filter, RefreshCw, X, SlidersHorizontal, Smartphone, Copy, Check } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import LandingEditor from './LandingEditor';
 import PwaEditor from './PwaEditor';
@@ -15,6 +15,9 @@ import axios from 'axios';
 import { canWriteResource } from '../utils/permissions';
 import { useLanguage } from '../contexts/LanguageContext';
 import { entityDeleteErrorText } from '../utils/entityInUseError';
+import { copyToClipboard } from '../utils/clipboard';
+import { pwaLandingUrl } from '../utils/pwaUrl';
+import CampaignUrlModal from './CampaignUrlModal';
 
 const API_URL = '/api.php';
 
@@ -68,6 +71,8 @@ const Landings = ({ landings, refreshData, user }) => {
     const [landingList, setLandingList] = useState(() => landings || []);
     const [isEditorOpen, setIsEditorOpen] = useState(false);
     const [pwaEditorOpen, setPwaEditorOpen] = useState(false);
+    const [copiedLandingId, setCopiedLandingId] = useState(null);
+    const [urlModal, setUrlModal] = useState(null); // { name, url } — copy fallback
     const [showGroupsModal, setShowGroupsModal] = useState(false);
     const [editingLandingId, setEditingLandingId] = useState(null);
     const [selectedLandingIds, setSelectedLandingIds] = useState(() => new Set());
@@ -173,6 +178,48 @@ const Landings = ({ landings, refreshData, user }) => {
         } else {
             handleEdit(landing.id);
         }
+    };
+
+    // The public address of a PWA landing: the bound domain's root when one is
+    // bound (`pwa_domain` rides along with the list), the panel origin's
+    // /lander/<slug>/ otherwise. Same helper the PWA editor footer uses, so the
+    // link copied here and the one shown there cannot drift.
+    const pwaUrlFor = (landing) => pwaLandingUrl(landing.slug, landing.id, landing.pwa_domain || null);
+
+    const handleCopyPwaLink = async (landing) => {
+        const url = pwaUrlFor(landing);
+        if (!url) return;
+        const ok = await copyToClipboard(url);
+        if (ok) {
+            setCopiedLandingId(landing.id);
+            setTimeout(() => setCopiedLandingId(null), 2000);
+        } else {
+            // Every clipboard transport blocked (plain-HTTP panel): fall back
+            // to the selectable-URL modal instead of a silent no-op.
+            setUrlModal({ name: landing.name, url });
+        }
+    };
+
+    // Icon-only copy button, shared by the desktop Actions cell and the mobile
+    // card header so the two never drift apart. PWA landings only: a redirect
+    // landing's address is its own url column, and a plain local landing is
+    // reached through its campaign, not directly.
+    const renderCopyLinkButton = (landing) => {
+        if (!isPwaLanding(landing)) return null;
+        const done = copiedLandingId === landing.id;
+        return (
+            <button
+                onClick={() => handleCopyPwaLink(landing)}
+                className="action-btn"
+                title={done ? t('common.copied') : t('pwa.copyLink')}
+                // Inline, not a class: .action-btn (unlayered index.css) wins
+                // over layered Tailwind color utilities, so text-green-500
+                // would silently no-op here — same trap as icon inputs.
+                style={done ? { color: 'var(--color-success)' } : undefined}
+            >
+                {done ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </button>
+        );
     };
 
     const handleDelete = async (id) => {
@@ -660,6 +707,14 @@ const Landings = ({ landings, refreshData, user }) => {
                                     {landing.url}
                                 </span>
                             )}
+                            {/* A PWA is a local landing with an empty url column, so the
+                                row showed no address at all — the one thing an operator
+                                comes to this list for. */}
+                            {isPwaLanding(landing) && (
+                                <span style={{ color: 'var(--color-text-muted)', fontSize: '12px' }} className="truncate max-w-[200px]" title={pwaUrlFor(landing)}>
+                                    {pwaUrlFor(landing)}
+                                </span>
+                            )}
                         </div>
                     </td>
                 );
@@ -680,12 +735,14 @@ const Landings = ({ landings, refreshData, user }) => {
                         )}
                     </td>
                 );
-            case 'url':
+            case 'url': {
+                const cellUrl = isPwaLanding(landing) ? pwaUrlFor(landing) : landing.url;
                 return (
-                    <td key={colId} style={{ color: 'var(--color-text-muted)', fontSize: '12px' }} className="truncate max-w-[200px] cell-text" title={landing.url}>
-                        {landing.url}
+                    <td key={colId} style={{ color: 'var(--color-text-muted)', fontSize: '12px' }} className="truncate max-w-[200px] cell-text" title={cellUrl}>
+                        {cellUrl}
                     </td>
                 );
+            }
             case 'last_event':
                 return <td key={colId} className="cell-text" style={{ color: 'var(--color-text-secondary)' }}>{formatLastEvent(landing.last_event)}</td>;
             default:
@@ -1014,9 +1071,14 @@ const Landings = ({ landings, refreshData, user }) => {
                                     ))}
                                     <td>
                                         <div className="action-buttons">
-                                            <button onClick={() => handleEdit(landing.id)} className="action-btn text-blue" title={t('common.edit') || t('components.edit')}>
+                                            {/* openEditorFor, not handleEdit: the pencil on a PWA
+                                                row used to open the plain landing editor, which
+                                                shows an empty local landing — the constructor is
+                                                the only editor that can read its config_json. */}
+                                            <button onClick={() => openEditorFor(landing)} className="action-btn text-blue" title={t('common.edit') || t('components.edit')}>
                                                 <Edit3 className="w-4 h-4" />
                                             </button>
+                                            {renderCopyLinkButton(landing)}
                                             <button onClick={() => handleDelete(landing.id)} className="action-btn text-red" title={t('common.delete')}>
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
@@ -1081,9 +1143,10 @@ const Landings = ({ landings, refreshData, user }) => {
                                 <span className="w-2 h-2 rounded-full mr-1.5" style={{ backgroundColor: landing.state === 'active' ? 'var(--color-success)' : 'var(--color-text-muted)' }}></span>
                                 {landing.state === 'active' ? t('components.active') : t('components.archive')}
                             </span>
-                            <button onClick={() => handleEdit(landing.id)} className="action-btn text-blue" title={t('common.edit') || t('components.edit')}>
+                            <button onClick={() => openEditorFor(landing)} className="action-btn text-blue" title={t('common.edit') || t('components.edit')}>
                                 <Edit3 className="w-4 h-4" />
                             </button>
+                            {renderCopyLinkButton(landing)}
                             <button onClick={() => handleDelete(landing.id)} className="action-btn text-red" title={t('common.delete')}>
                                 <Trash2 className="w-4 h-4" />
                             </button>
@@ -1100,7 +1163,10 @@ const Landings = ({ landings, refreshData, user }) => {
                         }),
                         { id: 'group_name', label: entityLabel('group_name'), render: (l) => l.group_name || '-' },
                         { id: 'type', label: entityLabel('type'), render: (l) => l.type },
-                        { id: 'url', label: 'URL', render: (l) => (l.type !== 'local' && l.type !== 'action' && l.url ? <span className="break-all whitespace-normal">{l.url}</span> : '-') },
+                        { id: 'url', label: 'URL', render: (l) => {
+                            const u = isPwaLanding(l) ? pwaUrlFor(l) : ((l.type !== 'local' && l.type !== 'action') ? l.url : '');
+                            return u ? <span className="break-all whitespace-normal">{u}</span> : '-';
+                        } },
                         { id: 'last_event', label: entityLabel('last_event'), render: (l) => formatLastEvent(l.last_event) },
                     ]}
                     primaryIds={['clicks', 'conversions', 'cost', 'roi']}
@@ -1134,6 +1200,15 @@ const Landings = ({ landings, refreshData, user }) => {
                 <PwaEditor
                     landingId={editingLandingId}
                     onClose={handlePwaEditorClose}
+                />
+            )}
+
+            {/* Copy fallback — only when every clipboard transport failed. */}
+            {urlModal && (
+                <CampaignUrlModal
+                    name={urlModal.name}
+                    url={urlModal.url}
+                    onClose={() => setUrlModal(null)}
                 />
             )}
 

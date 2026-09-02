@@ -388,6 +388,11 @@ fi
 echo "[4/5] Configuring permissions for SQLite Database..."
 # Create necessary subdirectories first
 mkdir -p /var/www/orbitra/var/geoip/SxGeoCity
+# Every cron line below appends its log here. The directory must exist BEFORE
+# the first cron tick: the shell opens the >> target before exec'ing php, and
+# with the directory missing every worker silently dies until the panel is
+# first opened (api.php creates var/logs lazily on first use).
+mkdir -p /var/www/orbitra/var/logs
 mkdir -p /var/www/orbitra/geo
 mkdir -p /var/www/orbitra/core
 # Webroot for Let's Encrypt HTTP-01 challenges. Certbot writes here as root;
@@ -743,6 +748,23 @@ if ! crontab -u www-data -l 2>/dev/null | grep -qF "$QUEUE_CRON_MARKER"; then
     } | crontab -u www-data - 2>/dev/null \
       && echo "  > Queue worker scheduled (every minute)." \
       || echo "  > NOTE: could not write the crontab. Add this line manually: * * * * * php /var/www/orbitra/postback_queue_cron.php"
+fi
+
+# Push delivery worker. Every push -- "send now" from the Messages tab and the
+# event triggers alike -- is written to push_queue as 'pending' and delivered from
+# there. Without this worker the queue never drains: the panel happily reports
+# "queued: 1" and the phone never rings, which reads as "push is broken". Every
+# minute (the worker takes a flock and exits immediately on an empty queue), so a
+# test send lands within a minute instead of within five.
+echo "  > Scheduling the push delivery worker..."
+PUSH_CRON_MARKER="# orbitra-push"
+if ! crontab -u www-data -l 2>/dev/null | grep -qF "$PUSH_CRON_MARKER"; then
+    {
+        crontab -u www-data -l 2>/dev/null
+        echo "* * * * * php /var/www/orbitra/cli/push_cron.php --quiet >> /var/www/orbitra/var/logs/push.log 2>&1 $PUSH_CRON_MARKER"
+    } | crontab -u www-data - 2>/dev/null \
+      && echo "  > Push worker scheduled (every minute)." \
+      || echo "  > NOTE: could not write the crontab. Add this line manually: * * * * * php /var/www/orbitra/cli/push_cron.php"
 fi
 
 # Cost aggregator. Pulls spend from the connected ad platforms and attributes it to

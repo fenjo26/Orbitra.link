@@ -4,8 +4,9 @@
 // Push delivery worker (phase 4): drains push_queue and scans for new events
 // to enqueue. No composer — sends via core/PushSender.php (RFC 8291/8292).
 //
-// Run every 5 minutes:
-//   *\/5 * * * * php /var/www/orbitra/cli/push_cron.php >> /var/log/orbitra_push.log 2>&1
+// Run every minute (install.sh schedules this; the worker takes a flock and
+// exits at once on an empty queue, so a per-minute cadence is free):
+//   * * * * * php /var/www/orbitra/cli/push_cron.php --quiet >> /var/www/orbitra/var/logs/push.log 2>&1
 //
 // Aging is built into delivery: an endpoint answering 404/410 marks the
 // subscription is_active = 0, so there is no separate cleanup cron.
@@ -40,6 +41,16 @@ function orbitraPushLog(string $msg): void
     if (!$isQuiet) {
         echo '[' . date('Y-m-d H:i:s') . '] ' . $msg . PHP_EOL;
     }
+}
+
+/**
+ * Failures are logged whatever --quiet says. The installer runs this worker
+ * every minute with --quiet so the log file holds problems and nothing else;
+ * silencing the one line that explains a dead queue would defeat that.
+ */
+function orbitraPushLogError(string $msg): void
+{
+    fwrite(STDERR, '[' . date('Y-m-d H:i:s') . '] ' . $msg . PHP_EOL);
 }
 
 // --- Single-instance lock ----------------------------------------------------
@@ -156,7 +167,7 @@ try {
 
     orbitraPushLog("push_cron: delivered=$delivered failed=$failed requeued=$requeued aged=$aged enqueued=$enqueued");
 } catch (\Throwable $e) {
-    orbitraPushLog('push_cron ERROR: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+    orbitraPushLogError('push_cron ERROR: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
     exit(1);
 } finally {
     if ($fp) {

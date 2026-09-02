@@ -126,7 +126,7 @@ function orbitraResourceAccessMap(): array
                 'push_messages', 'push_queue_list',
             ],
             'write' => [
-                'push_vapid_generate', 'push_subscribers_op',
+                'push_vapid_generate', 'push_vapid_contact_save', 'push_subscribers_op',
                 'push_message_save', 'push_message_delete', 'push_send_now',
             ],
             'hybrid' => [],

@@ -34,7 +34,7 @@ class PwaLanding
      * page; the lander route regenerates stale statics on the next view, so
      * renderer upgrades reach already-created PWA landings without a re-save.
      */
-    public const RENDERER_VERSION = 11;
+    public const RENDERER_VERSION = 12;
 
     /** Keys the constructor is allowed to persist; everything else is dropped. */
     private static function configKeys(): array
@@ -1163,9 +1163,14 @@ SW;
     return cfg.push && VAPID && 'PushManager' in window && 'Notification' in window && !pushDone;
   }
   var pushBusy = false;
+  var pushSettled = false;
   function afterPush() {
     // The visitor answered the prompt INSIDE the installed app — mark the
-    // offer as made and hand control to the configured app action.
+    // offer as made and hand control to the configured app action. Guarded:
+    // the fail-safe timer and the real completion callback both land here,
+    // and running performAppAction() twice would fire two redirects.
+    if (pushSettled) return;
+    pushSettled = true;
     try { localStorage.setItem('orbitra_push_done', '1'); } catch (e) {}
     var el = document.getElementById('pwa-push');
     if (el) el.hidden = true;
@@ -1183,9 +1188,13 @@ SW;
     beacon('prompt'); // the permission dialog is about to be shown
     // Fail-safe: if the subscribe flow cannot complete (broken SW, blocked
     // endpoint) the visitor still flows to the offer instead of stalling.
-    var failSafe = setTimeout(afterPush, 10000);
+    // It is armed only AFTER the permission answer: the native dialog has no
+    // timeout of its own, and a visitor who reads it for eleven seconds would
+    // otherwise have the app action fire out from under an open prompt.
+    var failSafe = null;
     Notification.requestPermission().then(function (perm) {
-      if (perm !== 'granted') { clearTimeout(failSafe); beacon('decline'); afterPush(); return; }
+      if (perm !== 'granted') { beacon('decline'); afterPush(); return; }
+      failSafe = setTimeout(afterPush, 10000);
       navigator.serviceWorker.ready.then(function (reg) {
         reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64ToU8(VAPID) })
           .then(function (sub) {
@@ -1200,6 +1209,12 @@ SW;
     }).catch(function () { clearTimeout(failSafe); afterPush(); });
   }
   function showPush() {
+    // The notification offer belongs to the INSTALLED app, never to the store
+    // listing — asking on the listing burns the one permission prompt the
+    // browser grants before the visitor has installed anything. The caller
+    // already checks isStandalone; this second gate is what a CSS or markup
+    // regression has to get past to put the card back on the listing.
+    if (!isStandalone) return;
     var el = document.getElementById('pwa-push');
     if (el) el.hidden = false;
   }
@@ -1394,6 +1409,13 @@ JS;
         $css = <<<CSS
 :root{--pwa-primary:$scheme;--pwa-bg:$bg;--pwa-surface:$surface;--pwa-text:$text;--pwa-muted:$muted;--pwa-border:$border;--pwa-star:#fbbc04}
 *{box-sizing:border-box;margin:0;padding:0}
+/* The overlays below (.ios-overlay, .pwa-modal-overlay) set display:flex,
+   and an AUTHOR display rule beats the UA sheet's [hidden]{display:none}
+   whatever the specificity. Without this line the install hint, the push
+   prompt and the win modals render on the store page from the first paint
+   and never go away when the JS sets el.hidden = true. !important so no
+   later rule (or a preset's custom CSS) can win it back. */
+[hidden]{display:none!important}
 body{font-family:Roboto,-apple-system,'Segoe UI',Arial,sans-serif;background:var(--pwa-bg);color:var(--pwa-text);padding-bottom:64px;-webkit-font-smoothing:antialiased}
 
 /* Store style switching */
