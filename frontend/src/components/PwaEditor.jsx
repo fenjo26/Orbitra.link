@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, Smartphone, Trash2, ExternalLink, Loader2, Plus, ImagePlus, GripVertical, Check } from 'lucide-react';
 import MediaPicker from './common/MediaPicker';
 import { useLanguage } from '../contexts/LanguageContext';
+import { cachedGet, cachedPost } from '../utils/apiCache';
 import axios from 'axios';
 
 const API_URL = '/api.php';
@@ -290,6 +291,7 @@ const DEFAULT_CONFIG = {
     sound_enabled: true,
     vibration_enabled: true,
     app_action: 'store',
+    app_campaign_id: 0,
     app_screen_type: 'lobby',
     app_screen_title: '',
     app_screen_text: '',
@@ -368,6 +370,29 @@ export default function PwaEditor({ landingId, onClose }) {
     const [dragIdx, setDragIdx] = useState(null);
     const [overIdx, setOverIdx] = useState(null);
 
+    // Domain binding: which tracking domain serves this PWA from its root.
+    // The list carries every domain with pwa_landing_id, so the current
+    // binding is DERIVED from the server answer, never guessed locally.
+    // domainChoice holds the operator's in-flight pick so the select does not
+    // snap back while the binding POST round-trips.
+    const [domains, setDomains] = useState([]);
+    const [domainsLoading, setDomainsLoading] = useState(false);
+    const [domainSaving, setDomainSaving] = useState(false);
+    const [domainChoice, setDomainChoice] = useState(null); // string id | '' | null
+    const domainSeq = useRef(0);
+
+    // Offer binding on top of the domain binding: domains.pwa_offer_id makes
+    // the PWA button ({lp_url} → to_offer) work on a direct domain. Saved in
+    // the same save_pwa_domain_binding call contract as the domain itself.
+    // The offer list is cheap dropdown data, so it is fetched lazily — the
+    // first time the select actually becomes visible (a domain is bound).
+    const [offers, setOffers] = useState([]);
+    const [offersLoading, setOffersLoading] = useState(false);
+    const [offersLoaded, setOffersLoaded] = useState(false);
+    const [offerSaving, setOfferSaving] = useState(false);
+    const [offerChoice, setOfferChoice] = useState(null); // string id | '' | null
+    const offersSeq = useRef(0);
+
     useEffect(() => {
         axios.get(`${API_URL}?action=campaigns`).then((res) => {
             if (res.data?.status === 'success') {
@@ -375,6 +400,27 @@ export default function PwaEditor({ landingId, onClose }) {
             }
         }).catch(() => {});
     }, []);
+
+    // Domain options must be FRESH every time the editor opens (a domain may
+    // have been bound elsewhere since the last visit), so bust the apiCache
+    // with a _=Date.now() key and ttl 0 — the same pattern CampaignEditor and
+    // Domains use for their live lists. Re-runs once the first save assigns
+    // the landing id, which is when the select turns from disabled to live.
+    useEffect(() => {
+        const seq = ++domainSeq.current;
+        setDomainsLoading(true);
+        cachedGet('pwa_domain_options', { landing_id: savedId || 0, _: Date.now() }, 0)
+            .then(({ data }) => {
+                if (domainSeq.current === seq && data?.status === 'success') {
+                    setDomains(data.data?.domains || []);
+                }
+            })
+            .catch(() => {})
+            .finally(() => {
+                if (domainSeq.current === seq) setDomainsLoading(false);
+            });
+        return () => { domainSeq.current += 1; };
+    }, [savedId]);
 
     useEffect(() => {
         if (!landingId) return;
@@ -424,6 +470,107 @@ export default function PwaEditor({ landingId, onClose }) {
     }, [config, previewPlatform, previewView, step]);
 
     const set = (key, value) => setConfig((c) => ({ ...c, [key]: value }));
+
+    // The domain currently bound to THIS landing: pwa_landing_id === savedId.
+    const boundDomain = domains.find((d) => Number(d.pwa_landing_id) === Number(savedId)) || null;
+    const domainValue = domainChoice !== null ? domainChoice : (boundDomain ? String(boundDomain.id) : '');
+
+    // Binding applies immediately, not on the general Save: the operator's
+    // intent is unambiguous and the domain must serve the new PWA right away.
+    // Taking a domain already bound to another PWA is allowed — the binding
+    // is overwritten; switching back to "not bound" unbinds (landing_id null).
+    const handleDomainChange = async (value) => {
+        if (!savedId || domainSaving || value === domainValue) return;
+        setDomainChoice(value);
+        const unbind = value === '';
+        const domainId = unbind ? (boundDomain ? boundDomain.id : null) : Number(value);
+        if (domainId === null) return; // nothing was bound — no server change
+        setDomainSaving(true);
+        try {
+            const res = await cachedPost('save_pwa_domain_binding', {
+                domain_id: domainId,
+                landing_id: unbind ? null : savedId,
+            });
+            if (res.data?.status !== 'success') {
+                throw new Error(res.data?.message || 'binding save failed');
+            }
+            // Re-read the server truth: the backend may also have unbound the
+            // domain's previous PWA, and the select must reflect exactly that.
+            const seq = ++domainSeq.current;
+            setDomainsLoading(true);
+            const fresh = await cachedGet('pwa_domain_options', { landing_id: savedId, _: Date.now() }, 0);
+            if (domainSeq.current === seq) {
+                if (fresh.data?.status === 'success') setDomains(fresh.data.data?.domains || []);
+                setDomainChoice(null);
+                setDomainsLoading(false);
+            }
+        } catch {
+            setError(t('pwa.domainError'));
+            setDomainChoice(null); // snap back to the last server-known state
+        } finally {
+            setDomainSaving(false);
+        }
+    };
+
+    // The offer currently bound to the domain serving THIS PWA. Like the
+    // domain select, offerChoice holds the in-flight pick so the select does
+    // not snap back while the POST round-trips.
+    const boundOfferId = boundDomain ? boundDomain.pwa_offer_id : null;
+    const offerValue = offerChoice !== null ? offerChoice : (boundOfferId ? String(boundOfferId) : '');
+
+    // Dropdown data: the same all_offers endpoint CampaignEditor uses for its
+    // stream picker (already limited to active, non-archived offers). Loaded
+    // lazily on first visibility of the select, cached for 5 minutes.
+    useEffect(() => {
+        if (domainValue === '' || offersLoaded || offersLoading) return;
+        const seq = ++offersSeq.current;
+        setOffersLoading(true);
+        cachedGet('all_offers', {}, 300000)
+            .then(({ data }) => {
+                if (offersSeq.current === seq && data?.status === 'success') {
+                    setOffers(data.data || []);
+                    setOffersLoaded(true);
+                }
+            })
+            .catch(() => {})
+            .finally(() => {
+                if (offersSeq.current === seq) setOffersLoading(false);
+            });
+    }, [domainValue, offersLoaded, offersLoading]);
+
+    // Offer binding applies immediately, mirroring handleDomainChange: one
+    // save_pwa_domain_binding call carries domain, landing and offer; null
+    // clears the offer (the domain button then serves an honest 404).
+    const handleOfferChange = async (value) => {
+        if (!savedId || !boundDomain || offerSaving || value === offerValue) return;
+        setOfferChoice(value);
+        setOfferSaving(true);
+        try {
+            const res = await cachedPost('save_pwa_domain_binding', {
+                domain_id: boundDomain.id,
+                landing_id: savedId,
+                offer_id: value === '' ? null : Number(value),
+            });
+            if (res.data?.status !== 'success') {
+                throw new Error(res.data?.message || 'offer binding save failed');
+            }
+            // Re-read the server truth so boundDomain.pwa_offer_id (and this
+            // select, via the cleared offerChoice) reflect exactly what is stored.
+            const seq = ++domainSeq.current;
+            setDomainsLoading(true);
+            const fresh = await cachedGet('pwa_domain_options', { landing_id: savedId, _: Date.now() }, 0);
+            if (domainSeq.current === seq) {
+                if (fresh.data?.status === 'success') setDomains(fresh.data.data?.domains || []);
+                setOfferChoice(null);
+                setDomainsLoading(false);
+            }
+        } catch {
+            setError(t('pwa.offerError'));
+            setOfferChoice(null); // snap back to the last server-known state
+        } finally {
+            setOfferSaving(false);
+        }
+    };
 
     const canLeaveGeneral = name.trim() !== '' && config.app_name.trim() !== '';
 
@@ -678,6 +825,66 @@ export default function PwaEditor({ landingId, onClose }) {
                                             </datalist>
                                         </Field>
                                     </div>
+                                    <div className="mt-4">
+                                        <Field
+                                            label={(
+                                                <span className="flex items-center gap-2">
+                                                    {t('pwa.domainLabel')}
+                                                    {domainSaving && (
+                                                        <>
+                                                            <Loader2 className="w-3 h-3 animate-spin" style={{ color: 'var(--color-primary)' }} />
+                                                            <span className="text-xs font-normal" style={{ color: 'var(--color-text-muted)' }}>{t('pwa.domainSaving')}</span>
+                                                        </>
+                                                    )}
+                                                </span>
+                                            )}
+                                            hint={savedId ? t('pwa.domainHint') : t('pwa.domainSaveFirst')}
+                                        >
+                                            <select
+                                                className="form-select"
+                                                value={domainValue}
+                                                disabled={!savedId || domainsLoading || domainSaving}
+                                                onChange={(e) => handleDomainChange(e.target.value)}
+                                            >
+                                                <option value="">{t('pwa.domainNone')}</option>
+                                                {domains.map((d) => (
+                                                    <option key={d.id} value={String(d.id)}>
+                                                        {d.name}{d.status && d.status !== 'OK' ? ` — ${d.status}` : ''}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </Field>
+                                    </div>
+                                    {domainValue !== '' && (
+                                        <div className="mt-4">
+                                            <Field
+                                                label={(
+                                                    <span className="flex items-center gap-2">
+                                                        {t('pwa.offerLabel')}
+                                                        {offerSaving && (
+                                                            <>
+                                                                <Loader2 className="w-3 h-3 animate-spin" style={{ color: 'var(--color-primary)' }} />
+                                                                <span className="text-xs font-normal" style={{ color: 'var(--color-text-muted)' }}>{t('pwa.offerSaving')}</span>
+                                                            </>
+                                                        )}
+                                                    </span>
+                                                )}
+                                                hint={savedId ? t('pwa.domainHint') : t('pwa.domainSaveFirst')}
+                                            >
+                                                <select
+                                                    className="form-select"
+                                                    value={offerValue}
+                                                    disabled={!savedId || domainsLoading || domainSaving || offerSaving || offersLoading}
+                                                    onChange={(e) => handleOfferChange(e.target.value)}
+                                                >
+                                                    <option value="">{t('pwa.offerNone')}</option>
+                                                    {offers.map((o) => (
+                                                        <option key={o.id} value={String(o.id)}>{o.name}</option>
+                                                    ))}
+                                                </select>
+                                            </Field>
+                                        </div>
+                                    )}
                                 </Section>
 
                                 <Section title={t('pwa.sectionDesign')}>
@@ -816,9 +1023,27 @@ export default function PwaEditor({ landingId, onClose }) {
                                             <select className="form-select" value={config.app_action || 'store'} onChange={(e) => set('app_action', e.target.value)}>
                                                 <option value="store">{t('pwa.appActionStore')}</option>
                                                 <option value="offer">{t('pwa.appActionOffer')}</option>
+                                                <option value="campaign">{t('pwa.appActionCampaign')}</option>
                                                 <option value="screen">{t('pwa.appActionScreen')}</option>
                                             </select>
                                         </Field>
+
+                                        {config.app_action === 'campaign' && (
+                                            <Field label={t('pwa.targetCampaignLabel')} hint={t('pwa.appActionCampaignHint')}>
+                                                <select
+                                                    className="form-select"
+                                                    value={config.app_campaign_id || ''}
+                                                    onChange={(e) => set('app_campaign_id', Number(e.target.value) || 0)}
+                                                >
+                                                    <option value="">{t('pwa.targetCampaignPlaceholder')}</option>
+                                                    {campaigns.map((c) => (
+                                                        <option key={c.id} value={c.id}>
+                                                            {c.name} (#{c.id})
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </Field>
+                                        )}
 
                                         {config.app_action === 'screen' && (
                                             <Field label={t('pwa.appScreenType')} hint={t('pwa.appScreenTypeHint')}>

@@ -46,6 +46,16 @@ if (preg_match('/\.(ico|png|jpg|jpeg|gif|bmp|webp|avif|css|js|mjs|json|woff|woff
 
 if ($domain) {
     if ($uri === '/') {
+        // A domain bound to a PWA landing (domains.pwa_landing_id) hands its
+        // root to index.php, which logs the organic click and serves the
+        // store page from "/" — it takes precedence over campaign parking on
+        // the root path, matching the production router where index.php sees
+        // the domain row first. Explicit ?campaign_id= still wins inside
+        // index.php.
+        if (!empty($domain['pwa_landing_id'])) {
+            include 'index.php';
+            exit;
+        }
         if ($domain['index_campaign_id']) {
             $_GET['campaign_id'] = $domain['index_campaign_id'];
             include 'index.php';

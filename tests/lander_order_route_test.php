@@ -60,7 +60,10 @@ $extractBridge = static function () use ($repoRoot): string {
 /** Fixture PDO + real landing/offers directory trees, removed on shutdown. */
 $makeFixture = static function () use ($repoRoot, $slug, $siblingSlug, $offerId): PDO {
     $pdo = new PDO('sqlite::memory:', null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-    $pdo->exec('CREATE TABLE landings (id INTEGER PRIMARY KEY, slug TEXT, type TEXT, is_archived INTEGER DEFAULT 0)');
+    // config_json: the lander route selects it (the PWA renderer auto-heal
+    // checks the version marker), so the fixture table must carry it or the
+    // SELECT throws and every scenario answers 404.
+    $pdo->exec('CREATE TABLE landings (id INTEGER PRIMARY KEY, slug TEXT, type TEXT, is_archived INTEGER DEFAULT 0, config_json TEXT)');
     $pdo->exec('CREATE TABLE offers (id INTEGER PRIMARY KEY, is_local INTEGER DEFAULT 0, state TEXT DEFAULT "active")');
     $pdo->exec('CREATE TABLE settings (key TEXT PRIMARY KEY, value TEXT)');
     $pdo->prepare('INSERT INTO landings (id, slug, type) VALUES (1, ?, "local")')->execute([$slug]);

@@ -34,7 +34,7 @@ class PwaLanding
      * page; the lander route regenerates stale statics on the next view, so
      * renderer upgrades reach already-created PWA landings without a re-save.
      */
-    public const RENDERER_VERSION = 10;
+    public const RENDERER_VERSION = 11;
 
     /** Keys the constructor is allowed to persist; everything else is dropped. */
     private static function configKeys(): array
@@ -47,7 +47,7 @@ class PwaLanding
             'support_email', 'support_address', 'verified_badge', 'theme_mode',
             'color_scheme', 'store_style', 'ios_flow', 'preloader', 'bottom_menu', 'show_header',
             'show_share', 'auto_redirect', 'decline_redirect', 'install_redirect', 'push_enabled',
-            'app_action', 'app_screen_type', 'app_screen_title', 'app_screen_text', 'app_screen_button',
+            'app_action', 'app_campaign_id', 'app_screen_type', 'app_screen_title', 'app_screen_text', 'app_screen_button',
             'app_screen_image', 'app_screen_custom_html', 'app_screen_custom_js',
             'custom_css', 'custom_head_code', 'custom_body_code', 'custom_js',
             'animation_glow', 'show_live_badge', 'sound_enabled', 'vibration_enabled',
@@ -105,6 +105,7 @@ class PwaLanding
             'app_screen_image'       => '',
             'app_screen_custom_html' => '',
             'app_screen_custom_js'   => '',
+            'app_campaign_id'        => 0,
             'custom_css'             => '',
             'custom_head_code'       => '',
             'custom_body_code'       => '',
@@ -186,11 +187,13 @@ class PwaLanding
         }
         // What the INSTALLED app does when opened (the store page is only the
         // pre-install face): store = keep showing the listing, offer =
-        // straight redirect into the funnel, screen = a custom in-app screen
-        // with a CTA into the funnel.
-        if (!in_array($c['app_action'], ['store', 'offer', 'screen'], true)) {
+        // straight redirect into the funnel, campaign = redirect into a chosen
+        // campaign (its streams/rotation distribute the traffic), screen = a
+        // custom in-app screen with a CTA into the funnel.
+        if (!in_array($c['app_action'], ['store', 'offer', 'screen', 'campaign'], true)) {
             $c['app_action'] = 'store';
         }
+        $c['app_campaign_id'] = max(0, (int) ($c['app_campaign_id'] ?? 0));
         $c['app_screen_type'] = (string) ($c['app_screen_type'] ?? 'lobby');
         if (!in_array($c['app_screen_type'], ['lobby', 'slot', 'wheel', 'custom'], true)) {
             $c['app_screen_type'] = 'lobby';
@@ -1063,6 +1066,7 @@ SW;
   var cfg = __CFG_JSON__;
   var subid = '__SUBID__';
   var lpUrl = '__LP_URL__';
+  var campaignUrl = '__CAMPAIGN_URL__';
   var VAPID = '__VAPID_PUBLIC__';
   var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
   // __PWA_FORCE_IOS is set only by the constructor's iOS preview.
@@ -1207,6 +1211,7 @@ SW;
     // What the INSTALLED app does on open: 'offer' = straight into the
     // funnel, 'screen' = custom in-app screen whose CTA leads there,
     // 'store' = keep showing the listing (useful while testing).
+    if (cfg.appAction === 'campaign') { if (campaignUrl) window.location.href = campaignUrl; return; }
     if (cfg.appAction === 'offer') { redirect(); return; }
     if (cfg.appAction === 'screen') { showAppScreen(); return; }
   }
@@ -1372,9 +1377,17 @@ JS;
             $targetActionUrl = '/404';
         }
 
+        // app_action=campaign: opening the installed app goes straight into the
+        // chosen campaign (its own rotation splits the traffic); empty until a
+        // campaign is picked, in which case the open falls back to the listing.
+        $campaignUrl = '';
+        if (($c['app_action'] ?? '') === 'campaign' && (int) ($c['app_campaign_id'] ?? 0) > 0) {
+            $campaignUrl = '/?campaign_id=' . (int) $c['app_campaign_id'] . '&subid={subid}';
+        }
+
         $js = str_replace(
-            ['__CFG_JSON__', '__SUBID__', '__LP_URL__', '__VAPID_PUBLIC__'],
-            [json_encode($cfgForJs, JSON_UNESCAPED_UNICODE), '{subid}', $targetActionUrl, '{vapid_public}'],
+            ['__CFG_JSON__', '__SUBID__', '__LP_URL__', '__CAMPAIGN_URL__', '__VAPID_PUBLIC__'],
+            [json_encode($cfgForJs, JSON_UNESCAPED_UNICODE), '{subid}', $targetActionUrl, $campaignUrl, '{vapid_public}'],
             $js
         );
 

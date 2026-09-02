@@ -83,6 +83,35 @@ function orbitraRequestBody()
 }
 
 /**
+ * Check that a landings row is eligible to be bound to a domain as its PWA:
+ * it must exist, be a non-archived local landing, and its config_json must
+ * actually carry a 'pwa' key — plain URL landings and archived rows must not
+ * be accepted silently, or the picker would offer apps that cannot serve.
+ *
+ * Shared by save_domain (pwa_landing_id field) and save_pwa_domain_binding,
+ * so both surfaces answer with the same machine-readable codes.
+ *
+ * @return array{ok:bool, code:string, message:string}
+ */
+function orbitraValidatePwaLandingRef(PDO $pdo, int $landingId): array
+{
+    $stmt = $pdo->prepare("SELECT type, is_archived, config_json FROM landings WHERE id = ? LIMIT 1");
+    $stmt->execute([$landingId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$row) {
+        return ['ok' => false, 'code' => 'landing_not_found', 'message' => 'Landing not found'];
+    }
+    if ((int) ($row['is_archived'] ?? 0) === 1) {
+        return ['ok' => false, 'code' => 'landing_archived', 'message' => 'Landing is archived'];
+    }
+    $decoded = json_decode((string) ($row['config_json'] ?? ''), true);
+    if (($row['type'] ?? '') !== 'local' || empty($decoded['pwa'])) {
+        return ['ok' => false, 'code' => 'landing_not_pwa', 'message' => 'Landing is not a PWA'];
+    }
+    return ['ok' => true, 'code' => '', 'message' => ''];
+}
+
+/**
  * Names of serving campaigns that still reference the given landing(s)/offer(s).
  *
  * A "delete" is an archive (is_archived = 1), and the serving path stops
@@ -4805,6 +4834,151 @@ try {
             echo json_encode(['status' => 'success']);
             break;
 
+        case 'push_messages':
+            // Message list with delivery stats from push_sends (sent = ok rows,
+            // failed = the rest) plus how many rows still sit in the queue.
+            require_once __DIR__ . '/core/PushQueue.php';
+            $stmt = $pdo->query("
+                SELECT m.id, m.title, m.text, m.icon_url, m.link_url, m.kind, m.event,
+                       m.delay_seconds, m.segment, m.active, m.created_at,
+                       COALESCE(st.sent, 0)     AS sent,
+                       COALESCE(st.failed, 0)   AS failed,
+                       COALESCE(q.queued, 0)    AS queued
+                FROM push_messages m
+                LEFT JOIN (SELECT message_id,
+                                  SUM(CASE WHEN ok = 1 THEN 1 ELSE 0 END) AS sent,
+                                  SUM(CASE WHEN ok = 1 THEN 0 ELSE 1 END) AS failed
+                           FROM push_sends GROUP BY message_id) st ON st.message_id = m.id
+                LEFT JOIN (SELECT message_id, COUNT(*) AS queued
+                           FROM push_queue WHERE status = 'pending' GROUP BY message_id) q ON q.message_id = m.id
+                ORDER BY m.id DESC
+            ");
+            echo json_encode(['status' => 'success', 'data' => ['rows' => $stmt->fetchAll(PDO::FETCH_ASSOC)]]);
+            break;
+
+        case 'push_message_save':
+            // POST. Create/update. Lengths match the UI: title ≤ 250, text ≤ 400.
+            try {
+                if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                    echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                    break;
+                }
+                require_once __DIR__ . '/core/PushQueue.php';
+                $body = json_decode(orbitraRequestBody(), true) ?: [];
+                $title = trim((string) ($body['title'] ?? ''));
+                $text = trim((string) ($body['text'] ?? ''));
+                if ($title === '' || $text === '') {
+                    echo json_encode(['status' => 'error', 'message' => 'push.titleTextRequired']);
+                    break;
+                }
+                if (mb_strlen($title) > 250 || mb_strlen($text) > 400) {
+                    echo json_encode(['status' => 'error', 'message' => 'push.tooLong']);
+                    break;
+                }
+                $kind = ($body['kind'] ?? '') === 'event' ? 'event' : 'manual';
+                $event = $kind === 'event' ? (string) ($body['event'] ?? '') : null;
+                if ($kind === 'event' && !in_array($event, ['install', 'lead', 'sale'], true)) {
+                    echo json_encode(['status' => 'error', 'message' => 'push.eventRequired']);
+                    break;
+                }
+                $segment = in_array($body['segment'] ?? '', orbitraPushSegments(), true) ? (string) $body['segment'] : 'all';
+                $fields = [
+                    'title'         => $title,
+                    'text'          => $text,
+                    'icon_url'      => trim((string) ($body['icon_url'] ?? '')),
+                    'link_url'      => trim((string) ($body['link_url'] ?? '')),
+                    'kind'          => $kind,
+                    'event'         => $event,
+                    'delay_seconds' => max(0, (int) ($body['delay_seconds'] ?? 0)),
+                    'segment'       => $segment,
+                    'active'        => !empty($body['active']) ? 1 : 0,
+                ];
+                $id = (int) ($body['id'] ?? 0);
+                if ($id > 0) {
+                    $set = implode(', ', array_map(static fn($k) => "$k = ?", array_keys($fields)));
+                    $stmt = $pdo->prepare("UPDATE push_messages SET $set WHERE id = ?");
+                    $stmt->execute([...array_values($fields), $id]);
+                } else {
+                    $cols = implode(', ', array_keys($fields));
+                    $marks = implode(', ', array_fill(0, count($fields), '?'));
+                    $stmt = $pdo->prepare("INSERT INTO push_messages ($cols) VALUES ($marks)");
+                    $stmt->execute(array_values($fields));
+                    $id = (int) $pdo->lastInsertId();
+                }
+                $stmt = $pdo->prepare("SELECT * FROM push_messages WHERE id = ?");
+                $stmt->execute([$id]);
+                echo json_encode(['status' => 'success', 'data' => ['row' => $stmt->fetch(PDO::FETCH_ASSOC)]]);
+            } catch (\Throwable $e) {
+                error_log('push_message_save failed: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+                echo json_encode(['status' => 'error', 'message' => 'Message save failed: ' . $e->getMessage()]);
+            }
+            break;
+
+        case 'push_message_delete':
+            // POST. The message row goes; queue rows and push_sends stay as the
+            // delivery history (the queue worker skips orphans gracefully).
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            $body = json_decode(orbitraRequestBody(), true) ?: [];
+            $id = (int) ($body['id'] ?? 0);
+            if ($id <= 0) {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid id']);
+                break;
+            }
+            $stmt = $pdo->prepare("DELETE FROM push_messages WHERE id = ?");
+            $stmt->execute([$id]);
+            echo json_encode(['status' => 'success']);
+            break;
+
+        case 'push_send_now':
+            // POST message_id (+ optional segment override). Queues the message
+            // for every active subscriber the segment selects; macros stay raw
+            // until PushSender expands them at send time.
+            try {
+                if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                    echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                    break;
+                }
+                require_once __DIR__ . '/core/PushQueue.php';
+                $body = json_decode(orbitraRequestBody(), true) ?: [];
+                $id = (int) ($body['message_id'] ?? 0);
+                $stmt = $pdo->prepare("SELECT * FROM push_messages WHERE id = ?");
+                $stmt->execute([$id]);
+                $message = $stmt->fetch(PDO::FETCH_ASSOC);
+                if (!$message) {
+                    echo json_encode(['status' => 'error', 'message' => 'Message not found']);
+                    break;
+                }
+                $segment = in_array($body['segment'] ?? '', orbitraPushSegments(), true)
+                    ? (string) $body['segment']
+                    : null;
+                $enqueued = orbitraPushEnqueueMessage($pdo, $message, $segment);
+                echo json_encode(['status' => 'success', 'data' => ['enqueued' => $enqueued]]);
+            } catch (\Throwable $e) {
+                error_log('push_send_now failed: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+                echo json_encode(['status' => 'error', 'message' => 'Send failed: ' . $e->getMessage()]);
+            }
+            break;
+
+        case 'push_queue_list':
+            // Queue health at a glance: rows per status + last cron ping.
+            $queueCounts = ['pending' => 0, 'done' => 0, 'failed' => 0];
+            foreach ($pdo->query("SELECT status, COUNT(*) AS n FROM push_queue GROUP BY status")->fetchAll(PDO::FETCH_ASSOC) as $r) {
+                if (array_key_exists($r['status'], $queueCounts)) {
+                    $queueCounts[$r['status']] = (int) $r['n'];
+                }
+            }
+            $lastPing = '';
+            try {
+                $lastPing = (string) $pdo->query("SELECT value FROM settings WHERE key = 'push_cron_last_ping_at'")->fetchColumn();
+            } catch (\Throwable $e) {
+                // cosmetic only
+            }
+            echo json_encode(['status' => 'success', 'data' => $queueCounts + ['total' => array_sum($queueCounts), 'last_run_at' => $lastPing]]);
+            break;
+
         case 'save_landing':
             // Everything below runs inside a try: a Throwable escaping this
             // handler becomes a bare 500, and the panel can only report that as
@@ -8049,13 +8223,27 @@ try {
             // Detect server IP using unified function (ORB-005)
             $serverIp = orbitraDetectServerIp($pdo);
 
-            $stmt = $pdo->query("
-                SELECT d.*, c.name as index_campaign_name, dg.name as group_name
-                FROM domains d
-                LEFT JOIN campaigns c ON d.index_campaign_id = c.id
-                LEFT JOIN domain_groups dg ON dg.id = d.group_id
-                ORDER BY d.created_at DESC
-            ");
+            // pwa_landing_name only decorates the row; a pre-migration DB has
+            // no domains.pwa_landing_id yet, so fall back to the legacy query
+            // and let the binding read as absent rather than break the page.
+            try {
+                $stmt = $pdo->query("
+                    SELECT d.*, c.name as index_campaign_name, dg.name as group_name, pl.name as pwa_landing_name
+                    FROM domains d
+                    LEFT JOIN campaigns c ON d.index_campaign_id = c.id
+                    LEFT JOIN domain_groups dg ON dg.id = d.group_id
+                    LEFT JOIN landings pl ON pl.id = d.pwa_landing_id
+                    ORDER BY d.created_at DESC
+                ");
+            } catch (\Throwable $e) {
+                $stmt = $pdo->query("
+                    SELECT d.*, c.name as index_campaign_name, dg.name as group_name
+                    FROM domains d
+                    LEFT JOIN campaigns c ON d.index_campaign_id = c.id
+                    LEFT JOIN domain_groups dg ON dg.id = d.group_id
+                    ORDER BY d.created_at DESC
+                ");
+            }
             $domains = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             // DNS Cache TTL: 30 minutes. A row older than the TTL is stale: it
@@ -9367,6 +9555,26 @@ try {
                 $statusKey = strtolower(trim((string)($data['status'] ?? 'OK')));
                 $domainStatus = $statusMap[$statusKey] ?? 'OK';
 
+                // PWA binding (domains.pwa_landing_id). Absent = keep: the
+                // Domains page saves without this field and must not wipe a
+                // binding made from the PWA constructor — same contract as
+                // admin_access above. null/''/0 = detach; anything else must
+                // point at an existing, non-archived local PWA landing.
+                // false is the "field not sent" sentinel.
+                $pwaBinding = false;
+                if (is_array($data) && array_key_exists('pwa_landing_id', $data)) {
+                    if ($data['pwa_landing_id'] === null || (string) $data['pwa_landing_id'] === '' || (int) $data['pwa_landing_id'] === 0) {
+                        $pwaBinding = null;
+                    } else {
+                        $pwaCheck = orbitraValidatePwaLandingRef($pdo, (int) $data['pwa_landing_id']);
+                        if (!$pwaCheck['ok']) {
+                            echo json_encode(['status' => 'error', 'message' => $pwaCheck['message'], 'code' => $pwaCheck['code']]);
+                            break;
+                        }
+                        $pwaBinding = (int) $data['pwa_landing_id'];
+                    }
+                }
+
                 if (!$name) {
                     echo json_encode(['status' => 'error', 'message' => 'Имя домена обязательно']);
                     break;
@@ -9389,8 +9597,17 @@ try {
                         } catch (\Throwable $e) {
                             error_log('save_domain: previous cloudflare_proxy read failed for id ' . $id . ': ' . $e->getMessage());
                         }
-                        $stmt = $pdo->prepare("UPDATE domains SET name=?, index_campaign_id=?, catch_404=?, group_id=?, is_noindex=?, https_only=?, admin_access=?, cloudflare_proxy=?, registrar=?, dns_provider=?, dns_account_id=?, status=?, custom_ssl_cert=?, custom_ssl_key=?, ssl_source=? WHERE id=?");
-                        $stmt->execute([$name, $indexCampId, $catch404, $groupId, $isNoindex, $httpsOnly, $adminAccess, $cfProxy, $registrar, $dnsProvider, $dnsAccountId, $domainStatus, $customSslCert, $customSslKey, $sslSource, $id]);
+                        // The column is appended only when the field was sent:
+                        // absent = keep (see above), and a pre-migration DB
+                        // without domains.pwa_landing_id keeps saving fine.
+                        $pwaSetSql = $pwaBinding !== false ? ', pwa_landing_id=?' : '';
+                        $stmt = $pdo->prepare("UPDATE domains SET name=?, index_campaign_id=?, catch_404=?, group_id=?, is_noindex=?, https_only=?, admin_access=?, cloudflare_proxy=?, registrar=?, dns_provider=?, dns_account_id=?, status=?, custom_ssl_cert=?, custom_ssl_key=?, ssl_source=?{$pwaSetSql} WHERE id=?");
+                        $updateParams = [$name, $indexCampId, $catch404, $groupId, $isNoindex, $httpsOnly, $adminAccess, $cfProxy, $registrar, $dnsProvider, $dnsAccountId, $domainStatus, $customSslCert, $customSslKey, $sslSource];
+                        if ($pwaBinding !== false) {
+                            $updateParams[] = $pwaBinding;
+                        }
+                        $updateParams[] = $id;
+                        $stmt->execute($updateParams);
                         logAudit($pdo, 'UPDATE', 'Domain', $id, "Name: $name");
 
                         // Every parked domain wants a certificate, whether or not
@@ -9500,8 +9717,11 @@ try {
                             }
 
                             try {
-                                $stmt = $pdo->prepare("INSERT INTO domains (name, index_campaign_id, catch_404, group_id, is_noindex, https_only, ssl_status, admin_access, cloudflare_proxy, registrar, dns_provider, dns_account_id, status, custom_ssl_cert, custom_ssl_key, ssl_source) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                                $stmt->execute([$domainName, $indexCampId, $catch404, $groupId, $isNoindex, $httpsOnly, $sslStatus, $adminAccess, $cfProxy, $registrar, $dnsProvider, $dnsAccountId, $domainStatus, $customSslCert, $customSslKey, $sslSource]);
+                                // New domains start unbound unless the caller
+                                // sent pwa_landing_id — absent=keep does not
+                                // apply here, there is no previous value.
+                                $stmt = $pdo->prepare("INSERT INTO domains (name, index_campaign_id, catch_404, group_id, is_noindex, https_only, ssl_status, admin_access, cloudflare_proxy, registrar, dns_provider, dns_account_id, status, custom_ssl_cert, custom_ssl_key, ssl_source, pwa_landing_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                $stmt->execute([$domainName, $indexCampId, $catch404, $groupId, $isNoindex, $httpsOnly, $sslStatus, $adminAccess, $cfProxy, $registrar, $dnsProvider, $dnsAccountId, $domainStatus, $customSslCert, $customSslKey, $sslSource, $pwaBinding !== false ? $pwaBinding : null]);
                                 $newId = $pdo->lastInsertId();
                                 $results[] = ['id' => $newId, 'name' => $domainName];
 
@@ -9603,6 +9823,95 @@ try {
                 } else {
                     echo json_encode(['status' => 'error', 'message' => 'ID не передан']);
                 }
+            }
+            break;
+
+        case 'pwa_domain_options':
+            // Lightweight domain list for the PWA constructor's picker: no DNS
+            // resolution and no heavy joins — the full `domains` action owns
+            // all of that. Enforcing the `domains` read action here gives this
+            // endpoint the exact gate the Domains list itself goes through.
+            orbitraEnforceResourceAccess($pdo, 'domains', 'GET');
+            try {
+                $optionRows = $pdo->query("SELECT id, name, status, pwa_landing_id, pwa_offer_id FROM domains WHERE status != 'Disabled' ORDER BY name")->fetchAll(PDO::FETCH_ASSOC);
+            } catch (\Throwable $e) {
+                // Pre-migration DB: the column does not exist yet — every
+                // domain reports as unbound instead of failing the picker.
+                $optionRows = $pdo->query("SELECT id, name, status FROM domains WHERE status != 'Disabled' ORDER BY name")->fetchAll(PDO::FETCH_ASSOC);
+                foreach ($optionRows as &$optionRow) {
+                    $optionRow['pwa_landing_id'] = null;
+                    $optionRow['pwa_offer_id'] = null;
+                }
+                unset($optionRow);
+            }
+            // Optional filter: only the domains currently bound to one landing.
+            $optLandingId = (int) ($_GET['landing_id'] ?? 0);
+            if ($optLandingId > 0) {
+                $optionRows = array_values(array_filter($optionRows, static function (array $row) use ($optLandingId): bool {
+                    return (int) ($row['pwa_landing_id'] ?? 0) === $optLandingId;
+                }));
+            }
+            echo json_encode(['status' => 'success', 'data' => ['domains' => $optionRows]]);
+            break;
+
+        case 'save_pwa_domain_binding':
+            // Bind/unbind one domain to one PWA landing. Kept separate from
+            // save_domain so the PWA constructor never has to replay the whole
+            // domain row (and its absent = keep semantics) to change a single
+            // binding.
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            // Same write gate save_domain goes through in the resource map:
+            // rebinding a domain mutates the domains resource.
+            orbitraEnforceResourceAccess($pdo, 'save_domain', 'POST');
+            $data = json_decode(orbitraRequestBody(), true);
+            $bindingDomainId = (int) ($data['domain_id'] ?? 0);
+            $bindingLandingId = isset($data['landing_id']) && (int) $data['landing_id'] > 0 ? (int) $data['landing_id'] : null;
+            if ($bindingDomainId <= 0) {
+                echo json_encode(['status' => 'error', 'message' => 'Domain ID required', 'code' => 'domain_not_found']);
+                break;
+            }
+            try {
+                $stmt = $pdo->prepare("SELECT id FROM domains WHERE id = ?");
+                $stmt->execute([$bindingDomainId]);
+                if ($stmt->fetchColumn() === false) {
+                    echo json_encode(['status' => 'error', 'message' => 'Domain not found', 'code' => 'domain_not_found']);
+                    break;
+                }
+                if ($bindingLandingId !== null) {
+                    $pwaCheck = orbitraValidatePwaLandingRef($pdo, $bindingLandingId);
+                    if (!$pwaCheck['ok']) {
+                        echo json_encode(['status' => 'error', 'message' => $pwaCheck['message'], 'code' => $pwaCheck['code']]);
+                        break;
+                    }
+                }
+                // The offer the bound PWA's {lp_url} transitions to. A direct
+                // domain has no stream, so without this the store's offer
+                // button answers "no offer attached" — the column is what
+                // makes to_offer work there. Detaching the landing clears the
+                // offer too: an offer pinned to an unbound domain is dead
+                // state nothing would ever read.
+                $bindingOfferId = isset($data['offer_id']) && (int) $data['offer_id'] > 0 ? (int) $data['offer_id'] : null;
+                if ($bindingOfferId !== null) {
+                    $stmtOffer = $pdo->prepare("SELECT 1 FROM offers WHERE id = ? AND is_archived = 0 LIMIT 1");
+                    $stmtOffer->execute([$bindingOfferId]);
+                    if ($stmtOffer->fetchColumn() === false) {
+                        echo json_encode(['status' => 'error', 'message' => 'Offer not found or archived', 'code' => 'offer_not_found']);
+                        break;
+                    }
+                }
+                $pdo->prepare("UPDATE domains SET pwa_landing_id = ?, pwa_offer_id = ? WHERE id = ?")
+                    ->execute([$bindingLandingId, $bindingLandingId !== null ? $bindingOfferId : null, $bindingDomainId]);
+                logAudit($pdo, 'UPDATE', 'Domain', $bindingDomainId, 'PWA binding: ' . ($bindingLandingId !== null ? 'landing #' . $bindingLandingId . ($bindingOfferId !== null ? ', offer #' . $bindingOfferId : '') : 'detached'));
+                echo json_encode(['status' => 'success', 'data' => ['domain_id' => $bindingDomainId, 'pwa_landing_id' => $bindingLandingId, 'pwa_offer_id' => $bindingLandingId !== null ? $bindingOfferId : null]]);
+            } catch (\Throwable $e) {
+                // Most likely a pre-migration DB without domains.pwa_landing_id
+                // (or a locked SQLite file) — report it instead of leaking the
+                // raw SQL error to the panel.
+                error_log('save_pwa_domain_binding failed: ' . $e->getMessage());
+                echo json_encode(['status' => 'error', 'message' => 'PWA binding is not available yet (migration pending)']);
             }
             break;
 

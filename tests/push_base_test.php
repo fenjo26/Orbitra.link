@@ -44,6 +44,36 @@ try {
         'migration 45 added clicks.push_* columns');
 
     // ------------------------------------------------------------------
+    // Migration 46 (phase 4, sending): PRAGMA asserts. The expected stamp
+    // is read from config.php — a hardcoded number would fail on every
+    // future migration bump (media_http_test pattern).
+    // ------------------------------------------------------------------
+    $expectedSchema = '';
+    if (preg_match('/\$LATEST_SCHEMA_VERSION\s*=\s*(\d+)/', file_get_contents(dirname(__DIR__) . '/config.php'), $mSchema)) {
+        $expectedSchema = $mSchema[1];
+    }
+    assertTrue($expectedSchema !== '' && (int) $pdo->query('PRAGMA user_version')->fetchColumn() === (int) $expectedSchema,
+        "migration stamps schema $expectedSchema (user_version matches config.php)");
+    assertTrue(in_array('push_messages', $tables = $pdo->query("SELECT name FROM sqlite_master WHERE type='table'")->fetchAll(PDO::FETCH_COLUMN), true)
+        && in_array('push_queue', $tables, true) && in_array('push_sends', $tables, true),
+        'migration 46 created push_messages, push_queue, push_sends');
+    $msgCols = $pdo->query("PRAGMA table_info(push_messages)")->fetchAll(PDO::FETCH_COLUMN, 1);
+    assertTrue(count(array_diff(['title', 'text', 'icon_url', 'link_url', 'kind', 'event', 'delay_seconds', 'segment', 'active', 'created_at'], $msgCols)) === 0,
+        'push_messages carries all message columns');
+    $queueCols = $pdo->query("PRAGMA table_info(push_queue)")->fetchAll(PDO::FETCH_COLUMN, 1);
+    assertTrue(count(array_diff(['message_id', 'subscription_id', 'run_at', 'status', 'attempts', 'last_code'], $queueCols)) === 0,
+        'push_queue carries the delivery columns');
+    $sendCols = $pdo->query("PRAGMA table_info(push_sends)")->fetchAll(PDO::FETCH_COLUMN, 1);
+    assertTrue(count(array_diff(['message_id', 'subscription_id', 'ok', 'response_code', 'sent_at'], $sendCols)) === 0,
+        'push_sends carries the delivery-log columns');
+    $clickCols = $pdo->query("PRAGMA table_info(clicks)")->fetchAll(PDO::FETCH_COLUMN, 1);
+    assertTrue(in_array('push_clicks', $clickCols, true), 'migration 46 added clicks.push_clicks');
+    $indexes = $pdo->query("SELECT name FROM sqlite_master WHERE type='index'")->fetchAll(PDO::FETCH_COLUMN);
+    assertTrue(in_array('idx_push_queue_due', $indexes, true), 'push_queue has the (status, run_at) due index');
+    $qDefault = $pdo->query("SELECT dflt_value FROM pragma_table_info('push_queue') WHERE name = 'status'")->fetchColumn();
+    assertTrue($qDefault === "'pending'", 'push_queue.status defaults to pending');
+
+    // ------------------------------------------------------------------
     // VAPID keygen: shape + storage roundtrip.
     // ------------------------------------------------------------------
     $keys = PushBase::generateKeys();
@@ -117,6 +147,9 @@ try {
     $cfg = PwaLanding::normalizeConfig(['pwa' => true, 'app_name' => 'Push App', 'screens' => [], 'push_enabled' => true]);
     $offConfig = PwaLanding::normalizeConfig(['pwa' => true, 'app_name' => 'Push Off', 'push_enabled' => false]);
     assertTrue($cfg['push_enabled'] === true && $offConfig['push_enabled'] === false, 'push flag passes through normalizeConfig');
+    $campCfg = PwaLanding::normalizeConfig(['pwa' => true, 'app_name' => 'Camp App', 'screens' => [], 'app_action' => 'campaign', 'app_campaign_id' => 7]);
+    assertTrue($campCfg['app_action'] === 'campaign' && $campCfg['app_campaign_id'] === 7, 'campaign app_action + app_campaign_id pass through normalizeConfig');
+    assertTrue(PwaLanding::normalizeConfig(['pwa' => true, 'app_name' => 'Bad App', 'app_action' => 'nonsense'])['app_action'] === 'store', 'unknown app_action falls back to store');
     $pdo->prepare("INSERT INTO landings (name, url, type, state, slug, config_json) VALUES (?, '', 'local', 'active', ?, ?)")
         ->execute(['Push PWA', $slug, json_encode($cfg, JSON_UNESCAPED_UNICODE)]);
     $landingId = (int) $pdo->lastInsertId();
@@ -155,6 +188,8 @@ try {
     PushBase::storeKeys($pdo, $keys);
     $r = $harness->getWithHeaders("/lander/$slug/", ['User-Agent: ' . $UA, 'Cookie: orbitra_click=' . $clickId]);
     assertContains("var VAPID = '" . $keys['public'] . "'", $r['body'] ?? '', 'public key injected serve-time into the page');
+    // The phase-4 message/queue API e2e lives in tests/push_api_test.php —
+    // this file boots through index.php, which does not route /api.php.
 } catch (Throwable $e) {
     fwrite(STDERR, 'EXCEPTION: ' . $e->getMessage() . "\n" . $e->getTraceAsString() . "\n");
     $testPassed = false;

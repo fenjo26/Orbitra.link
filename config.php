@@ -80,7 +80,7 @@ try {
     // subscriber base; 44 = media library (docs/media-core-v1.md); 43 = PWA
     // landings. All migration blocks are additive — whoever adds the next one
     // bumps this and appends below, re-reading the file first (parallel-session rule).
-    $LATEST_SCHEMA_VERSION = 46;
+    $LATEST_SCHEMA_VERSION = 47;
 
     $schemaVersion = 0;
     try {
@@ -282,6 +282,8 @@ try {
         registrar TEXT DEFAULT '',
         dns_provider TEXT DEFAULT '',
         status TEXT DEFAULT 'OK',                        -- 'OK'|'Active'|'Disabled'; Disabled serves 404 on the whole host
+        pwa_landing_id INTEGER,                          -- direct 'domain root = this PWA store' binding, no campaign hop
+        pwa_offer_id INTEGER,                            -- offer the bound PWA's {lp_url} transitions to (no stream on a direct domain)
         FOREIGN KEY (index_campaign_id) REFERENCES campaigns(id) ON DELETE SET NULL,
         FOREIGN KEY (group_id) REFERENCES domain_groups(id) ON DELETE SET NULL
     );
@@ -2496,6 +2498,44 @@ try {
                 } catch (\Throwable $e) {
                     // Column already present on a half-migrated DB.
                 }
+            }
+
+            if ($schemaVersion < 47) {
+                // Migration 47: direct "domain → PWA" binding. A nullable
+                // domains.pwa_landing_id points the domain's root at a PWA
+                // landing without the campaign+stream hop: index.php logs an
+                // organic click and serves the store page straight from "/"
+                // so the install URL stays clean. Several domains may bind
+                // the same PWA; a domain binds at most one. Explicit
+                // ?campaign_id=/?_lp=1 on the root keep winning over the
+                // binding (see index.php).
+                try {
+                    $pdo->exec("ALTER TABLE domains ADD COLUMN pwa_landing_id INTEGER");
+                } catch (\Throwable $e) {
+                    // Column already present on a half-migrated DB.
+                }
+                // The offer a domain-bound PWA's {lp_url} transitions to. A
+                // domain has no stream, so the organic click carries no offer
+                // of its own — this column is what makes the store's offer
+                // button work on a direct domain: the root server appends
+                // offer_id= to the /?_lp=1 link it renders.
+                try {
+                    $pdo->exec("ALTER TABLE domains ADD COLUMN pwa_offer_id INTEGER");
+                } catch (\Throwable $e) {
+                    // Column already present on a half-migrated DB.
+                }
+
+                // Organic PWA clicks still need a campaigns row: clicks has a
+                // real FK on campaign_id (enforced on builds compiled with
+                // foreign keys on), so "campaign_id 0" is not portable. The
+                // system campaign is archived, so it never appears in the
+                // campaigns table, yet every root visit attributes to it —
+                // the Click Log and the campaign reports show the PWA funnel
+                // as their own line item. Recreated on the fly by index.php
+                // if an operator ever deletes it.
+                $pdo->prepare("INSERT INTO campaigns (name, alias, token, is_archived, archived_at, state)
+                    SELECT 'PWA organic (system)', 'orbitra-pwa-organic', 'organic', 1, datetime('now'), 'active'
+                    WHERE NOT EXISTS (SELECT 1 FROM campaigns WHERE alias = 'orbitra-pwa-organic')")->execute();
             }
 
             // Mark schema as up-to-date. This must be last.

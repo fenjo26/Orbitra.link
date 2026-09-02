@@ -234,8 +234,8 @@ class PushSender
             throw new RuntimeException('payload exceeds the aes128gcm record limit');
         }
 
-        $salt = $salt !== null ? $salt : self::randomBytes(16);
-        $eph = $ephPriv ?? self::generateEphemeralKey();
+        $salt = $salt !== null ? $salt : static::randomBytes(16);
+        $eph = $ephPriv ?? static::generateEphemeralKey();
         $ephDetails = openssl_pkey_get_details($eph);
         if ($ephDetails === false) {
             throw new RuntimeException('ephemeral key details unavailable');
@@ -380,8 +380,9 @@ class PushSender
         if ($code === 429) {
             return self::result(false, $code, false, true, $response['retry_after'], 'rate limited');
         }
-        if ($code >= 500) {
-            return self::result(false, $code, false, true, null, 'push service error');
+        if ($code === 0 || $code >= 500) {
+            // 0 = transport failure (DNS/connect/timeout) — as retryable as a 5xx.
+            return self::result(false, $code ?: null, false, true, null, 'push service unreachable');
         }
         return self::result(false, $code, false, false, null, 'rejected: ' . ($response['error'] ?? ('HTTP ' . $code)));
     }

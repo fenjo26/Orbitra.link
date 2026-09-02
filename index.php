@@ -660,6 +660,15 @@ function serveLandingAsset($landingId, $uriPath, $baseDir = null)
     // Short TTL rather than "immutable": re-uploading a landing keeps its id, so
     // a year-long cache would pin visitors to the files it replaced.
     header('Cache-Control: public, max-age=3600');
+    // A service worker may only be registered with a scope wider than its own
+    // directory when its script response allows it. The direct domain→PWA
+    // serving registers a landing's sw.js (which lives under /lander/<slug>/)
+    // with { scope: '/' } so the root store page is controlled — without this
+    // header the browser rejects that registration. Default-scope
+    // registrations are unaffected: the header only lifts the cap.
+    if (basename($file) === 'sw.js') {
+        header('Service-Worker-Allowed: /');
+    }
 
     $ifNoneMatch = trim($_SERVER['HTTP_IF_NONE_MATCH'] ?? '');
     $ifModifiedSince = strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE'] ?? '') ?: 0;
@@ -993,6 +1002,162 @@ function orbitraServeLanderPath(PDO $pdo, string $slug, string $rest): void
 
     header('Content-Type: text/html; charset=utf-8');
     header('X-Robots-Tag: noindex, nofollow');
+    header('Cache-Control: no-store, no-cache, must-revalidate');
+    echo $html;
+    exit;
+}
+
+/**
+ * Serve a PWA landing at the domain root — the direct "domain = store" binding.
+ *
+ * A domains.pwa_landing_id domain hands its root page straight to the PWA
+ * landing, skipping the campaign→stream hop and the 302 into /lander/<slug>/:
+ * the install URL stays "https://domain.com/", which is the whole point of the
+ * binding. The click row, cookies and landing_at are written by the caller
+ * before this runs, exactly as the click flow does before its own 302.
+ *
+ * The page is the landing's generated index.html with three serve-time
+ * adjustments, all mirroring orbitraServeLanderPath():
+ *   - <base href="/"> replaces the lander folder base, so relative asset paths
+ *     resolve at the root and reach serveLandingAsset() through the orbitra_lp
+ *     cookie the caller set.
+ *   - The service-worker registration moves to /lander/<slug>/sw.js with an
+ *     explicit { scope: '/' }: registering the relative "sw.js" here would
+ *     resolve to /sw.js, which is the admin panel's own worker file on disk.
+ *     The lander path is served with Service-Worker-Allowed: / (see
+ *     serveLandingAsset), so the wide scope is accepted and the worker — whose
+ *     script assumes nothing about its directory — still controls "/".
+ *   - Macros ({subid}, {lp_url}, {vapid_public}) resolve from the fresh click
+ *     the caller just logged, passed in rather than read back from $_COOKIE
+ *     (setcookie does not populate $_COOKIE within the same request).
+ *
+ * The renderer auto-heal is the same flock-guarded regeneration the lander
+ * route runs, so renderer upgrades reach root-bound PWA landings too.
+ *
+ * Returns without serving when the binding does not resolve into a live PWA
+ * (landing deleted/archived, folder gone) — the caller falls through to the
+ * normal routing, exactly like an unbound domain.
+ */
+function orbitraServePwaRoot(PDO $pdo, $landingId, string $clickId, int $offerId = 0): void
+{
+    $landingId = (int) $landingId;
+    if ($landingId <= 0) {
+        return;
+    }
+
+    try {
+        $stmt = $pdo->prepare("SELECT id, type, is_archived, slug, config_json FROM landings WHERE id = ? LIMIT 1");
+        $stmt->execute([$landingId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (\Throwable $e) {
+        $row = null;
+    }
+    if (!$row || ($row['type'] ?? '') !== 'local' || (int) ($row['is_archived'] ?? 0) === 1) {
+        return;
+    }
+    $slug = (string) ($row['slug'] ?? '');
+    if ($slug === '' || !preg_match('/^[a-z0-9][a-z0-9_-]{0,63}$/', $slug)) {
+        return;
+    }
+
+    require_once __DIR__ . '/core/PwaLanding.php';
+    if (!PwaLanding::isPwa($row)) {
+        return;
+    }
+
+    $root = realpath(orbitraLandingDir($pdo, $landingId));
+    $file = $root === false ? false : realpath($root . '/index.html');
+    if ($root === false || $file === false || !is_file($file) || strpos($file, $root . DIRECTORY_SEPARATOR) !== 0) {
+        return;
+    }
+    $html = (string) file_get_contents($file);
+
+    // Renderer auto-heal: regenerate stale statics once behind a non-blocking
+    // lock, the same deal the /lander/ route offers.
+    if (strpos($html, 'name="orbitra-renderer" content="' . PwaLanding::RENDERER_VERSION . '"') === false) {
+        $regenLock = __DIR__ . '/var/locks/pwa-regen-' . $landingId . '.lock';
+        @mkdir(dirname($regenLock), 0775, true);
+        $regenFp = @fopen($regenLock, 'c');
+        if ($regenFp && @flock($regenFp, LOCK_EX | LOCK_NB)) {
+            try {
+                PwaLanding::generate($pdo, $landingId);
+                $html = (string) file_get_contents($file);
+            } catch (\Throwable $e) {
+                // Regeneration is best-effort; the stale page still serves.
+            }
+            @flock($regenFp, LOCK_UN);
+        }
+        if ($regenFp) {
+            fclose($regenFp);
+        }
+    }
+
+    // Root base: relative paths in the page ("manifest.webmanifest", icons)
+    // resolve against "/" and reach serveLandingAsset() via the orbitra_lp
+    // cookie the caller set — the same passthrough an inline local landing
+    // uses. Any <base> the page shipped is stripped first.
+    $html = preg_replace('/<base\s+[^>]*>/i', '', $html);
+    if (preg_match('/<head[^>]*>/i', $html, $m, PREG_OFFSET_CAPTURE)) {
+        $at = $m[0][1] + strlen($m[0][0]);
+        $html = substr($html, 0, $at) . "\n" . '<base href="/">' . substr($html, $at);
+    } else {
+        $html = '<base href="/">' . "\n" . $html;
+    }
+
+    // The worker cannot be registered by its relative name here: with the root
+    // base that is "/sw.js", the admin panel's own service worker file. Point
+    // the registration at the landing's own script with an explicit root
+    // scope; serveLandingAsset() allows the wide scope for sw.js responses.
+    $html = str_replace(
+        "navigator.serviceWorker.register('sw.js')",
+        "navigator.serviceWorker.register('/lander/" . rawurlencode($slug) . "/sw.js', { scope: '/' })",
+        $html
+    );
+
+    // Macros resolve from the click the caller just logged (passed in — a
+    // setcookie() in this request is invisible to $_COOKIE). No cookie on a
+    // prefetch-skipped visit means empty {subid}, so funnel beacons stay
+    // silent — the same no-click semantics the lander route serves previews
+    // with.
+    $rootToken = '';
+    if ($clickId !== '') {
+        $rootSecret = 'orbitra_secret';
+        try {
+            $rootSecretRow = $pdo->query("SELECT value FROM settings WHERE key = 'postback_key' LIMIT 1")->fetchColumn();
+            if (is_string($rootSecretRow) && $rootSecretRow !== '') {
+                $rootSecret = $rootSecretRow;
+            }
+        } catch (\Throwable $e) {
+            // A wrong key only rejects tokens, never accepts.
+        }
+        $rootToken = issueLpToken($clickId, $rootSecret);
+    }
+    $html = applyLandingMacros($html, $clickId, '', '', [], $rootToken);
+
+    // A direct domain has no stream, so the organic click carries no offer and
+    // a plain /?_lp=1 would honestly answer "no offer attached". The binding's
+    // offer (domains.pwa_offer_id) closes that gap: every lp link the macros
+    // just rendered — token-signed and bare alike — gains an explicit
+    // offer_id, which the /?_lp=1 handler already accepts as its first
+    // resolution source (and attributes to the click on the way through).
+    if ($offerId > 0) {
+        $html = str_replace('/index.php?_lp=1', '/index.php?_lp=1&offer_id=' . $offerId, $html);
+    }
+
+    // VAPID public key for the in-app push subscription screen — a macro, never
+    // baked into the statics, so a key rotation reaches this page too.
+    $vapidPublic = '';
+    try {
+        $vapidRow = $pdo->query("SELECT value FROM settings WHERE key = 'vapid_public_key' LIMIT 1")->fetchColumn();
+        if (is_string($vapidRow) && $vapidRow !== '') {
+            $vapidPublic = $vapidRow;
+        }
+    } catch (\Throwable $e) {
+        // Missing settings row is fine — the screen stays hidden.
+    }
+    $html = str_replace('{vapid_public}', $vapidPublic, $html);
+
+    header('Content-Type: text/html; charset=utf-8');
     header('Cache-Control: no-store, no-cache, must-revalidate');
     echo $html;
     exit;
@@ -1962,7 +2127,7 @@ $requestHost = $_SERVER['HTTP_HOST'] ?? '';
 // === DOMAIN OVERRIDES & SECURITY ===
 if ($requestHost) {
     // Look up the domain settings
-    $stmt = $pdo->prepare("SELECT is_noindex, https_only, index_campaign_id, catch_404, status FROM domains WHERE name = ? LIMIT 1");
+    $stmt = $pdo->prepare("SELECT is_noindex, https_only, index_campaign_id, catch_404, pwa_landing_id, pwa_offer_id, status FROM domains WHERE name = ? LIMIT 1");
     $stmt->execute([explode(':', $requestHost)[0]]); // Strip port if present
     $domainInfo = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -2019,6 +2184,18 @@ if ($requestHost) {
                 $directCampaignId = $domainRootCampaign;
             }
         }
+
+        // Direct "domain root = this PWA store" binding (domains.pwa_landing_id).
+        // Only remembered here; the serving block further down (after the _lp
+        // handler, before campaign resolution) turns it into the organic click
+        // plus the store page at "/". The root-path condition is not applied
+        // yet so that a plain "/" request and "/?_lp=1" can be told apart
+        // there.
+        $domainPwaLandingId = (int) ($domainInfo['pwa_landing_id'] ?? 0);
+        // The offer a bound PWA's {lp_url} transitions to (see the serving
+        // block) — remembered alongside the landing id, consumed only when
+        // the binding actually serves the root.
+        $domainPwaOfferId = (int) ($domainInfo['pwa_offer_id'] ?? 0);
     }
 }
 // ===================================
@@ -2754,6 +2931,166 @@ if (isset($_GET['_lp'])) {
 
     renderRedirectResponse($lpOffer['redirect_type'] ?? 'redirect', $lpUrl);
     exit;
+}
+
+// === Direct "domain root = PWA store" (domains.pwa_landing_id) ===
+// A domain bound to a PWA landing serves its store page straight from "/" —
+// no campaign, no stream, no 302 into /lander/<slug>/ — so the install URL
+// stays clean. The visit still becomes a real click, attributed to the
+// archived system campaign (migration 47) with the landing as its landing, so
+// funnel beacons, {lp_url} signing and the push subscription all attribute
+// exactly like the campaign-served flow. Dispatch
+// sits here because everything with a better claim has already answered:
+// admin path, static assets, click API, pixel, postback, /lander/ and the
+// /?_lp=1 transition (an offer button must never be swallowed by the store
+// page). Campaign routing must also win whenever the URL is explicit about
+// it — ?campaign=/?campaign_id=/?fallback_campaign_id= — mirroring how an
+// explicit campaign_id beats the parked-domain setting.
+$orbitraRootPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+if (!empty($domainPwaLandingId)
+    && ($orbitraRootPath === '/' || $orbitraRootPath === '' || $orbitraRootPath === false)
+    && empty($_GET['campaign']) && empty($_GET['campaign_id']) && empty($_GET['fallback_campaign_id'])
+    && !isset($_GET['_lp'])) {
+    // Validate the binding before anything is written: an archived landing,
+    // a deleted folder or a config that lost its `pwa` key falls through to
+    // the ordinary routing (same verdict an unbound domain gets).
+    $domainPwa = null;
+    try {
+        $stmtPwa = $pdo->prepare("SELECT id, type, is_archived, slug, config_json FROM landings WHERE id = ? LIMIT 1");
+        $stmtPwa->execute([(int) $domainPwaLandingId]);
+        $domainPwa = $stmtPwa->fetch(PDO::FETCH_ASSOC);
+    } catch (\Throwable $e) {
+        $domainPwa = null;
+    }
+    $domainPwaOk = $domainPwa
+        && ($domainPwa['type'] ?? '') === 'local'
+        && (int) ($domainPwa['is_archived'] ?? 0) === 0
+        && (string) ($domainPwa['slug'] ?? '') !== '';
+    if ($domainPwaOk) {
+        require_once __DIR__ . '/core/PwaLanding.php';
+        $domainPwaOk = PwaLanding::isPwa($domainPwa);
+    }
+    unset($domainPwa);
+
+    if ($domainPwaOk) {
+        // The campaign flow loads the settings map further down; this block
+        // only needs two of them, read on their own.
+        $pwaSettings = [];
+        try {
+            foreach ($pdo->query("SELECT key, value FROM settings WHERE key IN ('stats_enabled', 'ignore_prefetch')") as $pwaSetRow) {
+                $pwaSettings[$pwaSetRow['key']] = $pwaSetRow['value'];
+            }
+        } catch (\Throwable $e) {
+            // Unreadable settings default to the same values the campaign flow assumes.
+        }
+        $pwaStatsEnabled = isset($pwaSettings['stats_enabled']) ? (int) $pwaSettings['stats_enabled'] : 1;
+
+        if ($pwaStatsEnabled && !orbitraShouldSkipClickOnPrefetch($pwaSettings['ignore_prefetch'] ?? '1')) {
+            // Organic clicks still attribute to a real campaign row: the
+            // clicks table carries a genuine FK on campaign_id (enforced on
+            // builds compiled with foreign keys on), so a bare 0 is not
+            // portable. Migration 47 seeds the archived system campaign —
+            // hidden from the campaigns table, present for attribution — and
+            // it is recreated here if an operator ever deleted it. Without a
+            // resolvable id the store still serves, just with no-click
+            // macros ({subid} empty keeps the funnel beacons silent).
+            $pwaOrganicId = 0;
+            try {
+                $pwaOrganicId = (int) $pdo->query("SELECT id FROM campaigns WHERE alias = 'orbitra-pwa-organic' LIMIT 1")->fetchColumn();
+            } catch (\Throwable $e) {
+                $pwaOrganicId = 0;
+            }
+            if ($pwaOrganicId === 0) {
+                try {
+                    $pdo->prepare("INSERT INTO campaigns (name, alias, token, is_archived, archived_at, state)
+                        SELECT 'PWA organic (system)', 'orbitra-pwa-organic', 'organic', 1, datetime('now'), 'active'
+                        WHERE NOT EXISTS (SELECT 1 FROM campaigns WHERE alias = 'orbitra-pwa-organic')")->execute();
+                    $pwaOrganicId = (int) $pdo->query("SELECT id FROM campaigns WHERE alias = 'orbitra-pwa-organic' LIMIT 1")->fetchColumn();
+                } catch (\Throwable $e) {
+                    $pwaOrganicId = 0;
+                }
+            }
+
+            // Same visitor capture the campaign flow runs — the click row wants
+            // the same geo/device shape. No campaign uniqueness window or
+            // browser debounce applies: the system campaign configures none,
+            // and a "/" navigation is one request per visit.
+            $pwaIp = orbitraClientIp();
+            $pwaUserAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+            $pwaReferer = $_SERVER['HTTP_REFERER'] ?? '';
+            $pwaGeo = getGeoData($pwaIp);
+            $pwaDeviceType = getDeviceType($pwaUserAgent);
+            $pwaClickId = generateUuid();
+            $pwaParamsJson = json_encode(
+                orbitraCollectClickParams($pdo, $_GET, $_COOKIE, null),
+                JSON_UNESCAPED_UNICODE
+            );
+
+            if ($pwaOrganicId > 0) {
+                if (!function_exists('orbitraBuildClickRow')) {
+                    require_once __DIR__ . '/core/click_logger.php';
+                }
+                $pwaClickRow = orbitraBuildClickRow([
+                    'click_id' => $pwaClickId,
+                    'campaign_id' => $pwaOrganicId,
+                    'offer_id' => null,
+                    'stream_id' => null,
+                    'source_id' => null,
+                    'landing_id' => (int) $domainPwaLandingId,
+                    'ip' => $pwaIp,
+                    'user_agent' => $pwaUserAgent,
+                    'referer' => $pwaReferer,
+                    'country' => $pwaGeo['country_code'],
+                    'country_code' => $pwaGeo['country_code'],
+                    'region' => $pwaGeo['region'],
+                    'city' => $pwaGeo['city'],
+                    'latitude' => $pwaGeo['latitude'],
+                    'longitude' => $pwaGeo['longitude'],
+                    'zipcode' => $pwaGeo['zipcode'],
+                    'timezone' => $pwaGeo['timezone'],
+                    'device_type' => $pwaDeviceType,
+                    'os' => detectOs($pwaUserAgent),
+                    'browser' => detectBrowser($pwaUserAgent),
+                    'language' => (extractLanguageCodes(detectAcceptLanguageRaw())[0] ?? 'Unknown'),
+                    'accept_language_raw' => detectAcceptLanguageRaw(),
+                    'parameters_json' => $pwaParamsJson,
+                ]);
+                orbitraPersistClick($pdo, $pwaClickRow);
+
+                // Same honesty flags the campaign flow writes (bots/proxies) —
+                // the system campaign configures no uniqueness of its own.
+                require_once __DIR__ . '/core/ClickFlags.php';
+                orbitraWriteClickFlags($pdo, $pwaClickId, $pwaIp, $pwaUserAgent, ['id' => $pwaOrganicId], 0, is_array($pwaGeo) ? $pwaGeo : []);
+
+                // The cookies the funnel rides on: fresh attribution plus the
+                // long-lived PWA cookie installed apps keep for weeks, and
+                // orbitra_lp so the page's relative asset paths resolve through
+                // serveLandingAsset() — identical to the click flow's landing
+                // branch, orbitra_offer excepted (no stream, no offer yet).
+                $pwaSecure = orbitraIsHttps();
+                $pwaCookieOpts = ['expires' => time() + 86400, 'path' => '/', 'secure' => $pwaSecure, 'httponly' => false, 'samesite' => 'Lax'];
+                setcookie('orbitra_click', $pwaClickId, $pwaCookieOpts);
+                setcookie('subid', $pwaClickId, $pwaCookieOpts);
+                setcookie('orbitra_lp', (string) $domainPwaLandingId, $pwaCookieOpts);
+                setcookie('orbitra_pwa_click', $pwaClickId, ['expires' => time() + 2592000, 'path' => '/', 'secure' => $pwaSecure, 'httponly' => false, 'samesite' => 'Lax']);
+                try {
+                    $pdo->prepare("UPDATE clicks SET landing_at = datetime('now') WHERE id = ? AND landing_at IS NULL")->execute([$pwaClickId]);
+                } catch (\Throwable $e) {
+                    // Timing is a nice-to-have.
+                }
+            }
+
+            orbitraServePwaRoot($pdo, $domainPwaLandingId, $pwaOrganicId > 0 ? $pwaClickId : '', $domainPwaOfferId);
+            // orbitraServePwaRoot exits when it serves. Reaching this line
+            // means the binding went stale between the check above and the
+            // serve (deleted folder/archived landing): fall through with the
+            // click already logged — a rare double-count the alternative
+            // (serving a 404 to a working store) does not justify.
+        }
+        // A stats-disabled install or a prefetch probe falls through to the
+        // normal routing without logging anything.
+    }
+    unset($domainPwaOk, $domainPwa);
 }
 
 if (empty($alias) && !$directCampaignId) {

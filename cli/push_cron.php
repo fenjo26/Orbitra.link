@@ -145,6 +145,15 @@ try {
     // ------------------------------------------------------------------
     $enqueued = orbitraPushScanTriggers($pdo);
 
+    // Last-run stamp for the panel's queue health card (push_queue_list).
+    try {
+        $stmt = $pdo->prepare("INSERT INTO settings (key, value) VALUES ('push_cron_last_ping_at', ?)
+                               ON CONFLICT(key) DO UPDATE SET value = excluded.value");
+        $stmt->execute([date('Y-m-d H:i:s')]);
+    } catch (\Throwable $e) {
+        // cosmetic only
+    }
+
     orbitraPushLog("push_cron: delivered=$delivered failed=$failed requeued=$requeued aged=$aged enqueued=$enqueued");
 } catch (\Throwable $e) {
     orbitraPushLog('push_cron ERROR: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
@@ -174,11 +183,14 @@ function orbitraPushScanTriggers(PDO $pdo): int
     $enqueued = 0;
 
     // --- installs: clicks.pwa_install_at on rows we have not seen yet ------
-    $rows = $pdo->query("SELECT rowid, id, pwa_install_at FROM clicks WHERE rowid > $clicksPos ORDER BY rowid ASC LIMIT " . PUSH_TRIGGER_SCAN)->fetchAll(PDO::FETCH_ASSOC);
+    // "rowid AS rid": when the table's INTEGER PRIMARY KEY aliases the rowid
+    // (conversions.id does), SQLite hands the column back under the alias
+    // name, so an associative read of $row['rowid'] silently yields null.
+    $rows = $pdo->query("SELECT rowid AS rid, id, pwa_install_at FROM clicks WHERE rowid > $clicksPos ORDER BY rowid ASC LIMIT " . PUSH_TRIGGER_SCAN)->fetchAll(PDO::FETCH_ASSOC);
     $installClickIds = [];
     $lastClick = $clicksPos;
     foreach ($rows as $r) {
-        $lastClick = (int) $r['rowid'];
+        $lastClick = (int) $r['rid'];
         if (!empty($r['pwa_install_at'])) {
             $installClickIds[] = $r['id'];
         }
@@ -186,11 +198,11 @@ function orbitraPushScanTriggers(PDO $pdo): int
 
     // --- conversions: lead/sale events by the shared status groups ---------
     $groups = orbitraConversionStatusGroups();
-    $convRows = $pdo->query("SELECT rowid, click_id, status FROM conversions WHERE rowid > $convPos ORDER BY rowid ASC LIMIT " . PUSH_TRIGGER_SCAN)->fetchAll(PDO::FETCH_ASSOC);
+    $convRows = $pdo->query("SELECT rowid AS rid, click_id, status FROM conversions WHERE rowid > $convPos ORDER BY rowid ASC LIMIT " . PUSH_TRIGGER_SCAN)->fetchAll(PDO::FETCH_ASSOC);
     $eventClickIds = ['lead' => [], 'sale' => []];
     $lastConv = $convPos;
     foreach ($convRows as $r) {
-        $lastConv = (int) $r['rowid'];
+        $lastConv = (int) $r['rid'];
         $status = strtolower((string) $r['status']);
         if (in_array($status, $groups['sale'], true)) {
             $eventClickIds['sale'][] = $r['click_id'];

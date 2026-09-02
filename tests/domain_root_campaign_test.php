@@ -48,6 +48,8 @@ if (getenv('ORBITRA_TEST_SPEC') !== false) {
         https_only INTEGER DEFAULT 0,
         index_campaign_id INTEGER,
         catch_404 INTEGER DEFAULT 0,
+        pwa_landing_id INTEGER,
+        pwa_offer_id INTEGER,
         status TEXT DEFAULT "OK"
     )');
     $pdo->prepare('INSERT INTO domains (name, is_noindex, https_only, index_campaign_id, catch_404, status) VALUES (?, ?, ?, ?, ?, ?)')
