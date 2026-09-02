@@ -229,9 +229,11 @@ class PushSender
         if ($auth === '' || strlen($auth) < 16) {
             throw new RuntimeException('subscription auth secret too short');
         }
-        // One record carries rs-17 ciphertext bytes, of which 16 are the GCM
-        // tag and 1 the padding delimiter → payload must fit rs-34.
-        $maxPayload = self::RECORD_SIZE - 34;
+        // Single record with minimal padding: the wire body is 21 bytes of
+        // record header + plaintext + delimiter + 16-byte GCM tag, i.e.
+        // payload + 38. The cap keeps any caller below the 4096-byte request
+        // limit Apple and FCM enforce (they answer bigger bodies with 413).
+        $maxPayload = self::RECORD_SIZE - 38;
         if (strlen($payload) > $maxPayload) {
             throw new RuntimeException('payload exceeds the aes128gcm record limit');
         }
@@ -261,9 +263,11 @@ class PushSender
         $cek = self::hkdfSha256($prk, '', "Content-Encoding: aes128gcm\x01", 16);
         $nonce = self::hkdfSha256($prk, '', "Content-Encoding: nonce\x01", 12);
 
-        // Padding: payload || 0x02 || zeros — padded plaintext fills exactly
-        // rs-17-16 bytes, so ciphertext + tag is exactly rs-17 (RFC 8291 §2).
-        $padded = $payload . "\x02" . str_repeat("\x00", $maxPayload - strlen($payload));
+        // Padding: payload || 0x02, nothing more. RFC 8291 allows the padding
+        // to be just the delimiter; padding the plaintext out to a full
+        // record made EVERY request body exactly 4100 bytes — a 170-byte
+        // "Test push" included — which the push service rejects with 413.
+        $padded = $payload . "\x02";
         $tag = '';
         $ct = openssl_encrypt($padded, 'aes-128-gcm', $cek, OPENSSL_RAW_DATA, $nonce, $tag);
         if ($ct === false) {
@@ -423,7 +427,7 @@ class PushSender
         };
 
         $payload = $build($title, $body, $link, $icon);
-        $softCap = self::RECORD_SIZE - 96; // 4000: encrypt throws at rs-34
+        $softCap = self::RECORD_SIZE - 96; // 4000: encrypt throws at rs-38
         if (strlen($payload) <= $softCap) {
             return $payload;
         }

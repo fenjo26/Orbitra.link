@@ -184,9 +184,11 @@ assertTrue(substr($record, 0, 16) === $salt, 'record starts with the pinned 16-b
 assertTrue(unpack('N', substr($record, 16, 4))[1] === PushSender::RECORD_SIZE, 'rs field is u32be 4096');
 assertTrue(ord($record[20]) === 0, 'ids field is a single 0x00 byte');
 $ciphertext = substr($record, 21);
-// padded plaintext fills rs-17-16; +16 tag → ciphertext chunk is rs-17.
-assertTrue(strlen($ciphertext) === PushSender::RECORD_SIZE - 17,
-    'ciphertext+tag is exactly rs-17 (payload padded with 0x02-delimited zeros)');
+// Minimal padding: ciphertext = payload + 0x02 delimiter + 16-byte tag.
+assertTrue(strlen($ciphertext) === strlen($payload) + 1 + 16,
+    'ciphertext is payload + delimiter + tag (padding is the delimiter alone)');
+assertTrue(strlen($record) === 21 + strlen($payload) + 17 && strlen($record) < 4096,
+    'the whole record body stays below the 4096-byte wire limit (a full-record pad made every body 4100 bytes -> 413)');
 
 // Independent RFC decrypt: ECDH on the CLIENT private key × ephemeral public.
 $ephDetails = openssl_pkey_get_details(DeterministicPushSender::$ephemeral);
@@ -206,8 +208,8 @@ $tag = substr($ciphertext, -16);
 $encrypted = substr($ciphertext, 0, -16);
 $padded = openssl_decrypt($encrypted, 'aes-128-gcm', $cek, OPENSSL_RAW_DATA, $nonce, $tag);
 assertTrue($padded !== false, 'RFC decrypt: GCM tag authenticates');
-$expectedPadded = $payload . "\x02" . str_repeat("\x00", PushSender::RECORD_SIZE - 34 - strlen($payload));
-assertTrue($padded === $expectedPadded, 'decrypted padded plaintext is payload || 0x02 || zeros');
+$expectedPadded = $payload . "\x02";
+assertTrue($padded === $expectedPadded, 'decrypted padded plaintext is payload || 0x02 (no zero filler)');
 assertTrue(rtrim($padded, "\x00") === $payload . "\x02", 'payload roundtrips exactly after padding strip');
 
 assertThrows(static function () use ($keys) {
