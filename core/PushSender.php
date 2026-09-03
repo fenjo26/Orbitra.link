@@ -32,8 +32,14 @@ class PushSender
 
     /** VAPID JWT lifetime: 12 hours, as recommended by RFC 8292 §5. */
     public const JWT_TTL_SECONDS = 43200;
-    /** aes128gcm record size. Payload + padding + tag must stay below rs-17. */
+    /** aes128gcm record size (the rs header field): delimiter + payload + tag live inside one record. */
     public const RECORD_SIZE = 4096;
+    /**
+     * Bytes one record spends on everything that is not payload:
+     * 16 salt + 4 rs + 1 idlen + 65 keyid (the sender's ephemeral public key,
+     * RFC 8291 §4) + 1 padding delimiter + 16 GCM tag.
+     */
+    public const RECORD_OVERHEAD = 103;
     /** Push-service TTL header (28 days): undelivered pushes expire quietly. */
     public const TTL_HEADER_SECONDS = 2419200;
 
@@ -210,7 +216,7 @@ class PushSender
 
     /**
      * Encrypt one record. Body layout:
-     *   salt(16) || rs(u32be) || ids(u8=0) || ciphertext(=aes-128-gcm, tag at end)
+     *   salt(16) || rs(u32be) || idlen(u8=65) || keyid(ephemeral public key) || ciphertext(+16-byte tag)
      *
      * @param string      $payload       plaintext (already macro-expanded JSON)
      * @param string      $clientPubB64  subscription p256dh (base64url)
@@ -229,11 +235,12 @@ class PushSender
         if ($auth === '' || strlen($auth) < 16) {
             throw new RuntimeException('subscription auth secret too short');
         }
-        // Single record with minimal padding: the wire body is 21 bytes of
-        // record header + plaintext + delimiter + 16-byte GCM tag, i.e.
-        // payload + 38. The cap keeps any caller below the 4096-byte request
-        // limit Apple and FCM enforce (they answer bigger bodies with 413).
-        $maxPayload = self::RECORD_SIZE - 38;
+        // Single record with minimal padding: the wire body is the 86-byte
+        // aes128gcm header (salt + rs + idlen + the 65-byte keyid) plus
+        // plaintext + delimiter + 16-byte GCM tag, i.e. payload + 103. The cap
+        // keeps any caller below the 4096-byte request limit Apple and FCM
+        // enforce (they answer bigger bodies with 413).
+        $maxPayload = self::RECORD_SIZE - self::RECORD_OVERHEAD;
         if (strlen($payload) > $maxPayload) {
             throw new RuntimeException('payload exceeds the aes128gcm record limit');
         }
@@ -274,7 +281,14 @@ class PushSender
         if ($ct === false) {
             throw new RuntimeException('openssl_encrypt failed: ' . openssl_error_string());
         }
-        return $salt . pack('N', self::RECORD_SIZE) . "\x00" . $ct . $tag;
+        // RFC 8188 §2.1 header: salt || rs || idlen || keyid. For Web Push the
+        // keyid IS the sender's ephemeral public key (RFC 8291 §4) — it is the
+        // only copy the receiver ever gets, and without it the browser cannot
+        // run the ECDH half of the key schedule. Emitting idlen = 0 here left
+        // every record undecryptable on device while the push service happily
+        // answered 201, and the roundtrip test missed it because the test knew
+        // the ephemeral key out of band instead of reading it off the wire.
+        return $salt . pack('N', self::RECORD_SIZE) . chr(strlen($ephPubRaw)) . $ephPubRaw . $ct . $tag;
     }
 
     /**
@@ -403,7 +417,7 @@ class PushSender
      *
      * The body is the only free-form part of the JSON, so when the whole
      * payload approaches the aes128gcm plaintext ceiling (encrypt() throws
-     * above rs-34 = 4062 bytes) the body is cut first — UTF-8 safe, with an
+     * above rs-103 = 3993 bytes) the body is cut first — UTF-8 safe, with an
      * ellipsis — then the title, then the extras. A send should never die on
      * an oversized text the operator pasted.
      */
@@ -428,7 +442,9 @@ class PushSender
         };
 
         $payload = $build($title, $body, $link, $icon);
-        $softCap = self::RECORD_SIZE - 96; // 4000: encrypt throws at rs-38
+        // Comfortably under encrypt()'s rs-103 hard limit (3993), leaving room
+        // for the JSON scaffolding a rebuild adds back.
+        $softCap = self::RECORD_SIZE - 160; // 3936
         if (strlen($payload) <= $softCap) {
             return $payload;
         }

@@ -182,17 +182,24 @@ $record = DeterministicPushSender::encrypt($payload, $keys['public'] === '' ? ''
 
 assertTrue(substr($record, 0, 16) === $salt, 'record starts with the pinned 16-byte salt');
 assertTrue(unpack('N', substr($record, 16, 4))[1] === PushSender::RECORD_SIZE, 'rs field is u32be 4096');
-assertTrue(ord($record[20]) === 0, 'ids field is a single 0x00 byte');
-$ciphertext = substr($record, 21);
+// RFC 8291 §4: the keyid field carries the sender's ephemeral public key. It
+// is the receiver's ONLY copy — read it off the wire below, never out of band.
+assertTrue(ord($record[20]) === 65, 'idlen announces a 65-byte keyid');
+$recordKeyId = substr($record, 21, 65);
+$ciphertext = substr($record, 86);
 // Minimal padding: ciphertext = payload + 0x02 delimiter + 16-byte tag.
 assertTrue(strlen($ciphertext) === strlen($payload) + 1 + 16,
     'ciphertext is payload + delimiter + tag (padding is the delimiter alone)');
-assertTrue(strlen($record) === 21 + strlen($payload) + 17 && strlen($record) < 4096,
+assertTrue(strlen($record) === 86 + strlen($payload) + 17 && strlen($record) < 4096,
     'the whole record body stays below the 4096-byte wire limit (a full-record pad made every body 4100 bytes -> 413)');
 
 // Independent RFC decrypt: ECDH on the CLIENT private key × ephemeral public.
 $ephDetails = openssl_pkey_get_details(DeterministicPushSender::$ephemeral);
-$ephPubRaw = rawPoint($ephDetails);
+assertTrue($recordKeyId === rawPoint($ephDetails),
+    'keyid on the wire is the ephemeral public key the sender used');
+// Everything below derives from the RECORD, exactly as a browser does: a
+// record a device could not decrypt must not be able to pass this test.
+$ephPubRaw = $recordKeyId;
 $ephPubPem = PushSender::publicPemFromRaw($ephPubRaw);
 $as = openssl_pkey_derive(openssl_pkey_get_public($ephPubPem), $client);
 if (!is_string($as) || $as === '') {
@@ -252,8 +259,11 @@ assertThrows(static function () use ($keys) {
     PushSender::encrypt('x', PushSender::base64Url(str_repeat('x', 64)), PushSender::base64Url(random_bytes(16)));
 }, 'encrypt rejects a p256dh that is not an uncompressed P-256 point');
 assertThrows(static function () use ($keys, $clientPubRaw, $clientAuth) {
-    PushSender::encrypt(str_repeat('x', PushSender::RECORD_SIZE - 33), PushSender::base64Url($clientPubRaw), PushSender::base64Url($clientAuth));
-}, 'encrypt rejects a payload over the aes128gcm record limit');
+    PushSender::encrypt(str_repeat('x', PushSender::RECORD_SIZE - PushSender::RECORD_OVERHEAD + 1), PushSender::base64Url($clientPubRaw), PushSender::base64Url($clientAuth));
+}, 'encrypt rejects a payload one byte over the aes128gcm record limit');
+$maxRecord = PushSender::encrypt(str_repeat('x', PushSender::RECORD_SIZE - PushSender::RECORD_OVERHEAD), PushSender::base64Url($clientPubRaw), PushSender::base64Url($clientAuth));
+assertTrue(strlen($maxRecord) === PushSender::RECORD_SIZE,
+    'a payload at the cap produces a body of exactly 4096 bytes, the Apple/FCM limit');
 
 // ----------------------------------------------------------------------
 // getVapidSub: settings row with a safe default (in-memory SQLite).
