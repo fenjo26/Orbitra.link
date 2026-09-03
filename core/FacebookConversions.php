@@ -186,11 +186,21 @@ class FacebookConversions
         }
 
         $payout = (float) ($ctx['payout'] ?? 0);
+        $contentId = trim((string) ($ctx['content_id'] ?? ''));
+        $customData = [];
         if ($payout > 0) {
-            $event['custom_data'] = [
-                'value'    => round($payout, 4),
-                'currency' => strtoupper((string) ($ctx['currency'] ?? 'USD')),
-            ];
+            $customData['value'] = round($payout, 4);
+            $customData['currency'] = strtoupper((string) ($ctx['currency'] ?? 'USD'));
+        }
+        // Symmetry with the TikTok side (see TikTokConversions.php) — Meta uses
+        // content_ids for catalog / dynamic-ads matching even though it is not
+        // flagged as critical the way TikTok's diagnostics flag it.
+        if ($contentId !== '') {
+            $customData['content_type'] = 'product';
+            $customData['content_ids'] = [$contentId];
+        }
+        if (!empty($customData)) {
+            $event['custom_data'] = $customData;
         }
 
         $payload = ['data' => [$event]];
