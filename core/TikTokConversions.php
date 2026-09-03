@@ -110,6 +110,20 @@ class TikTokConversions
             $properties['currency'] = strtoupper((string) ($ctx['currency'] ?? 'USD'));
         }
 
+        // TikTok flags missing content_id as a Critical diagnostic (it also
+        // feeds the catalog-matching / Video Shopping Ads CPA improvement) —
+        // the browser pixel already sends it, this mirrors the same value
+        // server-side so the CAPI-side SubmitForm/Purchase events carry it too.
+        $contentId = trim((string) ($ctx['content_id'] ?? ''));
+        if ($contentId !== '') {
+            $properties['content_type'] = 'product';
+            $properties['content_id'] = $contentId;
+            $properties['contents'] = [[
+                'content_id' => $contentId,
+                'content_type' => 'product',
+            ]];
+        }
+
         return [
             'pixel_code' => (string) ($pixel['pixel_id'] ?? ''),
             'event' => (string) ($ctx['event_name'] ?? 'SubmitForm'),
