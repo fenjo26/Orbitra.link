@@ -1,6 +1,6 @@
 # Orbitra Tracker Documentation
 
-Добро пожаловать в официальную документацию **Orbitra v1.1.7**!
+Добро пожаловать в официальную документацию **Orbitra v1.5.0**!
 
 Orbitra — это современная система управления трафиком и отслеживания конверсий. Упрощённый и более быстрый аналог Keitaro Tracker с сохранением полной совместимости по API и функциональности.
 
@@ -61,6 +61,8 @@ wget -O orbitra-install.sh https://raw.githubusercontent.com/fenjo26/Orbitra.lin
 
 5. **[Лендинги](landing-pages.md)** (English) — все четыре типа, макросы, JS-адаптер, PHP-лендинги и разбор частых ошибок
    - **[Tracking Client (PHP)](tracking-client-php.md)** (English) — `kclient.php`: сниппет, вторичные страницы, `getOffer()`, конверсии
+   - **[PWA-лендинги и Web Push](pwa-push.md)** — конструктор PWA, витрина, привязка домена, воронка, VAPID-ключи, база подписчиков, сообщения и крон доставки, диагностика
+   - **[Галерея контента](content-gallery.md)** — медиа-библиотека, папки, ограничения, MediaPicker и кадрирование под размер
 6. **[Facebook / Meta](facebook.md)** (English)
    - Импорт расходов из Meta Marketing API
    - Conversions API: отправка конверсий с сервера

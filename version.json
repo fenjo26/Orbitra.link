@@ -1,6 +1,6 @@
 {
-    "version": "1.4.1",
-    "release_notes": "Bugfix release. Fixed: the Affiliate Networks page crashed with \"canWriteResource is not defined\" since v1.4.0 (issue #7) — the page loads again for everyone, and every mutation control (create, edit, delete, bulk delete) now respects the user's network write permission. Fixed: System Status warnings and recommendations (\"Critically low disk space!\") were hardcoded in Russian regardless of the panel language — they are now localized in all 7 languages.",
+    "version": "1.5.0",
+    "release_notes": "Feature release: PWA landings (store-style constructor, funnel beacons, service-worker push subscription with self-heal, direct domain binding), web push campaigns on your own base (self-hosted VAPID, subscriber list with test send, manual & event messages, segments, macros, cron-driven queue) and a content gallery (folders, drag-and-drop upload, MediaPicker with cropping). Also: push delivery hardened by live-device diagnostics (four crypto-layer fixes), landing→offer {subid} fix, service worker on bound domains, panel session lifetime, friendlier 'database is locked' handling. New guides: docs/pwa-push.md, docs/content-gallery.md.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-09-01"
+    "released_at": "2026-09-03"
 }

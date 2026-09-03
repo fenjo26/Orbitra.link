@@ -7,9 +7,13 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [1.5.0] — 2026-09-03
 
-Findings from the v1.4.1 acceptance pass on the test server (PWA phases 1–4).
+First public release of the PWA + web-push stack (53 commits since v1.4.1):
+PWA landings, web push campaigns on your own base, the content gallery — see
+[docs/pwa-push.md](docs/pwa-push.md) and [docs/content-gallery.md](docs/content-gallery.md)
+for the full guides. Findings from the v1.4.1 acceptance pass on the test
+server (PWA phases 1–4) and the delivery-hardening campaign that followed.
 
 ### Fixed
 
@@ -81,11 +85,78 @@ Findings from the v1.4.1 acceptance pass on the test server (PWA phases 1–4).
   write, through the shared helper in `core/db_retry.php` — the same treatment the
   SSL queue worker already gave itself.
 
+### Fixed — push delivery hardening (live-device diagnostics campaign)
+
+- **The installed app never registered its service worker** —
+  `navigator.serviceWorker.register()` sat at the bottom of the page script,
+  below the standalone-app branch, so in the installed app (the only place
+  iOS asks for push permission) no worker ever existed, and iOS home-screen
+  web apps get a separate storage partition, so the Safari registration never
+  carried over. Registration is now the first statement of the script and the
+  whole subscription runs inside the worker (`orbitraSubscribe`,
+  `pushsubscriptionchange`, activate-time self-heal, all under `waitUntil`);
+  the page posts a message and leaves for the offer.
+- **A slow-device subscribe livelock** — the iOS cold subscribe (first APNs
+  handshake on mobile data) could exceed the 10s fail-safe, which redirected
+  mid-subscription and killed it every time. The fail-safe is now 45s and only
+  arms after the user granted permission; the silent sync is capped at 30s and
+  no longer re-shows the prompt to users who already said yes.
+- **The VAPID `k=` parameter carried a JWK thumbprint instead of the key** —
+  RFC 8292 §3.2 says `k=` is the raw public key itself: the push service
+  verifies the JWT against the key carried in `k=`. Every provider answered
+  403 BadJwtToken. (403)
+- **Every request body was padded to a full record — 4100 bytes, over Apple's
+  4096 limit** — minimal padding (the 0x02 delimiter alone) per RFC 8291; the
+  single-record cap keeps any body at or under 4096. (413)
+- **Key derivation ignored RFC 8291** — the secrets combined through one HKDF
+  keyed by the record salt instead of HKDF-Extract(salt=auth_secret,
+  IKM=ecdh_secret) plus the record-salt stage; receivers derived different
+  keys and the GCM open failed silently. The test now also decrypts a captured
+  web-push (npm) reference record byte-exact. (201, silent drop)
+- **The aes128gcm header omitted the keyid** — for Web Push the keyid IS the
+  sender's ephemeral public key, the receiver's only copy; the header went out
+  with `idlen=0`, so no browser could run its ECDH half while the service
+  answered 201. Record overhead is now 103 bytes, the payload ceiling 3993, a
+  max record exactly 4096 on the wire; the roundtrip test reads the keyid off
+  the record instead of knowing it out of band. (201, silent drop, any browser)
+- **The subscribers-tab test banner lingered over Messages** — the
+  "test push accepted" info line survived tab switches and read as if the
+  message composer had sent something; saving a message only stores a
+  template. Info and error clear on tab change.
+
 ### Added
 
-- `tests/lp_offer_macros_test.php`, `tests/session_lifetime_test.php`,
+- **PWA landings** — store-style constructor (icon/screenshots from the gallery,
+  ratings, reviews, themes, live preview), generated `manifest.webmanifest` +
+  `sw.js`, in-app screen, funnel beacons (`pwa_intent_at`/`pwa_install_at`/
+  `pwa_open_at` + push funnel columns + `push_fail_reason`), push subscription
+  inside the service worker with self-heal on every app open and automatic
+  `pushsubscriptionchange` re-subscribe, renderer auto-regeneration on version
+  bumps (`RENDERER_VERSION`), `{vapid_public}` substituted at serve time so key
+  rotation reaches installed apps, direct **domain → PWA binding**
+  (`domains.pwa_landing_id`/`pwa_offer_id`, root serving, organic visits logged
+  to the hidden `orbitra-pwa-organic` campaign), landing/PWA duplication.
+- **Web push sending** — self-hosted VAPID (RFC 8292) + aes128gcm encryption
+  (RFC 8291) in pure PHP; `push_messages` (manual + event kind
+  install/lead/sale with `delay_seconds`, segments `all`/`reg0`/`reg1dep0`/
+  `reg1dep1`, macros expanded at send time), `push_queue` + `push_sends`,
+  `cli/push_cron.php` (every minute: flock, batches ≤300, 429 Retry-After,
+  401/403 one retry with a fresh JWT, 404/410 ages the subscription),
+  subscriber list with filters/ops/CSV export and a per-subscriber **test
+  send** bypassing the queue, queue health strip, `/push_subscribe` ingest
+  with endpoint/key validation and attribution-preserving upsert.
+- **Content gallery** — media library (`media_folders`/`media_assets`,
+  webp/jpg/png/gif ≤10 MB, sha256-named storage, soft delete) with folders,
+  drag-and-drop upload and a shared **MediaPicker** (size contracts with
+  aspect-locked cropping producing exact-size assets) used by the PWA, landing
+  and offer editors.
+- `tests/push_sender_test.php` (crypto incl. web-push reference vector),
+  `tests/push_macros_test.php`, `tests/push_cron_test.php`,
+  `tests/pwa_landing_test.php`, `tests/domain_pwa_test.php`,
+  `tests/push_base_test.php`, plus
+  `tests/lp_offer_macros_test.php`, `tests/session_lifetime_test.php`,
   `tests/pwa_domain_options_test.php` and `tests/ssl_server_ip_override_test.php`
-  cover the fixes above that are worth a regression guard.
+  covering the fixes above that are worth a regression guard.
 
 ## [1.4.1] — 2026-09-01
 

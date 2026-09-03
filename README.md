@@ -1,4 +1,4 @@
-# Orbitra v1.4.1 Tracker
+# Orbitra v1.5.0 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,29 +11,28 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.4.1
+## 🆕 What's New in v1.5.0
 
-Bugfix release — two user-reported fixes, no schema changes.
+Feature release — PWA landings, web push campaigns and a content gallery go public.
 
-### Fixed
+### Added
 
-- **🐞 Affiliate Networks page crash (issue #7)** — since v1.4.0 the page died with
-  `canWriteResource is not defined`: the permission check wrapped the Create button
-  but the helper was never imported. The page loads again for everyone, and every
-  mutation control (create, edit, delete, bulk delete) now respects the user's
-  network write permission, mirroring the server-side gate
-- **🌍 System Status messages follow the panel language** — warnings and
-  recommendations ("Critically low disk space! Free up space.", CPU/RAM load, DB
-  size advice) were hardcoded in Russian in the API response regardless of the
-  interface language. The backend now sends message codes and the panel renders
-  them localized — all 7 languages
+- 📱 **PWA landings** — a store-style web app constructor: icon, screenshots, ratings, reviews, themes, live preview, in-app screen after install, funnel beacons (interest → install → reopens) written into the click. The push subscription runs inside the service worker and self-heals on every app reopen. Bind a domain directly to a PWA — the store opens from the domain root, organic visits are logged to a hidden system campaign
+- 🔔 **Web Push on your own base** — self-hosted VAPID keys (pure PHP, RFC 8291/8292, no composer), subscriber list with CSV export and a one-click per-subscriber test send, manual + event messages (install/lead/sale with delay), conversion-based segments, per-recipient macros, a cron-driven delivery queue with retries and automatic aging of dead subscriptions. The crypto envelope is verified against RFC and web-push reference vectors
+- 🖼 **Content Gallery** — media library with folders, drag-and-drop upload and soft delete; a shared MediaPicker in the PWA/landing/offer editors with size contracts and built-in cropping (PWA icon 512×512)
+- 📚 **New guides** — [PWA & Push](docs/pwa-push.md) and [Content Gallery](docs/content-gallery.md)
 
-### Previous Highlights (v1.4.0)
+### Fixed (highlights)
 
-- 📊 **Honest LP-funnel metrics & landing→offer timing** — Real LP clicks / Real offer clicks / Real LP CTR count only clicks that actually went through the offer link; LP Time buckets (0-3s … 60s+) explain most "tracker shows transitions, network sees none" mismatches; external landings included
-- 🔐 **Roles enforced server-side + per-campaign scoping (issue #6)** — none/read/full across all six resources, campaign scoping (Own + Selected) filters lists, reports, logs and the dashboard, API-key minting is admin-only
+- Four crypto-layer defects in push delivery found by live device diagnostics (VAPID `k=` parameter, a 4100-byte record pad, the RFC 8291 key schedule, the missing aes128gcm keyid) — a push service answered 201 while no device could decrypt the message; the sender test now decrypts records exactly like a browser, reading every byte off the wire
+- `{subid}` on the landing→offer hop, service worker registration on bound domains, panel session lifetime, SQLite "database is locked" answered as a clean 503, silent user demotion on partial `save_user` — see the [changelog](CHANGELOG.md) for the full list
 
-Older releases (v1.3.11 and earlier): see the [full changelog](CHANGELOG.md).
+### Previous Highlights (v1.4.1)
+
+- 🐞 **Affiliate Networks page crash fixed (issue #7)** — `canWriteResource is not defined` since v1.4.0; all mutation controls now mirror the server-side permission gate
+- 🌍 **System Status messages follow the panel language** — 8 message codes localized in all 7 languages
+
+Older releases (v1.4.0 and earlier): see the [full changelog](CHANGELOG.md).
 
 ## 🖥 Live Demo
 
@@ -305,6 +304,8 @@ Full documentation is available in the [docs/](docs/) folder:
 - **[Overview](docs/index.md)** — documentation navigation
 - **[Architecture](docs/architecture.md)** — technology stack and DB structure
 - **[Features](docs/features.md)** — detailed feature descriptions
+- **[PWA & Push](docs/pwa-push.md)** — PWA landings, web push campaigns, diagnostics
+- **[Content Gallery](docs/content-gallery.md)** — media library and MediaPicker
 - **[API](docs/api.md)** — REST API documentation
 - **[Deployment](docs/deployment.md)** — installation and configuration instructions
 
@@ -510,13 +511,19 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.4.1 (2026-09-01)
+### Current release — v1.5.0 (2026-09-03)
 
-**Fixed**
-- 🐞 **Affiliate Networks page crash (issue #7)** — `canWriteResource` was used without its import since v1.4.0; the page loads again and all mutation controls respect network write permission
-- 🌍 **System Status messages localized** — disk/CPU/RAM warnings and DB recommendations were hardcoded Russian in the API; now message codes rendered in the panel language (7 locales)
+**Added**
+- 📱 **PWA landings** — store-style web app constructor, funnel beacons into the click, push subscription inside the service worker with self-heal, direct domain→PWA binding (organic visits to a hidden system campaign)
+- 🔔 **Web Push on your own base** — self-hosted VAPID keys, subscriber list + CSV + per-subscriber test send, manual & event messages, conversion segments, per-recipient macros, cron-driven queue with retries and aging
+- 🖼 **Content Gallery** — media library with folders + shared MediaPicker with size contracts and cropping
+- 📚 New guides: [PWA & Push](docs/pwa-push.md), [Content Gallery](docs/content-gallery.md)
 
-Previous releases — v1.4.0: 📊 honest LP-funnel metrics (Real LP clicks / Real offer clicks / Real LP CTR), ⏱ landing→offer timing buckets, 🎚 "After the click" default for new landing streams, 🔐 roles enforced server-side + per-campaign scoping (issue #6); v1.3.11: 🏠 domain-root campaigns in production, 🔑 private postback key on install; v1.3.10: 📱 rotation rows as a placed grid below 640px, 🎨 campaign-name link parity on both surfaces; v1.3.9: 🔒 SSL chain verdicts + certificates-on-save, 🎯 LeadForge honest failures, 🛡️ scan protection, Domains rebuilt; v1.3.8: 🧹 stray ellipsis gone, centred values, checkbox column fixed, lint-zero tracker tables; v1.3.7: 🔀 full column reorder, ✂️ hard cell clipping, 🎯 centred headers.
+**Fixed (highlights)**
+- 🔐 Four crypto-layer defects in push delivery (VAPID `k=`, 4100-byte record pad, RFC 8291 key schedule, missing aes128gcm keyid) — 201 from the push service while nothing decrypted on device; the sender test now reads every byte off the wire like a browser
+- 🧩 `{subid}` on the landing→offer hop, service worker on bound domains, panel session lifetime, "database is locked" as a clean 503, silent `save_user` demotion
+
+Previous releases — v1.4.1: 🐞 Affiliate Networks crash fix (issue #7), 🌍 System Status localization; v1.4.0: 📊 honest LP-funnel metrics (Real LP clicks / Real offer clicks / Real LP CTR), ⏱ landing→offer timing buckets, 🎚 "After the click" default for new landing streams, 🔐 roles enforced server-side + per-campaign scoping (issue #6); v1.3.11: 🏠 domain-root campaigns in production, 🔑 private postback key on install; v1.3.10: 📱 rotation rows as a placed grid below 640px, 🎨 campaign-name link parity on both surfaces; v1.3.9: 🔒 SSL chain verdicts + certificates-on-save, 🎯 LeadForge honest failures, 🛡️ scan protection, Domains rebuilt; v1.3.8: 🧹 stray ellipsis gone, centred values, checkbox column fixed, lint-zero tracker tables; v1.3.7: 🔀 full column reorder, ✂️ hard cell clipping, 🎯 centred headers.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 
