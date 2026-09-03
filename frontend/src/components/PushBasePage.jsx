@@ -337,7 +337,7 @@ export default function PushBasePage({ user }) {
                 <div style={{ maxWidth: 420 }}>
                     <SegmentedControl
                         value={tab}
-                        onChange={setTab}
+                        onChange={(v) => { setTab(v); setInfo(''); setError(''); }}
                         ariaLabel={t('push.navLabel')}
                         options={[
                             { value: 'subscribers', label: t('push.tabSubscribers'), icon: Bell },
