@@ -471,6 +471,7 @@ try {
         if (!empty($capiPixels)) {
             require_once __DIR__ . '/core/FacebookConversions.php';
             require_once __DIR__ . '/core/TikTokConversions.php';
+            require_once __DIR__ . '/core/landing_path.php';
 
             $clickStmt = $pdo->prepare("
                 SELECT id, ip, user_agent, referer, country_code, region, city, zipcode,
@@ -517,6 +518,29 @@ try {
                     }
                 }
 
+                // content_id for CAPI events (TikTok flags its absence as a
+                // Critical diagnostic; Meta uses it for catalog/dynamic-ads
+                // matching too) — sourced from the landing's own _config.php
+                // ($products = N;), the same value the landing's own client-side
+                // pixel already sends. Read-only regex over the file, never
+                // include()'d, so the file's own session_start()/etc. never runs
+                // in this server-to-server request.
+                $capiContentId = '';
+                if (!empty($clickRow['landing_id'])) {
+                    try {
+                        $contentIdDir = orbitraLandingContentDir(orbitraLandingDir($pdo, (int) $clickRow['landing_id']));
+                        $contentIdConfigPath = $contentIdDir . '/_config.php';
+                        if (is_file($contentIdConfigPath)) {
+                            $contentIdSrc = file_get_contents($contentIdConfigPath, false, null, 0, 16384);
+                            if ($contentIdSrc !== false
+                                && preg_match('/\$products\s*=\s*([\'"]?)([A-Za-z0-9_-]+)\1\s*;/', $contentIdSrc, $contentIdMatch)) {
+                                $capiContentId = $contentIdMatch[2];
+                            }
+                        }
+                    } catch (\Throwable $e) {
+                    }
+                }
+
                 foreach ($capiPixels as $pixel) {
                     try {
                         $capiContext = [
@@ -531,6 +555,7 @@ try {
                             'extra'        => $_GET,
                             'campaign_url' => $capiCampaignUrl,
                             'landing_url'  => $capiLandingUrl,
+                            'content_id'   => $capiContentId,
                         ];
                         if (($pixel['type'] ?? '') === 'tiktok') {
                             TikTokConversions::enqueue($pdo, $pixel, $clickRow, $capiContext, $capiConversionId);
