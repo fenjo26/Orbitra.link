@@ -457,6 +457,8 @@ export default {
         "approve": "Aprobación %",
         "epc": "EPC",
         "epv": "EPV",
+        "clicksHint": "Clics a la oferta: visitas directas (sin landing) más vistas de landing cuyo visitante realmente salió por el enlace de la oferta. No son los impactos brutos — eso es Visitas",
+        "visitorsHint": "Todos los impactos en la URL de la campaña — vistas de landing, saltos directos y todo lo demás; el denominador de CPV/EPV",
         "lpViewsHint": "Total de visitas a la landing page",
         "lpClicksHint": "Total de clics en los botones CTA de la landing page",
         "lpCtrHint": "CTR de la Landing (Clics LP / Visitas LP) — guion (—) en ofertas directas: no hay CTA que medir",

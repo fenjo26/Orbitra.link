@@ -46,15 +46,19 @@ $assert('cnt_any m1', $agg['cnt_any'], 3, 0);
 $assert('cnt_sale m1', $agg['cnt_sale'], 3, 0);
 $assert('rev_sale m1', $agg['rev_sale'], 45);
 
-// Whole-set derived metrics: clicks 6, uniques 5, cost 21, lp views 3,
-// lp transitions 3, offer clicks 4 (one direct-linked) — a MIXED campaign:
-// 3 visits through landings + 3 direct/no-landing visits. CPV/EPV are the
-// universal economics over ALL 6 inbound visits (not just the 3 LP views).
+// Whole-set derived metrics under the offer-funnel semantics: visitors 6 =
+// ALL inbound hits (4 landing views + 2 direct-to-offer visits); clicks 4 =
+// offer hits (the 2 completed CTA transitions + the 2 direct visits). One of
+// the landing views carries a pre-bound offer that never transitioned (the
+// legacy offer_selection='before' shape) — a visitor, not a click — which is
+// why the legacy raw offer_clicks counter (5) overshoots the honest clicks.
+// CPV/EPV divide by visitors; CR/CPC-family by the offer funnel.
 $m = orbitraComputeDerivedMetrics([
-    'clicks' => 6, 'unique_clicks' => 5,
-    'unique_clicks_stream' => 5, 'unique_clicks_global' => 4, 'visitors' => 4,
+    'clicks' => 4, 'unique_clicks' => 5,
+    'unique_clicks_stream' => 5, 'unique_clicks_global' => 4, 'visitors' => 6,
     'bots' => 1, 'proxies' => 2, 'empty_referrers' => 3, 'avg_lp_seconds' => 95,
-    'prelander_clicks' => 3, 'offer_clicks' => 4, 'lp_clicks' => 3,
+    'prelander_clicks' => 4, 'offer_clicks' => 5, 'lp_clicks' => 2,
+    'real_lp_clicks' => 2, 'real_offer_clicks' => 4,
     'conversions' => 8, 'purchases' => 3, 'holds' => 1, 'rejected' => 1, 'trash' => 1,
     'registrations' => 1, 'deposits' => 1,
     'cost' => 21, 'revenue' => 83.5, 'revenue_confirmed' => 45, 'revenue_hold' => 2,
@@ -63,47 +67,47 @@ $m = orbitraComputeDerivedMetrics([
 ]);
 
 $expected = [
-    'clicks' => 6, 'unique_clicks' => 5, 'uc_rate' => 83.33,
-    'unique_clicks_stream' => 5, 'unique_clicks_global' => 4, 'visitors' => 4,
-    'bots' => 1, 'bot_rate' => 16.67, 'proxies' => 2, 'empty_referrers' => 3,
+    'clicks' => 4, 'unique_clicks' => 5, 'uc_rate' => 125.0,
+    'unique_clicks_stream' => 5, 'unique_clicks_global' => 4, 'visitors' => 6,
+    'bots' => 1, 'bot_rate' => 25.0, 'proxies' => 2, 'empty_referrers' => 3,
     'time_since_lp_click' => '1m 35s',
     'conversions' => 8, 'sales' => 3, 'leads' => 1, 'registrations' => 1, 'deposits' => 1,
     'approve_rate' => 50.0,
     'revenue' => 83.5, 'revenue_confirmed' => 45, 'revenue_deposit' => 30, 'revenue_registration' => 1,
     'cost' => 21, 'profit' => 62.5, 'profit_confirmed' => 24,
     'roi' => 297.62, 'roi_confirmed' => 114.29, 'profitability' => 74.85,
-    'cr' => 133.33, 'cr_sales' => 50, 'cr_deposits' => 16.67, 'cr_regs_to_deps' => 100, 'ucr' => 20,
-    'epc' => 27.8333, 'uepc' => 16.7, 'epc_confirmed' => 15, 'uepc_confirmed' => 9,
+    'cr' => 200.0, 'cr_sales' => 75, 'cr_deposits' => 25, 'cr_regs_to_deps' => 100, 'ucr' => 20,
+    'epc' => 41.75, 'uepc' => 16.7, 'epc_confirmed' => 22.5, 'uepc_confirmed' => 9,
     'epv' => 13.9167, 'epv_confirmed' => 7.5,
     'cps' => 7, 'cpl' => 21, 'cpr' => 21, 'cpd' => 21, 'cpa' => 2.63,
-    'cpc' => 7, 'ucpc' => 4.2, 'cpv' => 3.5, 'ecpc' => 3.5,
-    'ecpm_all' => 10416.67, 'ecpm_confirmed' => 4000,
+    'cpc' => 10.5, 'ucpc' => 4.2, 'cpv' => 3.5, 'ecpc' => 5.25,
+    'ecpm_all' => 15625.0, 'ecpm_confirmed' => 6000.0,
     'earnings_per_conv' => 10.44, 'ec_confirmed' => 15,
     'real_profit' => 19, 'real_roi' => 90.48,
-    'lp_views' => 3, 'lp_clicks' => 3, 'offer_clicks' => 4, 'lp_ctr' => 100,
+    'lp_views' => 4, 'lp_clicks' => 2, 'offer_clicks' => 5, 'lp_ctr' => 50,
 ];
 foreach ($expected as $k => $v) {
     $tol = is_numeric($v) ? max(0.02, abs($v) * 0.005) : 0;
     $assert($k, $m[$k] ?? null, $v, $tol);
 }
 
-// Canonical media-buying funnel: 1,000 LP views, 200 CTA clicks, $200 cost,
-// $500 revenue. These five values pin every requested denominator explicitly.
-// Pure Lander flow: every visit IS an LP view, so universal CPV/EPV (over
-// visits) equal the LP-view denominators exactly.
+// Canonical media-buying funnel: 1,000 visitors (all of them LP views),
+// 200 CTA clicks (= the offer funnel), $200 cost, $500 revenue. These five
+// values pin every requested denominator explicitly. Pure Lander flow: the
+// click count IS the CTA count, so the offer-funnel and LP-funnel agree.
 $funnel = orbitraComputeDerivedMetrics([
-    'clicks' => 1000, 'prelander_clicks' => 1000, 'lp_clicks' => 200,
+    'clicks' => 200, 'visitors' => 1000, 'prelander_clicks' => 1000, 'lp_clicks' => 200,
     'cost' => 200, 'revenue' => 500,
 ]);
 foreach (['lp_ctr' => 20, 'cpv' => 0.2, 'cpc' => 1, 'epv' => 0.5, 'epc' => 2.5] as $metric => $value) {
     $assert("canonical funnel $metric", $funnel[$metric], $value);
 }
 
-// Direct-to-offer stream (no landing in the chain): LP views are zero, so
-// CPV/EPV carry the economics alone, EPC/CPC mirror them (a direct click IS
-// the visit), and LP CTR is a dash — there is no CTA to measure.
+// Direct-to-offer stream (no landing in the chain): every visit IS an offer
+// click, so visitors == clicks, CPV/EPV carry the economics alone, EPC/CPC
+// mirror them, and LP CTR is a dash — there is no CTA to measure.
 $direct = orbitraComputeDerivedMetrics([
-    'clicks' => 400, 'prelander_clicks' => 0, 'lp_clicks' => 0, 'offer_clicks' => 400,
+    'clicks' => 400, 'visitors' => 400, 'prelander_clicks' => 0, 'lp_clicks' => 0, 'offer_clicks' => 400,
     'cost' => 80, 'revenue' => 200,
 ]);
 foreach (['cpv' => 0.2, 'cpc' => 0.2, 'epv' => 0.5, 'epc' => 0.5] as $metric => $value) {
@@ -126,30 +130,28 @@ foreach (['cpv', 'cpc', 'epv', 'epc'] as $metric) {
 }
 $assert('lp_ctr is a dash with a zero denominator', $funnelZero['lp_ctr'], null);
 
-// Honest transition counters: real_lp_clicks counts landing views whose
-// visitor actually left through the offer link (offer_at recorded); direct
-// clicks keep counting as real offer clicks. real_lp_ctr divides by the
-// same LP views the plain CTR uses.
+// Honest transition counters: the SQL layer emits lp_clicks as the honest
+// count already, so the real_* columns (their v1.4.0 names) alias the same
+// numbers — real_lp_ctr divides by the same LP views the plain CTR uses.
 $honest = orbitraComputeDerivedMetrics([
-    'clicks' => 6, 'prelander_clicks' => 3, 'lp_clicks' => 3, 'offer_clicks' => 4,
-    'real_lp_clicks' => 2, 'real_offer_clicks' => 3,
+    'clicks' => 4, 'visitors' => 6, 'prelander_clicks' => 3, 'lp_clicks' => 2, 'offer_clicks' => 4,
+    'real_lp_clicks' => 2, 'real_offer_clicks' => 4,
 ]);
 $assert('real_lp_clicks pass-through', $honest['real_lp_clicks'], 2, 0);
-$assert('real_offer_clicks pass-through', $honest['real_offer_clicks'], 3, 0);
+$assert('real_offer_clicks pass-through', $honest['real_offer_clicks'], 4, 0);
 $assert('real_lp_ctr (2 real / 3 views)', $honest['real_lp_ctr'], 66.67);
-$assert('plain lp_ctr untouched by real counters', $honest['lp_ctr'], 100);
-// Legacy callers (no real counters in the raw row): counters stay 0 and the
-// honest CTR is a dash, never a fabricated number.
+$assert('plain lp_ctr equals the real one (lp_clicks is honest)', $honest['lp_ctr'], 66.67);
+// Legacy callers (no real_* keys in the raw row): the aliases fall back to
+// the honest counters — lp_clicks to real_lp_clicks, clicks to
+// real_offer_clicks — so every surface agrees by construction.
 $legacyRow = orbitraComputeDerivedMetrics([
-    'clicks' => 6, 'prelander_clicks' => 3, 'lp_clicks' => 3, 'offer_clicks' => 4,
+    'clicks' => 4, 'prelander_clicks' => 3, 'lp_clicks' => 2,
 ]);
-$assert('legacy row real_lp_clicks is 0', $legacyRow['real_lp_clicks'], 0, 0);
-$assert('legacy row real_offer_clicks is 0', $legacyRow['real_offer_clicks'], 0, 0);
-// Views exist, so the CTR is computable — it just reads 0 recorded
-// transitions. The dash stays reserved for "no landing at all".
-$assert('legacy row real_lp_ctr reads 0%', $legacyRow['real_lp_ctr'], 0);
+$assert('legacy row real_lp_clicks aliases lp_clicks', $legacyRow['real_lp_clicks'], 2, 0);
+$assert('legacy row real_offer_clicks aliases clicks', $legacyRow['real_offer_clicks'], 4, 0);
+$assert('legacy row real_lp_ctr reads 66.67%', $legacyRow['real_lp_ctr'], 66.67);
 // No landing in the chain at all: both CTRs are dashes.
-$noLp = orbitraComputeDerivedMetrics(['clicks' => 6, 'prelander_clicks' => 0, 'lp_clicks' => 0]);
+$noLp = orbitraComputeDerivedMetrics(['clicks' => 6, 'visitors' => 6, 'prelander_clicks' => 0, 'lp_clicks' => 0]);
 $assert('no-landing real_lp_ctr is a dash', $noLp['real_lp_ctr'], null);
 
 // ---------------------------------------------------------------------------
@@ -159,14 +161,18 @@ $assert('no-landing real_lp_ctr is a dash', $noLp['real_lp_ctr'], null);
 // the tables render. Hand-computed expectations, so a formula drift anywhere
 // in visits/LP CTR/approve/EPV/ROI fails here before it ships.
 //
-// Clicks (one row = one visit; offer_id set means the visitor clicked through
-// to the offer — the router UPDATEs the row, it never inserts a second one):
-//   m1 landing 1 → offer 7, ip A, cost 10   (3 conversions, all sale group)
-//   m2 landing 1, no offer,    ip A, cost 5  (deposit + registration)
-//   m3 landing 1, no offer,    ip B, cost 1  (lead)
-//   m4 landing 2 → offer 8, ip C, cost 4     (rejected)
-//   m5 no landing → offer 9,  ip D, cost 1   (trash)
-//   m6 nothing,               ip E, cost 0   (no conversions)
+// Clicks (one row = one visit; offer_at set means the visitor actually left
+// through the offer link — the router UPDATEs the row, it never inserts a
+// second one):
+//   m1 landing 1 → offer 7, transitioned, ip A, cost 10  (3 conversions, sale group)
+//   m2 landing 1, no offer,    ip A, cost 5              (deposit + registration)
+//   m3 landing 1, no offer,    ip B, cost 1              (lead)
+//   m4 landing 2 → offer 8, transitioned, ip C, cost 4   (rejected)
+//   m5 no landing → offer 9,  ip D, cost 1               (trash)
+//   m6 nothing,               ip E, cost 0               (no conversions)
+//   m7 landing 1, pre-bound offer 7, NEVER transitioned, ip A, cost 0
+//      (the legacy offer_selection='before' shape: a visitor to landing 1
+//      and to offer 7's row count, but NOT an offer click anywhere)
 $pdo->exec('CREATE TABLE clicks (id TEXT PRIMARY KEY, campaign_id INTEGER, offer_id INTEGER,
     landing_id INTEGER, ip TEXT, cost REAL DEFAULT 0, is_conversion INTEGER DEFAULT 0,
     revenue REAL DEFAULT 0, is_bot INTEGER DEFAULT 0, is_proxy INTEGER DEFAULT 0,
@@ -191,16 +197,20 @@ $pdo->exec('CREATE TABLE affiliate_networks (id INTEGER PRIMARY KEY, name TEXT)'
 
 $st = $pdo->prepare('INSERT INTO clicks (id, landing_id, offer_id, ip, cost) VALUES (?,?,?,?,?)');
 foreach ([['m1',1,7,'A',10], ['m2',1,null,'A',5], ['m3',1,null,'B',1],
-          ['m4',2,8,'C',4], ['m5',null,9,'D',1], ['m6',null,null,'E',0]] as $r) { $st->execute($r); }
+          ['m4',2,8,'C',4], ['m5',null,9,'D',1], ['m6',null,null,'E',0],
+          ['m7',1,7,'A',0]] as $r) { $st->execute($r); }
 $pdo->exec("UPDATE clicks SET is_bot = 1 WHERE id = 'm4'");
 // Uniqueness / referer / funnel-timing extras for the parity counters:
 // m2 is the same IP as m1 (not unique anywhere), m3 arrives with an empty
 // referer, m1 waits 95s on the landing before clicking to the offer.
 $pdo->exec("UPDATE clicks SET uniq_campaign = 0, uniq_stream = 0, uniq_global = 0 WHERE id = 'm2'");
-$pdo->exec("UPDATE clicks SET referer = 'https://fb.com/' WHERE id IN ('m1','m2','m4')");
+$pdo->exec("UPDATE clicks SET referer = 'https://fb.com/' WHERE id IN ('m1','m2','m4','m7')");
 $pdo->exec("UPDATE clicks SET referer = '' WHERE id = 'm3'");
 $pdo->exec("UPDATE clicks SET landing_at = '2026-01-01 10:00:00', offer_at = '2026-01-01 10:01:35' WHERE id = 'm1'");
 $pdo->exec("UPDATE clicks SET landing_at = '2026-01-01 10:00:00', offer_at = '2026-01-01 10:02:00' WHERE id = 'm4'");
+// m7 saw the landing (serve-time landing_at) with the offer pre-bound but
+// never transitioned — no offer_at, so it stays out of every honest counter.
+$pdo->exec("UPDATE clicks SET landing_at = '2026-01-01 10:03:00' WHERE id = 'm7'");
 // Landing dwell, written by the /pixel.gif?action=lp beacon: m2 and m3 never
 // reached an offer, so the landing_at/offer_at pair above says nothing about
 // them — the whole reason this measurement exists. m2 read the page (40s, 90%),
@@ -219,7 +229,10 @@ $pdo->exec('INSERT INTO offers (id, name) VALUES (7,"of7"), (8,"of8"), (9,"of9")
 // click cost when one click has several conversion events.
 $dashboardRaw = $pdo->query(orbitraDashboardMetricsSql('payout', null))->fetch(PDO::FETCH_ASSOC);
 $dashboard = orbitraComputeDerivedMetrics($dashboardRaw ?: []);
-$assert('Dashboard clicks', $dashboard['clicks'], 6, 0);
+$assert('Dashboard clicks (offer hits only)', $dashboard['clicks'], 3, 0);
+// m7 is the pre-bound landing view: a visitor, not a click — the exact
+// separation the offer-funnel semantics exist for.
+$assert('Dashboard visitors (all hits)', $dashboard['visitors'], 7, 0);
 // The dwell metrics are computed over MEASURED visits only: two of the six
 // clicks reported, so a 21s average and a 50% bounce share — not 2/6.
 $assert('Dashboard LP measured visits', $dashboard['lp_measured'], 2, 0);
@@ -236,13 +249,14 @@ $assert('Dashboard confirmed revenue', $dashboard['revenue_confirmed'], 45);
 $assert('Dashboard confirmed profit', $dashboard['profit_confirmed'], 24);
 $assert('Dashboard CPL', $dashboard['cpl'], 21);
 $assert('Dashboard CPS', $dashboard['cps'], 7);
-$assert('Dashboard LP CTR', $dashboard['lp_ctr'], 50);
-$assert('Dashboard bot rate', $dashboard['bot_rate'], 16.67);
+$assert('Dashboard LP CTR', $dashboard['lp_ctr'], 40);
+$assert('Dashboard bot rate (bots per offer click)', $dashboard['bot_rate'], 33.33);
 // Honest counters on the same seed: m1 and m4 completed the CTA transition
-// (offer_at set), m5 is a direct offer click; m2/m3 stayed on the landing.
+// (offer_at set), m5 is a direct offer click; m2/m3 stayed on the landing
+// and m7's offer was pre-bound but never transitioned.
 $assert('Dashboard real LP clicks', $dashboard['real_lp_clicks'], 2, 0);
 $assert('Dashboard real offer clicks', $dashboard['real_offer_clicks'], 3, 0);
-$assert('Dashboard real LP CTR', $dashboard['real_lp_ctr'], 50);
+$assert('Dashboard real LP CTR', $dashboard['real_lp_ctr'], 40);
 
 // The derivation loop the landings/offers endpoints run after the SQL:
 // array_merge of ALL derived metrics — the same 65-metric parity the panel
@@ -260,28 +274,29 @@ $rows = $pdo->query(orbitraLandingsWithStatsSql('', 'payout', 'amount') . ' ORDE
 $lp = [];
 foreach ($rows as $r) { $lp[$r['id']] = $deriveRow($r); }
 
-// Landing 1: 3 visits / 2 unique, 1 LP click, 6 conversion events (3 sale +
-// deposit + reg + lead), revenue 45+31+2=78, cost 16.
-$assert('L1 clicks', $lp[1]['clicks'], 3, 0);
+// Landing 1: 4 visits / 2 unique (m1, m2, m3 and m7 — the last never left),
+// 1 honest LP click (m1), 6 conversion events (3 sale + deposit + reg + lead),
+// revenue 45+31+2=78, cost 16 (m7 costs nothing).
+$assert('L1 clicks', $lp[1]['clicks'], 4, 0);
 $assert('L1 group_id is available to UI filters', $lp[1]['group_id'], 1, 0);
-$assert('L1 visits alias', $lp[1]['visits'], 3, 0);
+$assert('L1 visits alias', $lp[1]['visits'], 4, 0);
 $assert('L1 unique_clicks', $lp[1]['unique_clicks'], 2, 0);
 $assert('L1 unique_visits alias', $lp[1]['unique_visits'], 2, 0);
 $assert('L1 lp_clicks', $lp[1]['lp_clicks'], 1, 0);
-$assert('L1 lp_ctr', $lp[1]['lp_ctr'], 33.33);
+$assert('L1 lp_ctr', $lp[1]['lp_ctr'], 25);
 $assert('L1 conversions (events, not the is_conversion flag)', $lp[1]['conversions'], 6, 0);
 $assert('L1 sales', $lp[1]['sales'], 3, 0);
 $assert('L1 leads', $lp[1]['leads'], 1, 0);
 $assert('L1 revenue', $lp[1]['revenue'], 78);
 $assert('L1 revenue_confirmed', $lp[1]['revenue_confirmed'], 45);
 $assert('L1 cost', $lp[1]['cost'], 16);
-$assert('L1 cr', $lp[1]['cr'], 200);
+$assert('L1 cr', $lp[1]['cr'], 150);
 $assert('L1 approve_rate', $lp[1]['approve_rate'], 75);
 $assert('L1 epc (revenue / LP clicks)', $lp[1]['epc'], 78);
-$assert('L1 epv (revenue / LP views)', $lp[1]['epv'], 26);
+$assert('L1 epv (revenue / visitors)', $lp[1]['epv'], 19.5);
 $assert('L1 epc_confirmed', $lp[1]['epc_confirmed'], 45);
 $assert('L1 cpc (cost / LP clicks)', $lp[1]['cpc'], 16);
-$assert('L1 cpv', $lp[1]['cpv'], 5.3333);
+$assert('L1 cpv', $lp[1]['cpv'], 4);
 $assert('L1 profit', $lp[1]['profit'], 62);
 $assert('L1 profit_confirmed', $lp[1]['profit_confirmed'], 29);
 $assert('L1 roi', $lp[1]['roi'], 387.5);
@@ -297,17 +312,17 @@ $assert('L1 revenue_registration', $lp[1]['revenue_registration'], 1);
 $assert('L1 revenue_hold', $lp[1]['revenue_hold'], 2);
 $assert('L1 bots', $lp[1]['bots'], 0, 0);
 $assert('L1 empty_referrers', $lp[1]['empty_referrers'], 1, 0);
-$assert('L1 unique_clicks_stream', $lp[1]['unique_clicks_stream'], 2, 0);
-$assert('L1 unique_clicks_global', $lp[1]['unique_clicks_global'], 2, 0);
+$assert('L1 unique_clicks_stream', $lp[1]['unique_clicks_stream'], 3, 0);
+$assert('L1 unique_clicks_global', $lp[1]['unique_clicks_global'], 3, 0);
 // visitors counts logged hits (COUNT), not the global unique sum — the old
 // `SUM(uniq_global) as visitors` alias made the panel show Clicks > Visitors,
 // an impossible relationship. Uniqueness has its own column above.
-$assert('L1 visitors', $lp[1]['visitors'], 3, 0);
+$assert('L1 visitors', $lp[1]['visitors'], 4, 0);
 $assert('L1 avg_lp_seconds', $lp[1]['avg_lp_seconds'], 95);
 $assert('L1 real_revenue', $lp[1]['real_revenue'], 12);
 $assert('L1 real_profit', $lp[1]['real_profit'], -4);
 $assert('L1 real_roi', $lp[1]['real_roi'], -25);
-$assert('L1 cr_deposits (1 deposit / 3 clicks)', $lp[1]['cr_deposits'], 33.33);
+$assert('L1 cr_deposits (1 deposit / 4 visitors)', $lp[1]['cr_deposits'], 25);
 
 // Landing 2: 1 visit that clicked through, one rejected conversion.
 $assert('L2 clicks', $lp[2]['clicks'], 1, 0);
@@ -330,7 +345,7 @@ $assert('L3 roi null', $lp[3]['roi'], null);
 // left), L2's m4 went through, L3 has no traffic at all.
 $assert('L1 real_lp_clicks', $lp[1]['real_lp_clicks'], 1, 0);
 $assert('L1 real_offer_clicks', $lp[1]['real_offer_clicks'], 1, 0);
-$assert('L1 real_lp_ctr (1 real / 3 views)', $lp[1]['real_lp_ctr'], 33.33);
+$assert('L1 real_lp_ctr (1 real / 4 views)', $lp[1]['real_lp_ctr'], 25);
 $assert('L2 real_lp_clicks', $lp[2]['real_lp_clicks'], 1, 0);
 $assert('L2 real_lp_ctr (1 real / 1 view)', $lp[2]['real_lp_ctr'], 100);
 $assert('L3 real_lp_ctr is a dash', $lp[3]['real_lp_ctr'], null);
@@ -352,8 +367,11 @@ $of = [];
 foreach ($pdo->query(orbitraOffersWithStatsSql('', 'payout', 'amount') . ' ORDER BY id')->fetchAll(PDO::FETCH_ASSOC) as $r) {
     $of[$r['id']] = $deriveRow($r);
 }
-// Offer 7 got exactly click m1 (through landing 1): LP share 100%, CR 300%.
-$assert('O7 clicks', $of[7]['clicks'], 1, 0);
+// Offer 7 got exactly one offer click, m1 (m7 rows it too, but its pre-bound
+// offer never transitioned — a visitor to the offer, not a click):
+// LP share 100%, CR 300%.
+$assert('O7 clicks (offer hits only)', $of[7]['clicks'], 1, 0);
+$assert('O7 visitors (m1 + the pre-bound m7)', $of[7]['visitors'], 2, 0);
 $assert('O7 lp_clicks (arrived via a landing)', $of[7]['lp_clicks'], 1, 0);
 $assert('O7 lp_ctr', $of[7]['lp_ctr'], 100);
 $assert('O7 conversions', $of[7]['conversions'], 3, 0);

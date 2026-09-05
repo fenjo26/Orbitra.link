@@ -7,7 +7,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 // `shortLabel` — compact table-header abbreviation (nowrap <th>).
 export const ALL_REPORT_METRICS = [
     { id: 'profitability', label: 'Profitability', shortLabel: 'Profitability' },
-    { id: 'clicks', label: 'Clicks', shortLabel: 'Clicks' },
+    { id: 'clicks', label: 'Clicks (offer)', shortLabel: 'Clicks', hintKey: 'clicksHint', hint: 'Offer clicks: direct-to-offer visits plus landing views whose visitor actually left through the offer link. Not the raw hit count — that is Visitors' },
     { id: 'unique_clicks', label: 'Unique clicks (campaign)', shortLabel: 'uClicks' },
     { id: 'conversions', label: 'Conversions', shortLabel: 'Conv' },
     { id: 'roi_confirmed', label: 'ROI (confirmed)', shortLabel: 'ROI (conf)' },
@@ -21,7 +21,7 @@ export const ALL_REPORT_METRICS = [
     { id: 'revenue_rejected', label: 'Revenue (rejected)', shortLabel: 'Rev (rej)' },
     { id: 'revenue_trash', label: 'Revenue (trash)', shortLabel: 'Rev (trash)' },
     { id: 'cost', label: 'Cost', shortLabel: 'Cost' },
-    { id: 'visitors', label: 'Visitors', shortLabel: 'Visitors' },
+    { id: 'visitors', label: 'Visitors', shortLabel: 'Visitors', hintKey: 'visitorsHint', hint: 'All hits on the campaign URL — landing views, direct-to-offer hops and everything in between; the CPV/EPV denominator' },
     { id: 'unique_clicks_stream', label: 'Unique clicks (flow)', shortLabel: 'uClicks (flow)' },
     { id: 'unique_clicks_global', label: 'Unique clicks (global)', shortLabel: 'uClicks (glob)' },
     { id: 'uc_rate', label: 'Unique clicks % (campaign)', shortLabel: 'uClicks %' },

@@ -457,6 +457,8 @@ export default {
         "approve": "批准率 %",
         "epc": "EPC",
         "epv": "EPV",
+        "clicksHint": "Offer 点击数：直投 Offer 的访问，加上确实通过 Offer 链接离开着陆页的访问。不是原始命中数（那是 Visitors）",
+        "visitorsHint": "Campaign URL 的全部命中——着陆页访问、直投跳转等；CPV/EPV 的分母",
         "lpViewsHint": "着陆页总访问量",
         "lpClicksHint": "着陆页 CTA 按钮总点击量",
         "lpCtrHint": "着陆页点击率 (出站点击 / 着陆页访问量)；直投广告系列显示 —（无 CTA 可测）",

@@ -457,6 +457,8 @@ export default {
         "approve": "Approve %",
         "epc": "EPC",
         "epv": "EPV",
+        "clicksHint": "Offer-Klicks: direkte Weiterleitungen zum Offer plus Landingpage-Aufrufe, deren Besucher tatsächlich über den Offer-Link gegangen ist. Nicht die rohen Treffer — das sind die Besucher",
+        "visitorsHint": "Alle Treffer auf die Kampagnen-URL — Landingpage-Aufrufe, direkte Sprünge und alles dazwischen; der CPV/EPV-Nenner",
         "lpViewsHint": "Gesamtzahl der Landingpage-Aufrufe",
         "lpClicksHint": "Gesamtzahl der Klicks auf Landingpage-CTA-Buttons",
         "lpCtrHint": "LP-CTR (LP-Klicks / LP-Aufrufe) — bei Direct-Offers ein Strich (—): kein CTA vorhanden",

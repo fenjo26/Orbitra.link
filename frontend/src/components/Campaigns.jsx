@@ -672,11 +672,12 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         const ucpc = t0.unique_clicks > 0 ? t0.cost / t0.unique_clicks : 0;
         // CPV/EPV/eCPC/eCPM mirror orbitraComputeDerivedMetrics (the backend
         // is the source of truth and its formulas are pinned in
-        // tests/report_metrics_test.php): all four are visit-denominated —
-        // ÷ clicks. The old frontend copies divided by lp_views, which the
-        // backend never did; totals-row and per-row values could disagree.
-        const cpv = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
-        const epv = t0.clicks > 0 ? t0.revenue / t0.clicks : 0;
+        // tests/report_metrics_test.php): CPV/EPV are visit-denominated —
+        // ÷ visitors, the raw hit count; eCPC/eCPM follow the clicks column,
+        // which carries the offer funnel (direct clicks + completed landing
+        // transitions), not the raw hit count.
+        const cpv = t0.visitors > 0 ? t0.cost / t0.visitors : 0;
+        const epv = t0.visitors > 0 ? t0.revenue / t0.visitors : 0;
         const ecpc = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
         const ecpm_all = t0.clicks > 0 ? (t0.profit / t0.clicks) * 1000 : 0;
         const ecpm_confirmed = t0.clicks > 0 ? (profit_confirmed / t0.clicks) * 1000 : 0;

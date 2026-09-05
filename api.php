@@ -3116,7 +3116,14 @@ try {
                        cg.name as group_name,
                        ts.name as source_name,
                        d.name as domain_name,
-                       COUNT(cl.id) as clicks,
+                       -- Clicks = the offer funnel: direct-to-offer visits plus
+                       -- landing views whose visitor actually left through the
+                       -- offer link (offer_at recorded). A landing view with a
+                       -- pre-bound offer (legacy offer_selection='before') is a
+                       -- visitor, not a click. Visitors = ALL hits.
+                       SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0
+                                AND (cl.landing_id IS NULL OR cl.landing_id = 0 OR cl.offer_at IS NOT NULL)
+                           THEN 1 ELSE 0 END) as clicks,
                        SUM(cl.uniq_campaign) as unique_clicks,
                        SUM(cl.uniq_stream) as unique_clicks_stream,
                        SUM(cl.uniq_global) as unique_clicks_global,
@@ -3132,7 +3139,7 @@ try {
                        SUM(CASE WHEN cl.lp_seconds IS NOT NULL AND cl.lp_seconds < 5 THEN 1 ELSE 0 END) as lp_bounces,
                        SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 THEN 1 ELSE 0 END) as prelander_clicks,
                        SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END) as offer_clicks,
-                       SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 AND cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END) as lp_clicks,
+                       SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 AND cl.offer_at IS NOT NULL THEN 1 ELSE 0 END) as lp_clicks,
                        SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 AND cl.offer_at IS NOT NULL THEN 1 ELSE 0 END) as real_lp_clicks,
                        SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0
                                 AND (cl.landing_id IS NULL OR cl.landing_id = 0 OR cl.offer_at IS NOT NULL) THEN 1 ELSE 0 END) as real_offer_clicks,
@@ -12665,7 +12672,6 @@ try {
             $sql = "
                 SELECT
                     " . implode(', ', $dimOuter) . ",
-                    COUNT(click_id) as clicks,
                     SUM(uniq_campaign) as unique_clicks,
                     SUM(uniq_stream) as unique_clicks_stream,
                     SUM(uniq_global) as unique_clicks_global,
@@ -12681,7 +12687,12 @@ try {
                     SUM(CASE WHEN lp_seconds IS NOT NULL AND lp_seconds < 5 THEN 1 ELSE 0 END) as lp_bounces,
                     SUM(CASE WHEN landing_id IS NOT NULL AND landing_id > 0 THEN 1 ELSE 0 END) as prelander_clicks,
                     SUM(CASE WHEN offer_id IS NOT NULL AND offer_id > 0 THEN 1 ELSE 0 END) as offer_clicks,
-                    SUM(CASE WHEN landing_id IS NOT NULL AND landing_id > 0 AND offer_id IS NOT NULL AND offer_id > 0 THEN 1 ELSE 0 END) as lp_clicks,
+                    -- Same funnel as the campaigns list: clicks = offer hits
+                    -- (direct + completed landing transitions), lp_clicks =
+                    -- landing views whose visitor left through the offer link.
+                    SUM(CASE WHEN offer_id IS NOT NULL AND offer_id > 0
+                             AND (landing_id IS NULL OR landing_id = 0 OR offer_at IS NOT NULL) THEN 1 ELSE 0 END) as clicks,
+                    SUM(CASE WHEN landing_id IS NOT NULL AND landing_id > 0 AND offer_at IS NOT NULL THEN 1 ELSE 0 END) as lp_clicks,
                     SUM(CASE WHEN landing_id IS NOT NULL AND landing_id > 0 AND offer_at IS NOT NULL THEN 1 ELSE 0 END) as real_lp_clicks,
                     SUM(CASE WHEN offer_id IS NOT NULL AND offer_id > 0
                              AND (landing_id IS NULL OR landing_id = 0 OR offer_at IS NOT NULL) THEN 1 ELSE 0 END) as real_offer_clicks,

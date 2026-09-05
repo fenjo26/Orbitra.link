@@ -457,6 +457,8 @@ export default {
         "approve": "Approve %",
         "epc": "EPC",
         "epv": "EPV",
+        "clicksHint": "Offer clicks: direct-to-offer visits plus landing views whose visitor actually left through the offer link. Not the raw hit count — that is Visitors",
+        "visitorsHint": "All hits on the campaign URL — landing views, direct hops and everything in between; the CPV/EPV denominator",
         "lpViewsHint": "Total landing page impressions",
         "lpClicksHint": "Total clicks on landing page CTA buttons",
         "lpCtrHint": "LP CTR (LP Clicks / LP Views) — dash (—) on direct offers: no CTA to measure",
