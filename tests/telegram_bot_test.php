@@ -156,12 +156,13 @@ $menuBtn = outboxLast('setChatMenuButton');
 assertTrue($menuBtn !== null && $menuBtn['menu_button']['type'] === 'commands',
     'menu button opens the quick-command list');
 
-// 2. /start — welcome + language picker keyboard ------------------------------
+// 2. /start — welcome + language picker inline, then the pinned visual menu.
 outboxReset();
 $pdo->exec("DELETE FROM telegram_bot_chats");
 orbitraTelegramProcessUpdate($pdo, 'TOKEN', msg('/start'));
-$startMsg = outboxLast('sendMessage');
-assertTrue($startMsg !== null, '/start answers with a message');
+$sends = array_values(array_filter($GLOBALS['orbitra_telegram_outbox'], fn($e) => $e['method'] === 'sendMessage'));
+assertEquals(2, count($sends), '/start answers with welcome + pinned menu');
+$startMsg = $sends[0]['params'];
 assertContains('Orbitra', $startMsg['text'], '/start greets the operator');
 $langButtons = 0;
 foreach ($startMsg['reply_markup']['inline_keyboard'] as $row) {
@@ -170,7 +171,31 @@ foreach ($startMsg['reply_markup']['inline_keyboard'] as $row) {
     }
 }
 assertEquals(7, $langButtons, '/start keyboard offers all 7 languages');
+
+$menuMsg = $sends[1]['params'];
+$replyKb = $menuMsg['reply_markup'];
+assertTrue(($replyKb['is_persistent'] ?? false) === true, 'pinned menu is persistent');
+assertTrue(($replyKb['resize_keyboard'] ?? false) === true, 'pinned menu resizes to compact rows');
+$menuButtons = [];
+foreach ($replyKb['keyboard'] as $row) {
+    foreach ($row as $btn) {
+        $menuButtons[] = $btn['text'];
+    }
+}
+assertEquals(8, count($menuButtons), 'pinned menu carries 8 labeled buttons');
+assertEquals('📊 Статистика', $menuButtons[0], 'menu labels are readable, not slash syntax');
+assertTrue(botText('ru', 'kbd_hint') !== 'kbd_hint', 'kbd placeholder key is localized');
 assertEquals('ru', chatFlag($pdo, '100', 'language'), 'new chat defaults to ru');
+
+// A tap on a menu label arrives as that text: it must resolve to the command.
+$pdo->exec("INSERT INTO clicks (campaign_id, ip, revenue, cost, is_conversion, country, created_at)
+            VALUES (1, '9.9.9.9', 2.0, 0.5, 0, 'DE', datetime('now'))");
+outboxReset();
+orbitraTelegramProcessUpdate($pdo, 'TOKEN', msg('📊 Статистика'));
+$tapped = outboxLast('sendMessage');
+assertTrue($tapped !== null && strpos($tapped['text'], '❓') !== 0,
+    'tapping a menu label routes to its command');
+assertContains('Статистика', $tapped['text'], 'label tap runs the stats command');
 
 // 3. /lang — bare, invalid, callback ------------------------------------------
 outboxReset();

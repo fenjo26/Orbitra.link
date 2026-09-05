@@ -5,6 +5,14 @@
  */
 require_once __DIR__ . '/config.php';
 
+// The bot quotes the running version in /start. config.php does not pull
+// version.php in, so without this every welcome said the '0.9.2.9' fallback
+// — which also made it impossible to tell from a chat whether a server was
+// running this code at all.
+if (!defined('ORBITRA_VERSION') && is_file(__DIR__ . '/version.php')) {
+    require_once __DIR__ . '/version.php';
+}
+
 // Bot translations
 function botText($lang, $key, $params = [])
 {
@@ -72,6 +80,15 @@ function botText($lang, $key, $params = [])
             'cmd_sources' => "🌐 Статус источников трафика",
             'cmd_lang' => "🌐 Сменить язык бота",
             'cmd_help' => "📖 Справка по командам",
+            'kbd_hint' => "Выберите команду",
+            'menu_stats' => "📊 Статистика",
+            'menu_top' => "🏆 Топ",
+            'menu_campaigns' => "📋 Кампании",
+            'menu_conversions' => "🔔 Конверсии",
+            'menu_notify' => "🛎 Уведомления",
+            'menu_daily' => "📅 Сводка",
+            'menu_lang' => "🌐 Язык",
+            'menu_help' => "📖 Помощь",
         ],
         'en' => [
             'welcome' => "🚀 *Welcome to Orbitra v{version} Bot!*\n\nI'll help you track your campaign stats.\n\nAvailable commands:\n/stats — Today's statistics\n/stats 7d — Last 7 days\n/campaigns — Active campaigns\n/campaign ID — Campaign details\n/top — Top 5 by revenue\n/conversions — Recent conversions\n/notify on|off — Notifications\n/daily on|off — Daily summary\n/lang en|ru|uk|es|zh|fr|de — Bot language\n/help — Help",
@@ -135,6 +152,15 @@ Available: ru, en, uk, es, zh, fr, de",
             'cmd_sources' => "🌐 Traffic sources status",
             'cmd_lang' => "🌐 Change bot language",
             'cmd_help' => "📖 Command help",
+            'kbd_hint' => "Pick a command",
+            'menu_stats' => "📊 Stats",
+            'menu_top' => "🏆 Top",
+            'menu_campaigns' => "📋 Campaigns",
+            'menu_conversions' => "🔔 Conversions",
+            'menu_notify' => "🛎 Alerts",
+            'menu_daily' => "📅 Daily",
+            'menu_lang' => "🌐 Language",
+            'menu_help' => "📖 Help",
         ],
         'uk' => [
             'welcome' => "🚀 *Ласкаво просимо до Orbitra v{version} Bot!*\n\nЯ допоможу відстежувати статистику ваших кампаній.\n\nДоступні команди:\n/stats — Статистика за сьогодні\n/stats 7d — За останні 7 днів\n/campaigns — Активні кампанії\n/campaign ID — Стата по кампанії\n/top — ТОП-5 за доходом\n/conversions — Останні конверсії\n/notify on|off — Сповіщення\n/daily on|off — Щоденне зведення\n/lang en|ru|uk|es|zh|fr|de — Мова бота\n/help — Довідка",
@@ -198,6 +224,15 @@ Available: ru, en, uk, es, zh, fr, de",
             'cmd_sources' => "🌐 Статус джерел трафіку",
             'cmd_lang' => "🌐 Змінити мову бота",
             'cmd_help' => "📖 Довідка по командах",
+            'kbd_hint' => "Виберіть команду",
+            'menu_stats' => "📊 Статистика",
+            'menu_top' => "🏆 Топ",
+            'menu_campaigns' => "📋 Кампанії",
+            'menu_conversions' => "🔔 Конверсії",
+            'menu_notify' => "🛎 Повідомлення",
+            'menu_daily' => "📅 Зведення",
+            'menu_lang' => "🌐 Мова",
+            'menu_help' => "📖 Довідка",
         ],
         'es' => [
             'welcome' => "🚀 *¡Bienvenido a Orbitra v{version} Bot!*\n\nTe ayudaré a seguir las estadísticas de tus campañas.\n\nComandos disponibles:\n/stats — Estadísticas de hoy\n/stats 7d — Últimos 7 días\n/campaigns — Campañas activas\n/campaign ID — Detalles de la campaña\n/top — Top 5 por ingresos\n/conversions — Conversiones recientes\n/notify on|off — Notificaciones\n/daily on|off — Resumen diario\n/lang en|ru|uk|es|zh|fr|de — Idioma del bot\n/help — Ayuda",
@@ -261,6 +296,15 @@ Disponibles: ru, en, uk, es, zh, fr, de",
             'cmd_sources' => "🌐 Estado de fuentes de tráfico",
             'cmd_lang' => "🌐 Cambiar idioma del bot",
             'cmd_help' => "📖 Ayuda de comandos",
+            'kbd_hint' => "Elige un comando",
+            'menu_stats' => "📊 Estadísticas",
+            'menu_top' => "🏆 Top",
+            'menu_campaigns' => "📋 Campañas",
+            'menu_conversions' => "🔔 Conversiones",
+            'menu_notify' => "🛎 Alertas",
+            'menu_daily' => "📅 Resumen",
+            'menu_lang' => "🌐 Idioma",
+            'menu_help' => "📖 Ayuda",
         ],
         'zh' => [
             'welcome' => "🚀 *欢迎使用 Orbitra v{version} 机器人！*\n\n我将帮助您跟踪广告系列的统计数据。\n\n可用命令：\n/stats — 今日统计\n/stats 7d — 最近 7 天\n/campaigns — 活动中的广告系列\n/campaign ID — 广告系列详情\n/top — 收入前 5 名\n/conversions — 最近转化\n/notify on|off — 通知\n/daily on|off — 每日汇总\n/lang en|ru|uk|es|zh|fr|de — 机器人语言\n/help — 帮助",
@@ -323,6 +367,15 @@ Disponibles: ru, en, uk, es, zh, fr, de",
             'cmd_sources' => "🌐 流量来源状态",
             'cmd_lang' => "🌐 更改机器人语言",
             'cmd_help' => "📖 命令帮助",
+            'kbd_hint' => "选择命令",
+            'menu_stats' => "📊 统计",
+            'menu_top' => "🏆 前五",
+            'menu_campaigns' => "📋 广告系列",
+            'menu_conversions' => "🔔 转化",
+            'menu_notify' => "🛎 通知",
+            'menu_daily' => "📅 日报",
+            'menu_lang' => "🌐 语言",
+            'menu_help' => "📖 帮助",
         ],
         'fr' => [
             'welcome' => "🚀 *Bienvenue sur Orbitra v{version} Bot !*\n\nJe vais vous aider à suivre les statistiques de vos campagnes.\n\nCommandes disponibles :\n/stats — Statistiques du jour\n/stats 7d — 7 derniers jours\n/campaigns — Campagnes actives\n/campaign ID — Détails de la campagne\n/top — Top 5 par revenu\n/conversions — Conversions récentes\n/notify on|off — Notifications\n/daily on|off — Résumé quotidien\n/lang en|ru|uk|es|zh|fr|de — Langue du bot\n/help — Aide",
@@ -385,6 +438,15 @@ Choisissez une langue :",
             'cmd_sources' => "🌐 État des sources de trafic",
             'cmd_lang' => "🌐 Changer la langue du bot",
             'cmd_help' => "📖 Aide des commandes",
+            'kbd_hint' => "Choisissez une commande",
+            'menu_stats' => "📊 Stats",
+            'menu_top' => "🏆 Top",
+            'menu_campaigns' => "📋 Campagnes",
+            'menu_conversions' => "🔔 Conversions",
+            'menu_notify' => "🛎 Alertes",
+            'menu_daily' => "📅 Résumé",
+            'menu_lang' => "🌐 Langue",
+            'menu_help' => "📖 Aide",
         ],
         'de' => [
             'welcome' => "🚀 *Willkommen beim Orbitra v{version} Bot!*\n\nIch helfe dir, die Statistiken deiner Kampagnen zu verfolgen.\n\nVerfügbare Befehle:\n/stats — Statistik für heute\n/stats 7d — Letzte 7 Tage\n/campaigns — Aktive Kampagnen\n/campaign ID — Kampagnendetails\n/top — Top 5 nach Umsatz\n/conversions — Letzte Conversions\n/notify on|off — Benachrichtigungen\n/daily on|off — Tägliche Zusammenfassung\n/lang en|ru|uk|es|zh|fr|de — Bot-Sprache\n/help — Hilfe",
@@ -447,6 +509,15 @@ Sprache wählen:",
             'cmd_sources' => "🌐 Status der Traffic-Quellen",
             'cmd_lang' => "🌐 Bot-Sprache ändern",
             'cmd_help' => "📖 Befehlshilfe",
+            'kbd_hint' => "Befehl wählen",
+            'menu_stats' => "📊 Statistik",
+            'menu_top' => "🏆 Top",
+            'menu_campaigns' => "📋 Kampagnen",
+            'menu_conversions' => "🔔 Conversions",
+            'menu_notify' => "🛎 Benachrichtigungen",
+            'menu_daily' => "📅 Zusammenfassung",
+            'menu_lang' => "🌐 Sprache",
+            'menu_help' => "📖 Hilfe",
         ]
     ];
 
@@ -475,20 +546,23 @@ function orbitraTelegramLanguages(): array
 }
 
 // The command catalogue, in menu order. descriptions come from botText(), so
-// the Telegram quick-command menu localizes with the bot.
+// the Telegram quick-command menu localizes with the bot; 'menu' is the
+// human label the pinned keyboard shows for the same command (only the eight
+// commands that make sense as one-tap buttons are pinned — /campaign needs an
+// ID argument and /checksources is a rare action, both stay typed).
 function orbitraTelegramCommands(): array
 {
     return [
-        ['command' => 'stats', 'key' => 'cmd_stats'],
-        ['command' => 'campaigns', 'key' => 'cmd_campaigns'],
+        ['command' => 'stats', 'key' => 'cmd_stats', 'menu' => 'menu_stats'],
+        ['command' => 'campaigns', 'key' => 'cmd_campaigns', 'menu' => 'menu_campaigns'],
         ['command' => 'campaign', 'key' => 'cmd_campaign'],
-        ['command' => 'top', 'key' => 'cmd_top'],
-        ['command' => 'conversions', 'key' => 'cmd_conversions'],
-        ['command' => 'notify', 'key' => 'cmd_notify'],
-        ['command' => 'daily', 'key' => 'cmd_daily'],
+        ['command' => 'top', 'key' => 'cmd_top', 'menu' => 'menu_top'],
+        ['command' => 'conversions', 'key' => 'cmd_conversions', 'menu' => 'menu_conversions'],
+        ['command' => 'notify', 'key' => 'cmd_notify', 'menu' => 'menu_notify'],
+        ['command' => 'daily', 'key' => 'cmd_daily', 'menu' => 'menu_daily'],
         ['command' => 'sources', 'key' => 'cmd_sources'],
-        ['command' => 'lang', 'key' => 'cmd_lang'],
-        ['command' => 'help', 'key' => 'cmd_help'],
+        ['command' => 'lang', 'key' => 'cmd_lang', 'menu' => 'menu_lang'],
+        ['command' => 'help', 'key' => 'cmd_help', 'menu' => 'menu_help'],
     ];
 }
 
@@ -568,6 +642,62 @@ function orbitraLangKeyboard(): array
     return ['inline_keyboard' => [array_slice($row, 0, 4), array_slice($row, 4)]];
 }
 
+/**
+ * The pinned keyboard at the bottom of the chat — the visual menu. Buttons
+ * carry readable localized labels ("📊 Статистика"), not slash syntax, so
+ * there is nothing to memorize; orbitraTelegramResolveCommand() maps a tap
+ * back to the command it stands for. is_persistent parks it at the input
+ * field, resize_keyboard collapses it to compact rows.
+ */
+function orbitraReplyKeyboard(string $lang): array
+{
+    $labels = [];
+    foreach (orbitraTelegramCommands() as $c) {
+        if (!empty($c['menu'])) {
+            $labels[] = ['text' => botText($lang, $c['menu'])];
+        }
+    }
+    // 4 rows of two reads as a menu; a 2x4 wall of eight is cramped on phones.
+    return [
+        'keyboard' => [
+            array_slice($labels, 0, 2),
+            array_slice($labels, 2, 2),
+            array_slice($labels, 4, 2),
+            array_slice($labels, 6, 2),
+        ],
+        'is_persistent' => true,
+        'resize_keyboard' => true,
+        'input_field_placeholder' => botText($lang, 'kbd_hint'),
+    ];
+}
+
+/**
+ * What did the operator actually ask for? Typed input arrives as "/stats" or
+ * "/stats@my_bot"; a pinned-keyboard tap arrives as the button's readable
+ * label ("📊 Статистика"), matched against the chat's current language.
+ * Returns the canonical "/command", or '' when nothing matches.
+ */
+function orbitraTelegramResolveCommand(string $text, string $lang): string
+{
+    $text = trim($text);
+    if ($text === '') {
+        return '';
+    }
+    if ($text[0] === '/') {
+        // Typed input: the command is the first word only — everything after
+        // it is the argument ("/lang qq" must resolve to /lang, not to the
+        // unknown "/lang qq").
+        $head = explode(' ', $text, 2)[0];
+        return strtolower(preg_replace('/@[^@\s]+$/', '', $head));
+    }
+    foreach (orbitraTelegramCommands() as $c) {
+        if (isset($c['menu']) && $text === botText($lang, $c['menu'])) {
+            return '/' . $c['command'];
+        }
+    }
+    return '';
+}
+
 /** Generic Bot API call. Returns the decoded response, or null on failure. */
 function orbitraTelegramApi(string $token, string $method, array $params = [], int $timeout = 10): ?array
 {
@@ -640,20 +770,26 @@ function orbitraTelegramProcessUpdate(PDO $pdo, string $botToken, array $update)
     // Register/update chat and read the language it picked.
     $lang = orbitraTelegramChatLang($pdo, $chatId, $username, $firstName);
 
-    // Parse command
-    $parts = explode(' ', $text, 2);
-    $command = strtolower($parts[0]);
-    // Strip an @botname suffix Telegram appends in groups (/stats@my_bot).
-    $command = preg_replace('/@[^@\s]+$/', '', $command);
-    $arg = trim($parts[1] ?? '');
+    // Parse command: typed "/stats 7d" or a pinned-keyboard label tap
+    // ("📊 Статистика" — the whole text is the label, no argument).
+    $command = orbitraTelegramResolveCommand($text, $lang);
+    $arg = '';
+    if ($command !== '' && $text[0] === '/') {
+        $parts = explode(' ', $text, 2);
+        $arg = trim($parts[1] ?? '');
+    }
 
     switch ($command) {
         case '/start':
             sendTelegram($botToken, $chatId, botText($lang, 'welcome'), 'Markdown', orbitraLangKeyboard());
+            // Pin the visual menu right away: /start is all the setup a new
+            // chat needs.
+            sendTelegram($botToken, $chatId, botText($lang, 'help'), 'Markdown', orbitraReplyKeyboard($lang));
             break;
 
         case '/help':
-            sendTelegram($botToken, $chatId, botText($lang, 'help'));
+            // Re-pins the menu if the operator removed it.
+            sendTelegram($botToken, $chatId, botText($lang, 'help'), 'Markdown', orbitraReplyKeyboard($lang));
             break;
 
         case '/stats':
@@ -726,7 +862,9 @@ function orbitraTelegramProcessCallback(PDO $pdo, string $botToken, array $cb): 
         $newLang = substr($data, 5);
         if (isset(orbitraTelegramLanguages()[$newLang])) {
             $pdo->prepare("UPDATE telegram_bot_chats SET language = ? WHERE chat_id = ?")->execute([$newLang, $chatId]);
-            sendTelegram($botToken, $chatId, botText($newLang, 'lang_set'));
+            // The new keyboard replaces the pinned one, so the menu re-labels
+            // in the chosen language on the same tap.
+            sendTelegram($botToken, $chatId, botText($newLang, 'lang_set'), 'Markdown', orbitraReplyKeyboard($newLang));
         }
         return true;
     }
@@ -783,7 +921,9 @@ function handleLang($pdo, $token, $chatId, $lang, $arg)
         return;
     }
     $pdo->prepare("UPDATE telegram_bot_chats SET language = ? WHERE chat_id = ?")->execute([$arg, $chatId]);
-    sendTelegram($token, $chatId, botText($arg, 'lang_set'));
+    // lang_set doubles as the re-pin: the new keyboard replaces the old one,
+    // so the menu labels and placeholder switch to the chosen language.
+    sendTelegram($token, $chatId, botText($arg, 'lang_set'), 'Markdown', orbitraReplyKeyboard($arg));
 }
 
 /**
