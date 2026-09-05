@@ -3,7 +3,7 @@
  * Telegram Bot Webhook Handler
  * Receives updates from Telegram and processes bot commands
  */
-require_once 'config.php';
+require_once __DIR__ . '/config.php';
 
 // Bot translations
 function botText($lang, $key, $params = [])
@@ -336,111 +336,135 @@ function sendTelegram($token, $chatId, $text, $parseMode = 'Markdown')
     return json_decode($result, true);
 }
 
-// Get bot token from settings
-$stmt = $pdo->query("SELECT value FROM settings WHERE key = 'telegram_bot_token'");
-$botToken = $stmt ? $stmt->fetchColumn() : '';
+/**
+ * Handle one Telegram update.
+ *
+ * Both entry points land here: the webhook below, and telegram_poll_cron.php,
+ * which is how the bot works on an install that has no HTTPS for Telegram to
+ * call back to. Keep every command in this one switch — a second copy in the
+ * poller is how the two drift apart.
+ *
+ * Returns true when the update carried a message this bot acts on.
+ */
+function orbitraTelegramProcessUpdate(PDO $pdo, string $botToken, array $update): bool
+{
+    if (!isset($update['message'])) {
+        return false;
+    }
 
-if (!$botToken) {
+    $message = $update['message'];
+    if (!isset($message['chat']['id'])) {
+        return false;
+    }
+
+    $chatId = (string)$message['chat']['id'];
+    $text = trim($message['text'] ?? '');
+    $username = $message['from']['username'] ?? '';
+    $firstName = $message['from']['first_name'] ?? '';
+
+    // Register/update chat
+    $stmt = $pdo->prepare("INSERT OR IGNORE INTO telegram_bot_chats (chat_id, username, first_name) VALUES (?, ?, ?)");
+    $stmt->execute([$chatId, $username, $firstName]);
+    $pdo->prepare("UPDATE telegram_bot_chats SET username = ?, first_name = ?, is_active = 1 WHERE chat_id = ?")->execute([$username, $firstName, $chatId]);
+
+    // Get chat language
+    $stmt = $pdo->prepare("SELECT language FROM telegram_bot_chats WHERE chat_id = ?");
+    $stmt->execute([$chatId]);
+    $lang = $stmt->fetchColumn() ?: 'ru';
+
+    // Parse command
+    $parts = explode(' ', $text, 2);
+    $command = strtolower($parts[0]);
+    $arg = $parts[1] ?? '';
+
+    switch ($command) {
+        case '/start':
+            sendTelegram($botToken, $chatId, botText($lang, 'welcome'));
+            break;
+
+        case '/help':
+            sendTelegram($botToken, $chatId, botText($lang, 'help'));
+            break;
+
+        case '/stats':
+            handleStats($pdo, $botToken, $chatId, $lang, $arg);
+            break;
+
+        case '/campaigns':
+            handleCampaigns($pdo, $botToken, $chatId, $lang);
+            break;
+
+        case '/campaign':
+            handleCampaignDetail($pdo, $botToken, $chatId, $lang, $arg);
+            break;
+
+        case '/top':
+            handleTop($pdo, $botToken, $chatId, $lang);
+            break;
+
+        case '/conversions':
+            handleConversions($pdo, $botToken, $chatId, $lang);
+            break;
+
+        case '/notify':
+            $val = strtolower(trim($arg));
+            $enabled = ($val === 'on' || $val === '1') ? 1 : 0;
+            $pdo->prepare("UPDATE telegram_bot_chats SET notify_conversions = ? WHERE chat_id = ?")->execute([$enabled, $chatId]);
+            sendTelegram($botToken, $chatId, botText($lang, $enabled ? 'notify_on' : 'notify_off'));
+            break;
+
+        case '/daily':
+            $val = strtolower(trim($arg));
+            $enabled = ($val === 'on' || $val === '1') ? 1 : 0;
+            $pdo->prepare("UPDATE telegram_bot_chats SET notify_daily = ? WHERE chat_id = ?")->execute([$enabled, $chatId]);
+            sendTelegram($botToken, $chatId, botText($lang, $enabled ? 'daily_on' : 'daily_off'));
+            break;
+
+        case '/lang':
+            $newLang = strtolower(trim($arg));
+            if (!in_array($newLang, ['ru', 'en', 'uk', 'es', 'zh', 'fr', 'de']))
+                $newLang = 'ru';
+            $pdo->prepare("UPDATE telegram_bot_chats SET language = ? WHERE chat_id = ?")->execute([$newLang, $chatId]);
+            sendTelegram($botToken, $chatId, botText($newLang, 'lang_set'));
+            break;
+
+        case '/sources':
+            handleSources($pdo, $botToken, $chatId, $lang);
+            break;
+
+        case '/checksources':
+            handleCheckSources($pdo, $botToken, $chatId, $lang);
+            break;
+
+        default:
+            sendTelegram($botToken, $chatId, botText($lang, 'unknown'));
+            break;
+    }
+
+    return true;
+}
+
+// === Webhook entry point ===
+// telegram_poll_cron.php requires this file for the handler above and defines
+// ORBITRA_TELEGRAM_NO_WEBHOOK first, so the request-scoped code below stays out
+// of the CLI path.
+if (!defined('ORBITRA_TELEGRAM_NO_WEBHOOK') && PHP_SAPI !== 'cli') {
+    $stmt = $pdo->query("SELECT value FROM settings WHERE key = 'telegram_bot_token'");
+    $botToken = $stmt ? $stmt->fetchColumn() : '';
+
+    if (!$botToken) {
+        http_response_code(200);
+        die('No token configured');
+    }
+
+    $update = json_decode(file_get_contents('php://input'), true);
+    if (is_array($update)) {
+        orbitraTelegramProcessUpdate($pdo, $botToken, $update);
+    }
+
     http_response_code(200);
-    die('No token configured');
+    echo 'ok';
 }
-
-// Read incoming update
-$input = file_get_contents('php://input');
-$update = json_decode($input, true);
-
-if (!$update || !isset($update['message'])) {
-    http_response_code(200);
-    die('ok');
-}
-
-$message = $update['message'];
-$chatId = (string)$message['chat']['id'];
-$text = trim($message['text'] ?? '');
-$username = $message['from']['username'] ?? '';
-$firstName = $message['from']['first_name'] ?? '';
-
-// Register/update chat
-$stmt = $pdo->prepare("INSERT OR IGNORE INTO telegram_bot_chats (chat_id, username, first_name) VALUES (?, ?, ?)");
-$stmt->execute([$chatId, $username, $firstName]);
-$pdo->prepare("UPDATE telegram_bot_chats SET username = ?, first_name = ?, is_active = 1 WHERE chat_id = ?")->execute([$username, $firstName, $chatId]);
-
-// Get chat language
-$stmt = $pdo->prepare("SELECT language FROM telegram_bot_chats WHERE chat_id = ?");
-$stmt->execute([$chatId]);
-$lang = $stmt->fetchColumn() ?: 'ru';
-
-// Parse command
-$parts = explode(' ', $text, 2);
-$command = strtolower($parts[0]);
-$arg = $parts[1] ?? '';
-
-switch ($command) {
-    case '/start':
-        sendTelegram($botToken, $chatId, botText($lang, 'welcome'));
-        break;
-
-    case '/help':
-        sendTelegram($botToken, $chatId, botText($lang, 'help'));
-        break;
-
-    case '/stats':
-        handleStats($pdo, $botToken, $chatId, $lang, $arg);
-        break;
-
-    case '/campaigns':
-        handleCampaigns($pdo, $botToken, $chatId, $lang);
-        break;
-
-    case '/campaign':
-        handleCampaignDetail($pdo, $botToken, $chatId, $lang, $arg);
-        break;
-
-    case '/top':
-        handleTop($pdo, $botToken, $chatId, $lang);
-        break;
-
-    case '/conversions':
-        handleConversions($pdo, $botToken, $chatId, $lang);
-        break;
-
-    case '/notify':
-        $val = strtolower(trim($arg));
-        $enabled = ($val === 'on' || $val === '1') ? 1 : 0;
-        $pdo->prepare("UPDATE telegram_bot_chats SET notify_conversions = ? WHERE chat_id = ?")->execute([$enabled, $chatId]);
-        sendTelegram($botToken, $chatId, botText($lang, $enabled ? 'notify_on' : 'notify_off'));
-        break;
-
-    case '/daily':
-        $val = strtolower(trim($arg));
-        $enabled = ($val === 'on' || $val === '1') ? 1 : 0;
-        $pdo->prepare("UPDATE telegram_bot_chats SET notify_daily = ? WHERE chat_id = ?")->execute([$enabled, $chatId]);
-        sendTelegram($botToken, $chatId, botText($lang, $enabled ? 'daily_on' : 'daily_off'));
-        break;
-
-    case '/lang':
-        $newLang = strtolower(trim($arg));
-        if (!in_array($newLang, ['ru', 'en', 'uk', 'es', 'zh', 'fr', 'de']))
-            $newLang = 'ru';
-        $pdo->prepare("UPDATE telegram_bot_chats SET language = ? WHERE chat_id = ?")->execute([$newLang, $chatId]);
-        sendTelegram($botToken, $chatId, botText($newLang, 'lang_set'));
-        break;
-
-    case '/sources':
-        handleSources($pdo, $botToken, $chatId, $lang);
-        break;
-
-    case '/checksources':
-        handleCheckSources($pdo, $botToken, $chatId, $lang);
-        break;
-
-    default:
-        sendTelegram($botToken, $chatId, botText($lang, 'unknown'));
-        break;
-}
-
-http_response_code(200);
-echo 'ok';
 
 // === Command Handlers ===
 

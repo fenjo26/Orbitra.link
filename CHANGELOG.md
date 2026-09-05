@@ -7,6 +7,44 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.5.1] — 2026-09-05
+
+### Fixed
+
+- **The Telegram bot could never receive a message on a fresh install** — the panel
+  built its webhook URL from the headers of whatever request saved the token
+  (`$_SERVER['HTTPS']` and `HTTP_HOST`), and the installer hands out
+  `http://<server-ip>/admin.php`. Telegram calls a webhook back only over HTTPS,
+  on a resolvable domain, with a certificate it trusts, so `setWebhook` was
+  refused every time; the refusal was stored as a bare `telegram_webhook_set=0`
+  and thrown away. The operator saw "bot connected" and "connection error"
+  together, `/start` reached nothing, and the panel answered *No chats connected.
+  Send /start to the bot first* — the symptom, blamed on the user, with the cause
+  nowhere on screen. Three parts to the fix:
+  - **Polling mode.** `telegram_poll_cron.php` asks Telegram for its updates
+    instead of waiting to be called, so the bot works on a bare IP, on plain HTTP
+    and behind a proxy — no domain, no certificate, no inbound connection. One
+    pass long-polls for most of a minute and exits, so cron supervises it; a
+    `flock` keeps two ticks from fighting over the same update stream (Telegram
+    answers the loser with 409), and the offset is advanced *before* an update is
+    handled so one malformed message cannot be replayed forever. Registered by
+    `install.sh`, and it exits immediately on installs that use a webhook.
+    Commands live in one handler that both entry points call, so the webhook and
+    the poller cannot drift apart.
+  - **Correct scheme detection.** `orbitraPublicBaseUrl()` reads
+    `X-Forwarded-Proto`, `X-Forwarded-Host`, `REQUEST_SCHEME` and the server port,
+    not `$_SERVER['HTTPS']` alone — behind Cloudflare or any TLS-terminating proxy
+    the origin sees plain HTTP, so a perfectly good HTTPS install was building an
+    `http://` webhook URL and failing the same way. `session_bootstrap.php`
+    already read that header; the two now agree. The panel picks a webhook when
+    Telegram could actually reach one and polling otherwise, and either can be
+    forced.
+  - **The reason, on screen.** Connecting reports what Telegram actually said
+    instead of a generic "connection error"; the status card shows which mode is
+    in use, `getWebhookInfo`'s `last_error_message` (delivery failures nothing on
+    this side can observe), and — in polling mode — when the worker last reported
+    in, so a missing cron line stops looking like a working install.
+
 ## [1.5.0] — 2026-09-03
 
 First public release of the PWA + web-push stack (53 commits since v1.4.1):

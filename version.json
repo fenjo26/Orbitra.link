@@ -1,6 +1,6 @@
 {
-    "version": "1.5.0",
-    "release_notes": "Feature release: PWA landings (store-style constructor, funnel beacons, service-worker push subscription with self-heal, direct domain binding), web push campaigns on your own base (self-hosted VAPID, subscriber list with test send, manual & event messages, segments, macros, cron-driven queue) and a content gallery (folders, drag-and-drop upload, MediaPicker with cropping). Also: push delivery hardened by live-device diagnostics (four crypto-layer fixes), landing→offer {subid} fix, service worker on bound domains, panel session lifetime, friendlier 'database is locked' handling. New guides: docs/pwa-push.md, docs/content-gallery.md.",
+    "version": "1.5.1",
+    "release_notes": "Fix release: the Telegram bot could never receive a message on a fresh install. The panel built its webhook URL from the current request's headers, and the installer hands out http://<server-ip>/admin.php — Telegram only calls a webhook back over HTTPS on a real domain, so setWebhook was refused every time and /start reached nothing, while the panel reported both \"bot connected\" and \"connection error\". Adds a polling mode (telegram_poll_cron.php) that asks Telegram for updates instead, so the bot works on a bare IP, over plain HTTP and behind a proxy; fixes scheme detection to honour X-Forwarded-Proto so proxied HTTPS installs stop building http:// webhook URLs; and shows the real reason on screen — the mode in use, Telegram's own error text, and when the poller last ran.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-09-03"
+    "released_at": "2026-09-05"
 }

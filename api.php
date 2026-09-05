@@ -83,6 +83,89 @@ function orbitraRequestBody()
 }
 
 /**
+ * Public base URL of this panel, as Telegram would have to reach it.
+ *
+ * Not the same question as "what did the browser type": behind Cloudflare or
+ * any TLS-terminating proxy the origin sees a plain HTTP request and only the
+ * X-Forwarded-Proto header says otherwise. save_telegram_settings used to test
+ * $_SERVER['HTTPS'] alone, so every proxied install built an http:// webhook
+ * URL that Telegram refuses. session_bootstrap.php already reads the header;
+ * this keeps the two in agreement.
+ *
+ * @return array{scheme:string, host:string, url:string, https:bool}
+ */
+function orbitraPublicBaseUrl(): array
+{
+    $scheme = 'http';
+    if (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off') {
+        $scheme = 'https';
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
+        // May be a comma-separated chain; the first hop is the client-facing one.
+        $first = trim(explode(',', (string)$_SERVER['HTTP_X_FORWARDED_PROTO'])[0]);
+        if (strtolower($first) === 'https') {
+            $scheme = 'https';
+        }
+    } elseif (!empty($_SERVER['REQUEST_SCHEME']) && strtolower((string)$_SERVER['REQUEST_SCHEME']) === 'https') {
+        $scheme = 'https';
+    } elseif ((int)($_SERVER['SERVER_PORT'] ?? 0) === 443) {
+        $scheme = 'https';
+    }
+
+    $host = (string)($_SERVER['HTTP_X_FORWARDED_HOST'] ?? $_SERVER['HTTP_HOST'] ?? 'localhost');
+    $host = trim(explode(',', $host)[0]);
+
+    return [
+        'scheme' => $scheme,
+        'host' => $host,
+        'url' => $scheme . '://' . $host,
+        'https' => $scheme === 'https',
+    ];
+}
+
+/**
+ * Can Telegram actually call a webhook at this host?
+ *
+ * Telegram requires HTTPS on a resolvable domain with a certificate it trusts;
+ * it will not call back to an IP literal, to "localhost", or to plain HTTP. A
+ * fresh install is reached at http://<server-ip>/admin.php, which fails all
+ * three — hence the polling worker.
+ */
+function orbitraTelegramWebhookUsable(array $base): bool
+{
+    if (!$base['https']) {
+        return false;
+    }
+    $hostOnly = preg_replace('/:\d+$/', '', $base['host']);
+    if ($hostOnly === '' || $hostOnly === 'localhost') {
+        return false;
+    }
+    if (filter_var(trim($hostOnly, '[]'), FILTER_VALIDATE_IP)) {
+        return false;
+    }
+    return (bool)preg_match('/^[a-z0-9]([a-z0-9\-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9\-]*[a-z0-9])?)+$/i', $hostOnly);
+}
+
+/** One Telegram Bot API call. Returns the decoded body, or null on transport failure. */
+function orbitraTelegramApi(string $token, string $method, array $params = [], int $timeout = 10): ?array
+{
+    $ch = curl_init("https://api.telegram.org/bot{$token}/{$method}");
+    if ($params) {
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    }
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 8);
+    $body = curl_exec($ch);
+    if ($body === false) {
+        return null;
+    }
+    $decoded = json_decode($body, true);
+    return is_array($decoded) ? $decoded : null;
+}
+
+/**
  * Check that a landings row is eligible to be bound to a domain as its PWA:
  * it must exist, be a non-archived local landing, and its config_json must
  * actually carry a 'pwa' key — plain URL landings and archived rows must not
@@ -16303,7 +16386,7 @@ try {
 
         // === TELEGRAM BOT API ===
         case 'telegram_settings':
-            $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('telegram_bot_token', 'telegram_webhook_set', 'telegram_notify_conversions', 'telegram_daily_time')");
+            $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('telegram_bot_token', 'telegram_webhook_set', 'telegram_notify_conversions', 'telegram_daily_time', 'telegram_mode', 'telegram_poll_last_run', 'telegram_poll_last_error', 'telegram_last_connect_error')");
             $settings = [];
             foreach ($stmt->fetchAll() as $row) {
                 $settings[$row['key']] = $row['value'];
@@ -16316,15 +16399,58 @@ try {
             $token = $settings['telegram_bot_token'] ?? '';
             $maskedToken = $token ? substr($token, 0, 10) . '...' . substr($token, -4) : '';
 
+            $mode = $settings['telegram_mode'] ?? 'webhook';
+            $base = orbitraPublicBaseUrl();
+
+            // Diagnostics. The old response said only webhook_set:false, which the
+            // panel rendered as a bare "connection error" — true, and useless: the
+            // operator could not tell a bad token from a webhook Telegram had
+            // refused, and the refusal reason was never stored anywhere.
+            $diag = [
+                'panel_url' => $base['url'],
+                'webhook_url' => $base['url'] . '/telegram_bot.php',
+                'webhook_possible' => orbitraTelegramWebhookUsable($base),
+                'last_connect_error' => $settings['telegram_last_connect_error'] ?? '',
+                'poll_last_run' => $settings['telegram_poll_last_run'] ?? '',
+                'poll_last_error' => $settings['telegram_poll_last_error'] ?? '',
+                'poll_stale' => false,
+            ];
+
+            // In polling mode the bot is only as alive as its cron. An install
+            // whose crontab never got the line looks identical to a working one
+            // from the panel, so say when the worker last reported in.
+            if ($mode === 'polling') {
+                $lastRun = $settings['telegram_poll_last_run'] ?? '';
+                $diag['poll_stale'] = !$lastRun || (time() - strtotime($lastRun)) > 300;
+            }
+
+            // Ask Telegram itself what it thinks of our webhook. This is the one
+            // place that reports delivery failures (bad certificate, 502s from
+            // the origin) which nothing on this side can observe.
+            if ($token && $mode === 'webhook') {
+                $info = orbitraTelegramApi($token, 'getWebhookInfo', [], 8);
+                if ($info && ($info['ok'] ?? false)) {
+                    $r = $info['result'] ?? [];
+                    $diag['webhook_registered_url'] = $r['url'] ?? '';
+                    $diag['webhook_pending'] = (int)($r['pending_update_count'] ?? 0);
+                    $diag['webhook_last_error'] = $r['last_error_message'] ?? '';
+                }
+            }
+
             echo json_encode([
                 'status' => 'success',
                 'data' => [
                     'token_set' => !empty($token),
                     'masked_token' => $maskedToken,
+                    'mode' => $mode,
                     'webhook_set' => ($settings['telegram_webhook_set'] ?? '0') === '1',
+                    'connected' => $mode === 'polling'
+                        ? !$diag['poll_stale']
+                        : ($settings['telegram_webhook_set'] ?? '0') === '1',
                     'notify_conversions' => ($settings['telegram_notify_conversions'] ?? '1') === '1',
                     'daily_time' => $settings['telegram_daily_time'] ?? '21:00',
-                    'chats' => $chats
+                    'chats' => $chats,
+                    'diagnostics' => $diag
                 ]
             ]);
             break;
@@ -16346,8 +16472,18 @@ try {
                         curl_exec($ch);
                         // curl_close() deprecated in PHP 8.5 - resources are auto-freed
                     }
-                    $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_bot_token', '']);
-                    $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_webhook_set', '0']);
+                    foreach ([
+                        'telegram_bot_token' => '',
+                        'telegram_webhook_set' => '0',
+                        'telegram_mode' => 'webhook',
+                        'telegram_poll_offset' => '0',
+                        'telegram_poll_last_run' => '',
+                        'telegram_poll_last_error' => '',
+                        'telegram_webhook_cleared' => '0',
+                        'telegram_last_connect_error' => '',
+                    ] as $k => $v) {
+                        $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute([$k, $v]);
+                    }
                     logAudit($pdo, 'UPDATE', 'Telegram Bot', null, ['action' => 'disconnect']);
                     echo json_encode(['status' => 'success', 'message' => 'Bot disconnected']);
                     break;
@@ -16356,18 +16492,28 @@ try {
                 $token = trim($data['token'] ?? '');
                 $notifyConversions = $data['notify_conversions'] ?? true;
                 $dailyTime = $data['daily_time'] ?? '21:00';
+                // 'auto' picks a webhook where Telegram can reach one and polling
+                // otherwise; the panel also lets the operator force either.
+                $requestedMode = strtolower(trim((string)($data['mode'] ?? 'auto')));
+                if (!in_array($requestedMode, ['auto', 'webhook', 'polling'], true)) {
+                    $requestedMode = 'auto';
+                }
+
+                $botUsername = '';
+                $mode = null;
+                $webhookOk = false;
+                $webhookError = '';
 
                 if ($token) {
                     // Verify token by calling getMe
-                    $ch = curl_init("https://api.telegram.org/bot{$token}/getMe");
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-                    $response = curl_exec($ch);
-                    // curl_close() deprecated in PHP 8.5 - resources are auto-freed
-                    $result = json_decode($response, true);
+                    $result = orbitraTelegramApi($token, 'getMe', [], 10);
 
                     if (!$result || !($result['ok'] ?? false)) {
-                        echo json_encode(['status' => 'error', 'message' => 'Invalid bot token. Check the token and try again.']);
+                        echo json_encode([
+                            'status' => 'error',
+                            'message' => 'Invalid bot token. Check the token and try again.',
+                            'code' => 'bad_token'
+                        ]);
                         break;
                     }
 
@@ -16375,37 +16521,87 @@ try {
 
                     // Save token
                     $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_bot_token', $token]);
+                    // A new token means a new update stream; a stale offset from the
+                    // previous bot would make the poller skip real messages.
+                    $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_poll_offset', '0']);
 
-                    // Set webhook
-                    $webhookUrl = rtrim($data['webhook_url'] ?? (rtrim(
-                        (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'),
-                        '/'
-                    ) . '/telegram_bot.php'), '/');
+                    $base = orbitraPublicBaseUrl();
+                    $webhookUrl = !empty($data['webhook_url'])
+                        ? rtrim((string)$data['webhook_url'], '/')
+                        : $base['url'] . '/telegram_bot.php';
 
-                    $ch = curl_init("https://api.telegram.org/bot{$token}/setWebhook");
-                    curl_setopt($ch, CURLOPT_POST, true);
-                    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(['url' => $webhookUrl]));
-                    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-                    $webhookResult = json_decode(curl_exec($ch), true);
-                    // curl_close() deprecated in PHP 8.5 - resources are auto-freed
+                    // Decide how updates will reach us.
+                    //
+                    // Telegram calls a webhook only over HTTPS, on a resolvable
+                    // domain, with a certificate it trusts. The installer hands out
+                    // http://<server-ip>/admin.php, so on a fresh box setWebhook is
+                    // refused outright — and the old code stored that refusal as a
+                    // silent webhook_set=0 while telling the operator the bot was
+                    // added. /start then went nowhere and the panel said "no chats
+                    // connected", which is the symptom without the cause. Polling
+                    // needs no inbound connection, so it works there.
+                    $canWebhook = !empty($data['webhook_url']) || orbitraTelegramWebhookUsable($base);
+                    $useWebhook = $requestedMode === 'webhook' || ($requestedMode === 'auto' && $canWebhook);
 
-                    $webhookOk = $webhookResult['ok'] ?? false;
+                    if ($useWebhook) {
+                        $webhookResult = orbitraTelegramApi($token, 'setWebhook', [
+                            'url' => $webhookUrl,
+                            'allowed_updates' => ['message'],
+                        ], 15);
+                        $webhookOk = $webhookResult['ok'] ?? false;
+                        if (!$webhookOk) {
+                            $webhookError = $webhookResult['description']
+                                ?? 'Telegram did not respond to setWebhook';
+                        }
+                    }
+
+                    if ($useWebhook && $webhookOk) {
+                        $mode = 'webhook';
+                    } elseif ($requestedMode === 'webhook') {
+                        // Explicitly asked for a webhook and it failed: do not
+                        // quietly do something else, report why.
+                        $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_mode', 'webhook']);
+                        $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_webhook_set', '0']);
+                        $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_last_connect_error', $webhookError]);
+                        echo json_encode([
+                            'status' => 'error',
+                            'code' => 'webhook_failed',
+                            'message' => $webhookError,
+                            'data' => ['bot_username' => $botUsername, 'webhook_url' => $webhookUrl]
+                        ]);
+                        break;
+                    } else {
+                        $mode = 'polling';
+                        // getUpdates and a registered webhook are mutually exclusive
+                        // — Telegram answers 409 Conflict while one is set. Clear it
+                        // here so the first poll works, and flag it done for the
+                        // worker.
+                        orbitraTelegramApi($token, 'deleteWebhook', ['drop_pending_updates' => false], 10);
+                        $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_webhook_cleared', '1']);
+                        $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_poll_last_run', '']);
+                        $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_poll_last_error', '']);
+                    }
+
+                    $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_mode', $mode]);
                     $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_webhook_set', $webhookOk ? '1' : '0']);
+                    $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_last_connect_error', $webhookError]);
                 }
 
                 // Save other settings
                 $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_notify_conversions', $notifyConversions ? '1' : '0']);
                 $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_daily_time', $dailyTime]);
 
-                logAudit($pdo, 'UPDATE', 'Telegram Bot', null, ['action' => 'save', 'bot' => $botUsername ?? '']);
+                logAudit($pdo, 'UPDATE', 'Telegram Bot', null, ['action' => 'save', 'bot' => $botUsername, 'mode' => $mode ?? 'unchanged']);
 
                 echo json_encode([
                     'status' => 'success',
                     'data' => [
-                        'bot_username' => $botUsername ?? '',
-                        'webhook_set' => $webhookOk ?? false
+                        'bot_username' => $botUsername,
+                        'mode' => $mode,
+                        'webhook_set' => $webhookOk,
+                        // Non-empty when auto mode fell back to polling: the panel
+                        // shows it as an explanation, not as a failure.
+                        'webhook_error' => $webhookError
                     ]
                 ]);
             }
@@ -16426,7 +16622,17 @@ try {
                 $chat = $chatStmt ? $chatStmt->fetch() : null;
 
                 if (!$chat) {
-                    echo json_encode(['status' => 'error', 'message' => 'No chats connected. Send /start to the bot first.']);
+                    // The message the tester saw. On its own it points at the user
+                    // ("you didn't press start") when the real cause is usually that
+                    // no update path exists at all, so hand the panel the mode and
+                    // let it say which.
+                    $modeStmt = $pdo->query("SELECT value FROM settings WHERE key = 'telegram_mode'");
+                    echo json_encode([
+                        'status' => 'error',
+                        'code' => 'no_chats',
+                        'mode' => ($modeStmt ? $modeStmt->fetchColumn() : '') ?: 'webhook',
+                        'message' => 'No chats connected. Send /start to the bot first.'
+                    ]);
                     break;
                 }
 
