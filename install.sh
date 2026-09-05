@@ -781,6 +781,23 @@ if ! crontab -u www-data -l 2>/dev/null | grep -qF "$AGGREGATOR_CRON_MARKER"; th
       || echo "  > NOTE: could not write the crontab. Add this line manually: */15 * * * * php /var/www/orbitra/aggregator_cron.php"
 fi
 
+# Telegram bot poller. Telegram only calls a webhook back over HTTPS on a real
+# domain, and this installer hands out http://<ip>/admin.php -- so on a fresh
+# box setWebhook is refused and no /start ever reaches the bot. The poller asks
+# Telegram for updates instead, which needs no inbound connection. It exits
+# immediately unless the panel put the bot in polling mode, so this costs a
+# fork a minute on installs that use a webhook.
+echo "  > Scheduling the Telegram bot poller..."
+TELEGRAM_CRON_MARKER="# orbitra-telegram-poll"
+if ! crontab -u www-data -l 2>/dev/null | grep -qF "$TELEGRAM_CRON_MARKER"; then
+    {
+        crontab -u www-data -l 2>/dev/null
+        echo "* * * * * php /var/www/orbitra/telegram_poll_cron.php --quiet >> /var/www/orbitra/var/logs/telegram_poll.log 2>&1 $TELEGRAM_CRON_MARKER"
+    } | crontab -u www-data - 2>/dev/null \
+      && echo "  > Telegram poller scheduled (every minute)." \
+      || echo "  > NOTE: could not write the crontab. Add this line manually: * * * * * php /var/www/orbitra/telegram_poll_cron.php --quiet"
+fi
+
 echo "  > Handing the installation over to www-data..."
 chown -R www-data:www-data /var/www/orbitra
 # Permissions are re-applied only where a root step created files. node_modules
@@ -894,6 +911,11 @@ echo " Complete the setup and create the first administrator:"
 echo " 🔗 http://$SERVER_IP/admin.php                        "
 echo ""
 echo " This address keeps working after you park domains."
+echo ""
+echo " Once a domain points here and has a certificate (Domains section),"
+echo " use https://your-domain/admin.php instead. A few integrations need it:"
+echo " Telegram, for one, only calls a bot webhook back over HTTPS on a real"
+echo " domain, never to an IP. Over the IP the bot falls back to polling."
 echo ""
 if [ -n "$PB_KEY" ]; then
 echo " Your postback endpoint — give this URL to your ad network:"

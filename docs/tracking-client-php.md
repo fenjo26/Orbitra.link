@@ -115,6 +115,24 @@ already, so a page that only ever calls `getOffer()` still tracks its visitor.
 
 ---
 
+## Time on the page
+
+`getOffer()` already tells the tracker how long the visitor took before pressing
+the offer button. It says nothing about the visitor who read two lines and left
+— and that one is usually the reason a landing is not converting. Echo this once
+before `</body>` and every visit reports its time (and scroll depth), bounces
+included:
+
+```php
+<?php echo $client->timerScript(); ?>
+</body>
+```
+
+It returns an empty string when no click was registered, so it is safe to leave
+in the template unconditionally. The numbers land in the **Time on LP** column
+of the Logs and in the *Time on LP* / *LP bounce rate* / *LP scroll depth*
+report metrics.
+
 ## Reporting a conversion
 
 On the thank-you page, after the click has been restored:

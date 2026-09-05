@@ -435,7 +435,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user }) => {
     // Ratios (CR/EPC/CPC/ROI) are recomputed from the summed base metrics.
     const grandTotals = useMemo(() => {
         const t0 = {
-            clicks: 0, unique_clicks: 0, visits: 0, unique_visits: 0,
+            clicks: 0, unique_clicks: 0, visits: 0, unique_visits: 0, visitors: 0,
             lp_clicks: 0, lp_views: 0, real_lp_clicks: 0, real_offer_clicks: 0,
             conversions: 0, leads: 0, sales: 0,
             rejected: 0, trash: 0, cost: 0, revenue: 0, revenue_confirmed: 0,
@@ -446,6 +446,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user }) => {
         visibleOffers.forEach(o => {
             t0.clicks += Number(o.clicks) || 0;
             t0.unique_clicks += Number(o.unique_clicks) || 0;
+            t0.visitors += Number(o.visitors) || 0;
             const lpViews = Number(o.visits ?? o.clicks) || 0;
             t0.visits += lpViews;
             t0.lp_views += lpViews;
@@ -484,10 +485,12 @@ const Offers = ({ offers: initialOffers = [], refreshData, user }) => {
         const approve_rate = t0.conversions > 0 ? (t0.sales / t0.conversions) * 100 : 0;
         const roi = t0.cost > 0 ? ((t0.revenue - t0.cost) / t0.cost) * 100 : 0;
         const epc = lpClickDenominator > 0 ? t0.revenue / lpClickDenominator : 0;
-        const epv = t0.lp_views > 0 ? t0.revenue / t0.lp_views : 0;
+        // CPV/EPV divide by visitors (all hits bound to the offer), mirroring
+        // orbitraComputeDerivedMetrics — clicks carries the offer funnel now.
+        const epv = t0.visitors > 0 ? t0.revenue / t0.visitors : 0;
         const uepc = t0.unique_clicks > 0 ? t0.revenue / t0.unique_clicks : 0;
         const cpc = lpClickDenominator > 0 ? t0.cost / lpClickDenominator : 0;
-        const cpv = t0.lp_views > 0 ? t0.cost / t0.lp_views : 0;
+        const cpv = t0.visitors > 0 ? t0.cost / t0.visitors : 0;
 
         return {
             ...t0,
@@ -518,6 +521,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user }) => {
             case 'proxies':
             case 'empty_referrers':
             case 'lp_views':
+            case 'lp_measured':
             case 'lp_clicks':
             case 'real_lp_clicks':
             case 'real_offer_clicks':
@@ -542,6 +546,12 @@ const Offers = ({ offers: initialOffers = [], refreshData, user }) => {
             case 'cr_registrations':
             case 'cr_deposits':
                 return val === null || val === undefined ? '—' : `${num.toFixed(2)}%`;
+
+            // Landing-timer metrics: null (dash) when nothing measured —
+            // never a fabricated 0 that would read as "everyone bounced".
+            case 'lp_bounce_rate':
+            case 'lp_scroll_depth':
+                return val === null || val === undefined ? '—' : `${num.toFixed(1)}%`;
 
             case 'roi':
             case 'roi_confirmed': {
@@ -607,6 +617,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user }) => {
             case 'clicks':
             case 'unique_clicks':
             case 'lp_views':
+            case 'lp_measured':
             case 'lp_clicks':
             case 'real_lp_clicks':
             case 'real_offer_clicks':

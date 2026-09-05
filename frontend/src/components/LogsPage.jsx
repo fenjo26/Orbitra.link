@@ -51,6 +51,7 @@ const LogsPage = () => {
             { id: 'route', width: 100 },
             { id: 'reason', width: 180 },
             { id: 'destination', width: 160 },
+            { id: 'lp_time', width: 110 },
             { id: 'ip', width: 110 },
             { id: 'geo', width: 160 },
             { id: 'device', width: 100 },
@@ -160,6 +161,34 @@ const LogsPage = () => {
                     return <span className="text-xs text-[var(--color-text-muted)]">-</span>;
                 };
 
+                // Time on the landing for THIS visit, whether or not it went on
+                // to the offer — the beacon writes it for bounces too, which is
+                // the whole point of having it in the log. "—" means the visit
+                // never reported: a redirect landing on someone else's domain
+                // without the tracking script, a bot that runs no JS, or a row
+                // from before the feature existed.
+                const renderLpTime = (log) => {
+                    const secs = log.lp_seconds === null || log.lp_seconds === undefined
+                        ? null : Number(log.lp_seconds);
+                    if (secs === null || !isFinite(secs)) {
+                        return <span className="text-xs text-[var(--color-text-muted)]">—</span>;
+                    }
+                    const pretty = secs < 60 ? `${secs}s` : `${Math.floor(secs / 60)}m ${secs % 60}s`;
+                    const scroll = log.lp_scroll === null || log.lp_scroll === undefined
+                        ? null : Number(log.lp_scroll);
+                    // Under 5s is the bounce band the reports count — flag it
+                    // here too so a scan of the log shows it without arithmetic.
+                    const tone = secs < 5 ? 'var(--color-danger)' : 'var(--color-text-primary)';
+                    return (
+                        <span className="whitespace-nowrap" style={{ color: tone }}>
+                            {pretty}
+                            {scroll !== null && isFinite(scroll) ? (
+                                <span className="text-xs text-[var(--color-text-muted)]">{` · ${scroll}%`}</span>
+                            ) : null}
+                        </span>
+                    );
+                };
+
                 const renderGeo = (log) => (
                     <span className="whitespace-normal break-words">
                         {log.country_code || '-'}
@@ -248,6 +277,10 @@ const LogsPage = () => {
                                             <ColumnResizeHandle rt={colResize} colId="destination" />
                                         </th>
                                         <th className="resizable-th">
+                                            {t('logs.colLpTime')}
+                                            <ColumnResizeHandle rt={colResize} colId="lp_time" />
+                                        </th>
+                                        <th className="resizable-th">
                                             {t('logs.colIp')}
                                             <ColumnResizeHandle rt={colResize} colId="ip" />
                                         </th>
@@ -279,6 +312,7 @@ const LogsPage = () => {
                                             <td>{renderRouteBadge(log)}</td>
                                             <td>{renderReasonChips(log)}</td>
                                             <td className="text-xs">{renderDestination(log)}</td>
+                                            <td className="text-xs">{renderLpTime(log)}</td>
                                             <td>{log.ip}</td>
                                             <td>
                                                 <div>{log.country_code || '-'}</div>
@@ -320,6 +354,7 @@ const LogsPage = () => {
                                 fields={[
                                     { id: 'created_at', label: t('logs.colTime'), render: (log) => log.created_at },
                                     { id: 'destination', label: t('logs.colDestination'), render: renderDestination },
+                                    { id: 'lp_time', label: t('logs.colLpTime'), render: renderLpTime },
                                     { id: 'ip', label: t('logs.colIp'), render: (log) => log.ip },
                                     { id: 'geo', label: t('logs.colGeo'), render: renderGeo },
                                     { id: 'subid', label: t('logs.colSubid'), render: (log) => log.subid || '-' },

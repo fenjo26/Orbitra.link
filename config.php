@@ -87,7 +87,7 @@ try {
     // subscriber base; 44 = media library (docs/media-core-v1.md); 43 = PWA
     // landings. All migration blocks are additive — whoever adds the next one
     // bumps this and appends below, re-reading the file first (parallel-session rule).
-    $LATEST_SCHEMA_VERSION = 48;
+    $LATEST_SCHEMA_VERSION = 49;
 
     $schemaVersion = 0;
     try {
@@ -2559,6 +2559,36 @@ try {
                     $pdo->exec("ALTER TABLE clicks ADD COLUMN push_fail_reason TEXT");
                 } catch (\Throwable $e) {
                     // Column already present on a half-migrated DB.
+                }
+            }
+
+            if ($schemaVersion < 49) {
+                // Migration 49: how long the visitor actually stayed on the
+                // landing — INDEPENDENTLY of whether they went on to the offer.
+                //
+                // landing_at/offer_at only ever produce a number for visitors
+                // who clicked through, so a landing that bores everyone away
+                // reports nothing at all: the exact case an operator needs to
+                // see. These two columns are written by the
+                // /pixel.gif?action=lp beacon that every tracker-served
+                // landing (and kclient.js/tracking.js on external ones) sends
+                // while the page is open:
+                //   lp_seconds — visible (unfocused time excluded) seconds on
+                //                the landing; the endpoint stores MAX(), so a
+                //                late heartbeat only ever raises it and a
+                //                replay cannot lower it
+                //   lp_scroll  — deepest scroll reached, 0-100 %; answers
+                //                "did they read it or bounce off the hero"
+                $alters = [
+                    "ALTER TABLE clicks ADD COLUMN lp_seconds INTEGER",
+                    "ALTER TABLE clicks ADD COLUMN lp_scroll INTEGER",
+                ];
+                foreach ($alters as $sql) {
+                    try {
+                        $pdo->exec($sql);
+                    } catch (\Throwable $e) {
+                        // Column already present on a half-migrated DB.
+                    }
                 }
             }
 

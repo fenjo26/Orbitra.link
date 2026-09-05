@@ -243,6 +243,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         const createEmptyAgg = () => ({
             clicks: 0,
             unique_clicks: 0,
+            visitors: 0,
             prelander_clicks: 0,
             lp_views: 0,
             lp_clicks: 0,
@@ -275,6 +276,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         const addRow = (node, row) => {
             node.clicks += Number(row.clicks) || 0;
             node.unique_clicks += Number(row.unique_clicks) || 0;
+            node.visitors += Number(row.visitors) || 0;
             const lpViews = Number(row.lp_views ?? row.prelander_clicks ?? row.clicks) || 0;
             node.prelander_clicks += lpViews;
             node.lp_views += lpViews;
@@ -332,11 +334,12 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             node.real_roi = node.cost > 0 ? (node.real_profit / node.cost) * 100 : 0;
             node.epc = lpClickDenominator > 0 ? node.revenue / lpClickDenominator : 0;
             node.epc_all = node.epc;
-            node.epv = node.lp_views > 0 ? node.revenue / node.lp_views : 0;
+            // CPV/EPV per visitors (all hits) — mirrors the backend formulas.
+            node.epv = node.visitors > 0 ? node.revenue / node.visitors : 0;
             node.uepc = node.unique_clicks > 0 ? node.revenue / node.unique_clicks : 0;
             node.cpc = lpClickDenominator > 0 ? node.cost / lpClickDenominator : 0;
             node.ucpc = node.unique_clicks > 0 ? node.cost / node.unique_clicks : 0;
-            node.cpv = node.lp_views > 0 ? node.cost / node.lp_views : 0;
+            node.cpv = node.visitors > 0 ? node.cost / node.visitors : 0;
             node.cpa = node.conversions > 0 ? node.cost / node.conversions : 0;
             node.cps = node.purchases > 0 ? node.cost / node.purchases : 0;
             node.cpl = node.holds > 0 ? node.cost / node.holds : 0;
@@ -424,6 +427,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         const t0 = {
             clicks: 0,
             unique_clicks: 0,
+            visitors: 0,
             prelander_clicks: 0,
             lp_views: 0,
             lp_clicks: 0,
@@ -454,6 +458,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         rows.forEach(r => {
             t0.clicks += Number(r.clicks) || 0;
             t0.unique_clicks += Number(r.unique_clicks) || 0;
+            t0.visitors += Number(r.visitors) || 0;
             const lpViews = Number(r.lp_views ?? r.prelander_clicks ?? r.clicks) || 0;
             t0.prelander_clicks += lpViews;
             t0.lp_views += lpViews;
@@ -507,11 +512,13 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
         const roi = t0.cost > 0 ? (t0.profit / t0.cost) * 100 : 0;
         const real_roi = t0.cost > 0 ? (t0.real_profit / t0.cost) * 100 : 0;
         const epc = lpClickDenominator > 0 ? t0.revenue / lpClickDenominator : 0;
-        const epv = t0.lp_views > 0 ? t0.revenue / t0.lp_views : 0;
+        // CPV/EPV divide by visitors (all hits), mirroring
+        // orbitraComputeDerivedMetrics — clicks carries the offer funnel now.
+        const epv = t0.visitors > 0 ? t0.revenue / t0.visitors : 0;
         const uepc = t0.unique_clicks > 0 ? t0.revenue / t0.unique_clicks : 0;
         const cpc = lpClickDenominator > 0 ? t0.cost / lpClickDenominator : 0;
         const ucpc = t0.unique_clicks > 0 ? t0.cost / t0.unique_clicks : 0;
-        const cpv = t0.lp_views > 0 ? t0.cost / t0.lp_views : 0;
+        const cpv = t0.visitors > 0 ? t0.cost / t0.visitors : 0;
         const cpa = t0.conversions > 0 ? t0.cost / t0.conversions : 0;
         const earnings_per_conv = t0.conversions > 0 ? t0.revenue / t0.conversions : 0;
 
@@ -564,6 +571,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             case 'prelander_clicks':
             case 'offer_clicks':
             case 'lp_views':
+            case 'lp_measured':
             case 'lp_clicks':
             case 'real_lp_clicks':
             case 'real_offer_clicks':
@@ -572,10 +580,6 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             case 'real_pwa_installs':
             case 'pwa_opens':
             case 'push_subscribed':
-            case 'pwa_intents':
-            case 'pwa_installs':
-            case 'real_pwa_installs':
-            case 'pwa_opens':
             case 'purchases':
             case 'sales':
             case 'holds':
@@ -613,6 +617,12 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             case 'real_lp_ctr':
             case 'pwa_install_rate':
                 return val === null || val === undefined ? '—' : `${num.toFixed(2)}%`;
+
+            // The landing timer only reports for pages that ran it, so these
+            // are null (dash) rather than a fabricated 0 when nothing measured.
+            case 'lp_bounce_rate':
+            case 'lp_scroll_depth':
+                return val === null || val === undefined ? '—' : `${num.toFixed(1)}%`;
 
             case 'roi':
             case 'roi_all':

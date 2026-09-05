@@ -132,6 +132,13 @@ try {
 
     $newClicks = $harness->getNewClicksSince($baselineClicks);
     assertEquals(2, count($newClicks), 'Should have logged 2 clicks');
+    // The money click stops at the landing (cloak money = landing with a
+    // pre-bound offer, no offer_at) — under the offer-funnel semantics that
+    // row is a VISITOR, not a click, so every clicks assertion below would
+    // read 0. Complete its CTA transition the way /?_lp=1 would.
+    $pdo->prepare("UPDATE clicks SET offer_at = datetime('now')
+                   WHERE campaign_id = ? AND COALESCE(is_safe_page, 0) = 0 AND offer_at IS NULL")
+        ->execute([$campaignId]);
     echo "✓ Generated 2 test clicks (1 money, 1 safe)\n\n";
 
     // ===== Test 1: Dashboard metrics endpoint =====
@@ -211,10 +218,13 @@ try {
     $metricsAll = $metricsAllEnvelope['data'] ?? null;
     assertIsArray($metricsAll, 'Metrics should be an array');
 
-    // With exclude_safe_from_reports=false, ALL clicks including safe should be counted
+    // With exclude_safe_from_reports=false, the safe hit is back in the raw
+    // numbers — as a VISITOR. It never reached an offer, so it must not
+    // inflate the clicks funnel even when it is included.
     $clicksCount = $metricsAll['clicks'] ?? 0;
     echo "  Clicks count (including safe): $clicksCount\n";
-    assertEquals(2, $clicksCount, 'Should have 2 clicks when safe clicks are included');
+    assertEquals(1, $clicksCount, 'Only the money click is an offer click even when safe hits are included');
+    assertEquals(2, (int) ($metricsAll['visitors'] ?? 0), 'Both hits count as visitors when safe clicks are included');
 
     // Restore exclude_safe_from_reports=true
     $harness->updateStreamSchema($cloakStreamId, ['exclude_safe_from_reports' => true]);

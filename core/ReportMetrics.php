@@ -107,21 +107,38 @@ if (!function_exists('orbitraConversionStatusGroups')) {
             $realRevenueSelect = 'COALESCE(SUM(rra.real_rev), 0) AS real_revenue';
         }
 
+        // "Clicks" is the offer funnel, not the raw hit count: a click row
+        // counts when the visitor actually reached the offer — either the
+        // stream went straight there (no landing in the chain) or the landing
+        // transition completed (offer_at recorded by the /?_lp=1 hop,
+        // click.php, or the Click API). A landing view with a pre-bound offer
+        // (legacy offer_selection='before', offer_at never set) stays out:
+        // the visit happened, the CTA click did not verifiably happen.
+        // Visitors is the raw counter — ALL inbound hits — and travels next
+        // to clicks so the visitors/clicks pair stays meaningful (CPV/EPV ÷
+        // visitors, CR/CPC/EPC ÷ clicks).
         return "
-            SELECT COUNT(cl.id) AS clicks,
+            SELECT COALESCE(SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0
+                                          AND (cl.landing_id IS NULL OR cl.landing_id = 0 OR cl.offer_at IS NOT NULL)
+                                      THEN 1 ELSE 0 END), 0) AS clicks,
+                   COUNT(cl.id) AS visitors,
                    COUNT(DISTINCT cl.ip) AS unique_clicks,
                    COALESCE(SUM(cl.is_bot), 0) AS bots,
                    COALESCE(SUM(cl.is_proxy), 0) AS proxies,
                    COALESCE(SUM(CASE WHEN COALESCE(cl.referer, '') = '' THEN 1 ELSE 0 END), 0) AS empty_referrers,
                    COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 THEN 1 ELSE 0 END), 0) AS prelander_clicks,
                    COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0
-                                          AND cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END), 0) AS lp_clicks,
+                                          AND cl.offer_at IS NOT NULL THEN 1 ELSE 0 END), 0) AS lp_clicks,
                    COALESCE(SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END), 0) AS offer_clicks,
                    COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0
                                           AND cl.offer_at IS NOT NULL THEN 1 ELSE 0 END), 0) AS real_lp_clicks,
                    COALESCE(SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0
                                           AND (cl.landing_id IS NULL OR cl.landing_id = 0 OR cl.offer_at IS NOT NULL)
                                       THEN 1 ELSE 0 END), 0) AS real_offer_clicks,
+                   AVG(cl.lp_seconds) AS avg_lp_dwell,
+                   AVG(cl.lp_scroll) AS avg_lp_scroll,
+                   COALESCE(SUM(CASE WHEN cl.lp_seconds IS NOT NULL THEN 1 ELSE 0 END), 0) AS lp_dwell_samples,
+                   COALESCE(SUM(CASE WHEN cl.lp_seconds IS NOT NULL AND cl.lp_seconds < 5 THEN 1 ELSE 0 END), 0) AS lp_bounces,
                    COALESCE(SUM(CASE WHEN cl.pwa_intent_at IS NOT NULL THEN 1 ELSE 0 END), 0) AS pwa_intents,
                    COALESCE(SUM(CASE WHEN cl.pwa_install_at IS NOT NULL THEN 1 ELSE 0 END), 0) AS pwa_installs,
                    COALESCE(SUM(CASE WHEN cl.pwa_install_at IS NOT NULL AND cl.is_bot = 0 THEN 1 ELSE 0 END), 0) AS pwa_installs_real,
@@ -174,7 +191,15 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    is_local, geo, payout_type, payout_value, payout_auto,
                    allow_rebills, capping_limit, capping_timezone, alt_offer_id,
                    notes, state, created_at, group_name, affiliate_network_name,
-                   COUNT(click_id) as clicks,
+                   -- Offer clicks only: every row here is joined by offer_id,
+                   -- but a legacy pre-bound landing view (no offer_at) never
+                   -- verifiably reached the offer. visitors keeps the raw hit
+                   -- count for the visit-denominated metrics. click_id IS NOT
+                   -- NULL keeps the LEFT JOIN's null row (a zero-traffic
+                   -- offer) out of the count — via_landing is 0 for it.
+                   COALESCE(SUM(CASE WHEN click_id IS NOT NULL
+                                          AND (via_landing = 0 OR offer_at IS NOT NULL)
+                                     THEN 1 ELSE 0 END), 0) as clicks,
                    COUNT(DISTINCT click_ip) as unique_clicks,
                    COALESCE(SUM(uniq_stream), 0) as unique_clicks_stream,
                    COALESCE(SUM(uniq_global), 0) as unique_clicks_global,
@@ -184,9 +209,15 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    COALESCE(SUM(CASE WHEN click_referer IS NULL OR click_referer = '' THEN 1 ELSE 0 END), 0) as empty_referrers,
                    AVG(CASE WHEN landing_at IS NOT NULL AND offer_at IS NOT NULL
                        THEN CAST(strftime('%s', offer_at) - strftime('%s', landing_at) AS REAL) END) as avg_lp_seconds,
-                   COALESCE(SUM(via_landing), 0) as lp_clicks,
+                   AVG(lp_seconds) as avg_lp_dwell,
+                   AVG(lp_scroll) as avg_lp_scroll,
+                   COALESCE(SUM(CASE WHEN lp_seconds IS NOT NULL THEN 1 ELSE 0 END), 0) as lp_dwell_samples,
+                   COALESCE(SUM(CASE WHEN lp_seconds IS NOT NULL AND lp_seconds < 5 THEN 1 ELSE 0 END), 0) as lp_bounces,
+                   COALESCE(SUM(CASE WHEN via_landing = 1 AND offer_at IS NOT NULL THEN 1 ELSE 0 END), 0) as lp_clicks,
                    COALESCE(SUM(CASE WHEN via_landing = 1 AND offer_at IS NOT NULL THEN 1 ELSE 0 END), 0) as real_lp_clicks,
-                   COALESCE(SUM(CASE WHEN via_landing = 0 OR offer_at IS NOT NULL THEN 1 ELSE 0 END), 0) as real_offer_clicks,
+                   COALESCE(SUM(CASE WHEN click_id IS NOT NULL
+                                          AND (via_landing = 0 OR offer_at IS NOT NULL)
+                                     THEN 1 ELSE 0 END), 0) as real_offer_clicks,
                    COALESCE(SUM(cnt_any), 0) as conversions,
                    COALESCE(SUM(rev_all), 0) as revenue,
                    COALESCE(SUM(rev_sale), 0) as revenue_confirmed,
@@ -217,6 +248,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                        cl.is_bot, cl.is_proxy,
                        cl.referer as click_referer,
                        cl.landing_at, cl.offer_at,
+                       cl.lp_seconds, cl.lp_scroll,
                        CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 THEN 1 ELSE 0 END as via_landing,
                        cva.cnt_any, cva.rev_all, cva.rev_sale,
                        cva.cnt_sale, cva.cnt_hold, cva.cnt_rejected, cva.cnt_trash,
@@ -267,7 +299,15 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    COALESCE(SUM(CASE WHEN click_referer IS NULL OR click_referer = '' THEN 1 ELSE 0 END), 0) as empty_referrers,
                    AVG(CASE WHEN landing_at IS NOT NULL AND offer_at IS NOT NULL
                        THEN CAST(strftime('%s', offer_at) - strftime('%s', landing_at) AS REAL) END) as avg_lp_seconds,
-                   COALESCE(SUM(offer_clicked), 0) as lp_clicks,
+                   AVG(lp_seconds) as avg_lp_dwell,
+                   AVG(lp_scroll) as avg_lp_scroll,
+                   COALESCE(SUM(CASE WHEN lp_seconds IS NOT NULL THEN 1 ELSE 0 END), 0) as lp_dwell_samples,
+                   COALESCE(SUM(CASE WHEN lp_seconds IS NOT NULL AND lp_seconds < 5 THEN 1 ELSE 0 END), 0) as lp_bounces,
+                   -- Honest LP clicks only: a landing row whose visitor
+                   -- actually left through the offer link (offer_at recorded).
+                   -- The pre-bound offer_id of legacy 'before' streams says
+                   -- nothing about the CTA.
+                   COALESCE(SUM(CASE WHEN offer_at IS NOT NULL THEN 1 ELSE 0 END), 0) as lp_clicks,
                    COALESCE(SUM(CASE WHEN offer_at IS NOT NULL THEN 1 ELSE 0 END), 0) as real_lp_clicks,
                    COALESCE(SUM(CASE WHEN offer_at IS NOT NULL THEN 1 ELSE 0 END), 0) as real_offer_clicks,
                    COALESCE(SUM(CASE WHEN pwa_intent_at IS NOT NULL THEN 1 ELSE 0 END), 0) as pwa_intents,
@@ -303,6 +343,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                        cl.is_bot, cl.is_proxy,
                        cl.referer as click_referer,
                        cl.landing_at, cl.offer_at,
+                       cl.lp_seconds, cl.lp_scroll,
                        cl.pwa_intent_at, cl.pwa_install_at, cl.pwa_open_count,
                        cl.push_subscribed_at,
                        CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END as offer_clicked,
@@ -330,7 +371,9 @@ if (!function_exists('orbitraConversionStatusGroups')) {
     {
         $clicks          = (int) ($raw['clicks'] ?? 0);
         $uniqueClicks    = (int) ($raw['unique_clicks'] ?? 0);
-        $visitors        = (int) ($raw['visitors'] ?? $uniqueClicks);
+        // Callers that don't distinguish the two funnels (legacy raw arrays)
+        // pass only a hit count — there clicks IS visitors.
+        $visitors        = (int) ($raw['visitors'] ?? $clicks);
         $uniqueStream    = (int) ($raw['unique_clicks_stream'] ?? $uniqueClicks);
         $uniqueGlobal    = (int) ($raw['unique_clicks_global'] ?? $uniqueClicks);
         $bots            = (int) ($raw['bots'] ?? 0);
@@ -341,15 +384,16 @@ if (!function_exists('orbitraConversionStatusGroups')) {
         // incoming visit; an LP click is the later CTA transition to an offer.
         // `prelander_clicks` is the legacy raw name for landing views.
         $lpViews         = (int) ($raw['prelander_clicks'] ?? $raw['lp_views'] ?? $clicks);
+        // lp_clicks/offer_clicks are the HONEST funnel (see the SQL providers):
+        // an LP click only counts once the visitor actually left through the
+        // offer link (offer_at recorded), and clicks left the SQL layer as
+        // offer hits — direct-to-offer visits plus completed landing
+        // transitions. The real_* columns carry the same numbers under their
+        // v1.4.0 names so saved column layouts keep resolving.
         $lpClicks        = (int) ($raw['lp_clicks'] ?? $raw['offer_clicks'] ?? 0);
         $offerClicks     = (int) ($raw['offer_clicks'] ?? $lpClicks);
-        // Honest transition counters (see the SQL providers): a landing click
-        // only counts once the visitor actually left through the offer link
-        // (offer_at recorded). Direct-to-offer clicks are their own transition,
-        // so they keep counting. Pre-feature rows (no offer_at) stay out of the
-        // landing funnel — the old columns keep their historical meaning.
-        $realLpClicks    = (int) ($raw['real_lp_clicks'] ?? 0);
-        $realOfferClicks = (int) ($raw['real_offer_clicks'] ?? 0);
+        $realLpClicks    = (int) ($raw['real_lp_clicks'] ?? $lpClicks);
+        $realOfferClicks = (int) ($raw['real_offer_clicks'] ?? $clicks);
         // PWA funnel (core/PwaLanding.php): the install columns are written by
         // the pixel beacon with a NULL-guard, so they are honest per click.
         // pwa_open_count is a throttled counter, not a flag.
@@ -358,6 +402,14 @@ if (!function_exists('orbitraConversionStatusGroups')) {
         $pwaInstallsReal = (int) ($raw['pwa_installs_real'] ?? 0);
         $pwaOpens        = (int) ($raw['pwa_opens'] ?? 0);
         $pushSubscribed  = (int) ($raw['push_subscribed'] ?? 0);
+        // Landing dwell (the /pixel.gif?action=lp beacon). Only visits whose
+        // page ran the timer report anything, so the sample count travels with
+        // the average — an average over three visits is not a verdict.
+        $lpDwellSamples  = (int) ($raw['lp_dwell_samples'] ?? 0);
+        $lpBounces       = (int) ($raw['lp_bounces'] ?? 0);
+        $lpScrollSamples = $lpDwellSamples;
+        $lpDwellSeconds  = ($raw['avg_lp_dwell'] ?? null) !== null
+            ? round((float) $raw['avg_lp_dwell'], 1) : null;
         // Direct-to-offer traffic has no LP-click counter. Preserve useful CPC
         // and EPC values for that traffic while using LP clicks whenever they
         // exist, as required by the landing funnel definitions.
@@ -436,6 +488,24 @@ if (!function_exists('orbitraConversionStatusGroups')) {
             'push_subscribed'         => $pushSubscribed,
             // Average landing→offer time, human-formatted ("1m 12s").
             'time_since_lp_click'     => self_fmtLpSeconds($raw['avg_lp_seconds'] ?? null),
+            // Time actually spent on the landing — measured for EVERY visitor,
+            // the ones who never pressed the offer button included (the
+            // /pixel.gif?action=lp beacon). time_since_lp_click cannot see
+            // those, which is why a landing nobody engages with used to report
+            // nothing at all instead of "3s".
+            'time_on_lp'              => self_fmtLpSeconds($raw['avg_lp_dwell'] ?? null),
+            'lp_dwell_seconds'        => $lpDwellSeconds,
+            // Deepest scroll reached, averaged. "3s / 8 %" and "3s / 100 %" are
+            // different verdicts on the same page.
+            'lp_scroll_depth'         => $lpScrollSamples > 0 && ($raw['avg_lp_scroll'] ?? null) !== null
+                                          ? round((float) $raw['avg_lp_scroll'], 1) : null,
+            // Share of measured visits shorter than 5 seconds. The denominator
+            // is measured visits, not clicks: a redirect landing on someone
+            // else's domain (and every bot that never runs JS) reports no time
+            // at all, and counting those as engaged would flatter every page.
+            'lp_measured'             => $lpDwellSamples,
+            'lp_bounce_rate'          => $lpDwellSamples > 0
+                                          ? round(($lpBounces / $lpDwellSamples) * 100, 2) : null,
 
             // Conversions & Events
             'conversions'             => $conversions,
@@ -499,17 +569,16 @@ if (!function_exists('orbitraConversionStatusGroups')) {
             'cpc'                     => $clickDenominator > 0 ? round($cost / $clickDenominator, 4) : 0,
             'ucpc'                    => $uniqueClicks > 0 ? round($cost / $uniqueClicks, 4) : 0,
             // CPV/EPV are the UNIVERSAL unit economics: over ALL inbound
-            // visits, so they stay truthful when a campaign mixes Lander
-            // streams with direct-to-offer streams (and for pure direct
-            // traffic, where LP views are zero and the old denominator
-            // zeroed these out). In a pure Lander flow every visit IS an
-            // LP view, so the value is identical either way.
-            'cpv'                     => $clicks > 0 ? round($cost / $clicks, 4) : 0,
-            'epv'                     => $clicks > 0 ? round($revenue / $clicks, 4) : 0,
-            'epv_confirmed'           => $clicks > 0 ? round($revConfirmed / $clicks, 4) : 0,
-            // eCPC — effective CPC once conversions are weighed in is not
-            // derivable from these counters; keep it the plain cost per click
-            // (identical to CPC) rather than the bogus cost*1000 it used to be.
+            // visits ($visitors, the raw hit count), so they stay truthful
+            // when a campaign mixes Lander streams with direct-to-offer
+            // streams. $clicks is the offer funnel — the CPC/EPC side — and
+            // the two denominators only coincide on pure direct traffic.
+            'cpv'                     => $visitors > 0 ? round($cost / $visitors, 4) : 0,
+            'epv'                     => $visitors > 0 ? round($revenue / $visitors, 4) : 0,
+            'epv_confirmed'           => $visitors > 0 ? round($revConfirmed / $visitors, 4) : 0,
+            // eCPC — cost per offer click: the raw-hit copy divided by ALL
+            // visits; with clicks carrying the offer funnel it is the cost of
+            // a click that verifiably reached the offer.
             'ecpc'                    => $clicks > 0 ? round($cost / $clicks, 4) : 0,
 
             'cpa'                     => $conversions > 0 ? round($cost / $conversions, 2) : 0,

@@ -45,6 +45,33 @@ The simplest form, and the one to reach for:
 
 Appending `&offer_id=` to `{offer}` does nothing useful: `{offer}` already expands to the advertiser's URL, so the parameter is just passed along to them. `/?_lp=1&offer_id=N` picks the offer inside the tracker and re-attributes the click, so a conversion lands on the right offer.
 
+### Time on the landing
+
+Nothing to add to the page: every landing the tracker serves gets a small timer
+injected before `</body>`. It reports how long the visitor stayed — **whether or
+not they ever pressed the offer button**, which is the difference between this
+and *Time to offer*: a page nobody clicks through reports nothing under the
+older metric, and that is precisely the page worth finding.
+
+What it measures, and what it deliberately does not:
+
+- only **visible** time — a tab left in the background does not accumulate;
+- the **deepest scroll** reached, 0-100 %, alongside the seconds;
+- checkpoints at 5, 15, 30 and 60 seconds and every minute after, plus a final
+  flush when the page is hidden or unloaded, so a closed tab still leaves a
+  number.
+
+Where it shows up: the **Time on LP** column in Logs (values under 5 seconds are
+highlighted) and in the click details, and in reports as the *Time on LP*,
+*LP bounce rate*, *LP scroll depth* and *LP measured visits* metrics plus the
+*Time on LP (bucket)* dimension. A visit that never reported — a redirect
+landing on someone else's domain without the tracking script, a bot that runs no
+JS — groups as **Unknown** rather than being counted as a zero-second visit.
+
+For a landing hosted elsewhere, the same timer ships inside
+[`tracking.js` / `kclient.js`](#js-adapter); a PHP page echoes
+`$client->timerScript()` (see [Tracking Client (PHP)](tracking-client-php.md)).
+
 ### Macros
 
 Substituted in the HTML of a local landing:

@@ -7,6 +7,76 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.5.1] — 2026-09-05
+
+### Added
+
+- **Time on the landing, measured for every visitor — not only the ones who
+  clicked through.** The existing `landing_at`/`offer_at` pair produces a number
+  only when the visitor pressed the CTA, so a landing that bores everyone away
+  reported nothing at all — exactly the page an operator is looking for, and
+  exactly the question "is this landing bad, or is this audience wrong for the
+  offer?" needs answered. Every page the tracker serves (local landings, PWA
+  store pages, an HTML action landing) now carries a small timer; sites hosted
+  elsewhere get the same one inside `tracking.js` / `kclient.js`, and
+  `kclient.php` gained `$client->timerScript()` for PHP pages. It `sendBeacon`s
+  to `/pixel.gif?action=lp` at 5/15/30/60 seconds and every minute after that,
+  plus a final flush on `pagehide` and on the tab going hidden — so a closed
+  tab, a killed browser or a dropped connection still leaves the last
+  checkpoint behind. Only VISIBLE time accumulates: a tab parked in the
+  background for an hour is not an hour of reading. Deepest scroll depth rides
+  along, because "3 seconds at 8 %" and "3 seconds at 100 %" are different
+  verdicts on the same page. Migration 49 adds `clicks.lp_seconds` and
+  `clicks.lp_scroll`; the endpoint writes through `MAX()`, so a late,
+  out-of-order or replayed beacon can only raise the number and never shrink
+  it, and a fabricated one stops at the ceiling (a day / 100 %). The Logs
+  traffic tab gained a **Time on LP** column (under 5 s highlighted, scroll
+  depth beside it) and the click details modal both rows. Reports gained the
+  *Time on LP*, *LP bounce rate*, *LP scroll depth* and *LP measured visits*
+  metrics plus a **Time on LP (bucket)** dimension (0-5s / 5-15s / 15-30s /
+  30-60s / 1-3m / 3m+); a visit that never reported — a redirect landing on
+  someone else's domain with no tracking script, a bot that runs no JS, a
+  pre-feature row — groups as *Unknown* rather than being counted as zero, and
+  the bounce-rate denominator is measured visits, not clicks. The older
+  `lp_time` dimension is now labelled **Time to offer (bucket)**, which is what
+  it always measured. Test: `tests/lp_dwell_test.php` (31 HTTP checks).
+
+### Fixed
+
+- **The Telegram bot could never receive a message on a fresh install** — the panel
+  built its webhook URL from the headers of whatever request saved the token
+  (`$_SERVER['HTTPS']` and `HTTP_HOST`), and the installer hands out
+  `http://<server-ip>/admin.php`. Telegram calls a webhook back only over HTTPS,
+  on a resolvable domain, with a certificate it trusts, so `setWebhook` was
+  refused every time; the refusal was stored as a bare `telegram_webhook_set=0`
+  and thrown away. The operator saw "bot connected" and "connection error"
+  together, `/start` reached nothing, and the panel answered *No chats connected.
+  Send /start to the bot first* — the symptom, blamed on the user, with the cause
+  nowhere on screen. Three parts to the fix:
+  - **Polling mode.** `telegram_poll_cron.php` asks Telegram for its updates
+    instead of waiting to be called, so the bot works on a bare IP, on plain HTTP
+    and behind a proxy — no domain, no certificate, no inbound connection. One
+    pass long-polls for most of a minute and exits, so cron supervises it; a
+    `flock` keeps two ticks from fighting over the same update stream (Telegram
+    answers the loser with 409), and the offset is advanced *before* an update is
+    handled so one malformed message cannot be replayed forever. Registered by
+    `install.sh`, and it exits immediately on installs that use a webhook.
+    Commands live in one handler that both entry points call, so the webhook and
+    the poller cannot drift apart.
+  - **Correct scheme detection.** `orbitraPublicBaseUrl()` reads
+    `X-Forwarded-Proto`, `X-Forwarded-Host`, `REQUEST_SCHEME` and the server port,
+    not `$_SERVER['HTTPS']` alone — behind Cloudflare or any TLS-terminating proxy
+    the origin sees plain HTTP, so a perfectly good HTTPS install was building an
+    `http://` webhook URL and failing the same way. `session_bootstrap.php`
+    already read that header; the two now agree. The panel picks a webhook when
+    Telegram could actually reach one and polling otherwise, and either can be
+    forced.
+  - **The reason, on screen.** Connecting reports what Telegram actually said
+    instead of a generic "connection error"; the status card shows which mode is
+    in use, `getWebhookInfo`'s `last_error_message` (delivery failures nothing on
+    this side can observe), and — in polling mode — when the worker last reported
+    in, so a missing cron line stops looking like a working install.
+
 ## [1.5.0] — 2026-09-03
 
 First public release of the PWA + web-push stack (53 commits since v1.4.1):

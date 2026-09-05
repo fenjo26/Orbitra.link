@@ -369,6 +369,35 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     }), [orderedColumns, fixedColLabels]);
     const colResize = useResizableTableColumns({ tableId: 'campaigns', columns: columnDefs, enabled: isDesktop });
 
+    // Sticky identity: the leading run of fixed columns through the campaign
+    // name stays pinned to the left edge while the metric columns scroll
+    // underneath — with thirty chosen columns the name otherwise slides off
+    // screen and every row loses its identity. Pinning only works on a
+    // contiguous prefix (a middle column sticking over its scrolling
+    // neighbours would cover them), so the run stops at the first metric
+    // column — or earlier, if the name was dragged out of the leading block.
+    const pinnedLefts = useMemo(() => {
+        const lefts = {};
+        let left = 0;
+        for (const id of orderedColumns) {
+            if (!BASE_FIXED_ORDER.includes(id)) break;
+            lefts[id] = left;
+            left += colResize.widthOf[id] || 0;
+            if (id === 'name') break;
+        }
+        return lefts;
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [orderedColumns, colResize.widthOf]);
+    const isPinned = (id) => pinnedLefts[id] !== undefined;
+    // Headers sit one layer above the sticky thead (z-index 10) so the pinned
+    // corner never slides under a scrolling metric header; body cells stay
+    // under both; the totals row is a footer cell (z-index 10) and must beat
+    // its scrolling siblings the same way the header does.
+    const thPinStyle = (id) => (isPinned(id) ? { position: 'sticky', left: pinnedLefts[id], zIndex: 11 } : undefined);
+    const tdPinStyle = (id) => (isPinned(id) ? { position: 'sticky', left: pinnedLefts[id], zIndex: 2 } : undefined);
+    // position: sticky (bottom) already comes from `.tracker-table tfoot td`.
+    const tfPinStyle = (id) => (isPinned(id) ? { left: pinnedLefts[id], zIndex: 11 } : undefined);
+
     // One-time purge for the columns that stay locked: stored widths take
     // precedence over col.width, so a width the user once dragged onto a
     // locked column would override it forever. Resizable columns keep their
@@ -643,11 +672,12 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         const ucpc = t0.unique_clicks > 0 ? t0.cost / t0.unique_clicks : 0;
         // CPV/EPV/eCPC/eCPM mirror orbitraComputeDerivedMetrics (the backend
         // is the source of truth and its formulas are pinned in
-        // tests/report_metrics_test.php): all four are visit-denominated —
-        // ÷ clicks. The old frontend copies divided by lp_views, which the
-        // backend never did; totals-row and per-row values could disagree.
-        const cpv = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
-        const epv = t0.clicks > 0 ? t0.revenue / t0.clicks : 0;
+        // tests/report_metrics_test.php): CPV/EPV are visit-denominated —
+        // ÷ visitors, the raw hit count; eCPC/eCPM follow the clicks column,
+        // which carries the offer funnel (direct clicks + completed landing
+        // transitions), not the raw hit count.
+        const cpv = t0.visitors > 0 ? t0.cost / t0.visitors : 0;
+        const epv = t0.visitors > 0 ? t0.revenue / t0.visitors : 0;
         const ecpc = t0.clicks > 0 ? t0.cost / t0.clicks : 0;
         const ecpm_all = t0.clicks > 0 ? (t0.profit / t0.clicks) * 1000 : 0;
         const ecpm_confirmed = t0.clicks > 0 ? (profit_confirmed / t0.clicks) * 1000 : 0;
@@ -792,6 +822,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             case 'prelander_clicks':
             case 'offer_clicks':
             case 'lp_views':
+            case 'lp_measured':
             case 'lp_clicks':
             case 'real_lp_clicks':
             case 'real_offer_clicks':
@@ -831,6 +862,12 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             case 'lp_ctr':
             case 'real_lp_ctr':
                 return val === null || val === undefined ? '—' : `${num.toFixed(2)}%`;
+
+            // Landing-timer metrics: null (dash) when nothing measured —
+            // never a fabricated 0 that would read as "everyone bounced".
+            case 'lp_bounce_rate':
+            case 'lp_scroll_depth':
+                return val === null || val === undefined ? '—' : `${num.toFixed(1)}%`;
 
             case 'roi':
             case 'roi_all':
@@ -1112,7 +1149,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                 };
                                 if (colId === 'check') {
                                     return (
-                                        <th key="check" className="col-check">
+                                        <th key="check" className="col-check" style={thPinStyle('check')}>
                                             <input
                                                 type="checkbox"
                                                 checked={allSelected}
@@ -1134,9 +1171,9 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                     // landed under `undefined` and Actions never resized.
                                     return <SortableTh key="actions" {...dragProps} colKey="actions" sortable={false} label={t('common.actions')} />;
                                 }
-                                if (colId === 'id') return <SortableTh key="id" {...dragProps} colKey="id" label="ID" defaultDir="desc" />;
-                                if (colId === 'state') return <SortableTh key="state" {...dragProps} colKey="state" label={t('common.status')} defaultDir="asc" />;
-                                if (colId === 'name') return <SortableTh key="name" {...dragProps} colKey="name" label={t('campaigns.campaign')} defaultDir="asc" />;
+                                if (colId === 'id') return <SortableTh key="id" {...dragProps} colKey="id" label="ID" defaultDir="desc" style={thPinStyle('id')} />;
+                                if (colId === 'state') return <SortableTh key="state" {...dragProps} colKey="state" label={t('common.status')} defaultDir="asc" style={thPinStyle('state')} />;
+                                if (colId === 'name') return <SortableTh key="name" {...dragProps} colKey="name" label={t('campaigns.campaign')} defaultDir="asc" style={thPinStyle('name')} />;
                                 if (colId === 'group_name') return <SortableTh key="group_name" {...dragProps} colKey="group_name" label={t('campaigns.group')} defaultDir="asc" />;
                                 const def = ALL_REPORT_METRICS.find(m => m.id === colId);
                                 return (
@@ -1169,7 +1206,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                         switch (colId) {
                                             case 'check':
                                                 return (
-                                                    <td key="check" className="col-check">
+                                                    <td key="check" className={`col-check${isPinned('check') ? ' col-pinned' : ''}`} style={tdPinStyle('check')}>
                                                         <input
                                                             type="checkbox"
                                                             checked={selectedCampaignIds.has(camp.id)}
@@ -1181,7 +1218,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                                 );
                                             case 'id':
                                                 return (
-                                                    <td key="id" className="font-medium cell-text">
+                                                    <td key="id" className={`font-medium cell-text${isPinned('id') ? ' col-pinned' : ''}`} style={tdPinStyle('id')}>
                                                         <span title={camp.keitaro_id ? `Keitaro ID: ${camp.keitaro_id}` : ''}>{camp.id}</span>
                                                     </td>
                                                 );
@@ -1190,7 +1227,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                                     /* Dedicated status column keeps the pause switch away
                                                        from the campaign name — a stray click while aiming
                                                        at the name used to stop live ads. */
-                                                    <td key="state">
+                                                    <td key="state" className={isPinned('state') ? 'col-pinned' : undefined} style={tdPinStyle('state')}>
                                                         <div className="flex items-center justify-center">
                                                             <button
                                                                 type="button"
@@ -1211,7 +1248,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                                 );
                                             case 'name':
                                                 return (
-                                                    <td key="name">
+                                                    <td key="name" className={isPinned('name') ? 'col-pinned' : undefined} style={tdPinStyle('name')}>
                                                         {/* The alias stays in the URL builders and the search
                                                             filter; the chip doubled the column's visual weight
                                                             for something nobody reads row-by-row. */}
@@ -1221,13 +1258,15 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                                         {/* Same treatment as the mobile card below: the name
                                                             opens the editor, and both surfaces say so with
                                                             --color-primary at font-semibold. */}
+                                                        {/* An empty name still has to identify its row — the
+                                                            fallback mirrors the mobile card's "#id" subtitle. */}
                                                         <span
                                                             className="block font-semibold text-xs truncate cursor-pointer hover:underline"
                                                             style={{ color: 'var(--color-primary)' }}
                                                             onClick={() => handleEdit(camp.id)}
                                                             title={camp.name}
                                                         >
-                                                            {camp.name}
+                                                            {String(camp.name || '').trim() || `#${camp.id}`}
                                                         </span>
                                                     </td>
                                                 );
@@ -1270,10 +1309,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                             <ColRow columns={orderedColumns} style={{ backgroundColor: 'var(--color-bg-soft)', borderTop: '2px solid var(--color-border)', fontWeight: 700 }}>
                                 {orderedColumns.map(colId => {
                                     switch (colId) {
-                                        case 'check': return <td key="check" className="col-check"></td>;
-                                        case 'id': return <td key="id">Σ</td>;
-                                        case 'state': return <td key="state"></td>;
-                                        case 'name': return <td key="name">{t('campaignReports.total', 'Totals')} ({visibleCampaigns.length})</td>;
+                                        case 'check': return <td key="check" className="col-check" style={tfPinStyle('check')}></td>;
+                                        case 'id': return <td key="id" style={tfPinStyle('id')}>Σ</td>;
+                                        case 'state': return <td key="state" style={tfPinStyle('state')}></td>;
+                                        case 'name': return <td key="name" style={tfPinStyle('name')}>{t('campaignReports.total', 'Totals')} ({visibleCampaigns.length})</td>;
                                         case 'actions': return <td key="actions"></td>;
                                         case 'group_name': return <td key="group_name">-</td>;
                                         default:

@@ -46,9 +46,9 @@ const VALUE_WIDTH = {
     text: 120,
 };
 
-const PERCENT_RE = /(^cr$|^cr_|^roi$|^roi_|_rate$|^ucr$|_ctr$|^profitability$|%)/;
+const PERCENT_RE = /(^cr$|^cr_|^roi$|^roi_|_rate$|^ucr$|_ctr$|^profitability$|^lp_scroll_depth$|%)/;
 const CURRENCY_RE = /(revenue|profit|^cost$|^payout|^epc|^uepc|^epv$|^cp[acdlrsv]$|^ucpc$|^ecpc$|^ecpm|^earnings_per_conv$|^ec_confirmed$)/;
-const TEXT_RE = /(^time_since_lp_click$)/;
+const TEXT_RE = /(^time_since_lp_click$|^time_on_lp$)/;
 
 /**
  * Hand-tuned exceptions. Anything not listed is classified below - add an entry

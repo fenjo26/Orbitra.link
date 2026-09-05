@@ -346,11 +346,19 @@ const IntegrationsPage = () => {
                 daily_time: tgDailyTime
             });
             if (res.data.status === 'success') {
-                setTgMessage({ type: 'success', text: t('telegram.connected') + (res.data.data?.bot_username ? ` @${res.data.data.bot_username}` : '') });
+                const d = res.data.data || {};
+                let text = t('telegram.connected') + (d.bot_username ? ` @${d.bot_username}` : '');
+                // Auto mode may have landed on polling. Saying only "bot added"
+                // is what let a tester see success and "connection error" at the
+                // same time, with nothing explaining either.
+                if (d.mode === 'polling') {
+                    text += ' — ' + t('telegram.connectedPolling');
+                }
+                setTgMessage({ type: 'success', text });
                 setTgToken('');
                 fetchTelegramSettings();
             } else {
-                setTgMessage({ type: 'error', text: res.data.message });
+                setTgMessage({ type: 'error', text: res.data.message || t('telegram.connectionError') });
             }
         } catch (err) {
             setTgMessage({ type: 'error', text: t('telegram.connectionError') });
@@ -378,10 +386,15 @@ const IntegrationsPage = () => {
         setTgMessage(null);
         try {
             const res = await axios.post(`${API_URL}?action=telegram_test`);
-            setTgMessage({
-                type: res.data.status === 'success' ? 'success' : 'error',
-                text: res.data.message || (res.data.status === 'success' ? t('telegram.testSent') : t('telegram.testFailed'))
-            });
+            let text = res.data.message || (res.data.status === 'success' ? t('telegram.testSent') : t('telegram.testFailed'));
+            // "Send /start first" is only useful advice if /start can arrive at
+            // all. Add the reason it may not be arriving.
+            if (res.data.code === 'no_chats') {
+                text = t('telegram.noChats') + ' ' + (res.data.mode === 'polling'
+                    ? t('telegram.noChatsHintPolling')
+                    : t('telegram.noChatsHintWebhook'));
+            }
+            setTgMessage({ type: res.data.status === 'success' ? 'success' : 'error', text });
         } catch (err) {
             setTgMessage({ type: 'error', text: t('telegram.testFailed') });
         } finally {
@@ -4872,6 +4885,70 @@ global \$wpdb;
         </div>
     );
 
+    // Why the bot is or is not receiving anything.
+    //
+    // The panel used to render one bit — webhook_set — as "connection error",
+    // which is where a tester lands with a valid token, a bot that answers
+    // getMe, and no idea that Telegram simply refuses to call back to an
+    // http://<ip> install. Each row below names a cause the operator can act on.
+    const renderTelegramDiagnostics = () => {
+        const d = tgSettings?.diagnostics;
+        if (!d) return null;
+
+        const notes = [];
+
+        if (tgSettings.mode === 'polling') {
+            notes.push({
+                tone: d.poll_stale ? 'warn' : 'info',
+                text: d.poll_stale ? t('telegram.pollStale') : t('telegram.pollActive'),
+                hint: d.poll_stale ? 'php /var/www/orbitra/telegram_poll_cron.php --once' : (d.poll_last_run || '')
+            });
+            if (d.poll_last_error) {
+                notes.push({ tone: 'warn', text: d.poll_last_error });
+            }
+            if (!d.webhook_possible) {
+                notes.push({ tone: 'info', text: t('telegram.pollingReason') });
+                // Same advice as the pre-connect notice, for an install that is
+                // already running: open the panel on a domain and reconnect.
+                notes.push({ tone: 'info', text: t('telegram.pollingSwitchToDomain'), hint: d.panel_url });
+            }
+        } else {
+            if (d.webhook_last_error) {
+                notes.push({ tone: 'warn', text: t('telegram.webhookDeliveryError'), hint: d.webhook_last_error });
+            }
+            if (d.last_connect_error) {
+                notes.push({ tone: 'warn', text: d.last_connect_error });
+            }
+            if (d.webhook_registered_url) {
+                notes.push({ tone: 'info', text: t('telegram.webhookUrl'), hint: d.webhook_registered_url });
+            }
+        }
+
+        if (!notes.length) return null;
+
+        return (
+            <div style={{ marginTop: '12px' }} className="space-y-2">
+                {notes.map((n, i) => (
+                    <div key={i} style={{
+                        fontSize: '12px',
+                        padding: '8px 12px',
+                        borderRadius: '10px',
+                        background: 'var(--color-bg-card)',
+                        border: `1px solid ${n.tone === 'warn' ? '#fca5a5' : 'var(--color-border)'}`,
+                        color: n.tone === 'warn' ? '#b91c1c' : 'var(--color-text-muted)'
+                    }}>
+                        <div>{n.text}</div>
+                        {n.hint ? (
+                            <code style={{ display: 'block', marginTop: '4px', wordBreak: 'break-all', color: 'var(--color-text-muted)' }}>
+                                {n.hint}
+                            </code>
+                        ) : null}
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
     const renderTelegramPanel = () => (
         <div style={{ padding: '24px', flex: 1, overflow: 'auto' }}>
             {tgLoading ? (
@@ -4906,11 +4983,22 @@ global \$wpdb;
                                 <div className="flex items-center gap-3">
                                     <div style={{
                                         width: '10px', height: '10px', borderRadius: '50%',
-                                        background: tgSettings.webhook_set ? '#22c55e' : '#ef4444',
-                                        boxShadow: tgSettings.webhook_set ? '0 0 8px #22c55e80' : '0 0 8px #ef444480'
+                                        background: tgSettings.connected ? '#22c55e' : '#ef4444',
+                                        boxShadow: tgSettings.connected ? '0 0 8px #22c55e80' : '0 0 8px #ef444480'
                                     }} />
                                     <span style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>
-                                        {tgSettings.webhook_set ? t('telegram.statusConnected') : t('telegram.statusError')}
+                                        {tgSettings.connected ? t('telegram.statusConnected') : t('telegram.statusError')}
+                                    </span>
+                                    {/* Which way updates reach us. Without this the
+                                        operator cannot tell a webhook install from a
+                                        polling one, and the two fail differently. */}
+                                    <span style={{
+                                        fontSize: '11px', fontWeight: 600, padding: '2px 8px',
+                                        borderRadius: '999px', textTransform: 'uppercase', letterSpacing: '0.03em',
+                                        background: 'var(--color-bg-card)', border: '1px solid var(--color-border)',
+                                        color: 'var(--color-text-muted)'
+                                    }}>
+                                        {tgSettings.mode === 'polling' ? t('telegram.modePolling') : t('telegram.modeWebhook')}
                                     </span>
                                 </div>
                                 <button onClick={handleTelegramDisconnect} disabled={tgSaving} className="btn btn-secondary btn-sm" style={{ color: '#ef4444' }}>
@@ -4921,6 +5009,8 @@ global \$wpdb;
                             <div style={{ fontSize: '13px', color: 'var(--color-text-muted)' }}>
                                 Token: <code style={{ color: 'var(--color-primary)' }}>{tgSettings.masked_token}</code>
                             </div>
+
+                            {renderTelegramDiagnostics()}
 
                             {/* Connected Chats */}
                             {tgSettings.chats?.length > 0 && (
@@ -4979,6 +5069,40 @@ global \$wpdb;
                             <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginBottom: '16px', lineHeight: 1.6 }}>
                                 {t('telegram.connectInstructions')}
                             </p>
+
+                            {/* Said before Connect, not after.
+                                Telegram calls a webhook back only over HTTPS on a real
+                                domain, and the installer hands out http://<server-ip>/admin.php.
+                                Learning that from the status card afterwards is what makes
+                                people ask whether the bot is broken — so name the address
+                                they are actually on, say what to open instead, and say
+                                plainly that the bot works either way. */}
+                            {tgSettings?.diagnostics && !tgSettings.diagnostics.webhook_possible && (
+                                <div style={{
+                                    padding: '12px 14px',
+                                    borderRadius: '12px',
+                                    marginBottom: '16px',
+                                    background: 'var(--color-bg-card)',
+                                    border: '1px solid #fcd34d',
+                                    fontSize: '13px',
+                                    lineHeight: 1.6,
+                                    color: 'var(--color-text-secondary)'
+                                }}>
+                                    <div style={{ fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '4px' }}>
+                                        {t('telegram.domainHintTitle')}
+                                    </div>
+                                    <div>
+                                        {t('telegram.domainHintBody')}{' '}
+                                        <code style={{ color: 'var(--color-primary)', wordBreak: 'break-all' }}>
+                                            {tgSettings.diagnostics.panel_url}
+                                        </code>
+                                    </div>
+                                    <div style={{ marginTop: '6px' }}>
+                                        {t('telegram.domainHintFallback')}
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="flex gap-2">
                                 <div style={{ position: 'relative', flex: 1 }}>
                                     <input
