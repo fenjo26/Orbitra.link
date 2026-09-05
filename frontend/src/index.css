@@ -1301,6 +1301,30 @@ code {
   background-color: var(--color-bg-hover);
 }
 
+/* ---- Pinned identity columns (Campaigns) ----
+   The leading fixed columns stick to the left edge while the metric columns
+   scroll beneath them, so a row keeps its name at any scroll position — with
+   thirty chosen columns the name otherwise leaves the screen entirely. A
+   sticky cell is transparent by default and the columns sliding past
+   underneath would show straight through it, so each pinned cell paints an
+   opaque background mirroring the row paints: card, the zebra tint on even
+   rows, hover on hover. These mirrors must stay AFTER the zebra/hover rules
+   above (equal specificity, later wins) or an even row's pinned cell paints
+   the plain card colour over its stripe. */
+.tracker-table td.col-pinned {
+  position: sticky;
+  z-index: 2;
+  background-color: var(--color-bg-card);
+}
+
+.tracker-table tbody tr:nth-child(even) td.col-pinned {
+  background-color: color-mix(in srgb, var(--color-text-primary) 2.5%, var(--color-bg-card));
+}
+
+.tracker-table tbody tr:hover td.col-pinned {
+  background-color: var(--color-bg-hover);
+}
+
 /* ---- Resizable table columns (components/common/ColumnResize.jsx) ---- */
 
 /* The class is deliberately bare (0,1,0): it must stay BELOW .tracker-table

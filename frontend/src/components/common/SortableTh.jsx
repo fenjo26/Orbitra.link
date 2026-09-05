@@ -28,7 +28,7 @@ export const SortIcon = ({ sortBy, colKey }) => {
 // to sort by (Actions) — they still reorder and resize like everything else.
 // Header labels centre within their column: with user-resizable widths a
 // label hugging the left/right edge of a wide cell reads crooked.
-export const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd, resize, hideSortIcon = false, sortable = true, className = '', ...rest }) => {
+export const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd, resize, hideSortIcon = false, sortable = true, className = '', style, ...rest }) => {
     const isActive = sortBy.key === colKey;
     const startColumnDrag = (e) => {
         if (onDragStart) onDragStart(e);
@@ -63,6 +63,9 @@ export const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', dragg
             onDrop={onDrop}
             onDragEnd={onDragEnd}
             style={{
+                /* Caller styles (the pinned-column insets) merge under the
+                   drag highlight, which always wins while it is up. */
+                ...style,
                 userSelect: 'none',
                 /* Opaque drop target: a washed-out highlight under the
                    floating ghost made the two headers unreadable together. */
