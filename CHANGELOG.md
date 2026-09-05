@@ -41,6 +41,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `lp_time` dimension is now labelled **Time to offer (bucket)**, which is what
   it always measured. Test: `tests/lp_dwell_test.php` (31 HTTP checks).
 
+
+### Changed
+
+- **Clicks mean the offer funnel.** A landing view whose visitor already has a
+  pre-bound offer (`offer_selection='before'`) used to count as a click, so the
+  funnel and every ratio read off a mixed denominator. Clicks are now the offer
+  funnel — direct-to-offer hits plus landing views whose visitor left through
+  the offer link (`offer_at` recorded) — while visitors stay all hits, and
+  CPV/EPV divide by visitors. Mirrored across the campaigns list SQL, the
+  report aggregator, `ReportMetrics`, the Campaigns/Offers/CampaignReports
+  totals and the pinned expectations in `tests/report_metrics_test.php`.
+
 ### Fixed
 
 - **The Telegram bot could never receive a message on a fresh install** — the panel
@@ -76,6 +88,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
     in use, `getWebhookInfo`'s `last_error_message` (delivery failures nothing on
     this side can observe), and — in polling mode — when the worker last reported
     in, so a missing cron line stops looking like a working install.
+
+- **The Campaigns table kept scrolling its name off-screen.** With thirty
+  chosen columns the checkbox/ID/Status/Name block slid under the metrics, and
+  a clipped name stub was all that remained of the row's identity. The leading
+  identity columns now pin to the left edge while the metric columns scroll
+  beneath — in the header, the body and the totals row — painting opaque row
+  backgrounds (base, zebra, hover) so nothing shows through. Dragging the name
+  out of the leading block unpins it, and an empty name renders as `#id`,
+  mirroring the mobile card's subtitle.
+- **A stale column-width map survived a column-geometry change.** Stored widths
+  are keyed by column id, so a reworked geometry kept reading an old map and
+  winning over the new defaults; the storage key is versioned now, and stale
+  maps age out instead of beating the new code.
+- **TikTok/Meta server-side events lacked `content_id`** (PR #8 by @buninsan) —
+  payloads now carry it best-effort, resolved from the AdCombo landing
+  `_config.php` convention (`$products`), with a graceful fallback to the
+  previous payload wherever the convention does not apply.
+
 
 ## [1.5.0] — 2026-09-03
 

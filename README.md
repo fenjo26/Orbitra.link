@@ -1,4 +1,4 @@
-# Orbitra v1.5.0 Tracker
+# Orbitra v1.5.1 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,28 +11,33 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.5.0
+## 🆕 What's New in v1.5.1
 
-Feature release — PWA landings, web push campaigns and a content gallery go public.
+Feature release — every visitor's time on the landing is measured, the Telegram bot works on a bare IP, and the click funnel says what it means.
 
 ### Added
 
-- 📱 **PWA landings** — a store-style web app constructor: icon, screenshots, ratings, reviews, themes, live preview, in-app screen after install, funnel beacons (interest → install → reopens) written into the click. The push subscription runs inside the service worker and self-heals on every app reopen. Bind a domain directly to a PWA — the store opens from the domain root, organic visits are logged to a hidden system campaign
-- 🔔 **Web Push on your own base** — self-hosted VAPID keys (pure PHP, RFC 8291/8292, no composer), subscriber list with CSV export and a one-click per-subscriber test send, manual + event messages (install/lead/sale with delay), conversion-based segments, per-recipient macros, a cron-driven delivery queue with retries and automatic aging of dead subscriptions. The crypto envelope is verified against RFC and web-push reference vectors
-- 🖼 **Content Gallery** — media library with folders, drag-and-drop upload and soft delete; a shared MediaPicker in the PWA/landing/offer editors with size contracts and built-in cropping (PWA icon 512×512)
-- 📚 **New guides** — [PWA & Push](docs/pwa-push.md) and [Content Gallery](docs/content-gallery.md)
+- ⏱ **Time on the landing for every visitor** — a timer on every page the tracker serves (and inside `tracking.js` / `kclient.js` elsewhere) beacons visible seconds plus scroll depth into the click. Reports gain *Time on LP*, *LP bounce rate*, *LP scroll depth*, *LP measured visits* and a **Time on LP (bucket)** dimension
+- 🤖 **A Telegram bot that actually receives messages** — polling mode (`telegram_poll_cron.php`) for bare-IP / plain-HTTP / proxied installs, correct scheme behind TLS-terminating proxies, and the real reason on screen when something is still wrong
+
+### Changed
+
+- 🎯 **Clicks mean the offer funnel** — a landing view with a pre-bound offer counts as a visitor, not a click; clicks = direct-to-offer hits + completed landing transitions, and CPV/EPV divide by visitors. Mirrored across the campaigns list, reports, offer totals and the pinned test expectations
 
 ### Fixed (highlights)
 
-- Four crypto-layer defects in push delivery found by live device diagnostics (VAPID `k=` parameter, a 4100-byte record pad, the RFC 8291 key schedule, the missing aes128gcm keyid) — a push service answered 201 while no device could decrypt the message; the sender test now decrypts records exactly like a browser, reading every byte off the wire
-- `{subid}` on the landing→offer hop, service worker registration on bound domains, panel session lifetime, SQLite "database is locked" answered as a clean 503, silent user demotion on partial `save_user` — see the [changelog](CHANGELOG.md) for the full list
+- 📌 **The Campaigns table keeps its identity while you scroll** — checkbox/ID/Status/Name pin to the left edge, so a thirty-column set no longer carries the campaign name off-screen
+- 🔗 **TikTok/Meta CAPI payloads carry `content_id`** (PR #8) — resolved best-effort from the AdCombo landing `_config.php` convention, a silent no-op where it does not apply
+- 🧱 **A stale column-width map no longer survives a geometry change** — the storage key is versioned, old maps age out instead of winning
 
-### Previous Highlights (v1.4.1)
+### Previous Highlights (v1.5.0)
 
-- 🐞 **Affiliate Networks page crash fixed (issue #7)** — `canWriteResource is not defined` since v1.4.0; all mutation controls now mirror the server-side permission gate
-- 🌍 **System Status messages follow the panel language** — 8 message codes localized in all 7 languages
+- 📱 **PWA landings** — a store-style web app constructor with funnel beacons and self-healing push subscription inside the service worker, direct domain→PWA binding
+- 🔔 **Web Push on your own base** — self-hosted VAPID keys, subscriber list, manual + event messages, cron-driven delivery queue
+- 🖼 **Content Gallery** — media library with a shared MediaPicker (size contracts, cropping); four crypto-layer push delivery defects fixed by live device diagnostics
 
-Older releases (v1.4.0 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.4.1 and earlier): see the [full changelog](CHANGELOG.md).
+
 
 ## 🖥 Live Demo
 
@@ -511,7 +516,22 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.5.0 (2026-09-03)
+### Current release — v1.5.1 (2026-09-05)
+
+**Added**
+- ⏱ **Time on LP for every visitor** — visible seconds + scroll depth into the click, *LP bounce rate* / *LP scroll depth* / *LP measured visits* metrics and a **Time on LP (bucket)** dimension
+- 🤖 **Telegram polling mode** — the bot works on a bare IP / plain HTTP / behind a proxy; scheme detection honours `X-Forwarded-Proto`; the real Telegram error on screen
+
+**Changed**
+- 🎯 **Clicks = the offer funnel** — pre-bound landing views count as visitors; CPV/EPV divide by visitors
+
+**Fixed**
+- 📌 Campaigns table pins checkbox/ID/Status/Name while metrics scroll
+- 🔗 CAPI `content_id` in TikTok/Meta payloads (PR #8)
+- 🧱 stale column-width maps age out via a versioned storage key
+
+### Previous release — v1.5.0 (2026-09-03)
+
 
 **Added**
 - 📱 **PWA landings** — store-style web app constructor, funnel beacons into the click, push subscription inside the service worker with self-heal, direct domain→PWA binding (organic visits to a hidden system campaign)
