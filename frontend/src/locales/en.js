@@ -2715,6 +2715,7 @@ export default {
         "copied": "Copied!"
     },
     "update": {
+        "cachedResult": "Showing a cached check from",
         "checkFailed": "Could not reach GitHub to check for updates — \"latest version\" may be stale. Update manually: SSH → cd /var/www/orbitra && git pull",
         "checkingUpdates": "Checking for updates...",
         "versionInfo": "Version Information",

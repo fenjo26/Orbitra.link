@@ -2424,6 +2424,7 @@ export default {
         "copied": "Скопировано!"
     },
     "update": {
+        "cachedResult": "Показан кэш проверки от",
         "checkFailed": "Не удалось проверить обновления на GitHub — «актуальная версия» может быть устаревшей. Обновитесь вручную: SSH → cd /var/www/orbitra && git pull",
         "checkingUpdates": "Проверка обновлений...",
         "versionInfo": "Информация о версии",

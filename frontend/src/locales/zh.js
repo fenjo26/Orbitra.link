@@ -2715,6 +2715,7 @@ export default {
         "copied": "复制了！"
     },
     "update": {
+        "cachedResult": "显示的是缓存的检查结果，时间：",
         "checkFailed": "无法访问 GitHub 检查更新 —「最新版本」可能已过时。请手动更新：SSH → cd /var/www/orbitra && git pull",
         "checkingUpdates": "正在检查更新...",
         "versionInfo": "版本信息",

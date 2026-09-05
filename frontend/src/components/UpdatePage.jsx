@@ -127,6 +127,15 @@ const UpdatePage = () => {
                                 {t('update.checkFailed', 'Не удалось проверить обновления на GitHub — «актуальная версия» может быть устаревшей. Обновитесь вручную: SSH → cd /var/www/orbitra && git pull')}
                             </p>
                         )}
+                        {/* The check is cached server-side (1h good / 10min failed).
+                            Without this stamp a pre-release answer reads as a live
+                            verdict — "Latest 1.5.1" an hour after the push looked
+                            like a missed version bump, when it was just the cache. */}
+                        {updateInfo?.cached && updateInfo?.checked_at && (
+                            <p className="text-xs" style={{ color: 'var(--color-text-muted)', maxWidth: '360px', marginTop: '4px' }}>
+                                {t('update.cachedResult')} {new Date(updateInfo.checked_at * 1000).toLocaleString()}
+                            </p>
+                        )}
                     </div>
                 </div>
             </div>

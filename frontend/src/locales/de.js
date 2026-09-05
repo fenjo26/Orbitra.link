@@ -2715,6 +2715,7 @@ export default {
         "copied": "Kopiert!"
     },
     "update": {
+        "cachedResult": "Angezeigt wird ein zwischengespeicherter Check vom",
         "checkFailed": "GitHub ist für die Update-Prüfung nicht erreichbar — „Neueste Version“ kann veraltet sein. Manuell aktualisieren: SSH → cd /var/www/orbitra && git pull",
         "checkingUpdates": "Nach Updates suchen...",
         "versionInfo": "Version Informationen",

@@ -2715,6 +2715,7 @@ export default {
         "copied": "Copié !"
     },
     "update": {
+        "cachedResult": "Affichage d'un résultat en cache du",
         "checkFailed": "Impossible de joindre GitHub pour vérifier les mises à jour — la « dernière version » peut être obsolète. Mettez à jour manuellement : SSH → cd /var/www/orbitra && git pull",
         "checkingUpdates": "Vérification des mises à jour...",
         "versionInfo": "Informations sur la version",

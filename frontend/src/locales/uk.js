@@ -2715,6 +2715,7 @@ export default {
         "copied": "Скопійовано!"
     },
     "update": {
+        "cachedResult": "Показано кеш перевірки від",
         "checkFailed": "Не вдалося перевірити оновлення на GitHub — «актуальна версія» може бути застарілою. Оновіть вручну: SSH → cd /var/www/orbitra && git pull",
         "checkingUpdates": "Перевірка оновлень...",
         "versionInfo": "Інформація про версію",
