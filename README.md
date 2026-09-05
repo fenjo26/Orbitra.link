@@ -1,4 +1,4 @@
-# Orbitra v1.5.1 Tracker
+# Orbitra v1.5.2 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,32 +11,38 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.5.1
+## 🆕 What's New in v1.5.2
 
-Feature release — every visitor's time on the landing is measured, the Telegram bot works on a bare IP, and the click funnel says what it means.
+Feature release — the panel gains a themed boot screen, a redesigned login and two new themes; the Telegram bot becomes a visual menu that speaks every language.
 
 ### Added
 
-- ⏱ **Time on the landing for every visitor** — a timer on every page the tracker serves (and inside `tracking.js` / `kclient.js` elsewhere) beacons visible seconds plus scroll depth into the click. Reports gain *Time on LP*, *LP bounce rate*, *LP scroll depth*, *LP measured visits* and a **Time on LP (bucket)** dimension
-- 🤖 **A Telegram bot that actually receives messages** — polling mode (`telegram_poll_cron.php`) for bare-IP / plain-HTTP / proxied installs, correct scheme behind TLS-terminating proxies, and the real reason on screen when something is still wrong
+- 🎨 **A boot screen that paints before the bundle parses** — themed from the first frame, per-theme variants (terminal gets a mono wordmark and a blinking caret, aurora a wider orbit), `prefers-reduced-motion` flattens it; a cold load never shows a blank page
+- 🖥 **Terminal & Aurora themes** — a phosphor console (scanlines, tube vignette, phosphor glow, deliberately static) and cold light drifting over deep navy; the login and the confirm dialogs are themed along
+- 🗺 **A two-column login** — the left side is an animated diagram of what the tracker actually does (CLICK → CLOAK → OFFER A/B/C on solid lanes, the safe page dashed, pips on fixed schedules); the footer carries a live **Tracker online** indicator and the running version
+- 🤖 **The Telegram bot as a visual menu** — a pinned keyboard with readable buttons ("📊 Статистика") in 7 languages, a localized "/" command list, inline language and campaign pickers, toggle buttons for notifications and the daily summary; conversion pushes and the daily summary speak all 7 languages — and the daily summary actually sends now
+- 🧹 **Bot-IP entries keep their origin** — Clear All purges hand-added entries and keeps imported feeds (migration 50)
+- 📸 **Snapchat Ads source template** — with its two silent-failure traps handled: `{{adSet.id}}` camelCase and `ad_name` via `{{creative.name}}`
 
 ### Changed
 
-- 🎯 **Clicks mean the offer funnel** — a landing view with a pre-bound offer counts as a visitor, not a click; clicks = direct-to-offer hits + completed landing transitions, and CPV/EPV divide by visitors. Mirrored across the campaigns list, reports, offer totals and the pinned test expectations
+- 🪟 **The cloak diagnostics strip has a selectable window** — the shared date-range picker with presets and timezone; the click-log shortcut follows the chosen window
+- 🎯 **Campaigns metric headers carry status colour dots** — resolved from your own conversion types, the same colours the report table shows
+- 📊 **Profitability is now Margin** — profit ÷ revenue; ROI stays profit ÷ cost
 
 ### Fixed (highlights)
 
-- 📌 **The Campaigns table keeps its identity while you scroll** — checkbox/ID/Status/Name pin to the left edge, so a thirty-column set no longer carries the campaign name off-screen
-- 🔗 **TikTok/Meta CAPI payloads carry `content_id`** (PR #8) — resolved best-effort from the AdCombo landing `_config.php` convention, a silent no-op where it does not apply
-- 🧱 **A stale column-width map no longer survives a geometry change** — the storage key is versioned, old maps age out instead of winning
+- 🤖 **The bot no longer mutates state silently** — bare `/lang` used to reset to Russian and bare `/notify` switched notifications off; both now report the current state with a button. "/notify off" and "/stats 7d" work again (arguments were swallowed into the command name)
+- 🖱 **The update check no longer holds the panel** — off means no request at all; answers are cached server-side
+- 🌐 **Webhook and polling subscribe to callback queries** — inline button taps answer everywhere
 
-### Previous Highlights (v1.5.0)
+### Previous Highlights (v1.5.1)
 
-- 📱 **PWA landings** — a store-style web app constructor with funnel beacons and self-healing push subscription inside the service worker, direct domain→PWA binding
-- 🔔 **Web Push on your own base** — self-hosted VAPID keys, subscriber list, manual + event messages, cron-driven delivery queue
-- 🖼 **Content Gallery** — media library with a shared MediaPicker (size contracts, cropping); four crypto-layer push delivery defects fixed by live device diagnostics
+- ⏱ **Time on the landing for every visitor** — visible seconds + scroll depth into the click, with LP bounce / scroll / measured-visit metrics and a bucket dimension
+- 🤖 **Telegram polling** — the bot receives messages on bare-IP / plain-HTTP / proxied installs
+- 🎯 **Clicks mean the offer funnel** — CPV/EPV divide by visitors; 📌 pinned identity columns; 🔗 CAPI `content_id` (PR #8)
 
-Older releases (v1.4.1 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.5.0 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo
@@ -516,11 +522,31 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.5.1 (2026-09-05)
+### Current release — v1.5.2 (2026-09-05)
+
+**Added**
+- 🎨 **Boot screen before the bundle parses** — themed from the first frame, per-theme variants, reduced-motion aware
+- 🖥 **Terminal & Aurora themes** — phosphor console and cold drifting light; themed login and dialogs
+- 🗺 **Two-column login** — animated CLICK→CLOAK→OFFER/SAFE flow diagram, live "Tracker online" + version footer
+- 🤖 **Telegram bot as a visual menu** — pinned keyboard with readable labels ×7 languages, localized "/" menu, inline language/campaign pickers, notification toggles; conversion pushes and the daily summary in all 7 languages, and the daily summary actually sends
+- 🧹 Bot-IP entries keep their origin — Clear All keeps imported feeds (migration 50)
+- 📸 Snapchat Ads source template (`{{adSet.id}}` camelCase, `ad_name` via `{{creative.name}}`)
+
+**Changed**
+- 🪟 Cloak diagnostics: selectable window + timezone via the shared picker; the click-log shortcut follows the window
+- 🎯 Status colour dots on Campaigns metric headers (shared with the report table)
+- 📊 Profitability → **Margin** (profit ÷ revenue); ROI stays profit ÷ cost
+
+**Fixed**
+- 🤖 The bot no longer mutates state silently — bare `/lang` reset to Russian, bare `/notify` switched notifications off; "/notify off" and "/stats 7d" work again
+- 🖱 The update check no longer holds the panel — cached server-side, off means no call
+- 🌐 Webhook/polling subscribe to `callback_query`; bot IP CIDR matching without gmp (IPv4+IPv6)
+
+### Previous release — v1.5.1 (2026-09-05)
 
 **Added**
 - ⏱ **Time on LP for every visitor** — visible seconds + scroll depth into the click, *LP bounce rate* / *LP scroll depth* / *LP measured visits* metrics and a **Time on LP (bucket)** dimension
-- 🤖 **Telegram polling mode** — the bot works on a bare IP / plain HTTP / behind a proxy; scheme detection honours `X-Forwarded-Proto`; the real Telegram error on screen
+- 🤖 **Telegram polling mode** — the bot works on a bare IP / plain HTTP / behind a proxy; the real Telegram error on screen
 
 **Changed**
 - 🎯 **Clicks = the offer funnel** — pre-bound landing views count as visitors; CPV/EPV divide by visitors
@@ -530,20 +556,7 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 - 🔗 CAPI `content_id` in TikTok/Meta payloads (PR #8)
 - 🧱 stale column-width maps age out via a versioned storage key
 
-### Previous release — v1.5.0 (2026-09-03)
-
-
-**Added**
-- 📱 **PWA landings** — store-style web app constructor, funnel beacons into the click, push subscription inside the service worker with self-heal, direct domain→PWA binding (organic visits to a hidden system campaign)
-- 🔔 **Web Push on your own base** — self-hosted VAPID keys, subscriber list + CSV + per-subscriber test send, manual & event messages, conversion segments, per-recipient macros, cron-driven queue with retries and aging
-- 🖼 **Content Gallery** — media library with folders + shared MediaPicker with size contracts and cropping
-- 📚 New guides: [PWA & Push](docs/pwa-push.md), [Content Gallery](docs/content-gallery.md)
-
-**Fixed (highlights)**
-- 🔐 Four crypto-layer defects in push delivery (VAPID `k=`, 4100-byte record pad, RFC 8291 key schedule, missing aes128gcm keyid) — 201 from the push service while nothing decrypted on device; the sender test now reads every byte off the wire like a browser
-- 🧩 `{subid}` on the landing→offer hop, service worker on bound domains, panel session lifetime, "database is locked" as a clean 503, silent `save_user` demotion
-
-Previous releases — v1.4.1: 🐞 Affiliate Networks crash fix (issue #7), 🌍 System Status localization; v1.4.0: 📊 honest LP-funnel metrics (Real LP clicks / Real offer clicks / Real LP CTR), ⏱ landing→offer timing buckets, 🎚 "After the click" default for new landing streams, 🔐 roles enforced server-side + per-campaign scoping (issue #6); v1.3.11: 🏠 domain-root campaigns in production, 🔑 private postback key on install; v1.3.10: 📱 rotation rows as a placed grid below 640px, 🎨 campaign-name link parity on both surfaces; v1.3.9: 🔒 SSL chain verdicts + certificates-on-save, 🎯 LeadForge honest failures, 🛡️ scan protection, Domains rebuilt; v1.3.8: 🧹 stray ellipsis gone, centred values, checkbox column fixed, lint-zero tracker tables; v1.3.7: 🔀 full column reorder, ✂️ hard cell clipping, 🎯 centred headers.
+Previous releases — v1.5.0: 📱 PWA landings (store-style constructor, funnel beacons into the click, self-healing push subscription, direct domain→PWA binding), 🔔 Web Push on your own base (self-hosted VAPID keys, subscriber list + CSV, manual & event messages, cron-driven queue with retries and aging), 🖼 Content Gallery + shared MediaPicker (size contracts, cropping), 🔐 four crypto-layer defects in push delivery found by live device diagnostics; 🧩 `{subid}` on the landing→offer hop, service worker on bound domains, panel session lifetime, "database is locked" as a clean 503, silent `save_user` demotion; v1.4.1: 🐞 Affiliate Networks crash fix (issue #7), 🌍 System Status localization; v1.4.0: 📊 honest LP-funnel metrics (Real LP clicks / Real offer clicks / Real LP CTR), ⏱ landing→offer timing buckets, 🎚 "After the click" default for new landing streams, 🔐 roles enforced server-side + per-campaign scoping (issue #6); v1.3.11: 🏠 domain-root campaigns in production, 🔑 private postback key on install; v1.3.10: 📱 rotation rows as a placed grid below 640px, 🎨 campaign-name link parity on both surfaces; v1.3.9: 🔒 SSL chain verdicts + certificates-on-save, 🎯 LeadForge honest failures, 🛡️ scan protection, Domains rebuilt; v1.3.8: 🧹 stray ellipsis gone, centred values, checkbox column fixed, lint-zero tracker tables; v1.3.7: 🔀 full column reorder, ✂️ hard cell clipping, 🎯 centred headers.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

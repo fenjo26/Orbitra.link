@@ -7,6 +7,120 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.5.2] — 2026-09-05
+
+### Added
+
+- **A boot screen that paints before the bundle parses.** The markup and its CSS
+  live in `index.html` outside `#root`, so a cold load shows an orbit ring, the
+  wordmark and a sweeping progress bar straight from the raw HTML instead of a
+  bare line of text for as long as the bundle takes. The saved theme is stamped
+  on `<html>` before first paint, so a dark theme is dark from the first frame
+  (the CSS fallbacks carry the light values, because `index.css` has not parsed
+  yet). Each theme gets a deliberate reading: terminal gets a mono wordmark, a
+  blinking caret and a stepped sweep; aurora a wider, slower orbit and a glowing
+  pip; green counter-rotates. `prefers-reduced-motion` stops every animation and
+  fills the bar. `App.jsx` reuses the same classes for its own loading state, so
+  the handover has no flash. Test: any cold load with the bundle request blocked.
+- **Two new themes: Terminal and Aurora.** Terminal is a phosphor console —
+  near-black glass, one green accent, scanline texture and tube vignette as fixed
+  overlays clicks pass through, phosphor bleed on the primary buttons, tabular
+  figures, all deliberately static. Aurora is cold light drifting over deep navy:
+  slow background washes plus a static bloom under the navbar, disabled under
+  reduced motion. Both are registered in the CSS, the theme whitelist and the
+  Branding picker, and both have boot-screen treatments.
+- **A two-column login.** The left column is an animated diagram of what the
+  tracker actually does: a CLICK node feeding a CLOAK router, which fans out to
+  OFFER A/B/C along solid lanes and to a SAFE PAGE along a dashed one. Eight pips
+  ride fixed, staggered delays through SVG `animateMotion` — no timers, no React
+  re-renders. The right column keeps the form and gains a footer with a live
+  "Tracker online" indicator and the running version, driven by a new public
+  `action=ping` (read-only, pre-auth by design). Hidden below `lg`; on a phone
+  the form is the whole story.
+- **A themed Dialog replacing native confirm/alert** on Check DNS, Issue SSL and
+  the campaign editor's unsaved-changes guard (both exit paths — the UI back
+  button and browser Back, with the history entry restored on "stay"). Native
+  dialogs are browser chrome: unthemeable, white against dark themes.
+- **The Telegram bot as a visual menu.** A pinned keyboard
+  (`ReplyKeyboardMarkup`, `is_persistent` + `resize_keyboard`) carries eight
+  readable labels — 📊 Статистика, 🏆 Топ, 📋 Кампании, 🔔 Конверсии, 🛎
+  Уведомления, 📅 Сводка, 🌐 Язык, 📖 Помощь — localized across all seven
+  languages; a tap sends the label and `orbitraTelegramResolveCommand()` maps it
+  back to the command through the chat's language, so there is no slash syntax to
+  memorize. The "/" quick-command menu (`setMyCommands`) is registered per
+  language code plus a default, together with `setChatMenuButton`, on every bot
+  save and once a day from the poller. Inline keyboards: a language picker under
+  `/start` and `/lang`, one button per campaign on `/campaigns` (tap opens the
+  detail view), state-and-toggle buttons on `/notify` and `/daily`. Language
+  taps answer their callback query and re-pin the keyboard in the chosen
+  language. `/start` now pins the menu immediately — `/start` is all the setup a
+  new chat needs.
+- **Conversion notifications and the daily summary speak seven languages.** Both
+  were rewritten onto the bot's single translation table (`botText`) — they used
+  to carry private ru/en copies — and the daily summary actually sends now: the
+  `/daily` toggle stored a flag nobody ever read. Delivery runs from the poller
+  cron before the mode gate, so both webhook and polling installs get it, guarded
+  by an atomic once-a-day claim (`telegram_daily_last_sent`) that is safe under
+  concurrent crons, and honours the panel's `telegram_daily_time`.
+- **Bot-IP entries keep their origin.** `bot_ips.source` (migration 50)
+  distinguishes hand-added entries from feed-imported ones, and Clear All purges
+  the manual ones without wiping the imported feed with them. CIDR matching in
+  the cloak detector is now binary prefix math over `inet_pton` — one
+  implementation covers IPv4 and IPv6 and neither needs gmp, which is not
+  installed everywhere and whose absence used to be fatal to click serving.
+- **Snapchat Ads source template**, placed with the other API-integrated sources.
+  Two details would have been got wrong by copying the Facebook entry and both
+  fail silently: the ad set macro is `{{adSet.id}}` in camelCase, and Snapchat
+  exposes no `{{ad.name}}` at all — `ad_name` takes `{{creative.name}}`.
+- **Offer selection on the cloak money page.** The Landing+Offer schema had a
+  before/after radio; the cloak branch rendered neither the control nor honoured
+  it. Both halves are in place now, with a guard: the deferred choice applies
+  only when a landing is actually presented, otherwise the click would go
+  onward with no offer attached.
+- `tests/telegram_bot_test.php` — 55 assertions over the menu payloads, callback
+  routing, the no-mutation guarantees, notification gates and the daily claim.
+
+### Changed
+
+- **The cloak diagnostics strip answers "over which period?"** It mounts the
+  shared `DateRangePicker` — presets, calendar, typed fields, timezone — instead
+  of a fixed yesterday-to-today window; a label restates the resolved range and
+  zone in full, and "View in click log" follows the selected window instead of a
+  hardcoded 24 hours that disagreed with the counts above it.
+- **Campaigns metric headers carry status colour dots**, resolved from the
+  user's own configured conversion types, so a column is identifiable at a
+  glance and shows the same colour on both surfaces. The definition moved to
+  `utils/conversionColors.js` beside the resolver it belongs with. Approve %
+  deliberately has no dot — it is a rate, not a status.
+- **Profitability renamed to Margin** — it is profit ÷ revenue, where ROI is
+  profit ÷ cost. Genuinely different, and both earn their column.
+- **The update check no longer holds the panel.** The "notify me" toggle now
+  means no request at all; good answers are cached in settings for an hour and
+  failures for ten minutes, the timeout dropped from 10 s to 2 s, and the manual
+  button forces a live check (floored at one per 30 s) — an unreachable GitHub
+  no longer costs a PHP-FPM worker on every mount.
+
+### Fixed
+
+- **The bot mutated state silently.** A bare `/lang` reset the chat to Russian;
+  a misspelled language did the same; a bare `/notify` switched conversion
+  notifications OFF — an easy unsubscribe by accident. All three now answer with
+  the current state and a toggle button instead of touching anything.
+- **Slash arguments were parsed as part of the command.** "/notify off",
+  "/stats 7d" and "/campaign 12" all fell through to "unknown command". The
+  resolver takes the first word of typed input; everything after it is the
+  argument.
+- **The bot quoted version 0.9.2.9 forever.** `config.php` never pulls
+  `version.php`, so `ORBITRA_VERSION` was undefined in bot context and every
+  welcome fell back to the hardcoded default. The bot requires it (guarded) —
+  the welcome now names the real build, which doubles as a deploy marker.
+- **Inline button taps went nowhere.** `setWebhook` and the poller's
+  `getUpdates` requested only `message` updates; both now also request
+  `callback_query`, so taps answer on every install.
+- Campaign names containing `_`, `*`, `` ` `` or `[` no longer eat the message's
+  own Markdown markers — user input is escaped at every interpolation site in
+  message texts.
+
 ## [1.5.1] — 2026-09-05
 
 ### Added
