@@ -580,10 +580,6 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             case 'real_pwa_installs':
             case 'pwa_opens':
             case 'push_subscribed':
-            case 'pwa_intents':
-            case 'pwa_installs':
-            case 'real_pwa_installs':
-            case 'pwa_opens':
             case 'purchases':
             case 'sales':
             case 'holds':
@@ -592,7 +588,6 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             case 'deposits':
             case 'rejected':
             case 'trash':
-            case 'lp_measured':
                 return num.toLocaleString();
 
             case 'conversions':
