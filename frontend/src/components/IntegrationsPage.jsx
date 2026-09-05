@@ -4908,6 +4908,9 @@ global \$wpdb;
             }
             if (!d.webhook_possible) {
                 notes.push({ tone: 'info', text: t('telegram.pollingReason') });
+                // Same advice as the pre-connect notice, for an install that is
+                // already running: open the panel on a domain and reconnect.
+                notes.push({ tone: 'info', text: t('telegram.pollingSwitchToDomain'), hint: d.panel_url });
             }
         } else {
             if (d.webhook_last_error) {
@@ -5066,6 +5069,40 @@ global \$wpdb;
                             <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginBottom: '16px', lineHeight: 1.6 }}>
                                 {t('telegram.connectInstructions')}
                             </p>
+
+                            {/* Said before Connect, not after.
+                                Telegram calls a webhook back only over HTTPS on a real
+                                domain, and the installer hands out http://<server-ip>/admin.php.
+                                Learning that from the status card afterwards is what makes
+                                people ask whether the bot is broken — so name the address
+                                they are actually on, say what to open instead, and say
+                                plainly that the bot works either way. */}
+                            {tgSettings?.diagnostics && !tgSettings.diagnostics.webhook_possible && (
+                                <div style={{
+                                    padding: '12px 14px',
+                                    borderRadius: '12px',
+                                    marginBottom: '16px',
+                                    background: 'var(--color-bg-card)',
+                                    border: '1px solid #fcd34d',
+                                    fontSize: '13px',
+                                    lineHeight: 1.6,
+                                    color: 'var(--color-text-secondary)'
+                                }}>
+                                    <div style={{ fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '4px' }}>
+                                        {t('telegram.domainHintTitle')}
+                                    </div>
+                                    <div>
+                                        {t('telegram.domainHintBody')}{' '}
+                                        <code style={{ color: 'var(--color-primary)', wordBreak: 'break-all' }}>
+                                            {tgSettings.diagnostics.panel_url}
+                                        </code>
+                                    </div>
+                                    <div style={{ marginTop: '6px' }}>
+                                        {t('telegram.domainHintFallback')}
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="flex gap-2">
                                 <div style={{ position: 'relative', flex: 1 }}>
                                     <input
