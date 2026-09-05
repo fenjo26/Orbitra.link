@@ -23,12 +23,19 @@ const ClickLogModal = ({
     initialRoute = 'all',
     initialHours = 0,
     initialStreamId = 0,
+    // An explicit YYYY-MM-DD range. When set it replaces `hours`, so a caller
+    // that shows its own window (the cloak diagnostics strip) can hand the log
+    // exactly the period its counts were computed over.
+    initialFrom = '',
+    initialTo = '',
     onClose,
 }) => {
     const { t } = useLanguage();
     const [route, setRoute] = useState(initialRoute); // 'all' | 'safe' | 'money'
     const hours = initialHours;     // 0 = no window
     const streamId = initialStreamId; // 0 = all streams
+    const dateFrom = initialFrom;
+    const dateTo = initialTo;
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(false);
     const [selectedClickId, setSelectedClickId] = useState(null);
@@ -43,7 +50,12 @@ const ClickLogModal = ({
         try {
             const params = { campaign_id: campaignId, limit: 100 };
             if (nextRoute && nextRoute !== 'all') params.route = nextRoute;
-            if (hours > 0) params.hours = hours;
+            if (dateFrom && dateTo) {
+                params.date_from = dateFrom;
+                params.date_to = dateTo;
+            } else if (hours > 0) {
+                params.hours = hours;
+            }
             if (streamId > 0) params.stream_id = streamId;
             invalidateCache('campaign_logs');
             const { data } = await cachedGet('campaign_logs', params, 0);
@@ -102,11 +114,15 @@ const ClickLogModal = ({
                             </button>
                         ))}
                     </div>
-                    {hours > 0 && (
+                    {dateFrom && dateTo ? (
+                        <div className="text-[11px] mt-2" style={{ color: 'var(--color-text-muted)' }}>
+                            {dateFrom === dateTo ? dateFrom : `${dateFrom} — ${dateTo}`}
+                        </div>
+                    ) : hours > 0 ? (
                         <div className="text-[11px] mt-2" style={{ color: 'var(--color-text-muted)' }}>
                             {t('campaignEditor.clickLogLast24h', 'Last 24 hours')}
                         </div>
-                    )}
+                    ) : null}
 
                     <div className="overflow-y-auto mt-2" style={{ maxHeight: '58vh' }}>
                         {loading ? (

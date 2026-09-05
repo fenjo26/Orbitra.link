@@ -30,7 +30,27 @@ const BotSettings = () => {
     const [ispSaved, setIspSaved] = useState(false);
     const fileInputIspRef = useRef(null);
 
+    // Datacenter/crawler range feed (lord-alfred/ipranges). Status only: the
+    // ranges are matched by IpRanges, not stored as blocklist rows — see the
+    // bot_ips_feed endpoint. The panel could not previously tell whether the
+    // lists existed at all, which matters on an install whose cron was never
+    // wired up.
+    const [feed, setFeed] = useState({ loading: true, updating: false, data: null });
+
     const endpointOf = (type) => (type === 'ip' ? 'bot_ips' : 'bot_signatures');
+
+    const loadFeed = useCallback(async (update = false) => {
+        setFeed(prev => ({ ...prev, loading: !update, updating: update }));
+        try {
+            const res = await fetch(`${API_URL}?action=bot_ips_feed`, update ? { method: 'POST' } : undefined);
+            const data = await res.json();
+            if (data.status !== 'success') throw new Error(data.message || `HTTP ${res.status}`);
+            setFeed({ loading: false, updating: false, data: data.data });
+        } catch (e) {
+            setFeed({ loading: false, updating: false, data: null });
+            if (update) alert(`${t('botSettings.feedUpdateError')}: ${e.message}`);
+        }
+    }, [t]);
 
     const load = useCallback(async (type, { search = '', offset = 0, append = false } = {}) => {
         setLists(prev => ({ ...prev, [type]: { ...prev[type], loading: true } }));
@@ -48,6 +68,7 @@ const BotSettings = () => {
                     filtered: data.filtered ?? data.total ?? 0,
                     search,
                     loading: false,
+                    sources: data.sources || null,
                 },
             }));
         } catch (e) {
@@ -55,6 +76,10 @@ const BotSettings = () => {
             alert(`${t('botSettings.loadError')}: ${e.message}`);
         }
     }, [t]);
+
+    useEffect(() => {
+        loadFeed();
+    }, [loadFeed]);
 
     useEffect(() => {
         load('ip');
@@ -126,7 +151,10 @@ const BotSettings = () => {
         return data;
     };
 
-    const handleAdd = async (type, rawText) => {
+    // `origin` labels where the entries came from, so Clear All can later
+    // remove one uploaded list without taking the operator's own typed entries
+    // with it. Typed entries are 'manual'; an upload carries its file name.
+    const handleAdd = async (type, rawText, origin = 'manual') => {
         const source = rawText !== undefined ? rawText : (type === 'ip' ? newIps : newSigs);
         if (!source.trim()) return;
         const items = source.split(/[\r\n,]+/).map(s => s.trim()).filter(Boolean);
@@ -141,7 +169,7 @@ const BotSettings = () => {
             // Process in chunks to prevent HTTP payload size limits & timeouts
             for (let i = 0; i < items.length; i += BATCH_CHUNK_SIZE) {
                 const chunk = items.slice(i, i + BATCH_CHUNK_SIZE);
-                const data = await mutate(type, { items: chunk });
+                const data = await mutate(type, { items: chunk, source: origin });
                 totalAdded += (data.added || 0);
                 totalSkipped += (data.skipped || 0);
                 setImporting({ active: true, type, current: Math.min(items.length, i + BATCH_CHUNK_SIZE), total: items.length });
@@ -169,7 +197,10 @@ const BotSettings = () => {
         reader.onload = (event) => {
             const text = event.target?.result;
             if (typeof text === 'string') {
-                handleAdd(type, text);
+                // The file name is the label, trimmed to something a button can
+                // print; a list uploaded twice keeps one label rather than two.
+                const label = String(file.name || 'upload').replace(/[^\w.-]+/g, '_').slice(0, 40);
+                handleAdd(type, text, label || 'upload');
             }
         };
         reader.readAsText(file);
@@ -193,10 +224,14 @@ const BotSettings = () => {
         }
     };
 
-    const handleClear = async (type) => {
+    // `scope` is a source name, or 'all'. Clearing used to be one DELETE over
+    // the whole table, so removing a few hand-added entries also wiped every
+    // list ever uploaded beside them — thousands of rows, and no way back
+    // except finding the file again.
+    const handleClear = async (type, scope = 'all') => {
         if (!window.confirm(t('botSettings.confirmClear'))) return;
         try {
-            await mutate(type, { action: 'clear_all' });
+            await mutate(type, { action: 'clear_all', source: scope });
             alert(t('botSettings.cleared'));
             load(type, { search: lists[type].search });
         } catch (e) {
@@ -467,12 +502,66 @@ const BotSettings = () => {
                         <h3 className="page-title" style={{ margin: 0 }}>{t('botSettings.ipTitle')}</h3>
                         <span className="badge badge-secondary">{lists.ip.total}</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap justify-end">
+                        {/* One button per source once there is more than one, so
+                            an uploaded list can be removed without taking the
+                            operator's own typed entries with it. With a single
+                            source there is nothing to choose between and only
+                            the plain Clear all shows. */}
+                        {Object.entries(lists.ip.sources || {}).length > 1
+                            && Object.entries(lists.ip.sources || {}).map(([name, count]) => (
+                                <button
+                                    key={name}
+                                    onClick={() => handleClear('ip', name)}
+                                    className="btn btn-ghost btn-sm"
+                                    title={t('botSettings.clearSourceHint')}
+                                >
+                                    <Trash2 size={13} />
+                                    <span style={{ fontFamily: 'monospace', fontSize: '11px' }}>{name}</span>
+                                    <span className="badge badge-secondary">{count}</span>
+                                </button>
+                            ))}
                         <button onClick={() => handleClear('ip')} className="btn btn-ghost btn-sm">
                             <RotateCcw size={14} />
                             {t('botSettings.clearAll')}
                         </button>
                     </div>
+                </div>
+
+                {/* Datacenter / crawler range feed. Status, not a list: these
+                    ranges are matched by IpRanges (which understands CIDR and
+                    indexes them), never stored as blocklist rows — 20k rows here
+                    would look like rules and fire none. */}
+                <div
+                    className="mt-4 p-3 rounded-xl flex flex-wrap items-center gap-x-3 gap-y-2"
+                    style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}
+                >
+                    <div className="min-w-0 flex-1">
+                        <div className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                            {t('botSettings.feedTitle')}
+                        </div>
+                        <div className="text-[11px] mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
+                            {feed.loading
+                                ? t('botSettings.loading')
+                                : !feed.data?.available
+                                    ? t('botSettings.feedMissing')
+                                    : `${(feed.data.ipv4 || 0).toLocaleString()} IPv4 · ${(feed.data.ipv6 || 0).toLocaleString()} IPv6${feed.data.updated_at ? ` · ${feed.data.updated_at}` : ''}`}
+                        </div>
+                    </div>
+                    {!feed.loading && feed.data?.available && (
+                        <span className={`badge ${feed.data.fresh ? 'badge-success' : 'badge-warning'}`}>
+                            {feed.data.fresh ? t('botSettings.feedFresh') : t('botSettings.feedStale')}
+                        </span>
+                    )}
+                    <button
+                        type="button"
+                        onClick={() => loadFeed(true)}
+                        disabled={feed.updating}
+                        className="btn btn-secondary btn-sm flex items-center gap-1.5"
+                    >
+                        <RotateCcw size={14} />
+                        {feed.updating ? t('botSettings.feedUpdating') : t('botSettings.feedUpdate')}
+                    </button>
                 </div>
 
                 <div style={{ marginTop: '16px' }}>

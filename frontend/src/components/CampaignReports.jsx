@@ -6,19 +6,10 @@ import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
 import { useTimezone } from '../utils/useTimezone';
 import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getDimensionLabel, getDefaultTemplateColumns, getReportMetricTooltip, normalizeReportMetricIds, resolveInitialGroupLayers, persistLastAppliedGroupBy, DEFAULT_REPORT_LAYERS } from './ReportCustomizerModal';
 import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle } from './common/ColumnResize';
-import { resolveConversionColor } from '../utils/conversionColors';
+import { resolveConversionColor, STATUS_COLUMN_STATUSES } from '../utils/conversionColors';
 
 const API_URL = '/api.php';
 const FB_HIERARCHY_LAYERS = ['ad_campaign_id', 'adset_id', 'ad_id'];
-// Status-count columns whose header carries the conversion-type color marker.
-const STATUS_COLUMN_STATUSES = {
-    leads: 'lead',
-    sales: 'sale',
-    registrations: 'registration',
-    deposits: 'deposit',
-    rejected: 'rejected',
-    trash: 'trash',
-};
 const REPORT_LAYER_PRESETS = [
     { id: 'facebook_hierarchy', label: 'Facebook Hierarchy', layers: FB_HIERARCHY_LAYERS },
     { id: 'geo', label: 'Geo (Country → City)', layers: ['country', 'region', 'city'] },

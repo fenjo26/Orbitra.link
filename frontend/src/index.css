@@ -198,6 +198,159 @@
   border-bottom: 1px solid rgba(163, 230, 53, 0.1);
 }
 
+/* Terminal — a phosphor console: near-black glass, one green accent, a
+   scanline texture and a tube vignette. Deliberately static: a CRT is a
+   picture of light, not an animation. The overlays are fixed body pseudo-
+   elements above every layer (pointer-events pass through) — that is what
+   makes them read as the tube rather than as page decoration. */
+[data-theme="terminal"] {
+  --color-bg-main: #05070a;
+  --color-bg-card: #0a0e13;
+  --color-bg-sidebar: #070a0e;
+  --color-bg-hover: #101720;
+  --color-bg-soft: #0d1319;
+  --color-bg-dropdown: #0a0e13;
+
+  --color-text-primary: #cfe9da;
+  --color-text-secondary: #7fa491;
+  --color-text-muted: #4e6b5b;
+  --color-text-inverse: #04120a;
+
+  --color-primary: #35f08a;
+  --color-primary-hover: #2bd878;
+  --color-primary-light: rgba(53, 240, 138, 0.12);
+  --color-primary-shadow: rgba(53, 240, 138, 0.25);
+
+  --color-border: #16211b;
+  --color-border-dark: #1c2b22;
+
+  --shadow-main: 0 10px 30px rgba(0, 0, 0, 0.8);
+  --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.6);
+
+  --color-warning: #fbbf24;
+  --color-warning-bg: rgba(251, 191, 36, 0.14);
+  --color-warning-border: rgba(251, 191, 36, 0.4);
+  --color-danger: #f87171;
+  --color-danger-bg: rgba(248, 113, 113, 0.14);
+  --color-danger-border: rgba(248, 113, 113, 0.4);
+  --color-success: #34d399;
+  --color-success-bg: rgba(52, 211, 153, 0.14);
+  --color-success-border: rgba(52, 211, 153, 0.4);
+  --color-info: #60a5fa;
+  --color-info-bg: rgba(96, 165, 250, 0.14);
+  --color-info-border: rgba(96, 165, 250, 0.4);
+
+  --color-bg-header: rgba(8, 12, 16, 0.88);
+  --color-text-header: #cfe9da;
+}
+
+[data-theme="terminal"] .navbar-header {
+  background: rgba(7, 10, 14, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(53, 240, 138, 0.16);
+}
+
+/* Phosphor bleed: the accent glows the way phosphor does when it is hit. */
+[data-theme="terminal"] .btn-primary {
+  text-shadow: 0 0 8px rgba(53, 240, 138, 0.45);
+  box-shadow: 0 0 16px rgba(53, 240, 138, 0.25);
+}
+
+[data-theme="terminal"] body {
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="terminal"] body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.18) 0 1px, transparent 1px 3px);
+}
+
+[data-theme="terminal"] body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  pointer-events: none;
+  background: radial-gradient(120% 95% at 50% 45%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+/* Aurora — cold light over deep navy. The washes drift slowly across the
+   page background and the navbar carries a static bloom; both are decoration
+   the panel reads fine without, so reduced-motion turns the drift off. */
+[data-theme="aurora"] {
+  --color-bg-main: #070b18;
+  --color-bg-card: #0c1224;
+  --color-bg-sidebar: #0a0f1f;
+  --color-bg-hover: #131b33;
+  --color-bg-soft: #0f162b;
+  --color-bg-dropdown: #0c1224;
+
+  --color-text-primary: #e6edf7;
+  --color-text-secondary: #8fa0bf;
+  --color-text-muted: #5b6a8a;
+  --color-text-inverse: #06101f;
+
+  --color-primary: #7dd3fc;
+  --color-primary-hover: #38bdf8;
+  --color-primary-light: rgba(125, 211, 252, 0.14);
+  --color-primary-shadow: rgba(125, 211, 252, 0.22);
+
+  --color-border: #1b2440;
+  --color-border-dark: #232e52;
+
+  --shadow-main: 0 10px 30px rgba(0, 0, 0, 0.65);
+  --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.45);
+
+  --color-warning: #fbbf24;
+  --color-warning-bg: rgba(251, 191, 36, 0.14);
+  --color-warning-border: rgba(251, 191, 36, 0.4);
+  --color-danger: #f87171;
+  --color-danger-bg: rgba(248, 113, 113, 0.14);
+  --color-danger-border: rgba(248, 113, 113, 0.4);
+  --color-success: #34d399;
+  --color-success-bg: rgba(52, 211, 153, 0.14);
+  --color-success-border: rgba(52, 211, 153, 0.4);
+  --color-info: #60a5fa;
+  --color-info-bg: rgba(96, 165, 250, 0.14);
+  --color-info-border: rgba(96, 165, 250, 0.4);
+
+  --color-bg-header: rgba(10, 15, 31, 0.75);
+  --color-text-header: #e6edf7;
+}
+
+[data-theme="aurora"] .navbar-header {
+  background: rgba(10, 15, 31, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(125, 211, 252, 0.14);
+  /* Header bloom: a cold halo under the bar. Static — animating a box-shadow
+     on a fixed bar repaints it every frame for a glow nobody watches. */
+  box-shadow: 0 10px 36px rgba(56, 189, 248, 0.14);
+}
+
+[data-theme="aurora"] body {
+  background-image:
+    radial-gradient(42% 34% at 18% 0%, rgba(56, 189, 248, 0.10), transparent 70%),
+    radial-gradient(48% 40% at 85% 8%, rgba(129, 140, 248, 0.09), transparent 70%),
+    radial-gradient(52% 42% at 50% 110%, rgba(45, 212, 191, 0.07), transparent 70%);
+  background-attachment: fixed;
+  animation: aurora-drift 48s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-drift {
+  from { background-position: 0% 0%; }
+  to { background-position: 100% 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="aurora"] body { animation: none; }
+}
+
 /* ─── Palette themes — color schemes ported from the DESIGN-*.md analyses.
    Fonts are NOT swapped: the source palettes assume proprietary brand
    faces whose own docs list Inter as the sanctioned stand-in — which is

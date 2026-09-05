@@ -51,6 +51,27 @@ function botText($lang, $key, $params = [])
             'sources_empty' => "📭 Нет источников с URL.\n\nДобавьте источники в панели Orbitra.",
             'sources_checking' => "🔄 Проверяю все источники...",
             'sources_summary' => "📊 Итого: {ok} OK, {errors} с ошибкой",
+            'lang_prompt' => "🌐 Текущий язык: *{lang}*
+Выберите язык:",
+            'lang_invalid' => "❌ Неизвестный язык: {arg}.
+Доступны: ru, en, uk, es, zh, fr, de",
+            'notify_status_on' => "🔔 Уведомления о конверсиях сейчас *включены*.",
+            'notify_status_off' => "🔔 Уведомления о конверсиях сейчас *отключены*.",
+            'daily_status_on' => "📊 Ежедневная сводка сейчас *включена*.",
+            'daily_status_off' => "📊 Ежедневная сводка сейчас *отключена*.",
+            'btn_enable' => "✅ Включить",
+            'btn_disable' => "🔕 Отключить",
+            'daily_top' => "🏆 Топ кампаний:",
+            'cmd_stats' => "📊 Статистика за сегодня / 7д / 30д",
+            'cmd_campaigns' => "📋 Активные кампании",
+            'cmd_campaign' => "🔍 Статистика кампании по ID",
+            'cmd_top' => "🏆 ТОП-5 кампаний по доходу",
+            'cmd_conversions' => "🔔 Последние конверсии",
+            'cmd_notify' => "🔔 Уведомления о конверсиях on|off",
+            'cmd_daily' => "📊 Ежедневная сводка on|off",
+            'cmd_sources' => "🌐 Статус источников трафика",
+            'cmd_lang' => "🌐 Сменить язык бота",
+            'cmd_help' => "📖 Справка по командам",
         ],
         'en' => [
             'welcome' => "🚀 *Welcome to Orbitra v{version} Bot!*\n\nI'll help you track your campaign stats.\n\nAvailable commands:\n/stats — Today's statistics\n/stats 7d — Last 7 days\n/campaigns — Active campaigns\n/campaign ID — Campaign details\n/top — Top 5 by revenue\n/conversions — Recent conversions\n/notify on|off — Notifications\n/daily on|off — Daily summary\n/lang en|ru|uk|es|zh|fr|de — Bot language\n/help — Help",
@@ -93,6 +114,27 @@ function botText($lang, $key, $params = [])
             'sources_empty' => "📭 No sources with URL.\n\nAdd sources in Orbitra panel.",
             'sources_checking' => "🔄 Checking all sources...",
             'sources_summary' => "📊 Total: {ok} OK, {errors} with errors",
+            'lang_prompt' => "🌐 Current language: *{lang}*
+Pick a language:",
+            'lang_invalid' => "❌ Unknown language: {arg}.
+Available: ru, en, uk, es, zh, fr, de",
+            'notify_status_on' => "🔔 Conversion notifications are currently *enabled*.",
+            'notify_status_off' => "🔔 Conversion notifications are currently *disabled*.",
+            'daily_status_on' => "📊 The daily summary is currently *enabled*.",
+            'daily_status_off' => "📊 The daily summary is currently *disabled*.",
+            'btn_enable' => "✅ Enable",
+            'btn_disable' => "🔕 Disable",
+            'daily_top' => "🏆 Top campaigns:",
+            'cmd_stats' => "📊 Stats for today / 7d / 30d",
+            'cmd_campaigns' => "📋 Active campaigns",
+            'cmd_campaign' => "🔍 Campaign stats by ID",
+            'cmd_top' => "🏆 Top 5 campaigns by revenue",
+            'cmd_conversions' => "🔔 Recent conversions",
+            'cmd_notify' => "🔔 Conversion notifications on|off",
+            'cmd_daily' => "📊 Daily summary on|off",
+            'cmd_sources' => "🌐 Traffic sources status",
+            'cmd_lang' => "🌐 Change bot language",
+            'cmd_help' => "📖 Command help",
         ],
         'uk' => [
             'welcome' => "🚀 *Ласкаво просимо до Orbitra v{version} Bot!*\n\nЯ допоможу відстежувати статистику ваших кампаній.\n\nДоступні команди:\n/stats — Статистика за сьогодні\n/stats 7d — За останні 7 днів\n/campaigns — Активні кампанії\n/campaign ID — Стата по кампанії\n/top — ТОП-5 за доходом\n/conversions — Останні конверсії\n/notify on|off — Сповіщення\n/daily on|off — Щоденне зведення\n/lang en|ru|uk|es|zh|fr|de — Мова бота\n/help — Довідка",
@@ -135,6 +177,27 @@ function botText($lang, $key, $params = [])
             'sources_empty' => "📭 Немає джерел з URL.\n\nДодайте джерела в панелі Orbitra.",
             'sources_checking' => "🔄 Перевіряю всі джерела...",
             'sources_summary' => "📊 Разом: {ok} OK, {errors} з помилкою",
+            'lang_prompt' => "🌐 Поточна мова: *{lang}*
+Виберіть мову:",
+            'lang_invalid' => "❌ Невідома мова: {arg}.
+Доступні: ru, en, uk, es, zh, fr, de",
+            'notify_status_on' => "🔔 Сповіщення про конверсії зараз *увімкнені*.",
+            'notify_status_off' => "🔔 Сповіщення про конверсії зараз *вимкнені*.",
+            'daily_status_on' => "📊 Щоденне зведення зараз *увімкнено*.",
+            'daily_status_off' => "📊 Щоденне зведення зараз *вимкнено*.",
+            'btn_enable' => "✅ Увімкнути",
+            'btn_disable' => "🔕 Вимкнути",
+            'daily_top' => "🏆 Топ кампаній:",
+            'cmd_stats' => "📊 Статистика за сьогодні / 7д / 30д",
+            'cmd_campaigns' => "📋 Активні кампанії",
+            'cmd_campaign' => "🔍 Статистика кампанії за ID",
+            'cmd_top' => "🏆 ТОП-5 кампаній за доходом",
+            'cmd_conversions' => "🔔 Останні конверсії",
+            'cmd_notify' => "🔔 Сповіщення про конверсії on|off",
+            'cmd_daily' => "📊 Щоденне зведення on|off",
+            'cmd_sources' => "🌐 Статус джерел трафіку",
+            'cmd_lang' => "🌐 Змінити мову бота",
+            'cmd_help' => "📖 Довідка по командах",
         ],
         'es' => [
             'welcome' => "🚀 *¡Bienvenido a Orbitra v{version} Bot!*\n\nTe ayudaré a seguir las estadísticas de tus campañas.\n\nComandos disponibles:\n/stats — Estadísticas de hoy\n/stats 7d — Últimos 7 días\n/campaigns — Campañas activas\n/campaign ID — Detalles de la campaña\n/top — Top 5 por ingresos\n/conversions — Conversiones recientes\n/notify on|off — Notificaciones\n/daily on|off — Resumen diario\n/lang en|ru|uk|es|zh|fr|de — Idioma del bot\n/help — Ayuda",
@@ -177,6 +240,27 @@ function botText($lang, $key, $params = [])
             'sources_empty' => "📭 No hay fuentes con URL.\n\nAñade fuentes en el panel de Orbitra.",
             'sources_checking' => "🔄 Comprobando todas las fuentes...",
             'sources_summary' => "📊 Total: {ok} OK, {errors} con errores",
+            'lang_prompt' => "🌐 Idioma actual: *{lang}*
+Elige un idioma:",
+            'lang_invalid' => "❌ Idioma desconocido: {arg}.
+Disponibles: ru, en, uk, es, zh, fr, de",
+            'notify_status_on' => "🔔 Las notificaciones de conversiones están *activadas*.",
+            'notify_status_off' => "🔔 Las notificaciones de conversiones están *desactivadas*.",
+            'daily_status_on' => "📊 El resumen diario está *activado*.",
+            'daily_status_off' => "📊 El resumen diario está *desactivado*.",
+            'btn_enable' => "✅ Activar",
+            'btn_disable' => "🔕 Desactivar",
+            'daily_top' => "🏆 Mejores campañas:",
+            'cmd_stats' => "📊 Estadísticas de hoy / 7d / 30d",
+            'cmd_campaigns' => "📋 Campañas activas",
+            'cmd_campaign' => "🔍 Estadísticas de campaña por ID",
+            'cmd_top' => "🏆 Top 5 campañas por ingresos",
+            'cmd_conversions' => "🔔 Conversiones recientes",
+            'cmd_notify' => "🔔 Notificaciones de conversiones on|off",
+            'cmd_daily' => "📊 Resumen diario on|off",
+            'cmd_sources' => "🌐 Estado de fuentes de tráfico",
+            'cmd_lang' => "🌐 Cambiar idioma del bot",
+            'cmd_help' => "📖 Ayuda de comandos",
         ],
         'zh' => [
             'welcome' => "🚀 *欢迎使用 Orbitra v{version} 机器人！*\n\n我将帮助您跟踪广告系列的统计数据。\n\n可用命令：\n/stats — 今日统计\n/stats 7d — 最近 7 天\n/campaigns — 活动中的广告系列\n/campaign ID — 广告系列详情\n/top — 收入前 5 名\n/conversions — 最近转化\n/notify on|off — 通知\n/daily on|off — 每日汇总\n/lang en|ru|uk|es|zh|fr|de — 机器人语言\n/help — 帮助",
@@ -219,6 +303,26 @@ function botText($lang, $key, $params = [])
             'sources_empty' => "📭 没有带 URL 的来源。\n\n请在 Orbitra 面板中添加来源。",
             'sources_checking' => "🔄 正在检查所有来源...",
             'sources_summary' => "📊 共计：{ok} 正常，{errors} 出错",
+            'lang_prompt' => "🌐 当前语言：*{lang}*
+请选择语言：",
+            'lang_invalid' => "❌ 未知语言：{arg}。\n可用：ru, en, uk, es, zh, fr, de",
+            'notify_status_on' => "🔔 转化通知当前已*开启*。",
+            'notify_status_off' => "🔔 转化通知当前已*关闭*。",
+            'daily_status_on' => "📊 每日汇总当前已*开启*。",
+            'daily_status_off' => "📊 每日汇总当前已*关闭*。",
+            'btn_enable' => "✅ 开启",
+            'btn_disable' => "🔕 关闭",
+            'daily_top' => "🏆 最佳广告系列：",
+            'cmd_stats' => "📊 今日 / 7天 / 30天统计",
+            'cmd_campaigns' => "📋 活动中的广告系列",
+            'cmd_campaign' => "🔍 按 ID 查广告系列统计",
+            'cmd_top' => "🏆 收入前 5 名广告系列",
+            'cmd_conversions' => "🔔 最近转化",
+            'cmd_notify' => "🔔 转化通知 on|off",
+            'cmd_daily' => "📊 每日汇总 on|off",
+            'cmd_sources' => "🌐 流量来源状态",
+            'cmd_lang' => "🌐 更改机器人语言",
+            'cmd_help' => "📖 命令帮助",
         ],
         'fr' => [
             'welcome' => "🚀 *Bienvenue sur Orbitra v{version} Bot !*\n\nJe vais vous aider à suivre les statistiques de vos campagnes.\n\nCommandes disponibles :\n/stats — Statistiques du jour\n/stats 7d — 7 derniers jours\n/campaigns — Campagnes actives\n/campaign ID — Détails de la campagne\n/top — Top 5 par revenu\n/conversions — Conversions récentes\n/notify on|off — Notifications\n/daily on|off — Résumé quotidien\n/lang en|ru|uk|es|zh|fr|de — Langue du bot\n/help — Aide",
@@ -261,6 +365,26 @@ function botText($lang, $key, $params = [])
             'sources_empty' => "📭 Aucune source avec URL.\n\nAjoutez des sources dans le panneau Orbitra.",
             'sources_checking' => "🔄 Vérification de toutes les sources...",
             'sources_summary' => "📊 Total : {ok} OK, {errors} en erreur",
+            'lang_prompt' => "🌐 Langue actuelle : *{lang}*
+Choisissez une langue :",
+            'lang_invalid' => "❌ Langue inconnue : {arg}.\nDisponibles : ru, en, uk, es, zh, fr, de",
+            'notify_status_on' => "🔔 Les notifications de conversions sont actuellement *activées*.",
+            'notify_status_off' => "🔔 Les notifications de conversions sont actuellement *désactivées*.",
+            'daily_status_on' => "📊 Le résumé quotidien est actuellement *activé*.",
+            'daily_status_off' => "📊 Le résumé quotidien est actuellement *désactivé*.",
+            'btn_enable' => "✅ Activer",
+            'btn_disable' => "🔕 Désactiver",
+            'daily_top' => "🏆 Meilleures campagnes :",
+            'cmd_stats' => "📊 Stats du jour / 7j / 30j",
+            'cmd_campaigns' => "📋 Campagnes actives",
+            'cmd_campaign' => "🔍 Stats d'une campagne par ID",
+            'cmd_top' => "🏆 Top 5 campagnes par revenu",
+            'cmd_conversions' => "🔔 Conversions récentes",
+            'cmd_notify' => "🔔 Notifications de conversions on|off",
+            'cmd_daily' => "📊 Résumé quotidien on|off",
+            'cmd_sources' => "🌐 État des sources de trafic",
+            'cmd_lang' => "🌐 Changer la langue du bot",
+            'cmd_help' => "📖 Aide des commandes",
         ],
         'de' => [
             'welcome' => "🚀 *Willkommen beim Orbitra v{version} Bot!*\n\nIch helfe dir, die Statistiken deiner Kampagnen zu verfolgen.\n\nVerfügbare Befehle:\n/stats — Statistik für heute\n/stats 7d — Letzte 7 Tage\n/campaigns — Aktive Kampagnen\n/campaign ID — Kampagnendetails\n/top — Top 5 nach Umsatz\n/conversions — Letzte Conversions\n/notify on|off — Benachrichtigungen\n/daily on|off — Tägliche Zusammenfassung\n/lang en|ru|uk|es|zh|fr|de — Bot-Sprache\n/help — Hilfe",
@@ -303,6 +427,26 @@ function botText($lang, $key, $params = [])
             'sources_empty' => "📭 Keine Quellen mit URL.\n\nFüge Quellen im Orbitra-Panel hinzu.",
             'sources_checking' => "🔄 Überprüfe alle Quellen...",
             'sources_summary' => "📊 Gesamt: {ok} OK, {errors} mit Fehler",
+            'lang_prompt' => "🌐 Aktuelle Sprache: *{lang}*
+Sprache wählen:",
+            'lang_invalid' => "❌ Unbekannte Sprache: {arg}.\nVerfügbar: ru, en, uk, es, zh, fr, de",
+            'notify_status_on' => "🔔 Conversion-Benachrichtigungen sind derzeit *aktiviert*.",
+            'notify_status_off' => "🔔 Conversion-Benachrichtigungen sind derzeit *deaktiviert*.",
+            'daily_status_on' => "📊 Die tägliche Zusammenfassung ist derzeit *aktiviert*.",
+            'daily_status_off' => "📊 Die tägliche Zusammenfassung ist derzeit *deaktiviert*.",
+            'btn_enable' => "✅ Aktivieren",
+            'btn_disable' => "🔕 Deaktivieren",
+            'daily_top' => "🏆 Top-Kampagnen:",
+            'cmd_stats' => "📊 Statistik heute / 7T / 30T",
+            'cmd_campaigns' => "📋 Aktive Kampagnen",
+            'cmd_campaign' => "🔍 Kampagnenstatistik nach ID",
+            'cmd_top' => "🏆 Top 5 Kampagnen nach Umsatz",
+            'cmd_conversions' => "🔔 Letzte Conversions",
+            'cmd_notify' => "🔔 Conversion-Benachrichtigungen on|off",
+            'cmd_daily' => "📊 Tägliche Zusammenfassung on|off",
+            'cmd_sources' => "🌐 Status der Traffic-Quellen",
+            'cmd_lang' => "🌐 Bot-Sprache ändern",
+            'cmd_help' => "📖 Befehlshilfe",
         ]
     ];
 
@@ -314,26 +458,150 @@ function botText($lang, $key, $params = [])
     return $text;
 }
 
-// Send message to Telegram
-function sendTelegram($token, $chatId, $text, $parseMode = 'Markdown')
+// Languages the bot speaks — same list as botText() below and the panel's
+// locales. The names are the native endonyms: a language picker should read
+// in the language it selects.
+function orbitraTelegramLanguages(): array
 {
-    $url = "https://api.telegram.org/bot{$token}/sendMessage";
+    return [
+        'ru' => 'Русский',
+        'en' => 'English',
+        'uk' => 'Українська',
+        'es' => 'Español',
+        'fr' => 'Français',
+        'de' => 'Deutsch',
+        'zh' => '中文',
+    ];
+}
+
+// The command catalogue, in menu order. descriptions come from botText(), so
+// the Telegram quick-command menu localizes with the bot.
+function orbitraTelegramCommands(): array
+{
+    return [
+        ['command' => 'stats', 'key' => 'cmd_stats'],
+        ['command' => 'campaigns', 'key' => 'cmd_campaigns'],
+        ['command' => 'campaign', 'key' => 'cmd_campaign'],
+        ['command' => 'top', 'key' => 'cmd_top'],
+        ['command' => 'conversions', 'key' => 'cmd_conversions'],
+        ['command' => 'notify', 'key' => 'cmd_notify'],
+        ['command' => 'daily', 'key' => 'cmd_daily'],
+        ['command' => 'sources', 'key' => 'cmd_sources'],
+        ['command' => 'lang', 'key' => 'cmd_lang'],
+        ['command' => 'help', 'key' => 'cmd_help'],
+    ];
+}
+
+/**
+ * setMyCommands payloads for the default menu and every language Telegram
+ * matches on. Pure data — the two callers (registerCommands here, the panel's
+ * save_telegram_settings in api.php) each push it through their own API
+ * helper, so no second copy of the descriptions can drift.
+ */
+function orbitraTelegramCommandPayloads(): array
+{
+    $payloads = [];
+    foreach (array_merge(['default'], array_keys(orbitraTelegramLanguages())) as $scope) {
+        $lang = $scope === 'default' ? 'en' : $scope;
+        $commands = [];
+        foreach (orbitraTelegramCommands() as $c) {
+            $commands[] = ['command' => $c['command'], 'description' => botText($lang, $c['key'])];
+        }
+        $payloads[$scope] = ['commands' => $commands];
+        if ($scope !== 'default') {
+            $payloads[$scope]['language_code'] = $scope;
+        }
+    }
+    return $payloads;
+}
+
+/** Push the localized quick-command menu to Telegram. Best effort. */
+function orbitraTelegramRegisterCommands(string $token): array
+{
+    $results = [];
+    foreach (orbitraTelegramCommandPayloads() as $scope => $params) {
+        $results[$scope] = orbitraTelegramApi($token, 'setMyCommands', $params);
+    }
+    // The menu button next to the input field is the one-tap entry point to
+    // that command list; clients default to it, but an explicit set makes the
+    // quick commands visible even where an operator's client drifted.
+    $results['menu_button'] = orbitraTelegramApi($token, 'setChatMenuButton', [
+        'menu_button' => ['type' => 'commands'],
+    ]);
+    return $results;
+}
+
+/**
+ * Escape the four entity characters of Telegram's legacy Markdown outside of
+ * entities. Campaign names are operator input: "Pockets_Final" must arrive as
+ * text, not as an accidental italic run that eats the message's own markers.
+ */
+function orbitraTelegramEscape(string $text): string
+{
+    return str_replace(
+        ['\\', '_', '*', '[', '`'],
+        ['\\\\', '\\_', '\\*', '\\[', '\\`'],
+        $text
+    );
+}
+
+/** Re-register the command menu at most once a day (the poller calls this). */
+function orbitraTelegramMaybeRegisterCommands(PDO $pdo, string $token): void
+{
+    $stmt = $pdo->query("SELECT value FROM settings WHERE key = 'telegram_commands_sent'");
+    if ($stmt && $stmt->fetchColumn() === date('Y-m-d')) {
+        return;
+    }
+    orbitraTelegramRegisterCommands($token);
+    $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('telegram_commands_sent', ?)")
+        ->execute([date('Y-m-d')]);
+}
+
+/** Inline keyboard: one row of language buttons, callback lang:<code>. */
+function orbitraLangKeyboard(): array
+{
+    $row = [];
+    foreach (orbitraTelegramLanguages() as $code => $name) {
+        $row[] = ['text' => $name, 'callback_data' => 'lang:' . $code];
+    }
+    // 4 + 3 reads better than one long strip on a phone.
+    return ['inline_keyboard' => [array_slice($row, 0, 4), array_slice($row, 4)]];
+}
+
+/** Generic Bot API call. Returns the decoded response, or null on failure. */
+function orbitraTelegramApi(string $token, string $method, array $params = [], int $timeout = 10): ?array
+{
+    // Test seam: the suite asserts outgoing payloads without touching the net.
+    if (defined('ORBITRA_TELEGRAM_TEST_OUTBOX')) {
+        $GLOBALS['orbitra_telegram_outbox'][] = ['method' => $method, 'params' => $params];
+        return ['ok' => true, 'result' => true];
+    }
+
+    $url = "https://api.telegram.org/bot{$token}/{$method}";
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+    $result = curl_exec($ch);
+    // curl_close() deprecated in PHP 8.5 - resources are auto-freed
+    return json_decode($result, true);
+}
+
+// Send message to Telegram
+function sendTelegram($token, $chatId, $text, $parseMode = 'Markdown', ?array $replyMarkup = null)
+{
     $data = [
         'chat_id' => $chatId,
         'text' => $text,
         'parse_mode' => $parseMode,
         'disable_web_page_preview' => true
     ];
-
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-    $result = curl_exec($ch);
-    // curl_close() deprecated in PHP 8.5 - resources are auto-freed
-    return json_decode($result, true);
+    if ($replyMarkup !== null) {
+        $data['reply_markup'] = $replyMarkup;
+    }
+    return orbitraTelegramApi($token, 'sendMessage', $data);
 }
 
 /**
@@ -344,10 +612,17 @@ function sendTelegram($token, $chatId, $text, $parseMode = 'Markdown')
  * call back to. Keep every command in this one switch — a second copy in the
  * poller is how the two drift apart.
  *
- * Returns true when the update carried a message this bot acts on.
+ * Handles message updates and callback_query updates (the inline keyboards
+ * for /start, /lang, /notify, /daily and /campaigns answer with those).
+ *
+ * Returns true when the update carried something this bot acts on.
  */
 function orbitraTelegramProcessUpdate(PDO $pdo, string $botToken, array $update): bool
 {
+    if (isset($update['callback_query'])) {
+        return orbitraTelegramProcessCallback($pdo, $botToken, $update['callback_query']);
+    }
+
     if (!isset($update['message'])) {
         return false;
     }
@@ -362,24 +637,19 @@ function orbitraTelegramProcessUpdate(PDO $pdo, string $botToken, array $update)
     $username = $message['from']['username'] ?? '';
     $firstName = $message['from']['first_name'] ?? '';
 
-    // Register/update chat
-    $stmt = $pdo->prepare("INSERT OR IGNORE INTO telegram_bot_chats (chat_id, username, first_name) VALUES (?, ?, ?)");
-    $stmt->execute([$chatId, $username, $firstName]);
-    $pdo->prepare("UPDATE telegram_bot_chats SET username = ?, first_name = ?, is_active = 1 WHERE chat_id = ?")->execute([$username, $firstName, $chatId]);
-
-    // Get chat language
-    $stmt = $pdo->prepare("SELECT language FROM telegram_bot_chats WHERE chat_id = ?");
-    $stmt->execute([$chatId]);
-    $lang = $stmt->fetchColumn() ?: 'ru';
+    // Register/update chat and read the language it picked.
+    $lang = orbitraTelegramChatLang($pdo, $chatId, $username, $firstName);
 
     // Parse command
     $parts = explode(' ', $text, 2);
     $command = strtolower($parts[0]);
-    $arg = $parts[1] ?? '';
+    // Strip an @botname suffix Telegram appends in groups (/stats@my_bot).
+    $command = preg_replace('/@[^@\s]+$/', '', $command);
+    $arg = trim($parts[1] ?? '');
 
     switch ($command) {
         case '/start':
-            sendTelegram($botToken, $chatId, botText($lang, 'welcome'));
+            sendTelegram($botToken, $chatId, botText($lang, 'welcome'), 'Markdown', orbitraLangKeyboard());
             break;
 
         case '/help':
@@ -407,25 +677,15 @@ function orbitraTelegramProcessUpdate(PDO $pdo, string $botToken, array $update)
             break;
 
         case '/notify':
-            $val = strtolower(trim($arg));
-            $enabled = ($val === 'on' || $val === '1') ? 1 : 0;
-            $pdo->prepare("UPDATE telegram_bot_chats SET notify_conversions = ? WHERE chat_id = ?")->execute([$enabled, $chatId]);
-            sendTelegram($botToken, $chatId, botText($lang, $enabled ? 'notify_on' : 'notify_off'));
+            handleNotify($pdo, $botToken, $chatId, $lang, $arg);
             break;
 
         case '/daily':
-            $val = strtolower(trim($arg));
-            $enabled = ($val === 'on' || $val === '1') ? 1 : 0;
-            $pdo->prepare("UPDATE telegram_bot_chats SET notify_daily = ? WHERE chat_id = ?")->execute([$enabled, $chatId]);
-            sendTelegram($botToken, $chatId, botText($lang, $enabled ? 'daily_on' : 'daily_off'));
+            handleDaily($pdo, $botToken, $chatId, $lang, $arg);
             break;
 
         case '/lang':
-            $newLang = strtolower(trim($arg));
-            if (!in_array($newLang, ['ru', 'en', 'uk', 'es', 'zh', 'fr', 'de']))
-                $newLang = 'ru';
-            $pdo->prepare("UPDATE telegram_bot_chats SET language = ? WHERE chat_id = ?")->execute([$newLang, $chatId]);
-            sendTelegram($botToken, $chatId, botText($newLang, 'lang_set'));
+            handleLang($pdo, $botToken, $chatId, $lang, $arg);
             break;
 
         case '/sources':
@@ -442,6 +702,132 @@ function orbitraTelegramProcessUpdate(PDO $pdo, string $botToken, array $update)
     }
 
     return true;
+}
+
+/**
+ * A tap on one of the bot's inline buttons. Telegram keeps the message the
+ * button was attached to, so every tap is a fresh conversation turn: answer
+ * the query (stops the client's spinner) and act on the payload.
+ */
+function orbitraTelegramProcessCallback(PDO $pdo, string $botToken, array $cb): bool
+{
+    $chatId = (string)($cb['message']['chat']['id'] ?? '');
+    $data = (string)($cb['data'] ?? '');
+    if ($chatId === '' || $data === '') {
+        return false;
+    }
+
+    orbitraTelegramApi($botToken, 'answerCallbackQuery', ['callback_query_id' => $cb['id'] ?? '']);
+
+    $from = $cb['from'] ?? [];
+    $lang = orbitraTelegramChatLang($pdo, $chatId, $from['username'] ?? '', $from['first_name'] ?? '');
+
+    if (str_starts_with($data, 'lang:')) {
+        $newLang = substr($data, 5);
+        if (isset(orbitraTelegramLanguages()[$newLang])) {
+            $pdo->prepare("UPDATE telegram_bot_chats SET language = ? WHERE chat_id = ?")->execute([$newLang, $chatId]);
+            sendTelegram($botToken, $chatId, botText($newLang, 'lang_set'));
+        }
+        return true;
+    }
+
+    if (str_starts_with($data, 'camp:')) {
+        handleCampaignDetail($pdo, $botToken, $chatId, $lang, substr($data, 5));
+        return true;
+    }
+
+    if ($data === 'notify' || $data === 'daily') {
+        $column = $data === 'notify' ? 'notify_conversions' : 'notify_daily';
+        $key = $data === 'notify' ? 'notify_on' : 'daily_on';
+        $keyOff = $data === 'notify' ? 'notify_off' : 'daily_off';
+        // Toggle from the button's own current state.
+        $stmt = $pdo->prepare("SELECT {$column} FROM telegram_bot_chats WHERE chat_id = ?");
+        $stmt->execute([$chatId]);
+        $enabled = ((int)$stmt->fetchColumn()) ? 0 : 1;
+        $pdo->prepare("UPDATE telegram_bot_chats SET {$column} = ? WHERE chat_id = ?")->execute([$enabled, $chatId]);
+        sendTelegram($botToken, $chatId, botText($lang, $enabled ? $key : $keyOff));
+        return true;
+    }
+
+    return true;
+}
+
+/** Register/refresh a chat and return the language it will be spoken to in. */
+function orbitraTelegramChatLang(PDO $pdo, string $chatId, string $username, string $firstName): string
+{
+    $stmt = $pdo->prepare("INSERT OR IGNORE INTO telegram_bot_chats (chat_id, username, first_name) VALUES (?, ?, ?)");
+    $stmt->execute([$chatId, $username, $firstName]);
+    $pdo->prepare("UPDATE telegram_bot_chats SET username = ?, first_name = ?, is_active = 1 WHERE chat_id = ?")->execute([$username, $firstName, $chatId]);
+
+    $stmt = $pdo->prepare("SELECT language FROM telegram_bot_chats WHERE chat_id = ?");
+    $stmt->execute([$chatId]);
+    $lang = $stmt->fetchColumn() ?: 'ru';
+    return isset(orbitraTelegramLanguages()[$lang]) ? $lang : 'ru';
+}
+
+/**
+ * /lang — without an argument shows the current language and a one-tap
+ * picker; a misspelled argument is an error, not a silent reset to Russian
+ * (which is what the old default-branch did).
+ */
+function handleLang($pdo, $token, $chatId, $lang, $arg)
+{
+    $arg = strtolower(trim($arg));
+    if ($arg === '') {
+        $msg = botText($lang, 'lang_prompt', ['lang' => orbitraTelegramLanguages()[$lang]]);
+        sendTelegram($token, $chatId, $msg, 'Markdown', orbitraLangKeyboard());
+        return;
+    }
+    if (!isset(orbitraTelegramLanguages()[$arg])) {
+        sendTelegram($token, $chatId, botText($lang, 'lang_invalid', ['arg' => $arg]));
+        return;
+    }
+    $pdo->prepare("UPDATE telegram_bot_chats SET language = ? WHERE chat_id = ?")->execute([$arg, $chatId]);
+    sendTelegram($token, $chatId, botText($arg, 'lang_set'));
+}
+
+/**
+ * /notify and /daily share one shape: no argument answers with the current
+ * state and a toggle button, on|off set it explicitly. The old handler read
+ * a bare /notify as "off" — an easy way to unsubscribe by accident.
+ */
+function handleNotify($pdo, $token, $chatId, $lang, $arg)
+{
+    orbitraHandleToggle($pdo, $token, $chatId, $lang, $arg, 'notify_conversions', 'notify');
+}
+
+function handleDaily($pdo, $token, $chatId, $lang, $arg)
+{
+    orbitraHandleToggle($pdo, $token, $chatId, $lang, $arg, 'notify_daily', 'daily');
+}
+
+function orbitraHandleToggle($pdo, $token, $chatId, $lang, $arg, string $column, string $name)
+{
+    $onKey = $name === 'notify' ? 'notify_on' : 'daily_on';
+    $offKey = $name === 'notify' ? 'notify_off' : 'daily_off';
+    $statusKey = $name === 'notify' ? 'notify_status' : 'daily_status';
+
+    $stmt = $pdo->prepare("SELECT {$column} FROM telegram_bot_chats WHERE chat_id = ?");
+    $stmt->execute([$chatId]);
+    $current = (int)((bool)$stmt->fetchColumn());
+
+    $val = strtolower(trim($arg));
+    if ($val === 'on' || $val === '1') {
+        $new = 1;
+    } elseif ($val === 'off' || $val === '0') {
+        $new = 0;
+    } else {
+        // No or unknown argument: report the state, offer the toggle.
+        $msg = botText($lang, $current ? $statusKey . '_on' : $statusKey . '_off');
+        $btn = $current ? 'btn_disable' : 'btn_enable';
+        sendTelegram($token, $chatId, $msg, 'Markdown', [
+            'inline_keyboard' => [[['text' => botText($lang, $btn), 'callback_data' => $name]]],
+        ]);
+        return;
+    }
+
+    $pdo->prepare("UPDATE telegram_bot_chats SET {$column} = ? WHERE chat_id = ?")->execute([$new, $chatId]);
+    sendTelegram($token, $chatId, botText($lang, $new ? $onKey : $offKey));
 }
 
 // === Webhook entry point ===
@@ -561,11 +947,19 @@ function handleCampaigns($pdo, $token, $chatId, $lang)
         $rev = number_format((float)($c['revenue'] ?? 0), 2);
         $conv = (int)($c['conv'] ?? 0);
         $num = $i + 1;
-        $msg .= "*{$num}.* `[{$c['id']}]` {$c['name']}\n";
+        $msg .= "*{$num}.* `[{$c['id']}]` " . orbitraTelegramEscape($c['name']) . "\n";
         $msg .= "   👆 {$clicks} | 🎯 {$conv} | 💰 \${$rev}\n\n";
     }
 
-    sendTelegram($token, $chatId, $msg);
+    // The first ten campaigns become buttons: tapping one opens the detail
+    // view without the operator retyping the ID. One button per row — two
+    // columns of truncated campaign names read worse than a list.
+    $keyboard = ['inline_keyboard' => []];
+    foreach (array_slice($campaigns, 0, 10) as $c) {
+        $label = "[{$c['id']}] " . mb_substr($c['name'], 0, 24);
+        $keyboard['inline_keyboard'][] = [['text' => $label, 'callback_data' => 'camp:' . $c['id']]];
+    }
+    sendTelegram($token, $chatId, $msg, 'Markdown', $keyboard);
 }
 
 function handleCampaignDetail($pdo, $token, $chatId, $lang, $campaignId)
@@ -607,7 +1001,7 @@ function handleCampaignDetail($pdo, $token, $chatId, $lang, $campaignId)
     $profit = number_format((float)$data['revenue'] - (float)$data['cost'], 2);
     $cr = $clicks > 0 ? number_format(($conv / $clicks) * 100, 2) : '0.00';
 
-    $msg = botText($lang, 'campaign_detail', ['name' => $campaign['name']]) . "\n";
+    $msg = botText($lang, 'campaign_detail', ['name' => orbitraTelegramEscape($campaign['name'])]) . "\n";
     $msg .= "🔗 Alias: `{$campaign['alias']}`\n\n";
     $msg .= "👆 " . botText($lang, 'clicks') . ": *{$clicks}* ({$unique})\n";
     $msg .= "🎯 " . botText($lang, 'conversions') . ": *{$conv}*\n";
@@ -646,7 +1040,7 @@ function handleTop($pdo, $token, $chatId, $lang)
     foreach ($rows as $i => $r) {
         $rev = number_format((float)$r['revenue'], 2);
         $conv = (int)($r['conv'] ?? 0);
-        $msg .= "{$medals[$i]} *{$r['name']}*\n";
+        $msg .= "{$medals[$i]} *" . orbitraTelegramEscape($r['name']) . "*\n";
         $msg .= "   💰 \${$rev} | 🎯 {$conv} | 👆 {$r['clicks']}\n\n";
     }
 
@@ -677,7 +1071,7 @@ function handleConversions($pdo, $token, $chatId, $lang)
         $time = date('H:i', strtotime($r['created_at']));
         $payout = number_format((float)$r['payout'], 2);
         $flag = getCountryFlag($r['country'] ?? '');
-        $msg .= "• `{$r['status']}` | \${$payout} | {$r['campaign_name']} {$flag} {$time}\n";
+        $msg .= "• `{$r['status']}` | \${$payout} | " . orbitraTelegramEscape((string)$r['campaign_name']) . " {$flag} {$time}\n";
     }
 
     sendTelegram($token, $chatId, $msg);

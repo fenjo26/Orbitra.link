@@ -17,11 +17,20 @@ import { getStayInEditorAfterSave } from '../utils/editorPreferences';
 import { buildSnippet, COUNTDOWN_THEMES, EXIT_BUTTON_COLORS, METHOD_INSTALL_HINTS,
          KCLIENT_PHP_DOCS_URL, kclientPhpSecondary, kclientPhpOfferLink, kclientPhpGetOffer } from '../utils/integrationSnippets';
 import { campaignLinkUrl } from '../utils/campaignUrl';
+import DateRangePicker, { formatDate } from './DateRangePicker';
+import { useTimezone } from '../utils/useTimezone';
 import { ignoredBotIspEntries } from '../utils/botIspList';
 import ProxyInput from './common/ProxyInput';
 import PixelPicker from './common/PixelPicker';
+import Dialog from './common/Dialog';
 
 const CAMPAIGN_SUB_ID_KEYS = Array.from({ length: 30 }, (_, index) => `sub_id_${index + 1}`);
+
+// The one history entry the editor pushes per session so browser Back closes
+// the editor instead of leaving the tracker. Read in more than one place
+// (the mount effect and the unsaved-changes dialog's "stay" handler), hence
+// module scope.
+const EDITOR_HISTORY_KEY = 'orbitraCampaignEditor';
 
 /**
  * Keitaro-style split button: the main part opens the entity picker, the
@@ -400,6 +409,23 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     });
     // W2: Cloak diagnostics summary for campaign editor
     const [cloakSummary, setCloakSummary] = useState(null);
+    // The window the diagnostics strip counts over. It used to be a fixed
+    // yesterday-to-today with no way to ask what happened last week, or over the
+    // month a campaign has actually been running — cloak_summary accepted from/to
+    // all along, the panel simply never sent them. Defaults to the range the
+    // panel always used, so nobody's remembered numbers move on upgrade.
+    // Campaign-level, matching the fetch: a second cloak stream on one campaign
+    // shares it rather than owning its own.
+    const [cloakRange, setCloakRange] = useState(() => {
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
+        return { from: formatDate(yesterday), to: formatDate(today), preset: 'custom' };
+    });
+    // The shared store every report surface subscribes to. Reading localStorage
+    // here instead would let the picker's own dropdown drift from the timezone
+    // printed in the window label directly above it.
+    const [reportTimezone, setReportTimezone] = useTimezone();
     // Rotation auto-optimisation: cost availability (gates the ROI metric
     // option) + the recent optimiser decisions shown under each Auto toggle.
     const [rotationStatus, setRotationStatus] = useState(null);
@@ -474,16 +500,20 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     // history stack stays clean. The state-flag dedupe keeps StrictMode's
     // double-invoked effects from stacking entries.
     useEffect(() => {
-        const HISTORY_KEY = 'orbitraCampaignEditor';
-        if (!window.history.state?.[HISTORY_KEY]) {
-            window.history.pushState({ ...window.history.state, [HISTORY_KEY]: true }, '');
+        if (!window.history.state?.[EDITOR_HISTORY_KEY]) {
+            window.history.pushState({ ...window.history.state, [EDITOR_HISTORY_KEY]: true }, '');
         }
 
         const onPopState = () => {
-            const { onClose: close, t: translate, isDirty: dirty } = latestRef.current;
-            if (dirty && !window.confirm(translate('editor.unsavedChanges'))) {
-                // User chose to stay: restore the entry Back just consumed.
-                window.history.pushState({ ...window.history.state, [HISTORY_KEY]: true }, '');
+            const { onClose: close, isDirty: dirty } = latestRef.current;
+            if (dirty) {
+                // Themed dialog instead of window.confirm — native dialogs are
+                // browser chrome, unthemeable and white in dark themes. The
+                // popstate has already consumed the pushed entry; "stay" puts
+                // it back, "leave" closes through the normal funnel.
+                guardRestoreRef.current = true;
+                guardActionRef.current = () => close(true);
+                setGuardOpen(true);
                 return;
             }
             close(true);
@@ -492,7 +522,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         window.addEventListener('popstate', onPopState);
         return () => {
             window.removeEventListener('popstate', onPopState);
-            if (uiCloseRef.current && window.history.state?.[HISTORY_KEY]) {
+            if (uiCloseRef.current && window.history.state?.[EDITOR_HISTORY_KEY]) {
                 window.history.back();
             }
         };
@@ -506,8 +536,33 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     };
 
     const requestClose = () => {
-        if (isDirty && !window.confirm(t('editor.unsavedChanges'))) return;
+        if (isDirty) {
+            guardRestoreRef.current = false;
+            guardActionRef.current = () => closeEditor(true);
+            setGuardOpen(true);
+            return;
+        }
         closeEditor(true);
+    };
+
+    // Unsaved-changes guard dialog. "Leave" runs whichever close was pending
+    // (UI back button or browser Back); "stay" only restores the history
+    // entry when browser Back was the path that opened the dialog.
+    const [guardOpen, setGuardOpen] = useState(false);
+    const guardActionRef = useRef(null);
+    const guardRestoreRef = useRef(false);
+    const stayInEditor = () => {
+        setGuardOpen(false);
+        if (guardRestoreRef.current) {
+            window.history.pushState({ ...window.history.state, [EDITOR_HISTORY_KEY]: true }, '');
+            guardRestoreRef.current = false;
+        }
+    };
+    const leaveEditor = () => {
+        setGuardOpen(false);
+        const action = guardActionRef.current;
+        guardActionRef.current = null;
+        action?.();
     };
 
     // Cost models
@@ -862,8 +917,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     // panel passes route='safe' with its 24h window). Fetching belongs to
     // ClickLogModal, which is mounted only while open — so a fresh open is
     // always a fresh read of the log.
-    const openClickLog = ({ route = 'all', hours = 0, streamId = 0 } = {}) => {
-        setClickLogRequest({ route, hours, streamId });
+    const openClickLog = ({ route = 'all', hours = 0, streamId = 0, from = '', to = '' } = {}) => {
+        setClickLogRequest({ route, hours, streamId, from, to });
     };
 
     useEffect(() => {
@@ -1000,7 +1055,15 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         }
         setCloakSummaryLoading(true);
         axios.get('/api.php?action=cloak_summary', {
-            params: { campaign_id: activeCampaignId }
+            params: {
+                campaign_id: activeCampaignId,
+                from: cloakRange.from,
+                to: cloakRange.to,
+                // api.php validates this against DateTimeZone::listIdentifiers()
+                // and feeds $dbTzOffset before any query runs, so changing it
+                // moves the counts rather than only the label.
+                timezone: reportTimezone
+            }
         })
             .then(res => {
                 if (res.data.status === 'success') {
@@ -1014,7 +1077,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 setCloakSummary(null);
                 setCloakSummaryLoading(false);
             });
-    }, [activeCampaignId]);
+    }, [activeCampaignId, cloakRange.from, cloakRange.to, reportTimezone]);
 
     // Rotation optimiser status: cost availability + recent weight decisions,
     // fresh on every editor open (the cron keeps writing while it's closed).
@@ -2070,6 +2133,50 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             </div>
         );
     };
+
+    // "Before / After the click", shared by the Landing + Offer schema and by
+    // the cloak schema's money page. The money page runs the same weighted
+    // landing-and-offer selection, so the same choice applies to it — it was
+    // simply never rendered there, and index.php's cloak branch never read the
+    // setting either. One renderer rather than a second copy: two copies of a
+    // control is how the same setting ends up behaving differently depending on
+    // which schema you opened.
+    const renderOfferSelection = (idx, stream) => (
+        <div className="mt-3 pt-3" style={{ borderTop: '1px dashed var(--color-border)' }}>
+            <div className="text-xs font-semibold mb-1.5" style={{ color: 'var(--color-text-primary)' }}>{t('editor.offerSelection')}</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {['before', 'after'].map(mode => {
+                    const selected = (stream.offer_selection || 'before') === mode;
+                    return (
+                        <label
+                            key={mode}
+                            className="flex items-start gap-2 text-xs cursor-pointer p-2.5 rounded-xl border transition"
+                            style={{
+                                borderColor: selected ? 'color-mix(in srgb, var(--color-primary) 45%, transparent)' : 'var(--color-border)',
+                                backgroundColor: selected ? 'color-mix(in srgb, var(--color-primary) 7%, transparent)' : 'transparent',
+                            }}
+                        >
+                            <input
+                                type="radio"
+                                className="mt-0.5"
+                                checked={selected}
+                                onChange={() => updateStream(idx, 'offer_selection', mode)}
+                            />
+                            <span className="min-w-0">
+                                <span className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                                    {mode === 'before' ? t('editor.offerSelectionBefore') : t('editor.offerSelectionAfter')}
+                                </span>
+                                <span className="block mt-0.5" style={{ fontSize: '11px', color: 'var(--color-text-muted)', lineHeight: 1.45 }}>
+                                    {mode === 'before' ? t('editor.offerSelectionBeforeHint') : t('editor.offerSelectionAfterHint')}
+                                </span>
+                            </span>
+                        </label>
+                    );
+                })}
+            </div>
+            <p className="mt-1.5" style={{ fontSize: '11.5px', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>{t('editor.offerSelectionHint')}</p>
+        </div>
+    );
 
     const renderOfferRow = (idx, o, oIdx, list) => {
         const info = allOffers.find(ao => ao.id === parseInt(o.id, 10));
@@ -4071,40 +4178,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                 </div>
                                                             )}
 
-                                                            <div className="mt-3 pt-3" style={{ borderTop: '1px dashed var(--color-border)' }}>
-                                                                <div className="text-xs font-semibold mb-1.5" style={{ color: 'var(--color-text-primary)' }}>{t('editor.offerSelection')}</div>
-                                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                                                    {['before', 'after'].map(mode => {
-                                                                        const selected = (stream.offer_selection || 'before') === mode;
-                                                                        return (
-                                                                            <label
-                                                                                key={mode}
-                                                                                className="flex items-start gap-2 text-xs cursor-pointer p-2.5 rounded-xl border transition"
-                                                                                style={{
-                                                                                    borderColor: selected ? 'color-mix(in srgb, var(--color-primary) 45%, transparent)' : 'var(--color-border)',
-                                                                                    backgroundColor: selected ? 'color-mix(in srgb, var(--color-primary) 7%, transparent)' : 'transparent',
-                                                                                }}
-                                                                            >
-                                                                                <input
-                                                                                    type="radio"
-                                                                                    className="mt-0.5"
-                                                                                    checked={selected}
-                                                                                    onChange={() => updateStream(idx, 'offer_selection', mode)}
-                                                                                />
-                                                                                <span className="min-w-0">
-                                                                                    <span className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-                                                                                        {mode === 'before' ? t('editor.offerSelectionBefore') : t('editor.offerSelectionAfter')}
-                                                                                    </span>
-                                                                                    <span className="block mt-0.5" style={{ fontSize: '11px', color: 'var(--color-text-muted)', lineHeight: 1.45 }}>
-                                                                                        {mode === 'before' ? t('editor.offerSelectionBeforeHint') : t('editor.offerSelectionAfterHint')}
-                                                                                    </span>
-                                                                                </span>
-                                                                            </label>
-                                                                        );
-                                                                    })}
-                                                                </div>
-                                                                <p className="mt-1.5" style={{ fontSize: '11.5px', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>{t('editor.offerSelectionHint')}</p>
-                                                            </div>
+                                                            {renderOfferSelection(idx, stream)}
                                                         </div>
                                                     </div>
                                                 )}
@@ -4327,15 +4401,39 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                                     onClick={() => {
                                                                                         // W3: open the Click Log modal
                                                                                         // pre-filtered to this campaign's safe
-                                                                                        // traffic, same 24h window as the
-                                                                                        // diagnostics panel above.
-                                                                                        openClickLog({ route: 'safe', hours: 24, streamId: Number(stream.id) > 0 ? Number(stream.id) : 0 });
+                                                                                        // traffic, over the SAME window the counts
+                                                                                        // above were computed for — a hardcoded 24h
+                                                                                        // disagrees with them the moment the range moves.
+                                                                                        openClickLog({
+                                                                                            route: 'safe',
+                                                                                            streamId: Number(stream.id) > 0 ? Number(stream.id) : 0,
+                                                                                            from: cloakRange.from,
+                                                                                            to: cloakRange.to
+                                                                                        });
                                                                                     }}
                                                                                     className="text-xs hover:underline"
                                                                                     style={{ color: 'var(--color-primary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                                                                                 >
                                                                                     {t('cloaking.diagnosticsViewLogs')}
                                                                                 </button>
+                                                                            </div>
+                                                                            {/* The shared picker rather than a second one: presets,
+                                                                                calendar, typed fields, timezone select and the mobile
+                                                                                bottom sheet all arrive with it, and it cannot drift
+                                                                                from the picker on every other page. An earlier pass
+                                                                                used native <input type="date">, which opens Chrome's
+                                                                                own unthemeable calendar — white on a dark panel.
+                                                                                onChange is positional: (from, to, preset). */}
+                                                                            <div className="mb-2 flex justify-end">
+                                                                                <DateRangePicker
+                                                                                    dateFrom={cloakRange.from}
+                                                                                    dateTo={cloakRange.to}
+                                                                                    initialPreset={cloakRange.preset}
+                                                                                    onChange={(from, to, preset) => setCloakRange({ from, to, preset })}
+                                                                                    selectedTimezone={reportTimezone}
+                                                                                    onTimezoneChange={setReportTimezone}
+                                                                                    compact
+                                                                                />
                                                                             </div>
                                                                             <div className="text-sm font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
                                                                                 {t('cloaking.diagnosticsStats', {
@@ -4798,6 +4896,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                             {(sc.offers || []).map((o, oIdx, list) => renderOfferRow(idx, o, oIdx, list))}
                                                                         </div>
                                                                     )}
+                                                                    {renderOfferSelection(idx, stream)}
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -5144,6 +5243,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     initialRoute={clickLogRequest.route}
                     initialHours={clickLogRequest.hours}
                     initialStreamId={clickLogRequest.streamId}
+                    initialFrom={clickLogRequest.from}
+                    initialTo={clickLogRequest.to}
                     onClose={() => setClickLogRequest(null)}
                 />
             )}
@@ -5575,6 +5676,17 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                     onSave={handleSourceCreated}
                 />
             )}
+
+            {/* Unsaved-changes guard, themed — see requestClose / onPopState. */}
+            <Dialog
+                open={guardOpen}
+                tone="confirm"
+                message={t('editor.unsavedChanges')}
+                confirmLabel={t('editor.unsavedLeave')}
+                cancelLabel={t('editor.unsavedStay')}
+                onConfirm={leaveEditor}
+                onClose={stayInEditor}
+            />
         </>
     );
 };

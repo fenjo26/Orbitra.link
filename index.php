@@ -4081,7 +4081,12 @@ if ($selectedStream) {
         // landing, so a slot that ran out of cap while they were reading is not
         // already burned on them. The click is logged without an offer and gets
         // one when /?_lp=1 fires.
-        $deferOffer = ($selectedStream['offer_selection'] ?? 'before') === 'after';
+        // Guarded on a landing: with none, there is no /?_lp=1 hop to come back
+        // through, so a deferred offer would leave the click with nothing to
+        // redirect to. A stream configured that way is misconfigured either
+        // way; picking the offer now at least still sends the visitor somewhere.
+        $deferOffer = ($selectedStream['offer_selection'] ?? 'before') === 'after'
+            && $selectedLanding !== null;
         $selectedOffer = $deferOffer ? null : selectWeightedItem($customSchema['offers'] ?? []);
 
         if ($selectedOffer)
@@ -4268,7 +4273,16 @@ if ($selectedStream) {
             // --- Money page --- behaves like the landing_offer schema: a weighted landing
             // and/or offer selection. Falls back to a plain redirect if only an offer is set.
             $selectedLanding = selectWeightedItem($customSchema['landings'] ?? []);
-            $selectedOffer = selectWeightedItem($customSchema['offers'] ?? []);
+            // "behaves like the landing_offer schema" was true of everything here
+            // except this: the money page used to pick the offer eagerly and
+            // ignore offer_selection outright, so the setting did nothing on a
+            // cloak stream even once the editor exposed it. Same rule, same
+            // landing guard — and the /?_lp=1 handler already resolves a
+            // deferred offer for any stream, cloak included, so nothing else
+            // needs to change for the hop to complete.
+            $deferOffer = ($selectedStream['offer_selection'] ?? 'before') === 'after'
+                && $selectedLanding !== null;
+            $selectedOffer = $deferOffer ? null : selectWeightedItem($customSchema['offers'] ?? []);
             if ($selectedOffer) {
                 $offerIdToLog = $selectedOffer['id'] ?? 0;
             }

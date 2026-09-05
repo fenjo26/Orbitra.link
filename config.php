@@ -87,7 +87,7 @@ try {
     // subscriber base; 44 = media library (docs/media-core-v1.md); 43 = PWA
     // landings. All migration blocks are additive — whoever adds the next one
     // bumps this and appends below, re-reading the file first (parallel-session rule).
-    $LATEST_SCHEMA_VERSION = 49;
+    $LATEST_SCHEMA_VERSION = 50;
 
     $schemaVersion = 0;
     try {
@@ -532,6 +532,7 @@ try {
     CREATE TABLE IF NOT EXISTS bot_ips (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         ip_or_cidr TEXT NOT NULL UNIQUE,
+        source TEXT DEFAULT 'manual',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
@@ -2589,6 +2590,26 @@ try {
                     } catch (\Throwable $e) {
                         // Column already present on a half-migrated DB.
                     }
+                }
+            }
+
+            if ($schemaVersion < 50) {
+                // Migration 50: where a bot IP entry came from.
+                //
+                // Clear All was one DELETE over the whole table, so purging a
+                // handful of hand-added entries also wiped anything imported
+                // alongside them. `source` scopes that button. Existing rows
+                // default to 'manual', which is exactly what they are — before
+                // this there was nothing else to be.
+                try {
+                    $pdo->exec("ALTER TABLE bot_ips ADD COLUMN source TEXT DEFAULT 'manual'");
+                } catch (\Throwable $e) {
+                    // Column already present on a half-migrated DB.
+                }
+                try {
+                    $pdo->exec("UPDATE bot_ips SET source = 'manual' WHERE source IS NULL OR source = ''");
+                } catch (\Throwable $e) {
+                    // Nothing to backfill.
                 }
             }
 

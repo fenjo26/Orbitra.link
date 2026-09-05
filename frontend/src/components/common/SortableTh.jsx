@@ -18,6 +18,22 @@ export const SortIcon = ({ sortBy, colKey }) => {
         : <ChevronDown className="w-3 h-3" style={{ color: 'var(--color-primary)' }} />;
 };
 
+// A conversion column is identifiable at a glance instead of by reading it.
+// Module scope for the same reason as SortIcon: a component defined in a
+// render body remounts its DOM and cancels a column drag in flight.
+export const StatusDot = ({ color, title }) => (
+    <span
+        title={title}
+        style={{
+            width: '7px',
+            height: '7px',
+            borderRadius: '50%',
+            flexShrink: 0,
+            backgroundColor: color
+        }}
+    />
+);
+
 // The drag source is the GRIP, not the <th>: a native drag never starts on
 // an interactive descendant, so a grip inside the sort <button> was dead.
 // The <th> itself stays the drop target (highlight + onDrop).
@@ -28,7 +44,11 @@ export const SortIcon = ({ sortBy, colKey }) => {
 // to sort by (Actions) — they still reorder and resize like everything else.
 // Header labels centre within their column: with user-resizable widths a
 // label hugging the left/right edge of a wide cell reads crooked.
-export const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd, resize, hideSortIcon = false, sortable = true, className = '', style, ...rest }) => {
+// `statusColor`: a resolved hex for a column that counts a conversion status,
+// or null/undefined for everything else. Passed in rather than read from a
+// module ref — the caller already holds the conversion types, and a ref would
+// make a stale marker possible on a render the state change did not cause.
+export const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', draggable = false, isDragOver = false, sortBy, requestSort, onDragStart, onDragOver, onDrop, onDragEnd, resize, hideSortIcon = false, sortable = true, statusColor = null, className = '', style, ...rest }) => {
     const isActive = sortBy.key === colKey;
     const startColumnDrag = (e) => {
         if (onDragStart) onDragStart(e);
@@ -99,6 +119,7 @@ export const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', dragg
                             color: isActive ? 'var(--color-primary)' : 'var(--color-text-secondary)'
                         }}
                     >
+                        {statusColor && <StatusDot color={statusColor} title={fullTitle || label} />}
                         {/* truncate: the label stays inside its own cell —
                             clipping belongs to the header, not the table. */}
                         <span className="truncate">{label}</span>
@@ -111,6 +132,7 @@ export const SortableTh = ({ colKey, label, fullTitle, defaultDir = 'asc', dragg
                         className="inline-flex items-center gap-1 text-[10px] font-semibold whitespace-nowrap min-w-0 max-w-full"
                         style={{ color: 'var(--color-text-secondary)' }}
                     >
+                        {statusColor && <StatusDot color={statusColor} title={fullTitle || label} />}
                         <span className="truncate">{label}</span>
                     </span>
                 )}

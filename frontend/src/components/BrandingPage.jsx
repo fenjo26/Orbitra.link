@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Sun, Moon, Palette, Check, Monitor, Droplet, RefreshCw, Save, Waves, StickyNote, Feather, Gem, Loader2, AlertCircle } from 'lucide-react';
+import { Sun, Moon, Palette, Check, Monitor, Droplet, RefreshCw, Save, Waves, StickyNote, Feather, Gem, Loader2, AlertCircle, Terminal, Sparkles } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { applyCustomThemeVars } from '../utils/themeContrast';
 
@@ -25,6 +25,10 @@ const PALETTE_THEMES = [
     { id: 'parchment-dark', icon: Feather, labelKey: 'branding.parchmentDark', descKey: 'branding.parchmentDarkDesc', hoverClass: 'hover:border-[#f37338]', chipClass: 'bg-[#141413] text-[#f3f0ee]' },
     { id: 'indigo', icon: Gem, labelKey: 'branding.indigo', descKey: 'branding.indigoDesc', hoverClass: 'hover:border-[#5865f2]', chipClass: 'bg-[#e0e3ff] text-[#5865f2]' },
     { id: 'indigo-dark', icon: Gem, labelKey: 'branding.indigoDark', descKey: 'branding.indigoDarkDesc', hoverClass: 'hover:border-[#5865f2]', chipClass: 'bg-[#1e2353] text-[#5865f2]' },
+    // Atmosphere themes rather than palette ports: they carry their own
+    // background treatment (scanlines / drifting washes) in index.css.
+    { id: 'terminal', icon: Terminal, labelKey: 'branding.terminal', descKey: 'branding.terminalDesc', hoverClass: 'hover:border-[#35f08a]', chipClass: 'bg-[#05070a] text-[#35f08a]' },
+    { id: 'aurora', icon: Sparkles, labelKey: 'branding.aurora', descKey: 'branding.auroraDesc', hoverClass: 'hover:border-[#7dd3fc]', chipClass: 'bg-[#070b18] text-[#7dd3fc]' },
 ];
 
 const BrandingPage = () => {

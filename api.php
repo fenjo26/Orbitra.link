@@ -1432,7 +1432,8 @@ if (!$orbitraSetupInProgress && !orbitraAdminIpAllowed($pdo)) {
 }
 
 // === AUTHENTICATION MIDDLEWARE & CSRF ===
-$publicActions = ['login', 'check_setup', 'setup_first_user'];
+// 'ping' is the login footer's liveness probe — read-only, pre-auth by design.
+$publicActions = ['login', 'check_setup', 'setup_first_user', 'ping'];
 
 $csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? $_POST['csrf_token'] ?? '';
 
@@ -1940,6 +1941,22 @@ function orbitraBotListEndpoint($pdo, $table, $column, $payloadKey)
             $filtered = (int) $countStmt->fetch()['c'];
         }
 
+        // Per-source totals, so the panel can say what a scoped Clear All is
+        // about to remove instead of asking the operator to guess.
+        $sources = null;
+        if ($table === 'bot_ips') {
+            try {
+                $sources = [];
+                $srcStmt = $pdo->query("SELECT COALESCE(NULLIF(source, ''), 'manual') AS src, COUNT(*) AS c FROM bot_ips GROUP BY src");
+                while ($srcRow = $srcStmt->fetch()) {
+                    $sources[(string) $srcRow['src']] = (int) $srcRow['c'];
+                }
+            } catch (\Throwable $e) {
+                // Pre-migration DB: the column is simply not there yet.
+                $sources = null;
+            }
+        }
+
         echo json_encode([
             'status' => 'success',
             'data' => $rows,
@@ -1947,6 +1964,7 @@ function orbitraBotListEndpoint($pdo, $table, $column, $payloadKey)
             'filtered' => $filtered,
             'limit' => $limit,
             'offset' => $offset,
+            'sources' => $sources,
         ]);
         return;
     }
@@ -1958,6 +1976,24 @@ function orbitraBotListEndpoint($pdo, $table, $column, $payloadKey)
     $op = $data['action'] ?? null;
 
     if ($op === 'clear_all' || !empty($data['clear_all'])) {
+        // Scoped by source when the table has one. The default stays 'all' so an
+        // older built frontend — which sends no scope — keeps behaving the way
+        // it always did rather than silently clearing only half the list.
+        $scope = trim((string) ($data['source'] ?? 'all'));
+        if ($table === 'bot_ips' && $scope !== '' && $scope !== 'all') {
+            try {
+                $countStmt = $pdo->prepare("SELECT COUNT(*) AS c FROM bot_ips WHERE COALESCE(NULLIF(source, ''), 'manual') = ?");
+                $countStmt->execute([$scope]);
+                $removed = (int) $countStmt->fetch()['c'];
+                $delStmt = $pdo->prepare("DELETE FROM bot_ips WHERE COALESCE(NULLIF(source, ''), 'manual') = ?");
+                $delStmt->execute([$scope]);
+                echo json_encode(['status' => 'success', 'removed' => $removed, 'source' => $scope]);
+                return;
+            } catch (\Throwable $e) {
+                // Pre-migration DB: fall through to the unscoped delete rather
+                // than refusing to clear anything at all.
+            }
+        }
         $removed = (int) $pdo->query("SELECT COUNT(*) AS c FROM {$table}")->fetch()['c'];
         $pdo->exec("DELETE FROM {$table}");
         echo json_encode(['status' => 'success', 'removed' => $removed]);
@@ -2009,11 +2045,28 @@ function orbitraBotListEndpoint($pdo, $table, $column, $payloadKey)
     // Perform insertions inside a single transaction with chunking for instant execution (100k+ rows)
     $pdo->beginTransaction();
     try {
+        // Anything arriving through this endpoint is hand-supplied — typed,
+        // pasted or uploaded in the panel — so it is stamped 'manual'. A feed
+        // import writes its own name instead, which is what keeps Clear All
+        // able to tell the two apart.
+        $stampSource = $table === 'bot_ips';
+        $sourceName = trim((string) ($data['source'] ?? 'manual')) ?: 'manual';
         $chunks = array_chunk($entries, 500);
         foreach ($chunks as $chunk) {
-            $placeholders = implode(',', array_fill(0, count($chunk), '(?)'));
-            $st = $pdo->prepare("INSERT OR IGNORE INTO {$table} ({$column}) VALUES {$placeholders}");
-            $st->execute($chunk);
+            if ($stampSource) {
+                $placeholders = implode(',', array_fill(0, count($chunk), '(?, ?)'));
+                $st = $pdo->prepare("INSERT OR IGNORE INTO {$table} ({$column}, source) VALUES {$placeholders}");
+                $bound = [];
+                foreach ($chunk as $one) {
+                    $bound[] = $one;
+                    $bound[] = $sourceName;
+                }
+                $st->execute($bound);
+            } else {
+                $placeholders = implode(',', array_fill(0, count($chunk), '(?)'));
+                $st = $pdo->prepare("INSERT OR IGNORE INTO {$table} ({$column}) VALUES {$placeholders}");
+                $st->execute($chunk);
+            }
         }
         $pdo->commit();
     } catch (\Throwable $e) {
@@ -4453,6 +4506,43 @@ try {
                         ['alias' => 'creative', 'param' => 'creative', 'macro' => '__CREATIVE_ID__'],
                         ['alias' => 'pixel', 'param' => 'pixel', 'macro' => '__PIXEL__'],
                         ['alias' => 'ttclid', 'param' => 'ttclid', 'macro' => '__CLICKID__'],
+                    ]
+                ],
+                [
+                    // Placed with the other API-integrated sources rather than
+                    // dropped in the alphabetical tail. Macros confirmed against
+                    // Snapchat's own "Add URL Macros to Your Ads" article, not
+                    // inferred from the Facebook entry above — two of them would
+                    // have been wrong, and both fail SILENTLY:
+                    //
+                    //  - the ad set macro is camelCase, {{adSet.id}}, where
+                    //    Facebook's is lowercase {{adset.id}}. An unresolved
+                    //    Snapchat macro is not dropped and raises nothing; it
+                    //    arrives as literal text, so adset_id would fill with the
+                    //    string "{{adset.id}}" on every click and look like data
+                    //    until somebody read it.
+                    //  - Snapchat publishes no ad-name macro at all. ad_name takes
+                    //    {{creative.name}}, the closest ad-level label there is,
+                    //    which is also why the same macro feeds utm_placement.
+                    //
+                    // postback_url is deliberately empty: Snapchat conversions go
+                    // through its Conversions API with a Pixel ID and an access
+                    // token, not a postback URL. That integration is separate and
+                    // is NOT built — this template makes Snapchat traffic
+                    // trackable by tagging incoming clicks; it does not send
+                    // conversions back.
+                    'name' => 'snapchat',
+                    'display_name' => 'Snapchat Ads',
+                    'postback_url' => '',
+                    'parameters' => [
+                        ['alias' => 'utm_placement', 'param' => 'utm_placement', 'macro' => '{{creative.name}}'],
+                        ['alias' => 'source', 'param' => 'source', 'macro' => '{{site_source_name}}'],
+                        ['alias' => 'campaign_id', 'param' => 'campaign_id', 'macro' => '{{campaign.id}}'],
+                        ['alias' => 'campaign_name', 'param' => 'campaign_name', 'macro' => '{{campaign.name}}'],
+                        ['alias' => 'adset_id', 'param' => 'adset_id', 'macro' => '{{adSet.id}}'],
+                        ['alias' => 'adset_name', 'param' => 'adset_name', 'macro' => '{{adSet.name}}'],
+                        ['alias' => 'ad_id', 'param' => 'ad_id', 'macro' => '{{ad.id}}'],
+                        ['alias' => 'ad_name', 'param' => 'ad_name', 'macro' => '{{creative.name}}'],
                     ]
                 ],
                 [
@@ -11684,6 +11774,15 @@ try {
             $route = $_GET['route'] ?? 'all'; // 'all' | 'money' | 'safe'
             $hours = max(0, (int) ($_GET['hours'] ?? 0));
             $streamId = (int) ($_GET['stream_id'] ?? 0);
+            // An explicit range, so "View in click log" can follow the window the
+            // cloak diagnostics strip is showing instead of a fixed 24 hours —
+            // the counts above the link and the rows behind it must cover the
+            // same period. Bucketed in the report timezone like every other
+            // surface; an explicit range wins over `hours`.
+            $logFrom = isset($_GET['date_from']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['date_from'])
+                ? (string) $_GET['date_from'] : null;
+            $logTo = isset($_GET['date_to']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['date_to'])
+                ? (string) $_GET['date_to'] : null;
             $whereParts = ['cl.campaign_id = ?'];
             $whereParams = [$campaignId];
             if ($route === 'money') {
@@ -11697,7 +11796,12 @@ try {
                 $whereParts[] = 'cl.stream_id = ?';
                 $whereParams[] = $streamId;
             }
-            if ($hours > 0) {
+            if ($logFrom !== null && $logTo !== null) {
+                $whereParts[] = "date(cl.created_at, '$dbTzOffset') >= date(?)";
+                $whereParams[] = $logFrom;
+                $whereParts[] = "date(cl.created_at, '$dbTzOffset') <= date(?)";
+                $whereParams[] = $logTo;
+            } elseif ($hours > 0) {
                 $whereParts[] = "cl.created_at >= datetime('now', ?)";
                 $whereParams[] = "-{$hours} hours";
             }
@@ -12840,7 +12944,7 @@ try {
 
         case 'global_settings':
             if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-                $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token', 'allow_php_landings', 'php_landing_timeout', 'admin_path', 'stats_enabled', 'stats_retention_days', 'archive_retention_days', 'admin_ip_access', 'ignore_prefetch', 'bot_isp_list', 'server_ip_override', 'privacy_enabled', 'privacy_action', 'privacy_redirect_url')");
+                $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token', 'allow_php_landings', 'php_landing_timeout', 'admin_path', 'stats_enabled', 'stats_retention_days', 'archive_retention_days', 'admin_ip_access', 'ignore_prefetch', 'bot_isp_list', 'server_ip_override', 'privacy_enabled', 'privacy_action', 'privacy_redirect_url', 'update_notify')");
                 $data = [];
                 while ($row = $stmt->fetch()) {
                     $data[$row['key']] = $row['value'];
@@ -12878,6 +12982,11 @@ try {
                 }
                 if (!isset($data['privacy_redirect_url'])) {
                     $data['privacy_redirect_url'] = '';
+                }
+                // Update notifications default ON: an install that has never
+                // touched the toggle behaves the way it always did.
+                if (!isset($data['update_notify'])) {
+                    $data['update_notify'] = '1';
                 }
 
                 // Add geo targeting readiness for Phase 0 cloak warnings
@@ -12943,7 +13052,8 @@ try {
                               'allow_php_landings', 'php_landing_timeout', 'admin_path',
                               'stats_enabled', 'stats_retention_days', 'archive_retention_days',
                               'admin_ip_access', 'ignore_prefetch', 'bot_isp_list', 'server_ip_override',
-                              'privacy_enabled', 'privacy_action', 'privacy_redirect_url'];
+                              'privacy_enabled', 'privacy_action', 'privacy_redirect_url',
+                              'update_notify'];
                     foreach ($whitelist as $key) {
                         if (!isset($settings[$key])) {
                             continue;
@@ -12951,6 +13061,9 @@ try {
                         $value = $settings[$key];
                         // Turning PHP landings on is an admin decision, not something
                         // any signed-in user gets to flip.
+                        if ($key === 'update_notify') {
+                            $value = $value === '1' || $value === 1 || $value === true ? '1' : '0';
+                        }
                         if ($key === 'allow_php_landings') {
                             if (($_SESSION['role'] ?? '') !== 'admin') {
                                 continue;
@@ -13588,6 +13701,60 @@ try {
                 }
             }
 
+            // The check used to fire a synchronous 10-second cURL on EVERY panel
+            // mount, holding a PHP-FPM worker for the whole round trip. The
+            // comment below already notes that raw.githubusercontent is
+            // unreachable from a fair share of hosting networks — on those, every
+            // single page load paid the full timeout. Three things fix it: the
+            // answer is cached, a FAILED answer is cached too (shorter, so a
+            // transient blip does not blind the panel for an hour), and the
+            // timeout is short enough that even a cold miss cannot stall a load.
+            $updateCacheOkTtl = 3600;   // a good answer: one hour
+            $updateCacheFailTtl = 600;  // a failed one: ten minutes
+            $updateForceFloor = 30;     // one live check per 30s, so a stuck
+                                        // manual button cannot bring the stall back
+            $forceCheck = !empty($_GET['force']);
+            $cachedPayload = null;
+            $cachedAge = null;
+            try {
+                $cacheStmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('update_check_json','update_check_at')");
+                $cacheRows = [];
+                while ($cacheRow = $cacheStmt->fetch()) {
+                    $cacheRows[$cacheRow['key']] = $cacheRow['value'];
+                }
+                if (!empty($cacheRows['update_check_json']) && !empty($cacheRows['update_check_at'])) {
+                    $decodedCache = json_decode($cacheRows['update_check_json'], true);
+                    if (is_array($decodedCache)) {
+                        $cachedPayload = $decodedCache;
+                        $cachedAge = time() - (int) $cacheRows['update_check_at'];
+                    }
+                }
+            } catch (\Throwable $e) {
+                // A degraded settings table costs the cache, never the answer.
+                $cachedPayload = null;
+            }
+            if ($cachedPayload !== null && $cachedAge !== null && $cachedAge >= 0) {
+                $updateCacheTtl = empty($cachedPayload['check_failed']) ? $updateCacheOkTtl : $updateCacheFailTtl;
+                // force=1 skips the TTL but never the floor.
+                if ($cachedAge < ($forceCheck ? $updateForceFloor : $updateCacheTtl)) {
+                    // The running version and the dependency probe are local
+                    // facts, so they are answered fresh even from cache — a
+                    // cached current_version would go stale the moment the user
+                    // updates.
+                    $cachedPayload['current_version'] = $currentVersion;
+                    $cachedPayload['update_available'] = version_compare(
+                        (string) ($cachedPayload['latest_version'] ?? $currentVersion),
+                        $currentVersion,
+                        '>'
+                    );
+                    $cachedPayload['dependency_bootstrap'] = $dependencyBootstrap;
+                    $cachedPayload['cached'] = true;
+                    $cachedPayload['checked_at'] = time() - $cachedAge;
+                    echo json_encode(['status' => 'success', 'data' => $cachedPayload]);
+                    break;
+                }
+            }
+
             // URL to check for latest version (change to your server or GitHub raw file)
             // Example for GitHub: 'https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/version.json'
             $versionCheckUrl = 'https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/version.json';
@@ -13610,7 +13777,12 @@ try {
                 $ch = curl_init($versionCheckUrl);
                 curl_setopt_array($ch, [
                     CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_TIMEOUT => 10,
+                    // 10s held a worker for ten seconds per unreachable check.
+                    // GitHub from a slow host may occasionally need longer, so an
+                    // odd false "check failed" is possible — the right trade for a
+                    // banner the manual button can always redo.
+                    CURLOPT_TIMEOUT => 2,
+                    CURLOPT_CONNECTTIMEOUT => 1,
                     CURLOPT_FOLLOWLOCATION => true,
                     CURLOPT_SSL_VERIFYPEER => !$isLocal,
                     CURLOPT_SSL_VERIFYHOST => !$isLocal ? 2 : 0,
@@ -13651,7 +13823,17 @@ try {
                 // null when the fetch worked; otherwise the panel explains that
                 // "no update" here means "could not check", not "up to date".
                 'check_failed' => $checkFailedReason,
+                'cached' => false,
+                'checked_at' => time(),
             ];
+
+            try {
+                $cacheWrite = $pdo->prepare("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value");
+                $cacheWrite->execute(['update_check_json', json_encode($updateInfo)]);
+                $cacheWrite->execute(['update_check_at', (string) time()]);
+            } catch (\Throwable $e) {
+                // Caching is an optimisation: a failure here must not cost the answer.
+            }
 
             echo json_encode(['status' => 'success', 'data' => $updateInfo]);
             break;
@@ -14751,6 +14933,19 @@ try {
             ]);
             break;
 
+        case 'ping':
+            // Public liveness probe for the login screen's footer: the green
+            // "Tracker online" dot is this call succeeding, and the version
+            // rides along so the footer shows what is running before any
+            // credentials exist. Read-only by design; the login page is
+            // already public branding, so the version adds nothing an
+            // attacker could not read off the page.
+            echo json_encode([
+                'status' => 'success',
+                'version' => defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '',
+            ]);
+            break;
+
         case 'setup_first_user':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);
@@ -15352,6 +15547,49 @@ try {
 
         case 'bot_ips':
             orbitraBotListEndpoint($pdo, 'bot_ips', 'ip_or_cidr', 'ips');
+            break;
+
+        case 'bot_ips_feed':
+            // Status of the datacenter/crawler range feed (lord-alfred/ipranges),
+            // plus an on-demand update. The cron refreshes it daily; this is the
+            // button for an install whose cron was never wired up, and the panel
+            // had no way to see whether the lists were there at all.
+            //
+            // The ranges are deliberately NOT copied into bot_ips: the cloak
+            // detector matches them through IpRanges::match(), which understands
+            // CIDR, while the bot_ips layer matches a literal string. Importing
+            // 20k rows here would add rows that look like blocks and can never
+            // fire one.
+            require_once __DIR__ . '/core/IpRanges.php';
+            if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+                if (($_SESSION['role'] ?? '') !== 'admin') {
+                    http_response_code(403);
+                    echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                    break;
+                }
+                $feedResult = IpRanges::update();
+                if (empty($feedResult['ok'])) {
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'IP ranges update failed: ' . implode('; ', $feedResult['errors'] ?? []),
+                    ]);
+                    break;
+                }
+            }
+            $feedV4 = IpRanges::fileV4();
+            $feedV6 = IpRanges::fileV6();
+            echo json_encode([
+                'status' => 'success',
+                'data' => [
+                    'available' => IpRanges::available(),
+                    'fresh' => IpRanges::isFresh(),
+                    'ipv4' => IpRanges::countV4(),
+                    'ipv6' => IpRanges::countV6(),
+                    'updated_at' => file_exists($feedV4)
+                        ? date('Y-m-d H:i', (int) filemtime($feedV4))
+                        : (file_exists($feedV6) ? date('Y-m-d H:i', (int) filemtime($feedV6)) : null),
+                ],
+            ]);
             break;
 
         case 'bot_signatures':
@@ -16585,7 +16823,7 @@ try {
                     if ($useWebhook) {
                         $webhookResult = orbitraTelegramApi($token, 'setWebhook', [
                             'url' => $webhookUrl,
-                            'allowed_updates' => ['message'],
+                            'allowed_updates' => ['message', 'callback_query'],
                         ], 15);
                         $webhookOk = $webhookResult['ok'] ?? false;
                         if (!$webhookOk) {
@@ -16629,6 +16867,20 @@ try {
                 // Save other settings
                 $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_notify_conversions', $notifyConversions ? '1' : '0']);
                 $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_daily_time', $dailyTime]);
+
+                // Push the localized quick-command menu (the "/" button in the
+                // chat) whenever the bot connects or its settings are saved.
+                // The descriptions live in telegram_bot.php's botText(), so the
+                // menu speaks the same seven languages the bot does. Best
+                // effort — a Telegram hiccup must not fail the save; the poller
+                // re-registers daily anyway.
+                if (!empty($token)) {
+                    if (!defined('ORBITRA_TELEGRAM_NO_WEBHOOK')) {
+                        define('ORBITRA_TELEGRAM_NO_WEBHOOK', true);
+                    }
+                    require_once __DIR__ . '/telegram_bot.php';
+                    orbitraTelegramRegisterCommands($token);
+                }
 
                 logAudit($pdo, 'UPDATE', 'Telegram Bot', null, ['action' => 'save', 'bot' => $botUsername, 'mode' => $mode ?? 'unchanged']);
 

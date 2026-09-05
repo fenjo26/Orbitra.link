@@ -21,6 +21,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard } from '../utils/clipboard';
 import { campaignLinkUrl } from '../utils/campaignUrl';
 import { financeVisibility, financeHiddenMetric, canWriteResource } from '../utils/permissions';
+import { resolveConversionColor, STATUS_COLUMN_STATUSES } from '../utils/conversionColors';
 
 // What a card shows before the user says otherwise. Four numbers is what fits
 // above the fold on a phone; the picker goes up to eight.
@@ -267,6 +268,17 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
     const [dateFrom, setDateFrom] = useState(initialRange.from);
     const [dateTo, setDateTo] = useState(initialRange.to);
     const [timezone, setTimezone] = useTimezone();
+    // Custom conversion-type colours for the status column header markers, so a
+    // dot always matches whatever that status is coloured as everywhere else in
+    // the panel. Same call CampaignReports makes.
+    const [conversionTypes, setConversionTypes] = useState([]);
+    useEffect(() => {
+        axios.get(`${API_URL}?action=conversion_types`)
+            .then(res => {
+                if (res.data.status === 'success') setConversionTypes(res.data.data || []);
+            })
+            .catch(() => {});
+    }, []);
 
     // Active Campaign Data (fetched with date & group parameters)
     const [campaignList, setCampaignList] = useState(initialCampaigns || []);
@@ -1176,6 +1188,13 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                 if (colId === 'name') return <SortableTh key="name" {...dragProps} colKey="name" label={t('campaigns.campaign')} defaultDir="asc" style={thPinStyle('name')} />;
                                 if (colId === 'group_name') return <SortableTh key="group_name" {...dragProps} colKey="group_name" label={t('campaigns.group')} defaultDir="asc" />;
                                 const def = ALL_REPORT_METRICS.find(m => m.id === colId);
+                                // The report table already drew these markers; this
+                                // table drew none and did not even load the types, so
+                                // the same column looked like two different things
+                                // depending on which screen you were on. A failed
+                                // conversion_types request leaves the array empty and
+                                // no marker renders — the layout exactly as it was.
+                                const markerStatus = STATUS_COLUMN_STATUSES[colId];
                                 return (
                                     <SortableTh
                                         key={colId}
@@ -1184,6 +1203,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                                         label={def?.shortLabel || def?.label || colId}
                                         fullTitle={getReportMetricTooltip(def, t)}
                                         defaultDir="desc"
+                                        statusColor={markerStatus ? resolveConversionColor(markerStatus, conversionTypes) : null}
                                     />
                                 );
                             })}

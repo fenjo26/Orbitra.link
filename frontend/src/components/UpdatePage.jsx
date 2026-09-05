@@ -15,10 +15,13 @@ const UpdatePage = () => {
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
 
-    const checkUpdate = useCallback(async () => {
+    // `force` is only ever passed by the manual button. The server still floors
+    // live checks at one per 30s, so holding the button down cannot bring back
+    // the stall this caching was added to remove.
+    const checkUpdate = useCallback(async (force = false) => {
         setLoading(true);
         try {
-            const res = await axios.get(`${API_URL}?action=check_update`);
+            const res = await axios.get(`${API_URL}?action=check_update${force ? '&force=1' : ''}`);
             if (res.data.status === 'success') {
                 setUpdateInfo(res.data.data);
                 const dependencyState = res.data.data?.dependency_bootstrap;
@@ -100,7 +103,7 @@ const UpdatePage = () => {
                 <div className="page-header">
                     <h2 className="page-title">{t('update.versionInfo')}</h2>
                     <button
-                        onClick={checkUpdate}
+                        onClick={() => checkUpdate(true)}
                         className="btn btn-ghost"
                     >
                         <RefreshCw className="w-4 h-4" />

@@ -6,7 +6,11 @@ import { useLanguage } from '../contexts/LanguageContext';
 // `label` — full description (columns modal, header tooltips);
 // `shortLabel` — compact table-header abbreviation (nowrap <th>).
 export const ALL_REPORT_METRICS = [
-    { id: 'profitability', label: 'Profitability', shortLabel: 'Profitability' },
+    // Margin, not "Profitability": this is profit / revenue, where ROI is
+    // profit / cost. Two genuinely different questions, and both earn a
+    // column — the old label read like a synonym for ROI. The id stays
+    // `profitability`, so stored column sets and widths survive the rename.
+    { id: 'profitability', label: 'Margin', shortLabel: 'Margin' },
     { id: 'clicks', label: 'Clicks (offer)', shortLabel: 'Clicks', hintKey: 'clicksHint', hint: 'Offer clicks: direct-to-offer visits plus landing views whose visitor actually left through the offer link. Not the raw hit count — that is Visitors' },
     { id: 'unique_clicks', label: 'Unique clicks (campaign)', shortLabel: 'uClicks' },
     { id: 'conversions', label: 'Conversions', shortLabel: 'Conv' },

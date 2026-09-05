@@ -1133,6 +1133,9 @@ class OrbitraTestHarness
             'admin.php',
             'api.php',
             'telegram_notify.php',
+            // notify pulls the bot's translations from here (guard: the bot
+            // file's webhook body stays out via ORBITRA_TELEGRAM_NO_WEBHOOK).
+            'telegram_bot.php',
             'session_bootstrap.php',
             'version.php',
             'core',

@@ -5,6 +5,7 @@ import { canWriteResource } from '../utils/permissions';
 import HelpTooltip from './HelpTooltip';
 import GroupsModal from './GroupsModal';
 import MobileCards from './common/MobileCards';
+import Dialog from './common/Dialog';
 import { useLanguage } from '../contexts/LanguageContext';
 import { cachedGet, cachedPost } from '../utils/apiCache';
 
@@ -70,6 +71,22 @@ const Domains = ({ campaigns, user }) => {
     // the operator to work that out from a permanent "waiting" status is the
     // single most confusing thing this page did.
     const [sslEnv, setSslEnv] = useState(null);
+
+    // Themed confirm/alert for the Check DNS and Issue SSL flows. The native
+    // dialogs were browser chrome: unthemeable and white against the dark
+    // themes. One dialog instance serves every flow; the promise resolves on
+    // the button press.
+    const [askState, setAskState] = useState(null); // { tone, message }
+    const askResolveRef = useRef(null);
+    const askDialog = (message, tone = 'confirm') => new Promise((resolve) => {
+        askResolveRef.current = resolve;
+        setAskState({ tone, message });
+    });
+    const closeAsk = (result) => {
+        askResolveRef.current?.(result);
+        askResolveRef.current = null;
+        setAskState(null);
+    };
 
     // Edit Modal State. Defaults follow the Keitaro-style spec: crawlers
     // disallowed, admin denied, HTTPS-only on, Cloudflare proxy off. Denying
@@ -489,7 +506,7 @@ const Domains = ({ campaigns, user }) => {
     };
 
     const forceCheckAllDns = async () => {
-        if (!window.confirm(t('domains.forceCheckConfirm'))) return;
+        if (!(await askDialog(t('domains.forceCheckConfirm')))) return;
         setForceChecking(true);
         try {
             const { data } = await cachedGet('force_check_all_dns');
@@ -743,13 +760,13 @@ const Domains = ({ campaigns, user }) => {
                 ];
                 if (r.server_ip) lines.push(`${t('domains.serverIp')}: ${r.server_ip}`);
                 if (Array.isArray(r.notes) && r.notes.length) lines.push('', ...r.notes.map(translateSslCode));
-                alert(lines.join('\n'));
+                await askDialog(lines.join('\n'), 'alert');
                 fetchDomains();
             } else {
-                alert(data.message || t('domains.sslRunError'));
+                await askDialog(data.message || t('domains.sslRunError'), 'alert');
             }
         } catch (e) {
-            alert(`${t('domains.sslRunError')}: ${e.response?.data?.message || e.message}`);
+            await askDialog(`${t('domains.sslRunError')}: ${e.response?.data?.message || e.message}`, 'alert');
         } finally {
             setSslRunning(false);
         }
@@ -760,7 +777,7 @@ const Domains = ({ campaigns, user }) => {
      * This forces a new certificate to be issued, replacing any existing one.
      */
     const reissueSsl = async (domainId, domainName) => {
-        if (!window.confirm(`${t('domains.reissueConfirm', 'Are you sure you want to re-issue the SSL certificate for')} ${domainName}?`)) return;
+        if (!(await askDialog(`${t('domains.reissueConfirm', 'Are you sure you want to re-issue the SSL certificate for')} ${domainName}?`))) return;
         setReissuingSsl(domainId);
         try {
             const { data } = await cachedPost('reissue_ssl', { id: domainId });
@@ -768,13 +785,13 @@ const Domains = ({ campaigns, user }) => {
             // panel speaks seven languages, English sentences don't. Unmapped
             // codes and raw certbot output stay as sent.
             if (data.status === 'success') {
-                alert(data.code ? translateSslCode(data.code) : (data.message || t('domains.sslIssued', 'SSL certificate issued successfully')));
+                await askDialog(data.code ? translateSslCode(data.code) : (data.message || t('domains.sslIssued', 'SSL certificate issued successfully')), 'alert');
                 fetchDomains();
             } else {
-                alert(data.code ? translateSslCode(data.code) : (data.message || t('domains.sslError', 'Failed to issue SSL certificate')));
+                await askDialog(data.code ? translateSslCode(data.code) : (data.message || t('domains.sslError', 'Failed to issue SSL certificate')), 'alert');
             }
         } catch (e) {
-            alert(`${t('domains.sslError')}: ${e.response?.data?.message || e.message}`);
+            await askDialog(`${t('domains.sslError')}: ${e.response?.data?.message || e.message}`, 'alert');
         } finally {
             setReissuingSsl(null);
         }
@@ -2033,6 +2050,18 @@ const Domains = ({ campaigns, user }) => {
                     </div>
                 </div>
             )}
+
+            {/* Themed confirm/alert for the Check DNS and Issue SSL flows —
+                see askDialog above. One instance serves them all. */}
+            <Dialog
+                open={!!askState}
+                tone={askState?.tone || 'confirm'}
+                message={askState?.message || ''}
+                confirmLabel={askState?.tone === 'alert' ? t('common.close') : t('common.confirm')}
+                cancelLabel={t('common.cancel')}
+                onConfirm={() => closeAsk(true)}
+                onClose={() => closeAsk(false)}
+            />
         </div>
     );
 };

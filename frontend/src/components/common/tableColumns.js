@@ -67,7 +67,7 @@ export const metricKind = (id) => {
 // ellipses and a label cut off mid-word reads as a typo, not as truncation.
 //
 // Measured, not estimated: a per-character average is wrong by 15% either way
-// between "Conv" and "Profitability", which is the difference between a column
+// between "Conv" and "Margin", which is the difference between a column
 // that fits and one that prints "Clic...". The canvas is created once and asks
 // for the same 10px semibold face the header renders in (SortableTh's
 // `text-[10px] font-semibold`), taking the family from the live document so it
@@ -78,7 +78,7 @@ export const metricKind = (id) => {
 const HEADER_CHROME_PX = 52;
 const FALLBACK_CHAR_PX = 6.6;
 // `.tracker-table th` sets letter-spacing: 0.04em, which canvas measureText()
-// does not apply - it cost "Profitability" two pixels and clipped it.
+// does not apply - it cost "Margin" two pixels and clipped it.
 const LETTER_SPACING_PX = 0.4;
 
 let headerCtx;

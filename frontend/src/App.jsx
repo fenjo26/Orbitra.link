@@ -242,7 +242,7 @@ function App() {
       const savedMode = localStorage.getItem('orbitra_mode') || 'light';
       const root = document.documentElement;
 
-      if (['dark', 'green', 'neon', 'cobalt', 'cobalt-dark', 'canary', 'canary-dark', 'parchment', 'parchment-dark', 'indigo', 'indigo-dark', 'custom'].includes(savedMode)) {
+      if (['dark', 'green', 'neon', 'terminal', 'aurora', 'cobalt', 'cobalt-dark', 'canary', 'canary-dark', 'parchment', 'parchment-dark', 'indigo', 'indigo-dark', 'custom'].includes(savedMode)) {
         root.setAttribute('data-theme', savedMode);
         root.setAttribute('data-mode', savedMode);
       } else {
@@ -397,7 +397,17 @@ function App() {
     }
   }, [user]);
 
-  // Check for updates on mount
+  // Check for updates on mount.
+  //
+  // check_update reaches raw.githubusercontent over a synchronous cURL, which
+  // holds a PHP-FPM worker for the round trip. The "notify me about new
+  // versions" toggle used to hide only the banner — the request fired either
+  // way, so an unreachable GitHub cost a worker and a wait for a feature the
+  // operator had switched off. Off now means no call at all, and the effect
+  // depends on the flag so flipping it takes effect immediately rather than at
+  // the next reload. The response itself is cached server-side (1h for a good
+  // answer, 10min for a failed one), so a mount is normally free.
+  const updateNotify = globalSettings.update_notify;
   useEffect(() => {
     const checkUpdate = async () => {
       try {
@@ -411,10 +421,12 @@ function App() {
         // Silently fail
       }
     };
-    if (user) {
+    // undefined means global_settings has not answered yet: wait for it rather
+    // than firing the request the toggle may be about to forbid.
+    if (user && updateNotify === '1') {
       checkUpdate();
     }
-  }, [user]);
+  }, [user, updateNotify]);
 
   // Worker health. Polled slowly — this answers "is the cron installed", which does
   // not change minute to minute.
@@ -486,11 +498,30 @@ function App() {
     }
   }, [activeTab, user]);
 
-  // Show loading while checking setup
+  // Boot handover. #ob-boot is the pre-paint screen in index.html, outside
+  // #root: it covers the viewport from raw HTML while the bundle fetches and
+  // parses. Once this tree has rendered its own copy of the same markup (the
+  // inline boot below), fade the fixed one out and drop it — identical
+  // classes, so there is no flash at handover. If the bundle dies before this
+  // runs, the boot screen simply stays, which is the honest state.
+  useEffect(() => {
+    if (needsSetup === null) return;
+    const el = document.getElementById('ob-boot');
+    if (!el) return;
+    el.classList.add('ob-boot--fading');
+    setTimeout(() => el.remove(), 240);
+  }, [needsSetup]);
+
+  // Show loading while checking setup. Same markup as #ob-boot in index.html
+  // on purpose — the pre-mount screen and this one are pixel-identical.
+  // Change one, change both.
   if (needsSetup === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--color-primary)]"></div>
+      <div className="ob-boot ob-boot--inline" role="status" aria-live="polite">
+        <div className="ob-boot-orbit"><span className="ob-boot-dot"></span></div>
+        <div className="ob-boot-mark">Orbitra<span className="ob-boot-tld">.link</span></div>
+        <div className="ob-boot-bar"><span></span></div>
+        <div className="ob-boot-caption">LOADING</div>
       </div>
     );
   }

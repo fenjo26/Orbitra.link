@@ -70,15 +70,28 @@ function tgPollApi(string $token, string $method, array $params = [], int $timeo
 // --- Mode gate -------------------------------------------------------------
 // 'webhook' is the default so an install that already works keeps working; the
 // panel writes 'polling' when setWebhook could not be used.
-$mode = tgPollSetting($pdo, 'telegram_mode', 'webhook');
-if ($mode !== 'polling') {
-    tgPollLog("mode is '{$mode}', nothing to poll");
-    exit(0);
-}
-
 $token = tgPollSetting($pdo, 'telegram_bot_token', '');
 if (!$token) {
     tgPollLog('no bot token configured');
+    exit(0);
+}
+
+// --- Per-day bot housekeeping ----------------------------------------------
+// Runs BEFORE the mode gate on purpose: the poller is the one process every
+// install reliably executes each minute (the install.sh cron line is written
+// unconditionally), while this script's polling half only runs in polling
+// mode. The bot's time-based duties ride here in both modes: push the
+// localized quick-command menu to Telegram once a day (Telegram caches menus
+// client-side; this also back-fills the menu for bots connected before the
+// feature existed), and deliver the daily summary when /daily is due. Both
+// are once-a-day and safe against concurrent crons (see the claim inside).
+require_once __DIR__ . '/telegram_notify.php';
+orbitraTelegramMaybeRegisterCommands($pdo, $token);
+orbitraTelegramMaybeSendDaily($pdo);
+
+$mode = tgPollSetting($pdo, 'telegram_mode', 'webhook');
+if ($mode !== 'polling') {
+    tgPollLog("mode is '{$mode}', nothing to poll");
     exit(0);
 }
 
@@ -122,7 +135,7 @@ do {
 
     // Send `offset` only once we have one — Telegram rejects a null, and the
     // first ever call is meant to omit it entirely.
-    $params = ['timeout' => $waitFor, 'allowed_updates' => ['message']];
+    $params = ['timeout' => $waitFor, 'allowed_updates' => ['message', 'callback_query']];
     if ($offset > 0) {
         $params['offset'] = $offset;
     }

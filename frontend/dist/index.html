@@ -31,16 +31,175 @@
       } catch (e) {}
     })();
   </script>
-  <script type="module" crossorigin src="/frontend/dist/assets/index-CfcHXRlN.js"></script>
-  <link rel="stylesheet" crossorigin href="/frontend/dist/assets/index-CO987i7O.css">
+  <style>
+    /* Boot screen.
+       ------------------------------------------------------------------
+       This lives in index.html, OUTSIDE #root, on purpose: the browser
+       paints it straight from the raw HTML, before the bundle has been
+       fetched and parsed. A cold load used to show a bare line of text for
+       as long as that took. The theme script above has already stamped
+       data-theme on <html>, so the right palette is up from the first
+       frame — but index.css has NOT parsed yet, which is why every colour
+       here is a literal with the light values as the default and each dark
+       theme overriding them below. A var(--color-…) would resolve to
+       nothing at this point.
+
+       App.jsx renders the same classes for its own loading state, so the
+       pre-mount screen and the React one are pixel-identical and the
+       handover has no flash. Change one, change both — they are the same
+       CSS. */
+    .ob-boot {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      background: #f7f8fa;
+      color: #111827;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      /* The mesh is two soft radial washes rather than an image: no request,
+         nothing to wait for, and it tints itself from the theme's accent. */
+      background-image:
+        radial-gradient(60% 50% at 15% 12%, var(--ob-boot-glow, rgba(37, 99, 235, .10)), transparent 70%),
+        radial-gradient(50% 45% at 85% 88%, var(--ob-boot-glow, rgba(37, 99, 235, .08)), transparent 70%);
+      transition: opacity .18s ease;
+    }
+    /* The React copy sits inside the layout, not over it. */
+    .ob-boot--inline { position: static; inset: auto; min-height: 60vh; background-color: transparent; }
+    .ob-boot--fading { opacity: 0; pointer-events: none; }
+
+    .ob-boot-orbit {
+      position: relative;
+      width: 74px;
+      height: 74px;
+      border-radius: 50%;
+      border: 1px solid var(--ob-boot-ring, rgba(17, 24, 39, .14));
+      animation: ob-boot-spin 2.4s linear infinite;
+    }
+    /* The dot rides the rim: offset by the ring's radius, so it tracks the
+       circle instead of orbiting some point beside it. */
+    .ob-boot-dot {
+      position: absolute;
+      top: -4px;
+      left: 50%;
+      width: 8px;
+      height: 8px;
+      margin-left: -4px;
+      border-radius: 50%;
+      background: var(--ob-boot-accent, #2563eb);
+      box-shadow: 0 0 12px var(--ob-boot-accent, #2563eb);
+    }
+    .ob-boot-mark {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -.02em;
+    }
+    .ob-boot-tld { color: var(--ob-boot-accent, #2563eb); }
+    .ob-boot-bar {
+      position: relative;
+      width: 168px;
+      height: 2px;
+      border-radius: 2px;
+      overflow: hidden;
+      background: var(--ob-boot-ring, rgba(17, 24, 39, .12));
+    }
+    .ob-boot-bar > span {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 40%;
+      border-radius: 2px;
+      background: var(--ob-boot-accent, #2563eb);
+      animation: ob-boot-sweep 1.15s ease-in-out infinite;
+    }
+    .ob-boot-caption {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .34em;
+      text-indent: .34em;
+      opacity: .55;
+    }
+
+    @keyframes ob-boot-spin { to { transform: rotate(360deg); } }
+    @keyframes ob-boot-sweep {
+      0%   { transform: translateX(-100%); }
+      100% { transform: translateX(250%); }
+    }
+
+    /* Dark palettes. Only the three custom properties change — the layout
+       above is shared, which is what keeps the two copies identical. */
+    [data-theme="dark"] .ob-boot,
+    [data-theme="cobalt-dark"] .ob-boot,
+    [data-theme="canary-dark"] .ob-boot,
+    [data-theme="parchment-dark"] .ob-boot,
+    [data-theme="indigo-dark"] .ob-boot,
+    [data-theme="green"] .ob-boot,
+    [data-theme="neon"] .ob-boot,
+    [data-theme="terminal"] .ob-boot,
+    [data-theme="aurora"] .ob-boot {
+      background-color: #0b0f17;
+      color: #e5e7eb;
+      --ob-boot-ring: rgba(229, 231, 235, .16);
+    }
+    [data-theme="dark"] .ob-boot        { --ob-boot-accent: #3b82f6; --ob-boot-glow: rgba(59, 130, 246, .12); }
+    [data-theme="green"] .ob-boot       { --ob-boot-accent: #22c55e; --ob-boot-glow: rgba(34, 197, 94, .12); }
+    [data-theme="neon"] .ob-boot        { background-color: #000; --ob-boot-accent: #a3e635; --ob-boot-glow: rgba(163, 230, 53, .14); }
+    [data-theme="cobalt-dark"] .ob-boot { --ob-boot-accent: #53b1ff; --ob-boot-glow: rgba(83, 177, 255, .12); }
+    [data-theme="canary-dark"] .ob-boot { background-color: #26262a; --ob-boot-accent: #ffd02f; --ob-boot-glow: rgba(255, 208, 47, .12); }
+    [data-theme="parchment-dark"] .ob-boot { background-color: #141413; --ob-boot-accent: #f37338; --ob-boot-glow: rgba(243, 115, 56, .12); }
+    [data-theme="indigo-dark"] .ob-boot { background-color: #1a1d2e; --ob-boot-accent: #5865f2; --ob-boot-glow: rgba(88, 101, 242, .14); }
+
+    /* Terminal reads as a console: mono type, a blinking caret instead of a
+       travelling dot, and a stepped sweep with no curve in it. */
+    [data-theme="terminal"] .ob-boot {
+      background-color: #05070a;
+      --ob-boot-accent: #35f08a;
+      --ob-boot-glow: rgba(53, 240, 138, .10);
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    [data-theme="terminal"] .ob-boot-orbit { border-radius: 2px; animation: none; }
+    [data-theme="terminal"] .ob-boot-dot { border-radius: 0; animation: ob-boot-blink 1s steps(1) infinite; }
+    [data-theme="terminal"] .ob-boot-bar > span { animation-timing-function: steps(8, end); }
+
+    /* Aurora trades speed for light: a slower, wider orbit and a glowing pip. */
+    [data-theme="aurora"] .ob-boot { background-color: #070b18; --ob-boot-accent: #7dd3fc; --ob-boot-glow: rgba(125, 211, 252, .16); }
+    [data-theme="aurora"] .ob-boot-orbit { width: 92px; height: 92px; animation-duration: 3.6s; }
+    [data-theme="aurora"] .ob-boot-dot { box-shadow: 0 0 18px 4px var(--ob-boot-accent); }
+
+    /* Green counter-rotates — one small deliberate difference. */
+    [data-theme="green"] .ob-boot-orbit { animation-direction: reverse; }
+
+    @keyframes ob-boot-blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+
+    /* Motion is decoration here; the screen still reads with all of it off,
+       and the bar fills rather than sitting empty at 40%. */
+    @media (prefers-reduced-motion: reduce) {
+      .ob-boot-orbit,
+      .ob-boot-dot,
+      .ob-boot-bar > span { animation: none !important; }
+      .ob-boot-bar > span { width: 100%; }
+    }
+  </style>
+  <script type="module" crossorigin src="/frontend/dist/assets/index-DZYtejAq.js"></script>
+  <link rel="stylesheet" crossorigin href="/frontend/dist/assets/index-CtOLct0L.css">
 </head>
 
 <body>
-  <div id="root">
-    <!-- Static placeholder replaced by React on mount; without it nothing
-         paints until the bundle finishes parsing. -->
-    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;color:var(--color-text-muted);opacity:.6">Orbitra.link</div>
+  <!-- OUTSIDE #root deliberately: React owns everything inside #root and
+       replaces it on mount, so a placeholder in there is gone the moment the
+       bundle runs — before the app has anything to show. This one survives
+       until App.jsx has painted its own copy and removes it by id. -->
+  <div id="ob-boot" class="ob-boot" role="status" aria-live="polite">
+    <div class="ob-boot-orbit"><span class="ob-boot-dot"></span></div>
+    <div class="ob-boot-mark">Orbitra<span class="ob-boot-tld">.link</span></div>
+    <div class="ob-boot-bar"><span></span></div>
+    <div class="ob-boot-caption">LOADING</div>
   </div>
+  <div id="root"></div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </body>
 

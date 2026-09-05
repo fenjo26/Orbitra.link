@@ -16,7 +16,8 @@ const SystemSettings = () => {
         archive_retention_days: '30',
         admin_ip_access: '',
         ignore_prefetch: '1',
-        admin_path: ''
+        admin_path: '',
+        update_notify: '1'
     });
 
     // The path the panel was loaded from, so we can tell the user where it moved
@@ -143,6 +144,24 @@ const SystemSettings = () => {
                             <span className="form-checkbox-title">{t('systemSettings.ignorePrefetch')}</span>
                             <p className="form-checkbox-description">
                                 {t('systemSettings.ignorePrefetchDesc')}
+                            </p>
+                        </div>
+                    </label>
+
+                    {/* Update notifications. Off does not merely hide the banner:
+                        App.jsx skips the check_update request entirely, which is
+                        a synchronous cURL to GitHub on every panel mount. */}
+                    <label className="form-checkbox-label">
+                        <input
+                            type="checkbox"
+                            name="update_notify"
+                            checked={settings.update_notify === '1'}
+                            onChange={handleChange}
+                        />
+                        <div className="form-checkbox-content">
+                            <span className="form-checkbox-title">{t('systemSettings.updateNotify')}</span>
+                            <p className="form-checkbox-description">
+                                {t('systemSettings.updateNotifyDesc')}
                             </p>
                         </div>
                     </label>

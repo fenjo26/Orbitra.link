@@ -3,7 +3,20 @@
  * Telegram Bot Notification Helper
  * Call notifyConversion() after a conversion is recorded to alert subscribed chats
  * Call sendDailySummary() via cron for daily report
+ *
+ * Message wording lives in telegram_bot.php's botText() — one translation
+ * table for every string the bot says. This file defines the webhook guard
+ * before that require because postback.php pulls it in mid-request: without
+ * the constant, telegram_bot.php would run its webhook body and try to read
+ * php://input out from under the caller.
  */
+
+if (!function_exists('botText')) {
+    if (!defined('ORBITRA_TELEGRAM_NO_WEBHOOK')) {
+        define('ORBITRA_TELEGRAM_NO_WEBHOOK', true);
+    }
+    require_once __DIR__ . '/telegram_bot.php';
+}
 
 function notifyConversion($pdo, $clickId, $status, $payout, $campaignId, $currency = 'USD')
 {
@@ -22,7 +35,7 @@ function notifyConversion($pdo, $clickId, $status, $payout, $campaignId, $curren
     // Get campaign name
     $stmt = $pdo->prepare("SELECT name FROM campaigns WHERE id = ?");
     $stmt->execute([$campaignId]);
-    $campaignName = $stmt->fetchColumn() ?: "ID: {$campaignId}";
+    $campaignName = orbitraTelegramEscape((string)($stmt->fetchColumn() ?: "ID: {$campaignId}"));
 
     // Get country from click
     $stmt = $pdo->prepare("SELECT country FROM clicks WHERE id = ?");
@@ -44,16 +57,23 @@ function notifyConversion($pdo, $clickId, $status, $payout, $campaignId, $curren
 
     foreach ($chats as $chat) {
         $lang = $chat['language'] ?: 'ru';
-        $texts = [
-            'ru' => "🔔 *Новая конверсия!*\n\n📊 Кампания: *{$campaignName}*\n📌 Статус: `{$status}`\n💰 Сумма: *{$payout} {$currency}*\n🌍 Страна: {$flag} {$country}\n🕐 Время: {$time}",
-            'en' => "🔔 *New Conversion!*\n\n📊 Campaign: *{$campaignName}*\n📌 Status: `{$status}`\n💰 Amount: *{$payout} {$currency}*\n🌍 Country: {$flag} {$country}\n🕐 Time: {$time}"
-        ];
-
-        $msg = $texts[$lang] ?? $texts['en'];
+        $msg = botText($lang, 'new_conversion', [
+            'campaign' => $campaignName,
+            'status' => $status,
+            'payout' => $payout,
+            'currency' => $currency,
+            'country' => trim($flag . ' ' . $country),
+            'time' => $time,
+        ]);
         sendTelegramNotification($token, $chat['chat_id'], $msg);
     }
 }
 
+/**
+ * The daily summary the /daily toggle promises. Called once a day from the
+ * poller cron (see orbitraTelegramMaybeSendDaily for the once-a-day claim);
+ * keyed to each chat's own language.
+ */
 function sendDailySummary($pdo)
 {
     // Get bot token
@@ -101,29 +121,19 @@ function sendDailySummary($pdo)
     foreach ($chats as $chat) {
         $lang = $chat['language'] ?: 'ru';
 
-        if ($lang === 'ru') {
-            $msg = "📊 *Ежедневная сводка — {$today}*\n\n";
-            $msg .= "👆 Кликов: *{$clicks}*\n";
-            $msg .= "🎯 Конверсий: *{$conv}*\n";
-            $msg .= "💰 Доход: *\${$rev}*\n";
-            $msg .= "💸 Расход: *\${$costVal}*\n";
-            $msg .= "📈 Профит: *\${$profit}*\n";
-        }
-        else {
-            $msg = "📊 *Daily Summary — {$today}*\n\n";
-            $msg .= "👆 Clicks: *{$clicks}*\n";
-            $msg .= "🎯 Conversions: *{$conv}*\n";
-            $msg .= "💰 Revenue: *\${$rev}*\n";
-            $msg .= "💸 Cost: *\${$costVal}*\n";
-            $msg .= "📈 Profit: *\${$profit}*\n";
-        }
+        $msg = botText($lang, 'daily_summary', ['date' => $today]) . "\n\n";
+        $msg .= "👆 " . botText($lang, 'clicks') . ": *{$clicks}*\n";
+        $msg .= "🎯 " . botText($lang, 'conversions') . ": *{$conv}*\n";
+        $msg .= "💰 " . botText($lang, 'revenue') . ": *\${$rev}*\n";
+        $msg .= "💸 " . botText($lang, 'cost') . ": *\${$costVal}*\n";
+        $msg .= "📈 " . botText($lang, 'profit') . ": *\${$profit}*\n";
 
         if (!empty($topCampaigns)) {
-            $msg .= "\n🏆 " . ($lang === 'ru' ? 'ТОП кампании:' : 'Top campaigns:') . "\n";
+            $msg .= "\n" . botText($lang, 'daily_top') . "\n";
             $medals = ['🥇', '🥈', '🥉'];
             foreach ($topCampaigns as $i => $tc) {
                 $tcRev = number_format((float)$tc['revenue'], 2);
-                $msg .= "{$medals[$i]} {$tc['name']} — \${$tcRev}\n";
+                $msg .= "{$medals[$i]} " . orbitraTelegramEscape($tc['name']) . " — \${$tcRev}\n";
             }
         }
 
@@ -131,37 +141,46 @@ function sendDailySummary($pdo)
     }
 }
 
-function sendTelegramNotification($token, $chatId, $text)
+/**
+ * Once-a-day gate for the daily summary, safe to call from every per-minute
+ * cron: the day is claimed with an UPDATE that only one process can win, so
+ * the poller and any other cron can race on this without double-sending.
+ *
+ * Uses the server's PHP timezone — the same clock the panel's daily_time
+ * picker writes against. A chat that enables /daily after the time has
+ * already passed simply starts receiving from the next day.
+ */
+function orbitraTelegramMaybeSendDaily($pdo)
 {
-    $url = "https://api.telegram.org/bot{$token}/sendMessage";
-    $data = [
-        'chat_id' => $chatId,
-        'text' => $text,
-        'parse_mode' => 'Markdown',
-        'disable_web_page_preview' => true
-    ];
-
-    // Check if running in development environment
-    $isDev = (getenv('ORBITRA_ENV') === 'development') ||
-             (getenv('ORBITRA_SKIP_SSL_VERIFY') === '1') ||
-             (getenv('APP_ENV') === 'local');
-
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-
-    // SSL verification: enabled by default, disabled only in development
-    if ($isDev) {
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-    } else {
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+    $stmt = $pdo->query("SELECT value FROM settings WHERE key = 'telegram_daily_time'");
+    $dailyTime = $stmt ? (string)$stmt->fetchColumn() : '';
+    if ($dailyTime === '') {
+        $dailyTime = '21:00';
     }
 
-    curl_exec($ch);
-    curl_close($ch);
+    // Nobody subscribed: nothing to claim and nothing to send.
+    $want = (int)$pdo->query("SELECT COUNT(*) FROM telegram_bot_chats WHERE notify_daily = 1 AND is_active = 1")->fetchColumn();
+    if ($want === 0) {
+        return;
+    }
+
+    if (strcmp(date('H:i'), $dailyTime) < 0) {
+        return;
+    }
+
+    // Atomic claim: the UPDATE only matches when the flag still holds another
+    // day, so exactly one caller proceeds even with several crons racing.
+    $pdo->prepare("INSERT OR IGNORE INTO settings (key, value) VALUES ('telegram_daily_last_sent', '')")->execute();
+    $claim = $pdo->prepare("UPDATE settings SET value = ? WHERE key = 'telegram_daily_last_sent' AND value != ?");
+    $claim->execute([date('Y-m-d'), date('Y-m-d')]);
+    if ($claim->rowCount() === 0) {
+        return;
+    }
+
+    sendDailySummary($pdo);
+}
+
+function sendTelegramNotification($token, $chatId, $text)
+{
+    sendTelegram($token, $chatId, $text);
 }

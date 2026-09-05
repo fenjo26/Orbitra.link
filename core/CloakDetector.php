@@ -163,6 +163,45 @@ class CloakDetector
     }
 
     /**
+     * Is `$ip` inside `$cidr`?
+     *
+     * Binary prefix comparison over inet_pton output, so one implementation
+     * covers IPv4 and IPv6 and neither needs gmp — which is not installed
+     * everywhere, and a fatal here would take down click serving itself.
+     */
+    private static function ipInCidr(string $ip, string $cidr): bool
+    {
+        if (strpos($cidr, '/') === false) {
+            return false;
+        }
+        [$network, $bitsRaw] = explode('/', $cidr, 2);
+        if (!preg_match('/^\d+$/', trim($bitsRaw))) {
+            return false;
+        }
+        $bits = (int) trim($bitsRaw);
+        $ipBin = @inet_pton($ip);
+        $netBin = @inet_pton(trim($network));
+        // Different lengths means one is v4 and the other v6: never a match.
+        if ($ipBin === false || $netBin === false || strlen($ipBin) !== strlen($netBin)) {
+            return false;
+        }
+        $maxBits = strlen($ipBin) * 8;
+        if ($bits < 0 || $bits > $maxBits) {
+            return false;
+        }
+        $wholeBytes = intdiv($bits, 8);
+        if ($wholeBytes > 0 && strncmp($ipBin, $netBin, $wholeBytes) !== 0) {
+            return false;
+        }
+        $remainder = $bits % 8;
+        if ($remainder === 0) {
+            return true;
+        }
+        $mask = chr((0xFF << (8 - $remainder)) & 0xFF);
+        return ($ipBin[$wholeBytes] & $mask) === ($netBin[$wholeBytes] & $mask);
+    }
+
+    /**
      * The bot_ips / bot_signatures row that this visitor matches, or null.
      *
      * Returns the row's own text (the IP/CIDR or the UA signature) so the click
@@ -180,6 +219,25 @@ class CloakDetector
             $matchedIp = $stmt->fetchColumn();
             if ($matchedIp !== false && $matchedIp !== null && $matchedIp !== '') {
                 return (string) $matchedIp;
+            }
+
+            // A CIDR row can never be string-equal to a visitor's IP, so the
+            // comparison above skipped every range in a column literally named
+            // ip_or_cidr: a pasted 1.2.3.0/24 sat in the list looking like a
+            // rule and blocked nothing. Ranges are matched in PHP instead, over
+            // the rows that actually contain a '/' — normally a handful of
+            // hand-added entries, because the public datacenter feed is
+            // deliberately not stored here (see the bot_ips_feed endpoint); it
+            // is matched by IpRanges, which indexes it properly.
+            if (filter_var($ip, FILTER_VALIDATE_IP)) {
+                $cidrStmt = $pdo->query("SELECT ip_or_cidr FROM bot_ips WHERE ip_or_cidr LIKE '%/%' LIMIT 5000");
+                if ($cidrStmt !== false) {
+                    while (($cidrRow = $cidrStmt->fetchColumn()) !== false) {
+                        if (self::ipInCidr($ip, (string) $cidrRow)) {
+                            return (string) $cidrRow;
+                        }
+                    }
+                }
             }
 
             if ($ua !== '') {

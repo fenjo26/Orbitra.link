@@ -109,6 +109,10 @@ CREATE TABLE backorder_domains (
 CREATE TABLE bot_ips (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         ip_or_cidr TEXT NOT NULL UNIQUE,
+        -- Where the entry came from: 'manual' (typed, pasted or uploaded in the
+        -- panel) or a feed name. Clear All is scoped by it, so purging your own
+        -- entries no longer takes an imported list with them.
+        source TEXT DEFAULT 'manual',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 

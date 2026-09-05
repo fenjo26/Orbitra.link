@@ -23,6 +23,27 @@ export const CONVERSION_COLOR_SWATCHES = [
     '#a855f7', '#d946ef', '#ec4899', '#ef4444',
 ];
 
+/**
+ * Metric column id -> the conversion status its header marker stands for.
+ *
+ * Lives here rather than in CampaignReports because the Campaigns table draws
+ * the same markers: two copies of this map is how the same column ends up
+ * looking like two different things depending on which screen you are on.
+ *
+ * A rate is deliberately absent. "Approve %" sits between Sales and Trash and
+ * is the one that makes the rule visible: it has no conversion status to
+ * resolve a colour from, and inventing one would mean a colour no other
+ * surface shares. A dot means "this column counts a conversion status".
+ */
+export const STATUS_COLUMN_STATUSES = {
+    leads: 'lead',
+    sales: 'sale',
+    registrations: 'registration',
+    deposits: 'deposit',
+    rejected: 'rejected',
+    trash: 'trash',
+};
+
 const normalize = value => String(value || '').trim().toLowerCase();
 
 /**
