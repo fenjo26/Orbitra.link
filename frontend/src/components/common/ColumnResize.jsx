@@ -13,7 +13,14 @@ import { colAlignClass } from './tableColumns';
 // land on the wrong column after either.
 
 export const MIN_COL_WIDTH = 60;
-const STORAGE_PREFIX = 'orbitra_colwidths_';
+// A stored width always beats a code default, so when the default geometry
+// changes (tableColumns.js, ColumnResize floors) the stored maps must not
+// outlive it — otherwise every table stays pinned to the old layout until the
+// user happens to press Reset. Bump GEOMETRY_VERSION to orphan every stored
+// map at once; the previous version's key is swept on next load.
+const GEOMETRY_VERSION = 2;
+const STORAGE_PREFIX = `orbitra_colwidths_v${GEOMETRY_VERSION}_`;
+const LEGACY_STORAGE_PREFIX = 'orbitra_colwidths_';
 const DEFAULT_COL_WIDTH = 120;
 
 // The list tables are replaced by MobileCards below the Tailwind `lg`
@@ -55,12 +62,21 @@ const readStoredWidths = (storageKey) => {
     }
 };
 
-// One localStorage key per table (orbitra_colwidths_<tableId>) holding
+// One localStorage key per table (orbitra_colwidths_v<N>_<tableId>) holding
 // {columnId: px} for the columns the USER resized. Columns never resized (or
 // added later) keep their code-defined default width.
 export function useColumnWidths(tableId) {
     const storageKey = STORAGE_PREFIX + tableId;
-    const [widths, setWidths] = useState(() => readStoredWidths(storageKey));
+    const [widths, setWidths] = useState(() => {
+        // Sweep the pre-geometry map so a stale width cannot resurface from
+        // an old key after the version bump.
+        try {
+            localStorage.removeItem(LEGACY_STORAGE_PREFIX + tableId);
+        } catch {
+            // Private mode / quota — nothing was readable, nothing to sweep.
+        }
+        return readStoredWidths(storageKey);
+    });
 
     const setWidth = useCallback((colId, px) => {
         setWidths(prev => {
