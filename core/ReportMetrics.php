@@ -122,6 +122,10 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    COALESCE(SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0
                                           AND (cl.landing_id IS NULL OR cl.landing_id = 0 OR cl.offer_at IS NOT NULL)
                                       THEN 1 ELSE 0 END), 0) AS real_offer_clicks,
+                   AVG(cl.lp_seconds) AS avg_lp_dwell,
+                   AVG(cl.lp_scroll) AS avg_lp_scroll,
+                   COALESCE(SUM(CASE WHEN cl.lp_seconds IS NOT NULL THEN 1 ELSE 0 END), 0) AS lp_dwell_samples,
+                   COALESCE(SUM(CASE WHEN cl.lp_seconds IS NOT NULL AND cl.lp_seconds < 5 THEN 1 ELSE 0 END), 0) AS lp_bounces,
                    COALESCE(SUM(CASE WHEN cl.pwa_intent_at IS NOT NULL THEN 1 ELSE 0 END), 0) AS pwa_intents,
                    COALESCE(SUM(CASE WHEN cl.pwa_install_at IS NOT NULL THEN 1 ELSE 0 END), 0) AS pwa_installs,
                    COALESCE(SUM(CASE WHEN cl.pwa_install_at IS NOT NULL AND cl.is_bot = 0 THEN 1 ELSE 0 END), 0) AS pwa_installs_real,
@@ -184,6 +188,10 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    COALESCE(SUM(CASE WHEN click_referer IS NULL OR click_referer = '' THEN 1 ELSE 0 END), 0) as empty_referrers,
                    AVG(CASE WHEN landing_at IS NOT NULL AND offer_at IS NOT NULL
                        THEN CAST(strftime('%s', offer_at) - strftime('%s', landing_at) AS REAL) END) as avg_lp_seconds,
+                   AVG(lp_seconds) as avg_lp_dwell,
+                   AVG(lp_scroll) as avg_lp_scroll,
+                   COALESCE(SUM(CASE WHEN lp_seconds IS NOT NULL THEN 1 ELSE 0 END), 0) as lp_dwell_samples,
+                   COALESCE(SUM(CASE WHEN lp_seconds IS NOT NULL AND lp_seconds < 5 THEN 1 ELSE 0 END), 0) as lp_bounces,
                    COALESCE(SUM(via_landing), 0) as lp_clicks,
                    COALESCE(SUM(CASE WHEN via_landing = 1 AND offer_at IS NOT NULL THEN 1 ELSE 0 END), 0) as real_lp_clicks,
                    COALESCE(SUM(CASE WHEN via_landing = 0 OR offer_at IS NOT NULL THEN 1 ELSE 0 END), 0) as real_offer_clicks,
@@ -217,6 +225,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                        cl.is_bot, cl.is_proxy,
                        cl.referer as click_referer,
                        cl.landing_at, cl.offer_at,
+                       cl.lp_seconds, cl.lp_scroll,
                        CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 THEN 1 ELSE 0 END as via_landing,
                        cva.cnt_any, cva.rev_all, cva.rev_sale,
                        cva.cnt_sale, cva.cnt_hold, cva.cnt_rejected, cva.cnt_trash,
@@ -267,6 +276,10 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    COALESCE(SUM(CASE WHEN click_referer IS NULL OR click_referer = '' THEN 1 ELSE 0 END), 0) as empty_referrers,
                    AVG(CASE WHEN landing_at IS NOT NULL AND offer_at IS NOT NULL
                        THEN CAST(strftime('%s', offer_at) - strftime('%s', landing_at) AS REAL) END) as avg_lp_seconds,
+                   AVG(lp_seconds) as avg_lp_dwell,
+                   AVG(lp_scroll) as avg_lp_scroll,
+                   COALESCE(SUM(CASE WHEN lp_seconds IS NOT NULL THEN 1 ELSE 0 END), 0) as lp_dwell_samples,
+                   COALESCE(SUM(CASE WHEN lp_seconds IS NOT NULL AND lp_seconds < 5 THEN 1 ELSE 0 END), 0) as lp_bounces,
                    COALESCE(SUM(offer_clicked), 0) as lp_clicks,
                    COALESCE(SUM(CASE WHEN offer_at IS NOT NULL THEN 1 ELSE 0 END), 0) as real_lp_clicks,
                    COALESCE(SUM(CASE WHEN offer_at IS NOT NULL THEN 1 ELSE 0 END), 0) as real_offer_clicks,
@@ -303,6 +316,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                        cl.is_bot, cl.is_proxy,
                        cl.referer as click_referer,
                        cl.landing_at, cl.offer_at,
+                       cl.lp_seconds, cl.lp_scroll,
                        cl.pwa_intent_at, cl.pwa_install_at, cl.pwa_open_count,
                        cl.push_subscribed_at,
                        CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END as offer_clicked,
@@ -358,6 +372,14 @@ if (!function_exists('orbitraConversionStatusGroups')) {
         $pwaInstallsReal = (int) ($raw['pwa_installs_real'] ?? 0);
         $pwaOpens        = (int) ($raw['pwa_opens'] ?? 0);
         $pushSubscribed  = (int) ($raw['push_subscribed'] ?? 0);
+        // Landing dwell (the /pixel.gif?action=lp beacon). Only visits whose
+        // page ran the timer report anything, so the sample count travels with
+        // the average — an average over three visits is not a verdict.
+        $lpDwellSamples  = (int) ($raw['lp_dwell_samples'] ?? 0);
+        $lpBounces       = (int) ($raw['lp_bounces'] ?? 0);
+        $lpScrollSamples = $lpDwellSamples;
+        $lpDwellSeconds  = ($raw['avg_lp_dwell'] ?? null) !== null
+            ? round((float) $raw['avg_lp_dwell'], 1) : null;
         // Direct-to-offer traffic has no LP-click counter. Preserve useful CPC
         // and EPC values for that traffic while using LP clicks whenever they
         // exist, as required by the landing funnel definitions.
@@ -436,6 +458,24 @@ if (!function_exists('orbitraConversionStatusGroups')) {
             'push_subscribed'         => $pushSubscribed,
             // Average landing→offer time, human-formatted ("1m 12s").
             'time_since_lp_click'     => self_fmtLpSeconds($raw['avg_lp_seconds'] ?? null),
+            // Time actually spent on the landing — measured for EVERY visitor,
+            // the ones who never pressed the offer button included (the
+            // /pixel.gif?action=lp beacon). time_since_lp_click cannot see
+            // those, which is why a landing nobody engages with used to report
+            // nothing at all instead of "3s".
+            'time_on_lp'              => self_fmtLpSeconds($raw['avg_lp_dwell'] ?? null),
+            'lp_dwell_seconds'        => $lpDwellSeconds,
+            // Deepest scroll reached, averaged. "3s / 8 %" and "3s / 100 %" are
+            // different verdicts on the same page.
+            'lp_scroll_depth'         => $lpScrollSamples > 0 && ($raw['avg_lp_scroll'] ?? null) !== null
+                                          ? round((float) $raw['avg_lp_scroll'], 1) : null,
+            // Share of measured visits shorter than 5 seconds. The denominator
+            // is measured visits, not clicks: a redirect landing on someone
+            // else's domain (and every bot that never runs JS) reports no time
+            // at all, and counting those as engaged would flatter every page.
+            'lp_measured'             => $lpDwellSamples,
+            'lp_bounce_rate'          => $lpDwellSamples > 0
+                                          ? round(($lpBounces / $lpDwellSamples) * 100, 2) : null,
 
             // Conversions & Events
             'conversions'             => $conversions,

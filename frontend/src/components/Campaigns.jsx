@@ -792,6 +792,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             case 'prelander_clicks':
             case 'offer_clicks':
             case 'lp_views':
+            case 'lp_measured':
             case 'lp_clicks':
             case 'real_lp_clicks':
             case 'real_offer_clicks':
@@ -831,6 +832,12 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             case 'lp_ctr':
             case 'real_lp_ctr':
                 return val === null || val === undefined ? '—' : `${num.toFixed(2)}%`;
+
+            // Landing-timer metrics: null (dash) when nothing measured —
+            // never a fabricated 0 that would read as "everyone bounced".
+            case 'lp_bounce_rate':
+            case 'lp_scroll_depth':
+                return val === null || val === undefined ? '—' : `${num.toFixed(1)}%`;
 
             case 'roi':
             case 'roi_all':

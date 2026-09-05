@@ -172,7 +172,7 @@ $pdo->exec('CREATE TABLE clicks (id TEXT PRIMARY KEY, campaign_id INTEGER, offer
     revenue REAL DEFAULT 0, is_bot INTEGER DEFAULT 0, is_proxy INTEGER DEFAULT 0,
     referer TEXT, created_at TEXT DEFAULT "2026-01-01 10:00:00",
     uniq_campaign INTEGER DEFAULT 1, uniq_stream INTEGER DEFAULT 1, uniq_global INTEGER DEFAULT 1,
-    landing_at TEXT, offer_at TEXT,
+    landing_at TEXT, offer_at TEXT, lp_seconds INTEGER, lp_scroll INTEGER,
     pwa_intent_at TEXT, pwa_install_at TEXT, pwa_open_at TEXT, pwa_open_count INTEGER DEFAULT 0,
     push_prompted_at TEXT, push_subscribed_at TEXT, push_declined_at TEXT)');
 // "Real" revenue (aggregator payouts) lives in revenue_records, joined per
@@ -201,6 +201,13 @@ $pdo->exec("UPDATE clicks SET referer = 'https://fb.com/' WHERE id IN ('m1','m2'
 $pdo->exec("UPDATE clicks SET referer = '' WHERE id = 'm3'");
 $pdo->exec("UPDATE clicks SET landing_at = '2026-01-01 10:00:00', offer_at = '2026-01-01 10:01:35' WHERE id = 'm1'");
 $pdo->exec("UPDATE clicks SET landing_at = '2026-01-01 10:00:00', offer_at = '2026-01-01 10:02:00' WHERE id = 'm4'");
+// Landing dwell, written by the /pixel.gif?action=lp beacon: m2 and m3 never
+// reached an offer, so the landing_at/offer_at pair above says nothing about
+// them — the whole reason this measurement exists. m2 read the page (40s, 90%),
+// m3 bounced off the hero (2s, 5%). m6 never reported at all and must stay out
+// of both the average and the denominator.
+$pdo->exec("UPDATE clicks SET lp_seconds = 40, lp_scroll = 90 WHERE id = 'm2'");
+$pdo->exec("UPDATE clicks SET lp_seconds = 2,  lp_scroll = 5  WHERE id = 'm3'");
 $pdo->exec("INSERT INTO revenue_records (click_id, amount) VALUES ('m1', 12)");
 $st = $pdo->prepare('INSERT INTO landings (id, name, group_id) VALUES (?,?,?)');
 foreach ([[1,'LP one',1], [2,'LP two',null], [3,'LP empty',null]] as $r) { $st->execute($r); }
@@ -213,6 +220,12 @@ $pdo->exec('INSERT INTO offers (id, name) VALUES (7,"of7"), (8,"of8"), (9,"of9")
 $dashboardRaw = $pdo->query(orbitraDashboardMetricsSql('payout', null))->fetch(PDO::FETCH_ASSOC);
 $dashboard = orbitraComputeDerivedMetrics($dashboardRaw ?: []);
 $assert('Dashboard clicks', $dashboard['clicks'], 6, 0);
+// The dwell metrics are computed over MEASURED visits only: two of the six
+// clicks reported, so a 21s average and a 50% bounce share — not 2/6.
+$assert('Dashboard LP measured visits', $dashboard['lp_measured'], 2, 0);
+$assert('Dashboard LP scroll depth', $dashboard['lp_scroll_depth'], 47.5, 0.01);
+$assert('Dashboard LP bounce rate', $dashboard['lp_bounce_rate'], 50.0, 0.01);
+$assert('Dashboard time on LP', $dashboard['time_on_lp'], '21s');
 $assert('Dashboard unique clicks', $dashboard['unique_clicks'], 5, 0);
 $assert('Dashboard conversions', $dashboard['conversions'], 8, 0);
 $assert('Dashboard leads', $dashboard['leads'], 1, 0);

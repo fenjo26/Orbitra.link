@@ -1194,6 +1194,7 @@ function orbitraServeLanderPath(PDO $pdo, string $slug, string $rest): void
         $landerToken = issueLpToken($landerClickId, $landerSecret);
     }
     $html = applyLandingMacros($html, $landerClickId, '', '', [], $landerToken);
+    $html = orbitraInjectLpTimer($html, $landerClickId);
 
     // The binding's offer closes the offer hop the same way the root bridge
     // does: a cold PWA click carries no stream, so a bare /?_lp=1 hop would
@@ -1367,6 +1368,7 @@ function orbitraServePwaRoot(PDO $pdo, $landingId, string $clickId, int $offerId
         $rootToken = issueLpToken($clickId, $rootSecret);
     }
     $html = applyLandingMacros($html, $clickId, '', '', [], $rootToken);
+    $html = orbitraInjectLpTimer($html, $clickId);
 
     // A direct domain has no stream, so the organic click carries no offer and
     // a plain /?_lp=1 would honestly answer "no offer attached". The binding's
@@ -1730,6 +1732,76 @@ function orbitraInjectBaseTag(string $html, string $baseUrl): string
     }
 
     return $html;
+}
+
+/**
+ * The landing dwell timer — the client half of /pixel.gif?action=lp.
+ *
+ * Every visitor gets a number, not only the ones who press the offer button:
+ * that is the whole point. "Time since LP click" needs a click to exist, so a
+ * landing nobody engages with reports nothing, and the operator cannot tell a
+ * bad landing from bad traffic. This script heartbeats while the page is open
+ * and flushes once more as it goes away.
+ *
+ * Rules it follows, and why:
+ *   - only VISIBLE time accumulates. A tab left open in the background for an
+ *     hour is not an hour of reading, and averages built from that are worse
+ *     than no averages.
+ *   - sendBeacon first. The last flush races the navigation to the offer; an
+ *     Image() request that has not left the browser is cancelled by it (the
+ *     PWA funnel already lost diagnostics that way).
+ *   - heartbeats at 5/15/30/60s and then every minute, so a visitor who closes
+ *     the tab, kills the browser or loses signal still leaves the last
+ *     checkpoint behind. The endpoint keeps MAX(), so extra beacons are free.
+ *   - scroll depth rides along: "3 seconds, 8 %" and "3 seconds, 100 %" are
+ *     different verdicts on the same landing.
+ *
+ * @param string $clickId the click this page belongs to; empty → no script
+ * @param string $base    tracker origin for landings hosted elsewhere ('' = same origin)
+ */
+function orbitraLpTimerScript($clickId, $base = '')
+{
+    $clickId = trim((string) $clickId);
+    if ($clickId === '') {
+        return '';
+    }
+    $js = "<script>(function(){var u=" . json_encode($base . '/pixel.gif', JSON_UNESCAPED_SLASHES)
+        . ",k=" . json_encode($clickId, JSON_UNESCAPED_SLASHES) . ";"
+        . "var ms=0,mark=Date.now(),off=document.hidden===true,depth=0,sent=-1,sentD=-1;"
+        . "function acc(){var n=Date.now();if(!off){ms+=n-mark;}mark=n;}"
+        . "function secs(){acc();return Math.round(ms/1000);}"
+        . "function deep(){try{var d=document.documentElement,b=document.body||{},"
+        . "h=Math.max(d.scrollHeight||0,b.scrollHeight||0,d.offsetHeight||0),"
+        . "v=window.innerHeight||d.clientHeight||0,y=window.pageYOffset||d.scrollTop||0,"
+        . "p=h>v?Math.round(((y+v)/h)*100):100;if(p>depth){depth=p<0?0:(p>100?100:p);}}catch(e){}}"
+        . "function send(){var t=secs();if(t<=sent&&depth<=sentD){return;}if(t<sent){t=sent;}sent=t;sentD=depth;"
+        . "var q=u+'?action=lp&subid='+encodeURIComponent(k)+'&t='+t+'&s='+depth+'&_='+Date.now();"
+        . "try{if(navigator.sendBeacon&&navigator.sendBeacon(q)){return;}}catch(e){}"
+        . "try{if(window.fetch){fetch(q,{keepalive:true,mode:'no-cors'}).catch(function(){});return;}}catch(e){}"
+        . "var i=new Image();i.src=q;}"
+        . "document.addEventListener('visibilitychange',function(){acc();off=document.hidden===true;"
+        . "mark=Date.now();if(off){deep();send();}});"
+        . "window.addEventListener('pagehide',function(){deep();send();});"
+        . "window.addEventListener('beforeunload',function(){deep();send();});"
+        . "try{window.addEventListener('scroll',deep,{passive:true});}catch(e){window.addEventListener('scroll',deep);}"
+        . "deep();"
+        . "var steps=[5,15,30,60],i=0;(function next(){var prev=i>0?steps[i-1]:0;"
+        . "var wait=i<steps.length?(steps[i]-prev):60;setTimeout(function(){i++;deep();send();next();},wait*1000);})();"
+        . "})();</script>";
+    return $js;
+}
+
+/** Append the dwell timer to a landing body (no-op without a click). */
+function orbitraInjectLpTimer($html, $clickId)
+{
+    $script = orbitraLpTimerScript($clickId);
+    if ($script === '' || !is_string($html) || $html === '') {
+        return $html;
+    }
+    if (preg_match('/<\/body>/i', $html)) {
+        return preg_replace('/<\/body>/i', $script . '</body>', $html, 1);
+    }
+    return $html . $script;
 }
 
 function orbitraOfferIsLocal(PDO $pdo, $offerId): bool
@@ -2587,6 +2659,59 @@ if ($uriPath === '/pixel.gif') {
                             ->execute([$pwaSubid]);
                     }
                 }
+            } catch (\Throwable $e) {
+                // The pixel must answer with the image no matter what.
+            }
+        }
+        $orbitraPixelHeaders();
+        echo $orbitraPixelGif;
+        exit;
+    }
+
+    if (($_GET['action'] ?? '') === 'lp') {
+        // Time on the landing, for EVERY visitor — not only the ones who
+        // clicked through to the offer.
+        //
+        // landing_at/offer_at answer "how long before the offer click", which
+        // is silent about the visitor who read two lines and left: exactly the
+        // one who tells you the landing (or the audience buying it) is wrong.
+        // The landing's injected timer heartbeats here while the page is open
+        // and flushes once more on pagehide/hidden, so a bounce still leaves a
+        // number behind.
+        //
+        //   t — VISIBLE seconds (a backgrounded tab does not accumulate)
+        //   s — deepest scroll reached, 0-100 %
+        //
+        // MAX() is the dedup gate: heartbeats arrive repeatedly and out of
+        // order (sendBeacon gives no ordering guarantee), and a replayed or
+        // forged-low value must never shrink what was already recorded. The
+        // upper bounds keep a fabricated beacon from poisoning the averages.
+        $lpBeaconSubid = trim((string) ($_GET['subid'] ?? ''));
+        if ($lpBeaconSubid !== '') {
+            $lpBeaconSeconds = max(0, min((int) ($_GET['t'] ?? 0), 86400));
+            $lpBeaconScroll = max(0, min((int) ($_GET['s'] ?? 0), 100));
+            try {
+                // A landing served by this tracker already has the
+                // authoritative landing_at; COALESCE only fills the external
+                // (kclient.js / tracking.js) case, where nothing else ever
+                // writes it — and only once, so later heartbeats cannot walk
+                // the start of the visit forward.
+                // CAST, not a bare placeholder: PDO binds these as STRINGS,
+                // and SQLite's type ordering puts any text above any number —
+                // so MAX(42, '10') would answer '10' and a stale heartbeat
+                // would quietly shrink a visit that had already been measured.
+                $pdo->prepare(
+                    "UPDATE clicks
+                        SET lp_seconds = MAX(COALESCE(lp_seconds, 0), CAST(? AS INTEGER)),
+                            lp_scroll  = MAX(COALESCE(lp_scroll, 0), CAST(? AS INTEGER)),
+                            landing_at = COALESCE(landing_at, ?)
+                      WHERE id = ?"
+                )->execute([
+                    $lpBeaconSeconds,
+                    $lpBeaconScroll,
+                    gmdate('Y-m-d H:i:s', time() - $lpBeaconSeconds),
+                    $lpBeaconSubid,
+                ]);
             } catch (\Throwable $e) {
                 // The pixel must answer with the image no matter what.
             }
@@ -4444,7 +4569,7 @@ if ($actionToPerfrom) {
                     issueLpToken($clickId, $settings['postback_key'] ?? 'orbitra_secret')
                 );
                 // Inject <base> tag so assets resolve correctly in Incognito/Private mode
-                echo orbitraInjectBaseTag(orbitraRewriteAssetPaths($processed), '/lander/' . ($landingSlug !== '' ? htmlspecialchars($landingSlug, ENT_QUOTES) : $landingIdToLog) . '/');
+                echo orbitraInjectLpTimer(orbitraInjectBaseTag(orbitraRewriteAssetPaths($processed), '/lander/' . ($landingSlug !== '' ? htmlspecialchars($landingSlug, ENT_QUOTES) : $landingIdToLog) . '/'), $clickId);
             } else if (file_exists($landingDir . '/index.html')) {
                 $processed = applyLandingMacros(
                     file_get_contents($landingDir . '/index.html'),
@@ -4455,7 +4580,7 @@ if ($actionToPerfrom) {
                     issueLpToken($clickId, $settings['postback_key'] ?? 'orbitra_secret')
                 );
                 // Inject <base> tag so assets resolve correctly in Incognito/Private mode
-                echo orbitraInjectBaseTag(orbitraRewriteAssetPaths($processed), '/lander/' . ($landingSlug !== '' ? htmlspecialchars($landingSlug, ENT_QUOTES) : $landingIdToLog) . '/');
+                echo orbitraInjectLpTimer(orbitraInjectBaseTag(orbitraRewriteAssetPaths($processed), '/lander/' . ($landingSlug !== '' ? htmlspecialchars($landingSlug, ENT_QUOTES) : $landingIdToLog) . '/'), $clickId);
             } else {
                 die("Local landing files not found in " . $landingDir);
             }
@@ -4469,6 +4594,13 @@ if ($actionToPerfrom) {
                 $clickParams ?? [],
                 issueLpToken($clickId, $settings['postback_key'] ?? 'orbitra_secret')
             );
+            // An HTML action IS a landing being shown by the tracker, so it
+            // gets the same dwell timer an uploaded landing does. The other
+            // action types (redirect, 404, plain text, hand-off to another
+            // campaign) have no page to spend time on.
+            if (($landingActionType ?? '') === 'show_html') {
+                $payload = orbitraInjectLpTimer($payload, $clickId);
+            }
             performTrackerAction($landingActionType ?? '', $payload);
         } else if ($landingType === 'preload') {
             $url = str_replace(

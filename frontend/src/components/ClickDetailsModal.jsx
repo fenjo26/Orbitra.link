@@ -85,6 +85,23 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
         return s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${s % 60}s`;
     })();
 
+    // Time the visitor actually spent on the landing — reported by the page's
+    // own timer, so it exists for a visit that never reached the offer. That is
+    // the difference from timeToOffer above, which needs an offer click to be a
+    // number at all.
+    const lpDwell = (() => {
+        const secs = data?.lp_seconds === null || data?.lp_seconds === undefined
+            ? null : Number(data.lp_seconds);
+        if (secs === null || !isFinite(secs)) return null;
+        return secs < 60 ? `${secs}s` : `${Math.floor(secs / 60)}m ${secs % 60}s`;
+    })();
+
+    const lpScroll = (() => {
+        const pct = data?.lp_scroll === null || data?.lp_scroll === undefined
+            ? null : Number(data.lp_scroll);
+        return pct === null || !isFinite(pct) ? null : `${pct}%`;
+    })();
+
     const renderInPortal = (content) => {
         if (typeof document === 'undefined') return null;
         return createPortal(
@@ -283,6 +300,8 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
                             <DetailRow label={t('clickDetails.fields.landingAt')} value={data.landing_at} />
                             <DetailRow label={t('clickDetails.fields.offerAt')} value={data.offer_at} />
                             <DetailRow label={t('clickDetails.fields.timeToOffer')} value={lpTimeDelta} />
+                            <DetailRow label={t('clickDetails.fields.timeOnLp')} value={lpDwell} />
+                            <DetailRow label={t('clickDetails.fields.lpScroll')} value={lpScroll} />
                             <DetailRow label={t('clickDetails.fields.conversion')} value={data.is_conversion ? t('clickDetails.yes') : t('clickDetails.no')} />
                         </div>
 

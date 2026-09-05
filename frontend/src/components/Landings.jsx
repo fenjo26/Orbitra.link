@@ -558,6 +558,7 @@ const Landings = ({ landings, refreshData, user }) => {
             case 'visits':
             case 'unique_visits':
             case 'lp_views':
+            case 'lp_measured':
             case 'lp_clicks':
             case 'real_lp_clicks':
             case 'real_offer_clicks':
@@ -585,6 +586,12 @@ const Landings = ({ landings, refreshData, user }) => {
             case 'cr_registrations':
             case 'cr_deposits':
                 return val === null || val === undefined ? '—' : `${num.toFixed(2)}%`;
+
+            // Landing-timer metrics: null (dash) when nothing measured —
+            // never a fabricated 0 that would read as "everyone bounced".
+            case 'lp_bounce_rate':
+            case 'lp_scroll_depth':
+                return val === null || val === undefined ? '—' : `${num.toFixed(1)}%`;
 
             case 'roi':
             case 'roi_confirmed': {
@@ -722,6 +729,7 @@ const Landings = ({ landings, refreshData, user }) => {
             case 'clicks':
             case 'unique_clicks':
             case 'lp_views':
+            case 'lp_measured':
             case 'lp_clicks':
             case 'real_lp_clicks':
             case 'real_offer_clicks':

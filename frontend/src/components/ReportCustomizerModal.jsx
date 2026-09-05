@@ -68,6 +68,10 @@ export const ALL_REPORT_METRICS = [
     { id: 'registrations', label: 'Registrations', shortLabel: 'Regs' },
     { id: 'ucr', label: 'uCR — Unique clicks to registrations', shortLabel: 'uCR' },
     { id: 'time_since_lp_click', label: 'Time since LP click', shortLabel: 'LP time' },
+    { id: 'time_on_lp', label: 'Time on LP', shortLabel: 'LP time (all)', hintKey: 'timeOnLpHint', hint: 'Average time spent on the landing by EVERY visitor, the ones who never clicked the offer included — measured by the landing timer, not by the offer transition' },
+    { id: 'lp_bounce_rate', label: 'LP bounce rate', shortLabel: 'LP bounce', hintKey: 'lpBounceRateHint', hint: 'Share of measured visits that lasted under 5 seconds. Denominator is measured visits, not clicks — a page that never ran the timer reports nothing' },
+    { id: 'lp_scroll_depth', label: 'LP scroll depth', shortLabel: 'LP scroll', hintKey: 'lpScrollDepthHint', hint: 'Average deepest scroll reached on the landing, 0-100%' },
+    { id: 'lp_measured', label: 'LP measured visits', shortLabel: 'LP measured', hintKey: 'lpMeasuredHint', hint: 'Visits that actually reported a time — the sample behind Time on LP, bounce rate and scroll depth' },
     { id: 'lp_views', label: 'LP views / visits', shortLabel: 'LP Views', hintKey: 'lpViewsHint', hint: 'Total landing-page impressions' },
     { id: 'lp_clicks', label: 'LP clicks', shortLabel: 'LP Clicks', hintKey: 'lpClicksHint', hint: 'Total clicks on landing-page CTA buttons' },
     { id: 'real_lp_clicks', label: 'Real LP clicks', shortLabel: 'Real LP', hintKey: 'realLpClicksHint', hint: 'Landing views where the visitor actually left through the offer link (offer transition recorded) — not the pre-bound stream' },
@@ -95,7 +99,7 @@ export const PRESETS = {
     best: ['profitability', 'clicks', 'unique_clicks', 'conversions', 'roi_confirmed', 'cost', 'revenue', 'profit', 'cr', 'epc', 'cpc', 'cpa'],
     finance: ['cost', 'revenue', 'revenue_confirmed', 'revenue_hold', 'revenue_rejected', 'profit', 'roi', 'profit_confirmed', 'roi_confirmed', 'cpa', 'epc'],
     cod: ['clicks', 'unique_clicks', 'leads', 'sales', 'approve_rate', 'rejected', 'trash', 'cost', 'cpl', 'cps', 'cpa', 'revenue_confirmed', 'profit_confirmed', 'roi_confirmed'],
-    lander_to_offer: ['clicks', 'unique_clicks', 'lp_views', 'lp_clicks', 'real_lp_clicks', 'real_lp_ctr', 'time_since_lp_click', 'pwa_intents', 'real_pwa_installs', 'pwa_opens', 'pwa_install_rate', 'conversions', 'cr', 'cpv', 'cpc', 'epv', 'epc', 'cpa', 'cost', 'revenue', 'profit', 'roi'],
+    lander_to_offer: ['clicks', 'unique_clicks', 'lp_views', 'lp_clicks', 'real_lp_clicks', 'real_lp_ctr', 'time_since_lp_click', 'time_on_lp', 'lp_bounce_rate', 'lp_scroll_depth', 'pwa_intents', 'real_pwa_installs', 'pwa_opens', 'pwa_install_rate', 'conversions', 'cr', 'cpv', 'cpc', 'epv', 'epc', 'cpa', 'cost', 'revenue', 'profit', 'roi'],
     traffic: ['clicks', 'unique_clicks', 'visitors', 'unique_clicks_stream', 'unique_clicks_global', 'uc_rate', 'bots', 'bot_rate', 'proxies', 'empty_referrers', 'conversions', 'cr'],
     all: ALL_REPORT_METRICS.map(m => m.id),
 };
@@ -127,7 +131,8 @@ const REPORT_DIMENSIONS = [
     // Time
     { id: 'day', label: 'Date (Day)', i18n: 'day' },
     { id: 'hour', label: 'Hour', i18n: 'hour' },
-    { id: 'lp_time', label: 'LP Time (bucket)', i18n: 'lpTime' },
+    { id: 'lp_time', label: 'Time to offer (bucket)', i18n: 'lpTime' },
+    { id: 'lp_dwell', label: 'Time on LP (bucket)', i18n: 'lpDwell' },
 
     // Tracker entities
     { id: 'campaign_id', label: 'Campaign', i18n: 'campaign' },

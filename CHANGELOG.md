@@ -9,6 +9,38 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [1.5.1] — 2026-09-05
 
+### Added
+
+- **Time on the landing, measured for every visitor — not only the ones who
+  clicked through.** The existing `landing_at`/`offer_at` pair produces a number
+  only when the visitor pressed the CTA, so a landing that bores everyone away
+  reported nothing at all — exactly the page an operator is looking for, and
+  exactly the question "is this landing bad, or is this audience wrong for the
+  offer?" needs answered. Every page the tracker serves (local landings, PWA
+  store pages, an HTML action landing) now carries a small timer; sites hosted
+  elsewhere get the same one inside `tracking.js` / `kclient.js`, and
+  `kclient.php` gained `$client->timerScript()` for PHP pages. It `sendBeacon`s
+  to `/pixel.gif?action=lp` at 5/15/30/60 seconds and every minute after that,
+  plus a final flush on `pagehide` and on the tab going hidden — so a closed
+  tab, a killed browser or a dropped connection still leaves the last
+  checkpoint behind. Only VISIBLE time accumulates: a tab parked in the
+  background for an hour is not an hour of reading. Deepest scroll depth rides
+  along, because "3 seconds at 8 %" and "3 seconds at 100 %" are different
+  verdicts on the same page. Migration 49 adds `clicks.lp_seconds` and
+  `clicks.lp_scroll`; the endpoint writes through `MAX()`, so a late,
+  out-of-order or replayed beacon can only raise the number and never shrink
+  it, and a fabricated one stops at the ceiling (a day / 100 %). The Logs
+  traffic tab gained a **Time on LP** column (under 5 s highlighted, scroll
+  depth beside it) and the click details modal both rows. Reports gained the
+  *Time on LP*, *LP bounce rate*, *LP scroll depth* and *LP measured visits*
+  metrics plus a **Time on LP (bucket)** dimension (0-5s / 5-15s / 15-30s /
+  30-60s / 1-3m / 3m+); a visit that never reported — a redirect landing on
+  someone else's domain with no tracking script, a bot that runs no JS, a
+  pre-feature row — groups as *Unknown* rather than being counted as zero, and
+  the bounce-rate denominator is measured visits, not clicks. The older
+  `lp_time` dimension is now labelled **Time to offer (bucket)**, which is what
+  it always measured. Test: `tests/lp_dwell_test.php` (31 HTTP checks).
+
 ### Fixed
 
 - **The Telegram bot could never receive a message on a fresh install** — the panel

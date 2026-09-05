@@ -25,6 +25,12 @@
  * The click id (subid) is kept in the PHP session and a cookie, so secondary
  * pages can restore it with restoreFromSession() / restoreFromQuery() without
  * creating a new click, and conversions can be posted back with the subid.
+ *
+ * To measure how long visitors stay — bounces included, not only the ones who
+ * press the offer button — echo timerScript() once before </body>:
+ *
+ *   <?php echo $client->timerScript(); ?>
+ *   </body>
  */
 
 // The tracker serves this file to be downloaded — without this guard a direct
@@ -268,6 +274,52 @@ class KClickClient
             }
         }
         return $url !== null ? $url : $default;
+    }
+
+    /**
+     * <script> that reports how long this visitor stayed — bounce included.
+     *
+     * getOffer()'s _lt only measures visitors who press the offer button, so a
+     * page that bores everyone away reports nothing at all. Echo this once
+     * before </body> and the tracker gets a "Time on LP" (and scroll depth) for
+     * every visit, in the Logs and as a report dimension:
+     *
+     *     <?php echo $client->timerScript(); ?>
+     *     </body>
+     *
+     * Returns '' when no click was registered — there would be nothing to
+     * attribute the time to.
+     */
+    public function timerScript()
+    {
+        $this->perform();
+        $clickId = (string) ($this->clickId !== null ? $this->clickId : '');
+        if ($clickId === '') {
+            return '';
+        }
+        $endpoint = rtrim((string) $this->apiBase, '/') . '/pixel.gif';
+        return "<script>(function(){var u=" . json_encode($endpoint, JSON_UNESCAPED_SLASHES)
+            . ",k=" . json_encode($clickId, JSON_UNESCAPED_SLASHES) . ";"
+            . "var ms=0,mark=Date.now(),off=document.hidden===true,depth=0,sent=-1,sentD=-1;"
+            . "function acc(){var n=Date.now();if(!off){ms+=n-mark;}mark=n;}"
+            . "function deep(){try{var d=document.documentElement,b=document.body||{},"
+            . "h=Math.max(d.scrollHeight||0,b.scrollHeight||0,d.offsetHeight||0),"
+            . "v=window.innerHeight||d.clientHeight||0,y=window.pageYOffset||d.scrollTop||0,"
+            . "p=h>v?Math.round(((y+v)/h)*100):100;if(p>depth){depth=p<0?0:(p>100?100:p);}}catch(e){}}"
+            . "function send(){acc();var t=Math.round(ms/1000);if(t<=sent&&depth<=sentD){return;}"
+            . "if(t<sent){t=sent;}sent=t;sentD=depth;"
+            . "var q=u+'?action=lp&subid='+encodeURIComponent(k)+'&t='+t+'&s='+depth+'&_='+Date.now();"
+            . "try{if(navigator.sendBeacon&&navigator.sendBeacon(q)){return;}}catch(e){}"
+            . "try{if(window.fetch){fetch(q,{keepalive:true,mode:'no-cors'}).catch(function(){});return;}}catch(e){}"
+            . "var i=new Image();i.src=q;}"
+            . "document.addEventListener('visibilitychange',function(){acc();off=document.hidden===true;"
+            . "mark=Date.now();if(off){deep();send();}});"
+            . "window.addEventListener('pagehide',function(){deep();send();});"
+            . "window.addEventListener('beforeunload',function(){deep();send();});"
+            . "try{window.addEventListener('scroll',deep,{passive:true});}catch(e){window.addEventListener('scroll',deep);}"
+            . "deep();var steps=[5,15,30,60],i=0;(function next(){var prev=i>0?steps[i-1]:0;"
+            . "var wait=i<steps.length?(steps[i]-prev):60;setTimeout(function(){i++;deep();send();next();},wait*1000);})();"
+            . "})();</script>";
     }
 
     /** Seconds since this session's visit began — null when unknown (sessions

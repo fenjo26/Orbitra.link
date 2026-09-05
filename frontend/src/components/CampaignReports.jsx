@@ -564,6 +564,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             case 'prelander_clicks':
             case 'offer_clicks':
             case 'lp_views':
+            case 'lp_measured':
             case 'lp_clicks':
             case 'real_lp_clicks':
             case 'real_offer_clicks':
@@ -584,6 +585,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             case 'deposits':
             case 'rejected':
             case 'trash':
+            case 'lp_measured':
                 return num.toLocaleString();
 
             case 'conversions':
@@ -613,6 +615,12 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
             case 'real_lp_ctr':
             case 'pwa_install_rate':
                 return val === null || val === undefined ? '—' : `${num.toFixed(2)}%`;
+
+            // The landing timer only reports for pages that ran it, so these
+            // are null (dash) rather than a fabricated 0 when nothing measured.
+            case 'lp_bounce_rate':
+            case 'lp_scroll_depth':
+                return val === null || val === undefined ? '—' : `${num.toFixed(1)}%`;
 
             case 'roi':
             case 'roi_all':

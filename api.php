@@ -3126,6 +3126,10 @@ try {
                        SUM(CASE WHEN cl.referer IS NULL OR cl.referer = '' THEN 1 ELSE 0 END) as empty_referrers,
                        AVG(CASE WHEN cl.landing_at IS NOT NULL AND cl.offer_at IS NOT NULL
                            THEN CAST(strftime('%s', cl.offer_at) - strftime('%s', cl.landing_at) AS REAL) END) as avg_lp_seconds,
+                       AVG(cl.lp_seconds) as avg_lp_dwell,
+                       AVG(cl.lp_scroll) as avg_lp_scroll,
+                       SUM(CASE WHEN cl.lp_seconds IS NOT NULL THEN 1 ELSE 0 END) as lp_dwell_samples,
+                       SUM(CASE WHEN cl.lp_seconds IS NOT NULL AND cl.lp_seconds < 5 THEN 1 ELSE 0 END) as lp_bounces,
                        SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 THEN 1 ELSE 0 END) as prelander_clicks,
                        SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END) as offer_clicks,
                        SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 AND cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END) as lp_clicks,
@@ -8449,6 +8453,11 @@ try {
                         cl.accept_language_raw,
                         cl.device_type,
                         cl.user_agent,
+                        -- Time on the landing (the /pixel.gif?action=lp beacon):
+                        -- present whether or not the visitor went on to the offer,
+                        -- which is what makes a bounce visible in the log at all.
+                        cl.lp_seconds,
+                        cl.lp_scroll,
                         o.url as redirect_url,
                         CASE WHEN json_valid(cl.parameters_json)
                              THEN COALESCE(json_extract(cl.parameters_json, '$.sub_id_1'), '')
@@ -12522,6 +12531,19 @@ try {
                     WHEN CAST(strftime('%s', clicks.offer_at) - strftime('%s', clicks.landing_at) AS INTEGER) < 30 THEN '10-30s'
                     WHEN CAST(strftime('%s', clicks.offer_at) - strftime('%s', clicks.landing_at) AS INTEGER) < 60 THEN '30-60s'
                     ELSE '60s+' END",
+                // Time actually spent on the landing, for EVERY visitor —
+                // written by the /pixel.gif?action=lp beacon, so a visit that
+                // never reached the offer lands in a bucket too (that is the
+                // whole difference from lp_time above). NULL → Unknown: the
+                // page never ran the timer (redirect landing on someone else's
+                // domain, a bot that runs no JS, pre-feature rows).
+                'lp_dwell'       => "CASE WHEN clicks.lp_seconds IS NULL THEN NULL
+                    WHEN clicks.lp_seconds < 5 THEN '0-5s'
+                    WHEN clicks.lp_seconds < 15 THEN '5-15s'
+                    WHEN clicks.lp_seconds < 30 THEN '15-30s'
+                    WHEN clicks.lp_seconds < 60 THEN '30-60s'
+                    WHEN clicks.lp_seconds < 180 THEN '1-3m'
+                    ELSE '3m+' END",
                 'ad_id'          => "json_extract(clicks.parameters_json, '\$.ad_id')",
                 'adset_id'       => "json_extract(clicks.parameters_json, '\$.adset_id')",
                 // Dedicated external campaign key first; the standard Facebook
@@ -12653,6 +12675,10 @@ try {
                     SUM(CASE WHEN referer IS NULL OR referer = '' THEN 1 ELSE 0 END) as empty_referrers,
                     AVG(CASE WHEN landing_at IS NOT NULL AND offer_at IS NOT NULL
                         THEN CAST(strftime('%s', offer_at) - strftime('%s', landing_at) AS REAL) END) as avg_lp_seconds,
+                    AVG(lp_seconds) as avg_lp_dwell,
+                    AVG(lp_scroll) as avg_lp_scroll,
+                    SUM(CASE WHEN lp_seconds IS NOT NULL THEN 1 ELSE 0 END) as lp_dwell_samples,
+                    SUM(CASE WHEN lp_seconds IS NOT NULL AND lp_seconds < 5 THEN 1 ELSE 0 END) as lp_bounces,
                     SUM(CASE WHEN landing_id IS NOT NULL AND landing_id > 0 THEN 1 ELSE 0 END) as prelander_clicks,
                     SUM(CASE WHEN offer_id IS NOT NULL AND offer_id > 0 THEN 1 ELSE 0 END) as offer_clicks,
                     SUM(CASE WHEN landing_id IS NOT NULL AND landing_id > 0 AND offer_id IS NOT NULL AND offer_id > 0 THEN 1 ELSE 0 END) as lp_clicks,
@@ -12691,6 +12717,8 @@ try {
                            clicks.uniq_global,
                            clicks.landing_at,
                            clicks.offer_at,
+                           clicks.lp_seconds,
+                           clicks.lp_scroll,
                            clicks.landing_id,
                            clicks.offer_id,
                            clicks.pwa_intent_at,

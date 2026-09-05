@@ -188,7 +188,79 @@
         window.KClient._cbs = [];
     }
 
-    function boot() { try { request(); } catch (e) { /* never break the host page */ } }
+
+    // === Time on the landing, for every visitor ===
+    // The offer-link _lt only measures visitors who clicked through, so a page
+    // that bores everyone away reports nothing — precisely the page you need to
+    // find. This heartbeats to /pixel.gif?action=lp while the page is open and
+    // flushes once more as it goes away, so a bounce leaves a number too.
+    // Only VISIBLE time accumulates: a tab parked in the background all morning
+    // is not engagement. The endpoint stores MAX(), so duplicate and
+    // out-of-order beacons are harmless.
+    var dwell = { ms: 0, mark: state.loadTs, off: document.hidden === true, depth: 0, sent: -1, sentDepth: -1 };
+
+    function dwellAcc() {
+        var now = Date.now();
+        if (!dwell.off) { dwell.ms += now - dwell.mark; }
+        dwell.mark = now;
+    }
+
+    function dwellDeep() {
+        try {
+            var d = document.documentElement, b = document.body || {};
+            var h = Math.max(d.scrollHeight || 0, b.scrollHeight || 0, d.offsetHeight || 0);
+            var v = window.innerHeight || d.clientHeight || 0;
+            var y = window.pageYOffset || d.scrollTop || 0;
+            var p = h > v ? Math.round(((y + v) / h) * 100) : 100;
+            if (p > dwell.depth) { dwell.depth = p < 0 ? 0 : (p > 100 ? 100 : p); }
+        } catch (e) { /* exotic document */ }
+    }
+
+    function dwellSend() {
+        var subid = state.subid || readCookie('orbitra_subid');
+        if (!subid) { return; }   // nothing to attribute the time to yet
+        dwellAcc();
+        var t = Math.round(dwell.ms / 1000);
+        // Only a CHANGED reading is worth a request: pagehide, beforeunload and
+        // visibilitychange all fire on the same exit, and three identical
+        // beacons tell the tracker nothing it does not already have.
+        if (t <= dwell.sent && dwell.depth <= dwell.sentDepth) { return; }
+        if (t < dwell.sent) { t = dwell.sent; }
+        dwell.sent = t;
+        dwell.sentDepth = dwell.depth;
+        var url = base + '/pixel.gif?action=lp&subid=' + encodeURIComponent(subid)
+            + '&t=' + t + '&s=' + dwell.depth + '&_=' + Date.now();
+        // sendBeacon, not Image(): the last flush races the navigation to the
+        // offer, and a request that has not left the browser dies with the page.
+        try { if (navigator.sendBeacon && navigator.sendBeacon(url)) { return; } } catch (e) {}
+        try { if (window.fetch) { fetch(url, { keepalive: true, mode: 'no-cors' }).catch(function () {}); return; } } catch (e) {}
+        var img = new Image();
+        img.src = url;
+    }
+
+    function initDwell() {
+        document.addEventListener('visibilitychange', function () {
+            dwellAcc();
+            dwell.off = document.hidden === true;
+            dwell.mark = Date.now();
+            if (dwell.off) { dwellDeep(); dwellSend(); }
+        });
+        window.addEventListener('pagehide', function () { dwellDeep(); dwellSend(); });
+        window.addEventListener('beforeunload', function () { dwellDeep(); dwellSend(); });
+        try { window.addEventListener('scroll', dwellDeep, { passive: true }); }
+        catch (e) { window.addEventListener('scroll', dwellDeep); }
+        dwellDeep();
+        // 5s / 15s / 30s / 1m, then every minute: a visitor who kills the
+        // browser still leaves the last checkpoint behind.
+        var steps = [5, 15, 30, 60], step = 0;
+        (function next() {
+            var prev = step > 0 ? steps[step - 1] : 0;
+            var wait = step < steps.length ? (steps[step] - prev) : 60;
+            setTimeout(function () { step++; dwellDeep(); dwellSend(); next(); }, wait * 1000);
+        })();
+    }
+
+    function boot() { try { initDwell(); } catch (e) {} try { request(); } catch (e) { /* never break the host page */ } }
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', boot);
     } else {
