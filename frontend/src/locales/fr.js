@@ -2885,7 +2885,7 @@ export default {
         "logSafeClicks": "Enregistrer les clics Safe Page",
         "logSafeClicksHint": "Les clics Safe Page sont écrits dans le log des clics avec is_safe_page=1. Décocher pour les supprimer complètement de la base de données.",
         "excludeSafeFromReports": "Exclure les clics Safe Page des rapports",
-        "excludeSafeFromReportsHint": "Les clics Safe Page sont toujours enregistrés et visibles dans le log des clics, mais ne sont pas comptés dans les métriques de campagne, le coût ou le CPC."
+        "excludeSafeFromReportsHint": "Les hits Safe Page restent visibles dans le log des clics, mais sortent des Visiteurs et de tout ce qui en découle : uniques, bots, référents vides, coût et CPV. Ils n'ont jamais fait partie des Clics (un hit safe n'atteint pas l'offre), donc Clics, CPC et CR restent identiques dans les deux cas."
     },
     "postbackQueue": {
         "title": "File d'attente des postbacks",

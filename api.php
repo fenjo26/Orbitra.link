@@ -2365,50 +2365,12 @@ function queueSslInstallation($pdo, $domainId = null) {
     return $queued;
 }
 
-/**
- * Per-row SQL deciding whether a click counts towards reports, resolved from
- * each campaign's own "Exclude Safe Page clicks from reports" setting.
- *
- * This replaces orbitraSafePageExclusionNeeded(), which answered a single
- * global yes/no: it counted cloak streams on active campaigns and never read
- * exclude_safe_from_reports at all, so it returned true whenever cloaking
- * existed anywhere in the account. One campaign with the box ticked filtered
- * every other campaign's numbers, and unticking it changed nothing anywhere.
- *
- * A click counts when it is money-side, OR when its campaign is not in the
- * excluding set. The set is a subquery rather than an id list built in PHP: no
- * stale snapshot, and no new bind parameters - getDashboardFilters has been
- * broken before by a placeholder arriving in a branch that did not own the
- * parameter list. It is uncorrelated, so SQLite materialises it once per query.
- *
- * Resolution rules:
- *   - a cloak stream with the flag explicitly false -> include every hit
- *   - the key absent -> exclude, because the checkbox renders ticked by default
- *   - several cloak streams disagreeing -> exclude wins
- *   - no cloak stream -> include, since Direct / Landing+Offer / Action streams
- *     have no safe page and therefore nothing to exclude
- *
- * COALESCE on is_safe_page, not "= 0": a NULL (pre-v38 rows on a half-migrated
- * DB, or any writer that leaves the column unset) is money-side traffic, and in
- * SQLite "is_safe_page = 0" drops NULL rows silently.
- *
- * @param string $prefix Table alias including the dot, e.g. 'cl.' or 'clicks.'
- */
-function orbitraSafePagePredicate(string $prefix = ''): string
-{
-    return "(COALESCE({$prefix}is_safe_page, 0) = 0 OR COALESCE({$prefix}campaign_id, -1) NOT IN (
-                SELECT s.campaign_id FROM streams s
-                WHERE s.schema_type = 'cloak'
-                  AND s.campaign_id IS NOT NULL
-                  AND s.schema_custom_json IS NOT NULL
-                  AND s.schema_custom_json != '' AND s.schema_custom_json != '{}'
-                  AND COALESCE(
-                        CASE WHEN json_valid(s.schema_custom_json)
-                             THEN json_extract(s.schema_custom_json, '\$.exclude_safe_from_reports')
-                             ELSE NULL END,
-                        1) NOT IN (0, 'false', '0')
-            ))";
-}
+// orbitraSafePagePredicate() - the per-row "does this click count towards
+// reports" test, resolved from each campaign's own "Exclude Safe Page clicks
+// from reports" setting - now lives in core/ReportMetrics.php, required at the
+// top of this file. It moved there so the surfaces outside api.php (the
+// extension's overlay stats, the cost-import cron) resolve it from the same one
+// implementation instead of carrying a hand-copied mirror of it.
 
 /**
  * Turn a WHERE clause produced by getDashboardFilters() into a JOIN condition.

@@ -86,9 +86,31 @@ final class ExtensionStats
         ];
     }
 
+    /**
+     * The per-campaign "Exclude Safe Page clicks from reports" filter, as an
+     * " AND (...)" fragment to append to a WHERE clause.
+     *
+     * The overlay counted every click row. A white-page hit therefore showed up
+     * here as a click, as spend, and - because safe_mode='landing' stamps the
+     * safe landing's id on the row - as an LP View, whatever the campaign's
+     * checkbox said. The panel has resolved this per campaign since v1.5.0
+     * (orbitraSafePagePredicate); the extension was the surface left out, so
+     * the same visitor could be counted in the overlay and absent from the
+     * report the operator opened next.
+     *
+     * Every query in this class takes it, not just the LP ones: CPC, EPC, CR
+     * and ROI all divide by clicks, so filtering the funnel columns alone would
+     * have traded one wrong number for an inconsistent set of them.
+     */
+    private static function safeFilter(string $prefix = 'clicks.'): string
+    {
+        return ' AND ' . orbitraSafePagePredicate($prefix);
+    }
+
     /** @return array|null null when the entity never received a click */
     private static function entityTotals(PDO $pdo, string $convAgg, string $param, string $id, string $from, string $to): ?array
     {
+        $safe = self::safeFilter();
         $stmt = $pdo->prepare("
             SELECT COUNT(clicks.id) AS clicks,
                    COALESCE(SUM(clicks.uniq_campaign), 0) AS unique_clicks,
@@ -103,7 +125,7 @@ final class ExtensionStats
             FROM clicks
             LEFT JOIN $convAgg cv ON cv.click_id = clicks.id
             WHERE json_extract(clicks.parameters_json, '\$.{$param}') = :id
-              AND clicks.created_at >= :from AND clicks.created_at <= :to
+              AND clicks.created_at >= :from AND clicks.created_at <= :to $safe
         ");
         $stmt->execute([':id' => $id, ':from' => $from, ':to' => $to]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -115,6 +137,7 @@ final class ExtensionStats
 
     private static function dailyHistory(PDO $pdo, string $convAgg, string $param, string $id, string $from, string $to): array
     {
+        $safe = self::safeFilter();
         $stmt = $pdo->prepare("
             SELECT date(clicks.created_at) AS date,
                    COUNT(clicks.id) AS clicks,
@@ -125,7 +148,7 @@ final class ExtensionStats
             FROM clicks
             LEFT JOIN $convAgg cv ON cv.click_id = clicks.id
             WHERE json_extract(clicks.parameters_json, '\$.{$param}') = :id
-              AND clicks.created_at >= :from AND clicks.created_at <= :to
+              AND clicks.created_at >= :from AND clicks.created_at <= :to $safe
             GROUP BY date(clicks.created_at)
             ORDER BY date DESC
         ");
@@ -144,6 +167,7 @@ final class ExtensionStats
 
     private static function landingBreakdown(PDO $pdo, string $convAgg, string $param, string $id, string $from, string $to): array
     {
+        $safe = self::safeFilter();
         try {
             $stmt = $pdo->prepare("
                 SELECT l.id, l.name,
@@ -156,7 +180,7 @@ final class ExtensionStats
                 LEFT JOIN $convAgg cv ON cv.click_id = clicks.id
                 WHERE json_extract(clicks.parameters_json, '\$.{$param}') = :id
                   AND clicks.landing_id > 0
-                  AND clicks.created_at >= :from AND clicks.created_at <= :to
+                  AND clicks.created_at >= :from AND clicks.created_at <= :to $safe
                 GROUP BY clicks.landing_id
                 ORDER BY clicks DESC
             ");
@@ -175,6 +199,7 @@ final class ExtensionStats
 
     private static function offerBreakdown(PDO $pdo, string $convAgg, string $param, string $id, string $from, string $to): array
     {
+        $safe = self::safeFilter();
         try {
             $stmt = $pdo->prepare("
                 SELECT o.id, o.name,
@@ -187,7 +212,7 @@ final class ExtensionStats
                 LEFT JOIN $convAgg cv ON cv.click_id = clicks.id
                 WHERE json_extract(clicks.parameters_json, '\$.{$param}') = :id
                   AND clicks.offer_id > 0
-                  AND clicks.created_at >= :from AND clicks.created_at <= :to
+                  AND clicks.created_at >= :from AND clicks.created_at <= :to $safe
                 GROUP BY clicks.offer_id
                 ORDER BY clicks DESC
             ");
@@ -212,6 +237,7 @@ final class ExtensionStats
      */
     private static function pixelAccuracy(PDO $pdo, string $param, string $id, string $from, string $to): array
     {
+        $safe = self::safeFilter();
         try {
             $stmt = $pdo->prepare("
                 SELECT COUNT(DISTINCT spl.id)
@@ -222,7 +248,7 @@ final class ExtensionStats
                   AND cv.click_id IN (
                       SELECT clicks.id FROM clicks
                       WHERE json_extract(clicks.parameters_json, '\$.{$param}') = :id
-                        AND clicks.created_at >= :from AND clicks.created_at <= :to
+                        AND clicks.created_at >= :from AND clicks.created_at <= :to $safe
                   )
             ");
             $stmt->execute([':id' => $id, ':from' => $from, ':to' => $to]);
@@ -233,7 +259,7 @@ final class ExtensionStats
                 FROM clicks
                 LEFT JOIN " . orbitraConversionAggregateSql(null) . " cv ON cv.click_id = clicks.id
                 WHERE json_extract(clicks.parameters_json, '\$.{$param}') = :id
-                  AND clicks.created_at >= :from AND clicks.created_at <= :to
+                  AND clicks.created_at >= :from AND clicks.created_at <= :to $safe
             ");
             $stmtLeads->execute([':id' => $id, ':from' => $from, ':to' => $to]);
             $tracker = (int) $stmtLeads->fetchColumn();

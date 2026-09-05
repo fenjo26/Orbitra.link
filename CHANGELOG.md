@@ -7,6 +7,41 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.5.3] — 2026-09-05
+
+### Fixed — safe-page exclusion, the surfaces that were left out
+
+- **The browser extension counted white-page hits; the panel did not.** The
+  per-campaign safe-page exclusion added in v1.5.0 reached the six panel
+  surfaces and stopped there. `core/ExtensionStats.php` (the Ads Manager
+  overlay's deep stats) and `core/ExtensionAdsStats.php` (its per-ad live
+  aggregate) filtered nothing at all, so a visitor who was shown the Safe Page
+  was billed to the ad as a click and as spend — and, because a `safe_mode`
+  of `landing` stamps the safe landing's id on the click row, as an **LP View**
+  as well, whatever the campaign's "Exclude Safe Page clicks from reports"
+  checkbox said. The operator therefore read one set of numbers in the overlay
+  and a different set in the report opened next to it. All six click queries in
+  `ExtensionStats` (`entityTotals`, `dailyHistory`, `landingBreakdown`,
+  `offerBreakdown` and both halves of `pixelAccuracy`) and the
+  `relevant_clicks` CTE in `ExtensionAdsStats` now carry
+  `orbitraSafePagePredicate()`. Every query, not only the LP ones: CPC, EPC, CR
+  and ROI all divide by clicks, so filtering the funnel columns alone would
+  have traded one wrong number for an inconsistent set of them.
+- **One implementation of the predicate instead of three.**
+  `orbitraSafePagePredicate()` moved from `api.php` to `core/ReportMetrics.php`
+  (under the same `function_exists` guard the rest of that file uses), which
+  `api.php`, both extension stats files and now `core/CostImporter.php` all
+  require. The cost importer's `safePagePredicate()` was a hand-copied mirror
+  kept in step by hand because the cron never loads `api.php`; it delegates
+  now, so there is nothing left to drift. The extension tests grew a `streams`
+  table and an `is_safe_page` column and assert both branches — the default
+  (key absent → excluded) and the checkbox explicitly unticked (→ counted).
+
+### Fixed — the report checkbox says what it actually moves
+
+- **The hint under "Exclude Safe Page clicks from reports" was wrong, and the column it moves was hidden by default.** Since the v1.5.1 funnel rework a safe-page hit is a visit, not a click: the checkbox drains it from Visitors and everything derived from that column — unique visitors, bots, empty referrers, cost and CPV — while Clicks, CPC and CR never contained safe hits at all, because a safe hit never reaches an offer. The hint text in all seven languages states exactly that now, and `visitors` joined the default report preset (right after Margin) so the column the checkbox moves is on screen without a custom setup.
+- **The cloak report test asserts numbers, not life.** `tests/cloak_report_http_test.php` settled for `assertGreaterThan(0, clicks)` — the loose check that let the v1.5.1 funnel-semantics change slip through. It now verifies exact `visitors` and `unique_clicks` figures for both checkbox states.
+
 ## [1.5.2] — 2026-09-05
 
 ### Added
@@ -230,6 +265,24 @@ for the full guides. Findings from the v1.4.1 acceptance pass on the test
 server (PWA phases 1–4) and the delivery-hardening campaign that followed.
 
 ### Fixed
+
+- **Safe-page exclusion is resolved per campaign** *(documented after the fact —
+  this shipped in 1.5.0 with no changelog entry, so a tester reporting "white-page
+  views are counted as LP Views" could not tell it had been fixed).*
+  `orbitraSafePageExclusionNeeded()` answered one global yes/no: it counted cloak
+  streams on **active** campaigns and never read `exclude_safe_from_reports` at
+  all. So one campaign with the box ticked filtered every other campaign's
+  numbers, unticking it changed nothing anywhere, and a paused or archived cloak
+  campaign got no exclusion at all — which is how Safe Page impressions ended up
+  in Clicks and in LP Views. It is replaced by `orbitraSafePagePredicate()`, a
+  per-row SQL predicate resolved from each campaign's own setting (flag false →
+  count; key absent → exclude, since the checkbox renders ticked; disagreeing
+  streams → exclusion wins; no cloak stream → count), applied at all six report
+  surfaces including trends, whose inlined copy also carried a bare
+  `cl.is_safe_page = 0` that silently dropped every NULL row. The four
+  `str_replace('WHERE ', 'AND ')` call sites became `orbitraWhereToJoinCondition()`
+  in the same pass: the bare replace rewrote *every* `WHERE` in the string and the
+  new predicate's own subquery 500'd the campaigns, landings and offers lists.
 
 - **`{subid}` reached the affiliate network as a literal string on the landing→offer
   hop** — the `/?_lp=1` transition ran the destination URL through

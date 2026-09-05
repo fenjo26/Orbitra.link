@@ -2885,7 +2885,7 @@ export default {
         "logSafeClicks": "Safe Page-Klicks protokollieren",
         "logSafeClicksHint": "Safe Page-Klicks werden mit is_safe_page=1 in das Klick-Protokoll geschrieben. Deaktivieren, um sie vollständig aus der Datenbank zu verwerfen.",
         "excludeSafeFromReports": "Safe Page-Klicks von Berichten ausschließen",
-        "excludeSafeFromReportsHint": "Safe Page-Klicks werden weiterhin protokolliert und sind im Klick-Protokoll sichtbar, werden aber nicht in Kampagnenmetriken, Kosten oder CPC eingerechnet."
+        "excludeSafeFromReportsHint": "Safe Page-Hits bleiben im Klick-Protokoll sichtbar, fallen aber aus Besuchern und allen daraus abgeleiteten Werten heraus — Unique, Bots, leere Referrer, Kosten und CPV. Teil der Klicks waren sie nie (ein Safe-Hit erreicht kein Angebot), daher bleiben Klicks, CPC und CR so oder so gleich."
     },
     "postbackQueue": {
         "title": "Postback-Warteschlange",

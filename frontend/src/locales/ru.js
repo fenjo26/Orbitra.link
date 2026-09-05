@@ -2885,7 +2885,7 @@ export default {
         "logSafeClicks": "Записывать клики на Safe Page",
         "logSafeClicksHint": "Клики на Safe Page записываются в лог кликов с is_safe_page=1. Снимите флажок, чтобы не сохранять их в базе данных.",
         "excludeSafeFromReports": "Исключить клики Safe Page из отчетов",
-        "excludeSafeFromReportsHint": "Клики на Safe Page все равно видны в логе кликов, но не учитываются в метриках кампании, расходах и CPC."
+        "excludeSafeFromReportsHint": "Клики на Safe Page остаются видны в логе кликов, но исключаются из Визитов и всего производного — уникальных, ботов, пустых рефереров, расходов и CPV. В Клики они не попадали никогда (safe-хит не доходит до оффера), поэтому Клики, CPC и CR не меняются."
     },
     "postbackQueue": {
         "title": "Очередь постбеков",

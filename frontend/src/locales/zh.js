@@ -2885,7 +2885,7 @@ export default {
         "logSafeClicks": "记录 Safe Page 点击",
         "logSafeClicksHint": "Safe Page 点击会以 is_safe_page=1 写入点击日志。取消勾选可完全将其从数据库中丢弃。",
         "excludeSafeFromReports": "从报表中排除 Safe Page 点击",
-        "excludeSafeFromReportsHint": "Safe Page 点击仍会记录并在点击日志中可见，但不会计入广告系列指标、成本或 CPC。"
+        "excludeSafeFromReportsHint": "Safe Page 命中仍在点击日志中可见，但会从访客及其派生指标中排除——独立访客、机器人、空来源、成本和 CPV。它们从未计入点击（safe 命中不会到达广告），因此点击、CPC 和 CR 两种情况下都相同。"
     },
     "postbackQueue": {
         "title": "Postback 队列",

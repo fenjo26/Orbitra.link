@@ -32,7 +32,13 @@ $pdo = new PDO('sqlite::memory:', null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE
 
 $pdo->exec("CREATE TABLE clicks (
     id TEXT PRIMARY KEY, campaign_id INTEGER, landing_id INTEGER, offer_id INTEGER,
-    cost REAL DEFAULT 0, uniq_campaign INTEGER DEFAULT 1, parameters_json TEXT, created_at DATETIME
+    cost REAL DEFAULT 0, uniq_campaign INTEGER DEFAULT 1, is_safe_page INTEGER DEFAULT 0,
+    parameters_json TEXT, created_at DATETIME
+)");
+// streams is what orbitraSafePagePredicate() resolves the per-campaign
+// "Exclude Safe Page clicks from reports" setting from.
+$pdo->exec("CREATE TABLE streams (
+    id INTEGER PRIMARY KEY, campaign_id INTEGER, schema_type TEXT, schema_custom_json TEXT
 )");
 $pdo->exec("CREATE TABLE conversions (
     id INTEGER PRIMARY KEY AUTOINCREMENT, click_id TEXT, status TEXT, payout REAL
@@ -60,6 +66,23 @@ $ins->execute(['c4', 5, 4, 12, 15.0, 1, '{"adset_id":"1201","ad_id":"9281"}', '2
 $ins->execute(['c5', 5, null, null, 25.0, 1, '{"adset_id":"1201","ad_id":"9281"}', '2026-08-17 10:00:00']);
 $ins->execute(['x1', 5, null, null, 99.0, 1, '{"adset_id":"9999"}', '2026-08-16 10:00:00']);
 $ins->execute(['x2', 5, null, null, 500.0, 1, '{"adset_id":"1201"}', '2025-01-01 10:00:00']); // out of range
+
+// Campaign 5 cloaks and leaves the checkbox at its default (the key is absent,
+// which resolves to "exclude"). Campaign 6 cloaks with the box explicitly
+// unticked, so its white-page hits stay in the numbers.
+$pdo->exec("INSERT INTO streams (id, campaign_id, schema_type, schema_custom_json) VALUES
+    (1, 5, 'cloak', '{\"safe_mode\":\"landing\",\"safe_landing_id\":4}'),
+    (2, 6, 'cloak', '{\"safe_mode\":\"landing\",\"exclude_safe_from_reports\":false}')");
+
+// The regression this fixture exists for: a white-page hit carries the safe
+// landing's id (index.php sets $landingIdToLog = $safeLandingId), so before the
+// filter reached this class it was counted as a click, as spend and as an LP
+// view in the extension overlay while the panel showed none of it. s1 must
+// change none of the numbers asserted below.
+$insSafe = $pdo->prepare("INSERT INTO clicks (id, campaign_id, landing_id, offer_id, cost, uniq_campaign, is_safe_page, parameters_json, created_at) VALUES (?,?,?,?,?,?,1,?,?)");
+$insSafe->execute(['s1', 5, 4, 12, 40.0, 1, '{"adset_id":"1201","ad_id":"9281"}', '2026-08-17 11:00:00']);
+// Campaign 6, checkbox unticked: this one counts.
+$insSafe->execute(['s2', 6, 4, 12, 7.0, 1, '{"adset_id":"7777"}', '2026-08-17 11:30:00']);
 
 $pdo->exec("INSERT INTO landings (id, name) VALUES (4, 'White COD')");
 $pdo->exec("INSERT INTO offers (id, name) VALUES (12, 'Nutra Hair Oil')");
@@ -129,6 +152,21 @@ check('9999 clicks', 1, $e2['clicks']);
 check('9999 profit', -99.0, round($e2['profit'], 2));
 check('9999 roi', -100.0, round($e2['roi'], 4));
 check('9999 out-of-range click excluded', 1, (int) array_sum(array_map(static fn($d) => $d['clicks'], $e2['daily_history'])));
+
+// --- safe-page exclusion --------------------------------------------------
+// Every assertion above already runs against a fixture holding s1; these name
+// the three the white-page hit would have moved, so a regression says what
+// broke instead of just which number changed.
+check('safe-page hit not counted as a click', 5, $e['clicks']);
+check('safe-page hit not counted as spend', 100.0, round($e['spend'], 2));
+check('safe-page hit not counted as an LP view', 2, (int) $e['landings'][0]['clicks']);
+
+// Unticking the checkbox has to work in the same place: campaign 6 keeps its
+// white-page hits, so 7777 exists at all and reports the one click it got.
+$kept = ExtensionStats::deepStats($pdo, 'payout', '2026-08-16', '2026-08-17', [
+    ['type' => 'adset', 'id' => '7777'],
+]);
+check('exclude_safe_from_reports=false keeps the hit', 1, (int) ($kept['entities']['7777']['clicks'] ?? 0));
 
 echo "\nextension_stats_test: " . ($failed === 0 ? "ALL OK ($passed)" : "FAILED ($failed failed)") . "\n";
 exit($failed === 0 ? 0 : 1);

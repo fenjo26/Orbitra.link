@@ -23,10 +23,19 @@ $pdo = new PDO('sqlite::memory:', null, null, [
 ]);
 $pdo->exec("CREATE TABLE clicks (
     id TEXT PRIMARY KEY,
+    campaign_id INTEGER,
+    is_safe_page INTEGER DEFAULT 0,
     cost REAL DEFAULT 0,
     parameters_json TEXT,
     created_at DATETIME
 )");
+// streams carries the per-campaign "Exclude Safe Page clicks from reports"
+// setting orbitraSafePagePredicate() reads.
+$pdo->exec("CREATE TABLE streams (
+    id INTEGER PRIMARY KEY, campaign_id INTEGER, schema_type TEXT, schema_custom_json TEXT
+)");
+$pdo->exec("INSERT INTO streams (id, campaign_id, schema_type, schema_custom_json)
+    VALUES (1, 500, 'cloak', '{\"safe_mode\":\"html\"}')");
 $pdo->exec("CREATE TABLE conversions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     click_id TEXT NOT NULL,
@@ -40,6 +49,11 @@ $insertClick->execute(['c1', 10, json_encode(['campaign_id' => '100', 'adset_id'
 $insertClick->execute(['c2', 20, json_encode(['campaign_id' => '100', 'adset_id' => '200', 'ad_id' => '301']), "$today 10:00:00"]);
 $insertClick->execute(['c3', 5, json_encode(['campaign_id' => '101', 'adset_id' => '201', 'ad_id' => '302']), "$today 11:00:00"]);
 $insertClick->execute(['old', 99, json_encode(['campaign_id' => '100', 'adset_id' => '200', 'ad_id' => '300']), '2020-01-01 10:00:00']);
+// A white-page hit on the same ad, today, on a cloaking tracker campaign whose
+// checkbox is at its default. The overlay used to bill it to the ad as a click
+// with spend; it must not appear in any of the numbers below.
+$insertSafe = $pdo->prepare('INSERT INTO clicks (id, campaign_id, is_safe_page, cost, parameters_json, created_at) VALUES (?, ?, 1, ?, ?, ?)');
+$insertSafe->execute(['s1', 500, 77, json_encode(['campaign_id' => '100', 'adset_id' => '200', 'ad_id' => '300']), "$today 12:00:00"]);
 
 $insertConversion = $pdo->prepare('INSERT INTO conversions (click_id, status, payout) VALUES (?, ?, ?)');
 $insertConversion->execute(['c1', 'lead', 20]);
@@ -63,6 +77,7 @@ extensionCheck('derives profit and ROI', ($campaign['profit'] ?? 0) === 120.0 &&
 $adKeys = array_map('strval', array_keys($stats['ads']));
 sort($adKeys);
 extensionCheck('returns requested ads only', $adKeys === ['300', '301']);
+extensionCheck('excludes safe-page hits from clicks and cost', ($campaign['clicks'] ?? 0) === 2 && ($campaign['cost'] ?? 0) === 30.0, json_encode($campaign));
 extensionCheck('normalizes only decimal IDs', orbitraExtensionAdsNormalizeIds('1, 2,abc,2,3.5') === ['1', '2']);
 extensionCheck('validates dates', orbitraExtensionAdsResolveDate('2026-02-29') === null && orbitraExtensionAdsResolveDate('2026-02-28') === '2026-02-28');
 

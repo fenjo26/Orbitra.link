@@ -10,6 +10,7 @@
 // (connection_id, external_id) and the attribution is recomputed, not accumulated.
 
 require_once __DIR__ . '/CurrencyRates.php';
+require_once __DIR__ . '/ReportMetrics.php';
 
 class CostImporter
 {
@@ -357,27 +358,19 @@ class CostImporter
 
     /**
      * Per-row SQL for "this click counts", resolved from each campaign's own
-     * exclude_safe_from_reports flag. Mirrors orbitraSafePagePredicate() in
-     * api.php, restated here because the cron never loads api.php - keep the
-     * two in step.
+     * exclude_safe_from_reports flag.
+     *
+     * This used to be a hand-copied mirror of the api.php original, kept in
+     * step by hand because the cron never loads api.php. The original now lives
+     * in core/ReportMetrics.php, which this file requires, so there is one
+     * implementation and nothing left to drift.
      *
      * @param string $prefix Table alias including the dot, or '' for a bare
      *                       "FROM clicks".
      */
     private static function safePagePredicate(string $prefix = ''): string
     {
-        return "(COALESCE({$prefix}is_safe_page, 0) = 0 OR COALESCE({$prefix}campaign_id, -1) NOT IN (
-                    SELECT s.campaign_id FROM streams s
-                    WHERE s.schema_type = 'cloak'
-                      AND s.campaign_id IS NOT NULL
-                      AND s.schema_custom_json IS NOT NULL
-                      AND s.schema_custom_json != '' AND s.schema_custom_json != '{}'
-                      AND COALESCE(
-                            CASE WHEN json_valid(s.schema_custom_json)
-                                 THEN json_extract(s.schema_custom_json, '\$.exclude_safe_from_reports')
-                                 ELSE NULL END,
-                            1) NOT IN (0, 'false', '0')
-                ))";
+        return orbitraSafePagePredicate($prefix);
     }
 
     /**

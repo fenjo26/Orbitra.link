@@ -71,10 +71,16 @@ if (!function_exists('orbitraExtensionAdsStats')) {
         }
 
         $entityExpr = $expressions[$level];
+        // The safe-page filter belongs here for the same reason it belongs in
+        // the reports: a white-page hit is not a click the buyer paid to send
+        // to an offer, and the overlay sits next to the panel numbers it has to
+        // agree with. It is a bare predicate with no placeholders of its own,
+        // so it can join $conditions without touching $params.
         $conditions = [
             "date(cl.created_at, '$dbTzOffset') = date(?)",
             "$entityExpr IS NOT NULL",
             "CAST($entityExpr AS TEXT) != ''",
+            orbitraSafePagePredicate('cl.'),
         ];
         $params = [$date];
         if ($filterIds) {

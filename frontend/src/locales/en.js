@@ -2885,7 +2885,7 @@ export default {
         "logSafeClicks": "Log Safe Page clicks",
         "logSafeClicksHint": "Safe Page hits are written to the click log with is_safe_page=1. Uncheck to drop them from the database entirely.",
         "excludeSafeFromReports": "Exclude Safe Page clicks from reports",
-        "excludeSafeFromReportsHint": "Safe Page hits are still logged and visible in the click log, but are not counted in campaign metrics, cost, or CPC."
+        "excludeSafeFromReportsHint": "Safe Page hits stay visible in the click log but drop out of Visitors and everything derived from it — unique visitors, bots, empty referrers, cost and CPV. They were never part of Clicks (a safe hit never reaches an offer), so Clicks, CPC and CR read the same either way."
     },
     "postbackQueue": {
         "title": "Postback queue",

@@ -151,12 +151,18 @@ try {
     assertTrue(($metricsEnvelope['status'] ?? '') === 'success', 'Metrics should return success status');
     $metrics = $metricsEnvelope['data'] ?? null;
     assertIsArray($metrics, 'Metrics should be an array');
-    assertHasKeys($metrics, ['clicks', 'unique_clicks', 'cost'], 'Metrics should have basic keys');
+    assertHasKeys($metrics, ['clicks', 'visitors', 'unique_clicks', 'cost'], 'Metrics should have basic keys');
 
-    // With exclude_safe_from_reports=true, safe clicks should be excluded
-    // So we should see only 1 click (the money click)
-    echo "  Clicks count: " . ($metrics['clicks'] ?? 'null') . "\n";
-    assertGreaterThan(0, $metrics['clicks'] ?? 0, 'Should have at least some clicks');
+    // With exclude_safe_from_reports=true the safe hit leaves the reports.
+    // Assert the exact numbers, not "> 0": under the offer-funnel semantics
+    // (7c7a428) a safe hit is never an offer click, so `clicks` reads 1 with
+    // the flag either way and a >0 assertion cannot see the flag at all.
+    // VISITORS is the counter this checkbox actually moves - assert that.
+    echo "  Visitors: " . ($metrics['visitors'] ?? 'null')
+        . ", clicks: " . ($metrics['clicks'] ?? 'null') . "\n";
+    assertEquals(1, (int) ($metrics['visitors'] ?? 0), 'Safe hit is excluded from visitors when the flag is on');
+    assertEquals(1, (int) ($metrics['unique_clicks'] ?? 0), 'Safe hit is excluded from unique visitors when the flag is on');
+    assertEquals(1, (int) ($metrics['clicks'] ?? 0), 'Only the money click ever reached the offer');
     echo "\n";
 
     // ===== Test 2: Offers endpoint =====
