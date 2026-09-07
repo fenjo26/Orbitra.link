@@ -38,9 +38,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   the report builder; and a per-landing funnel card on the Landings page
   (bar-chart button on PWA rows) showing views/uniques/entries/exits per
   screen and the screen→screen transition matrix (`pwa_funnel_stats`).
-  The constructor's step 1 gained the "Visit funnel" section — a reorderable
-  step list with per-screen editors and a funnel-step preview selector that
-  opens the live preview at any enabled step.
+  The constructor became **funnel-first**: a dedicated "Screens" step owns the
+  step builder (per-screen editors, funnel-step live preview), the store is
+  just one toggleable step of the flow, and the "Store" / "Reviews" wizard
+  steps — together with every listing-only section (screenshots, listing
+  content, support, store style) — exist only while the store step is enabled
+  in the funnel. The live preview defaults to the first enabled funnel step,
+  and presets now fill a starter funnel ([custom screen → store]) instead of
+  only the listing.
 
 ### Fixed — postback payouts in a foreign currency no longer mix into the base (PR #9)
 

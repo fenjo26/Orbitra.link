@@ -11,11 +11,14 @@ import axios from 'axios';
 
 const API_URL = '/api.php';
 
-// Phase-2 PWA landing wizard: three steps over the same config_json as the
-// phase-1 form, with a live device preview rendered by the PRODUCTION
-// generator (action=pwa_preview → core/PwaLanding.php::renderPreview) —
-// preview and shipped page can never drift. Presets fill design & content
-// but never the internal name. Reviews reorder via drag & drop.
+// Phase-2 PWA landing wizard. The constructor is FUNNEL-FIRST: step 2 owns
+// the configurable visit funnel (ordered screens — the store is just one
+// possible step), and everything that serves only the store listing lives in
+// a Store step that exists only while the store is in the funnel. Live device
+// preview renders the DRAFT through the PRODUCTION generator (action=
+// pwa_preview → core/PwaLanding.php::renderPreview) — preview and shipped
+// page can never drift. Presets fill design & content + a starter funnel but
+// never the internal name. Reviews reorder via drag & drop.
 
 const CATEGORIES = ['Casino', 'Gambling', 'Sport Betting', 'Entertainment', 'Games', 'Fitness', 'Dating', 'Shopping', 'Other'];
 const LANGS = ['en', 'ru', 'uk', 'es', 'de', 'fr', 'zh'];
@@ -252,7 +255,24 @@ const PRESETS = [
             ],
         },
     },
-];
+].map((p) => ({
+    ...p,
+    // Presets demo the funnel-first idea: each opens on a custom screen
+    // (filled from the preset's own app-screen copy, hero image included)
+    // with the store listing after it.
+    patch: {
+        ...p.patch,
+        funnel: [
+            {
+                id: 'scr_open', type: 'screen', enabled: true, template: 'lobby',
+                title: p.patch.app_screen_title || '', text: p.patch.app_screen_text || '',
+                button: p.patch.app_screen_button || '', image: `/assets/pwa-presets/${p.id}/app-hero.png`,
+                custom_html: '', custom_js: '',
+            },
+            { id: 'store', type: 'store', enabled: true },
+        ],
+    },
+}));
 
 const DEFAULT_CONFIG = {
     pwa: true,
@@ -476,9 +496,9 @@ export default function PwaEditor({ landingId, onClose }) {
         const timer = setTimeout(async () => {
             setPreviewLoading(true);
             try {
-                const effectiveView = previewView !== 'auto'
-                    ? previewView
-                    : ((step === 1 && config.app_action === 'screen') ? 'screen' : 'store');
+                // 'auto' = the first enabled funnel step — the constructor is
+                // funnel-first now; the store is just one possible step.
+                const effectiveView = previewView !== 'auto' ? previewView : firstFlowStepId;
                 const res = await axios.post(`${API_URL}?action=pwa_preview`, {
                     config,
                     platform: previewPlatform,
@@ -858,7 +878,33 @@ export default function PwaEditor({ landingId, onClose }) {
         return { lobby: '🏠', slot: '🎰', wheel: '🎡', custom: '💻' }[s.template] || '💻';
     };
 
-    const steps = [t('pwa.stepGeneral'), t('pwa.stepApp'), t('pwa.stepReviews')];
+    // Which wizard sections make sense right now: everything that serves ONLY
+    // the store listing is hidden while the store step is off — the funnel,
+    // not the store, is the spine of the constructor. When every step is off
+    // the renderer still shows the listing on a cold visit (no flow →
+    // data-flow-first never set), so the store sections stay for that case.
+    const storeOn = funnelSteps.some((s) => s.type === 'store' && s.enabled);
+    const instructionsOn = funnelSteps.some((s) => s.type === 'instructions' && s.enabled);
+    const funnelAllOff = !funnelSteps.some((s) => s.enabled);
+    const storeEffective = storeOn || funnelAllOff;
+    const firstFlowStepId = funnelSteps.find((s) => s.enabled)?.id || 'store';
+
+    // Wizard layout: General → Screens (the funnel spine) → Store → Reviews.
+    // The Store and Reviews steps exist only while the store listing is part
+    // of the funnel — the sections they hold are meaningless without it.
+    const steps = [
+        t('pwa.stepGeneral'),
+        t('pwa.stepFlow'),
+        ...(storeEffective ? [t('pwa.stepStore'), t('pwa.stepReviews')] : []),
+    ];
+    // Toggling the store step on or off adds/removes two wizard steps; never
+    // leave the operator parked on an index that no longer exists.
+    useEffect(() => {
+        if (step > steps.length - 1) {
+            setStep(steps.length - 1);
+            setMaxStep((m) => Math.min(m, steps.length - 1));
+        }
+    }, [steps.length, step]);
     const stepValid = (i) => (i === 0 ? canLeaveGeneral : true);
 
     const stepper = (
@@ -989,6 +1035,38 @@ export default function PwaEditor({ landingId, onClose }) {
                                                 {LANGS.map((lng) => <option key={lng} value={lng} />)}
                                             </datalist>
                                         </Field>
+                                        <Field label={t('pwa.icon')} hint={t('pwa.iconHint')}>
+                                            <div className="flex items-center gap-3">
+                                                {(config.icon_url || config.icon) ? (
+                                                    <img
+                                                        src={config.icon_url || config.icon}
+                                                        alt=""
+                                                        onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
+                                                        style={{ width: 64, height: 64, borderRadius: 14, objectFit: 'cover', border: '1px solid var(--color-border)' }}
+                                                    />
+                                                ) : (
+                                                    <div style={{ width: 64, height: 64, borderRadius: 14, border: '1px dashed var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>
+                                                        <ImagePlus className="w-5 h-5" />
+                                                    </div>
+                                                )}
+                                                <div className="flex flex-col gap-2">
+                                                    <button type="button" className="btn btn-secondary btn-sm" style={{ width: 'fit-content' }} onClick={() => setPickerMode('icon')}>
+                                                        <ImagePlus className="w-4 h-4" />
+                                                        {t('pwa.pickIcon')}
+                                                    </button>
+                                                    {(config.icon_url || config.icon) && (
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-ghost btn-sm text-xs"
+                                                            style={{ width: 'fit-content', color: 'var(--color-danger)' }}
+                                                            onClick={() => set('icon_url', '')}
+                                                        >
+                                                            {t('common.delete')}
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </Field>
                                     </div>
                                     <div className="mt-4">
                                         <Field
@@ -1054,13 +1132,15 @@ export default function PwaEditor({ landingId, onClose }) {
 
                                 <Section title={t('pwa.sectionDesign')}>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <Field label={t('pwa.storeStyle')}>
-                                            <select className="form-select" value={config.store_style || 'auto'} onChange={(e) => set('store_style', e.target.value)}>
-                                                <option value="auto">{t('pwa.storeStyleAuto')}</option>
-                                                <option value="google_play">{t('pwa.storeStyleGooglePlay')}</option>
-                                                <option value="app_store">{t('pwa.storeStyleAppStore')}</option>
-                                            </select>
-                                        </Field>
+                                        {storeEffective && (
+                                            <Field label={t('pwa.storeStyle')}>
+                                                <select className="form-select" value={config.store_style || 'auto'} onChange={(e) => set('store_style', e.target.value)}>
+                                                    <option value="auto">{t('pwa.storeStyleAuto')}</option>
+                                                    <option value="google_play">{t('pwa.storeStyleGooglePlay')}</option>
+                                                    <option value="app_store">{t('pwa.storeStyleAppStore')}</option>
+                                                </select>
+                                            </Field>
+                                        )}
                                         <Field label={t('pwa.themeMode')}>
                                             <select className="form-select" value={config.theme_mode} onChange={(e) => set('theme_mode', e.target.value)}>
                                                 <option value="light">{t('pwa.themeLight')}</option>
@@ -1086,47 +1166,19 @@ export default function PwaEditor({ landingId, onClose }) {
                                     </div>
                                 </Section>
 
-                                <Section title={t('pwa.sectionFunnel')}>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <Field label={t('pwa.iosFlow')} hint={t('pwa.iosFlowHint')}>
-                                            <select className="form-select" value={config.ios_flow} onChange={(e) => set('ios_flow', e.target.value)}>
-                                                <option value="default">{t('pwa.iosFlowDefault')}</option>
-                                                <option value="instruction">{t('pwa.iosFlowInstruction')}</option>
-                                            </select>
-                                        </Field>
-                                        <Field label={t('pwa.autoRedirect')}>
-                                            <select className="form-select" value={config.auto_redirect} onChange={(e) => set('auto_redirect', parseInt(e.target.value, 10))}>
-                                                {TIMER_OPTIONS.map((sec) => <option key={sec} value={sec}>{sec === 0 ? t('pwa.timerOff') : `${sec}s`}</option>)}
-                                            </select>
-                                        </Field>
-                                        <Field label={t('pwa.declineRedirect')}>
-                                            <select className="form-select" value={config.decline_redirect} onChange={(e) => set('decline_redirect', parseInt(e.target.value, 10))}>
-                                                {TIMER_OPTIONS.map((sec) => <option key={sec} value={sec}>{sec === 0 ? t('pwa.timerOff') : `${sec}s`}</option>)}
-                                            </select>
-                                        </Field>
-                                        <Field label={t('pwa.installRedirect')} hint={t('pwa.installRedirectHint')}>
-                                            <select className="form-select" value={config.install_redirect} onChange={(e) => set('install_redirect', parseInt(e.target.value, 10))}>
-                                                {TIMER_OPTIONS.map((sec) => <option key={sec} value={sec}>{sec === 0 ? t('pwa.timerImmediate') : `${sec}s`}</option>)}
-                                            </select>
-                                        </Field>
-                                    </div>
-                                    <div className="flex flex-wrap gap-4 mt-4">
-                                        <Toggle label={t('pwa.pushEnabled')} checked={config.push_enabled} onChange={(v) => set('push_enabled', v)} />
-                                        <span className="text-xs self-center" style={{ color: 'var(--color-text-muted)' }}>{t('pwa.pushEnabledHint')}</span>
-                                    </div>
-                                    <div className="mt-4">
-                                        <Toggle label={t('pwa.supportEnabled')} checked={config.support_enabled} onChange={(v) => set('support_enabled', v)} />
-                                    </div>
-                                    {config.support_enabled && (
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
-                                            <input className="form-input" placeholder={t('pwa.supportEmail')} value={config.support_email} onChange={(e) => set('support_email', e.target.value)} />
-                                            <input className="form-input" placeholder={t('pwa.supportAddress')} value={config.support_address} onChange={(e) => set('support_address', e.target.value)} />
-                                        </div>
-                                    )}
-                                </Section>
+                            </>
+                        )}
 
+                        {/* ============ STEP 2 — Screens & funnel ============ */}
+                        {step === 1 && (
+                            <>
                                 <Section title={t('pwa.funnelTitle')}>
                                     <span className="text-xs block mb-3" style={{ color: 'var(--color-text-muted)' }}>{t('pwa.funnelHint')}</span>
+                                    {funnelAllOff && (
+                                        <div className="p-3 rounded-xl border text-xs mb-3" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-soft)', color: 'var(--color-text-muted)' }}>
+                                            {t('pwa.funnelAllOffHint')}
+                                        </div>
+                                    )}
                                     <div className="space-y-2">
                                         {funnelSteps.map((s, idx) => {
                                             const isFirst = idx === 0;
@@ -1358,12 +1410,45 @@ export default function PwaEditor({ landingId, onClose }) {
                                         </span>
                                     </div>
                                 </Section>
-                            </>
-                        )}
 
-                        {/* ============ STEP 2 — App ============ */}
-                        {step === 1 && (
-                            <>
+                                <Section title={t('pwa.sectionFunnel')}>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <Field label={t('pwa.iosFlow')} hint={t('pwa.iosFlowHint')}>
+                                            <select className="form-select" value={config.ios_flow} onChange={(e) => set('ios_flow', e.target.value)}>
+                                                <option value="default">{t('pwa.iosFlowDefault')}</option>
+                                                <option value="instruction">{t('pwa.iosFlowInstruction')}</option>
+                                            </select>
+                                        </Field>
+                                        <Field label={t('pwa.autoRedirect')}>
+                                            <select className="form-select" value={config.auto_redirect} onChange={(e) => set('auto_redirect', parseInt(e.target.value, 10))}>
+                                                {TIMER_OPTIONS.map((sec) => <option key={sec} value={sec}>{sec === 0 ? t('pwa.timerOff') : `${sec}s`}</option>)}
+                                            </select>
+                                        </Field>
+                                        <Field label={t('pwa.declineRedirect')}>
+                                            <select className="form-select" value={config.decline_redirect} onChange={(e) => set('decline_redirect', parseInt(e.target.value, 10))}>
+                                                {TIMER_OPTIONS.map((sec) => <option key={sec} value={sec}>{sec === 0 ? t('pwa.timerOff') : `${sec}s`}</option>)}
+                                            </select>
+                                        </Field>
+                                        <Field label={t('pwa.installRedirect')} hint={t('pwa.installRedirectHint')}>
+                                            <select className="form-select" value={config.install_redirect} onChange={(e) => set('install_redirect', parseInt(e.target.value, 10))}>
+                                                {TIMER_OPTIONS.map((sec) => <option key={sec} value={sec}>{sec === 0 ? t('pwa.timerImmediate') : `${sec}s`}</option>)}
+                                            </select>
+                                        </Field>
+                                    </div>
+                                    <div className="flex flex-wrap gap-4 mt-4">
+                                        <Toggle label={t('pwa.pushEnabled')} checked={config.push_enabled} onChange={(v) => set('push_enabled', v)} />
+                                        <span className="text-xs self-center" style={{ color: 'var(--color-text-muted)' }}>{t('pwa.pushEnabledHint')}</span>
+                                    </div>
+                                </Section>
+
+                                {!storeEffective && instructionsOn && (
+                                    <Section title={t('pwa.buttonText')}>
+                                        <Field label={t('pwa.buttonText')} hint={t('pwa.buttonTextFlowHint')}>
+                                            <input className="form-input" value={config.button_text} onChange={(e) => set('button_text', e.target.value)} />
+                                        </Field>
+                                    </Section>
+                                )}
+
                                 <Section title={t('pwa.actionTarget')}>
                                     <span className="text-xs block mb-3" style={{ color: 'var(--color-text-muted)' }}>{t('pwa.actionTargetHint')}</span>
                                     <div className="space-y-4">
@@ -1561,40 +1646,48 @@ export default function PwaEditor({ landingId, onClose }) {
                                     )}
                                 </Section>
 
-                                <Section title={t('pwa.sectionMedia')}>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <Field label={t('pwa.icon')} hint={t('pwa.iconHint')}>
-                                            <div className="flex items-center gap-3">
-                                                {(config.icon_url || config.icon) ? (
-                                                    <img
-                                                        src={config.icon_url || config.icon}
-                                                        alt=""
-                                                        onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
-                                                        style={{ width: 64, height: 64, borderRadius: 14, objectFit: 'cover', border: '1px solid var(--color-border)' }}
-                                                    />
-                                                ) : (
-                                                    <div style={{ width: 64, height: 64, borderRadius: 14, border: '1px dashed var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>
-                                                        <ImagePlus className="w-5 h-5" />
-                                                    </div>
-                                                )}
-                                                <div className="flex flex-col gap-2">
-                                                    <button type="button" className="btn btn-secondary btn-sm" style={{ width: 'fit-content' }} onClick={() => setPickerMode('icon')}>
-                                                        <ImagePlus className="w-4 h-4" />
-                                                        {t('pwa.pickIcon')}
-                                                    </button>
-                                                    {(config.icon_url || config.icon) && (
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-ghost btn-sm text-xs"
-                                                            style={{ width: 'fit-content', color: 'var(--color-danger)' }}
-                                                            onClick={() => set('icon_url', '')}
-                                                        >
-                                                            {t('common.delete')}
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            </div>
+                                <Section title={t('pwa.sectionCustomScripts')}>
+                                    <div className="space-y-4">
+                                        <Field label={t('pwa.customCssLabel')} hint={t('pwa.customCssHint')}>
+                                            <textarea
+                                                className="form-input font-mono text-xs"
+                                                rows={4}
+                                                placeholder={t('pwa.customCssPlaceholder')}
+                                                value={config.custom_css || ''}
+                                                onChange={(e) => set('custom_css', e.target.value)}
+                                                style={{ whiteSpace: 'pre', tabSize: 2 }}
+                                            />
                                         </Field>
+                                        <Field label={t('pwa.customHeadLabel')}>
+                                            <textarea
+                                                className="form-input font-mono text-xs"
+                                                rows={4}
+                                                placeholder={t('pwa.customHeadPlaceholder')}
+                                                value={config.custom_head_code || ''}
+                                                onChange={(e) => set('custom_head_code', e.target.value)}
+                                                style={{ whiteSpace: 'pre', tabSize: 2 }}
+                                            />
+                                        </Field>
+                                        <Field label={t('pwa.customJsGlobalLabel')}>
+                                            <textarea
+                                                className="form-input font-mono text-xs"
+                                                rows={4}
+                                                placeholder={t('pwa.customJsGlobalPlaceholder')}
+                                                value={config.custom_js || ''}
+                                                onChange={(e) => set('custom_js', e.target.value)}
+                                                style={{ whiteSpace: 'pre', tabSize: 2 }}
+                                            />
+                                        </Field>
+                                    </div>
+                                </Section>
+                            </>
+                        )}
+
+                        {/* ============ STEP 3 — Store (exists only while the store step is on) ============ */}
+                        {step === 2 && storeEffective && (
+                            <>
+                                <Section title={t('pwa.sectionMedia')}>
+                                    <div className="flex flex-col gap-4">
                                         <Field label={t('pwa.screens')} hint={t('pwa.screensHint')}>
                                             <div className="flex flex-wrap gap-2 mb-2">
                                                 {(config.screens || []).filter(Boolean).map((shot, i) => (
@@ -1675,48 +1768,23 @@ export default function PwaEditor({ landingId, onClose }) {
                                         {config.whats_new_enabled && (
                                             <textarea className="form-input" rows={2} placeholder={t('pwa.whatsNewText')} value={config.whats_new_text} onChange={(e) => set('whats_new_text', e.target.value)} />
                                         )}
+                                        <div className="mt-4">
+                                            <Toggle label={t('pwa.supportEnabled')} checked={config.support_enabled} onChange={(v) => set('support_enabled', v)} />
+                                        </div>
+                                        {config.support_enabled && (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                                                <input className="form-input" placeholder={t('pwa.supportEmail')} value={config.support_email} onChange={(e) => set('support_email', e.target.value)} />
+                                                <input className="form-input" placeholder={t('pwa.supportAddress')} value={config.support_address} onChange={(e) => set('support_address', e.target.value)} />
+                                            </div>
+                                        )}
                                     </div>
                                 </Section>
 
-                                <Section title={t('pwa.sectionCustomScripts')}>
-                                    <div className="space-y-4">
-                                        <Field label={t('pwa.customCssLabel')} hint={t('pwa.customCssHint')}>
-                                            <textarea
-                                                className="form-input font-mono text-xs"
-                                                rows={4}
-                                                placeholder={t('pwa.customCssPlaceholder')}
-                                                value={config.custom_css || ''}
-                                                onChange={(e) => set('custom_css', e.target.value)}
-                                                style={{ whiteSpace: 'pre', tabSize: 2 }}
-                                            />
-                                        </Field>
-                                        <Field label={t('pwa.customHeadLabel')}>
-                                            <textarea
-                                                className="form-input font-mono text-xs"
-                                                rows={4}
-                                                placeholder={t('pwa.customHeadPlaceholder')}
-                                                value={config.custom_head_code || ''}
-                                                onChange={(e) => set('custom_head_code', e.target.value)}
-                                                style={{ whiteSpace: 'pre', tabSize: 2 }}
-                                            />
-                                        </Field>
-                                        <Field label={t('pwa.customJsGlobalLabel')}>
-                                            <textarea
-                                                className="form-input font-mono text-xs"
-                                                rows={4}
-                                                placeholder={t('pwa.customJsGlobalPlaceholder')}
-                                                value={config.custom_js || ''}
-                                                onChange={(e) => set('custom_js', e.target.value)}
-                                                style={{ whiteSpace: 'pre', tabSize: 2 }}
-                                            />
-                                        </Field>
-                                    </div>
-                                </Section>
                             </>
                         )}
 
-                        {/* ============ STEP 3 — Reviews ============ */}
-                        {step === 2 && (
+                        {/* ============ STEP 4 — Reviews (only with the store step on) ============ */}
+                        {step === 3 && storeEffective && (
                             <Section title={t('pwa.sectionComments')}>
                                 <span className="text-xs block mb-3" style={{ color: 'var(--color-text-muted)' }}>{t('pwa.dragHint')}</span>
                                 <div className="flex flex-col gap-3">
@@ -1841,9 +1909,7 @@ export default function PwaEditor({ landingId, onClose }) {
                                         { id: 'store', label: t('pwa.previewStore') || 'Store' },
                                         { id: 'screen', label: t('pwa.previewApp') || 'App screen' }
                                     ].map((v) => {
-                                        const effectiveView = previewView !== 'auto'
-                                            ? previewView
-                                            : ((step === 1 && config.app_action === 'screen') ? 'screen' : 'store');
+                                        const effectiveView = previewView !== 'auto' ? previewView : firstFlowStepId;
                                         const isActive = effectiveView === v.id;
                                         return (
                                             <button
