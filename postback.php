@@ -152,6 +152,11 @@ function mapStatus($pdo, $status, $params)
     return $mapped_status;
 }
 
+// Reuses the tracker's existing FX helper (core/CurrencyRates.php, already
+// used by CostImporter/admin_api.php for ad-spend currency conversion) so
+// conversion payouts get the same treatment — see the usage below for why.
+require_once __DIR__ . '/core/CurrencyRates.php';
+
 // Incoming postback log entry ID — will be created on first request and updated on exit
 $orbitraIncomingLogId = null;
 
@@ -185,6 +190,33 @@ $clickId = $clickId !== '' ? $clickId : null;
 $originalStatus = $_GET['status'] ?? $_GET['type'] ?? null;
 $payout = $_GET['payout'] ?? $_GET['revenue'] ?? $_GET['profit'] ?? 0.00;
 $currency = $_GET['currency'] ?? 'USD';
+
+// Convert into the account's own base currency (settings.currency) if the
+// postback's currency is different — otherwise every report/dashboard sum
+// silently mixes currencies as if they were equal. Original amount +
+// currency + rate are kept on the click's own parameters_json below (after
+// click_id is confirmed real) purely for audit — $payout/$currency
+// themselves become the converted values and flow into everything below
+// that reads them (the conversions row, and the CAPI payout/currency
+// TikTok/Meta receive). $currency is only reassigned once both sides of the
+// pair are actually known — CurrencyRates::convert() returns the amount
+// unchanged (not null) when a rate is missing, so checking its rate table
+// directly is what keeps an unconverted amount from being mislabeled as
+// already-converted.
+$orbitraOrigPayout = $payout;
+$orbitraOrigCurrency = $currency;
+$orbitraFxRateUsed = null;
+$orbitraTrackerCurrency = CurrencyRates::trackerCurrency($pdo);
+$orbitraPostbackCurrency = strtoupper((string) $currency);
+if ($orbitraPostbackCurrency !== $orbitraTrackerCurrency) {
+    $orbitraFxRates = CurrencyRates::table($pdo);
+    if (isset($orbitraFxRates[$orbitraPostbackCurrency], $orbitraFxRates[$orbitraTrackerCurrency])) {
+        $orbitraConvertedPayout = CurrencyRates::convert($pdo, (float) $payout, $orbitraPostbackCurrency, $orbitraTrackerCurrency);
+        $orbitraFxRateUsed = ((float) $payout) > 0 ? $orbitraConvertedPayout / ((float) $payout) : null;
+        $payout = round($orbitraConvertedPayout, 2);
+        $currency = $orbitraTrackerCurrency;
+    }
+}
 $tid = $_GET['tid'] ?? null;
 $returnMsg = $_GET['return'] ?? null;
 // Optional free-text rejection reason (e.g. "Invalid Phone") — stored on the
@@ -233,6 +265,26 @@ if (!$clickData) {
     return;
 }
 $campaignId = $clickData['campaign_id'];
+
+// Аудит-слід конвертації валюти — щоб завжди можна було перевірити, яку
+// саме гривневу суму й за яким курсом було перераховано в $payout вище.
+// Не чіпає жодних полів, які там уже пише result.php (phone/crm_*).
+if ($orbitraOrigCurrency !== $currency) {
+    try {
+        $orbitraFxParams = json_decode((string) ($clickData['parameters_json'] ?? '{}'), true);
+        if (!is_array($orbitraFxParams)) {
+            $orbitraFxParams = [];
+        }
+        $orbitraFxParams['fx_orig_payout'] = $orbitraOrigPayout;
+        $orbitraFxParams['fx_orig_currency'] = $orbitraOrigCurrency;
+        $orbitraFxParams['fx_rate_used'] = $orbitraFxRateUsed;
+        $orbitraFxParams['fx_converted_payout'] = $payout;
+        $pdo->prepare('UPDATE clicks SET parameters_json = ? WHERE id = ?')
+            ->execute([json_encode($orbitraFxParams, JSON_UNESCAPED_UNICODE), $clickId]);
+    } catch (\Throwable $e) {
+    }
+}
+
 // sub_id_1..5 here are the CLICK's parameters. $clickId (the incoming subid) is
 // deliberately not among them — it is the tracker's key, not a sub dimension.
 $clickAttribution = orbitraClickAttributionFromRow($clickData);
