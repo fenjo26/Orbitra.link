@@ -3158,6 +3158,7 @@ try {
                        SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 AND cl.offer_at IS NOT NULL THEN 1 ELSE 0 END) as real_lp_clicks,
                        SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0
                                 AND (cl.landing_id IS NULL OR cl.landing_id = 0 OR cl.offer_at IS NOT NULL) THEN 1 ELSE 0 END) as real_offer_clicks,
+                       COALESCE(SUM((SELECT COUNT(*) FROM pwa_screen_views v WHERE v.click_id = cl.id)), 0) as pwa_screen_views,
                        COALESCE(SUM(cv.cnt_any), 0) as conversions,
                        COALESCE(SUM(cv.cnt_sale), 0) as purchases,
                        COALESCE(SUM(cv.cnt_hold), 0) as holds,
@@ -4947,6 +4948,130 @@ try {
                 // So reopening the editor shows the same link the last save
                 // handed back, instead of an empty footer until the next save.
                 'public_url' => orbitraPwaPublicUrl($pdo, (int) $pwaRow['id'], (string) $pwaRow['slug']),
+            ]]);
+            break;
+
+        case 'pwa_funnel_stats':
+            // Per-screen funnel for one PWA landing (the Landings funnel card):
+            // views/uniques per screen, entry and exit distributions, and the
+            // screen→screen transition matrix from the ordered pwa_screen_views
+            // log. Transitions are walked in PHP — ingest caps rows per click,
+            // so a landing's volume stays bounded; the hard LIMIT is the belt
+            // against a pathological backlog.
+            $id = (int) ($_GET['id'] ?? 0);
+            if ($id <= 0) {
+                echo json_encode(['status' => 'error', 'message' => 'Missing ID']);
+                break;
+            }
+            require_once __DIR__ . '/core/PwaLanding.php';
+            $stmt = $pdo->prepare("SELECT id, name, config_json FROM landings WHERE id = ? AND is_archived = 0 LIMIT 1");
+            $stmt->execute([$id]);
+            $funnelRow = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$funnelRow) {
+                echo json_encode(['status' => 'error', 'message' => 'Landing not found']);
+                break;
+            }
+            $funnelConfig = PwaLanding::configFromRow($funnelRow);
+            if ($funnelConfig === []) {
+                echo json_encode(['status' => 'error', 'message' => 'Not a PWA landing']);
+                break;
+            }
+
+            $viewAgg = [];
+            $stmt = $pdo->prepare("SELECT screen, COUNT(*) AS views, COUNT(DISTINCT click_id) AS uniq
+                FROM pwa_screen_views WHERE landing_id = ? GROUP BY screen");
+            $stmt->execute([$id]);
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $r) {
+                $viewAgg[$r['screen']] = ['views' => (int) $r['views'], 'uniq' => (int) $r['uniq']];
+            }
+            $entryMap = [];
+            $stmt = $pdo->prepare("SELECT pwa_entry_screen AS s, COUNT(*) AS n FROM clicks
+                WHERE landing_id = ? AND pwa_entry_screen IS NOT NULL GROUP BY pwa_entry_screen");
+            $stmt->execute([$id]);
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $r) {
+                $entryMap[$r['s']] = (int) $r['n'];
+            }
+            $exitMap = [];
+            $stmt = $pdo->prepare("SELECT pwa_last_screen AS s, COUNT(*) AS n FROM clicks
+                WHERE landing_id = ? AND offer_at IS NULL AND pwa_last_screen IS NOT NULL GROUP BY pwa_last_screen");
+            $stmt->execute([$id]);
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $r) {
+                $exitMap[$r['s']] = (int) $r['n'];
+            }
+
+            // Transition matrix: consecutive (screen, next screen) pairs per
+            // click, in event order. Same-screen repeats are kept — a revisit
+            // is information too ("they came back to the store").
+            $transitions = [];
+            $stmt = $pdo->prepare("SELECT click_id, screen FROM pwa_screen_views
+                WHERE landing_id = ? ORDER BY click_id, id LIMIT 200001");
+            $stmt->execute([$id]);
+            $tRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if (count($tRows) <= 200000) {
+                $prev = null;
+                foreach ($tRows as $r) {
+                    if ($prev !== null && $prev['click_id'] === $r['click_id']) {
+                        $key = $prev['screen'] . '>' . $r['screen'];
+                        $transitions[$key] = ($transitions[$key] ?? 0) + 1;
+                    }
+                    $prev = $r;
+                }
+            }
+            krsort($transitions);
+            $transitionsOut = [];
+            foreach (array_slice($transitions, 0, 50, true) as $key => $n) {
+                [$from, $to] = explode('>', $key, 2);
+                $transitionsOut[] = ['from' => $from, 'to' => $to, 'n' => $n];
+            }
+
+            // Screen order follows the funnel config (first appearance), the
+            // rest — by view count, so the card mirrors how the operator built it.
+            $order = [];
+            foreach ($funnelConfig['funnel'] as $fs) {
+                if (!empty($fs['enabled'])) {
+                    $order[] = $fs['id'];
+                }
+            }
+            $allScreens = array_unique(array_merge(
+                $order,
+                array_keys($viewAgg),
+                array_keys($entryMap),
+                array_keys($exitMap)
+            ));
+            $screensOut = [];
+            foreach ($allScreens as $scr) {
+                $screensOut[] = [
+                    'screen' => $scr,
+                    'views'  => $viewAgg[$scr]['views'] ?? 0,
+                    'uniq'   => $viewAgg[$scr]['uniq'] ?? 0,
+                    'entry'  => $entryMap[$scr] ?? 0,
+                    'exits'  => $exitMap[$scr] ?? 0,
+                ];
+            }
+
+            $stmt = $pdo->prepare("SELECT COUNT(*) AS clicks,
+                    SUM(CASE WHEN pwa_entry_screen IS NOT NULL THEN 1 ELSE 0 END) AS with_screens,
+                    SUM(CASE WHEN pwa_intent_at IS NOT NULL THEN 1 ELSE 0 END) AS intents,
+                    SUM(CASE WHEN pwa_install_at IS NOT NULL THEN 1 ELSE 0 END) AS installs,
+                    SUM(CASE WHEN offer_at IS NOT NULL THEN 1 ELSE 0 END) AS offer_clicks,
+                    SUM(CASE WHEN push_subscribed_at IS NOT NULL THEN 1 ELSE 0 END) AS push_subs
+                FROM clicks WHERE landing_id = ?");
+            $stmt->execute([$id]);
+            $totals = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+
+            echo json_encode(['status' => 'success', 'data' => [
+                'id'          => $id,
+                'name'        => $funnelRow['name'],
+                'screens'     => $screensOut,
+                'transitions' => $transitionsOut,
+                'totals'      => [
+                    'clicks'       => (int) ($totals['clicks'] ?? 0),
+                    'with_screens' => (int) ($totals['with_screens'] ?? 0),
+                    'intents'      => (int) ($totals['intents'] ?? 0),
+                    'installs'     => (int) ($totals['installs'] ?? 0),
+                    'offer_clicks' => (int) ($totals['offer_clicks'] ?? 0),
+                    'push_subs'    => (int) ($totals['push_subs'] ?? 0),
+                ],
             ]]);
             break;
 
@@ -12617,6 +12742,12 @@ try {
                     WHEN clicks.lp_seconds < 60 THEN '30-60s'
                     WHEN clicks.lp_seconds < 180 THEN '1-3m'
                     ELSE '3m+' END",
+                // PWA funnel screens (renderer v16): the first flow screen the
+                // click ever saw (entry) and the one it was last on (exit of
+                // the funnel card). NULL → Unknown: pre-feature rows and
+                // non-PWA traffic.
+                'pwa_entry_screen' => "clicks.pwa_entry_screen",
+                'pwa_last_screen'  => "clicks.pwa_last_screen",
                 'ad_id'          => "json_extract(clicks.parameters_json, '\$.ad_id')",
                 'adset_id'       => "json_extract(clicks.parameters_json, '\$.adset_id')",
                 // Dedicated external campaign key first; the standard Facebook
@@ -12767,6 +12898,7 @@ try {
                     SUM(CASE WHEN pwa_install_at IS NOT NULL AND is_bot = 0 THEN 1 ELSE 0 END) as pwa_installs_real,
                     COALESCE(SUM(pwa_open_count), 0) as pwa_opens,
                     SUM(CASE WHEN push_subscribed_at IS NOT NULL THEN 1 ELSE 0 END) as push_subscribed,
+                    COALESCE(SUM(pwa_screen_views), 0) as pwa_screen_views,
                     COALESCE(SUM(cnt_any), 0) as conversions,
                     COALESCE(SUM(cnt_sale), 0) as purchases,
                     COALESCE(SUM(cnt_hold), 0) as holds,
@@ -12802,6 +12934,7 @@ try {
                            clicks.pwa_install_at,
                            COALESCE(clicks.pwa_open_count, 0) as pwa_open_count,
                            clicks.push_subscribed_at,
+                           (SELECT COUNT(*) FROM pwa_screen_views v WHERE v.click_id = clicks.id) as pwa_screen_views,
                            clicks.cost as click_cost,
                            COALESCE(cv.cnt_any, 0) as cnt_any,
                            COALESCE(cv.rev_all, 0) as click_revenue,

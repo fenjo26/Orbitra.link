@@ -34,7 +34,7 @@ class PwaLanding
      * page; the lander route regenerates stale statics on the next view, so
      * renderer upgrades reach already-created PWA landings without a re-save.
      */
-    public const RENDERER_VERSION = 15;
+    public const RENDERER_VERSION = 16;
 
     /** Keys the constructor is allowed to persist; everything else is dropped. */
     private static function configKeys(): array
@@ -52,6 +52,7 @@ class PwaLanding
             'custom_css', 'custom_head_code', 'custom_body_code', 'custom_js',
             'animation_glow', 'show_live_badge', 'sound_enabled', 'vibration_enabled',
             'action_target', 'action_campaign_id', 'action_url',
+            'funnel',
         ];
     }
 
@@ -113,6 +114,10 @@ class PwaLanding
             'action_target'          => 'to_offer',
             'action_campaign_id'     => 0,
             'action_url'             => '',
+            // The in-browser funnel: ordered screen steps (the first enabled
+            // one is what a cold visitor sees first). Legacy configs have no
+            // funnel key — normalizeFunnel() synthesizes [store] for them.
+            'funnel'                 => [['id' => 'store', 'type' => 'store', 'enabled' => true]],
         ];
     }
 
@@ -223,7 +228,84 @@ class PwaLanding
         if (!in_array($c['color_scheme'], $schemes, true)) {
             $c['color_scheme'] = 'green';
         }
+        $c['funnel'] = self::normalizeFunnel($c['funnel'] ?? null);
         return $c;
+    }
+
+    /** Screens a flow step of type "screen" may use. */
+    public const FLOW_TEMPLATES = ['lobby', 'slot', 'wheel', 'custom'];
+
+    /** How many operator-defined ("screen") steps one funnel may hold. */
+    public const FLOW_MAX_SCREENS = 5;
+
+    /**
+     * Validate the funnel step list. Absent/invalid → legacy default ([store]):
+     * every pre-funnel config keeps rendering exactly what it rendered before.
+     * The generator must survive hand-edited JSON like the rest of the config.
+     */
+    private static function normalizeFunnel($funnel): array
+    {
+        $default = [['id' => 'store', 'type' => 'store', 'enabled' => true]];
+        if (!is_array($funnel)) {
+            return $default;
+        }
+        $clean = [];
+        $seenIds = [];
+        $seenBuiltin = [];
+        $screens = 0;
+        foreach ($funnel as $raw) {
+            if (!is_array($raw)) {
+                continue;
+            }
+            $type = (string) ($raw['type'] ?? '');
+            if (!in_array($type, ['store', 'instructions', 'push', 'screen'], true)) {
+                continue;
+            }
+            if ($type !== 'screen') {
+                // One listing, one instructions screen, one push card.
+                if (isset($seenBuiltin[$type])) {
+                    continue;
+                }
+                $seenBuiltin[$type] = true;
+                $id = $type;
+            } else {
+                if ($screens >= self::FLOW_MAX_SCREENS) {
+                    continue;
+                }
+                $id = (string) ($raw['id'] ?? '');
+                if (preg_match('/^[a-z0-9_]{1,32}$/', $id) !== 1 || isset($seenIds[$id]) || in_array($id, ['store', 'instructions', 'push'], true)) {
+                    $id = 'scr_' . ($screens + 1) . '_' . substr(bin2hex(random_bytes(3)), 0, 4);
+                }
+                while (isset($seenIds[$id])) {
+                    $id .= 'x';
+                }
+                $screens++;
+            }
+            $seenIds[$id] = true;
+            $step = ['id' => $id, 'type' => $type, 'enabled' => !empty($raw['enabled'])];
+            if ($type === 'screen') {
+                $template = (string) ($raw['template'] ?? 'lobby');
+                if (!in_array($template, self::FLOW_TEMPLATES, true)) {
+                    $template = 'lobby';
+                }
+                $step['template'] = $template;
+                foreach (['title', 'text', 'button', 'image'] as $key) {
+                    $step[$key] = mb_substr(trim((string) ($raw[$key] ?? '')), 0, 300);
+                }
+                $step['image'] = (string) ($raw['image'] ?? '');
+                // Raw HTML/JS: rendered verbatim inside the step's own section,
+                // same trust level as the existing custom screen fields.
+                $step['custom_html'] = (string) ($raw['custom_html'] ?? '');
+                $step['custom_js'] = (string) ($raw['custom_js'] ?? '');
+                foreach (['custom_html', 'custom_js'] as $key) {
+                    if (strlen($step[$key]) > 65536) {
+                        $step[$key] = substr($step[$key], 0, 65536);
+                    }
+                }
+            }
+            $clean[] = $step;
+        }
+        return $clean === [] ? $default : $clean;
     }
 
     public static function colorSchemes(): array
@@ -339,6 +421,17 @@ class PwaLanding
             $html = preg_replace(
                 '/<head[^>]*>/i',
                 "$0\n<script>window.__PWA_FORCE_APP_SCREEN = true;</script>",
+                $html,
+                1
+            );
+        }
+        // Flow step preview: any non-reserved $view value is a funnel step id —
+        // the constructor's preview selector can open the funnel at any step.
+        if ($view !== 'auto' && $view !== 'store' && $view !== 'screen'
+            && preg_match('/^[a-z0-9_]{1,32}$/', $view) === 1) {
+            $html = preg_replace(
+                '/<head[^>]*>/i',
+                "$0\n<script>window.__PWA_FORCE_SCREEN = " . json_encode($view) . ";</script>",
                 $html,
                 1
             );
@@ -639,6 +732,7 @@ SW;
         return [
             'en' => [
                 0 => 'Install the app', 1 => 'Open this page in Safari', 2 => 'Tap the Share button', 3 => "Tap 'Add to Home Screen'", 4 => 'Launch the app from your home screen', 5 => 'Installing…', 6 => 'Close',
+                7 => 'Open the browser menu', 8 => 'Tap "Add to Home screen"', 9 => 'Confirm to install',
                 'push_title' => 'Enable notifications', 'push_text' => 'Get bonuses and updates right on your phone', 'push_allow' => 'Allow', 'push_later' => 'Not now',
                 'get' => 'GET', 'in_app_purchases' => 'In-App Purchases', 'ratings_reviews' => 'Ratings & Reviews', 'see_all' => 'See All',
                 'whats_new' => "What's New", 'version_history' => 'Version History', 'version' => 'Version', 'preview' => 'Preview',
@@ -650,6 +744,7 @@ SW;
             ],
             'ru' => [
                 0 => 'Установите приложение', 1 => 'Откройте страницу в Safari', 2 => 'Нажмите кнопку «Поделиться»', 3 => 'Выберите «На экран “Домой”»', 4 => 'Запустите приложение с домашнего экрана', 5 => 'Установка…', 6 => 'Закрыть',
+                7 => 'Откройте меню браузера', 8 => 'Нажмите «На экран “Домой”»', 9 => 'Подтвердите установку',
                 'push_title' => 'Включите уведомления', 'push_text' => 'Получайте бонусы и обновления прямо на телефон', 'push_allow' => 'Разрешить', 'push_later' => 'Не сейчас',
                 'get' => 'ЗАГРУЗИТЬ', 'in_app_purchases' => 'Встроенные покупки', 'ratings_reviews' => 'Оценки и отзывы', 'see_all' => 'См. все',
                 'whats_new' => 'Что нового', 'version_history' => 'История версий', 'version' => 'Версия', 'preview' => 'Предпросмотр',
@@ -661,6 +756,7 @@ SW;
             ],
             'uk' => [
                 0 => 'Встановіть застосунок', 1 => 'Відкрийте сторінку в Safari', 2 => 'Натисніть кнопку «Поділитися»', 3 => 'Виберіть «На екран “Додому”»', 4 => 'Запустіть застосунок з головного екрана', 5 => 'Встановлення…', 6 => 'Закрити',
+                7 => 'Відкрийте меню браузера', 8 => 'Натисніть «На екран “Додому”»', 9 => 'Підтвердьте встановлення',
                 'push_title' => 'Увімкніть повідомлення', 'push_text' => 'Отримуйте бонуси та новини прямо на телефон', 'push_allow' => 'Дозволити', 'push_later' => 'Не зараз',
                 'get' => 'ОТРИМАТИ', 'in_app_purchases' => 'Вбудовані покупки', 'ratings_reviews' => 'Оцінки та відгуки', 'see_all' => 'Див. всі',
                 'whats_new' => 'Що нового', 'version_history' => 'Історія версій', 'version' => 'Версія', 'preview' => 'Попередній перегляд',
@@ -672,6 +768,7 @@ SW;
             ],
             'es' => [
                 0 => 'Instala la aplicación', 1 => 'Abre esta página en Safari', 2 => 'Toca el botón Compartir', 3 => 'Toca «Añadir a inicio»', 4 => 'Abre la aplicación desde tu pantalla de inicio', 5 => 'Instalando…', 6 => 'Cerrar',
+                7 => 'Abre el menú del navegador', 8 => 'Toca «Añadir a inicio»', 9 => 'Confirma la instalación',
                 'push_title' => 'Activa las notificaciones', 'push_text' => 'Recibe bonos y novedades en tu teléfono', 'push_allow' => 'Permitir', 'push_later' => 'Ahora no',
                 'get' => 'OBTENER', 'in_app_purchases' => 'Compras dentro de la app', 'ratings_reviews' => 'Valoraciones y reseñas', 'see_all' => 'Ver todo',
                 'whats_new' => 'Novedades', 'version_history' => 'Historial de versiones', 'version' => 'Versión', 'preview' => 'Vista previa',
@@ -683,6 +780,7 @@ SW;
             ],
             'de' => [
                 0 => 'App installieren', 1 => 'Öffne diese Seite in Safari', 2 => 'Tippe auf „Teilen“', 3 => 'Tippe auf „Zum Home-Bildschirm“', 4 => 'Öffne die App vom Home-Bildschirm', 5 => 'Wird installiert…', 6 => 'Schließen',
+                7 => 'Öffne das Browser-Menü', 8 => 'Tippe auf „Zum Home-Bildschirm“', 9 => 'Bestätige die Installation',
                 'push_title' => 'Benachrichtigungen aktivieren', 'push_text' => 'Erhalte Boni und Updates direkt aufs Handy', 'push_allow' => 'Erlauben', 'push_later' => 'Später',
                 'get' => 'LADEN', 'in_app_purchases' => 'In-App-Käufe', 'ratings_reviews' => 'Bewertungen & Rezensionen', 'see_all' => 'Alle anzeigen',
                 'whats_new' => 'Neuheiten', 'version_history' => 'Versionsverlauf', 'version' => 'Version', 'preview' => 'Vorschau',
@@ -694,6 +792,7 @@ SW;
             ],
             'fr' => [
                 0 => 'Installer l’application', 1 => 'Ouvrez cette page dans Safari', 2 => 'Touchez le bouton Partager', 3 => 'Touchez « Sur l’écran d’accueil »', 4 => 'Lancez l’application depuis l’écran d’accueil', 5 => 'Installation…', 6 => 'Fermer',
+                7 => 'Ouvrez le menu du navigateur', 8 => 'Touchez « Sur l’écran d’accueil »', 9 => 'Confirmez l’installation',
                 'push_title' => 'Activez les notifications', 'push_text' => 'Recevez bonus et actualités sur votre téléphone', 'push_allow' => 'Autoriser', 'push_later' => 'Plus tard',
                 'get' => 'OBTENIR', 'in_app_purchases' => 'Achats intégrés', 'ratings_reviews' => 'Notes et avis', 'see_all' => 'Tout afficher',
                 'whats_new' => 'Nouveautés', 'version_history' => 'Historique des versions', 'version' => 'Version', 'preview' => 'Aperçu',
@@ -705,6 +804,7 @@ SW;
             ],
             'zh' => [
                 0 => '安装应用', 1 => '在 Safari 中打开此页面', 2 => '点击“分享”按钮', 3 => '点击“添加到主屏幕”', 4 => '从主屏幕启动应用', 5 => '安装中…', 6 => '关闭',
+                7 => '打开浏览器菜单', 8 => '点击“添加到主屏幕”', 9 => '确认安装',
                 'push_title' => '开启通知', 'push_text' => '在手机上第一时间获取奖励和更新', 'push_allow' => '允许', 'push_later' => '暂不',
                 'get' => '获取', 'in_app_purchases' => 'App 内购买项目', 'ratings_reviews' => '评分及评论', 'see_all' => '查看全部',
                 'whats_new' => '新功能', 'version_history' => '版本历史记录', 'version' => '版本', 'preview' => '预览',
@@ -717,6 +817,292 @@ SW;
         ];
     }
 
+    /**
+     * One "app screen" template — lobby / slot / wheel / custom HTML. Shared
+     * by the installed-app screen (app_action=screen, $p='') and by funnel
+     * steps of type "screen": $p prefixes every element id so several
+     * instances of the same template can live on one page without colliding;
+     * the page JS wires the interactive engines scoped to their own section,
+     * never by a bare document id. $flowId non-empty marks the wrapper as a
+     * flow step; $lazyJs defers the step's custom JS to its first activation
+     * instead of page parse — an ad pixel must not fire for a screen the
+     * visitor never actually reached.
+     */
+    private static function appScreenHtml(array $f, string $p, array $ctx, string $wrapId, bool $hidden, string $flowId = '', bool $lazyJs = false): string
+    {
+        $appName = (string) $ctx['appName'];
+        $iconInner = (string) $ctx['iconInner'];
+        $template = in_array($f['template'] ?? '', self::FLOW_TEMPLATES, true) ? $f['template'] : 'lobby';
+        $appTitle = ($f['title'] ?? '') !== '' ? $f['title'] : $appName;
+        $appText = (string) ($f['text'] ?? '');
+        $appBtn = ($f['button'] ?? '') !== '' ? $f['button'] : 'Play now';
+
+        $wrapClass = [
+            'custom' => 'appscr-custom-mode',
+            'slot'   => 'appscr-game-mode appscr-slot-mode',
+            'wheel'  => 'appscr-game-mode appscr-wheel-mode',
+            'lobby'  => '',
+        ][$template];
+        $attr = ' id="' . self::esc($wrapId) . '"'
+            . ($wrapClass !== '' ? ' class="' . self::esc($wrapClass) . '"' : '')
+            . ($hidden ? ' hidden' : '')
+            . ($flowId !== '' ? ' data-flow-screen="' . self::esc($flowId) . '"' : '');
+
+        if ($template === 'custom') {
+            $customHtml = ($f['custom_html'] ?? '') !== ''
+                ? $f['custom_html']
+                : '<div style="display:flex;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:24px;text-align:center;background:#0d1117;color:#fff;">'
+                . '<h2>' . self::esc($appTitle) . '</h2>'
+                . ($appText !== '' ? '<p style="color:rgba(255,255,255,0.7);max-width:400px;">' . nl2br(self::esc($appText)) . '</p>' : '')
+                . '<button type="button" class="appscr-cta-btn install-trigger" style="max-width:280px;">' . self::esc($appBtn) . '</button>'
+                . '</div>';
+            $inner = '<div class="appscr-custom-container">' . $customHtml . '</div>';
+        } elseif ($template === 'slot') {
+            $inner = '<div class="appscr-shell slot-shell">'
+                . '<header class="appscr-header">'
+                . '<div class="appscr-user-badge">'
+                . '<div class="appscr-avatar">' . $iconInner . '</div>'
+                . '<div class="appscr-user-details">'
+                . '<div class="appscr-user-name">' . self::esc($appName) . '</div>'
+                . '<div class="appscr-user-sub">● VIP 777</div>'
+                . '</div>'
+                . '</div>'
+                . '<div class="appscr-header-right">'
+                . '<div class="appscr-balance-pill"><span class="appscr-coin-icon">🪙</span><span class="appscr-coin-val pwa-slot-balance" id="' . $p . 'pwa-slot-balance">5,000 COINS</span></div>'
+                . '</div>'
+                . '</header>'
+                . '<div class="pwa-slot-cabinet">'
+                . '<div class="pwa-jackpot-ribbon"><span class="jackpot-glow">⚡ MEGA JACKPOT ⚡</span><span class="jackpot-val" id="' . $p . 'pwa-slot-jackpot">$250,000.00</span></div>'
+                . '<div class="pwa-slot-window">'
+                . '<div class="pwa-slot-payline"></div>'
+                . '<div class="pwa-slot-reels">'
+                . '<div class="pwa-reel" id="' . $p . 'pwa-reel-0"><div class="pwa-reel-strip"><div class="pwa-sym">🍒</div><div class="pwa-sym">🔔</div><div class="pwa-sym">💎</div><div class="pwa-sym">7️⃣</div><div class="pwa-sym">👑</div><div class="pwa-sym">🍇</div><div class="pwa-sym">7️⃣</div><div class="pwa-sym">⭐</div></div></div>'
+                . '<div class="pwa-reel" id="' . $p . 'pwa-reel-1"><div class="pwa-reel-strip"><div class="pwa-sym">🔔</div><div class="pwa-sym">7️⃣</div><div class="pwa-sym">🍒</div><div class="pwa-sym">👑</div><div class="pwa-sym">💎</div><div class="pwa-sym">7️⃣</div><div class="pwa-sym">⭐</div><div class="pwa-sym">🍇</div></div></div>'
+                . '<div class="pwa-reel" id="' . $p . 'pwa-reel-2"><div class="pwa-reel-strip"><div class="pwa-sym">👑</div><div class="pwa-sym">💎</div><div class="pwa-sym">7️⃣</div><div class="pwa-sym">🍒</div><div class="pwa-sym">🔔</div><div class="pwa-sym">7️⃣</div><div class="pwa-sym">🍇</div><div class="pwa-sym">⭐</div></div></div>'
+                . '</div>'
+                . '</div>'
+                . '<div class="pwa-slot-controls">'
+                . '<div class="pwa-slot-status pwa-slot-msg" id="' . $p . 'pwa-slot-msg">TAP SPIN TO WIN THE JACKPOT!</div>'
+                . '<button type="button" id="' . $p . 'pwa-slot-spin-btn" class="pwa-slot-spin-btn"><span class="spin-glow"></span><span class="spin-txt">🎰 SPIN NOW!</span></button>'
+                . '<div class="pwa-slot-spins-left">🎁 1 FREE SPIN AVAILABLE</div>'
+                . '</div>'
+                . '</div>'
+                . '<div id="' . $p . 'pwa-slot-win-modal" class="pwa-modal-overlay pwa-slot-win-modal" hidden>'
+                . '<div class="pwa-modal-card">'
+                . '<div class="pwa-modal-confetti">🎉</div>'
+                . '<div class="pwa-modal-badge">🏆 BIG WINNER!</div>'
+                . '<h2 class="pwa-modal-title">' . self::esc($appTitle !== '' ? $appTitle : 'JACKPOT WON: $1,500!') . '</h2>'
+                . '<p class="pwa-modal-text">' . self::esc($appText !== '' ? $appText : 'Congratulations! Your exclusive welcome bonus has been activated.') . '</p>'
+                . '<div class="pwa-modal-timer">⚡ Offer expires in: <span class="pwa-countdown">04:59</span></div>'
+                . '<button type="button" id="' . $p . 'pwa-slot-claim" class="appscr-cta-btn install-trigger pwa-slot-claim">'
+                . '<span class="appscr-cta-lbl">' . self::esc($appBtn !== '' ? $appBtn : 'CLAIM BONUS & PLAY') . '</span>'
+                . '<span class="appscr-cta-arrow">➔</span>'
+                . '</button>'
+                . '</div>'
+                . '</div>'
+                . '</div>'
+                . '</div>';
+        } elseif ($template === 'wheel') {
+            $inner = '<div class="appscr-shell wheel-shell">'
+                . '<header class="appscr-header">'
+                . '<div class="appscr-user-badge">'
+                . '<div class="appscr-avatar">' . $iconInner . '</div>'
+                . '<div class="appscr-user-details">'
+                . '<div class="appscr-user-name">' . self::esc($appName) . '</div>'
+                . '<div class="appscr-user-sub">● VIP CLUB</div>'
+                . '</div>'
+                . '</div>'
+                . '<div class="appscr-header-right">'
+                . '<div class="appscr-balance-pill"><span class="appscr-coin-icon">💎</span><span class="appscr-coin-val">VIP BONUS</span></div>'
+                . '</div>'
+                . '</header>'
+                . '<div class="pwa-wheel-stage">'
+                . '<div class="pwa-wheel-headline">' . self::esc($appTitle !== '' ? $appTitle : 'LUCKY BONUS WHEEL') . '</div>'
+                . '<div class="pwa-wheel-subhead">' . self::esc($appText !== '' ? $appText : 'Spin the wheel to unlock your exclusive welcome bonus!') . '</div>'
+                . '<div class="pwa-wheel-container">'
+                . '<div class="pwa-wheel-pointer">▼</div>'
+                . '<svg id="' . $p . 'pwa-wheel-disc" class="pwa-wheel-disc" viewBox="0 0 360 360">'
+                . '<g transform="translate(180,180)">'
+                . '<path d="M0,0 L0,-170 A170,170 0 0,1 120.2,-120.2 Z" fill="#e74c3c"/>'
+                . '<text transform="rotate(22.5) translate(0,-115) rotate(-22.5)" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">$500</text>'
+                . '<path d="M0,0 L120.2,-120.2 A170,170 0 0,1 170,0 Z" fill="#f39c12"/>'
+                . '<text transform="rotate(67.5) translate(0,-115) rotate(-67.5)" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">100 FS</text>'
+                . '<path d="M0,0 L170,0 A170,170 0 0,1 120.2,120.2 Z" fill="#8e44ad"/>'
+                . '<text transform="rotate(112.5) translate(0,-115) rotate(-112.5)" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">200%</text>'
+                . '<path d="M0,0 L120.2,120.2 A170,170 0 0,1 0,170 Z" fill="#27ae60"/>'
+                . '<text transform="rotate(157.5) translate(0,-115) rotate(-157.5)" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">50 FS</text>'
+                . '<path d="M0,0 L0,170 A170,170 0 0,1 -120.2,120.2 Z" fill="#e67e22"/>'
+                . '<text transform="rotate(202.5) translate(0,-115) rotate(-202.5)" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">$100</text>'
+                . '<path d="M0,0 L-120.2,120.2 A170,170 0 0,1 -170,0 Z" fill="#2980b9"/>'
+                . '<text transform="rotate(247.5) translate(0,-115) rotate(-247.5)" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">VIP</text>'
+                . '<path d="M0,0 L-170,0 A170,170 0 0,1 -120.2,-120.2 Z" fill="#16a085"/>'
+                . '<text transform="rotate(292.5) translate(0,-115) rotate(-292.5)" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">250 FS</text>'
+                . '<path d="M0,0 L-120.2,-120.2 A170,170 0 0,1 0,-170 Z" fill="#d35400"/>'
+                . '<text transform="rotate(337.5) translate(0,-115) rotate(-337.5)" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">JACKPOT</text>'
+                . '<circle r="36" fill="#1e272e" stroke="#ffd700" stroke-width="4"/>'
+                . '</g>'
+                . '</svg>'
+                . '<button type="button" id="' . $p . 'pwa-wheel-spin-btn" class="pwa-wheel-spin-btn">SPIN</button>'
+                . '</div>'
+                . '<div class="pwa-wheel-spins-hint">⚡ 1 FREE SPIN REMAINING</div>'
+                . '</div>'
+                . '<div id="' . $p . 'pwa-wheel-win-modal" class="pwa-modal-overlay pwa-wheel-win-modal" hidden>'
+                . '<div class="pwa-modal-card">'
+                . '<div class="pwa-modal-confetti">🎁</div>'
+                . '<div class="pwa-modal-badge">🎉 WINNER!</div>'
+                . '<h2 class="pwa-modal-title">JACKPOT + 250 FREE SPINS!</h2>'
+                . '<p class="pwa-modal-text">Your prize has been reserved! Claim it now before it expires.</p>'
+                . '<div class="pwa-modal-timer">⚡ Reservation expires in: <span class="pwa-countdown">04:59</span></div>'
+                . '<button type="button" id="' . $p . 'pwa-wheel-claim" class="appscr-cta-btn install-trigger pwa-wheel-claim">'
+                . '<span class="appscr-cta-lbl">' . self::esc($appBtn !== '' ? $appBtn : 'CLAIM BONUS & PLAY') . '</span>'
+                . '<span class="appscr-cta-arrow">➔</span>'
+                . '</button>'
+                . '</div>'
+                . '</div>'
+                . '</div>'
+                . '</div>';
+        } else {
+            // Native Lobby / Dashboard
+            $catLower = strtolower((string) $ctx['category']);
+            if (strpos($catLower, 'sport') !== false || strpos($catLower, 'bet') !== false) {
+                $tilesHtml = '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">⚽</span><span class="appscr-tile-name">Live Match</span><span class="appscr-tile-badge">LIVE 78\'</span></div>'
+                    . '<div class="appscr-tile active install-trigger"><span class="appscr-tile-icon">🔥</span><span class="appscr-tile-name">Top Express</span><span class="appscr-tile-badge gold">+35% BOOST</span></div>'
+                    . '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🎯</span><span class="appscr-tile-name">Quick Bet</span><span class="appscr-tile-badge">1-CLICK</span></div>';
+                $balancePill = '<span class="appscr-coin-icon">🏆</span><span class="appscr-coin-val">FREE BET: $50</span>';
+                $tab2Name = 'Matches';
+                $tab2Icon = '⚽';
+            } elseif (strpos($catLower, 'dating') !== false || strpos($catLower, 'love') !== false) {
+                $tilesHtml = '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">💃</span><span class="appscr-tile-name">New Match</span><span class="appscr-tile-badge gold">HOT</span></div>'
+                    . '<div class="appscr-tile active install-trigger"><span class="appscr-tile-icon">💬</span><span class="appscr-tile-name">Chat Now</span><span class="appscr-tile-badge">3 NEW</span></div>'
+                    . '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">❤️</span><span class="appscr-tile-name">Nearby</span><span class="appscr-tile-badge">2 KM</span></div>';
+                $balancePill = '<span class="appscr-coin-icon">💖</span><span class="appscr-coin-val">99+ LIKES</span>';
+                $tab2Name = 'Likes';
+                $tab2Icon = '❤️';
+            } elseif (strpos($catLower, 'shop') !== false || strpos($catLower, 'market') !== false || strpos($catLower, 'ecom') !== false) {
+                $tilesHtml = '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🛍️</span><span class="appscr-tile-name">Flash Sale</span><span class="appscr-tile-badge gold">-70%</span></div>'
+                    . '<div class="appscr-tile active install-trigger"><span class="appscr-tile-icon">🚚</span><span class="appscr-tile-name">Free Delivery</span><span class="appscr-tile-badge">24H</span></div>'
+                    . '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🛒</span><span class="appscr-tile-name">My Cart</span><span class="appscr-tile-badge">3 ITEMS</span></div>';
+                $balancePill = '<span class="appscr-coin-icon">🛒</span><span class="appscr-coin-val">3 ITEMS</span>';
+                $tab2Name = 'Cart';
+                $tab2Icon = '🛒';
+            } elseif (strpos($catLower, 'fit') !== false) {
+                $tilesHtml = '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🔥</span><span class="appscr-tile-name">HIIT Burn</span><span class="appscr-tile-badge">25 MIN</span></div>'
+                    . '<div class="appscr-tile active install-trigger"><span class="appscr-tile-icon">💪</span><span class="appscr-tile-name">Daily Plan</span><span class="appscr-tile-badge gold">DAY 1</span></div>'
+                    . '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🥗</span><span class="appscr-tile-name">Diet Guide</span><span class="appscr-tile-badge">PRO</span></div>';
+                $balancePill = '<span class="appscr-coin-icon">🔥</span><span class="appscr-coin-val">DAY 1 ACTIVE</span>';
+                $tab2Name = 'Workouts';
+                $tab2Icon = '🏋️';
+            } else {
+                $tilesHtml = '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🎰</span><span class="appscr-tile-name">Mega 777</span><span class="appscr-tile-badge">JACKPOT</span></div>'
+                    . '<div class="appscr-tile active install-trigger"><span class="appscr-tile-icon">🎁</span><span class="appscr-tile-name">Daily Wheel</span><span class="appscr-tile-badge gold">FREE SPIN</span></div>'
+                    . '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">💎</span><span class="appscr-tile-name">VIP Royal</span><span class="appscr-tile-badge">HOT</span></div>';
+                $balancePill = '<span class="appscr-coin-icon">🪙</span><span class="appscr-coin-val">10,000 COINS</span>';
+                $tab2Name = 'Games';
+                $tab2Icon = '🎮';
+            }
+
+            $heroImage = (string) ($f['image'] ?? '');
+            $heroBg = $heroImage !== ''
+                ? '<div class="appscr-hero-wrap"><img class="appscr-hero-img" src="' . self::esc($heroImage) . '" alt="" onerror="this.parentNode.style.display=\'none\'"><div class="appscr-hero-vignette"></div></div>'
+                : '<div class="appscr-hero-wrap appscr-hero-gradient"><div class="appscr-hero-vignette"></div></div>';
+
+            $inner = '<div class="appscr-bg-canvas">'
+                . $heroBg
+                . '<div class="appscr-shell">'
+                . '<header class="appscr-header">'
+                . '<div class="appscr-user-badge">'
+                . '<div class="appscr-avatar">' . $iconInner . '</div>'
+                . '<div class="appscr-user-details">'
+                . '<div class="appscr-user-name">' . self::esc($appName) . '</div>'
+                . '<div class="appscr-user-sub">● VIP CLUB</div>'
+                . '</div>'
+                . '</div>'
+                . '<div class="appscr-header-right">'
+                . '<div class="appscr-balance-pill">' . $balancePill . '</div>'
+                . '<div class="appscr-bell">🔔</div>'
+                . '</div>'
+                . '</header>'
+                . '<div class="appscr-ticker-wrap">'
+                . '<div class="appscr-ticker-content">🔥 <span>Alex M. won $4,200</span> • <span>Elena R. won 250 FS</span> • <span>David K. won $1,850</span> • <span>Sarah W. unlocked VIP</span></div>'
+                . '</div>'
+                . '<div class="appscr-body">'
+                . '<div class="appscr-main-card">'
+                . '<div class="appscr-card-badges">'
+                . '<span class="appscr-badge-live">● LIVE BONUS</span>'
+                . '<span class="appscr-badge-rtp">⚡ INSTANT ACCESS</span>'
+                . '</div>'
+                . '<h1 class="appscr-headline">' . self::esc($appTitle) . '</h1>'
+                . ($appText !== '' ? '<p class="appscr-subtext">' . nl2br(self::esc($appText)) . '</p>' : '')
+                . '<div class="appscr-cta-wrap">'
+                . '<button type="button" id="' . $p . 'pwa-app-cta" class="appscr-cta-btn install-trigger">'
+                . '<span class="appscr-cta-glow"></span>'
+                . '<span class="appscr-cta-lbl">' . self::esc($appBtn) . '</span>'
+                . '<span class="appscr-cta-arrow">➔</span>'
+                . '</button>'
+                . '<div class="appscr-trust-row">'
+                . '<span>🔒 256-Bit SSL</span><span>•</span><span>⚡ Instant Payouts</span><span>•</span><span>🎯 18+</span>'
+                . '</div>'
+                . '</div>'
+                . '</div>'
+                . '<div class="appscr-lobby-section">'
+                . '<div class="appscr-section-head"><span>POPULAR TODAY</span><span class="appscr-see-all">ALL &gt;</span></div>'
+                . '<div class="appscr-tiles-row">' . $tilesHtml . '</div>'
+                . '</div>'
+                . '</div>'
+                . '<nav class="appscr-tabbar">'
+                . '<div class="appscr-tab active"><span class="appscr-tab-icon">🏠</span><span>Lobby</span></div>'
+                . '<div class="appscr-tab"><span class="appscr-tab-icon">' . $tab2Icon . '</span><span>' . $tab2Name . '</span></div>'
+                . '<div class="appscr-tab"><span class="appscr-tab-icon">🎁</span><span>Bonuses</span></div>'
+                . '<div class="appscr-tab"><span class="appscr-tab-icon">👤</span><span>Account</span></div>'
+                . '</nav>'
+                . '</div>'
+                . '</div>'
+                . '</div>';
+        }
+
+        $jsTag = '';
+        if (($f['custom_js'] ?? '') !== '') {
+            if ($lazyJs) {
+                $jsTag = '<script type="text/plain" data-flow-js="' . self::esc($flowId) . '">' . $f['custom_js'] . '</script>';
+            } elseif ($template === 'custom') {
+                $jsTag = '<script>' . $f['custom_js'] . '</script>';
+            }
+        }
+        return '<div' . $attr . '>' . $inner . $jsTag . '</div>';
+    }
+
+    /**
+     * The install-instructions screen as a flow step. Both platform lists
+     * render; CSS keyed on data-store (set by the UA sniff in <head>) shows
+     * the Safari steps on iOS and the Chrome menu steps everywhere else.
+     */
+    private static function instructionsStepHtml(array $t, array $c): string
+    {
+        $btn = ($c['button_text'] ?? '') !== '' ? $c['button_text'] : $t[0];
+        return '<div id="pwa-flow-instructions" class="flow-instr" data-flow-screen="instructions" hidden>'
+            . '<div class="flow-instr-card">'
+            . '<h3>' . self::esc($t[0]) . '</h3>'
+            . '<ol class="flow-instr-ios"><li>' . self::esc($t[1]) . '</li><li>' . self::esc($t[2]) . '</li>'
+            . '<li>' . self::esc($t[3]) . '</li><li>' . self::esc($t[4]) . '</li></ol>'
+            . '<ol class="flow-instr-android"><li>' . self::esc($t[7] ?? $t[0]) . '</li><li>' . self::esc($t[8] ?? $t[0]) . '</li><li>' . self::esc($t[9] ?? $t[0]) . '</li></ol>'
+            . '<button type="button" class="install-trigger flow-instr-btn">' . self::esc($btn) . '</button>'
+            . '</div></div>';
+    }
+
+    /**
+     * The push card as a flow step. The standalone card keeps its own markup
+     * and gating (the offer belongs to the installed app); this one is for
+     * operators who want to ask in the browser flow, at a chosen position.
+     */
+    private static function flowPushStepHtml(array $t): string
+    {
+        return '<div id="pwa-flow-push" class="ios-overlay" data-flow-screen="push" hidden><div class="ios-card">'
+            . '<h3>' . self::esc($t['push_title']) . '</h3>'
+            . '<p class="ios-push-text">' . self::esc($t['push_text']) . '</p>'
+            . '<button type="button" id="pwa-flow-push-allow" class="ios-push-allow">' . self::esc($t['push_allow']) . '</button>'
+            . '<button type="button" id="pwa-flow-push-later" class="ios-push-later">' . self::esc($t['push_later']) . '</button>'
+            . '</div></div>';
+    }
     private static function renderIndex(array $c, int $landingId): string
     {
         $scheme = self::colorSchemes()[$c['color_scheme']] ?? '#01875f';
@@ -983,239 +1369,71 @@ SW;
 
         // In-app screen for app_action=screen: what the INSTALLED app shows
         // instead of the store listing. The CTA leads into the funnel.
+        $iconInner = $iconSrc !== ''
+            ? '<img src="' . self::esc($iconSrc) . '" alt="">'
+            : '<span class="appscr-avatar-txt">' . self::esc(mb_substr($appName, 0, 1)) . '</span>';
         $appScreen = '';
         if ($c['app_action'] === 'screen') {
-            $appTitle = $c['app_screen_title'] !== '' ? $c['app_screen_title'] : $appName;
-            $appText = $c['app_screen_text'] !== '' ? $c['app_screen_text'] : '';
-            $appBtn = $c['app_screen_button'] !== '' ? $c['app_screen_button'] : 'Play now';
-
-            $iconInner = $iconSrc !== ''
-                ? '<img src="' . self::esc($iconSrc) . '" alt="">'
-                : '<span class="appscr-avatar-txt">' . self::esc(mb_substr($appName, 0, 1)) . '</span>';
-
-            if ($c['app_screen_type'] === 'custom') {
-                $customHtml = $c['app_screen_custom_html'] !== ''
-                    ? $c['app_screen_custom_html']
-                    : '<div style="display:flex;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:24px;text-align:center;background:#0d1117;color:#fff;">'
-                    . '<h2>' . self::esc($appTitle) . '</h2>'
-                    . ($appText !== '' ? '<p style="color:rgba(255,255,255,0.7);max-width:400px;">' . nl2br(self::esc($appText)) . '</p>' : '')
-                    . '<button type="button" class="appscr-cta-btn install-trigger" style="max-width:280px;">' . self::esc($appBtn) . '</button>'
-                    . '</div>';
-
-                $customScriptTag = $c['app_screen_custom_js'] !== ''
-                    ? '<script>' . $c['app_screen_custom_js'] . '</script>'
-                    : '';
-
-                $appScreen = '<div id="pwa-app-screen" class="appscr-custom-mode" hidden>'
-                    . '<div class="appscr-custom-container">' . $customHtml . '</div>'
-                    . $customScriptTag
-                    . '</div>';
-            } elseif ($c['app_screen_type'] === 'slot') {
-                $appScreen = '<div id="pwa-app-screen" class="appscr-game-mode appscr-slot-mode" hidden>'
-                    . '<div class="appscr-shell slot-shell">'
-                    . '<header class="appscr-header">'
-                    . '<div class="appscr-user-badge">'
-                    . '<div class="appscr-avatar">' . $iconInner . '</div>'
-                    . '<div class="appscr-user-details">'
-                    . '<div class="appscr-user-name">' . self::esc($appName) . '</div>'
-                    . '<div class="appscr-user-sub">● VIP 777</div>'
-                    . '</div>'
-                    . '</div>'
-                    . '<div class="appscr-header-right">'
-                    . '<div class="appscr-balance-pill"><span class="appscr-coin-icon">🪙</span><span class="appscr-coin-val" id="pwa-slot-balance">5,000 COINS</span></div>'
-                    . '</div>'
-                    . '</header>'
-                    . '<div class="pwa-slot-cabinet">'
-                    . '<div class="pwa-jackpot-ribbon"><span class="jackpot-glow">⚡ MEGA JACKPOT ⚡</span><span class="jackpot-val" id="pwa-slot-jackpot">$250,000.00</span></div>'
-                    . '<div class="pwa-slot-window">'
-                    . '<div class="pwa-slot-payline"></div>'
-                    . '<div class="pwa-slot-reels">'
-                    . '<div class="pwa-reel" id="pwa-reel-0"><div class="pwa-reel-strip"><div class="pwa-sym">🍒</div><div class="pwa-sym">🔔</div><div class="pwa-sym">💎</div><div class="pwa-sym">7️⃣</div><div class="pwa-sym">👑</div><div class="pwa-sym">🍇</div><div class="pwa-sym">7️⃣</div><div class="pwa-sym">⭐</div></div></div>'
-                    . '<div class="pwa-reel" id="pwa-reel-1"><div class="pwa-reel-strip"><div class="pwa-sym">🔔</div><div class="pwa-sym">7️⃣</div><div class="pwa-sym">🍒</div><div class="pwa-sym">👑</div><div class="pwa-sym">💎</div><div class="pwa-sym">7️⃣</div><div class="pwa-sym">⭐</div><div class="pwa-sym">🍇</div></div></div>'
-                    . '<div class="pwa-reel" id="pwa-reel-2"><div class="pwa-reel-strip"><div class="pwa-sym">👑</div><div class="pwa-sym">💎</div><div class="pwa-sym">7️⃣</div><div class="pwa-sym">🍒</div><div class="pwa-sym">🔔</div><div class="pwa-sym">7️⃣</div><div class="pwa-sym">🍇</div><div class="pwa-sym">⭐</div></div></div>'
-                    . '</div>'
-                    . '</div>'
-                    . '<div class="pwa-slot-controls">'
-                    . '<div class="pwa-slot-status" id="pwa-slot-msg">TAP SPIN TO WIN THE JACKPOT!</div>'
-                    . '<button type="button" id="pwa-slot-spin-btn" class="pwa-slot-spin-btn"><span class="spin-glow"></span><span class="spin-txt">🎰 SPIN NOW!</span></button>'
-                    . '<div class="pwa-slot-spins-left">🎁 1 FREE SPIN AVAILABLE</div>'
-                    . '</div>'
-                    . '</div>'
-                    . '<div id="pwa-slot-win-modal" class="pwa-modal-overlay" hidden>'
-                    . '<div class="pwa-modal-card">'
-                    . '<div class="pwa-modal-confetti">🎉</div>'
-                    . '<div class="pwa-modal-badge">🏆 BIG WINNER!</div>'
-                    . '<h2 class="pwa-modal-title">' . self::esc($appTitle !== '' ? $appTitle : 'JACKPOT WON: $1,500!') . '</h2>'
-                    . '<p class="pwa-modal-text">' . self::esc($appText !== '' ? $appText : 'Congratulations! Your exclusive welcome bonus has been activated.') . '</p>'
-                    . '<div class="pwa-modal-timer">⚡ Offer expires in: <span class="pwa-countdown">04:59</span></div>'
-                    . '<button type="button" id="pwa-slot-claim" class="appscr-cta-btn install-trigger">'
-                    . '<span class="appscr-cta-lbl">' . self::esc($appBtn !== '' ? $appBtn : 'CLAIM BONUS & PLAY') . '</span>'
-                    . '<span class="appscr-cta-arrow">➔</span>'
-                    . '</button>'
-                    . '</div>'
-                    . '</div>'
-                    . '</div>'
-                    . '</div>';
-            } elseif ($c['app_screen_type'] === 'wheel') {
-                $appScreen = '<div id="pwa-app-screen" class="appscr-game-mode appscr-wheel-mode" hidden>'
-                    . '<div class="appscr-shell wheel-shell">'
-                    . '<header class="appscr-header">'
-                    . '<div class="appscr-user-badge">'
-                    . '<div class="appscr-avatar">' . $iconInner . '</div>'
-                    . '<div class="appscr-user-details">'
-                    . '<div class="appscr-user-name">' . self::esc($appName) . '</div>'
-                    . '<div class="appscr-user-sub">● VIP CLUB</div>'
-                    . '</div>'
-                    . '</div>'
-                    . '<div class="appscr-header-right">'
-                    . '<div class="appscr-balance-pill"><span class="appscr-coin-icon">💎</span><span class="appscr-coin-val">VIP BONUS</span></div>'
-                    . '</div>'
-                    . '</header>'
-                    . '<div class="pwa-wheel-stage">'
-                    . '<div class="pwa-wheel-headline">' . self::esc($appTitle !== '' ? $appTitle : 'LUCKY BONUS WHEEL') . '</div>'
-                    . '<div class="pwa-wheel-subhead">' . self::esc($appText !== '' ? $appText : 'Spin the wheel to unlock your exclusive welcome bonus!') . '</div>'
-                    . '<div class="pwa-wheel-container">'
-                    . '<div class="pwa-wheel-pointer">▼</div>'
-                    . '<svg id="pwa-wheel-disc" class="pwa-wheel-disc" viewBox="0 0 360 360">'
-                    . '<g transform="translate(180,180)">'
-                    . '<path d="M0,0 L0,-170 A170,170 0 0,1 120.2,-120.2 Z" fill="#e74c3c"/>'
-                    . '<text transform="rotate(22.5) translate(0,-115) rotate(-22.5)" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">$500</text>'
-                    . '<path d="M0,0 L120.2,-120.2 A170,170 0 0,1 170,0 Z" fill="#f39c12"/>'
-                    . '<text transform="rotate(67.5) translate(0,-115) rotate(-67.5)" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">100 FS</text>'
-                    . '<path d="M0,0 L170,0 A170,170 0 0,1 120.2,120.2 Z" fill="#8e44ad"/>'
-                    . '<text transform="rotate(112.5) translate(0,-115) rotate(-112.5)" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">200%</text>'
-                    . '<path d="M0,0 L120.2,120.2 A170,170 0 0,1 0,170 Z" fill="#27ae60"/>'
-                    . '<text transform="rotate(157.5) translate(0,-115) rotate(-157.5)" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">50 FS</text>'
-                    . '<path d="M0,0 L0,170 A170,170 0 0,1 -120.2,120.2 Z" fill="#e67e22"/>'
-                    . '<text transform="rotate(202.5) translate(0,-115) rotate(-202.5)" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">$100</text>'
-                    . '<path d="M0,0 L-120.2,120.2 A170,170 0 0,1 -170,0 Z" fill="#2980b9"/>'
-                    . '<text transform="rotate(247.5) translate(0,-115) rotate(-247.5)" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">VIP</text>'
-                    . '<path d="M0,0 L-170,0 A170,170 0 0,1 -120.2,-120.2 Z" fill="#16a085"/>'
-                    . '<text transform="rotate(292.5) translate(0,-115) rotate(-292.5)" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">250 FS</text>'
-                    . '<path d="M0,0 L-120.2,-120.2 A170,170 0 0,1 0,-170 Z" fill="#d35400"/>'
-                    . '<text transform="rotate(337.5) translate(0,-115) rotate(-337.5)" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">JACKPOT</text>'
-                    . '<circle r="36" fill="#1e272e" stroke="#ffd700" stroke-width="4"/>'
-                    . '</g>'
-                    . '</svg>'
-                    . '<button type="button" id="pwa-wheel-spin-btn" class="pwa-wheel-spin-btn">SPIN</button>'
-                    . '</div>'
-                    . '<div class="pwa-wheel-spins-hint">⚡ 1 FREE SPIN REMAINING</div>'
-                    . '</div>'
-                    . '<div id="pwa-wheel-win-modal" class="pwa-modal-overlay" hidden>'
-                    . '<div class="pwa-modal-card">'
-                    . '<div class="pwa-modal-confetti">🎁</div>'
-                    . '<div class="pwa-modal-badge">🎉 WINNER!</div>'
-                    . '<h2 class="pwa-modal-title">JACKPOT + 250 FREE SPINS!</h2>'
-                    . '<p class="pwa-modal-text">Your prize has been reserved! Claim it now before it expires.</p>'
-                    . '<div class="pwa-modal-timer">⚡ Reservation expires in: <span class="pwa-countdown">04:59</span></div>'
-                    . '<button type="button" id="pwa-wheel-claim" class="appscr-cta-btn install-trigger">'
-                    . '<span class="appscr-cta-lbl">' . self::esc($appBtn !== '' ? $appBtn : 'CLAIM BONUS & PLAY') . '</span>'
-                    . '<span class="appscr-cta-arrow">➔</span>'
-                    . '</button>'
-                    . '</div>'
-                    . '</div>'
-                    . '</div>'
-                    . '</div>';
-            } else {
-                // Native Lobby / Dashboard
-                $catLower = strtolower($c['category']);
-                if (strpos($catLower, 'sport') !== false || strpos($catLower, 'bet') !== false) {
-                    $tilesHtml = '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">⚽</span><span class="appscr-tile-name">Live Match</span><span class="appscr-tile-badge">LIVE 78\'</span></div>'
-                        . '<div class="appscr-tile active install-trigger"><span class="appscr-tile-icon">🔥</span><span class="appscr-tile-name">Top Express</span><span class="appscr-tile-badge gold">+35% BOOST</span></div>'
-                        . '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🎯</span><span class="appscr-tile-name">Quick Bet</span><span class="appscr-tile-badge">1-CLICK</span></div>';
-                    $balancePill = '<span class="appscr-coin-icon">🏆</span><span class="appscr-coin-val">FREE BET: $50</span>';
-                    $tab2Name = 'Matches';
-                    $tab2Icon = '⚽';
-                } elseif (strpos($catLower, 'dating') !== false || strpos($catLower, 'love') !== false) {
-                    $tilesHtml = '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">💃</span><span class="appscr-tile-name">New Match</span><span class="appscr-tile-badge gold">HOT</span></div>'
-                        . '<div class="appscr-tile active install-trigger"><span class="appscr-tile-icon">💬</span><span class="appscr-tile-name">Chat Now</span><span class="appscr-tile-badge">3 NEW</span></div>'
-                        . '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">❤️</span><span class="appscr-tile-name">Nearby</span><span class="appscr-tile-badge">2 KM</span></div>';
-                    $balancePill = '<span class="appscr-coin-icon">💖</span><span class="appscr-coin-val">99+ LIKES</span>';
-                    $tab2Name = 'Likes';
-                    $tab2Icon = '❤️';
-                } elseif (strpos($catLower, 'shop') !== false || strpos($catLower, 'market') !== false || strpos($catLower, 'ecom') !== false) {
-                    $tilesHtml = '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🛍️</span><span class="appscr-tile-name">Flash Sale</span><span class="appscr-tile-badge gold">-70%</span></div>'
-                        . '<div class="appscr-tile active install-trigger"><span class="appscr-tile-icon">🚚</span><span class="appscr-tile-name">Free Delivery</span><span class="appscr-tile-badge">24H</span></div>'
-                        . '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🛒</span><span class="appscr-tile-name">My Cart</span><span class="appscr-tile-badge">3 ITEMS</span></div>';
-                    $balancePill = '<span class="appscr-coin-icon">🛒</span><span class="appscr-coin-val">3 ITEMS</span>';
-                    $tab2Name = 'Cart';
-                    $tab2Icon = '🛒';
-                } elseif (strpos($catLower, 'fit') !== false) {
-                    $tilesHtml = '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🔥</span><span class="appscr-tile-name">HIIT Burn</span><span class="appscr-tile-badge">25 MIN</span></div>'
-                        . '<div class="appscr-tile active install-trigger"><span class="appscr-tile-icon">💪</span><span class="appscr-tile-name">Daily Plan</span><span class="appscr-tile-badge gold">DAY 1</span></div>'
-                        . '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🥗</span><span class="appscr-tile-name">Diet Guide</span><span class="appscr-tile-badge">PRO</span></div>';
-                    $balancePill = '<span class="appscr-coin-icon">🔥</span><span class="appscr-coin-val">DAY 1 ACTIVE</span>';
-                    $tab2Name = 'Workouts';
-                    $tab2Icon = '🏋️';
-                } else {
-                    $tilesHtml = '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">🎰</span><span class="appscr-tile-name">Mega 777</span><span class="appscr-tile-badge">JACKPOT</span></div>'
-                        . '<div class="appscr-tile active install-trigger"><span class="appscr-tile-icon">🎁</span><span class="appscr-tile-name">Daily Wheel</span><span class="appscr-tile-badge gold">FREE SPIN</span></div>'
-                        . '<div class="appscr-tile install-trigger"><span class="appscr-tile-icon">💎</span><span class="appscr-tile-name">VIP Royal</span><span class="appscr-tile-badge">HOT</span></div>';
-                    $balancePill = '<span class="appscr-coin-icon">🪙</span><span class="appscr-coin-val">10,000 COINS</span>';
-                    $tab2Name = 'Games';
-                    $tab2Icon = '🎮';
-                }
-
-                $heroBg = $c['app_screen_image'] !== ''
-                    ? '<div class="appscr-hero-wrap"><img class="appscr-hero-img" src="' . self::esc($c['app_screen_image']) . '" alt="" onerror="this.parentNode.style.display=\'none\'"><div class="appscr-hero-vignette"></div></div>'
-                    : '<div class="appscr-hero-wrap appscr-hero-gradient"><div class="appscr-hero-vignette"></div></div>';
-
-                $appScreen = '<div id="pwa-app-screen" hidden>'
-                    . '<div class="appscr-bg-canvas">'
-                    . $heroBg
-                    . '<div class="appscr-shell">'
-                    . '<header class="appscr-header">'
-                    . '<div class="appscr-user-badge">'
-                    . '<div class="appscr-avatar">' . $iconInner . '</div>'
-                    . '<div class="appscr-user-details">'
-                    . '<div class="appscr-user-name">' . self::esc($appName) . '</div>'
-                    . '<div class="appscr-user-sub">● VIP CLUB</div>'
-                    . '</div>'
-                    . '</div>'
-                    . '<div class="appscr-header-right">'
-                    . '<div class="appscr-balance-pill">' . $balancePill . '</div>'
-                    . '<div class="appscr-bell">🔔</div>'
-                    . '</div>'
-                    . '</header>'
-                    . '<div class="appscr-ticker-wrap">'
-                    . '<div class="appscr-ticker-content">🔥 <span>Alex M. won $4,200</span> • <span>Elena R. won 250 FS</span> • <span>David K. won $1,850</span> • <span>Sarah W. unlocked VIP</span></div>'
-                    . '</div>'
-                    . '<div class="appscr-body">'
-                    . '<div class="appscr-main-card">'
-                    . '<div class="appscr-card-badges">'
-                    . '<span class="appscr-badge-live">● LIVE BONUS</span>'
-                    . '<span class="appscr-badge-rtp">⚡ INSTANT ACCESS</span>'
-                    . '</div>'
-                    . '<h1 class="appscr-headline">' . self::esc($appTitle) . '</h1>'
-                    . ($appText !== '' ? '<p class="appscr-subtext">' . nl2br(self::esc($appText)) . '</p>' : '')
-                    . '<div class="appscr-cta-wrap">'
-                    . '<button type="button" id="pwa-app-cta" class="appscr-cta-btn install-trigger">'
-                    . '<span class="appscr-cta-glow"></span>'
-                    . '<span class="appscr-cta-lbl">' . self::esc($appBtn) . '</span>'
-                    . '<span class="appscr-cta-arrow">➔</span>'
-                    . '</button>'
-                    . '<div class="appscr-trust-row">'
-                    . '<span>🔒 256-Bit SSL</span><span>•</span><span>⚡ Instant Payouts</span><span>•</span><span>🎯 18+</span>'
-                    . '</div>'
-                    . '</div>'
-                    . '</div>'
-                    . '<div class="appscr-lobby-section">'
-                    . '<div class="appscr-section-head"><span>POPULAR TODAY</span><span class="appscr-see-all">ALL &gt;</span></div>'
-                    . '<div class="appscr-tiles-row">' . $tilesHtml . '</div>'
-                    . '</div>'
-                    . '</div>'
-                    . '<nav class="appscr-tabbar">'
-                    . '<div class="appscr-tab active"><span class="appscr-tab-icon">🏠</span><span>Lobby</span></div>'
-                    . '<div class="appscr-tab"><span class="appscr-tab-icon">' . $tab2Icon . '</span><span>' . $tab2Name . '</span></div>'
-                    . '<div class="appscr-tab"><span class="appscr-tab-icon">🎁</span><span>Bonuses</span></div>'
-                    . '<div class="appscr-tab"><span class="appscr-tab-icon">👤</span><span>Account</span></div>'
-                    . '</nav>'
-                    . '</div>'
-                    . '</div>'
-                    . '</div>';
-            }
+            $appScreen = self::appScreenHtml(
+                [
+                    'template'    => $c['app_screen_type'],
+                    'title'       => $c['app_screen_title'],
+                    'text'        => $c['app_screen_text'],
+                    'button'      => $c['app_screen_button'],
+                    'image'       => $c['app_screen_image'],
+                    'custom_html' => $c['app_screen_custom_html'],
+                    'custom_js'   => $c['app_screen_custom_js'],
+                ],
+                '',
+                ['appName' => $appName, 'iconInner' => $iconInner, 'category' => $c['category']],
+                'pwa-app-screen',
+                true
+            );
         }
 
+        // ------------------------------------------------------------------
+        // FUNNEL STEPS — the configurable in-browser flow. The first enabled
+        // step is what a cold visitor sees first ("store" by default, so every
+        // legacy config renders exactly what it always did). The store markup
+        // is already on the page; instructions/push/screen steps render here.
+        // A push step without push tech configured would be a dead end the
+        // visitor cannot get past, so it never joins the flow.
+        // ------------------------------------------------------------------
+        $flowIds = [];
+        $flowScreensHtml = '';
+        foreach ($c['funnel'] as $flowStep) {
+            if (empty($flowStep['enabled'])) {
+                continue;
+            }
+            if ($flowStep['type'] === 'store') {
+                $flowIds[] = $flowStep['id'];
+                continue;
+            }
+            if ($flowStep['type'] === 'instructions') {
+                $flowIds[] = $flowStep['id'];
+                $flowScreensHtml .= self::instructionsStepHtml($t, $c);
+                continue;
+            }
+            if ($flowStep['type'] === 'push') {
+                if (empty($c['push_enabled'])) {
+                    continue;
+                }
+                $flowIds[] = $flowStep['id'];
+                $flowScreensHtml .= self::flowPushStepHtml($t);
+                continue;
+            }
+            $flowIds[] = $flowStep['id'];
+            $flowScreensHtml .= self::appScreenHtml(
+                $flowStep,
+                'fs' . $flowStep['id'] . '_',
+                ['appName' => $appName, 'iconInner' => $iconInner, 'category' => $c['category']],
+                'pwa-flow-' . $flowStep['id'],
+                true,
+                $flowStep['id'],
+                true
+            );
+        }
+        $cfgForJs['flow'] = $flowIds;
         // The two serve-time placeholders stay literal in the source: the
         // lander route replaces them per request, so the SW's network-first
         // navigation rule always pairs a fresh page with a fresh click id.
@@ -1334,6 +1552,86 @@ SW;
   window.redirect = redirect;
   window.beacon = beacon;
 
+  // --- Flow: the configurable in-browser funnel -----------------------------
+  // cfg.flow lists the enabled step ids in operator order; the first one is
+  // what a cold visitor sees. Every activation beacons kind=screen so the
+  // tracker can report views per screen, and runs the step's own script on
+  // FIRST activation (parse-time would fire ad pixels for screens the
+  // visitor never reached).
+  var flow = [];
+  try { if (cfg.flow && cfg.flow.length) flow = cfg.flow.slice(); } catch (e) {}
+  var flowIdx = -1;
+  var flowJsDone = {};
+  function flowElFor(id) {
+    var els = document.querySelectorAll('[data-flow-screen]');
+    for (var i = 0; i < els.length; i++) {
+      if (els[i].getAttribute('data-flow-screen') === id) return els[i];
+    }
+    return null;
+  }
+  function beaconScreen(id) {
+    if (!subid) return;
+    var url = '/pixel.gif?action=pwa&kind=screen&screen=' + encodeURIComponent(id)
+      + '&subid=' + encodeURIComponent(subid) + '&_=' + Date.now();
+    try { if (navigator.sendBeacon && navigator.sendBeacon(url)) return; } catch (e) {}
+    try { if (window.fetch) { fetch(url, { keepalive: true, mode: 'no-cors' }).catch(function () {}); return; } } catch (e) {}
+    var img = new Image();
+    img.src = url;
+  }
+  function runFlowJs(id) {
+    if (flowJsDone[id]) return;
+    flowJsDone[id] = true;
+    var nodes = document.querySelectorAll('script[data-flow-js]');
+    for (var i = 0; i < nodes.length; i++) {
+      if (nodes[i].getAttribute('data-flow-js') !== id) continue;
+      try { (new Function(nodes[i].textContent))(); } catch (e) {}
+    }
+  }
+  function flowPushWorth() {
+    // A push step with nothing left to ask (no key, no support, answered
+    // before) must not become a dead end — flowNext() skips it instead.
+    if (!cfg.push || !VAPID || !('PushManager' in window) || !('Notification' in window)) return false;
+    try { if (localStorage.getItem('orbitra_push_done')) return false; } catch (e) {}
+    return Notification.permission === 'default';
+  }
+  function showFlowScreen(id) {
+    var el = flowElFor(id);
+    if (!el) {
+      // The store listing is plain page content, not a [data-flow-screen]
+      // section — it is "shown" by not hiding it (data-flow-first CSS keeps
+      // it hidden only when it is NOT the first step).
+      if (id === 'store') { flowIdx = flow.indexOf(id); beaconScreen(id); }
+      return;
+    }
+    var els = document.querySelectorAll('[data-flow-screen]');
+    for (var i = 0; i < els.length; i++) { els[i].hidden = els[i] !== el; }
+    flowIdx = flow.indexOf(id);
+    if (flowIdx < 0) flowIdx = 0; // preview forcing a step outside cfg.flow
+    beaconScreen(id);
+    runFlowJs(id);
+  }
+  function flowNext() {
+    if (flowIdx < 0) return false;
+    for (var i = flowIdx + 1; i < flow.length; i++) {
+      if (flow[i] === 'push' && !flowPushWorth()) continue;
+      showFlowScreen(flow[i]);
+      return true;
+    }
+    return false;
+  }
+  function flowExhausted() {
+    // The flow ran out after an answer that leaves no screen to show (the
+    // push card). A browser visit's funnel job is done — hand the visitor
+    // to the offer; the screen app action keeps them on the page instead,
+    // matching what the installed app would do.
+    if (cfg.appAction === 'screen') { showAppScreen(); return; }
+    redirect();
+  }
+  window.orbitraFlow = {
+    next: flowNext,
+    goto: function (id) { showFlowScreen(String(id)); }
+  };
+
   var preloader = document.getElementById('pwa-preloader');
   if (preloader) { setTimeout(function () { preloader.classList.add('done'); }, 600); }
 
@@ -1376,6 +1674,18 @@ SW;
     }
     var el = document.getElementById('pwa-push');
     if (el) el.hidden = true;
+    var flowPushEl = document.getElementById('pwa-flow-push');
+    if (flowPushEl) flowPushEl.hidden = true;
+    // In the browser flow the card is a step: advance past it. Only when the
+    // flow is out of steps does the configured app action take over (and an
+    // exhausted cold flow hands the visitor to the offer — see
+    // flowExhausted; the standalone open has flowIdx < 0 and keeps the
+    // legacy behavior exactly).
+    if (flowIdx >= 0) {
+      if (flowNext()) return;
+      flowExhausted();
+      return;
+    }
     performAppAction();
   }
   function swReady(ms) {
@@ -1471,14 +1781,28 @@ SW;
   var pushLater = document.getElementById('pwa-push-later');
   if (pushAllow) pushAllow.addEventListener('click', enablePush);
   if (pushLater) pushLater.addEventListener('click', afterPush);
+  // The flow's own push card (shown in the browser flow, not standalone):
+  // same permission machinery, but "Not now" answers the step and advances.
+  var flowPushAllow = document.getElementById('pwa-flow-push-allow');
+  var flowPushLater = document.getElementById('pwa-flow-push-later');
+  if (flowPushAllow) flowPushAllow.addEventListener('click', enablePush);
+  if (flowPushLater) flowPushLater.addEventListener('click', function () { afterPush(false); });
 
-  // --- Slot machine interactive engine ---
-  var slotSpinBtn = document.getElementById('pwa-slot-spin-btn');
-  var slotWinModal = document.getElementById('pwa-slot-win-modal');
-  var slotMsg = document.getElementById('pwa-slot-msg');
-  var slotBalance = document.getElementById('pwa-slot-balance');
-  var isSlotSpinning = false;
-  if (slotSpinBtn) {
+  // --- Slot & wheel engines: one factory per container ----------------------
+  // The templates exist in several copies on one page (the installed-app
+  // screen plus every funnel "screen" step), so element ids are prefixed per
+  // copy and the engines query scoped to their own section — never by a bare
+  // document id. The claim buttons stay global .install-trigger handles.
+  function wireSlotEngine(root) {
+    if (!root) return;
+    var slotSpinBtn = root.querySelector('.pwa-slot-spin-btn');
+    if (!slotSpinBtn) return;
+    var slotWinModal = root.querySelector('.pwa-slot-win-modal');
+    var slotMsg = root.querySelector('.pwa-slot-msg');
+    var slotBalance = root.querySelector('.pwa-slot-balance');
+    var reels = root.querySelectorAll('.pwa-reel');
+    var r0 = reels[0], r1 = reels[1], r2 = reels[2];
+    var isSlotSpinning = false;
     slotSpinBtn.addEventListener('click', function () {
       if (isSlotSpinning) return;
       isSlotSpinning = true;
@@ -1486,9 +1810,6 @@ SW;
       vib([40, 30, 40]);
       slotSpinBtn.disabled = true;
       if (slotMsg) slotMsg.textContent = 'SPINNING THE REELS...';
-      var r0 = document.getElementById('pwa-reel-0');
-      var r1 = document.getElementById('pwa-reel-1');
-      var r2 = document.getElementById('pwa-reel-2');
       if (r0) r0.classList.add('spinning');
       if (r1) setTimeout(function(){ r1.classList.add('spinning'); }, 150);
       if (r2) setTimeout(function(){ r2.classList.add('spinning'); }, 300);
@@ -1517,12 +1838,13 @@ SW;
     });
   }
 
-  // --- Lucky wheel interactive engine ---
-  var wheelSpinBtn = document.getElementById('pwa-wheel-spin-btn');
-  var wheelDisc = document.getElementById('pwa-wheel-disc');
-  var wheelWinModal = document.getElementById('pwa-wheel-win-modal');
-  var isWheelSpinning = false;
-  if (wheelSpinBtn) {
+  function wireWheelEngine(root) {
+    if (!root) return;
+    var wheelSpinBtn = root.querySelector('.pwa-wheel-spin-btn');
+    if (!wheelSpinBtn) return;
+    var wheelDisc = root.querySelector('.pwa-wheel-disc');
+    var wheelWinModal = root.querySelector('.pwa-wheel-win-modal');
+    var isWheelSpinning = false;
     wheelSpinBtn.addEventListener('click', function () {
       if (isWheelSpinning) return;
       isWheelSpinning = true;
@@ -1546,8 +1868,20 @@ SW;
     });
   }
 
+  wireSlotEngine(document.getElementById('pwa-app-screen'));
+  wireWheelEngine(document.getElementById('pwa-app-screen'));
+  var flowContainers = document.querySelectorAll('[data-flow-screen]');
+  for (var fci = 0; fci < flowContainers.length; fci++) {
+    wireSlotEngine(flowContainers[fci]);
+    wireWheelEngine(flowContainers[fci]);
+  }
+
   function handleInstallClick() {
     beacon('intent');
+    // A CTA inside the browser flow advances to the next step; the native
+    // install prompt fires once the flow is out of steps (the operator
+    // decides where that happens by ordering the funnel).
+    if (flowIdx >= 0 && flowNext()) return;
     if (isStandalone || window.__PWA_FORCE_APP_SCREEN === true) { later(0, redirect); return; }
     if (isIOS) { iosOverlay(true); return; }
     if (deferred) {
@@ -1632,7 +1966,19 @@ SW;
     }
     if (pushAvailable()) { showPush(); return; }
     performAppAction();
-  } else if (cfg.auto > 0) {
+    return;
+  }
+
+  // Cold (browser) visit: open the first funnel step. With the default
+  // [store] funnel this re-creates today's behavior — plus the screen-view
+  // beacon every step now sends. The auto-redirect timer stays global: it
+  // fires into the offer no matter which step is on screen.
+  if (window.__PWA_FORCE_SCREEN) {
+    showFlowScreen(String(window.__PWA_FORCE_SCREEN));
+  } else if (flow.length > 0) {
+    showFlowScreen(flow[0]);
+  }
+  if (cfg.auto > 0) {
     setTimeout(redirect, cfg.auto * 1000);
   }
 
@@ -1679,6 +2025,17 @@ html[data-store="app_store"] .store-gp{display:none!important}
 html[data-store="app_store"] .store-ios{display:block!important}
 html:not([data-store="app_store"]) .store-gp{display:block!important}
 html:not([data-store="app_store"]) .store-ios{display:none!important}
+/* Funnel flow: hide the store listing from first paint when a non-store step
+   opens the funnel; [data-flow-screen] sections are full-screen overlays. */
+html[data-flow-first]:not([data-flow-first="store"]) .store-layout{display:none!important}
+[data-flow-screen]{position:fixed;inset:0;background:#070a10;z-index:40;overflow-y:auto;overflow-x:hidden;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+.flow-instr{background:var(--pwa-bg);color:var(--pwa-text);display:flex;align-items:center;justify-content:center;padding:24px;z-index:45}
+.flow-instr-card{max-width:420px;width:100%}
+.flow-instr-card h3{font-size:17px;margin-bottom:12px}
+.flow-instr-card ol{padding-left:20px;font-size:14px;line-height:1.7}
+.flow-instr-btn{margin-top:14px;background:var(--pwa-primary);color:#fff;border:none;border-radius:22px;padding:11px 26px;font-size:14px;font-weight:500;width:100%;cursor:pointer}
+html[data-store="app_store"] .flow-instr-android{display:none!important}
+html:not([data-store="app_store"]) .flow-instr-ios{display:none!important}
 
 .preloader{position:fixed;inset:0;background:var(--pwa-bg);display:flex;align-items:center;justify-content:center;z-index:50;transition:opacity .35s;opacity:1}
 .preloader.done{opacity:0;pointer-events:none}
@@ -1916,6 +2273,11 @@ CSS;
   var storeStyle = ' . json_encode($storeStyle) . ';
   var effective = (storeStyle === "app_store" || (storeStyle === "auto" && isIOS)) ? "app_store" : "google_play";
   document.documentElement.setAttribute("data-store", effective);
+  // First funnel step != store: hide both store layouts from the very first
+  // paint (this script runs before the body exists), so a custom first screen
+  // never flashes the listing underneath.
+  var flowFirst = ' . json_encode($flowIds[0] ?? null) . ';
+  if (flowFirst && flowFirst !== "store") document.documentElement.setAttribute("data-flow-first", flowFirst);
 })();
 </script>
 <style>' . $css . $customCssBlock . '</style>
@@ -1930,6 +2292,7 @@ CSS;
 ' . $iosOverlay . '
 ' . $pushScreen . '
 ' . $appScreen . '
+' . $flowScreensHtml . '
 <script>
 ' . $js . '
 </script>

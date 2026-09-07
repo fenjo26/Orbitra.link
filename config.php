@@ -87,7 +87,7 @@ try {
     // subscriber base; 44 = media library (docs/media-core-v1.md); 43 = PWA
     // landings. All migration blocks are additive — whoever adds the next one
     // bumps this and appends below, re-reading the file first (parallel-session rule).
-    $LATEST_SCHEMA_VERSION = 50;
+    $LATEST_SCHEMA_VERSION = 51;
 
     $schemaVersion = 0;
     try {
@@ -2613,6 +2613,46 @@ try {
                 }
             }
 
+            if ($schemaVersion < 51) {
+                // Migration 51: per-screen PWA funnel (docs/pwa-push.md, the
+                // funnel section). The renderer's flow beacons every screen it
+                // shows via /pixel.gif?action=pwa&kind=screen&screen=<id>:
+                //
+                //   clicks.pwa_entry_screen — FIRST flow screen this click saw
+                //     (NULL-guarded: the click row is the dedup gate, like every
+                //     pwa_* column); the report "entry screen" dimension.
+                //   clicks.pwa_last_screen — LAST screen shown; last-write-wins,
+                //     the "exit screen" of the funnel card.
+                //
+                //   pwa_screen_views — the raw 1:N event log behind per-screen
+                //     counts (a click can see several screens, and one screen
+                //     several times — columns on clicks cannot hold that).
+                //     Capped per click by the pixel endpoint, so a parked tab
+                //     cycling screens cannot pump the table.
+                $alters = [
+                    "ALTER TABLE clicks ADD COLUMN pwa_entry_screen TEXT",
+                    "ALTER TABLE clicks ADD COLUMN pwa_last_screen TEXT",
+                ];
+                foreach ($alters as $sql) {
+                    try {
+                        $pdo->exec($sql);
+                    } catch (\Throwable $e) {
+                        // Column already present on a half-migrated DB.
+                    }
+                }
+                $pdo->exec("CREATE TABLE IF NOT EXISTS pwa_screen_views (
+                    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                    click_id   TEXT NOT NULL,
+                    landing_id INTEGER,
+                    screen     TEXT NOT NULL DEFAULT '',
+                    created_at TEXT DEFAULT (datetime('now'))
+                )");
+                $pdo->exec("CREATE INDEX IF NOT EXISTS idx_pwa_screen_views_click
+                            ON pwa_screen_views(click_id, screen)");
+                $pdo->exec("CREATE INDEX IF NOT EXISTS idx_pwa_screen_views_landing
+                            ON pwa_screen_views(landing_id, screen, created_at)");
+            }
+
             // Mark schema as up-to-date. This must be last.
             $pdo->exec("PRAGMA user_version = " . (int) $LATEST_SCHEMA_VERSION . ";");
             $schemaVersion = $LATEST_SCHEMA_VERSION;
@@ -2672,6 +2712,27 @@ try {
                     ON stream_rotation_log(campaign_id, created_at)");
     } catch (\Throwable $e) {
         // Read-only or locked DB: the optimiser cron skips audit writes.
+    }
+
+    // Same contract for the per-screen PWA funnel: the report SQL references
+    // pwa_screen_views unconditionally, so the table must hold on EVERY
+    // schema version (the clicks columns are plain NULL-able ALTERs that the
+    // migration guarantees; only this table needs the always-on guard).
+    try {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS pwa_screen_views (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            click_id   TEXT NOT NULL,
+            landing_id INTEGER,
+            screen     TEXT NOT NULL DEFAULT '',
+            created_at TEXT DEFAULT (datetime('now'))
+        )");
+        $pdo->exec("CREATE INDEX IF NOT EXISTS idx_pwa_screen_views_click
+                    ON pwa_screen_views(click_id, screen)");
+        $pdo->exec("CREATE INDEX IF NOT EXISTS idx_pwa_screen_views_landing
+                    ON pwa_screen_views(landing_id, screen, created_at)");
+    } catch (\Throwable $e) {
+        // Read-only or locked DB: per-screen stats degrade to zero, the
+        // funnel columns on clicks keep working.
     }
 
     // Override hardcoded postback_key with the one from settings table for routers.

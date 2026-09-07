@@ -20,6 +20,16 @@ $pdo->exec('CREATE TABLE offer_groups (id INTEGER PRIMARY KEY, name TEXT)');
 $pdo->exec('CREATE TABLE affiliate_networks (id INTEGER PRIMARY KEY, name TEXT)');
 $pdo->exec('CREATE TABLE clicks (id TEXT PRIMARY KEY, campaign_id INTEGER, offer_id INTEGER, stream_id INTEGER, source_id INTEGER, landing_id INTEGER, ip TEXT, user_agent TEXT, referer TEXT, country TEXT, country_code TEXT, region TEXT, city TEXT, latitude REAL, longitude REAL, zipcode TEXT, timezone TEXT, device_type TEXT, os TEXT, browser TEXT, language TEXT, accept_language_raw TEXT, is_conversion INTEGER DEFAULT 0, revenue REAL DEFAULT 0.00, cost REAL DEFAULT 0.00, parameters_json TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, is_bot INTEGER DEFAULT 0, is_proxy INTEGER DEFAULT 0, uniq_campaign INTEGER DEFAULT 1, uniq_stream INTEGER DEFAULT 1, uniq_global INTEGER DEFAULT 1, landing_at TEXT, offer_at TEXT, lp_seconds INTEGER, lp_scroll INTEGER)');
 $pdo->exec('CREATE TABLE conversions (id INTEGER PRIMARY KEY, click_id TEXT, tid TEXT, status TEXT, payout REAL)');
+// Migration 51: the offers stats SQL aggregates the per-screen funnel log
+// (pwa_screen_views); the mini-schema must carry it even though this seed
+// records no screen views — the SUM degrades to zero for these offers.
+$pdo->exec("CREATE TABLE pwa_screen_views (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    click_id   TEXT NOT NULL,
+    landing_id INTEGER,
+    screen     TEXT NOT NULL DEFAULT '',
+    created_at TEXT DEFAULT (datetime('now'))
+)");
 
 // Offer 1 (Crypto, network "NetA"): 3 clicks on 2 unique IPs, cost 0.5+0.7+0.3 = 1.5.
 // Conversions across every status group:

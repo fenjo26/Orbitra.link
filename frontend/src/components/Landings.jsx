@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { Plus, Trash2, Edit3, Settings2, Filter, RefreshCw, X, SlidersHorizontal, Smartphone, Copy, CopyPlus, Check } from 'lucide-react';
+import { Plus, Trash2, Edit3, Settings2, Filter, RefreshCw, X, SlidersHorizontal, Smartphone, Copy, CopyPlus, Check, BarChart3 } from 'lucide-react';
 import InfoBanner from './InfoBanner';
 import LandingEditor from './LandingEditor';
 import PwaEditor from './PwaEditor';
+import PwaFunnelCard from './PwaFunnelCard';
 import GroupsModal from './GroupsModal';
 import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
 import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle, ColRow } from './common/ColumnResize';
@@ -84,6 +85,8 @@ const Landings = ({ landings, refreshData, user }) => {
     const [landingList, setLandingList] = useState(() => landings || []);
     const [isEditorOpen, setIsEditorOpen] = useState(false);
     const [pwaEditorOpen, setPwaEditorOpen] = useState(false);
+    // Per-screen funnel card (PWA rows): the landing object while open.
+    const [funnelCardLanding, setFunnelCardLanding] = useState(null);
     const [copiedLandingId, setCopiedLandingId] = useState(null);
     const [urlModal, setUrlModal] = useState(null); // { name, url } — copy fallback
     const [showGroupsModal, setShowGroupsModal] = useState(false);
@@ -1211,6 +1214,11 @@ const Landings = ({ landings, refreshData, user }) => {
                                             <button onClick={() => openEditorFor(landing)} className="action-btn text-blue" title={t('common.edit') || t('components.edit')}>
                                                 <Edit3 className="w-4 h-4" />
                                             </button>
+                                            {isPwaLanding(landing) && (
+                                                <button onClick={() => setFunnelCardLanding(landing)} className="action-btn text-blue" title={t('pwa.funnelCardTitle')}>
+                                                    <BarChart3 className="w-4 h-4" />
+                                                </button>
+                                            )}
                                             {renderCopyLinkButton(landing)}
                                             {renderDuplicateButton(landing)}
                                             <button onClick={() => handleDelete(landing.id)} className="action-btn text-red" title={t('common.delete')}>
@@ -1285,6 +1293,11 @@ const Landings = ({ landings, refreshData, user }) => {
                             <button onClick={() => openEditorFor(landing)} className="action-btn text-blue" title={t('common.edit') || t('components.edit')}>
                                 <Edit3 className="w-4 h-4" />
                             </button>
+                            {isPwaLanding(landing) && (
+                                <button onClick={() => setFunnelCardLanding(landing)} className="action-btn text-blue" title={t('pwa.funnelCardTitle')}>
+                                    <BarChart3 className="w-4 h-4" />
+                                </button>
+                            )}
                             {renderCopyLinkButton(landing)}
                             {renderDuplicateButton(landing)}
                             <button onClick={() => handleDelete(landing.id)} className="action-btn text-red" title={t('common.delete')}>
@@ -1345,6 +1358,14 @@ const Landings = ({ landings, refreshData, user }) => {
                 <PwaEditor
                     landingId={editingLandingId}
                     onClose={handlePwaEditorClose}
+                />
+            )}
+
+            {funnelCardLanding && (
+                <PwaFunnelCard
+                    landingId={funnelCardLanding.id}
+                    landingName={funnelCardLanding.name}
+                    onClose={() => setFunnelCardLanding(null)}
                 />
             )}
 

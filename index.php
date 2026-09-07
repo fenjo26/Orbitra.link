@@ -2617,13 +2617,15 @@ if ($uriPath === '/pixel.gif') {
     if (($_GET['action'] ?? '') === 'pwa') {
         // PWA landing funnel beacons (core/PwaLanding.php pages): intent = tap
         // on Install, install = appinstalled / first iOS standalone open,
-        // open = standalone reopen. The click row is the dedup gate: the
-        // timestamped columns are only written while NULL, so a repeated or
-        // replayed beacon for the same click cannot inflate the funnel.
+        // open = standalone reopen, screen = a funnel step became visible
+        // (renderer v16, the configurable in-browser flow). The click row is
+        // the dedup gate: the timestamped columns are only written while NULL,
+        // so a repeated or replayed beacon for the same click cannot inflate
+        // the funnel.
         $pwaSubid = trim((string) ($_GET['subid'] ?? ''));
         $pwaKind = (string) ($_GET['kind'] ?? '');
         $pwaReason = substr(trim((string) ($_GET['reason'] ?? '')), 0, 32);
-        if ($pwaSubid !== '' && in_array($pwaKind, ['intent', 'install', 'open', 'prompt', 'decline', 'pushfail'], true)) {
+        if ($pwaSubid !== '' && in_array($pwaKind, ['intent', 'install', 'open', 'prompt', 'decline', 'pushfail', 'screen'], true)) {
             try {
                 if ($pwaKind === 'intent') {
                     $pdo->prepare("UPDATE clicks SET pwa_intent_at = datetime('now') WHERE id = ? AND pwa_intent_at IS NULL")
@@ -2648,6 +2650,34 @@ if ($uriPath === '/pixel.gif') {
                     // there is no subscriber row behind this click.
                     $pdo->prepare("UPDATE clicks SET push_fail_reason = NULLIF(?, '') WHERE id = ? AND push_fail_reason IS NULL")
                         ->execute([$pwaReason, $pwaSubid]);
+                } elseif ($pwaKind === 'screen') {
+                    // A flow screen became visible. `screen` is the step id the
+                    // RENDERER baked into the page (^[a-z0-9_]{1,32}$) — never
+                    // free-form visitor input. entry = first screen this click
+                    // ever saw (NULL-guarded like every funnel column), last =
+                    // the current step, and the raw view row feeds the
+                    // per-screen counts — capped per click, so a parked tab
+                    // cycling screens cannot pump the table.
+                    $pwaScreen = (string) ($_GET['screen'] ?? '');
+                    if (preg_match('/^[a-z0-9_]{1,32}$/', $pwaScreen) === 1) {
+                        $pdo->prepare("UPDATE clicks SET pwa_entry_screen = ? WHERE id = ? AND pwa_entry_screen IS NULL")
+                            ->execute([$pwaScreen, $pwaSubid]);
+                        $pdo->prepare("UPDATE clicks SET pwa_last_screen = ? WHERE id = ?")
+                            ->execute([$pwaScreen, $pwaSubid]);
+                        $screenStmt = $pdo->prepare("SELECT landing_id,
+                                (SELECT COUNT(*) FROM pwa_screen_views v WHERE v.click_id = clicks.id) AS views
+                            FROM clicks WHERE id = ? LIMIT 1");
+                        $screenStmt->execute([$pwaSubid]);
+                        $screenRow = $screenStmt->fetch(PDO::FETCH_ASSOC);
+                        if ($screenRow && (int) $screenRow['views'] < 100) {
+                            $pdo->prepare("INSERT INTO pwa_screen_views (click_id, landing_id, screen) VALUES (?, ?, ?)")
+                                ->execute([
+                                    $pwaSubid,
+                                    $screenRow['landing_id'] !== null ? (int) $screenRow['landing_id'] : null,
+                                    $pwaScreen,
+                                ]);
+                        }
+                    }
                 } else {
                     // Standalone reopen — throttled to one count per 10 minutes
                     // per click, so a parked tab cannot pump the counter.

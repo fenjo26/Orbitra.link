@@ -144,6 +144,9 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    COALESCE(SUM(CASE WHEN cl.pwa_install_at IS NOT NULL AND cl.is_bot = 0 THEN 1 ELSE 0 END), 0) AS pwa_installs_real,
                    COALESCE(SUM(COALESCE(cl.pwa_open_count, 0)), 0) AS pwa_opens,
                    COALESCE(SUM(CASE WHEN cl.push_subscribed_at IS NOT NULL THEN 1 ELSE 0 END), 0) AS push_subscribed,
+                   -- Per-screen PWA funnel (renderer v16): total flow-screen
+                   -- views behind the group. A click can contribute several.
+                   COALESCE(SUM((SELECT COUNT(*) FROM pwa_screen_views v WHERE v.click_id = cl.id)), 0) AS pwa_screen_views,
                    COALESCE(SUM(cl.cost), 0) AS cost,
                    COALESCE(SUM(cva.cnt_any), 0) AS conversions,
                    COALESCE(SUM(cva.cnt_sale), 0) AS sales,
@@ -218,6 +221,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    COALESCE(SUM(CASE WHEN click_id IS NOT NULL
                                           AND (via_landing = 0 OR offer_at IS NOT NULL)
                                      THEN 1 ELSE 0 END), 0) as real_offer_clicks,
+                   COALESCE(SUM(pwa_screen_views), 0) as pwa_screen_views,
                    COALESCE(SUM(cnt_any), 0) as conversions,
                    COALESCE(SUM(rev_all), 0) as revenue,
                    COALESCE(SUM(rev_sale), 0) as revenue_confirmed,
@@ -250,6 +254,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                        cl.landing_at, cl.offer_at,
                        cl.lp_seconds, cl.lp_scroll,
                        CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 THEN 1 ELSE 0 END as via_landing,
+                       (SELECT COUNT(*) FROM pwa_screen_views v WHERE v.click_id = cl.id) as pwa_screen_views,
                        cva.cnt_any, cva.rev_all, cva.rev_sale,
                        cva.cnt_sale, cva.cnt_hold, cva.cnt_rejected, cva.cnt_trash,
                        cva.cnt_registration, cva.cnt_deposit,
@@ -315,6 +320,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    COALESCE(SUM(CASE WHEN pwa_install_at IS NOT NULL AND is_bot = 0 THEN 1 ELSE 0 END), 0) as pwa_installs_real,
                    COALESCE(SUM(COALESCE(pwa_open_count, 0)), 0) as pwa_opens,
                    COALESCE(SUM(CASE WHEN push_subscribed_at IS NOT NULL THEN 1 ELSE 0 END), 0) as push_subscribed,
+                   COALESCE(SUM(pwa_screen_views), 0) as pwa_screen_views,
                    COALESCE(SUM(cnt_any), 0) as conversions,
                    COALESCE(SUM(rev_all), 0) as revenue,
                    COALESCE(SUM(rev_sale), 0) as revenue_confirmed,
@@ -346,6 +352,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                        cl.lp_seconds, cl.lp_scroll,
                        cl.pwa_intent_at, cl.pwa_install_at, cl.pwa_open_count,
                        cl.push_subscribed_at,
+                       (SELECT COUNT(*) FROM pwa_screen_views v WHERE v.click_id = cl.id) as pwa_screen_views,
                        CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END as offer_clicked,
                        cva.cnt_any, cva.rev_all, cva.rev_sale,
                        cva.cnt_sale, cva.cnt_hold, cva.cnt_rejected, cva.cnt_trash,
@@ -486,6 +493,10 @@ if (!function_exists('orbitraConversionStatusGroups')) {
             // Push base funnel (own VAPID): clicks whose visitor accepted the
             // notification prompt and stored a subscription.
             'push_subscribed'         => $pushSubscribed,
+            // Per-screen funnel (renderer v16): raw 1:N view count summed by
+            // the SQL builders — no derived ratio on top, the views carry
+            // their own semantics (a click legitimately contributes several).
+            'pwa_screen_views'        => (int) ($raw['pwa_screen_views'] ?? 0),
             // Average landing→offer time, human-formatted ("1m 12s").
             'time_since_lp_click'     => self_fmtLpSeconds($raw['avg_lp_seconds'] ?? null),
             // Time actually spent on the landing — measured for EVERY visitor,

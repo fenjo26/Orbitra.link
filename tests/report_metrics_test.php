@@ -180,7 +180,17 @@ $pdo->exec('CREATE TABLE clicks (id TEXT PRIMARY KEY, campaign_id INTEGER, offer
     uniq_campaign INTEGER DEFAULT 1, uniq_stream INTEGER DEFAULT 1, uniq_global INTEGER DEFAULT 1,
     landing_at TEXT, offer_at TEXT, lp_seconds INTEGER, lp_scroll INTEGER,
     pwa_intent_at TEXT, pwa_install_at TEXT, pwa_open_at TEXT, pwa_open_count INTEGER DEFAULT 0,
-    push_prompted_at TEXT, push_subscribed_at TEXT, push_declined_at TEXT)');
+    push_prompted_at TEXT, push_subscribed_at TEXT, push_declined_at TEXT,
+    pwa_entry_screen TEXT, pwa_last_screen TEXT)');
+// Per-screen funnel log (migration 51): the 1:N event table behind
+// pwa_screen_views, created here exactly as the self-heal DDL ships it.
+$pdo->exec('CREATE TABLE pwa_screen_views (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    click_id   TEXT NOT NULL,
+    landing_id INTEGER,
+    screen     TEXT NOT NULL DEFAULT \'\',
+    created_at TEXT DEFAULT (datetime(\'now\'))
+)');
 // "Real" revenue (aggregator payouts) lives in revenue_records, joined per
 // click exactly like the campaigns report does.
 $pdo->exec('CREATE TABLE revenue_records (id INTEGER PRIMARY KEY, click_id TEXT, amount REAL)');
@@ -218,6 +228,17 @@ $pdo->exec("UPDATE clicks SET landing_at = '2026-01-01 10:03:00' WHERE id = 'm7'
 // of both the average and the denominator.
 $pdo->exec("UPDATE clicks SET lp_seconds = 40, lp_scroll = 90 WHERE id = 'm2'");
 $pdo->exec("UPDATE clicks SET lp_seconds = 2,  lp_scroll = 5  WHERE id = 'm3'");
+// Per-screen PWA funnel (migration 51): m1 walked store→scr_a, m2 saw the
+// store once, m3 saw the instructions screen twice (a revisit is a view),
+// m4 saw the store once through landing 2. m5/m6/m7 never saw a screen —
+// non-PWA traffic reports nothing here, exactly like the dwell columns.
+$pdo->exec("UPDATE clicks SET pwa_entry_screen = 'store', pwa_last_screen = 'scr_a' WHERE id = 'm1'");
+$pdo->exec("UPDATE clicks SET pwa_entry_screen = 'store', pwa_last_screen = 'store' WHERE id = 'm2'");
+$pdo->exec("UPDATE clicks SET pwa_entry_screen = 'instructions', pwa_last_screen = 'instructions' WHERE id = 'm3'");
+$pdo->exec("UPDATE clicks SET pwa_entry_screen = 'store', pwa_last_screen = 'store' WHERE id = 'm4'");
+$st = $pdo->prepare('INSERT INTO pwa_screen_views (click_id, landing_id, screen) VALUES (?,?,?)');
+foreach ([['m1', 1, 'store'], ['m1', 1, 'scr_a'], ['m2', 1, 'store'], ['m3', 1, 'instructions'],
+          ['m3', 1, 'instructions'], ['m4', 2, 'store']] as $r) { $st->execute($r); }
 $pdo->exec("INSERT INTO revenue_records (click_id, amount) VALUES ('m1', 12)");
 $st = $pdo->prepare('INSERT INTO landings (id, name, group_id) VALUES (?,?,?)');
 foreach ([[1,'LP one',1], [2,'LP two',null], [3,'LP empty',null]] as $r) { $st->execute($r); }
@@ -257,6 +278,9 @@ $assert('Dashboard bot rate (bots per offer click)', $dashboard['bot_rate'], 33.
 $assert('Dashboard real LP clicks', $dashboard['real_lp_clicks'], 2, 0);
 $assert('Dashboard real offer clicks', $dashboard['real_offer_clicks'], 3, 0);
 $assert('Dashboard real LP CTR', $dashboard['real_lp_ctr'], 40);
+// Per-screen funnel: 6 screen views over 7 clicks — m1 contributes two, m3's
+// revisit counts, m5/m6/m7 contribute nothing. A click is 1:N views here.
+$assert('Dashboard PWA screen views', $dashboard['pwa_screen_views'], 6);
 
 // The derivation loop the landings/offers endpoints run after the SQL:
 // array_merge of ALL derived metrics — the same 65-metric parity the panel
@@ -335,6 +359,10 @@ $assert('L2 bots', $lp[2]['bots'], 1, 0);
 $assert('L2 bot_rate', $lp[2]['bot_rate'], 100);
 $assert('L2 avg_lp_seconds', $lp[2]['avg_lp_seconds'], 120);
 $assert('L2 real_revenue (no revenue_records)', $lp[2]['real_revenue'], 0);
+// Per-screen views per landing: L1's clicks saw 5 screens, L2's m4 one, L3 none.
+$assert('L1 pwa_screen_views', $lp[1]['pwa_screen_views'], 5);
+$assert('L2 pwa_screen_views', $lp[2]['pwa_screen_views'], 1);
+$assert('L3 pwa_screen_views', $lp[3]['pwa_screen_views'], 0);
 
 // Landing 3: no clicks at all — zero counters, ratios 0, LP CTR and ROI dashes.
 $assert('L3 clicks', $lp[3]['clicks'], 0, 0);
@@ -382,6 +410,7 @@ $assert('O7 roi', $of[7]['roi'], 350);
 $assert('O7 real_revenue', $of[7]['real_revenue'], 12);
 $assert('O7 registrations', $of[7]['registrations'], 0, 0);
 $assert('O7 bots', $of[7]['bots'], 0, 0);
+$assert('O7 pwa_screen_views (m1 saw two screens, the pre-bound m7 none)', $of[7]['pwa_screen_views'], 2);
 // Offer 8 got the bot click through landing 2.
 $assert('O8 bots', $of[8]['bots'], 1, 0);
 $assert('O8 revenue_rejected', $of[8]['revenue_rejected'], 5);

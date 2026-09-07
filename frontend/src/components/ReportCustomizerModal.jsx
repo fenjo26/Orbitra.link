@@ -88,6 +88,7 @@ export const ALL_REPORT_METRICS = [
     { id: 'pwa_opens', label: 'PWA opens', shortLabel: 'PWA Opens', hintKey: 'pwaOpensHint', hint: 'Reopens of the installed PWA from the home screen (throttled, one per 10 min per click)' },
     { id: 'pwa_install_rate', label: 'PWA install rate', shortLabel: 'PWA CR', hintKey: 'pwaInstallRateHint', hint: '(Real PWA installs / clicks) × 100% — on a PWA landing row this IS view→install; dash when zero installs' },
     { id: 'push_subscribed', label: 'Push subscribers', shortLabel: 'Push subs', hintKey: 'pushSubscribedHint', hint: 'Clicks whose visitor accepted notifications and stored a subscription in the push base' },
+    { id: 'pwa_screen_views', label: 'PWA screen views', shortLabel: 'PWA Screens', hintKey: 'pwaScreenViewsHint', hint: 'Total PWA flow-screen views (the configurable funnel): every time a visitor was shown a funnel screen — one click can contribute several' },
     { id: 'cr_regs_to_deps', label: 'CR (regs to deps)', shortLabel: 'CR (r→d)' },
 ];
 
@@ -137,6 +138,10 @@ const REPORT_DIMENSIONS = [
     { id: 'hour', label: 'Hour', i18n: 'hour' },
     { id: 'lp_time', label: 'Time to offer (bucket)', i18n: 'lpTime' },
     { id: 'lp_dwell', label: 'Time on LP (bucket)', i18n: 'lpDwell' },
+
+    // PWA funnel screens (per-screen stats, renderer v16)
+    { id: 'pwa_entry_screen', label: 'PWA entry screen', i18n: 'pwaEntryScreen' },
+    { id: 'pwa_last_screen', label: 'PWA last screen', i18n: 'pwaLastScreen' },
 
     // Tracker entities
     { id: 'campaign_id', label: 'Campaign', i18n: 'campaign' },

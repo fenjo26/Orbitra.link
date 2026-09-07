@@ -310,7 +310,16 @@ const DEFAULT_CONFIG = {
     action_target: 'to_offer',
     action_campaign_id: 0,
     action_url: '',
+    // In-browser funnel: ordered steps, the first enabled one is what a cold
+    // visitor sees. Mirrors core/PwaLanding.php::normalizeFunnel() defaults.
+    funnel: [{ id: 'store', type: 'store', enabled: true }],
 };
+
+// Funnel step types that render as their own section (everything except the
+// store listing, which is plain page content). "screen" steps are the
+// operator's own screens — up to MAX_FLOW_SCREENS of them.
+const MAX_FLOW_SCREENS = 5;
+const isFlowScreenStep = (s) => s?.type === 'screen';
 
 const ratingAvg = (counts) => {
     const sum = counts.reduce((acc, n, i) => acc + (Number(n) || 0) * (i + 1), 0);
@@ -379,6 +388,12 @@ export default function PwaEditor({ landingId, onClose }) {
     // Reviews drag & drop.
     const [dragIdx, setDragIdx] = useState(null);
     const [overIdx, setOverIdx] = useState(null);
+
+    // Funnel steps drag & drop (same index-based pattern as the reviews).
+    const [flowDragIdx, setFlowDragIdx] = useState(null);
+    const [flowOverIdx, setFlowOverIdx] = useState(null);
+    // Which funnel step's editor is expanded (screen steps only).
+    const [openFlowStep, setOpenFlowStep] = useState(null);
 
     // Domain binding: which tracking domain serves this PWA from its root.
     // The list carries every domain with pwa_landing_id, so the current
@@ -667,6 +682,9 @@ export default function PwaEditor({ landingId, onClose }) {
                 ...c,
                 screens: [...(c.screens || []).filter(Boolean), ...usable.map(a => a.url)].slice(0, 10),
             }));
+        } else if (typeof mode === 'string' && mode.startsWith('flowimage:')) {
+            // Hero image for a funnel screen step.
+            updateFunnelStep(mode.slice('flowimage:'.length), { image: usable[usable.length - 1].url });
         }
     };
 
@@ -787,6 +805,57 @@ export default function PwaEditor({ landingId, onClose }) {
             ...c,
             comments: [...(c.comments || []), { name: '', text: '', stars: 5, likes: 0, date: new Date().toISOString().slice(0, 10), reply: '' }],
         }));
+    };
+
+    // --- Funnel steps (configurable in-browser flow) -------------------------
+    // The server (normalizeFunnel) is the source of truth for validity; these
+    // helpers only ever produce shapes it accepts. Legacy configs load with
+    // no funnel key — DEFAULT_CONFIG's [store] keeps them rendering as before.
+    const funnelSteps = Array.isArray(config.funnel) && config.funnel.length
+        ? config.funnel
+        : DEFAULT_CONFIG.funnel;
+    const screenStepCount = funnelSteps.filter(isFlowScreenStep).length;
+
+    const setFunnelSteps = (steps) => set('funnel', steps);
+
+    const moveFunnelStep = (from, to) => {
+        if (from === to || from < 0 || to < 0 || from >= funnelSteps.length || to >= funnelSteps.length) return;
+        const next = [...funnelSteps];
+        const [moved] = next.splice(from, 1);
+        next.splice(to, 0, moved);
+        setFunnelSteps(next);
+    };
+
+    const updateFunnelStep = (id, patch) => {
+        setFunnelSteps(funnelSteps.map((s) => (s.id === id ? { ...s, ...patch } : s)));
+    };
+
+    const addFunnelScreen = () => {
+        if (screenStepCount >= MAX_FLOW_SCREENS) return;
+        // Server-side rule: ^[a-z0-9_]{1,32}$, unique, not a builtin id.
+        const id = `scr_${Date.now().toString(36)}_${Math.floor(Math.random() * 1296).toString(36)}`;
+        setFunnelSteps([...funnelSteps, { id, type: 'screen', enabled: true, template: 'lobby', title: '', text: '', button: '', image: '', custom_html: '', custom_js: '' }]);
+        setOpenFlowStep(id);
+    };
+
+    const removeFunnelStep = (id) => {
+        setFunnelSteps(funnelSteps.filter((s) => s.id !== id));
+        if (openFlowStep === id) setOpenFlowStep(null);
+        setFlowDragIdx(null);
+        setFlowOverIdx(null);
+    };
+
+    const flowStepLabel = (s) => {
+        if (s.type === 'store') return t('pwa.funnelStepStore');
+        if (s.type === 'instructions') return t('pwa.funnelStepInstructions');
+        if (s.type === 'push') return t('pwa.funnelStepPush');
+        return s.title?.trim() || t('pwa.funnelStepScreen');
+    };
+    const flowStepIcon = (s) => {
+        if (s.type === 'store') return '🏪';
+        if (s.type === 'instructions') return '📋';
+        if (s.type === 'push') return '🔔';
+        return { lobby: '🏠', slot: '🎰', wheel: '🎡', custom: '💻' }[s.template] || '💻';
     };
 
     const steps = [t('pwa.stepGeneral'), t('pwa.stepApp'), t('pwa.stepReviews')];
@@ -1054,6 +1123,240 @@ export default function PwaEditor({ landingId, onClose }) {
                                             <input className="form-input" placeholder={t('pwa.supportAddress')} value={config.support_address} onChange={(e) => set('support_address', e.target.value)} />
                                         </div>
                                     )}
+                                </Section>
+
+                                <Section title={t('pwa.funnelTitle')}>
+                                    <span className="text-xs block mb-3" style={{ color: 'var(--color-text-muted)' }}>{t('pwa.funnelHint')}</span>
+                                    <div className="space-y-2">
+                                        {funnelSteps.map((s, idx) => {
+                                            const isFirst = idx === 0;
+                                            const isOver = flowOverIdx === idx && flowDragIdx !== null && flowDragIdx !== idx;
+                                            const expanded = openFlowStep === s.id;
+                                            return (
+                                                <div
+                                                    key={s.id}
+                                                    className="rounded-xl"
+                                                    style={{
+                                                        border: '1px solid ' + (isOver ? 'var(--color-primary)' : 'var(--color-border)'),
+                                                        background: 'var(--color-bg-card)',
+                                                        borderTopWidth: isOver ? '3px' : '1px',
+                                                    }}
+                                                    onDragOver={(e) => { e.preventDefault(); setFlowOverIdx(idx); }}
+                                                    onDrop={(e) => { e.preventDefault(); moveFunnelStep(flowDragIdx, idx); setFlowDragIdx(null); setFlowOverIdx(null); }}
+                                                >
+                                                    <div className="flex items-center gap-2 px-3 py-2">
+                                                        <span
+                                                            draggable
+                                                            onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; setFlowDragIdx(idx); }}
+                                                            onDragEnd={() => { setFlowDragIdx(null); setFlowOverIdx(null); }}
+                                                            title={t('pwa.dragHint')}
+                                                            className="cursor-grab active:cursor-grabbing flex items-center"
+                                                            style={{ color: 'var(--color-text-muted)', pointerEvents: 'auto' }}
+                                                        >
+                                                            <GripVertical className="w-4 h-4" />
+                                                        </span>
+                                                        <span className="text-base" style={{ width: 22, textAlign: 'center' }}>{flowStepIcon(s)}</span>
+                                                        <span className="text-sm flex-1 min-w-0 truncate" style={{ color: 'var(--color-text-primary)' }}>
+                                                            {flowStepLabel(s)}
+                                                            {isFirst && (
+                                                                <span className="ml-2 text-xs px-2 py-0.5 rounded-full" style={{ background: 'color-mix(in srgb, var(--color-primary) 14%, transparent)', color: 'var(--color-primary)' }}>
+                                                                    {t('pwa.funnelFirstBadge')}
+                                                                </span>
+                                                            )}
+                                                        </span>
+                                                        {!s.enabled && (
+                                                            <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('pwa.funnelOff')}</span>
+                                                        )}
+                                                        {isFlowScreenStep(s) && (
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-ghost btn-icon btn-sm"
+                                                                title={expanded ? t('common.close') : t('pwa.funnelEdit')}
+                                                                onClick={() => setOpenFlowStep(expanded ? null : s.id)}
+                                                            >
+                                                                {expanded ? '▾' : '▸'}
+                                                            </button>
+                                                        )}
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-ghost btn-icon btn-sm"
+                                                            title={t('pwa.funnelMoveUp')}
+                                                            disabled={idx === 0}
+                                                            onClick={() => moveFunnelStep(idx, idx - 1)}
+                                                        >
+                                                            ↑
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-ghost btn-icon btn-sm"
+                                                            title={t('pwa.funnelMoveDown')}
+                                                            disabled={idx === funnelSteps.length - 1}
+                                                            onClick={() => moveFunnelStep(idx, idx + 1)}
+                                                        >
+                                                            ↓
+                                                        </button>
+                                                        <label className="flex items-center cursor-pointer select-none" title={t('pwa.funnelEnabledTitle')}>
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={!!s.enabled}
+                                                                onChange={(e) => updateFunnelStep(s.id, { enabled: e.target.checked })}
+                                                                style={{ width: '15px', height: '15px', accentColor: 'var(--color-primary)' }}
+                                                            />
+                                                        </label>
+                                                        {isFlowScreenStep(s) && (
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-ghost btn-icon btn-sm"
+                                                                title={t('common.delete')}
+                                                                style={{ color: 'var(--color-danger)' }}
+                                                                onClick={() => removeFunnelStep(s.id)}
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        )}
+                                                    </div>
+
+                                                    {expanded && isFlowScreenStep(s) && (
+                                                        <div className="px-3 pb-3 space-y-3" style={{ borderTop: '1px solid var(--color-border)', paddingTop: 12 }}>
+                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                                <Field label={t('pwa.appScreenType')}>
+                                                                    <select
+                                                                        className="form-select"
+                                                                        value={s.template || 'lobby'}
+                                                                        onChange={(e) => updateFunnelStep(s.id, { template: e.target.value })}
+                                                                    >
+                                                                        <option value="lobby">🏠 {t('pwa.screenTypeLobby')}</option>
+                                                                        <option value="slot">🎰 {t('pwa.screenTypeSlot')}</option>
+                                                                        <option value="wheel">🎡 {t('pwa.screenTypeWheel')}</option>
+                                                                        <option value="custom">💻 {t('pwa.screenTypeCustom')}</option>
+                                                                    </select>
+                                                                </Field>
+                                                                <Field label={t('pwa.appScreenButton')}>
+                                                                    <input
+                                                                        className="form-input"
+                                                                        placeholder="e.g. Claim Bonus & Play"
+                                                                        value={s.button || ''}
+                                                                        onChange={(e) => updateFunnelStep(s.id, { button: e.target.value })}
+                                                                    />
+                                                                </Field>
+                                                            </div>
+
+                                                            {s.template === 'custom' ? (
+                                                                <>
+                                                                    <div className="flex flex-wrap items-center justify-between gap-2">
+                                                                        <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>{t('pwa.screenTypeCustom')}</span>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <button
+                                                                                type="button"
+                                                                                className="btn btn-secondary btn-sm text-xs"
+                                                                                onClick={() => updateFunnelStep(s.id, { custom_html: SLOT_BOILERPLATE.html, custom_js: SLOT_BOILERPLATE.js })}
+                                                                            >
+                                                                                🎰 {t('pwa.insertSlotBoilerplate')}
+                                                                            </button>
+                                                                            <button
+                                                                                type="button"
+                                                                                className="btn btn-secondary btn-sm text-xs"
+                                                                                onClick={() => updateFunnelStep(s.id, { custom_html: WHEEL_BOILERPLATE.html, custom_js: WHEEL_BOILERPLATE.js })}
+                                                                            >
+                                                                                🎡 {t('pwa.insertWheelBoilerplate')}
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                    <Field label={t('pwa.customHtmlLabel')}>
+                                                                        <textarea
+                                                                            className="form-input font-mono text-xs"
+                                                                            rows={6}
+                                                                            placeholder={t('pwa.customHtmlPlaceholder')}
+                                                                            value={s.custom_html || ''}
+                                                                            onChange={(e) => updateFunnelStep(s.id, { custom_html: e.target.value })}
+                                                                            style={{ whiteSpace: 'pre', tabSize: 2 }}
+                                                                        />
+                                                                    </Field>
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                                        <Field label={t('pwa.appScreenTitle')}>
+                                                                            <input
+                                                                                className="form-input"
+                                                                                placeholder="e.g. Welcome Bonus: $1,000"
+                                                                                value={s.title || ''}
+                                                                                onChange={(e) => updateFunnelStep(s.id, { title: e.target.value })}
+                                                                            />
+                                                                        </Field>
+                                                                        <Field label={t('pwa.heroImage')}>
+                                                                            <div className="flex items-center gap-3">
+                                                                                {s.image ? (
+                                                                                    <img
+                                                                                        src={s.image}
+                                                                                        alt=""
+                                                                                        onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
+                                                                                        style={{ width: 64, height: 42, borderRadius: 8, objectFit: 'cover', border: '1px solid var(--color-border)' }}
+                                                                                    />
+                                                                                ) : (
+                                                                                    <div style={{ width: 64, height: 42, borderRadius: 8, border: '1px dashed var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>
+                                                                                        <ImagePlus className="w-4 h-4" />
+                                                                                    </div>
+                                                                                )}
+                                                                                <button type="button" className="btn btn-secondary btn-sm" onClick={() => setPickerMode(`flowimage:${s.id}`)}>
+                                                                                    <ImagePlus className="w-4 h-4" />
+                                                                                    {t('pwa.pickHero')}
+                                                                                </button>
+                                                                                {s.image && (
+                                                                                    <button
+                                                                                        type="button"
+                                                                                        className="btn btn-ghost btn-sm text-xs"
+                                                                                        style={{ color: 'var(--color-danger)' }}
+                                                                                        onClick={() => updateFunnelStep(s.id, { image: '' })}
+                                                                                    >
+                                                                                        {t('common.delete')}
+                                                                                    </button>
+                                                                                )}
+                                                                            </div>
+                                                                        </Field>
+                                                                    </div>
+                                                                    <Field label={t('pwa.appScreenText')}>
+                                                                        <textarea
+                                                                            className="form-input"
+                                                                            rows={2}
+                                                                            placeholder="e.g. Spin the lucky reels, hit the jackpot & withdraw instantly!"
+                                                                            value={s.text || ''}
+                                                                            onChange={(e) => updateFunnelStep(s.id, { text: e.target.value })}
+                                                                        />
+                                                                    </Field>
+                                                                </>
+                                                            )}
+
+                                                            <Field label={t('pwa.funnelStepJs')} hint={t('pwa.funnelStepJsHint')}>
+                                                                <textarea
+                                                                    className="form-input font-mono text-xs"
+                                                                    rows={4}
+                                                                    placeholder="console.log('screen shown')"
+                                                                    value={s.custom_js || ''}
+                                                                    onChange={(e) => updateFunnelStep(s.id, { custom_js: e.target.value })}
+                                                                    style={{ whiteSpace: 'pre', tabSize: 2 }}
+                                                                />
+                                                            </Field>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                    <div className="flex items-center gap-3 mt-3">
+                                        <button
+                                            type="button"
+                                            className="btn btn-secondary btn-sm"
+                                            onClick={addFunnelScreen}
+                                            disabled={screenStepCount >= MAX_FLOW_SCREENS}
+                                        >
+                                            <Plus className="w-4 h-4" />
+                                            {t('pwa.funnelAddScreen')}
+                                        </button>
+                                        <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                                            {screenStepCount}/{MAX_FLOW_SCREENS}
+                                        </span>
+                                    </div>
                                 </Section>
                             </>
                         )}
@@ -1561,6 +1864,30 @@ export default function PwaEditor({ landingId, onClose }) {
                                     })}
                                 </div>
                             )}
+                            {/* Funnel steps: open the browser-flow preview at any
+                                enabled step (the server forces it via __PWA_FORCE_SCREEN). */}
+                            {funnelSteps.some((s) => s.enabled && s.type !== 'store') && (
+                                <div className="flex flex-wrap gap-1 justify-end">
+                                    {funnelSteps.filter((s) => s.enabled).map((s) => (
+                                        <button
+                                            key={s.id}
+                                            type="button"
+                                            title={flowStepLabel(s)}
+                                            onClick={() => setPreviewView(previewView === s.id ? 'store' : s.id)}
+                                            className="text-xs rounded-md"
+                                            style={{
+                                                padding: '3px 8px',
+                                                border: '1px solid ' + (previewView === s.id ? 'var(--color-primary)' : 'var(--color-border)'),
+                                                background: previewView === s.id ? 'var(--color-primary-light)' : 'transparent',
+                                                color: previewView === s.id ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                                                fontWeight: previewView === s.id ? 600 : 400,
+                                            }}
+                                        >
+                                            {flowStepIcon(s)}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                         <div
                             className="flex justify-center"
@@ -1668,7 +1995,6 @@ export default function PwaEditor({ landingId, onClose }) {
                     multiple={pickerMode === 'screens'}
                     sizeContract={pickerMode === 'icon' ? { width: 512, height: 512, crop: true, label: '512×512' } : null}
                 />
-
                 {/* Copy fallback — only when every clipboard transport failed. */}
                 {urlModal && (
                     <CampaignUrlModal
