@@ -7,6 +7,59 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added — the PWA visit funnel: configurable screens, per-screen tracking & statistics
+
+- **The in-browser funnel is now a configurable ordered list of screens**
+  (`funnel` in the PWA config, docs/pwa-funnel.md). The first enabled step is
+  what a cold visitor sees first — a custom screen instead of the store
+  listing if the operator says so; the install-instructions screen
+  (platform-aware: Safari steps on iOS, Chrome-menu steps elsewhere) and the
+  push opt-in card can be placed at any position of the flow, and up to five
+  own screens (the lobby / slot / wheel / custom-HTML templates) can be
+  chained between them. A CTA inside the flow advances to the next step; the
+  last step falls through to the native install prompt. Absent `funnel` key
+  → legacy `[store]`, so every existing PWA renders exactly what it rendered
+  before; the installed-app branch (standalone open, push sync, `app_action`)
+  is untouched. `RENDERER_VERSION` 15 → 16 regenerates existing statics via
+  the self-heal route on the next view.
+- **Per-screen tracking.** Every flow-screen activation beacons
+  `kind=screen`: `clicks.pwa_entry_screen` (NULL-guarded first screen) and
+  `clicks.pwa_last_screen` on the click row, plus the raw 1:N view log
+  `pwa_screen_views` (migration 51, capped at 100 rows per click). Each
+  screen step takes its own tracking script that executes on the screen's
+  first show — an ad pixel fires only if the visitor actually reached that
+  screen. The slot/wheel engines became per-container factories, so several
+  copies of a template coexist on one page (ids prefixed per step).
+- **Per-screen statistics.** New `pwa_screen_views` metric on the dashboard,
+  campaigns list, campaign reports, Landings and Offers tables; new
+  `pwa_entry_screen` / `pwa_last_screen` Group By dimensions and filters in
+  the report builder; and a per-landing funnel card on the Landings page
+  (bar-chart button on PWA rows) showing views/uniques/entries/exits per
+  screen and the screen→screen transition matrix (`pwa_funnel_stats`).
+  The constructor's step 1 gained the "Visit funnel" section — a reorderable
+  step list with per-screen editors and a funnel-step preview selector that
+  opens the live preview at any enabled step.
+
+### Fixed — postback payouts in a foreign currency no longer mix into the base (PR #9)
+
+- **`postback.php` now converts a payout to the account's base currency
+  before recording it.** The payout used to be stored exactly as the
+  affiliate network sent it, so revenue/ROI mixed currencies whenever a
+  network paid in something other than the base — a UAH payout into a USD
+  account read as a USD amount, deflating ROI by the rate gap. The
+  conversion reuses `core/CurrencyRates.php` (the engine the cost importer
+  already uses) and, when a conversion actually happened, stamps
+  `fx_orig_payout` / `fx_orig_currency` / `fx_rate_used` into the click's
+  `parameters_json`; an unknown currency pair is stored unchanged WITHOUT a
+  fake audit stamp (`convert()` returns the input as-is, so the explicit
+  pair check in front of it is load-bearing). Behavioral note for outbound
+  integrations: the S2S macros `{payout}` / `{currency}` and the CAPI
+  payload now carry the base-currency value instead of the raw network one —
+  receivers that need the raw values take the new `{fx_orig_payout}` /
+  `{fx_orig_currency}` macros.
+
 ## [1.5.3] — 2026-09-05
 
 ### Fixed — safe-page exclusion, the surfaces that were left out
