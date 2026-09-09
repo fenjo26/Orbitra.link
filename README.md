@@ -1,4 +1,4 @@
-# Orbitra v1.5.4 Tracker
+# Orbitra v1.5.5 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,28 +11,26 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.5.4
+## 🆕 What's New in v1.5.5
 
-Feature release — the PWA constructor becomes a funnel builder, and postbacks stop mixing currencies.
+Small release — the Feedback & Support page gains a Partners block.
 
 ### Added
 
-- 📱 **The PWA visit funnel is a configurable list of screens** — your own screens (lobby / slot / wheel / custom HTML, up to five), the install-instructions screen at any position (Safari steps on iOS, Chrome-menu steps elsewhere) and the push card in the browser flow; the first enabled step is what a cold visitor sees, and the store is just one toggleable step of the flow now
-- 📊 **Per-screen statistics** — every screen activation beacons into the tracker: entry/last screen on the click row, a capped per-screen view log (migration 51), a `pwa_screen_views` metric across the dashboard, campaigns, reports and the Landings/Offers tables, entry/last screen Group-By dimensions and filters, and a per-landing funnel card (views, uniques, entries, exits, screen→screen transitions)
+- 🤝 **Partners block on Feedback & Support** — a themed full-width card under the contact grid listing partner services as linked logo tiles: **Pay2.House** (virtual cards for Facebook, Google and TikTok Ads spend) and **GroupBuySEO** (group-buy access to Ahrefs, Semrush, ChatGPT Plus and more) to start with. Extending the list is deliberately cheap: one SVG in `frontend/public/partners/`, one entry in the partners array, four locale strings
+- 🌍 **All seven locales** — the section title, subtitle and per-partner descriptions ship in en / ru / de / uk / es / fr / zh out of the box
+
+The white-on-transparent Pay2.House wordmark sits on a dark chip so it stays readable in light themes, and the global link-hover underline is suppressed inside the tiles so hover keeps the clean lift-and-shadow effect.
+
+### Previous Highlights (v1.5.4)
+
+- 📱 **The PWA visit funnel is a configurable list of screens** — your own screens (lobby / slot / wheel / custom HTML, up to five), the install-instructions screen and the push card at any position of the flow; the first enabled step is what a cold visitor sees, and the store is just one toggleable step now
+- 📊 **Per-screen statistics** — a `pwa_screen_views` metric across the dashboard, campaigns, reports and the Landings/Offers tables, entry/last-screen Group-By dimensions and filters, and a per-landing funnel card (views, uniques, entries, exits, screen→screen transitions)
 - 🎯 **Per-screen tracking scripts** — each screen step runs its own JS on the screen's first show, so ad pixels never fire for screens the visitor never reached
-- 🧭 **Funnel-first constructor** — a dedicated "Screens" wizard step owns the builder and the live preview opens on the first enabled funnel step; the Store and Reviews steps, together with every listing-only section, exist only while the store is in the funnel; presets fill a starter funnel instead of only the listing
+- 🧭 **Funnel-first constructor** — a dedicated "Screens" wizard step owns the builder; the Store and Reviews steps exist only while the store is in the funnel
+- 💱 **Postbacks convert non-base-currency payouts (PR #9)** — S2S `{payout}` / `{currency}` and CAPI carry base-currency values; receivers that need the raw network values take the `{fx_orig_*}` macros
 
-### Fixed
-
-- 💱 **Postbacks convert non-base-currency payouts (PR #9)** — a UAH payout into a USD account no longer reads as USD: the conversion reuses the cost importer's currency engine and stamps `fx_orig_payout` / `fx_orig_currency` / `fx_rate_used` into the click; S2S `{payout}` / `{currency}` and CAPI now carry base-currency values, and receivers that need the raw network values take the new `{fx_orig_*}` macros
-
-### Previous Highlights (v1.5.3)
-
-- 🧩 **The extension overlay counts like the panel** — all six deep-stats queries and the per-ad live aggregate apply the per-campaign "Exclude Safe Page clicks from reports" filter
-- 🧱 **One safe-page predicate instead of three** — moved to `core/ReportMetrics.php`, the cost importer's hand-copied mirror delegates
-- 📊 **The report checkbox hint tells the truth** — safe hits leave *Visitors* and its derivatives and never touched *Clicks*; 👁 Visitors joined the default report preset; 🧪 cloak report test asserts exact numbers for both checkbox states
-
-Older releases (v1.5.2 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.5.3 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo
@@ -512,7 +510,13 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.5.4 (2026-09-07)
+### Current release — v1.5.5 (2026-09-09)
+
+**Added**
+- 🤝 **Partners block on Feedback & Support** — a themed card under the contact grid with linked logo tiles: Pay2.House (virtual cards for Facebook / Google / TikTok Ads spend) and GroupBuySEO (group-buy access to Ahrefs, Semrush, ChatGPT Plus) to start with; extending the list is one SVG, one array entry and four locale strings
+- 🌍 Partners copy ships in all seven locales
+
+### Previous release — v1.5.4 (2026-09-07)
 
 **Added**
 - 📱 **PWA visit funnel** — the in-browser flow is an ordered list of screens: your own screens (lobby / slot / wheel / custom HTML, up to five), the install-instructions screen at any position (platform-aware steps), the push card in the browser flow; the first enabled step is what a cold visitor sees, the store is one toggleable step
@@ -523,14 +527,7 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 **Fixed**
 - 💱 **Postbacks convert non-base-currency payouts (PR #9)** — via the cost importer's currency engine, with `fx_orig_payout` / `fx_orig_currency` / `fx_rate_used` audit macros; S2S `{payout}` / `{currency}` and CAPI now carry base-currency values
 
-### Previous release — v1.5.3 (2026-09-05)
-
-**Fixed**
-- 🧩 Extension overlay counts like the panel — all six deep-stats queries and the per-ad live aggregate apply the per-campaign "Exclude Safe Page clicks from reports" filter
-- 🧱 One safe-page predicate in `core/ReportMetrics.php` — the cost importer's hand-copied mirror delegates
-- 📊 Honest checkbox hint — safe hits leave *Visitors* and its derivatives, never *Clicks*; 👁 Visitors in the default preset; 🧪 cloak report test asserts exact `visitors` / `unique_clicks` for both checkbox states
-
-Previous releases — v1.5.2: 🎨 boot screen before the bundle parses, 🖥 Terminal & Aurora themes, 🗺 two-column login, 🤖 Telegram bot as a visual menu (pinned keyboard ×7 languages), 📸 Snapchat Ads template, 🖱 non-blocking update check, 📊 Profitability → Margin; v1.5.1: ⏱ time on LP for every visitor (visible seconds + scroll depth into the click, *LP bounce/scroll/measured visits* metrics, **Time on LP (bucket)** dimension), 🤖 Telegram polling mode (bare IP / plain HTTP / proxy, real Telegram errors on screen); 🎯 clicks = the offer funnel (pre-bound landing views count as visitors, CPV/EPV ÷ visitors), 📌 pinned identity columns, 🔗 CAPI `content_id` (PR #8), 🧱 versioned column-width storage; v1.5.0: 📱 PWA landings (store-style constructor, funnel beacons into the click, self-healing push subscription, direct domain→PWA binding), 🔔 Web Push on your own base (self-hosted VAPID keys, subscriber list + CSV, manual & event messages, cron-driven queue with retries and aging), 🖼 Content Gallery + shared MediaPicker (size contracts, cropping), 🔐 four crypto-layer defects in push delivery found by live device diagnostics; 🧩 `{subid}` on the landing→offer hop, service worker on bound domains, panel session lifetime, "database is locked" as a clean 503, silent `save_user` demotion; v1.4.1: 🐞 Affiliate Networks crash fix (issue #7), 🌍 System Status localization; v1.4.0: 📊 honest LP-funnel metrics (Real LP clicks / Real offer clicks / Real LP CTR), ⏱ landing→offer timing buckets, 🎚 "After the click" default for new landing streams, 🔐 roles enforced server-side + per-campaign scoping (issue #6); v1.3.11: 🏠 domain-root campaigns in production, 🔑 private postback key on install; v1.3.10: 📱 rotation rows as a placed grid below 640px, 🎨 campaign-name link parity on both surfaces; v1.3.9: 🔒 SSL chain verdicts + certificates-on-save, 🎯 LeadForge honest failures, 🛡️ scan protection, Domains rebuilt; v1.3.8: 🧹 stray ellipsis gone, centred values, checkbox column fixed, lint-zero tracker tables; v1.3.7: 🔀 full column reorder, ✂️ hard cell clipping, 🎯 centred headers.
+Previous releases — v1.5.3: 🧩 extension overlay counts like the panel, 🧱 one safe-page predicate in `core/ReportMetrics.php`, 📊 honest safe-page hint + 👁 Visitors in the default preset; v1.5.2: 🎨 boot screen before the bundle parses, 🖥 Terminal & Aurora themes, 🗺 two-column login, 🤖 Telegram bot as a visual menu (pinned keyboard ×7 languages), 📸 Snapchat Ads template, 🖱 non-blocking update check, 📊 Profitability → Margin; v1.5.1: ⏱ time on LP for every visitor (visible seconds + scroll depth into the click, *LP bounce/scroll/measured visits* metrics, **Time on LP (bucket)** dimension), 🤖 Telegram polling mode (bare IP / plain HTTP / proxy, real Telegram errors on screen); 🎯 clicks = the offer funnel (pre-bound landing views count as visitors, CPV/EPV ÷ visitors), 📌 pinned identity columns, 🔗 CAPI `content_id` (PR #8), 🧱 versioned column-width storage; v1.5.0: 📱 PWA landings (store-style constructor, funnel beacons into the click, self-healing push subscription, direct domain→PWA binding), 🔔 Web Push on your own base (self-hosted VAPID keys, subscriber list + CSV, manual & event messages, cron-driven queue with retries and aging), 🖼 Content Gallery + shared MediaPicker (size contracts, cropping), 🔐 four crypto-layer defects in push delivery found by live device diagnostics; 🧩 `{subid}` on the landing→offer hop, service worker on bound domains, panel session lifetime, "database is locked" as a clean 503, silent `save_user` demotion; v1.4.1: 🐞 Affiliate Networks crash fix (issue #7), 🌍 System Status localization; v1.4.0: 📊 honest LP-funnel metrics (Real LP clicks / Real offer clicks / Real LP CTR), ⏱ landing→offer timing buckets, 🎚 "After the click" default for new landing streams, 🔐 roles enforced server-side + per-campaign scoping (issue #6); v1.3.11: 🏠 domain-root campaigns in production, 🔑 private postback key on install; v1.3.10: 📱 rotation rows as a placed grid below 640px, 🎨 campaign-name link parity on both surfaces; v1.3.9: 🔒 SSL chain verdicts + certificates-on-save, 🎯 LeadForge honest failures, 🛡️ scan protection, Domains rebuilt; v1.3.8: 🧹 stray ellipsis gone, centred values, checkbox column fixed, lint-zero tracker tables; v1.3.7: 🔀 full column reorder, ✂️ hard cell clipping, 🎯 centred headers.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 
