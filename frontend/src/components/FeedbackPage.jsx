@@ -7,7 +7,7 @@ import { copyToClipboard } from '../utils/clipboard';
 const partners = [
     {
         name: 'Pay2.House',
-        url: 'https://pay2.house/',
+        url: 'https://pay2.house/p/kc9oevv0?utm_source=orbitra',
         logo: '/partners/pay2house-logo.svg',
         descKey: 'feedback.partnerPay2houseDesc',
         logoChip: '#0F172A',
