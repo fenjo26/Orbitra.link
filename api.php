@@ -11605,7 +11605,10 @@ try {
                     $dataNc = is_array($dataNc) ? $dataNc : [];
                     $domain = strtolower(trim((string) ($dataNc['domain'] ?? '')));
                     $years = max(1, min(10, (int) ($dataNc['years'] ?? 1)));
-                    $addressId = trim((string) ($dataNc['address_id'] ?? '')) ?: $cfgNc['address_id'];
+                    $addressId = trim((string) ($dataNc['address_id'] ?? ''));
+                    if ($addressId === '') {
+                        $addressId = $cfgNc['address_id'];
+                    }
                     if ($domain === '' || !preg_match('/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z]{2,})+$/', $domain)) {
                         echo json_encode(['status' => 'error', 'message' => 'Invalid domain name']);
                         break;
