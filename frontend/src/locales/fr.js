@@ -312,7 +312,11 @@ export default {
         "copy": "Copier",
         "success": "Votre message a été envoyé avec succès ! Merci.",
         "error": "Échec de l'envoi du message. Veuillez réessayer.",
-        "errorNetwork": "Erreur réseau. Impossible d'atteindre le serveur."
+        "errorNetwork": "Erreur réseau. Impossible d'atteindre le serveur.",
+        "partnersTitle": "Partenaires",
+        "partnersDesc": "Services que nous recommandons pour l'achat média et le travail quotidien.",
+        "partnerPay2houseDesc": "Cartes virtuelles pour la publicité Facebook, Google et TikTok ainsi que les services en ligne.",
+        "partnerGroupbuyseoDesc": "Accès groupé aux outils SEO et marketing — Ahrefs, Semrush, ChatGPT Plus et plus encore."
     },
     "profile": {
         "title": "Paramètres du profil",

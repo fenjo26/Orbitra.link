@@ -312,7 +312,11 @@ export default {
         "copy": "Copy",
         "success": "Your message has been sent successfully! Thank you.",
         "error": "Failed to send message. Please try again.",
-        "errorNetwork": "Network error. Could not reach the server."
+        "errorNetwork": "Network error. Could not reach the server.",
+        "partnersTitle": "Partners",
+        "partnersDesc": "Services we recommend for media buying and everyday work.",
+        "partnerPay2houseDesc": "Virtual cards for Facebook, Google and TikTok Ads, plus everyday online services.",
+        "partnerGroupbuyseoDesc": "Group-buy access to SEO and marketing tools — Ahrefs, Semrush, ChatGPT Plus and more."
     },
     "profile": {
         "title": "Profile Settings",

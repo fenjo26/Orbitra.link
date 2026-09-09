@@ -312,7 +312,11 @@ export default {
         "copy": "复制",
         "success": "您的消息已发送成功！谢谢。",
         "error": "发送消息失败。请再试一次。",
-        "errorNetwork": "网络错误。无法到达服务器。"
+        "errorNetwork": "网络错误。无法到达服务器。",
+        "partnersTitle": "合作伙伴",
+        "partnersDesc": "我们推荐的广告投放及日常办公服务。",
+        "partnerPay2houseDesc": "用于 Facebook、Google、TikTok 广告及各类在线服务付款的虚拟卡。",
+        "partnerGroupbuyseoDesc": "以拼团价格使用 Ahrefs、Semrush、ChatGPT Plus 等 SEO 与营销工具。"
     },
     "profile": {
         "title": "配置文件设置",

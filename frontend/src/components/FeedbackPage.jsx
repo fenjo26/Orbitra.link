@@ -1,7 +1,25 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { MessageSquare, Copy, Check, Heart, Mail, MessageCircle } from 'lucide-react';
+import { MessageSquare, Copy, Check, Heart, Mail, MessageCircle, Handshake } from 'lucide-react';
 import { copyToClipboard } from '../utils/clipboard';
+
+// White-on-transparent logos need a dark chip; add new partners here.
+const partners = [
+    {
+        name: 'Pay2.House',
+        url: 'https://pay2.house/',
+        logo: '/partners/pay2house-logo.svg',
+        descKey: 'feedback.partnerPay2houseDesc',
+        logoChip: '#0F172A',
+    },
+    {
+        name: 'GroupBuySEO',
+        url: 'https://my.groupbuyseo.org/register?affiliate_key=8ino4XJTwJ7EJooF67JUOt2tmbcFk1',
+        logo: '/partners/groupbuyseo-logo.svg',
+        descKey: 'feedback.partnerGroupbuyseoDesc',
+        logoChip: '#FFFFFF',
+    },
+];
 
 const FeedbackPage = () => {
     const { t } = useLanguage();
@@ -163,6 +181,55 @@ const FeedbackPage = () => {
                         </div>
                     </div>
 
+                </div>
+            </div>
+
+            {/* Partners */}
+            <div className="mt-6 p-6 md:p-8 rounded-[24px] shadow-sm border border-[var(--color-border)] relative overflow-hidden" style={{ background: 'var(--color-bg-card)', backdropFilter: 'blur(10px)' }}>
+                <div className="mb-6">
+                    <h2 className="text-2xl font-bold mb-2 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
+                        <Handshake className="text-orange-500" />
+                        {t('feedback.partnersTitle') || 'Partners'}
+                    </h2>
+                    <p style={{ color: 'var(--color-text-secondary)' }}>
+                        {t('feedback.partnersDesc') || 'Services we recommend for media buying and everyday work.'}
+                    </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {partners.map((partner) => (
+                        <a
+                            key={partner.name}
+                            href={partner.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center gap-4 p-4 rounded-[16px] transition-all transform hover:-translate-y-1 hover:shadow-lg border"
+                            style={{
+                                background: 'var(--color-bg-soft)',
+                                borderColor: 'var(--color-border)',
+                                // global a:hover underline leaks through flex children
+                                textDecoration: 'none'
+                            }}
+                        >
+                            <div
+                                className="w-28 h-14 flex-shrink-0 rounded-xl flex items-center justify-center p-2"
+                                style={{ background: partner.logoChip, border: '1px solid var(--color-border)' }}
+                            >
+                                <img src={partner.logo} alt={partner.name} className="max-w-full max-h-full object-contain" />
+                            </div>
+                            <div className="min-w-0">
+                                <p className="font-semibold text-lg leading-tight mb-1" style={{ color: 'var(--color-text-primary)' }}>{partner.name}</p>
+                                <p className="text-sm leading-snug" style={{ color: 'var(--color-text-secondary)' }}>
+                                    {t(partner.descKey)}
+                                </p>
+                            </div>
+                            <div className="ml-auto opacity-50 flex-shrink-0" style={{ color: 'var(--color-text-primary)' }}>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M5 12h14M12 5l7 7-7 7" />
+                                </svg>
+                            </div>
+                        </a>
+                    ))}
                 </div>
             </div>
         </div>

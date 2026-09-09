@@ -7,6 +7,18 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+
+- **Partners block on Feedback & Support.** A new full-width card below the
+  contact grid lists partner services as linked logo tiles — Pay2.House
+  (virtual cards for ad spend) and GroupBuySEO (group-buy access to SEO and
+  marketing tools) to start with, extendable via a simple array in
+  `FeedbackPage.jsx`. Logos live in `frontend/public/partners/`; the white
+  Pay2.House wordmark sits on a dark chip so it survives every theme. New
+  `feedback.partners*` i18n keys ship in all 7 locales.
+
 ## [1.5.4] — 2026-09-07
 
 ### Added — the PWA visit funnel: configurable screens, per-screen tracking & statistics

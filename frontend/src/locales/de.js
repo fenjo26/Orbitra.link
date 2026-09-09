@@ -312,7 +312,11 @@ export default {
         "copy": "Kopieren",
         "success": "Ihre Nachricht wurde erfolgreich gesendet! Vielen Dank.",
         "error": "Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
-        "errorNetwork": "Netzwerkfehler. Der Server konnte nicht erreicht werden."
+        "errorNetwork": "Netzwerkfehler. Der Server konnte nicht erreicht werden.",
+        "partnersTitle": "Partner",
+        "partnersDesc": "Von uns empfohlene Dienste für Media Buying und den Arbeitsalltag.",
+        "partnerPay2houseDesc": "Virtuelle Karten für Facebook-, Google- und TikTok-Werbung sowie Online-Dienste.",
+        "partnerGroupbuyseoDesc": "Gruppezugang zu SEO- und Marketing-Tools — Ahrefs, Semrush, ChatGPT Plus und mehr."
     },
     "profile": {
         "title": "Profileinstellungen",
