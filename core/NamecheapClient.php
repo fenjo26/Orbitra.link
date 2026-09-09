@@ -229,8 +229,13 @@ class NamecheapClient
         return $out;
     }
 
-    /** Проверка доступности. @return array{domain:string,available:bool,is_premium:bool,price:?string} */
-    public static function checkDomain(array $cfg, string $domain): array
+    /**
+     * Availability and an optional one-year registration estimate.
+     * Regular domains have PremiumRegistrationPrice="0"; their price comes
+     * from users.getPricing for the selected account, not domains.check.
+     * @return array{domain:string,available:bool,is_premium:bool,price:?string,currency:?string}
+     */
+    public static function checkDomain(array $cfg, string $domain, bool $withPricing = true): array
     {
         $domain = strtolower(trim($domain));
         $resp = self::request($cfg, 'namecheap.domains.check', ['DomainList' => $domain]);
@@ -239,12 +244,98 @@ class NamecheapClient
             $raw = $resp['data']['CommandResponse']['DomainCheckResult'] ?? [];
             $result = isset($raw['@attributes']) ? $raw['@attributes'] : (is_array($raw) ? $raw : []);
         }
+        $available = (($result['Available'] ?? 'false') === 'true');
+        $premium = (($result['IsPremiumName'] ?? 'false') === 'true');
+        $quote = ['price' => null, 'currency' => null];
+        if ($available && $withPricing) {
+            if ($premium) {
+                $price = self::registrationPrice($result['PremiumRegistrationPrice'] ?? null, [
+                    $result['IcannFee'] ?? '0', $result['EapFee'] ?? '0',
+                ]);
+                $quote = ['price' => $price, 'currency' => $price !== null ? 'USD' : null];
+            } else {
+                // Keep the entire suffix: example.co.uk must request CO.UK.
+                $tld = explode('.', $domain, 2)[1] ?? '';
+                $quote = self::getRegistrationPrice($cfg, $tld);
+            }
+        }
         return [
             'domain' => (string) ($result['Domain'] ?? $domain),
-            'available' => (($result['Available'] ?? 'false') === 'true'),
-            'is_premium' => (($result['IsPremiumName'] ?? 'false') === 'true'),
-            'price' => isset($result['PremiumRegistrationPrice']) ? (string) $result['PremiumRegistrationPrice'] : null,
-        ];
+            'available' => $available,
+            'is_premium' => $premium,
+        ] + $quote;
+    }
+
+    /** @return array{price:?string,currency:?string} */
+    public static function getRegistrationPrice(array $cfg, string $tld): array
+    {
+        $unknown = ['price' => null, 'currency' => null];
+        $tld = strtolower(trim($tld));
+        if ($tld === '') {
+            return $unknown;
+        }
+        $resp = self::request($cfg, 'namecheap.users.getPricing', [
+            'ProductType' => 'DOMAIN', 'ProductCategory' => 'DOMAINS',
+            'ActionName' => 'REGISTER', 'ProductName' => strtoupper($tld),
+        ]);
+        if (!$resp['ok']) {
+            return $unknown;
+        }
+        $types = $resp['data']['CommandResponse']['UserGetPricingResult']['ProductType'] ?? [];
+        foreach (self::xmlList($types) as $type) {
+            if (!in_array(strtoupper($type['@attributes']['Name'] ?? ''), ['DOMAIN', 'DOMAINS'], true)) {
+                continue;
+            }
+            foreach (self::xmlList($type['ProductCategory'] ?? []) as $category) {
+                if (strtoupper($category['@attributes']['Name'] ?? '') !== 'REGISTER') {
+                    continue;
+                }
+                foreach (self::xmlList($category['Product'] ?? []) as $product) {
+                    if (strtolower($product['@attributes']['Name'] ?? '') !== $tld) {
+                        continue;
+                    }
+                    foreach (self::xmlList($product['Price'] ?? []) as $entry) {
+                        $attr = $entry['@attributes'] ?? [];
+                        if (($attr['Duration'] ?? '') !== '1' || strtoupper($attr['DurationType'] ?? '') !== 'YEAR') {
+                            continue;
+                        }
+                        // Price is the account's final rate, including applicable
+                        // promotions. AdditionalCost is the registry fee, when supplied.
+                        $price = self::registrationPrice($attr['Price'] ?? null, [$attr['AdditionalCost'] ?? '0']);
+                        $currency = strtoupper(trim($attr['Currency'] ?? ''));
+                        if ($price !== null && preg_match('/^[A-Z]{3}$/', $currency)) {
+                            return ['price' => $price, 'currency' => $currency];
+                        }
+                    }
+                }
+            }
+        }
+        return $unknown;
+    }
+
+    /** SimpleXML JSON represents one child as an object, multiple as a list. */
+    private static function xmlList($value): array
+    {
+        if (!is_array($value)) {
+            return [];
+        }
+        return isset($value['@attributes']) ? [$value] : $value;
+    }
+
+    /** Unknown, malformed or zero prices must never become a free quote. */
+    private static function registrationPrice($base, array $fees): ?string
+    {
+        if (!is_scalar($base) || !preg_match('/^\d+(?:\.\d+)?$/', (string) $base) || (float) $base <= 0) {
+            return null;
+        }
+        $total = (float) $base;
+        foreach ($fees as $fee) {
+            if (!is_scalar($fee) || !preg_match('/^\d+(?:\.\d+)?$/', (string) $fee)) {
+                return null;
+            }
+            $total += (float) $fee;
+        }
+        return is_finite($total) && round($total, 2) > 0 ? number_format($total, 2, '.', '') : null;
     }
 
     /**

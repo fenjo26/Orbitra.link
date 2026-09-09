@@ -11621,7 +11621,7 @@ try {
 
                     // Registration costs real money — re-check availability so a
                     // stale dialog can never click "buy" on an already-taken name.
-                    $check = NamecheapClient::checkDomain($cfgNc, $domain);
+                    $check = NamecheapClient::checkDomain($cfgNc, $domain, false);
                     if (!$check['available']) {
                         echo json_encode(['status' => 'error', 'message' => 'namecheap_domain_taken', 'detail' => ['domain' => $domain]]);
                         break;
