@@ -4,6 +4,7 @@
  * Receives updates from Telegram and processes bot commands
  */
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/core/telegram_api.php';
 
 // The bot quotes the running version in /start. config.php does not pull
 // version.php in, so without this every welcome said the '0.9.2.9' fallback
@@ -623,7 +624,11 @@ function orbitraTelegramEscape(string $text): string
 function orbitraTelegramMaybeRegisterCommands(PDO $pdo, string $token): void
 {
     $stmt = $pdo->query("SELECT value FROM settings WHERE key = 'telegram_commands_sent'");
-    if ($stmt && $stmt->fetchColumn() === date('Y-m-d')) {
+    $lastSent = $stmt ? $stmt->fetchColumn() : false;
+    if ($stmt) {
+        $stmt->closeCursor();
+    }
+    if ($lastSent === date('Y-m-d')) {
         return;
     }
     orbitraTelegramRegisterCommands($token);
@@ -696,27 +701,6 @@ function orbitraTelegramResolveCommand(string $text, string $lang): string
         }
     }
     return '';
-}
-
-/** Generic Bot API call. Returns the decoded response, or null on failure. */
-function orbitraTelegramApi(string $token, string $method, array $params = [], int $timeout = 10): ?array
-{
-    // Test seam: the suite asserts outgoing payloads without touching the net.
-    if (defined('ORBITRA_TELEGRAM_TEST_OUTBOX')) {
-        $GLOBALS['orbitra_telegram_outbox'][] = ['method' => $method, 'params' => $params];
-        return ['ok' => true, 'result' => true];
-    }
-
-    $url = "https://api.telegram.org/bot{$token}/{$method}";
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-    $result = curl_exec($ch);
-    // curl_close() deprecated in PHP 8.5 - resources are auto-freed
-    return json_decode($result, true);
 }
 
 // Send message to Telegram
@@ -977,6 +961,9 @@ function orbitraHandleToggle($pdo, $token, $chatId, $lang, $arg, string $column,
 if (!defined('ORBITRA_TELEGRAM_NO_WEBHOOK') && PHP_SAPI !== 'cli') {
     $stmt = $pdo->query("SELECT value FROM settings WHERE key = 'telegram_bot_token'");
     $botToken = $stmt ? $stmt->fetchColumn() : '';
+    if ($stmt) {
+        $stmt->closeCursor();
+    }
 
     if (!$botToken) {
         http_response_code(200);

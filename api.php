@@ -39,6 +39,7 @@ require_once __DIR__ . '/core/CrmVault.php';
 require_once __DIR__ . '/core/CloudDetector.php';
 require_once __DIR__ . '/core/DomainDnsResolver.php';
 require_once __DIR__ . '/core/server_ip.php';
+require_once __DIR__ . '/core/telegram_api.php';
 
 // CORS Headers
 $allowedOrigins = ['https://tracker.yourdomain.com', 'http://127.0.0.1:8000', 'http://localhost:8080', 'http://localhost:5173', 'http://localhost']; // Add real domains here
@@ -143,26 +144,6 @@ function orbitraTelegramWebhookUsable(array $base): bool
         return false;
     }
     return (bool)preg_match('/^[a-z0-9]([a-z0-9\-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9\-]*[a-z0-9])?)+$/i', $hostOnly);
-}
-
-/** One Telegram Bot API call. Returns the decoded body, or null on transport failure. */
-function orbitraTelegramApi(string $token, string $method, array $params = [], int $timeout = 10): ?array
-{
-    $ch = curl_init("https://api.telegram.org/bot{$token}/{$method}");
-    if ($params) {
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-    }
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 8);
-    $body = curl_exec($ch);
-    if ($body === false) {
-        return null;
-    }
-    $decoded = json_decode($body, true);
-    return is_array($decoded) ? $decoded : null;
 }
 
 /**
@@ -1353,6 +1334,7 @@ if ($apiKeyProvided !== '') {
         );
         $stmtKey->execute([$apiKeyProvided]);
         $keyRow = $stmtKey->fetch(PDO::FETCH_ASSOC);
+        $stmtKey->closeCursor();
         if (!$keyRow) {
             http_response_code(401);
             echo json_encode(['status' => 'error', 'message' => 'Invalid API key']);
@@ -1483,6 +1465,8 @@ try {
     $stmtUser = $pdo->query("SELECT timezone FROM users WHERE id = 1 LIMIT 1");
     if ($stmtUser) {
         $tz = $stmtUser->fetchColumn();
+        // Do not pin a WAL read snapshot across an action's external requests.
+        $stmtUser->closeCursor();
         if ($tz) {
             $userTimezone = $tz;
         }
@@ -16839,6 +16823,9 @@ try {
                     // Remove webhook and clear token
                     $stmt = $pdo->query("SELECT value FROM settings WHERE key = 'telegram_bot_token'");
                     $oldToken = $stmt ? $stmt->fetchColumn() : '';
+                    if ($stmt) {
+                        $stmt->closeCursor();
+                    }
                     if ($oldToken) {
                         // Remove webhook
                         $ch = curl_init("https://api.telegram.org/bot{$oldToken}/deleteWebhook");

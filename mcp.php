@@ -506,6 +506,8 @@ try {
     );
     $stmt->execute([$providedKey]);
     $keyRow = $stmt->fetch(PDO::FETCH_ASSOC);
+    // The API may run in this process, or in a child that writes to this DB.
+    $stmt->closeCursor();
 } catch (\Throwable $e) {
     mcpJson(['error' => 'Database unavailable.'], 500);
 }
