@@ -87,8 +87,9 @@ class CostImporter
         $lookup = function (string $param, string $tzModifier, bool $moneyOnly) use ($pdo, &$lookupCache) {
             $cacheKey = $param . '|' . $tzModifier . '|' . ($moneyOnly ? '1' : '0');
             if (!isset($lookupCache[$cacheKey])) {
-                // json_extract's path is not a bindable parameter, so the name is
-                // stripped of anything that could break out of the path literal.
+                // json_extract's path is not a bindable parameter. Names reaching
+                // here are vetted (DEFAULT_KEYS literals or resolveKeys()'s
+                // identifier whitelist); the strip below is belt-and-braces.
                 $safe = preg_replace('/[^A-Za-z0-9_]/', '', $param);
                 // $tzModifier is generated from an integer minute count below, never
                 // from user input, so it is safe to inline into the modifier literal.
@@ -412,7 +413,14 @@ class CostImporter
 
         foreach ($overrides as $level => $param) {
             if (is_string($param) && trim($param) !== '') {
-                array_unshift($keys[$level], trim($param));
+                // json_extract's path is interpolated, not bound: an override
+                // joins the candidate list only as a plain identifier, anything
+                // else degrades to the defaults below instead of reaching SQL.
+                $name = trim($param);
+                if (!preg_match('/^[A-Za-z0-9_]+$/', $name)) {
+                    continue;
+                }
+                array_unshift($keys[$level], $name);
                 $keys[$level] = array_values(array_unique($keys[$level]));
             }
         }

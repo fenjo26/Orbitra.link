@@ -158,18 +158,21 @@ foreach ($filters as $fKey => $fValue) {
     if (!is_string($fKey) || $fValue === null || $fValue === '') {
         continue;
     }
+    // json_extract path не биндится — ключ фильтра попадает в SQL как есть,
+    // поэтому он обязан быть простым идентификатором. Пуш с любым другим
+    // ключом отклоняем: вычистить символы значило бы матчить имя, которое
+    // никто не слал, а молча выбросить фильтр — разлить расход на все клики
+    // кампании за период.
+    if (!preg_match('/^[A-Za-z0-9_]+$/', $fKey)) {
+        orbitraAdminApiFail(400, "Invalid filters key: only [A-Za-z0-9_] is allowed (got \"{$fKey}\").");
+    }
     $candidates = [$fKey];
     if (isset($keitaroSubAliases[$fKey])) {
         $candidates[] = $keitaroSubAliases[$fKey];
     }
     $orParts = [];
     foreach (array_unique($candidates) as $cand) {
-        // json_extract path не биндится — чистим имя от всего лишнего.
-        $safe = preg_replace('/[^A-Za-z0-9_]/', '', $cand);
-        if ($safe === '') {
-            continue;
-        }
-        $orParts[] = "json_extract(parameters_json, '$.{$safe}') = ?";
+        $orParts[] = "json_extract(parameters_json, '$.{$cand}') = ?";
         $args[] = (string) $fValue;
     }
     if ($orParts) {

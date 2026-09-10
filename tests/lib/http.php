@@ -1132,6 +1132,8 @@ class OrbitraTestHarness
             'router.php',
             'admin.php',
             'api.php',
+            // Keitaro-compatible cost push endpoint (admin_api/v1).
+            'admin_api.php',
             'telegram_notify.php',
             // notify pulls the bot's translations from here (guard: the bot
             // file's webhook body stays out via ORBITRA_TELEGRAM_NO_WEBHOOK).
