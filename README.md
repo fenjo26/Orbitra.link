@@ -1,4 +1,4 @@
-# Orbitra v1.5.5 Tracker
+# Orbitra v1.5.6 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -510,24 +510,20 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.5.5 (2026-09-09)
+### Current release — v1.5.6 (2026-09-10)
+
+**Fixed**
+- 🏠 **Namecheap Buy & Park works again (PR #10, thanks @lucasvaz013)** — Address Book contacts with ID `0` (the primary address on many accounts) are no longer dropped, and `domains.create` now receives the full four-role contact set resolved via `users.address.getInfo` instead of the unsupported `*AddressId` shortcut; contact requests go as form POST, keeping the API key out of the URL
+- 💰 **Real registration prices** — regular domains are quoted a one-year `REGISTER` rate from `users.getPricing` (+ ICANN fee) instead of a misleading `$0` read off the premium-price field; premium domains keep their own price and fees; the currency shows in the dialog and the confirmation, and a missing quote disables the purchase button with a "price unavailable" notice
+- 🧪 Three new regression suites: pricing, contact resolution, zero address ID
+
+### Previous release — v1.5.5 (2026-09-09)
 
 **Added**
 - 🤝 **Partners block on Feedback & Support** — a themed card under the contact grid with linked logo tiles: Pay2.House (virtual cards for Facebook / Google / TikTok Ads spend) and GroupBuySEO (group-buy access to Ahrefs, Semrush, ChatGPT Plus) to start with; extending the list is one SVG, one array entry and four locale strings
 - 🌍 Partners copy ships in all seven locales
 
-### Previous release — v1.5.4 (2026-09-07)
-
-**Added**
-- 📱 **PWA visit funnel** — the in-browser flow is an ordered list of screens: your own screens (lobby / slot / wheel / custom HTML, up to five), the install-instructions screen at any position (platform-aware steps), the push card in the browser flow; the first enabled step is what a cold visitor sees, the store is one toggleable step
-- 📊 **Per-screen statistics** — entry/last screen on the click row, a capped per-screen view log (migration 51), the `pwa_screen_views` metric on the dashboard, campaigns, reports and Landings/Offers tables, entry/last screen Group-By dimensions and filters, and a per-landing funnel card (views, uniques, entries, exits, screen→screen transitions)
-- 🎯 **Per-screen tracking scripts** — each screen runs its own JS on its first show, so ad pixels never fire for screens the visitor never reached
-- 🧭 **Funnel-first constructor** — the dedicated Screens step owns the builder, the preview opens on the first enabled step, the Store/Reviews steps and all listing-only sections exist only with the store in the funnel, presets fill a starter funnel
-
-**Fixed**
-- 💱 **Postbacks convert non-base-currency payouts (PR #9)** — via the cost importer's currency engine, with `fx_orig_payout` / `fx_orig_currency` / `fx_rate_used` audit macros; S2S `{payout}` / `{currency}` and CAPI now carry base-currency values
-
-Previous releases — v1.5.3: 🧩 extension overlay counts like the panel, 🧱 one safe-page predicate in `core/ReportMetrics.php`, 📊 honest safe-page hint + 👁 Visitors in the default preset; v1.5.2: 🎨 boot screen before the bundle parses, 🖥 Terminal & Aurora themes, 🗺 two-column login, 🤖 Telegram bot as a visual menu (pinned keyboard ×7 languages), 📸 Snapchat Ads template, 🖱 non-blocking update check, 📊 Profitability → Margin; v1.5.1: ⏱ time on LP for every visitor (visible seconds + scroll depth into the click, *LP bounce/scroll/measured visits* metrics, **Time on LP (bucket)** dimension), 🤖 Telegram polling mode (bare IP / plain HTTP / proxy, real Telegram errors on screen); 🎯 clicks = the offer funnel (pre-bound landing views count as visitors, CPV/EPV ÷ visitors), 📌 pinned identity columns, 🔗 CAPI `content_id` (PR #8), 🧱 versioned column-width storage; v1.5.0: 📱 PWA landings (store-style constructor, funnel beacons into the click, self-healing push subscription, direct domain→PWA binding), 🔔 Web Push on your own base (self-hosted VAPID keys, subscriber list + CSV, manual & event messages, cron-driven queue with retries and aging), 🖼 Content Gallery + shared MediaPicker (size contracts, cropping), 🔐 four crypto-layer defects in push delivery found by live device diagnostics; 🧩 `{subid}` on the landing→offer hop, service worker on bound domains, panel session lifetime, "database is locked" as a clean 503, silent `save_user` demotion; v1.4.1: 🐞 Affiliate Networks crash fix (issue #7), 🌍 System Status localization; v1.4.0: 📊 honest LP-funnel metrics (Real LP clicks / Real offer clicks / Real LP CTR), ⏱ landing→offer timing buckets, 🎚 "After the click" default for new landing streams, 🔐 roles enforced server-side + per-campaign scoping (issue #6); v1.3.11: 🏠 domain-root campaigns in production, 🔑 private postback key on install; v1.3.10: 📱 rotation rows as a placed grid below 640px, 🎨 campaign-name link parity on both surfaces; v1.3.9: 🔒 SSL chain verdicts + certificates-on-save, 🎯 LeadForge honest failures, 🛡️ scan protection, Domains rebuilt; v1.3.8: 🧹 stray ellipsis gone, centred values, checkbox column fixed, lint-zero tracker tables; v1.3.7: 🔀 full column reorder, ✂️ hard cell clipping, 🎯 centred headers.
+Previous releases — v1.5.4: 📱 PWA visit funnel (ordered screens: own + install-instructions + push card, per-screen statistics & tracking scripts, funnel-first constructor), 💱 postback payouts converted to the base currency (PR #9); v1.5.3: 🧩 extension overlay counts like the panel, 🧱 one safe-page predicate in `core/ReportMetrics.php`, 📊 honest safe-page hint + 👁 Visitors in the default preset; v1.5.2: 🎨 boot screen before the bundle parses, 🖥 Terminal & Aurora themes, 🗺 two-column login, 🤖 Telegram bot as a visual menu (pinned keyboard ×7 languages), 📸 Snapchat Ads template, 🖱 non-blocking update check, 📊 Profitability → Margin; v1.5.1: ⏱ time on LP for every visitor (visible seconds + scroll depth into the click, *LP bounce/scroll/measured visits* metrics, **Time on LP (bucket)** dimension), 🤖 Telegram polling mode (bare IP / plain HTTP / proxy, real Telegram errors on screen); 🎯 clicks = the offer funnel (pre-bound landing views count as visitors, CPV/EPV ÷ visitors), 📌 pinned identity columns, 🔗 CAPI `content_id` (PR #8), 🧱 versioned column-width storage; v1.5.0: 📱 PWA landings (store-style constructor, funnel beacons into the click, self-healing push subscription, direct domain→PWA binding), 🔔 Web Push on your own base (self-hosted VAPID keys, subscriber list + CSV, manual & event messages, cron-driven queue with retries and aging), 🖼 Content Gallery + shared MediaPicker (size contracts, cropping), 🔐 four crypto-layer defects in push delivery found by live device diagnostics; 🧩 `{subid}` on the landing→offer hop, service worker on bound domains, panel session lifetime, "database is locked" as a clean 503, silent `save_user` demotion; v1.4.1: 🐞 Affiliate Networks crash fix (issue #7), 🌍 System Status localization; v1.4.0: 📊 honest LP-funnel metrics (Real LP clicks / Real offer clicks / Real LP CTR), ⏱ landing→offer timing buckets, 🎚 "After the click" default for new landing streams, 🔐 roles enforced server-side + per-campaign scoping (issue #6); v1.3.11: 🏠 domain-root campaigns in production, 🔑 private postback key on install; v1.3.10: 📱 rotation rows as a placed grid below 640px, 🎨 campaign-name link parity on both surfaces; v1.3.9: 🔒 SSL chain verdicts + certificates-on-save, 🎯 LeadForge honest failures, 🛡️ scan protection, Domains rebuilt; v1.3.8: 🧹 stray ellipsis gone, centred values, checkbox column fixed, lint-zero tracker tables; v1.3.7: 🔀 full column reorder, ✂️ hard cell clipping, 🎯 centred headers.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

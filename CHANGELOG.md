@@ -7,6 +7,32 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.5.6] — 2026-09-10
+
+### Fixed — Namecheap Buy & Park: registration contacts + real pricing (PR #10, thanks @lucasvaz013)
+
+- **Registration works for accounts whose Address Book contact has ID `0`.** The
+  primary address on many accounts is `AddressId="0"`, which `empty()` silently
+  rejected in `listAddresses` and which `trim(...) ?: saved` collapsed in the
+  register handler — both keep ID `0` now.
+- **`domains.create` receives the full contact set.** The `*AddressId` shortcut
+  is not supported by the API ("Parameter RegistrantFirstName is Missing"); the
+  client resolves the selected contact via `users.address.getInfo`, validates
+  the nine required fields and sends all four roles in full, mapped per the API
+  (`Zip` → `PostalCode`, `Organization` → `OrganizationName`). Contact lookups
+  and registration go as form POST, so the API key no longer travels in the URL.
+- **Real prices for regular domains.** `domains.check` reports
+  `PremiumRegistrationPrice="0"` for regular names — the dialog now quotes a
+  one-year `REGISTER` rate from `users.getPricing` (plus the supplied
+  `AdditionalCost`) instead; premium domains keep their domain-specific price
+  and fees. The currency is shown in the dialog and the confirmation; a missing,
+  malformed or zero quote shows "Price unavailable" and disables the purchase
+  button. Quotes are bound to the checked domain and account, and the
+  purchase-time availability recheck skips the redundant pricing lookup.
+- **Three new regression suites** — `namecheap_pricing_test.php`,
+  `namecheap_registration_contact_test.php`, `namecheap_zero_address_test.php`
+  (canned XML only, no purchases).
+
 ## [1.5.5] — 2026-09-09
 
 ### Added
