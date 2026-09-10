@@ -3106,6 +3106,8 @@ export default {
         "taken": "已被注册",
         "premium": "Premium 域名",
         "price": "价格",
+        "priceEstimate": "1 年注册的预估价格。最终费用由 Namecheap 确定。",
+        "priceUnavailable": "价格暂不可用。购买前请重新检查域名是否可注册。",
         "buyPark": "购买并停放",
         "buying": "购买中…",
         "buyConfirm": "购买并停放该域名",

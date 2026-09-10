@@ -3106,6 +3106,8 @@ export default {
         "taken": "pris",
         "premium": "Domaine premium",
         "price": "Prix",
+        "priceEstimate": "Prix estimé de l’enregistrement pour 1 an. Le montant final est fixé par Namecheap.",
+        "priceUnavailable": "Prix indisponible. Vérifiez à nouveau la disponibilité avant d’acheter.",
         "buyPark": "Acheter et stationner",
         "buying": "Achat en cours…",
         "buyConfirm": "Acheter et stationner le domaine",

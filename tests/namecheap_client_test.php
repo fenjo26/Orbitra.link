@@ -59,6 +59,18 @@ XML,
   </CommandResponse>
 </ApiResponse>
 XML,
+    'namecheap.users.address.getInfo' => <<<'XML'
+<?xml version="1.0" encoding="utf-8"?>
+<ApiResponse Status="OK" xmlns="http://api.namecheap.com/xml.response">
+  <CommandResponse Type="namecheap.users.address.getInfo">
+    <GetAddressInfoResult>
+      <AddressId>111</AddressId><FirstName>Jane</FirstName><LastName>Doe</LastName>
+      <Address1>123 Example Street</Address1><City>Example City</City><StateProvince>CA</StateProvince>
+      <Zip>90001</Zip><Country>US</Country><Phone>+1.2025550100</Phone><EmailAddress>jane@example.com</EmailAddress>
+    </GetAddressInfoResult>
+  </CommandResponse>
+</ApiResponse>
+XML,
     'namecheap.domains.check' => <<<'XML'
 <?xml version="1.0" encoding="utf-8"?>
 <ApiResponse Status="OK" xmlns="http://api.namecheap.com/xml.response">
@@ -101,8 +113,8 @@ XML;
 
 $capturedSetHosts = null;
 $capturedCommands = [];
-NamecheapClient::$http = function (string $url) use ($fixtures, $whitelistError, &$capturedSetHosts, &$capturedCommands): array {
-    parse_str(parse_url($url, PHP_URL_QUERY) ?? '', $q);
+NamecheapClient::$http = function (string $url, ?string $postBody = null) use ($fixtures, $whitelistError, &$capturedSetHosts, &$capturedCommands): array {
+    parse_str($postBody ?? (parse_url($url, PHP_URL_QUERY) ?? ''), $q);
     $command = (string) ($q['Command'] ?? '');
     $capturedCommands[] = $command;
     if ($command === 'namecheap.domains.dns.setHosts') {

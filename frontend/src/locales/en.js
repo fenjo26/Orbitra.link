@@ -3105,6 +3105,8 @@ export default {
         "taken": "taken",
         "premium": "Premium domain",
         "price": "Price",
+        "priceEstimate": "Estimated registration price for 1 year. The final charge is set by Namecheap.",
+        "priceUnavailable": "Price unavailable. Check availability again before purchasing.",
         "buyPark": "Buy & Park Domain",
         "buying": "Purchasing…",
         "buyConfirm": "Buy and park the domain",

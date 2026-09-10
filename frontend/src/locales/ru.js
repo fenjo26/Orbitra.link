@@ -3106,6 +3106,8 @@ export default {
         "taken": "занят",
         "premium": "Premium-домен",
         "price": "Цена",
+        "priceEstimate": "Ориентировочная стоимость регистрации на 1 год. Итоговую сумму определяет Namecheap.",
+        "priceUnavailable": "Цена недоступна. Перед покупкой проверьте доступность ещё раз.",
         "buyPark": "Buy & Park Domain",
         "buying": "Покупаем…",
         "buyConfirm": "Купить и припарковать домен",

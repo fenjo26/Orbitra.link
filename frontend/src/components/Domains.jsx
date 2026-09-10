@@ -198,6 +198,9 @@ const Domains = ({ campaigns, user }) => {
 
     // The account a dialog acts through: explicit choice, else the first one.
     const activeNcAccount = ncAccounts.find(a => a.id === ncAccountId) || ncAccounts[0] || null;
+    const regPriceAvailable = Number.isFinite(Number(regResult?.price))
+        && Number(regResult?.price) > 0 && /^[A-Z]{3}$/.test(regResult?.currency || '');
+    const regPriceLabel = regPriceAvailable ? `${regResult.currency} ${Number(regResult.price).toFixed(2)}` : '';
 
     // Deep-link from Integrations: fire once the domain list is ready (and an
     // account actually exists — the card pointed at one).
@@ -217,12 +220,12 @@ const Domains = ({ campaigns, user }) => {
 
     const checkNcDomain = async () => {
         const domain = regDomain.trim().toLowerCase();
-        if (!domain) return;
+        if (!domain || regChecking || regBuying) return;
         setRegChecking(true); setRegResult(null); setRegMessage('');
         try {
             const { data } = await cachedPost('namecheap_check_domain', { domain, account_id: activeNcAccount?.id });
             if (data.status === 'success') {
-                setRegResult(data.data);
+                setRegResult({ ...data.data, account_id: activeNcAccount?.id });
             } else {
                 setRegMessage(data.message || t('common.error'));
             }
@@ -234,9 +237,11 @@ const Domains = ({ campaigns, user }) => {
     };
 
     const buyAndPark = async () => {
+        if (!regResult?.available || !regPriceAvailable || regChecking || regBuying
+            || regResult.account_id !== activeNcAccount?.id
+            || regResult.domain !== regDomain.trim().toLowerCase()) return;
         const domain = regResult?.domain || regDomain.trim().toLowerCase();
-        const priceNote = regResult?.price ? ` (${regResult.price})` : '';
-        if (!window.confirm(`${t('namecheap.buyConfirm')}: ${domain}${priceNote}?`)) return;
+        if (!window.confirm(`${t('namecheap.buyConfirm')}: ${domain} (${regPriceLabel})?\n${t('namecheap.priceEstimate')}`)) return;
         setRegBuying(true); setRegMessage('');
         try {
             const { data } = await cachedPost('namecheap_register_domain', { domain, account_id: activeNcAccount?.id });
@@ -1680,6 +1685,7 @@ const Domains = ({ campaigns, user }) => {
                                         className="form-select"
                                         style={{ width: '100%' }}
                                         value={activeNcAccount?.id ?? ''}
+                                        disabled={regChecking || regBuying}
                                         onChange={e => { setNcAccountId(Number(e.target.value)); setRegResult(null); setRegMessage(''); }}
                                     >
                                         {ncAccounts.map(a => (
@@ -1695,20 +1701,21 @@ const Domains = ({ campaigns, user }) => {
                                     style={{ flex: 1 }}
                                     placeholder="my-new-domain.com"
                                     value={regDomain}
+                                    disabled={regChecking || regBuying}
                                     onChange={e => { setRegDomain(e.target.value.toLowerCase()); setRegResult(null); }}
                                     onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); checkNcDomain(); } }}
                                 />
                                 <button
                                     type="button"
                                     className="btn btn-secondary"
-                                    disabled={regChecking || !regDomain.trim()}
+                                    disabled={regChecking || regBuying || !regDomain.trim()}
                                     onClick={checkNcDomain}
                                 >
                                     {regChecking ? t('domains.checkingShort') : t('namecheap.checkBtn', 'Check Availability')}
                                 </button>
                             </div>
 
-                            {regResult && (
+                            {regResult && regResult.account_id === activeNcAccount?.id && regResult.domain === regDomain.trim().toLowerCase() && (
                                 <div className="rounded-2xl p-4" style={{ border: '1px solid var(--color-border)', background: 'var(--color-bg-soft)' }}>
                                     {regResult.available ? (
                                         <>
@@ -1717,16 +1724,19 @@ const Domains = ({ campaigns, user }) => {
                                                 <span className="font-medium">{regResult.domain}</span>
                                                 <span className="text-xs">— {t('namecheap.available', 'свободен')}</span>
                                             </div>
-                                            {regResult.price && (
+                                            {regPriceAvailable ? (
                                                 <div className="text-sm mt-1" style={{ color: 'var(--color-text-primary)' }}>
                                                     {regResult.is_premium ? t('namecheap.premium', 'Premium-домен') + ': ' : t('namecheap.price', 'Цена') + ': '}
-                                                    <span className="font-semibold">${regResult.price}</span>
+                                                    <span className="font-semibold">{regPriceLabel}</span>
+                                                    <p className="text-xs mt-1" style={{ color: 'var(--color-text-secondary)' }}>{t('namecheap.priceEstimate')}</p>
                                                 </div>
+                                            ) : (
+                                                <p className="text-sm mt-1" role="status">{t('namecheap.priceUnavailable')}</p>
                                             )}
                                             <button
                                                 type="button"
                                                 className="btn btn-primary mt-3 w-full"
-                                                disabled={regBuying}
+                                                disabled={regBuying || regChecking || !regPriceAvailable}
                                                 onClick={buyAndPark}
                                             >
                                                 <ShoppingCart size={16} />

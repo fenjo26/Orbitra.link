@@ -20,7 +20,7 @@
 
 class NamecheapClient
 {
-    /** @var callable|null|null — подменяется в тестах: function(string $url): array{body:string|false,err:string} */
+    /** @var callable|null Test transport: function(string $url, ?string $postBody = null): array{body:string|false,err:string} */
     public static $http = null;
 
     /** Список распространённых составных TLD — чтобы promo.my-site.co.uk не разбился на sld=co. */
@@ -34,7 +34,7 @@ class NamecheapClient
      * @param array $cfg {api_key, username, client_ip, sandbox}
      * @return array{ok:bool,data:array,errors:string,ip_hint:string}
      */
-    public static function request(array $cfg, string $command, array $params = []): array
+    public static function request(array $cfg, string $command, array $params = [], bool $post = false): array
     {
         $apiKey = trim((string) ($cfg['api_key'] ?? ''));
         $username = trim((string) ($cfg['username'] ?? ''));
@@ -52,11 +52,13 @@ class NamecheapClient
             'ClientIP' => (string) ($cfg['client_ip'] ?? ''),
             'Command'  => $command,
         ], $params);
-        $url = $endpoint . '?' . http_build_query($query);
+        $encoded = http_build_query($query);
+        $url = $post ? $endpoint : $endpoint . '?' . $encoded;
+        $postBody = $post ? $encoded : null;
 
         if (is_callable(self::$http)) {
             /** @var array{body:string|false,err:string} $raw */
-            $raw = call_user_func(self::$http, $url);
+            $raw = call_user_func(self::$http, $url, $postBody);
             $xml = $raw['body'];
             $err = (string) $raw['err'];
         } else {
@@ -65,6 +67,11 @@ class NamecheapClient
             curl_setopt($ch, CURLOPT_TIMEOUT, 25);
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
             curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+            if ($post) {
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $postBody);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+            }
             // A host with a broken IPv6 route burns the whole timeout budget on a
             // stalled AAAA connect before IPv4 is ever reached.
             curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
@@ -209,9 +216,11 @@ class NamecheapClient
         $out = [];
         foreach ((array) $list as $item) {
             $attr = $item['@attributes'] ?? $item;
-            if (!empty($attr['AddressId'])) {
+            // The primary address can have ID "0", which PHP empty() rejects.
+            $addressId = trim((string) ($attr['AddressId'] ?? ''));
+            if ($addressId !== '') {
                 $out[] = [
-                    'id' => (string) $attr['AddressId'],
+                    'id' => $addressId,
                     'name' => (string) ($attr['AddressName'] ?? ('Address ' . $attr['AddressId'])),
                     'is_default' => (($attr['IsDefault'] ?? '') === 'true'),
                 ];
@@ -220,8 +229,13 @@ class NamecheapClient
         return $out;
     }
 
-    /** Проверка доступности. @return array{domain:string,available:bool,is_premium:bool,price:?string} */
-    public static function checkDomain(array $cfg, string $domain): array
+    /**
+     * Availability and an optional one-year registration estimate.
+     * Regular domains have PremiumRegistrationPrice="0"; their price comes
+     * from users.getPricing for the selected account, not domains.check.
+     * @return array{domain:string,available:bool,is_premium:bool,price:?string,currency:?string}
+     */
+    public static function checkDomain(array $cfg, string $domain, bool $withPricing = true): array
     {
         $domain = strtolower(trim($domain));
         $resp = self::request($cfg, 'namecheap.domains.check', ['DomainList' => $domain]);
@@ -230,35 +244,175 @@ class NamecheapClient
             $raw = $resp['data']['CommandResponse']['DomainCheckResult'] ?? [];
             $result = isset($raw['@attributes']) ? $raw['@attributes'] : (is_array($raw) ? $raw : []);
         }
+        $available = (($result['Available'] ?? 'false') === 'true');
+        $premium = (($result['IsPremiumName'] ?? 'false') === 'true');
+        $quote = ['price' => null, 'currency' => null];
+        if ($available && $withPricing) {
+            if ($premium) {
+                $price = self::registrationPrice($result['PremiumRegistrationPrice'] ?? null, [
+                    $result['IcannFee'] ?? '0', $result['EapFee'] ?? '0',
+                ]);
+                $quote = ['price' => $price, 'currency' => $price !== null ? 'USD' : null];
+            } else {
+                // Keep the entire suffix: example.co.uk must request CO.UK.
+                $tld = explode('.', $domain, 2)[1] ?? '';
+                $quote = self::getRegistrationPrice($cfg, $tld);
+            }
+        }
         return [
             'domain' => (string) ($result['Domain'] ?? $domain),
-            'available' => (($result['Available'] ?? 'false') === 'true'),
-            'is_premium' => (($result['IsPremiumName'] ?? 'false') === 'true'),
-            'price' => isset($result['PremiumRegistrationPrice']) ? (string) $result['PremiumRegistrationPrice'] : null,
-        ];
+            'available' => $available,
+            'is_premium' => $premium,
+        ] + $quote;
+    }
+
+    /** @return array{price:?string,currency:?string} */
+    public static function getRegistrationPrice(array $cfg, string $tld): array
+    {
+        $unknown = ['price' => null, 'currency' => null];
+        $tld = strtolower(trim($tld));
+        if ($tld === '') {
+            return $unknown;
+        }
+        $resp = self::request($cfg, 'namecheap.users.getPricing', [
+            'ProductType' => 'DOMAIN', 'ProductCategory' => 'DOMAINS',
+            'ActionName' => 'REGISTER', 'ProductName' => strtoupper($tld),
+        ]);
+        if (!$resp['ok']) {
+            return $unknown;
+        }
+        $types = $resp['data']['CommandResponse']['UserGetPricingResult']['ProductType'] ?? [];
+        foreach (self::xmlList($types) as $type) {
+            if (!in_array(strtoupper($type['@attributes']['Name'] ?? ''), ['DOMAIN', 'DOMAINS'], true)) {
+                continue;
+            }
+            foreach (self::xmlList($type['ProductCategory'] ?? []) as $category) {
+                if (strtoupper($category['@attributes']['Name'] ?? '') !== 'REGISTER') {
+                    continue;
+                }
+                foreach (self::xmlList($category['Product'] ?? []) as $product) {
+                    if (strtolower($product['@attributes']['Name'] ?? '') !== $tld) {
+                        continue;
+                    }
+                    foreach (self::xmlList($product['Price'] ?? []) as $entry) {
+                        $attr = $entry['@attributes'] ?? [];
+                        if (($attr['Duration'] ?? '') !== '1' || strtoupper($attr['DurationType'] ?? '') !== 'YEAR') {
+                            continue;
+                        }
+                        // Price is the account's final rate, including applicable
+                        // promotions. AdditionalCost is the registry fee, when supplied.
+                        $price = self::registrationPrice($attr['Price'] ?? null, [$attr['AdditionalCost'] ?? '0']);
+                        $currency = strtoupper(trim($attr['Currency'] ?? ''));
+                        if ($price !== null && preg_match('/^[A-Z]{3}$/', $currency)) {
+                            return ['price' => $price, 'currency' => $currency];
+                        }
+                    }
+                }
+            }
+        }
+        return $unknown;
+    }
+
+    /** SimpleXML JSON represents one child as an object, multiple as a list. */
+    private static function xmlList($value): array
+    {
+        if (!is_array($value)) {
+            return [];
+        }
+        return isset($value['@attributes']) ? [$value] : $value;
+    }
+
+    /** Unknown, malformed or zero prices must never become a free quote. */
+    private static function registrationPrice($base, array $fees): ?string
+    {
+        if (!is_scalar($base) || !preg_match('/^\d+(?:\.\d+)?$/', (string) $base) || (float) $base <= 0) {
+            return null;
+        }
+        $total = (float) $base;
+        foreach ($fees as $fee) {
+            if (!is_scalar($fee) || !preg_match('/^\d+(?:\.\d+)?$/', (string) $fee)) {
+                return null;
+            }
+            $total += (float) $fee;
+        }
+        return is_finite($total) && round($total, 2) > 0 ? number_format($total, 2, '.', '') : null;
     }
 
     /**
-     * Регистрация (покупка) домена. Всем четырём контактным ролям назначается
-     * один адрес из Address Book — иначе Namecheap требует полный набор полей
-     * адреса в запросе.
-     * @return array{ok:bool,message:string,ip_hint:string}
+     * Read and validate the selected Address Book contact before a paid request.
+     * domains.create requires full contact fields, not *AddressId shortcuts.
+     * @return array{ok:bool,params:array<string,string>,message:string,ip_hint:string}
      */
+    public static function getRegistrationContact(array $cfg, string $addressId): array
+    {
+        $addressId = trim($addressId);
+        if ($addressId === '') {
+            return ['ok' => false, 'params' => [], 'message' => 'Select a Namecheap Address Book contact before registering a domain.', 'ip_hint' => ''];
+        }
+
+        $resp = self::request($cfg, 'namecheap.users.address.getInfo', ['AddressId' => $addressId], true);
+        if (!$resp['ok']) {
+            return ['ok' => false, 'params' => [], 'message' => $resp['errors'], 'ip_hint' => $resp['ip_hint']];
+        }
+        $data = $resp['data']['CommandResponse']['GetAddressInfoResult'] ?? [];
+        if (!is_array($data)) {
+            $data = [];
+        }
+        $field = static function (string $name) use ($data): string {
+            $value = $data[$name] ?? '';
+            return is_scalar($value) ? trim((string) $value) : '';
+        };
+        $required = [
+            'FirstName' => 'FirstName', 'LastName' => 'LastName',
+            'Address1' => 'Address1', 'City' => 'City',
+            'StateProvince' => 'StateProvince', 'PostalCode' => 'Zip',
+            'Country' => 'Country', 'Phone' => 'Phone', 'EmailAddress' => 'EmailAddress',
+        ];
+        $contact = [];
+        $missing = [];
+        foreach ($required as $suffix => $source) {
+            $value = $field($source);
+            if ($value === '') {
+                $missing[] = $source;
+            }
+            $contact[$suffix] = $value;
+        }
+        if ($missing !== []) {
+            return ['ok' => false, 'params' => [], 'message' => 'Namecheap Address Book contact is missing: ' . implode(', ', $missing) . '. Update that contact before registering a domain.', 'ip_hint' => ''];
+        }
+        foreach ([
+            'OrganizationName' => 'Organization', 'JobTitle' => 'JobTitle',
+            'Address2' => 'Address2', 'StateProvinceChoice' => 'StateProvinceChoice',
+            'PhoneExt' => 'PhoneExt', 'Fax' => 'Fax',
+        ] as $suffix => $source) {
+            $value = $field($source);
+            if ($value !== '') {
+                $contact[$suffix] = $value;
+            }
+        }
+        $params = [];
+        foreach (['Registrant', 'Tech', 'Admin', 'AuxBilling'] as $role) {
+            foreach ($contact as $suffix => $value) {
+                $params[$role . $suffix] = $value;
+            }
+        }
+        return ['ok' => true, 'params' => $params, 'message' => '', 'ip_hint' => ''];
+    }
+
+    /** @return array{ok:bool,message:string,ip_hint:string} */
     public static function registerDomain(array $cfg, string $domain, int $years = 1, ?string $addressId = null): array
     {
+        $contact = self::getRegistrationContact($cfg, $addressId ?? '');
+        if (!$contact['ok']) {
+            return ['ok' => false, 'message' => $contact['message'], 'ip_hint' => $contact['ip_hint']];
+        }
         $params = [
             'DomainName' => strtolower(trim($domain)),
             'Years' => (string) max(1, min(10, $years)),
             'AddFreeWhoisguard' => 'NO',
             'WGEnabled' => 'NO',
-        ];
-        if ($addressId !== null && $addressId !== '') {
-            $params['RegistrantAddressId'] = $addressId;
-            $params['TechAddressId'] = $addressId;
-            $params['AdminAddressId'] = $addressId;
-            $params['AuxBillingAddressId'] = $addressId;
-        }
-        $resp = self::request($cfg, 'namecheap.domains.create', $params);
+        ] + $contact['params'];
+        $resp = self::request($cfg, 'namecheap.domains.create', $params, true);
         return ['ok' => $resp['ok'], 'message' => $resp['errors'] ?: 'Registered', 'ip_hint' => $resp['ip_hint']];
     }
 
