@@ -164,11 +164,14 @@ foreach ($filters as $fKey => $fValue) {
     }
     $orParts = [];
     foreach (array_unique($candidates) as $cand) {
-        // json_extract path не биндится — чистим имя от всего лишнего.
-        $safe = preg_replace('/[^A-Za-z0-9_]/', '', $cand);
-        if ($safe === '') {
+        // json_extract path не биндится — принимаем имя только если оно ЦЕЛИКОМ
+        // состоит из безопасных символов (whitelist-валидация, а не вычищение
+        // недопустимых байт, которое могло бы «съесть» юникод-обход и пропустить
+        // подделанный кандидат).
+        if (!preg_match('/^[A-Za-z0-9_]{1,64}$/', $cand)) {
             continue;
         }
+        $safe = $cand;
         $orParts[] = "json_extract(parameters_json, '$.{$safe}') = ?";
         $args[] = (string) $fValue;
     }
