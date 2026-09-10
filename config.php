@@ -2743,6 +2743,9 @@ try {
         $stmt = $pdo->query("SELECT value FROM settings WHERE key = 'postback_key'");
         if ($stmt) {
             $db_key = $stmt->fetchColumn();
+            // This statement survives in the caller's scope. Release its WAL
+            // snapshot before a webhook/API/cron does network I/O then writes.
+            $stmt->closeCursor();
             if ($db_key) {
                 $postback_key = $db_key;
             }

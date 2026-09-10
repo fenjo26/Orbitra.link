@@ -154,6 +154,9 @@ function orbitraTelegramMaybeSendDaily($pdo)
 {
     $stmt = $pdo->query("SELECT value FROM settings WHERE key = 'telegram_daily_time'");
     $dailyTime = $stmt ? (string)$stmt->fetchColumn() : '';
+    if ($stmt) {
+        $stmt->closeCursor();
+    }
     if ($dailyTime === '') {
         $dailyTime = '21:00';
     }

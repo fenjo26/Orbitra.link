@@ -7,6 +7,17 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Fixed
+
+- Telegram connection no longer fails while registering the command menu after
+  saving a valid token and webhook. The panel and bot use one shared transport,
+  independent of include order.
+- Release completed SQLite read cursors in shared bootstrap/authentication and
+  Telegram flows, preventing stale WAL snapshots from rejecting writes after
+  another request or cron commits while Telegram is being contacted.
+
 ## [1.5.6] — 2026-09-10
 
 ### Fixed — Namecheap Buy & Park: registration contacts + real pricing (PR #10, thanks @lucasvaz013)
