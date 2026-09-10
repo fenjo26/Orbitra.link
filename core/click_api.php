@@ -12,6 +12,7 @@
 
 require_once __DIR__ . '/geo_databases.php';
 require_once __DIR__ . '/Device.php';
+require_once __DIR__ . '/OfferUrl.php';
 require_once __DIR__ . '/CloakDetector.php';
 require_once __DIR__ . '/StreamFilters.php';
 require_once __DIR__ . '/ip_access.php';
@@ -764,9 +765,7 @@ function orbitraClickApiV3(PDO $pdo): void
             }
         }
         if ($offerIdToLog) {
-            $stmtO = $pdo->prepare("SELECT url, is_local FROM offers WHERE id = ?");
-            $stmtO->execute([$offerIdToLog]);
-            $off = $stmtO->fetch(PDO::FETCH_ASSOC);
+            $off = orbitraGetOfferDestination($pdo, (int) $offerIdToLog);
             if ($off) {
                 $offerUrl = $off['url'] ?? null;
                 // A direct local offer carries no URL — the tracker's public
@@ -809,9 +808,7 @@ function orbitraClickApiV3(PDO $pdo): void
         }
 
         if ($offerIdToLog) {
-            $stmtO = $pdo->prepare("SELECT url, is_local FROM offers WHERE id = ?");
-            $stmtO->execute([$offerIdToLog]);
-            $off = $stmtO->fetch(PDO::FETCH_ASSOC);
+            $off = orbitraGetOfferDestination($pdo, (int) $offerIdToLog);
             if ($off) {
                 $offerUrl = $off['url'] ?? null;
                 // Same direct-local-offer fallback as the landing_offer schema.
@@ -938,7 +935,10 @@ function orbitraClickApiV3(PDO $pdo): void
         $clickMacros = ['{clickid}', '{subid}', '{ip}', '{country}'];
         $clickValues = [$clickId, $clickId, urlencode((string) $ip), urlencode((string) $country)];
 
-        $offerUrlMacros = str_replace($clickMacros, $clickValues, (string) ($offerUrl ?? ''));
+        $offerUrlMacros = orbitraResolveOfferUrlMacros(
+            $offerUrl ?? '', $clickId, $offerIdToLog, $clickParams,
+            ['ip' => $ip, 'country' => $country]
+        );
 
         $resolved = str_replace($clickMacros, $clickValues, $finalUrl);
         foreach ($clickParams as $key => $val) {
