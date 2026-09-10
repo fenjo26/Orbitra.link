@@ -11,26 +11,22 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.5.5
+## 🆕 What's New in v1.5.6
 
-Small release — the Feedback & Support page gains a Partners block.
+Namecheap Buy & Park works again — registration contacts and real prices are fixed (PR #10, thanks @lucasvaz013).
 
-### Added
+### Fixed
 
-- 🤝 **Partners block on Feedback & Support** — a themed full-width card under the contact grid listing partner services as linked logo tiles: **Pay2.House** (virtual cards for Facebook, Google and TikTok Ads spend) and **GroupBuySEO** (group-buy access to Ahrefs, Semrush, ChatGPT Plus and more) to start with. Extending the list is deliberately cheap: one SVG in `frontend/public/partners/`, one entry in the partners array, four locale strings
-- 🌍 **All seven locales** — the section title, subtitle and per-partner descriptions ship in en / ru / de / uk / es / fr / zh out of the box
+- 🏠 **Namecheap Buy & Park works again** — Address Book contacts with ID `0` (the primary address on many accounts) are no longer dropped, and `domains.create` receives the full four-role contact set resolved via `users.address.getInfo` instead of the unsupported `*AddressId` shortcut that answered "Parameter RegistrantFirstName is Missing"; contact requests go as form POST, keeping the API key out of the URL
+- 💰 **Real registration prices** — regular domains are quoted a one-year `REGISTER` rate from `users.getPricing` (+ ICANN fee) instead of a misleading `$0` read off the premium-price field; premium domains keep their own price and fees; the currency shows in the dialog and the confirmation, and a missing quote disables the purchase button with a "price unavailable" notice
+- 🧪 **Three new regression suites** — pricing (compound TLDs, multi-year rates, malformed quotes), contact resolution and the zero address ID; canned XML only, no purchases
 
-The white-on-transparent Pay2.House wordmark sits on a dark chip so it stays readable in light themes, and the global link-hover underline is suppressed inside the tiles so hover keeps the clean lift-and-shadow effect.
+### Previous Highlights (v1.5.5)
 
-### Previous Highlights (v1.5.4)
+- 🤝 **Partners block on Feedback & Support** — a themed full-width card under the contact grid listing partner services as linked logo tiles: Pay2.House (virtual cards for Facebook, Google and TikTok Ads spend) and GroupBuySEO (group-buy access to Ahrefs, Semrush, ChatGPT Plus and more); extending the list is deliberately cheap — one SVG, one array entry, four locale strings
+- 🌍 **All seven locales** — the partners copy ships in en / ru / de / uk / es / fr / zh out of the box
 
-- 📱 **The PWA visit funnel is a configurable list of screens** — your own screens (lobby / slot / wheel / custom HTML, up to five), the install-instructions screen and the push card at any position of the flow; the first enabled step is what a cold visitor sees, and the store is just one toggleable step now
-- 📊 **Per-screen statistics** — a `pwa_screen_views` metric across the dashboard, campaigns, reports and the Landings/Offers tables, entry/last-screen Group-By dimensions and filters, and a per-landing funnel card (views, uniques, entries, exits, screen→screen transitions)
-- 🎯 **Per-screen tracking scripts** — each screen step runs its own JS on the screen's first show, so ad pixels never fire for screens the visitor never reached
-- 🧭 **Funnel-first constructor** — a dedicated "Screens" wizard step owns the builder; the Store and Reviews steps exist only while the store is in the funnel
-- 💱 **Postbacks convert non-base-currency payouts (PR #9)** — S2S `{payout}` / `{currency}` and CAPI carry base-currency values; receivers that need the raw network values take the `{fx_orig_*}` macros
-
-Older releases (v1.5.3 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.5.4 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo
