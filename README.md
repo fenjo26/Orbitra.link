@@ -1,4 +1,4 @@
-# Orbitra v1.5.6 Tracker
+# Orbitra v1.5.7 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,22 +11,22 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.5.6
+## 🆕 What's New in v1.5.7
 
-Namecheap Buy & Park works again — registration contacts and real prices are fixed (PR #10, thanks @lucasvaz013).
+Two external fixes from @lucasvaz013: affiliate-network parameters now reach the offer destination at click time, and connecting a Telegram bot no longer fails with "Connection error".
 
 ### Fixed
 
-- 🏠 **Namecheap Buy & Park works again** — Address Book contacts with ID `0` (the primary address on many accounts) are no longer dropped, and `domains.create` receives the full four-role contact set resolved via `users.address.getInfo` instead of the unsupported `*AddressId` shortcut that answered "Parameter RegistrantFirstName is Missing"; contact requests go as form POST, keeping the API key out of the URL
-- 💰 **Real registration prices** — regular domains are quoted a one-year `REGISTER` rate from `users.getPricing` (+ ICANN fee) instead of a misleading `$0` read off the premium-price field; premium domains keep their own price and fees; the currency shows in the dialog and the confirmation, and a missing quote disables the purchase button with a "price unavailable" notice
-- 🧪 **Three new regression suites** — pricing (compound TLDs, multi-year rates, malformed quotes), contact resolution and the zero address ID; canned XML only, no purchases
+- 🎯 **Affiliate-network parameters reach the network** — `offer_params` set on a network (`subid={subid}` and friends) are appended to the destination of every bound offer on all click routes: the tracker, both Click APIs, the legacy `click.php` and landing→offer transitions; your manual parameters win without duplicates, network edits act on the next click without rewriting stored URLs, local offers are untouched
+- 🤖 **Telegram connect works** — a valid token + webhook used to die on `Cannot redeclare orbitraTelegramApi()` when the panel loaded the bot to register the command menu; the transport now lives once in `core/telegram_api.php`, independent of include order
+- 🔓 **Fewer `db_locked` answers** — completed single-row SQLite cursors are released before the request waits on Telegram, so a concurrent click or cron commit can no longer strand a stale WAL snapshot that rejects the following write
 
-### Previous Highlights (v1.5.5)
+### Previous Highlights (v1.5.6)
 
-- 🤝 **Partners block on Feedback & Support** — a themed full-width card under the contact grid listing partner services as linked logo tiles: Pay2.House (virtual cards for Facebook, Google and TikTok Ads spend) and GroupBuySEO (group-buy access to Ahrefs, Semrush, ChatGPT Plus and more); extending the list is deliberately cheap — one SVG, one array entry, four locale strings
-- 🌍 **All seven locales** — the partners copy ships in en / ru / de / uk / es / fr / zh out of the box
+- 🏠 **Namecheap Buy & Park works again (PR #10)** — Address Book contacts with ID `0` (the primary address on many accounts) are no longer dropped, and `domains.create` receives the full four-role contact set resolved via `users.address.getInfo` instead of the unsupported `*AddressId` shortcut; contact requests go as form POST, keeping the API key out of the URL
+- 💰 **Real registration prices** — regular domains are quoted a one-year `REGISTER` rate from `users.getPricing` (+ ICANN fee) instead of a misleading `$0` read off the premium-price field; a missing quote disables the purchase button with a "price unavailable" notice
 
-Older releases (v1.5.4 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.5.5 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo
@@ -506,20 +506,22 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.5.6 (2026-09-10)
+### Current release — v1.5.7 (2026-09-10)
 
 **Fixed**
-- 🏠 **Namecheap Buy & Park works again (PR #10, thanks @lucasvaz013)** — Address Book contacts with ID `0` (the primary address on many accounts) are no longer dropped, and `domains.create` now receives the full four-role contact set resolved via `users.address.getInfo` instead of the unsupported `*AddressId` shortcut; contact requests go as form POST, keeping the API key out of the URL
-- 💰 **Real registration prices** — regular domains are quoted a one-year `REGISTER` rate from `users.getPricing` (+ ICANN fee) instead of a misleading `$0` read off the premium-price field; premium domains keep their own price and fees; the currency shows in the dialog and the confirmation, and a missing quote disables the purchase button with a "price unavailable" notice
-- 🧪 Three new regression suites: pricing, contact resolution, zero address ID
+- 🎯 **Affiliate-network parameters reach the network (PR #12, thanks @lucasvaz013)** — `offer_params` set on a network are appended to the destination of every bound offer at click time, across all seven registered-offer lookups (tracker, both Click APIs, legacy `click.php`, landing→offer transitions); manual parameters win without duplicates, network edits act on the next click, local offers and the explicit-URL domain allowlist are untouched
+- 🤖 **Telegram connect no longer fails for a valid token (PR #13, thanks @lucasvaz013)** — the panel and the bot share one transport in `core/telegram_api.php` instead of dying on `Cannot redeclare orbitraTelegramApi()` when the command menu registers
+- 🔓 **Fewer `db_locked` answers** — completed single-row SQLite cursors are released before the request waits on Telegram; stale WAL snapshots can no longer reject writes after a concurrent click or cron commit
+- 🧪 Three new regression suites: affiliate params (73 unit + 248 HTTP checks, 109 fail on the pre-fix baseline) and Telegram connect
 
-### Previous release — v1.5.5 (2026-09-09)
+### Previous release — v1.5.6 (2026-09-10)
 
-**Added**
-- 🤝 **Partners block on Feedback & Support** — a themed card under the contact grid with linked logo tiles: Pay2.House (virtual cards for Facebook / Google / TikTok Ads spend) and GroupBuySEO (group-buy access to Ahrefs, Semrush, ChatGPT Plus) to start with; extending the list is one SVG, one array entry and four locale strings
-- 🌍 Partners copy ships in all seven locales
+**Fixed**
+- 🏠 **Namecheap Buy & Park works again (PR #10)** — Address Book contacts with ID `0` kept, `domains.create` receives the full four-role contact set via `users.address.getInfo`; contact requests go as form POST, keeping the API key out of the URL
+- 💰 **Real registration prices** — a one-year `REGISTER` rate from `users.getPricing` (+ ICANN fee) instead of a misleading `$0`; a missing quote disables the purchase button with a "price unavailable" notice
+- 🧪 Three regression suites: pricing, contact resolution, zero address ID
 
-Previous releases — v1.5.4: 📱 PWA visit funnel (ordered screens: own + install-instructions + push card, per-screen statistics & tracking scripts, funnel-first constructor), 💱 postback payouts converted to the base currency (PR #9); v1.5.3: 🧩 extension overlay counts like the panel, 🧱 one safe-page predicate in `core/ReportMetrics.php`, 📊 honest safe-page hint + 👁 Visitors in the default preset; v1.5.2: 🎨 boot screen before the bundle parses, 🖥 Terminal & Aurora themes, 🗺 two-column login, 🤖 Telegram bot as a visual menu (pinned keyboard ×7 languages), 📸 Snapchat Ads template, 🖱 non-blocking update check, 📊 Profitability → Margin; v1.5.1: ⏱ time on LP for every visitor (visible seconds + scroll depth into the click, *LP bounce/scroll/measured visits* metrics, **Time on LP (bucket)** dimension), 🤖 Telegram polling mode (bare IP / plain HTTP / proxy, real Telegram errors on screen); 🎯 clicks = the offer funnel (pre-bound landing views count as visitors, CPV/EPV ÷ visitors), 📌 pinned identity columns, 🔗 CAPI `content_id` (PR #8), 🧱 versioned column-width storage; v1.5.0: 📱 PWA landings (store-style constructor, funnel beacons into the click, self-healing push subscription, direct domain→PWA binding), 🔔 Web Push on your own base (self-hosted VAPID keys, subscriber list + CSV, manual & event messages, cron-driven queue with retries and aging), 🖼 Content Gallery + shared MediaPicker (size contracts, cropping), 🔐 four crypto-layer defects in push delivery found by live device diagnostics; 🧩 `{subid}` on the landing→offer hop, service worker on bound domains, panel session lifetime, "database is locked" as a clean 503, silent `save_user` demotion; v1.4.1: 🐞 Affiliate Networks crash fix (issue #7), 🌍 System Status localization; v1.4.0: 📊 honest LP-funnel metrics (Real LP clicks / Real offer clicks / Real LP CTR), ⏱ landing→offer timing buckets, 🎚 "After the click" default for new landing streams, 🔐 roles enforced server-side + per-campaign scoping (issue #6); v1.3.11: 🏠 domain-root campaigns in production, 🔑 private postback key on install; v1.3.10: 📱 rotation rows as a placed grid below 640px, 🎨 campaign-name link parity on both surfaces; v1.3.9: 🔒 SSL chain verdicts + certificates-on-save, 🎯 LeadForge honest failures, 🛡️ scan protection, Domains rebuilt; v1.3.8: 🧹 stray ellipsis gone, centred values, checkbox column fixed, lint-zero tracker tables; v1.3.7: 🔀 full column reorder, ✂️ hard cell clipping, 🎯 centred headers.
+Previous releases — v1.5.6: 🏠 Namecheap Buy & Park fix — registration contacts with ID `0` + real prices (PR #10); v1.5.5: 🤝 partners block on Feedback & Support (Pay2.House, GroupBuySEO as logo tiles, seven locales); v1.5.4: 📱 PWA visit funnel (ordered screens: own + install-instructions + push card, per-screen statistics & tracking scripts, funnel-first constructor), 💱 postback payouts converted to the base currency (PR #9); v1.5.3: 🧩 extension overlay counts like the panel, 🧱 one safe-page predicate in `core/ReportMetrics.php`, 📊 honest safe-page hint + 👁 Visitors in the default preset; v1.5.2: 🎨 boot screen before the bundle parses, 🖥 Terminal & Aurora themes, 🗺 two-column login, 🤖 Telegram bot as a visual menu (pinned keyboard ×7 languages), 📸 Snapchat Ads template, 🖱 non-blocking update check, 📊 Profitability → Margin; v1.5.1: ⏱ time on LP for every visitor (visible seconds + scroll depth into the click, *LP bounce/scroll/measured visits* metrics, **Time on LP (bucket)** dimension), 🤖 Telegram polling mode (bare IP / plain HTTP / proxy, real Telegram errors on screen); 🎯 clicks = the offer funnel (pre-bound landing views count as visitors, CPV/EPV ÷ visitors), 📌 pinned identity columns, 🔗 CAPI `content_id` (PR #8), 🧱 versioned column-width storage; v1.5.0: 📱 PWA landings (store-style constructor, funnel beacons into the click, self-healing push subscription, direct domain→PWA binding), 🔔 Web Push on your own base (self-hosted VAPID keys, subscriber list + CSV, manual & event messages, cron-driven queue with retries and aging), 🖼 Content Gallery + shared MediaPicker (size contracts, cropping), 🔐 four crypto-layer defects in push delivery found by live device diagnostics; 🧩 `{subid}` on the landing→offer hop, service worker on bound domains, panel session lifetime, "database is locked" as a clean 503, silent `save_user` demotion; v1.4.1: 🐞 Affiliate Networks crash fix (issue #7), 🌍 System Status localization; v1.4.0: 📊 honest LP-funnel metrics (Real LP clicks / Real offer clicks / Real LP CTR), ⏱ landing→offer timing buckets, 🎚 "After the click" default for new landing streams, 🔐 roles enforced server-side + per-campaign scoping (issue #6); v1.3.11: 🏠 domain-root campaigns in production, 🔑 private postback key on install; v1.3.10: 📱 rotation rows as a placed grid below 640px, 🎨 campaign-name link parity on both surfaces; v1.3.9: 🔒 SSL chain verdicts + certificates-on-save, 🎯 LeadForge honest failures, 🛡️ scan protection, Domains rebuilt; v1.3.8: 🧹 stray ellipsis gone, centred values, checkbox column fixed, lint-zero tracker tables; v1.3.7: 🔀 full column reorder, ✂️ hard cell clipping, 🎯 centred headers.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

@@ -7,16 +7,42 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [1.5.7] — 2026-09-10
 
-### Fixed
+### Fixed — affiliate-network parameters reach the offer destination (PR #12, thanks @lucasvaz013)
 
-- Telegram connection no longer fails while registering the command menu after
-  saving a valid token and webhook. The panel and bot use one shared transport,
-  independent of include order.
-- Release completed SQLite read cursors in shared bootstrap/authentication and
-  Telegram flows, preventing stale WAL snapshots from rejecting writes after
-  another request or cron commits while Telegram is being contacted.
+- **`offer_params` now apply at runtime.** An affiliate network promising
+  `&subid={subid}` on its offers' URLs never delivered: every destination lookup
+  loaded only `offers.url`. A new shared `core/OfferUrl.php` composes the
+  network's parameters into the offer URL at click time across all seven
+  registered-offer lookups — the tracker, both Click APIs and the legacy
+  `click.php` endpoint, including landing→offer transitions — via one indexed
+  `LEFT JOIN`, with no extra query and no rewrite of stored URLs.
+- **No duplicates, no rewrites.** Parameters already present in an offer URL win
+  over network defaults (compared by decoded key name; encoding, ordering and
+  repeated fields are preserved), so existing manual `subid={subid}` workarounds
+  stay valid. Editing a network takes effect on the next click. Local offers,
+  LeadForge endpoints and the explicit-URL domain allowlist are untouched;
+  path suffixes like `/{subid}` and `/{source}/{subid}` used by bundled network
+  templates are supported.
+- 🧪 Two new suites: 73 unit assertions and a 248-check HTTP regression suite —
+  109 of those checks fail on the pre-fix baseline.
+
+### Fixed — Telegram connection + stale SQLite cursors (PR #13, thanks @lucasvaz013)
+
+- **"Connection error. Check the token." for a valid bot is gone.** Connecting
+  could save the token and register the webhook, then die with
+  `Cannot redeclare orbitraTelegramApi()` when the panel loaded the bot to push
+  the command menu. The transport now lives once in `core/telegram_api.php`,
+  loaded with `require_once` by the panel, the bot and everything downstream —
+  include order no longer matters.
+- **Fewer `db_locked` answers while Telegram is slow.** Completed single-row
+  read cursors (shared bootstrap/authentication, timezone loading, Telegram
+  config and housekeeping flows) are released before the request waits on the
+  network, so a concurrent click or cron commit can no longer strand a stale WAL
+  snapshot that rejects the following write.
+- 🧪 One new deterministic integration suite:
+  `tests/telegram_connection_test.php`.
 
 ## [1.5.6] — 2026-09-10
 
