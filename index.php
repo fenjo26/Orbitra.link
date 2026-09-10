@@ -24,6 +24,7 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 }
 require_once __DIR__ . '/core/geo_databases.php';
 require_once __DIR__ . '/core/Device.php';
+require_once __DIR__ . '/core/OfferUrl.php';
 // Cloaking detector (datacenter/VPN ASN + UA heuristics + bot blocklists). Lazy: only
 // consulted when a stream with schema_type='cloak' is selected.
 require_once __DIR__ . '/core/CloakDetector.php';
@@ -341,32 +342,7 @@ function detectBrowser($userAgent)
 // $context carries the originating click's own dimensions ('ip', 'country').
 function applyOfferMacros($url, $clickId, $offerId, $params, array $context = [])
 {
-    $url = str_replace(['{clickid}', '{subid}'], [$clickId, $clickId], (string) $url);
-    if (isset($context['ip'])) {
-        $url = str_replace('{ip}', urlencode((string) $context['ip']), $url);
-    }
-    if (isset($context['country'])) {
-        $url = str_replace('{country}', urlencode((string) $context['country']), $url);
-    }
-    if (!empty($params) && is_array($params)) {
-        foreach ($params as $key => $val) {
-            $url = str_replace('{' . $key . '}', urlencode((string) $val), $url);
-        }
-    }
-    if ($offerId) {
-        $url = str_replace('{offer_id}', (string) $offerId, $url);
-    }
-    // Drop the macros this click carried no value for ("{utm_term}" and
-    // friends): a literal "{...}" reaching the affiliate network breaks its
-    // sub-id parsing. The main click flow cleans leftovers the same way.
-    $url = preg_replace('#\{[a-zA-Z0-9_]+\}#', '', (string) $url);
-    // Ensure URL has a scheme to prevent a relative redirect back to the tracker.
-    // An empty URL belongs to a direct local offer (served from the tracker, no
-    // redirect) and must stay empty rather than become "http://".
-    if ($url !== '' && !preg_match('#^(https?:)?//#i', $url) && !preg_match('#^/#', $url) && !preg_match('#^(mailto|tel):#i', $url)) {
-        $url = 'http://' . ltrim($url, '/');
-    }
-    return $url;
+    return orbitraResolveOfferUrlMacros($url, $clickId, $offerId, $params, $context);
 }
 
 // Render the visitor response for a final destination URL according to the offer's
@@ -3291,10 +3267,7 @@ if (isset($_GET['_lp'])) {
         die('Landing transition failed: no offer attached to this stream.');
     }
 
-    $lpOffer = null;
-    $stmt = $pdo->prepare("SELECT url, redirect_type, is_local FROM offers WHERE id = ? LIMIT 1");
-    $stmt->execute([$lpOfferId]);
-    $lpOffer = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    $lpOffer = orbitraGetOfferDestination($pdo, (int) $lpOfferId);
     if (!$lpOffer || (empty($lpOffer['url']) && empty($lpOffer['is_local']))) {
         http_response_code(404);
         die('Landing transition failed: offer not found.');
@@ -4144,9 +4117,7 @@ if ($selectedStream) {
         }
 
         if ($offerIdToLog) {
-            $stmt = $pdo->prepare("SELECT url, redirect_type FROM offers WHERE id = ?");
-            $stmt->execute([$offerIdToLog]);
-            $off = $stmt->fetch();
+            $off = orbitraGetOfferDestination($pdo, (int) $offerIdToLog);
             if ($off) {
                 $offerUrl = $off['url'];
                 $offerRedirectType = $off['redirect_type'] ?? 'redirect';
@@ -4333,9 +4304,7 @@ if ($selectedStream) {
                 }
             }
             if ($offerIdToLog) {
-                $stmt = $pdo->prepare("SELECT url, redirect_type FROM offers WHERE id = ?");
-                $stmt->execute([$offerIdToLog]);
-                $off = $stmt->fetch();
+                $off = orbitraGetOfferDestination($pdo, (int) $offerIdToLog);
                 if ($off) {
                     $offerUrl = $off['url'];
                     $offerRedirectType = $off['redirect_type'] ?? 'redirect';
@@ -4376,9 +4345,7 @@ if ($selectedStream) {
             }
 
             if ($offerIdToLog && empty($finalUrl)) {
-                $stmt = $pdo->prepare("SELECT url, redirect_type FROM offers WHERE id = ?");
-                $stmt->execute([$offerIdToLog]);
-                $offer = $stmt->fetch();
+                $offer = orbitraGetOfferDestination($pdo, (int) $offerIdToLog);
                 if ($offer) {
                     $finalUrl = $offer['url'];
                     $offerUrl = $offer['url'];
@@ -4503,7 +4470,10 @@ if ($actionToPerfrom) {
     }
     performTrackerAction($streamActionType, $streamActionPayload);
 } else {
-    $offerUrlMacros = str_replace('{clickid}', $clickId, $offerUrl ?? '');
+    $offerUrlMacros = orbitraResolveOfferUrlMacros(
+        $offerUrl ?? '', $clickId, $offerIdToLog, $clickParams ?? [],
+        ['ip' => $ip, 'country' => $country]
+    );
 
     // Remember this click so a landing's offer link (/?_lp=1) can resolve the
     // bound offer later. Must be set before any landing output.

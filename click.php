@@ -13,6 +13,7 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 }
 require_once __DIR__ . '/core/geo_databases.php';
 require_once __DIR__ . '/core/Device.php';
+require_once __DIR__ . '/core/OfferUrl.php';
 require_once __DIR__ . '/core/CloakDetector.php';
 require_once __DIR__ . '/core/click_logger.php';
 // Same prefetch guard as the main click path — a speculative request here would
@@ -562,9 +563,7 @@ if ($stream) {
         }
 
         if ($offerId) {
-            $stmt = $pdo->prepare("SELECT url FROM offers WHERE id = ?");
-            $stmt->execute([$offerId]);
-            $offer = $stmt->fetch();
+            $offer = orbitraGetOfferDestination($pdo, (int) $offerId);
             if ($offer) {
                 $offerUrl = $offer['url'];
             }
@@ -705,10 +704,20 @@ if ($shouldRedirect) {
     $finalUrl = $explicitUrl ?: $offerUrl;
 
     if ($finalUrl) {
-        // Replace macros
-        $finalUrl = str_replace('{clickid}', $clickId, $finalUrl);
-        foreach ($clickParams as $key => $val) {
-            $finalUrl = str_replace('{' . $key . '}', urlencode((string)$val), $finalUrl);
+        // A registered offer uses the same click context as the main tracker.
+        // Explicit URL overrides and cloak safe destinations retain their
+        // existing substitution and domain-validation behavior.
+        if (!$explicitUrl && !$cloakShowSafe && !empty($offerId)) {
+            $finalUrl = orbitraResolveOfferUrlMacros(
+                $finalUrl, $clickId, $offerId, $clickParams,
+                ['ip' => $ip, 'country' => $countryCode]
+            );
+        } else {
+            // Legacy substitution for an explicit URL or a safe destination.
+            $finalUrl = str_replace('{clickid}', $clickId, $finalUrl);
+            foreach ($clickParams as $key => $val) {
+                $finalUrl = str_replace('{' . $key . '}', urlencode((string)$val), $finalUrl);
+            }
         }
 
         if (!preg_match('#^(https?:)?//#i', $finalUrl)) {

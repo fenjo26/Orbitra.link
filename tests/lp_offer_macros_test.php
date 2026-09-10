@@ -23,6 +23,7 @@
 // Run: php tests/lp_offer_macros_test.php
 
 $repoRoot = dirname(__DIR__);
+require_once $repoRoot . '/core/OfferUrl.php';
 $failures = 0;
 
 $assert = static function (string $label, $got, $expected) use (&$failures): void {
