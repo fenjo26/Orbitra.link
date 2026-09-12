@@ -440,16 +440,17 @@ export const CodeEditor = forwardRef(function CodeEditor({
                     </div>
                 </div>
 
-                {/* Unlayered form styles override Tailwind's bg-transparent;
-                    keep the dark editor surface behind its fixed light text. */}
+                {/* The shared input rule paints textareas with the theme's
+                    form background; .code-editor-textarea (index.css) keeps
+                    the editor's own dark canvas behind the fixed light text. */}
                 <textarea
                     ref={textareaRef}
                     value={text}
                     onChange={(event) => onChange?.(event.target.value)}
                     onScroll={handleScroll}
                     onKeyDown={handleKeyDown}
-                    className="min-h-0 flex-1 resize-none overflow-auto whitespace-pre border-none bg-transparent p-3 outline-none"
-                    style={{ backgroundColor: 'transparent', color: '#e6edf3', caretColor: '#ffffff', lineHeight: '21px', tabSize: 2 }}
+                    className="code-editor-textarea min-h-0 flex-1 resize-none overflow-auto whitespace-pre border-none bg-transparent p-3 outline-none"
+                    style={{ color: '#e6edf3', caretColor: '#ffffff', lineHeight: '21px', tabSize: 2 }}
                     spellCheck={false}
                     wrap="off"
                     aria-label={ariaLabel}

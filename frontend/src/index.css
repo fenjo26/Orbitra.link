@@ -807,6 +807,13 @@ textarea,
   transition: 0.25s cubic-bezier(.4, 0, .2, 1);
 }
 
+/* CodeEditor's textarea sits on the editor's own dark canvas; this class
+   keeps the shared input rule above from painting it with the theme's
+   form background (its fixed light text would become unreadable). */
+.code-editor-textarea {
+  background: transparent;
+}
+
 /* Default padding for inputs without Tailwind classes */
 input:not([class*="p-"]):not([class*="px-"]):not([class*="py-"]):not([class*="pl-"]):not([class*="pr-"]),
 select:not([class*="p-"]):not([class*="px-"]):not([class*="py-"]):not([class*="pl-"]):not([class*="pr-"]),
