@@ -1,6 +1,6 @@
 {
-    "version": "1.5.7",
-    "release_notes": "Two external fixes land in one release (thanks @lucasvaz013). Affiliate-network offer parameters now apply at runtime: the offer_params configured on a network (sub-ids, {subid}-style macros) are appended to the destination URL of every bound offer on all click routes — the tracker, both Click APIs, legacy click.php and landing-to-offer transitions — with manual parameters winning (no duplicates) and network edits taking effect on the next click without rewriting stored URLs; local offers are untouched. Connecting a Telegram bot no longer reports 'Connection error' for a valid token: the panel and the bot share one transport in core/telegram_api.php instead of dying on 'Cannot redeclare orbitraTelegramApi()' while the command menu registers, and completed single-row SQLite cursors are released before the request waits on Telegram, removing stale-WAL db_locked failures under concurrent clicks or cron commits. Three new regression suites cover both fixes, including a 248-check HTTP suite.",
+    "version": "1.5.8",
+    "release_notes": "Code in the landing and offer editors is readable again in light themes (PR #14, thanks @lucasvaz013). The shared code editor keeps a fixed dark surface, but a global form rule overrode its textarea's transparent background with the theme's form background — the fixed light text landed on light (contrast 1.00-1.14:1 in six light themes). The transparency now lives in a dedicated .code-editor-textarea class in the design system (index.css), placed next to the input rule it exempts; ordinary form fields are untouched and the editor stays intentionally dark in all 14 themes.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-09-10"
+    "released_at": "2026-09-12"
 }

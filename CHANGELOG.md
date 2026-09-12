@@ -7,6 +7,21 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.5.8] — 2026-09-12
+
+### Fixed — code editor contrast in light themes (PR #14, thanks @lucasvaz013)
+
+- **Landing/offer code is readable again in light themes.** The shared code
+  editor keeps a fixed dark surface, but the global unlayered `input, select,
+  textarea` form rule overrode the textarea's `bg-transparent` with the theme's
+  form background — its fixed light text landed on a light background, with
+  contrast between 1.00:1 and 1.14:1 in the six light themes.
+- **The fix lives in the design system.** A dedicated `.code-editor-textarea`
+  class in `index.css` — placed right after the input rule it exempts, winning
+  on specificity without `!important` — keeps the textarea transparent in every
+  theme. Ordinary form fields are untouched, and the editor stays intentionally
+  dark in all themes.
+
 ## [1.5.7] — 2026-09-10
 
 ### Fixed — affiliate-network parameters reach the offer destination (PR #12, thanks @lucasvaz013)
