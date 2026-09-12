@@ -440,6 +440,8 @@ export const CodeEditor = forwardRef(function CodeEditor({
                     </div>
                 </div>
 
+                {/* Unlayered form styles override Tailwind's bg-transparent;
+                    keep the dark editor surface behind its fixed light text. */}
                 <textarea
                     ref={textareaRef}
                     value={text}
@@ -447,7 +449,7 @@ export const CodeEditor = forwardRef(function CodeEditor({
                     onScroll={handleScroll}
                     onKeyDown={handleKeyDown}
                     className="min-h-0 flex-1 resize-none overflow-auto whitespace-pre border-none bg-transparent p-3 outline-none"
-                    style={{ color: '#e6edf3', caretColor: '#ffffff', lineHeight: '21px', tabSize: 2 }}
+                    style={{ backgroundColor: 'transparent', color: '#e6edf3', caretColor: '#ffffff', lineHeight: '21px', tabSize: 2 }}
                     spellCheck={false}
                     wrap="off"
                     aria-label={ariaLabel}
