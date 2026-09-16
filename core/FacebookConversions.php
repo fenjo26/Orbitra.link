@@ -280,6 +280,7 @@ class FacebookConversions
         // context. Keep the durable delivery intent and expose the integration
         // issue; the partner/operator must supply the real conversion URL.
         if (empty($payload['data'][0]['event_source_url'])) {
+            $inTransaction = $pdo->inTransaction();
             try {
                 $pdo->prepare('INSERT INTO system_logs (level, message, context) VALUES (?, ?, ?)')->execute([
                     'WARNING',
@@ -287,6 +288,9 @@ class FacebookConversions
                     json_encode(['pixel_id' => (string) $pixel['pixel_id'], 'conversion_id' => $conversionId]),
                 ]);
             } catch (\Throwable $e) {
+                if ($inTransaction && !$pdo->inTransaction()) {
+                    throw $e; // Do not enqueue in autocommit after SQLite rolled back.
+                }
                 // Diagnostics do not replace or prevent the durable queue write.
             }
         }
@@ -317,6 +321,7 @@ class FacebookConversions
      */
     private static function logSkippedStatus(PDO $pdo, array $pixel, string $status, ?int $conversionId): void
     {
+        $inTransaction = $pdo->inTransaction();
         try {
             $needle = strtolower(trim($status));
             if ($needle === '') {
@@ -347,6 +352,9 @@ class FacebookConversions
                 ], JSON_UNESCAPED_UNICODE),
             ]);
         } catch (\Throwable $e) {
+            if ($inTransaction && !$pdo->inTransaction()) {
+                throw $e;
+            }
             // Logging must never break delivery.
         }
     }

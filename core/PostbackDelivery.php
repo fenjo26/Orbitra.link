@@ -3,6 +3,15 @@
 // stay outside this callback: a SQLite writer cannot be held across network I/O.
 require_once __DIR__ . '/db_retry.php';
 
+function orbitraPostbackAssertTransactionActive(PDO $pdo, ?Throwable $cause = null): void
+{
+    if (!$pdo->inTransaction()) {
+        // An optional helper may catch an error that made SQLite roll back the
+        // WHOLE transaction. Never let later writes continue in autocommit.
+        throw $cause ?? new RuntimeException('Postback transaction ended before its durable writes completed.');
+    }
+}
+
 function orbitraPostbackTransaction(PDO $pdo, callable $write): array
 {
     $timeoutStmt = $pdo->query('PRAGMA busy_timeout');
@@ -18,6 +27,7 @@ function orbitraPostbackTransaction(PDO $pdo, callable $write): array
                 $pdo->exec('BEGIN IMMEDIATE');
                 $started = true;
                 $result = $write();
+                orbitraPostbackAssertTransactionActive($pdo);
                 $pdo->exec('COMMIT');
                 return $result;
             } catch (\Throwable $e) {
@@ -49,6 +59,7 @@ function orbitraPostbackTransaction(PDO $pdo, callable $write): array
  */
 function orbitraPostbackEnqueueCapi(PDO $pdo, array $pixel, array $click, array $context, int $conversionId): bool
 {
+    orbitraPostbackAssertTransactionActive($pdo);
     $isTikTok = ($pixel['type'] ?? '') === 'tiktok';
     $class = $isTikTok ? 'TikTokConversions' : 'FacebookConversions';
     $eventName = $class::resolveEvent($pixel, (string) ($context['status'] ?? ''));

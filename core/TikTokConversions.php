@@ -169,6 +169,7 @@ class TikTokConversions
      */
     private static function logSkippedStatus(PDO $pdo, array $pixel, string $status, ?int $conversionId): void
     {
+        $inTransaction = $pdo->inTransaction();
         try {
             $needle = strtolower(trim($status));
             if ($needle === '') {
@@ -199,6 +200,9 @@ class TikTokConversions
                 ], JSON_UNESCAPED_UNICODE),
             ]);
         } catch (\Throwable $e) {
+            if ($inTransaction && !$pdo->inTransaction()) {
+                throw $e;
+            }
             // Logging must never break delivery.
         }
     }

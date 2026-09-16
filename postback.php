@@ -387,6 +387,7 @@ try {
         if ($conversionId !== null) {
             orbitraApplyConversionAttribution($pdo, $conversionId, $clickAttribution);
         }
+        orbitraPostbackAssertTransactionActive($pdo);
 
         // Для совместимости обновляем общую revenue и is_conversion в таблице clicks
         // Подсчитываем тотал по клику, учитывая настройки типов конверсий (record_conversion, record_revenue)
@@ -468,6 +469,7 @@ try {
                         $capiCampaignUrl = 'https://' . $campUrlRow['domain_name'] . '/' . ltrim((string) $campUrlRow['alias'], '/');
                     }
                 } catch (\Throwable $e) {
+                    orbitraPostbackAssertTransactionActive($pdo, $e);
                 }
                 if ($capiLandingUrl === '' && !empty($clickRow['landing_id'])) {
                     try {
@@ -476,6 +478,7 @@ try {
                         $capiLandingUrl = (string) ($landUrlStmt->fetchColumn() ?: '');
                         $landUrlStmt->closeCursor();
                     } catch (\Throwable $e) {
+                        orbitraPostbackAssertTransactionActive($pdo, $e);
                     }
                 }
 
@@ -508,6 +511,7 @@ try {
                                 );
                             }
                         } catch (\Throwable $e) {
+                            orbitraPostbackAssertTransactionActive($pdo, $e);
                             // Missing context omits the URL; it never drops the event.
                         }
                     }
@@ -534,6 +538,7 @@ try {
                             }
                         }
                     } catch (\Throwable $e) {
+                        orbitraPostbackAssertTransactionActive($pdo, $e);
                     }
                 }
 
