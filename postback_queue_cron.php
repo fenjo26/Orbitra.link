@@ -4,13 +4,15 @@
 //
 // A row is enqueued by postback.php with status='pending'. This worker picks due rows
 // (next_retry_at <= now, attempts < MAX_ATTEMPTS), performs the HTTP call, and on a
-// non-2xx/3xx response schedules the next attempt with growing delay. Rows that exhaust
-// MAX_ATTEMPTS are marked status='failed' and kept for inspection in the S2S logs UI.
+// non-2xx/3xx response schedules the next attempt with growing delay. Meta requests
+// additionally require confirmation of the full event batch; permanent API errors
+// fail immediately. Exhausted rows are also kept as 'failed' in the S2S logs UI.
 //
 // Example cron (every minute):
 // * * * * * php /var/www/orbitra/postback_queue_cron.php >> /var/log/orbitra_postback_queue.log 2>&1
 
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/core/MetaCapiResponse.php';
 
 function orbitraPqSetSetting(PDO $pdo, string $key, string $value): void
 {
@@ -145,9 +147,9 @@ try {
     // Every transition stamps updated_at so the reaper above can tell a live delivery
     // from an abandoned one.
     $claimStmt = $pdo->prepare("UPDATE s2s_postbacks_log SET status = 'in_flight', updated_at = datetime('now') WHERE id = ? AND status = 'pending'");
-    $doneStmt  = $pdo->prepare("UPDATE s2s_postbacks_log SET status = 'delivered', http_code = ?, status_code = ?, last_error = NULL, attempts = attempts + 1, updated_at = datetime('now') WHERE id = ?");
-    $retryStmt = $pdo->prepare("UPDATE s2s_postbacks_log SET status = 'pending', attempts = attempts + 1, next_retry_at = datetime('now', ?), http_code = ?, status_code = ?, last_error = ?, updated_at = datetime('now') WHERE id = ?");
-    $deadStmt  = $pdo->prepare("UPDATE s2s_postbacks_log SET status = 'failed', attempts = attempts + 1, http_code = ?, status_code = ?, last_error = ?, updated_at = datetime('now') WHERE id = ?");
+    $doneStmt  = $pdo->prepare("UPDATE s2s_postbacks_log SET status = 'delivered', http_code = ?, status_code = ?, response = COALESCE(?, response), last_error = NULL, attempts = attempts + 1, updated_at = datetime('now') WHERE id = ?");
+    $retryStmt = $pdo->prepare("UPDATE s2s_postbacks_log SET status = 'pending', attempts = attempts + 1, next_retry_at = datetime('now', ?), http_code = ?, status_code = ?, last_error = ?, response = COALESCE(?, response), updated_at = datetime('now') WHERE id = ?");
+    $deadStmt  = $pdo->prepare("UPDATE s2s_postbacks_log SET status = 'failed', attempts = attempts + 1, http_code = ?, status_code = ?, last_error = ?, response = COALESCE(?, response), updated_at = datetime('now') WHERE id = ?");
 
     foreach ($rows as $row) {
         // Claim the row.
@@ -192,11 +194,11 @@ try {
             $nextAttempt = (int) $row['attempts'] + 1;
             $errMsg = 'DNS resolution failed for ' . $host;
             if ($nextAttempt >= PQ_MAX_ATTEMPTS) {
-                $deadStmt->execute([0, 0, $errMsg, $row['id']]);
+                $deadStmt->execute([0, 0, $errMsg, null, $row['id']]);
                 $failed++;
             } else {
                 $backoff = PQ_BACKOFF_SECONDS[min($nextAttempt - 1, count(PQ_BACKOFF_SECONDS) - 1)];
-                $retryStmt->execute(['+' . $backoff . ' seconds', 0, 0, $errMsg, $row['id']]);
+                $retryStmt->execute(['+' . $backoff . ' seconds', 0, 0, $errMsg, null, $row['id']]);
                 $requeued++;
             }
             orbitraPqLog("postback #{$row['id']} $errMsg");
@@ -205,7 +207,7 @@ try {
 
         if ($ssrfBlocked) {
             // Treat as permanent failure — do not retry a blocked target.
-            $deadStmt->execute([0, 0, 'SSRF: target resolves to a private/reserved IP', $row['id']]);
+            $deadStmt->execute([0, 0, 'SSRF: target resolves to a private/reserved IP', null, $row['id']]);
             $failed++;
             orbitraPqLog("postback #{$row['id']} SSRF-blocked -> failed");
             continue;
@@ -302,17 +304,28 @@ try {
         curl_close($ch);
 
         $success = ($httpCode >= 200 && $httpCode < 400) && $curlErr === '';
+        $retryable = true;
+        $diagnostic = null;
+        $errMsg = $curlErr !== '' ? $curlErr : "HTTP $httpCode";
+        if (MetaCapiResponse::isEventRequest($url, $method)) {
+            $payload = json_decode((string) ($row['payload_json'] ?? ''), true);
+            $expectedEvents = is_array($payload['data'] ?? null) ? count($payload['data']) : 0;
+            $result = MetaCapiResponse::evaluate($httpCode, $response, $curlErr, $expectedEvents, $row);
+            $success = $result['success'];
+            $retryable = $result['retryable'];
+            $diagnostic = $result['response_json'];
+            $errMsg = $result['message'];
+        }
 
         if ($success) {
-            $doneStmt->execute([$httpCode, $httpCode, $row['id']]);
+            $doneStmt->execute([$httpCode, $httpCode, $diagnostic, $row['id']]);
             $delivered++;
             orbitraPqLog("postback #{$row['id']} delivered (HTTP $httpCode)");
         } else {
             // Determine next state: retry or give up.
             $nextAttempt = $attempt + 1;
-            $errMsg = $curlErr !== '' ? $curlErr : "HTTP $httpCode";
-            if ($nextAttempt >= PQ_MAX_ATTEMPTS) {
-                $deadStmt->execute([$httpCode, $httpCode, $errMsg, $row['id']]);
+            if (!$retryable || $nextAttempt >= PQ_MAX_ATTEMPTS) {
+                $deadStmt->execute([$httpCode, $httpCode, $errMsg, $diagnostic, $row['id']]);
                 $failed++;
                 orbitraPqLog("postback #{$row['id']} FAILED after $nextAttempt attempts: $errMsg");
             } else {
@@ -322,6 +335,7 @@ try {
                     $httpCode,
                     $httpCode,
                     $errMsg,
+                    $diagnostic,
                     $row['id'],
                 ]);
                 $requeued++;

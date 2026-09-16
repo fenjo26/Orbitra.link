@@ -92,7 +92,7 @@ class KClickClient
             $this->param('se_referrer', $_SERVER['HTTP_REFERER']);
         }
         if (!empty($_SERVER['HTTP_USER_AGENT'])) {
-            $this->param('ua', $_SERVER['HTTP_USER_AGENT']);
+            $this->param('user_agent', $_SERVER['HTTP_USER_AGENT']);
         }
         return $this;
     }
@@ -176,6 +176,7 @@ class KClickClient
                 $this->offerUrl = $_SESSION['orbitra_kclient_offer'];
             }
             $this->restored = true;
+            $this->restoreMatchingContext();
         }
         return $this;
     }
@@ -200,6 +201,9 @@ class KClickClient
                     && $_SESSION['orbitra_kclient_subid'] === $this->clickId
                     && !empty($_SESSION['orbitra_kclient_offer'])) {
                     $this->offerUrl = $_SESSION['orbitra_kclient_offer'];
+                }
+                if (($_SESSION['orbitra_kclient_subid'] ?? null) === $this->clickId) {
+                    $this->restoreMatchingContext();
                 }
             }
         }
@@ -230,6 +234,9 @@ class KClickClient
         if ($this->response !== null && $this->response['body'] !== null) {
             header('Content-Type: ' . ($this->response['contentType'] ?? 'text/html; charset=utf-8'));
             echo $this->response['body'];
+            if (strpos((string) ($this->response['contentType'] ?? 'text/html'), 'text/html') === 0) {
+                echo $this->matchingScript();
+            }
             exit;
         }
         return $this;
@@ -298,7 +305,7 @@ class KClickClient
             return '';
         }
         $endpoint = rtrim((string) $this->apiBase, '/') . '/pixel.gif';
-        return "<script>(function(){var u=" . json_encode($endpoint, JSON_UNESCAPED_SLASHES)
+        return $this->matchingScript() . "<script>(function(){var u=" . json_encode($endpoint, JSON_UNESCAPED_SLASHES)
             . ",k=" . json_encode($clickId, JSON_UNESCAPED_SLASHES) . ";"
             . "var ms=0,mark=Date.now(),off=document.hidden===true,depth=0,sent=-1,sentD=-1;"
             . "function acc(){var n=Date.now();if(!off){ms+=n-mark;}mark=n;}"
@@ -351,6 +358,28 @@ class KClickClient
     public function getSubid()     { $this->perform(); return $this->clickId; }
     public function getHeaders()   { $this->perform(); return $this->response['headers'] ?? []; }
 
+    /** Raw case-preserved identity for the operator's own Pixel init (not an event ID). */
+    public function getExternalId()
+    {
+        if ((string) ($this->params['meta_matching'] ?? '1') === '0') { return null; }
+        $this->perform();
+        return $this->matching['meta_external_id'] ?? null;
+    }
+
+    /** Echo early in <head>, after consent, to collect cookies created later by a Pixel. */
+    public function matchingScript()
+    {
+        if ((string) ($this->params['meta_matching'] ?? '1') === '0') { return ''; }
+        $this->perform();
+        if (!is_array($this->matching)) { return ''; }
+        $config = $this->matching;
+        $config['endpoint'] = $this->apiBase . '/pixel.gif?action=matching';
+        return '<script src="' . htmlspecialchars($this->apiBase . '/meta-matching.js', ENT_QUOTES, 'UTF-8')
+            . '" data-orbitra-matching="'
+            . htmlspecialchars(json_encode($config, JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE), ENT_QUOTES, 'UTF-8')
+            . '"></script>';
+    }
+
     /** Bot / uniqueness verdicts are decided server-side on redirect visits;
      *  the Click API does not expose them yet — null means "not available". */
     public function isBot()        { return null; }
@@ -377,6 +406,43 @@ class KClickClient
     private $offerUrl = null;
     private $restored = false;
     private $executed = false;
+    private $matching = null;
+
+    private function restoreMatchingContext()
+    {
+        $stored = $_SESSION['orbitra_kclient_matching'] ?? null;
+        // A site's session can contain multiple integrations. Never forward a
+        // bearer capability minted by one tracker to a different tracker host.
+        if (is_array($stored) && ($stored['subid'] ?? null) === $this->clickId
+            && ($_SESSION['orbitra_kclient_matching_base'] ?? null) === $this->apiBase) {
+            $this->matching = $stored;
+        }
+    }
+
+    /** Visitor context, not the hosting server's IP/User-Agent. Explicit params win. */
+    private function browserContext()
+    {
+        $context = [];
+        if (!empty($_SERVER['HTTP_USER_AGENT'])) { $context['user_agent'] = $_SERVER['HTTP_USER_AGENT']; }
+        // Reverse-proxy deployments must configure their trusted proxy/server
+        // REMOTE_ADDR or explicitly param('ip', verifiedVisitorIp). Never trust
+        // arbitrary forwarded headers from a public request here.
+        if (filter_var($_SERVER['REMOTE_ADDR'] ?? '', FILTER_VALIDATE_IP)) { $context['ip'] = $_SERVER['REMOTE_ADDR']; }
+        if (!empty($_SERVER['HTTP_REFERER'])) { $context['se_referrer'] = $_SERVER['HTTP_REFERER']; }
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        if (!empty($_SERVER['HTTP_HOST'])) {
+            $context['landing_page_url'] = $scheme . '://' . $_SERVER['HTTP_HOST'] . ($_SERVER['REQUEST_URI'] ?? '/');
+        }
+        if ((string) ($this->params['meta_matching'] ?? '1') === '0') { return $context; }
+        if (is_string($_GET['fbclid'] ?? null)) { $context['fbclid'] = $_GET['fbclid']; }
+        foreach (['_fbp' => 'fbp', '_fbc' => 'fbc', 'orbitra_visitor' => 'meta_external_id'] as $cookie => $key) {
+            if (is_string($_COOKIE[$cookie] ?? null) && $_COOKIE[$cookie] !== '') { $context[$key] = $_COOKIE[$cookie]; }
+        }
+        if (empty($context['meta_external_id']) && !empty($_SERVER['HTTP_USER_AGENT'])) {
+            $context['meta_external_id'] = bin2hex(random_bytes(16));
+        }
+        return $context;
+    }
 
     private function perform()
     {
@@ -385,10 +451,10 @@ class KClickClient
         }
         $this->executed = true;
 
-        $query = [
+        $query = array_merge($this->browserContext(), [
             'token' => $this->token,
             'info'  => '1',
-        ];
+        ]);
         if ($this->forceRedirect) {
             $query['force_redirect_offer'] = '1';
         }
@@ -420,10 +486,23 @@ class KClickClient
         }
 
         $info = $decoded['info'] ?? [];
+        $this->matching = is_array($info['matching'] ?? null) ? $info['matching'] : null;
+        if ($this->matching !== null && !empty($this->matching['meta_external_id'])) {
+            $identity = (string) $this->matching['meta_external_id'];
+            if (!headers_sent()) {
+                setcookie('orbitra_visitor', $identity, [
+                    'expires' => time() + 90 * 86400, 'path' => '/', 'samesite' => 'Lax',
+                    'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off', 'httponly' => false,
+                ]);
+                $_COOKIE['orbitra_visitor'] = $identity;
+            }
+        }
         if (!empty($info['sub_id'])) {
             $this->clickId = (string) $info['sub_id'];
             $this->startSession();
             $_SESSION['orbitra_kclient_subid'] = $this->clickId;
+            $_SESSION['orbitra_kclient_matching'] = $this->matching;
+            $_SESSION['orbitra_kclient_matching_base'] = $this->apiBase;
             // When this visit began — the source of the _lt landing-time
             // parameter getOffer() appends to the tracker's transition link.
             if (empty($_SESSION['orbitra_kclient_visit_ts'])) {

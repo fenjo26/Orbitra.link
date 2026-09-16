@@ -156,9 +156,9 @@ class TikTokConversions
         $stmt->execute([
             $conversionId,
             self::ENDPOINT,
-            json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
             trim((string) ($pixel['proxy_url'] ?? '')) ?: null,
-            json_encode(['Access-Token' => (string) $pixel['token']], JSON_UNESCAPED_SLASHES),
+            json_encode(['Access-Token' => (string) $pixel['token']], JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
         ]);
         return true;
     }

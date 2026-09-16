@@ -926,7 +926,7 @@ function orbitraLogPwaOrganicVisit(PDO $pdo, int $landingId): string
     $pwaDeviceType = getDeviceType($pwaUserAgent);
     $pwaClickId = generateUuid();
     $pwaParamsJson = json_encode(
-        orbitraCollectClickParams($pdo, $_GET, $_COOKIE, null),
+        orbitraCollectClickParams($pdo, $_GET, $_COOKIE, null, true, $pwaOrganicId),
         JSON_UNESCAPED_UNICODE
     );
 
@@ -958,7 +958,9 @@ function orbitraLogPwaOrganicVisit(PDO $pdo, int $landingId): string
         'accept_language_raw' => detectAcceptLanguageRaw(),
         'parameters_json' => $pwaParamsJson,
     ]);
-    orbitraPersistClick($pdo, $pwaClickRow);
+    if (orbitraPersistClick($pdo, $pwaClickRow)) {
+        orbitraMetaRememberBrowserClick($pdo, $pwaClickId, json_decode($pwaParamsJson, true) ?: []);
+    }
 
     require_once __DIR__ . '/core/ClickFlags.php';
     orbitraWriteClickFlags($pdo, $pwaClickId, $pwaIp, $pwaUserAgent, ['id' => $pwaOrganicId], 0, is_array($pwaGeo) ? $pwaGeo : []);
@@ -1770,6 +1772,10 @@ function orbitraLpTimerScript($clickId, $base = '')
 /** Append the dwell timer to a landing body (no-op without a click). */
 function orbitraInjectLpTimer($html, $clickId)
 {
+    if (is_string($html) && $html !== '' && isset($GLOBALS['pdo']) && $GLOBALS['pdo'] instanceof PDO
+        && function_exists('orbitraInjectMetaMatching')) {
+        $html = orbitraInjectMetaMatching($html, $GLOBALS['pdo'], (string) $clickId);
+    }
     $script = orbitraLpTimerScript($clickId);
     if ($script === '' || !is_string($html) || $html === '') {
         return $html;
@@ -1865,7 +1871,7 @@ function orbitraServeLocalOffer(PDO $pdo, $offerId, $clickId, array $clickParams
             ),
             '/offers/' . $offerId . '/'
         );
-        echo orbitraInjectBaseTag(orbitraRewriteAssetPaths($processed), '/offers/' . $offerId . '/');
+        echo orbitraInjectMetaMatching(orbitraInjectBaseTag(orbitraRewriteAssetPaths($processed), '/offers/' . $offerId . '/'), $pdo, (string) $clickId);
         exit;
     }
 
@@ -1881,7 +1887,7 @@ function orbitraServeLocalOffer(PDO $pdo, $offerId, $clickId, array $clickParams
             ),
             '/offers/' . $offerId . '/'
         );
-        echo orbitraInjectBaseTag(orbitraRewriteAssetPaths($processed), '/offers/' . $offerId . '/');
+        echo orbitraInjectMetaMatching(orbitraInjectBaseTag(orbitraRewriteAssetPaths($processed), '/offers/' . $offerId . '/'), $pdo, (string) $clickId);
         exit;
     }
 
@@ -2523,6 +2529,10 @@ if ($pbKey !== '' && ($uriPath === '/' . $pbKey . '/postback'
 // Must sit BEFORE the Sec-Fetch-Dest image guard below, which exists precisely
 // to 404 stray image probes — this one is a legitimate image.
 if ($uriPath === '/pixel.gif') {
+    if (($_GET['action'] ?? '') === 'matching') {
+        orbitraHandleMetaMatching($pdo);
+        exit;
+    }
     $orbitraPixelGif = base64_decode('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
     $orbitraPixelHeaders = function () {
         if (headers_sent()) {
@@ -2541,7 +2551,8 @@ if ($uriPath === '/pixel.gif') {
         $pxBaseObLevel = ob_get_level();
         register_shutdown_function(function () use ($orbitraPixelGif, $orbitraPixelHeaders, $pxBaseObLevel) {
             while (ob_get_level() > $pxBaseObLevel) { @ob_end_clean(); }
-            http_response_code(200);
+            // Browser pixel compatibility must not hide a failed durable enqueue.
+            if (http_response_code() < 500) { http_response_code(200); }
             $orbitraPixelHeaders();
             echo $orbitraPixelGif;
         });
@@ -2765,7 +2776,7 @@ if ($uriPath === '/pixel.gif') {
         // how THIS request found the campaign, not attributes of the click.
         $pxIncoming = array_merge($_GET, $_POST);
         unset($pxIncoming['campaign_id'], $pxIncoming['campaign'], $pxIncoming['token'], $pxIncoming['action'], $pxIncoming['js'], $pxIncoming['subid'], $pxIncoming['status'], $pxIncoming['payout'], $pxIncoming['tid']);
-        $pxParams = orbitraCollectClickParams($pdo, $pxIncoming, $_COOKIE, $orbitraPixelCampaign['source_id'] ?? null);
+        $pxParams = orbitraCollectClickParams($pdo, $pxIncoming, $_COOKIE, $orbitraPixelCampaign['source_id'] ?? null, false, (int) $orbitraPixelCampaign['id']);
         $pxParamsJson = json_encode($pxParams, JSON_UNESCAPED_UNICODE);
 
         try {
@@ -3423,7 +3434,7 @@ if (!empty($domainPwaLandingId)
             $pwaDeviceType = getDeviceType($pwaUserAgent);
             $pwaClickId = generateUuid();
             $pwaParamsJson = json_encode(
-                orbitraCollectClickParams($pdo, $_GET, $_COOKIE, null),
+                orbitraCollectClickParams($pdo, $_GET, $_COOKIE, null, true, $pwaOrganicId),
                 JSON_UNESCAPED_UNICODE
             );
 
@@ -3456,7 +3467,9 @@ if (!empty($domainPwaLandingId)
                     'accept_language_raw' => detectAcceptLanguageRaw(),
                     'parameters_json' => $pwaParamsJson,
                 ]);
-                orbitraPersistClick($pdo, $pwaClickRow);
+                if (orbitraPersistClick($pdo, $pwaClickRow)) {
+                    orbitraMetaRememberBrowserClick($pdo, $pwaClickId, json_decode($pwaParamsJson, true) ?: []);
+                }
 
                 // Same honesty flags the campaign flow writes (bots/proxies) —
                 // the system campaign configures no uniqueness of its own.
@@ -3605,7 +3618,7 @@ $clickId = generateUuid();
 // orbitraHealQueryString call before $alias is read.)
 require_once __DIR__ . '/core/ClickParams.php';
 $incomingParams = array_merge($_GET, $_POST);
-$clickParams = orbitraCollectClickParams($pdo, $incomingParams, $_COOKIE, $campaign['source_id'] ?? null);
+$clickParams = orbitraCollectClickParams($pdo, $incomingParams, $_COOKIE, $campaign['source_id'] ?? null, true, (int) $campaignId);
 
 $parametersJson = json_encode($clickParams, JSON_UNESCAPED_UNICODE);
 
@@ -4419,7 +4432,9 @@ if ($statsEnabled && !$isDebounced && !$isPrefetchRequest && !$skipClickLogging 
     $clickRow = orbitraBuildClickRow($clickCtx);
 
     // Persist click using shared module
-    orbitraPersistClick($pdo, $clickRow);
+    if (orbitraPersistClick($pdo, $clickRow)) {
+        orbitraMetaRememberBrowserClick($pdo, $clickId, $clickParams);
+    }
 
     // Honesty flags for the report metrics (bots/proxies/uniqueness) —
     // one UPDATE, never allowed to break the click itself.
@@ -4467,6 +4482,9 @@ if ($actionToPerfrom) {
     $streamActionPayload = '';
     if (strpos($actionToPerfrom, ':') !== false) {
         [$streamActionType, $streamActionPayload] = explode(':', $actionToPerfrom, 2);
+    }
+    if (trim($streamActionType) === 'show_html') {
+        $streamActionPayload = orbitraInjectMetaMatching($streamActionPayload, $pdo, (string) $clickId);
     }
     performTrackerAction($streamActionType, $streamActionPayload);
 } else {
@@ -4635,7 +4653,7 @@ if ($actionToPerfrom) {
             if ($htmlWithBase === $html) {
                 $htmlWithBase = $baseTag . "\n" . $html;
             }
-            echo $htmlWithBase;
+            echo orbitraInjectMetaMatching($htmlWithBase, $pdo, (string) $clickId);
             exit;
         }
     }

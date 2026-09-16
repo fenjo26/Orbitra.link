@@ -80,7 +80,7 @@ function orbitraClickApiGetClientIp(): string
 
 function orbitraClickApiGetUserAgent(): string
 {
-    $uaFromQuery = (string) ($_GET['user_agent'] ?? '');
+    $uaFromQuery = (string) ($_GET['user_agent'] ?? $_GET['ua'] ?? '');
     if (trim($uaFromQuery) !== '') {
         return $uaFromQuery;
     }
@@ -492,6 +492,7 @@ function orbitraClickApiV3(PDO $pdo): void
     $stmt = $pdo->prepare("SELECT * FROM campaigns WHERE is_archived = 0 AND token = ? LIMIT 1");
     $stmt->execute([$token]);
     $campaign = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt->closeCursor();
     if (!$campaign) {
         http_response_code(401);
         echo json_encode(['status' => 'error', 'message' => 'Unauthorized (campaign not found)']);
@@ -524,7 +525,9 @@ function orbitraClickApiV3(PDO $pdo): void
     // the campaign source's declared aliases — identical to redirect visits.
     // ($_GET was healed at the top of this handler, before the token read.)
     $incomingParams = array_merge($_GET, $_POST);
-    $clickParams = orbitraCollectClickParams($pdo, $incomingParams, [], $campaign['source_id'] ?? null);
+    // External clients forward their browser cookies explicitly. Never create a
+    // visitor identity from the PHP client's server-to-server HTTP connection.
+    $clickParams = orbitraCollectClickParams($pdo, $incomingParams, $_COOKIE, $campaign['source_id'] ?? null, false, $campaignId);
     $parametersJson = json_encode($clickParams, JSON_UNESCAPED_UNICODE);
 
     $clickId = orbitraClickApiGenerateUuid();
@@ -1006,6 +1009,7 @@ function orbitraClickApiV3(PDO $pdo): void
             'offer_link' => $offerTransitionLink,
             'landing_id' => $landingIdToLog,
             'offer_id' => $offerIdToLog ?: null,
+            'matching' => orbitraMetaMatchingConfig($pdo, $clickId),
         ];
     }
 

@@ -4,18 +4,20 @@ require_once 'telegram_notify.php';
 require_once __DIR__ . '/core/PostbackMacros.php';
 require_once __DIR__ . '/core/CrmVault.php';
 require_once __DIR__ . '/core/ConversionAttribution.php';
+require_once __DIR__ . '/core/PostbackDelivery.php';
 
 /**
  * Exit helper for postback responses.
  *
  * Sets the proper HTTP status code, emits the response body, logs the request
  * to incoming_postbacks_log, and exits. When running inside the pixel GIF path
- * (/pixel.gif?action=conversion), the status code is ignored and reset to 200
- * by the shutdown function in index.php — the browser still receives a valid GIF.
+ * (/pixel.gif?action=conversion), validation errors become 200 GIF responses,
+ * but server failures keep their 5xx status so lost writes are not acknowledged.
+ * The shutdown function in index.php still returns a valid GIF in either case.
  *
  * Logging is best-effort: a broken audit trail must never break a paying postback.
  *
- * @param int    $statusCode HTTP status code (200, 400, 404, 500)
+ * @param int    $statusCode HTTP status code (200, 400, 404, 500, 503)
  * @param string $message    Response body message
  * @param array  $logContext Context data for the log entry
  * @param bool   $isSuccess  Whether this is a successful postback (affects exit vs return)
@@ -217,7 +219,7 @@ if ($orbitraPostbackCurrency !== $orbitraTrackerCurrency) {
         $currency = $orbitraTrackerCurrency;
     }
 }
-$tid = $_GET['tid'] ?? null;
+$tid = isset($_GET['tid']) && (string) $_GET['tid'] !== '' ? (string) $_GET['tid'] : null;
 $returnMsg = $_GET['return'] ?? null;
 // Optional free-text rejection reason (e.g. "Invalid Phone") — stored on the
 // CRM row so an anti-shaving dispute can quote the network's own wording.
@@ -256,6 +258,7 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$clickId]);
 $clickData = $stmt->fetch();
+$stmt->closeCursor();
 if (!$clickData) {
     orbitraPostbackExit(404, "Click ID not found in database.", [
         'result' => 'rejected',
@@ -265,25 +268,6 @@ if (!$clickData) {
     return;
 }
 $campaignId = $clickData['campaign_id'];
-
-// Аудит-слід конвертації валюти — щоб завжди можна було перевірити, яку
-// саме гривневу суму й за яким курсом було перераховано в $payout вище.
-// Не чіпає жодних полів, які там уже пише result.php (phone/crm_*).
-if ($orbitraOrigCurrency !== $currency) {
-    try {
-        $orbitraFxParams = json_decode((string) ($clickData['parameters_json'] ?? '{}'), true);
-        if (!is_array($orbitraFxParams)) {
-            $orbitraFxParams = [];
-        }
-        $orbitraFxParams['fx_orig_payout'] = $orbitraOrigPayout;
-        $orbitraFxParams['fx_orig_currency'] = $orbitraOrigCurrency;
-        $orbitraFxParams['fx_rate_used'] = $orbitraFxRateUsed;
-        $orbitraFxParams['fx_converted_payout'] = $payout;
-        $pdo->prepare('UPDATE clicks SET parameters_json = ? WHERE id = ?')
-            ->execute([json_encode($orbitraFxParams, JSON_UNESCAPED_UNICODE), $clickId]);
-    } catch (\Throwable $e) {
-    }
-}
 
 // sub_id_1..5 here are the CLICK's parameters. $clickId (the incoming subid) is
 // deliberately not among them — it is the tracker's key, not a sub dimension.
@@ -302,106 +286,243 @@ $allKnown = array_merge(['lead', 'sale', 'rejected', 'registration', 'deposit', 
 // an operator decides what it means.
 // Only genuinely empty input (no subid, no status) returns 400, which was handled above.
 
-// Запись конверсии
-$conversionResult = 'recorded';
+// Persist the conversion and its eligible CAPI events together. No notification,
+// HTTP call or DNS lookup may run while the SQLite write transaction is held.
+$requestEventTime = time();
 try {
-    if ($tid) {
-        // Если передан tid, это может быть новая уникальная конверсия или апдейт существующей
-        $stmt = $pdo->prepare("
-            INSERT INTO conversions (click_id, tid, status, original_status, payout, currency)
-            VALUES (?, ?, ?, ?, ?, ?)
-            ON CONFLICT(click_id, tid) DO UPDATE SET
-                status = excluded.status,
-                original_status = excluded.original_status,
-                payout = excluded.payout,
-                currency = excluded.currency
-        ");
-        $stmt->execute([$clickId, $tid, $internalStatus, $originalStatus, $payout, $currency]);
+    [$conversionResult, $conversionId] = orbitraPostbackTransaction($pdo, function () use (
+        $pdo, $tid, $clickId, $internalStatus, $originalStatus, $payout, $currency,
+        $clickAttribution, $campaignId, $requestEventTime,
+        $orbitraOrigCurrency, $orbitraOrigPayout, $orbitraFxRateUsed
+    ): array {
+        // Read current parameters only after acquiring the writer lock. A late
+        // browser fbp/fbc update must not be overwritten by the earlier lookup.
+        // The FX audit now rolls back with its conversion on a failed enqueue.
+        if ($orbitraOrigCurrency !== $currency) {
+            $fxStmt = $pdo->prepare('SELECT parameters_json FROM clicks WHERE id = ?');
+            $fxStmt->execute([$clickId]);
+            $fxParams = json_decode((string) ($fxStmt->fetchColumn() ?: '{}'), true);
+            $fxStmt->closeCursor();
+            if (!is_array($fxParams)) {
+                $fxParams = [];
+            }
+            $fxParams['fx_orig_payout'] = $orbitraOrigPayout;
+            $fxParams['fx_orig_currency'] = $orbitraOrigCurrency;
+            $fxParams['fx_rate_used'] = $orbitraFxRateUsed;
+            $fxParams['fx_converted_payout'] = $payout;
+            $pdo->prepare('UPDATE clicks SET parameters_json = ? WHERE id = ?')
+                ->execute([json_encode($fxParams, JSON_UNESCAPED_UNICODE), $clickId]);
+        }
 
-        // Check if this was an update (row already existed)
-        $checkStmt = $pdo->prepare("SELECT changes() as changed");
-        $checkStmt->execute();
-        $changed = $checkStmt->fetchColumn();
-        if ($changed > 0) {
-            // Check if the row was updated vs inserted
-            $existsStmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid = ?");
-            $existsStmt->execute([$clickId, $tid]);
-            if ($existsStmt->fetch()) {
-                $conversionResult = 'updated';
+        $conversionResult = 'recorded';
+        if ($tid !== null) {
+            // Если передан tid, это может быть новая уникальная конверсия или апдейт существующей
+            $stmt = $pdo->prepare("
+                INSERT INTO conversions (click_id, tid, status, original_status, payout, currency)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT(click_id, tid) DO UPDATE SET
+                    status = excluded.status,
+                    original_status = excluded.original_status,
+                    payout = excluded.payout,
+                    currency = excluded.currency
+            ");
+            $stmt->execute([$clickId, $tid, $internalStatus, $originalStatus, $payout, $currency]);
+
+            // Check if this was an update (row already existed)
+            $checkStmt = $pdo->prepare("SELECT changes() as changed");
+            $checkStmt->execute();
+            $changed = $checkStmt->fetchColumn();
+            $checkStmt->closeCursor();
+            if ($changed > 0) {
+                // Check if the row was updated vs inserted
+                $existsStmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid = ?");
+                $existsStmt->execute([$clickId, $tid]);
+                $exists = $existsStmt->fetch();
+                $existsStmt->closeCursor();
+                if ($exists) {
+                    $conversionResult = 'updated';
+                }
             }
         }
-    }
-    else {
-        // Если без tid, пытаемся найти конверсию без tid и обновить, либо создать новую
-        $stmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid IS NULL");
-        $stmt->execute([$clickId]);
-        $existing = $stmt->fetch();
-
-        if ($existing) {
-            $updateStmt = $pdo->prepare("
-                UPDATE conversions
-                SET status = ?, original_status = ?, payout = ?, currency = ?
-                WHERE id = ?
-            ");
-            $updateStmt->execute([$internalStatus, $originalStatus, $payout, $currency, $existing['id']]);
-            $conversionResult = 'updated';
-        }
         else {
-            $insertStmt = $pdo->prepare("
-                INSERT INTO conversions (click_id, status, original_status, payout, currency)
-                VALUES (?, ?, ?, ?, ?)
-            ");
-            $insertStmt->execute([$clickId, $internalStatus, $originalStatus, $payout, $currency]);
+            // Если без tid, пытаемся найти конверсию без tid и обновить, либо создать новую
+            $stmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid IS NULL");
+            $stmt->execute([$clickId]);
+            $existing = $stmt->fetch();
+            $stmt->closeCursor();
+
+            if ($existing) {
+                $updateStmt = $pdo->prepare("
+                    UPDATE conversions
+                    SET status = ?, original_status = ?, payout = ?, currency = ?
+                    WHERE id = ?
+                ");
+                $updateStmt->execute([$internalStatus, $originalStatus, $payout, $currency, $existing['id']]);
+                $conversionResult = 'updated';
+            }
+            else {
+                $insertStmt = $pdo->prepare("
+                    INSERT INTO conversions (click_id, status, original_status, payout, currency)
+                    VALUES (?, ?, ?, ?, ?)
+                ");
+                $insertStmt->execute([$clickId, $internalStatus, $originalStatus, $payout, $currency]);
+            }
         }
-    }
 
-    // Ссылка на только что записанную конверсию. Одна выборка на весь запрос:
-    // раньше её повторяли отдельно для S2S и отдельно для CAPI.
-    if ($tid) {
-        $cidStmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid = ? ORDER BY id DESC LIMIT 1");
-        $cidStmt->execute([$clickId, $tid]);
-    } else {
-        $cidStmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid IS NULL ORDER BY id DESC LIMIT 1");
-        $cidStmt->execute([$clickId]);
-    }
-    $conversionId = (int) ($cidStmt->fetchColumn() ?: 0) ?: null;
+        // Ссылка на только что записанную конверсию. Одна выборка на весь запрос:
+        // раньше её повторяли отдельно для S2S и отдельно для CAPI.
+        if ($tid !== null) {
+            $cidStmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid = ? ORDER BY id DESC LIMIT 1");
+            $cidStmt->execute([$clickId, $tid]);
+        } else {
+            $cidStmt = $pdo->prepare("SELECT id FROM conversions WHERE click_id = ? AND tid IS NULL ORDER BY id DESC LIMIT 1");
+            $cidStmt->execute([$clickId]);
+        }
+        $conversionId = (int) ($cidStmt->fetchColumn() ?: 0) ?: null;
+        $cidStmt->closeCursor();
 
-    // Перенос измерений клика на конверсию. Уже заполненные колонки не трогаем:
-    // повторный постбек со сменой статуса не должен переписывать атрибуцию,
-    // сделанную в момент создания конверсии.
-    if ($conversionId !== null) {
-        orbitraApplyConversionAttribution($pdo, $conversionId, $clickAttribution);
-    }
+        // Перенос измерений клика на конверсию. Уже заполненные колонки не трогаем:
+        // повторный постбек со сменой статуса не должен переписывать атрибуцию,
+        // сделанную в момент создания конверсии.
+        if ($conversionId !== null) {
+            orbitraApplyConversionAttribution($pdo, $conversionId, $clickAttribution);
+        }
 
-    // Для совместимости обновляем общую revenue и is_conversion в таблице clicks
-    // Подсчитываем тотал по клику, учитывая настройки типов конверсий (record_conversion, record_revenue)
-    $stmt = $pdo->query("SELECT name, record_conversion, record_revenue FROM conversion_types");
-    $ct = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // Для совместимости обновляем общую revenue и is_conversion в таблице clicks
+        // Подсчитываем тотал по клику, учитывая настройки типов конверсий (record_conversion, record_revenue)
+        $stmt = $pdo->query("SELECT name, record_conversion, record_revenue FROM conversion_types");
+        $ct = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    $convStatuses = ['sale', 'deposit', 'lead'];
-    $revStatuses = ['sale', 'deposit', 'lead', 'registration'];
+        $convStatuses = ['sale', 'deposit', 'lead'];
+        $revStatuses = ['sale', 'deposit', 'lead', 'registration'];
 
-    foreach ($ct as $row) {
-        if ($row['record_conversion'])
-            $convStatuses[] = $row['name'];
-        if ($row['record_revenue'])
-            $revStatuses[] = $row['name'];
-    }
+        foreach ($ct as $row) {
+            if ($row['record_conversion'])
+                $convStatuses[] = $row['name'];
+            if ($row['record_revenue'])
+                $revStatuses[] = $row['name'];
+        }
 
-    $inConv = "'" . implode("','", array_map('addslashes', $convStatuses)) . "'";
-    $inRev = "'" . implode("','", array_map('addslashes', $revStatuses)) . "'";
+        $inConv = "'" . implode("','", array_map('addslashes', $convStatuses)) . "'";
+        $inRev = "'" . implode("','", array_map('addslashes', $revStatuses)) . "'";
 
-    $totalStats = $pdo->prepare("
-        SELECT
-            SUM(CASE WHEN status IN ($inConv) THEN 1 ELSE 0 END) as is_conv,
-            SUM(CASE WHEN status IN ($inRev) AND payout > 0 THEN payout ELSE 0 END) as total_rev
-        FROM conversions WHERE click_id = ?
-    ");
-    $totalStats->execute([$clickId]);
-    $totals = $totalStats->fetch();
+        $totalStats = $pdo->prepare("
+            SELECT
+                SUM(CASE WHEN status IN ($inConv) THEN 1 ELSE 0 END) as is_conv,
+                SUM(CASE WHEN status IN ($inRev) AND payout > 0 THEN payout ELSE 0 END) as total_rev
+            FROM conversions WHERE click_id = ?
+        ");
+        $totalStats->execute([$clickId]);
+        $totals = $totalStats->fetch();
+        $totalStats->closeCursor();
 
-    $updateClick = $pdo->prepare("UPDATE clicks SET is_conversion = ?, revenue = ? WHERE id = ?");
-    $updateClick->execute([$totals['is_conv'] > 0 ? 1 : 0, $totals['total_rev'] ?: 0, $clickId]);
+        $updateClick = $pdo->prepare("UPDATE clicks SET is_conversion = ?, revenue = ? WHERE id = ?");
+        $updateClick->execute([$totals['is_conv'] > 0 ? 1 : 0, $totals['total_rev'] ?: 0, $clickId]);
+
+        // Facebook Conversions API — отправка события в Meta по этой конверсии.
+        // Ставим в ту же очередь, что и S2S, чтобы не ждать HTTP-ответа Meta.
+        // Повторный постбек переиспользует уже записанное намерение отправки.
+        $capiStmt = $pdo->prepare("SELECT * FROM campaign_pixels WHERE campaign_id = ? AND type IN ('facebook', 'tiktok') AND is_active = 1");
+        $capiStmt->execute([$campaignId]);
+        $capiPixels = $capiStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (!empty($capiPixels)) {
+            require_once __DIR__ . '/core/FacebookConversions.php';
+            require_once __DIR__ . '/core/TikTokConversions.php';
+            require_once __DIR__ . '/core/landing_path.php';
+
+            $clickStmt = $pdo->prepare("
+                SELECT id, ip, user_agent, referer, country_code, region, city, zipcode,
+                       parameters_json, created_at, landing_id
+                FROM clicks WHERE id = ? LIMIT 1
+            ");
+            $clickStmt->execute([$clickId]);
+            $clickRow = $clickStmt->fetch(PDO::FETCH_ASSOC);
+            $clickStmt->closeCursor();
+
+            if ($clickRow) {
+                $clickParamsForCapi = json_decode($clickRow['parameters_json'] ?? '{}', true);
+                if (!is_array($clickParamsForCapi)) {
+                    $clickParamsForCapi = [];
+                }
+
+                // conversion_id тот же, что для S2S — по нему в логах очереди
+                // видно, какая конверсия породила событие.
+                $capiConversionId = $conversionId;
+
+                // Макросы {campaign_url}/{landing_url} для event_source_url пикселя:
+                // трекинговый URL кампании (домен + алиас) и фактический URL лендинга
+                // этого клика. Оба lookup — по первичным ключам, best effort.
+                $capiCampaignUrl = '';
+                $capiLandingUrl = trim((string) ($clickParamsForCapi['landing_page_url'] ?? ''));
+                try {
+                    $campUrlStmt = $pdo->prepare("
+                        SELECT c.alias, d.name AS domain_name
+                        FROM campaigns c LEFT JOIN domains d ON d.id = c.domain_id
+                        WHERE c.id = ? LIMIT 1
+                    ");
+                    $campUrlStmt->execute([$campaignId]);
+                    $campUrlRow = $campUrlStmt->fetch(PDO::FETCH_ASSOC);
+                    $campUrlStmt->closeCursor();
+                    if ($campUrlRow && !empty($campUrlRow['domain_name'])) {
+                        $capiCampaignUrl = 'https://' . $campUrlRow['domain_name'] . '/' . ltrim((string) $campUrlRow['alias'], '/');
+                    }
+                } catch (\Throwable $e) {
+                }
+                if ($capiLandingUrl === '' && !empty($clickRow['landing_id'])) {
+                    try {
+                        $landUrlStmt = $pdo->prepare("SELECT url FROM landings WHERE id = ? LIMIT 1");
+                        $landUrlStmt->execute([(int) $clickRow['landing_id']]);
+                        $capiLandingUrl = (string) ($landUrlStmt->fetchColumn() ?: '');
+                        $landUrlStmt->closeCursor();
+                    } catch (\Throwable $e) {
+                    }
+                }
+
+                // content_id for CAPI events (TikTok flags its absence as a
+                // Critical diagnostic; Meta uses it for catalog/dynamic-ads
+                // matching too) — sourced from the landing's own _config.php
+                // ($products = N;), the same value the landing's own client-side
+                // pixel already sends. Read-only regex over the file, never
+                // include()'d, so the file's own session_start()/etc. never runs
+                // in this server-to-server request.
+                $capiContentId = '';
+                if (!empty($clickRow['landing_id'])) {
+                    try {
+                        $contentIdDir = orbitraLandingContentDir(orbitraLandingDir($pdo, (int) $clickRow['landing_id']));
+                        $contentIdConfigPath = $contentIdDir . '/_config.php';
+                        if (is_file($contentIdConfigPath)) {
+                            $contentIdSrc = file_get_contents($contentIdConfigPath, false, null, 0, 16384);
+                            if ($contentIdSrc !== false
+                                && preg_match('/\$products\s*=\s*([\'"]?)([A-Za-z0-9_-]+)\1\s*;/', $contentIdSrc, $contentIdMatch)) {
+                                $capiContentId = $contentIdMatch[2];
+                            }
+                        }
+                    } catch (\Throwable $e) {
+                    }
+                }
+
+                foreach ($capiPixels as $pixel) {
+                    $capiContext = [
+                        'status'       => $internalStatus,
+                        'payout'       => (float) $payout,
+                        'currency'     => $currency,
+                        'event_time'   => $requestEventTime,
+                        // Дедупликация с браузерным пикселем: одинаковый event_id
+                        // для одного и того же события с обеих сторон.
+                        'event_id'     => $clickId . '_' . $internalStatus . ($tid !== null ? '_' . $tid : ''),
+                        'click_params' => $clickParamsForCapi,
+                        'extra'        => $_GET,
+                        'campaign_url' => $capiCampaignUrl,
+                        'landing_url'  => $capiLandingUrl,
+                        'content_id'   => $capiContentId,
+                    ];
+                    orbitraPostbackEnqueueCapi($pdo, $pixel, $clickRow, $capiContext, $capiConversionId);
+                }
+            }
+        }
+        return [$conversionResult, $conversionId];
+    });
 
     // CRM vault reconciliation: every CRM row of this click moves to the
     // network's verdict, and rejected-with-valid-phone rows become shave
@@ -409,14 +530,14 @@ try {
     // because the audit trail hiccuped.
     try {
         orbitraCrmSyncPostbackStatus($pdo, (string) $clickId, (string) $internalStatus, (float) $payout, $reason);
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
     }
 
     // Telegram bot notification
     try {
         notifyConversion($pdo, $clickId, $internalStatus, $payout, $campaignId, $currency);
     }
-    catch (\Exception $e) {
+    catch (\Throwable $e) {
     // Don't break postback flow on notification error
     }
 
@@ -428,12 +549,14 @@ try {
         $pbStmt = $pdo->prepare("SELECT * FROM campaign_postbacks WHERE campaign_id = ?");
         $pbStmt->execute([$campaignId]);
         $postbacks = $pbStmt->fetchAll();
+        $pbStmt->closeCursor();
 
         // Загружаем параметры исходного клика для подстановки макросов {sub_id_*}, {keyword} и т.д.
         $clickParams = [];
         $cpStmt = $pdo->prepare("SELECT parameters_json, cost, revenue, offer_id FROM clicks WHERE id = ?");
         $cpStmt->execute([$clickId]);
         $cpRow = $cpStmt->fetch(PDO::FETCH_ASSOC);
+        $cpStmt->closeCursor();
         if ($cpRow && !empty($cpRow['parameters_json'])) {
             $decoded = json_decode($cpRow['parameters_json'], true);
             if (is_array($decoded)) {
@@ -508,121 +631,8 @@ try {
             $enqueueStmt->execute([$convId, $url, $method, (int) $pb['id']]);
         }
     }
-    catch (\Exception $e) {
-    // Игнорируем ошибки отправки S2S, чтобы не ломать ответ
-    }
-
-    // Facebook Conversions API — отправка события в Meta по этой конверсии.
-    // Ставим в ту же очередь, что и S2S: Meta иногда отвечает медленно, а партнёрка,
-    // не дождавшаяся ответа на постбек, пришлёт его повторно и удвоит конверсию.
-    try {
-        $capiStmt = $pdo->prepare("SELECT * FROM campaign_pixels WHERE campaign_id = ? AND type IN ('facebook', 'tiktok') AND is_active = 1");
-        $capiStmt->execute([$campaignId]);
-        $capiPixels = $capiStmt->fetchAll(PDO::FETCH_ASSOC);
-
-        if (!empty($capiPixels)) {
-            require_once __DIR__ . '/core/FacebookConversions.php';
-            require_once __DIR__ . '/core/TikTokConversions.php';
-            require_once __DIR__ . '/core/landing_path.php';
-
-            $clickStmt = $pdo->prepare("
-                SELECT id, ip, user_agent, referer, country_code, region, city, zipcode,
-                       parameters_json, created_at, landing_id
-                FROM clicks WHERE id = ? LIMIT 1
-            ");
-            $clickStmt->execute([$clickId]);
-            $clickRow = $clickStmt->fetch(PDO::FETCH_ASSOC);
-
-            if ($clickRow) {
-                $clickParamsForCapi = json_decode($clickRow['parameters_json'] ?? '{}', true);
-                if (!is_array($clickParamsForCapi)) {
-                    $clickParamsForCapi = [];
-                }
-
-                // conversion_id тот же, что для S2S — по нему в логах очереди
-                // видно, какая конверсия породила событие.
-                $capiConversionId = $conversionId;
-
-                // Макросы {campaign_url}/{landing_url} для event_source_url пикселя:
-                // трекинговый URL кампании (домен + алиас) и фактический URL лендинга
-                // этого клика. Оба lookup — по первичным ключам, best effort.
-                $capiCampaignUrl = '';
-                $capiLandingUrl = '';
-                try {
-                    $campUrlStmt = $pdo->prepare("
-                        SELECT c.alias, d.name AS domain_name
-                        FROM campaigns c LEFT JOIN domains d ON d.id = c.domain_id
-                        WHERE c.id = ? LIMIT 1
-                    ");
-                    $campUrlStmt->execute([$campaignId]);
-                    $campUrlRow = $campUrlStmt->fetch(PDO::FETCH_ASSOC);
-                    if ($campUrlRow && !empty($campUrlRow['domain_name'])) {
-                        $capiCampaignUrl = 'https://' . $campUrlRow['domain_name'] . '/' . ltrim((string) $campUrlRow['alias'], '/');
-                    }
-                } catch (\Throwable $e) {
-                }
-                if (!empty($clickRow['landing_id'])) {
-                    try {
-                        $landUrlStmt = $pdo->prepare("SELECT url FROM landings WHERE id = ? LIMIT 1");
-                        $landUrlStmt->execute([(int) $clickRow['landing_id']]);
-                        $capiLandingUrl = (string) ($landUrlStmt->fetchColumn() ?: '');
-                    } catch (\Throwable $e) {
-                    }
-                }
-
-                // content_id for CAPI events (TikTok flags its absence as a
-                // Critical diagnostic; Meta uses it for catalog/dynamic-ads
-                // matching too) — sourced from the landing's own _config.php
-                // ($products = N;), the same value the landing's own client-side
-                // pixel already sends. Read-only regex over the file, never
-                // include()'d, so the file's own session_start()/etc. never runs
-                // in this server-to-server request.
-                $capiContentId = '';
-                if (!empty($clickRow['landing_id'])) {
-                    try {
-                        $contentIdDir = orbitraLandingContentDir(orbitraLandingDir($pdo, (int) $clickRow['landing_id']));
-                        $contentIdConfigPath = $contentIdDir . '/_config.php';
-                        if (is_file($contentIdConfigPath)) {
-                            $contentIdSrc = file_get_contents($contentIdConfigPath, false, null, 0, 16384);
-                            if ($contentIdSrc !== false
-                                && preg_match('/\$products\s*=\s*([\'"]?)([A-Za-z0-9_-]+)\1\s*;/', $contentIdSrc, $contentIdMatch)) {
-                                $capiContentId = $contentIdMatch[2];
-                            }
-                        }
-                    } catch (\Throwable $e) {
-                    }
-                }
-
-                foreach ($capiPixels as $pixel) {
-                    try {
-                        $capiContext = [
-                            'status'       => $internalStatus,
-                            'payout'       => (float) $payout,
-                            'currency'     => $currency,
-                            'event_time'   => time(),
-                            // Дедупликация с браузерным пикселем: одинаковый event_id
-                            // для одного и того же события с обеих сторон.
-                            'event_id'     => $clickId . '_' . $internalStatus . ($tid ? '_' . $tid : ''),
-                            'click_params' => $clickParamsForCapi,
-                            'extra'        => $_GET,
-                            'campaign_url' => $capiCampaignUrl,
-                            'landing_url'  => $capiLandingUrl,
-                            'content_id'   => $capiContentId,
-                        ];
-                        if (($pixel['type'] ?? '') === 'tiktok') {
-                            TikTokConversions::enqueue($pdo, $pixel, $clickRow, $capiContext, $capiConversionId);
-                        } else {
-                            FacebookConversions::enqueue($pdo, $pixel, $clickRow, $capiContext, $capiConversionId);
-                        }
-                    } catch (\Throwable $pixelErr) {
-                        // Один сломанный пиксель не должен ронять остальные.
-                    }
-                }
-            }
-        }
-    }
     catch (\Throwable $e) {
-    // CAPI — best effort: ответ на входящий постбек важнее.
+    // Игнорируем ошибки отправки S2S, чтобы не ломать ответ
     }
 
     orbitraPostbackExit(200, $returnMsg ? htmlspecialchars($returnMsg) : "Postback recorded successfully.", [
@@ -639,8 +649,13 @@ try {
     return;
 
 }
-catch (\Exception $e) {
-    // Log the full exception server-side
+catch (\Throwable $e) {
+    // The durable write failed. Do not acknowledge an event that has no outbox
+    // row. Keep a diagnostic even when SQLite itself cannot accept log writes.
+    error_log('Orbitra postback delivery failed: ' . get_class($e)
+        . (orbitraDbErrorIsLock($e) ? ' (database is locked)' : ' (conversion/CAPI transaction failed)'));
+    // Keep actionable locations without stack arguments or exception messages:
+    // provider payloads and URLs can contain tokens or customer identifiers.
     try {
         $logStmt = $pdo->prepare("INSERT INTO system_logs (level, message, context) VALUES (?, ?, ?)");
         $logStmt->execute([
@@ -648,16 +663,17 @@ catch (\Exception $e) {
             'postback.php database error',
             json_encode([
                 'exception' => get_class($e),
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
+                'category' => orbitraDbErrorIsLock($e) ? 'database_locked' : 'conversion_capi_write',
+                'code' => (string) $e->getCode(),
+                'file' => basename($e->getFile()),
                 'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString(),
             ])
         ]);
     } catch (\Throwable $logErr) {
         // If logging fails, continue anyway
     }
 
-    orbitraPostbackExit(500, "Internal error.", ['result' => 'error', 'error' => 'Internal server error']);
+    $responseCode = orbitraDbErrorIsLock($e) ? 503 : 500;
+    orbitraPostbackExit($responseCode, "Internal error.", ['result' => 'error', 'error' => 'Internal server error']);
     return;
 }

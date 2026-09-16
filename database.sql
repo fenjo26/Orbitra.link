@@ -632,6 +632,13 @@ CREATE INDEX idx_offers_is_archived ON offers(is_archived);
 CREATE INDEX idx_offers_network_archived ON offers(affiliate_network_id, is_archived);
 CREATE INDEX idx_s2s_postbacks_inflight ON s2s_postbacks_log(status, updated_at);
 CREATE INDEX idx_s2s_postbacks_queue ON s2s_postbacks_log(status, next_retry_at);
+-- Migration 52: indexed per-conversion CAPI idempotency lookup; no replay.
+CREATE INDEX idx_s2s_postbacks_conversion ON s2s_postbacks_log(conversion_id);
+-- Internal browser-context signing key; intentionally not a settings/API field.
+CREATE TABLE meta_matching_keys (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    secret TEXT NOT NULL
+);
 CREATE INDEX idx_streams_campaign_id ON streams(campaign_id);
 
 -- Stream rotation auto-optimisation audit log (migration 39): one row per

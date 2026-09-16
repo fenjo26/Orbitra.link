@@ -1140,6 +1140,7 @@ class OrbitraTestHarness
             'telegram_bot.php',
             'session_bootstrap.php',
             'version.php',
+            'meta-matching.js',
             'core',
         ];
 

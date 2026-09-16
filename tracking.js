@@ -31,6 +31,17 @@
 
     var state = { subid: null, offerUrl: null, ready: false, cbs: [], loadTs: Date.now() };
 
+    function prepareMatching(done) {
+        if (!base || window.OrbitraMatching || window.orbitra_meta_matching === false) { done(); return; }
+        var settled = false;
+        function finish() { if (!settled) { settled = true; done(); } }
+        var script = document.createElement('script');
+        script.src = base + '/meta-matching.js';
+        script.onload = script.onerror = finish;
+        (document.head || document.documentElement).appendChild(script);
+        setTimeout(finish, 2000); // A blocked helper must not block the click.
+    }
+
     function readCookie(name) {
         try {
             var m = document.cookie.match(new RegExp('(?:^|;\\s*)' + name + '=([^;]*)'));
@@ -85,6 +96,11 @@
         });
         if (document.referrer) { params.push('se_referrer=' + encodeURIComponent(document.referrer)); }
         if (document.title) { params.push('keyword=' + encodeURIComponent(document.title)); }
+        var matching = window.OrbitraMatching ? window.OrbitraMatching.getContext()
+            : (window.orbitra_meta_matching === false ? { meta_matching: '0' } : {});
+        Object.keys(matching).forEach(function (key) {
+            params.push(encodeURIComponent(key) + '=' + encodeURIComponent(matching[key]));
+        });
 
         var url = base + '/click_api/v3?token=' + encodeURIComponent(token) + '&info=1' + (params.length ? '&' + params.join('&') : '');
 
@@ -95,6 +111,10 @@
             var decoded = null;
             try { decoded = JSON.parse(xhr.responseText); } catch (e) { decoded = null; }
             if (decoded && decoded.info) {
+                if (decoded.info.matching && window.OrbitraMatching) {
+                    decoded.info.matching.endpoint = base + '/pixel.gif?action=matching';
+                    window.OrbitraMatching.start(decoded.info.matching);
+                }
                 if (decoded.info.sub_id) { state.subid = String(decoded.info.sub_id); }
                 // offer_link is the signed tracker-side transition (continues the
                 // click); url is the raw offer template — signed wins.
@@ -106,7 +126,7 @@
         xhr.onerror = xhr.ontimeout = function () {
             // CSP or offline: the click may still land via the pixel fallback.
             if (!readCookie('orbitra_subid')) {
-                new Image().src = base + '/pixel.gif?token=' + encodeURIComponent(token) + '&js=0';
+                new Image().src = base + '/pixel.gif?token=' + encodeURIComponent(token) + '&js=0' + (params.length ? '&' + params.join('&') : '');
             }
             fireReady();
         };
@@ -134,7 +154,10 @@
             var query = {
                 action: 'conversion',
                 status: status,
-                payout: revenue || 0
+                payout: revenue || 0,
+                // This method is invoked where the event happened, unlike the
+                // acquisition URL saved on a click. An explicit real URL wins.
+                event_source_url: (params && params.event_source_url) || window.location.href
             };
             if (state.subid) { query.subid = state.subid; }
             if (params && typeof params === 'object') {
@@ -163,7 +186,8 @@
             new Image().src = base + '/pixel.gif?' + toQueryString(query);
         },
 
-        getSubid: function () { return state.subid; }
+        getSubid: function () { return state.subid; },
+        getExternalId: function () { return window.OrbitraMatching ? window.OrbitraMatching.getExternalId() : null; }
     };
 
     // === Time on the landing, for every visitor ===
@@ -237,7 +261,10 @@
         })();
     }
 
-    function boot() { try { initDwell(); } catch (e) {} try { registerClick(); } catch (e) { fireReady(); } }
+    function boot() {
+        try { initDwell(); } catch (e) {}
+        prepareMatching(function () { try { registerClick(); } catch (e) { fireReady(); } });
+    }
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', boot);
     } else {
