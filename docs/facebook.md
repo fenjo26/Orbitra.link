@@ -258,6 +258,35 @@ remain available, but use them only when they describe the page of this event.
 `{landing_url}` uses captured landing context (or the saved landing URL), never
 the click's Facebook/Google acquisition referrer.
 
+For events that happen on different pages, the campaign's **Event source URL**
+text field also accepts an advanced JSON map keyed by the final Meta event name:
+
+```json
+{"InitiateCheckout":"{campaign_url}","Purchase":"{offer_url}"}
+```
+
+This is an explicit configuration, not a default inference about your funnel.
+Use this example only when checkout initiation happens on the campaign page
+and the purchase is completed at the selected offer's URL. A missing map key
+allows an explicit URL from the integration; a present but empty/invalid entry
+does not substitute another page. URL selection never disables the event itself.
+Plain URL settings and existing macros retain their behavior.
+
+`{offer_url}` resolves the persisted click's selected offer through the existing
+offer/network parameter and click-macro rules. It does not pick the first offer
+in a campaign, follow redirects or discover a third party's confirmation page.
+It uses the offer configuration at postback time, not a historical snapshot:
+keep it stable while conversions are pending, or leave that event unconfigured
+and supply its actual URL through the integration instead. Do not use it when
+the offer redirects to a different page where the event occurs.
+
+This advanced map is a campaign-level setting; the Pixel Vault's URL field still
+accepts a plain URL. Saving a linked central profile overwrites campaign URL
+overrides under the existing profile-sync behavior, so review those overrides
+after profile edits. The manual test endpoint does not supply campaign/offer
+macro context; use an explicit real URL for a representative manual test rather
+than expecting it to discover a checkout.
+
 Orbitra does not infer a producer's checkout URL from your landing page. If no
 valid URL is known, it logs a configuration warning and omits the field, retaining
 the queued intent and Meta's delivery result. **Before upgrading**, integrations

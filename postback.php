@@ -433,7 +433,7 @@ try {
 
             $clickStmt = $pdo->prepare("
                 SELECT id, ip, user_agent, referer, country_code, region, city, zipcode,
-                       parameters_json, created_at, landing_id
+                       parameters_json, created_at, landing_id, offer_id
                 FROM clicks WHERE id = ? LIMIT 1
             ");
             $clickStmt->execute([$clickId]);
@@ -479,6 +479,41 @@ try {
                     }
                 }
 
+                // Explicit {offer_url} means the operator confirms that the
+                // configured offer destination is the event page. Resolve the
+                // offer saved on THIS click, never another campaign offer or
+                // an offer_id supplied by the postback. No redirects/network
+                // calls: this is current configuration, not a historical URL.
+                $capiOfferUrl = '';
+                foreach ($capiPixels as $capiPixel) {
+                    if (($capiPixel['type'] ?? '') !== 'facebook') {
+                        continue;
+                    }
+                    $capiUrlConfig = (string) ($capiPixel['event_source_url'] ?? '');
+                    $capiUrlMap = json_decode($capiUrlConfig, true);
+                    $capiUrlTemplates = is_array($capiUrlMap) ? $capiUrlMap : [$capiUrlConfig];
+                    if (!array_filter($capiUrlTemplates, static fn($value): bool =>
+                        is_string($value) && str_contains($value, '{offer_url}'))) {
+                        continue;
+                    }
+                    if (!empty($clickRow['offer_id'])) {
+                        try {
+                            require_once __DIR__ . '/core/OfferUrl.php';
+                            $capiOffer = orbitraGetOfferDestination($pdo, (int) $clickRow['offer_id']);
+                            // Local offer routes are not represented by offers.url.
+                            if ($capiOffer && empty($capiOffer['is_local'])) {
+                                $capiOfferUrl = orbitraResolveOfferUrlMacros(
+                                    $capiOffer['url'], $clickId, (int) $clickRow['offer_id'], $clickParamsForCapi,
+                                    ['ip' => $clickRow['ip'] ?? '', 'country' => $clickRow['country_code'] ?? '']
+                                );
+                            }
+                        } catch (\Throwable $e) {
+                            // Missing context omits the URL; it never drops the event.
+                        }
+                    }
+                    break;
+                }
+
                 // content_id for CAPI events (TikTok flags its absence as a
                 // Critical diagnostic; Meta uses it for catalog/dynamic-ads
                 // matching too) — sourced from the landing's own _config.php
@@ -515,6 +550,7 @@ try {
                         'extra'        => $_GET,
                         'campaign_url' => $capiCampaignUrl,
                         'landing_url'  => $capiLandingUrl,
+                        'offer_url'    => $capiOfferUrl,
                         'content_id'   => $capiContentId,
                     ];
                     orbitraPostbackEnqueueCapi($pdo, $pixel, $clickRow, $capiContext, $capiConversionId);

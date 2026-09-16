@@ -94,7 +94,7 @@ class FacebookConversions
      * @param array $click  clicks row (id, ip, user_agent, referer, country_code, region, city, zipcode)
      * @param array $ctx    event_name, event_id, event_time, payout, currency,
      *                      click_params (decoded parameters_json), extra ($_GET of the postback),
-     *                      campaign_url / landing_url / event_source_url (macro values for
+     *                      campaign_url / landing_url / offer_url / event_source_url (macro values for
      *                      the pixel's event_source_url, resolved by the caller)
      */
     public static function buildPayload(array $pixel, array $click, array $ctx): array
@@ -170,20 +170,36 @@ class FacebookConversions
         }
 
         // event_source_url — the browser-side URL Meta attributes the event to.
-        // The operator-configured thank-you/checkout page wins; its
-        // {campaign_url}/{landing_url}/{clickid} macros resolve against this
-        // click. Otherwise only an explicitly supplied event URL is truthful:
+        // The operator-configured thank-you/checkout page wins.
+        // A campaign may opt into a JSON object keyed by the final Meta event
+        // name; ordinary URL strings and existing macros remain compatible.
+        // Only an absent event key permits the explicit postback URL fallback.
+        // An empty/invalid configured value does not silently change pages.
+        // Otherwise only an explicitly supplied event URL is truthful:
         // the acquisition referrer (often Facebook/Google) and the landing page
         // do not identify a conversion that happened on the partner's checkout.
         $configuredUrl = is_string($pixel['event_source_url'] ?? null)
             ? trim($pixel['event_source_url']) : '';
         $hasConfiguredUrl = $configuredUrl !== '';
+        $eventUrls = json_decode($configuredUrl);
+        if ($eventUrls instanceof \stdClass) {
+            $eventUrls = get_object_vars($eventUrls);
+            $hasConfiguredUrl = array_key_exists($event['event_name'], $eventUrls);
+            $configuredUrl = $hasConfiguredUrl && is_string($eventUrls[$event['event_name']])
+                ? trim($eventUrls[$event['event_name']]) : '';
+        }
         if ($configuredUrl !== '') {
             $landingUrl = $ctx['landing_url'] ?? $clickParams['landing_page_url'] ?? '';
             $landingUrl = is_string($landingUrl) ? $landingUrl : '';
+            $offerUrl = is_string($ctx['offer_url'] ?? null) ? $ctx['offer_url'] : '';
+            // A required offer macro cannot turn into a different valid URL
+            // merely because its missing/invalid value was replaced with ''.
+            if (str_contains($configuredUrl, '{offer_url}') && self::eventSourceUrl($offerUrl) === '') {
+                $configuredUrl = '';
+            }
             $configuredUrl = str_replace(
-                ['{campaign_url}', '{landing_url}', '{clickid}'],
-                [(string) ($ctx['campaign_url'] ?? ''), $landingUrl, (string) ($click['id'] ?? '')],
+                ['{campaign_url}', '{landing_url}', '{offer_url}', '{clickid}'],
+                [(string) ($ctx['campaign_url'] ?? ''), $landingUrl, $offerUrl, (string) ($click['id'] ?? '')],
                 $configuredUrl
             );
         }
