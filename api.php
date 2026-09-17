@@ -24,6 +24,7 @@ require_once __DIR__ . '/core/ReportMetrics.php';
 require_once __DIR__ . '/core/RotationOptimiser.php';
 require_once __DIR__ . '/core/ConversionAttribution.php';
 require_once __DIR__ . '/core/ExtensionAdsStats.php';
+require_once __DIR__ . '/core/PostbackMacros.php';
 require_once 'version.php';
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
@@ -9693,12 +9694,19 @@ try {
                 }
 
                 foreach ($postbackConfigs as $pbCfg) {
-                    $filterList = array_map('trim', explode(',', strtolower((string) $pbCfg['statuses'])));
+                    // Same matcher the enqueue path uses (core/PostbackMacros.php),
+                    // so the tester can never disagree with the real filter.
+                    $matchReason = orbitraStatusFilterMatch(
+                        (string) ($internalStatus ?? ''),
+                        (string) ($inLog['original_status'] ?? $testStatusWord),
+                        (string) $pbCfg['statuses']
+                    );
                     $entry = [
                         'postback_id' => (int) $pbCfg['id'],
                         'url' => (string) $pbCfg['url'],
                         'statuses_filter' => (string) $pbCfg['statuses'],
-                        'status_matched' => $internalStatus !== null && in_array(strtolower((string) $internalStatus), $filterList, true),
+                        'status_matched' => $matchReason !== null,
+                        'match_reason' => $matchReason,
                         'queued' => false,
                         'probe' => null,
                     ];
@@ -9714,6 +9722,13 @@ try {
                         // urlencoded, so decode before matching.
                         if (preg_match_all('/\{[a-z_][a-z0-9_]{1,30}(?::[^}]*)?\}/i', urldecode($entry['queued_url']), $mm)) {
                             $entry['unresolved_macros'] = array_values(array_unique($mm[0]));
+                        }
+                        // Template URLs pasted from a source pack can carry
+                        // unfilled slots (bbg=xxx, event_id=[YOUR_...]) that
+                        // ship to the source as literal values.
+                        $placeholders = orbitraDetectUrlPlaceholders(urldecode($entry['queued_url']));
+                        if ($placeholders) {
+                            $entry['placeholder_values'] = $placeholders;
                         }
                     }
                     if ($entry['queued'] && $probeDelivery && $entry['url'] !== '') {
@@ -9817,6 +9832,128 @@ try {
                     error_log('Orbitra postback_test cleanup failed: ' . $e->getMessage());
                 }
             }
+            break;
+
+        case 'postback_backfill':
+            // One-off repair for conversions the S2S status filter missed.
+            // v1.5.11's built-in aliases changed what a pre-1.5.11 filter
+            // matches, so conversions recorded between that update and the
+            // v1.5.13 filter compat landed fine but never queued an outbound
+            // S2S row. This re-enqueues them per configured postback.
+            //
+            // Deliberately a button, not an automatic migration: it results in
+            // real requests to real networks, so an admin decides when and for
+            // which campaign. Idempotent — a conversion/postback pair that
+            // already has a queue row (any state, delivered included) is
+            // skipped, so pressing it twice enqueues nothing the second time.
+            //
+            // Limitation, accepted: {$type}_status parameters of the original
+            // request are not recoverable from stored rows, so the matcher's
+            // aliased-word inference stands in for mapStatus()'s exact flag —
+            // a word explicitly param-mapped to its alias target looks the
+            // same as an aliased one. Rare, and the send is at worst a
+            // duplicate of what the network already attributes.
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+            if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+
+            $input = json_decode((string) orbitraRequestBody(), true);
+            if (!is_array($input)) {
+                $input = $_POST;
+            }
+            $bfCampaignId = (int) ($input['campaign_id'] ?? 0);
+            $bfHours = (int) ($input['hours'] ?? 72);
+            $bfHours = min(168, max(1, $bfHours));
+            if ($bfCampaignId <= 0) {
+                echo json_encode(['status' => 'error', 'message' => 'campaign_id is required']);
+                break;
+            }
+
+            $camp = $pdo->prepare("SELECT id FROM campaigns WHERE id = ? AND is_archived = 0");
+            $camp->execute([$bfCampaignId]);
+            if (!$camp->fetch()) {
+                echo json_encode(['status' => 'error', 'message' => 'Campaign not found']);
+                break;
+            }
+
+            $pbStmt = $pdo->prepare("SELECT id, url, method, statuses FROM campaign_postbacks WHERE campaign_id = ? ORDER BY id");
+            $pbStmt->execute([$bfCampaignId]);
+            $bfPostbacks = $pbStmt->fetchAll(PDO::FETCH_ASSOC);
+            $pbStmt->closeCursor();
+
+            $counts = ['scanned' => 0, 'enqueued' => 0, 'existing' => 0, 'filtered' => 0, 'blocked' => 0];
+            if ($bfPostbacks) {
+                // conversions carry no campaign of their own — the click does.
+                $convStmt = $pdo->prepare("
+                    SELECT c.id AS conv_id, c.click_id, c.status, c.original_status, c.payout, c.currency, c.tid,
+                           cl.parameters_json, cl.cost, cl.revenue, cl.offer_id
+                    FROM conversions c
+                    JOIN clicks cl ON cl.id = c.click_id
+                    WHERE cl.campaign_id = ?
+                      AND c.created_at >= datetime('now', ?)
+                    ORDER BY c.id
+                ");
+                $convStmt->execute([$bfCampaignId, "-{$bfHours} hours"]);
+                $bfConversions = $convStmt->fetchAll(PDO::FETCH_ASSOC);
+                $convStmt->closeCursor();
+
+                $existingStmt = $pdo->prepare("SELECT 1 FROM s2s_postbacks_log WHERE conversion_id = ? AND postback_id = ?");
+                $insertStmt = $pdo->prepare("
+                    INSERT INTO s2s_postbacks_log
+                        (conversion_id, url, method, status, attempts, next_retry_at, postback_id, updated_at)
+                    VALUES (?, ?, ?, 'pending', 0, datetime('now'), ?, datetime('now'))
+                ");
+
+                foreach ($bfConversions as $bfConv) {
+                    $counts['scanned']++;
+                    $bfParams = [];
+                    if (!empty($bfConv['parameters_json'])) {
+                        $decoded = json_decode((string) $bfConv['parameters_json'], true);
+                        if (is_array($decoded)) {
+                            $bfParams = $decoded;
+                        }
+                    }
+                    foreach ($bfPostbacks as $bfPb) {
+                        if (orbitraStatusFilterMatch((string) $bfConv['status'], (string) $bfConv['original_status'], (string) $bfPb['statuses']) === null) {
+                            $counts['filtered']++;
+                            continue;
+                        }
+                        $existingStmt->execute([(int) $bfConv['conv_id'], (int) $bfPb['id']]);
+                        $hasRow = $existingStmt->fetch() !== false;
+                        $existingStmt->closeCursor();
+                        if ($hasRow) {
+                            $counts['existing']++;
+                            continue;
+                        }
+                        $bfUrl = orbitraResolveS2SUrl((string) $bfPb['url'], [
+                            'click_id'    => (string) $bfConv['click_id'],
+                            'campaign_id' => $bfCampaignId,
+                            'offer_id'    => (string) ($bfConv['offer_id'] ?? ''),
+                            'status'      => (string) $bfConv['status'],
+                            'payout'      => $bfConv['payout'],
+                            'currency'    => (string) ($bfConv['currency'] ?? ''),
+                            'tid'         => (string) ($bfConv['tid'] ?? ''),
+                            'cost'        => (float) ($bfConv['cost'] ?? 0),
+                            'revenue'     => (float) ($bfConv['revenue'] ?? 0),
+                            'params'      => $bfParams,
+                        ]);
+                        if ($bfUrl === null) {
+                            $counts['blocked']++;
+                            continue;
+                        }
+                        $method = strtoupper((string) ($bfPb['method'] ?? 'GET')) === 'POST' ? 'POST' : 'GET';
+                        $insertStmt->execute([(int) $bfConv['conv_id'], $bfUrl, $method, (int) $bfPb['id']]);
+                        $counts['enqueued']++;
+                    }
+                }
+            }
+
+            echo json_encode(['status' => 'success', 'data' => ['hours' => $bfHours] + $counts]);
             break;
 
         case 'backorder_install_cron':

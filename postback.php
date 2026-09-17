@@ -94,8 +94,13 @@ function orbitraPostbackExit($statusCode, $message, $logContext = [], $isSuccess
  * stored, but landed in none of the Sales/Leads/Rejected/Trash buckets, which is
  * exactly the "conversion recorded, every campaign counter still 0" symptom.
  */
-function mapStatus($pdo, $status, $params)
+// $viaBuiltinAlias (optional, by reference) is set to true only when the
+// built-in word aliases made the decision (approved→sale and friends). Callers
+// that need to distinguish "aliased" from "mapped the same way by an explicit
+// configuration" (the S2S status filter does) read it; everyone else ignores it.
+function mapStatus($pdo, $status, $params, &$viaBuiltinAlias = false)
 {
+    $viaBuiltinAlias = false;
     if (!$status)
         return null;
 
@@ -158,12 +163,11 @@ function mapStatus($pdo, $status, $params)
     // type literally named that way) and explicit {$type}_status parameters
     // all take precedence, so a deliberate mapping can always win.
     if ($mapped_status === 'custom') {
-        $builtinAliases = [
-            'sale'     => ['approved', 'confirmed', 'accepted', 'converted'],
-            'rejected' => ['declined', 'refused', 'cancelled', 'canceled'],
-        ];
-        foreach ($builtinAliases as $aliasType => $words) {
+        // The alias table lives in core/PostbackMacros.php and is shared with the
+        // S2S status filter — see orbitraBuiltinStatusAliases().
+        foreach (orbitraBuiltinStatusAliases() as $aliasType => $words) {
             if (in_array($needle, $words, true)) {
+                $viaBuiltinAlias = true;
                 return $aliasType;
             }
         }
@@ -292,7 +296,7 @@ $campaignId = $clickData['campaign_id'];
 $clickAttribution = orbitraClickAttributionFromRow($clickData);
 
 // Маппинг статуса
-$internalStatus = mapStatus($pdo, $originalStatus, $_GET);
+$internalStatus = mapStatus($pdo, $originalStatus, $_GET, $statusViaBuiltinAlias);
 
 $stmt = $pdo->query("SELECT name FROM conversion_types");
 $customTypes = $stmt->fetchAll(PDO::FETCH_COLUMN);
@@ -636,54 +640,35 @@ try {
         ");
 
         foreach ($postbacks as $pb) {
-            $statuses = array_map('trim', explode(',', strtolower($pb['statuses'])));
-            if (!in_array(strtolower($internalStatus), $statuses)) {
+            // Shared matcher (core/PostbackMacros.php): the filter admits the
+            // internal status, the network's own status word, and — for setups
+            // configured before v1.5.11 — the 'custom' chip aliased words used
+            // to land under. Keeps a working S2S from stopping on the update.
+            // $statusViaBuiltinAlias comes from mapStatus(): only a word the
+            // BUILT-IN alias moved out of 'custom' counts for the compat chip —
+            // an explicit sale_status=... parameter mapped the word to the same
+            // place before v1.5.11 too, so 'custom' must not adopt it.
+            if (orbitraStatusFilterMatch((string) $internalStatus, (string) $originalStatus, (string) $pb['statuses'], $statusViaBuiltinAlias) === null) {
                 continue;
             }
 
-            // Подстановка расширенного набора макросов.
-            $macroValues = [
-                '{subid}'       => $clickId,
-                // Aliases the imported Keitaro source templates use.
-                '{clickid}'     => $clickId,
-                '{click_id}'    => $clickId,
-                '{status}'      => $internalStatus,
-                '{payout}'      => (string) $payout,
-                '{conversion_revenue}' => (string) $payout,
-                '{currency}'    => $currency,
-                '{external_id}' => (string) $tid,
-                '{tid}'         => (string) $tid,
-                '{campaign_id}' => (string) $campaignId,
-                '{offer_id}'    => $clickOfferId,
-                '{cost}'        => (string) $clickCost,
-                '{revenue}'     => (string) $clickRevenue,
-                '{profit}'      => (string) ($clickRevenue - $clickCost),
-            ];
-            // sub_id_1..30 и прочие сохранённые параметры клика.
-            if (!empty($clickParams)) {
-                foreach ($clickParams as $key => $val) {
-                    $macroValues['{' . $key . '}'] = (string) $val;
-                }
-            }
-            // urldecode обратный: макро-значения urlencode'им, как и раньше, чтобы URL был корректным.
-            $url = $pb['url'];
-
-            // Keitaro-style status transform: {status: lead=reg sale=dep}.
-            $url = orbitraApplyStatusTransform($url, $internalStatus);
-
-            foreach ($macroValues as $macro => $value) {
-                $url = str_replace($macro, urlencode($value), $url);
-            }
-
-            // SSRF Protection: предотвращаем запросы к локальным/приватным IP.
-            // Проверку повторит и воркер (на случай смены DNS), но отсекаем очевидное уже при enqueue.
-            $parsedUrl = parse_url($url);
-            $host = $parsedUrl['host'] ?? '';
-            if ($host) {
-                $ip = gethostbyname($host);
-                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
-                    continue; // Skip restricted IPs
-                }
+            // URL resolution (transform + macros + the enqueue-time SSRF gate)
+            // lives in core/PostbackMacros.php and is shared with the
+            // missed-conversion backfill in api.php.
+            $url = orbitraResolveS2SUrl((string) $pb['url'], [
+                'click_id'    => $clickId,
+                'campaign_id' => $campaignId,
+                'offer_id'    => $clickOfferId,
+                'status'      => $internalStatus,
+                'payout'      => $payout,
+                'currency'    => $currency,
+                'tid'         => $tid,
+                'cost'        => $clickCost,
+                'revenue'     => $clickRevenue,
+                'params'      => $clickParams,
+            ]);
+            if ($url === null) {
+                continue; // SSRF: local/private host
             }
 
             $method = strtoupper($pb['method'] ?? 'GET') === 'POST' ? 'POST' : 'GET';

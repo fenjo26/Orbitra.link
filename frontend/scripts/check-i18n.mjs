@@ -24,9 +24,25 @@ const localesDir = path.join(root, 'locales');
 // t('a.b', 'Fallback') degrades to the fallback, which is survivable.
 const RE_NO_FALLBACK = /\bt\(\s*'([A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)+)'\s*\)/g;
 const RE_WITH_FALLBACK = /\bt\(\s*'([A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)+)'\s*,/g;
+// t('a.b', { from: x, to: y }) — interpolation vars; the capture stops at the
+// first '}' so nested objects are out of scope (none of the call sites use them).
+const RE_WITH_VARS = /\bt\(\s*'([A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)+)'\s*,\s*\{([^}]*)/g;
 
 const usedHard = new Map();
 const usedSoft = new Map();
+// key -> Set of variable names the code passes for it (union across call sites).
+const usedVars = new Map();
+
+function extractVarNames(body) {
+  // Top-level comma split; values may contain commas inside strings, but the
+  // pieces without a 'key:' head are not identifiers and are skipped below.
+  const names = new Set();
+  for (const part of body.split(',')) {
+    const m = part.trim().match(/^([A-Za-z_][A-Za-z0-9_]*)\s*:/) || part.trim().match(/^([A-Za-z_][A-Za-z0-9_]*)$/);
+    if (m) names.add(m[1]);
+  }
+  return names;
+}
 
 function walk(dir) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -39,6 +55,14 @@ function walk(dir) {
     const src = fs.readFileSync(p, 'utf8');
     for (const m of src.matchAll(RE_NO_FALLBACK)) if (!usedHard.has(m[1])) usedHard.set(m[1], entry.name);
     for (const m of src.matchAll(RE_WITH_FALLBACK)) if (!usedSoft.has(m[1])) usedSoft.set(m[1], entry.name);
+    for (const m of src.matchAll(RE_WITH_VARS)) {
+      const vars = extractVarNames(m[2]);
+      if (vars.size) {
+        const acc = usedVars.get(m[1]) || new Set();
+        for (const v of vars) acc.add(v);
+        usedVars.set(m[1], acc);
+      }
+    }
   }
 }
 walk(root);
@@ -94,6 +118,45 @@ const soft = [...usedSoft].filter(([key]) =>
 if (soft.length) {
   console.warn(`\n  ${soft.length} key(s) used only with a fallback and defined nowhere (not fatal):`);
   for (const [key, file] of soft.slice(0, 20)) console.warn(`    ${key.padEnd(36)} ${file}`);
+}
+
+// 3. placeholder parity between the code and every locale string.
+//    t() substitutes ONLY the keys a call passes, so:
+//      - a placeholder in the translation the code never passes stays in the
+//        UI as a literal "{x}" — the failure class that once shipped a whole
+//        tester panel full of {from}/{filter} soup. Failure, except for the
+//        allowlist below (texts that deliberately show macro examples).
+//      - a var the code passes but the string lacks just drops the value —
+//        degraded text, not literal garbage. Warning.
+const PLACEHOLDER_ALLOWLIST = {
+  // 'key.name': ['subid'],  — placeholder names the text shows on purpose
+};
+const placeholdersIn = (str) =>
+  [...String(str).matchAll(/\{\{(\w+)\}\}|\{(\w+)\}/g)].map((m) => m[1] || m[2]);
+const varIssues = [];
+const varExtra = [];
+for (const [key, vars] of usedVars) {
+  const allowed = new Set(PLACEHOLDER_ALLOWLIST[key] || []);
+  for (const [name, dict] of Object.entries(locales)) {
+    const str = resolve(dict, key);
+    if (str === undefined) continue; // rule 1 already covers a missing key
+    const have = new Set(placeholdersIn(str));
+    const extra = [...have].filter((v) => !vars.has(v) && !allowed.has(v));
+    if (extra.length) varIssues.push({ key, name, extra });
+    const missing = [...vars].filter((v) => !have.has(v));
+    if (missing.length) varExtra.push({ key, name, missing });
+  }
+}
+if (varIssues.length) {
+  failures += varIssues.length;
+  console.error(`\n✗ ${varIssues.length} locale string(s) carry placeholders the code never passes (they render as literal "{x}"):`);
+  for (const { key, name, extra } of varIssues)
+    console.error(`    ${key.padEnd(36)} ${name.padEnd(4)} literal {${extra.join('}, {')}}`);
+}
+if (varExtra.length) {
+  console.warn(`\n  ${varExtra.length} locale string(s) miss placeholders the code passes (the value is dropped, not rendered):`);
+  for (const { key, name, missing } of varExtra.slice(0, 20))
+    console.warn(`    ${key.padEnd(36)} ${name.padEnd(4)} drops {${missing.join('}, {')}}`);
 }
 
 if (failures) {

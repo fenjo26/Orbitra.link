@@ -887,13 +887,33 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     // campaign's postbacks when the list is empty; when postbacks already
     // exist, the S2S tab offers the source's URL instead of duplicating it —
     // switching sources must never multiply rows.
-    const sourcePostbackFor = (source) => (source && source.postback_url
-        ? {
+    // A template URL with unfilled slots (bbg=xxx, event_id=[YOUR_...] — the
+    // Keitaro packs ship them like that) is never seeded: it would send garbage
+    // to the source. Same value-level check as the backend's tester verdict.
+    const urlHasTemplatePlaceholders = (url) => {
+        const query = String(url || '').split('?')[1] || '';
+        if (!query) return false;
+        return query.split('&').some((pair) => {
+            const eq = pair.indexOf('=');
+            let value = eq === -1 ? pair : pair.slice(eq + 1);
+            try { value = decodeURIComponent(value); } catch (e) { /* keep raw */ }
+            value = value.trim();
+            if (!value) return false;
+            return ['xxx', 'your-parameter', 'your_parameter'].includes(value.toLowerCase())
+                || /^\[[A-Za-z0-9_ -]{3,}\]$/.test(value);
+        });
+    };
+
+    const sourcePostbackFor = (source) => {
+        if (!source || !source.postback_url || urlHasTemplatePlaceholders(source.postback_url)) {
+            return null;
+        }
+        return {
             url: source.postback_url,
             method: 'GET',
             statuses: source.postback_statuses || 'lead,sale,rejected',
-        }
-        : null);
+        };
+    };
 
     const handleSourceChange = (sourceId) => {
         const source = sources.find(s => s.id == sourceId);
@@ -1628,6 +1648,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     // Postback management
     const [pbTestWord, setPbTestWord] = useState('approved');
     const [pbTestLoading, setPbTestLoading] = useState(false);
+    const [pbBackfillLoading, setPbBackfillLoading] = useState(false);
+    const [pbBackfillResult, setPbBackfillResult] = useState(null);
+    const [pbBackfillError, setPbBackfillError] = useState(null);
     const [pbTestResult, setPbTestResult] = useState(null);
     const [pbTestError, setPbTestError] = useState(null);
 
@@ -1654,6 +1677,32 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             setPbTestError(e.response?.data?.message || e.message);
         } finally {
             setPbTestLoading(false);
+        }
+    };
+
+    // Repair for the v1.5.11 filter break: conversions recorded while a
+    // pre-1.5.11 statuses filter silently stopped matching never queued an
+    // outbound row. Re-enqueues the missed window — admin-triggered, idempotent.
+    const runPostbackBackfill = async () => {
+        const campaignIdForBackfill = formData.id || campaignId;
+        if (!campaignIdForBackfill) return;
+        setPbBackfillLoading(true);
+        setPbBackfillError(null);
+        setPbBackfillResult(null);
+        try {
+            const res = await axios.post('/api.php?action=postback_backfill', {
+                campaign_id: campaignIdForBackfill,
+                hours: 72,
+            });
+            if (res.data?.status === 'success') {
+                setPbBackfillResult(res.data.data);
+            } else {
+                setPbBackfillError(res.data?.message || t('common.error'));
+            }
+        } catch (e) {
+            setPbBackfillError(e.response?.data?.message || e.message);
+        } finally {
+            setPbBackfillLoading(false);
         }
     };
 
@@ -4053,6 +4102,32 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                 {pbTestError && (
                                                     <div className="alert alert-error text-xs">{pbTestError}</div>
                                                 )}
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                    <button
+                                                        type="button"
+                                                        className="btn text-xs flex items-center gap-1"
+                                                        style={{ border: '1px solid var(--color-border)' }}
+                                                        disabled={pbBackfillLoading || !(formData.id || campaignId)}
+                                                        onClick={runPostbackBackfill}
+                                                    >
+                                                        <RefreshCw className={'w-3.5 h-3.5' + (pbBackfillLoading ? ' animate-spin' : '')} />
+                                                        {t('editor.pb.backfillBtn', { hours: 72 })}
+                                                    </button>
+                                                    <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('editor.pb.backfillHint')}</span>
+                                                </div>
+                                                {pbBackfillError && (
+                                                    <div className="alert alert-error text-xs">{pbBackfillError}</div>
+                                                )}
+                                                {pbBackfillResult && (
+                                                    <div className="text-xs" style={{ color: 'var(--color-text-primary)' }}>
+                                                        {t('editor.pb.backfillDone', {
+                                                            queued: pbBackfillResult.enqueued,
+                                                            scanned: pbBackfillResult.scanned,
+                                                            existing: pbBackfillResult.existing,
+                                                            filtered: pbBackfillResult.filtered,
+                                                        })}
+                                                    </div>
+                                                )}
                                                 {pbTestResult && (
                                                     <div className="space-y-1.5 text-xs">
                                                         <div className="flex items-start gap-1.5">
@@ -4098,6 +4173,24 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                 </span>
                                                             </div>
                                                         ))((pbTestResult.s2s || []).find(x => x.queued && x.unresolved_macros?.length))}
+                                                        {(s => s && (
+                                                            <div className="flex items-start gap-1.5">
+                                                                <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0 text-amber-500" />
+                                                                <span style={{ color: 'var(--color-text-primary)' }}>
+                                                                    {t('editor.pbTest.placeholdersLeft', { list: s.placeholder_values.join(', ') })}
+                                                                </span>
+                                                            </div>
+                                                        ))((pbTestResult.s2s || []).find(x => x.queued && x.placeholder_values?.length))}
+                                                        {(s => s && (
+                                                            <div className="flex items-start gap-1.5">
+                                                                <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0 text-amber-500" />
+                                                                <span style={{ color: 'var(--color-text-primary)' }}>
+                                                                    {s.match_reason === 'alias_custom'
+                                                                        ? t('editor.pbTest.filterViaAlias', { word: pbTestResult.status_word, status: pbTestResult.recorded?.internal_status })
+                                                                        : t('editor.pbTest.filterViaOriginal', { word: pbTestResult.status_word, status: pbTestResult.recorded?.internal_status })}
+                                                                </span>
+                                                            </div>
+                                                        ))((pbTestResult.s2s || []).find(x => x.queued && (x.match_reason === 'original' || x.match_reason === 'alias_custom')))}
                                                         <div className="flex items-start gap-1.5">
                                                             {pbTestResult.worker?.healthy
                                                                 ? <Check className="w-3.5 h-3.5 mt-0.5 shrink-0 text-emerald-500" />
@@ -4681,7 +4774,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                                             from: cloakWindow.from,
                                                                                             to: cloakWindow.to,
                                                                                             tz: cloakWindow.timezone
-                                                                                        }).replace('{from}', String(cloakWindow.from ?? '')).replace('{to}', String(cloakWindow.to ?? '')).replace('{tz}', String(cloakWindow.timezone ?? ''))
+                                                                                        })
                                                                                         : t('cloaking.diagnosticsTitle')}
                                                                                 </span>
                                                                                 <button
@@ -4727,7 +4820,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                                     hits: totalHits,
                                                                                     money: money,
                                                                                     safe: safe + (suppressed || 0)
-                                                                                }).replace('{hits}', String(totalHits)).replace('{money}', String(money)).replace('{safe}', String(safe + (suppressed || 0)))}
+                                                                                })}
                                                                             </div>
                                                                             {by_reason && by_reason.length > 0 && (
                                                                                 <div>
@@ -4749,7 +4842,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                                                 {t('cloaking.diagnosticsReasonItem', {
                                                                                                     reason: r.reason,
                                                                                                     count: r.count
-                                                                                                }).replace('{reason}', r.reason).replace('{count}', String(r.count))}
+                                                                                                })}
                                                                                             </span>
                                                                                         ))}
                                                                                     </div>

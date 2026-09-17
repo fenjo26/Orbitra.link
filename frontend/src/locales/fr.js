@@ -662,6 +662,9 @@ export default {
         "pb": {
             "insertMacro": "Insérer une macro",
             "sourceHint": "La source « {name} » accepte un postback S2S que cette campagne n'utilise pas encore — ajoutez-le pour que les conversions atteignent la source",
+            "backfillBtn": "Renvoyer les manqués ({hours} h)",
+            "backfillHint": "si le S2S s’est tu après une mise à jour — met en file les conversions jamais entrées dans la file d’envoi",
+            "backfillDone": "{queued} envois mis en file (conversions examinées : {scanned}, déjà envoyées : {existing}, filtrées : {filtered}) — le worker les livrera en une minute",
             "addSource": "Ajouter le S2S de la source",
             "customStatus": "statut personnalisé…"
         },
@@ -680,6 +683,9 @@ export default {
             "workerDead": "Le worker de file ne répond pas — les S2S ne partiront pas. Cron et diagnostic : Paramètres → Automatisation",
             "workerNever": "Le worker de file n'a jamais répondu — installez le cron dans Paramètres → Automatisation",
             "macrosLeft": "non substitués dans l’URL : {list} — assurez-vous que le trafic arrive avec ces paramètres (les macros partent vers la source comme du texte)",
+            "placeholdersLeft": "des espaces réservés du template restent dans l’URL : {list} — remplacez-les par les valeurs réelles du compte de la source",
+            "filterViaOriginal": "le postback passe le filtre grâce au mot d’origine du réseau «{word}» — il est plus fiable d’activer la puce «{status}» dans les statuts de ce postback",
+            "filterViaAlias": "le postback passe par la puce custom — avant 1.5.11 «{word}» était enregistré comme custom ; activez la puce «{status}» pour ne plus dépendre de la compatibilité",
         },
         "statuses": "Statuts",
         "yourNotes": "Vos notes...",

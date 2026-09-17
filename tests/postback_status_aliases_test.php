@@ -42,9 +42,33 @@ function aliasEquals($expected, $actual, $message) {
 }
 
 require_once __DIR__ . '/lib/http.php';
+require_once __DIR__ . '/../core/PostbackMacros.php';
 
 $repoRoot = dirname(__DIR__);
 $harness = new OrbitraTestHarness($repoRoot);
+
+// --- Unit: the shared statuses-filter matcher (core/PostbackMacros.php) ------
+// The v1.5.11 aliases moved approved-family words from 'custom' to 'sale';
+// these three compat rules are what keeps a pre-1.5.11 S2S setup delivering.
+aliasEquals('internal', orbitraStatusFilterMatch('sale', 'approved', 'sale,lead'), 'filter naming the internal status matches as internal');
+aliasEquals('internal', orbitraStatusFilterMatch('custom', 'zzz', 'custom'), 'a real custom status matches its own chip');
+aliasEquals('original', orbitraStatusFilterMatch('sale', 'approved', 'approved'), 'filter naming the network word matches as original');
+aliasEquals('alias_custom', orbitraStatusFilterMatch('sale', 'approved', 'custom'), "pre-1.5.11 'custom' chip still receives the aliased word");
+aliasEquals('alias_custom', orbitraStatusFilterMatch('Sale', 'Approved', ' Lead , custom '), 'matching is case/space tolerant');
+aliasEquals('internal', orbitraStatusFilterMatch('Sale', 'Approved', ' SALE , custom '), 'the internal chip wins when both it and custom are on');
+aliasEquals(null, orbitraStatusFilterMatch('sale', 'approved', 'lead,rejected'), 'unrelated chips still reject');
+aliasEquals(null, orbitraStatusFilterMatch('sale', 'supersale', 'custom'), "custom chip does not adopt a status that isn't aliased");
+aliasEquals(null, orbitraStatusFilterMatch('lead', 'approved', 'custom'), 'custom chip does not fire when a configured type claimed the word');
+aliasEquals(null, orbitraStatusFilterMatch('sale', 'confirmed', 'custom', false), "custom chip ignores a word an explicit {type}_status param mapped (mapStatus says: not the builtin alias)");
+aliasEquals('alias_custom', orbitraStatusFilterMatch('sale', 'confirmed', 'custom', true), 'the same word passes when mapStatus says the builtin alias did it');
+aliasEquals('alias_custom', orbitraStatusFilterMatch('sale', 'confirmed', 'custom'), 'unknown provenance falls back to the aliased-word inference');
+
+// --- Unit: template-placeholder detection on outbound queue URLs -------------
+aliasEquals(['xxx'], orbitraDetectUrlPlaceholders('https://api.bytegle.site/bigoad/trackingevent/v2?bbg=xxx&pixel_id=real'), 'xxx value flagged');
+aliasEquals(['[YOUR_AD_GROUP_CONVERSION_EVENT_ID]'], orbitraDetectUrlPlaceholders('https://api.bytegle.site/bigoad/trackingevent/v2?bbg=real&event_id=' . urlencode('[YOUR_AD_GROUP_CONVERSION_EVENT_ID]')), 'bracketed template hint flagged');
+aliasEquals(['your-parameter'], orbitraDetectUrlPlaceholders('https://attr.img-static.tech/attribution/apply/v2?appKey=your-parameter&sid=abc'), 'your-parameter value flagged');
+aliasEquals([], orbitraDetectUrlPlaceholders('https://api.bytegle.site/bigoad/trackingevent?tbbg=7f3axxxoh99&pixel_id=42'), 'xxx inside a real click id is not a placeholder');
+aliasEquals([], orbitraDetectUrlPlaceholders('https://example.com/conv'), 'URL without a query has no placeholders');
 
 try {
     echo "Starting test server...\n";
@@ -121,6 +145,41 @@ try {
     aliasEquals(200, $resp['code'], 'Unknown status still returns 200');
     aliasEquals('custom', $convStatus($clicks['zzz'])['status'] ?? null, 'unknown status stays custom');
     aliasEquals('zzz', $convStatus($clicks['zzz'])['original_status'] ?? null, 'unknown status keeps original wording');
+
+    // 5. Filter compatibility over real HTTP: the same conversion feeds three
+    //    chips at once — the internal status, a pre-1.5.11 'custom' chip, and
+    //    the network's own word — while an unrelated chip still gets nothing.
+    $conv = 'alias-compat-' . bin2hex(random_bytes(6));
+    $pdo->exec("INSERT INTO clicks (id, campaign_id, offer_id, ip, user_agent, country_code)
+        VALUES ('{$conv}', {$campaignId}, {$offerId}, '127.0.0.1', 'Test-Agent/1.0', 'US')");
+    foreach (['sale', 'custom', 'converted', 'lead'] as $chipFilter) {
+        $pdo->exec("INSERT INTO campaign_postbacks (campaign_id, url, method, statuses)
+            VALUES ({$campaignId}, 'https://example.com/f-{$chipFilter}?cid={subid}', 'GET', '{$chipFilter}')");
+    }
+    $resp = $harness->get("/{$postbackKey}/postback?subid={$conv}&status=converted&payout=7");
+    aliasEquals(200, $resp['code'], 'Converted postback returns 200');
+    aliasEquals('sale', $convStatus($conv)['status'] ?? null, 'converted aliases to sale');
+    foreach (['sale', 'custom', 'converted'] as $chipFilter) {
+        $count = (int) $pdo->query("SELECT COUNT(*) FROM s2s_postbacks_log WHERE url LIKE '%/f-{$chipFilter}?%' AND url LIKE '%{$conv}%'")->fetchColumn();
+        aliasEquals(1, $count, "'{$chipFilter}' chip queued the aliased conversion");
+    }
+    $count = (int) $pdo->query("SELECT COUNT(*) FROM s2s_postbacks_log WHERE url LIKE '%/f-lead?%' AND url LIKE '%{$conv}%'")->fetchColumn();
+    aliasEquals(0, $count, "'lead' chip still rejects the aliased conversion");
+
+    // 6. An explicit {$type}_status parameter mapping the word to the same
+    //    target is NOT the builtin alias: before v1.5.11 such a word already
+    //    recorded as sale, so a 'custom' chip never received it and must not
+    //    start receiving it now. Only the alias path feeds the compat chip.
+    $param = 'alias-param-' . bin2hex(random_bytes(6));
+    $pdo->exec("INSERT INTO clicks (id, campaign_id, offer_id, ip, user_agent, country_code)
+        VALUES ('{$param}', {$campaignId}, {$offerId}, '127.0.0.1', 'Test-Agent/1.0', 'US')");
+    $resp = $harness->get("/{$postbackKey}/postback?subid={$param}&status=confirmed&payout=7&sale_status=confirmed");
+    aliasEquals(200, $resp['code'], 'Param-mapped postback returns 200');
+    aliasEquals('sale', $convStatus($param)['status'] ?? null, 'sale_status parameter maps confirmed to sale');
+    $count = (int) $pdo->query("SELECT COUNT(*) FROM s2s_postbacks_log WHERE url LIKE '%/f-custom?%' AND url LIKE '%{$param}%'")->fetchColumn();
+    aliasEquals(0, $count, "'custom' chip does not adopt a param-mapped word");
+    $count = (int) $pdo->query("SELECT COUNT(*) FROM s2s_postbacks_log WHERE url LIKE '%/f-sale?%' AND url LIKE '%{$param}%'")->fetchColumn();
+    aliasEquals(1, $count, "'sale' chip still receives the param-mapped word via internal match");
 } finally {
     $harness->stop();
 }

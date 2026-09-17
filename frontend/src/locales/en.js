@@ -662,6 +662,9 @@ export default {
         "pb": {
             "insertMacro": "Insert macro",
             "sourceHint": "The source \"{name}\" accepts an S2S postback that this campaign does not use yet — add it so conversions reach the source",
+            "backfillBtn": "Re-send missed ({hours} h)",
+            "backfillHint": "if S2S went silent after an update — queues conversions that never made it to the send queue",
+            "backfillDone": "{queued} sends queued (conversions scanned: {scanned}, already sent: {existing}, filtered out: {filtered}) — the worker delivers them within a minute",
             "addSource": "Add the source S2S",
             "customStatus": "custom status…"
         },
@@ -680,6 +683,9 @@ export default {
             "workerDead": "Queue worker is not answering — S2S will not leave. Cron and diagnosis: Settings → Automation",
             "workerNever": "Queue worker has never pinged — install the cron in Settings → Automation",
             "macrosLeft": "not substituted in the URL: {list} — make sure traffic arrives with these parameters (the macros ship to the source as literal text)",
+            "placeholdersLeft": "template placeholders left in the URL: {list} — replace them with real values from the source account",
+            "filterViaOriginal": "the postback passed the filter by the network's own word «{word}» — enabling the «{status}» chip in this postback's statuses is more reliable",
+            "filterViaAlias": "the postback passed via the custom chip — before 1.5.11 «{word}» was recorded as custom; enable the «{status}» chip so the setup stops relying on compatibility",
         },
         "statuses": "Statuses",
         "yourNotes": "Your notes...",

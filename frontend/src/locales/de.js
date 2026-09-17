@@ -662,6 +662,9 @@ export default {
         "pb": {
             "insertMacro": "Makro einfügen",
             "sourceHint": "Die Quelle „{name}“ nimmt einen S2S-Postback an, den diese Kampagne noch nicht nutzt — fügen Sie ihn hinzu, damit Konversionen die Quelle erreichen",
+            "backfillBtn": "Versäumte nachsenden ({hours} h)",
+            "backfillHint": "falls S2S nach einem Update schwieg — stellt Konversionen in die Warteschlange, die nie versendet wurden",
+            "backfillDone": "{queued} Sendungen in die Warteschlange gestellt (geprüfte Konversionen: {scanned}, bereits gesendet: {existing}, herausgefiltert: {filtered}) — der Worker liefert sie innerhalb einer Minute",
             "addSource": "S2S der Quelle hinzufügen",
             "customStatus": "eigener Status…"
         },
@@ -680,6 +683,9 @@ export default {
             "workerDead": "Queue-Worker antwortet nicht — S2S werden nicht gesendet. Cron und Diagnose: Einstellungen → Automatisierung",
             "workerNever": "Queue-Worker hat sich noch nie gemeldet — Cron installieren unter Einstellungen → Automatisierung",
             "macrosLeft": "nicht in der URL ersetzt: {list} — stellen Sie sicher, dass der Traffic mit diesen Parametern ankommt (die Makros gehen als Text an die Quelle)",
+            "placeholdersLeft": "In der URL stecken noch Platzhalter der Vorlage: {list} — ersetzen Sie sie durch echte Werte aus dem Account der Quelle",
+            "filterViaOriginal": "der Postback bestand den Filter über das eigene Wort des Netzwerks „{word}“ — sicherer ist es, den Chip „{status}“ in den Statuswerten dieses Postbacks zu aktivieren",
+            "filterViaAlias": "der Postback lief über den custom-Chip — vor 1.5.11 wurde „{word}“ als custom gespeichert; aktivieren Sie den Chip „{status}“, damit die Einstellung nicht von der Kompatibilität abhängt",
         },
         "statuses": "Status",
         "yourNotes": "Ihre Notizen...",

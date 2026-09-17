@@ -662,6 +662,9 @@ export default {
         "pb": {
             "insertMacro": "Insertar macro",
             "sourceHint": "La fuente «{name}» acepta un postback S2S que esta campaña aún no usa — añádelo para que las conversiones lleguen a la fuente",
+            "backfillBtn": "Reenviar lo perdido ({hours} h)",
+            "backfillHint": "si el S2S se quedó callado tras una actualización — pone en cola las conversiones que nunca llegaron a la cola de envío",
+            "backfillDone": "{queued} envíos puestos en cola (conversiones revisadas: {scanned}, ya enviadas: {existing}, filtradas: {filtered}) — el worker los entrega en un minuto",
             "addSource": "Añadir el S2S de la fuente",
             "customStatus": "estado propio…"
         },
@@ -680,6 +683,9 @@ export default {
             "workerDead": "El worker de cola no responde — los S2S no saldrán. Cron y diagnóstico: Ajustes → Automatización",
             "workerNever": "El worker de cola nunca ha respondido — instala el cron en Ajustes → Automatización",
             "macrosLeft": "sin sustituir en la URL: {list} — asegúrate de que el tráfico llegue con estos parámetros (los macros se envían a la fuente como texto)",
+            "placeholdersLeft": "quedaron marcadores de plantilla en la URL: {list} — sustitúyelos por valores reales de la cuenta de la fuente",
+            "filterViaOriginal": "el postback pasó el filtro por la palabra original de la red «{word}» — es más fiable activar el chip «{status}» en los estados de este postback",
+            "filterViaAlias": "el postback pasó por el chip custom — antes de 1.5.11 «{word}» se registraba como custom; activa el chip «{status}» para no depender de la compatibilidad",
         },
         "statuses": "Estados",
         "yourNotes": "Tus notas...",

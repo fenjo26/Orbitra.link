@@ -662,6 +662,9 @@ export default {
         "pb": {
             "insertMacro": "插入宏",
             "sourceHint": "来源「{name}」支持接收 S2S 回传，但本广告活动尚未使用——添加后转化即可回传给来源",
+            "backfillBtn": "补发漏掉的（{hours} 小时）",
+            "backfillHint": "如果更新后 S2S 一直没发出去 —— 把从未进入发送队列的转化重新排队",
+            "backfillDone": "已排队 {queued} 条发送（扫描转化：{scanned}，已发送过：{existing}，被过滤：{filtered}）—— worker 会在一分钟内发出",
             "addSource": "添加来源的 S2S",
             "customStatus": "自定义状态…"
         },
@@ -680,6 +683,9 @@ export default {
             "workerDead": "队列处理程序无响应——S2S 不会发出。定时任务与诊断：设置 → 自动化",
             "workerNever": "队列处理程序从未上报——请在 设置 → 自动化 安装定时任务",
             "macrosLeft": "URL 中未替换：{list} —— 请确保流量带有这些参数（宏会以原文形式发给来源）",
+            "placeholdersLeft": "URL 中还留着模板占位符：{list} —— 请替换为来源账户里的真实值",
+            "filterViaOriginal": "postback 靠网络原始词「{word}」通过了过滤器 —— 更稳妥的做法是在该 postback 的状态里启用「{status}」标签",
+            "filterViaAlias": "postback 通过 custom 标签匹配 —— 1.5.11 之前「{word}」记录为 custom；请启用「{status}」标签，让配置不再依赖兼容逻辑",
         },
         "statuses": "状态",
         "yourNotes": "你的笔记...",
