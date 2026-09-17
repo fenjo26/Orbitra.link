@@ -1,9 +1,9 @@
-# Orbitra v1.5.9 Tracker
+# Orbitra v1.5.10 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
-![PHP Version](https://img.shields.io/badge/PHP-8.0+-777BB4?logo=php)
+![PHP Version](https://img.shields.io/badge/PHP-8.1%2B_(8.4%2B_installed)-777BB4?logo=php)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
 ![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite)
 ![SQLite](https://img.shields.io/badge/SQLite-3-003B57?logo=sqlite)
@@ -11,26 +11,21 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.5.9
+## 🆕 What's New in v1.5.10
 
-Conversions API delivery is durable and the browser matching context reaches Meta (PR #16, thanks @lucasvaz013).
-
-### Added
-
-- 🔁 **Durable, idempotent conversion delivery** — the conversion, click counters, FX audit and the Meta/TikTok queue events commit in one short SQLite transaction with lock retries; a failed queue write rolls everything back and answers 500/503 instead of the old HTTP 200 after a silently lost CAPI event, and repeated postbacks reuse the original intent instead of duplicating it
-- 🎯 **Complete browser matching context** — full `fbclid`/`fbc`/`fbp` values (no 512-byte truncation), a fresh ad click overrides a stale `_fbc` cookie, late cookies are captured by the new `meta-matching.js` through a signed click-scoped endpoint, and an anonymous visitor identity is hashed once for Meta
-- 🧾 **Truthful event URLs** — `event_source_url` comes from the configured page, a JSON map keyed by the Meta event name, the new `{offer_url}` macro or an explicit postback parameter; the acquisition referrer is no longer substituted for the producer's checkout
-- ✅ **Confirmed delivery** — the queue worker requires Meta to confirm the full batch (`events_received`) and stops retrying permanent API errors; the PHP KClient forwards the visitor's real IP/User-Agent (its old `ua` parameter was never read) instead of the hosting server's
+Hotfix release: v1.5.9 broke every incoming postback on servers running PHP below 8.4 — update immediately if you installed v1.5.9.
 
 ### Fixed
 
-- 🛠 Migration 52 is additive (queue index + signing-key table), nothing replayed; note: postbacks are intentionally stricter now — senders must retry on 5xx; the pixel event URL hint mentions the new macros in all seven languages
+- 🩹 **Postbacks 500 on PHP 8.1–8.3 (v1.5.9 regression, all distro installs)** — the new conversion transaction opens with a raw `BEGIN IMMEDIATE`, which PDO::SQLite before 8.4 cannot see through `inTransaction()` (php bug #81227, fixed only in PHP 8.4), so the rollback guards rejected every write: the conversion rolled back, networks retried each second, the system log filled with `postback.php database error`. A new `orbitraPostbackTransactionActive()` helper asks SQLite itself on older PHP (a `BEGIN DEFERRED` probe) and keeps `inTransaction()` on 8.4+; the whole postback/CAPI suite now passes on PHP 8.3 and 8.5
+- 🚚 **Installer provisions a current PHP** — `install.sh` installs PHP 8.5 (fallback 8.4) from ondrej/php / packages.sury.org with a distro fallback, points the `php` CLI alternative at it and hard-fails below PHP 8.1; re-running it on an existing server upgrades PHP in place (nginx socket and FPM pool regenerate); the in-panel update warns with an upgrade path while the server is below 8.4 (see "Обновление PHP" in `docs/deployment.md`)
+- 🕒 **Queue health timestamps in UTC** — the worker's ping was written in server-local time but parsed as UTC, so a dead cron looked alive for hours on non-UTC servers; the S2S log now also shows `next_retry_at` in the panel timezone instead of three hours behind
 
-### Previous Highlights (v1.5.8)
+### Previous Highlights (v1.5.9)
 
-- 🌗 **Code editor contrast restored (PR #14)** — the shared code editor keeps a fixed dark surface; a dedicated `.code-editor-textarea` class in `index.css` keeps its dark canvas in every theme without touching ordinary form fields
+- 🔁 **Durable CAPI delivery + browser matching context (PR #16)** — conversion, click counters, FX audit and Meta/TikTok queue events commit in one short SQLite transaction; repeated postbacks reuse the original intent; complete `fbclid`/`fbc`/`fbp` reach Meta; truthful `event_source_url` (configure the real event page when upgrading); confirmed delivery with `events_received`
 
-Older releases (v1.5.7 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.5.8 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo
@@ -59,7 +54,7 @@ wget says why.
 
 The installer automatically:
 - Downloads the source code from GitHub
-- Installs Nginx, PHP 8.0+ (FPM), SQLite3 and Node.js 20
+- Installs Nginx, a current PHP (8.5, fallback 8.4) with FPM, SQLite3 and Node.js 20
 - Builds and deploys the React/Vite frontend
 - Configures a Let's Encrypt SSL certificate for your domain
 
@@ -85,7 +80,7 @@ Orbitra is deliberately lightweight — it runs on plain **PHP + SQLite** behind
 
 > ✅ **Field-tested:** Orbitra runs well on a **2 vCPU / 2 GB RAM / 20 GB SSD** VPS (Ubuntu 24.04) for low traffic — a comfortable, inexpensive starting point. The higher rows above are headroom for heavier traffic, not a hard requirement.
 
-**Software (installed automatically by `install.sh`):** Nginx, PHP 8.0+ with FPM (`php-sqlite3`, `php-curl`, `php-mbstring`, `php-xml`, `php-zip`), SQLite 3, Node.js 20 (build only), Certbot for SSL.
+**Software (installed automatically by `install.sh`):** Nginx, PHP 8.4/8.5 with FPM from ondrej/php or packages.sury.org (distro PHP 8.1+ as a fallback; `php-sqlite3`, `php-curl`, `php-mbstring`, `php-xml`, `php-zip`), SQLite 3, Node.js 20 (build only), Certbot for SSL.
 
 > 💡 **Why lower than Keitaro?** Keitaro stores clicks in ClickHouse + Redis + MySQL, so its RAM requirements scale steeply (up to 64 GB for millions of clicks/day). Orbitra keeps everything in a single SQLite file, so RAM is not the bottleneck — disk I/O and SQLite's single-writer model are. SQLite (in WAL mode) handles low-to-mid volume comfortably; for sustained **millions of clicks per day** with heavy analytics, a columnar-DB tracker like Keitaro is architecturally a better fit.
 
@@ -510,7 +505,14 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 
 ## 📝 What's New
 
-### Current release — v1.5.9 (2026-09-17)
+### Current release — v1.5.10 (2026-09-17)
+
+**Fixed**
+- 🩹 **Every incoming postback answered 500 on PHP 8.1–8.3 (v1.5.9 regression)** — the conversion transaction opens with a raw `BEGIN IMMEDIATE`, which PDO::SQLite before 8.4 cannot see through `inTransaction()` (php bug #81227, fixed only in PHP 8.4), so the rollback guards rejected every write and networks retried each second; a new `orbitraPostbackTransactionActive()` helper asks SQLite itself on older PHP (a `BEGIN DEFERRED` probe) and keeps `inTransaction()` on 8.4+, and the automatic-rollback guards in the CAPI/attribution writers use it too; the postback/CAPI suite passes on PHP 8.3 and 8.5
+- 🚚 **Installer provisions a current PHP (8.5, fallback 8.4)** from ondrej/php / packages.sury.org with a distro fallback, a `php` CLI alternative switch and a PHP 8.1+ hard check; re-running `install.sh` upgrades an existing server in place; the in-panel update warns with an upgrade path while below 8.4 (docs/deployment.md, "Обновление PHP")
+- 🕒 **Queue health timestamps in UTC** — a dead cron no longer looks alive for hours on non-UTC servers (the ping was written server-local but parsed as UTC), and the S2S log shows `next_retry_at` in the panel timezone
+
+### Previous release — v1.5.9 (2026-09-17)
 
 **Added**
 - 🔁 **Durable, idempotent CAPI delivery (PR #16, thanks @lucasvaz013)** — conversion + click counters + FX audit + Meta/TikTok queue events commit in one short SQLite transaction with lock retries; a failed queue write rolls the unit back and answers 500/503 instead of acknowledging an event that was never queued; repeated postbacks reuse the original intent (per conversion, pixel, event name and event ID)
@@ -518,12 +520,7 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 - 🧾 **Truthful event URLs** — configured page, JSON map keyed by the Meta event name, `{offer_url}` from the click's own offer, or an explicit `event_source_url` in the postback; the referrer fallback is gone (configure the real event page when upgrading)
 - ✅ **Confirmed delivery + diagnostics** — success requires HTTP 2xx + valid JSON without an API error + `events_received` matching the batch; permanent errors stop retrying; sanitized response summaries stored; KClient forwards the visitor's real IP/User-Agent (`ua` → `user_agent` fix)
 
-### Previous release — v1.5.8 (2026-09-12)
-
-**Fixed**
-- 🌗 **Code editor contrast restored (PR #14, thanks @lucasvaz013)** — the global form rule overrode the code textarea's transparent background in light themes (light text on light, contrast 1.00–1.14:1); the transparency now lives in a dedicated `.code-editor-textarea` class in `index.css`, next to the input rule it exempts; the editor stays intentionally dark in all themes, ordinary form fields untouched
-
-Previous releases — v1.5.7: 🎯 affiliate-network `offer_params` reach the destination at click time (PR #12), 🤖 Telegram connect fixed via one shared transport + fewer `db_locked` answers (PR #13); v1.5.6: 🏠 Namecheap Buy & Park fix — registration contacts with ID `0` + real prices (PR #10); v1.5.5: 🤝 partners block on Feedback & Support (Pay2.House, GroupBuySEO as logo tiles, seven locales); v1.5.4: 📱 PWA visit funnel (ordered screens: own + install-instructions + push card, per-screen statistics & tracking scripts, funnel-first constructor), 💱 postback payouts converted to the base currency (PR #9); v1.5.3: 🧩 extension overlay counts like the panel, 🧱 one safe-page predicate in `core/ReportMetrics.php`, 📊 honest safe-page hint + 👁 Visitors in the default preset; v1.5.2: 🎨 boot screen before the bundle parses, 🖥 Terminal & Aurora themes, 🗺 two-column login, 🤖 Telegram bot as a visual menu (pinned keyboard ×7 languages), 📸 Snapchat Ads template, 🖱 non-blocking update check, 📊 Profitability → Margin; v1.5.1: ⏱ time on LP for every visitor (visible seconds + scroll depth into the click, *LP bounce/scroll/measured visits* metrics, **Time on LP (bucket)** dimension), 🤖 Telegram polling mode (bare IP / plain HTTP / proxy, real Telegram errors on screen); 🎯 clicks = the offer funnel (pre-bound landing views count as visitors, CPV/EPV ÷ visitors), 📌 pinned identity columns, 🔗 CAPI `content_id` (PR #8), 🧱 versioned column-width storage; v1.5.0: 📱 PWA landings (store-style constructor, funnel beacons into the click, self-healing push subscription, direct domain→PWA binding), 🔔 Web Push on your own base (self-hosted VAPID keys, subscriber list + CSV, manual & event messages, cron-driven queue with retries and aging), 🖼 Content Gallery + shared MediaPicker (size contracts, cropping), 🔐 four crypto-layer defects in push delivery found by live device diagnostics; 🧩 `{subid}` on the landing→offer hop, service worker on bound domains, panel session lifetime, "database is locked" as a clean 503, silent `save_user` demotion; v1.4.1: 🐞 Affiliate Networks crash fix (issue #7), 🌍 System Status localization; v1.4.0: 📊 honest LP-funnel metrics (Real LP clicks / Real offer clicks / Real LP CTR), ⏱ landing→offer timing buckets, 🎚 "After the click" default for new landing streams, 🔐 roles enforced server-side + per-campaign scoping (issue #6); v1.3.11: 🏠 domain-root campaigns in production, 🔑 private postback key on install; v1.3.10: 📱 rotation rows as a placed grid below 640px, 🎨 campaign-name link parity on both surfaces; v1.3.9: 🔒 SSL chain verdicts + certificates-on-save, 🎯 LeadForge honest failures, 🛡️ scan protection, Domains rebuilt; v1.3.8: 🧹 stray ellipsis gone, centred values, checkbox column fixed, lint-zero tracker tables; v1.3.7: 🔀 full column reorder, ✂️ hard cell clipping, 🎯 centred headers.
+Previous releases — v1.5.8: 🌗 code editor contrast restored in light themes (PR #14, a dedicated `.code-editor-textarea` class keeps the editor's dark canvas in every theme); v1.5.7: 🎯 affiliate-network `offer_params` reach the destination at click time (PR #12), 🤖 Telegram connect fixed via one shared transport + fewer `db_locked` answers (PR #13); v1.5.6: 🏠 Namecheap Buy & Park fix — registration contacts with ID `0` + real prices (PR #10); v1.5.5: 🤝 partners block on Feedback & Support (Pay2.House, GroupBuySEO as logo tiles, seven locales); v1.5.4: 📱 PWA visit funnel (ordered screens: own + install-instructions + push card, per-screen statistics & tracking scripts, funnel-first constructor), 💱 postback payouts converted to the base currency (PR #9); v1.5.3: 🧩 extension overlay counts like the panel, 🧱 one safe-page predicate in `core/ReportMetrics.php`, 📊 honest safe-page hint + 👁 Visitors in the default preset; v1.5.2: 🎨 boot screen before the bundle parses, 🖥 Terminal & Aurora themes, 🗺 two-column login, 🤖 Telegram bot as a visual menu (pinned keyboard ×7 languages), 📸 Snapchat Ads template, 🖱 non-blocking update check, 📊 Profitability → Margin; v1.5.1: ⏱ time on LP for every visitor (visible seconds + scroll depth into the click, *LP bounce/scroll/measured visits* metrics, **Time on LP (bucket)** dimension), 🤖 Telegram polling mode (bare IP / plain HTTP / proxy, real Telegram errors on screen); 🎯 clicks = the offer funnel (pre-bound landing views count as visitors, CPV/EPV ÷ visitors), 📌 pinned identity columns, 🔗 CAPI `content_id` (PR #8), 🧱 versioned column-width storage; v1.5.0: 📱 PWA landings (store-style constructor, funnel beacons into the click, self-healing push subscription, direct domain→PWA binding), 🔔 Web Push on your own base (self-hosted VAPID keys, subscriber list + CSV, manual & event messages, cron-driven queue with retries and aging), 🖼 Content Gallery + shared MediaPicker (size contracts, cropping), 🔐 four crypto-layer defects in push delivery found by live device diagnostics; 🧩 `{subid}` on the landing→offer hop, service worker on bound domains, panel session lifetime, "database is locked" as a clean 503, silent `save_user` demotion; v1.4.1: 🐞 Affiliate Networks crash fix (issue #7), 🌍 System Status localization; v1.4.0: 📊 honest LP-funnel metrics (Real LP clicks / Real offer clicks / Real LP CTR), ⏱ landing→offer timing buckets, 🎚 "After the click" default for new landing streams, 🔐 roles enforced server-side + per-campaign scoping (issue #6); v1.3.11: 🏠 domain-root campaigns in production, 🔑 private postback key on install; v1.3.10: 📱 rotation rows as a placed grid below 640px, 🎨 campaign-name link parity on both surfaces; v1.3.9: 🔒 SSL chain verdicts + certificates-on-save, 🎯 LeadForge honest failures, 🛡️ scan protection, Domains rebuilt; v1.3.8: 🧹 stray ellipsis gone, centred values, checkbox column fixed, lint-zero tracker tables; v1.3.7: 🔀 full column reorder, ✂️ hard cell clipping, 🎯 centred headers.
 
 Full version history: [CHANGELOG.md](CHANGELOG.md).
 

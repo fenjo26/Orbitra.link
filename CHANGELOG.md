@@ -7,6 +7,53 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.5.10] — 2026-09-17
+
+### Fixed — v1.5.9 broke every incoming postback on PHP < 8.4
+
+- **Postbacks answered 500 on PHP 8.1–8.3.** v1.5.9 opens the conversion
+  write transaction with a raw `BEGIN IMMEDIATE`, but before PHP 8.4
+  PDO::SQLite cannot see a transaction started that way — `inTransaction()`
+  stays false for its whole life (php bug #81227, only fixed in PHP 8.4). The
+  new "transaction still alive" guards therefore rejected every write: the
+  conversion rolled back, the affiliate network received 500/503 and retried,
+  and the system log filled with `postback.php database error` once per
+  second. Ubuntu 22.04 / Debian 12 / Ubuntu 24.04 install PHP 8.1 / 8.2 / 8.3
+  by default, so every fresh v1.5.9 installation was affected (postbacks from
+  networks that do not retry were lost until this fix). A new
+  `orbitraPostbackTransactionActive()` helper asks SQLite itself on older PHP
+  — a `BEGIN DEFERRED` probe fails with "cannot start a transaction within a
+  transaction" exactly while a transaction is open, touching neither data nor
+  locks — and keeps using `inTransaction()` on 8.4+. The automatic-rollback
+  guards in `ConversionAttribution`, `FacebookConversions` and
+  `TikTokConversions` use it too: on PHP < 8.4 they were inert, so the
+  protection 7c19083 added is now version-independent. Pinned by
+  `tests/postback_transaction_state_test.php`; the whole postback/CAPI suite
+  passes on PHP 8.3 and 8.5.
+- **Installer provisions a current PHP.** `install.sh` now installs PHP 8.5
+  (falling back to 8.4) from ondrej/php on Ubuntu or packages.sury.org on
+  Debian — Debian 13's own 8.4 is picked up without the external repository —
+  and falls back to the distribution's packages when the repository cannot be
+  added (offline installs, restricted mirrors). The bare `php` CLI alternative
+  is pointed at the installed version (cron lines and Composer run plain
+  `php`), and a server stuck below PHP 8.1 fails with a clear message instead
+  of dying in Composer. Re-running `install.sh` on an existing server upgrades
+  PHP in place: the nginx FPM socket and the pool settings are regenerated.
+- **The in-panel update warns about an ageing interpreter.** `run_update`
+  appends a warning with the upgrade path (`sudo bash install.sh`, see the new
+  "Обновление PHP" section in `docs/deployment.md`) when the server runs PHP
+  below 8.4, and records it in the system log.
+- **Queue worker health timestamps are UTC.** The worker wrote its ping with
+  server-local `date()` while the dashboard's `worker_health` banner parsed it
+  as UTC, so on a non-UTC server a dead cron looked alive for hours (a
+  UTC+3 server masked it for three). The ping and `last_checked_at` are
+  written with `gmdate()` now, and the queue-settings reader parses them as
+  UTC too.
+- **S2S log shows `next_retry_at` in the panel timezone** — the logs API
+  shifted only `created_at` to the panel timezone, so on UTC+N panels the
+  "next attempt" column read N hours behind creation. Cosmetic; delivery was
+  never affected.
+
 ## [1.5.9] — 2026-09-17
 
 ### Added — durable CAPI delivery + browser matching context (PR #16, thanks @lucasvaz013)
