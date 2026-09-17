@@ -882,13 +882,33 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
     // Keitaro parity: switching the traffic source REPLACES the campaign's
     // parameter set with the parameters of the newly selected source.
+    // Keitaro behaviour: a traffic source can carry its own S2S postback
+    // (postback_url/postback_statuses). Picking such a source seeds the
+    // campaign's postbacks when the list is empty; when postbacks already
+    // exist, the S2S tab offers the source's URL instead of duplicating it —
+    // switching sources must never multiply rows.
+    const sourcePostbackFor = (source) => (source && source.postback_url
+        ? {
+            url: source.postback_url,
+            method: 'GET',
+            statuses: source.postback_statuses || 'lead,sale,rejected',
+        }
+        : null);
+
     const handleSourceChange = (sourceId) => {
         const source = sources.find(s => s.id == sourceId);
-        setFormData(prev => ({
-            ...prev,
-            source_id: sourceId,
-            parameters: source ? sourceToParameters(source) : {}
-        }));
+        setFormData(prev => {
+            const next = {
+                ...prev,
+                source_id: sourceId,
+                parameters: source ? sourceToParameters(source) : {}
+            };
+            const srcPb = sourcePostbackFor(source);
+            if (srcPb && (!prev.postbacks || prev.postbacks.length === 0)) {
+                next.postbacks = [srcPb];
+            }
+            return next;
+        });
     };
 
     // Called after a source created from the editor's "+" button is saved:
@@ -902,11 +922,18 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                 setSources(res.data.data);
                 const created = res.data.data.find(s => s.id == (saved?.id ?? -1));
                 if (created) {
-                    setFormData(prev => ({
-                        ...prev,
-                        source_id: String(created.id),
-                        parameters: sourceToParameters(created)
-                    }));
+                    setFormData(prev => {
+                        const next = {
+                            ...prev,
+                            source_id: String(created.id),
+                            parameters: sourceToParameters(created)
+                        };
+                        const srcPb = sourcePostbackFor(created);
+                        if (srcPb && (!prev.postbacks || prev.postbacks.length === 0)) {
+                            next.postbacks = [srcPb];
+                        }
+                        return next;
+                    });
                 }
             }
         } catch (err) {
@@ -3970,6 +3997,31 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                     {/* Postbacks Tab */}
                                     {activeTab === 'postbacks' && (
                                         <div className="space-y-4">
+                                            {/* The campaign's source has an S2S postback the campaign
+                                                does not use yet — one click adds it. Covers campaigns
+                                                created before the auto-seeding, without re-picking the
+                                                source. */}
+                                            {(() => {
+                                                const srcPb = sourcePostbackFor(activeSource);
+                                                const missing = srcPb
+                                                    && !(formData.postbacks || []).some(p => String(p.url || '').trim() === String(srcPb.url).trim());
+                                                if (!missing) return null;
+                                                return (
+                                                    <div className="rounded-2xl p-2.5 flex items-center gap-2 flex-wrap" style={{ backgroundColor: 'color-mix(in srgb, var(--color-primary) 8%, transparent)', border: '1px dashed color-mix(in srgb, var(--color-primary) 35%, transparent)' }}>
+                                                        <span className="text-xs flex-1 min-w-[200px]" style={{ color: 'var(--color-text-primary)' }}>
+                                                            {t('editor.pb.sourceHint', { name: activeSource?.name || '' })}
+                                                        </span>
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-primary text-xs flex items-center gap-1"
+                                                            onClick={() => setFormData({ ...formData, postbacks: [...(formData.postbacks || []), srcPb] })}
+                                                        >
+                                                            <Plus className="w-3.5 h-3.5" />
+                                                            {t('editor.pb.addSource')}
+                                                        </button>
+                                                    </div>
+                                                );
+                                            })()}
                                             {/* Fool-proof tester: real postback through the whole
                                                 pipeline, verdicts for every stage, throwaway rows. */}
                                             <div className="rounded-2xl p-3 space-y-2" style={{ border: '1px dashed var(--color-border)' }}>

@@ -661,6 +661,8 @@ export default {
         "addPostback": "+ Agregar devolución de datos",
         "pb": {
             "insertMacro": "Insertar macro",
+            "sourceHint": "La fuente «{name}» acepta un postback S2S que esta campaña aún no usa — añádelo para que las conversiones lleguen a la fuente",
+            "addSource": "Añadir el S2S de la fuente",
             "customStatus": "estado propio…"
         },
         "pbTest": {

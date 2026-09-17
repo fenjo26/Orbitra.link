@@ -661,6 +661,8 @@ export default {
         "addPostback": "+ Добавить Postback",
         "pb": {
             "insertMacro": "Вставить макрос",
+            "sourceHint": "Источник «{name}» умеет принимать S2S-постбек, но в кампании его нет — добавьте, чтобы конверсии уходили в источник",
+            "addSource": "Добавить S2S источника",
             "customStatus": "свой статус…"
         },
         "pbTest": {

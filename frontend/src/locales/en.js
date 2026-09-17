@@ -661,6 +661,8 @@ export default {
         "addPostback": "+ Add Postback",
         "pb": {
             "insertMacro": "Insert macro",
+            "sourceHint": "The source \"{name}\" accepts an S2S postback that this campaign does not use yet — add it so conversions reach the source",
+            "addSource": "Add the source S2S",
             "customStatus": "custom status…"
         },
         "pbTest": {

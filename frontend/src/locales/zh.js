@@ -661,6 +661,8 @@ export default {
         "addPostback": "+ 添加回发",
         "pb": {
             "insertMacro": "插入宏",
+            "sourceHint": "来源「{name}」支持接收 S2S 回传，但本广告活动尚未使用——添加后转化即可回传给来源",
+            "addSource": "添加来源的 S2S",
             "customStatus": "自定义状态…"
         },
         "pbTest": {

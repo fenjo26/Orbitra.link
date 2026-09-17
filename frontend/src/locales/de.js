@@ -661,6 +661,8 @@ export default {
         "addPostback": "+ Postback hinzufügen",
         "pb": {
             "insertMacro": "Makro einfügen",
+            "sourceHint": "Die Quelle „{name}“ nimmt einen S2S-Postback an, den diese Kampagne noch nicht nutzt — fügen Sie ihn hinzu, damit Konversionen die Quelle erreichen",
+            "addSource": "S2S der Quelle hinzufügen",
             "customStatus": "eigener Status…"
         },
         "pbTest": {
