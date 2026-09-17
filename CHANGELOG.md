@@ -7,6 +7,57 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.5.11] — 2026-09-17
+
+### Added — postbacks that explain themselves
+
+- **Built-in status aliases.** The most common network status words now map
+  out of the box: `approved`, `confirmed`, `accepted` and `converted` become
+  `sale`; `declined`, `refused`, `cancelled` and `canceled` become `rejected`.
+  They fire only as the last resort before `custom` — configured conversion
+  types (values, or a type literally named that way) and explicit
+  `{type}_status` parameters always win, so a deliberate mapping is never
+  overridden. Before this, a BIGO/Dr. Cash-style "approved" conversion landed
+  in `custom`: invisible in revenue counters and filtered out of campaign S2S
+  postbacks listening for sale/rejected.
+- **Postback tester in the campaign editor (S2S Postbacks tab).** One click
+  fires a real postback at this server with a throwaway click, then shows a
+  verdict for every stage a real conversion passes through: recording with
+  the mapped status, whether each configured S2S postback's statuses filter
+  admits that status, a live probe delivery to the target (HTTP code and
+  timing, same transport the worker uses), unresolved macros such as
+  `{external_id}` or `{sub_id_N}` that would ship to the source as literal
+  text — Keitaro's own #1 FAQ failure — and whether the queue worker is
+  alive (ping age, last error, cron installed). The throwaway click,
+  conversion and queue rows are deleted afterwards; the incoming/system log
+  entries stay as an audit trail. Admin-only; new system `postback_test`
+  action.
+- **S2S postbacks editor rebuilt for clarity.** Each postback is a card with
+  a segmented GET/POST control (no more dropdown), an "insert macro" menu
+  that drops `{subid}`, `{status}`, `{payout}`, `{sub_id_1..5}` and the other
+  macros at the caret position, and statuses as toggle chips — the built-in
+  sale/lead/rejected/registration/deposit/trash plus any custom status added
+  inline — instead of a raw comma-separated text field. The stored value
+  stays the same comma string the API has always used; this is presentation,
+  not a data migration.
+- **Update self-heals the queue worker cron.** After a successful in-panel
+  update, a missing queue-worker cron is installed automatically (same
+  idempotent routine the "Install cron" button uses, `postback_queue_enabled`
+  flipped on), and a worker that has not pinged in the last three minutes
+  reports its last error right in the update output. The cron's log path is
+  unified to `var/logs/postback_queue.log` — the panel used to create its own
+  `var/log`, leaving operators tailing the documented path with an empty file.
+
+### Fixed
+
+- **Postback tester verdicts read reality**: the self-postback commits
+  through a separate connection, so the verdicts (and the cleanup) go through
+  a dedicated fresh PDO handle instead of the request's snapshot-pinned one.
+- The S2S queue matches its rows to campaign postback configs by
+  `postback_id` rather than by searching the click id inside the substituted
+  URL — a postback whose URL carries `{external_id}` (substituted from `tid`)
+  instead of `{subid}` was reported as not queued.
+
 ## [1.5.10] — 2026-09-17
 
 ### Fixed — v1.5.9 broke every incoming postback on PHP < 8.4
