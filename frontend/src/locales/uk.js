@@ -2443,7 +2443,7 @@ export default {
         "sending": "Надсилання…",
         "syntheticClick": "(свіжого кліку з fbclid немає — використано синтетичний)",
         "eventSourceUrl": "URL події / сторінки подяки",
-        "eventSourceUrlHint": "Надсилається до Meta CAPI як event_source_url. Підтримує макроси {campaign_url}, {landing_url} і {clickid}."
+        "eventSourceUrlHint": "Надсилається до Meta CAPI як event_source_url. Підтримує макроси {campaign_url}, {landing_url}, {offer_url}, {clickid} або JSON-мапу за назвою події Meta."
     },
     "appConfig": {
         "title": "Конфігурація програми",

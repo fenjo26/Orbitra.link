@@ -2713,7 +2713,7 @@ export default {
         "sending": "Отправка…",
         "syntheticClick": "(свежего клика с fbclid нет — использован синтетический)",
         "eventSourceUrl": "URL события / Thank You Page",
-        "eventSourceUrlHint": "Отправляется в Meta CAPI как event_source_url. Поддерживает макросы {campaign_url}, {landing_url} и {clickid}."
+        "eventSourceUrlHint": "Отправляется в Meta CAPI как event_source_url. Поддерживает макросы {campaign_url}, {landing_url}, {offer_url}, {clickid} или JSON-карту по имени события Meta."
     },
     "appConfig": {
         "title": "App Config",

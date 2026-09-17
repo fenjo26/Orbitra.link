@@ -2443,7 +2443,7 @@ export default {
         "sending": "Wird gesendet…",
         "syntheticClick": "(kein aktueller Klick mit fbclid — ein synthetischer wurde verwendet)",
         "eventSourceUrl": "Event-URL / Thank-You-Page-URL",
-        "eventSourceUrlHint": "Wird als event_source_url an die Meta CAPI gesendet. Unterstützt {campaign_url}, {landing_url} und {clickid}."
+        "eventSourceUrlHint": "Wird als event_source_url an die Meta CAPI gesendet. Unterstützt {campaign_url}, {landing_url}, {offer_url}, {clickid} oder eine JSON-Map nach Meta-Ereignisname."
     },
     "appConfig": {
         "title": "App-Konfiguration",

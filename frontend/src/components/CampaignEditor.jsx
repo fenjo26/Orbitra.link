@@ -3252,7 +3252,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                         className="form-input font-mono text-sm"
                                                                     />
                                                                     <p style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
-                                                                        {t('pixels.eventSourceUrlHint', 'Sent to Meta CAPI as event_source_url. Supports {campaign_url}, {landing_url} and {clickid}.')}
+                                                                        {t('pixels.eventSourceUrlHint', 'Sent to Meta CAPI as event_source_url. Supports {campaign_url}, {landing_url}, {offer_url}, {clickid}, or a JSON map keyed by Meta event name.')}
                                                                     </p>
                                                                 </div>
 

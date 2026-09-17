@@ -2443,7 +2443,7 @@ export default {
         "sending": "发送中…",
         "syntheticClick": "（没有带 fbclid 的近期点击 — 已使用合成点击）",
         "eventSourceUrl": "事件 URL / 感谢页 URL",
-        "eventSourceUrlHint": "作为 event_source_url 发送到 Meta CAPI。支持 {campaign_url}、{landing_url} 和 {clickid}。"
+        "eventSourceUrlHint": "作为 event_source_url 发送到 Meta CAPI。支持 {campaign_url}、{landing_url}、{offer_url}、{clickid} 或按 Meta 事件名索引的 JSON 映射。"
     },
     "appConfig": {
         "title": "应用程序配置",
