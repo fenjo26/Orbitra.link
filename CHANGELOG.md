@@ -7,6 +7,27 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.5.12] — 2026-09-17
+
+### Added — the traffic source's S2S postback reaches the campaign
+
+- **Keitaro-style source S2S seeding.** Picking a traffic source that has a
+  `postback_url` now seeds the campaign's S2S Postbacks automatically when
+  the list is empty (URL, GET, and the source's own `postback_statuses`).
+  Campaigns configured earlier get a one-click hint at the top of the S2S
+  tab: "the source «X» accepts an S2S postback this campaign does not use
+  yet" with an add button — so an existing setup does not have to re-pick
+  its source. Switching sources never duplicates rows: with postbacks
+  already configured the hint appears instead of a silent insert, and it
+  disappears once the source's URL is present. Found in the field: a BIGO
+  customer configured everything except the campaign postback because the
+  panel never offered the source's URL.
+- Note for upgrades from ≤ 1.5.10: v1.5.11's status aliases record
+  `approved` as `sale` (it used to be `custom`), so a campaign S2S filter
+  tuned to `custom` stops matching — tick the `sale` chip in the campaign's
+  S2S Postbacks tab; the built-in postback tester shows the mismatch
+  immediately.
+
 ## [1.5.11] — 2026-09-17
 
 ### Added — postbacks that explain themselves
