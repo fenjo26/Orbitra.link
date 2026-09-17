@@ -7,6 +7,50 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.5.9] — 2026-09-17
+
+### Added — durable CAPI delivery + browser matching context (PR #16, thanks @lucasvaz013)
+
+- **Durable, idempotent conversion delivery.** The conversion, click counters,
+  the FX audit and the eligible Meta/TikTok queue events are now committed in
+  one short SQLite transaction with fresh-snapshot retries on lock contention.
+  A failed queue write rolls the whole unit back and the postback answers
+  500 (503 when locked) instead of the old HTTP 200 after a silently lost CAPI
+  event; CRM reconciliation, Telegram and outbound S2S preparation stay
+  outside the transaction. Repeated postbacks reuse the original queue intent
+  for the same conversion, pixel, event name and event ID.
+- **Browser matching context preserved.** `fbclid`/`fbc`/`fbp` are captured as
+  complete bounded values (no more truncation by the 512-byte tracking limit),
+  a fresh ad click overrides a stale `_fbc` cookie, and cookies created after
+  the first request are collected by `meta-matching.js` through a new signed,
+  click-scoped `POST /pixel.gif?action=matching` endpoint. An anonymous
+  `meta_external_id` is established at acquisition and hashed once for Meta;
+  `tracking.js`, `kclient.js` and the PHP KClient share the capture.
+- **Truthful event URLs.** `event_source_url` comes from the configured page,
+  a new JSON map keyed by the final Meta event name, the new `{offer_url}`
+  macro (resolved from the click's own offer) or an explicit `event_source_url`
+  in the postback. The old acquisition-referrer fallback is gone: a Facebook
+  referrer or the landing page is no longer presented as the producer's
+  checkout. Pixels without a usable URL keep sending the event and log a
+  configuration warning — configure the real event page when upgrading.
+- **Confirmed delivery.** The queue worker and the manual send share Meta
+  response validation: success requires HTTP 2xx, valid JSON without an API
+  error and `events_received` matching the full batch; permanent
+  authentication/validation errors stop retrying. Sanitized response
+  summaries (fbtrace_id, warnings) are stored for diagnostics.
+- **KClient fixes.** The PHP client forwards the visitor's real
+  IP/User-Agent/landing URL and browser cookies instead of the hosting
+  server's (the `ua` parameter it sent was never read by the Click API — now
+  sent as `user_agent`), and exposes `getExternalId()`/`matchingScript()` for
+  Pixel deduplication.
+- **Migration 52 (additive):** an index on `s2s_postbacks_log(conversion_id)`
+  for per-conversion deduplication and an internal `meta_matching_keys` table
+  for the signing key. Nothing is replayed or rewritten; reverting needs no
+  down-migration. Note for operators: postback response semantics are
+  intentionally stricter — senders must retry on 5xx.
+- **Editor hint:** the pixel event URL hint now mentions `{offer_url}` and the
+  JSON event map (all seven locales).
+
 ## [1.5.8] — 2026-09-12
 
 ### Fixed — code editor contrast in light themes (PR #14, thanks @lucasvaz013)
