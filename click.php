@@ -359,7 +359,7 @@ $clickId = clickGenerateUuid();
 // import and Conversions API silently skip every click that came in this way.
 // (ClickParams.php is already required and $_GET healed at the top of the file,
 // before campaign routing — see the orbitraHealQueryString call there.)
-$clickParams = orbitraCollectClickParams($pdo, array_merge($_GET, $_POST), $_COOKIE, $campaign['source_id'] ?? null);
+$clickParams = orbitraCollectClickParams($pdo, array_merge($_GET, $_POST), $_COOKIE, $campaign['source_id'] ?? null, true, (int) $campaignId);
 $parametersJson = json_encode($clickParams, JSON_UNESCAPED_UNICODE);
 
 // Check stats_enabled setting
@@ -620,7 +620,9 @@ if ($statsEnabled && !$isDebounced && !$skipClickOnPrefetch && !$skipClickLoggin
     $clickRow = orbitraBuildClickRow($clickCtx);
 
     // Persist click using shared module
-    orbitraPersistClick($pdo, $clickRow);
+    if (orbitraPersistClick($pdo, $clickRow)) {
+        orbitraMetaRememberBrowserClick($pdo, $clickId, $clickParams);
+    }
 
     // Honesty flags for the report metrics — same helper the router uses.
     require_once __DIR__ . '/core/ClickFlags.php';
@@ -730,14 +732,14 @@ if ($shouldRedirect) {
         // No URL to redirect — return click_id
         header('Content-Type: application/json');
         header('Access-Control-Allow-Origin: *');
-        echo json_encode(['status' => 'ok', 'click_id' => $clickId]);
+        echo json_encode(['status' => 'ok', 'click_id' => $clickId, 'matching' => orbitraMetaMatchingConfig($pdo, $clickId)]);
     }
 }
 else {
     // redirect=0 — just log the click and return JSON
     header('Content-Type: application/json');
     header('Access-Control-Allow-Origin: *');
-    echo json_encode(['status' => 'ok', 'click_id' => $clickId]);
+    echo json_encode(['status' => 'ok', 'click_id' => $clickId, 'matching' => orbitraMetaMatchingConfig($pdo, $clickId)]);
 }
 } // end try
 catch (\Throwable $e) {

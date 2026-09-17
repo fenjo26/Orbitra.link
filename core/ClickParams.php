@@ -14,6 +14,8 @@
 // Meta browser cookies (_fbp / _fbc), which is what server-side Conversions API
 // deduplication and attribution need. See core/FacebookConversions.php.
 
+require_once __DIR__ . '/MetaMatching.php';
+
 if (!function_exists('orbitraClickParamKeys')) {
 
     /**
@@ -197,7 +199,7 @@ if (!function_exists('orbitraClickParamKeys')) {
      * @param array $cookies   $_COOKIE
      * @param mixed $sourceId  campaigns.source_id, or null
      */
-    function orbitraCollectClickParams(PDO $pdo, array $incoming, array $cookies = [], $sourceId = null): array
+    function orbitraCollectClickParams(PDO $pdo, array $incoming, array $cookies = [], $sourceId = null, bool $browserContext = true, int $campaignId = 0): array
     {
         $maxValueLength = 512;
         $maxKeys = 120;
@@ -206,6 +208,11 @@ if (!function_exists('orbitraClickParamKeys')) {
 
         $store = function (string $key, $value) use (&$params, $maxValueLength, $maxKeys) {
             if (count($params) >= $maxKeys || $key === '') {
+                return;
+            }
+            // Meta opaque identifiers are validated separately, never truncated
+            // or supplied through an unrelated traffic-source alias.
+            if (in_array($key, ['fbclid', 'fbc', 'fbp', 'meta_external_id', 'landing_page_url', 'meta_matching'], true)) {
                 return;
             }
             if (is_array($value)) {
@@ -231,6 +238,9 @@ if (!function_exists('orbitraClickParamKeys')) {
         // template mapping wins when both name the same alias.
         foreach (orbitraSourceParamAliases($pdo, $sourceId) as $param => $alias) {
             if (isset($incoming[$param])) {
+                if (in_array($alias, ['fbclid', 'fbc', 'fbp'], true)) {
+                    $incoming[$alias] = $incoming[$param];
+                }
                 $store($alias, $incoming[$param]);
             }
         }
@@ -240,19 +250,7 @@ if (!function_exists('orbitraClickParamKeys')) {
             $params['sub_id_1'] = $params['subid'];
         }
 
-        // Meta browser cookies. _fbp identifies the browser, _fbc the ad click;
-        // both raise Conversions API event match quality noticeably, and neither
-        // can be recovered later — they only exist on the request that carried them.
-        if (!empty($cookies['_fbp'])) {
-            $store('fbp', $cookies['_fbp']);
-        }
-        if (!empty($cookies['_fbc'])) {
-            $store('fbc', $cookies['_fbc']);
-        } elseif (!empty($params['fbclid'])) {
-            // Meta's documented construction when the cookie is absent:
-            // fb.<subdomain-index>.<creation-time-ms>.<fbclid>
-            $store('fbc', 'fb.1.' . (int) round(microtime(true) * 1000) . '.' . $params['fbclid']);
-        }
+        $params = array_merge($params, orbitraMetaCapture($pdo, $incoming, $cookies, $browserContext, $campaignId));
 
         return $params;
     }

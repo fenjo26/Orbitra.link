@@ -223,8 +223,8 @@ check('country hashed as 2-letter code', $event['user_data']['country'][0] === h
 check('payout becomes custom_data value', abs($event['custom_data']['value'] - 42.5) < 0.001 && $event['custom_data']['currency'] === 'USD');
 check('test_event_code forwarded', ($payload['test_event_code'] ?? null) === 'TEST123');
 check('no raw PII left in the payload', !str_contains(json_encode($payload), 'john.doe@example.com'));
-check('unconfigured pixel falls back to the click referer',
-    ($event['event_source_url'] ?? null) === 'https://lp.example/a');
+check('acquisition referer is not misrepresented as the conversion page',
+    !isset($event['event_source_url']));
 
 // event_source_url: the operator-configured thank-you page URL wins, macros
 // resolve against the converting click, and a macro that resolves empty drops
@@ -240,7 +240,7 @@ $payloadLanding = FacebookConversions::buildPayload($pixel + ['event_source_url'
     'event_name' => 'Purchase', 'event_time' => 1700000000, 'event_id' => 'e2',
     'click_params' => [], 'extra' => [], 'landing_url' => 'https://lp.example.com/offer',
 ]);
-check('{landing_url} resolves from ctx over the referer',
+check('explicit {landing_url} macro resolves from actual landing context',
     ($payloadLanding['data'][0]['event_source_url'] ?? '') === 'https://lp.example.com/offer/thankyou');
 
 $payloadBroken = FacebookConversions::buildPayload($pixel + ['event_source_url' => '{campaign_url}/thanks'], $clickRow, [
@@ -317,6 +317,20 @@ check('TikTok event queued with its server-side access-token header',
 check('TikTok token never appears in the URL or payload',
     !str_contains((string) $tikTokRow['url'], 'tt-secret-token')
     && !str_contains((string) $tikTokRow['payload_json'], 'tt-secret-token'));
+
+// A malformed source value must not become an empty, acknowledged queue body.
+foreach (['FacebookConversions' => $pixel, 'TikTokConversions' => $tikTokPixel] as $provider => $configuration) {
+    $before = (int) $pdo->query('SELECT COUNT(*) FROM s2s_postbacks_log')->fetchColumn();
+    $badClick = array_replace($clickRow, ['user_agent' => "invalid-utf8-\xFF"]);
+    $threw = false;
+    try {
+        $provider::enqueue($pdo, $configuration, $badClick, ['status' => 'sale', 'event_id' => 'bad-encoding'], 999);
+    } catch (JsonException $e) {
+        $threw = true;
+    }
+    check($provider . ' rejects unencodable payload without a queue row', $threw
+        && (int) $pdo->query('SELECT COUNT(*) FROM s2s_postbacks_log')->fetchColumn() === $before);
+}
 
 // ---- Summary ---------------------------------------------------------------
 

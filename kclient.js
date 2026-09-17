@@ -63,6 +63,11 @@
         });
         if (document.referrer) { params.push('se_referrer=' + encodeURIComponent(document.referrer)); }
         if (document.title) { params.push('keyword=' + encodeURIComponent(document.title)); }
+        var matching = window.OrbitraMatching ? window.OrbitraMatching.getContext()
+            : (window.orbitra_meta_matching === false ? { meta_matching: '0' } : {});
+        Object.keys(matching).forEach(function (key) {
+            params.push(encodeURIComponent(key) + '=' + encodeURIComponent(matching[key]));
+        });
         return params.join('&');
     }
 
@@ -146,6 +151,10 @@
         state.done = true;
         var info = decoded.info || {};
         state.info = info;
+        if (info.matching && window.OrbitraMatching) {
+            info.matching.endpoint = base + '/pixel.gif?action=matching';
+            window.OrbitraMatching.start(info.matching);
+        }
         if (info.sub_id) {
             state.subid = String(info.sub_id);
             cookie('orbitra_subid', state.subid, 86400);
@@ -175,6 +184,7 @@
     window.KClient = {
         getSubid: function () { return state.subid; },
         getInfo: function () { return state.info; },
+        getExternalId: function () { return window.OrbitraMatching ? window.OrbitraMatching.getExternalId() : null; },
         ready: function (cb) {
             if (state.done || state.subid) { cb(state.subid, token); }
             else { (window.KClient._cbs = window.KClient._cbs || []).push(cb); }
@@ -260,7 +270,21 @@
         })();
     }
 
-    function boot() { try { initDwell(); } catch (e) {} try { request(); } catch (e) { /* never break the host page */ } }
+    function boot() {
+        try { initDwell(); } catch (e) {}
+        var settled = false;
+        function begin() {
+            if (settled) { return; }
+            settled = true;
+            try { request(); } catch (e) { /* never break the host page */ }
+        }
+        if (window.OrbitraMatching || window.orbitra_meta_matching === false) { begin(); return; }
+        var script = document.createElement('script');
+        script.src = base + '/meta-matching.js';
+        script.onload = script.onerror = begin;
+        (document.head || document.documentElement).appendChild(script);
+        setTimeout(begin, 2000);
+    }
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', boot);
     } else {

@@ -10,12 +10,13 @@
 // and _fbp cookie. Sending the event from here recovers the events the pixel loses.
 //
 // Delivery rides the existing S2S postback queue (s2s_postbacks_log) rather than
-// blocking the postback response: Meta occasionally answers slowly, and an affiliate
-// network that times out waiting for us will retry the postback and double-count.
+// blocking the postback response: Meta occasionally answers slowly. The incoming
+// postback transaction reuses an existing event intent when the network retries.
 //
-// Personally identifiable fields are SHA-256 hashed before they leave the server,
-// per Meta's requirements. Only the IP and user agent go in clear — Meta requires
-// those unhashed.
+// Personally identifiable fields are SHA-256 hashed before they leave the server.
+// IP, user agent and the opaque fbc/fbp identifiers must be sent unhashed.
+
+require_once __DIR__ . '/MetaCapiResponse.php';
 
 class FacebookConversions
 {
@@ -93,7 +94,7 @@ class FacebookConversions
      * @param array $click  clicks row (id, ip, user_agent, referer, country_code, region, city, zipcode)
      * @param array $ctx    event_name, event_id, event_time, payout, currency,
      *                      click_params (decoded parameters_json), extra ($_GET of the postback),
-     *                      campaign_url / landing_url / event_source_url (macro values for
+     *                      campaign_url / landing_url / offer_url / event_source_url (macro values for
      *                      the pixel's event_source_url, resolved by the caller)
      */
     public static function buildPayload(array $pixel, array $click, array $ctx): array
@@ -128,6 +129,15 @@ class FacebookConversions
             $userData['fbp'] = (string) $clickParams['fbp'];
         }
 
+        // This identity was established at acquisition and can be shared with
+        // the browser Pixel. The legacy external_id is often a traffic-source
+        // click ID, not a visitor ID. Never create/replace identity at postback.
+        $visitorId = $clickParams['meta_external_id'] ?? '';
+        if (is_string($visitorId) && $visitorId !== '' && strlen($visitorId) <= 512
+            && !preg_match('/[\x00-\x20\x7f]/', $visitorId)) {
+            $userData['external_id'] = [hash('sha256', $visitorId)];
+        }
+
         // Hashed identifiers. Postback-supplied PII (em/ph/fn/ln) takes priority over
         // anything stored on the click.
         $hashed = [
@@ -160,28 +170,44 @@ class FacebookConversions
         }
 
         // event_source_url — the browser-side URL Meta attributes the event to.
-        // The operator-configured thank-you/checkout page wins; its
-        // {campaign_url}/{landing_url}/{clickid} macros resolve against this
-        // click. Unconfigured pixels keep the old chain: explicit ctx value,
-        // then the click's referer. Anything that doesn't survive macro
-        // substitution as an absolute http(s) URL is dropped rather than sent
-        // as a broken literal.
-        $configuredUrl = trim((string) ($pixel['event_source_url'] ?? ''));
+        // The operator-configured thank-you/checkout page wins.
+        // A campaign may opt into a JSON object keyed by the final Meta event
+        // name; ordinary URL strings and existing macros remain compatible.
+        // Only an absent event key permits the explicit postback URL fallback.
+        // An empty/invalid configured value does not silently change pages.
+        // Otherwise only an explicitly supplied event URL is truthful:
+        // the acquisition referrer (often Facebook/Google) and the landing page
+        // do not identify a conversion that happened on the partner's checkout.
+        $configuredUrl = is_string($pixel['event_source_url'] ?? null)
+            ? trim($pixel['event_source_url']) : '';
+        $hasConfiguredUrl = $configuredUrl !== '';
+        $eventUrls = json_decode($configuredUrl);
+        if ($eventUrls instanceof \stdClass) {
+            $eventUrls = get_object_vars($eventUrls);
+            $hasConfiguredUrl = array_key_exists($event['event_name'], $eventUrls);
+            $configuredUrl = $hasConfiguredUrl && is_string($eventUrls[$event['event_name']])
+                ? trim($eventUrls[$event['event_name']]) : '';
+        }
         if ($configuredUrl !== '') {
-            $landingUrl = trim((string) ($ctx['landing_url'] ?? ''));
-            if ($landingUrl === '') {
-                $landingUrl = trim((string) ($click['referer'] ?? ''));
+            $landingUrl = $ctx['landing_url'] ?? $clickParams['landing_page_url'] ?? '';
+            $landingUrl = is_string($landingUrl) ? $landingUrl : '';
+            $offerUrl = is_string($ctx['offer_url'] ?? null) ? $ctx['offer_url'] : '';
+            // A required offer macro cannot turn into a different valid URL
+            // merely because its missing/invalid value was replaced with ''.
+            if (str_contains($configuredUrl, '{offer_url}') && self::eventSourceUrl($offerUrl) === '') {
+                $configuredUrl = '';
             }
             $configuredUrl = str_replace(
-                ['{campaign_url}', '{landing_url}', '{clickid}'],
-                [(string) ($ctx['campaign_url'] ?? ''), $landingUrl, (string) ($click['id'] ?? '')],
+                ['{campaign_url}', '{landing_url}', '{offer_url}', '{clickid}'],
+                [(string) ($ctx['campaign_url'] ?? ''), $landingUrl, $offerUrl, (string) ($click['id'] ?? '')],
                 $configuredUrl
             );
         }
-        $sourceUrl = $configuredUrl !== ''
+        $sourceUrl = $hasConfiguredUrl
             ? $configuredUrl
-            : (string) ($ctx['event_source_url'] ?? $click['referer'] ?? '');
-        if ($sourceUrl !== '' && preg_match('#^https?://#i', $sourceUrl)) {
+            : ($ctx['event_source_url'] ?? $extra['event_source_url'] ?? '');
+        $sourceUrl = self::eventSourceUrl($sourceUrl);
+        if ($sourceUrl !== '') {
             $event['event_source_url'] = $sourceUrl;
         }
 
@@ -250,6 +276,25 @@ class FacebookConversions
         $ctx['event_name'] = $event;
         $payload = self::buildPayload($pixel, $click, $ctx);
 
+        // Do not silently substitute a different page for required website
+        // context. Keep the durable delivery intent and expose the integration
+        // issue; the partner/operator must supply the real conversion URL.
+        if (empty($payload['data'][0]['event_source_url'])) {
+            $inTransaction = $pdo->inTransaction();
+            try {
+                $pdo->prepare('INSERT INTO system_logs (level, message, context) VALUES (?, ?, ?)')->execute([
+                    'WARNING',
+                    'Facebook CAPI: missing or invalid event_source_url. Configure the actual event page or supply event_source_url in the postback; acquisition referrers are not conversion URLs.',
+                    json_encode(['pixel_id' => (string) $pixel['pixel_id'], 'conversion_id' => $conversionId]),
+                ]);
+            } catch (\Throwable $e) {
+                if ($inTransaction && !$pdo->inTransaction()) {
+                    throw $e; // Do not enqueue in autocommit after SQLite rolled back.
+                }
+                // Diagnostics do not replace or prevent the durable queue write.
+            }
+        }
+
         $stmt = $pdo->prepare("
             INSERT INTO s2s_postbacks_log
                 (conversion_id, url, method, status, attempts, next_retry_at, postback_id,
@@ -259,7 +304,7 @@ class FacebookConversions
         $stmt->execute([
             $conversionId,
             self::endpoint($pixel),
-            json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
             trim((string) ($pixel['proxy_url'] ?? '')) ?: null,
         ]);
 
@@ -276,6 +321,7 @@ class FacebookConversions
      */
     private static function logSkippedStatus(PDO $pdo, array $pixel, string $status, ?int $conversionId): void
     {
+        $inTransaction = $pdo->inTransaction();
         try {
             $needle = strtolower(trim($status));
             if ($needle === '') {
@@ -306,6 +352,9 @@ class FacebookConversions
                 ], JSON_UNESCAPED_UNICODE),
             ]);
         } catch (\Throwable $e) {
+            if ($inTransaction && !$pdo->inTransaction()) {
+                throw $e;
+            }
             // Logging must never break delivery.
         }
     }
@@ -344,27 +393,10 @@ class FacebookConversions
         $curlErr = curl_error($ch);
         curl_close($ch);
 
-        if ($curlErr !== '') {
-            return ['success' => false, 'message' => 'Transport error: ' . $curlErr, 'response' => null];
-        }
-
-        $decoded = is_string($response) ? json_decode($response, true) : null;
-
-        if ($code >= 200 && $code < 300) {
-            $received = $decoded['events_received'] ?? 0;
-            return [
-                'success' => true,
-                'message' => "Meta accepted the event (events_received: $received).",
-                'response' => is_array($decoded) ? $decoded : null,
-            ];
-        }
-
-        $message = $decoded['error']['message'] ?? ('HTTP ' . $code);
-        if (!empty($decoded['error']['error_user_msg'])) {
-            $message .= ' — ' . $decoded['error']['error_user_msg'];
-        }
-
-        return ['success' => false, 'message' => $message, 'response' => is_array($decoded) ? $decoded : null];
+        $result = MetaCapiResponse::evaluate($code, $response, $curlErr,
+            is_array($payload['data'] ?? null) ? count($payload['data']) : 0,
+            ['url' => self::endpoint($pixel), 'payload' => $payload, 'proxy_url' => $proxy]);
+        return ['success' => $result['success'], 'message' => $result['message'], 'response' => $result['response']];
     }
 
     /** @param resource|\CurlHandle $ch */
@@ -392,6 +424,22 @@ class FacebookConversions
 
     // ---- Normalisation. Meta hashes must be computed over normalised values,
     // otherwise the hash simply never matches anything on their side. ----
+
+    private static function eventSourceUrl($value): string
+    {
+        if (!is_string($value) || $value === '' || strlen($value) > 8192
+            || preg_match('/[\x00-\x20\x7f{}]/', $value)) {
+            return '';
+        }
+        $parts = parse_url($value);
+        if (!is_array($parts) || empty($parts['host'])
+            || !in_array(strtolower($parts['scheme'] ?? ''), ['http', 'https'], true)
+            || isset($parts['user']) || isset($parts['pass'])
+            || filter_var($value, FILTER_VALIDATE_URL) === false) {
+            return '';
+        }
+        return $value;
+    }
 
     private static function normalizeEmail($value): string
     {

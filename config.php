@@ -87,7 +87,7 @@ try {
     // subscriber base; 44 = media library (docs/media-core-v1.md); 43 = PWA
     // landings. All migration blocks are additive — whoever adds the next one
     // bumps this and appends below, re-reading the file first (parallel-session rule).
-    $LATEST_SCHEMA_VERSION = 51;
+    $LATEST_SCHEMA_VERSION = 52;
 
     $schemaVersion = 0;
     try {
@@ -2651,6 +2651,21 @@ try {
                             ON pwa_screen_views(click_id, screen)");
                 $pdo->exec("CREATE INDEX IF NOT EXISTS idx_pwa_screen_views_landing
                             ON pwa_screen_views(landing_id, screen, created_at)");
+            }
+
+            if ($schemaVersion < 52) {
+                // Migration 52: CAPI idempotency checks run inside the short
+                // conversion write transaction. Restrict the lookup to this
+                // conversion instead of scanning the historical delivery log.
+                // No backfill or replay: existing rows and statuses stay intact.
+                $pdo->exec("CREATE INDEX IF NOT EXISTS idx_s2s_postbacks_conversion
+                            ON s2s_postbacks_log(conversion_id)");
+                // Keep the browser-update signing key out of the public settings
+                // API, including read-only API keys. Created lazily by matching.
+                $pdo->exec("CREATE TABLE IF NOT EXISTS meta_matching_keys (
+                    id INTEGER PRIMARY KEY CHECK (id = 1),
+                    secret TEXT NOT NULL
+                )");
             }
 
             // Mark schema as up-to-date. This must be last.

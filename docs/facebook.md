@@ -42,10 +42,11 @@ Rules that matter:
   them as `sub_id_N` and tell the cost connection where they landed — see
   [Traffic through an app](#traffic-through-an-app).
 
-Orbitra captures these on every click through `core/ClickParams.php`, which is
-shared by the redirect path (`index.php`) and the Click API (`click.php`). It also
-captures `fbclid` and the `_fbp` / `_fbc` cookies automatically — you never declare
-those yourself.
+Orbitra captures these through the shared `core/ClickParams.php` collector.
+It captures `fbclid` and available `_fbp` / `_fbc` values; browser tracking also
+collects cookies created after the initial request. Ad URL macros do **not**
+create an `fbp` browser identifier. See [browser matching](#browser-matching-and-consent)
+for external landings, consent and cross-channel identity.
 
 ---
 
@@ -200,6 +201,7 @@ its own **Integrations** tab → **Facebook Pixel** — the same record):
 | Status → Meta event | which tracker status produces which Meta event |
 | Test event code | optional, from Events Manager → *Test events* |
 | Proxy | optional, same format as the cost connection |
+| Event source URL | actual page where the event happens; required by Meta for website events |
 
 A pixel row **without** a token stays browser-only — the list marks it *Browser
 pixel only* rather than showing it as a working integration. Nothing is sent
@@ -227,21 +229,134 @@ with an `fbclid` when there is one. Check it under Events Manager → *Test even
 ```
 event_name          from the mapping
 event_time          when the postback arrived
-event_id            <click_id>_<status>[_<tid>]   ← deduplicates against the browser pixel
+event_id            <click_id>_<status>[_<tid>]   ← reuse as browser eventID if sending both channels
 action_source       website
-event_source_url    the click's referer, when it is a URL
+event_source_url    configured event URL, or actual URL supplied with the postback
 user_data
   client_ip_address the click's IP            (unhashed — Meta requires this)
   client_user_agent the click's user agent    (unhashed — Meta requires this)
   fbc               from _fbc, or rebuilt from fbclid
   fbp               from the _fbp cookie
+  external_id       SHA-256 of the visitor's captured meta_external_id
   em, ph, fn, ln    SHA-256, from the postback
   ct, st, zp, country SHA-256, from the click's geo
 custom_data
   value, currency   from the postback payout
 ```
 
-Everything except IP and user agent is hashed before it leaves the server.
+IP, user agent, `fbc` and `fbp` are sent unhashed. Personal matching fields and
+the visitor's Meta external ID are hashed. The legacy `external_id` tracking
+parameter remains unchanged: for other traffic sources it can mean an ad click,
+so it is not automatically reused as a Meta visitor identity.
+
+### The event URL is not the acquisition referrer
+
+Configure the real checkout/thank-you URL on the integration, or have the partner
+include an URL-encoded `event_source_url` in the postback. An explicit configured
+URL wins. The configured macros `{campaign_url}`, `{landing_url}` and `{clickid}`
+remain available, but use them only when they describe the page of this event.
+`{landing_url}` uses captured landing context (or the saved landing URL), never
+the click's Facebook/Google acquisition referrer.
+
+For events that happen on different pages, the campaign's **Event source URL**
+text field also accepts an advanced JSON map keyed by the final Meta event name:
+
+```json
+{"InitiateCheckout":"{campaign_url}","Purchase":"{offer_url}"}
+```
+
+This is an explicit configuration, not a default inference about your funnel.
+Use this example only when checkout initiation happens on the campaign page
+and the purchase is completed at the selected offer's URL. A missing map key
+allows an explicit URL from the integration; a present but empty/invalid entry
+does not substitute another page. URL selection never disables the event itself.
+Plain URL settings and existing macros retain their behavior.
+
+`{offer_url}` resolves the persisted click's selected offer through the existing
+offer/network parameter and click-macro rules. It does not pick the first offer
+in a campaign, follow redirects or discover a third party's confirmation page.
+It uses the offer configuration at postback time, not a historical snapshot:
+keep it stable while conversions are pending, or leave that event unconfigured
+and supply its actual URL through the integration instead. Do not use it when
+the offer redirects to a different page where the event occurs.
+
+This advanced map is a campaign-level setting; the Pixel Vault's URL field still
+accepts a plain URL. Saving a linked central profile overwrites campaign URL
+overrides under the existing profile-sync behavior, so review those overrides
+after profile edits. The manual test endpoint does not supply campaign/offer
+macro context; use an explicit real URL for a representative manual test rather
+than expecting it to discover a checkout.
+
+Orbitra does not infer a producer's checkout URL from your landing page. If no
+valid URL is known, it logs a configuration warning and omits the field, retaining
+the queued intent and Meta's delivery result. **Before upgrading**, integrations
+that relied on the old referrer fallback need a real event URL: Meta requires it
+for website events and may reject requests without it. Do not substitute a page
+the visitor never used. Browser `reportConversion()` includes the current page;
+a supplied `event_source_url` can override that when the integration knows better.
+
+### Browser matching and consent
+
+The native landing/offer path and the current `tracking.js`, `kclient.js` and PHP
+KClient support the shared `meta-matching.js` collector. It preserves opaque
+cookie values, including Parameter Builder suffixes. A new `fbclid` replaces a
+stale `fbc`; repeated observations of the same click preserve its timestamp.
+Identifiers are not shortened to the general 512-byte tracking-parameter limit.
+
+New matching cookies/identity are limited to visits with an active Facebook
+campaign pixel, existing `fbclid`/`fbc`/`fbp` context, or explicit `meta_matching=1`.
+Unrelated campaigns do not acquire Meta cookies merely by updating Orbitra.
+On an eligible saved browser visit, when cookies are enabled, the collector reuses `_fbp`
+or creates a first-party browser cookie once if absent. It also keeps an anonymous
+`orbitra_visitor` identity for 90 days. Neither is generated at conversion time.
+Cookie capture runs early and again after page load, on outbound interaction and
+page exit. A signed, click-scoped POST can update only `fbp`, `fbc` and the first
+observed landing URL, not the visitor identity, IP, User-Agent or conversion.
+These updates affect future payloads, not events already queued.
+
+External landings must update their copied client files too. PHP KClient forwards
+the visitor IP/User-Agent and browser cookies, not the hosting server's identity;
+place `echo $client->matchingScript();` early in the landing's `<head>` for late
+cookie capture (`timerScript()` also includes it). Keep trusted-proxy handling
+on the landing server configured correctly; do not trust arbitrary forwarded IPs.
+
+This is a focused implementation of Meta's documented parameter rules, **not**
+an installation of the official Parameter Builder SDK or all its optional
+browser-enrichment features. See Meta's [Parameter Builder guidance](https://developers.facebook.com/documentation/ads-commerce/conversions-api/parameter-builder-library)
+and [fbp/fbc specification](https://developers.facebook.com/documentation/ads-commerce/conversions-api/parameters/fbp-and-fbc).
+
+The collector is not a consent-management platform. Operators must gate tracking
+according to their consent policy. `use_cookies=0` disables the matching collector;
+`meta_matching=0` on an incoming visit disables it for that click. On external
+JavaScript integrations, set `window.orbitra_meta_matching = false` **before**
+loading the clients to opt out; PHP clients can use `->param('meta_matching', '0')`.
+Native HTML injection uses a deferred script: an inline consent flag set in the
+landing before deferred scripts run can disable browser collection. It cannot
+undo server-side capture/cookies already set in the HTTP response. Use the
+server-side controls before serving that visit when collection is not permitted.
+
+### Reusing the visitor ID in the browser Pixel
+
+The collector does not install or fire a Meta Pixel. In your existing, consented
+Pixel setup, pass the same raw identity before the first real browser event:
+
+```javascript
+const visitorId = window.OrbitraMatching?.getExternalId();
+if (visitorId) {
+    fbq('init', 'YOUR_PIXEL_ID', { external_id: visitorId });
+}
+// Your existing real Pixel events follow; do not initialize the same Pixel twice.
+```
+
+Use this after the client/collector is ready, including deferred loading on native
+landings. PHP integrations can obtain the same raw value using
+`$client->getExternalId()` (use `json_encode` when embedding it in JavaScript).
+Orbitra hashes it once for CAPI. Do not
+replace it with an order ID, hash it again, or create another ID in the postback.
+The existing click/subid relationship carries it through the affiliate conversion;
+email and phone are not needed to maintain that relationship. It still needs a
+real Pixel/CAPI association to help Meta matching; creating an ID alone cannot
+guarantee a match. [Meta external ID guidance](https://developers.facebook.com/documentation/ads-commerce/conversions-api/parameters/external-id).
 
 To send PII, include it in the incoming postback:
 
@@ -254,17 +369,46 @@ digits) *before* hashing — an unnormalised hash simply never matches.
 
 ### Delivery and retries
 
+The conversion, click totals and eligible CAPI intents commit in one short
+SQLite transaction. A queue-write failure rolls back that unit and returns an
+error (503 for exhausted lock contention), so the sender can retry. The browser
+conversion GIF preserves these server errors instead of masking them as HTTP 200.
+Notifications and outbound S2S preparation stay outside the write transaction.
+
+Repeated postbacks reuse the existing intent for the same conversion, pixel,
+event name and event ID, including failed/delivered rows. A different status/event
+or transaction ID can create a distinct event. Queue idempotency lasts while the
+original delivery row is retained; purging logs removes that local history.
+This is not automatic browser
+deduplication: the Pixel must use the same `eventID` and event name for the same
+action. Schema migration 52 adds an indexed lookup and an internal signing-key
+table; it does not recover or replay
+historical conversions.
+
 Events are queued in `s2s_postbacks_log` and delivered by
 `postback_queue_cron.php` with exponential backoff, the same worker that delivers
 outbound S2S postbacks. A slow response from Meta never delays the answer to the
-affiliate network's postback — which matters, because a network that times out
-will retry and double-count the conversion.
+affiliate network's postback. A sender that times out may retry; repeated intake
+reuses the existing CAPI intent rather than queueing the same event again.
 
 ```cron
 * * * * * php /var/www/orbitra/postback_queue_cron.php >> /var/log/orbitra_postback_queue.log 2>&1
 ```
 
-Delivery status, HTTP code and Meta's error text are visible in the S2S logs UI.
+Delivery status, HTTP code and sanitized failure details are visible in the S2S
+logs UI. The existing `response` column, also returned by the logs API, now stores
+bounded, sanitized `events_received`, warnings/messages and `fbtrace_id` when
+provided. It does not keep the arbitrary raw response body or echoed credentials.
+
+For Meta, `delivered` now requires HTTP 2xx, a JSON object without an API error,
+and `events_received` confirming the full request. Ambiguous responses and
+transient errors follow the existing bounded backoff; permanent authentication
+or validation errors fail without useless retries. The manual test button uses
+the same validation. Generic S2S and TikTok transport rules are unchanged.
+
+**Recorded**, **queued**, **confirmed by Meta**, and **attributed to an ad** are
+different stages. A confirmed API response is not proof of individual campaign
+attribution and does not guarantee immediate Ads Manager reporting.
 
 ### Troubleshooting
 
@@ -276,9 +420,12 @@ the attempt.
 **"Invalid parameter" from Meta** — usually the pixel ID and token belong to
 different assets, or the token was generated for a pixel you no longer own.
 
-**Events arrive but match quality is low** — the `_fbp` cookie is missing. It only
-exists if the browser pixel also fires on the landing page; server-side events
-alone carry `fbc` but not `fbp`.
+**Events arrive but match quality is low** — check captured `fbp`/`fbc`, the actual
+visitor IP/User-Agent, consent and whether the same external identity reaches
+the browser Pixel. Missing email/phone does not by itself mean an event is rejected.
+Cross-domain cookies cannot be read from another site's request: use the external
+landing client on that domain. On an immediate redirect without browser code,
+only already available identifiers can be captured.
 
 ---
 

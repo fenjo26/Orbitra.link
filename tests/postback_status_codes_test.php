@@ -1,7 +1,8 @@
 <?php
 /**
  * Postback status codes test — verifies that postback.php returns correct HTTP
- * status codes for various scenarios, and that the pixel path always returns 200.
+ * status codes for various scenarios. Pixel validation errors still return 200;
+ * server failures preserve 5xx (covered by postback_capi_delivery_test.php).
  *
  * This is a REAL HTTP test: it starts a PHP server, sends actual requests,
  * and asserts on status code, body, and headers.
@@ -170,7 +171,7 @@ try {
     // Test 9: Pixel with missing status should still return GIF (pixel contract)
     echo "\nTest 9: /pixel.gif with missing status should still return 200 GIF\n";
     $resp = $harness->get("/pixel.gif?action=conversion&subid={$clickId}&payout=5");
-    // Pixel should always return 200 with GIF, even on errors
+    // Validation errors keep the existing 200 GIF contract, unlike server errors.
     assertEquals(200, $resp['code'], 'Status code should be 200');
     assertContentType('image/gif', $resp['headers'], 'Content-Type should be image/gif');
     assertValidGif($resp['body'], 'Body should be a valid GIF');
@@ -190,7 +191,7 @@ try {
     assertNotContains('Stack trace', $resp['body'], 'Body should not contain stack trace');
 
     echo "\n✅ All postback status codes tests passed.\n";
-    echo "Status codes are correct and pixel.gif always returns 200 GIF.\n";
+    echo "Status codes are correct and pixel.gif validation errors return 200 GIF.\n";
 
 } catch (Throwable $e) {
     fwrite(STDERR, "\n❌ Test error: " . $e->getMessage() . "\n");

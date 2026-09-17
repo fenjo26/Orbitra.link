@@ -156,9 +156,9 @@ class TikTokConversions
         $stmt->execute([
             $conversionId,
             self::ENDPOINT,
-            json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
             trim((string) ($pixel['proxy_url'] ?? '')) ?: null,
-            json_encode(['Access-Token' => (string) $pixel['token']], JSON_UNESCAPED_SLASHES),
+            json_encode(['Access-Token' => (string) $pixel['token']], JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),
         ]);
         return true;
     }
@@ -169,6 +169,7 @@ class TikTokConversions
      */
     private static function logSkippedStatus(PDO $pdo, array $pixel, string $status, ?int $conversionId): void
     {
+        $inTransaction = $pdo->inTransaction();
         try {
             $needle = strtolower(trim($status));
             if ($needle === '') {
@@ -199,6 +200,9 @@ class TikTokConversions
                 ], JSON_UNESCAPED_UNICODE),
             ]);
         } catch (\Throwable $e) {
+            if ($inTransaction && !$pdo->inTransaction()) {
+                throw $e;
+            }
             // Logging must never break delivery.
         }
     }

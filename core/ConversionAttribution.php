@@ -37,11 +37,15 @@ if (!function_exists('orbitraConversionAttributionColumns')) {
         }
 
         $present = [];
+        $inTransaction = $pdo->inTransaction();
         try {
             foreach ($pdo->query("PRAGMA table_info(conversions)")->fetchAll(PDO::FETCH_ASSOC) as $col) {
                 $present[strtolower((string) ($col['name'] ?? ''))] = true;
             }
         } catch (\Throwable $e) {
+            if ($inTransaction && !$pdo->inTransaction()) {
+                throw $e;
+            }
             return $cache = [];
         }
 
@@ -136,7 +140,8 @@ if (!function_exists('orbitraConversionAttributionColumns')) {
      * days later must not silently rewrite what the conversion was attributed to
      * when it was created. $overwrite is for the repair paths.
      *
-     * Best effort by design — the caller has already accepted the money.
+     * Best effort unless the error rolled back a caller-owned transaction:
+     * swallowing that failure would allow later writes to run in autocommit.
      */
     function orbitraApplyConversionAttribution(PDO $pdo, int $conversionId, array $attr, bool $overwrite = false): bool
     {
@@ -170,10 +175,14 @@ if (!function_exists('orbitraConversionAttributionColumns')) {
         }
 
         $values[] = $conversionId;
+        $inTransaction = $pdo->inTransaction();
         try {
             $pdo->prepare("UPDATE conversions SET " . implode(', ', $set) . " WHERE id = ?")->execute($values);
             return true;
         } catch (\Throwable $e) {
+            if ($inTransaction && !$pdo->inTransaction()) {
+                throw $e;
+            }
             return false;
         }
     }
