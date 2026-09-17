@@ -1,4 +1,4 @@
-# Orbitra v1.5.12 Tracker
+# Orbitra v1.5.13 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,20 +11,22 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.5.12
+## 🆕 What's New in v1.5.13
 
-The traffic source's S2S postback now reaches the campaign, Keitaro-style.
+The S2S status filter survives updates again — plus a one-click repair for the conversions an update silently missed.
 
-### Added
+### Fixed
+
+- 🩹 **Filter compatibility** — the campaign S2S statuses filter matched its chips against the internal status only, so v1.5.11's aliases (`approved` → `sale`, was `custom`) silently stopped every filter tuned before them. One shared matcher now also admits the network's own word (`approved`) and the legacy `custom` chip, while an explicit `sale_status=...` parameter still cannot sneak into a `custom` chip — pre-1.5.11 setups keep delivering without touching anything (the `{status}` macro still carries the internal status)
+- 🔁 **Re-send missed (72 h)** — a button in the campaign editor's S2S Postbacks tab re-enqueues conversions that passed the current filter but never got a queue row while the filter was broken; idempotent, admin-triggered, same URL resolver as the live path
+- 🧪 **Tester explains compatibility** — every postback verdict says *why* it passed (internal / network word / legacy `custom` chip) and flags template placeholders (`bbg=xxx`, `[YOUR_...]`) that would ship to the source as literal values; source S2S seeding never offers a template URL with unfilled slots
+- 🌐 **Translations interpolate again** — `t()` substitutes `{key}`/`{{key}}` from the call's variables (18 callsites shipped literal `{from}`/`{name}` — the whole tester included); `check:i18n` now fails on a placeholder the code never passes
+
+### Previous Highlights (v1.5.12)
 
 - 🔗 **Source S2S seeding** — picking a source that has a postback URL seeds the campaign's S2S Postbacks automatically (when the list is empty); campaigns configured earlier get a one-click hint in the S2S tab that adds the source's postback with its own statuses; switching sources never duplicates rows
-- 🗺️ Upgrade note for ≤ 1.5.10 setups: v1.5.11 records `approved` as `sale` (was `custom`), so an S2S filter tuned to `custom` stops matching — tick the `sale` chip; the postback tester shows the mismatch immediately
 
-### Previous Highlights (v1.5.11)
-
-- 🧪 **Postbacks that explain themselves** — built-in status aliases (approved/confirmed/accepted/converted → sale, declined/refused/cancelled/canceled → rejected, always below your own mapping), a one-click postback tester in the campaign editor (real self-postback, statuses-filter verdicts, probe delivery, unresolved-macro detection, worker health), the rebuilt S2S editor (segmented GET/POST, caret macro insertion, status chips) and update self-healing for the queue worker cron
-
-Older releases (v1.5.10 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.5.11 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo

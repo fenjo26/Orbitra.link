@@ -7,6 +7,55 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.5.13] — 2026-09-17
+
+### Fixed — the S2S status filter no longer breaks on an update
+
+- **Filter compatibility for pre-1.5.11 setups.** The campaign S2S statuses
+  filter compared its chips against the internal status only, so v1.5.11's
+  aliases (`approved` → `sale`, was `custom`) silently stopped every filter
+  tuned before them — conversions kept recording but nothing queued for the
+  source (found in the field on a BIGO campaign). One shared matcher
+  (`orbitraStatusFilterMatch()`, core/PostbackMacros.php) now drives both the
+  live enqueue and the tester, and admits a conversion three ways: the
+  internal status (`sale`), the network's own word (`approved` — a chip typed
+  to match what the network sends), and the legacy `custom` chip for words the
+  built-in alias moved out of custom. `mapStatus()` reports through a
+  by-reference flag whether the built-in alias made the decision, so a word an
+  explicit `sale_status=...` parameter mapped the same way does **not** sneak
+  into a `custom` chip it never fed before v1.5.11 either.
+- **Note:** the `{status}` macro in a postback URL still carries the internal
+  status (`sale`) — not the network's original word.
+
+### Added — repair and diagnostics for the missed window
+
+- **Re-send missed conversions (campaign editor → S2S Postbacks).** A one-off
+  button re-enqueues conversions from the last 72 hours that pass the current
+  filter but never got a queue row — idempotent per (conversion, postback)
+  pair, so pressing it twice queues nothing the second time. Deliberately a
+  button, not a migration: it sends real requests to real networks, so an
+  admin decides when. The URL is built by the same shared resolver as the live
+  enqueue (macros, `{status:...}` transform, SSRF gate).
+- **Tester explains compatibility matches.** Each postback verdict now says
+  *why* it passed — `internal`, the network's own word, or the legacy
+  `custom` chip — and suggests ticking the internal chip when a compat rule is
+  what keeps the setup alive.
+- **Template-placeholder detection.** Source-template URLs with unfilled
+  slots (`bbg=xxx`, `event_id=[YOUR_AD_GROUP_CONVERSION_EVENT_ID]`,
+  `appKey=your-parameter`) are flagged on the queued URL, and the v1.5.12
+  source seeding never offers such a URL — neither the banner nor the
+  auto-fill will paste a template that ships garbage to the source.
+
+### Fixed — panel translations interpolate again
+
+- `t()` now substitutes `{key}`/`{{key}}` from the object a call passes (only
+  the passed keys; `null`/`undefined` collapse to an empty string instead of
+  rendering "undefined"). This un-breaks 18 callsites that shipped literal
+  `{from}`/`{filter}`/`{sec}`/`{name}` — the whole postback tester, the
+  v1.5.12 source hint, conversion-type mapping messages and cloak diagnostics.
+  `npm run check:i18n` grows a rule for it: a placeholder the code never
+  passes fails the check (it renders as literal `{x}`), a dropped value warns.
+
 ## [1.5.12] — 2026-09-17
 
 ### Added — the traffic source's S2S postback reaches the campaign

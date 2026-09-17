@@ -1,6 +1,6 @@
 {
-    "version": "1.5.12",
-    "release_notes": "The traffic source's S2S postback now reaches the campaign, Keitaro-style. Picking a source that has a postback URL seeds the campaign's S2S Postbacks automatically (when the list is empty); for campaigns configured earlier, the S2S tab shows a one-click hint that adds the source's postback with its own statuses - switching sources never duplicates rows. Together with v1.5.11's status aliases (approved -> sale out of the box) this closes the loop for networks like BIGO: if your campaign's S2S filter was tuned to the old 'custom' status, tick the sale chip in the campaign's S2S Postbacks tab - the built-in postback tester will confirm it instantly.",
+    "version": "1.5.13",
+    "release_notes": "The S2S status filter no longer breaks on update: it now also matches the network's own status word and honors pre-1.5.11 'custom' chips, so campaign postbacks configured before the status aliases keep delivering without touching anything. Conversions missed during the break can be re-queued with one button (campaign editor -> S2S Postbacks -> Re-send missed, last 72 hours). The postback tester explains compatibility matches and flags template placeholders (bbg=xxx, [YOUR_...]) that would ship to the source as literal values; source S2S seeding never offers a template URL with unfilled slots. Panel translations interpolate their variables again - the tester verdicts and the source hint render as real text instead of {from}/{name}. Note: the {status} macro in a postback URL always carries the internal status (sale), not the network's word.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-09-17"
 }
