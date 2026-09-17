@@ -24,6 +24,141 @@ import ProxyInput from './common/ProxyInput';
 import PixelPicker from './common/PixelPicker';
 import Dialog from './common/Dialog';
 
+// S2S postback card: URL with macro insertion at the caret, segmented GET/POST
+// and statuses as toggle chips (known statuses plus any custom token already
+// in the value). The stored value stays the plain comma string the API has
+// always used — this is presentation, not a data migration.
+const PB_KNOWN_STATUSES = ['sale', 'lead', 'rejected', 'registration', 'deposit', 'trash'];
+const PB_MACROS = [
+    '{subid}', '{clickid}', '{click_id}', '{status}', '{payout}', '{conversion_revenue}',
+    '{currency}', '{external_id}', '{tid}', '{campaign_id}', '{offer_id}', '{cost}',
+    '{revenue}', '{profit}', '{sub_id_1}', '{sub_id_2}', '{sub_id_3}', '{sub_id_4}', '{sub_id_5}',
+];
+
+function pbStatusTokens(value) {
+    return String(value || '').split(',').map(s => s.trim()).filter(Boolean);
+}
+
+function PostbackCard({ pb, t, onChange, onRemove }) {
+    const urlRef = useRef(null);
+    const [customStatus, setCustomStatus] = useState('');
+    const tokens = pbStatusTokens(pb.statuses);
+    const hasToken = (token) => tokens.some(x => x.toLowerCase() === token.toLowerCase());
+    const knownPlusCustom = [...PB_KNOWN_STATUSES, ...tokens.filter(x => !PB_KNOWN_STATUSES.some(k => k.toLowerCase() === x.toLowerCase()))];
+
+    const toggleStatus = (token) => {
+        const next = hasToken(token)
+            ? tokens.filter(x => x.toLowerCase() !== token.toLowerCase())
+            : [...tokens, token];
+        onChange('statuses', next.join(','));
+    };
+
+    const addCustomStatus = () => {
+        const v = customStatus.trim().replace(/,+$/, '');
+        if (v && !hasToken(v)) {
+            onChange('statuses', [...tokens, v].join(','));
+        }
+        setCustomStatus('');
+    };
+
+    const insertMacro = (macro) => {
+        const el = urlRef.current;
+        const url = pb.url || '';
+        const pos = el && el.selectionStart !== null ? el.selectionStart : url.length;
+        onChange('url', url.slice(0, pos) + macro + url.slice(pos));
+        requestAnimationFrame(() => {
+            if (el) {
+                el.focus();
+                const p = pos + macro.length;
+                el.setSelectionRange(p, p);
+            }
+        });
+    };
+
+    return (
+        <div className="rounded-2xl p-3 space-y-2" style={{ border: '1px solid var(--color-border)' }}>
+            <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex rounded-xl overflow-hidden shrink-0" style={{ border: '1px solid var(--color-border)' }}>
+                    {['GET', 'POST'].map(m => (
+                        <button
+                            key={m}
+                            type="button"
+                            onClick={() => onChange('method', m)}
+                            className="px-3 py-1.5 text-xs font-semibold"
+                            style={{
+                                backgroundColor: (pb.method || 'GET').toUpperCase() === m ? 'var(--color-primary)' : 'transparent',
+                                color: (pb.method || 'GET').toUpperCase() === m ? 'var(--color-text-inverse)' : 'var(--color-text-muted)',
+                            }}
+                        >
+                            {m}
+                        </button>
+                    ))}
+                </div>
+                <select
+                    value=""
+                    onChange={e => { if (e.target.value) insertMacro(e.target.value); }}
+                    className="form-select text-xs"
+                    style={{ width: 'auto' }}
+                    title={t('editor.pb.insertMacro')}
+                >
+                    <option value="">{t('editor.pb.insertMacro')}</option>
+                    {PB_MACROS.map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
+                <div className="flex-1" />
+                <button onClick={onRemove} className="action-btn text-red" title={t('common.delete')}>
+                    <Trash2 className="w-4 h-4" />
+                </button>
+            </div>
+            <input
+                ref={urlRef}
+                type="text"
+                value={pb.url}
+                onChange={e => onChange('url', e.target.value)}
+                placeholder="https://network.com/postback?subid={subid}&status={status}&payout={payout}"
+                className="form-input text-xs"
+                spellCheck="false"
+            />
+            <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-xs shrink-0" style={{ color: 'var(--color-text-muted)' }}>{t('editor.statuses')}:</span>
+                {knownPlusCustom.map(s => {
+                    const active = hasToken(s);
+                    return (
+                        <button
+                            key={s}
+                            type="button"
+                            onClick={() => toggleStatus(s)}
+                            className="px-2.5 py-1 rounded-full text-xs border transition-colors"
+                            style={active
+                                ? {
+                                    backgroundColor: 'color-mix(in srgb, var(--color-primary) 18%, transparent)',
+                                    borderColor: 'color-mix(in srgb, var(--color-primary) 45%, transparent)',
+                                    color: 'var(--color-text-primary)',
+                                }
+                                : {
+                                    backgroundColor: 'transparent',
+                                    borderColor: 'var(--color-border)',
+                                    color: 'var(--color-text-muted)',
+                                }}
+                        >
+                            {s}
+                        </button>
+                    );
+                })}
+                <input
+                    type="text"
+                    value={customStatus}
+                    onChange={e => setCustomStatus(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCustomStatus(); } }}
+                    onBlur={addCustomStatus}
+                    placeholder={t('editor.pb.customStatus')}
+                    className="form-input text-xs rounded-full"
+                    style={{ width: 130, padding: '0.25rem 0.75rem' }}
+                />
+            </div>
+        </div>
+    );
+}
+
 const CAMPAIGN_SUB_ID_KEYS = Array.from({ length: 30 }, (_, index) => `sub_id_${index + 1}`);
 
 // The one history entry the editor pushes per session so browser Back closes
@@ -1464,6 +1599,37 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     };
 
     // Postback management
+    const [pbTestWord, setPbTestWord] = useState('approved');
+    const [pbTestLoading, setPbTestLoading] = useState(false);
+    const [pbTestResult, setPbTestResult] = useState(null);
+    const [pbTestError, setPbTestError] = useState(null);
+
+    // One-click fool-proof probe of the whole incoming pipeline: fires a real
+    // postback at this server with a throwaway click, reports the status
+    // mapping, S2S enqueue, a probe delivery and worker health.
+    const runPostbackTest = async () => {
+        const campaignIdForTest = formData.id || campaignId;
+        if (!campaignIdForTest) return;
+        setPbTestLoading(true);
+        setPbTestError(null);
+        setPbTestResult(null);
+        try {
+            const res = await axios.post('/api.php?action=postback_test', {
+                campaign_id: campaignIdForTest,
+                status: (pbTestWord || 'approved').trim(),
+            });
+            if (res.data?.status === 'success') {
+                setPbTestResult(res.data.data);
+            } else {
+                setPbTestError(res.data?.message || t('common.error'));
+            }
+        } catch (e) {
+            setPbTestError(e.response?.data?.message || e.message);
+        } finally {
+            setPbTestLoading(false);
+        }
+    };
+
     const addPostback = () => {
         setFormData({
             ...formData,
@@ -3804,6 +3970,98 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                     {/* Postbacks Tab */}
                                     {activeTab === 'postbacks' && (
                                         <div className="space-y-4">
+                                            {/* Fool-proof tester: real postback through the whole
+                                                pipeline, verdicts for every stage, throwaway rows. */}
+                                            <div className="rounded-2xl p-3 space-y-2" style={{ border: '1px dashed var(--color-border)' }}>
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                    <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                                                        {t('editor.pbTest.title')}
+                                                    </span>
+                                                    <input
+                                                        type="text"
+                                                        value={pbTestWord}
+                                                        onChange={e => setPbTestWord(e.target.value)}
+                                                        placeholder="approved"
+                                                        className="form-input text-xs"
+                                                        style={{ width: 120 }}
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-primary text-xs flex items-center gap-1"
+                                                        disabled={pbTestLoading || !(formData.id || campaignId)}
+                                                        onClick={runPostbackTest}
+                                                    >
+                                                        <Play className="w-3.5 h-3.5" />
+                                                        {pbTestLoading ? t('common.loading') : t('editor.pbTest.run')}
+                                                    </button>
+                                                </div>
+                                                {!(formData.id || campaignId) && (
+                                                    <div className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{t('editor.pbTest.needSaved')}</div>
+                                                )}
+                                                {pbTestError && (
+                                                    <div className="alert alert-error text-xs">{pbTestError}</div>
+                                                )}
+                                                {pbTestResult && (
+                                                    <div className="space-y-1.5 text-xs">
+                                                        <div className="flex items-start gap-1.5">
+                                                            {pbTestResult.recorded?.ok
+                                                                ? <Check className="w-3.5 h-3.5 mt-0.5 shrink-0 text-emerald-500" />
+                                                                : <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0 text-red-500" />}
+                                                            <span style={{ color: 'var(--color-text-primary)' }}>
+                                                                {pbTestResult.recorded?.ok
+                                                                    ? (pbTestResult.recorded.internal_status === 'custom'
+                                                                        ? t('editor.pbTest.noMapping', { from: pbTestResult.status_word })
+                                                                        : t('editor.pbTest.recorded', { from: pbTestResult.status_word, to: pbTestResult.recorded.internal_status }))
+                                                                    : t('editor.pbTest.notRecorded', { code: pbTestResult.request?.http_code })}
+                                                                {pbTestResult.recorded?.ok && pbTestResult.recorded.result ? ` (${pbTestResult.recorded.result})` : ''}
+                                                            </span>
+                                                        </div>
+                                                        {!pbTestResult.recorded?.ok && (pbTestResult.logs?.length > 0) && (
+                                                            <div className="rounded-xl p-2 font-mono" style={{ backgroundColor: 'var(--color-bg-soft)', color: 'var(--color-text-muted)', fontSize: '10px', wordBreak: 'break-all' }}>
+                                                                {pbTestResult.logs.map((l, i) => <div key={i}>{l.level}: {l.message}</div>)}
+                                                            </div>
+                                                        )}
+                                                        {(pbTestResult.s2s || []).map((s, i) => (
+                                                            <div key={i} className="flex items-start gap-1.5">
+                                                                {s.queued
+                                                                    ? <Check className="w-3.5 h-3.5 mt-0.5 shrink-0 text-emerald-500" />
+                                                                    : <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0 text-amber-500" />}
+                                                                <span className="min-w-0" style={{ color: 'var(--color-text-primary)', wordBreak: 'break-all' }}>
+                                                                    {(s.url || '').slice(0, 70)}{(s.url || '').length > 70 ? '…' : ''} — {' '}
+                                                                    {s.queued
+                                                                        ? (s.probe
+                                                                            ? (s.probe.http_code >= 200 && s.probe.http_code < 400
+                                                                                ? t('editor.pbTest.probeOk', { code: s.probe.http_code, ms: s.probe.time_ms })
+                                                                                : t('editor.pbTest.probeFail', { err: s.probe.error || `HTTP ${s.probe.http_code}` }))
+                                                                            : t('editor.pbTest.queued'))
+                                                                        : t('editor.pbTest.filterMiss', { filter: s.statuses_filter, status: pbTestResult.recorded?.internal_status || pbTestResult.status_word })}
+                                                                </span>
+                                                            </div>
+                                                        ))}
+                                                        {(s => s && (
+                                                            <div className="flex items-start gap-1.5">
+                                                                <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0 text-amber-500" />
+                                                                <span style={{ color: 'var(--color-text-primary)' }}>
+                                                                    {t('editor.pbTest.macrosLeft', { list: s.unresolved_macros.join(', ') })}
+                                                                </span>
+                                                            </div>
+                                                        ))((pbTestResult.s2s || []).find(x => x.queued && x.unresolved_macros?.length))}
+                                                        <div className="flex items-start gap-1.5">
+                                                            {pbTestResult.worker?.healthy
+                                                                ? <Check className="w-3.5 h-3.5 mt-0.5 shrink-0 text-emerald-500" />
+                                                                : <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0 text-red-500" />}
+                                                            <span style={{ color: 'var(--color-text-primary)' }}>
+                                                                {pbTestResult.worker?.healthy
+                                                                    ? t('editor.pbTest.workerAlive', { sec: pbTestResult.worker.ping_age_seconds })
+                                                                    : (pbTestResult.worker?.ping_age_seconds !== null && pbTestResult.worker?.ping_age_seconds !== undefined
+                                                                        ? t('editor.pbTest.workerDead')
+                                                                        : t('editor.pbTest.workerNever'))}
+                                                                {pbTestResult.worker?.last_error ? ` — ${pbTestResult.worker.last_error}` : ''}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
                                             <button
                                                 onClick={addPostback}
                                                 className="w-full py-2 border-2 border-dashed rounded-2xl text-sm"
@@ -3812,36 +4070,13 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                 {t('editor.addPostback')}
                                             </button>
                                             {formData.postbacks.map((pb, idx) => (
-                                                <div key={idx} className="rounded-2xl p-3 space-y-2" style={{ border: '1px solid var(--color-border)' }}>
-                                                    <input
-                                                        type="text"
-                                                        value={pb.url}
-                                                        onChange={e => updatePostback(idx, 'url', e.target.value)}
-                                                        placeholder="URL"
-                                                        className="form-input text-xs"
-                                                    />
-                                                    <div className="flex gap-2">
-                                                        <select
-                                                            value={pb.method}
-                                                            onChange={e => updatePostback(idx, 'method', e.target.value)}
-                                                            className="form-select text-xs"
-                                                            style={{ width: 'auto' }}
-                                                        >
-                                                            <option value="GET">GET</option>
-                                                            <option value="POST">POST</option>
-                                                        </select>
-                                                        <input
-                                                            type="text"
-                                                            value={pb.statuses}
-                                                            onChange={e => updatePostback(idx, 'statuses', e.target.value)}
-                                                            placeholder={t('editor.statuses')}
-                                                            className="form-input text-xs"
-                                                        />
-                                                        <button onClick={() => removePostback(idx)} className="action-btn text-red">
-                                                            <Trash2 className="w-4 h-4" />
-                                                        </button>
-                                                    </div>
-                                                </div>
+                                                <PostbackCard
+                                                    key={idx}
+                                                    pb={pb}
+                                                    t={t}
+                                                    onChange={(field, value) => updatePostback(idx, field, value)}
+                                                    onRemove={() => removePostback(idx)}
+                                                />
                                             ))}
                                         </div>
                                     )}

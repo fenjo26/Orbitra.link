@@ -84,6 +84,87 @@ function orbitraRequestBody()
 }
 
 /**
+ * Install the per-minute queue-worker cron for the web user.
+ *
+ * Shared by the "Install cron" button (postback_queue_install_user_cron,
+ * $force = true: rewrite the block even when present, refreshing a stale
+ * path) and the post-update self-heal ($force = false: install only when
+ * missing — an update is the one moment an admin is guaranteed to watch,
+ * and without this cron every outbound S2S postback and CAPI event queues
+ * forever with only a dashboard banner to say so). $notes collects plain
+ * lines for the caller's output/log.
+ *
+ * @param string[] $notes
+ * @return array{ok:bool, already?:bool, line?:string, reason?:string}
+ */
+function orbitraEnsurePostbackQueueUserCron(PDO $pdo, array &$notes = [], bool $force = true): array
+{
+    $disableFunctions = (string) ini_get('disable_functions');
+    if (!function_exists('shell_exec') || stripos($disableFunctions, 'shell_exec') !== false) {
+        return ['ok' => false, 'reason' => 'shell_exec is disabled on this server'];
+    }
+    $crontabPath = trim((string) orbitraShell('command -v crontab 2>/dev/null'));
+    if ($crontabPath === '') {
+        return ['ok' => false, 'reason' => 'crontab command not found'];
+    }
+
+    $existing = (string) orbitraShell('crontab -l 2>/dev/null');
+    if (!$force && strpos($existing, '# ORBITRA_POSTBACK_QUEUE_BEGIN') !== false) {
+        return ['ok' => true, 'already' => true];
+    }
+
+    $scriptPath = realpath(__DIR__ . '/postback_queue_cron.php');
+    if (!is_string($scriptPath) || $scriptPath === '') {
+        $scriptPath = __DIR__ . '/postback_queue_cron.php';
+    }
+    // var/logs — the same directory install.sh and the other crons write to.
+    // This used to create a private var/log here, and operators tailing the
+    // documented path found an empty file.
+    $logDir = __DIR__ . '/var/logs';
+    if (!is_dir($logDir)) {
+        @mkdir($logDir, 0777, true);
+    }
+    $logPath = $logDir . '/postback_queue.log';
+
+    $phpPath = trim((string) orbitraShell('command -v php 2>/dev/null'));
+    if ($phpPath === '') {
+        $phpPath = 'php';
+    }
+
+    // Every minute: the backoff schedule is in seconds, so frequent runs keep
+    // delivery latency low without busy-waiting (due-query filters by next_retry_at).
+    $line = "* * * * * $phpPath " . escapeshellarg($scriptPath) . " >> " . escapeshellarg($logPath) . " 2>&1";
+    $block = "# ORBITRA_POSTBACK_QUEUE_BEGIN\n" . $line . "\n# ORBITRA_POSTBACK_QUEUE_END\n";
+
+    $new = trim((string) preg_replace("/\\n?# ORBITRA_POSTBACK_QUEUE_BEGIN[\\s\\S]*?# ORBITRA_POSTBACK_QUEUE_END\\n?/m", "\n", $existing));
+    if ($new !== '') {
+        $new .= "\n\n";
+    }
+    $new .= $block;
+
+    $tmp = @tempnam(sys_get_temp_dir(), 'orbitra_crontab_');
+    if (!is_string($tmp) || $tmp === '') {
+        return ['ok' => false, 'reason' => 'Failed to create temp file'];
+    }
+    @file_put_contents($tmp, $new);
+    $out = (string) orbitraShell('crontab ' . escapeshellarg($tmp) . ' 2>&1');
+    @unlink($tmp);
+    if (stripos($out, 'error') !== false) {
+        return ['ok' => false, 'reason' => trim($out) ?: 'crontab failed'];
+    }
+
+    // Flip the worker on so the just-installed cron actually delivers.
+    try {
+        $pdo->prepare("INSERT INTO settings (key, value, updated_at) VALUES ('postback_queue_enabled', '1', datetime('now')) ON CONFLICT(key) DO UPDATE SET value = '1', updated_at = datetime('now')")->execute();
+    } catch (\Throwable $e) {
+        // The cron line is in place; the worker would no-op without cron anyway.
+    }
+
+    $notes[] = '[Queue worker cron installed: ' . $line . ']';
+    return ['ok' => true, 'line' => $line];
+}
+
+/**
  * Public base URL of this panel, as Telegram would have to reach it.
  *
  * Not the same question as "what did the browser type": behind Cloudflare or
@@ -9431,7 +9512,7 @@ try {
                     'failed'    => (int) ($pqSettings['postback_queue_last_run_failed'] ?? 0),
                 ],
                 'counts'                 => $pqCounts,
-                'cron_line'              => '* * * * * php ' . $pqScript . ' >> ' . __DIR__ . '/var/log/postback_queue.log 2>&1',
+                'cron_line'              => '* * * * * php ' . $pqScript . ' >> ' . __DIR__ . '/var/logs/postback_queue.log 2>&1',
             ]]);
             break;
 
@@ -9445,65 +9526,14 @@ try {
                 break;
             }
 
-            $disableFunctions = (string) ini_get('disable_functions');
-            if (!function_exists('shell_exec') || (stripos($disableFunctions, 'shell_exec') !== false)) {
-                echo json_encode(['status' => 'error', 'message' => 'shell_exec is disabled on this server']);
+            $cronNotes = [];
+            $cron = orbitraEnsurePostbackQueueUserCron($pdo, $cronNotes, true);
+            if (!$cron['ok']) {
+                echo json_encode(['status' => 'error', 'message' => $cron['reason'] ?? 'crontab failed']);
                 break;
             }
 
-            $crontabPath = trim((string) orbitraShell('command -v crontab 2>/dev/null'));
-            if ($crontabPath === '') {
-                echo json_encode(['status' => 'error', 'message' => 'crontab command not found']);
-                break;
-            }
-
-            $scriptPath = realpath(__DIR__ . '/postback_queue_cron.php');
-            if (!is_string($scriptPath) || $scriptPath === '') {
-                $scriptPath = __DIR__ . '/postback_queue_cron.php';
-            }
-            $logDir = __DIR__ . '/var/log';
-            if (!is_dir($logDir)) {
-                @mkdir($logDir, 0777, true);
-            }
-            $logPath = $logDir . '/postback_queue.log';
-
-            $phpPath = trim((string) orbitraShell('command -v php 2>/dev/null'));
-            if ($phpPath === '') {
-                $phpPath = 'php';
-            }
-
-            // Every minute: the backoff schedule is in seconds, so frequent runs keep
-            // delivery latency low without busy-waiting (due-query filters by next_retry_at).
-            $line = "* * * * * $phpPath " . escapeshellarg($scriptPath) . " >> " . escapeshellarg($logPath) . " 2>&1";
-            $block = "# ORBITRA_POSTBACK_QUEUE_BEGIN\n" . $line . "\n# ORBITRA_POSTBACK_QUEUE_END\n";
-
-            $existing = (string) orbitraShell('crontab -l 2>/dev/null');
-            $new = preg_replace("/\\n?# ORBITRA_POSTBACK_QUEUE_BEGIN[\\s\\S]*?# ORBITRA_POSTBACK_QUEUE_END\\n?/m", "\n", $existing);
-            $new = trim((string) $new);
-            if ($new !== '') {
-                $new .= "\n\n";
-            }
-            $new .= $block;
-
-            $tmp = @tempnam(sys_get_temp_dir(), 'orbitra_crontab_');
-            if (!is_string($tmp) || $tmp === '') {
-                echo json_encode(['status' => 'error', 'message' => 'Failed to create temp file']);
-                break;
-            }
-            @file_put_contents($tmp, $new);
-            $out = (string) orbitraShell('crontab ' . escapeshellarg($tmp) . ' 2>&1');
-            @unlink($tmp);
-
-            if (stripos($out, 'error') !== false) {
-                echo json_encode(['status' => 'error', 'message' => trim($out) ?: 'crontab failed']);
-                break;
-            }
-
-            // Flip the worker on so the just-installed cron actually delivers.
-            $stmt = $pdo->prepare("INSERT INTO settings (key, value, updated_at) VALUES ('postback_queue_enabled', '1', datetime('now')) ON CONFLICT(key) DO UPDATE SET value = '1', updated_at = datetime('now')");
-            $stmt->execute();
-
-            echo json_encode(['status' => 'success', 'data' => ['line' => $line]]);
+            echo json_encode(['status' => 'success', 'data' => ['line' => $cron['line'] ?? '']]);
             break;
 
         case 'postback_queue_remove_user_cron':
@@ -9547,6 +9577,246 @@ try {
             }
 
             echo json_encode(['status' => 'success', 'data' => ['deleted' => 1]]);
+            break;
+
+        case 'postback_test':
+            // Fool-proof incoming-postback probe for one campaign. Creates a
+            // throwaway click, fires a real postback at THIS server exactly the
+            // way a network would, then reports every stage a real conversion
+            // passes through — recording, status mapping, S2S enqueue, one
+            // probe delivery per configured postback, worker health — and
+            // deletes the throwaway rows afterwards. The incoming/system log
+            // entries stay as an audit trail; they reference the pbtest- click
+            // id and are invisible in reports once the click is deleted.
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+            if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+
+            $input = json_decode((string) orbitraRequestBody(), true);
+            if (!is_array($input)) {
+                $input = $_POST;
+            }
+            $testCampaignId = (int) ($input['campaign_id'] ?? 0);
+            $testStatusWord = trim((string) ($input['status'] ?? 'approved'));
+            $probeDelivery = ($input['probe_delivery'] ?? true) !== false;
+            if ($testCampaignId <= 0 || $testStatusWord === '') {
+                echo json_encode(['status' => 'error', 'message' => 'campaign_id and status are required']);
+                break;
+            }
+
+            $camp = $pdo->prepare("SELECT id, name FROM campaigns WHERE id = ? AND is_archived = 0");
+            $camp->execute([$testCampaignId]);
+            if (!$camp->fetch()) {
+                echo json_encode(['status' => 'error', 'message' => 'Campaign not found']);
+                break;
+            }
+
+            $testClickId = 'pbtest-' . bin2hex(random_bytes(8));
+            $testTid = 'pbtest-' . bin2hex(random_bytes(4));
+            $systemLogIdBefore = (int) $pdo->query("SELECT COALESCE(MAX(id), 0) FROM system_logs")->fetchColumn();
+
+            try {
+                $pdo->prepare("
+                    INSERT INTO clicks (id, campaign_id, ip, user_agent, country_code, parameters_json, created_at)
+                    VALUES (?, ?, '127.0.0.1', 'Orbitra-Postback-Tester/1.0', 'US', ?, datetime('now'))
+                ")->execute([$testClickId, $testCampaignId, json_encode(['postback_test' => true])]);
+
+                // Fire the real request at this server, exactly as a network
+                // would: no session, no internal state, plain HTTP.
+                $base = orbitraPublicBaseUrl();
+                $selfUrl = $base['url'] . '/postback.php?subid=' . urlencode($testClickId)
+                    . '&status=' . urlencode($testStatusWord)
+                    . '&payout=1.11&currency=USD&tid=' . urlencode($testTid);
+                $ch = curl_init($selfUrl);
+                curl_setopt_array($ch, [
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_TIMEOUT => 15,
+                    CURLOPT_CONNECTTIMEOUT => 5,
+                    CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+                    CURLOPT_FOLLOWLOCATION => false,
+                    CURLOPT_SSL_VERIFYPEER => false, // self-signed panel IPs
+                    CURLOPT_SSL_VERIFYHOST => 0,
+                ]);
+                $t0 = microtime(true);
+                $respBody = curl_exec($ch);
+                $respCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $respErr = curl_error($ch);
+                curl_close($ch);
+                $respMs = (int) round((microtime(true) - $t0) * 1000);
+
+                // The self-call committed through a different connection, and
+                // this request's own PDO may still be pinned to the WAL
+                // snapshot from before it (a long-lived reader does not see
+                // newer commits). Verdicts must read reality, so they go
+                // through a dedicated fresh connection.
+                $freshPdo = new PDO('sqlite:' . $db_file, null, null, [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                ]);
+
+                // What the server actually did with it.
+                $inLog = null;
+                $stmt = $freshPdo->prepare("SELECT result, error, matched, status, original_status FROM incoming_postbacks_log WHERE click_id = ? ORDER BY id DESC LIMIT 1");
+                $stmt->execute([$testClickId]);
+                $inLog = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+                $stmt->closeCursor();
+
+                $conversion = null;
+                $stmt = $freshPdo->prepare("SELECT id, status, original_status, payout, currency FROM conversions WHERE click_id = ? ORDER BY id DESC LIMIT 1");
+                $stmt->execute([$testClickId]);
+                $conversion = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+                $stmt->closeCursor();
+
+                $internalStatus = $conversion['status'] ?? null;
+
+                // Every configured S2S postback: did the status filter match,
+                // was a queue row created, and does the target actually answer?
+                $s2sResults = [];
+                $pbStmt = $freshPdo->prepare("SELECT id, url, method, statuses FROM campaign_postbacks WHERE campaign_id = ? ORDER BY id");
+                $pbStmt->execute([$testCampaignId]);
+                $postbackConfigs = $pbStmt->fetchAll(PDO::FETCH_ASSOC);
+                $pbStmt->closeCursor();
+
+                $queuedRows = [];
+                if ($conversion !== null) {
+                    $qStmt = $freshPdo->prepare("SELECT url, postback_id FROM s2s_postbacks_log WHERE conversion_id = ?");
+                    $qStmt->execute([(int) $conversion['id']]);
+                    foreach ($qStmt->fetchAll(PDO::FETCH_ASSOC) as $qr) {
+                        $queuedRows[(int) ($qr['postback_id'] ?? 0)] = (string) $qr['url'];
+                    }
+                    $qStmt->closeCursor();
+                }
+
+                foreach ($postbackConfigs as $pbCfg) {
+                    $filterList = array_map('trim', explode(',', strtolower((string) $pbCfg['statuses'])));
+                    $entry = [
+                        'postback_id' => (int) $pbCfg['id'],
+                        'url' => (string) $pbCfg['url'],
+                        'statuses_filter' => (string) $pbCfg['statuses'],
+                        'status_matched' => $internalStatus !== null && in_array(strtolower((string) $internalStatus), $filterList, true),
+                        'queued' => false,
+                        'probe' => null,
+                    ];
+                    // Queue rows carry the campaign postback's id (CAPI rows
+                    // have NULL and never match a config).
+                    if (isset($queuedRows[(int) $pbCfg['id']])) {
+                        $entry['queued'] = true;
+                        $entry['queued_url'] = $queuedRows[(int) $pbCfg['id']];
+                        // Keitaro-style URLs often carry {external_id} or
+                        // {sub_id_N}. An unresolved macro ships as literal
+                        // text to the source — the #1 "why is my S2S not
+                        // working" from Keitaro's own FAQ. Values are
+                        // urlencoded, so decode before matching.
+                        if (preg_match_all('/\{[a-z_][a-z0-9_]{1,30}(?::[^}]*)?\}/i', urldecode($entry['queued_url']), $mm)) {
+                            $entry['unresolved_macros'] = array_values(array_unique($mm[0]));
+                        }
+                    }
+                    if ($entry['queued'] && $probeDelivery && $entry['url'] !== '') {
+                        $probeUrl = $entry['queued_url'];
+                        $pch = curl_init($probeUrl);
+                        curl_setopt_array($pch, [
+                            CURLOPT_RETURNTRANSFER => true,
+                            CURLOPT_TIMEOUT => 10,
+                            CURLOPT_CONNECTTIMEOUT => 8,
+                            CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+                            CURLOPT_FOLLOWLOCATION => true,
+                            CURLOPT_MAXREDIRS => 3,
+                            CURLOPT_SSL_VERIFYPEER => false,
+                            CURLOPT_SSL_VERIFYHOST => 0,
+                        ]);
+                        if (strtoupper((string) $pbCfg['method']) === 'POST') {
+                            $parts = parse_url($probeUrl);
+                            parse_str($parts['query'] ?? '', $fields);
+                            if ($fields) {
+                                curl_setopt($pch, CURLOPT_POST, true);
+                                curl_setopt($pch, CURLOPT_POSTFIELDS, http_build_query($fields));
+                                curl_setopt($pch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+                            }
+                        }
+                        $pt0 = microtime(true);
+                        curl_exec($pch);
+                        $entry['probe'] = [
+                            'http_code' => (int) curl_getinfo($pch, CURLINFO_HTTP_CODE),
+                            'error' => curl_error($pch) ?: null,
+                            'time_ms' => (int) round((microtime(true) - $pt0) * 1000),
+                        ];
+                        curl_close($pch);
+                    }
+                    $s2sResults[] = $entry;
+                }
+
+                // Worker health, same contract as the automation card.
+                $worker = ['cron_installed' => null, 'ping_age_seconds' => null, 'last_error' => null, 'healthy' => null];
+                try {
+                    $ping = (string) $pdo->query("SELECT value FROM settings WHERE key = 'postback_queue_last_ping_at'")->fetchColumn();
+                    if ($ping !== '') {
+                        $pingTs = @strtotime($ping . ' UTC');
+                        if ($pingTs !== false) {
+                            $worker['ping_age_seconds'] = max(0, time() - (int) $pingTs);
+                        }
+                    }
+                    $worker['last_error'] = (string) $pdo->query("SELECT value FROM settings WHERE key = 'postback_queue_last_error'")->fetchColumn() ?: null;
+                    if (function_exists('shell_exec') && stripos((string) ini_get('disable_functions'), 'shell_exec') === false) {
+                        $worker['cron_installed'] = strpos((string) orbitraShell('crontab -l 2>/dev/null'), '# ORBITRA_POSTBACK_QUEUE_BEGIN') !== false;
+                    }
+                    $worker['healthy'] = $worker['ping_age_seconds'] !== null && $worker['ping_age_seconds'] < 120;
+                } catch (\Throwable $e) {
+                }
+
+                // Fresh system-log entries made during the test (today's DB
+                // error class lands here and names the file/line).
+                $newLogs = [];
+                $logStmt = $freshPdo->prepare("SELECT level, message, context FROM system_logs WHERE id > ? ORDER BY id DESC LIMIT 5");
+                $logStmt->execute([$systemLogIdBefore]);
+                foreach ($logStmt->fetchAll(PDO::FETCH_ASSOC) as $lr) {
+                    $newLogs[] = ['level' => $lr['level'], 'message' => $lr['message'], 'context' => $lr['context']];
+                }
+                $logStmt->closeCursor();
+
+                echo json_encode(['status' => 'success', 'data' => [
+                    'click_id' => $testClickId,
+                    'status_word' => $testStatusWord,
+                    'request' => ['url' => $selfUrl, 'http_code' => $respCode, 'error' => $respErr ?: null, 'time_ms' => $respMs, 'body' => mb_substr((string) $respBody, 0, 300)],
+                    'recorded' => [
+                        'ok' => ($respCode === 200 && $conversion !== null),
+                        'internal_status' => $internalStatus,
+                        'original_status' => $inLog['original_status'] ?? $testStatusWord,
+                        'result' => $inLog['result'] ?? null,
+                        'error' => $inLog['error'] ?? null,
+                        'payout' => $conversion['payout'] ?? null,
+                    ],
+                    's2s' => $s2sResults,
+                    'worker' => $worker,
+                    'logs' => $newLogs,
+                ]]);
+            } finally {
+                // Remove every throwaway row. Queue rows go first: they carry
+                // an FK to conversions. The incoming/system log entries stay
+                // deliberately — they are the audit trail of the test itself.
+                // $freshPdo when it exists: the request connection can be
+                // pinned to a pre-self-call snapshot (see above), which also
+                // hides the just-written rows from a SELECT-then-DELETE.
+                $cleanPdo = (isset($freshPdo) && $freshPdo instanceof PDO) ? $freshPdo : $pdo;
+                try {
+                    $convIds = $cleanPdo->prepare("SELECT id FROM conversions WHERE click_id = ?");
+                    $convIds->execute([$testClickId]);
+                    $ids = $convIds->fetchAll(PDO::FETCH_COLUMN);
+                    $convIds->closeCursor();
+                    if ($ids) {
+                        $inList = implode(',', array_map('intval', $ids));
+                        $cleanPdo->exec("DELETE FROM s2s_postbacks_log WHERE conversion_id IN ($inList)");
+                        $cleanPdo->exec("DELETE FROM conversions WHERE id IN ($inList)");
+                    }
+                    $cleanPdo->prepare("DELETE FROM clicks WHERE id = ?")->execute([$testClickId]);
+                } catch (\Throwable $e) {
+                    error_log('Orbitra postback_test cleanup failed: ' . $e->getMessage());
+                }
+            }
             break;
 
         case 'backorder_install_cron':
@@ -14183,6 +14453,33 @@ try {
                         } catch (\Throwable $e) {
                             // The advisory is best-effort; the update itself succeeded.
                         }
+                    }
+
+                    // Queue worker self-heal. A missing cron means every outbound
+                    // S2S/CAPI event queues forever with only a dashboard banner
+                    // to say so — and a freshly updated box is the one moment an
+                    // admin is guaranteed to be reading this output. Install the
+                    // cron when absent, then verify the worker actually pings.
+                    if ($returnCode === 0) {
+                        $cronNotes = [];
+                        $cron = orbitraEnsurePostbackQueueUserCron($pdo, $cronNotes, false);
+                        if (!$cron['ok']) {
+                            $cronNotes[] = '[Queue worker cron could not be checked: ' . ($cron['reason'] ?? 'unknown') . ']';
+                        } else {
+                            try {
+                                $ping = (string) $pdo->query("SELECT value FROM settings WHERE key = 'postback_queue_last_ping_at'")->fetchColumn();
+                                $pingTs = $ping !== '' ? @strtotime($ping . ' UTC') : false;
+                                $lastError = (string) $pdo->query("SELECT value FROM settings WHERE key = 'postback_queue_last_error'")->fetchColumn();
+                                if ($pingTs === false || (time() - (int) $pingTs) > 180) {
+                                    $cronNotes[] = '[Queue worker has not pinged in the last 3 minutes'
+                                        . ($lastError !== '' ? ' — last error: ' . $lastError : '')
+                                        . '; check: crontab -l | grep postback_queue && tail -20 ' . __DIR__ . '/var/logs/postback_queue.log]';
+                                }
+                            } catch (\Throwable $e) {
+                                // The check is advisory; the update itself succeeded.
+                            }
+                        }
+                        $output = array_merge($output, $cronNotes);
                     }
 
                     if ($returnCode === 0) {

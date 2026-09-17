@@ -120,9 +120,13 @@ class OrbitraTestHarness
         // Prepare the test database - use a temporary SQLite file
         $this->setupTestDatabase();
 
-        // Start the server in the background
+        // Start the server in the background. Multiple workers: a few tests
+        // (postback_test) make the server call ITSELF over HTTP — with the
+        // default single worker that request deadlocks against its own
+        // parent handler.
         $cmd = sprintf(
-            '%s -S %s:%d -t %s %s',
+            'PHP_CLI_SERVER_WORKERS=%s %s -S %s:%d -t %s %s',
+            escapeshellarg((string) (getenv('ORBITRA_TEST_SERVER_WORKERS') ?: '4')),
             escapeshellarg($phpBinary),
             $this->host,
             $this->port,

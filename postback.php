@@ -151,6 +151,24 @@ function mapStatus($pdo, $status, $params)
         }
     }
 
+    // Built-in aliases for the most common network status words, so a fresh
+    // install counts BIGO/Dr. Cash-style "approved" conversions without a
+    // manual conversion-type setup. They only rescue a status that would
+    // otherwise land in 'custom': configured conversion_types (values or a
+    // type literally named that way) and explicit {$type}_status parameters
+    // all take precedence, so a deliberate mapping can always win.
+    if ($mapped_status === 'custom') {
+        $builtinAliases = [
+            'sale'     => ['approved', 'confirmed', 'accepted', 'converted'],
+            'rejected' => ['declined', 'refused', 'cancelled', 'canceled'],
+        ];
+        foreach ($builtinAliases as $aliasType => $words) {
+            if (in_array($needle, $words, true)) {
+                return $aliasType;
+            }
+        }
+    }
+
     return $mapped_status;
 }
 
