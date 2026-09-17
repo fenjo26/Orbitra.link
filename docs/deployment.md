@@ -40,7 +40,7 @@ Orbitra хранит всё в одном файле SQLite, поэтому тр
    Загрузка вынесена в отдельный шаг намеренно: `wget -qO- … | bash` при неудачной
    загрузке молча передаёт в bash пустоту, и установка «завершается» без единой
    строки вывода. Так неудачная загрузка останавливается на `&&`, и wget пишет причину.
-3. Скрипт сам установит Nginx, PHP 8+, SQLite, скачает код фронтенда и настроит сертификаты HTTPS.
+3. Скрипт сам установит Nginx, актуальный PHP (8.5, при недоступности — 8.4, из репозитория Ondřej Surý; недоступен и он — дистрибутивный), SQLite, скачает код фронтенда и настроит сертификаты HTTPS.
 
 > **Первый вход:** учётной записи «по умолчанию» нет. После установки откройте `http://<ваш-домен>/admin.php` — при первом запуске Orbitra запустит мастер первичной настройки, где вы создадите собственного администратора (логин ≥ 3 символов, пароль ≥ 6 символов, часовой пояс и язык).
 
@@ -94,6 +94,41 @@ php /var/www/orbitra/cli/admin_path.php reset    # вернуть /admin.php
 ```
 
 Метрики берутся из того же движка, что и отчёты (`core/ReportMetrics.php`), за скользящее окно (по умолчанию 7 дней); клики safe-page исключаются. Каждое изменение веса пишется в журнал `stream_rotation_log` — последние решения видны в карточке стрима под переключателем Auto. Пока Auto включён, веса принадлежат крону: ручной ввод заблокирован, а сохранение кампании не откатывает пересчитанные веса.
+
+## Обновление PHP
+
+Ubuntu 22.04 / Debian 12 / Ubuntu 24.04 из коробки ставят PHP 8.1 / 8.2 / 8.3 — эти версии больше не получают обновлений безопасности (8.1 и 8.2 — EOL, 8.3 — только security-фиксы до конца 2027). Orbitra v1.5.10 работает на всех них, но свежая установка и обновление сервера должны начинаться с PHP 8.4+.
+
+**Самый простой путь — перезапустить инсталлятор** (он идемпотентен и умеет обновление поверх существующей установки):
+
+```bash
+sudo bash /var/www/orbitra/install.sh
+```
+
+Инсталлятор добавит репозиторий текущих сборок PHP (ondrej/php на Ubuntu, packages.sury.org на Debian), поставит PHP 8.5 (при недоступности — 8.4) рядом со старым, переключит CLI-альтернативу `php` (её используют кроны и Composer), перепишет конфиг Nginx на новый сокет FPM, применит настройки пула и перезапустит сервисы. Старая версия PHP остаётся установленной, но перестаёт обслуживать трафик; при желании её можно удалить после проверки.
+
+**Вручную (Ubuntu):**
+
+```bash
+sudo add-apt-repository -y ppa:ondrej/php && sudo apt-get update
+sudo apt-get install -y php8.5-fpm php8.5-cli php8.5-sqlite3 php8.5-curl php8.5-mbstring php8.5-xml php8.5-zip php8.5-intl php8.5-bcmath
+sudo update-alternatives --set php /usr/bin/php8.5
+sudo bash /var/www/orbitra/install.sh   # переведёт nginx/FPM/кроны на новую версию
+```
+
+**Вручную (Debian):**
+
+```bash
+. /etc/os-release
+curl -fsSL https://packages.sury.org/php/apt.gpg | sudo gpg --dearmor --yes -o /usr/share/keyrings/deb.sury.org-php.gpg
+echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ ${VERSION_CODENAME} main" | sudo tee /etc/apt/sources.list.d/php-sury.list
+sudo apt-get update
+sudo apt-get install -y php8.5-fpm php8.5-cli php8.5-sqlite3 php8.5-curl php8.5-mbstring php8.5-xml php8.5-zip php8.5-intl php8.5-bcmath
+sudo update-alternatives --set php /usr/bin/php8.5
+sudo bash /var/www/orbitra/install.sh
+```
+
+После обновления проверьте: `php -v` показывает 8.4/8.5, панель открывается, в *Логах → Системный лог* нет записей `postback.php database error`, а в настройках очереди постбеков пинг воркера свежий. Панель сама предупредит при обновлении через кнопку, если сервер остаётся на PHP < 8.4.
 
 ## Локальная Разработка (React & PHP Server)
 

@@ -3,9 +3,48 @@
 // stay outside this callback: a SQLite writer cannot be held across network I/O.
 require_once __DIR__ . '/db_retry.php';
 
+if (!function_exists('orbitraPostbackTransactionActive')) {
+    /**
+     * Whether a SQLite transaction is really open on this connection.
+     *
+     * PHP < 8.4 cannot see a transaction started with a raw BEGIN through
+     * PDO::exec() — inTransaction() stays false for its whole life (php bug
+     * #81227, only fixed in 8.4 via sqlite3_get_autocommit). The postback
+     * write path opens its writer lock exactly that way, so on older PHP the
+     * real state must be probed: BEGIN DEFERRED fails with "cannot start a
+     * transaction within a transaction" while one is open. When none is, the
+     * probe opens (and rolls back) an empty deferred transaction, touching
+     * neither data nor locks.
+     *
+     * Defined with a guard in the other transaction-guard files too: test
+     * fixtures copy these files one by one, so each must be self-sufficient.
+     */
+    function orbitraPostbackTransactionActive(PDO $pdo): bool
+    {
+        if (PHP_VERSION_ID >= 80400) {
+            return $pdo->inTransaction();
+        }
+        try {
+            $started = $pdo->exec('BEGIN DEFERRED');
+            if ($started === false) {
+                // Non-exception error mode: the failure text is in errorInfo().
+                return str_contains((string) ($pdo->errorInfo()[2] ?? ''), 'within a transaction');
+            }
+        } catch (\Throwable $e) {
+            return str_contains($e->getMessage(), 'within a transaction');
+        }
+        try {
+            $pdo->exec('ROLLBACK'); // undoes only the probe's own BEGIN
+        } catch (\Throwable $e) {
+            // Nothing left to undo; the connection is still in autocommit.
+        }
+        return false;
+    }
+}
+
 function orbitraPostbackAssertTransactionActive(PDO $pdo, ?Throwable $cause = null): void
 {
-    if (!$pdo->inTransaction()) {
+    if (!orbitraPostbackTransactionActive($pdo)) {
         // An optional helper may catch an error that made SQLite roll back the
         // WHOLE transaction. Never let later writes continue in autocommit.
         throw $cause ?? new RuntimeException('Postback transaction ended before its durable writes completed.');

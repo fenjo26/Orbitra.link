@@ -8697,7 +8697,10 @@ try {
                 $stmt->execute([$limit, $offset]);
                 echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
             } elseif ($type === 's2s') {
-                $stmt = $pdo->prepare("SELECT *, datetime(created_at, '$dbTzOffset') as created_at FROM s2s_postbacks_log ORDER BY created_at DESC LIMIT ? OFFSET ?");
+                // next_retry_at lives in the DB as UTC; shift it the same way as
+                // created_at so "next attempt" is not displayed 3 hours behind on
+                // a panel whose timezone is ahead of UTC.
+                $stmt = $pdo->prepare("SELECT *, datetime(created_at, '$dbTzOffset') as created_at, datetime(next_retry_at, '$dbTzOffset') as next_retry_at FROM s2s_postbacks_log ORDER BY created_at DESC LIMIT ? OFFSET ?");
                 $stmt->execute([$limit, $offset]);
                 echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
             } else {
@@ -9406,8 +9409,10 @@ try {
             $pqLastPing = $pqSettings['postback_queue_last_ping_at'] ?? null;
             $pqPingAge = null;
             if ($pqLastPing) {
-                // The worker writes this with date() (server-local), so parse it the same way.
-                $pqPingAge = max(0, time() - (int) strtotime((string) $pqLastPing));
+                // The worker writes this in UTC (gmdate); the worker_health
+                // banner parses it as UTC too. max() keeps a legacy local-time
+                // ping from reading as negative age until the next cron tick.
+                $pqPingAge = max(0, time() - (int) strtotime((string) $pqLastPing . ' UTC'));
             }
 
             echo json_encode(['status' => 'success', 'data' => [
@@ -14158,8 +14163,30 @@ try {
                         }
                     }
 
+                    // PHP version advisory. The updater runs as the web user
+                    // and must not apt-get, so an ageing interpreter is
+                    // surfaced with the fix instead of being installed
+                    // silently. 8.1–8.3 run Orbitra fine (fixed in v1.5.10)
+                    // but no longer receive security fixes upstream.
+                    $phpNotice = '';
+                    if (PHP_VERSION_ID < 80400) {
+                        $phpNotice = ' ВНИМАНИЕ: сервер работает на PHP ' . PHP_VERSION
+                            . ' — Orbitra её поддерживает, но версия больше не получает обновлений безопасности. '
+                            . 'Рекомендуется PHP 8.4+: перезапустите sudo bash install.sh (поставит свежий PHP, '
+                            . 'обновит сокет nginx и пул FPM) — подробности в docs/deployment.md, раздел «Обновление PHP».';
+                        try {
+                            $pdo->prepare('INSERT INTO system_logs (level, message, context) VALUES (?, ?, ?)')->execute([
+                                'WARNING',
+                                'PHP version is below the recommended 8.4',
+                                json_encode(['php_version' => PHP_VERSION, 'php_version_id' => PHP_VERSION_ID]),
+                            ]);
+                        } catch (\Throwable $e) {
+                            // The advisory is best-effort; the update itself succeeded.
+                        }
+                    }
+
                     if ($returnCode === 0) {
-                        echo json_encode(['status' => 'success', 'message' => 'Обновлено успешно.' . $composerNotice . ' Вывод: ' . implode(" ", $output)]);
+                        echo json_encode(['status' => 'success', 'message' => 'Обновлено успешно.' . $composerNotice . $phpNotice . ' Вывод: ' . implode(" ", $output)]);
                     } else {
                         echo json_encode(['status' => 'error', 'message' => 'Ошибка git pull: ' . implode(" ", $output)]);
                     }

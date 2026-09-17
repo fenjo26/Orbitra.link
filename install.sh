@@ -146,24 +146,92 @@ dpkg --configure -a >/dev/null 2>&1 || true
 
 echo "[1/5] Updating system and installing packages (Nginx, PHP, SQLite)..."
 apt-get update -y
+
+# Base packages that do not depend on the PHP version.
+apt-get install -y ca-certificates apt-transport-https curl git unzip nginx
+
+# --- PHP provisioning ------------------------------------------------------
+# The distribution's default PHP is whatever the OS ships: Ubuntu 22.04 → 8.1,
+# Debian 12 → 8.2, Ubuntu 24.04 → 8.3 — all past or near end of life. Prefer a
+# current PHP (8.5, then 8.4) from the Ondřej Surý repository when it can be
+# added, falling back to the distribution's own packages when it cannot
+# (offline installs, restricted mirrors). Debian 13's own archive already
+# carries 8.4, which the candidate loop below picks up without the repo.
+#
 # php-intl is optional at runtime — landing slugs fall back to a built-in
 # transliteration table without it — but with it installed every alphabet
 # transliterates, not just the ones the table covers.
 # php-bcmath is NOT optional: ip2location/ip2location-php and ip2location/ip2proxy-php
 # both declare "ext-bcmath" as a hard requirement, so without it `composer install`
-# refuses the lock file entirely ("Your lock file does not contain a compatible set
-# of packages") and every install and in-panel update dies at the dependency step.
-apt-get install -y ca-certificates apt-transport-https curl git unzip nginx php-fpm php-cli php-sqlite3 php-curl php-mbstring php-xml php-zip php-intl php-bcmath
+# refuses the lock file entirely ("Your lock file does not contain a compatible set of
+# packages") and every install and in-panel update dies at the dependency step.
+ORBITRA_PHP_EXT_PKGS="sqlite3 curl mbstring xml zip intl bcmath"
+ORBITRA_PHP_INSTALLED=""
+
 # software-properties-common is an Ubuntu package; Debian 13 dropped it, and
 # nothing in this installer needs it there — it must not fail the whole
 # package step on a Debian release.
 if grep -qi '^ID=ubuntu' /etc/os-release 2>/dev/null; then
-    apt-get install -y software-properties-common
+    apt-get install -y software-properties-common || true
+    if command -v add-apt-repository >/dev/null 2>&1; then
+        echo "  > Adding the ondrej/php PPA (current PHP builds)..."
+        add-apt-repository -y ppa:ondrej/php >/dev/null 2>&1 \
+            || echo "  > NOTE: could not add the PPA — using the distribution's PHP."
+    fi
+elif grep -qi '^ID=debian' /etc/os-release 2>/dev/null; then
+    . /etc/os-release
+    if [ -n "${VERSION_CODENAME:-}" ] && [ ! -f /etc/apt/sources.list.d/php-sury.list ]; then
+        echo "  > Adding packages.sury.org (current PHP builds for ${VERSION_CODENAME})..."
+        apt-get install -y gnupg >/dev/null 2>&1 || true
+        if curl -fsSL https://packages.sury.org/php/apt.gpg 2>/dev/null \
+            | gpg --dearmor --yes -o /usr/share/keyrings/deb.sury.org-php.gpg 2>/dev/null; then
+            echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ ${VERSION_CODENAME} main" \
+                > /etc/apt/sources.list.d/php-sury.list
+        else
+            echo "  > NOTE: could not add packages.sury.org — using the distribution's PHP."
+        fi
+    fi
+fi
+
+apt-get update -y
+
+for ORBITRA_PHP_V in 8.5 8.4; do
+    ORBITRA_PKGS="php${ORBITRA_PHP_V}-fpm php${ORBITRA_PHP_V}-cli"
+    for ORBITRA_EXT in $ORBITRA_PHP_EXT_PKGS; do
+        ORBITRA_PKGS="$ORBITRA_PKGS php${ORBITRA_PHP_V}-${ORBITRA_EXT}"
+    done
+    echo "  > Installing PHP ${ORBITRA_PHP_V}..."
+    if apt-get install -y $ORBITRA_PKGS >/dev/null 2>&1; then
+        ORBITRA_PHP_INSTALLED=$ORBITRA_PHP_V
+        echo "  > PHP ${ORBITRA_PHP_V} installed."
+        break
+    fi
+done
+
+if [ -z "$ORBITRA_PHP_INSTALLED" ]; then
+    echo "  > Current PHP builds unavailable — installing the distribution's default PHP."
+    apt-get install -y php-fpm php-cli php-sqlite3 php-curl php-mbstring php-xml php-zip php-intl php-bcmath
+fi
+
+# Point the bare `php` CLI alternative at the version just installed: cron
+# lines and Composer run plain `php`, and a box upgraded from an older distro
+# PHP would otherwise keep executing the old binary even though FPM moved on.
+if [ -n "$ORBITRA_PHP_INSTALLED" ] && [ -x "/usr/bin/php${ORBITRA_PHP_INSTALLED}" ]; then
+    update-alternatives --set php "/usr/bin/php${ORBITRA_PHP_INSTALLED}" >/dev/null 2>&1 || true
 fi
 
 # Determine installed PHP-FPM version
 PHP_V=$(php -v | head -n 1 | cut -d " " -f 2 | cut -f1-2 -d".")
 PHP_FPM_SOCK="/var/run/php/php${PHP_V}-fpm.sock"
+
+# Orbitra needs PHP 8.1+; every supported distro ships at least that, but a
+# foreign base image can predate it — fail with the reason, not in Composer.
+if [ "$(php -r 'echo PHP_MAJOR_VERSION;')" -lt 8 ] \
+   || { [ "$(php -r 'echo PHP_MAJOR_VERSION;')" -eq 8 ] && [ "$(php -r 'echo PHP_MINOR_VERSION;')" -lt 1 ]; }; then
+    echo "ERROR: Orbitra requires PHP 8.1+; this server runs PHP ${PHP_V}."
+    echo "       Install PHP 8.4/8.5 (ondrej/php on Ubuntu, packages.sury.org on Debian) and re-run."
+    exit 1
+fi
 
 # The generic "php-bcmath" above resolves to the distribution's default PHP, which
 # is not necessarily the version the CLI actually runs (a server with the ondrej

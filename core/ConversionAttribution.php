@@ -18,6 +18,41 @@
 // subid. subid is the click id — writing it into the sub1 dimension would collapse
 // every Sub1 report row into one unique value per click.
 
+if (!function_exists('orbitraPostbackTransactionActive')) {
+    /**
+     * Whether a SQLite transaction is really open on this connection.
+     *
+     * PHP < 8.4 cannot see a transaction started with a raw BEGIN through
+     * PDO::exec() — inTransaction() stays false for its whole life (php bug
+     * #81227, only fixed in 8.4). The transaction guards below exist to detect
+     * an automatic SQLite rollback mid-transaction, so they must ask the real
+     * state, not PDO's tracking. Canonical copy lives in core/PostbackDelivery.php;
+     * the function_exists guard keeps this file loadable on its own (test
+     * fixtures copy files one by one).
+     */
+    function orbitraPostbackTransactionActive(PDO $pdo): bool
+    {
+        if (PHP_VERSION_ID >= 80400) {
+            return $pdo->inTransaction();
+        }
+        try {
+            $started = $pdo->exec('BEGIN DEFERRED');
+            if ($started === false) {
+                // Non-exception error mode: the failure text is in errorInfo().
+                return str_contains((string) ($pdo->errorInfo()[2] ?? ''), 'within a transaction');
+            }
+        } catch (\Throwable $e) {
+            return str_contains($e->getMessage(), 'within a transaction');
+        }
+        try {
+            $pdo->exec('ROLLBACK'); // undoes only the probe's own BEGIN
+        } catch (\Throwable $e) {
+            // Nothing left to undo; the connection is still in autocommit.
+        }
+        return false;
+    }
+}
+
 if (!function_exists('orbitraConversionAttributionColumns')) {
 
     /**
@@ -37,13 +72,13 @@ if (!function_exists('orbitraConversionAttributionColumns')) {
         }
 
         $present = [];
-        $inTransaction = $pdo->inTransaction();
+        $inTransaction = orbitraPostbackTransactionActive($pdo);
         try {
             foreach ($pdo->query("PRAGMA table_info(conversions)")->fetchAll(PDO::FETCH_ASSOC) as $col) {
                 $present[strtolower((string) ($col['name'] ?? ''))] = true;
             }
         } catch (\Throwable $e) {
-            if ($inTransaction && !$pdo->inTransaction()) {
+            if ($inTransaction && !orbitraPostbackTransactionActive($pdo)) {
                 throw $e;
             }
             return $cache = [];
@@ -175,12 +210,12 @@ if (!function_exists('orbitraConversionAttributionColumns')) {
         }
 
         $values[] = $conversionId;
-        $inTransaction = $pdo->inTransaction();
+        $inTransaction = orbitraPostbackTransactionActive($pdo);
         try {
             $pdo->prepare("UPDATE conversions SET " . implode(', ', $set) . " WHERE id = ?")->execute($values);
             return true;
         } catch (\Throwable $e) {
-            if ($inTransaction && !$pdo->inTransaction()) {
+            if ($inTransaction && !orbitraPostbackTransactionActive($pdo)) {
                 throw $e;
             }
             return false;

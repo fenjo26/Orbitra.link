@@ -73,9 +73,13 @@ $requeued  = 0;
 $failed    = 0;
 // Defined outside the try so the catch block can always reference it.
 $ts = date('Y-m-d H:i:s');
+// Settings timestamps must be UTC: the readers (worker_health banner, queue
+// settings) parse them with an explicit ' UTC' modifier. date() here would
+// write server-local time and make a dead cron look alive for hours.
+$tsUtc = gmdate('Y-m-d H:i:s');
 
 try {
-    orbitraPqSetSetting($pdo, 'postback_queue_last_ping_at', $ts);
+    orbitraPqSetSetting($pdo, 'postback_queue_last_ping_at', $tsUtc);
 
     // Allow disabling the worker from UI while keeping cron in place.
     $enabled = '1';
@@ -140,7 +144,7 @@ try {
     $rows = $dueStmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (empty($rows)) {
-        orbitraPqSetSetting($pdo, 'postback_queue_last_checked_at', $ts);
+        orbitraPqSetSetting($pdo, 'postback_queue_last_checked_at', $tsUtc);
         exit(0);
     }
 
@@ -345,7 +349,7 @@ try {
     }
 
     // Health/state for the UI.
-    orbitraPqSetSetting($pdo, 'postback_queue_last_checked_at', $ts);
+    orbitraPqSetSetting($pdo, 'postback_queue_last_checked_at', $tsUtc);
     orbitraPqSetSetting($pdo, 'postback_queue_last_run_processed', (string) $processed);
     orbitraPqSetSetting($pdo, 'postback_queue_last_run_delivered', (string) $delivered);
     orbitraPqSetSetting($pdo, 'postback_queue_last_run_requeued', (string) $requeued);
