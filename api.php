@@ -14560,6 +14560,22 @@ try {
                         $output = array_merge($output, $cronNotes);
                     }
 
+                    // Geo databases self-heal. A box without a single database
+                    // resolves no country at all — geo filters match nothing and
+                    // cloaking-by-country sees everyone as Unknown, which reads
+                    // as "cloaking is broken". The free Sypex base needs no
+                    // keys, and a completed update is the moment the admin is
+                    // reading this output (TZ_LOGS_GEO_STREAMS §2.4).
+                    if ($returnCode === 0 && !orbitraGeoDatabasesInstalled(__DIR__)) {
+                        $output[] = '[No geo database installed — downloading the free Sypex base, up to a minute]';
+                        $geoRes = orbitraUpdateSypex(__DIR__);
+                        if ($geoRes['ok']) {
+                            $output[] = '[Sypex Geo installed — country/city detection and geo filters are now active]';
+                        } else {
+                            $output[] = '[Sypex download failed: ' . $geoRes['message'] . ' — install it later in Settings → Geo databases]';
+                        }
+                    }
+
                     if ($returnCode === 0) {
                         echo json_encode(['status' => 'success', 'message' => 'Обновлено успешно.' . $composerNotice . $phpNotice . ' Вывод: ' . implode(" ", $output)]);
                     } else {
@@ -14828,30 +14844,8 @@ try {
                 break;
             }
 
-            // Helper function to download file using cURL
-            $downloadFile = function ($url) {
-                // Detect local development environment
-                $isLocal = in_array($_SERVER['HTTP_HOST'] ?? '', ['localhost', '127.0.0.1', 'localhost:8080', 'localhost:5173', 'localhost:8000'], true);
-                $ch = curl_init($url);
-                curl_setopt_array($ch, [
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_FOLLOWLOCATION => true,
-                    CURLOPT_TIMEOUT => 120,
-                    CURLOPT_SSL_VERIFYPEER => !$isLocal,
-                    CURLOPT_SSL_VERIFYHOST => !$isLocal ? 2 : 0,
-                    CURLOPT_USERAGENT => 'Orbitra/1.0'
-                ]);
-                $data = curl_exec($ch);
-                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                $error = curl_error($ch);
-                // curl_close() deprecated in PHP 8.5 - resources are auto-freed
-
-                if ($error || $httpCode !== 200) {
-                    return null;
-                }
-                return $data;
-            };
-
+            // The download/install logic lives in core/geo_databases.php so the
+            // panel buttons, cli/geo_update.php and the installer share it.
             $ip2Packages = [
                 'ip2location_lite_db11' => [
                     'variant' => 'DB11LITEBINIPV6',
@@ -14867,252 +14861,53 @@ try {
                 ],
             ];
 
+            $geoSetting = static function (string $key) use ($pdo): string {
+                try {
+                    return trim((string) $pdo->query("SELECT value FROM settings WHERE key = " . $pdo->quote($key))->fetchColumn());
+                } catch (\Throwable $e) {
+                    return '';
+                }
+            };
+
             if (isset($ip2Packages[$dbId])) {
-                $stmt = $pdo->query("SELECT value FROM settings WHERE key = 'ip2location_token'");
-                $token = $stmt->fetchColumn();
-                if (!$token) {
+                $token = $geoSetting('ip2location_token');
+                if ($token === '') {
                     echo json_encode(['status' => 'error', 'message' => 'Не указан IP2Location Token. Укажите его в настройках "Гео-базы".']);
                     break;
                 }
-
                 $package = $ip2Packages[$dbId];
-                $variant = $package['variant'];
-                $tmpArchive = sys_get_temp_dir() . '/orbitra-ip2-' . bin2hex(random_bytes(6)) . '.zip';
-                $url = 'https://www.ip2location.com/download?' . http_build_query([
-                    'token' => $token,
-                    'file' => $variant,
-                ]);
-                $ch = curl_init($url);
-                $fp = @fopen($tmpArchive, 'wb');
-                if ($fp === false) {
-                    echo json_encode(['status' => 'error', 'message' => 'Не удалось создать временный файл для загрузки. Проверьте права на запись в ' . sys_get_temp_dir()]);
-                    break;
+                $res = orbitraUpdateIp2($package['variant'], $package['kind'], $token, __DIR__);
+                if ($res['ok']) {
+                    logSystem($pdo, 'INFO', 'IP2 database updated successfully', ['variant' => $package['variant']]);
                 }
-                curl_setopt($ch, CURLOPT_FILE, $fp);
-                curl_setopt($ch, CURLOPT_HEADER, 0);
-                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-                curl_setopt($ch, CURLOPT_TIMEOUT, 600);
-                curl_setopt($ch, CURLOPT_USERAGENT, 'Orbitra/1.0');
-                $downloadOk = curl_exec($ch);
-                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                $curlError = curl_error($ch);
-                // curl_close() deprecated in PHP 8.5 - resources are auto-freed
-                fclose($fp);
-
-                if ($downloadOk === false || $httpCode !== 200 || !file_exists($tmpArchive) || filesize($tmpArchive) <= 1024) {
-                    @unlink($tmpArchive);
-                    $details = $curlError !== '' ? ' cURL: ' . $curlError : '';
-                    echo json_encode(['status' => 'error', 'message' => "Не удалось скачать {$variant}. Проверьте токен и квоту IP2Location.{$details}"]);
-                    break;
-                }
-
-                try {
-                    $zip = new ZipArchive;
-                    if ($zip->open($tmpArchive) !== true) {
-                        throw new RuntimeException('Архив IP2Location не является корректным ZIP. Возможно, исчерпана квота скачиваний.');
-                    }
-
-                    $installed = null;
-                    for ($i = 0; $i < $zip->numFiles; $i++) {
-                        $entryName = (string) $zip->getNameIndex($i);
-                        if (strtolower(pathinfo($entryName, PATHINFO_EXTENSION)) !== 'bin') {
-                            continue;
-                        }
-                        $input = $zip->getStream($entryName);
-                        $tempPath = tempnam(sys_get_temp_dir(), 'orbitra-ip2-bin-');
-                        $output = $tempPath !== false ? fopen($tempPath, 'wb') : false;
-                        if ($input === false || $output === false) {
-                            if (is_resource($input)) {
-                                fclose($input);
-                            }
-                            throw new RuntimeException('Не удалось распаковать BIN из архива.');
-                        }
-                        stream_copy_to_stream($input, $output);
-                        fclose($input);
-                        fclose($output);
-
-                        try {
-                            $classification = orbitraGeoClassifyFile($tempPath, basename($entryName));
-                            if ($classification['kind'] !== $package['kind']) {
-                                throw new RuntimeException('Полученный BIN имеет неожиданный тип: ' . $classification['kind']);
-                            }
-                            $candidate = orbitraGeoInstallFile($tempPath, basename($entryName), __DIR__, true);
-                            $installed = $candidate;
-                        } finally {
-                            if (is_file($tempPath)) {
-                                @unlink($tempPath);
-                            }
-                        }
-                        break;
-                    }
-                    $zip->close();
-
-                    if ($installed === null) {
-                        throw new RuntimeException('В скачанном архиве не найден BIN.');
-                    }
-
-                    logSystem($pdo, 'INFO', 'IP2 database updated successfully', [
-                        'variant' => $variant,
-                        'kind' => $installed['kind'],
-                    ]);
-                    echo json_encode(['status' => 'success', 'message' => "База {$installed['label']} успешно обновлена ({$variant})"]);
-                } catch (Throwable $e) {
-                    echo json_encode(['status' => 'error', 'message' => 'Ошибка установки: ' . $e->getMessage()]);
-                }
-                @unlink($tmpArchive);
+                echo json_encode(['status' => $res['ok'] ? 'success' : 'error', 'message' => $res['message']]);
                 break;
             }
 
             if ($dbId === 'maxmind_city' || $dbId === 'maxmind_asn') {
-                $stmt = $pdo->query("SELECT value FROM settings WHERE key = 'maxmind_license_key'");
-                $license_key = $stmt->fetchColumn();
-
-                $stmt = $pdo->query("SELECT value FROM settings WHERE key = 'maxmind_account_id'");
-                $account_id = $stmt->fetchColumn();
-
-                if (!$license_key || !$account_id) {
+                $licenseKey = $geoSetting('maxmind_license_key');
+                $accountId = $geoSetting('maxmind_account_id');
+                if ($licenseKey === '' || $accountId === '') {
                     echo json_encode(['status' => 'error', 'message' => 'Не указаны MaxMind Account ID и/или License Key. Укажите их в настройках "Гео-базы".']);
                     break;
                 }
-
                 $editionId = $dbId === 'maxmind_asn' ? 'GeoLite2-ASN' : 'GeoLite2-City';
-                // MaxMind redirects this permalink to a short-lived Cloudflare R2
-                // URL. CURLOPT_FOLLOWLOCATION is required for downloads since 2024.
-                $url = "https://download.maxmind.com/geoip/databases/{$editionId}/download?suffix=tar.gz";
-                $tmpArchive = sys_get_temp_dir() . '/orbitra-' . strtolower($editionId) . '-' . bin2hex(random_bytes(6)) . '.tar.gz';
-
-                // Download with Basic Authentication
-                $ch = curl_init($url);
-                $fp = @fopen($tmpArchive, 'wb');
-                if ($fp === false) {
-                    echo json_encode(['status' => 'error', 'message' => 'Не удалось создать временный файл для загрузки MaxMind.']);
-                    break;
+                $res = orbitraUpdateMaxMind($editionId, $accountId, $licenseKey, __DIR__);
+                if ($res['ok']) {
+                    logSystem($pdo, 'INFO', "MaxMind {$editionId} DB updated successfully");
                 }
-                curl_setopt($ch, CURLOPT_FILE, $fp);
-                curl_setopt($ch, CURLOPT_HEADER, 0);
-                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-                curl_setopt($ch, CURLOPT_USERPWD, $account_id . ':' . $license_key);
-                curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-                curl_setopt($ch, CURLOPT_TIMEOUT, 300);
-                curl_setopt($ch, CURLOPT_USERAGENT, 'Orbitra/1.0');
-                $downloadOk = curl_exec($ch);
-                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                $curlError = curl_error($ch);
-                // curl_close() deprecated in PHP 8.5 - resources are auto-freed
-                fclose($fp);
-
-                if ($downloadOk === false || $httpCode !== 200 || !file_exists($tmpArchive) || filesize($tmpArchive) <= 1024) {
-                    @unlink($tmpArchive);
-                    $details = $curlError !== '' ? " cURL: {$curlError}" : '';
-                    echo json_encode(['status' => 'error', 'message' => "Failed to download {$editionId}. HTTP Code: {$httpCode}. Check your Account ID, License Key and outbound HTTPS access.{$details}"]);
-                    break;
-                }
-
-                // Extract .mmdb
-                $dbFileName = $editionId . '.mmdb';
-                $destPath = __DIR__ . '/geo/' . $dbFileName;
-                if (!is_dir(__DIR__ . '/geo')) {
-                    mkdir(__DIR__ . '/geo', 0755, true);
-                }
-
-                try {
-                    $ref = new \ReflectionClass('\PharData');
-                    $p = $ref->newInstance($tmpArchive);
-
-                    $extracted = false;
-                    foreach (new RecursiveIteratorIterator($p) as $file) {
-                        if ($file->getFilename() === $dbFileName) {
-                            $tmpDestPath = $destPath . '.tmp-' . bin2hex(random_bytes(4));
-                            if (copy($file->getPathname(), $tmpDestPath) && filesize($tmpDestPath) > 1024) {
-                                chmod($tmpDestPath, 0644);
-                                $extracted = rename($tmpDestPath, $destPath);
-                            }
-                            if (file_exists($tmpDestPath)) {
-                                @unlink($tmpDestPath);
-                            }
-                            break;
-                        }
-                    }
-                    if ($extracted) {
-                        logSystem($pdo, 'INFO', "MaxMind {$editionId} DB updated successfully");
-                        echo json_encode(['status' => 'success', 'message' => "База MaxMind {$editionId} успешно обновлена"]);
-                    } else {
-                        echo json_encode(['status' => 'error', 'message' => "Failed to find {$dbFileName} in downloaded archive"]);
-                    }
-                } catch (Exception $e) {
-                    echo json_encode(['status' => 'error', 'message' => 'Extraction failed: ' . $e->getMessage()]);
-                }
-                @unlink($tmpArchive);
+                echo json_encode(['status' => $res['ok'] ? 'success' : 'error', 'message' => $res['message']]);
                 break;
             }
 
             if ($dbId === 'sypex_city_lite') {
-                try {
-                    $geoDir = __DIR__ . '/var/geoip/SxGeoCity';
-                    if (!is_dir($geoDir)) {
-                        mkdir($geoDir, 0777, true);
-                    }
-                    if (!is_dir(__DIR__ . '/geo')) {
-                        mkdir(__DIR__ . '/geo', 0777, true);
-                    }
-
-                    // 1. Download Database ZIP
-                    $zipFile = $geoDir . '/SxGeoCity_utf8.zip';
-                    $zipData = $downloadFile('https://sypexgeo.net/files/SxGeoCity_utf8.zip');
-                    if (!$zipData) {
-                        throw new \Exception("Не удалось скачать архив базы от Sypex. Проверьте подключение к интернету.");
-                    }
-                    file_put_contents($zipFile, $zipData);
-
-                    // 2. Unzip Database and extract SxGeo.php if missing
-                    $zip = new ZipArchive;
-                    if ($zip->open($zipFile) === TRUE) {
-
-                        // Распаковываем во временную папку для поиска .dat файла
-                        $tempDir = sys_get_temp_dir() . '/sypex_extract_' . time();
-                        mkdir($tempDir, 0755, true);
-                        $zip->extractTo($tempDir);
-                        $zip->close();
-                        @unlink($zipFile);
-
-                        // Рекурсивно ищем SxGeoCity.dat
-                        $found = false;
-                        $iter = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($tempDir));
-                        foreach ($iter as $file) {
-                            if ($file->isFile() && $file->getFilename() === 'SxGeoCity.dat') {
-                                copy($file->getPathname(), $geoDir . '/SxGeoCity.dat');
-                                $found = true;
-                                break;
-                            }
-                        }
-
-                        // Извлечение SxGeo.php если нужно (ищем в том же архиве)
-                        $parserPath = __DIR__ . '/core/SxGeo.php';
-                        if (!file_exists($parserPath)) {
-                            foreach ($iter as $file) {
-                                if ($file->isFile() && $file->getFilename() === 'SxGeo.php') {
-                                    if (!is_dir(__DIR__ . '/core'))
-                                        mkdir(__DIR__ . '/core', 0755, true);
-                                    copy($file->getPathname(), $parserPath);
-                                    break;
-                                }
-                            }
-                        }
-
-                        // Очистка временной папки
-                        orbitraRemoveDirectory($tempDir);
-
-                        logSystem($pdo, 'INFO', 'Sypex Geo DB Updated successfully');
-                        echo json_encode(['status' => 'success', 'message' => 'База Sypex успешно обновлена']);
-                    } else {
-                        throw new \Exception("Не удалось открыть скачанный архив.");
-                    }
-                } catch (\Exception $e) {
-                    error_log("Sypex Geo Update Error: " . $e->getMessage());
-                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                $res = orbitraUpdateSypex(__DIR__);
+                if ($res['ok']) {
+                    logSystem($pdo, 'INFO', 'Sypex Geo DB Updated successfully');
+                } else {
+                    error_log('Sypex Geo Update Error: ' . $res['message']);
                 }
+                echo json_encode(['status' => $res['ok'] ? 'success' : 'error', 'message' => $res['message']]);
                 break;
             }
 

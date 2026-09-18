@@ -348,3 +348,301 @@ function orbitraGeoTargetingReady(?string $root = null): array
 
     return $memo[$root];
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Updaters. The same code serves the panel's update buttons (api.php), the
+// installer, the monthly cron and the post-git-pull self-heal — one place to
+// get the timeouts and the non-fatal error handling right.
+//
+// sypexgeo.net is sometimes slow or unreachable from hosting networks, so a
+// failed download returns a result array instead of throwing: installing the
+// tracker must never fail because of a geo database (TZ_LOGS_GEO_STREAMS §2).
+
+require_once __DIR__ . '/shell.php';
+
+const ORBITRA_SYPEX_ZIP_URL = 'https://sypexgeo.net/files/SxGeoCity_utf8.zip';
+
+/** Is any provider database installed and non-empty? */
+function orbitraGeoDatabasesInstalled(?string $root = null): bool
+{
+    foreach (orbitraGeoDatabasePaths($root) as $path) {
+        if (is_file($path) && (filesize($path) ?: 0) > 1024) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * GET a URL into memory with a bounded timeout; null on any failure.
+ * Detecting local development keeps self-signed certs out of the sandbox only.
+ */
+function orbitraGeoFetch(string $url, int $timeout = 60): ?string
+{
+    if (!function_exists('curl_init')) {
+        return null;
+    }
+    $isLocal = PHP_SAPI === 'cli'
+        || in_array($_SERVER['HTTP_HOST'] ?? '', ['localhost', '127.0.0.1', 'localhost:8080', 'localhost:5173', 'localhost:8000'], true);
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_TIMEOUT => $timeout,
+        CURLOPT_CONNECTTIMEOUT => 10,
+        CURLOPT_SSL_VERIFYPEER => !$isLocal,
+        CURLOPT_SSL_VERIFYHOST => !$isLocal ? 2 : 0,
+        CURLOPT_USERAGENT => 'Orbitra-Tracker',
+    ]);
+    $data = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    return (is_string($data) && $httpCode === 200) ? $data : null;
+}
+
+/**
+ * Install/update the free Sypex Geo City database (country / region / city).
+ * No account or key: download the zip, extract SxGeoCity.dat, and keep a copy
+ * of the SxGeo.php parser the archive ships when the install has none.
+ *
+ * $fetch is injectable so tests run against a fixture zip without network.
+ *
+ * @param callable|null $fetch fn(string $url): ?string
+ * @return array{ok: bool, message: string, path?: string}
+ */
+function orbitraUpdateSypex(?string $root = null, ?callable $fetch = null, int $timeout = 60): array
+{
+    $root = $root ?: dirname(__DIR__);
+    $fetch = $fetch ?: static fn (string $url): ?string => orbitraGeoFetch($url, $timeout);
+    $geoDir = $root . '/var/geoip/SxGeoCity';
+    $tempDir = null;
+
+    try {
+        if (!is_dir($geoDir) && !mkdir($geoDir, 0777, true) && !is_dir($geoDir)) {
+            throw new RuntimeException('Не удалось создать каталог ' . $geoDir);
+        }
+
+        $zipData = $fetch(ORBITRA_SYPEX_ZIP_URL);
+        if (!is_string($zipData) || $zipData === '') {
+            throw new RuntimeException('Не удалось скачать архив базы от Sypex (sypexgeo.net недоступен или медленный). Повторите позже или загрузите базу вручную в настройках.');
+        }
+        $zipFile = $geoDir . '/SxGeoCity_utf8.zip';
+        if (file_put_contents($zipFile, $zipData) === false) {
+            throw new RuntimeException('Не удалось сохранить архив базы: ' . $zipFile);
+        }
+
+        $zip = new ZipArchive;
+        if ($zip->open($zipFile) !== true) {
+            throw new RuntimeException('Не удалось открыть скачанный архив Sypex.');
+        }
+        $tempDir = sys_get_temp_dir() . '/orbitra_sypex_' . bin2hex(random_bytes(6));
+        if (!mkdir($tempDir, 0755, true)) {
+            $zip->close();
+            throw new RuntimeException('Не удалось создать временный каталог для распаковки.');
+        }
+        $zip->extractTo($tempDir);
+        $zip->close();
+        @unlink($zipFile);
+
+        $iter = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($tempDir, FilesystemIterator::SKIP_DOTS)
+        );
+        $datPath = null;
+        foreach ($iter as $file) {
+            if ($file->isFile() && $file->getFilename() === 'SxGeoCity.dat') {
+                $datPath = $file->getPathname();
+                break;
+            }
+        }
+        if ($datPath === null || filesize($datPath) < 1024) {
+            throw new RuntimeException('В архиве Sypex не найден SxGeoCity.dat.');
+        }
+        $destDat = $geoDir . '/SxGeoCity.dat';
+        $staged = $destDat . '.tmp-' . bin2hex(random_bytes(4));
+        if (!copy($datPath, $staged) || !rename($staged, $destDat)) {
+            if (is_file($staged)) {
+                @unlink($staged);
+            }
+            throw new RuntimeException('Не удалось сохранить SxGeoCity.dat в ' . $geoDir);
+        }
+        @chmod($destDat, 0644);
+
+        // The archive ships the reader too. Install it only when missing: the
+        // repository's own core/SxGeo.php must win on panel updates.
+        $parserPath = $root . '/core/SxGeo.php';
+        if (!file_exists($parserPath)) {
+            foreach ($iter as $file) {
+                if ($file->isFile() && $file->getFilename() === 'SxGeo.php') {
+                    @copy($file->getPathname(), $parserPath);
+                    break;
+                }
+            }
+        }
+
+        return ['ok' => true, 'message' => 'База Sypex успешно обновлена', 'path' => $destDat];
+    } catch (Throwable $e) {
+        return ['ok' => false, 'message' => $e->getMessage()];
+    } finally {
+        if (is_string($tempDir) && is_dir($tempDir)) {
+            orbitraRemoveDirectory($tempDir);
+        }
+    }
+}
+
+/**
+ * Download and activate a MaxMind GeoLite2 edition (Basic-auth permalink that
+ * redirects to Cloudflare R2 — FOLLOWLOCATION is mandatory since 2024).
+ *
+ * @return array{ok: bool, message: string}
+ */
+function orbitraUpdateMaxMind(string $editionId, string $accountId, string $licenseKey, ?string $root = null, int $timeout = 300): array
+{
+    $root = $root ?: dirname(__DIR__);
+    $tmpArchive = sys_get_temp_dir() . '/orbitra-' . strtolower($editionId) . '-' . bin2hex(random_bytes(6)) . '.tar.gz';
+    try {
+        $url = "https://download.maxmind.com/geoip/databases/{$editionId}/download?suffix=tar.gz";
+        $ch = curl_init($url);
+        $fp = @fopen($tmpArchive, 'wb');
+        if ($fp === false) {
+            throw new RuntimeException('Не удалось создать временный файл для загрузки MaxMind.');
+        }
+        curl_setopt_array($ch, [
+            CURLOPT_FILE => $fp,
+            CURLOPT_HEADER => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_USERPWD => $accountId . ':' . $licenseKey,
+            CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_TIMEOUT => $timeout,
+            CURLOPT_USERAGENT => 'Orbitra-Tracker',
+        ]);
+        $downloadOk = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        fclose($fp);
+
+        if ($downloadOk === false || $httpCode !== 200 || !is_file($tmpArchive) || filesize($tmpArchive) <= 1024) {
+            $details = $curlError !== '' ? " cURL: {$curlError}" : '';
+            throw new RuntimeException("Failed to download {$editionId}. HTTP Code: {$httpCode}. Check your Account ID, License Key and outbound HTTPS access.{$details}");
+        }
+
+        $dbFileName = $editionId . '.mmdb';
+        $destPath = $root . '/geo/' . $dbFileName;
+        if (!is_dir($root . '/geo') && !mkdir($root . '/geo', 0755, true) && !is_dir($root . '/geo')) {
+            throw new RuntimeException('Не удалось создать каталог geo.');
+        }
+
+        $ref = new ReflectionClass('\PharData');
+        $p = $ref->newInstance($tmpArchive);
+        $extracted = false;
+        foreach (new RecursiveIteratorIterator($p) as $file) {
+            if ($file->getFilename() === $dbFileName) {
+                $tmpDestPath = $destPath . '.tmp-' . bin2hex(random_bytes(4));
+                if (copy($file->getPathname(), $tmpDestPath) && filesize($tmpDestPath) > 1024) {
+                    chmod($tmpDestPath, 0644);
+                    $extracted = rename($tmpDestPath, $destPath);
+                }
+                if (is_file($tmpDestPath)) {
+                    @unlink($tmpDestPath);
+                }
+                break;
+            }
+        }
+        if (!$extracted) {
+            throw new RuntimeException("Failed to find {$dbFileName} in downloaded archive");
+        }
+        return ['ok' => true, 'message' => "База MaxMind {$editionId} успешно обновлена", 'path' => $destPath];
+    } catch (Throwable $e) {
+        return ['ok' => false, 'message' => $e->getMessage()];
+    } finally {
+        if (is_file($tmpArchive)) {
+            @unlink($tmpArchive);
+        }
+    }
+}
+
+/**
+ * Download and activate an IP2Location / IP2Proxy package. The endpoint
+ * answers with a small HTML error page (not a ZIP) on a bad token or an
+ * exhausted quota — hence the explicit ZIP check.
+ *
+ * @return array{ok: bool, message: string}
+ */
+function orbitraUpdateIp2(string $variant, string $kind, string $token, ?string $root = null, int $timeout = 600): array
+{
+    $root = $root ?: dirname(__DIR__);
+    $tmpArchive = sys_get_temp_dir() . '/orbitra-ip2-' . bin2hex(random_bytes(6)) . '.zip';
+    try {
+        $url = 'https://www.ip2location.com/download?' . http_build_query(['token' => $token, 'file' => $variant]);
+        $ch = curl_init($url);
+        $fp = @fopen($tmpArchive, 'wb');
+        if ($fp === false) {
+            throw new RuntimeException('Не удалось создать временный файл для загрузки. Проверьте права на запись в ' . sys_get_temp_dir());
+        }
+        curl_setopt_array($ch, [
+            CURLOPT_FILE => $fp,
+            CURLOPT_HEADER => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_TIMEOUT => $timeout,
+            CURLOPT_USERAGENT => 'Orbitra-Tracker',
+        ]);
+        $downloadOk = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        fclose($fp);
+
+        if ($downloadOk === false || $httpCode !== 200 || !is_file($tmpArchive) || filesize($tmpArchive) <= 1024) {
+            $details = $curlError !== '' ? ' cURL: ' . $curlError : '';
+            throw new RuntimeException("Не удалось скачать {$variant}. Проверьте токен и квоту IP2Location.{$details}");
+        }
+
+        $zip = new ZipArchive;
+        if ($zip->open($tmpArchive) !== true) {
+            throw new RuntimeException('Архив IP2Location не является корректным ZIP. Возможно, исчерпана квота скачиваний.');
+        }
+        $installed = null;
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $entryName = (string) $zip->getNameIndex($i);
+            if (strtolower(pathinfo($entryName, PATHINFO_EXTENSION)) !== 'bin') {
+                continue;
+            }
+            $input = $zip->getStream($entryName);
+            $tempPath = tempnam(sys_get_temp_dir(), 'orbitra-ip2-bin-');
+            $output = $tempPath !== false ? fopen($tempPath, 'wb') : false;
+            if ($input === false || $output === false) {
+                if (is_resource($input)) {
+                    fclose($input);
+                }
+                throw new RuntimeException('Не удалось распаковать BIN из архива.');
+            }
+            stream_copy_to_stream($input, $output);
+            fclose($input);
+            fclose($output);
+
+            try {
+                $classification = orbitraGeoClassifyFile($tempPath, basename($entryName));
+                if ($classification['kind'] !== $kind) {
+                    throw new RuntimeException('Полученный BIN имеет неожиданный тип: ' . $classification['kind']);
+                }
+                $installed = orbitraGeoInstallFile($tempPath, basename($entryName), $root, true);
+            } finally {
+                if (is_file($tempPath)) {
+                    @unlink($tempPath);
+                }
+            }
+            break;
+        }
+        $zip->close();
+
+        if ($installed === null) {
+            throw new RuntimeException('В скачанном архиве не найден BIN.');
+        }
+        return ['ok' => true, 'message' => "База {$installed['label']} успешно обновлена ({$variant})", 'path' => $installed['path']];
+    } catch (Throwable $e) {
+        return ['ok' => false, 'message' => 'Ошибка установки: ' . $e->getMessage()];
+    } finally {
+        if (is_file($tmpArchive)) {
+            @unlink($tmpArchive);
+        }
+    }
+}

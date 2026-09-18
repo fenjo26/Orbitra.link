@@ -784,6 +784,21 @@ if ! crontab -u www-data -l 2>/dev/null | grep -qF "$IPRANGES_CRON_MARKER"; then
       || echo "  > NOTE: could not write the crontab. Add this line manually: 23 4 * * * php /var/www/orbitra/ipranges_cron.php"
 fi
 
+# Geo databases. The free Sypex Geo City base is refreshed by its vendor
+# roughly monthly, so a monthly pull keeps it fresh without hammering
+# sypexgeo.net; the MaxMind / IP2Location editions download only when their
+# account keys are saved in the panel (the CLI skips them otherwise).
+echo "  > Scheduling the geo database updater (monthly)..."
+GEO_CRON_MARKER="# orbitra-geo"
+if ! crontab -u www-data -l 2>/dev/null | grep -qF "$GEO_CRON_MARKER"; then
+    {
+        crontab -u www-data -l 2>/dev/null
+        echo "17 4 1 * * php /var/www/orbitra/cli/geo_update.php >> /var/www/orbitra/var/logs/geo_update.log 2>&1 $GEO_CRON_MARKER"
+    } | crontab -u www-data - 2>/dev/null \
+      && echo "  > Geo updater scheduled (monthly)." \
+      || echo "  > NOTE: could not write the crontab. Add this line manually: 17 4 1 * * php /var/www/orbitra/cli/geo_update.php"
+fi
+
 # Stream rotation auto-optimiser. Recomputes landing/offer rotation weights
 # from report metrics; every stream carries its own re-evaluation interval,
 # and non-due streams are skipped cheaply, so a per-minute cadence is safe.
@@ -890,6 +905,22 @@ else
     PB_KEY=""
     echo "  > NOTE: could not generate a postback key automatically. Change it"
     echo "  >       manually in Settings -> Postback after setup."
+fi
+
+# Geo databases. A fresh install ships none, and a tracker that cannot resolve
+# a country looks broken: empty geo columns, geo filters matching nothing,
+# cloaking-by-country seeing everyone as Unknown. Download the free Sypex base
+# right here so a fresh install works out of the box; a server that cannot
+# reach sypexgeo.net just gets a NOTE — the tracker itself runs fine, and the
+# panel banner plus Settings → Geo databases offer the install later. Runs as
+# www-data (after the final chown) so the database file is web-owned.
+echo "  > Downloading the free Sypex Geo database (country/city, ~50 MB)..."
+if sudo -u www-data php /var/www/orbitra/cli/geo_update.php --quiet \
+   && sudo -u www-data test -s /var/www/orbitra/var/geoip/SxGeoCity/SxGeoCity.dat; then
+    echo "  > ✓ Geo database installed — country/city detection active"
+else
+    echo "  > NOTE: Sypex Geo could not be downloaded (no outbound access to"
+    echo "  >       sypexgeo.net?). Install it later: Settings -> Geo databases."
 fi
 
 # Smoke tests to verify installation
