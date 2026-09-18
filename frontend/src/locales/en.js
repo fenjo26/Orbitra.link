@@ -2174,7 +2174,13 @@ export default {
         "simulation": "Traffic Simulation",
         "updated": "Updated:",
         "updateAvailable": "Update Available!",
-        "updateDesc": "Version {version} is ready to install. Click to go to update."
+        "updateDesc": "Version {version} is ready to install. Click to go to update.",
+        "geoDbTitle": "No geo database installed",
+        "geoDbText": "Country and city are not resolved: geo filters match nothing and country cloaking sees every visitor as Unknown — which reads as \"cloaking is broken\" when the only thing missing is a database. Install the free Sypex Geo database in one click, or upload your own in the settings.",
+        "geoDbInstall": "Install Sypex Geo (free)",
+        "geoDbInstalling": "Downloading the database…",
+        "geoDbSettings": "Geo database settings",
+        "geoDbFailed": "Download failed — the Sypex server is unreachable from this server. Upload a database manually in the geo database settings."
     },
     "workerHealth": {
         "title": "Background workers need attention",

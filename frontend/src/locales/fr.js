@@ -2174,7 +2174,13 @@ export default {
         "simulation": "Simulation du trafic",
         "updated": "Mise à jour :",
         "updateAvailable": "Mise à jour disponible !",
-        "updateDesc": "La version {version} est prêt à installer. Cliquez pour procéder à la mise à jour."
+        "updateDesc": "La version {version} est prêt à installer. Cliquez pour procéder à la mise à jour.",
+        "geoDbTitle": "Aucune base de données géo installée",
+        "geoDbText": "Le pays et la ville ne sont pas résolus : les filtres géo ne fonctionnent pas et le cloaking par pays voit chaque visiteur comme Unknown — on croit que « le cloaking est cassé » alors qu'il ne manque qu'une base de données. Installez la base gratuite Sypex Geo en un clic, ou téléversez la vôtre dans les réglages.",
+        "geoDbInstall": "Installer Sypex Geo (gratuit)",
+        "geoDbInstalling": "Téléchargement de la base…",
+        "geoDbSettings": "Réglages des bases géo",
+        "geoDbFailed": "Échec du téléchargement — le serveur Sypex est inaccessible depuis ce serveur. Téléversez une base manuellement dans les réglages des bases géo."
     },
     "workerHealth": {
         "title": "Les tâches de fond nécessitent votre attention",

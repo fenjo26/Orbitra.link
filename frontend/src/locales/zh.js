@@ -2174,7 +2174,13 @@ export default {
         "simulation": "交通模拟",
         "updated": "更新：",
         "updateAvailable": "更新可用！",
-        "updateDesc": "版本 {version} 已准备好安装。点击前往更新。"
+        "updateDesc": "版本 {version} 已准备好安装。点击前往更新。",
+        "geoDbTitle": "未安装任何地理数据库",
+        "geoDbText": "国家和城市信息均无法解析：地理筛选条件完全不起作用，按国家隐罩（cloaking）把所有访客都视为 Unknown——看起来像“隐罩坏了”，其实只是缺一个数据库。一键安装免费的 Sypex Geo 数据库，或在设置中上传您自己的数据库。",
+        "geoDbInstall": "安装 Sypex Geo（免费）",
+        "geoDbInstalling": "正在下载数据库…",
+        "geoDbSettings": "地理数据库设置",
+        "geoDbFailed": "下载失败——本服务器无法访问 Sypex 服务器。请在地理数据库设置中手动上传数据库。"
     },
     "workerHealth": {
         "title": "后台任务需要处理",

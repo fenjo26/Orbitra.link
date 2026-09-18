@@ -2174,7 +2174,13 @@ export default {
         "simulation": "Verkehrssimulation",
         "updated": "Aktualisiert:",
         "updateAvailable": "Update verfügbar!",
-        "updateDesc": "Version {version} ist zur Installation bereit. Klicken Sie hier, um zum Aktualisieren zu gelangen."
+        "updateDesc": "Version {version} ist zur Installation bereit. Klicken Sie hier, um zum Aktualisieren zu gelangen.",
+        "geoDbTitle": "Keine Geodatenbank installiert",
+        "geoDbText": "Land und Stadt werden nicht aufgelöst: Geo-Filter greifen nicht, und das Cloaking nach Land sieht jeden Besucher als Unknown — das liest sich wie „Cloaking ist kaputt“, obwohl nur eine Datenbank fehlt. Installieren Sie die kostenlose Sypex-Geo-Datenbank mit einem Klick oder laden Sie Ihre eigene in den Einstellungen hoch.",
+        "geoDbInstall": "Sypex Geo installieren (kostenlos)",
+        "geoDbInstalling": "Datenbank wird heruntergeladen…",
+        "geoDbSettings": "Geodatenbank-Einstellungen",
+        "geoDbFailed": "Download fehlgeschlagen — der Sypex-Server ist von diesem Server aus nicht erreichbar. Laden Sie eine Datenbank manuell in den Geodatenbank-Einstellungen hoch."
     },
     "workerHealth": {
         "title": "Hintergrunddienste benötigen Aufmerksamkeit",

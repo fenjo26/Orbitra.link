@@ -2174,7 +2174,13 @@ export default {
         "simulation": "Simulación de tráfico",
         "updated": "Actualizado:",
         "updateAvailable": "¡Actualización disponible!",
-        "updateDesc": "La versión {version} está lista para instalarse. Haga clic para ir a la actualización."
+        "updateDesc": "La versión {version} está lista para instalarse. Haga clic para ir a la actualización.",
+        "geoDbTitle": "No hay ninguna base de datos geográfica instalada",
+        "geoDbText": "El país y la ciudad no se resuelven: los filtros geográficos no funcionan y el cloaking por países ve a cada visitante como Unknown — parece que \"el cloaking está roto\" cuando lo único que falta es una base de datos. Instale la base gratuita Sypex Geo con un clic o suba la suya en la configuración.",
+        "geoDbInstall": "Instalar Sypex Geo (gratis)",
+        "geoDbInstalling": "Descargando la base…",
+        "geoDbSettings": "Ajustes de bases geográficas",
+        "geoDbFailed": "No se pudo descargar: el servidor de Sypex no es accesible desde este servidor. Suba una base manualmente en los ajustes de bases geográficas."
     },
     "workerHealth": {
         "title": "Los procesos en segundo plano necesitan atención",

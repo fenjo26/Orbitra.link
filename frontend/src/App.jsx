@@ -23,6 +23,7 @@ import AdminPage from './components/AdminPage';
 import TrendsPage from './components/TrendsPage';
 import CampaignEditor from './components/CampaignEditor';
 import DashboardHeader from './components/DashboardHeader';
+import GeoDbBanner from './components/GeoDbBanner';
 import DashboardSettingsModal from './components/DashboardSettingsModal';
 import LeadForgePage from './components/LeadForgePage';
 import CRMPage from './components/CRMPage';
@@ -610,6 +611,10 @@ function App() {
                 </button>
               </div>
             )}
+
+            {/* Geo databases missing — a fresh install has none, and empty
+                country columns read as "cloaking is broken" */}
+            <GeoDbBanner />
 
             {/* Background worker warnings — see worker_health in api.php */}
             {workerHealth && !workerHealth.healthy && !dismissWorkerHealth && (
