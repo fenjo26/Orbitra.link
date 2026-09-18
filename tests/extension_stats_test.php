@@ -33,6 +33,7 @@ $pdo = new PDO('sqlite::memory:', null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE
 $pdo->exec("CREATE TABLE clicks (
     id TEXT PRIMARY KEY, campaign_id INTEGER, landing_id INTEGER, offer_id INTEGER,
     cost REAL DEFAULT 0, uniq_campaign INTEGER DEFAULT 1, is_safe_page INTEGER DEFAULT 0,
+    direct_offer INTEGER DEFAULT 0,
     parameters_json TEXT, created_at DATETIME
 )");
 // streams is what orbitraSafePagePredicate() resolves the per-campaign
@@ -167,6 +168,22 @@ $kept = ExtensionStats::deepStats($pdo, 'payout', '2026-08-16', '2026-08-17', [
     ['type' => 'adset', 'id' => '7777'],
 ]);
 check('exclude_safe_from_reports=false keeps the hit', 1, (int) ($kept['entities']['7777']['clicks'] ?? 0));
+
+// --- Direct URL hops (migration 53) ----------------------------------------
+// A stream Direct URL has no offer_id but is an offer click; an action-stream
+// hit (no offer, no direct URL) is not. Same predicate as the panel reports,
+// so the overlay cannot disagree with them on direct-URL campaigns.
+$pdo->exec("INSERT INTO clicks (id, campaign_id, landing_id, offer_id, cost, uniq_campaign, direct_offer, parameters_json, created_at) VALUES
+    ('d1', 5, null, null, 12.0, 1, 1, '{\"adset_id\":\"1301\"}', '2026-08-16 13:00:00'),
+    ('n1', 5, null, null,  3.0, 1, 0, '{\"adset_id\":\"1301\"}', '2026-08-16 14:00:00')");
+$direct = ExtensionStats::deepStats($pdo, 'payout', '2026-08-16', '2026-08-17', [
+    ['type' => 'adset', 'id' => '1301'],
+]);
+$e3 = $direct['entities']['1301'];
+check('direct hop counts as a click-hit', 2, (int) $e3['clicks']);
+check('only the direct hop is an offer click', 1, (int) $e3['offer_clicks']);
+check('direct hop without a landing is no lp_click', 0, (int) $e3['lp_clicks']);
+check('direct hop has no offer-breakdown row', 0, count($e3['offers']));
 
 echo "\nextension_stats_test: " . ($failed === 0 ? "ALL OK ($passed)" : "FAILED ($failed failed)") . "\n";
 exit($failed === 0 ? 0 : 1);

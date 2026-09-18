@@ -991,7 +991,11 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                                                                         ? t('dimensions.directNoLander', r.name)
                                                                         : r.name === 'Default / Direct Stream'
                                                                             ? t('dimensions.defaultStream', r.name)
-                                                                            : r.name}
+                                                                            : r.name === 'Deleted Stream'
+                                                                                ? t('dimensions.deletedStream', r.name)
+                                                                                : r.name === 'Unnamed Stream'
+                                                                                    ? t('dimensions.unnamedStream', r.name)
+                                                                                    : r.name}
                                                                 </span>
                                                                 {r.dimId && r.dimId !== '0' && r.dimId !== 'Unknown' && r.dimId !== 'none' && r.dimId !== r.name && (
                                                                     <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--color-bg-soft)] text-[var(--color-text-muted)] border border-[var(--color-border)]">

@@ -181,7 +181,7 @@ $pdo->exec('CREATE TABLE clicks (id TEXT PRIMARY KEY, campaign_id INTEGER, offer
     landing_at TEXT, offer_at TEXT, lp_seconds INTEGER, lp_scroll INTEGER,
     pwa_intent_at TEXT, pwa_install_at TEXT, pwa_open_at TEXT, pwa_open_count INTEGER DEFAULT 0,
     push_prompted_at TEXT, push_subscribed_at TEXT, push_declined_at TEXT,
-    pwa_entry_screen TEXT, pwa_last_screen TEXT)');
+    pwa_entry_screen TEXT, pwa_last_screen TEXT, direct_offer INTEGER DEFAULT 0)');
 // Per-screen funnel log (migration 51): the 1:N event table behind
 // pwa_screen_views, created here exactly as the self-heal DDL ships it.
 $pdo->exec('CREATE TABLE pwa_screen_views (
@@ -209,6 +209,11 @@ $st = $pdo->prepare('INSERT INTO clicks (id, landing_id, offer_id, ip, cost) VAL
 foreach ([['m1',1,7,'A',10], ['m2',1,null,'A',5], ['m3',1,null,'B',1],
           ['m4',2,8,'C',4], ['m5',null,9,'D',1], ['m6',null,null,'E',0],
           ['m7',1,7,'A',0]] as $r) { $st->execute($r); }
+// m8: a hop to a stream Direct URL (migration 53) — no landing, no catalog
+// offer, but direct_offer=1, so it is a click everywhere the reports count
+// one. New IP (unique), zero cost, nothing else reported.
+$st->execute(['m8', null, null, 'F', 0]);
+$pdo->exec("UPDATE clicks SET direct_offer = 1 WHERE id = 'm8'");
 $pdo->exec("UPDATE clicks SET is_bot = 1 WHERE id = 'm4'");
 // Uniqueness / referer / funnel-timing extras for the parity counters:
 // m2 is the same IP as m1 (not unique anywhere), m3 arrives with an empty
@@ -250,17 +255,18 @@ $pdo->exec('INSERT INTO offers (id, name) VALUES (7,"of7"), (8,"of8"), (9,"of9")
 // click cost when one click has several conversion events.
 $dashboardRaw = $pdo->query(orbitraDashboardMetricsSql('payout', null))->fetch(PDO::FETCH_ASSOC);
 $dashboard = orbitraComputeDerivedMetrics($dashboardRaw ?: []);
-$assert('Dashboard clicks (offer hits only)', $dashboard['clicks'], 3, 0);
+$assert('Dashboard clicks (offer hits only)', $dashboard['clicks'], 4, 0);
 // m7 is the pre-bound landing view: a visitor, not a click — the exact
-// separation the offer-funnel semantics exist for.
-$assert('Dashboard visitors (all hits)', $dashboard['visitors'], 7, 0);
+// separation the offer-funnel semantics exist for. m8 is the Direct URL hop:
+// no offer_id, but a click the same way m5's catalog hop is.
+$assert('Dashboard visitors (all hits)', $dashboard['visitors'], 8, 0);
 // The dwell metrics are computed over MEASURED visits only: two of the six
 // clicks reported, so a 21s average and a 50% bounce share — not 2/6.
 $assert('Dashboard LP measured visits', $dashboard['lp_measured'], 2, 0);
 $assert('Dashboard LP scroll depth', $dashboard['lp_scroll_depth'], 47.5, 0.01);
 $assert('Dashboard LP bounce rate', $dashboard['lp_bounce_rate'], 50.0, 0.01);
 $assert('Dashboard time on LP', $dashboard['time_on_lp'], '21s');
-$assert('Dashboard unique clicks', $dashboard['unique_clicks'], 5, 0);
+$assert('Dashboard unique clicks', $dashboard['unique_clicks'], 6, 0);
 $assert('Dashboard conversions', $dashboard['conversions'], 8, 0);
 $assert('Dashboard leads', $dashboard['leads'], 1, 0);
 $assert('Dashboard sales', $dashboard['sales'], 3, 0);
@@ -271,12 +277,12 @@ $assert('Dashboard confirmed profit', $dashboard['profit_confirmed'], 24);
 $assert('Dashboard CPL', $dashboard['cpl'], 21);
 $assert('Dashboard CPS', $dashboard['cps'], 7);
 $assert('Dashboard LP CTR', $dashboard['lp_ctr'], 40);
-$assert('Dashboard bot rate (bots per offer click)', $dashboard['bot_rate'], 33.33);
+$assert('Dashboard bot rate (bots per offer click)', $dashboard['bot_rate'], 25.0);
 // Honest counters on the same seed: m1 and m4 completed the CTA transition
 // (offer_at set), m5 is a direct offer click; m2/m3 stayed on the landing
 // and m7's offer was pre-bound but never transitioned.
 $assert('Dashboard real LP clicks', $dashboard['real_lp_clicks'], 2, 0);
-$assert('Dashboard real offer clicks', $dashboard['real_offer_clicks'], 3, 0);
+$assert('Dashboard real offer clicks', $dashboard['real_offer_clicks'], 4, 0);
 $assert('Dashboard real LP CTR', $dashboard['real_lp_ctr'], 40);
 // Per-screen funnel: 6 screen views over 7 clicks — m1 contributes two, m3's
 // revisit counts, m5/m6/m7 contribute nothing. A click is 1:N views here.

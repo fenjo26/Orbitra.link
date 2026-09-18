@@ -120,8 +120,10 @@ final class ExtensionStats
                    COALESCE(SUM(cv.rev_all), 0) AS revenue,
                    COALESCE(SUM(cv.rev_sale), 0) AS revenue_confirmed,
                    COALESCE(SUM(CASE WHEN clicks.landing_id > 0 THEN 1 ELSE 0 END), 0) AS prelander_clicks,
-                   COALESCE(SUM(CASE WHEN clicks.offer_id > 0 THEN 1 ELSE 0 END), 0) AS offer_clicks,
-                   COALESCE(SUM(CASE WHEN clicks.landing_id > 0 AND clicks.offer_id > 0 THEN 1 ELSE 0 END), 0) AS lp_clicks
+                   -- Same offer-funnel predicate as ReportMetrics (migration 53):
+                   -- a hop to a stream Direct URL has no offer_id but is a click.
+                   COALESCE(SUM(CASE WHEN (clicks.offer_id > 0 OR COALESCE(clicks.direct_offer, 0) = 1) THEN 1 ELSE 0 END), 0) AS offer_clicks,
+                   COALESCE(SUM(CASE WHEN clicks.landing_id > 0 AND (clicks.offer_id > 0 OR COALESCE(clicks.direct_offer, 0) = 1) THEN 1 ELSE 0 END), 0) AS lp_clicks
             FROM clicks
             LEFT JOIN $convAgg cv ON cv.click_id = clicks.id
             WHERE json_extract(clicks.parameters_json, '\$.{$param}') = :id
@@ -172,7 +174,7 @@ final class ExtensionStats
             $stmt = $pdo->prepare("
                 SELECT l.id, l.name,
                        COUNT(clicks.id) AS clicks,
-                       COALESCE(SUM(CASE WHEN clicks.landing_id > 0 AND clicks.offer_id > 0 THEN 1 ELSE 0 END), 0) AS lp_clicks,
+                       COALESCE(SUM(CASE WHEN clicks.landing_id > 0 AND (clicks.offer_id > 0 OR COALESCE(clicks.direct_offer, 0) = 1) THEN 1 ELSE 0 END), 0) AS lp_clicks,
                        COALESCE(SUM(clicks.cost), 0) AS spend,
                        COALESCE(SUM(cv.rev_all), 0) AS revenue
                 FROM clicks

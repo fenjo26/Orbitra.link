@@ -38,7 +38,8 @@ $open = static function () use ($fixture): PDO {
 
 $check('fresh bootstrap completes', $runConfig() === 'BOOTSTRAP_OK');
 $pdo = $open();
-$check('fresh schema is 52', (int) $pdo->query('PRAGMA user_version')->fetchColumn() === 52);
+// >= : later migrations (53: clicks.direct_offer) stamp a higher version.
+$check('fresh schema is 52', (int) $pdo->query('PRAGMA user_version')->fetchColumn() >= 52);
 $check('fresh index covers conversion_id',
     $pdo->query("PRAGMA index_info('idx_s2s_postbacks_conversion')")->fetchAll(PDO::FETCH_COLUMN, 2) === ['conversion_id']);
 $check('fresh private key table exists without generating an unused secret',
@@ -62,7 +63,7 @@ $before = $pdo->query('SELECT * FROM s2s_postbacks_log ORDER BY id')->fetchAll()
 $pdo = null;
 $check('schema51 upgrade completes', $runConfig() === 'BOOTSTRAP_OK');
 $pdo = $open();
-$check('upgrade stamps52', (int) $pdo->query('PRAGMA user_version')->fetchColumn() === 52);
+$check('upgrade stamps52', (int) $pdo->query('PRAGMA user_version')->fetchColumn() >= 52);
 $check('upgrade preserves all queue data without replay', $pdo->query('SELECT * FROM s2s_postbacks_log ORDER BY id')->fetchAll() === $before);
 $check('conversion remains unchanged', (int) $pdo->query('SELECT count(*) FROM conversions WHERE id=500')->fetchColumn() === 1);
 $pdo->prepare('INSERT INTO meta_matching_keys (id,secret) VALUES (1,?)')->execute([str_repeat('a', 64)]);

@@ -118,7 +118,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
         // to clicks so the visitors/clicks pair stays meaningful (CPV/EPV ÷
         // visitors, CR/CPC/EPC ÷ clicks).
         return "
-            SELECT COALESCE(SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0
+            SELECT COALESCE(SUM(CASE WHEN (cl.offer_id > 0 OR COALESCE(cl.direct_offer, 0) = 1)
                                           AND (cl.landing_id IS NULL OR cl.landing_id = 0 OR cl.offer_at IS NOT NULL)
                                       THEN 1 ELSE 0 END), 0) AS clicks,
                    COUNT(cl.id) AS visitors,
@@ -129,10 +129,10 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 THEN 1 ELSE 0 END), 0) AS prelander_clicks,
                    COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0
                                           AND cl.offer_at IS NOT NULL THEN 1 ELSE 0 END), 0) AS lp_clicks,
-                   COALESCE(SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END), 0) AS offer_clicks,
+                   COALESCE(SUM(CASE WHEN (cl.offer_id > 0 OR COALESCE(cl.direct_offer, 0) = 1) THEN 1 ELSE 0 END), 0) AS offer_clicks,
                    COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0
                                           AND cl.offer_at IS NOT NULL THEN 1 ELSE 0 END), 0) AS real_lp_clicks,
-                   COALESCE(SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0
+                   COALESCE(SUM(CASE WHEN (cl.offer_id > 0 OR COALESCE(cl.direct_offer, 0) = 1)
                                           AND (cl.landing_id IS NULL OR cl.landing_id = 0 OR cl.offer_at IS NOT NULL)
                                       THEN 1 ELSE 0 END), 0) AS real_offer_clicks,
                    AVG(cl.lp_seconds) AS avg_lp_dwell,
@@ -353,7 +353,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                        cl.pwa_intent_at, cl.pwa_install_at, cl.pwa_open_count,
                        cl.push_subscribed_at,
                        (SELECT COUNT(*) FROM pwa_screen_views v WHERE v.click_id = cl.id) as pwa_screen_views,
-                       CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END as offer_clicked,
+                       CASE WHEN (cl.offer_id > 0 OR COALESCE(cl.direct_offer, 0) = 1) THEN 1 ELSE 0 END as offer_clicked,
                        cva.cnt_any, cva.rev_all, cva.rev_sale,
                        cva.cnt_sale, cva.cnt_hold, cva.cnt_rejected, cva.cnt_trash,
                        cva.cnt_registration, cva.cnt_deposit,

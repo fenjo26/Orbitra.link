@@ -13,6 +13,8 @@
 - `GET ?action=metrics` — агрегированные метрики (клики, уники, конверсии, доход) для главного дашборда.
 - `GET ?action=chart` — массив данных для построения графика по дням.
 - `GET ?action=logs` — последние клики для таблицы 'Recent Clicks'.
+  Параметры: `type` (traffic|postbacks|s2s|system|audit), `limit` (1..500), `cursor` (из `next_cursor` предыдущего ответа) или `offset`, для traffic — `campaign_id`, `stream_id`, `route`, `reason`, `date_from`/`date_to` (Y-m-d, время панели). Ответ: `data`, `has_more`, `next_cursor`.
+- `GET ?action=logs_export&type=…` — те же фильтры, CSV (`;`, UTF-8 BOM), до 100 000 строк.
 - `GET ?action=trends` — агрегированные данные для графиков и таблиц на странице Analytics & Trends.
 
 ## Кампании (Campaigns)

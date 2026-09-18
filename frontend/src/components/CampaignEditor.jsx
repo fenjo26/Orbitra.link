@@ -599,6 +599,26 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     });
     const activeCampaignId = formData.id || campaignId;
 
+    // Streams tab counters (hits / unique / bots per stream for a period) —
+    // "where does the traffic inside this campaign go" without opening reports.
+    const [streamStatsPeriod, setStreamStatsPeriod] = useState('today');
+    const [streamStats, setStreamStats] = useState(null);
+    const [streamStatsLoading, setStreamStatsLoading] = useState(false);
+    const [streamStatsTick, setStreamStatsTick] = useState(0);
+    useEffect(() => {
+        if (!activeCampaignId) { setStreamStats(null); return undefined; }
+        let cancelled = false;
+        setStreamStatsLoading(true);
+        const qs = new URLSearchParams({ action: 'campaign_stream_stats', campaign_id: String(activeCampaignId), period: streamStatsPeriod });
+        fetch(`/api.php?${qs.toString()}`)
+            .then(r => r.json())
+            .then(d => { if (!cancelled) setStreamStats(d.status === 'success' ? d.data : null); })
+            .catch(() => { if (!cancelled) setStreamStats(null); })
+            .finally(() => { if (!cancelled) setStreamStatsLoading(false); });
+        return () => { cancelled = true; };
+    }, [activeCampaignId, streamStatsPeriod, streamStatsTick]);
+    const fmtCount = (n) => Number(n || 0).toLocaleString();
+
     // Stream Expansion state
     const [expandedStream, setExpandedStream] = useState(null);
 
@@ -1437,13 +1457,21 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             const res = await cachedPost('save_campaign', payload);
             if (res.data.status === 'success') {
                 const saved = res.data.data || {};
+                // Adopt the IDs the server gave the streams: without them a
+                // second save from the same open editor would treat new streams
+                // as new again and re-mint their IDs.
+                const savedStreamIds = Array.isArray(saved.stream_ids) ? saved.stream_ids : null;
                 const nextFormData = {
                     ...formData,
+                    streams: savedStreamIds && savedStreamIds.length === formData.streams.length
+                        ? formData.streams.map((st, i) => ({ ...st, id: savedStreamIds[i] }))
+                        : formData.streams,
                     id: saved.id || formData.id || campaignId,
                     token: saved.token || formData.token,
                     rotation_type: saved.rotation_type || formData.rotation_type
                 };
                 setFormData(nextFormData);
+                setStreamStatsTick(x => x + 1);
                 baselineRef.current = JSON.stringify(nextFormData);
                 setIsDirty(false);
                 setSaveSuccess(true);
@@ -1573,11 +1601,20 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     };
 
     // Stream management
+    // "Stream 3", not a third "New stream": identical names made the report's
+    // Stream grouping unreadable (every row looked the same).
+    const nextStreamName = () => {
+        const taken = new Set(formData.streams.map(s => (s.name || '').trim()));
+        let n = formData.streams.length + 1;
+        while (taken.has(t('editor.streamDefaultName', { n }))) n += 1;
+        return t('editor.streamDefaultName', { n });
+    };
+
     const addStream = (type) => {
         const newStream = {
             id: "temp_" + Date.now(),
             type: type,
-            name: t('editor.newStream'),
+            name: nextStreamName(),
             position: formData.streams.length + 1,
             is_active: 1,
             collect_clicks: 1,
@@ -4250,6 +4287,32 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                 <span className="font-normal text-sm ml-1" style={{ color: 'var(--color-text-muted)' }}>({formData.streams.length})</span>
                             </h3>
 
+                            {activeCampaignId ? (
+                                <div className="flex items-center gap-2 ml-auto mr-2">
+                                    <select
+                                        value={streamStatsPeriod}
+                                        onChange={e => setStreamStatsPeriod(e.target.value)}
+                                        className="form-select text-xs py-1.5 rounded-lg"
+                                        title={t('editor.streamStatsHint')}
+                                        aria-label={t('editor.streamStatsPeriod')}
+                                    >
+                                        <option value="today">{t('editor.streamStatsToday')}</option>
+                                        <option value="yesterday">{t('editor.streamStatsYesterday')}</option>
+                                        <option value="7d">{t('editor.streamStats7d')}</option>
+                                        <option value="30d">{t('editor.streamStats30d')}</option>
+                                    </select>
+                                    <button
+                                        type="button"
+                                        className="btn-icon"
+                                        onClick={() => setStreamStatsTick(x => x + 1)}
+                                        title={t('editor.streamStatsRefresh')}
+                                        aria-label={t('editor.streamStatsRefresh')}
+                                    >
+                                        <RefreshCw className={`w-4 h-4 ${streamStatsLoading ? 'animate-spin' : ''}`} />
+                                    </button>
+                                </div>
+                            ) : null}
+
                             <div className="relative" ref={streamMenuRef}>
                                 {/* Click-toggle, not hover: hover never fires on a
                                     phone, and this menu is the only way to add a
@@ -4314,6 +4377,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                             </button>
                                         </div>
                                     )}
+                                    {streamStats?.other && streamStats.other.visitors > 0 && (
+                                        <div className="text-xs px-3 py-2 rounded-xl" style={{ backgroundColor: 'var(--color-bg-soft)', color: 'var(--color-text-muted)', border: '1px dashed var(--color-border)' }}>
+                                            {t('editor.streamStatsOther', { visitors: fmtCount(streamStats.other.visitors), share: streamStats.other.share })}
+                                        </div>
+                                    )}
                                     {formData.streams.map((stream, idx) => (
                                         <div key={stream.id || idx} className="rounded-2xl overflow-hidden shadow-sm" style={{
                                             backgroundColor: 'var(--color-bg-card)',
@@ -4362,6 +4430,30 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                             </span>
                                                         </div>
                                                     )}
+
+                                                    {streamStats && (() => {
+                                                        const st = streamStats.streams?.[stream.id];
+                                                        const unsaved = !stream.id || String(stream.id).startsWith('temp_');
+                                                        return (
+                                                            <div
+                                                                className="flex items-center gap-2 px-2 py-0.5 rounded-lg text-[11px] whitespace-nowrap"
+                                                                style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)', color: 'var(--color-text-muted)' }}
+                                                                title={unsaved ? t('editor.streamStatsUnsaved') : t('editor.streamStatsHint')}
+                                                                data-stream-stats={stream.id || ''}
+                                                            >
+                                                                {unsaved ? (
+                                                                    <span>{t('editor.streamStatsUnsaved')}</span>
+                                                                ) : (
+                                                                    <>
+                                                                        <span>{t('editor.streamStatsVisitors')} <b style={{ color: 'var(--color-text-primary)' }}>{fmtCount(st?.visitors)}</b></span>
+                                                                        <span>{t('editor.streamStatsUnique')} <b style={{ color: 'var(--color-text-primary)' }}>{fmtCount(st?.unique)}</b></span>
+                                                                        <span>{t('editor.streamStatsBots')} <b style={{ color: (st?.bots || 0) > 0 ? '#f97316' : 'var(--color-text-primary)' }}>{fmtCount(st?.bots)}</b></span>
+                                                                        <span className="font-extrabold px-1.5 py-0.5 rounded-md" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-primary)' }}>{st ? `${st.share}%` : '0%'}</span>
+                                                                    </>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })()}
                                                 </div>
                                                 <div className="flex items-center gap-4">
                                                     <label className="flex items-center gap-2 text-sm cursor-pointer" style={{ color: 'var(--color-text-primary)' }}>

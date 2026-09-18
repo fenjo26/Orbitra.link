@@ -87,7 +87,7 @@ try {
     // subscriber base; 44 = media library (docs/media-core-v1.md); 43 = PWA
     // landings. All migration blocks are additive — whoever adds the next one
     // bumps this and appends below, re-reading the file first (parallel-session rule).
-    $LATEST_SCHEMA_VERSION = 52;
+    $LATEST_SCHEMA_VERSION = 53;
 
     $schemaVersion = 0;
     try {
@@ -2666,6 +2666,35 @@ try {
                     id INTEGER PRIMARY KEY CHECK (id = 1),
                     secret TEXT NOT NULL
                 )");
+            }
+
+            if ($schemaVersion < 53) {
+                // Migration 53: a hop to a stream's "Direct URL" is an offer
+                // click. It has no offer_id (the URL is not a catalog offer),
+                // so every Clicks figure — which keys on offer_id > 0 — showed
+                // 0 for direct-URL campaigns while Visitors counted thousands.
+                // index.php now flags those hops; the backfill marks existing
+                // clicks of streams that are configured with a direct URL
+                // today (clicks of streams re-created by pre-1.5.14 saves
+                // cannot be tied back and stay uncounted).
+                try {
+                    $pdo->exec("ALTER TABLE clicks ADD COLUMN direct_offer INTEGER DEFAULT 0");
+                } catch (\Throwable $e) {
+                    // Column already present on a half-migrated DB.
+                }
+                try {
+                    $pdo->exec("UPDATE clicks SET direct_offer = 1
+                        WHERE COALESCE(offer_id, 0) = 0 AND COALESCE(landing_id, 0) = 0
+                          AND COALESCE(is_safe_page, 0) = 0
+                          AND stream_id IN (
+                            SELECT id FROM streams
+                            WHERE COALESCE(schema_type, 'redirect') = 'redirect'
+                              AND json_valid(schema_custom_json)
+                              AND TRIM(COALESCE(json_extract(schema_custom_json, '$.direct_url'), '')) != ''
+                          )");
+                } catch (\Throwable $e) {
+                    error_log('Orbitra migration 53 backfill: ' . $e->getMessage());
+                }
             }
 
             // Mark schema as up-to-date. This must be last.

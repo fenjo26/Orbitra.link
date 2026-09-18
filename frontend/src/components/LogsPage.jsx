@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, ArrowRightLeft, ShieldAlert, TerminalSquare, ServerCrash, FileStack, Filter, ChevronDown } from 'lucide-react';
+import { Activity, ArrowRightLeft, ShieldAlert, TerminalSquare, ServerCrash, FileStack, Filter, ChevronDown, Download } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import MobileCards from './common/MobileCards';
 import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle } from './common/ColumnResize';
@@ -18,15 +18,24 @@ const LogsPage = () => {
 
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(true);
+    // Keyset paging: the server hands back the cursor of the last row; "Load
+    // more" asks for rows older than it, so new clicks arriving meanwhile can
+    // never shift a page and duplicate rows the way an OFFSET would.
+    const [hasMore, setHasMore] = useState(false);
+    const [nextCursor, setNextCursor] = useState(null);
+    const [loadingMore, setLoadingMore] = useState(false);
 
     // W2: Cloak observability filters
     const [filters, setFilters] = useState(() => {
-        if (typeof window === 'undefined') return { campaign_id: '', route: 'all', reason: '' };
+        if (typeof window === 'undefined') return { campaign_id: '', stream_id: '', route: 'all', reason: '', date_from: '', date_to: '' };
         const params = new URLSearchParams(window.location.search);
         return {
             campaign_id: params.get('campaign_id') || '',
+            stream_id: params.get('stream_id') || '',
             route: params.get('route') || 'all',
-            reason: params.get('reason') || ''
+            reason: params.get('reason') || '',
+            date_from: params.get('date_from') || '',
+            date_to: params.get('date_to') || ''
         };
     });
 
@@ -34,7 +43,7 @@ const LogsPage = () => {
         if (typeof window === 'undefined') return false;
         const params = new URLSearchParams(window.location.search);
         // Auto-expand filters if any are set
-        return !!(params.get('campaign_id') || params.get('route') !== 'all' || params.get('reason'));
+        return !!(params.get('campaign_id') || params.get('stream_id') || (params.get('route') && params.get('route') !== 'all') || params.get('reason') || params.get('date_from') || params.get('date_to'));
     });
 
     // Click-log column resizing (traffic tab) — desktop table only; below lg
@@ -48,6 +57,7 @@ const LogsPage = () => {
             { id: 'click_id', width: 120 },
             { id: 'subid', width: 100 },
             { id: 'campaign', width: 180 },
+            { id: 'stream', width: 150 },
             { id: 'route', width: 100 },
             { id: 'reason', width: 180 },
             { id: 'destination', width: 160 },
@@ -68,36 +78,161 @@ const LogsPage = () => {
         audit: { name: t('logs.auditLog'), icon: <ShieldAlert className="w-4 h-4" /> }
     };
 
-    useEffect(() => {
-        setLoading(true);
-        // W2: Build URL with filter parameters for traffic tab
-        const params = new URLSearchParams({
-            action: 'logs',
-            type: activeTab,
-            limit: '100'
-        });
-
+    // Same filters for the page, "Load more" and the CSV export — the backend
+    // builds all three from one query (core/logs_query.php).
+    const buildLogParams = (action) => {
+        const params = new URLSearchParams({ action, type: activeTab });
         if (activeTab === 'traffic') {
             if (filters.campaign_id) params.append('campaign_id', filters.campaign_id);
+            if (filters.stream_id) params.append('stream_id', filters.stream_id);
             if (filters.route !== 'all') params.append('route', filters.route);
             if (filters.reason) params.append('reason', filters.reason);
+            if (filters.date_from) params.append('date_from', filters.date_from);
+            if (filters.date_to) params.append('date_to', filters.date_to);
         }
+        return params;
+    };
+
+    useEffect(() => {
+        let cancelled = false;
+        setLoading(true);
+        setHasMore(false);
+        setNextCursor(null);
+        const params = buildLogParams('logs');
+        params.append('limit', '100');
 
         fetch(`${API_URL}?${params.toString()}`)
             .then(res => res.json())
             .then(data => {
+                if (cancelled) return;
                 if (data.status === 'success') {
                     setLogs(data.data);
+                    setHasMore(!!data.has_more);
+                    setNextCursor(data.next_cursor || null);
                 } else {
                     setLogs([]);
                 }
                 setLoading(false);
             })
             .catch(() => {
+                if (cancelled) return;
                 setLogs([]);
                 setLoading(false);
             });
+        return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeTab, filters]);
+
+    const loadMore = () => {
+        if (!nextCursor || loadingMore) return;
+        setLoadingMore(true);
+        const params = buildLogParams('logs');
+        params.append('limit', '100');
+        params.append('cursor', nextCursor);
+        fetch(`${API_URL}?${params.toString()}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    setLogs(prev => [...prev, ...data.data]);
+                    setHasMore(!!data.has_more);
+                    setNextCursor(data.next_cursor || null);
+                }
+            })
+            .catch(() => { /* keep what is already on screen */ })
+            .finally(() => setLoadingMore(false));
+    };
+
+    const exportHref = `${API_URL}?${buildLogParams('logs_export').toString()}`;
+
+    const renderStream = (log) => {
+        if (!log.stream_id) return <span className="text-xs text-[var(--color-text-muted)]">-</span>;
+        const typeLabel = log.stream_type === 'intercepting'
+            ? t('editor.streamInterceptingShort')
+            : log.stream_type === 'fallback'
+                ? t('editor.streamFallbackShort')
+                : t('editor.streamRegularShort');
+        return (
+            <span className="flex flex-col gap-0.5 min-w-0">
+                <span className="truncate" title={log.stream_name || ''}>{log.stream_name || `#${log.stream_id}`}</span>
+                <span className="text-[10px] font-semibold tracking-wide text-[var(--color-text-muted)]">{typeLabel}</span>
+            </span>
+        );
+    };
+
+    // Filter bar lives outside renderTable: rendered inside it, a filter that
+    // matched nothing (or a reload in flight) unmounted the bar together with
+    // the table, and the operator had no way back short of reloading the page.
+    const renderTrafficFilters = () => (
+        <div className="mb-4 p-3 rounded-xl border" style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}>
+            <div className="flex items-center gap-2 mb-2">
+                <button
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="flex items-center gap-2 text-xs font-medium"
+                    style={{ color: 'var(--color-text-secondary)' }}
+                >
+                    <Filter className="w-4 h-4" />
+                    {showFilters ? <ChevronDown className="w-4 h-4" /> : <ChevronDown className="w-4 h-4 rotate-[-90deg]" />}
+                    {t('logs.filterByCampaign')}
+                </button>
+            </div>
+            {showFilters && (
+                <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                    <input
+                        type="number"
+                        placeholder={t('logs.filterByCampaign')}
+                        value={filters.campaign_id}
+                        onChange={e => setFilters({ ...filters, campaign_id: e.target.value })}
+                        className="form-input text-xs py-1.5 rounded-lg"
+                        style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}
+                    />
+                    <input
+                        type="number"
+                        placeholder={t('logs.filterByStream')}
+                        value={filters.stream_id}
+                        onChange={e => setFilters({ ...filters, stream_id: e.target.value })}
+                        className="form-input text-xs py-1.5 rounded-lg"
+                        style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}
+                    />
+                    <select
+                        value={filters.route}
+                        onChange={e => setFilters({ ...filters, route: e.target.value })}
+                        className="form-select text-xs py-1.5 rounded-lg"
+                        style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}
+                    >
+                        <option value="all">{t('logs.routeFilterAll')}</option>
+                        <option value="money">{t('logs.routeFilterMoney')}</option>
+                        <option value="safe">{t('logs.routeFilterSafe')}</option>
+                    </select>
+                    <input
+                        type="text"
+                        placeholder={t('logs.filterByReason')}
+                        value={filters.reason}
+                        onChange={e => setFilters({ ...filters, reason: e.target.value })}
+                        className="form-input text-xs py-1.5 rounded-lg"
+                        style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}
+                    />
+                    <input
+                        type="date"
+                        title={t('logs.dateFrom')}
+                        aria-label={t('logs.dateFrom')}
+                        value={filters.date_from}
+                        onChange={e => setFilters({ ...filters, date_from: e.target.value })}
+                        className="form-input text-xs py-1.5 rounded-lg"
+                        style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}
+                    />
+                    <input
+                        type="date"
+                        title={t('logs.dateTo')}
+                        aria-label={t('logs.dateTo')}
+                        value={filters.date_to}
+                        onChange={e => setFilters({ ...filters, date_to: e.target.value })}
+                        className="form-input text-xs py-1.5 rounded-lg"
+                        style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}
+                    />
+                </div>
+            )}
+        </div>
+    );
 
     const renderTable = () => {
         if (loading) return <div className="p-8 text-center text-[var(--color-text-muted)]">{t('logs.loadingLogs')}</div>;
@@ -198,51 +333,6 @@ const LogsPage = () => {
 
                 return (
                     <>
-                        {/* W2: Filter bar for traffic logs */}
-                        <div className="mb-4 p-3 rounded-xl border" style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}>
-                            <div className="flex items-center gap-2 mb-2">
-                                <button
-                                    onClick={() => setShowFilters(!showFilters)}
-                                    className="flex items-center gap-2 text-xs font-medium"
-                                    style={{ color: 'var(--color-text-secondary)' }}
-                                >
-                                    <Filter className="w-4 h-4" />
-                                    {showFilters ? <ChevronDown className="w-4 h-4" /> : <ChevronDown className="w-4 h-4 rotate-[-90deg]" />}
-                                    {t('logs.filterByCampaign')}
-                                </button>
-                            </div>
-                            {showFilters && (
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                    <input
-                                        type="number"
-                                        placeholder={t('logs.filterByCampaign')}
-                                        value={filters.campaign_id}
-                                        onChange={e => setFilters({ ...filters, campaign_id: e.target.value })}
-                                        className="form-input text-xs py-1.5 rounded-lg"
-                                        style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}
-                                    />
-                                    <select
-                                        value={filters.route}
-                                        onChange={e => setFilters({ ...filters, route: e.target.value })}
-                                        className="form-select text-xs py-1.5 rounded-lg"
-                                        style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}
-                                    >
-                                        <option value="all">{t('logs.routeFilterAll')}</option>
-                                        <option value="money">{t('logs.routeFilterMoney')}</option>
-                                        <option value="safe">{t('logs.routeFilterSafe')}</option>
-                                    </select>
-                                    <input
-                                        type="text"
-                                        placeholder={t('logs.filterByReason')}
-                                        value={filters.reason}
-                                        onChange={e => setFilters({ ...filters, reason: e.target.value })}
-                                        className="form-input text-xs py-1.5 rounded-lg"
-                                        style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}
-                                    />
-                                </div>
-                            )}
-                        </div>
-
                         <div className="hidden lg:block">
                             <table className="page-table" style={{ ...colResize.tableStyle }}>
                                 {colResize.colgroup}
@@ -263,6 +353,10 @@ const LogsPage = () => {
                                         <th className="resizable-th">
                                             {t('logs.colCampaign')}
                                             <ColumnResizeHandle rt={colResize} colId="campaign" />
+                                        </th>
+                                        <th className="resizable-th">
+                                            {t('logs.colStream')}
+                                            <ColumnResizeHandle rt={colResize} colId="stream" />
                                         </th>
                                         <th className="resizable-th">
                                             {t('logs.colRoute')}
@@ -309,6 +403,7 @@ const LogsPage = () => {
                                             <td className="font-mono text-xs">{log.click_id}</td>
                                             <td>{log.subid || '-'}</td>
                                             <td>{log.campaign_name || t('logs.direct')}</td>
+                                            <td className="text-xs">{renderStream(log)}</td>
                                             <td>{renderRouteBadge(log)}</td>
                                             <td>{renderReasonChips(log)}</td>
                                             <td className="text-xs">{renderDestination(log)}</td>
@@ -354,6 +449,7 @@ const LogsPage = () => {
                                 fields={[
                                     { id: 'created_at', label: t('logs.colTime'), render: (log) => log.created_at },
                                     { id: 'destination', label: t('logs.colDestination'), render: renderDestination },
+                                    { id: 'stream', label: t('logs.colStream'), render: renderStream },
                                     { id: 'lp_time', label: t('logs.colLpTime'), render: renderLpTime },
                                     { id: 'ip', label: t('logs.colIp'), render: (log) => log.ip },
                                     { id: 'geo', label: t('logs.colGeo'), render: renderGeo },
@@ -363,7 +459,7 @@ const LogsPage = () => {
                                     { id: 'isp', label: t('logs.colIsp'), render: (log) => log.isp || '-' },
                                     { id: 'asn', label: t('logs.colAsn'), render: (log) => log.asn || '-' },
                                 ]}
-                                primaryIds={['created_at', 'destination', 'ip', 'geo']}
+                                primaryIds={['created_at', 'destination', 'stream', 'ip', 'geo']}
                             />
                         </div>
                     </>
@@ -572,6 +668,14 @@ const LogsPage = () => {
             <div className="flex items-center gap-2 mb-4">
                 <FileStack size={18} className="text-[var(--color-primary)]" />
                 <h3 className="page-title m-0">{t('logs.title')}</h3>
+                <a
+                    href={exportHref}
+                    className="btn btn-secondary ml-auto flex items-center gap-2 text-xs"
+                    title={t('logs.exportHint')}
+                >
+                    <Download size={14} />
+                    <span>{t('logs.exportCsv')}</span>
+                </a>
             </div>
 
             {/* Tabs */}
@@ -591,14 +695,29 @@ const LogsPage = () => {
                 ))}
             </div>
 
+            {activeTab === 'traffic' && renderTrafficFilters()}
+
             {/* Table */}
             <div className="overflow-x-auto rounded-lg border border-[var(--color-border)]">
                 {renderTable()}
             </div>
 
+            {!loading && hasMore && (
+                <div className="mt-4 flex justify-center">
+                    <button
+                        type="button"
+                        onClick={loadMore}
+                        disabled={loadingMore}
+                        className="btn btn-secondary text-sm"
+                    >
+                        {loadingMore ? t('logs.loadingLogs') : t('logs.loadMore')}
+                    </button>
+                </div>
+            )}
+
             {/* Info */}
             <div className="mt-4 text-xs text-[var(--color-text-muted)]">
-                {t('logs.lastRecords')}
+                {t('logs.shownCount', { count: logs.length })} {t('logs.lastRecords')}
             </div>
         </div>
     );

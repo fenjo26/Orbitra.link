@@ -40,7 +40,7 @@ function orbitraResourceAccessMap(): array
                 'campaign_remote_links', 'rotation_status', 'cloak_summary',
                 'campaign_cost_match', 'campaign_report', 'campaign_logs', 'click_details',
                 'test_postback', 'postback_url', 'postback_logs', 'conversions',
-                'conversion_monitoring', 'ad_entity_statuses',
+                'conversion_monitoring', 'ad_entity_statuses', 'campaign_stream_stats',
             ],
             'write' => [
                 'save_campaign', 'delete_campaign', 'bulk_delete_campaigns', 'copy_campaign',
@@ -132,7 +132,7 @@ function orbitraResourceAccessMap(): array
             'hybrid' => [],
         ],
         'logs' => [
-            'read' => ['logs'],
+            'read' => ['logs', 'logs_export'],
             'write' => [],
             'hybrid' => [],
         ],

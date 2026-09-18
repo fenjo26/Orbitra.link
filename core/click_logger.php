@@ -85,7 +85,7 @@ function orbitraBuildClickRow(array $ctx): array
     // Foreign key safety: offer_id must be NULL, not 0, for the foreign key
     $offerId = isset($ctx['offer_id']) && $ctx['offer_id'] > 0 ? (int) $ctx['offer_id'] : null;
 
-    return [
+    $row = [
         'id' => (string) ($ctx['click_id'] ?? ''),
         'campaign_id' => (int) ($ctx['campaign_id'] ?? 0),
         'offer_id' => $offerId,
@@ -118,6 +118,13 @@ function orbitraBuildClickRow(array $ctx): array
         'proxy_type' => isset($ctx['proxy_type']) ? (string) $ctx['proxy_type'] : null,
         'cloak_sensitivity' => isset($ctx['cloak_sensitivity']) ? (string) $ctx['cloak_sensitivity'] : null,
     ];
+    // Sent to a non-catalog URL (stream Direct URL): counts as an offer click
+    // in the reports (migration 53). Only written when set, so writers and
+    // tests that predate the column keep inserting unchanged rows.
+    if (!empty($ctx['direct_offer']) && $offerId === null) {
+        $row['direct_offer'] = 1;
+    }
+    return $row;
 }
 
 /**

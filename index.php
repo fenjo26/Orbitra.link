@@ -4075,6 +4075,10 @@ function selectWeightedItem($items)
 // 4. Определение финального оффера/лендинга
 $offerIdToLog = 0;
 $landingIdToLog = null;
+// Set when the visitor is sent to a URL that is not a catalog offer (stream
+// "Direct URL", or an offer entry carrying its own url). Such a hop has no
+// offer_id, so without this flag the reports' Clicks never counted it.
+$directOfferToLog = false;
 $finalUrl = '';
 $offerRedirectType = 'redirect';
 $landingRedirectType = 'redirect';
@@ -4337,6 +4341,7 @@ if ($selectedStream) {
             if ($directUrl !== '') {
                 $finalUrl = $directUrl;
                 $offerUrl = $directUrl;
+                $directOfferToLog = true;
                 $offerRedirectType = $customSchema['redirect_type'] ?? 'redirect';
             }
         }
@@ -4349,6 +4354,7 @@ if ($selectedStream) {
                 if (!empty($selectedOffer['url'])) {
                     $finalUrl = $selectedOffer['url'];
                     $offerUrl = $selectedOffer['url'];
+                    $directOfferToLog = true;
                     $offerRedirectType = $selectedOffer['redirect_type'] ?? 'redirect';
                 } else {
                     $offerIdToLog = $selectedOffer['id'] ?? 0;
@@ -4396,6 +4402,7 @@ if ($statsEnabled && !$isDebounced && !$isPrefetchRequest && !$skipClickLogging 
         'click_id' => $clickId,
         'campaign_id' => $campaignId,
         'offer_id' => $offerIdToLog,
+        'direct_offer' => $directOfferToLog,
         'stream_id' => $streamIdToLog,
         'source_id' => $sourceIdToLog,
         'landing_id' => $landingIdToLog,

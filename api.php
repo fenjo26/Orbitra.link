@@ -1463,6 +1463,8 @@ if ($apiKeyProvided !== '') {
 require_once __DIR__ . '/core/ip_access.php';
 
 require_once __DIR__ . '/core/finance_masking.php';
+require_once __DIR__ . '/core/logs_query.php';
+require_once __DIR__ . '/core/stream_stats.php';
 
 require_once __DIR__ . '/core/resource_access.php';
 
@@ -3202,7 +3204,7 @@ try {
                        -- offer link (offer_at recorded). A landing view with a
                        -- pre-bound offer (legacy offer_selection='before') is a
                        -- visitor, not a click. Visitors = ALL hits.
-                       SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0
+                       SUM(CASE WHEN (cl.offer_id > 0 OR COALESCE(cl.direct_offer, 0) = 1)
                                 AND (cl.landing_id IS NULL OR cl.landing_id = 0 OR cl.offer_at IS NOT NULL)
                            THEN 1 ELSE 0 END) as clicks,
                        SUM(cl.uniq_campaign) as unique_clicks,
@@ -3219,10 +3221,10 @@ try {
                        SUM(CASE WHEN cl.lp_seconds IS NOT NULL THEN 1 ELSE 0 END) as lp_dwell_samples,
                        SUM(CASE WHEN cl.lp_seconds IS NOT NULL AND cl.lp_seconds < 5 THEN 1 ELSE 0 END) as lp_bounces,
                        SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 THEN 1 ELSE 0 END) as prelander_clicks,
-                       SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0 THEN 1 ELSE 0 END) as offer_clicks,
+                       SUM(CASE WHEN (cl.offer_id > 0 OR COALESCE(cl.direct_offer, 0) = 1) THEN 1 ELSE 0 END) as offer_clicks,
                        SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 AND cl.offer_at IS NOT NULL THEN 1 ELSE 0 END) as lp_clicks,
                        SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 AND cl.offer_at IS NOT NULL THEN 1 ELSE 0 END) as real_lp_clicks,
-                       SUM(CASE WHEN cl.offer_id IS NOT NULL AND cl.offer_id > 0
+                       SUM(CASE WHEN (cl.offer_id > 0 OR COALESCE(cl.direct_offer, 0) = 1)
                                 AND (cl.landing_id IS NULL OR cl.landing_id = 0 OR cl.offer_at IS NOT NULL) THEN 1 ELSE 0 END) as real_offer_clicks,
                        COALESCE(SUM((SELECT COUNT(*) FROM pwa_screen_views v WHERE v.click_id = cl.id)), 0) as pwa_screen_views,
                        COALESCE(SUM(cv.cnt_any), 0) as conversions,
@@ -3304,6 +3306,20 @@ try {
                 $offersSimple = orbitraMaskFinance($offersSimple, $financeFlags);
             }
             echo json_encode(['status' => 'success', 'data' => $offersSimple]);
+            break;
+
+        case 'campaign_stream_stats':
+            // Streams tab counters: hits / unique / bots per stream for a period.
+            $cid = (int) ($_GET['campaign_id'] ?? 0);
+            $stmt = $pdo->prepare("SELECT * FROM campaigns WHERE id = ?");
+            $stmt->execute([$cid]);
+            $campaignRow = $stmt->fetch();
+            if (!$campaignRow) {
+                echo json_encode(['status' => 'error', 'message' => 'Not found']);
+                break;
+            }
+            orbitraAssertCampaignInScope(orbitraCampaignScope($pdo), $campaignRow, false);
+            echo json_encode(['status' => 'success', 'data' => orbitraStreamStats($pdo, $cid, (string) ($_GET['period'] ?? 'today'), (int) $offsetOffset)]);
             break;
 
         case 'get_campaign':
@@ -3765,21 +3781,12 @@ try {
                         $streams = orbitraMergeAutoWeights($oldStreamRows, $streams);
                     }
 
-                    // For MVP: delete old streams and insert new ones. The name
-                    // column was missing from this INSERT, so every save silently
-                    // wiped the stream names the editor had just collected.
-                    $pdo->prepare("DELETE FROM streams WHERE campaign_id = ?")->execute([$id]);
-
-                    $stmtStream = $pdo->prepare("
-                        INSERT INTO streams (campaign_id, offer_id, weight, is_active, type, position, filters_json, filters_logic, schema_type, action_payload, schema_custom_json, offer_selection, name, collect_clicks)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    ");
-                    foreach ($streams as $str) {
+                    // Streams keep their IDs across saves (core/stream_stats.php
+                    // explains what the old delete-and-reinsert broke).
+                    $savedStreamIds = orbitraSaveCampaignStreams($pdo, (int) $id, is_array($streams) ? $streams : [], static function (array $str): array {
                         // Convert offer_id = 0 to NULL to avoid FOREIGN KEY constraint error
                         $offerId = !empty($str['offer_id']) ? (int) $str['offer_id'] : null;
-
-                        $stmtStream->execute([
-                            $id,
+                        return [
                             $offerId,
                             $str['weight'] ?? 100,
                             $str['is_active'] ?? 1,
@@ -3797,8 +3804,8 @@ try {
                             // Absent key (older payloads, imports) keeps counting —
                             // only an explicit 0 opts a stream out of the stats.
                             (int) ($str['collect_clicks'] ?? 1) === 0 ? 0 : 1,
-                        ]);
-                    }
+                        ];
+                    });
 
                     // Delete and update postbacks
                     $pdo->prepare("DELETE FROM campaign_postbacks WHERE campaign_id = ?")->execute([$id]);
@@ -3818,7 +3825,7 @@ try {
                     $stmtTokOut = $pdo->prepare("SELECT token FROM campaigns WHERE id = ? LIMIT 1");
                     $stmtTokOut->execute([(int) $id]);
                     $tokenOut = $stmtTokOut->fetchColumn();
-                    echo json_encode(['status' => 'success', 'data' => ['id' => $id, 'token' => $tokenOut, 'rotation_type' => $rotationType]]);
+                    echo json_encode(['status' => 'success', 'data' => ['id' => $id, 'token' => $tokenOut, 'rotation_type' => $rotationType, 'stream_ids' => array_values($savedStreamIds)]]);
                 } catch (\Exception $e) {
                     $pdo->rollBack();
                     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
@@ -8648,146 +8655,69 @@ try {
             break;
 
         case 'logs':
+        case 'logs_export':
+            // Query building lives in core/logs_query.php so the page and the
+            // CSV export always select the same rows for the same filters.
             $type = $_GET['type'] ?? 'traffic';
+            if (!in_array($type, ORBITRA_LOGS_TYPES, true)) {
+                echo json_encode(['status' => 'error', 'message' => 'Неизвестный тип логов']);
+                break;
+            }
+            $logFilters = [
+                'campaign_id' => $_GET['campaign_id'] ?? null,
+                'stream_id' => $_GET['stream_id'] ?? null,
+                'route' => $_GET['route'] ?? 'all', // 'all', 'money', 'safe'
+                'reason' => $_GET['reason'] ?? '',  // reason code filter
+                'date_from' => $_GET['date_from'] ?? null,
+                'date_to' => $_GET['date_to'] ?? null,
+                'cursor' => $_GET['cursor'] ?? null,
+            ];
+            $logsFinance = orbitraRequestFinanceFlags();
 
-            // Strictly limit dashboard requests to 20 for performance 
+            if ($action === 'logs_export') {
+                // Stream the file: release the session lock so the panel stays
+                // usable while a 100k-row export is being written.
+                if (session_status() === PHP_SESSION_ACTIVE) {
+                    session_write_close();
+                }
+                @set_time_limit(300);
+                while (ob_get_level() > 0) {
+                    ob_end_clean();
+                }
+                $fname = 'orbitra_logs_' . $type . '_' . date('Y-m-d_His') . '.csv';
+                header('Content-Type: text/csv; charset=utf-8');
+                header('Content-Disposition: attachment; filename="' . $fname . '"');
+                header('Cache-Control: no-store');
+                $rowsIter = (static function () use ($pdo, $type, $logFilters, $dbTzOffset, $offsetOffset, $logsFinance) {
+                    foreach (orbitraLogsIterate($pdo, $type, $logFilters, $dbTzOffset, (int) $offsetOffset) as $row) {
+                        yield orbitraAllFinanceVisible($logsFinance) ? $row : orbitraMaskFinance($row, $logsFinance);
+                    }
+                })();
+                $out = fopen('php://output', 'w');
+                orbitraLogsWriteCsv($out, $rowsIter);
+                fclose($out);
+                exit;
+            }
+
+            // Strictly limit dashboard requests to 20 for performance
             if (isset($_GET['dashboard']) && $_GET['dashboard'] === 'true') {
                 $limit = 20;
             } else {
-                $limit = isset($_GET['limit']) ? (int) $_GET['limit'] : 50;
+                $limit = orbitraLogsClampLimit($_GET['limit'] ?? null, 50);
             }
-            $offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;
+            $offset = isset($_GET['offset']) ? max(0, (int) $_GET['offset']) : 0;
 
-            if ($type === 'traffic') {
-                // W2: Cloak observability - filtering parameters
-                $campaignId = isset($_GET['campaign_id']) ? (int) $_GET['campaign_id'] : null;
-                $route = $_GET['route'] ?? 'all'; // 'all', 'money', 'safe'
-                $reason = $_GET['reason'] ?? ''; // reason code filter
-
-                // Build WHERE conditions
-                $whereConditions = [];
-                $params = [$limit, $offset];
-
-                if ($campaignId) {
-                    $whereConditions[] = 'cl.campaign_id = ?';
-                    array_splice($params, -2, 0, [$campaignId]);
-                }
-
-                if ($route === 'money') {
-                    // NULL is_safe_page = money-side traffic (pre-v38 rows);
-                    // a plain "= 0" would hide them from the money filter.
-                    $whereConditions[] = 'COALESCE(cl.is_safe_page, 0) = 0';
-                } elseif ($route === 'safe') {
-                    $whereConditions[] = 'cl.is_safe_page = 1';
-                }
-
-                if ($reason !== '') {
-                    $whereConditions[] = 'cl.cloak_reasons LIKE ?';
-                    array_splice($params, -2, 0, ['%' . $reason . '%']);
-                }
-
-                $whereSql = !empty($whereConditions) ? 'WHERE ' . implode(' AND ', $whereConditions) : '';
-
-                $stmt = $pdo->prepare("
-                    SELECT
-                        cl.id,
-                        cl.id as click_id,
-                        datetime(cl.created_at, '$dbTzOffset') as created_at,
-                        c.name as campaign_name,
-                        cl.ip,
-                        COALESCE(NULLIF(cl.country_code, ''), cl.country) as country_code,
-                        cl.region,
-                        cl.city,
-                        cl.timezone as geo_timezone,
-                        cl.language,
-                        cl.accept_language_raw,
-                        cl.device_type,
-                        cl.user_agent,
-                        -- Time on the landing (the /pixel.gif?action=lp beacon):
-                        -- present whether or not the visitor went on to the offer,
-                        -- which is what makes a bounce visible in the log at all.
-                        cl.lp_seconds,
-                        cl.lp_scroll,
-                        o.url as redirect_url,
-                        CASE WHEN json_valid(cl.parameters_json)
-                             THEN COALESCE(json_extract(cl.parameters_json, '$.sub_id_1'), '')
-                             ELSE '' END as subid,
-                        -- W2: Cloak observability columns
-                        cl.cloak_verdict,
-                        cl.cloak_reasons,
-                        cl.is_safe_page,
-                        cl.isp,
-                        cl.asn,
-                        cl.proxy_type,
-                        cl.cloak_sensitivity,
-                        l.name AS landing_name,
-                        of.name AS offer_name
-                    FROM clicks cl
-                    LEFT JOIN campaigns c ON cl.campaign_id = c.id
-                    LEFT JOIN offers o ON cl.offer_id = o.id
-                    LEFT JOIN landings l ON cl.landing_id = l.id
-                    LEFT JOIN offers of ON cl.offer_id = of.id
-                    $whereSql
-                    ORDER BY cl.created_at DESC
-                    LIMIT ? OFFSET ?
-                ");
-                $stmt->execute($params);
-                echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
-            } elseif ($type === 'postbacks') {
-                $stmt = $pdo->prepare("
-                    SELECT
-                        id,
-                        click_id,
-                        status,
-                        original_status,
-                        payout,
-                        currency,
-                        datetime(created_at, '$dbTzOffset') as created_at,
-                        campaign_id,
-                        result,
-                        error,
-                        remote_ip,
-                        source,
-                        matched
-                    FROM incoming_postbacks_log
-                    ORDER BY created_at DESC
-                    LIMIT ? OFFSET ?
-                ");
-                $stmt->execute([$limit, $offset]);
-                $rows = $stmt->fetchAll();
-                // Enrich with campaign names for display
-                foreach ($rows as &$row) {
-                    if ($row['campaign_id']) {
-                        try {
-                            $campStmt = $pdo->prepare("SELECT name FROM campaigns WHERE id = ? LIMIT 1");
-                            $campStmt->execute([$row['campaign_id']]);
-                            $row['campaign_name'] = $campStmt->fetchColumn();
-                        } catch (\Throwable $e) {
-                            $row['campaign_name'] = null;
-                        }
-                    } else {
-                        $row['campaign_name'] = null;
-                    }
-                }
-                echo json_encode(['status' => 'success', 'data' => $rows]);
-            } elseif ($type === 'system') {
-                $stmt = $pdo->prepare("SELECT *, datetime(created_at, '$dbTzOffset') as created_at FROM system_logs ORDER BY created_at DESC LIMIT ? OFFSET ?");
-                $stmt->execute([$limit, $offset]);
-                echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
-            } elseif ($type === 'audit') {
-                $stmt = $pdo->prepare("SELECT *, datetime(created_at, '$dbTzOffset') as created_at FROM audit_logs ORDER BY created_at DESC LIMIT ? OFFSET ?");
-                $stmt->execute([$limit, $offset]);
-                echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
-            } elseif ($type === 's2s') {
-                // next_retry_at lives in the DB as UTC; shift it the same way as
-                // created_at so "next attempt" is not displayed 3 hours behind on
-                // a panel whose timezone is ahead of UTC.
-                $stmt = $pdo->prepare("SELECT *, datetime(created_at, '$dbTzOffset') as created_at, datetime(next_retry_at, '$dbTzOffset') as next_retry_at FROM s2s_postbacks_log ORDER BY created_at DESC LIMIT ? OFFSET ?");
-                $stmt->execute([$limit, $offset]);
-                echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
-            } else {
-                echo json_encode(['status' => 'error', 'message' => 'Неизвестный тип логов']);
+            $page = orbitraLogsFetchPage($pdo, $type, $logFilters, $limit, $offset, $dbTzOffset, (int) $offsetOffset);
+            $rows = $page['rows'];
+            if (!orbitraAllFinanceVisible($logsFinance)) {
+                $rows = orbitraMaskFinance($rows, $logsFinance);
             }
+            echo json_encode([
+                'status' => 'success',
+                'data' => $rows,
+                'has_more' => $page['has_more'],
+                'next_cursor' => $page['next_cursor'],
+            ]);
             break;
 
         case 'click_details':
@@ -13282,15 +13212,15 @@ try {
                     SUM(CASE WHEN lp_seconds IS NOT NULL THEN 1 ELSE 0 END) as lp_dwell_samples,
                     SUM(CASE WHEN lp_seconds IS NOT NULL AND lp_seconds < 5 THEN 1 ELSE 0 END) as lp_bounces,
                     SUM(CASE WHEN landing_id IS NOT NULL AND landing_id > 0 THEN 1 ELSE 0 END) as prelander_clicks,
-                    SUM(CASE WHEN offer_id IS NOT NULL AND offer_id > 0 THEN 1 ELSE 0 END) as offer_clicks,
+                    SUM(CASE WHEN (offer_id > 0 OR COALESCE(direct_offer, 0) = 1) THEN 1 ELSE 0 END) as offer_clicks,
                     -- Same funnel as the campaigns list: clicks = offer hits
                     -- (direct + completed landing transitions), lp_clicks =
                     -- landing views whose visitor left through the offer link.
-                    SUM(CASE WHEN offer_id IS NOT NULL AND offer_id > 0
+                    SUM(CASE WHEN (offer_id > 0 OR COALESCE(direct_offer, 0) = 1)
                              AND (landing_id IS NULL OR landing_id = 0 OR offer_at IS NOT NULL) THEN 1 ELSE 0 END) as clicks,
                     SUM(CASE WHEN landing_id IS NOT NULL AND landing_id > 0 AND offer_at IS NOT NULL THEN 1 ELSE 0 END) as lp_clicks,
                     SUM(CASE WHEN landing_id IS NOT NULL AND landing_id > 0 AND offer_at IS NOT NULL THEN 1 ELSE 0 END) as real_lp_clicks,
-                    SUM(CASE WHEN offer_id IS NOT NULL AND offer_id > 0
+                    SUM(CASE WHEN (offer_id > 0 OR COALESCE(direct_offer, 0) = 1)
                              AND (landing_id IS NULL OR landing_id = 0 OR offer_at IS NOT NULL) THEN 1 ELSE 0 END) as real_offer_clicks,
                     SUM(CASE WHEN pwa_intent_at IS NOT NULL THEN 1 ELSE 0 END) as pwa_intents,
                     SUM(CASE WHEN pwa_install_at IS NOT NULL THEN 1 ELSE 0 END) as pwa_installs,
@@ -13329,6 +13259,7 @@ try {
                            clicks.lp_scroll,
                            clicks.landing_id,
                            clicks.offer_id,
+                           clicks.direct_offer,
                            clicks.pwa_intent_at,
                            clicks.pwa_install_at,
                            COALESCE(clicks.pwa_open_count, 0) as pwa_open_count,
@@ -13418,8 +13349,18 @@ try {
                         $displayName = 'Direct (No Lander)';
                     } else if ($layer === 'stream_id' && ($rawVal === '0' || $rawVal === '' || $rawVal === 'Unknown')) {
                         $displayName = 'Default / Direct Stream';
+                    } else if ($layer === 'stream_id' && isset($nameMaps[$layer]) && array_key_exists($rawVal, $nameMaps[$layer])
+                               && trim((string) $nameMaps[$layer][$rawVal]) === '') {
+                        // A live stream nobody named: say so instead of a bare
+                        // number that reads like a deleted one.
+                        $displayName = 'Unnamed Stream';
                     } else if (isset($nameMaps[$layer][$rawVal])) {
                         $displayName = (string) $nameMaps[$layer][$rawVal];
+                    } else if ($layer === 'stream_id' && ctype_digit($rawVal)) {
+                        // Clicks on a stream that no longer exists — deleted, or
+                        // (before v1.5.14) re-minted by a campaign save. The
+                        // frontend translates the sentinel; dim_ids keeps "#id".
+                        $displayName = 'Deleted Stream';
                     } else {
                         $displayName = $rawVal;
                     }
