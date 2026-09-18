@@ -7,6 +7,35 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.5.15] — 2026-09-18
+
+### Added — geo databases out of the box
+
+- **The installer ships a working geo database.** A fresh install downloads the
+  free Sypex Geo City base (country/region/city, no keys) right after setup,
+  running as www-data so the file is web-owned. A server without outbound
+  access to sypexgeo.net still installs fine — it gets a NOTE, and the banner
+  plus Settings → Geo databases offer the install later. A monthly cron
+  (`# orbitra-geo`, `cli/geo_update.php`) keeps the base fresh; MaxMind and
+  IP2Location/IP2Proxy editions download on the same schedule, but only when
+  their account keys are saved in the panel.
+- **Existing installs self-heal.** The panel updater, after a successful git
+  pull, downloads the Sypex base when no geo database is installed at all, and
+  says so in the update output. This is the answer for every "why is my
+  country column empty / cloaking broken" report from installs set up before
+  geo shipped.
+- **"No geo database" banner** on every tab (next to the update banner): what
+  breaks without a base (geo filters, country cloaking resolving everyone as
+  Unknown), a one-click Sypex install (reuses the existing update action) and
+  a link to the geo settings. Dismissible for deliberate no-database setups.
+- The download/install logic moved to `core/geo_databases.php`
+  (`orbitraUpdateSypex` / `orbitraUpdateMaxMind` / `orbitraUpdateIp2`,
+  `orbitraGeoDatabasesInstalled`): the panel buttons, the CLI, the installer
+  and the updater hook share one implementation with bounded timeouts and
+  soft, non-fatal failures. `cli/geo_update.php` is idempotent and logs to
+  `var/logs/geo_update.log`; `tests/geo_updaters_test.php` covers the Sypex
+  path against a fixture zip, without network.
+
 ## [1.5.14] — 2026-09-18
 
 ### Fixed — a campaign save no longer re-creates its streams

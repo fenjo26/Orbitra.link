@@ -1,4 +1,4 @@
-# Orbitra v1.5.14 Tracker
+# Orbitra v1.5.15 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,29 +11,25 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.5.14
+## 🆕 What's New in v1.5.15
 
-Direct URL streams finally count their clicks — and streams stop changing identity on every save.
-
-### Fixed
-
-- 🔗 **Direct URL = a click** — a hop to a stream's Direct URL has no catalog offer behind it, so every Clicks column read 0 for direct-URL campaigns (and CR/EPC/CPC with it). The hop is now flagged (`clicks.direct_offer`, migration 53) and counted everywhere the offer funnel is: reports, campaigns list, dashboard — including past clicks of streams that use a Direct URL today (migration backfill). Action streams ("show text") and safe pages are still not clicks
-- 🧭 **Stable stream IDs** — every campaign save used to delete and re-create its streams, so each save minted new IDs: the report's Stream grouping splintered into bare numbers, a renamed stream seemed to lose its traffic, and `catch_404` pointed at a stream that no longer existed. Streams are now updated in place; old IDs read "Deleted stream #N", unnamed live ones "Unnamed stream", and new streams start as "Stream 1, Stream 2…"
-- 📄 **Logs without the 100-row ceiling** — "Load more" on every tab, CSV export (current tab and filters, up to 100,000 rows, Excel-ready UTF-8), the stream of each click as a column, and stream/date filters; the postbacks log stopped doing one query per row for campaign names; the hint that sent you to Integrations for a full export (which never existed) is gone
+Geo databases work out of the box — no more "why is my country column empty".
 
 ### Added
 
-- 📊 **Streams tab counters** — visits / unique / bots and the share of the campaign's traffic per stream, for today, yesterday, 7 or 30 days — the "how much went into the white stream vs the money one" answer without opening reports
-- 💬 **Column tooltips** — report columns explain what they actually count (Clicks vs Visitors, Margin vs ROI, unique clicks per campaign/stream/global, bots %, CR…), translated in all 7 languages
+- 🌍 **Sypex Geo on every install** — the installer downloads the free Sypex Geo City base (country/region/city, no keys) during setup, and a monthly cron keeps it fresh. A server that cannot reach sypexgeo.net still installs fine — the tracker runs without a base, and the geo settings offer the install later
+- ♻️ **Existing installs self-heal** — the panel updater downloads the Sypex base right after a successful update when no geo database is present, so every pre-geo install stops resolving visitors as country Unknown on its next update
+- 📢 **"No geo database" banner** — on every tab, next to the update banner: what breaks without a base (geo filters, cloaking by country), a one-click Sypex install and a link to the geo settings; dismissible for deliberate no-database setups
+- 🔑 **MaxMind / IP2Location auto-update** — the same monthly job refreshes GeoLite2 and IP2Location/IP2Proxy bases, but only when their account keys are saved in Settings → Geo databases
 
-### Previous Highlights (v1.5.13)
+### Previous Highlights (v1.5.14)
 
-- 🩹 **S2S filter compatibility** — one shared matcher admits the network's own status word and the pre-1.5.11 `custom` chip, so filters tuned before the status aliases keep delivering
-- 🔁 **Re-send missed (72 h)** — one button in the campaign editor re-enqueues conversions the broken filter silently skipped
-- 🧪 **Tester verdicts explain themselves** and flag template placeholders (`bbg=xxx`, `[YOUR_...]`) before they ship to the source
-- 🌐 **Translations interpolate again** — `{key}` placeholders render as real text; `check:i18n` fails on a placeholder the code never passes
+- 🔗 **Direct URL = a click** — a hop to a stream's Direct URL counts in every Clicks figure (reports, campaigns list, dashboard, CR/EPC/CPC), backfilled for streams configured with a Direct URL today
+- 🧭 **Stable stream IDs** — a campaign save no longer re-creates its streams; old IDs read "Deleted stream #N", new streams start as "Stream 1, Stream 2…"
+- 📊 **Streams tab counters** — visits / unique / bots and traffic share per stream for today, yesterday, 7 or 30 days
+- 📄 **Uncapped logs** — "Load more" on every tab, CSV export up to 100,000 rows, the stream of each click with stream/date filters; report columns explain themselves in tooltips
 
-Older releases (v1.5.12 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.5.13 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo
