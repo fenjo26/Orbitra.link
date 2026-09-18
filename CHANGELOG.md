@@ -7,6 +7,90 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.5.14] — 2026-09-18
+
+### Fixed — a campaign save no longer re-creates its streams
+
+- **Stream IDs are stable.** `save_campaign` deleted every stream and inserted
+  it again, so each save minted new IDs. Clicks kept pointing at the old ones:
+  the report grouped by Stream splintered into bare numbers (27, 28, 30 …)
+  with no name, a renamed stream showed only the traffic since the rename,
+  and `catch_404_stream_id` pointed at a stream that no longer existed. Streams
+  are now updated in place by id (`orbitraSaveCampaignStreams()`,
+  core/stream_stats.php); new ones are inserted, removed ones deleted, a
+  duplicated stream becomes a new one, an id from another campaign is never
+  reused. The save response returns `stream_ids` and the open editor adopts
+  them, so a second save from the same editor keeps them too.
+- **Old IDs in reports** now read "Deleted stream #27" instead of a bare
+  number. History recorded under IDs re-minted before this release cannot be
+  re-attributed — nothing recorded which new stream replaced which old one.
+
+### Fixed — a Direct URL stream now has clicks
+
+- **Clicks counted a catalog offer only.** A stream set to "Direct URL" sends
+  the visitor to a link that is not a catalog offer, so the click has no
+  `offer_id`, and every Clicks figure (campaigns list, reports, dashboard, CR,
+  EPC, CPC) keys on `offer_id > 0` — direct-URL campaigns showed Clicks 0 next
+  to thousands of Visitors. The router now flags such hops
+  (`clicks.direct_offer`, migration 53) and the metrics count them as offer
+  clicks. An offer entry that carries its own URL counts the same way. Action
+  streams ("show text / empty") and safe pages still are not clicks.
+- **Backfill:** existing clicks of streams configured with a Direct URL today
+  are flagged by the migration. Clicks under stream IDs re-created by
+  pre-1.5.14 saves cannot be tied to a stream and stay uncounted.
+- The Ads Manager overlay extension counts Direct URL hops with the same
+  predicate (`core/ExtensionStats.php`) — its numbers cannot disagree with the
+  panel on direct-URL campaigns. The offer breakdown still groups by catalog
+  offer, where a direct hop has no row.
+
+### Changed — making the numbers self-explanatory
+
+- New streams are named "Stream 1", "Stream 2" … instead of a row of
+  identical "New stream" — identical names made the Stream grouping unreadable.
+- A live stream without a name reads "Unnamed stream" in reports, distinct
+  from "Deleted stream #N".
+- Column tooltips for the metrics that had none: Margin, Unique clicks
+  (campaign / stream / global), Conversions, Bots, Bot %, Proxies, Empty
+  referrers, CR; the Clicks tooltip now says Direct URL counts and action
+  streams do not. The Direct URL help in the stream editor says each hop is a
+  click.
+
+### Added — traffic split right on the Streams tab
+
+- Each stream card shows Visits / Unique / Bots and its share of the
+  campaign's traffic for Today / Yesterday / 7 days / 30 days
+  (`action=campaign_stream_stats`), safe-page and bot hits included — the
+  routing view: how much fell into the white stream and how much into the
+  money one. Hits on deleted or re-minted streams are summed in one line above
+  the cards so the shares add up.
+
+### Added — logs: no more 100-row ceiling, stream per click, CSV export
+
+- **Load more.** Logs → every tab now pages past the first 100 rows. Paging is
+  keyset (`created_at` + `id` of the last row, returned as `next_cursor`), so
+  clicks arriving while you read never shift a page and repeat rows the way an
+  OFFSET would. `action=logs` also returns `has_more`; `offset` still works for
+  the dashboard and MCP callers. `limit` is clamped to 1..500 (it was
+  unbounded).
+- **CSV export.** New `action=logs_export` (same `type` and filters as
+  `logs`, plus `date_from`/`date_to` in panel time): streamed in 1,000-row
+  batches, capped at 100,000 rows, `;`-separated UTF-8 with BOM so Excel opens
+  it as columns. Finance masking applies; cells starting with `= + - @` are
+  prefixed with `'` so a visitor-controlled user agent cannot run as a formula.
+  Covered by the `logs` permission.
+- **Stream column.** The traffic log shows which stream each click fell into
+  (name + intercepting / regular / fallback) and filters by stream ID and date
+  range — the per-row answer to "how much went to the white vs the money
+  stream".
+- **Fixed:** the hint under the log claimed a full export lived in
+  Integrations; it never did. Reworded in all 7 locales.
+- **Fixed:** the traffic filter bar disappeared together with the table when a
+  filter matched nothing, leaving no way to clear it without a reload.
+- Postbacks log: campaign names come from a JOIN instead of one query per row.
+
+Query building moved to `core/logs_query.php`; tests in
+`tests/logs_query_test.php`.
+
 ## [1.5.13] — 2026-09-17
 
 ### Fixed — the S2S status filter no longer breaks on an update

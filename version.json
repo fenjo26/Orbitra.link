@@ -1,6 +1,6 @@
 {
-    "version": "1.5.13",
-    "release_notes": "The S2S status filter no longer breaks on update: it now also matches the network's own status word and honors pre-1.5.11 'custom' chips, so campaign postbacks configured before the status aliases keep delivering without touching anything. Conversions missed during the break can be re-queued with one button (campaign editor -> S2S Postbacks -> Re-send missed, last 72 hours). The postback tester explains compatibility matches and flags template placeholders (bbg=xxx, [YOUR_...]) that would ship to the source as literal values; source S2S seeding never offers a template URL with unfilled slots. Panel translations interpolate their variables again - the tester verdicts and the source hint render as real text instead of {from}/{name}. Note: the {status} macro in a postback URL always carries the internal status (sale), not the network's word.",
+    "version": "1.5.14",
+    "release_notes": "Direct URL streams finally show clicks: a hop to a stream's Direct URL now counts as an offer click everywhere (reports, campaigns list, dashboard, CR/EPC), including past clicks of streams that use a Direct URL today. Streams keep their IDs when you save a campaign - before, every save re-created them, so the report grouped by stream fell apart into unnamed numbers. Old IDs read 'Deleted stream #N', unnamed live streams 'Unnamed stream', and new streams are named Stream 1, Stream 2... The Streams tab shows each stream's visits, unique visitors, bots and share of traffic for today / yesterday / 7 / 30 days. Report columns explain themselves in their tooltips. Logs: Load more on every tab, Export CSV (up to 100,000 rows), and the stream of each click with stream and date filters.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-09-17"
+    "released_at": "2026-09-18"
 }

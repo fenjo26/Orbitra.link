@@ -1,4 +1,4 @@
-# Orbitra v1.5.13 Tracker
+# Orbitra v1.5.14 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,22 +11,29 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.5.13
+## 🆕 What's New in v1.5.14
 
-The S2S status filter survives updates again — plus a one-click repair for the conversions an update silently missed.
+Direct URL streams finally count their clicks — and streams stop changing identity on every save.
 
 ### Fixed
 
-- 🩹 **Filter compatibility** — the campaign S2S statuses filter matched its chips against the internal status only, so v1.5.11's aliases (`approved` → `sale`, was `custom`) silently stopped every filter tuned before them. One shared matcher now also admits the network's own word (`approved`) and the legacy `custom` chip, while an explicit `sale_status=...` parameter still cannot sneak into a `custom` chip — pre-1.5.11 setups keep delivering without touching anything (the `{status}` macro still carries the internal status)
-- 🔁 **Re-send missed (72 h)** — a button in the campaign editor's S2S Postbacks tab re-enqueues conversions that passed the current filter but never got a queue row while the filter was broken; idempotent, admin-triggered, same URL resolver as the live path
-- 🧪 **Tester explains compatibility** — every postback verdict says *why* it passed (internal / network word / legacy `custom` chip) and flags template placeholders (`bbg=xxx`, `[YOUR_...]`) that would ship to the source as literal values; source S2S seeding never offers a template URL with unfilled slots
-- 🌐 **Translations interpolate again** — `t()` substitutes `{key}`/`{{key}}` from the call's variables (18 callsites shipped literal `{from}`/`{name}` — the whole tester included); `check:i18n` now fails on a placeholder the code never passes
+- 🔗 **Direct URL = a click** — a hop to a stream's Direct URL has no catalog offer behind it, so every Clicks column read 0 for direct-URL campaigns (and CR/EPC/CPC with it). The hop is now flagged (`clicks.direct_offer`, migration 53) and counted everywhere the offer funnel is: reports, campaigns list, dashboard — including past clicks of streams that use a Direct URL today (migration backfill). Action streams ("show text") and safe pages are still not clicks
+- 🧭 **Stable stream IDs** — every campaign save used to delete and re-create its streams, so each save minted new IDs: the report's Stream grouping splintered into bare numbers, a renamed stream seemed to lose its traffic, and `catch_404` pointed at a stream that no longer existed. Streams are now updated in place; old IDs read "Deleted stream #N", unnamed live ones "Unnamed stream", and new streams start as "Stream 1, Stream 2…"
+- 📄 **Logs without the 100-row ceiling** — "Load more" on every tab, CSV export (current tab and filters, up to 100,000 rows, Excel-ready UTF-8), the stream of each click as a column, and stream/date filters; the postbacks log stopped doing one query per row for campaign names; the hint that sent you to Integrations for a full export (which never existed) is gone
 
-### Previous Highlights (v1.5.12)
+### Added
 
-- 🔗 **Source S2S seeding** — picking a source that has a postback URL seeds the campaign's S2S Postbacks automatically (when the list is empty); campaigns configured earlier get a one-click hint in the S2S tab that adds the source's postback with its own statuses; switching sources never duplicates rows
+- 📊 **Streams tab counters** — visits / unique / bots and the share of the campaign's traffic per stream, for today, yesterday, 7 or 30 days — the "how much went into the white stream vs the money one" answer without opening reports
+- 💬 **Column tooltips** — report columns explain what they actually count (Clicks vs Visitors, Margin vs ROI, unique clicks per campaign/stream/global, bots %, CR…), translated in all 7 languages
 
-Older releases (v1.5.11 and earlier): see the [full changelog](CHANGELOG.md).
+### Previous Highlights (v1.5.13)
+
+- 🩹 **S2S filter compatibility** — one shared matcher admits the network's own status word and the pre-1.5.11 `custom` chip, so filters tuned before the status aliases keep delivering
+- 🔁 **Re-send missed (72 h)** — one button in the campaign editor re-enqueues conversions the broken filter silently skipped
+- 🧪 **Tester verdicts explain themselves** and flag template placeholders (`bbg=xxx`, `[YOUR_...]`) before they ship to the source
+- 🌐 **Translations interpolate again** — `{key}` placeholders render as real text; `check:i18n` fails on a placeholder the code never passes
+
+Older releases (v1.5.12 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo
