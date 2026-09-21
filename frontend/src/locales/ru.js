@@ -316,8 +316,7 @@ export default {
         "partnersTitle": "Партнёры",
         "partnersDesc": "Сервисы, которые мы рекомендуем для работы с рекламой и не только.",
         "partnerPay2houseDesc": "Виртуальные карты для оплаты рекламы в Facebook, Google, TikTok Ads и онлайн-сервисов.",
-        "partnerGroupbuyseoDesc": "Совместный доступ к SEO и маркетинговым инструментам — Ahrefs, Semrush, ChatGPT Plus и другим.",
-        "partnerCloakinghouseDesc": "Cloaking.House — облачный клоакинг-сервис для фильтрации и распределения трафика. Поддерживает настройку GEO, устройств, ОС, браузеров, VPN и других параметров."
+        "partnerGroupbuyseoDesc": "Совместный доступ к SEO и маркетинговым инструментам — Ahrefs, Semrush, ChatGPT Plus и другим."
     },
     "profile": {
         "title": "Настройки профиля",

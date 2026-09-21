@@ -19,13 +19,6 @@ const partners = [
         descKey: 'feedback.partnerGroupbuyseoDesc',
         logoChip: '#FFFFFF',
     },
-    {
-        name: 'Cloaking.House',
-        url: 'https://cloaking.house/?utm_source=orbitra',
-        logo: '/partners/cloakinghouse-icon.png',
-        descKey: 'feedback.partnerCloakinghouseDesc',
-        logoChip: '#FFFFFF',
-    },
 ];
 
 const FeedbackPage = () => {

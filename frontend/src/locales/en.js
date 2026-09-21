@@ -316,8 +316,7 @@ export default {
         "partnersTitle": "Partners",
         "partnersDesc": "Services we recommend for media buying and everyday work.",
         "partnerPay2houseDesc": "Virtual cards for Facebook, Google and TikTok Ads, plus everyday online services.",
-        "partnerGroupbuyseoDesc": "Group-buy access to SEO and marketing tools — Ahrefs, Semrush, ChatGPT Plus and more.",
-        "partnerCloakinghouseDesc": "Cloaking.House is a cloud-based cloaking service for filtering and routing traffic. Configure GEO, devices, OS, browsers, VPNs, and other traffic parameters with ease."
+        "partnerGroupbuyseoDesc": "Group-buy access to SEO and marketing tools — Ahrefs, Semrush, ChatGPT Plus and more."
     },
     "profile": {
         "title": "Profile Settings",

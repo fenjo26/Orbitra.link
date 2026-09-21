@@ -7,15 +7,6 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
-
-### Added
-
-- 🤝 **Cloaking.House joins the Partners block** on Feedback & Support — a cloud
-  cloaking service tile with the partner link (`?utm_source=orbitra`); the
-  icon was cut from the supplied square logo (white chip, like GroupBuySEO)
-  so the narrow tile keeps it readable. Descriptions in all 7 locales.
-
 ## [1.5.15] — 2026-09-18
 
 ### Added — geo databases out of the box
