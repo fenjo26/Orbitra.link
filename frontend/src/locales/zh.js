@@ -316,7 +316,8 @@ export default {
         "partnersTitle": "合作伙伴",
         "partnersDesc": "我们推荐的广告投放及日常办公服务。",
         "partnerPay2houseDesc": "用于 Facebook、Google、TikTok 广告及各类在线服务付款的虚拟卡。",
-        "partnerGroupbuyseoDesc": "以拼团价格使用 Ahrefs、Semrush、ChatGPT Plus 等 SEO 与营销工具。"
+        "partnerGroupbuyseoDesc": "以拼团价格使用 Ahrefs、Semrush、ChatGPT Plus 等 SEO 与营销工具。",
+        "partnerCloakinghouseDesc": "Cloaking.House 是基于云端的 cloak 服务，用于过滤与分发流量，可轻松配置 GEO、设备、操作系统、浏览器、VPN 等参数。"
     },
     "profile": {
         "title": "配置文件设置",

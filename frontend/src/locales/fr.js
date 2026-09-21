@@ -316,7 +316,8 @@ export default {
         "partnersTitle": "Partenaires",
         "partnersDesc": "Services que nous recommandons pour l'achat média et le travail quotidien.",
         "partnerPay2houseDesc": "Cartes virtuelles pour la publicité Facebook, Google et TikTok ainsi que les services en ligne.",
-        "partnerGroupbuyseoDesc": "Accès groupé aux outils SEO et marketing — Ahrefs, Semrush, ChatGPT Plus et plus encore."
+        "partnerGroupbuyseoDesc": "Accès groupé aux outils SEO et marketing — Ahrefs, Semrush, ChatGPT Plus et plus encore.",
+        "partnerCloakinghouseDesc": "Cloaking.House est un service de cloaking en nuage pour filtrer et répartir le trafic. Configurez facilement GEO, appareils, OS, navigateurs, VPN et d'autres paramètres."
     },
     "profile": {
         "title": "Paramètres du profil",
