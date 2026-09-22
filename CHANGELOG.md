@@ -7,6 +7,31 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.2] — 2026-09-22
+
+Fix for 1.6.0 — no action required, update as usual.
+
+### Fixed
+
+- **False "certbot is not installed" warning on the Domains page.** 1.6.0's
+  root setup (`cli/server_setup.sh`) replaced the blanket
+  `NOPASSWD: /usr/bin/certbot` sudo rule with the fixed-argument
+  `orbitra-issue-cert` helper, but the environment check kept probing
+  `sudo -n certbot --help`. On every server where that setup had run — fresh
+  installs and anyone who ran the command from the legacy-sudo banner — the
+  check failed, the panel claimed certbot was missing, and the manual
+  **Issue SSL** button was refused. The check now probes the route the issuer
+  really uses (the helper when it is installed, the old certbot rule only on
+  servers that predate it) and decides by exit code, so sudo-rs parse warnings
+  on stderr cannot sway it. Background issuance by the cron worker was not
+  affected.
+- **A real sudo problem now says so.** The banner used to show the
+  "install certbot" text for any failure other than a disabled shell. When
+  certbot is present but the web user cannot run the helper, it now says that,
+  with the one command that fixes it:
+  `sudo bash /var/www/orbitra/cli/server_setup.sh`. The "use your hosting's
+  tools" hint is no longer shown in that case.
+
 ## [1.6.1] — 2026-09-22
 
 Panel polish follow-up to 1.6.0 — no action required, update as usual.

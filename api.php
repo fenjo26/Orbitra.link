@@ -11143,7 +11143,7 @@ try {
                     } elseif (in_array('no_certbot', $env['problems'])) {
                         $detail = 'Certbot is not installed. Install it with: apt install certbot (Debian/Ubuntu) or yum install certbot (RHEL/CentOS)';
                     } elseif (in_array('no_sudo_certbot', $env['problems'])) {
-                        $detail = 'The web server user cannot run sudo certbot without a password. Configure passwordless sudo for certbot or add the web user to sudoers.';
+                        $detail = 'The web server user cannot run the certificate helper through sudo. Re-run the root setup once: sudo bash /var/www/orbitra/cli/server_setup.sh';
                     } elseif (in_array('no_nginx_config', $env['problems'])) {
                         $detail = 'nginx config not found. This server does not appear to run nginx.';
                     } elseif (in_array('acme_not_writable', $env['problems'])) {

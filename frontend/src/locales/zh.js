@@ -1045,7 +1045,7 @@ export default {
         "sslEnvTitle": "此服务器不支持自动签发 SSL",
         "sslEnvNoShell": "此处 PHP 无法执行外部命令，因此无法启动 Certbot 或计划任务。域名将一直处于等待证书状态。",
         "sslEnvNoCertbot": "服务器未安装 Certbot，没有工具可以签发证书。请安装：apt install certbot",
-        "sslEnvNoSudoCertbot": "Web 服务器用户无法在没有密码的情况下执行 sudo certbot。请在 sudoers 中为 certbot 配置 passwordless sudo 或将 Web 用户添加到相应的组。",
+        "sslEnvNoSudoCertbot": "Certbot 已安装，但 Web 服务器用户无法通过 sudo 运行证书签发助手，因此面板无法签发证书。请以 root 身份运行一次：sudo bash /var/www/orbitra/cli/server_setup.sh",
         "sslEnvNoNginx": "未找到 nginx 配置：此服务器似乎并非运行 nginx，已签发的证书无法自动接入。",
         "sslEnvHint": "证书需通过您的主机服务签发和安装。自动签发面向具有 root 权限的独立 VPS —— 即 install.sh 所配置的环境。",
         "issueSsl": "签发 SSL",

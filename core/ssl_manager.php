@@ -146,37 +146,55 @@ function orbitraSslEnvironment(): array
 /**
  * Can the web user run sudo certbot?
  *
- * Certbot needs root to write into /etc/letsencrypt. This checks whether sudo
- * is available and whether the web server user can run certbot without a password
- * (as install.sh configures with a sudoers entry). Returns the reason if not.
+ * Certbot needs root to write into /etc/letsencrypt, so the web user reaches it
+ * through sudo. Which sudo rule to probe follows orbitraCertbotCertonlyCommand():
  *
- * @return array{ok: bool, reason: string}
+ *  - When the fixed-argument wrapper orbitra-issue-cert is installed, that is
+ *    the ONLY route the issuer uses, and since 1.6.0 cli/server_setup.sh grants
+ *    nothing else — the blanket "NOPASSWD: /usr/bin/certbot" rule is removed on
+ *    purpose. Probing `sudo certbot` there failed on every up-to-date server and
+ *    the panel told people to "install certbot" that was already installed.
+ *    The wrapper is probed the way server_setup.sh's own self-check does it: an
+ *    invalid domain makes it exit 2 before certbot is touched, while a refused
+ *    sudo exits 1.
+ *  - Without the wrapper (a server whose root setup predates it), the issuer
+ *    falls back to `sudo certbot certonly`, so the old certbot rule is probed.
+ *
+ * Exit codes rather than output: on sudo-rs a sudoers file with a rule it cannot
+ * parse prints warnings on the stderr of every sudo call, and matching text
+ * mistook those for success or failure.
+ *
+ * @return array{ok: bool, reason: string, route: string}
  */
 function orbitraSudoCertbotAvailable(): array
 {
     $shell = orbitraShellAvailable();
     if (!$shell) {
-        return ['ok' => false, 'reason' => 'php_no_shell'];
+        return ['ok' => false, 'reason' => 'php_no_shell', 'route' => ''];
     }
 
-    $sudo = orbitraCommandExists('sudo');
-    if (!$sudo) {
-        return ['ok' => false, 'reason' => 'no_sudo'];
+    if (!orbitraCommandExists('sudo')) {
+        return ['ok' => false, 'reason' => 'no_sudo', 'route' => ''];
     }
 
-    // Test if we can run certbot with sudo
-    // Using sudo -n (non-interactive) to check if passwordless access is configured
-    $test = orbitraShell('sudo -n certbot --help 2>&1');
-    if ($test === null) {
-        return ['ok' => false, 'reason' => 'sudo_failed'];
+    if (is_file(ORBITRA_CERT_ISSUE_WRAPPER) && is_executable(ORBITRA_CERT_ISSUE_WRAPPER)) {
+        $rc = orbitraShell('sudo -n ' . escapeshellarg(ORBITRA_CERT_ISSUE_WRAPPER)
+            . " 'not-a-valid-domain' >/dev/null 2>&1; echo \$?");
+        if ($rc === null) {
+            return ['ok' => false, 'reason' => 'sudo_failed', 'route' => 'wrapper'];
+        }
+        return trim($rc) === '2'
+            ? ['ok' => true, 'reason' => '', 'route' => 'wrapper']
+            : ['ok' => false, 'reason' => 'sudo_no_password', 'route' => 'wrapper'];
     }
 
-    // Check if output contains expected certbot help
-    if (stripos($test, 'certbot') === false && stripos($test, 'usage') === false) {
-        return ['ok' => false, 'reason' => 'sudo_no_password'];
+    $rc = orbitraShell('sudo -n certbot --version >/dev/null 2>&1; echo $?');
+    if ($rc === null) {
+        return ['ok' => false, 'reason' => 'sudo_failed', 'route' => 'certbot'];
     }
-
-    return ['ok' => true, 'reason' => ''];
+    return trim($rc) === '0'
+        ? ['ok' => true, 'reason' => '', 'route' => 'certbot']
+        : ['ok' => false, 'reason' => 'sudo_no_password', 'route' => 'certbot'];
 }
 
 /**

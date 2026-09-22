@@ -1045,7 +1045,7 @@ export default {
         "sslEnvTitle": "Automatische SSL-Ausstellung ist auf diesem Server nicht verfügbar",
         "sslEnvNoShell": "PHP kann hier keine externen Befehle ausführen — weder Certbot noch der Planer lassen sich starten. Domains warten dauerhaft auf ein Zertifikat.",
         "sslEnvNoCertbot": "Certbot ist auf diesem Server nicht installiert, es gibt also nichts, womit Zertifikate ausgestellt werden könnten. Installieren: apt install certbot",
-        "sslEnvNoSudoCertbot": "Der Webserver-Benutzer kann sudo certbot nicht ohne Passwort ausführen. Konfigurieren Sie passwordless sudo für certbot in sudoers oder fügen Sie den Webbenutzer zur entsprechenden Gruppe hinzu.",
+        "sslEnvNoSudoCertbot": "Certbot ist installiert, aber der Webserver-Benutzer kann das Zertifikats-Hilfsprogramm nicht über sudo ausführen, daher kann das Panel keine Zertifikate ausstellen. Einmal als root ausführen: sudo bash /var/www/orbitra/cli/server_setup.sh",
         "sslEnvNoNginx": "Keine nginx-Konfiguration gefunden: der Server läuft offenbar nicht auf nginx, ein ausgestelltes Zertifikat kann nicht automatisch eingebunden werden.",
         "sslEnvHint": "Zertifikate müssen über Ihr Hosting ausgestellt und eingerichtet werden. Die automatische Ausstellung ist für einen eigenen VPS mit Root-Zugang gedacht, wie ihn install.sh einrichtet.",
         "issueSsl": "SSL ausstellen",

@@ -1,4 +1,4 @@
-# Orbitra v1.6.1 Tracker
+# Orbitra v1.6.2 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,7 +11,15 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.6.1
+## 🆕 What's New in v1.6.2
+
+A bug-fix release for 1.6.0 — update as usual.
+
+### Fixed
+
+- 🔐 **False "certbot is not installed" warning** on the Domains page after the 1.6.0 root setup — the check now probes the `orbitra-issue-cert` helper the issuer uses, and the manual **Issue SSL** button works again. A real sudo problem gets its own message with the fix command
+
+### v1.6.1
 
 A follow-up polish release on top of the 1.6.0 security work.
 

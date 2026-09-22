@@ -1045,7 +1045,7 @@ export default {
         "sslEnvTitle": "L'émission automatique de SSL n'est pas disponible sur ce serveur",
         "sslEnvNoShell": "PHP ne peut pas exécuter de commandes externes ici : ni Certbot ni le planificateur ne peuvent être lancés. Les domaines resteront en attente de certificat.",
         "sslEnvNoCertbot": "Certbot n'est pas installé sur ce serveur, il n'y a donc rien pour émettre des certificats. Installez-le : apt install certbot",
-        "sslEnvNoSudoCertbot": "L'utilisateur du serveur web ne peut pas exécuter sudo certbot sans mot de passe. Configurez passwordless sudo pour certbot dans sudoers ou ajoutez l'utilisateur web au groupe approprié.",
+        "sslEnvNoSudoCertbot": "Certbot est installé, mais l'utilisateur du serveur web ne peut pas lancer l'outil d'émission de certificats via sudo : le panneau ne peut donc pas les émettre. Exécutez une fois en root : sudo bash /var/www/orbitra/cli/server_setup.sh",
         "sslEnvNoNginx": "Aucune configuration nginx trouvée : ce serveur ne semble pas utiliser nginx, un certificat émis ne pourra pas être intégré automatiquement.",
         "sslEnvHint": "Les certificats devront être émis et installés via votre hébergement. L'émission automatique vise un VPS dédié avec accès root, ce que met en place install.sh.",
         "issueSsl": "Émettre SSL",

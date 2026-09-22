@@ -1041,7 +1041,7 @@ export default {
         "sslEnvTitle": "Automatic SSL issuance is unavailable on this server",
         "sslEnvNoShell": "PHP cannot run external commands here, so neither Certbot nor the scheduler can be started. Domains will sit waiting for a certificate indefinitely.",
         "sslEnvNoCertbot": "Certbot is not installed on this server, so there is nothing to issue certificates with. Install it: apt install certbot",
-        "sslEnvNoSudoCertbot": "The web server user cannot run sudo certbot without a password. Configure passwordless sudo for certbot in sudoers or add the web user to the appropriate group.",
+        "sslEnvNoSudoCertbot": "Certbot is installed, but the web server user cannot run the certificate helper through sudo, so the panel cannot issue certificates. Run once as root: sudo bash /var/www/orbitra/cli/server_setup.sh",
         "sslEnvNoNginx": "No nginx config found: this server does not appear to run nginx, so an issued certificate cannot be wired in automatically.",
         "sslEnvHint": "Certificates will have to be issued and installed through your hosting. Automatic issuance targets a dedicated VPS with root access, which is what install.sh sets up.",
         "issueSsl": "Issue SSL",

@@ -552,6 +552,7 @@ const Domains = ({ campaigns, user }) => {
         const keys = {
             php_no_shell: 'domains.sslEnvNoShell',
             no_certbot: 'domains.sslEnvNoCertbot',
+            no_sudo_certbot: 'domains.sslEnvNoSudoCertbot',
             no_nginx_config: 'domains.sslEnvNoNginx',
             acme_not_writable: 'domains.sslEnvAcmeNotWritable',
             certbot_no_output: 'domains.sslCertbotNoOutput',
@@ -1070,14 +1071,18 @@ const Domains = ({ campaigns, user }) => {
                         <p style={{ margin: 0 }}>
                             {sslEnv.shell === false
                                 ? t('domains.sslEnvNoShell')
-                                : t('domains.sslEnvNoCertbot')}
+                                : sslEnv.certbot === false
+                                    ? t('domains.sslEnvNoCertbot')
+                                    : t('domains.sslEnvNoSudoCertbot')}
                         </p>
                         {sslEnv.nginx_config === false && (
                             <p className="mt-1" style={{ margin: '4px 0 0' }}>{t('domains.sslEnvNoNginx')}</p>
                         )}
-                        <p className="mt-1" style={{ margin: '4px 0 0', color: 'var(--color-text-secondary)' }}>
-                            {t('domains.sslEnvHint')}
-                        </p>
+                        {(sslEnv.shell === false || sslEnv.certbot === false) && (
+                            <p className="mt-1" style={{ margin: '4px 0 0', color: 'var(--color-text-secondary)' }}>
+                                {t('domains.sslEnvHint')}
+                            </p>
+                        )}
                     </div>
                 </div>
             )}
