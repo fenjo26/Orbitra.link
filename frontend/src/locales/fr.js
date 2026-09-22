@@ -2847,7 +2847,7 @@ export default {
         "copied": "Copié !"
     },
     "update": {
-        "gitUpdateComposerNote": "Composer n'est plus livré avec le dépôt (composer.phar a été supprimé en v1.6.0). Si Composer n'est pas installé sur le système, lancez une fois la mise à jour depuis le panneau — elle télécharge Composer automatiquement — ou récupérez-le avec curl -fsSL https://getcomposer.org/download/2.10.3/composer.phar -o composer.phar",
+        "gitUpdateComposerNote": "La ligne 3 télécharge un Composer épinglé (2.10.3) seulement si le serveur n'a pas encore de composer.phar — les installations antérieures à v1.6.0 conservent le leur. Le bouton de mise à jour du panneau fait la même chose automatiquement et vérifie la somme de contrôle.",
         "cachedResult": "Affichage d'un résultat en cache du",
         "checkFailed": "Impossible de joindre GitHub pour vérifier les mises à jour — la « dernière version » peut être obsolète. Mettez à jour manuellement : SSH → cd /var/www/orbitra && git pull",
         "checkingUpdates": "Vérification des mises à jour...",

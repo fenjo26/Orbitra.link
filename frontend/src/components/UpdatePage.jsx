@@ -398,7 +398,8 @@ const UpdatePage = () => {
                                 }}>
                                     <code>cd /path/to/orbitra</code><br />
                                     <code>git pull --ff-only origin main</code><br />
-                                    <code>composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader</code>
+                                    <code>[ -f composer.phar ] || curl -fsSL https://getcomposer.org/download/2.10.3/composer.phar -o composer.phar</code><br />
+                                    <code>php composer.phar install --no-dev --prefer-dist --no-interaction --optimize-autoloader</code>
                                 </div>
                                 <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '10px' }}>
                                     {t('update.gitUpdateComposerNote')}

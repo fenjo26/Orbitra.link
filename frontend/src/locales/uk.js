@@ -2847,7 +2847,7 @@ export default {
         "copied": "Скопійовано!"
     },
     "update": {
-        "gitUpdateComposerNote": "Composer більше не постачається з репозиторієм (composer.phar видалено у v1.6.0). Немає системного Composer? Запустіть оновлення з панелі один раз — він сам завантажить Composer, — або отримайте його: curl -fsSL https://getcomposer.org/download/2.10.3/composer.phar -o composer.phar",
+        "gitUpdateComposerNote": "Третій рядок завантажує запіннований Composer (2.10.3), лише якщо на сервері ще немає composer.phar — інсталяції до v1.6.0 зберігають свій. Кнопка оновлення в панелі робить те саме автоматично і перевіряє контрольну суму.",
         "cachedResult": "Показано кеш перевірки від",
         "checkFailed": "Не вдалося перевірити оновлення на GitHub — «актуальна версія» може бути застарілою. Оновіть вручну: SSH → cd /var/www/orbitra && git pull",
         "checkingUpdates": "Перевірка оновлень...",

@@ -2847,7 +2847,7 @@ export default {
         "copied": "复制了！"
     },
     "update": {
-        "gitUpdateComposerNote": "Composer 不再随仓库提供（composer.phar 已在 v1.6.0 中移除）。系统没有 Composer？先在面板中运行一次更新——它会自动下载 Composer——或手动获取：curl -fsSL https://getcomposer.org/download/2.10.3/composer.phar -o composer.phar",
+        "gitUpdateComposerNote": "第 3 行仅在服务器尚无 composer.phar 时下载固定版本的 Composer（2.10.3）——v1.6.0 之前的安装会保留原有文件。面板中的更新按钮会自动执行同样操作并校验哈希值。",
         "cachedResult": "显示的是缓存的检查结果，时间：",
         "checkFailed": "无法访问 GitHub 检查更新 —「最新版本」可能已过时。请手动更新：SSH → cd /var/www/orbitra && git pull",
         "checkingUpdates": "正在检查更新...",
