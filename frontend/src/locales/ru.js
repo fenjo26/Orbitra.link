@@ -1562,6 +1562,7 @@ export default {
         "alreadyMapped": "Этот статус уже смаплен в этот тип"
     },
     "users": {
+        "apiKeys": "API-ключи",
         "roleTemplate": "Шаблон роли",
         "templateAdmin": "Админ (полный доступ)",
         "templateMediaBuyer": "Медиабаер",
@@ -2547,6 +2548,7 @@ export default {
         "copied": "Скопировано!"
     },
     "update": {
+        "gitUpdateComposerNote": "Composer больше не поставляется с репозиторием (composer.phar удалён в v1.6.0). Нет системного Composer? Запустите обновление из панели один раз — он сам скачает Composer, — или получите его: curl -fsSL https://getcomposer.org/download/2.10.3/composer.phar -o composer.phar",
         "cachedResult": "Показан кэш проверки от",
         "checkFailed": "Не удалось проверить обновления на GitHub — «актуальная версия» может быть устаревшей. Обновитесь вручную: SSH → cd /var/www/orbitra && git pull",
         "checkingUpdates": "Проверка обновлений...",

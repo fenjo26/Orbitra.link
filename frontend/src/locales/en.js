@@ -1562,6 +1562,7 @@ export default {
         "alreadyMapped": "This status is already mapped to this type"
     },
     "users": {
+        "apiKeys": "API Keys",
         "roleTemplate": "Role template",
         "templateAdmin": "Admin (full access)",
         "templateMediaBuyer": "Media Buyer",
@@ -2844,6 +2845,7 @@ export default {
         "copied": "Copied!"
     },
     "update": {
+        "gitUpdateComposerNote": "Composer is no longer shipped with the repository (composer.phar was removed in v1.6.0). No system-wide Composer? Run the in-panel update once — it provisions Composer automatically — or fetch it: curl -fsSL https://getcomposer.org/download/2.10.3/composer.phar -o composer.phar",
         "cachedResult": "Showing a cached check from",
         "checkFailed": "Could not reach GitHub to check for updates — \"latest version\" may be stale. Update manually: SSH → cd /var/www/orbitra && git pull",
         "checkingUpdates": "Checking for updates...",

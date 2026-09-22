@@ -378,7 +378,7 @@ const UsersPage = () => {
             {/* Users Table */}
             <div className="page-card" style={{ padding: 0 }}>
                 <div className="overflow-x-auto">
-                    <table className="page-table">
+                    <table className="page-table users-table">
                         <thead>
                             <tr>
                                 <th>{t('users.username')}</th>
@@ -386,7 +386,7 @@ const UsersPage = () => {
                                 <th>{t('users.role')}</th>
                                 <th>{t('components.status')}</th>
                                 <th>{t('users.createdAt')}</th>
-                                <th>API {t('common.actions')}</th>
+                                <th>{t('users.apiKeys')}</th>
                                 <th className="text-right">{t('common.actions')}</th>
                             </tr>
                         </thead>

@@ -1562,6 +1562,7 @@ export default {
         "alreadyMapped": "此状态已映射到此类型"
     },
     "users": {
+        "apiKeys": "API 密钥",
         "roleTemplate": "角色模板",
         "templateAdmin": "管理员（完全访问）",
         "templateMediaBuyer": "媒介采买",
@@ -2844,6 +2845,7 @@ export default {
         "copied": "复制了！"
     },
     "update": {
+        "gitUpdateComposerNote": "Composer 不再随仓库提供（composer.phar 已在 v1.6.0 中移除）。系统没有 Composer？先在面板中运行一次更新——它会自动下载 Composer——或手动获取：curl -fsSL https://getcomposer.org/download/2.10.3/composer.phar -o composer.phar",
         "cachedResult": "显示的是缓存的检查结果，时间：",
         "checkFailed": "无法访问 GitHub 检查更新 —「最新版本」可能已过时。请手动更新：SSH → cd /var/www/orbitra && git pull",
         "checkingUpdates": "正在检查更新...",

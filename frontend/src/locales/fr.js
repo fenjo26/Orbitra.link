@@ -1562,6 +1562,7 @@ export default {
         "alreadyMapped": "Ce statut est déjà mappé à ce type"
     },
     "users": {
+        "apiKeys": "Clés API",
         "roleTemplate": "Modèle de rôle",
         "templateAdmin": "Admin (accès complet)",
         "templateMediaBuyer": "Media Buyer",
@@ -2844,6 +2845,7 @@ export default {
         "copied": "Copié !"
     },
     "update": {
+        "gitUpdateComposerNote": "Composer n'est plus livré avec le dépôt (composer.phar a été supprimé en v1.6.0). Si Composer n'est pas installé sur le système, lancez une fois la mise à jour depuis le panneau — elle télécharge Composer automatiquement — ou récupérez-le avec curl -fsSL https://getcomposer.org/download/2.10.3/composer.phar -o composer.phar",
         "cachedResult": "Affichage d'un résultat en cache du",
         "checkFailed": "Impossible de joindre GitHub pour vérifier les mises à jour — la « dernière version » peut être obsolète. Mettez à jour manuellement : SSH → cd /var/www/orbitra && git pull",
         "checkingUpdates": "Vérification des mises à jour...",

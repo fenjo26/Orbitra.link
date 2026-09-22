@@ -1562,6 +1562,7 @@ export default {
         "alreadyMapped": "Цей статус вже замаплений в цей тип"
     },
     "users": {
+        "apiKeys": "API-ключі",
         "roleTemplate": "Шаблон ролі",
         "templateAdmin": "Адмін (повний доступ)",
         "templateMediaBuyer": "Медіабаєр",
@@ -2844,6 +2845,7 @@ export default {
         "copied": "Скопійовано!"
     },
     "update": {
+        "gitUpdateComposerNote": "Composer більше не постачається з репозиторієм (composer.phar видалено у v1.6.0). Немає системного Composer? Запустіть оновлення з панелі один раз — він сам завантажить Composer, — або отримайте його: curl -fsSL https://getcomposer.org/download/2.10.3/composer.phar -o composer.phar",
         "cachedResult": "Показано кеш перевірки від",
         "checkFailed": "Не вдалося перевірити оновлення на GitHub — «актуальна версія» може бути застарілою. Оновіть вручну: SSH → cd /var/www/orbitra && git pull",
         "checkingUpdates": "Перевірка оновлень...",

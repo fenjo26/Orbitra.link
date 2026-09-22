@@ -2314,3 +2314,27 @@ body.col-resizing * {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+
+/* UsersPage: the global `.page-table th:not([data-col])` centre rule exists
+   for stat-style tables; over Users it reads as broken columns — centred
+   uppercase headers floating above left-aligned pills and timestamps.
+   Left-align headers with their values; the actions column stays right. */
+.users-table.page-table th:not([data-col]) {
+  text-align: left !important;
+}
+
+.users-table.page-table td {
+  text-align: left;
+}
+
+.users-table.page-table th:last-child {
+  text-align: right !important;
+}
+
+.users-table.page-table td:last-child {
+  text-align: right;
+}
+
+.users-table.page-table td:last-child .action-buttons {
+  justify-content: flex-end;
+}

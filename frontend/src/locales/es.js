@@ -1562,6 +1562,7 @@ export default {
         "alreadyMapped": "Este estado ya está mapeado a este tipo"
     },
     "users": {
+        "apiKeys": "Claves de API",
         "roleTemplate": "Plantilla de rol",
         "templateAdmin": "Admin (acceso total)",
         "templateMediaBuyer": "Media Buyer",
@@ -2844,6 +2845,7 @@ export default {
         "copied": "¡Copiado!"
     },
     "update": {
+        "gitUpdateComposerNote": "Composer ya no se incluye en el repositorio (composer.phar se eliminó en la v1.6.0). ¿No tiene Composer en el sistema? Ejecute una vez la actualización desde el panel — descarga Composer automáticamente — u obténgalo: curl -fsSL https://getcomposer.org/download/2.10.3/composer.phar -o composer.phar",
         "cachedResult": "Mostrando una comprobación en caché del",
         "checkFailed": "No se pudo acceder a GitHub para buscar actualizaciones — la «última versión» puede estar desactualizada. Actualiza manualmente: SSH → cd /var/www/orbitra && git pull",
         "checkingUpdates": "Buscando actualizaciones...",
