@@ -3,6 +3,7 @@ import { Save, Globe, Clock, Calendar, Lock, KeyRound, ShieldCheck, ShieldOff, C
 import { useLanguage } from '../contexts/LanguageContext';
 import { getStayInEditorAfterSave, setStayInEditorAfterSave } from '../utils/editorPreferences';
 import { copyToClipboard } from '../utils/clipboard';
+import { TIMEZONE_GROUPS, TIMEZONE_VALUES } from '../utils/timezones';
 
 const API_URL = '/api.php';
 
@@ -261,25 +262,18 @@ const ProfileSettings = () => {
                                 onChange={handleChange}
                                 className="form-select pl-12"
                             >
-                                <option value="UTC">UTC</option>
-                                <option value="Europe/London">Europe/London (UTC+0)</option>
-                                <option value="Europe/Berlin">Europe/Berlin (UTC+1)</option>
-                                <option value="Europe/Kyiv">Europe/Kyiv (UTC+2)</option>
-                                <option value="Europe/Moscow">Europe/Moscow (UTC+3)</option>
-                                <option value="Asia/Dubai">Asia/Dubai (UTC+4)</option>
-                                <option value="Asia/Karachi">Asia/Karachi (UTC+5)</option>
-                                <option value="Asia/Almaty">Asia/Almaty (UTC+5)</option>
-                                <option value="Asia/Kolkata">Asia/Kolkata (IST, UTC+5:30)</option>
-                                <option value="Asia/Bangkok">Asia/Bangkok (UTC+7)</option>
-                                <option value="Asia/Shanghai">Asia/Shanghai (UTC+8)</option>
-                                <option value="Asia/Tokyo">Asia/Tokyo (UTC+9)</option>
-                                <option value="Australia/Sydney">Australia/Sydney (UTC+10)</option>
-                                <option value="Pacific/Auckland">Pacific/Auckland (UTC+12)</option>
-                                <option value="America/New_York">America/New_York (UTC-5)</option>
-                                <option value="America/Chicago">America/Chicago (UTC-6)</option>
-                                <option value="America/Denver">America/Denver (UTC-7)</option>
-                                <option value="America/Los_Angeles">America/Los_Angeles (UTC-8)</option>
-                                <option value="America/Sao_Paulo">America/Sao_Paulo (UTC-3)</option>
+                                {/* A saved zone outside the curated list must stay
+                                    selectable, or the form would silently change it. */}
+                                {profile.timezone && !TIMEZONE_VALUES.has(profile.timezone) && (
+                                    <option value={profile.timezone}>{profile.timezone}</option>
+                                )}
+                                {TIMEZONE_GROUPS.map((group) => (
+                                    <optgroup key={group.region} label={group.region}>
+                                        {group.zones.map((tz) => (
+                                            <option key={tz.value} value={tz.value}>{tz.label}</option>
+                                        ))}
+                                    </optgroup>
+                                ))}
                             </select>
                         </div>
                     </div>

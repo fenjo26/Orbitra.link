@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User, Lock, Globe, Clock, Eye, EyeOff, Check, AlertCircle, Terminal } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { TIMEZONE_GROUPS } from '../utils/timezones';
 
 const API_URL = '/api.php';
 
@@ -18,28 +19,6 @@ const SetupWizard = ({ onComplete }) => {
         timezone: 'Europe/Kyiv',
         language: language || 'en'
     });
-
-    const timezones = [
-        { value: 'UTC', label: 'UTC' },
-        { value: 'Europe/London', label: 'Europe/London (UTC+0)' },
-        { value: 'Europe/Berlin', label: 'Europe/Berlin (UTC+1)' },
-        { value: 'Europe/Kyiv', label: 'Europe/Kyiv (UTC+2)' },
-        { value: 'Europe/Moscow', label: 'Europe/Moscow (UTC+3)' },
-        { value: 'Asia/Dubai', label: 'Asia/Dubai (UTC+4)' },
-        { value: 'Asia/Karachi', label: 'Asia/Karachi (UTC+5)' },
-        { value: 'Asia/Almaty', label: 'Asia/Almaty (UTC+5)' },
-        { value: 'Asia/Kolkata', label: 'Asia/Kolkata (IST, UTC+5:30)' },
-        { value: 'Asia/Bangkok', label: 'Asia/Bangkok (UTC+7)' },
-        { value: 'Asia/Shanghai', label: 'Asia/Shanghai (UTC+8)' },
-        { value: 'Asia/Tokyo', label: 'Asia/Tokyo (UTC+9)' },
-        { value: 'Australia/Sydney', label: 'Australia/Sydney (UTC+10)' },
-        { value: 'Pacific/Auckland', label: 'Pacific/Auckland (UTC+12)' },
-        { value: 'America/New_York', label: 'America/New_York (UTC-5)' },
-        { value: 'America/Chicago', label: 'America/Chicago (UTC-6)' },
-        { value: 'America/Denver', label: 'America/Denver (UTC-7)' },
-        { value: 'America/Los_Angeles', label: 'America/Los_Angeles (UTC-8)' },
-        { value: 'America/Sao_Paulo', label: 'America/Sao_Paulo (UTC-3)' },
-    ];
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -256,8 +235,12 @@ const SetupWizard = ({ onComplete }) => {
                                         onChange={handleChange}
                                         className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                                     >
-                                        {timezones.map(tz => (
-                                            <option key={tz.value} value={tz.value}>{tz.label}</option>
+                                        {TIMEZONE_GROUPS.map(group => (
+                                            <optgroup key={group.region} label={group.region}>
+                                                {group.zones.map(tz => (
+                                                    <option key={tz.value} value={tz.value}>{tz.label}</option>
+                                                ))}
+                                            </optgroup>
                                         ))}
                                     </select>
                                 </div>
