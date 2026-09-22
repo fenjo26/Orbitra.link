@@ -112,16 +112,18 @@ const StatusContent = () => {
                     <div className="p-3 rounded-lg bg-[var(--color-bg-soft)] border border-[var(--color-border)]">
                         <div className="flex justify-between items-center mb-2">
                             <span className="text-sm text-[var(--color-text-secondary)]">{t('admin.ram')}</span>
-                            <span className="text-xs font-mono">{statusData.system_memory_used_percent || 0}%</span>
+                            {/* total 0 = the host hides /proc and blocks exec: say N/A
+                                instead of a meaningless 0% bar */}
+                            <span className="text-xs font-mono">{statusData.system_total_memory ? (statusData.system_memory_used_percent || 0) + '%' : 'N/A'}</span>
                         </div>
                         <div className="w-full h-2 bg-[var(--color-border)] rounded-full overflow-hidden">
                             <div
                                 className={`h-full transition-all ${getProgressColor(statusData.system_memory_used_percent || 0)}`}
-                                style={{ width: `${statusData.system_memory_used_percent || 0}%` }}
+                                style={{ width: `${statusData.system_total_memory ? (statusData.system_memory_used_percent || 0) : 0}%` }}
                             />
                         </div>
                         <div className="text-xs text-[var(--color-text-muted)] mt-1">
-                            {statusData.system_total_memory ? formatBytes(statusData.system_free_memory) + ' ' + t('admin.free') : 'N/A'}
+                            {statusData.system_total_memory ? formatBytes(statusData.system_total_memory - statusData.system_free_memory) + ' ' + t('admin.of') + ' ' + formatBytes(statusData.system_total_memory) : 'N/A'}
                         </div>
                     </div>
 

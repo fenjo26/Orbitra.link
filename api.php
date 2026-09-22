@@ -14032,7 +14032,9 @@ try {
                     $cpuCores = (int) orbitraShell('echo %NUMBER_OF_PROCESSORS%') ?: 1;
                 }
 
-                // System memory (Linux)
+                // System memory (Linux first; graceful fallbacks for hosts where
+                // /proc is hidden by open_basedir — Hestia-style panels do this —
+                // and for macOS/Windows dev boxes).
                 $totalMem = 0;
                 $freeMem = 0;
                 $usedMemPercent = 0;
@@ -14045,6 +14047,43 @@ try {
                     $availableMem = isset($availMatch[1]) ? (int) $availMatch[1] * 1024 : (isset($freeMatch[1]) ? (int) $freeMatch[1] * 1024 : 0);
                     $freeMem = $availableMem;
                     $usedMemPercent = $totalMem > 0 ? round((($totalMem - $freeMem) / $totalMem) * 100, 1) : 0;
+                }
+                if ($totalMem === 0) {
+                    // free prints kilobytes by default; -b keeps the unit bytes.
+                    // Columns: total used free shared buff/cache available.
+                    $freeOut = @shell_exec('free -b 2>/dev/null');
+                    if (is_string($freeOut) && preg_match('/^Mem:\s+(\d+)\s+(\d+)/m', $freeOut, $m)) {
+                        $totalMem = (int) $m[1];
+                        $usedMemPercent = $totalMem > 0 ? round((($totalMem - (int) $m[2]) / $totalMem) * 100, 1) : 0;
+                        if (preg_match('/^Mem:\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+(\d+)/m', $freeOut, $av)) {
+                            $freeMem = (int) $av[1];
+                        } else {
+                            $freeMem = $totalMem - (int) $m[2];
+                        }
+                    }
+                }
+                if ($totalMem === 0 && PHP_OS_FAMILY === 'Darwin') {
+                    $totalMem = (int) orbitraShell('sysctl -n hw.memsize 2>/dev/null');
+                    $vmStat = @shell_exec('vm_stat 2>/dev/null');
+                    // macOS keeps almost nothing "free"; reclaimable inactive and
+                    // speculative pages count as available, same as MemAvailable.
+                    if ($totalMem > 0 && is_string($vmStat)
+                        && preg_match('/Pages free:\s+(\d+)/', $vmStat, $pf)
+                        && preg_match('/Pages inactive:\s+(\d+)/', $vmStat, $pi)
+                        && preg_match('/Pages speculative:\s+(\d+)/', $vmStat, $ps)) {
+                        $freeMem = ((int) $pf[1] + (int) $pi[1] + (int) $ps[1]) * 4096;
+                        $usedMemPercent = round((($totalMem - $freeMem) / $totalMem) * 100, 1);
+                    }
+                }
+                if ($totalMem === 0 && PHP_OS_FAMILY === 'Windows') {
+                    $wmi = @shell_exec('wmic OS get TotalVisibleMemorySize,FreePhysicalMemory /value 2>nul');
+                    if (is_string($wmi)
+                        && preg_match('/FreePhysicalMemory=(\d+)/', $wmi, $fm)
+                        && preg_match('/TotalVisibleMemorySize=(\d+)/', $wmi, $tm)) {
+                        $totalMem = (int) $tm[1] * 1024;
+                        $freeMem = (int) $fm[1] * 1024;
+                        $usedMemPercent = $totalMem > 0 ? round((($totalMem - $freeMem) / $totalMem) * 100, 1) : 0;
+                    }
                 }
 
                 // PHP Memory
@@ -14503,16 +14542,21 @@ try {
                 $canExec = function_exists('exec')
                     && !in_array('exec', $disabled, true);
                 if (!$canExec) {
+                    // Keep the pinned Composer version in sync with COMPOSER_VER
+                    // in install.sh and orbitraComposerInstall above.
                     $manualCommand = 'sudo apt-get install -y php-bcmath'
                         . ' && cd ' . escapeshellarg(__DIR__)
                         . ' && git pull --ff-only origin main'
-                        . ' && php composer.phar install --no-dev --prefer-dist --no-interaction --optimize-autoloader';
+                        . ' && composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader';
                     echo json_encode([
                         'status' => 'error',
                         'message' => 'Автоматическое обновление недоступно: на сервере отключена функция exec() '
                             . '(смотрите disable_functions в php.ini). Обновитесь вручную через SSH '
                             . 'от системного пользователя, которому принадлежит каталог Orbitra: '
                             . $manualCommand
+                            . ' Если системного Composer нет, сначала скачайте его: '
+                            . 'curl -fsSL https://getcomposer.org/download/2.10.3/composer.phar -o composer.phar'
+                            . ' && php composer.phar install --no-dev --prefer-dist --no-interaction --optimize-autoloader'
                     ]);
                     break;
                 }
