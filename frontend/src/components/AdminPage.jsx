@@ -427,9 +427,9 @@ const AdminPage = ({ page, user }) => {
 
     const adminPages = {
         admin_users: {
-            title: isUsersTabSelfService ? t('settings.profile') : t('admin.users'),
+            title: t('users.usersAndProfile'),
             icon: <UserCog className="w-6 h-6" />,
-            description: isUsersTabSelfService ? t('settings.profileDesc') || t('settings.profile') : (t('nav.adminUsers') || t('admin.users')),
+            description: isUsersTabSelfService ? t('settings.profile') : (t('nav.adminUsers') || t('admin.users')),
             comingSoon: false,
             content: <UsersPage user={user} />
         },

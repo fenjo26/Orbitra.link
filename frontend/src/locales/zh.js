@@ -1562,6 +1562,7 @@ export default {
         "alreadyMapped": "此状态已映射到此类型"
     },
     "users": {
+        "usersAndProfile": "用户与个人资料",
         "apiKeys": "API 密钥",
         "roleTemplate": "角色模板",
         "templateAdmin": "管理员（完全访问）",

@@ -25,8 +25,9 @@ const DEFAULT_PERMISSIONS = () => ({
 const UsersPage = ({ user }) => {
     const { t, setLanguage: setContextLanguage, language: currentLanguage } = useLanguage();
     // One tab, two jobs: every role manages its own profile (password, 2FA)
-    // in the card above; the accounts table below is the admin's manager.
+    // on the Profile sub-tab; the accounts table is the admin's manager.
     const isAdmin = (user?.role ?? 'admin') === 'admin';
+    const [subTab, setSubTab] = useState(isAdmin ? 'users' : 'profile');
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
@@ -366,10 +367,46 @@ const UsersPage = ({ user }) => {
                 <div className="alert alert-danger">{error}</div>
             )}
 
-            {/* Your profile — self-service for every role; 2FA lives here. */}
-            <ProfileSettings />
+            {/* Sub-tabs: the accounts table (admin) and the personal profile
+                (every role) deliberately live in one place. */}
+            {isAdmin && (
+                <div className="page-card" style={{ padding: '10px 14px' }}>
+                    <div
+                        className="inline-flex p-0.5 rounded-full border items-center gap-0.5"
+                        role="tablist"
+                        style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}
+                    >
+                        {[
+                            { id: 'users', label: t('admin.users') },
+                            { id: 'profile', label: t('settings.profile') },
+                        ].map((tab) => {
+                            const isActive = subTab === tab.id;
+                            return (
+                                <button
+                                    key={tab.id}
+                                    type="button"
+                                    role="tab"
+                                    aria-selected={isActive}
+                                    onClick={() => setSubTab(tab.id)}
+                                    className="px-3 py-1 rounded-full text-xs font-medium transition-all cursor-pointer"
+                                    style={{
+                                        backgroundColor: isActive ? 'var(--color-primary)' : 'transparent',
+                                        color: isActive ? 'var(--color-text-inverse)' : 'var(--color-text-muted)',
+                                    }}
+                                >
+                                    {tab.label}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
 
-            {isAdmin && (<>
+            {(!isAdmin || subTab === 'profile') && (
+                <ProfileSettings />
+            )}
+
+            {isAdmin && subTab === 'users' && (<>
             {/* Header */}
             <div className="page-card">
                 <div className="page-header" style={{ borderBottom: 'none', paddingBottom: 0, marginBottom: 0 }}>

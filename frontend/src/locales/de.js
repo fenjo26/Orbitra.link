@@ -1562,6 +1562,7 @@ export default {
         "alreadyMapped": "Dieser Status ist bereits diesem Typ zugeordnet"
     },
     "users": {
+        "usersAndProfile": "Benutzer & Profil",
         "apiKeys": "API-Schlüssel",
         "roleTemplate": "Rollenvorlage",
         "templateAdmin": "Admin (voller Zugriff)",

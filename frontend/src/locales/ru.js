@@ -1562,6 +1562,7 @@ export default {
         "alreadyMapped": "Этот статус уже смаплен в этот тип"
     },
     "users": {
+        "usersAndProfile": "Пользователи и профиль",
         "apiKeys": "API-ключи",
         "roleTemplate": "Шаблон роли",
         "templateAdmin": "Админ (полный доступ)",

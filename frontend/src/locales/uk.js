@@ -1562,6 +1562,7 @@ export default {
         "alreadyMapped": "Цей статус вже замаплений в цей тип"
     },
     "users": {
+        "usersAndProfile": "Користувачі та профіль",
         "apiKeys": "API-ключі",
         "roleTemplate": "Шаблон ролі",
         "templateAdmin": "Адмін (повний доступ)",

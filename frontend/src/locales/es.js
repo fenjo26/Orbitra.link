@@ -1562,6 +1562,7 @@ export default {
         "alreadyMapped": "Este estado ya está mapeado a este tipo"
     },
     "users": {
+        "usersAndProfile": "Usuarios y perfil",
         "apiKeys": "Claves de API",
         "roleTemplate": "Plantilla de rol",
         "templateAdmin": "Admin (acceso total)",
