@@ -499,6 +499,16 @@ function orbitraClickApiV3(PDO $pdo): void
         return;
     }
 
+    // Stopped campaigns must not take traffic. The lookup is token-keyed (no
+    // ID probing possible) and is_archived is filtered in the WHERE above, so
+    // only the state gate is needed here.
+    $campaignState = strtolower((string) ($campaign['state'] ?? 'active'));
+    if ($campaignState === 'disabled' || $campaignState === 'paused') {
+        http_response_code(503);
+        echo json_encode(['status' => 'error', 'message' => 'Campaign is not accepting traffic']);
+        return;
+    }
+
     $log = [];
     $campaignId = (int) ($campaign['id'] ?? 0);
     if ($wantLog) {

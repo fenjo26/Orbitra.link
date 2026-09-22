@@ -22,6 +22,20 @@ class CloakDetector
     private static $asnSets = null;
 
     /**
+     * Cached iCloud Private Relay egress prefixes, parsed once per process:
+     * a flat list of [packed-network, prefix-bits] pairs. An empty list means
+     * the data file is absent or unreadable — the relay feature is then off
+     * and every IP falls through to the ordinary ASN/ISP reasoning.
+     */
+    private static $relayPrefixes = null;
+
+    /**
+     * Memoized `bot_vpn_asn_signal` verdict for this process (null = not read
+     * yet). TRUE is the historical default: a VPN/proxy ASN counts as a signal.
+     */
+    private static $vpnAsnSignal = null;
+
+    /**
      * Maximum length of the evidence part of a `code:evidence` reason string.
      * A full desktop Chrome UA is ~120 chars; without a cap a single reason
      * could dominate the clicks.cloak_reasons column.
@@ -126,16 +140,20 @@ class CloakDetector
      * signal before regular streams are evaluated. It therefore enables every
      * detector layer and uses the aggressive threshold; users who need tunable
      * sensitivity can use the dedicated Cloak schema instead.
+     *
+     * @param array $options optional overrides merged over the defaults above,
+     *                       e.g. ['sensitivity' => 'medium'] or
+     *                       ['vpn_asn_signal' => false] — see detect()
      */
-    public static function detectBotFilter(array $visitor): array
+    public static function detectBotFilter(array $visitor, array $options = []): array
     {
-        return self::detect($visitor, [
+        return self::detect($visitor, array_merge([
             'detect_datacenter' => true,
             'detect_vpn' => true,
             'detect_bots' => true,
             'detect_ua' => true,
             'sensitivity' => 'high',
-        ]);
+        ], $options));
     }
 
     /**
@@ -178,11 +196,25 @@ class CloakDetector
         if (!preg_match('/^\d+$/', trim($bitsRaw))) {
             return false;
         }
-        $bits = (int) trim($bitsRaw);
         $ipBin = @inet_pton($ip);
         $netBin = @inet_pton(trim($network));
         // Different lengths means one is v4 and the other v6: never a match.
-        if ($ipBin === false || $netBin === false || strlen($ipBin) !== strlen($netBin)) {
+        if ($ipBin === false || $netBin === false) {
+            return false;
+        }
+        return self::ipBinInPrefix($ipBin, $netBin, (int) trim($bitsRaw));
+    }
+
+    /**
+     * Is a packed IP address inside a packed network prefix?
+     *
+     * Shared by ipInCidr() and the iCloud Private Relay matcher. Callers must
+     * pass same-length packed strings (IPv4 with IPv4, IPv6 with IPv6) and a
+     * prefix length valid for that family; anything else is "no match".
+     */
+    private static function ipBinInPrefix(string $ipBin, string $netBin, int $bits): bool
+    {
+        if (strlen($ipBin) !== strlen($netBin)) {
             return false;
         }
         $maxBits = strlen($ipBin) * 8;
@@ -199,6 +231,116 @@ class CloakDetector
         }
         $mask = chr((0xFF << (8 - $remainder)) & 0xFF);
         return ($ipBin[$wholeBytes] & $mask) === ($netBin[$wholeBytes] & $mask);
+    }
+
+    /**
+     * Load the iCloud Private Relay egress ranges once per process.
+     *
+     * The file (core/data/icloud_private_relay.json) is a periodic snapshot of
+     * Apple's published https://mask-api.icloud.com/egress-ip-ranges feed:
+     * {"_source": ..., "_fetched": ..., "ranges": ["1.2.3.0/24", ...]}. When it
+     * is missing, unreadable or malformed the feature is simply off — an empty
+     * prefix list never matches, and click serving never depends on the file.
+     * Each range is parsed to a packed [network, bits] pair here so the per-
+     * visitor match below is pure binary comparison, no per-request re-parsing.
+     */
+    private static function loadRelayPrefixes(): array
+    {
+        if (self::$relayPrefixes !== null) {
+            return self::$relayPrefixes;
+        }
+        self::$relayPrefixes = [];
+        $path = __DIR__ . '/data/icloud_private_relay.json';
+        if (is_readable($path)) {
+            $decoded = json_decode((string) file_get_contents($path), true);
+            if (is_array($decoded) && isset($decoded['ranges']) && is_array($decoded['ranges'])) {
+                $prefixes = [];
+                foreach ($decoded['ranges'] as $cidr) {
+                    $cidr = trim((string) $cidr);
+                    if ($cidr === '' || strpos($cidr, '/') === false) {
+                        continue;
+                    }
+                    [$network, $bitsRaw] = explode('/', $cidr, 2);
+                    if (!preg_match('/^\d+$/', trim($bitsRaw))) {
+                        continue;
+                    }
+                    $netBin = @inet_pton(trim($network));
+                    if ($netBin === false) {
+                        continue;
+                    }
+                    $bits = (int) trim($bitsRaw);
+                    if ($bits < 0 || $bits > strlen($netBin) * 8) {
+                        continue;
+                    }
+                    $prefixes[] = [$netBin, $bits];
+                }
+                self::$relayPrefixes = $prefixes;
+            }
+        }
+        return self::$relayPrefixes;
+    }
+
+    /**
+     * Whether the visitor's IP is one of Apple iCloud Private Relay's published
+     * egress ranges (audit #15). A relay egress address is Apple's privacy
+     * infrastructure, not the visitor's network: the GeoLite2 ASN says "AWS" or
+     * "Google Cloud" and the literal ipranges lists match too, so without this
+     * check ordinary Safari/iCloud+ users were routed to the safe page as
+     * "datacenter" traffic. False (the safe answer) whenever the IP is not
+     * parseable or the snapshot is absent — the feature can only under-fire.
+     */
+    public static function isIcloudPrivateRelayIp(string $ip): bool
+    {
+        $ipBin = @inet_pton(trim($ip));
+        if ($ipBin === false) {
+            return false;
+        }
+        foreach (self::loadRelayPrefixes() as [$netBin, $bits]) {
+            if (self::ipBinInPrefix($ipBin, $netBin, $bits)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Whether a VPN/proxy ASN match should still count as a verdict signal.
+     *
+     * Backed by the settings key `bot_vpn_asn_signal` (audit #15): '0' means a
+     * VPN/proxy ASN must NOT contribute a bot verdict (datacenter ASNs keep
+     * working as before), while an absent key or any other value keeps the
+     * historical behavior. Resolution order:
+     *  1. an explicit 'vpn_asn_signal' entry in the detect() config wins, so
+     *     callers that already load settings (and tests) never touch the DB;
+     *  2. otherwise the setting is read through the same PDO access path the
+     *     bot blocklist layer already uses ($visitor['pdo'], falling back to
+     *     $GLOBALS['pdo']), memoized for the process. The lookup only runs when
+     *     a VPN ASN has actually matched, so ordinary traffic pays nothing.
+     */
+    private static function vpnAsnSignalEnabled(array $visitor, array $config): bool
+    {
+        if (array_key_exists('vpn_asn_signal', $config)) {
+            $parsed = filter_var($config['vpn_asn_signal'], FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
+            return $parsed ?? true;
+        }
+        if (self::$vpnAsnSignal !== null) {
+            return self::$vpnAsnSignal;
+        }
+        self::$vpnAsnSignal = true;
+        $pdo = $visitor['pdo'] ?? ($GLOBALS['pdo'] ?? null);
+        if ($pdo instanceof PDO) {
+            try {
+                $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = 'bot_vpn_asn_signal' LIMIT 1");
+                $stmt->execute();
+                $value = $stmt->fetchColumn();
+                if (is_string($value) && trim($value) === '0') {
+                    self::$vpnAsnSignal = false;
+                }
+            } catch (\Throwable $e) {
+                // Unreadable settings keep the historical default: VPN ASNs count.
+            }
+        }
+        return self::$vpnAsnSignal;
     }
 
     /**
@@ -565,6 +707,10 @@ class CloakDetector
      *                          detect_bots       (bool, default true)
      *                          detect_ua         (bool, default true)
      *                          sensitivity       'low'|'medium'|'high' (default 'medium')
+     *                          vpn_asn_signal    bool, explicit override of the
+     *                                            settings key bot_vpn_asn_signal
+     *                                            (default: read from settings,
+     *                                            true when unreadable/absent)
      * @return array {is_suspicious: bool, reasons: string[]}
      */
     public static function detect(array $visitor, array $config = []): array
@@ -609,7 +755,19 @@ class CloakDetector
         }
 
         // --- Layer 2: ASN datacenter / hosting ---
-        if ($detectDatacenter || $detectVpn) {
+        // The iCloud Private Relay guard (audit #15) is ANDed onto the layer
+        // switch, so a relay egress IP never reaches ANY of the infrastructure
+        // inference below: not the ASN category sets, not the literal cloud
+        // ranges (which list Apple's AWS/Google-hosted egress space), not the
+        // hosting ISP keywords. A relay address is Apple's privacy
+        // infrastructure rather than the visitor's network, so none of it may
+        // produce a datacenter/hosting/VPN verdict or any other bot reason.
+        // All other layers (IP2Proxy, blocklists, UA heuristics) are untouched
+        // and keep working on relay traffic exactly as before. The check is
+        // lazy: it only runs for visitors when the layer is enabled at all.
+        if (($detectDatacenter || $detectVpn)
+            && !self::isIcloudPrivateRelayIp((string) ($visitor['ip'] ?? ''))
+        ) {
             $asnRaw = (string) ($visitor['asn'] ?? '');
             $asnInt = self::asnToInt($asnRaw);
             if ($asnInt !== null) {
@@ -617,7 +775,13 @@ class CloakDetector
                 if ($detectDatacenter && isset($sets['datacenter_hosting'][$asnInt])) {
                     $reasons[] = self::withEvidence('datacenter_asn', $asnRaw);
                 }
-                if ($detectVpn && isset($sets['vpn_proxy'][$asnInt])) {
+                // `bot_vpn_asn_signal` = '0' turns a VPN/proxy ASN into a silent
+                // category: matched, but contributing no reason and therefore no
+                // verdict at any sensitivity. Datacenter ASNs are unaffected.
+                if ($detectVpn
+                    && isset($sets['vpn_proxy'][$asnInt])
+                    && self::vpnAsnSignalEnabled($visitor, $config)
+                ) {
                     $reasons[] = self::withEvidence('vpn_proxy_asn', $asnRaw);
                 }
             }

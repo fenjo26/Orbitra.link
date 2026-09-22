@@ -29,6 +29,10 @@ defined('ORBITRA_ACME_WEBROOT') || define('ORBITRA_ACME_WEBROOT', '/var/www/orbi
 defined('ORBITRA_LETSENCRYPT_DIR') || define('ORBITRA_LETSENCRYPT_DIR', '/etc/letsencrypt');
 defined('ORBITRA_SELF_SIGNED_CERT') || define('ORBITRA_SELF_SIGNED_CERT', '/etc/orbitra/ssl/self-signed.crt');
 defined('ORBITRA_SELF_SIGNED_KEY') || define('ORBITRA_SELF_SIGNED_KEY', '/etc/orbitra/ssl/self-signed.key');
+defined('ORBITRA_CERT_ISSUE_WRAPPER') || define('ORBITRA_CERT_ISSUE_WRAPPER', '/usr/local/bin/orbitra-issue-cert');
+defined('ORBITRA_CERT_DELETE_WRAPPER') || define('ORBITRA_CERT_DELETE_WRAPPER', '/usr/local/bin/orbitra-delete-cert');
+// Root wrapper that validates and installs the vhost (audit #4, replaces sudo cp).
+defined('ORBITRA_NGINX_INSTALL_WRAPPER') || define('ORBITRA_NGINX_INSTALL_WRAPPER', '/usr/local/bin/orbitra-install-nginx-conf');
 
 /**
  * The Certbot command used to obtain a certificate.
@@ -43,6 +47,19 @@ defined('ORBITRA_SELF_SIGNED_KEY') || define('ORBITRA_SELF_SIGNED_KEY', '/etc/or
  * The webroot authenticator never touches nginx at all, and the catch-all server
  * block answers /.well-known/acme-challenge/ for any hostname, so validation
  * works even before the domain has a server block of its own.
+ *
+ * Two routes to certbot:
+ *
+ *  - Preferred: orbitra-issue-cert, the fixed-argument root wrapper install.sh
+ *    writes. The sudoers grant used to allow www-data to run certbot with any
+ *    arguments at all; the wrapper narrows that to one validated domain and one
+ *    renewal flag around a fixed argument set, and does the post-issuance chmod
+ *    itself (see $readableHook below for what that chmod is for).
+ *
+ *  - Fallback: a direct `sudo certbot certonly ...` for installs that were
+ *    upgraded from before the wrapper existed (install.sh only writes it at
+ *    install time). Same fixed arguments, plus the chmod deploy hook, which for
+ *    the wrapper lives inside orbitra-issue-cert instead.
  */
 function orbitraCertbotCertonlyCommand(string $domain, bool $force = false): string
 {
@@ -53,6 +70,10 @@ function orbitraCertbotCertonlyCommand(string $domain, bool $force = false): str
     // renewal" and keeps the line it was asked to replace. The background
     // worker keeps the gentle flag — renewals there should respect the limits.
     $renewalFlag = $force ? '--force-renewal' : '--keep-until-expiring';
+
+    if (is_file(ORBITRA_CERT_ISSUE_WRAPPER) && is_executable(ORBITRA_CERT_ISSUE_WRAPPER)) {
+        return 'sudo ' . ORBITRA_CERT_ISSUE_WRAPPER . ' ' . escapeshellarg($domain) . ' ' . $renewalFlag;
+    }
 
     // The deploy hook is how a panel with no root of its own repairs the one
     // permission it depends on. certbot creates live/ and archive/ as 0700
@@ -74,15 +95,35 @@ function orbitraCertbotCertonlyCommand(string $domain, bool $force = false): str
 }
 
 /**
+ * The Certbot command used to delete a certificate line.
+ *
+ * Deletion used to ride the same blanket "sudo certbot" grant as issuance;
+ * with that grant gone (see orbitraCertbotCertonlyCommand), it goes through
+ * its own fixed-argument wrapper, orbitra-delete-cert, which accepts exactly
+ * one validated domain and nothing else. Installs that predate the wrapper
+ * keep the legacy direct call — their sudoers still carry the old rule.
+ */
+function orbitraCertbotDeleteCommand(string $domain): string
+{
+    if (is_file(ORBITRA_CERT_DELETE_WRAPPER) && is_executable(ORBITRA_CERT_DELETE_WRAPPER)) {
+        return 'sudo ' . ORBITRA_CERT_DELETE_WRAPPER . ' ' . escapeshellarg($domain);
+    }
+
+    return 'sudo certbot delete --cert-name ' . escapeshellarg($domain) . ' -n';
+}
+
+/**
  * Does a Let's Encrypt certificate line exist for this domain — root's view?
  *
  * `file_exists()` here runs as the web user, and on hosts where certbot's
  * output stays root-only it answers false for a certificate that very much
  * exists, which is how a healthy domain ends up classified self-signed and
- * gets an ERR_CERT_AUTHORITY_INVALID in the browser. `sudo certbot
- * certificates` reads the same tree as root and needs no sudoers entry
- * beyond the one install.sh already writes for certbot itself; it lists
- * certificate names and paths, never private key material.
+ * gets an ERR_CERT_AUTHORITY_INVALID in the browser. Root's view is recovered
+ * two ways: through the fixed-argument orbitra-catcert reader install.sh
+ * whitelists (it lists certificate files, never private key material), and —
+ * on hosts where an administrator kept a certbot sudo rule of their own —
+ * `sudo certbot certificates`. Neither is required on a stock install, where
+ * install.sh keeps the live/ directories traversable for the web user.
  *
  * Cached per process: the worker asks once per domain per run.
  */
@@ -101,7 +142,24 @@ function orbitraLetsEncryptCertExists(string $domain): bool
         return $cache[$domain] = true;
     }
 
-    if (!orbitraShellAvailable() || !orbitraCommandExists('sudo') || !orbitraCommandExists('certbot')) {
+    if (!orbitraShellAvailable() || !orbitraCommandExists('sudo')) {
+        return false;
+    }
+
+    // Root's view of the very same file, via the certificate reader the
+    // sudoers file allows. Covers a host where certbot re-tightened the tree
+    // to 0700 after the web-visible chmod: the certificate exists, the panel
+    // just cannot see it as itself.
+    $probe = orbitraShell('sudo -n /usr/local/bin/orbitra-catcert '
+        . escapeshellarg(ORBITRA_LETSENCRYPT_DIR . "/live/$domain/fullchain.pem") . ' 2>/dev/null');
+    if (is_string($probe) && $probe !== '') {
+        return $cache[$domain] = true;
+    }
+
+    // Older route, kept for hosts where an administrator granted certbot to
+    // the web user themselves: it lists certificate names and paths, never
+    // private key material.
+    if (!orbitraCommandExists('certbot')) {
         return false;
     }
 
@@ -164,6 +222,12 @@ function orbitraPhpFpmSocket(): string
  * Used for domains proxied through Cloudflare to restore visitor IPs
  * and properly handle HTTPS protocol forwarding.
  *
+ * Emitted at the top of EVERY server block. That is safe on hosts with no
+ * Cloudflare in front: set_real_ip_from lists only Cloudflare's own networks,
+ * and the realip module rewrites the client address only for a peer on that
+ * list — a direct visitor keeps REMOTE_ADDR untouched, and when a trusted peer
+ * sends no CF-Connecting-IP header at all, the address is left as it was too.
+ *
  * @return string Nginx directives for Cloudflare
  */
 function orbitraCloudflareDirectives(): string
@@ -208,7 +272,11 @@ function orbitraCloudflareDirectives(): string
  */
 function orbitraNginxCommonBody(string $fpmSocket): string
 {
-    $b = "    root /var/www/orbitra;\n";
+    // Real IP restoration and HTTPS forwarding for every server block — see
+    // orbitraCloudflareDirectives() for why this is a no-op without Cloudflare.
+    $b = orbitraCloudflareDirectives();
+
+    $b .= "    root /var/www/orbitra;\n";
     $b .= "    index index.php admin.php index.html;\n\n";
 
     $b .= "    # ORB-013: Internal location for X-Accel-Redirect (flattened, no nested regex).\n";
@@ -294,6 +362,21 @@ function orbitraNginxCommonBody(string $fpmSocket): string
     $b .= "        return 404;\n";
     $b .= "    }\n\n";
 
+    $b .= "    # Tracker source directories are not public content: cli/ holds operator\n";
+    $b .= "    # tools, tests/ and migrations/ ship no web entry points, vendor/ is third-\n";
+    $b .= "    # party code, and geo/ holds the MaxMind databases whose licence forbids\n";
+    $b .= "    # serving them to visitors. Must stay above the PHP handler below, or a\n";
+    $b .= "    # /vendor/acme/pkg/tool.php URL would still execute.\n";
+    // The one public file under data/: the browser-extension download the
+    // Integrations page links to. An exact-match location outranks the regex
+    // deny below regardless of order.
+    $b .= "    location = /data/orbitra-extension.zip {\n";
+    $b .= "        try_files \$uri =404;\n";
+    $b .= "    }\n\n";
+    $b .= "    location ~ ^/(?:cli|tests|core|vendor|migrations|aggregator_engines|var|geo|data)/ {\n";
+    $b .= "        return 404;\n";
+    $b .= "    }\n\n";
+
     $b .= "    # PHP processing\n";
     $b .= "    location ~ \\.php\$ {\n";
     $b .= "        include snippets/fastcgi-php.conf;\n";
@@ -302,8 +385,9 @@ function orbitraNginxCommonBody(string $fpmSocket): string
     $b .= "        include fastcgi_params;\n";
     $b .= "    }\n\n";
 
-    $b .= "    # Deny access to SQLite DB and configurations\n";
-    $b .= "    location ~ \\.sqlite\$ {\n";
+    $b .= "    # Deny access to SQLite DB (the live database and its -wal/-shm/-journal\n";
+    $b .= "    # side files) and other database files\n";
+    $b .= "    location ~ \\.(sqlite|sqlite-wal|sqlite-shm|sqlite-journal|db)\$ {\n";
     $b .= "        deny all;\n";
     $b .= "    }\n";
     $b .= "    location ~ /\\. {\n";
@@ -311,8 +395,8 @@ function orbitraNginxCommonBody(string $fpmSocket): string
     $b .= "    }\n\n";
 
     $b .= "    # Deny access to log files, environment files, and sensitive data\n";
-    $b .= "    # Must come before PHP handler to take precedence\n";
-    $b .= "    location ~* \\.(log|txt|json|env|git|bak|sql)\$ {\n";
+    $b .= "    # (.sh/.md/.phar/.lock keep install.sh, docs, composer.phar/lock off the web)\n";
+    $b .= "    location ~* \\.(log|txt|json|env|git|bak|sql|sh|md|phar|lock)\$ {\n";
     $b .= "        deny all;\n";
     $b .= "        return 404;\n";
     $b .= "    }\n";
@@ -341,6 +425,9 @@ function orbitraBuildNginxConfig(array $domains, bool $withDefaultServer = true)
         static fn($d) => strtolower(trim((string) (is_array($d) ? ($d['name'] ?? '') : $d))),
         $domains
     ))));
+    // Anything that is not a plain hostname never reaches the config: a name
+    // carrying ';', whitespace or braces would inject nginx directives.
+    $domainNames = array_values(array_filter($domainNames, static fn($n) => preg_match('/^[a-z0-9*_.-]{1,253}$/', $n) === 1));
     sort($domainNames);
 
     // Index domains by name for quick lookup
@@ -365,7 +452,12 @@ function orbitraBuildNginxConfig(array $domains, bool $withDefaultServer = true)
         $cloudflareProxy = (int) ($domainInfo['cloudflare_proxy'] ?? 0) === 1;
 
         // Custom certificate takes precedence
-        if ($customCert !== '' && $customKey !== '' && file_exists($customCert) && file_exists($customKey)) {
+        // Paths are interpolated into the config verbatim, so only plain
+        // absolute paths qualify — "/tmp/x;\naccess_log /etc/..." is a real
+        // file name the web user can create.
+        $safeCertPath = static fn($p) => preg_match('#^/[A-Za-z0-9._/-]+$#', (string) $p) === 1 && strpos((string) $p, '..') === false;
+        if ($customCert !== '' && $customKey !== '' && $safeCertPath($customCert) && $safeCertPath($customKey)
+            && file_exists($customCert) && file_exists($customKey)) {
             $customCertDomains[] = [
                 'name' => $domain,
                 'cert' => $customCert,
@@ -485,13 +577,13 @@ function orbitraBuildNginxConfig(array $domains, bool $withDefaultServer = true)
     if (!empty($cloudflareOnlyDomains) && file_exists(ORBITRA_SELF_SIGNED_CERT) && file_exists(ORBITRA_SELF_SIGNED_KEY)) {
         $c .= "# Parked domains over HTTPS (Cloudflare Full SSL with self-signed origin).\n";
         $c .= "# ORB-014: Cloudflare edge serves SSL to visitors. Origin uses self-signed\n";
-        $c .= "# certificate. Real IP restoration and HTTPS protocol forwarding enabled.\n";
+        $c .= "# certificate. Real IP restoration and HTTPS protocol forwarding enabled\n";
+        $c .= "# by the directives every server block carries.\n";
         $c .= "server {\n";
         $c .= "    listen 443 ssl;\n";
         $c .= "    server_name " . implode(' ', $cloudflareOnlyDomains) . ";\n\n";
         $c .= "    ssl_certificate " . ORBITRA_SELF_SIGNED_CERT . ";\n";
         $c .= "    ssl_certificate_key " . ORBITRA_SELF_SIGNED_KEY . ";\n\n";
-        $c .= orbitraCloudflareDirectives();
         $c .= $body;
         $c .= "}\n\n";
     }
@@ -542,17 +634,53 @@ function orbitraSyncNginx(PDO $pdo): array
 
         $previous = (string) @file_get_contents($path);
         $stage = '/tmp/orbitra_nginx_update.conf';
+        // Preferred write path (audit #4): the root wrapper reads the config
+        // from STDIN and installs it only if every directive is on its
+        // allowlist — root never copies a file the web user chose. The stage
+        // file lives in the app's own var/ and is handed over by the web
+        // user's shell redirection, not opened by root.
+        $useWrapper = is_file(ORBITRA_NGINX_INSTALL_WRAPPER);
+        $lastWrapperError = '';
 
-        $write = static function (string $contents) use ($path, $stage): bool {
+        $write = static function (string $contents) use ($path, $stage, $useWrapper, &$lastWrapperError): bool {
             if (@file_put_contents($path, $contents) !== false) {
                 return true;
             }
+            if ($useWrapper) {
+                $tmpDir = __DIR__ . '/../var/tmp';
+                if (!is_dir($tmpDir)) {
+                    @mkdir($tmpDir, 0770, true);
+                }
+                $tmp = @tempnam($tmpDir, 'nginx_');
+                if ($tmp === false || @file_put_contents($tmp, $contents) === false) {
+                    return false;
+                }
+                $out = (string) orbitraShell('sudo -n ' . ORBITRA_NGINX_INSTALL_WRAPPER . ' < ' . escapeshellarg($tmp) . ' 2>&1');
+                @unlink($tmp);
+                if ((string) @file_get_contents($path) !== $contents) {
+                    $lastWrapperError = trim($out);
+                    return false;
+                }
+                return true;
+            }
+            // Legacy installs (no wrapper yet): the old whitelisted cp rule.
             if (@file_put_contents($stage, $contents) === false) {
                 return false;
             }
             orbitraShell("sudo cp $stage $path 2>&1");
             @unlink($stage);
             return (string) @file_get_contents($path) === $contents;
+        };
+
+        // Put the config that was live before this sync back. Through the
+        // wrapper that is its own saved copy (a hand-edited legacy config may
+        // not pass the allowlist, and must still be restorable).
+        $restore = static function () use ($previous, $write, $useWrapper, $path): void {
+            if ($useWrapper && @file_put_contents($path, $previous) === false) {
+                orbitraShell('sudo -n ' . ORBITRA_NGINX_INSTALL_WRAPPER . ' --restore 2>&1');
+                return;
+            }
+            $write($previous);
         };
 
         $test = static function (): string {
@@ -566,7 +694,8 @@ function orbitraSyncNginx(PDO $pdo): array
         }
 
         if (!$write($config)) {
-            return ['status' => 'error', 'message' => 'Cannot write ' . $path . ' (check /etc/sudoers.d/orbitra-ssl)'];
+            return ['status' => 'error', 'message' => 'Cannot write ' . $path . ' (check /etc/sudoers.d/orbitra-ssl)'
+                . ($lastWrapperError !== '' ? ': ' . $lastWrapperError : '')];
         }
 
         $output = $test();
@@ -575,10 +704,13 @@ function orbitraSyncNginx(PDO $pdo): array
             // port, which makes nginx reject the whole config. Retry without the
             // flag — being the first server block still makes this one the default.
             $config = orbitraBuildNginxConfig($domains, false);
+            // Back to the known-good config first, so the wrapper's saved
+            // "previous" copy stays the original one across the retry.
+            $restore();
             $write($config);
             $retry = $test();
             if (strpos($retry, 'successful') === false) {
-                $write($previous);
+                $restore();
                 orbitraShell('sudo systemctl reload nginx 2>&1');
                 return [
                     'status' => 'error',

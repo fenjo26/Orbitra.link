@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Home, LayoutDashboard, Globe, Users, DollarSign, Activity, PieChart, Tag, Bell, Search, Settings, Link, FileText, Mail, ChevronDown, UserCog, Palette, Map, Globe2, Plug, BarChart3, FileStack, Archive, Upload, Trash2, Database, ArrowRightLeft, RefreshCw, Server, LogOut, Palette as BrandIcon, TrendingUp, Sun, Moon, Menu, X, MessageSquare, Sparkles, Zap, Images } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { canAccessTab } from '../utils/permissions';
+import { canAccessTab, isAdminUser } from '../utils/permissions';
 
 const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     const { t } = useLanguage();
@@ -29,10 +29,10 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     const [activeSuiteModule, setActiveSuiteModule] = useState(() => localStorage.getItem('orbitra_suite_module') || 'tracker');
 
     useEffect(() => {
-        if (activeTab === 'leadforge') {
+        if (activeTab === 'leadforge' && isAdminUser(user)) {
             setActiveSuiteModule('leadforge');
             localStorage.setItem('orbitra_suite_module', 'leadforge');
-        } else if (activeTab === 'crm') {
+        } else if (activeTab === 'crm' && isAdminUser(user)) {
             setActiveSuiteModule('crm');
             localStorage.setItem('orbitra_suite_module', 'crm');
         } else {
@@ -99,6 +99,16 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
         { icon: <MessageSquare size={16} />, label: t('adminMenu.feedback') || 'Feedback & Support', tab: 'admin_feedback' },
     ];
 
+    // LeadForge and CRM read/write leadforge_*/crm_* API actions, which the
+    // backend serves to admins only — other roles get the tracker capsule.
+    const suiteModules = isAdminUser(user)
+        ? [
+              { id: 'leadforge', label: t('suite.leadforge', 'LeadForge'), icon: <Zap size={14} /> },
+              { id: 'tracker', label: t('suite.tracker', 'Tracker'), icon: <BarChart3 size={14} /> },
+              { id: 'crm', label: t('suite.crm', 'CRM'), icon: <Users size={14} /> }
+          ]
+        : [{ id: 'tracker', label: t('suite.tracker', 'Tracker'), icon: <BarChart3 size={14} /> }];
+
     const handleMenuClick = (tab) => {
         setActiveTab(tab);
         setAdminMenuOpen(false);
@@ -144,11 +154,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                         aria-label="Suite module"
                         style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}
                     >
-                        {[
-                            { id: 'leadforge', label: t('suite.leadforge', 'LeadForge'), icon: <Zap size={14} /> },
-                            { id: 'tracker', label: t('suite.tracker', 'Tracker'), icon: <BarChart3 size={14} /> },
-                            { id: 'crm', label: t('suite.crm', 'CRM'), icon: <Users size={14} /> }
-                        ].map((mod) => {
+                        {suiteModules.map((mod) => {
                             const isActive = activeSuiteModule === mod.id;
                             return (
                                 <button
@@ -356,12 +362,9 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                                 className="flex p-1 rounded-full border items-center justify-between gap-1 w-full"
                                 style={{ backgroundColor: 'var(--color-bg-main)', borderColor: 'var(--color-border)' }}
                             >
-                                {[
-                                    { id: 'leadforge', label: 'LeadForge' },
-                                    { id: 'tracker', label: 'Tracker' },
-                                    { id: 'crm', label: 'CRM' }
-                                ].map((mod) => {
+                                {suiteModules.map((mod) => {
                                     const isActive = activeSuiteModule === mod.id;
+                                    const label = mod.id === 'leadforge' ? 'LeadForge' : mod.id === 'crm' ? 'CRM' : 'Tracker';
                                     return (
                                         <button
                                             key={mod.id}
@@ -377,7 +380,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                                                 boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.18)' : 'none'
                                             }}
                                         >
-                                            {mod.label}
+                                            {label}
                                         </button>
                                     );
                                 })}

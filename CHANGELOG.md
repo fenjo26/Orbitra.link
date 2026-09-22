@@ -7,6 +7,72 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.0] — 2026-09-22
+
+Security release: every finding of the independent audit of v1.5.15, plus the
+upgrade path for servers that already run Orbitra.
+
+### Action required on servers installed before 1.6.0
+
+- **One-time root step.** The in-panel update runs as the web user and cannot
+  change sudoers. After updating, admins see a banner (dashboard and Update
+  page) with one SSH command:
+  `curl -fsSL https://raw.githubusercontent.com/fenjo26/Orbitra.link/v1.6.0/cli/server_setup.sh | sudo ORBITRA_REF=v1.6.0 bash`.
+  It replaces the old `NOPASSWD: /usr/bin/certbot` and `cp … sites-available`
+  rules (both let a web-user compromise become root) with argument-checking
+  helpers, and schedules the click-spool worker. Idempotent; tracking is not
+  interrupted. The banner disappears once `/etc/orbitra/server-setup-version`
+  reports the required version. Until then the panel keeps working through the
+  old rules.
+
+### Security
+
+- `profile_settings` acts only on the signed-in user (no `user_id` from the
+  request); password change needs the current password.
+- `settings`, `save_settings`, `save_telegram_settings` and any write through
+  `global_settings` are admin-only; secrets are stripped for other roles.
+  Unmapped actions are admin-only by default (`orbitraUnmappedAllowedActions`).
+  Non-admins may create pixel profiles but not edit or duplicate shared ones.
+- nginx vhost is written only through `orbitra-install-nginx-conf`, a root
+  helper that reads the config on STDIN and installs it only if every
+  directive is on its allowlist. Domain names and custom certificate paths
+  that could inject directives are rejected.
+- Certificates are issued/deleted through `orbitra-issue-cert` /
+  `orbitra-delete-cert` (fixed arguments, no hooks).
+- `/cli/*.php` refuse web requests; nginx and `.htaccess` deny `cli/`,
+  `core/`, `vendor/`, `var/`, `geo/`, `data/` (except the extension download),
+  SQLite `-wal/-shm/-journal`, `.sh/.md/.phar/.lock`.
+- Telegram: webhook requires Telegram's secret token (existing webhooks get
+  one automatically), polling installs reject webhook posts, chats join only
+  with a one-time code from the panel (`/start CODE`) and can be disconnected
+  there. Chats registered before 1.6.0 keep working.
+- Admin IP allowlist fails closed, compares IPv6, and trusts forwarded headers
+  only from Cloudflare or a private proxy. Domain flag "admin panel: deny"
+  works under nginx.
+- Login: 401/429 codes, failure-only limits per IP (5/5 min) and per account
+  (20/15 min, cleared on success), optional TOTP two-factor login (codes are
+  single-use).
+- Stopped (`disabled`/`paused`) campaigns answer 503 and archived ones 404 on
+  alias, `click.php` and Click API.
+- Geo downloads verify TLS; `core/SxGeo.php` is a working reader again; the
+  country filter in include mode no longer admits unknown countries when geo
+  works.
+- Smaller items: no exception details in `click.php` responses, neutral DB
+  error, 8-char minimum passwords, `X-Frame-Options: DENY`, no CORS for
+  unknown origins, `check_dns_debug.php` and `init_admin` removed, optional
+  HMAC for `/crm-ingest`, bot ASN list cleaned, `composer.phar` pinned by
+  SHA-256 instead of committed.
+
+### Fixed
+
+- Clicks are no longer lost on "database is locked": the row goes to
+  `var/spool/clicks.log` and `cli/click_spool_cron.php` lands it within a
+  minute (the panel schedules that cron itself when it is missing). The web
+  request never waits for the replay.
+- Keitaro import: campaign state, stream `action_payload`, `accept/reject`
+  filter modes, a report of filters that could not be carried over, and the
+  dump parser.
+
 ## [1.5.15] — 2026-09-18
 
 ### Added — geo databases out of the box

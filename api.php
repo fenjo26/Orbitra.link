@@ -41,6 +41,7 @@ require_once __DIR__ . '/core/CloudDetector.php';
 require_once __DIR__ . '/core/DomainDnsResolver.php';
 require_once __DIR__ . '/core/server_ip.php';
 require_once __DIR__ . '/core/telegram_api.php';
+require_once __DIR__ . '/core/Totp.php';
 
 // CORS Headers
 $allowedOrigins = ['https://tracker.yourdomain.com', 'http://127.0.0.1:8000', 'http://localhost:8080', 'http://localhost:5173', 'http://localhost']; // Add real domains here
@@ -49,10 +50,11 @@ $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if (in_array($origin, $allowedOrigins)) {
     header('Access-Control-Allow-Origin: ' . $origin);
     header('Access-Control-Allow-Credentials: true');
-} else {
-    // Fallback for tools like curl if needed, but safer to restrict
-    header('Access-Control-Allow-Origin: *');
 }
+// Origins not on the list get no Access-Control-Allow-Origin header at all:
+// same-origin panel requests (the normal case) and non-browser clients
+// (curl, server-to-server) are unaffected — a browser would block the
+// response, which is exactly the point.
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, X-CSRF-TOKEN, X-Api-Key');
 
@@ -64,6 +66,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 header('Content-Type: application/json');
 $action = $_GET['action'] ?? '';
+
+// A domain parked with admin_access=0 serves tracking only. api.php is part
+// of the admin surface, so on such a host it answers 404 for everything
+// except the pre-auth public actions (login/first-setup/ping) — a signed-in
+// operator simply uses a host where the panel is allowed. Hosts without a
+// domains row (localhost, the bare IP) are unaffected.
+require_once __DIR__ . '/core/admin_access.php';
+if (!orbitraHostAdminAllowed($pdo, $_SERVER['HTTP_HOST'] ?? '')
+    && !in_array($action, ['login', 'check_setup', 'setup_first_user', 'ping'], true)) {
+    orbitraDenyAdminHost();
+}
 
 // Rate Limiting fallback implementation
 /**
@@ -1291,8 +1304,41 @@ function orbitraNamecheapSyncDomain(PDO $pdo, array $domain, ?array $cfg = null)
  */
 function orbitraComposerInstall(string $repoDir, array &$output): array
 {
+    // The phar used to ship in the repository; it no longer does (supply-chain
+    // hardening), so resolve a composer binary in order: the local phar
+    // install.sh provisions, a system composer, then a one-time pinned
+    // re-download. The pin pair below MUST match COMPOSER_VER/COMPOSER_SHA256
+    // in install.sh — an update on an existing install git-pulls the commit
+    // that deletes the tracked phar, and this re-download is what keeps
+    // `php composer.phar install` working there.
+    $composerPhar = $repoDir . '/composer.phar';
+    $composerCmd = null;
+    if (is_file($composerPhar)) {
+        $composerCmd = 'php ' . escapeshellarg($composerPhar);
+    } elseif (trim((string) shell_exec('command -v composer 2>/dev/null')) !== '') {
+        $composerCmd = 'composer';
+    } else {
+        $pinVer = '2.10.3';
+        $pinSha = '7a2d379d5b8ffdaa028580ef26494c36d2feef4b178d3dd1473a4dbc5e17c8d6';
+        $output[] = "[composer.phar not found — fetching pinned Composer {$pinVer}]";
+        $tmp = $composerPhar . '.tmp';
+        $dlCode = 0;
+        exec('curl -fsSL ' . escapeshellarg('https://getcomposer.org/download/' . $pinVer . '/composer.phar')
+            . ' -o ' . escapeshellarg($tmp) . ' 2>/dev/null || wget -qO ' . escapeshellarg($tmp) . ' '
+            . escapeshellarg('https://getcomposer.org/download/' . $pinVer . '/composer.phar') . ' 2>/dev/null', $junk, $dlCode);
+        $shaOk = $dlCode === 0 && is_file($tmp)
+            && hash_equals($pinSha, (string) hash_file('sha256', $tmp));
+        if (!$shaOk) {
+            @unlink($tmp);
+            $output[] = '[Pinned Composer download failed its sha256 check — dependencies not refreshed]';
+            return ['ok' => false, 'degraded' => false, 'hint' => 'composer binary missing and the pinned download failed; run install.sh or `composer install` manually'];
+        }
+        rename($tmp, $composerPhar);
+        $composerCmd = 'php ' . escapeshellarg($composerPhar);
+    }
+
     $base = 'cd ' . escapeshellarg($repoDir)
-        . ' && php ' . escapeshellarg($repoDir . '/composer.phar')
+        . ' && ' . $composerCmd
         . ' install --no-dev --prefer-dist --no-interaction --optimize-autoloader';
 
     $code = 0;
@@ -1321,7 +1367,89 @@ function orbitraComposerInstall(string $repoDir, array &$output): array
     return ['ok' => $retryCode === 0, 'degraded' => $retryCode === 0, 'hint' => $hint];
 }
 
-function checkRateLimit($key, $maxRequests = 5, $window = 300)
+/**
+ * Snapshot the SQLite database before an update rewrites the source tree.
+ * Checkpoints the WAL so the single copied file is self-contained, stores it
+ * under var/backups/ with a .log extension (the asset whitelist serves .log
+ * as a download; never .json), prunes to the newest three snapshots and
+ * returns a one-line note for the update output — a failed backup warns, it
+ * does not abort the update.
+ */
+function orbitraBackupSqliteForUpdate(PDO $pdo, string $dbFile): string
+{
+    try {
+        $backupDir = __DIR__ . '/var/backups';
+        if (!is_dir($backupDir) && !@mkdir($backupDir, 0775, true) && !is_dir($backupDir)) {
+            return '[Database backup failed: cannot create var/backups/ — update continues]';
+        }
+        try {
+            // Fold the WAL into the main file so the copy carries every commit.
+            $pdo->exec('PRAGMA wal_checkpoint(TRUNCATE)');
+        } catch (\Throwable $e) {
+            // A busy checkpoint only means the copy may miss the last commits;
+            // never worth failing the backup over.
+        }
+        $target = $backupDir . '/orbitra_db.sqlite-' . date('Ymd-His') . '.log';
+        if (!@copy($dbFile, $target)) {
+            return '[Database backup failed: could not copy the SQLite file — update continues]';
+        }
+        @chmod($target, 0660);
+        $old = glob($backupDir . '/orbitra_db.sqlite-*.log');
+        if (is_array($old) && count($old) > 3) {
+            sort($old);
+            foreach (array_slice($old, 0, count($old) - 3) as $stale) {
+                @unlink($stale);
+            }
+        }
+        return '[Database backup: var/backups/' . basename($target) . ']';
+    } catch (\Throwable $e) {
+        return '[Database backup failed: ' . $e->getMessage() . ' — update continues]';
+    }
+}
+
+/**
+ * Failure-only login throttle (audit #20 follow-up). checkRateLimit() counts
+ * every call, which made a correct login spend budget and let anyone lock an
+ * account by sending five wrong passwords for its name. Here only FAILURES
+ * are counted, a success clears the account's counter, and the account
+ * threshold is higher than the per-IP one, so one source cannot lock an
+ * account on its own.
+ *
+ *   orbitraLoginThrottle('check', $key, $max)   → true = allowed
+ *   orbitraLoginThrottle('fail',  $key, 0, $window)
+ *   orbitraLoginThrottle('clear', $key)
+ *
+ * Fail-closed on 'check' when the store is unreadable (login must not run
+ * without a working limiter); 'fail'/'clear' are best-effort.
+ */
+function orbitraLoginThrottle(string $op, string $key, int $max = 0, int $window = 300): bool
+{
+    global $pdo;
+    try {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS rate_limits (key VARCHAR(255) PRIMARY KEY, count INTEGER, expires_at DATETIME)");
+        $rlKey = 'loginfail:' . $key;
+        if ($op === 'check') {
+            $stmt = $pdo->prepare("SELECT count FROM rate_limits WHERE key = ? AND expires_at >= datetime('now')");
+            $stmt->execute([$rlKey]);
+            return (int) ($stmt->fetchColumn() ?: 0) < $max;
+        }
+        if ($op === 'fail') {
+            $pdo->prepare("DELETE FROM rate_limits WHERE key = ? AND expires_at < datetime('now')")->execute([$rlKey]);
+            $pdo->prepare("INSERT INTO rate_limits (key, count, expires_at) VALUES (?, 1, datetime('now', '+' || ? || ' seconds'))
+                           ON CONFLICT(key) DO UPDATE SET count = count + 1")->execute([$rlKey, $window]);
+            return true;
+        }
+        if ($op === 'clear') {
+            $pdo->prepare("DELETE FROM rate_limits WHERE key = ?")->execute([$rlKey]);
+            return true;
+        }
+    } catch (\Throwable $e) {
+        return $op !== 'check';
+    }
+    return false;
+}
+
+function checkRateLimit($key, $maxRequests = 5, $window = 300, $failClosed = false)
 {
     // Попробовать Redis, если расширение установлено
     if (extension_loaded('redis') && class_exists('Redis')) {
@@ -1359,7 +1487,9 @@ function checkRateLimit($key, $maxRequests = 5, $window = 300)
         return true;
     } catch (\Exception $e) {
     }
-    return true; // Graceful degrade если БД недоступна
+    // Graceful degrade для обычных вызовов; для login — fail-closed: счётчик
+    // попыток, который может молча не сработать, не считается лимитом.
+    return !$failClosed;
 }
 
 // === API KEY AUTHENTICATION (for MCP / headless clients) ===
@@ -1546,7 +1676,10 @@ if (!in_array($action, $publicActions)) {
 // Fetch default timezone from users
 $userTimezone = 'Europe/Moscow'; // fallback
 try {
-    $stmtUser = $pdo->query("SELECT timezone FROM users WHERE id = 1 LIMIT 1");
+    // The signed-in user's own timezone when there is one (any role — never
+    // hardwired to user 1); pre-auth requests (login, ping) keep the id=1 row.
+    $stmtUser = $pdo->prepare("SELECT timezone FROM users WHERE id = ? LIMIT 1");
+    $stmtUser->execute([(int) ($_SESSION['user_id'] ?? 1)]);
     if ($stmtUser) {
         $tz = $stmtUser->fetchColumn();
         // Do not pin a WAL read snapshot across an action's external requests.
@@ -2555,8 +2688,6 @@ function checkUrlAvailability($url)
     }
 
     $ch = curl_init();
-    // Detect local development environment
-    $isLocal = in_array($_SERVER['HTTP_HOST'] ?? '', ['localhost', '127.0.0.1', 'localhost:8080', 'localhost:5173', 'localhost:8000'], true);
     curl_setopt_array($ch, [
         CURLOPT_URL => $url,
         CURLOPT_RETURNTRANSFER => true,
@@ -2565,8 +2696,11 @@ function checkUrlAvailability($url)
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_TIMEOUT => 10,
         CURLOPT_CONNECTTIMEOUT => 5,
-        CURLOPT_SSL_VERIFYPEER => !$isLocal,
-        CURLOPT_SSL_VERIFYHOST => !$isLocal ? 2 : 0,
+        // TLS verification is never skipped, local host included: a disabled
+        // check on a "local" Host header is a MITM hole, and localhost targets
+        // plain HTTP anyway.
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
         CURLOPT_USERAGENT => 'Mozilla/5.0 (compatible; Orbitra/1.0; +https://orbitra.io)',
     ]);
 
@@ -9570,8 +9704,11 @@ try {
                     CURLOPT_CONNECTTIMEOUT => 5,
                     CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
                     CURLOPT_FOLLOWLOCATION => false,
-                    CURLOPT_SSL_VERIFYPEER => false, // self-signed panel IPs
-                    CURLOPT_SSL_VERIFYHOST => 0,
+                    // The self-call goes over the panel's real certificate; a
+                    // self-signed cert will surface here as a curl error
+                    // instead of silently trusting an impostor.
+                    CURLOPT_SSL_VERIFYPEER => true,
+                    CURLOPT_SSL_VERIFYHOST => 2,
                 ]);
                 $t0 = microtime(true);
                 $respBody = curl_exec($ch);
@@ -9671,8 +9808,10 @@ try {
                             CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
                             CURLOPT_FOLLOWLOCATION => true,
                             CURLOPT_MAXREDIRS => 3,
-                            CURLOPT_SSL_VERIFYPEER => false,
-                            CURLOPT_SSL_VERIFYHOST => 0,
+                            // The probe fires at real network endpoints — the
+                            // one request a MITM can rewrite conversions in.
+                            CURLOPT_SSL_VERIFYPEER => true,
+                            CURLOPT_SSL_VERIFYHOST => 2,
                         ]);
                         if (strtoupper((string) $pbCfg['method']) === 'POST') {
                             $parts = parse_url($probeUrl);
@@ -10457,6 +10596,12 @@ try {
                     echo json_encode(['status' => 'error', 'message' => 'Both certificate and key paths are required for custom SSL']);
                     break;
                 }
+                foreach ([$customSslCert, $customSslKey] as $customSslPath) {
+                    if ($customSslPath !== '' && (!preg_match('#^/[A-Za-z0-9._/-]+$#', $customSslPath) || strpos($customSslPath, '..') !== false)) {
+                        echo json_encode(['status' => 'error', 'message' => 'Certificate and key must be plain absolute paths (letters, digits, . _ / -)']);
+                        break 2;
+                    }
+                }
                 if ($customSslCert !== '' && !file_exists($customSslCert)) {
                     echo json_encode(['status' => 'error', 'message' => "Certificate file not found: $customSslCert"]);
                     break;
@@ -11040,9 +11185,10 @@ try {
                 $certFile = ORBITRA_LETSENCRYPT_DIR . "/live/$domainName/fullchain.pem";
 
                 // Delete the existing certificate line so the issue below cannot
-                // be short-circuited by "not yet due for renewal". `certbot
-                // delete` runs under the certbot sudoers rule install.sh already
-                // writes. The previous approach shelled `rm -rf` at root-owned
+                // be short-circuited by "not yet due for renewal". The delete
+                // goes through the fixed-argument orbitra-delete-cert wrapper
+                // (or the legacy certbot sudoers rule on installs that predate
+                // the wrapper). The previous approach shelled `rm -rf` at root-owned
                 // directories from the web user — a guaranteed "Permission
                 // denied" whose return value was discarded, making the button a
                 // no-op that reported success. Only a line that exists gets
@@ -11052,7 +11198,7 @@ try {
                 // the re-issue and says so.
                 if (orbitraLetsEncryptCertExists($domainName)) {
                     $deleteRaw = (string) orbitraShell(
-                        'sudo certbot delete --cert-name ' . escapeshellarg($domainName) . ' -n 2>&1; echo "__ORBITRA_RC__$?"'
+                        orbitraCertbotDeleteCommand($domainName) . ' 2>&1; echo "__ORBITRA_RC__$?"'
                     );
                     preg_match('/__ORBITRA_RC__(\d+)\s*$/', $deleteRaw, $rcMatch);
                     $deleteRc = (int) ($rcMatch[1] ?? 1);
@@ -13009,6 +13155,11 @@ try {
 
         // === SETTINGS API ===
         case 'settings':
+            // Server-wide configuration, secrets included — panel admins only.
+            if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
             $stmt = $pdo->query("SELECT * FROM settings");
             $settings = [];
             foreach ($stmt->fetchAll() as $row) {
@@ -13379,7 +13530,7 @@ try {
 
         case 'global_settings':
             if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-                $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token', 'allow_php_landings', 'php_landing_timeout', 'admin_path', 'stats_enabled', 'stats_retention_days', 'archive_retention_days', 'admin_ip_access', 'ignore_prefetch', 'bot_isp_list', 'server_ip_override', 'privacy_enabled', 'privacy_action', 'privacy_redirect_url', 'update_notify')");
+                $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token', 'allow_php_landings', 'php_landing_timeout', 'admin_path', 'stats_enabled', 'stats_retention_days', 'archive_retention_days', 'admin_ip_access', 'ignore_prefetch', 'bot_isp_list', 'server_ip_override', 'privacy_enabled', 'privacy_action', 'privacy_redirect_url', 'update_notify', 'bot_vpn_asn_signal', 'crm_ingest_secret')");
                 $data = [];
                 while ($row = $stmt->fetch()) {
                     $data[$row['key']] = $row['value'];
@@ -13432,8 +13583,27 @@ try {
                     'proxy' => $geoReady['proxy']
                 ];
 
+                // The whole panel loads this endpoint for currency/update
+                // flags, but its whitelist also carries secrets. Non-admins
+                // get the flags only.
+                if (($_SESSION['role'] ?? '') !== 'admin') {
+                    foreach (['postback_key', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token', 'server_ip_override', 'telegram_webhook_secret', 'crm_ingest_secret'] as $secretKey) {
+                        unset($data[$secretKey]);
+                    }
+                }
+
                 echo json_encode(['status' => 'success', 'data' => $data]);
             } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                // Every key on this whitelist is server-wide: retention windows
+                // (a 1-day value lets the cleanup cron wipe the statistics),
+                // the stats switch, the bot ISP list, cloak and privacy tuning.
+                // Per-key role checks kept missing new keys, so writing is
+                // admin-only as a whole; non-admins keep the filtered GET.
+                if (($_SESSION['role'] ?? '') !== 'admin') {
+                    http_response_code(403);
+                    echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                    break;
+                }
                 $input = json_decode(orbitraRequestBody(), true);
                 $settings = $input['settings'] ?? [];
                 $extra = [];
@@ -13443,6 +13613,14 @@ try {
                     // the only door handle.
                     if (array_key_exists('admin_path', $settings) && ($_SESSION['role'] ?? '') !== 'admin') {
                         unset($settings['admin_path']);
+                    }
+                    // Same rule for the secret credentials on the whitelist:
+                    // reading them is not an option for non-admins, writing
+                    // them must not be either.
+                    if (($_SESSION['role'] ?? '') !== 'admin') {
+                        foreach (['postback_key', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token', 'server_ip_override', 'telegram_webhook_secret', 'crm_ingest_secret'] as $secretKey) {
+                            unset($settings[$secretKey]);
+                        }
                     }
                     if (array_key_exists('admin_path', $settings)) {
                         require_once __DIR__ . '/core/admin_path.php';
@@ -13488,7 +13666,7 @@ try {
                               'stats_enabled', 'stats_retention_days', 'archive_retention_days',
                               'admin_ip_access', 'ignore_prefetch', 'bot_isp_list', 'server_ip_override',
                               'privacy_enabled', 'privacy_action', 'privacy_redirect_url',
-                              'update_notify'];
+                              'update_notify', 'bot_vpn_asn_signal', 'crm_ingest_secret'];
                     foreach ($whitelist as $key) {
                         if (!isset($settings[$key])) {
                             continue;
@@ -13504,6 +13682,19 @@ try {
                                 continue;
                             }
                             $value = $value === '1' || $value === 1 || $value === true ? '1' : '0';
+                        }
+                        if ($key === 'bot_vpn_asn_signal') {
+                            // Cloak tuning is an admin decision: anyone may read
+                            // the flag, only an admin flips it.
+                            if (($_SESSION['role'] ?? '') !== 'admin') {
+                                continue;
+                            }
+                            $value = ($value === '1' || $value === 1 || $value === true) ? '1' : '0';
+                        }
+                        if ($key === 'crm_ingest_secret') {
+                            // Optional HMAC key for /crm-ingest; an empty value
+                            // keeps the endpoint in its open (rate-limited) mode.
+                            $value = trim((string) $value);
                         }
                         if ($key === 'php_landing_timeout') {
                             // Clamped to 1..9 like Keitaro's; anything absent, zero
@@ -13589,6 +13780,11 @@ try {
 
 
         case 'save_settings':
+            // Server-wide configuration, postback keys included — panel admins only.
+            if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);
 
@@ -14207,8 +14403,6 @@ try {
 
             // Try to fetch latest version from remote server
             if (function_exists('curl_init')) {
-                // Detect local development environment
-                $isLocal = in_array($_SERVER['HTTP_HOST'] ?? '', ['localhost', '127.0.0.1', 'localhost:8080', 'localhost:5173', 'localhost:8000'], true);
                 $ch = curl_init($versionCheckUrl);
                 curl_setopt_array($ch, [
                     CURLOPT_RETURNTRANSFER => true,
@@ -14219,8 +14413,8 @@ try {
                     CURLOPT_TIMEOUT => 2,
                     CURLOPT_CONNECTTIMEOUT => 1,
                     CURLOPT_FOLLOWLOCATION => true,
-                    CURLOPT_SSL_VERIFYPEER => !$isLocal,
-                    CURLOPT_SSL_VERIFYHOST => !$isLocal ? 2 : 0,
+                    CURLOPT_SSL_VERIFYPEER => true,
+                    CURLOPT_SSL_VERIFYHOST => 2,
                     CURLOPT_USERAGENT => 'Orbitra-Tracker/' . $currentVersion
                 ]);
                 $response = curl_exec($ch);
@@ -14271,6 +14465,25 @@ try {
             }
 
             echo json_encode(['status' => 'success', 'data' => $updateInfo]);
+            break;
+
+        // Root-side setup the in-panel update cannot do itself (sudoers rules,
+        // root helpers — cli/server_setup.sh). Admins see the one command to
+        // run until the server reports the required version. Also self-heals
+        // the web user's click-spool cron, which needs no root.
+        case 'server_setup_status':
+            if (($_SESSION['role'] ?? '') !== 'admin') {
+                http_response_code(403);
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+            require_once __DIR__ . '/core/server_setup.php';
+            if (!defined('ORBITRA_VERSION') && is_file(__DIR__ . '/version.php')) {
+                require_once __DIR__ . '/version.php';
+            }
+            $setupStatus = orbitraServerSetupStatus();
+            $setupStatus['spool_cron'] = orbitraEnsureClickSpoolCron();
+            echo json_encode(['status' => 'success', 'data' => $setupStatus]);
             break;
 
         case 'run_update':
@@ -14369,6 +14582,13 @@ try {
                             break;
                         }
                     }
+
+                    // Snapshot the database before git touches anything (the pull
+                    // can replace source files; the SQLite file itself is
+                    // untracked, but a rollback point is still worth having).
+                    // The note lands in the update output either way — a failed
+                    // backup is a warning here, never a reason to stop.
+                    $preflightOutput[] = orbitraBackupSqliteForUpdate($pdo, $db_file);
 
                     // Stash local changes if any, then pull
                     $statusLines = [];
@@ -15017,6 +15237,10 @@ try {
                     echo json_encode(['status' => 'error', 'message' => 'Username is required']);
                     break;
                 }
+                if ($password !== '' && strlen($password) < 8) {
+                    echo json_encode(['status' => 'error', 'message' => 'Password must be at least 8 characters']);
+                    break;
+                }
 
                 // If saving permissions, check that target user is not admin
                 if ($id && !empty($permissions)) {
@@ -15145,10 +15369,251 @@ try {
             }
             break;
 
+        // === PROFILE SETTINGS (own account only) ===
+        // The id always comes from the session, never from the request — a
+        // non-admin may edit exactly one user: themselves.
+        case 'profile_settings':
+            $profileUserId = (int) ($_SESSION['user_id'] ?? 0);
+            if ($profileUserId <= 0) {
+                http_response_code(401);
+                echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+                break;
+            }
+            if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+                $stmtProfile = $pdo->prepare("SELECT id, username, email, role, language, timezone, first_day_of_week, totp_enabled, created_at FROM users WHERE id = ? LIMIT 1");
+                $stmtProfile->execute([$profileUserId]);
+                $profile = $stmtProfile->fetch(PDO::FETCH_ASSOC);
+                if (!$profile) {
+                    http_response_code(404);
+                    echo json_encode(['status' => 'error', 'message' => 'User not found']);
+                    break;
+                }
+                // Boolean for the panel. totp_secret is deliberately absent:
+                // totp_setup is the ONLY surface that ever reveals it.
+                $profile['totp_enabled'] = (int) ($profile['totp_enabled'] ?? 0) === 1;
+                echo json_encode(['status' => 'success', 'data' => $profile]);
+                break;
+            }
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                // An API key resolves to a session here; profile management is a
+                // browser-only surface (same rule as extension_credentials).
+                if (($_SESSION['auth_via'] ?? '') === 'api_key') {
+                    http_response_code(403);
+                    echo json_encode(['status' => 'error', 'message' => 'A browser session is required']);
+                    break;
+                }
+                $dataProfile = json_decode(orbitraRequestBody(), true);
+                if (!is_array($dataProfile)) {
+                    $dataProfile = [];
+                }
+                $stmtProfile = $pdo->prepare("SELECT id, username, password, email, language, timezone, first_day_of_week FROM users WHERE id = ? LIMIT 1");
+                $stmtProfile->execute([$profileUserId]);
+                $profileRow = $stmtProfile->fetch(PDO::FETCH_ASSOC);
+                if (!$profileRow) {
+                    http_response_code(404);
+                    echo json_encode(['status' => 'error', 'message' => 'User not found']);
+                    break;
+                }
+
+                // Password change (audit item: current-password confirmation).
+                // A new_password without the matching current_password is
+                // refused with the same machine code either way.
+                $newPassword = (string) ($dataProfile['new_password'] ?? '');
+                if ($newPassword !== '') {
+                    $currentPassword = (string) ($dataProfile['current_password'] ?? '');
+                    if ($currentPassword === '' || !password_verify($currentPassword, (string) $profileRow['password'])) {
+                        echo json_encode(['status' => 'error', 'code' => 'bad_password', 'message' => 'Current password is incorrect']);
+                        break;
+                    }
+                    if (strlen($newPassword) < 8) {
+                        echo json_encode(['status' => 'error', 'code' => 'weak_password', 'message' => 'Password must be at least 8 characters']);
+                        break;
+                    }
+                }
+
+                // Absent field = keep the stored value, so partial payloads
+                // (older callers, MCP) never wipe a column wholesale.
+                $newUsername = array_key_exists('username', $dataProfile)
+                    ? trim((string) $dataProfile['username'])
+                    : (string) $profileRow['username'];
+                if ($newUsername === '') {
+                    echo json_encode(['status' => 'error', 'message' => 'Username is required']);
+                    break;
+                }
+                if ($newUsername !== (string) $profileRow['username']) {
+                    $stmtProfileDup = $pdo->prepare("SELECT id FROM users WHERE username = ? AND id != ? LIMIT 1");
+                    $stmtProfileDup->execute([$newUsername, $profileUserId]);
+                    if ($stmtProfileDup->fetchColumn() !== false) {
+                        echo json_encode(['status' => 'error', 'message' => 'Пользователь с таким логином уже существует']);
+                        break;
+                    }
+                }
+                $newEmail = array_key_exists('email', $dataProfile)
+                    ? (trim((string) $dataProfile['email']) ?: null)
+                    : $profileRow['email'];
+                $newLanguage = array_key_exists('language', $dataProfile)
+                    ? substr(trim((string) $dataProfile['language']), 0, 10) ?: 'en'
+                    : $profileRow['language'];
+                $newTimezone = array_key_exists('timezone', $dataProfile)
+                    ? (string) $dataProfile['timezone']
+                    : (string) $profileRow['timezone'];
+                try {
+                    new DateTimeZone($newTimezone);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => 'Неверный часовой пояс']);
+                    break;
+                }
+                $newFirstDay = array_key_exists('first_day_of_week', $dataProfile)
+                    ? (in_array((int) $dataProfile['first_day_of_week'], [0, 1], true) ? (int) $dataProfile['first_day_of_week'] : (int) $profileRow['first_day_of_week'])
+                    : (int) $profileRow['first_day_of_week'];
+
+                if ($newPassword !== '') {
+                    $pdo->prepare("UPDATE users SET password = ? WHERE id = ?")
+                        ->execute([password_hash($newPassword, PASSWORD_DEFAULT), $profileUserId]);
+                }
+                $pdo->prepare("UPDATE users SET username = ?, email = ?, language = ?, timezone = ?, first_day_of_week = ? WHERE id = ?")
+                    ->execute([$newUsername, $newEmail, $newLanguage, $newTimezone, $newFirstDay, $profileUserId]);
+                echo json_encode(['status' => 'success', 'data' => ['id' => $profileUserId]]);
+            }
+            break;
+
+        // === TOTP TWO-FACTOR LOGIN (audit item #20) ===
+        // Three steps, all acting on the signed-in user's own row only:
+        // totp_setup mints an UNCONFIRMED secret, totp_enable confirms it with
+        // the first valid code, totp_disable turns it off again behind the
+        // account password. API keys never reach any of these: a cookie-less
+        // client has no second factor to prove.
+        case 'totp_setup':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            if (($_SESSION['auth_via'] ?? '') === 'api_key') {
+                http_response_code(403);
+                echo json_encode(['status' => 'error', 'message' => 'A browser session is required']);
+                break;
+            }
+            $totpUserId = (int) ($_SESSION['user_id'] ?? 0);
+            if ($totpUserId <= 0) {
+                http_response_code(401);
+                echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+                break;
+            }
+            // Setup only ever starts an enrollment. With 2FA already on it
+            // would silently switch it off (totp_enabled = 0 below) without
+            // the password that totp_disable demands — so it is refused;
+            // disabling goes through totp_disable.
+            $stmtTotpState = $pdo->prepare("SELECT totp_enabled FROM users WHERE id = ? LIMIT 1");
+            $stmtTotpState->execute([$totpUserId]);
+            if ((int) $stmtTotpState->fetchColumn() === 1) {
+                echo json_encode(['status' => 'error', 'code' => 'already_enabled', 'message' => 'Two-factor authentication is already enabled; disable it first']);
+                break;
+            }
+            $totpSecret = Totp::generateSecret();
+            // Re-running setup replaces the pending secret and resets the
+            // enabled flag — totp_enable is the only path to totp_enabled = 1,
+            // so a half-finished enrollment can never lock anyone out.
+            $pdo->prepare("UPDATE users SET totp_secret = ?, totp_enabled = 0 WHERE id = ?")
+                ->execute([$totpSecret, $totpUserId]);
+            $stmtTotpName = $pdo->prepare("SELECT username FROM users WHERE id = ?");
+            $stmtTotpName->execute([$totpUserId]);
+            $totpUsername = (string) $stmtTotpName->fetchColumn();
+            echo json_encode([
+                'status' => 'success',
+                'data' => [
+                    'secret' => $totpSecret,
+                    'otpauth' => Totp::otpauthUri($totpSecret, $totpUsername),
+                ],
+            ]);
+            break;
+
+        case 'totp_enable':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            if (($_SESSION['auth_via'] ?? '') === 'api_key') {
+                http_response_code(403);
+                echo json_encode(['status' => 'error', 'message' => 'A browser session is required']);
+                break;
+            }
+            $totpUserId = (int) ($_SESSION['user_id'] ?? 0);
+            if ($totpUserId <= 0) {
+                http_response_code(401);
+                echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+                break;
+            }
+            $dataTotp = json_decode(orbitraRequestBody(), true);
+            if (!is_array($dataTotp)) {
+                $dataTotp = [];
+            }
+            $stmtTotpUser = $pdo->prepare("SELECT totp_secret, totp_enabled FROM users WHERE id = ? LIMIT 1");
+            $stmtTotpUser->execute([$totpUserId]);
+            $totpUser = $stmtTotpUser->fetch(PDO::FETCH_ASSOC);
+            if (!$totpUser || trim((string) ($totpUser['totp_secret'] ?? '')) === '') {
+                echo json_encode(['status' => 'error', 'code' => 'not_configured', 'message' => 'Two-factor setup has not been started']);
+                break;
+            }
+            if ((int) ($totpUser['totp_enabled'] ?? 0) === 1) {
+                echo json_encode(['status' => 'error', 'code' => 'already_enabled', 'message' => 'Two-factor authentication is already enabled']);
+                break;
+            }
+            $totpCode = trim((string) ($dataTotp['code'] ?? ''));
+            if ($totpCode === '' || !Totp::verifyCode((string) $totpUser['totp_secret'], $totpCode)) {
+                echo json_encode(['status' => 'error', 'code' => 'bad_code', 'message' => 'Неверный код']);
+                break;
+            }
+            $pdo->prepare("UPDATE users SET totp_enabled = 1 WHERE id = ?")->execute([$totpUserId]);
+            echo json_encode(['status' => 'success']);
+            break;
+
+        case 'totp_disable':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            if (($_SESSION['auth_via'] ?? '') === 'api_key') {
+                http_response_code(403);
+                echo json_encode(['status' => 'error', 'message' => 'A browser session is required']);
+                break;
+            }
+            $totpUserId = (int) ($_SESSION['user_id'] ?? 0);
+            if ($totpUserId <= 0) {
+                http_response_code(401);
+                echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+                break;
+            }
+            $dataTotp = json_decode(orbitraRequestBody(), true);
+            if (!is_array($dataTotp)) {
+                $dataTotp = [];
+            }
+            $stmtTotpUser = $pdo->prepare("SELECT password, totp_secret, totp_enabled FROM users WHERE id = ? LIMIT 1");
+            $stmtTotpUser->execute([$totpUserId]);
+            $totpUser = $stmtTotpUser->fetch(PDO::FETCH_ASSOC);
+            if (!$totpUser
+                || ((int) ($totpUser['totp_enabled'] ?? 0) !== 1 && trim((string) ($totpUser['totp_secret'] ?? '')) === '')) {
+                echo json_encode(['status' => 'error', 'code' => 'not_configured', 'message' => 'Two-factor authentication is not configured']);
+                break;
+            }
+            // Turning the second factor OFF re-proves the FIRST factor: only
+            // the account password may do it, never a stale session alone.
+            $totpPassword = (string) ($dataTotp['password'] ?? '');
+            if ($totpPassword === '' || !password_verify($totpPassword, (string) $totpUser['password'])) {
+                echo json_encode(['status' => 'error', 'code' => 'bad_password', 'message' => 'Current password is incorrect']);
+                break;
+            }
+            $pdo->prepare("UPDATE users SET totp_secret = NULL, totp_enabled = 0 WHERE id = ?")->execute([$totpUserId]);
+            echo json_encode(['status' => 'success']);
+            break;
+
         case 'login':
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-                if (!checkRateLimit("login:$ip", 5, 300)) {
+                // Only failures count (see orbitraLoginThrottle): 5 per IP per
+                // 5 min. A successful login — including the password step of a
+                // TOTP login — no longer spends this budget.
+                if (!orbitraLoginThrottle('check', "ip:$ip", 5)) {
+                    http_response_code(429);
                     echo json_encode(['status' => 'error', 'message' => 'Too many attempts. Please try again later.']);
                     break;
                 }
@@ -15162,11 +15627,60 @@ try {
                     break;
                 }
 
+                // Second lock keyed by the account name, so a botnet spread
+                // over many IPs cannot grind one password. Failures only, 20
+                // per 15 min: higher than the per-IP cap, so a single source
+                // (5 failures) can never lock the real owner out, and cleared
+                // by a successful login. Usernames are lowercased so case
+                // variants share the counter.
+                $userThrottleKey = 'user:' . strtolower((string) $username);
+                if (!orbitraLoginThrottle('check', $userThrottleKey, 20)) {
+                    http_response_code(429);
+                    echo json_encode(['status' => 'error', 'message' => 'Too many attempts. Please try again later.']);
+                    break;
+                }
+
                 $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ? AND is_active = 1");
                 $stmt->execute([$username]);
                 $user = $stmt->fetch();
 
                 if ($user && password_verify($password, $user['password'])) {
+                    // Two-factor step (audit item #20): a correct password alone
+                    // must not mint a session for a TOTP-enabled user. No session
+                    // state is touched until a valid code proves the authenticator;
+                    // the retry with totp_code passes through the same rate limits.
+                    $totpSecret = trim((string) ($user['totp_secret'] ?? ''));
+                    if ((int) ($user['totp_enabled'] ?? 0) === 1 && $totpSecret !== '') {
+                        $totpCode = trim((string) ($data['totp_code'] ?? ''));
+                        if ($totpCode === '') {
+                            http_response_code(401);
+                            echo json_encode(['status' => 'error', 'code' => 'totp_required']);
+                            break;
+                        }
+                        $totpCounter = Totp::matchCounter($totpSecret, $totpCode);
+                        $totpFresh = false;
+                        if ($totpCounter !== null) {
+                            // One code, one login: a code seen in transit (or
+                            // over a shoulder) is dead once used.
+                            try {
+                                $pdo->exec("CREATE TABLE IF NOT EXISTS totp_used (user_id INTEGER NOT NULL, counter INTEGER NOT NULL, PRIMARY KEY (user_id, counter))");
+                                $pdo->prepare("DELETE FROM totp_used WHERE counter < ?")->execute([$totpCounter - 10]);
+                                $totpFresh = $pdo->prepare("INSERT OR IGNORE INTO totp_used (user_id, counter) VALUES (?, ?)")
+                                    ->execute([(int) $user['id'], $totpCounter])
+                                    && $pdo->query("SELECT changes()")->fetchColumn() > 0;
+                            } catch (\Throwable $e) {
+                                $totpFresh = false; // fail closed: no replay check, no login
+                            }
+                        }
+                        if (!$totpFresh) {
+                            orbitraLoginThrottle('fail', "ip:$ip", 0, 300);
+                            orbitraLoginThrottle('fail', $userThrottleKey, 0, 900);
+                            http_response_code(401);
+                            echo json_encode(['status' => 'error', 'code' => 'totp_invalid']);
+                            break;
+                        }
+                    }
+                    orbitraLoginThrottle('clear', $userThrottleKey);
                     // Start session & store user data
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['username'] = $user['username'];
@@ -15194,8 +15708,11 @@ try {
                         ]
                     ]);
                 } else {
+                    orbitraLoginThrottle('fail', "ip:$ip", 0, 300);
+                    orbitraLoginThrottle('fail', $userThrottleKey, 0, 900);
                     // 'code' lets the frontend map known failures through t();
                     // 'message' stays for API consumers and still-localised prose.
+                    http_response_code(401);
                     echo json_encode(['status' => 'error', 'code' => 'invalid_credentials', 'message' => 'Неверный логин или пароль']);
                 }
             }
@@ -15246,8 +15763,8 @@ try {
                     echo json_encode(['status' => 'error', 'message' => 'Логин должен быть минимум 3 символа']);
                     break;
                 }
-                if (strlen($password) < 6) {
-                    echo json_encode(['status' => 'error', 'message' => 'Пароль должен быть минимум 6 символов']);
+                if (strlen($password) < 8) {
+                    echo json_encode(['status' => 'error', 'message' => 'Пароль должен быть минимум 8 символов']);
                     break;
                 }
 
@@ -15270,19 +15787,6 @@ try {
                 ]);
 
                 echo json_encode(['status' => 'success', 'message' => 'Пользователь создан']);
-            }
-            break;
-
-        case 'init_admin':
-            // Legacy endpoint - redirect to check_setup logic
-            $stmt = $pdo->query("SELECT COUNT(*) FROM users");
-            if ($stmt->fetchColumn() == 0) {
-                $hashedPassword = password_hash('admin', PASSWORD_DEFAULT);
-                $stmt = $pdo->prepare("INSERT INTO users (username, password, email, role, is_active, timezone, language) VALUES ('admin', ?, 'admin@localhost', 'admin', 1, 'Europe/Moscow', 'en')");
-                $stmt->execute([$hashedPassword]);
-                echo json_encode(['status' => 'success', 'message' => 'Admin user created']);
-            } else {
-                echo json_encode(['status' => 'success', 'message' => 'Users already exist']);
             }
             break;
 
@@ -15875,37 +16379,6 @@ try {
             orbitraBotListEndpoint($pdo, 'bot_signatures', 'signature', 'signatures');
             break;
 
-        case 'profile_settings':
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $data = json_decode(orbitraRequestBody(), true);
-                $userId = $data['user_id'] ?? 1; // Defaulting to 1 for MVP single-user setup
-                $lang = $data['language'] ?? 'en';
-                $tz = $data['timezone'] ?? 'Europe/Moscow';
-                $firstDay = $data['first_day_of_week'] ?? 1;
-
-                // Validate timezone
-                try {
-                    new DateTimeZone($tz);
-                } catch (\Exception $e) {
-                    echo json_encode(['status' => 'error', 'message' => "Неверный часовой пояс: $tz"]);
-                    break;
-                }
-
-                $pdo->prepare("UPDATE users SET language=?, timezone=?, first_day_of_week=? WHERE id=?")->execute([$lang, $tz, $firstDay, $userId]);
-
-                if (!empty($data['new_password'])) {
-                    $pwd = password_hash($data['new_password'], PASSWORD_DEFAULT);
-                    $pdo->prepare("UPDATE users SET password=? WHERE id=?")->execute([$pwd, $userId]);
-                }
-                echo json_encode(['status' => 'success']);
-            } else {
-                $userId = $_GET['user_id'] ?? 1;
-                $stmt = $pdo->prepare("SELECT id, username, email, language, timezone, first_day_of_week FROM users WHERE id=?");
-                $stmt->execute([$userId]);
-                echo json_encode(['status' => 'success', 'data' => $stmt->fetch()]);
-            }
-            break;
-
         case 'archive_items':
             $items = [
                 'campaigns' => $pdo->query("SELECT id, name, created_at, archived_at FROM campaigns WHERE is_archived = 1")->fetchAll(),
@@ -15947,6 +16420,13 @@ try {
                 $allowed = ['campaigns', 'offers', 'landings', 'traffic_sources', 'affiliate_networks'];
 
                 if ($action === 'purge_all') {
+                    // Wipes every archived row across all five resources — an
+                    // admin-only decision, whatever the requester's resource
+                    // permissions say.
+                    if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+                        echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                        break;
+                    }
                     foreach ($allowed as $tbl) {
                         $pdo->exec("DELETE FROM $tbl WHERE is_archived = 1");
                     }
@@ -17005,13 +17485,91 @@ try {
                         : ($settings['telegram_webhook_set'] ?? '0') === '1',
                     'notify_conversions' => ($settings['telegram_notify_conversions'] ?? '1') === '1',
                     'daily_time' => $settings['telegram_daily_time'] ?? '21:00',
+                    'bot_username' => (string) $pdo->query("SELECT value FROM settings WHERE key = 'telegram_bot_username'")->fetchColumn(),
                     'chats' => $chats,
                     'diagnostics' => $diag
                 ]
             ]);
             break;
 
+        // One-time code that admits a new chat to the bot (audit #5): the
+        // operator sends "/start CODE" (or opens the t.me deep link) from the
+        // chat to connect. 15 minutes, single use; a new code replaces the old.
+        case 'telegram_link_code':
+            if (($_SESSION['role'] ?? '') !== 'admin') {
+                http_response_code(403);
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            $tgToken = (string) $pdo->query("SELECT value FROM settings WHERE key = 'telegram_bot_token'")->fetchColumn();
+            if ($tgToken === '') {
+                echo json_encode(['status' => 'error', 'code' => 'no_token', 'message' => 'Connect the bot first']);
+                break;
+            }
+            $alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O, 1/I
+            $linkCode = '';
+            foreach (str_split(random_bytes(8)) as $byte) {
+                $linkCode .= $alphabet[ord($byte) % 32];
+            }
+            $linkTtl = 900;
+            $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('telegram_link_code', ?)")->execute([$linkCode]);
+            $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('telegram_link_code_expires', ?)")->execute([(string) (time() + $linkTtl)]);
+            $tgBotUsername = (string) $pdo->query("SELECT value FROM settings WHERE key = 'telegram_bot_username'")->fetchColumn();
+            if ($tgBotUsername === '') {
+                // Bots connected before the username was stored.
+                require_once __DIR__ . '/core/telegram_api.php';
+                $me = orbitraTelegramApi($tgToken, 'getMe', [], 8);
+                $tgBotUsername = (string) ($me['result']['username'] ?? '');
+                if ($tgBotUsername !== '') {
+                    $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('telegram_bot_username', ?)")->execute([$tgBotUsername]);
+                }
+            }
+            echo json_encode(['status' => 'success', 'data' => [
+                'code' => $linkCode,
+                'command' => '/start ' . $linkCode,
+                'expires_in' => $linkTtl,
+                'bot_username' => $tgBotUsername,
+                'deep_link' => $tgBotUsername !== '' ? 'https://t.me/' . rawurlencode($tgBotUsername) . '?start=' . $linkCode : '',
+            ]]);
+            break;
+
+        // Disconnect a chat from the bot: it stops receiving notifications and
+        // its commands are refused until it is linked again with a new code.
+        case 'telegram_chat_remove':
+            if (($_SESSION['role'] ?? '') !== 'admin') {
+                http_response_code(403);
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+            $tgRemove = json_decode(orbitraRequestBody(), true);
+            $tgChatId = trim((string) ($tgRemove['chat_id'] ?? ''));
+            if (!preg_match('/^-?\d{1,20}$/', $tgChatId)) {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid chat_id']);
+                break;
+            }
+            $pdo->prepare("DELETE FROM telegram_bot_chats WHERE chat_id = ?")->execute([$tgChatId]);
+            // With the table possibly empty now, make sure no "open" default
+            // could let the next stranger in.
+            $pdo->prepare("INSERT OR IGNORE INTO settings (key, value) VALUES ('telegram_chat_policy', 'restricted')")->execute();
+            logAudit($pdo, 'DELETE', 'Telegram Chat', $tgChatId, []);
+            echo json_encode(['status' => 'success']);
+            break;
+
         case 'save_telegram_settings':
+            // The bot token is a server-wide integration credential — panel
+            // admins only.
+            if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);
                 $action = $data['action'] ?? 'save';
@@ -17077,6 +17635,8 @@ try {
                     }
 
                     $botUsername = $result['result']['username'] ?? '';
+                    // Kept for the "connect a chat" deep link (t.me/<bot>?start=CODE).
+                    $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_bot_username', (string) $botUsername]);
 
                     // Save token
                     $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")->execute(['telegram_bot_token', $token]);
@@ -17103,9 +17663,22 @@ try {
                     $useWebhook = $requestedMode === 'webhook' || ($requestedMode === 'auto' && $canWebhook);
 
                     if ($useWebhook) {
+                        // telegram_bot.php refuses updates whose secret header
+                        // does not match, so a bystander who learns the webhook
+                        // URL still cannot feed the bot forged updates. The
+                        // secret is minted once per bot and reused: Telegram
+                        // keeps serving the old webhook (with its secret) until
+                        // this call replaces it.
+                        $webhookSecret = (string) $pdo->query("SELECT value FROM settings WHERE key = 'telegram_webhook_secret'")->fetchColumn();
+                        if ($webhookSecret === '') {
+                            $webhookSecret = bin2hex(random_bytes(32));
+                            $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)")
+                                ->execute(['telegram_webhook_secret', $webhookSecret]);
+                        }
                         $webhookResult = orbitraTelegramApi($token, 'setWebhook', [
                             'url' => $webhookUrl,
                             'allowed_updates' => ['message', 'callback_query'],
+                            'secret_token' => $webhookSecret,
                         ], 15);
                         $webhookOk = $webhookResult['ok'] ?? false;
                         if (!$webhookOk) {
@@ -17507,6 +18080,14 @@ try {
             // Duplicate is intentionally handled by the save action so the
             // browser never has to receive the source profile's secret token.
             $duplicateFromId = (int) ($data['duplicate_from_id'] ?? 0);
+            // A profile is shared by every campaign attached to it (the UPDATE
+            // below syncs campaign_pixels), and a duplicate carries the source
+            // token. Non-admins may only create new profiles.
+            if (($_SESSION['role'] ?? '') !== 'admin' && ($duplicateFromId > 0 || (int) ($data['id'] ?? 0) > 0)) {
+                http_response_code(403);
+                echo json_encode(['status' => 'error', 'message' => 'Forbidden']);
+                break;
+            }
             if ($duplicateFromId > 0) {
                 $copyStmt = $pdo->prepare("SELECT * FROM pixel_profiles WHERE id = ? LIMIT 1");
                 $copyStmt->execute([$duplicateFromId]);

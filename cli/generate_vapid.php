@@ -12,6 +12,11 @@
 // subscription — browsers refuse payloads signed with a different key and the
 // whole base would have to re-subscribe. Only rotate deliberately.
 
+if (PHP_SAPI !== 'cli') {
+    http_response_code(404);
+    exit;
+}
+
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../core/PushBase.php';
 

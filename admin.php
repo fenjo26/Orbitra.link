@@ -4,6 +4,12 @@
 // 404, or even the fact that this URL serves an admin surface. An empty list
 // (the default) leaves the panel open to everyone.
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/core/admin_access.php';
+// A domain parked with admin_access=0 serves tracking only: the panel 404s
+// on that host before anything else can reveal it exists.
+if (!orbitraHostAdminAllowed($pdo, $_SERVER['HTTP_HOST'] ?? '')) {
+    orbitraDenyAdminHost();
+}
 require_once __DIR__ . '/core/ip_access.php';
 if (!orbitraAdminIpAllowed($pdo)) {
     http_response_code(403);
@@ -50,6 +56,9 @@ header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 header("Expires: 0");
+// The panel must never be framed: clickjacking the operator's session is the
+// whole point of a frame around admin UI.
+header('X-Frame-Options: DENY');
 
 // PWA manifest. Served through the panel entry (not as a static file) so
 // start_url always matches how this install is reached — /admin.php, the

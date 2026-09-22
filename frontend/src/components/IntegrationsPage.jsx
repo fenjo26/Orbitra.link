@@ -48,6 +48,9 @@ const IntegrationsPage = () => {
     const [tgLoading, setTgLoading] = useState(false);
     const [tgSaving, setTgSaving] = useState(false);
     const [tgTesting, setTgTesting] = useState(false);
+    // One-time code that admits a chat to the bot ("/start CODE").
+    const [tgLink, setTgLink] = useState(null); // { code, command, deep_link, expires_in }
+    const [tgLinkBusy, setTgLinkBusy] = useState(false);
     const [tgSettings, setTgSettings] = useState(null);
     const [tgNotifyConversions, setTgNotifyConversions] = useState(true);
     const [tgDailyTime, setTgDailyTime] = useState('21:00');
@@ -378,6 +381,39 @@ const IntegrationsPage = () => {
             setTgMessage({ type: 'error', text: t('common.error') });
         } finally {
             setTgSaving(false);
+        }
+    };
+
+    const handleTelegramLinkCode = async () => {
+        setTgLinkBusy(true);
+        setTgMessage(null);
+        try {
+            const res = await axios.post(`${API_URL}?action=telegram_link_code`, {});
+            if (res.data.status === 'success') {
+                setTgLink(res.data.data);
+            } else {
+                setTgMessage({ type: 'error', text: res.data.message || t('telegram.linkError') });
+            }
+        } catch {
+            setTgMessage({ type: 'error', text: t('telegram.linkError') });
+        } finally {
+            setTgLinkBusy(false);
+        }
+    };
+
+    const handleTelegramRemoveChat = async (chat) => {
+        const name = chat.username ? `@${chat.username}` : (chat.first_name || chat.chat_id);
+        if (!window.confirm(t('telegram.removeChatConfirm').replace('{name}', name))) return;
+        try {
+            const res = await axios.post(`${API_URL}?action=telegram_chat_remove`, { chat_id: String(chat.chat_id) });
+            if (res.data.status === 'success') {
+                setTgMessage({ type: 'success', text: t('telegram.chatRemoved') });
+                fetchTelegramSettings();
+            } else {
+                setTgMessage({ type: 'error', text: res.data.message || t('common.error') });
+            }
+        } catch {
+            setTgMessage({ type: 'error', text: t('common.error') });
         }
     };
 
@@ -5036,12 +5072,60 @@ global \$wpdb;
                                                 <div className="flex items-center gap-2">
                                                     {chat.notify_conversions == 1 && <Bell size={12} style={{ color: '#22c55e' }} />}
                                                     <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>{chat.language?.toUpperCase()}</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleTelegramRemoveChat(chat)}
+                                                        className="btn btn-ghost btn-sm"
+                                                        title={t('telegram.removeChat')}
+                                                        aria-label={t('telegram.removeChat')}
+                                                        style={{ color: '#ef4444', padding: '2px 6px' }}
+                                                    >
+                                                        <Trash2 size={12} />
+                                                    </button>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
                             )}
+
+                            {/* Connect a chat: one-time code, "/start CODE" */}
+                            <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--color-border)' }}>
+                                <div style={{ fontSize: '14px', fontWeight: 500, color: 'var(--color-text-primary)', marginBottom: '4px' }}>
+                                    {t('telegram.linkTitle')}
+                                </div>
+                                <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '10px', lineHeight: 1.55 }}>
+                                    {t('telegram.linkDesc')}
+                                </p>
+                                {tgLink ? (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>{t('telegram.linkSend')}</div>
+                                        <div className="flex items-center gap-2" style={{ flexWrap: 'wrap' }}>
+                                            <code style={{
+                                                padding: '6px 10px', borderRadius: '8px', fontSize: '14px',
+                                                background: 'var(--color-bg-card)', border: '1px solid var(--color-border)',
+                                                color: 'var(--color-primary)', userSelect: 'all'
+                                            }}>{tgLink.command}</code>
+                                            <button type="button" className="btn btn-secondary btn-sm" onClick={() => copyUtil(tgLink.command)}>
+                                                <Copy size={14} />
+                                                <span>{t('common.copy')}</span>
+                                            </button>
+                                            {tgLink.deep_link && (
+                                                <a href={tgLink.deep_link} target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-sm">
+                                                    <ExternalLink size={14} />
+                                                    <span>{t('telegram.linkOpenBot')}</span>
+                                                </a>
+                                            )}
+                                        </div>
+                                        <div style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>{t('telegram.linkExpires')}</div>
+                                    </div>
+                                ) : (
+                                    <button type="button" onClick={handleTelegramLinkCode} disabled={tgLinkBusy} className="btn btn-secondary btn-sm">
+                                        {tgLinkBusy ? <RefreshCw size={14} className="animate-spin" /> : <Plus size={14} />}
+                                        <span>{t('telegram.linkGenerate')}</span>
+                                    </button>
+                                )}
+                            </div>
 
                             {/* Test & Actions */}
                             <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--color-border)' }} className="flex gap-2">

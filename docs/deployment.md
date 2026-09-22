@@ -130,6 +130,31 @@ sudo bash /var/www/orbitra/install.sh
 
 После обновления проверьте: `php -v` показывает 8.4/8.5, панель открывается, в *Логах → Системный лог* нет записей `postback.php database error`, а в настройках очереди постбеков пинг воркера свежий. Панель сама предупредит при обновлении через кнопку, если сервер остаётся на PHP < 8.4.
 
+## Разовый шаг на сервере после обновления (1.6.0+)
+
+Кнопка «Обновить» в панели работает от веб-пользователя и не может менять
+sudoers. Серверам, установленным до 1.6.0, после обновления нужен один запуск
+`cli/server_setup.sh` от root — панель сама покажет баннер с командой:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/fenjo26/Orbitra.link/v1.6.0/cli/server_setup.sh | sudo ORBITRA_REF=v1.6.0 bash
+```
+
+Скрипт скачивается из тега релиза, а не из `/var/www/orbitra` (эта папка
+принадлежит веб-пользователю, и root не должен исполнять файлы, которые тот
+может переписать). Он заменяет старые правила sudo (`certbot` с любыми
+аргументами и `cp` в `sites-available` — через оба веб-пользователь мог
+получить root) на помощники с проверкой аргументов, ставит крон очереди
+кликов и записывает версию в `/etc/orbitra/server-setup-version`. Запускать
+повторно безопасно. `install.sh` вызывает тот же скрипт, так что новые
+установки получают то же самое.
+
+## Update integrity
+
+- `composer.phar` is no longer committed to the repository: a fresh install downloads it from getcomposer.org at the version pinned in `install.sh` (`COMPOSER_VER`) and verifies its `COMPOSER_SHA256` before running it — a mismatch aborts the install. An existing `/var/www/orbitra/composer.phar` is reused as-is.
+- The frontend bundle ships committed in `frontend/dist` and is built on the release machine, not on the server: the server never runs `npm install`/`npm run build`, and the worktree stays clean after installation.
+- Release tags should be GPG-signed (`git tag -s`) and servers updated to signed commits, so an in-panel update can verify it is pulling release code.
+
 ## Локальная Разработка (React & PHP Server)
 
 Если вы планируете изменять исходный код фронтенда (`React`) и визуальную часть трекера, вам потребуется локальная связка PHP + Vite.
@@ -171,5 +196,5 @@ npm run build
 2. Введите команду `/newbot`, следуйте инструкциям и получите токен (API Token) вида `1111:AAABBBCCCDDD`.
 3. Откройте панель администратора Orbitra -> **Интеграции -> Telegram Bot**.
 4. Вставьте токен в поле и нажмите **Подключить**. Ваш домен (откуда вы сидите) автоматически установится как **Webhook** для Телеграма.
-5. Напишите созданному боту `/start` из вашего Телеграмм аккаунта. 
+5. На той же странице нажмите **Подключить чат → Получить код** и отправьте боту `/start КОД` (или откройте ссылку «Открыть бота»). Код одноразовый и действует 15 минут; чаты без кода бот не принимает. Отключить чат можно там же.
 6. Включите переключатели уведомлений на той же странице интеграций.

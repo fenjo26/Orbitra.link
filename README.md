@@ -1,4 +1,4 @@
-# Orbitra v1.5.15 Tracker
+# Orbitra v1.6.0 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,25 +11,29 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.5.15
+## 🆕 What's New in v1.6.0
 
-Geo databases work out of the box — no more "why is my country column empty".
+A security release built on an independent audit of v1.5.15.
 
 ### Added
 
-- 🌍 **Sypex Geo on every install** — the installer downloads the free Sypex Geo City base (country/region/city, no keys) during setup, and a monthly cron keeps it fresh. A server that cannot reach sypexgeo.net still installs fine — the tracker runs without a base, and the geo settings offer the install later
-- ♻️ **Existing installs self-heal** — the panel updater downloads the Sypex base right after a successful update when no geo database is present, so every pre-geo install stops resolving visitors as country Unknown on its next update
-- 📢 **"No geo database" banner** — on every tab, next to the update banner: what breaks without a base (geo filters, cloaking by country), a one-click Sypex install and a link to the geo settings; dismissible for deliberate no-database setups
-- 🔑 **MaxMind / IP2Location auto-update** — the same monthly job refreshes GeoLite2 and IP2Location/IP2Proxy bases, but only when their account keys are saved in Settings → Geo databases
+- 🛡 **Security hardening** — account takeover through the profile API is fixed; every settings/admin action checks the role (default-deny for non-admins); the admin IP allowlist actually filters now (fail-closed, IPv6 support); stopped and archived campaigns stop serving traffic (503/404) on every entry point; geo database downloads verify TLS
+- 🌍 **Geo that really works** — the empty Sypex reader stub is replaced with a working PHP 8 SxGeo (v2.2.3, BSD); country filters fail closed when a geo base is present; the updater sanity-checks the base after download instead of trusting any file
+- 🤖 **Telegram bot locked down** — the webhook verifies Telegram's secret token, chats join only with a one-time code from the panel, chats can be removed from the panel, polling installs refuse webhook calls
+- 🔐 **Optional TOTP two-factor login** — pair an authenticator app in your profile; if the phone is lost, the CLI password reset also clears 2FA
+- 💾 **Lost clicks are no longer lost** — a click that hits a locked SQLite database is spooled to disk and replayed by a cron; the visitor's redirect never waits for it
+- 📥 **Keitaro import fixes** — campaign states (deleted/disabled stay off), stream Direct URLs and action payloads, accept/reject filter modes, quoted dumps, and an import report for filters without an equivalent
+- 🖥 **One-time server step after update** — the panel shows a single SSH command (`cli/server_setup.sh`) that replaces the legacy sudo rules (a web-user-to-root path), installs the click-spool cron and a hardened nginx-config helper; fresh installs run the same script automatically
+- ⚙️ **Also** — `sudo certbot` replaced by fixed-argument wrappers, `composer.phar` out of the repo (pinned, hash-checked download), the server no longer builds the frontend, failed-login throttling per IP and account (401/429), optional HMAC for `/crm-ingest`, pixel profile editing is admin-only, nginx/Apache deny database files and service directories, `X-Frame-Options` on the panel, extension download keeps working
 
-### Previous Highlights (v1.5.14)
+### Previous Highlights (v1.5.15)
 
-- 🔗 **Direct URL = a click** — a hop to a stream's Direct URL counts in every Clicks figure (reports, campaigns list, dashboard, CR/EPC/CPC), backfilled for streams configured with a Direct URL today
-- 🧭 **Stable stream IDs** — a campaign save no longer re-creates its streams; old IDs read "Deleted stream #N", new streams start as "Stream 1, Stream 2…"
-- 📊 **Streams tab counters** — visits / unique / bots and traffic share per stream for today, yesterday, 7 or 30 days
-- 📄 **Uncapped logs** — "Load more" on every tab, CSV export up to 100,000 rows, the stream of each click with stream/date filters; report columns explain themselves in tooltips
+- 🌍 **Geo databases out of the box** — the installer downloads the free Sypex Geo City base and a monthly cron keeps it fresh; installs without access to sypexgeo.net still work and can add the base later
+- ♻️ **Existing installs self-heal** — after a successful update the tracker downloads Sypex when no geo base is present
+- 📢 **"No geo database" banner** — on every tab: what breaks without a base, a one-click Sypex install, a link to the geo settings
+- 🔑 **MaxMind / IP2Location auto-update** — the same monthly job, only when account keys are saved in Settings → Geo databases
 
-Older releases (v1.5.13 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.5.14 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo

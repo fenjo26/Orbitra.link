@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Lock, User, Eye, EyeOff, Terminal, X, AlertCircle } from 'lucide-react';
+import { Lock, User, Eye, EyeOff, Terminal, X, AlertCircle, Smartphone } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const API_URL = '/api.php';
@@ -120,11 +120,22 @@ const Login = ({ onLogin }) => {
     const [showRecoveryModal, setShowRecoveryModal] = useState(false);
     const [usernameReady, setUsernameReady] = useState(false);
     const [passwordReady, setPasswordReady] = useState(false);
+    // Two-factor login: the backend answers code 'totp_required' for accounts
+    // with TOTP on; the same login is then repeated with totp_code while
+    // username/password stay in state. 'totp_invalid' flags the code field.
+    const [totpRequired, setTotpRequired] = useState(false);
+    const [totpCode, setTotpCode] = useState('');
+    const [totpError, setTotpError] = useState('');
+    const totpRef = useRef(null);
     // Live "Tracker online" footer: 'checking' | 'online' | 'offline'.
     const [status, setStatus] = useState('checking');
     const [version, setVersion] = useState('');
     const usernameRef = useRef(null);
     const passwordRef = useRef(null);
+
+    useEffect(() => {
+        if (totpRequired) totpRef.current?.focus();
+    }, [totpRequired]);
 
     useEffect(() => {
         const syncAutofill = () => {
@@ -183,11 +194,19 @@ const Login = ({ onLogin }) => {
             return;
         }
 
+        if (totpRequired && !totpCode.trim()) {
+            setTotpError(t('security.totpCodeRequired'));
+            setLoading(false);
+            return;
+        }
+
         try {
             const res = await fetch(`${API_URL}?action=login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify(totpRequired
+                    ? { username, password, totp_code: totpCode.trim() }
+                    : { username, password })
             });
             const data = await res.json();
 
@@ -197,6 +216,13 @@ const Login = ({ onLogin }) => {
                     localStorage.setItem('orbitra_csrf_token', data.data.csrf_token);
                 }
                 onLogin(data.data);
+            } else if (data.code === 'totp_required') {
+                // The account has TOTP enabled: reveal the one-time-code field
+                // (autofocused) and let the user resubmit with the code.
+                setTotpRequired(true);
+                setTotpError('');
+            } else if (data.code === 'totp_invalid') {
+                setTotpError(t('security.totpBadCode'));
             } else {
                 // Known codes map through t(); anything else falls through
                 // verbatim so unmigrated backend prose keeps rendering as-is.
@@ -350,6 +376,37 @@ const Login = ({ onLogin }) => {
                                         </button>
                                     </div>
                                 </div>
+
+                                {/* One-time code — appears only after the
+                                    backend answers code 'totp_required'. */}
+                                {totpRequired && (
+                                    <div>
+                                        <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-1">
+                                            {t('security.totpCodeLabel')}
+                                        </label>
+                                        <div className="relative">
+                                            <Smartphone className="absolute left-3 top-2.5 h-5 w-5 text-[var(--color-text-muted)] pointer-events-none" />
+                                            <input
+                                                ref={totpRef}
+                                                type="text"
+                                                name="totp_code"
+                                                id="totp_code"
+                                                inputMode="numeric"
+                                                autoComplete="one-time-code"
+                                                autoCapitalize="none"
+                                                autoCorrect="off"
+                                                spellCheck={false}
+                                                value={totpCode}
+                                                onChange={(e) => { setTotpCode(e.target.value); setTotpError(''); }}
+                                                className="w-full !pl-10 pr-4 py-2.5 border border-[var(--color-border)] rounded-lg transition-all placeholder:text-[var(--color-text-muted)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
+                                                placeholder={t('security.totpCodePlaceholder')}
+                                            />
+                                        </div>
+                                        {totpError && (
+                                            <p className="mt-1.5 text-xs text-[var(--color-danger)]">{totpError}</p>
+                                        )}
+                                    </div>
+                                )}
 
                                 {/* Remember me */}
                                 <div className="flex items-center justify-between">

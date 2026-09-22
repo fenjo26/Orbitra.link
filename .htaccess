@@ -1,4 +1,27 @@
 RewriteEngine On
+
+# Restricted content, mirroring the nginx config's deny locations (see
+# core/nginx_config.php). mod_rewrite [F] is used instead of mod_alias
+# RedirectMatch on purpose: in per-directory context mod_alias runs its
+# redirects against the URL only after mod_rewrite has finished rewriting
+# (often to /index.php), so a RedirectMatch here would race the rewrites or
+# match the rewritten path instead of the original one. [F] terminates the
+# request (403) immediately, before any rule below runs.
+
+# Tracker source directories are not public content: cli/ holds operator
+# tools, tests/ and migrations/ ship no web entry points, vendor/ is third-
+# party code, and geo/ holds the MaxMind databases whose licence forbids
+# serving them to visitors. No leading slash: per-directory patterns match
+# the path relative to this directory.
+# The one public file under data/ — the browser-extension download linked from
+# the Integrations page — is let through before the directory deny.
+RewriteRule ^data/orbitra-extension\.zip$ - [L]
+RewriteRule ^(cli|tests|core|vendor|migrations|aggregator_engines|var|geo|data)(/|$) - [F]
+
+# Dotfile secrets (.git, .env and variations like .env.bak). .well-known is
+# spelled differently and stays reachable for ACME challenges.
+RewriteRule (^|/)\.(git|env) - [F]
+
 RewriteRule ^r/(.*)$ index.php?campaign=$1 [L,QSA]
 
 # Keitaro-like Click API endpoint
@@ -13,6 +36,13 @@ RewriteRule ^admin_api/ admin_api.php [L,QSA]
 # Apache has no such fallback here: without this rule the path matches nothing on
 # disk and Apache answers with its own 404 before PHP ever runs.
 RewriteRule ^lander/ index.php [L,QSA]
+
+# Sensitive file extensions: the SQLite database and its -wal/-shm/-journal
+# side files, plus logs, environment files, shell scripts, docs and composer
+# artifacts (install.sh, *.md, composer.phar/lock). Kept below the specific
+# rewrites above so every tracker route keeps working, but above the generic
+# campaign-alias rule so a real file can never be reached by URL.
+RewriteRule \.(sqlite|sqlite-wal|sqlite-shm|sqlite-journal|db|env|log|bak|sql|sh|md|phar|lock)$ - [F]
 
 # Campaign short links: /campaign-alias and /campaign-alias/.
 # Keep real files/directories untouched; index.php validates the alias itself.

@@ -154,6 +154,52 @@ function orbitraGeoFileStatus(string $path, string $expectedKind, string $displa
 }
 
 /**
+ * Verify the Sypex reader actually works: the SxGeo class must load from
+ * core/SxGeo.php and resolve a known IP (8.8.8.8 → US) against the .dat.
+ * A present .dat alone proved not enough: v1.5.15 shipped a 0-byte
+ * core/SxGeo.php, so every Sypex lookup was silently skipped while the
+ * database looked "installed". Memoised per .dat version — the click path
+ * runs this probe on every readiness check.
+ */
+function orbitraSypexReaderReady(string $datPath, ?string $root = null): bool
+{
+    static $memo = [];
+    $root = $root ?: dirname(__DIR__);
+    $parserPath = $root . '/core/SxGeo.php';
+
+    if (!is_file($datPath) || !is_file($parserPath)) {
+        return false;
+    }
+
+    // Key on the .dat's identity so a freshly replaced database is probed
+    // again instead of inheriting the previous version's verdict.
+    $key = $datPath . '|' . (filemtime($datPath) ?: 0) . '|' . (filesize($datPath) ?: 0);
+    if (isset($memo[$key])) {
+        return $memo[$key];
+    }
+
+    $ready = false;
+    try {
+        require_once $parserPath;
+        if (class_exists('\\SxGeo')) {
+            // Silence warnings from a corrupt file: the probe only answers
+            // yes/no and must not leak diagnostics into the click path.
+            $reader = @new \SxGeo($datPath);
+            $country = @$reader->getCountry('8.8.8.8');
+            $ready = is_string($country) && $country !== '';
+            if (method_exists($reader, 'close')) {
+                $reader->close();
+            }
+        }
+    } catch (Throwable $e) {
+        $ready = false;
+    }
+
+    $memo[$key] = $ready;
+    return $ready;
+}
+
+/**
  * Validate a provider file and replace only its own destination atomically.
  */
 function orbitraGeoInstallFile(string $sourcePath, string $originalName, ?string $root = null, bool $moveSource = false): array
@@ -308,11 +354,18 @@ function orbitraGeoTargetingReady(?string $root = null): array
         [$sypexPath, 'sypex_city', 'SxGeoCity.dat']
     ] as $check) {
         [$path, $kind, $name] = $check;
-        if (orbitraGeoFileStatus($path, $kind, $name) === 'OK') {
-            $countryReady = true;
-            $files[] = $path;
-            break;
+        if (orbitraGeoFileStatus($path, $kind, $name) !== 'OK') {
+            continue;
         }
+        // A valid-looking Sypex .dat is not enough: the tracker reads it
+        // through core/SxGeo.php, so the reader class must load and resolve
+        // a lookup. With an empty parser the database sat there unused.
+        if ($kind === 'sypex_city' && !orbitraSypexReaderReady($path, $root)) {
+            continue;
+        }
+        $countryReady = true;
+        $files[] = $path;
+        break;
     }
 
     // ASN targeting: either IP2Location ASN or MaxMind ASN
@@ -375,23 +428,23 @@ function orbitraGeoDatabasesInstalled(?string $root = null): bool
 
 /**
  * GET a URL into memory with a bounded timeout; null on any failure.
- * Detecting local development keeps self-signed certs out of the sandbox only.
  */
 function orbitraGeoFetch(string $url, int $timeout = 60): ?string
 {
     if (!function_exists('curl_init')) {
         return null;
     }
-    $isLocal = PHP_SAPI === 'cli'
-        || in_array($_SERVER['HTTP_HOST'] ?? '', ['localhost', '127.0.0.1', 'localhost:8080', 'localhost:5173', 'localhost:8000'], true);
+    // TLS is verified unconditionally. This runs in the installer and the
+    // monthly cron (both CLI) and from the panel; skipping peer verification
+    // on CLI would let a man-in-the-middle serve a tampered geo database.
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_TIMEOUT => $timeout,
         CURLOPT_CONNECTTIMEOUT => 10,
-        CURLOPT_SSL_VERIFYPEER => !$isLocal,
-        CURLOPT_SSL_VERIFYHOST => !$isLocal ? 2 : 0,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
         CURLOPT_USERAGENT => 'Orbitra-Tracker',
     ]);
     $data = curl_exec($ch);
@@ -401,8 +454,10 @@ function orbitraGeoFetch(string $url, int $timeout = 60): ?string
 
 /**
  * Install/update the free Sypex Geo City database (country / region / city).
- * No account or key: download the zip, extract SxGeoCity.dat, and keep a copy
- * of the SxGeo.php parser the archive ships when the install has none.
+ * No account or key: download the zip, extract SxGeoCity.dat, then verify the
+ * whole chain — the reader class must load from core/SxGeo.php (shipped in
+ * the repository, patched for PHP 8) and a probe lookup must actually
+ * resolve. The install only counts when the probe passes.
  *
  * $fetch is injectable so tests run against a fixture zip without network.
  *
@@ -466,16 +521,57 @@ function orbitraUpdateSypex(?string $root = null, ?callable $fetch = null, int $
         }
         @chmod($destDat, 0644);
 
-        // The archive ships the reader too. Install it only when missing: the
-        // repository's own core/SxGeo.php must win on panel updates.
+        // The repository ships the reader itself (core/SxGeo.php — Sypex Geo
+        // API 2.2.3, BSD, patched for PHP 8): the vendor DB archive carries
+        // only SxGeoCity.dat. Keep a copy-from-archive fallback in case the
+        // vendor bundle ever ships a reader again. Install it whenever the
+        // file is missing or empty: a 0-byte stub passes file_exists() but
+        // silently kills every Sypex lookup.
         $parserPath = $root . '/core/SxGeo.php';
-        if (!file_exists($parserPath)) {
+        if (!file_exists($parserPath) || (filesize($parserPath) ?: 0) === 0) {
             foreach ($iter as $file) {
                 if ($file->isFile() && $file->getFilename() === 'SxGeo.php') {
                     @copy($file->getPathname(), $parserPath);
                     break;
                 }
             }
+        }
+
+        // Sanity check before declaring victory: the reader must load and
+        // resolve a known IP (8.8.8.8 is expected to be US). A corrupt .dat
+        // or a broken parser would otherwise leave geo "installed" while
+        // every lookup still fails.
+        $classUsable = false;
+        $sanityOk = false;
+        if (is_file($parserPath)) {
+            try {
+                require_once $parserPath;
+                if (class_exists('\\SxGeo')) {
+                    $classUsable = true;
+                    $probe = new \SxGeo($destDat);
+                    $country = @$probe->getCountry('8.8.8.8');
+                    $sanityOk = is_string($country) && $country !== '';
+                    if (method_exists($probe, 'close')) {
+                        $probe->close();
+                    }
+                }
+            } catch (Throwable $e) {
+                $sanityOk = false;
+            }
+        }
+        if (!$sanityOk) {
+            // Drop the freshly installed .dat so the installer's
+            // `test -s SxGeoCity.dat` and the readiness probe report
+            // "not installed" honestly instead of a silent no-op geo.
+            @unlink($destDat);
+            if (!$classUsable) {
+                // A parser that fails to load would break the click path too
+                // (require_once of a broken file is fatal there). The reader
+                // is version-controlled, so removing a broken copy is safe:
+                // git brings it back on the next pull.
+                @unlink($parserPath);
+            }
+            throw new RuntimeException('База Sypex скачана, но не прошла проверку чтения (класс SxGeo не загрузился или getCountry(8.8.8.8) не вернул страну). Загруженные файлы удалены — повторите обновление позже.');
         }
 
         return ['ok' => true, 'message' => 'База Sypex успешно обновлена', 'path' => $destDat];

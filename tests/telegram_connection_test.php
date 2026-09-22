@@ -51,9 +51,15 @@ try {
     }
     if (!$ready) throw new RuntimeException('Telegram test server did not start: ' . file_get_contents($dir . '/tg-http.log'));
 
-    $request = static function (string $path, ?array $body = null, string $key = 'TEST_WRITE', string $scenario = '') use ($address): array {
+    $request = static function (string $path, ?array $body = null, string $key = 'TEST_WRITE', string $scenario = '') use ($address, $pdo): array {
         $headers = ['Content-Type: application/json', 'Host: tracker.example',
             'X-Forwarded-Proto: https', 'X-Api-Key: ' . $key, 'X-Telegram-Scenario: ' . $scenario];
+        // setWebhook now registers a secret_token and telegram_bot.php rejects
+        // webhook calls without it (audit #5) — send it the way Telegram does.
+        $webhookSecret = (string) $pdo->query("SELECT value FROM settings WHERE key = 'telegram_webhook_secret'")->fetchColumn();
+        if ($webhookSecret !== '') {
+            $headers[] = 'X-Telegram-Bot-Api-Secret-Token: ' . $webhookSecret;
+        }
         $raw = file_get_contents("http://$address$path", false, stream_context_create(['http' => [
             'method' => $body === null ? 'GET' : 'POST', 'header' => implode("\r\n", $headers),
             'content' => $body === null ? '' : json_encode($body), 'ignore_errors' => true, 'timeout' => 15,
@@ -110,8 +116,11 @@ try {
     check(($forced['json']['data']['mode'] ?? '') === 'polling', 'forced polling remains supported');
     $request('/api.php?action=save_telegram_settings', $save);
 
+    // Chats join with the panel's one-time link code (audit #5).
+    $pdo->exec("INSERT OR REPLACE INTO settings (key, value) VALUES ('telegram_link_code', 'FIXTURE1')");
+    $pdo->exec("INSERT OR REPLACE INTO settings (key, value) VALUES ('telegram_link_code_expires', '" . (time() + 600) . "')");
     $start = $request('/telegram_bot.php', ['message' => ['chat' => ['id' => 100],
-        'from' => ['username' => 'fixture', 'first_name' => 'Fixture'], 'text' => '/start']]);
+        'from' => ['username' => 'fixture', 'first_name' => 'Fixture'], 'text' => '/start FIXTURE1']]);
     check($start['code'] === 200 && $start['raw'] === 'ok', 'standalone webhook still handles /start');
     check((int)$pdo->query('SELECT COUNT(*) FROM telegram_bot_chats WHERE chat_id = 100')->fetchColumn() === 1, 'webhook registers the chat');
     $test = $request('/api.php?action=telegram_test', []);

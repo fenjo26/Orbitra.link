@@ -3,9 +3,17 @@
 //
 // The Sypex updater (core/geo_databases.php) against a fixture zip — no
 // network. This is the code the installer, the monthly cron and the panel's
-// post-update self-heal all run: it must install the .dat, ship the SxGeo.php
-// parser when missing, never overwrite an existing parser, and fail softly
-// (a result array, not a crash) when sypexgeo.net is unreachable.
+// post-update self-heal all run: it must install the .dat, install the
+// SxGeo.php reader when it is missing or a 0-byte stub (the old empty-file
+// bug that silently killed every Sypex lookup), leave a working reader
+// alone, and fail softly (a result array, not a crash) when sypexgeo.net is
+// unreachable.
+//
+// The fixture "reader" is a stub class whose getCountry() answers 'US', so
+// the updater's post-install sanity probe passes against the fixture .dat.
+// The class is declared conditionally: the updater require_once's the parser
+// more than once across scenarios in this single process, and a second
+// unconditional declaration would be a fatal.
 //
 // Run: php tests/geo_updaters_test.php
 
@@ -16,15 +24,24 @@ $assert = function (string $label, $got, $expected) use (&$failures) {
     $ok = $got === $expected;
     echo ($ok ? '  ok   ' : '  FAIL ') . $label;
     if (!$ok) {
-        echo ' — got ' . var_export($got, true) . ', expected ' . var_export($expected, true);
+        echo ' — got ' . var_export($got, true), ', expected ' . var_export($expected, true);
         $failures++;
     }
     echo "\n";
 };
 
-// Fixture zip shaped like the real one: the .dat nested in a directory, the
-// SxGeo.php reader at the root. The dat must be > 1024 bytes (the updater's
-// sanity floor).
+$stubClass = "if (!class_exists('SxGeo')) {\n"
+    . "class SxGeo {\n"
+    . "    public function __construct(\$file = '') {}\n"
+    . "    public function getCountry(\$ip) { return 'US'; }\n"
+    . "    public function close() {}\n"
+    . "}\n"
+    . "}\n";
+$archiveParser = "<?php // fixture parser from the archive\n" . $stubClass;
+
+// Fixture zip shaped like the vendor bundle: the .dat nested in a directory,
+// the SxGeo.php reader at the root. The dat must be > 1024 bytes (the
+// updater's sanity floor).
 $fixtureZip = sys_get_temp_dir() . '/orbitra_fixture_zip_' . bin2hex(random_bytes(4)) . '.zip';
 $zip = new ZipArchive;
 if ($zip->open($fixtureZip, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
@@ -32,7 +49,7 @@ if ($zip->open($fixtureZip, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true
     exit(1);
 }
 $zip->addFromString('SxGeoCity/SxGeoCity.dat', 'SXGEO-FIXTURE-' . str_repeat('x', 4096));
-$zip->addFromString('SxGeo.php', "<?php // fixture parser from the archive\n");
+$zip->addFromString('SxGeo.php', $archiveParser);
 $zip->close();
 $fixtureData = file_get_contents($fixtureZip);
 $fetchFixture = static fn (string $url): ?string => $fixtureData;
@@ -53,17 +70,25 @@ $assert('ok', $res['ok'], true);
 $datPath = $root . '/var/geoip/SxGeoCity/SxGeoCity.dat';
 $assert('dat installed', is_file($datPath), true);
 $assert('dat is the fixture payload', strpos((string) file_get_contents($datPath), 'SXGEO-FIXTURE-'), 0);
-$assert('parser shipped from the archive', strpos((string) file_get_contents($root . '/core/SxGeo.php'), 'fixture parser') !== false, true);
+$parserPath = $root . '/core/SxGeo.php';
+$assert('reader shipped from the archive', strpos((string) file_get_contents($parserPath), 'fixture parser') !== false, true);
 $assert('installed detector flips', orbitraGeoDatabasesInstalled($root), true);
 $assert('no temp leftovers in the geo dir', glob($root . '/var/geoip/SxGeoCity/*.tmp-*'), []);
 $assert('no zip leftovers', is_file($root . '/var/geoip/SxGeoCity/SxGeoCity_utf8.zip'), false);
 $assert('extraction temp dir cleaned', glob(sys_get_temp_dir() . '/orbitra_sypex_*'), []);
 
+echo "a 0-byte reader stub gets replaced\n";
+file_put_contents($parserPath, '');
+$res0 = orbitraUpdateSypex($root, $fetchFixture);
+$assert('ok after stub replacement', $res0['ok'], true);
+$assert('0-byte stub replaced from the archive', strpos((string) file_get_contents($parserPath), 'fixture parser') !== false, true);
+
 echo "existing parser is never overwritten\n";
-file_put_contents($root . '/core/SxGeo.php', "<?php // repository's own parser — must win\n");
+$ownParser = "<?php // repository's own parser — must win\n" . $stubClass;
+file_put_contents($parserPath, $ownParser);
 $res2 = orbitraUpdateSypex($root, $fetchFixture);
 $assert('second run ok (idempotent)', $res2['ok'], true);
-$assert('own parser kept', strpos((string) file_get_contents($root . '/core/SxGeo.php'), "repository's own parser") !== false, true);
+$assert('own parser kept', strpos((string) file_get_contents($parserPath), "repository's own parser") !== false, true);
 
 echo "soft failures\n";
 $resFail = orbitraUpdateSypex($root, static fn (string $url): ?string => null);

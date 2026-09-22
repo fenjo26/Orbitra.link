@@ -1,6 +1,6 @@
 {
-    "version": "1.5.15",
-    "release_notes": "Geo databases work out of the box. The installer downloads the free Sypex Geo City database (country/region/city) during setup and a monthly cron keeps it fresh. Existing installs get it automatically: the panel updater, after a successful update, downloads Sypex when no geo database is present. A banner on every tab explains when no database is installed, offers one-click Sypex install and links to the geo settings - so an empty country column no longer reads as broken cloaking. MaxMind and IP2Location/IP2Proxy databases update automatically too, but only when their account keys are saved in Settings. Downloads are non-fatal: a server that cannot reach sypexgeo.net installs fine and can add a database later.",
+    "version": "1.6.0",
+    "release_notes": "Security release (independent audit of v1.5.15). Fixes account takeover through profile_settings, role checks on every settings and admin action (default-deny for the user role), the IP allowlist, Telegram bot access (secret-checked webhook, chats join only with a one-time code from the panel), stopped/archived campaigns taking traffic, geo filters and TLS for geo downloads, lost clicks under database locks (file spool), Keitaro import mapping, and adds optional TOTP two-factor login and HMAC for /crm-ingest. IMPORTANT for servers installed before 1.6.0: after updating, the panel shows a one-time SSH command (cli/server_setup.sh) that replaces the old sudo rules through which the web user could become root. The Update button cannot do this step itself - please run the command once.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-09-18"
+    "released_at": "2026-09-22"
 }

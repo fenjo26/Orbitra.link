@@ -15,6 +15,14 @@ if [ "$EUID" -ne 0 ]; then
   exit
 fi
 
+# Pinned Composer. composer.phar is no longer committed to the repository, so
+# the installer provisions it itself: it downloads exactly this version from
+# getcomposer.org and refuses to continue unless the sha256 matches. Both
+# values come from getcomposer.org/download/<ver>/ (the checksum is published
+# next to the phar as composer.phar.sha256sum); bump them together.
+COMPOSER_VER="2.10.3"
+COMPOSER_SHA256="7a2d379d5b8ffdaa028580ef26494c36d2feef4b178d3dd1473a4dbc5e17c8d6"
+
 # ---------------------------------------------------------------------------
 # First-boot package-lock guard.
 #
@@ -242,37 +250,11 @@ if ! php -m 2>/dev/null | grep -qix 'bcmath'; then
     apt-get install -y "php${PHP_V}-bcmath" || apt-get install -y php-bcmath || true
 fi
 
-# Install Node.js 20.x (required for frontend build)
-echo "[2/5] Installing Node.js 20.x for frontend build..."
-if command -v node &> /dev/null; then
-    CURRENT_NODE_V=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
-    if [ "$CURRENT_NODE_V" -lt 20 ]; then
-        echo "  > Removing old Node.js $CURRENT_NODE_V..."
-        apt-get remove -y nodejs npm
-        echo "  > Installing Node.js 20.x..."
-        if curl -fsSL https://deb.nodesource.com/setup_20.x -o /tmp/nodesource_setup.sh; then
-            bash /tmp/nodesource_setup.sh
-        else
-            echo "  > WARNING: could not reach deb.nodesource.com — falling back to the distribution's Node.js."
-        fi
-        rm -f /tmp/nodesource_setup.sh
-        apt-get install -y nodejs
-    else
-        echo "  > Node.js $(node -v) already installed (version 20+) - skipping"
-    fi
-else
-    echo "  > Installing Node.js 20.x..."
-    if curl -fsSL https://deb.nodesource.com/setup_20.x -o /tmp/nodesource_setup.sh; then
-        bash /tmp/nodesource_setup.sh
-    else
-        echo "  > WARNING: could not reach deb.nodesource.com — falling back to the distribution's Node.js."
-    fi
-    rm -f /tmp/nodesource_setup.sh
-    apt-get install -y nodejs
-fi
-
-echo "Node.js version: $(node -v)"
-echo "npm version: $(npm -v)"
+# Node.js is deliberately NOT installed: the frontend bundle ships committed
+# in frontend/dist and is built on the release machine, so a server install
+# has nothing to build (see the frontend step near the end of this script).
+# The optional MCP server is the only remaining npm consumer, and it degrades
+# to a NOTE when npm is missing.
 
 # Install Certbot for SSL certificates
 echo "[2.5/5] Installing Certbot for automatic SSL certificates..."
@@ -283,82 +265,12 @@ else
     echo "  > Certbot already installed - skipping"
 fi
 
-# Configure sudoers for www-data to run Certbot (auto-SSL via UI)
-echo "  > Configuring sudoers for automatic SSL & Nginx management..."
+# The root-side setup (sudoers rules, the certificate and nginx helpers,
+# /etc/letsencrypt permissions, the click-spool cron) lives in
+# cli/server_setup.sh and runs once the code is in place, below. It is the same
+# script servers installed by an older install.sh run to catch up, so both
+# paths end in the same state.
 SUDOERS_FILE="/etc/sudoers.d/orbitra-ssl"
-echo "www-data ALL=(ALL) NOPASSWD: /usr/sbin/nginx -t" > $SUDOERS_FILE
-echo "www-data ALL=(ALL) NOPASSWD: /bin/systemctl reload nginx" >> $SUDOERS_FILE
-echo "www-data ALL=(ALL) NOPASSWD: /bin/cp /etc/nginx/sites-available/orbitra /tmp/orbitra_nginx_update.conf" >> $SUDOERS_FILE
-echo "www-data ALL=(ALL) NOPASSWD: /bin/cp /tmp/orbitra_nginx_update.conf /etc/nginx/sites-available/orbitra" >> $SUDOERS_FILE
-echo "www-data ALL=(ALL) NOPASSWD: /usr/bin/certbot" >> $SUDOERS_FILE
-# Reading the PUBLIC half of /etc/letsencrypt back.
-#
-# certbot creates live/ and archive/ as 0700 root, so the web user cannot even
-# traverse to the certificate it has to read — and PHP's file_exists() then
-# answers "no certificate" for one that exists, which is how a healthy domain
-# gets classified self-signed and shows ERR_CERT_AUTHORITY_INVALID. Opening the
-# two directory levels exposes nothing on its own: the private keys are 0600
-# root-only FILES inside them, and nginx reads those as root.
-chmod 0755 /etc/letsencrypt /etc/letsencrypt/live /etc/letsencrypt/archive 2>/dev/null || true
-# The directories are created by the first issuance, which happens after this
-# script, and certbot re-applies 0700 on some renewals — so the same two chmods
-# run again after every issuance and renewal.
-mkdir -p /etc/letsencrypt/renewal-hooks/deploy
-cat > /etc/letsencrypt/renewal-hooks/deploy/00-orbitra-readable.sh <<'ORBITRA_HOOK'
-#!/bin/sh
-# Orbitra: keep the public half of /etc/letsencrypt readable by the web user.
-# Directory bits only — private key files keep their own 0600 root-only mode.
-chmod 0755 /etc/letsencrypt /etc/letsencrypt/live /etc/letsencrypt/archive 2>/dev/null || true
-ORBITRA_HOOK
-chmod 0755 /etc/letsencrypt/renewal-hooks/deploy/00-orbitra-readable.sh
-
-# Fallback for hosts where an administrator keeps /etc/letsencrypt closed.
-#
-# This used to be a list of sudoers rules of the form
-#   www-data ALL=(ALL) NOPASSWD: /bin/cat /etc/letsencrypt/live/*/fullchain.pem
-# and on Ubuntu 25.10 and newer every one of them is a parse error. Those
-# releases ship sudo-rs as the default sudo, and sudo-rs does not implement
-# wildcards in command arguments at all ("wildcards are not allowed in command
-# arguments"). The rules were dropped — so the panel could not read a
-# certificate it had just issued — and the parse errors were printed on the
-# stderr of every sudo call the panel made, including the certbot runs whose
-# output it parses. A helper with a fixed path needs no wildcard in sudoers:
-# the argument check lives in the script, where it can be exact.
-cat > /usr/local/bin/orbitra-catcert <<'ORBITRA_CATCERT'
-#!/bin/sh
-# Print ONE public certificate file from /etc/letsencrypt, and nothing else.
-# Reached through a NOPASSWD sudoers rule, so it must police its own argument:
-# a sudoers rule without arguments allows any. Private keys are not listed
-# below and `..` is refused outright — in `case`, a * matches slashes too, so
-# without that check "live/../../root/x/fullchain.pem" would pass the pattern.
-set -eu
-[ $# -eq 1 ] || { echo "usage: orbitra-catcert <path>" >&2; exit 2; }
-case "$1" in
-    *..*) exit 2 ;;
-esac
-case "$1" in
-    /etc/letsencrypt/live/*/fullchain.pem) ;;
-    /etc/letsencrypt/live/*/chain.pem) ;;
-    /etc/letsencrypt/live/*/cert.pem) ;;
-    /etc/letsencrypt/archive/*/fullchain*.pem) ;;
-    /etc/letsencrypt/archive/*/chain*.pem) ;;
-    /etc/letsencrypt/archive/*/cert*.pem) ;;
-    *) exit 2 ;;
-esac
-exec cat -- "$1"
-ORBITRA_CATCERT
-chmod 0755 /usr/local/bin/orbitra-catcert
-echo "www-data ALL=(ALL) NOPASSWD: /usr/local/bin/orbitra-catcert" >> $SUDOERS_FILE
-chmod 0440 $SUDOERS_FILE
-
-# A sudoers file with a parse error is skipped rule by rule and its complaint
-# goes to the stderr of every later sudo call, so a bad edit here is expensive
-# and silent. Check it while there is still a human watching the install.
-if command -v visudo >/dev/null 2>&1 && ! visudo -c -f $SUDOERS_FILE >/dev/null 2>&1; then
-    echo "  > WARNING: $SUDOERS_FILE did not pass visudo -c. Certificate reads may fall back to"
-    echo "    the file permissions above. Output of the check:"
-    visudo -c -f $SUDOERS_FILE 2>&1 | sed 's/^/    /'
-fi
 
 echo "[3/5] Downloading Orbitra source code to /var/www/orbitra..."
 TMP_SRC_DIR="$(mktemp -d /tmp/orbitra_src.XXXXXX)"
@@ -383,7 +295,7 @@ trap cleanup_tmp EXIT
 # A previous run that died before restoring (a failed clone, for instance) leaves
 # these behind, and "cp -r src dst" copies INTO an existing dst — turning the next
 # backup into var/var, geo/geo, landings/landings and losing part of the restore.
-rm -rf /tmp/orbitra_db_backup.sqlite /tmp/orbitra_var_backup /tmp/orbitra_geo_backup /tmp/orbitra_landings_backup /tmp/orbitra_offers_backup
+rm -rf /tmp/orbitra_db_backup.sqlite /tmp/orbitra_var_backup /tmp/orbitra_geo_backup /tmp/orbitra_landings_backup /tmp/orbitra_offers_backup /tmp/orbitra_composer_backup.phar
 
 if [ -f "/var/www/orbitra/orbitra_db.sqlite" ]; then
     echo "  > Backing up database..."
@@ -410,6 +322,14 @@ fi
 if [ -d "/var/www/orbitra/offers" ]; then
     echo "  > Backing up offers directory..."
     cp -r /var/www/orbitra/offers /tmp/orbitra_offers_backup
+fi
+# composer.phar left the repository, but an installation that already has one
+# (provisioned by an older release) keeps working across a reinstall without
+# depending on getcomposer.org: the phar is carried through the re-clone like
+# the user data above. A fresh install has none and downloads a pinned copy.
+if [ -f "/var/www/orbitra/composer.phar" ]; then
+    echo "  > Backing up composer.phar..."
+    cp /var/www/orbitra/composer.phar /tmp/orbitra_composer_backup.phar
 fi
 
 # Clone the repository into a temporary directory first to avoid downtime on clone failure.
@@ -451,6 +371,17 @@ if [ -d "/tmp/orbitra_offers_backup" ]; then
     cp -r /tmp/orbitra_offers_backup/. /var/www/orbitra/offers/ 2>/dev/null || true
     rm -rf /tmp/orbitra_offers_backup
 fi
+if [ -f "/tmp/orbitra_composer_backup.phar" ]; then
+    echo "  > Restoring composer.phar..."
+    mv /tmp/orbitra_composer_backup.phar /var/www/orbitra/composer.phar
+fi
+
+# Root-side setup: sudoers rules, the certificate/nginx helpers, the
+# /etc/letsencrypt permissions and the click-spool cron. Run from the freshly
+# cloned, still root-owned tree — nothing the web user could have edited yet.
+echo "  > Configuring sudoers and root helpers for SSL & nginx management..."
+ORBITRA_DIR=/var/www/orbitra bash /var/www/orbitra/cli/server_setup.sh \
+    || echo "  > WARNING: cli/server_setup.sh failed — automatic SSL and nginx updates from the panel will not work until it succeeds (re-run: sudo bash /var/www/orbitra/cli/server_setup.sh)."
 
 
 echo "[4/5] Configuring permissions for SQLite Database..."
@@ -478,7 +409,7 @@ find /var/www/orbitra -type f -exec chmod 664 {} \;
 # ignore the mode as well, so a stray chmod from anywhere never blocks an update.
 git -C /var/www/orbitra config core.fileMode false 2>/dev/null || true
 
-echo "[5/5] Configuring Nginx web server and building frontend..."
+echo "[5/5] Configuring Nginx web server..."
 
 SERVER_IP=$(curl -s --max-time 5 http://checkip.amazonaws.com || hostname -I | awk '{print $1}')
 
@@ -592,6 +523,15 @@ server {
         return 404;
     }
 
+    # Tracker source directories are not public content: cli/ holds operator
+    # tools, tests/ and migrations/ ship no web entry points, vendor/ is third-
+    # party code, and geo/ holds the MaxMind databases whose licence forbids
+    # serving them to visitors. Must stay above the PHP handler below, or a
+    # /vendor/acme/pkg/tool.php URL would still execute.
+    location ~ ^/(?:cli|tests|core|vendor|migrations|aggregator_engines|var|geo|data)/ {
+        return 404;
+    }
+
     # PHP processing
     location ~ \.php$ {
         include snippets/fastcgi-php.conf;
@@ -600,12 +540,20 @@ server {
         include fastcgi_params;
     }
 
-    # Deny access to SQLite DB and configurations
-    location ~ \.sqlite$ {
+    # Deny access to SQLite DB (the live database and its -wal/-shm/-journal
+    # side files) and other database files
+    location ~ \.(sqlite|sqlite-wal|sqlite-shm|sqlite-journal|db)$ {
         deny all;
     }
     location ~ /\. {
         deny all;
+    }
+
+    # Deny access to log files, environment files, and sensitive data
+    # (.sh/.md/.phar/.lock keep install.sh, docs, composer.phar/lock off the web)
+    location ~* \.(log|txt|json|env|git|bak|sql|sh|md|phar|lock)$ {
+        deny all;
+        return 404;
     }
 
     # ORB-013: Compression for static assets.
@@ -674,13 +622,38 @@ php /var/www/orbitra/cli/nginx_sync.php || {
 chown -R www-data:www-data /var/www/orbitra/orbitra_db.sqlite /var/www/orbitra/var 2>/dev/null || true
 
 
+# Provision Composer itself. The phar is no longer committed to the repository
+# (a binary in git cannot be re-verified at clone time), so an existing one —
+# restored from a previous install above — is reused as-is, and otherwise the
+# pinned version is downloaded and its sha256 verified. A failed download or a
+# hash mismatch is fatal under `set -e`: an unverified phar is never executed,
+# and without Composer a fresh install has no vendor/ at all.
+if [ -f /var/www/orbitra/composer.phar ]; then
+    echo "  > Using the existing /var/www/orbitra/composer.phar."
+else
+    echo "  > Downloading Composer ${COMPOSER_VER} (sha256-verified)..."
+    if curl -fsSL "https://getcomposer.org/download/${COMPOSER_VER}/composer.phar" \
+        -o /var/www/orbitra/composer.phar; then
+        if ! echo "${COMPOSER_SHA256}  /var/www/orbitra/composer.phar" | sha256sum -c -; then
+            rm -f /var/www/orbitra/composer.phar
+            echo "ERROR: the downloaded composer.phar does not match the pinned sha256 for"
+            echo "       Composer ${COMPOSER_VER}. Refusing to run an unverified binary."
+            exit 1
+        fi
+        echo "  > Composer ${COMPOSER_VER} verified and installed."
+    else
+        echo "ERROR: could not download Composer ${COMPOSER_VER} from getcomposer.org."
+        exit 1
+    fi
+fi
+
 # Install locked PHP readers (MaxMind, IP2Location and IP2Proxy). vendor/ is
 # intentionally not committed, so both fresh installs and admin updates must
 # materialise it from composer.lock.
 #
 # Never fatal. This step used to run bare under `set -e`, so a single missing PHP
-# extension aborted the whole installer here — before the frontend build, before
-# the cron job, and before the ownership handover — which is what turned a
+# extension aborted the whole installer here — before the cron jobs and before
+# the ownership handover — which is what turned a
 # recoverable dependency problem into a permanently un-updatable installation.
 echo "  > Installing PHP dependencies..."
 cd /var/www/orbitra
@@ -704,46 +677,50 @@ else
     fi
 fi
 
-# Build frontend. Also non-fatal for the same reason as the Composer step above:
-# a broken build must not cost the installation its ownership handover.
-echo "  > Building frontend..."
-cd /var/www/orbitra/frontend
-if [ -f "package.json" ]; then
-    echo "  > Installing npm dependencies..."
-    if npm install --silent && npm run build; then
-        echo "  > Frontend built successfully!"
-    else
-        echo "  > WARNING: frontend build failed. Rebuild later with:"
-        echo "  >            cd /var/www/orbitra/frontend && npm install && npm run build"
-    fi
-else
-    echo "  > WARNING: package.json not found, skipping frontend build"
+# The frontend bundle ships committed in frontend/dist and is built on the
+# release machine — not here. Building on the server left frontend/dist dirty
+# the moment an install finished, and the in-panel updater (git stash → pull →
+# stash pop) then hit those local changes on every update, while its
+# reset --hard recovery wiped the freshly built bundle. The bundle used below
+# is the one committed with the release, so the worktree stays clean.
+echo "  > Using the frontend bundle committed with the release."
+if [ ! -f /var/www/orbitra/frontend/dist/index.html ]; then
+    echo "  > WARNING: frontend/dist/index.html not found in the repository checkout."
+    echo "  >          The panel UI will not load until a bundle is provided: build it on a"
+    echo "  >          dev machine (cd frontend && npm install && npm run build) and commit it."
 fi
 
 # Prepare MCP server (optional AI-assistant integration).
 # Runs client-side (e.g. Claude Desktop), but we install deps here so it is ready to use.
-# Failures are non-fatal — the tracker works fine without it.
+# Failures are non-fatal — the tracker works fine without it. Node.js is no
+# longer provisioned by this script (nothing else needs it since the frontend
+# bundle ships committed), so npm is normally absent on a fresh install and
+# the step degrades to a NOTE.
 echo "  > Preparing MCP server (AI assistant integration)..."
 if [ -d "/var/www/orbitra/mcp" ]; then
-    cd /var/www/orbitra/mcp
-    if npm install --silent --no-audit --no-fund; then
-        echo "  > MCP server ready (see mcp/README.md to connect Claude Desktop)."
+    if command -v npm >/dev/null 2>&1; then
+        cd /var/www/orbitra/mcp
+        if npm install --silent --no-audit --no-fund; then
+            echo "  > MCP server ready (see mcp/README.md to connect Claude Desktop)."
+        else
+            echo "  > NOTE: MCP dependency install failed — run 'cd mcp && npm install' later. Skipping."
+        fi
     else
-        echo "  > NOTE: MCP dependency install failed — run 'cd mcp && npm install' later. Skipping."
+        echo "  > NOTE: npm not found — skipping MCP dependency install. Install Node.js and run"
+        echo "  >       'cd /var/www/orbitra/mcp && npm install' later if you want the integration."
     fi
 else
     echo "  > NOTE: mcp/ folder not found, skipping MCP setup."
 fi
 
-# Ownership, last — every step above ran as root, and two of them create files
-# the web server must be able to replace later. Vite empties and recreates
-# frontend/dist on each build, so the bundle and its directory come out
-# root-owned; the update button then runs `git pull` as www-data and fails with
-# "unable to unlink old 'frontend/dist/assets/index.js': Permission denied",
-# because unlinking a file needs write permission on its *directory*. The .git
-# directory matters for the same reason — root-owned, git refuses to work with
-# it at all ("dubious ownership"). Chowning here, after the last root-run step,
-# is what makes in-panel updates work at all.
+# Ownership, last — every step above ran as root, and the update button later
+# runs `git pull` as www-data, which cannot replace a root-owned file: unlinking
+# a file needs write permission on its *directory*, so a root-owned
+# frontend/dist or .git makes every update fail ("unable to unlink old
+# 'frontend/dist/assets/index.js'"). The .git directory matters for the same
+# reason — root-owned, git refuses to work with it at all ("dubious ownership").
+# Chowning here, after the last root-run step, is what makes in-panel updates
+# work at all.
 # Certificate worker. Issuance is not a one-shot: a domain pointed at this server
 # minutes ago has DNS that has not propagated yet, so the first attempt fails and
 # something has to try again. The certificate is requested immediately when the
@@ -816,6 +793,22 @@ if ! crontab -u www-data -l 2>/dev/null | grep -qF "$ROTATION_CRON_MARKER"; then
       || echo "  > NOTE: could not write the crontab. Add this line manually: * * * * * php /var/www/orbitra/rotation_optimiser_cron.php"
 fi
 
+# Click spool drain. When SQLite is locked (a long panel transaction or cron)
+# the click path retries, then spills the click row into var/spool/clicks.log
+# so the redirect never costs a click; this worker replays those lines into
+# the database and trims the file. Cheap when the spool is empty — one
+# stat() — so every minute is fine.
+echo "  > Scheduling the click spool worker..."
+SPOOL_CRON_MARKER="# orbitra-click-spool"
+if ! crontab -u www-data -l 2>/dev/null | grep -qF "$SPOOL_CRON_MARKER"; then
+    {
+        crontab -u www-data -l 2>/dev/null
+        echo "* * * * * php /var/www/orbitra/cli/click_spool_cron.php >> /var/www/orbitra/var/logs/click_spool.log 2>&1 $SPOOL_CRON_MARKER"
+    } | crontab -u www-data - 2>/dev/null \
+      && echo "  > Click spool worker scheduled (every minute)." \
+      || echo "  > NOTE: could not write the crontab. Add this line manually: * * * * * php /var/www/orbitra/cli/click_spool_cron.php"
+fi
+
 # Outbound postback / CAPI queue worker. Every server-side conversion -- affiliate
 # postbacks and Facebook/TikTok Conversions API events alike -- is written to
 # s2s_postbacks_log as 'pending' and delivered from there. Without this worker the
@@ -883,9 +876,10 @@ fi
 
 echo "  > Handing the installation over to www-data..."
 chown -R www-data:www-data /var/www/orbitra
-# Permissions are re-applied only where a root step created files. node_modules
-# is deliberately left alone: a blanket chmod 664 would strip the executable bit
-# from the binaries npm installed (esbuild among them) and break the next build.
+# Permissions are re-applied only where a root step created files. The MCP
+# server's node_modules (when npm was available) is deliberately left alone:
+# a blanket chmod 664 would strip the executable bit from the binaries npm
+# installed and break them.
 find /var/www/orbitra/frontend/dist -type d -exec chmod 775 {} \; 2>/dev/null || true
 find /var/www/orbitra/frontend/dist -type f -exec chmod 664 {} \; 2>/dev/null || true
 
@@ -966,13 +960,29 @@ if command -v visudo >/dev/null 2>&1; then
     fi
 fi
 
-# Test 6: the web user can really run certbot without a password. Everything
-# about automatic SSL depends on this one answer.
-if sudo -u www-data sudo -n /usr/bin/certbot --version >/dev/null 2>&1; then
-    echo "  > ✓ The panel can run Certbot (automatic SSL will work)"
+# Test 6: the web user can reach certbot through the fixed-argument wrapper.
+# Everything about automatic SSL depends on this one answer. An invalid domain
+# is passed on purpose: the wrapper must refuse it with exit 2, which proves
+# the sudoers rule works and the script runs — without touching certbot state.
+RC=0
+sudo -u www-data sudo -n /usr/local/bin/orbitra-issue-cert 'not-a-valid-domain' >/dev/null 2>&1 || RC=$?
+if [ "$RC" -eq 2 ]; then
+    echo "  > ✓ The panel can issue certificates (orbitra-issue-cert reachable)"
 else
-    echo "  > ⚠ WARNING: the panel cannot run Certbot without a password."
+    echo "  > ⚠ WARNING: the panel cannot run the certificate wrapper without a password."
     echo "      Automatic SSL will not work until $SUDOERS_FILE is fixed."
+fi
+
+# Test 6b: the web user can hand nginx a config through the validating
+# wrapper. --check validates only and writes nothing.
+RC=0
+printf 'server {\n    listen 80;\n    root /var/www/orbitra;\n}\n' \
+    | sudo -u www-data sudo -n /usr/local/bin/orbitra-install-nginx-conf --check >/dev/null 2>&1 || RC=$?
+if [ "$RC" -eq 0 ]; then
+    echo "  > ✓ The panel can update nginx (orbitra-install-nginx-conf reachable)"
+else
+    echo "  > ⚠ WARNING: the panel cannot run orbitra-install-nginx-conf (exit $RC)."
+    echo "      Domain changes will not reach nginx until $SUDOERS_FILE is fixed."
 fi
 
 # Test 7: the web user can read a certificate once one exists. Tested on the

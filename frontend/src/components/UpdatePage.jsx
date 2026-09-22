@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { RefreshCw, Download, AlertCircle, CheckCircle, Info, ExternalLink } from 'lucide-react';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
+import ServerSetupBanner from './ServerSetupBanner';
 
 const API_URL = '/api.php';
 
@@ -139,6 +140,10 @@ const UpdatePage = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Root-side step the in-panel update cannot do (cli/server_setup.sh).
+                Remounted after an update so it re-checks the new code's requirement. */}
+            <ServerSetupBanner key={updateSuccess ? 'after-update' : 'before-update'} variant="card" />
 
             {/* Update Status */}
             {updateInfo?.update_available ? (

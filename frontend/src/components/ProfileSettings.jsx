@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Globe, Clock, Calendar, Lock, KeyRound } from 'lucide-react';
+import { Save, Globe, Clock, Calendar, Lock, KeyRound, ShieldCheck, ShieldOff, Copy, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getStayInEditorAfterSave, setStayInEditorAfterSave } from '../utils/editorPreferences';
+import { copyToClipboard } from '../utils/clipboard';
 
 const API_URL = '/api.php';
 
@@ -11,6 +12,20 @@ const ProfileSettings = () => {
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState({ text: '', type: '' });
     const [stayInEditor, setStayInEditor] = useState(getStayInEditorAfterSave);
+    const [currentPasswordError, setCurrentPasswordError] = useState('');
+
+    // Two-factor authentication (TOTP). totp_enabled arrives with
+    // profile_settings; enabling runs setup → (secret + otpauth shown) →
+    // code → totp_enable, disabling asks for the account password.
+    const [totpEnabled, setTotpEnabled] = useState(false);
+    const [totpSetup, setTotpSetup] = useState(null); // { secret, otpauth }
+    const [totpCode, setTotpCode] = useState('');
+    const [totpDisablePassword, setTotpDisablePassword] = useState('');
+    const [totpBusy, setTotpBusy] = useState(false);
+    const [totpMessage, setTotpMessage] = useState(null); // { text, type }
+    const [totpCodeError, setTotpCodeError] = useState('');
+    const [totpPasswordError, setTotpPasswordError] = useState('');
+    const [totpCopiedKey, setTotpCopiedKey] = useState('');
 
     const currentUser = JSON.parse(localStorage.getItem('orbitra_user') || '{}');
 
@@ -18,6 +33,7 @@ const ProfileSettings = () => {
         language: currentLanguage,
         timezone: 'Europe/Moscow',
         first_day_of_week: 1,
+        current_password: '',
         new_password: '',
         confirm_password: ''
     });
@@ -34,6 +50,7 @@ const ProfileSettings = () => {
                         timezone: data.data.timezone || 'Europe/Moscow',
                         first_day_of_week: data.data.first_day_of_week || 1,
                     });
+                    setTotpEnabled(Boolean(data.data.totp_enabled));
                 }
                 setLoading(false);
             })
@@ -49,6 +66,11 @@ const ProfileSettings = () => {
     };
 
     const handleSave = async () => {
+        setCurrentPasswordError('');
+        if (profile.new_password && !profile.current_password) {
+            setCurrentPasswordError(t('security.currentPasswordRequired'));
+            return;
+        }
         if (profile.new_password && profile.new_password !== profile.confirm_password) {
             setMessage({ text: t('profile.passwordsNotMatch'), type: 'error' });
             return;
@@ -67,14 +89,17 @@ const ProfileSettings = () => {
                     language: profile.language,
                     timezone: profile.timezone,
                     first_day_of_week: parseInt(profile.first_day_of_week),
-                    new_password: profile.new_password
+                    new_password: profile.new_password,
+                    // The backend requires the current password whenever a new
+                    // one is set; sent only in that case.
+                    ...(profile.new_password ? { current_password: profile.current_password } : {})
                 })
             });
             const data = await res.json();
 
             if (data.status === 'success') {
                 setMessage({ text: t('profile.saveSuccess'), type: 'success' });
-                setProfile(prev => ({ ...prev, new_password: '', confirm_password: '' }));
+                setProfile(prev => ({ ...prev, current_password: '', new_password: '', confirm_password: '' }));
                 setContextLanguage(profile.language);
 
                 // Update local storage user profile so language persists on reload
@@ -83,6 +108,8 @@ const ProfileSettings = () => {
                     localStorage.setItem('orbitra_user', JSON.stringify(currentUser));
                     window.dispatchEvent(new Event('userUpdated'));
                 }
+            } else if (data.code === 'bad_password') {
+                setCurrentPasswordError(t('security.currentPasswordInvalid'));
             } else {
                 setMessage({ text: data.message || t('common.error'), type: 'error' });
             }
@@ -90,6 +117,94 @@ const ProfileSettings = () => {
             setMessage({ text: (error?.message ? String(error.message) : t('common.networkError')), type: 'error' });
         } finally {
             setSaving(false);
+        }
+    };
+
+    // ── Two-factor authentication (TOTP) ─────────────────────────────────
+    const totpCopy = async (key, value) => {
+        if (!value || !(await copyToClipboard(value))) return;
+        setTotpCopiedKey(key);
+        setTimeout(() => setTotpCopiedKey(''), 1500);
+    };
+
+    const totpPost = async (action, payload = {}) => {
+        const res = await fetch(`${API_URL}?action=${action}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        return res.json();
+    };
+
+    const handleTotpSetup = async () => {
+        setTotpBusy(true);
+        setTotpMessage(null);
+        setTotpCodeError('');
+        try {
+            const data = await totpPost('totp_setup');
+            if (data.status === 'success' && data.data) {
+                setTotpSetup({ secret: data.data.secret || '', otpauth: data.data.otpauth || '' });
+                setTotpCode('');
+            } else {
+                setTotpMessage({ text: data.message || t('security.totpSetupError'), type: 'error' });
+            }
+        } catch (error) {
+            setTotpMessage({ text: t('common.networkError'), type: 'error' });
+        } finally {
+            setTotpBusy(false);
+        }
+    };
+
+    const handleTotpEnable = async () => {
+        if (!totpCode.trim()) {
+            setTotpCodeError(t('security.totpCodeRequired'));
+            return;
+        }
+        setTotpBusy(true);
+        setTotpMessage(null);
+        setTotpCodeError('');
+        try {
+            const data = await totpPost('totp_enable', { code: totpCode.trim() });
+            if (data.status === 'success') {
+                setTotpEnabled(true);
+                setTotpSetup(null);
+                setTotpCode('');
+                setTotpMessage({ text: t('security.totpEnabledBanner'), type: 'success' });
+            } else if (data.code === 'bad_code') {
+                setTotpCodeError(t('security.totpBadCode'));
+            } else {
+                setTotpMessage({ text: data.message || t('security.totpEnableError'), type: 'error' });
+            }
+        } catch (error) {
+            setTotpMessage({ text: t('common.networkError'), type: 'error' });
+        } finally {
+            setTotpBusy(false);
+        }
+    };
+
+    const handleTotpDisable = async () => {
+        if (!totpDisablePassword) {
+            setTotpPasswordError(t('security.totpDisablePasswordRequired'));
+            return;
+        }
+        setTotpBusy(true);
+        setTotpMessage(null);
+        setTotpPasswordError('');
+        try {
+            const data = await totpPost('totp_disable', { password: totpDisablePassword });
+            if (data.status === 'success') {
+                setTotpEnabled(false);
+                setTotpDisablePassword('');
+                setTotpMessage({ text: t('security.totpDisabledBanner'), type: 'success' });
+            } else if (data.code === 'bad_password') {
+                setTotpPasswordError(t('security.totpBadPassword'));
+            } else {
+                setTotpMessage({ text: data.message || t('security.totpDisableError'), type: 'error' });
+            }
+        } catch (error) {
+            setTotpMessage({ text: t('common.networkError'), type: 'error' });
+        } finally {
+            setTotpBusy(false);
         }
     };
 
@@ -213,6 +328,24 @@ const ProfileSettings = () => {
                     <h4 style={{ fontWeight: 500, marginBottom: '16px', color: 'var(--color-text-primary)' }}>{t('profile.changePassword')}</h4>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
                         <div>
+                            <label className="form-label">{t('security.currentPassword')}</label>
+                            <div className="relative">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--color-text-muted)] pointer-events-none" />
+                                <input
+                                    type="password"
+                                    name="current_password"
+                                    value={profile.current_password}
+                                    onChange={(e) => { setCurrentPasswordError(''); handleChange(e); }}
+                                    placeholder={t('security.currentPasswordPlaceholder')}
+                                    className="form-input pl-12"
+                                    autoComplete="current-password"
+                                />
+                            </div>
+                            {currentPasswordError && (
+                                <p style={{ fontSize: '12px', color: 'var(--color-danger)', marginTop: '6px' }}>{currentPasswordError}</p>
+                            )}
+                        </div>
+                        <div>
                             <label className="form-label">{t('profile.newPassword')}</label>
                             <div className="relative">
                                 <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--color-text-muted)] pointer-events-none" />
@@ -241,6 +374,156 @@ const ProfileSettings = () => {
                             </div>
                         </div>
                     </div>
+                </div>
+
+                {/* Two-factor authentication (TOTP). The panel has no QR code:
+                    the secret / otpauth URI are copied into an authenticator
+                    app by hand, then confirmed with a code. */}
+                <div style={{ marginTop: '32px', paddingTop: '24px', borderTop: '1px solid var(--color-border)' }}>
+                    <h4 style={{ fontWeight: 500, marginBottom: '8px', color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <ShieldCheck size={18} style={{ color: 'var(--color-primary)' }} />
+                        {t('security.totpTitle')}
+                    </h4>
+                    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginBottom: '16px', lineHeight: 1.55 }}>
+                        {t('security.totpDesc')}
+                    </p>
+
+                    {totpMessage && (
+                        <div className={`alert ${totpMessage.type === 'success' ? 'alert-success' : 'alert-danger'}`} style={{ marginBottom: '16px' }}>
+                            {totpMessage.text}
+                        </div>
+                    )}
+
+                    {!totpEnabled ? (
+                        !totpSetup ? (
+                            <button
+                                type="button"
+                                onClick={handleTotpSetup}
+                                disabled={totpBusy}
+                                className="btn btn-primary"
+                            >
+                                <ShieldCheck size={18} />
+                                {totpBusy ? t('common.loading') : t('security.totpEnable')}
+                            </button>
+                        ) : (
+                            <div style={{ maxWidth: '600px' }}>
+                                <div>
+                                    <label className="form-label">{t('security.totpSecretLabel')}</label>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <input
+                                            type="text"
+                                            readOnly
+                                            value={totpSetup.secret}
+                                            onFocus={(e) => e.target.select()}
+                                            className="form-input"
+                                            style={{ fontFamily: 'monospace' }}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => totpCopy('secret', totpSetup.secret)}
+                                            className="btn btn-secondary btn-sm"
+                                            title={t('common.copy')}
+                                        >
+                                            {totpCopiedKey === 'secret' ? <CheckCircle2 size={14} /> : <Copy size={14} />}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div style={{ marginTop: '14px' }}>
+                                    <label className="form-label">{t('security.totpOtpauthLabel')}</label>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <input
+                                            type="text"
+                                            readOnly
+                                            value={totpSetup.otpauth}
+                                            onFocus={(e) => e.target.select()}
+                                            className="form-input"
+                                            style={{ fontFamily: 'monospace', fontSize: '12px' }}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => totpCopy('otpauth', totpSetup.otpauth)}
+                                            className="btn btn-secondary btn-sm"
+                                            title={t('common.copy')}
+                                        >
+                                            {totpCopiedKey === 'otpauth' ? <CheckCircle2 size={14} /> : <Copy size={14} />}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '10px', lineHeight: 1.55 }}>
+                                    {t('security.totpSecretHint')}
+                                </p>
+
+                                <div style={{ marginTop: '16px', maxWidth: '280px' }}>
+                                    <label className="form-label">{t('security.totpCodeLabel')}</label>
+                                    <input
+                                        type="text"
+                                        value={totpCode}
+                                        onChange={(e) => { setTotpCode(e.target.value); setTotpCodeError(''); }}
+                                        placeholder={t('security.totpCodePlaceholder')}
+                                        inputMode="numeric"
+                                        autoComplete="one-time-code"
+                                        autoFocus
+                                        className="form-input"
+                                    />
+                                    {totpCodeError && (
+                                        <p style={{ fontSize: '12px', color: 'var(--color-danger)', marginTop: '6px' }}>{totpCodeError}</p>
+                                    )}
+                                </div>
+
+                                <div style={{ marginTop: '16px', display: 'flex', gap: '10px' }}>
+                                    <button
+                                        type="button"
+                                        onClick={handleTotpEnable}
+                                        disabled={totpBusy}
+                                        className="btn btn-primary"
+                                    >
+                                        <CheckCircle2 size={18} />
+                                        {totpBusy ? t('common.loading') : t('security.totpConfirm')}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => { setTotpSetup(null); setTotpCode(''); setTotpCodeError(''); }}
+                                        disabled={totpBusy}
+                                        className="btn btn-secondary"
+                                    >
+                                        {t('common.cancel')}
+                                    </button>
+                                </div>
+                            </div>
+                        )
+                    ) : (
+                        <div style={{ maxWidth: '420px' }}>
+                            <p style={{ fontSize: '13px', color: 'var(--color-text-muted)', marginBottom: '12px', lineHeight: 1.55 }}>
+                                {t('security.totpDisableHint')}
+                            </p>
+                            <label className="form-label">{t('security.totpDisablePasswordLabel')}</label>
+                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                                <input
+                                    type="password"
+                                    value={totpDisablePassword}
+                                    onChange={(e) => { setTotpDisablePassword(e.target.value); setTotpPasswordError(''); }}
+                                    placeholder={t('security.currentPasswordPlaceholder')}
+                                    autoComplete="current-password"
+                                    className="form-input"
+                                    style={{ flex: 1 }}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={handleTotpDisable}
+                                    disabled={totpBusy}
+                                    className="btn btn-secondary"
+                                >
+                                    <ShieldOff size={18} />
+                                    {totpBusy ? t('common.loading') : t('security.totpDisable')}
+                                </button>
+                            </div>
+                            {totpPasswordError && (
+                                <p style={{ fontSize: '12px', color: 'var(--color-danger)', marginTop: '6px' }}>{totpPasswordError}</p>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
 

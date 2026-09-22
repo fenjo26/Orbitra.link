@@ -11,6 +11,11 @@
 // Example cron (once daily):
 //   0 3 * * * php /var/www/orbitra/cli/cleanup_cron.php >> /var/log/orbitra_cleanup.log 2>&1
 
+if (PHP_SAPI !== 'cli') {
+    http_response_code(404);
+    exit;
+}
+
 require_once __DIR__ . '/../config.php';
 
 // --- Single-instance lock ----------------------------------------------------

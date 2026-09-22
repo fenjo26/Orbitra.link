@@ -89,6 +89,23 @@ if (!empty($campaign['token'])) {
     }
 }
 
+// Stopped campaigns must not take traffic. The state gate runs only after the
+// token matched above: an ID-only request for a token-protected campaign is
+// rejected with 403 first, so the 503/404 answers below cannot be used to
+// probe other campaigns' state by guessing IDs. Non-existent campaigns keep
+// the plain 404 from the lookup above.
+$campaignState = strtolower((string) ($campaign['state'] ?? 'active'));
+if ($campaignState === 'disabled' || $campaignState === 'paused') {
+    http_response_code(503);
+    echo json_encode(['error' => 'Campaign is not accepting traffic']);
+    exit;
+}
+if ((int) ($campaign['is_archived'] ?? 0) === 1) {
+    http_response_code(404);
+    echo json_encode(['error' => 'Campaign not found']);
+    exit;
+}
+
 function clickNormalizeGeoString($value, $default = '')
 {
     if (!is_string($value)) {
@@ -764,10 +781,8 @@ catch (\Throwable $e) {
         header('Content-Type: application/json');
         header('Access-Control-Allow-Origin: *');
     }
-    echo json_encode([
-        'error' => 'click_log_failed',
-        'message' => $e->getMessage(),
-        'file' => basename($e->getFile()),
-        'line' => $e->getLine(),
-    ]);
+    // Only the stable error code goes to the client. The exception message and
+    // location stay in system_logs above — echoing them back would leak file
+    // names, SQL text and line numbers to whoever can hit the endpoint.
+    echo json_encode(['error' => 'click_log_failed']);
 }

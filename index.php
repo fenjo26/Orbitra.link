@@ -2908,6 +2908,24 @@ if ($uriPath === '/push_subscribe') {
     exit;
 }
 
+/**
+ * Constant-time verification of an /crm-ingest HMAC signature (audit #19).
+ *
+ * The expected value is the lowercase hex SHA-256 HMAC of the raw request body
+ * under the operator's `crm_ingest_secret`; the header is normalized (trimmed,
+ * lowercased) so uppercase hex or stray whitespace in a sender's framing does
+ * not turn an honest signature into a rejection. Pure function, unit-testable
+ * in isolation from the router.
+ */
+function orbitraCrmIngestSignatureValid(string $rawBody, string $secret, string $headerValue): bool
+{
+    $headerValue = strtolower(trim($headerValue));
+    if ($headerValue === '') {
+        return false;
+    }
+    return hash_equals($headerValue, hash_hmac('sha256', $rawBody, $secret));
+}
+
 // === CRM lead ingest: POST /crm-ingest (LeadForge /crm-ingest route) ===
 // The public counterpart of the pixel's conversion endpoint: a LeadForge
 // landing deployed on foreign hosting POSTs its full lead snapshot here.
@@ -2928,6 +2946,63 @@ if ($uriPath === '/crm-ingest') {
         http_response_code(413);
         echo json_encode(['status' => 'error', 'message' => 'Payload too large']);
         exit;
+    }
+    // Optional HMAC gate (audit #19). While settings carry no crm_ingest_secret
+    // the endpoint stays public (rate-limited below, as before). The moment the
+    // operator saves a non-empty secret, every request must present an
+    // 'X-Orbitra-Signature' header — hash_hmac('sha256', rawBody, secret) — or
+    // it is answered 401 without any further processing: no rate-limit
+    // bookkeeping, no JSON parsing, no lead storage. Setting the secret is
+    // therefore what switches the endpoint into "signed requests only" mode.
+    // The campaign flow's full settings map is loaded further down; this early
+    // route reads its one key directly, the same way the pixel and privacy
+    // routes do. A settings read is deliberately NOT fail-open here: if the
+    // table is unreadable the secret reads as empty and the endpoint keeps its
+    // historical public behavior instead of locking every sender out.
+    $crmIngestSecret = '';
+    try {
+        $crmSecretStmt = $pdo->prepare("SELECT value FROM settings WHERE key = 'crm_ingest_secret' LIMIT 1");
+        $crmSecretStmt->execute();
+        $crmIngestSecret = trim((string) ($crmSecretStmt->fetchColumn() ?: ''));
+    } catch (\Throwable $e) {
+        // Unreadable settings = no secret configured = public endpoint.
+    }
+    if ($crmIngestSecret !== ''
+        && !orbitraCrmIngestSignatureValid($rawBody, $crmIngestSecret, (string) ($_SERVER['HTTP_X_ORBITRA_SIGNATURE'] ?? ''))
+    ) {
+        // Same neutral body shape as the neighboring error responses; the
+        // message does not reveal whether a secret is configured at all.
+        http_response_code(401);
+        echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+        exit;
+    }
+    // Application-level rate limit (60 requests/min per IP). Without a
+    // crm_ingest_secret the endpoint is deliberately unauthenticated (same
+    // exposure model as the conversion pixel), so the per-IP cap is the only
+    // brake on a write flood; with a secret it stays on as a second layer
+    // behind the signature check above. Reuses the
+    // rate_limits table api.php already creates lazily — same schema, simple
+    // INSERT + COUNT keyed on the client IP and the current minute bucket.
+    // Fail-open on DB trouble: ingest is best-effort, a broken store must not
+    // take the endpoint down with it.
+    try {
+        $ingestIp = orbitraClientIp();
+        $ingestBucket = gmdate('YmdHi');
+        $pdo->exec("CREATE TABLE IF NOT EXISTS rate_limits (key VARCHAR(255) PRIMARY KEY, count INTEGER, expires_at DATETIME)");
+        $pdo->prepare("DELETE FROM rate_limits WHERE expires_at < datetime('now')")->execute();
+        $rlKey = 'crm_ingest:' . $ingestIp . ':' . $ingestBucket;
+        $pdo->prepare("INSERT INTO rate_limits (key, count, expires_at) VALUES (?, 1, datetime('now', '+120 seconds'))
+                       ON CONFLICT(key) DO UPDATE SET count = count + 1")->execute([$rlKey]);
+        $rlStmt = $pdo->prepare("SELECT count FROM rate_limits WHERE key = ?");
+        $rlStmt->execute([$rlKey]);
+        $ingestCount = (int) ($rlStmt->fetchColumn() ?: 0);
+        if ($ingestCount > 60) {
+            http_response_code(429);
+            echo json_encode(['status' => 'error', 'message' => 'Too many requests']);
+            exit;
+        }
+    } catch (\Throwable $ingestRlError) {
+        // Rate-limit bookkeeping failed — admit the request anyway.
     }
     $ingest = json_decode($rawBody, true);
     if (!is_array($ingest)) {
@@ -3579,10 +3654,20 @@ if (!$campaign) {
 
 // A campaign paused from the panel (state='disabled') stops serving right
 // away — same visibility to a visitor as a deleted campaign, reversible from
-// the campaigns table toggle.
-if (strtolower((string) ($campaign['state'] ?? 'active')) === 'disabled') {
+// the campaigns table toggle. 'paused' is accepted for symmetry: the panel
+// currently only writes active/disabled, but the value exists in the schema.
+// Postbacks for clicks recorded before the stop are unaffected — the postback
+// route is handled above and never reaches this branch.
+$campaignState = strtolower((string) ($campaign['state'] ?? 'active'));
+if ($campaignState === 'disabled' || $campaignState === 'paused') {
     http_response_code(503);
     die("Campaign is disabled.");
+}
+// Archived campaigns are gone for traffic purposes: answer 404, same as an
+// unknown alias, so archived URLs stop being distinguishable from dead ones.
+if ((int) ($campaign['is_archived'] ?? 0) === 1) {
+    http_response_code(404);
+    die("Campaign not found.");
 }
 
 $campaignId = $campaign['id'];
@@ -3767,6 +3852,25 @@ function ipMatchesToken($token, $ip)
     return (bool) preg_match($regex, $ip);
 }
 
+// Memoized "geo can actually resolve" probe for the Country stream filter.
+// Fail-closed there is only safe when a geo database is installed AND its
+// reader class is loadable — otherwise getGeoData() can never turn 'Unknown'
+// into a country and the policy below would reject every visitor (fresh
+// installs ship without geo databases). Memoized because
+// streamMatchesFilters() runs once per stream per request.
+function orbitraCountryFilterGeoReady(): bool
+{
+    static $ready = null;
+    if ($ready === null) {
+        $ready = orbitraGeoDatabasesInstalled() && (
+            class_exists('\\IP2Location\\Database')
+            || class_exists('\\GeoIp2\\Database\\Reader')
+            || is_file(__DIR__ . '/core/SxGeo.php')
+        );
+    }
+    return $ready;
+}
+
 function streamMatchesFilters($stream, $visitor, $pdo)
 {
     if (empty($stream['filters_json']))
@@ -3799,12 +3903,22 @@ function streamMatchesFilters($stream, $visitor, $pdo)
         $matched = false;
         switch ($f['name']) {
             case 'Country':
-                // Free geo databases cannot always resolve an IP. To avoid
-                // silently dropping real traffic, an undetermined country
-                // (Unknown/Local/empty) passes the country gate instead of
-                // being blocked.
+                // Policy for an undetermined country (Unknown/Local/empty):
+                // - include mode fails closed — the filter does not match, so
+                //   a stream targeted at specific countries stops serving
+                //   visitors whose country we could not resolve — but only
+                //   when geo actually works (orbitraCountryFilterGeoReady()).
+                //   Without a geo database the filter abstains like before,
+                //   otherwise a fresh install would reject everyone.
+                // - exclude mode abstains: an unknown country is no evidence
+                //   the visitor IS in the excluded list, so exclusion keeps
+                //   its old permissive behavior.
                 if ($country === '' || $country === 'Unknown' || $country === 'Local') {
-                    continue 2;
+                    if ($mode !== 'include' || !orbitraCountryFilterGeoReady()) {
+                        continue 2;
+                    }
+                    // $matched stays false — fail closed.
+                    break;
                 }
                 foreach ($payload as $item) {
                     if (filterTokenEquals($item, $country)) {
@@ -3956,8 +4070,11 @@ function streamMatchesFilters($stream, $visitor, $pdo)
         }
 
         // Filters that reach this point vote; the `continue 2` cases above
-        // (undeterminable country/ISP, connection type, unknown types)
-        // abstain — an abstention neither blocks AND nor satisfies OR.
+        // (undeterminable ISP, connection type, unknown types, and country
+        // without working geo or in exclude mode) abstain — an abstention
+        // neither blocks AND nor satisfies OR. The country filter in include
+        // mode with working geo deliberately does NOT abstain: an unresolved
+        // country votes "no match" (fail closed).
         $votes[] = ($mode === 'include') ? $matched : !$matched;
     }
     return orbitraCombineFilterVotes($votes, $logic);

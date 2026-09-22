@@ -37,6 +37,13 @@ const BotSettings = () => {
     // wired up.
     const [feed, setFeed] = useState({ loading: true, updating: false, data: null });
 
+    // VPN/ASN as a bot signal (global_settings key bot_vpn_asn_signal,
+    // '1'/'0'). Default on: provider VPN/proxy ASNs count as bots unless the
+    // operator opts out.
+    const [vpnAsnSignal, setVpnAsnSignal] = useState('1');
+    const [vpnSaving, setVpnSaving] = useState(false);
+    const [vpnSaved, setVpnSaved] = useState(false);
+
     const endpointOf = (type) => (type === 'ip' ? 'bot_ips' : 'bot_signatures');
 
     const loadFeed = useCallback(async (update = false) => {
@@ -100,6 +107,9 @@ const BotSettings = () => {
                         .map(s => s.trim().replace(/^"|"$/g, ''))
                         .filter(Boolean);
                     setIspList(items);
+                    // Missing key = never configured = default (on).
+                    const vpn = data.data?.bot_vpn_asn_signal;
+                    setVpnAsnSignal(vpn === undefined || vpn === null ? '1' : String(vpn));
                 }
             } catch (e) {
                 // The list just starts empty; saving still works.
@@ -127,6 +137,31 @@ const BotSettings = () => {
             alert(`${t('botSettings.saveError')}: ${e.message}`);
         } finally {
             setIspSaving(false);
+        }
+    };
+
+    // VPN/ASN switch persists straight into global_settings — same mechanism
+    // the ISP list uses (save_settings is admin-only for core keys now, so
+    // custom keys must go through global_settings).
+    const saveVpnAsnSignal = async (value) => {
+        setVpnSaving(true);
+        try {
+            const res = await fetch(`${API_URL}?action=global_settings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ settings: { bot_vpn_asn_signal: value } })
+            });
+            const data = await res.json().catch(() => null);
+            if (!res.ok || data?.status !== 'success') {
+                throw new Error(data?.message || `HTTP ${res.status}`);
+            }
+            setVpnAsnSignal(value);
+            setVpnSaved(true);
+            setTimeout(() => setVpnSaved(false), 2000);
+        } catch (e) {
+            alert(`${t('botSettings.saveError')}: ${e.message}`);
+        } finally {
+            setVpnSaving(false);
         }
     };
 
@@ -381,6 +416,40 @@ const BotSettings = () => {
                         <RotateCcw size={14} />
                         {t('botSettings.clearAll')}
                     </button>
+                </div>
+
+                {/* VPN/ASN bot-signal switch — when on, CloakDetector treats
+                    provider VPN/proxy ASNs as a bot signal. */}
+                <div
+                    className="mt-4 p-3 rounded-xl flex items-start gap-3"
+                    style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}
+                >
+                    <input
+                        type="checkbox"
+                        checked={vpnAsnSignal === '1'}
+                        disabled={vpnSaving}
+                        onChange={(e) => saveVpnAsnSignal(e.target.checked ? '1' : '0')}
+                        style={{ marginTop: '3px' }}
+                    />
+                    <div className="min-w-0 flex-1">
+                        <div className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                            {t('security.vpnAsnLabel')}
+                        </div>
+                        <div className="text-[11px] mt-0.5" style={{ color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+                            {t('security.vpnAsnHint')}
+                        </div>
+                    </div>
+                    {vpnSaving && (
+                        <span className="text-[11px] font-medium shrink-0" style={{ color: 'var(--color-text-muted)' }}>
+                            {t('botSettings.saving')}
+                        </span>
+                    )}
+                    {!vpnSaving && vpnSaved && (
+                        <span className="text-[11px] font-medium shrink-0 flex items-center gap-1" style={{ color: 'var(--color-success)' }}>
+                            <CheckCircle2 size={12} />
+                            {t('botSettings.saved')}
+                        </span>
+                    )}
                 </div>
 
                 <div style={{ marginTop: '16px' }}>

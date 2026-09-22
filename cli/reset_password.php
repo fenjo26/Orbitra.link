@@ -100,10 +100,14 @@ if ($action !== null && $arg2 !== null) {
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
     if ($user) {
-        $pdo->prepare("UPDATE users SET password = ?, is_active = 1 WHERE id = ?")
+        // Clearing the second factor is the point of this emergency path:
+        // an operator who lost their phone must be able to log back in with
+        // the new password alone.
+        $pdo->prepare("UPDATE users SET password = ?, is_active = 1, totp_secret = NULL, totp_enabled = 0 WHERE id = ?")
             ->execute([$hashedPassword, $user['id']]);
         clearRateLimits($pdo);
         echo "✓ Password for user '{$username}' updated successfully!\n";
+        echo "  Two-factor authentication has been reset for this user.\n";
         echo "  Account activated and rate limits cleared. You can now log in.\n";
         exit(0);
     } else {

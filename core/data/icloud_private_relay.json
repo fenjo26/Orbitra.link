@@ -1,0 +1,6 @@
+{
+  "_comment": "Egress IP ranges of Apple iCloud Private Relay. Consumed by core/CloakDetector.php (isIcloudPrivateRelayIp): an IP inside these ranges never receives datacenter/hosting/VPN verdicts from the ASN layer. PLACEHOLDER: the ranges array below is empty because the official feed https://mask-api.icloud.com/egress-ip-ranges could not be fetched when this file was created. Re-run the fetch to populate it: curl -s https://mask-api.icloud.com/egress-ip-ranges — the JSON contains CIDR strings (IPv4 and IPv6); copy them into ranges verbatim. An empty or missing file simply disables the relay feature; it never breaks click serving.",
+  "_source": "https://mask-api.icloud.com/egress-ip-ranges",
+  "_fetched": "",
+  "ranges": []
+}

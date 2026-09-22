@@ -2,6 +2,10 @@
 vendor/
 node_modules/
 
+# Composer is provisioned by install.sh (downloaded with a pinned sha256),
+# never committed
+/composer.phar
+
 # SQLite Database - USER DATA (never overwrite)
 *.sqlite
 *.sqlite-journal

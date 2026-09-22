@@ -24,6 +24,7 @@ import TrendsPage from './components/TrendsPage';
 import CampaignEditor from './components/CampaignEditor';
 import DashboardHeader from './components/DashboardHeader';
 import GeoDbBanner from './components/GeoDbBanner';
+import ServerSetupBanner from './components/ServerSetupBanner';
 import DashboardSettingsModal from './components/DashboardSettingsModal';
 import LeadForgePage from './components/LeadForgePage';
 import CRMPage from './components/CRMPage';
@@ -152,6 +153,14 @@ function App() {
   // Shared with every list view, so applying a timezone anywhere moves the
   // dashboard too instead of leaving it on the period it mounted with.
   const [dashboardTimezone] = useTimezone();
+
+  // LeadForge/CRM pages call admin-only API actions (leadforge_*/crm_*), so
+  // another role lands on the tracker dashboard instead of a wall of 403s.
+  useEffect(() => {
+    if (user && user.role !== 'admin' && ['leadforge', 'crm'].includes(activeTab)) {
+      setActiveTab('dashboard');
+    }
+  }, [user, activeTab]);
 
   // Handle API Session Expiration (401 Unauthorized) globally
   useEffect(() => {
@@ -615,6 +624,11 @@ function App() {
             {/* Geo databases missing — a fresh install has none, and empty
                 country columns read as "cloaking is broken" */}
             <GeoDbBanner />
+
+            {/* One-time root step after an update (cli/server_setup.sh) — admins only */}
+            {user?.role === 'admin' && activeTab !== 'admin_update' && (
+              <ServerSetupBanner onNavigate={() => setActiveTab('admin_update')} />
+            )}
 
             {/* Background worker warnings — see worker_health in api.php */}
             {workerHealth && !workerHealth.healthy && !dismissWorkerHealth && (

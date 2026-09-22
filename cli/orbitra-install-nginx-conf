@@ -1,0 +1,273 @@
+#!/usr/bin/env php
+<?php
+/**
+ * orbitra-install-nginx-conf — the ONLY way the web user may change the nginx
+ * vhost. Installed root-owned into /usr/local/bin by install.sh and reached
+ * through a NOPASSWD sudoers rule without arguments.
+ *
+ * Why it exists (security audit #4): the old rules
+ *   www-data ALL=(ALL) NOPASSWD: /bin/cp /tmp/orbitra_nginx_update.conf /etc/nginx/sites-available/orbitra
+ * let the web user hand root an arbitrary nginx config. nginx opens log files
+ * and certificate files as root, so one `access_log /etc/cron.d/x;` line was a
+ * root shell. This wrapper takes the config on STDIN (root never opens a path
+ * the web user chose — no /tmp symlink games) and only installs it when every
+ * statement is on a short allowlist of what core/nginx_config.php generates.
+ *
+ *   orbitra-install-nginx-conf            install STDIN (previous copy kept)
+ *   orbitra-install-nginx-conf --restore  put the previous copy back
+ *   orbitra-install-nginx-conf --check    validate STDIN only, write nothing
+ *
+ * Exit codes: 0 ok, 2 usage, 3 rejected config, 4 I/O failure.
+ * Keep the allowlist in step with orbitraBuildNginxConfig() —
+ * tests/nginx_install_wrapper_test.php feeds it every generator branch.
+ */
+
+if (PHP_SAPI !== 'cli') {
+    exit(1);
+}
+
+const ORBITRA_WRAP_TARGET = '/etc/nginx/sites-available/orbitra';
+const ORBITRA_WRAP_PREV = '/var/lib/orbitra/nginx-orbitra.prev';
+const ORBITRA_WRAP_MAX = 2 * 1024 * 1024;
+
+/**
+ * Validate a vhost config. Returns a list of error strings (empty = OK).
+ */
+function orbitraNginxWrapValidate(string $conf): array
+{
+    $errors = [];
+    if ($conf === '' || strlen($conf) > ORBITRA_WRAP_MAX) {
+        return ['empty or oversized config'];
+    }
+    // UTF-8 is fine (the generator's comments use it); control bytes are not.
+    if (preg_match('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', $conf)) {
+        return ['control bytes in config'];
+    }
+
+    // --- tokenize: words, quoted strings, and the ; { } punctuators ---------
+    $tokens = [];
+    $len = strlen($conf);
+    $i = 0;
+    while ($i < $len) {
+        $ch = $conf[$i];
+        if ($ch === '#') {
+            while ($i < $len && $conf[$i] !== "\n") {
+                $i++;
+            }
+            continue;
+        }
+        if (ctype_space($ch)) {
+            $i++;
+            continue;
+        }
+        if ($ch === ';' || $ch === '{' || $ch === '}') {
+            $tokens[] = ['p', $ch];
+            $i++;
+            continue;
+        }
+        if ($ch === '"' || $ch === "'") {
+            $q = $ch;
+            $j = $i + 1;
+            $buf = '';
+            while ($j < $len && $conf[$j] !== $q) {
+                if ($conf[$j] === '\\' && $j + 1 < $len) {
+                    $buf .= $conf[$j + 1];
+                    $j += 2;
+                    continue;
+                }
+                $buf .= $conf[$j];
+                $j++;
+            }
+            if ($j >= $len) {
+                return ['unterminated quoted string'];
+            }
+            $tokens[] = ['w', $buf];
+            $i = $j + 1;
+            continue;
+        }
+        $j = $i;
+        while ($j < $len && !ctype_space($conf[$j]) && !in_array($conf[$j], [';', '{', '}', '"', "'"], true)) {
+            $j++;
+        }
+        $tokens[] = ['w', substr($conf, $i, $j - $i)];
+        $i = $j;
+    }
+
+    $allowed = array_flip([
+        'listen', 'server_name', 'root', 'alias', 'index', 'set', 'return', 'rewrite',
+        'try_files', 'include', 'add_header', 'default_type', 'deny', 'allow', 'expires',
+        'fastcgi_param', 'fastcgi_pass', 'fastcgi_index', 'fastcgi_split_path_info',
+        'fastcgi_read_timeout', 'fastcgi_buffers', 'fastcgi_buffer_size', 'internal',
+        'client_max_body_size', 'real_ip_header', 'real_ip_recursive', 'set_real_ip_from',
+        'ssl_certificate', 'ssl_certificate_key', 'ssl_dhparam', 'ssl_trusted_certificate',
+        'ssl_protocols', 'ssl_ciphers', 'ssl_prefer_server_ciphers', 'ssl_session_cache',
+        'ssl_session_timeout', 'ssl_session_tickets', 'ssl_stapling', 'ssl_stapling_verify',
+        'http2', 'error_page', 'log_not_found', 'access_log', 'autoindex', 'charset',
+        'etag', 'gzip', 'gzip_types', 'limit_req', 'limit_conn', 'break',
+    ]);
+    $includes = array_flip([
+        'snippets/fastcgi-php.conf', 'fastcgi_params',
+        '/etc/nginx/snippets/fastcgi-php.conf', '/etc/nginx/fastcgi_params',
+        '/etc/letsencrypt/options-ssl-nginx.conf',
+    ]);
+    $safePath = static function (string $p): bool {
+        return preg_match('#^/[A-Za-z0-9._/-]+$#', $p) === 1
+            && strpos($p, '..') === false
+            && !preg_match('#^/(proc|sys|dev)(/|$)#', $p);
+    };
+
+    $stack = [];
+    $stmt = [];
+    foreach ($tokens as [$type, $val]) {
+        if ($type === 'w') {
+            $stmt[] = $val;
+            continue;
+        }
+        if ($val === '}') {
+            if ($stmt) {
+                $errors[] = 'statement without terminator before }';
+                $stmt = [];
+            }
+            if (!$stack) {
+                $errors[] = 'unbalanced }';
+                continue;
+            }
+            array_pop($stack);
+            continue;
+        }
+        if (!$stmt) {
+            $errors[] = "empty statement before $val";
+            continue;
+        }
+        $name = $stmt[0];
+        $args = array_slice($stmt, 1);
+        $stmt = [];
+
+        if ($val === '{') {
+            $parent = end($stack) ?: '';
+            if ($name === 'server' && $parent === '' && !$args) {
+                $stack[] = 'server';
+            } elseif (($name === 'location' || $name === 'if') && $parent !== '' && $args) {
+                $stack[] = $name;
+            } else {
+                $errors[] = "block '$name' not allowed here";
+                $stack[] = $name;
+            }
+            continue;
+        }
+
+        // $val === ';'
+        if (!$stack) {
+            $errors[] = "top-level directive '$name' not allowed";
+            continue;
+        }
+        if (!isset($allowed[$name])) {
+            $errors[] = "directive '$name' not allowed";
+            continue;
+        }
+        switch ($name) {
+            case 'root':
+            case 'alias':
+                $p = $args[0] ?? '';
+                if (count($args) !== 1 || !$safePath($p)
+                    || !preg_match('#^/var/www/orbitra(/|$)#', $p)) {
+                    $errors[] = "$name outside /var/www/orbitra: $p";
+                }
+                break;
+            case 'include':
+                if (count($args) !== 1 || !isset($includes[$args[0]])) {
+                    $errors[] = 'include not allowed: ' . implode(' ', $args);
+                }
+                break;
+            case 'ssl_certificate':
+            case 'ssl_certificate_key':
+            case 'ssl_dhparam':
+            case 'ssl_trusted_certificate':
+                if (count($args) !== 1 || !$safePath($args[0])) {
+                    $errors[] = "$name path not allowed: " . implode(' ', $args);
+                }
+                break;
+            case 'fastcgi_pass':
+                $t = $args[0] ?? '';
+                if (count($args) !== 1
+                    || !preg_match('#^(unix:/(var/)?run/php/[A-Za-z0-9._-]+\.sock|127\.0\.0\.1:\d{1,5})$#', $t)) {
+                    $errors[] = "fastcgi_pass target not allowed: $t";
+                }
+                break;
+            case 'access_log':
+                if ($args !== ['off']) {
+                    $errors[] = 'access_log is only allowed as "off"';
+                }
+                break;
+        }
+    }
+    if ($stmt) {
+        $errors[] = 'trailing statement without terminator';
+    }
+    if ($stack) {
+        $errors[] = 'unbalanced {';
+    }
+    return $errors;
+}
+
+// Allow tests to load the validator without running the installer.
+if (defined('ORBITRA_NGINX_WRAP_LIBRARY')) {
+    return;
+}
+
+$mode = $argv[1] ?? '';
+if ($argc > 2 || !in_array($mode, ['', '--check', '--restore'], true)) {
+    fwrite(STDERR, "usage: orbitra-install-nginx-conf [--check|--restore] < config\n");
+    exit(2);
+}
+
+$atomicWrite = static function (string $path, string $data): bool {
+    $dir = dirname($path);
+    if (!is_dir($dir) && !@mkdir($dir, 0755, true)) {
+        return false;
+    }
+    $tmp = $path . '.tmp.' . getmypid();
+    if (@file_put_contents($tmp, $data, LOCK_EX) === false) {
+        return false;
+    }
+    @chmod($tmp, 0644);
+    return @rename($tmp, $path);
+};
+
+if ($mode === '--restore') {
+    $prev = @file_get_contents(ORBITRA_WRAP_PREV);
+    if ($prev === false || $prev === '') {
+        fwrite(STDERR, "no previous config recorded\n");
+        exit(4);
+    }
+    if (!$atomicWrite(ORBITRA_WRAP_TARGET, $prev)) {
+        fwrite(STDERR, "cannot restore " . ORBITRA_WRAP_TARGET . "\n");
+        exit(4);
+    }
+    echo "restored\n";
+    exit(0);
+}
+
+$conf = stream_get_contents(STDIN, ORBITRA_WRAP_MAX + 1);
+$conf = $conf === false ? '' : $conf;
+$errors = orbitraNginxWrapValidate($conf);
+if ($errors) {
+    fwrite(STDERR, "rejected: " . implode('; ', array_slice($errors, 0, 5)) . "\n");
+    exit(3);
+}
+if ($mode === '--check') {
+    echo "ok\n";
+    exit(0);
+}
+
+$current = @file_get_contents(ORBITRA_WRAP_TARGET);
+if ($current !== false && $current !== '' && !$atomicWrite(ORBITRA_WRAP_PREV, $current)) {
+    fwrite(STDERR, "cannot save previous config\n");
+    exit(4);
+}
+if (!$atomicWrite(ORBITRA_WRAP_TARGET, $conf)) {
+    fwrite(STDERR, "cannot write " . ORBITRA_WRAP_TARGET . "\n");
+    exit(4);
+}
+echo "installed\n";
+exit(0);

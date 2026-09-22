@@ -90,6 +90,11 @@ orbitraTelegramMaybeRegisterCommands($pdo, $token);
 orbitraTelegramMaybeSendDaily($pdo);
 
 $mode = tgPollSetting($pdo, 'telegram_mode', 'webhook');
+if ($mode === 'webhook') {
+    // Webhooks registered before secret tokens existed get one (audit #5).
+    require_once __DIR__ . '/core/telegram_api.php';
+    orbitraTelegramEnsureWebhookSecret($pdo, (string) $token);
+}
 if ($mode !== 'polling') {
     tgPollLog("mode is '{$mode}', nothing to poll");
     exit(0);

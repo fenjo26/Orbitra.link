@@ -17,9 +17,9 @@
 // so they behave exactly like 'full' — the modal no longer offers them there.
 //
 // Admins bypass the gate entirely. Actions that don't belong to a
-// permission-keyed resource (settings, integrations, LeadForge suite,
-// extension reporting…) are intentionally unmapped and keep their pre-gate
-// behavior.
+// permission-keyed resource are default-deny for non-admins: the explicit
+// whitelist in orbitraUnmappedAllowedActions() passes (profile, dashboard,
+// reports, reference lists), everything else unmapped is admin-only.
 
 /**
  * Action → resource map. 'read' actions expose a resource, 'write' actions
@@ -329,6 +329,51 @@ function orbitraDenyResourceAccess(): void
 }
 
 /**
+ * Actions outside the resource map that every signed-in non-admin may call.
+ * Everything unmapped and unlisted below is admin-only from now on (default
+ * deny) — the previous fall-through let any user reach integration, settings
+ * and infrastructure endpoints.
+ *
+ * value `true`  → allowed for any method (profile saves, POST-transport reads);
+ * value `false` → read-only (GET/HEAD): reference lists the resource pages load.
+ * $publicActions are not listed here — they resolve before authentication.
+ */
+function orbitraUnmappedAllowedActions(): array
+{
+    return [
+        // Dashboard, analytics and panel chrome (campaign-scope aware server-side).
+        'metrics' => true,
+        'chart' => true,
+        'trends' => true,
+        'check_update' => true,
+        'worker_health' => true,
+        // Read-only for non-admins: the POST side writes server-wide settings.
+        'global_settings' => false,
+        // Own profile only — the handler pins the id to the session.
+        'profile_settings' => true,
+        // Two-factor login management (audit item #20): the user acts on their
+        // own row only — setup/enroll the authenticator, confirm and disable it.
+        'totp_setup' => true,
+        'totp_enable' => true,
+        'totp_disable' => true,
+        // Reference lists the resource editors and reports load.
+        'conversion_types' => false,
+        'countries_list' => false,
+        'pwa_funnel_stats' => false,
+        'pixel_profiles_list' => false,
+        // Per-user extension key and the extension's read-only reporting.
+        'extension_credentials' => true,
+        'extension_ads_stats' => true,
+        'extension_deep_stats' => true,
+        // Pixel picker inside the campaign editor. save_pixel_profile lets a
+        // non-admin CREATE a profile only — editing or duplicating an existing
+        // one is admin-only inside the handler, because a profile is shared by
+        // every campaign attached to it and carries the CAPI token.
+        'save_pixel_profile' => true,
+    ];
+}
+
+/**
  * Block the request when the signed-in non-admin's resource access does not
  * cover the action: 'none' denies reads and writes, 'read' denies writes.
  * Must run after the authentication middleware (a valid session is assumed).
@@ -356,11 +401,24 @@ function orbitraEnforceResourceAccess(PDO $pdo, string $action, string $method):
     if ($action === 'archive_restore' || $action === 'archive_purge') {
         $data = json_decode(orbitraRequestBody(), true);
         $resource = orbitraArchiveTypeResourceMap()[$data['type'] ?? ''] ?? null;
-        if ($resource !== null
-            && orbitraUserAccessForResource($pdo, $userId, $resource) !== 'full') {
+        // An unknown or absent type (purge_all!) maps to no resource: default
+        // deny instead of silently bypassing the gate.
+        if ($resource === null
+            || orbitraUserAccessForResource($pdo, $userId, $resource) !== 'full') {
             orbitraDenyResourceAccess();
         }
         return;
+    }
+
+    // Default deny for actions outside the resource map: whitelisted ones
+    // pass (method-aware), everything else is admin-only.
+    $allowed = orbitraUnmappedAllowedActions()[$action] ?? null;
+    if ($allowed !== null) {
+        $isReadMethod = !in_array(strtoupper($method), ['POST', 'PUT', 'PATCH', 'DELETE'], true);
+        if ($allowed === true || $isReadMethod) {
+            return;
+        }
+        orbitraDenyResourceAccess();
     }
 
     foreach (orbitraResourceAccessMap() as $resource => $groups) {
@@ -399,4 +457,7 @@ function orbitraEnforceResourceAccess(PDO $pdo, string $action, string $method):
         }
         return;
     }
+
+    // The action matched no resource and no whitelist entry: admin-only.
+    orbitraDenyResourceAccess();
 }

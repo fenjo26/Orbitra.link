@@ -149,6 +149,14 @@ const PostbackSettings = () => {
         <div className="space-y-4">
             {success && <div className="alert alert-success">{success}</div>}
             {error && <div className="alert alert-danger">{error}</div>}
+            {(settings.postback_key || '') === 'fd12e72' && (
+                <div className="alert alert-warning">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <AlertCircle size={18} style={{ flexShrink: 0 }} />
+                        <span>{t('postback.postbackDefaultKeyWarning')}</span>
+                    </div>
+                </div>
+            )}
 
             <InfoBanner storageKey="help_postback" title={t('help.postbackBannerTitle')}>
                 <p>{t('help.postbackBanner')}</p>

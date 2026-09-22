@@ -13,6 +13,11 @@
  * 5. Check self-signed certificate exists
  */
 
+if (PHP_SAPI !== 'cli') {
+    http_response_code(404);
+    exit;
+}
+
 $root = dirname(__DIR__);
 
 // Colors for output

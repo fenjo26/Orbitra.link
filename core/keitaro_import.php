@@ -70,16 +70,64 @@ function orbitraKeitaroExtractCreateTableColumns(string $sql, string $table): ar
     return $cols;
 }
 
+function orbitraKeitaroFindStatementEnd(string $sql, int $start): int
+{
+    // Find the ';' that terminates an INSERT statement, skipping over
+    // single-quoted string literals. Values commonly contain semicolons
+    // (HTML, URLs, serialized blobs); a naive lazy ".*?;" match cut the
+    // statement at the first one inside a literal and silently dropped the
+    // remaining rows of the INSERT. Handles both MySQL escapes (\\', \\n)
+    // and doubled quotes ('') inside literals. An unterminated statement
+    // (truncated dump) yields the rest of the file.
+    $len = strlen($sql);
+    $i = $start;
+    $inString = false;
+    while ($i < $len) {
+        $ch = $sql[$i];
+        if ($inString) {
+            if ($ch === '\\') {
+                $i += 2; // skip the escaped char
+                continue;
+            }
+            if ($ch === "'") {
+                if (($i + 1) < $len && $sql[$i + 1] === "'") {
+                    $i += 2; // '' is an escaped quote inside the literal
+                    continue;
+                }
+                $inString = false;
+            }
+            $i++;
+            continue;
+        }
+        if ($ch === "'") {
+            $inString = true;
+            $i++;
+            continue;
+        }
+        if ($ch === ';') {
+            return $i;
+        }
+        $i++;
+    }
+    return $len;
+}
+
 function orbitraKeitaroExtractInsertValueBlobs(string $sql, string $table): array
 {
-    // Extract each INSERT ... VALUES <blob>;
-    $re = '/INSERT\\s+INTO\\s+`' . preg_quote($table, '/') . '`\\s+VALUES\\s*(.*?);/si';
-    if (!preg_match_all($re, $sql, $m, PREG_SET_ORDER)) {
+    // Extract each INSERT ... VALUES <blob>; — the blob runs to the first ';'
+    // that sits OUTSIDE any string literal (see orbitraKeitaroFindStatementEnd).
+    $re = '/INSERT\\s+INTO\\s+`' . preg_quote($table, '/') . '`\\s+VALUES\\s*/si';
+    if (!preg_match_all($re, $sql, $m, PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) {
         return [];
     }
     $out = [];
     foreach ($m as $row) {
-        $out[] = (string) $row[1];
+        $start = (int) $row[0][1] + strlen((string) $row[0][0]);
+        $end = orbitraKeitaroFindStatementEnd($sql, $start);
+        $blob = substr($sql, $start, $end - $start);
+        if ($blob !== false && trim($blob) !== '') {
+            $out[] = $blob;
+        }
     }
     return $out;
 }
@@ -322,6 +370,33 @@ function orbitraKeitaroMapCostModel(string $v): string
     return $v;
 }
 
+/**
+ * Map a Keitaro campaign row's lifecycle flags to Orbitra's.
+ *
+ * Keitaro keeps two independent flags on campaigns: `status`
+ * (active|deleted — the bin) and, on some builds, `state`
+ * (active|disabled — the pause toggle). Both must travel: without this
+ * mapping every imported campaign arrived active, so campaigns the operator
+ * had deleted or paused in Keitaro resumed serving traffic here.
+ *
+ * @return array{state: string, is_archived: int, archived_at: ?string}
+ */
+function orbitraKeitaroMapCampaignStatus(array $row): array
+{
+    $status = strtolower(trim((string) ($row['status'] ?? '')));
+    $state = strtolower(trim((string) ($row['state'] ?? '')));
+
+    if ($status === 'deleted' || $state === 'deleted') {
+        // Archived, not removed: the rows and their tokens stay resolvable.
+        // UTC, same clock the schema's datetime('now') defaults use.
+        return ['state' => 'active', 'is_archived' => 1, 'archived_at' => gmdate('Y-m-d H:i:s')];
+    }
+    if ($status === 'disabled' || $status === 'paused' || $state === 'disabled' || $state === 'paused') {
+        return ['state' => 'disabled', 'is_archived' => 0, 'archived_at' => null];
+    }
+    return ['state' => 'active', 'is_archived' => 0, 'archived_at' => null];
+}
+
 function orbitraKeitaroMapRotationType($v): string
 {
     // Keitaro dumps can represent rotation as:
@@ -497,8 +572,13 @@ function orbitraKeitaroNormalizeWeights(array $items, string $weightKey = 'weigh
 
 function orbitraKeitaroMapFilterMode(string $v): string
 {
+    // Keitaro writes stream filter modes as accept/reject (newer builds) or
+    // not_in/in, !, != (older ones). reject must map to exclude: with only
+    // the exclude-family recognised here, a "reject RU" filter silently
+    // became "include RU" — the exact inverse of what the campaign did.
     $v = strtolower(trim($v));
-    if ($v === 'exclude' || $v === 'not_in' || $v === 'notin' || $v === '!' || $v === '!=') return 'exclude';
+    if ($v === 'exclude' || $v === 'reject' || $v === 'not_in' || $v === 'notin' || $v === '!' || $v === '!=') return 'exclude';
+    if ($v === 'accept' || $v === 'include' || $v === 'in' || $v === '=') return 'include';
     return 'include';
 }
 
@@ -511,10 +591,15 @@ function orbitraKeitaroMapDeviceValue(string $v): string
     return $v !== '' ? ucfirst($v) : '';
 }
 
-function orbitraKeitaroBuildOrbitraFilters(array $keitaroFilters): array
+function orbitraKeitaroBuildOrbitraFilters(array $keitaroFilters, array &$droppedFilterTypes = []): array
 {
     // Best-effort conversion of Keitaro stream filters into Orbitra's filters_json schema.
     // Orbitra supports: Country, Device, Bot, Language (see index.php streamMatchesFilters()).
+    // Keitaro filter types with no Orbitra equivalent (uniqueness, sub_id_N,
+    // operator filters, ...) used to be dropped silently — a campaign could
+    // behave completely differently here and the report would show nothing.
+    // They are counted by type into $droppedFilterTypes so the import report
+    // can say what did not travel.
     $out = [];
 
     foreach ($keitaroFilters as $r) {
@@ -582,9 +667,43 @@ function orbitraKeitaroBuildOrbitraFilters(array $keitaroFilters): array
             }
             continue;
         }
+
+        // No Orbitra equivalent for this filter type: count it instead of
+        // silently dropping it.
+        $droppedKey = $type !== '' ? $type : ($field !== '' ? $field : 'unknown');
+        $droppedFilterTypes[$droppedKey] = ($droppedFilterTypes[$droppedKey] ?? 0) + 1;
     }
 
     return $out;
+}
+
+/**
+ * Resolve a Keitaro "pass to campaign" target to Orbitra's action payload.
+ *
+ * Keitaro keeps the target campaign id in the stream's action_payload; the
+ * Orbitra equivalent is an action stream with "to_campaign:<id>" (understood
+ * by performTrackerAction()). A target outside the import degrades to
+ * do_nothing plus a warning instead of a stream that dead-ends at runtime.
+ */
+function orbitraKeitaroResolveCampaignTargetPayload(
+    int $kStreamId,
+    int $kTargetCampaignId,
+    array &$keitaroCampaignIdToOrbitraId,
+    array $dbCampaignsByKeitaroId,
+    array &$result
+): string {
+    $targetId = null;
+    if ($kTargetCampaignId > 0) {
+        if (!isset($keitaroCampaignIdToOrbitraId[$kTargetCampaignId]) && isset($dbCampaignsByKeitaroId[$kTargetCampaignId])) {
+            $keitaroCampaignIdToOrbitraId[$kTargetCampaignId] = (int) $dbCampaignsByKeitaroId[$kTargetCampaignId];
+        }
+        $targetId = $keitaroCampaignIdToOrbitraId[$kTargetCampaignId] ?? null;
+    }
+    if ($targetId) {
+        return 'to_campaign:' . (int) $targetId;
+    }
+    $result['warnings'][] = "Stream {$kStreamId}: action target keitaro campaign_id={$kTargetCampaignId} was not mapped (campaign not found/imported)";
+    return 'do_nothing';
 }
 
 function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): array
@@ -682,7 +801,17 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
             // It is only safe if campaigns table is empty (including archived rows).
             $cnt = (int) ($pdo->query("SELECT COUNT(*) FROM campaigns")->fetchColumn() ?: 0);
             if ($cnt > 0) {
-                throw new RuntimeException("preserve_campaign_ids requires empty campaigns table (found {$cnt} rows). Purge campaigns first, then import.");
+                // Schema migration 47 always seeds the archived PWA organic
+                // system campaign, so a strictly empty table never exists and
+                // this mode was unreachable. System rows (alias
+                // 'orbitra-pwa-organic', archived) are not user campaigns:
+                // drop them — index.php recreates the campaign on demand — and
+                // let the import proceed. Any real campaign still blocks it.
+                $systemCnt = (int) ($pdo->query("SELECT COUNT(*) FROM campaigns WHERE is_archived = 1 AND alias = 'orbitra-pwa-organic'")->fetchColumn() ?: 0);
+                if ($systemCnt < $cnt) {
+                    throw new RuntimeException("preserve_campaign_ids requires empty campaigns table (found {$cnt} rows). Purge campaigns first, then import.");
+                }
+                $pdo->exec("DELETE FROM campaigns WHERE is_archived = 1 AND alias = 'orbitra-pwa-organic'");
             }
         }
 
@@ -1128,27 +1257,31 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
             $keitaroCampaignIdToOrbitraId = [];
             if ($doCampaigns) {
                 $rows = $parsed['keitaro_campaigns']['rows'] ?? [];
-                $stmtFindByAlias = $pdo->prepare("SELECT id, domain_id, keitaro_id, rotation_type, token FROM campaigns WHERE is_archived = 0 AND alias = ? LIMIT 1");
+                // Alias is UNIQUE across archived rows too, so the lookup must
+                // see them: with a `is_archived = 0` filter a re-import of a
+                // dump containing deleted campaigns crashed on the UNIQUE
+                // constraint instead of skipping what it had already imported.
+                $stmtFindByAlias = $pdo->prepare("SELECT id, domain_id, keitaro_id, rotation_type, token FROM campaigns WHERE alias = ? LIMIT 1");
                 $stmtIns = null;
                 if ($preserveCampaignIds) {
                     if ($hasCampaignKeitaroId) {
                         $stmtIns = $pdo->prepare("
                             INSERT INTO campaigns
-                            (id, name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, rotation_type, token, catch_404_stream_id, keitaro_id)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?)
+                            (id, name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, rotation_type, token, catch_404_stream_id, keitaro_id, state, is_archived, archived_at)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?)
                         ");
                     } else {
                         $stmtIns = $pdo->prepare("
                             INSERT INTO campaigns
-                            (id, name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, rotation_type, token, catch_404_stream_id)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)
+                            (id, name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, rotation_type, token, catch_404_stream_id, state, is_archived, archived_at)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)
                         ");
                     }
                 } else {
                     $stmtIns = $pdo->prepare("
                         INSERT INTO campaigns
-                        (name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, rotation_type, token, catch_404_stream_id)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)
+                        (name, alias, domain_id, group_id, source_id, cost_model, cost_value, uniqueness_method, uniqueness_hours, rotation_type, token, catch_404_stream_id, state, is_archived, archived_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)
                     ");
                 }
                 $stmtUpdDomain = $pdo->prepare("UPDATE campaigns SET domain_id = ? WHERE id = ? AND (domain_id IS NULL OR domain_id = 0)");
@@ -1195,6 +1328,10 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                 $rotationType = orbitraKeitaroMapRotationType($rotationRaw);
                 $token = trim((string) ($r['token'] ?? ''));
                 if ($token === '') $token = null;
+
+                // Deleted/paused Keitaro campaigns must not come back serving
+                // traffic (see orbitraKeitaroMapCampaignStatus()).
+                $campaignStatus = orbitraKeitaroMapCampaignStatus($r);
 
                 $sourceId = null;
                 $kSourceId = (int) ($r['traffic_source_id'] ?? 0);
@@ -1246,6 +1383,9 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                             $rotationType,
                             $token,
                             $kid,
+                            $campaignStatus['state'],
+                            $campaignStatus['is_archived'],
+                            $campaignStatus['archived_at'],
                         ]);
                     } else {
                         $stmtIns->execute([
@@ -1261,6 +1401,9 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                             $uniquenessHours,
                             $rotationType,
                             $token,
+                            $campaignStatus['state'],
+                            $campaignStatus['is_archived'],
+                            $campaignStatus['archived_at'],
                         ]);
                     }
                     $oid = $kid;
@@ -1278,6 +1421,9 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                         $uniquenessHours,
                         $rotationType,
                         $token,
+                        $campaignStatus['state'],
+                        $campaignStatus['is_archived'],
+                        $campaignStatus['archived_at'],
                     ]);
                     $oid = (int) ($pdo->lastInsertId() ?: 0);
                     if ($kid > 0 && $oid > 0) {
@@ -1333,6 +1479,10 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                     if ($sid <= 0) continue;
                     $filtersByStream[$sid][] = $f;
                 }
+
+                // Aggregate "did not travel exactly" counters for the report.
+                $droppedFilterTypes = [];
+                $streamActionNotes = [];
 
                 // Prepare SQL.
                 $stmtFind = null;
@@ -1421,7 +1571,7 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                         $position = 1000000 + max(0, $position);
                     }
 
-                    $filters = orbitraKeitaroBuildOrbitraFilters($filtersByStream[$kStreamId] ?? []);
+                    $filters = orbitraKeitaroBuildOrbitraFilters($filtersByStream[$kStreamId] ?? [], $droppedFilterTypes);
                     if ($type === 'regular') {
                         foreach ($filters as $ff) {
                             if (($ff['name'] ?? '') === 'Bot' && ($ff['mode'] ?? '') === 'include') {
@@ -1463,25 +1613,75 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
 
                     $kSchema = strtolower(trim((string) ($r['schema'] ?? '')));
                     $kActionType = strtolower(trim((string) ($r['action_type'] ?? ($r['action'] ?? ''))));
+                    // Keitaro stores the stream's payload in the same-named
+                    // column: the destination URL for the direct-URL schema,
+                    // the HTML/text shown by show_html/show_text actions, the
+                    // target campaign id for the campaign schema. Ignoring it
+                    // made every such stream arrive empty ("URL not found.").
+                    $kActionPayload = trim((string) ($r['action_payload'] ?? ''));
 
-                    // Keitaro action streams: schema='action', action_type often looks like 'status404'.
-                    $isActionStream = ($kSchema === 'action')
-                        || (strpos($kActionType, '404') !== false)
-                        || in_array($kActionType, ['404', 'not_found', 'notfound', 'http_404'], true);
-
-                    if ($isActionStream) {
+                    // The Keitaro schema decides what the stream IS; the action
+                    // type only refines it. A stray status404 under the
+                    // landings schema used to turn a landing stream into a
+                    // 404 page.
+                    if ($kSchema === 'action') {
                         $schemaType = 'action';
                         if (strpos($kActionType, '404') !== false) {
                             $actionPayload = 'not_found';
                         } else if (strpos($kActionType, 'html') !== false) {
-                            $actionPayload = 'show_html';
+                            // Orbitra action streams store "type" or
+                            // "type:payload" (the editor and the runtime both
+                            // split on the first colon).
+                            $actionPayload = $kActionPayload !== '' ? 'show_html:' . $kActionPayload : 'show_html';
+                        } else if (strpos($kActionType, 'text') !== false) {
+                            $actionPayload = $kActionPayload !== '' ? 'show_text:' . $kActionPayload : 'show_text';
+                        } else if (strpos($kActionType, 'campaign') !== false) {
+                            $actionPayload = orbitraKeitaroResolveCampaignTargetPayload(
+                                $kStreamId,
+                                (int) $kActionPayload,
+                                $keitaroCampaignIdToOrbitraId,
+                                $dbCampaignsByKeitaroId,
+                                $result
+                            );
                         } else {
                             // Keep "action" branch, but do nothing.
                             $actionPayload = 'do_nothing';
                         }
+                    } else if ($kSchema === 'campaign') {
+                        // "Pass the visitor to another campaign": the target id
+                        // lives in action_payload.
+                        $schemaType = 'action';
+                        $actionPayload = orbitraKeitaroResolveCampaignTargetPayload(
+                            $kStreamId,
+                            (int) $kActionPayload,
+                            $keitaroCampaignIdToOrbitraId,
+                            $dbCampaignsByKeitaroId,
+                            $result
+                        );
+                    } else if ($kSchema === 'redirect') {
+                        // Direct URL schema: destination in action_payload,
+                        // redirect method in action_type ('http' | 'meta' |
+                        // 'double_meta'). Stored the way the editor and the
+                        // runtime read it back (schema_custom.direct_url).
+                        if (preg_match('#^https?://#i', $kActionPayload)) {
+                            $custom['redirect_mode'] = 'direct_url';
+                            $custom['direct_url'] = $kActionPayload;
+                            $custom['offers'] = $schemaOffers;
+                            if ($kActionType === 'meta' || $kActionType === 'double_meta') {
+                                // Orbitra has no double-meta redirect; meta
+                                // refresh is the closest built-in.
+                                $custom['redirect_type'] = 'meta_refresh';
+                                if ($kActionType === 'double_meta') {
+                                    $streamActionNotes['double_meta redirect imported as meta_refresh'] = ($streamActionNotes['double_meta redirect imported as meta_refresh'] ?? 0) + 1;
+                                }
+                            }
+                        } else if ($kActionPayload !== '') {
+                            $result['warnings'][] = "Stream {$kStreamId}: schema=redirect but action_payload is not a URL";
+                            $streamActionNotes['schema=redirect without a URL in action_payload'] = ($streamActionNotes['schema=redirect without a URL in action_payload'] ?? 0) + 1;
+                        }
                     }
 
-                    if ($schemaType !== 'action') {
+                    if ($schemaType === 'redirect' && $actionPayload === null && empty($custom['direct_url'])) {
                         if (!empty($schemaLandings)) {
                             $schemaType = 'landing_offer';
                             $custom['landings'] = $schemaLandings;
@@ -1560,6 +1760,24 @@ function orbitraKeitaroImportSqlDump(PDO $pdo, string $path, array $opts = []): 
                         $kStreamId > 0 ? $kStreamId : null,
                     ]);
                     $result['imported']['streams']['inserted']++;
+                }
+
+                // Surface what could not be migrated exactly, in one line per
+                // kind — same spirit as the per-entity warnings above.
+                if (!empty($droppedFilterTypes)) {
+                    arsort($droppedFilterTypes);
+                    $parts = [];
+                    foreach ($droppedFilterTypes as $ftype => $n) {
+                        $parts[] = $ftype . ' ×' . $n;
+                    }
+                    $result['warnings'][] = array_sum($droppedFilterTypes) . ' filter(s) not migrated (no Orbitra equivalent): ' . implode(', ', $parts);
+                }
+                if (!empty($streamActionNotes)) {
+                    $parts = [];
+                    foreach ($streamActionNotes as $note => $n) {
+                        $parts[] = $note . ' ×' . $n;
+                    }
+                    $result['warnings'][] = array_sum($streamActionNotes) . ' stream action(s) not migrated exactly: ' . implode(', ', $parts);
                 }
             }
 

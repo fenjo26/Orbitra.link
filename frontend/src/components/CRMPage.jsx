@@ -3,7 +3,7 @@ import axios from 'axios';
 import {
     Layers, Search, Download, Plus, RefreshCw, Eye, CheckCircle2,
     XCircle, Clock, AlertTriangle, X, Phone, WifiOff,
-    FileSearch, Network, Crosshair, ShieldAlert, Repeat2, Copy
+    FileSearch, Network, Crosshair, ShieldAlert, Repeat2, Copy, KeyRound
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { copyToClipboard } from '../utils/clipboard';
@@ -65,6 +65,13 @@ const CRMPage = ({ setActiveTab, user }) => {
     // "<leadId>:<field>" of the value copied from a table row, for the check-mark feedback
     const [copiedField, setCopiedField] = useState('');
 
+    // Global /crm-ingest signature secret. Stored through the regular
+    // global_settings mechanism under the exact key crm_ingest_secret: set,
+    // the intake endpoint only accepts requests signed in X-Orbitra-Signature.
+    const [ingestSecret, setIngestSecret] = useState('');
+    const [ingestSaving, setIngestSaving] = useState(false);
+    const [ingestMessage, setIngestMessage] = useState(null);
+
     const handleCopyField = async (key, value) => {
         if (!value || !await copyToClipboard(value)) return;
         setCopiedField(key);
@@ -104,6 +111,38 @@ const CRMPage = ({ setActiveTab, user }) => {
         const timer = setTimeout(() => setSearch(searchInput.trim()), 450);
         return () => clearTimeout(timer);
     }, [searchInput]);
+
+    // Load the ingest secret once — same global_settings read other pages use.
+    useEffect(() => {
+        let cancelled = false;
+        axios.get(`${API_URL}?action=global_settings`)
+            .then(res => {
+                if (!cancelled && res.data?.status === 'success') {
+                    setIngestSecret(String(res.data?.data?.crm_ingest_secret ?? ''));
+                }
+            })
+            .catch(() => { /* the field just stays empty; saving still works */ });
+        return () => { cancelled = true; };
+    }, []);
+
+    const handleSaveIngestSecret = async () => {
+        setIngestSaving(true);
+        setIngestMessage(null);
+        try {
+            const res = await axios.post(`${API_URL}?action=global_settings`, {
+                settings: { crm_ingest_secret: ingestSecret }
+            });
+            if (res.data?.status === 'success') {
+                setIngestMessage({ text: t('security.crmIngestSaved'), type: 'success' });
+            } else {
+                setIngestMessage({ text: res.data?.message || t('security.crmIngestError'), type: 'error' });
+            }
+        } catch (err) {
+            setIngestMessage({ text: err.response?.data?.message || t('security.crmIngestError'), type: 'error' });
+        } finally {
+            setIngestSaving(false);
+        }
+    };
 
     const handleCreateLead = async (e) => {
         e.preventDefault();
@@ -500,6 +539,48 @@ const CRMPage = ({ setActiveTab, user }) => {
                             )}
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            {/* /crm-ingest signature secret — a global setting stored through
+                the regular global_settings mechanism (key: crm_ingest_secret).
+                When set, the intake endpoint only accepts signed requests. */}
+            <div className="bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-2xl p-4 shadow-sm">
+                <div className="flex items-center gap-2 mb-3">
+                    <KeyRound size={16} className="text-[var(--color-text-muted)]" />
+                    <h3 className="text-sm font-bold" style={{ color: 'var(--color-text-primary)' }}>
+                        {t('security.crmIngestTitle')}
+                    </h3>
+                </div>
+
+                {ingestMessage && (
+                    <div className={`alert ${ingestMessage.type === 'success' ? 'alert-success' : 'alert-danger'}`} style={{ marginBottom: '12px' }}>
+                        {ingestMessage.text}
+                    </div>
+                )}
+
+                <label className="form-label">{t('security.crmIngestLabel')}</label>
+                <input
+                    type="text"
+                    value={ingestSecret}
+                    onChange={(e) => setIngestSecret(e.target.value)}
+                    className="form-input"
+                    style={{ fontFamily: 'monospace', maxWidth: '480px' }}
+                    autoComplete="off"
+                    spellCheck={false}
+                />
+                <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '6px', lineHeight: 1.55, maxWidth: '640px' }}>
+                    {t('security.crmIngestHint')}
+                </p>
+                <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end' }}>
+                    <button
+                        type="button"
+                        onClick={handleSaveIngestSecret}
+                        disabled={ingestSaving}
+                        className="btn btn-primary btn-sm"
+                    >
+                        {ingestSaving ? t('common.saving') : t('common.save')}
+                    </button>
                 </div>
             </div>
 

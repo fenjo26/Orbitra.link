@@ -87,7 +87,8 @@ try {
     // subscriber base; 44 = media library (docs/media-core-v1.md); 43 = PWA
     // landings. All migration blocks are additive — whoever adds the next one
     // bumps this and appends below, re-reading the file first (parallel-session rule).
-    $LATEST_SCHEMA_VERSION = 53;
+    // 54 = TOTP two-factor login (users.totp_secret / users.totp_enabled).
+    $LATEST_SCHEMA_VERSION = 54;
 
     $schemaVersion = 0;
     try {
@@ -486,6 +487,8 @@ try {
         language TEXT DEFAULT 'ru',
         timezone TEXT DEFAULT 'Europe/Moscow',
         first_day_of_week INTEGER DEFAULT 1,
+        totp_secret TEXT,                                 -- base32 TOTP secret; NULL = 2FA never configured
+        totp_enabled INTEGER DEFAULT 0,                   -- 1 = second factor required at login
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
@@ -2697,6 +2700,27 @@ try {
                 }
             }
 
+            if ($schemaVersion < 54) {
+                // Migration 54: TOTP two-factor login (audit item #20).
+                // totp_secret holds the base32 secret while the user enrolls
+                // (totp_enabled stays 0 until a valid code confirms the app
+                // scanned it correctly); totp_enabled = 1 makes the panel
+                // login demand a code. CLI password resets clear both — an
+                // operator locked out of their authenticator must not stay
+                // locked out of the panel.
+                $alters = [
+                    "ALTER TABLE users ADD COLUMN totp_secret TEXT",
+                    "ALTER TABLE users ADD COLUMN totp_enabled INTEGER DEFAULT 0",
+                ];
+                foreach ($alters as $sql) {
+                    try {
+                        $pdo->exec($sql);
+                    } catch (\Throwable $e) {
+                        // Column already present on a half-migrated DB.
+                    }
+                }
+            }
+
             // Mark schema as up-to-date. This must be last.
             $pdo->exec("PRAGMA user_version = " . (int) $LATEST_SCHEMA_VERSION . ";");
             $schemaVersion = $LATEST_SCHEMA_VERSION;
@@ -2800,5 +2824,8 @@ try {
 
 }
 catch (\PDOException $e) {
-    die("Connection failed: " . $e->getMessage());
+    // Details (path, credentials-ish fragments) go to the log only — the
+    // response body must not help an outsider map the installation.
+    error_log('[Orbitra] Database connection failed: ' . $e->getMessage());
+    die("Service temporarily unavailable");
 }

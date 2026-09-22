@@ -157,9 +157,12 @@ assertTrue($menuBtn !== null && $menuBtn['menu_button']['type'] === 'commands',
     'menu button opens the quick-command list');
 
 // 2. /start — welcome + language picker inline, then the pinned visual menu.
+// A chat is admitted by the panel's one-time link code, never by being first.
 outboxReset();
 $pdo->exec("DELETE FROM telegram_bot_chats");
-orbitraTelegramProcessUpdate($pdo, 'TOKEN', msg('/start'));
+$pdo->exec("INSERT OR REPLACE INTO settings (key, value) VALUES ('telegram_link_code', 'LINKCODE1')");
+$pdo->exec("INSERT OR REPLACE INTO settings (key, value) VALUES ('telegram_link_code_expires', '" . (time() + 600) . "')");
+orbitraTelegramProcessUpdate($pdo, 'TOKEN', msg('/start LINKCODE1'));
 $sends = array_values(array_filter($GLOBALS['orbitra_telegram_outbox'], fn($e) => $e['method'] === 'sendMessage'));
 assertEquals(2, count($sends), '/start answers with welcome + pinned menu');
 $startMsg = $sends[0]['params'];
@@ -350,6 +353,46 @@ $pdo->exec("UPDATE settings SET value = '00:00' WHERE key = 'telegram_daily_time
 outboxReset();
 orbitraTelegramMaybeSendDaily($pdo);
 assertEquals([], outboxMethods(), 'no subscribed chats → no summary and no day claim');
+
+// Allowlist (audit #5) ----------------------------------------------------------
+$stranger = static fn(string $text, string $id = '777') => msg($text, ['message' => [
+    'message_id' => 1, 'chat' => ['id' => $id], 'from' => ['username' => 'stranger', 'first_name' => 'S'], 'text' => $text,
+]]);
+$isChat = static function (string $id) use ($pdo): bool {
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM telegram_bot_chats WHERE chat_id = ?');
+    $stmt->execute([$id]);
+    return (int) $stmt->fetchColumn() === 1;
+};
+$setCode = static function (string $code, int $ttl) use ($pdo): void {
+    $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('telegram_link_code', ?)")->execute([$code]);
+    $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('telegram_link_code_expires', ?)")->execute([(string) (time() + $ttl)]);
+};
+
+outboxReset();
+orbitraTelegramProcessUpdate($pdo, 'TOKEN', $stranger('/stats'));
+assertTrue(!$isChat('777'), 'unknown chat is not registered');
+assertEquals(['sendMessage'], outboxMethods(), 'unknown chat only gets the refusal');
+assertContains('/start', outboxLast('sendMessage')['text'], 'refusal explains how to connect');
+
+$pdo->exec("DELETE FROM telegram_bot_chats");
+$pdo->exec("DELETE FROM settings WHERE key IN ('telegram_chat_policy', 'telegram_link_code', 'telegram_link_code_expires')");
+orbitraTelegramProcessUpdate($pdo, 'TOKEN', $stranger('/start'));
+assertTrue(!$isChat('777'), 'empty table: the first chat to write is NOT made the owner');
+
+$setCode('GOODCODE', 600);
+orbitraTelegramProcessUpdate($pdo, 'TOKEN', $stranger('/start WRONGCODE'));
+assertTrue(!$isChat('777'), 'wrong code is refused');
+$setCode('OLDCODE1', -5);
+orbitraTelegramProcessUpdate($pdo, 'TOKEN', $stranger('/start OLDCODE1'));
+assertTrue(!$isChat('777'), 'expired code is refused');
+$setCode('GOODCODE', 600);
+outboxReset();
+orbitraTelegramProcessUpdate($pdo, 'TOKEN', $stranger('/start goodcode'));
+assertTrue($isChat('777'), 'valid code (case-insensitive) admits the chat');
+assertContains('Orbitra', outboxLast('sendMessage') ? $GLOBALS['orbitra_telegram_outbox'][0]['params']['text'] : '', 'admitted chat gets the welcome');
+orbitraTelegramProcessUpdate($pdo, 'TOKEN', $stranger('/start GOODCODE', '778'));
+assertTrue(!$isChat('778'), 'a code works once');
+assertEquals('restricted', $pdo->query("SELECT value FROM settings WHERE key = 'telegram_chat_policy'")->fetchColumn(), 'policy recorded as restricted');
 
 // Cleanup
 @unlink($tmpDb);

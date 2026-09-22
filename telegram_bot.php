@@ -20,8 +20,8 @@ function botText($lang, $key, $params = [])
     $version = defined('ORBITRA_VERSION') ? ORBITRA_VERSION : '0.9.2.9';
     $texts = [
         'ru' => [
-            'welcome' => "🚀 *Добро пожаловать в Orbitra v{version} Bot!*\n\nЯ помогу отслеживать статистику ваших кампаний.\n\nДоступные команды:\n/stats — Статистика за сегодня\n/stats 7d — За последние 7 дней\n/campaigns — Активные кампании\n/campaign ID — Стата по кампании\n/top — ТОП-5 по доходу\n/conversions — Последние конверсии\n/notify on|off — Уведомления\n/daily on|off — Ежедневная сводка\n/lang en|ru|uk|es|zh|fr|de — Язык бота\n/help — Справка",
-            'help' => "📖 *Доступные команды:*\n\n/stats — Статистика за сегодня\n/stats 1d|7d|30d — За период\n/stats yesterday — За вчера\n/campaigns — Список кампаний\n/campaign ID — Детали кампании\n/top — ТОП-5 кампаний\n/conversions — Последние 10 конверсий\n/notify on|off — Уведомления о конверсиях\n/daily on|off — Ежедневная сводка\n/lang en|ru|uk|es|zh|fr|de — Сменить язык",
+            'welcome' => "🚀 *Добро пожаловать в Orbitra v{version} Bot!*\n\nЯ помогу отслеживать статистику ваших кампаний.\n\nДоступные команды:\n/stats — Статистика за сегодня\n/stats 7d — За последние 7 дней\n/campaigns — Активные кампании\n/campaign ID — Стата по кампании\n/top — ТОП-5 по доходу\n/conversions — Последние конверсии\n/notify on|off — Уведомления\n/daily on|off — Ежедневная сводка\n/lang en|ru|uk|es|zh|fr|de — Язык бота\n/help — Справка\n/allow ID — Авторизовать чат",
+            'help' => "📖 *Доступные команды:*\n\n/stats — Статистика за сегодня\n/stats 1d|7d|30d — За период\n/stats yesterday — За вчера\n/campaigns — Список кампаний\n/campaign ID — Детали кампании\n/top — ТОП-5 кампаний\n/conversions — Последние 10 конверсий\n/notify on|off — Уведомления о конверсиях\n/daily on|off — Ежедневная сводка\n/lang en|ru|uk|es|zh|fr|de — Сменить язык\n/allow ID — Авторизовать чат",
             'stats_title' => "📊 *Статистика: {period}*",
             'clicks' => "Кликов",
             'unique_clicks' => "Уникальных",
@@ -50,6 +50,9 @@ function botText($lang, $key, $params = [])
             'daily_off' => "🔕 Ежедневная сводка *отключена*.",
             'lang_set' => "✅ Язык установлен: *Русский*",
             'unknown' => "❓ Неизвестная команда. Используйте /help",
+            'not_allowed' => "⛔ Этот чат не подключён к Orbitra. В панели откройте Интеграции → Telegram → «Подключить чат» и отправьте боту код: /start КОД",
+            'allow_usage' => "Использование: /allow <chat_id>",
+            'allow_ok' => "✅ Чат {chat_id} добавлен в список допущенных.",
             'new_conversion' => "🔔 *Новая конверсия!*\n\n📊 Кампания: *{campaign}*\n📌 Статус: `{status}`\n💰 Сумма: *{payout} {currency}*\n🌍 Страна: {country}\n🕐 Время: {time}",
             'daily_summary' => "📊 *Ежедневная сводка — {date}*",
             'status' => "Статус",
@@ -92,8 +95,8 @@ function botText($lang, $key, $params = [])
             'menu_help' => "📖 Помощь",
         ],
         'en' => [
-            'welcome' => "🚀 *Welcome to Orbitra v{version} Bot!*\n\nI'll help you track your campaign stats.\n\nAvailable commands:\n/stats — Today's statistics\n/stats 7d — Last 7 days\n/campaigns — Active campaigns\n/campaign ID — Campaign details\n/top — Top 5 by revenue\n/conversions — Recent conversions\n/notify on|off — Notifications\n/daily on|off — Daily summary\n/lang en|ru|uk|es|zh|fr|de — Bot language\n/help — Help",
-            'help' => "📖 *Available commands:*\n\n/stats — Today's statistics\n/stats 1d|7d|30d — For a period\n/stats yesterday — Yesterday\n/campaigns — Campaign list\n/campaign ID — Campaign details\n/top — Top 5 campaigns\n/conversions — Last 10 conversions\n/notify on|off — Conversion notifications\n/daily on|off — Daily summary report\n/lang en|ru|uk|es|zh|fr|de — Change language",
+            'welcome' => "🚀 *Welcome to Orbitra v{version} Bot!*\n\nI'll help you track your campaign stats.\n\nAvailable commands:\n/stats — Today's statistics\n/stats 7d — Last 7 days\n/campaigns — Active campaigns\n/campaign ID — Campaign details\n/top — Top 5 by revenue\n/conversions — Recent conversions\n/notify on|off — Notifications\n/daily on|off — Daily summary\n/lang en|ru|uk|es|zh|fr|de — Bot language\n/help — Help\n/allow ID — Authorize a chat",
+            'help' => "📖 *Available commands:*\n\n/stats — Today's statistics\n/stats 1d|7d|30d — For a period\n/stats yesterday — Yesterday\n/campaigns — Campaign list\n/campaign ID — Campaign details\n/top — Top 5 campaigns\n/conversions — Last 10 conversions\n/notify on|off — Conversion notifications\n/daily on|off — Daily summary report\n/lang en|ru|uk|es|zh|fr|de — Change language\n/allow ID — Authorize a chat",
             'stats_title' => "📊 *Statistics: {period}*",
             'clicks' => "Clicks",
             'unique_clicks' => "Unique",
@@ -122,6 +125,9 @@ function botText($lang, $key, $params = [])
             'daily_off' => "🔕 Daily summary *disabled*.",
             'lang_set' => "✅ Language set: *English*",
             'unknown' => "❓ Unknown command. Use /help",
+            'not_allowed' => "⛔ This chat is not connected to Orbitra. In the panel open Integrations → Telegram → “Connect a chat” and send the bot the code: /start CODE",
+            'allow_usage' => "Usage: /allow <chat_id>",
+            'allow_ok' => "✅ Chat {chat_id} added to the allowed list.",
             'new_conversion' => "🔔 *New Conversion!*\n\n📊 Campaign: *{campaign}*\n📌 Status: `{status}`\n💰 Amount: *{payout} {currency}*\n🌍 Country: {country}\n🕐 Time: {time}",
             'daily_summary' => "📊 *Daily Summary — {date}*",
             'status' => "Status",
@@ -234,6 +240,7 @@ Available: ru, en, uk, es, zh, fr, de",
             'menu_daily' => "📅 Зведення",
             'menu_lang' => "🌐 Мова",
             'menu_help' => "📖 Довідка",
+            'not_allowed' => "⛔ Цей чат не підключено до Orbitra. У панелі відкрийте Інтеграції → Telegram → «Підключити чат» і надішліть боту код: /start КОД",
         ],
         'es' => [
             'welcome' => "🚀 *¡Bienvenido a Orbitra v{version} Bot!*\n\nTe ayudaré a seguir las estadísticas de tus campañas.\n\nComandos disponibles:\n/stats — Estadísticas de hoy\n/stats 7d — Últimos 7 días\n/campaigns — Campañas activas\n/campaign ID — Detalles de la campaña\n/top — Top 5 por ingresos\n/conversions — Conversiones recientes\n/notify on|off — Notificaciones\n/daily on|off — Resumen diario\n/lang en|ru|uk|es|zh|fr|de — Idioma del bot\n/help — Ayuda",
@@ -306,6 +313,7 @@ Disponibles: ru, en, uk, es, zh, fr, de",
             'menu_daily' => "📅 Resumen",
             'menu_lang' => "🌐 Idioma",
             'menu_help' => "📖 Ayuda",
+            'not_allowed' => "⛔ Este chat no está conectado a Orbitra. En el panel abre Integraciones → Telegram → «Conectar un chat» y envía al bot el código: /start CÓDIGO",
         ],
         'zh' => [
             'welcome' => "🚀 *欢迎使用 Orbitra v{version} 机器人！*\n\n我将帮助您跟踪广告系列的统计数据。\n\n可用命令：\n/stats — 今日统计\n/stats 7d — 最近 7 天\n/campaigns — 活动中的广告系列\n/campaign ID — 广告系列详情\n/top — 收入前 5 名\n/conversions — 最近转化\n/notify on|off — 通知\n/daily on|off — 每日汇总\n/lang en|ru|uk|es|zh|fr|de — 机器人语言\n/help — 帮助",
@@ -377,6 +385,7 @@ Disponibles: ru, en, uk, es, zh, fr, de",
             'menu_daily' => "📅 日报",
             'menu_lang' => "🌐 语言",
             'menu_help' => "📖 帮助",
+            'not_allowed' => "⛔ 此聊天尚未连接到 Orbitra。请在面板中打开 集成 → Telegram → “连接聊天”，并向机器人发送代码：/start 代码",
         ],
         'fr' => [
             'welcome' => "🚀 *Bienvenue sur Orbitra v{version} Bot !*\n\nJe vais vous aider à suivre les statistiques de vos campagnes.\n\nCommandes disponibles :\n/stats — Statistiques du jour\n/stats 7d — 7 derniers jours\n/campaigns — Campagnes actives\n/campaign ID — Détails de la campagne\n/top — Top 5 par revenu\n/conversions — Conversions récentes\n/notify on|off — Notifications\n/daily on|off — Résumé quotidien\n/lang en|ru|uk|es|zh|fr|de — Langue du bot\n/help — Aide",
@@ -448,6 +457,7 @@ Choisissez une langue :",
             'menu_daily' => "📅 Résumé",
             'menu_lang' => "🌐 Langue",
             'menu_help' => "📖 Aide",
+            'not_allowed' => "⛔ Ce chat n’est pas connecté à Orbitra. Dans le panneau, ouvrez Intégrations → Telegram → « Connecter un chat » et envoyez au bot le code : /start CODE",
         ],
         'de' => [
             'welcome' => "🚀 *Willkommen beim Orbitra v{version} Bot!*\n\nIch helfe dir, die Statistiken deiner Kampagnen zu verfolgen.\n\nVerfügbare Befehle:\n/stats — Statistik für heute\n/stats 7d — Letzte 7 Tage\n/campaigns — Aktive Kampagnen\n/campaign ID — Kampagnendetails\n/top — Top 5 nach Umsatz\n/conversions — Letzte Conversions\n/notify on|off — Benachrichtigungen\n/daily on|off — Tägliche Zusammenfassung\n/lang en|ru|uk|es|zh|fr|de — Bot-Sprache\n/help — Hilfe",
@@ -519,6 +529,7 @@ Sprache wählen:",
             'menu_daily' => "📅 Zusammenfassung",
             'menu_lang' => "🌐 Sprache",
             'menu_help' => "📖 Hilfe",
+            'not_allowed' => "⛔ Dieser Chat ist nicht mit Orbitra verbunden. Öffnen Sie im Panel Integrationen → Telegram → „Chat verbinden“ und senden Sie dem Bot den Code: /start CODE",
         ]
     ];
 
@@ -751,6 +762,18 @@ function orbitraTelegramProcessUpdate(PDO $pdo, string $botToken, array $update)
     $username = $message['from']['username'] ?? '';
     $firstName = $message['from']['first_name'] ?? '';
 
+    // Chat allowlist: decide admission BEFORE any registration. An unknown
+    // chat must not be able to self-register through this handler (previously
+    // even /lang registered it) or pull statistics — it only gets a refusal.
+    // A chat is admitted by the one-time code the panel shows ("/start CODE",
+    // also what the t.me/<bot>?start=CODE deep link sends) — never by being
+    // first to find the bot.
+    if (!orbitraTelegramChatAllowed($pdo, $chatId)
+        && !orbitraTelegramRedeemLinkCode($pdo, $chatId, $text, $username, $firstName)) {
+        sendTelegram($botToken, $chatId, botText(orbitraTelegramGuestLang($message['from'] ?? []), 'not_allowed'));
+        return true;
+    }
+
     // Register/update chat and read the language it picked.
     $lang = orbitraTelegramChatLang($pdo, $chatId, $username, $firstName);
 
@@ -808,6 +831,10 @@ function orbitraTelegramProcessUpdate(PDO $pdo, string $botToken, array $update)
             handleLang($pdo, $botToken, $chatId, $lang, $arg);
             break;
 
+        case '/allow':
+            handleAllow($pdo, $botToken, $chatId, $lang, $arg);
+            break;
+
         case '/sources':
             handleSources($pdo, $botToken, $chatId, $lang);
             break;
@@ -835,6 +862,14 @@ function orbitraTelegramProcessCallback(PDO $pdo, string $botToken, array $cb): 
     $data = (string)($cb['data'] ?? '');
     if ($chatId === '' || $data === '') {
         return false;
+    }
+
+    // Same allowlist gate as orbitraTelegramProcessUpdate: an unknown chat
+    // gets the refusal, never a registration and never the button's action.
+    if (!orbitraTelegramChatAllowed($pdo, $chatId)) {
+        orbitraTelegramApi($botToken, 'answerCallbackQuery', ['callback_query_id' => $cb['id'] ?? '']);
+        sendTelegram($botToken, $chatId, botText(orbitraTelegramGuestLang($cb['from'] ?? []), 'not_allowed'));
+        return true;
     }
 
     orbitraTelegramApi($botToken, 'answerCallbackQuery', ['callback_query_id' => $cb['id'] ?? '']);
@@ -885,6 +920,132 @@ function orbitraTelegramChatLang(PDO $pdo, string $chatId, string $username, str
     $stmt->execute([$chatId]);
     $lang = $stmt->fetchColumn() ?: 'ru';
     return isset(orbitraTelegramLanguages()[$lang]) ? $lang : 'ru';
+}
+
+/**
+ * One-time (per process) chat-policy migration. The bot used to be open to
+ * every Telegram user; the allowlist must not lock existing operators out on
+ * upgrade. So when a policy has never been recorded and chats already exist,
+ * the install is marked 'grandfathered' — table membership is what admits a
+ * chat, and every pre-existing chat is in the table. A fresh install (empty
+ * table) records nothing yet: the first chat to message the bot registers as
+ * the owner, and from the next update on, the table is non-empty and the
+ * migration stamps it 'grandfathered' like any other existing install.
+ */
+function orbitraTelegramEnsureChatPolicy(PDO $pdo): void
+{
+    static $done = false;
+    if ($done) {
+        return;
+    }
+    try {
+        $policyRow = $pdo->query("SELECT value FROM settings WHERE key = 'telegram_chat_policy'")->fetchColumn();
+        if ($policyRow !== false && (string) $policyRow !== '') {
+            $done = true; // Policy already recorded — nothing to migrate.
+            return;
+        }
+        $chatCount = (int) $pdo->query("SELECT COUNT(*) FROM telegram_bot_chats")->fetchColumn();
+        if ($chatCount > 0) {
+            $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('telegram_chat_policy', 'grandfathered')")->execute();
+            $done = true;
+        }
+        // Table still empty: keep re-checking on later calls in this process.
+        // A batch poller can register the first chat mid-run — the door must
+        // close within the same run, not on the next one.
+    } catch (\Throwable $e) {
+        $done = true; // Don't retry a broken store on every update; fail open.
+    }
+}
+
+/**
+ * Whether a chat may interact with the bot. Admission is table membership:
+ * chats registered before the allowlist existed are grandfathered, new ones
+ * come in through a one-time link code from the panel
+ * (orbitraTelegramRedeemLinkCode) or /allow from an admitted chat. Only an
+ * explicit 'open' policy admits everyone. There is deliberately no "first
+ * chat becomes the owner" rule any more: whoever finds the bot first is not
+ * necessarily the operator.
+ * Fails open on database trouble — a broken store must not strand the
+ * operator's only monitoring channel.
+ */
+function orbitraTelegramChatAllowed(PDO $pdo, string $chatId): bool
+{
+    orbitraTelegramEnsureChatPolicy($pdo);
+    try {
+        $stmt = $pdo->prepare("SELECT 1 FROM telegram_bot_chats WHERE chat_id = ? LIMIT 1");
+        $stmt->execute([$chatId]);
+        if ($stmt->fetchColumn()) {
+            return true;
+        }
+        $policyRow = $pdo->query("SELECT value FROM settings WHERE key = 'telegram_chat_policy'")->fetchColumn();
+        return is_string($policyRow) && $policyRow === 'open';
+    } catch (\Throwable $e) {
+        return true;
+    }
+}
+
+/**
+ * Admit a chat that sends the panel's one-time link code ("/start CODE").
+ * The code lives in settings (telegram_link_code, 15 minutes, single use —
+ * cleared on success) and is compared in constant time. On success the chat
+ * row is created so the normal handler below treats it as registered.
+ */
+function orbitraTelegramRedeemLinkCode(PDO $pdo, string $chatId, string $text, string $username = '', string $firstName = ''): bool
+{
+    if (!preg_match('~^/start(?:@\w+)?\s+([A-Za-z0-9]{6,32})$~', trim($text), $m)) {
+        return false;
+    }
+    try {
+        $code = (string) $pdo->query("SELECT value FROM settings WHERE key = 'telegram_link_code'")->fetchColumn();
+        $expires = (int) $pdo->query("SELECT value FROM settings WHERE key = 'telegram_link_code_expires'")->fetchColumn();
+        if ($code === '' || $expires < time() || !hash_equals(strtoupper($code), strtoupper($m[1]))) {
+            return false;
+        }
+        $pdo->prepare("DELETE FROM settings WHERE key IN ('telegram_link_code', 'telegram_link_code_expires')")->execute();
+        $pdo->prepare("INSERT OR IGNORE INTO telegram_bot_chats (chat_id, username, first_name) VALUES (?, ?, ?)")
+            ->execute([$chatId, $username, $firstName]);
+        $pdo->prepare("INSERT OR IGNORE INTO settings (key, value) VALUES ('telegram_chat_policy', 'restricted')")->execute();
+        return true;
+    } catch (\Throwable $e) {
+        error_log('Orbitra telegram link code failed: ' . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Language for a chat the bot refuses: it is not registered, so there is no
+ * stored preference — fall back to Telegram's own client language and, when
+ * that says nothing usable, to the bot's default (ru), same as
+ * orbitraTelegramChatLang().
+ */
+function orbitraTelegramGuestLang(array $from): string
+{
+    $code = strtolower(substr((string) ($from['language_code'] ?? ''), 0, 2));
+    return isset(orbitraTelegramLanguages()[$code]) ? $code : 'ru';
+}
+
+/**
+ * /allow <chat_id> — add a chat to the allowed list. Only reachable from an
+ * already admitted chat (the admission gate in orbitraTelegramProcessUpdate
+ * runs before the command switch), so the allowlist is grown by the operator,
+ * never by the stranger asking.
+ */
+function handleAllow($pdo, $token, $chatId, $lang, $arg)
+{
+    $arg = trim($arg);
+    if ($arg === '' || !preg_match('/^-?\d+$/', $arg)) {
+        sendTelegram($token, $chatId, botText($lang, 'allow_usage'));
+        return;
+    }
+    try {
+        $stmt = $pdo->prepare("INSERT OR IGNORE INTO telegram_bot_chats (chat_id, username, first_name) VALUES (?, '', '')");
+        $stmt->execute([$arg]);
+    } catch (\Throwable $e) {
+        error_log('Orbitra telegram /allow failed: ' . $e->getMessage());
+        sendTelegram($token, $chatId, botText($lang, 'allow_usage'));
+        return;
+    }
+    sendTelegram($token, $chatId, botText($lang, 'allow_ok', ['chat_id' => $arg]));
 }
 
 /**
@@ -968,6 +1129,43 @@ if (!defined('ORBITRA_TELEGRAM_NO_WEBHOOK') && PHP_SAPI !== 'cli') {
     if (!$botToken) {
         http_response_code(200);
         die('No token configured');
+    }
+
+    // Secret-token check. Telegram sends the secret back in
+    // X-Telegram-Bot-Api-Secret-Token when setWebhook was called with a
+    // secret_token — enforcement is conditional on the secret being stored in
+    // settings, so installs provisioned without one keep working until the
+    // panel generates it (the setWebhook call itself lives in api.php).
+    $secretStmt = $pdo->query("SELECT value FROM settings WHERE key = 'telegram_webhook_secret'");
+    $webhookSecret = $secretStmt ? (string) $secretStmt->fetchColumn() : '';
+    if ($secretStmt) {
+        $secretStmt->closeCursor();
+    }
+    // A polling install never registered a webhook, so nothing legitimate
+    // posts here: anything that does is a forged update.
+    $modeStmt = $pdo->query("SELECT value FROM settings WHERE key = 'telegram_mode'");
+    $telegramMode = $modeStmt ? (string) $modeStmt->fetchColumn() : '';
+    if ($modeStmt) {
+        $modeStmt->closeCursor();
+    }
+    if ($telegramMode === 'polling') {
+        http_response_code(403);
+        exit;
+    }
+    // A webhook registered before secrets existed: re-register it with one
+    // now and refuse this unsigned delivery — Telegram redelivers it, signed,
+    // on its next attempt. If re-registration fails (Telegram unreachable),
+    // keep serving as before rather than silence the operator's bot.
+    if ($webhookSecret === '' && orbitraTelegramEnsureWebhookSecret($pdo, (string) $botToken)) {
+        http_response_code(503);
+        exit;
+    }
+    if ($webhookSecret !== '') {
+        $receivedSecret = (string) ($_SERVER['HTTP_X_TELEGRAM_BOT_API_SECRET_TOKEN'] ?? '');
+        if (!hash_equals($webhookSecret, $receivedSecret)) {
+            http_response_code(403);
+            exit;
+        }
     }
 
     $update = json_decode(file_get_contents('php://input'), true);

@@ -17,17 +17,17 @@ const TAB_PERMISSION_KEYS = {
 // Gear-menu (⚙️) tabs a non-admin may open. Value = required permission
 // resource (tab hides when that resource's access is 'none'), null = open to
 // every user. Verified against the backend: none of these pages call an
-// admin-gated API action. All other gear tabs (admin_* prefix plus
-// simulation) are admin-only.
+// admin-gated API action. Everything else — including the postback and
+// branding pages, whose pages read/write settings (admin-only server-side),
+// and LeadForge/CRM, whose leadforge_*/crm_* actions are admin-only — is
+// admin-only too.
 const USER_GEAR_TABS = {
-    admin_branding: null,   // theme personalization (save_settings)
     admin_feedback: null,   // static contact/support info
     admin_logs: 'logs',     // click-debugging log viewer (action=logs)
-    postback: 'campaigns',  // postback settings (settings/save_settings)
     conversions: 'campaigns'
 };
 
-const ADMIN_ONLY_TABS = new Set(['simulation']);
+const ADMIN_ONLY_TABS = new Set(['simulation', 'admin_branding', 'postback', 'leadforge', 'crm']);
 
 // The backend decodes permissions_json on login, so this is normally already
 // an object — but it is [] when the user has none saved, and a stale string

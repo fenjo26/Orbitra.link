@@ -128,31 +128,107 @@ function orbitraBuildClickRow(array $ctx): array
 }
 
 /**
+ * Whether a failure looks like a transient SQLite lock (SQLITE_BUSY /
+ * SQLITE_LOCKED, surfaced as "database is locked" / "database table is
+ * locked") rather than a permanent data error. Only these are retried:
+ * busy_timeout already queues the writer for 5s (web) / 30s (cli) before
+ * giving up, so a retry pays off only when the holder released the lock
+ * right around the timeout — a constraint violation would fail identically
+ * every time.
+ */
+function orbitraIsSqliteLockError(\Throwable $e): bool
+{
+    $msg = (string) $e->getMessage();
+    return stripos($msg, 'database is locked') !== false
+        || stripos($msg, 'database table is locked') !== false;
+}
+
+/**
+ * Append a click row to the on-disk spool (var/spool/clicks.log).
+ *
+ * Last-resort sink for clicks that could not be inserted even after the lock
+ * retries: the row is serialized as one JSON object per line and replayed by
+ * cli/click_spool_cron.php. The spool lives under var/ (not web-readable per
+ * the nginx rules) and the .log suffix matches the project's file convention.
+ *
+ * @param array $row Click row from orbitraBuildClickRow()
+ * @return bool True if the line was written
+ */
+function orbitraSpoolClick(array $row): bool
+{
+    $dir = __DIR__ . '/../var/spool';
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0770, true);
+    }
+    $line = json_encode($row, JSON_UNESCAPED_UNICODE);
+    if ($line === false) {
+        return false;
+    }
+    $path = $dir . '/clicks.log';
+    // The replay cron renames the spool away before it touches the database,
+    // so the lock here is only ever held for a rename, never for a replay. A
+    // writer that opened the file just before that rename would append to the
+    // batch already taken — after locking, confirm the handle still is the
+    // live spool (same inode as the path) and reopen otherwise.
+    for ($attempt = 0; $attempt < 3; $attempt++) {
+        $fp = @fopen($path, 'ab');
+        if (!$fp) {
+            return false;
+        }
+        if (!flock($fp, LOCK_EX)) {
+            fclose($fp);
+            return false;
+        }
+        clearstatcache(true, $path);
+        $live = @stat($path);
+        $mine = fstat($fp);
+        if ($live !== false && $mine !== false && $live['ino'] === $mine['ino']) {
+            $ok = fwrite($fp, $line . "\n") !== false;
+            flock($fp, LOCK_UN);
+            fclose($fp);
+            return $ok;
+        }
+        flock($fp, LOCK_UN);
+        fclose($fp);
+    }
+    return false;
+}
+
+/**
  * Persist a click row to the database.
  *
  * Wraps the INSERT in error handling so click logging failures never
- * break the redirect/landing response.
+ * break the redirect/landing response. If the row cannot be written (most
+ * often "database is locked" after the busy_timeout ran out) it goes to the
+ * file spool, and cli/click_spool_cron.php lands it within a minute. There is
+ * no in-request retry: the INSERT already waited out busy_timeout, and every
+ * retry would add that wait to the visitor's redirect again.
  *
  * @param PDO $pdo Database connection
  * @param array $row Click row from orbitraBuildClickRow()
- * @return bool True if INSERT succeeded, false otherwise
+ * @return bool True if INSERT succeeded, false otherwise (row spooled or lost)
  */
 function orbitraPersistClick(PDO $pdo, array $row): bool
 {
+    $columns = array_keys($row);
+    $placeholders = array_fill(0, count($columns), '?');
+    $sql = "
+        INSERT INTO clicks (" . implode(', ', $columns) . ")
+        VALUES (" . implode(', ', $placeholders) . ")
+    ";
+
     try {
-        $columns = array_keys($row);
-        $placeholders = array_fill(0, count($columns), '?');
-
-        $insertStmt = $pdo->prepare("
-            INSERT INTO clicks (" . implode(', ', $columns) . ")
-            VALUES (" . implode(', ', $placeholders) . ")
-        ");
-
+        $insertStmt = $pdo->prepare($sql);
         $insertStmt->execute(array_values($row));
         return true;
     } catch (\Throwable $e) {
-        // Never let click logging break the redirect/landing. Log and continue.
+        // Never let click logging break the redirect/landing. Log and
+        // continue, but keep the row on disk so the spool cron can still
+        // land it in the database later.
         error_log('Orbitra click logging failed: ' . $e->getMessage());
+        if (orbitraSpoolClick($row)) {
+            error_log('Orbitra click spooled for retry: id=' . (string) ($row['id'] ?? ''));
+        }
         return false;
     }
 }
