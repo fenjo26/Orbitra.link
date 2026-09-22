@@ -775,7 +775,7 @@ function App() {
             {activeTab === 'logs' ? (
               <AdminPage page="admin_logs" />
             ) : activeTab.startsWith('admin_') && (
-              <AdminPage page={activeTab} />
+              <AdminPage page={activeTab} user={user} />
             )}
 
             {showSettingsModal && (

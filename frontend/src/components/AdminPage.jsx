@@ -421,16 +421,17 @@ const CleanupContent = () => {
 };
 
 // Main AdminPage component - uses useLanguage for dynamic titles
-const AdminPage = ({ page }) => {
+const AdminPage = ({ page, user }) => {
     const { t } = useLanguage();
+    const isUsersTabSelfService = (user?.role ?? 'admin') !== 'admin';
 
     const adminPages = {
         admin_users: {
-            title: t('admin.users'),
+            title: isUsersTabSelfService ? t('settings.profile') : t('admin.users'),
             icon: <UserCog className="w-6 h-6" />,
-            description: t('nav.adminUsers') || t('admin.users'),
+            description: isUsersTabSelfService ? t('settings.profileDesc') || t('settings.profile') : (t('nav.adminUsers') || t('admin.users')),
             comingSoon: false,
-            content: <UsersPage />
+            content: <UsersPage user={user} />
         },
         admin_branding: {
             title: t('admin.branding'),

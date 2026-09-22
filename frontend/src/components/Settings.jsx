@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Settings as SettingsIcon, User, ShieldBan, RefreshCw, BarChart2, HardDrive, Shield, Clock } from 'lucide-react';
+import { Settings as SettingsIcon, ShieldBan, RefreshCw, BarChart2, HardDrive, Shield, Clock } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 import GeneralSettings from './GeneralSettings';
-import ProfileSettings from './ProfileSettings';
 import BotSettings from './BotSettings';
 import ConversionTypesSettings from './ConversionTypesSettings';
 import CustomMetricsSettings from './CustomMetricsSettings';
@@ -52,7 +51,6 @@ const Settings = () => {
 
     const tabs = [
         { id: 'general', title: t('settings.general'), icon: SettingsIcon, component: GeneralSettings },
-        { id: 'profile', title: t('settings.profile'), icon: User, component: ProfileSettings },
         { id: 'bots', title: t('settings.bots'), icon: ShieldBan, component: BotSettings },
         { id: 'conversions', title: t('settings.conversionTypes'), icon: RefreshCw, component: ConversionTypesSettings },
         { id: 'metrics', title: t('settings.customMetrics'), icon: BarChart2, component: CustomMetricsSettings },

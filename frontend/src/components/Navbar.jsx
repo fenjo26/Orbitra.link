@@ -75,7 +75,7 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
     };
 
     const adminMenuItems = [
-        { icon: <UserCog size={16} />, label: t('adminMenu.users'), tab: 'admin_users' },
+        { icon: <UserCog size={16} />, label: user?.role === 'admin' ? t('adminMenu.users') : t('settings.profile'), tab: 'admin_users' },
         { icon: <Palette size={16} />, label: t('adminMenu.branding'), tab: 'admin_branding' },
         { icon: <Map size={16} />, label: t('adminMenu.geoProfiles'), tab: 'admin_geo_profiles' },
         { icon: <Link size={16} />, label: t('adminMenu.postback'), tab: 'postback' },

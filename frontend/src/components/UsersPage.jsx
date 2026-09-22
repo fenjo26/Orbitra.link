@@ -4,6 +4,7 @@ import { Plus, Edit2, Trash2, Key, Copy, Check, Shield, User, Globe, Lock, Link2
 import { useLanguage } from '../contexts/LanguageContext';
 import { ROLE_TEMPLATES, templatePermissions, detectTemplate } from '../utils/roleTemplates';
 import { copyToClipboard } from '../utils/clipboard';
+import ProfileSettings from './ProfileSettings';
 
 const API_URL = '/api.php';
 
@@ -21,8 +22,11 @@ const DEFAULT_PERMISSIONS = () => ({
     finance: { show_costs: true, show_revenue: true, show_payout: true },
 });
 
-const UsersPage = () => {
+const UsersPage = ({ user }) => {
     const { t, setLanguage: setContextLanguage, language: currentLanguage } = useLanguage();
+    // One tab, two jobs: every role manages its own profile (password, 2FA)
+    // in the card above; the accounts table below is the admin's manager.
+    const isAdmin = (user?.role ?? 'admin') === 'admin';
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
@@ -362,6 +366,10 @@ const UsersPage = () => {
                 <div className="alert alert-danger">{error}</div>
             )}
 
+            {/* Your profile — self-service for every role; 2FA lives here. */}
+            <ProfileSettings />
+
+            {isAdmin && (<>
             {/* Header */}
             <div className="page-card">
                 <div className="page-header" style={{ borderBottom: 'none', paddingBottom: 0, marginBottom: 0 }}>
@@ -487,6 +495,7 @@ const UsersPage = () => {
                     </table>
                 </div>
             </div>
+            </>)}
 
             {/* Create/Edit User Modal */}
             {
@@ -727,7 +736,9 @@ const UsersPage = () => {
             {
                 showApiKeysModal && currentUser && (
                     <div className="modal-overlay">
-                        <div className="modal-content">
+                        {/* Wider than the 480px default: key cards and the MCP
+                            config block need the room or everything wraps. */}
+                        <div className="modal-content" style={{ maxWidth: '820px' }}>
                             <div className="modal-header">
                                 <h3 className="modal-title">API: {currentUser.username}</h3>
                             </div>

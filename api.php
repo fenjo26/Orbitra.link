@@ -15147,8 +15147,9 @@ try {
                 break;
             }
             $stmt = $pdo->query("
-                SELECT id, username, email, role, language, permissions_json, is_active, last_login, created_at 
-                FROM users 
+                SELECT id, username, email, role, language, permissions_json, is_active, last_login, created_at,
+                       (SELECT COUNT(*) FROM user_api_keys k WHERE k.user_id = users.id) AS api_keys_count
+                FROM users
                 ORDER BY created_at DESC
             ");
             $users = $stmt->fetchAll();

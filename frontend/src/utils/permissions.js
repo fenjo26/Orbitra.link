@@ -22,6 +22,9 @@ const TAB_PERMISSION_KEYS = {
 // and LeadForge/CRM, whose leadforge_*/crm_* actions are admin-only — is
 // admin-only too.
 const USER_GEAR_TABS = {
+    // The Users tab doubles as everyone's self-service profile (the accounts
+    // table inside renders for admins only) — so it is open to every role.
+    admin_users: null,
     admin_feedback: null,   // static contact/support info
     admin_logs: 'logs',     // click-debugging log viewer (action=logs)
     conversions: 'campaigns'
