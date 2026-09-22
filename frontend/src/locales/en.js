@@ -1564,6 +1564,7 @@ export default {
     "users": {
         "usersAndProfile": "Users & Profile",
         "apiKeys": "API Keys",
+        "roleHint": "Only two roles exist. Admin has full access; the account created during installation (id 1) cannot be deleted, and neither can the very last remaining admin. User gets only the sections you grant under Permissions (the shield icon) — the template above just pre-fills a typical set.",
         "roleTemplate": "Role template",
         "templateAdmin": "Admin (full access)",
         "templateMediaBuyer": "Media Buyer",

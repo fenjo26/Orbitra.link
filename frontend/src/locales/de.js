@@ -1564,6 +1564,7 @@ export default {
     "users": {
         "usersAndProfile": "Benutzer & Profil",
         "apiKeys": "API-Schlüssel",
+        "roleHint": "Es gibt nur zwei Rollen. Der Admin hat vollen Zugriff; das bei der Installation angelegte Konto (ID 1) kann nicht gelöscht werden, ebenso wenig der letzte verbleibende Admin. Der Benutzer sieht nur die Bereiche, die Sie unter Berechtigungen (Schild-Symbol) freigeben — die Vorlage oben belegt nur einen typischen Satz.",
         "roleTemplate": "Rollenvorlage",
         "templateAdmin": "Admin (voller Zugriff)",
         "templateMediaBuyer": "Media Buyer",

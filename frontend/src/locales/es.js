@@ -1564,6 +1564,7 @@ export default {
     "users": {
         "usersAndProfile": "Usuarios y perfil",
         "apiKeys": "Claves de API",
+        "roleHint": "Solo hay dos roles. El administrador tiene acceso total; la cuenta creada durante la instalación (id 1) no se puede eliminar, tampoco al último administrador restante. El usuario ve solo las secciones que conceda en Permisos (el icono de escudo); la plantilla de arriba solo rellena un conjunto típico.",
         "roleTemplate": "Plantilla de rol",
         "templateAdmin": "Admin (acceso total)",
         "templateMediaBuyer": "Media Buyer",

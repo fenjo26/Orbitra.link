@@ -1564,6 +1564,7 @@ export default {
     "users": {
         "usersAndProfile": "Utilisateurs et profil",
         "apiKeys": "Clés API",
+        "roleHint": "Il n'existe que deux rôles. L'administrateur a un accès complet; le compte créé lors de l'installation (id 1) ne peut pas être supprimé, pas plus que le dernier administrateur restant. L'utilisateur ne voit que les sections accordées dans Autorisations (l'icône bouclier) — le modèle ci-dessus ne fait que préremplir un jeu typique.",
         "roleTemplate": "Modèle de rôle",
         "templateAdmin": "Admin (accès complet)",
         "templateMediaBuyer": "Media Buyer",

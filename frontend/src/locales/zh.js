@@ -1564,6 +1564,7 @@ export default {
     "users": {
         "usersAndProfile": "用户与个人资料",
         "apiKeys": "API 密钥",
+        "roleHint": "只有两种角色。管理员拥有全部权限；安装时创建的账号（id 1）不可删除，最后一名管理员同样受保护。用户只能看到您在「权限」（盾牌图标）中授予的板块——上方模板只是预填典型组合。",
         "roleTemplate": "角色模板",
         "templateAdmin": "管理员（完全访问）",
         "templateMediaBuyer": "媒介采买",

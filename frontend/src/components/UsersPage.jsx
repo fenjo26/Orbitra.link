@@ -635,6 +635,9 @@ const UsersPage = ({ user }) => {
                                         <option value="admin">Admin</option>
                                     </select>
                                 </div>
+                                <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: 0 }}>
+                                    {t('users.roleHint')}
+                                </p>
                                 <div className="flex items-center gap-2">
                                     <input
                                         type="checkbox"
