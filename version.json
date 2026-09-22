@@ -1,6 +1,6 @@
 {
-    "version": "1.6.0",
-    "release_notes": "Security release (independent audit of v1.5.15). Fixes account takeover through profile_settings, role checks on every settings and admin action (default-deny for the user role), the IP allowlist, Telegram bot access (secret-checked webhook, chats join only with a one-time code from the panel), stopped/archived campaigns taking traffic, geo filters and TLS for geo downloads, lost clicks under database locks (file spool), Keitaro import mapping, and adds optional TOTP two-factor login and HMAC for /crm-ingest. IMPORTANT for servers installed before 1.6.0: after updating, the panel shows a one-time SSH command (cli/server_setup.sh) that replaces the old sudo rules through which the web user could become root. The Update button cannot do this step itself - please run the command once.",
+    "version": "1.6.1",
+    "release_notes": "Panel polish follow-up to 1.6.0 — update as usual, no extra steps. The Users tab now doubles as your profile: every role manages its own account and two-factor authentication on the Profile sub-tab, admins keep the accounts table on the Users sub-tab (the duplicate profile inside Settings is gone). Fixed the API-keys counter (always showed 0) and widened the keys modal; the timezone picker now covers 246 zones grouped by region with live UTC offsets; System Status reads RAM on hosts that hide /proc and says N/A when that is impossible; the manual Git update command self-provisions Composer.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-09-22"
 }

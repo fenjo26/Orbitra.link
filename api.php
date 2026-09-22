@@ -14049,6 +14049,13 @@ try {
                     $usedMemPercent = $totalMem > 0 ? round((($totalMem - $freeMem) / $totalMem) * 100, 1) : 0;
                 }
                 if ($totalMem === 0) {
+                    // shell_exec may be disabled entirely (shared hosts list it in
+                    // disable_functions) — calling it anyway is a fatal \Error,
+                    // which the \Exception catch below does not cover.
+                    $canShell = function_exists('shell_exec')
+                        && !in_array('shell_exec', array_filter(preg_split('/[\s,]+/', (string) ini_get('disable_functions'))), true);
+                }
+                if ($totalMem === 0 && $canShell) {
                     // free prints kilobytes by default; -b keeps the unit bytes.
                     // Columns: total used free shared buff/cache available.
                     $freeOut = @shell_exec('free -b 2>/dev/null');
@@ -14062,7 +14069,7 @@ try {
                         }
                     }
                 }
-                if ($totalMem === 0 && PHP_OS_FAMILY === 'Darwin') {
+                if ($totalMem === 0 && $canShell && PHP_OS_FAMILY === 'Darwin') {
                     $totalMem = (int) orbitraShell('sysctl -n hw.memsize 2>/dev/null');
                     $vmStat = @shell_exec('vm_stat 2>/dev/null');
                     // macOS keeps almost nothing "free"; reclaimable inactive and
@@ -14075,7 +14082,7 @@ try {
                         $usedMemPercent = round((($totalMem - $freeMem) / $totalMem) * 100, 1);
                     }
                 }
-                if ($totalMem === 0 && PHP_OS_FAMILY === 'Windows') {
+                if ($totalMem === 0 && $canShell && PHP_OS_FAMILY === 'Windows') {
                     $wmi = @shell_exec('wmic OS get TotalVisibleMemorySize,FreePhysicalMemory /value 2>nul');
                     if (is_string($wmi)
                         && preg_match('/FreePhysicalMemory=(\d+)/', $wmi, $fm)

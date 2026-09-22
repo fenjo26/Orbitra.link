@@ -7,6 +7,37 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.1] — 2026-09-22
+
+Panel polish follow-up to 1.6.0 — no action required, update as usual.
+
+### Changed
+
+- **One Users tab for everyone.** The tab (gear menu) now carries two sub-tabs:
+  **Users** — the accounts table, visible to admins as before — and **Profile**,
+  where every role manages its own account: login, email, language, timezone,
+  password and two-factor authentication. Non-admins land on Profile directly
+  and finally get self-service; the duplicate Profile sub-tab inside Settings
+  is gone.
+- **Timezone picker expanded** (profile and setup wizard): 246 zones grouped by
+  region, with live UTC offsets that follow DST instead of hardcoded labels.
+  A saved zone outside the list stays selectable and is never silently
+  changed.
+
+### Fixed
+
+- **API-keys counter** in the Users table always showed 0 — the backend never
+  computed it. It now counts the same keys the API modal lists.
+- **System Status RAM** showed 0% / N/A on hosts that hide `/proc`
+  (open_basedir panels). Added fallbacks (`free -b`, macOS, Windows); when a
+  host hides everything, the tile says N/A instead of a meaningless 0%.
+- **Manual Git update command** (Update page and the exec-disabled hint) now
+  self-provisions the pinned Composer when `composer.phar` is missing, and no
+  longer depends on a system-wide Composer.
+- The API-keys modal is wider (820px) so key cards and the MCP config block
+  stop wrapping; a role hint in the create/edit user modal explains the two
+  roles, the protected install account and the granular permissions.
+
 ## [1.6.0] — 2026-09-22
 
 Security release: every finding of the independent audit of v1.5.15, plus the

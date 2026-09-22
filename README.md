@@ -1,4 +1,4 @@
-# Orbitra v1.6.0 Tracker
+# Orbitra v1.6.1 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,29 +11,24 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.6.0
+## 🆕 What's New in v1.6.1
 
-A security release built on an independent audit of v1.5.15.
+A follow-up polish release on top of the 1.6.0 security work.
 
 ### Added
 
-- 🛡 **Security hardening** — account takeover through the profile API is fixed; every settings/admin action checks the role (default-deny for non-admins); the admin IP allowlist actually filters now (fail-closed, IPv6 support); stopped and archived campaigns stop serving traffic (503/404) on every entry point; geo database downloads verify TLS
-- 🌍 **Geo that really works** — the empty Sypex reader stub is replaced with a working PHP 8 SxGeo (v2.2.3, BSD); country filters fail closed when a geo base is present; the updater sanity-checks the base after download instead of trusting any file
-- 🤖 **Telegram bot locked down** — the webhook verifies Telegram's secret token, chats join only with a one-time code from the panel, chats can be removed from the panel, polling installs refuse webhook calls
-- 🔐 **Optional TOTP two-factor login** — pair an authenticator app in your profile; if the phone is lost, the CLI password reset also clears 2FA
-- 💾 **Lost clicks are no longer lost** — a click that hits a locked SQLite database is spooled to disk and replayed by a cron; the visitor's redirect never waits for it
-- 📥 **Keitaro import fixes** — campaign states (deleted/disabled stay off), stream Direct URLs and action payloads, accept/reject filter modes, quoted dumps, and an import report for filters without an equivalent
-- 🖥 **One-time server step after update** — the panel shows a single SSH command (`cli/server_setup.sh`) that replaces the legacy sudo rules (a web-user-to-root path), installs the click-spool cron and a hardened nginx-config helper; fresh installs run the same script automatically
-- ⚙️ **Also** — `sudo certbot` replaced by fixed-argument wrappers, `composer.phar` out of the repo (pinned, hash-checked download), the server no longer builds the frontend, failed-login throttling per IP and account (401/429), optional HMAC for `/crm-ingest`, pixel profile editing is admin-only, nginx/Apache deny database files and service directories, `X-Frame-Options` on the panel, extension download keeps working
+- 👥 **One Users tab for everyone** — two sub-tabs: Users (the accounts table, admins) and Profile (own login, email, language, timezone, password and 2FA). Non-admins land on their profile directly; the duplicate profile inside Settings is gone
+- ⏰ **246 timezones** — grouped by region with live UTC offsets that follow DST (profile + setup wizard); a saved zone outside the list is never silently changed
+- 🩺 **System Status RAM** — reads memory via `free`/sysctl/wmic when /proc is hidden (open_basedir panels); says N/A when the host allows nothing
+- 🔢 **API-keys counter fixed** — it always showed 0; now counts the same keys the API modal lists, and the keys modal got wider (820px)
+- 🧭 **Manual Git update** self-provisions the pinned Composer; a role hint in the user modal explains the two roles and granular permissions
 
-### Previous Highlights (v1.5.15)
+### Previous Highlights (v1.6.0)
 
-- 🌍 **Geo databases out of the box** — the installer downloads the free Sypex Geo City base and a monthly cron keeps it fresh; installs without access to sypexgeo.net still work and can add the base later
-- ♻️ **Existing installs self-heal** — after a successful update the tracker downloads Sypex when no geo base is present
-- 📢 **"No geo database" banner** — on every tab: what breaks without a base, a one-click Sypex install, a link to the geo settings
-- 🔑 **MaxMind / IP2Location auto-update** — the same monthly job, only when account keys are saved in Settings → Geo databases
+- 🛡 **Security hardening from an independent audit** — account takeover and role checks fixed (default-deny for non-admins), IP allowlist, stopped/archived campaigns stop serving, the Sypex geo reader actually works now, TLS-verified geo downloads, Telegram bot locked down (one-time chat codes), optional TOTP two-factor login, HMAC for /crm-ingest, lost clicks spooled to disk, Keitaro import fixes
+- 🖥 **One-time server step** — after update the panel shows a single SSH command replacing the legacy sudo rules; fresh installs run it automatically
 
-Older releases (v1.5.14 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.5.15 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo
