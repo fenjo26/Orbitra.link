@@ -2808,12 +2808,12 @@ if ($uriPath === '/pixel.gif') {
                 'longitude' => $pxGeo['longitude'] ?? null,
                 'zipcode' => $pxGeo['zipcode'] ?? '',
                 'timezone' => $pxGeo['timezone'] ?? '',
-                // Preserved from the original INSERT: the pixel never
-                // fingerprinted the OS, and the detected device kind lands in
-                // browser exactly as it did before.
-                'device_type' => 'Unknown',
+                // v1.6.2 semantics (acceptance round 3): the detected device
+                // kind goes to device_type, while os and browser stay
+                // 'Unknown' — the pixel never fingerprinted either.
+                'device_type' => orbitraClickApiGetDeviceType($pxUa),
                 'os' => 'Unknown',
-                'browser' => orbitraClickApiGetDeviceType($pxUa),
+                'browser' => 'Unknown',
                 'language' => ($pxLangCodes = orbitraClickApiExtractLanguageCodes($pxAcceptLanguage)) ? $pxLangCodes[0] : 'Unknown',
                 'accept_language_raw' => $pxAcceptLanguage,
                 'parameters_json' => $pxParamsJson,

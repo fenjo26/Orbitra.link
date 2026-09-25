@@ -43,11 +43,14 @@ try {
     $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('ignore_prefetch', '0')")->execute();
 
     $ua = 'Mozilla/5.0 PixelTest/1.0 Chrome/124';
-    $getPixel = static function (string $query) use ($harness): array {
+    // An iPhone UA: v1.6.2 recorded device_type = Mobile with os/browser
+    // 'Unknown' — the swap found in acceptance round 3 must stay fixed.
+    $iphoneUa = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1';
+    $getPixel = static function (string $query, string $ua = 'Mozilla/5.0 PixelTest/1.0 Chrome/124') use ($harness): array {
         $ctx = stream_context_create(['http' => [
             'timeout' => 5,
             'ignore_errors' => true,
-            'header' => "User-Agent: Mozilla/5.0 PixelTest/1.0 Chrome/124\r\nX-Forwarded-For: 203.0.113.90\r\n",
+            'header' => "User-Agent: $ua\r\nX-Forwarded-For: 203.0.113.90\r\n",
         ]]);
         $body = @file_get_contents($harness->getBaseUrl() . "/pixel.gif?$query", false, $ctx);
         $code = 0;
@@ -98,6 +101,24 @@ try {
     check(count($rows) === 3, 'a second identical impression still writes its own row (got ' . count($rows) . ')');
     $hashes = array_unique(array_map(static fn($r) => (string) $r['ua_hash'], $rows));
     check($hashes === [(string) crc32($ua)], 'every pixel click row carries the same correct hash');
+
+    // --- device columns match v1.6.2 (acceptance round 3) ---------------------
+    // v1.6.2 recorded an iPhone as device_type = Mobile, os = Unknown,
+    // browser = Unknown. The round-2 rewrite swapped the detected kind into
+    // browser and left device_type 'Unknown' — device reports would have
+    // shown the whole pixel traffic as Unknown.
+    $getPixel("campaign_id=$campaignId&sub1=px4", $iphoneUa);
+    $stmt = $pdo->prepare("SELECT device_type, os, browser FROM clicks WHERE campaign_id = ? AND user_agent = ? ORDER BY created_at DESC LIMIT 1");
+    $stmt->execute([$campaignId, $iphoneUa]);
+    $deviceRow = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt->closeCursor();
+    check($deviceRow !== false, 'the iPhone impression landed a row');
+    if ($deviceRow) {
+        check($deviceRow['device_type'] === 'Mobile',
+            "iPhone recorded as device_type = Mobile (got '{$deviceRow['device_type']}')");
+        check($deviceRow['os'] === 'Unknown' && $deviceRow['browser'] === 'Unknown',
+            "os and browser stay 'Unknown' like v1.6.2 (got '{$deviceRow['os']}' / '{$deviceRow['browser']}')");
+    }
 } catch (\Throwable $e) {
     check(false, 'unexpected exception: ' . $e->getMessage());
 } finally {
