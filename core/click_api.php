@@ -720,6 +720,7 @@ function orbitraClickApiV3(PDO $pdo): void
             $stmtL = $pdo->prepare("SELECT type, url, action_payload, action_type, slug FROM landings WHERE id = ?");
             $stmtL->execute([$safeLandingId]);
             $land = $stmtL->fetch(PDO::FETCH_ASSOC);
+            $stmtL->closeCursor();
             if ($land) {
                 $landingIdToLog = $safeLandingId;
                 $landingType = $land['type'] ?? null;
@@ -748,6 +749,7 @@ function orbitraClickApiV3(PDO $pdo): void
             $stmtSafeOffer = $pdo->prepare("SELECT is_local FROM offers WHERE id = ? LIMIT 1");
             $stmtSafeOffer->execute([$safeOfferId]);
             $safeOfferRow = $stmtSafeOffer->fetch();
+            $stmtSafeOffer->closeCursor();
             if ($safeOfferRow && (int) ($safeOfferRow['is_local'] ?? 0) === 1) {
                 $finalUrl = '/offers/' . $safeOfferId . '/';
             } else {
@@ -770,6 +772,7 @@ function orbitraClickApiV3(PDO $pdo): void
             $stmtL = $pdo->prepare("SELECT type, url, action_payload, action_type FROM landings WHERE id = ?");
             $stmtL->execute([$landingIdToLog]);
             $land = $stmtL->fetch(PDO::FETCH_ASSOC);
+            $stmtL->closeCursor();
             if ($land) {
                 $landingType = $land['type'] ?? null;
                 $landingUrl = $land['url'] ?? null;

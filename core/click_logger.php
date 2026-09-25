@@ -144,6 +144,62 @@ function orbitraIsSqliteLockError(\Throwable $e): bool
 }
 
 /**
+ * Campaign uniqueness check for the click path (index.php).
+ *
+ * This is the inline SELECT the router used to run, moved here so the read
+ * cursor is closed before returning. A single-row ->fetch() that FINDS a row
+ * leaves the statement open, and an open statement holds a WAL read snapshot:
+ * the click INSERT later in the same request then fails immediately with
+ * SQLITE_BUSY_SNAPSHOT ("database is locked") the moment any other writer
+ * commits in between — busy_timeout does not apply to that error, so the
+ * click went to the spool for up to a minute. Only returning visitors were
+ * affected: for unique visitors the SELECT runs to completion (no row) and
+ * releases the snapshot by itself.
+ *
+ * @param int $uniquenessHours Campaign uniqueness window in hours (> 0)
+ * @param string $uniquenessMethod 'IP' or 'IP_UA'
+ */
+function orbitraFindUniquenessConflict(PDO $pdo, int $campaignId, string $ip, string $userAgent, int $uniquenessHours, string $uniquenessMethod): bool
+{
+    $timeAgo = date('Y-m-d H:i:s', time() - ($uniquenessHours * 3600));
+    $uniqCond = "ip = ?";
+    $uniqParams = [$ip];
+    if ($uniquenessMethod === 'IP_UA') {
+        $uniqCond .= " AND user_agent = ?";
+        $uniqParams[] = $userAgent;
+    }
+
+    $uniqStmt = $pdo->prepare("SELECT id FROM clicks WHERE campaign_id = ? AND " . $uniqCond . " AND created_at >= ? LIMIT 1");
+    $uniqStmt->execute(array_merge([$campaignId], $uniqParams, [$timeAgo]));
+    $found = (bool) $uniqStmt->fetch();
+    $uniqStmt->closeCursor();
+    return $found;
+}
+
+/**
+ * Browser debounce lookup for the click path (index.php / click.php).
+ *
+ * The debounce key is campaign_id + ip + user_agent, window 2 s. IP alone
+ * collapsed different people behind one mobile carrier NAT (CGNAT): the
+ * second visitor got no clicks row but still a redirect with a freshly
+ * generated subid, so their conversions had nothing to attach to.
+ *
+ * Returns the stored click id of the duplicate so the caller can serve the
+ * redirect with a subid that actually exists in the database (the row itself
+ * is never rewritten), or null when the visit is not a duplicate. The cursor
+ * is closed before returning — see orbitraFindUniquenessConflict() for why
+ * an open cursor breaks the click INSERT that may follow.
+ */
+function orbitraFindDebounceDuplicate(PDO $pdo, int $campaignId, string $ip, string $userAgent): ?string
+{
+    $stmt = $pdo->prepare("SELECT id FROM clicks WHERE ip = ? AND campaign_id = ? AND user_agent = ? AND created_at >= datetime('now', '-2 seconds') LIMIT 1");
+    $stmt->execute([$ip, $campaignId, $userAgent]);
+    $id = $stmt->fetchColumn();
+    $stmt->closeCursor();
+    return $id === false ? null : (string) $id;
+}
+
+/**
  * Append a click row to the on-disk spool (var/spool/clicks.log).
  *
  * Last-resort sink for clicks that could not be inserted even after the lock

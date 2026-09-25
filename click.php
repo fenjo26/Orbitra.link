@@ -60,6 +60,7 @@ if ($token) {
     $stmt = $pdo->prepare("SELECT * FROM campaigns WHERE token = ? LIMIT 1");
     $stmt->execute([$token]);
     $campaign = $stmt->fetch();
+    $stmt->closeCursor();
     if ($campaign) {
         $campaignId = (int) ($campaign['id'] ?? 0);
     }
@@ -67,6 +68,7 @@ if ($token) {
     $stmt = $pdo->prepare("SELECT * FROM campaigns WHERE id = ? LIMIT 1");
     $stmt->execute([$campaignId]);
     $campaign = $stmt->fetch();
+    $stmt->closeCursor();
 }
 
 if (!$campaign) {
@@ -528,6 +530,7 @@ if ($stream) {
             $stmtSafe = $pdo->prepare("SELECT type, url, action_payload, action_type, slug FROM landings WHERE id = ? LIMIT 1");
             $stmtSafe->execute([$safeLandingId]);
             $safeLanding = $stmtSafe->fetch();
+            $stmtSafe->closeCursor();
             if ($safeLanding) {
                 $safeType = (string) ($safeLanding['type'] ?? '');
                 if (in_array($safeType, ['redirect', 'preload'], true) && !empty($safeLanding['url'])) {
@@ -555,6 +558,7 @@ if ($stream) {
             $stmtSafeOffer = $pdo->prepare("SELECT is_local FROM offers WHERE id = ? LIMIT 1");
             $stmtSafeOffer->execute([$safeOfferId]);
             $safeOfferRow = $stmtSafeOffer->fetch();
+            $stmtSafeOffer->closeCursor();
             if ($safeOfferRow && (int) ($safeOfferRow['is_local'] ?? 0) === 1) {
                 $safeScheme = orbitraIsHttps() ? 'https' : 'http';
                 $safeHost = (string) ($_SERVER['HTTP_HOST'] ?? '');
@@ -588,12 +592,14 @@ if ($stream) {
     }
 }
 
-// Debounce: prevent duplicate clicks within 2 seconds
-$isDebounced = false;
-$stmtDebounce = $pdo->prepare("SELECT id FROM clicks WHERE ip = ? AND campaign_id = ? AND created_at >= datetime('now', '-2 seconds') LIMIT 1");
-$stmtDebounce->execute([$ip, $campaignId]);
-if ($stmtDebounce->fetch()) {
-    $isDebounced = true;
+// Debounce: prevent duplicate clicks within 2 seconds. Keyed by ip + user
+// agent (IP alone collapsed different people behind one carrier NAT), and a
+// hit reuses the stored click id so the redirect/JSON carries a subid that
+// exists in the clicks table — see orbitraFindDebounceDuplicate().
+$debounceId = orbitraFindDebounceDuplicate($pdo, (int) $campaignId, $ip, $userAgent);
+$isDebounced = $debounceId !== null;
+if ($isDebounced) {
+    $clickId = $debounceId;
 }
 
 // Stream-level "Collect clicks" (see index.php): a no-collect stream serves

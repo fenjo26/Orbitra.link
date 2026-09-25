@@ -3593,18 +3593,21 @@ if (!empty($alias)) {
     $stmt = $pdo->prepare("SELECT * FROM campaigns WHERE alias = ? LIMIT 1");
     $stmt->execute([$alias]);
     $campaign = $stmt->fetch();
+    $stmt->closeCursor();
 }
 
 if (!$campaign && $directCampaignId) {
     $stmt = $pdo->prepare("SELECT * FROM campaigns WHERE id = ? LIMIT 1");
     $stmt->execute([$directCampaignId]);
     $campaign = $stmt->fetch();
+    $stmt->closeCursor();
 }
 
 if (!$campaign && $fallbackCampaignId) {
     $stmt = $pdo->prepare("SELECT * FROM campaigns WHERE id = ? LIMIT 1");
     $stmt->execute([$fallbackCampaignId]);
     $campaign = $stmt->fetch();
+    $stmt->closeCursor();
 }
 
 if (!$campaign) {
@@ -3707,21 +3710,17 @@ $clickParams = orbitraCollectClickParams($pdo, $incomingParams, $_COOKIE, $campa
 
 $parametersJson = json_encode($clickParams, JSON_UNESCAPED_UNICODE);
 
-// Проверка уникальности
+// Проверка уникальности. The lookup lives in the shared click logger: an
+// inline single-row fetch() left the read cursor (and its WAL snapshot) open
+// for the rest of the request, and the INSERT below then failed with an
+// instant "database is locked" whenever another writer committed — see
+// orbitraFindUniquenessConflict().
 $isUnique = 1;
 if (!empty($campaign['uniqueness_hours']) && $campaign['uniqueness_hours'] > 0) {
-    $timeAgo = date('Y-m-d H:i:s', time() - ($campaign['uniqueness_hours'] * 3600));
-    $uniqCond = "ip = ?";
-    $uniqParams = [$ip];
-    if (($campaign['uniqueness_method'] ?? '') === 'IP_UA') {
-        $uniqCond .= " AND user_agent = ?";
-        $uniqParams[] = $userAgent;
+    if (!function_exists('orbitraFindUniquenessConflict')) {
+        require_once __DIR__ . '/core/click_logger.php';
     }
-
-    $uniqStmt = $pdo->prepare("SELECT id FROM clicks WHERE campaign_id = ? AND " . $uniqCond . " AND created_at >= ? LIMIT 1");
-    $stmtParams = array_merge([$campaignId], $uniqParams, [$timeAgo]);
-    $uniqStmt->execute($stmtParams);
-    if ($uniqStmt->fetch()) {
+    if (orbitraFindUniquenessConflict($pdo, (int) $campaignId, $ip, $userAgent, (int) $campaign['uniqueness_hours'], (string) ($campaign['uniqueness_method'] ?? ''))) {
         $isUnique = 0;
     }
 }
@@ -4241,6 +4240,7 @@ if ($selectedStream) {
             $stmt = $pdo->prepare("SELECT type, url, action_payload, action_type, redirect_type FROM landings WHERE id = ?");
             $stmt->execute([$landingIdToLog]);
             $land = $stmt->fetch();
+            $stmt->closeCursor();
             if ($land) {
                 $landingType = $land['type'];
                 $landingUrl = $land['url'];
@@ -4369,6 +4369,7 @@ if ($selectedStream) {
                 $stmt = $pdo->prepare("SELECT type, url, action_payload, action_type, redirect_type FROM landings WHERE id = ?");
                 $stmt->execute([$safeLandingId]);
                 $safeLand = $stmt->fetch();
+                $stmt->closeCursor();
                 if ($safeLand) {
                     $landingIdToLog = $safeLandingId;
                     $landingType = $safeLand['type'];
@@ -4429,6 +4430,7 @@ if ($selectedStream) {
                 $stmt = $pdo->prepare("SELECT type, url, action_payload, action_type, redirect_type FROM landings WHERE id = ?");
                 $stmt->execute([$landingIdToLog]);
                 $land = $stmt->fetch();
+                $stmt->closeCursor();
                 if ($land) {
                     $landingType = $land['type'];
                     $landingUrl = $land['url'];
@@ -4498,12 +4500,20 @@ $statsEnabled = isset($settings['stats_enabled']) ? (int) $settings['stats_enabl
 $streamIdToLog = $selectedStream['id'] ?? null;
 $sourceIdToLog = $campaign['source_id'] ?? null;
 
-// Browser Debounce: Prevent double-logging when browsers fire duplicate background requests rapidly
-$isDebounced = false;
-$stmtDebounce = $pdo->prepare("SELECT id FROM clicks WHERE ip = ? AND campaign_id = ? AND created_at >= datetime('now', '-2 seconds') LIMIT 1");
-$stmtDebounce->execute([$ip, $campaignId]);
-if ($stmtDebounce->fetch()) {
-    $isDebounced = true;
+// Browser Debounce: collapse duplicate background requests fired within a
+// 2-second window. Keyed by ip + user agent — IP alone collapsed different
+// people behind one mobile carrier NAT, and the second visitor used to get a
+// redirect carrying a freshly generated subid with no clicks row behind it,
+// so their conversions had nothing to attach to. On a hit the stored click id
+// is reused before the redirect step: the row is not rewritten, the stream
+// and offer chosen above stay as they are (same browser, 2-second window).
+if (!function_exists('orbitraFindDebounceDuplicate')) {
+    require_once __DIR__ . '/core/click_logger.php';
+}
+$debounceId = orbitraFindDebounceDuplicate($pdo, (int) $campaignId, $ip, $userAgent);
+$isDebounced = $debounceId !== null;
+if ($isDebounced) {
+    $clickId = $debounceId;
 }
 
 // Stream-level "Collect clicks": the stream still serves its destination,

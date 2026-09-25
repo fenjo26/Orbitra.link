@@ -161,6 +161,7 @@ if (!function_exists('orbitraConversionAttributionColumns')) {
             );
             $stmt->execute([$clickId]);
             $click = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt->closeCursor();
         } catch (\Throwable $e) {
             return null;
         }
