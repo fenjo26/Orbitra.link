@@ -2624,32 +2624,26 @@ function getDashboardFilters($prefix = '')
     $dateColumn = "{$prefix}created_at";
 
     switch ($date_range) {
+        // Presets share the shape date(created_at, tz) >= date('now', …): one
+        // local-day lower bound, no upper bound. The bound is now a UTC
+        // literal (see core/ReportMetrics.php) so the (campaign_id, created_at)
+        // index serves the range instead of a full history scan.
         case 'today':
-            $conditions[] = "date($dateColumn, '$dbTzOffset') = date('now', '$dbTzOffset')";
-            break;
         case 'yesterday':
-            $conditions[] = "date($dateColumn, '$dbTzOffset') = date('now', '-1 day', '$dbTzOffset')";
-            break;
         case 'this_week':
-            $conditions[] = "date($dateColumn, '$dbTzOffset') >= date('now', 'weekday 1', '-7 days', '$dbTzOffset')";
-            break;
         case 'last_7_days':
-            $conditions[] = "date($dateColumn, '$dbTzOffset') >= date('now', '-7 days', '$dbTzOffset')";
-            break;
         case 'this_month':
-            $conditions[] = "date($dateColumn, '$dbTzOffset') >= date('now', 'start of month', '$dbTzOffset')";
-            break;
         case 'last_30_days':
-            $conditions[] = "date($dateColumn, '$dbTzOffset') >= date('now', '-30 days', '$dbTzOffset')";
+            $anchorDay = orbitraDashboardAnchorDay($date_range, $dbTzOffset);
+            [$presetStart] = orbitraLocalDayBoundsUtc($anchorDay, $dbTzOffset);
+            $conditions[] = "$dateColumn >= '$presetStart'";
             break;
         case 'custom':
             if ($custom_from) {
-                $conditions[] = "date($dateColumn, '$dbTzOffset') >= date(?)";
-                $params[] = $custom_from;
+                $conditions[] = orbitraLocalDayLowerBoundSql($dateColumn, $custom_from, $dbTzOffset);
             }
             if ($custom_to) {
-                $conditions[] = "date($dateColumn, '$dbTzOffset') <= date(?)";
-                $params[] = $custom_to;
+                $conditions[] = orbitraLocalDayUpperBoundSql($dateColumn, $custom_to, $dbTzOffset);
             }
             break;
     }
@@ -3281,12 +3275,10 @@ try {
             $paramsCl = [];
             $joinConds = [];
             if ($date_from) {
-                $joinConds[] = "date(cl.created_at, '$dbTzOffset') >= date(?)";
-                $paramsCl[] = $date_from;
+                $joinConds[] = orbitraLocalDayLowerBoundSql('cl.created_at', $date_from, $dbTzOffset);
             }
             if ($date_to) {
-                $joinConds[] = "date(cl.created_at, '$dbTzOffset') <= date(?)";
-                $paramsCl[] = $date_to;
+                $joinConds[] = orbitraLocalDayUpperBoundSql('cl.created_at', $date_to, $dbTzOffset);
             }
 
             if (empty($date_from) && empty($date_to)) {
@@ -3324,6 +3316,10 @@ try {
                 ? 'LEFT JOIN ' . orbitraRevenueRecordsAggregateSql($revRecordsCol) . ' rr ON rr.click_id = cl.id'
                 : '';
             $realRevSelect = $revRecordsCol !== null ? 'COALESCE(SUM(rr.real_rev), 0)' : '0';
+            // Screen views pre-aggregated per click, same shape as the
+            // conversion/revenue aggregates above — the correlated
+            // SUM((SELECT COUNT(*) …)) version ran once per click row.
+            $pwaJoin = 'LEFT JOIN (SELECT click_id, COUNT(*) AS pv_cnt FROM pwa_screen_views GROUP BY click_id) pv ON pv.click_id = cl.id';
 
             $limitClause = isset($_GET['limit']) ? "LIMIT " . (int) $_GET['limit'] : "";
             $havingClause = isset($_GET['limit']) ? "HAVING clicks > 0" : "";
@@ -3360,7 +3356,7 @@ try {
                        SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 AND cl.offer_at IS NOT NULL THEN 1 ELSE 0 END) as real_lp_clicks,
                        SUM(CASE WHEN (cl.offer_id > 0 OR COALESCE(cl.direct_offer, 0) = 1)
                                 AND (cl.landing_id IS NULL OR cl.landing_id = 0 OR cl.offer_at IS NOT NULL) THEN 1 ELSE 0 END) as real_offer_clicks,
-                       COALESCE(SUM((SELECT COUNT(*) FROM pwa_screen_views v WHERE v.click_id = cl.id)), 0) as pwa_screen_views,
+                       COALESCE(SUM(pv.pv_cnt), 0) as pwa_screen_views,
                        COALESCE(SUM(cv.cnt_any), 0) as conversions,
                        COALESCE(SUM(cv.cnt_sale), 0) as purchases,
                        COALESCE(SUM(cv.cnt_hold), 0) as holds,
@@ -3384,6 +3380,7 @@ try {
                 LEFT JOIN clicks cl ON c.id = cl.campaign_id $joinCondition
                 LEFT JOIN $convAggSql cv ON cv.click_id = cl.id
                 $realJoin
+                $pwaJoin
                 WHERE c.is_archived = 0 $groupWhere $scopeWhere
                 GROUP BY c.id
                 $havingClause
@@ -3518,7 +3515,10 @@ try {
 
             // Time range filter, in the report timezone: created_at is stored
             // UTC and $dbTzOffset shifts it the same way getDashboardFilters()
-            // shifts every other report surface.
+            // shifts every other report surface. The days become UTC string
+            // bounds so the (campaign_id, created_at) index can seek.
+            [$cloakSummaryLower] = orbitraLocalDayBoundsUtc($from, $dbTzOffset);
+            [, $cloakSummaryUpper] = orbitraLocalDayBoundsUtc($to, $dbTzOffset);
 
             // Get stream schema to check if it's a cloak stream
             $stmt = $pdo->prepare("SELECT s.schema_type, s.schema_custom_json FROM streams s
@@ -3534,10 +3534,10 @@ try {
                     SUM(CASE WHEN is_safe_page = 1 THEN 1 ELSE 0 END) as safe
                 FROM clicks
                 WHERE campaign_id = ?
-                  AND date(created_at, '$dbTzOffset') >= date(?)
-                  AND date(created_at, '$dbTzOffset') <= date(?)
+                  AND created_at >= '$cloakSummaryLower'
+                  AND created_at < '$cloakSummaryUpper'
             ");
-            $stmt->execute([$campaignId, $from, $to]);
+            $stmt->execute([$campaignId]);
             $counts = $stmt->fetch();
 
             // Get suppressed count from cloak_suppressed_stats.
@@ -3566,12 +3566,12 @@ try {
                     COUNT(*) as count
                 FROM clicks
                 WHERE campaign_id = ?
-                  AND date(created_at, '$dbTzOffset') >= date(?)
-                  AND date(created_at, '$dbTzOffset') <= date(?)
+                  AND created_at >= '$cloakSummaryLower'
+                  AND created_at < '$cloakSummaryUpper'
                     AND cloak_reasons IS NOT NULL AND cloak_reasons != ''
                 GROUP BY cloak_verdict, cloak_reasons
             ");
-            $stmtReasons->execute([$campaignId, $from, $to]);
+            $stmtReasons->execute([$campaignId]);
             $reasonRows = $stmtReasons->fetchAll();
 
             // Parse reason codes - each click may have multiple comma-separated reasons
@@ -5012,12 +5012,10 @@ try {
             $paramsCl = [];
             $dateConditions = [];
             if ($dateFrom !== null) {
-                $dateConditions[] = "date(cl.created_at, '$dbTzOffset') >= date(?)";
-                $paramsCl[] = $dateFrom;
+                $dateConditions[] = orbitraLocalDayLowerBoundSql('cl.created_at', $dateFrom, $dbTzOffset);
             }
             if ($dateTo !== null) {
-                $dateConditions[] = "date(cl.created_at, '$dbTzOffset') <= date(?)";
-                $paramsCl[] = $dateTo;
+                $dateConditions[] = orbitraLocalDayUpperBoundSql('cl.created_at', $dateTo, $dbTzOffset);
             }
 
             if ($dateConditions) {
@@ -7535,12 +7533,10 @@ try {
                 $paramsCl = [];
                 $joinConds = [];
                 if ($dateFrom !== null) {
-                    $joinConds[] = "date(cl.created_at, '$dbTzOffset') >= date(?)";
-                    $paramsCl[] = $dateFrom;
+                    $joinConds[] = orbitraLocalDayLowerBoundSql('cl.created_at', $dateFrom, $dbTzOffset);
                 }
                 if ($dateTo !== null) {
-                    $joinConds[] = "date(cl.created_at, '$dbTzOffset') <= date(?)";
-                    $paramsCl[] = $dateTo;
+                    $joinConds[] = orbitraLocalDayUpperBoundSql('cl.created_at', $dateTo, $dbTzOffset);
                 }
                 // W3.4: safe-page exclusion, resolved per campaign — see
                 // orbitraSafePagePredicate() in place of the old global flag.
@@ -12359,10 +12355,8 @@ try {
                 $whereParams[] = $streamId;
             }
             if ($logFrom !== null && $logTo !== null) {
-                $whereParts[] = "date(cl.created_at, '$dbTzOffset') >= date(?)";
-                $whereParams[] = $logFrom;
-                $whereParts[] = "date(cl.created_at, '$dbTzOffset') <= date(?)";
-                $whereParams[] = $logTo;
+                $whereParts[] = orbitraLocalDayLowerBoundSql('cl.created_at', $logFrom, $dbTzOffset);
+                $whereParts[] = orbitraLocalDayUpperBoundSql('cl.created_at', $logTo, $dbTzOffset);
             } elseif ($hours > 0) {
                 $whereParts[] = "cl.created_at >= datetime('now', ?)";
                 $whereParams[] = "-{$hours} hours";
@@ -13285,12 +13279,10 @@ try {
                 $conds[] = $reportScopeIn;
             }
             if ($date_from) {
-                $conds[] = "date(clicks.created_at, '$dbTzOffset') >= date(?)";
-                $params[] = $date_from;
+                $conds[] = orbitraLocalDayLowerBoundSql('clicks.created_at', $date_from, $dbTzOffset);
             }
             if ($date_to) {
-                $conds[] = "date(clicks.created_at, '$dbTzOffset') <= date(?)";
-                $params[] = $date_to;
+                $conds[] = orbitraLocalDayUpperBoundSql('clicks.created_at', $date_to, $dbTzOffset);
             }
 
             // Optional filters (JSON array of {field, op, value})

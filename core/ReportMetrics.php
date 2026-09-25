@@ -655,3 +655,119 @@ function orbitraSafePagePredicate(string $prefix = ''): string
             ))";
 }
 }
+
+// ---- Report-local day → UTC range helpers -----------------------------------
+//
+// The report surfaces used to filter clicks with date(created_at, tz) >= date(?)…
+// A function over the column defeats every (campaign_id, created_at) index, so
+// on aged databases the whole campaign history was scanned for every request.
+// These helpers translate a report-local day into the UTC string bounds the
+// stored clicks.created_at ('YYYY-MM-DD HH:MM:SS', always UTC) can be compared
+// against directly, keeping results identical to the old expressions.
+
+if (!function_exists('orbitraTzOffsetSeconds')) {
+    /** '+03:00' / '-05:30' / '+00:00' → seconds east of UTC (0 on garbage). */
+    function orbitraTzOffsetSeconds(string $dbTzOffset): int
+    {
+        if (!preg_match('/^([+-])(\d{2}):(\d{2})$/', $dbTzOffset, $m)) {
+            return 0;
+        }
+        $sign = $m[1] === '-' ? -1 : 1;
+        return $sign * ((int) $m[2] * 3600 + (int) $m[3] * 60);
+    }
+}
+
+if (!function_exists('orbitraLocalDayBoundsUtc')) {
+    /**
+     * One report-local day under the fixed $dbTzOffset as a half-open UTC
+     * interval [start, end), identical to the old
+     * date(created_at, tz) >= date(D)  ⇔  created_at >= start
+     * date(created_at, tz) <= date(D)  ⇔  created_at < end(D + 1 day)
+     *
+     * The offset stays the fixed request-time value the old SQL applied, so a
+     * DST change between now and a stored click never flips a row across days.
+     *
+     * @return array{0:string,1:string} 'Y-m-d H:i:s' UTC bounds. A day that is
+     *         not 'Y-m-d' yields bounds matching nothing — the old expression
+     *         degraded to NULL and dropped every row the same way.
+     */
+    function orbitraLocalDayBoundsUtc(?string $localDay, string $dbTzOffset): array
+    {
+        $matchNothing = ['9999-12-31 00:00:00', '0000-01-01 00:00:00'];
+        if ($localDay === null || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $localDay)) {
+            return $matchNothing;
+        }
+        $day = DateTime::createFromFormat('Y-m-d|', $localDay, new DateTimeZone('UTC'));
+        if ($day === false) {
+            return $matchNothing;
+        }
+        $start = $day->getTimestamp() - orbitraTzOffsetSeconds($dbTzOffset);
+        return [gmdate('Y-m-d H:i:s', $start), gmdate('Y-m-d H:i:s', $start + 86400)];
+    }
+}
+
+if (!function_exists('orbitraLocalDayLowerBoundSql')) {
+    /** `col >= '<start UTC>'` for the local day — the >= date(?) replacement. */
+    function orbitraLocalDayLowerBoundSql(string $column, ?string $localDay, string $dbTzOffset): string
+    {
+        [$start] = orbitraLocalDayBoundsUtc($localDay, $dbTzOffset);
+        return "$column >= '$start'";
+    }
+}
+
+if (!function_exists('orbitraLocalDayUpperBoundSql')) {
+    /** `col < '<end UTC>'` for the local day — the <= date(?) replacement. */
+    function orbitraLocalDayUpperBoundSql(string $column, ?string $localDay, string $dbTzOffset): string
+    {
+        [, $end] = orbitraLocalDayBoundsUtc($localDay, $dbTzOffset);
+        return "$column < '$end'";
+    }
+}
+
+if (!function_exists('orbitraDashboardAnchorDay')) {
+    /**
+     * The local anchor day a dashboard preset compared clicks against
+     * (date('now', …modifiers…, tz) in the old SQL). The modifiers apply to
+     * the UTC 'now' value in SQLite's left-to-right order and the fixed tz
+     * offset is applied only at the end, when the moment truncates to a day —
+     * computing it any other way shifts this_week/this_month at week and
+     * month edges.
+     *
+     * @return string|null 'Y-m-d' local day, null for presets without a date
+     *         condition ('all' and anything unknown — the old switch skipped
+     *         those too).
+     */
+    function orbitraDashboardAnchorDay(string $preset, string $dbTzOffset): ?string
+    {
+        $now = time();
+        switch ($preset) {
+            case 'today':
+                $t = $now;
+                break;
+            case 'yesterday':
+                $t = $now - 86400;
+                break;
+            case 'this_week':
+                // 'weekday 1' advances strictly forward to Monday on the UTC
+                // timeline (0 = Sunday … 6 = Saturday, same as gmdate('w')),
+                // then '-7 days' — last Monday.
+                $w = (int) gmdate('w', $now);
+                $t = $now + (((1 - $w + 7) % 7) - 7) * 86400;
+                break;
+            case 'this_month':
+                // 'start of month' truncates the UTC moment, then tz shifts.
+                $t = DateTime::createFromFormat('Y-m-d|', gmdate('Y-m-01', $now), new DateTimeZone('UTC'))
+                    ->getTimestamp();
+                break;
+            case 'last_7_days':
+                $t = $now - 7 * 86400;
+                break;
+            case 'last_30_days':
+                $t = $now - 30 * 86400;
+                break;
+            default:
+                return null;
+        }
+        return gmdate('Y-m-d', $t + orbitraTzOffsetSeconds($dbTzOffset));
+    }
+}

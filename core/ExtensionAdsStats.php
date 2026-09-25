@@ -76,13 +76,18 @@ if (!function_exists('orbitraExtensionAdsStats')) {
         // to an offer, and the overlay sits next to the panel numbers it has to
         // agree with. It is a bare predicate with no placeholders of its own,
         // so it can join $conditions without touching $params.
+        // The requested day becomes UTC created_at bounds (report timezone via
+        // $dbTzOffset) so the query seeks the (campaign_id, created_at) index
+        // instead of calling date() over every row.
+        [$dayStart, $dayEnd] = orbitraLocalDayBoundsUtc($date, $dbTzOffset);
         $conditions = [
-            "date(cl.created_at, '$dbTzOffset') = date(?)",
+            "cl.created_at >= '$dayStart'",
+            "cl.created_at < '$dayEnd'",
             "$entityExpr IS NOT NULL",
             "CAST($entityExpr AS TEXT) != ''",
             orbitraSafePagePredicate('cl.'),
         ];
-        $params = [$date];
+        $params = [];
         if ($filterIds) {
             $conditions[] = 'CAST(' . $entityExpr . ' AS TEXT) IN (' . implode(',', array_fill(0, count($filterIds), '?')) . ')';
             array_push($params, ...$filterIds);
