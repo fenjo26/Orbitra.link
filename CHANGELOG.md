@@ -7,6 +7,48 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.3] — 2026-09-25
+
+Performance and click-integrity release, from a 480 rps load test on a
+3.2M-click database (docs/TZ_LOAD_PERFORMANCE.md).
+
+### Fixed
+
+- **Returning visitors could lose their click for up to a minute.** The
+  uniqueness and debounce lookups on the click path fetched a single row and
+  never closed the cursor. In SQLite that leaves a WAL read snapshot open,
+  and the click INSERT later in the same request then fails *immediately*
+  with "database is locked" the moment any other writer commits — busy_timeout
+  does not apply to that error. The click went to the on-disk spool and only
+  the cron landed it within a minute, so a postback arriving in that window
+  found no click to attach to. Only returning visitors were affected: for
+  unique visitors the SELECT runs to completion and releases its snapshot by
+  itself. The lookup now lives in `core/click_logger.php`
+  (`orbitraFindUniquenessConflict()`) and closes the cursor, and the whole
+  click path (index.php, click.php, core/click_api.php, postback surfaces)
+  was audited for the same pattern.
+- **The 2-second duplicate filter was keyed by IP only.** A second person
+  behind the same mobile-carrier NAT within 2 seconds got no clicks row but
+  still a redirect carrying a freshly generated subid — a conversion from
+  that redirect had nothing to attach to. The key is now campaign + IP +
+  user agent, and a duplicate reuses the stored click id: every subid handed
+  out in a 302 exists in `clicks`, the row itself is not rewritten.
+
+### Performance
+
+- **Report date filters use the index.** `date(created_at, tz) >= date(…)`
+  over the column defeated the `(campaign_id, created_at)` index and scanned
+  the whole campaign history on every request. Dashboard presets, custom
+  ranges and every other report surface now compare `created_at` against UTC
+  bounds of the same local day (helpers in `core/ReportMetrics.php`), with
+  the results verified identical to 1.6.2 — including at week and month
+  edges — across +00:00, +03:00 and −05:00. On a 3.2M-click database the
+  7-day campaigns list drops from ~4.6 s to ~3 s; short ranges over long
+  history win more.
+- **PWA screen views in the campaigns list are pre-aggregated** per click and
+  LEFT JOINed, like the conversion and revenue aggregates, instead of a
+  correlated COUNT executed once per click row.
+
 ## [1.6.2] — 2026-09-22
 
 Fix for 1.6.0 — no action required, update as usual.

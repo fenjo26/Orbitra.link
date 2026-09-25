@@ -1,4 +1,4 @@
-# Orbitra v1.6.2 Tracker
+# Orbitra v1.6.3 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,7 +11,22 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.6.2
+## 🆕 What's New in v1.6.3
+
+Performance and click-integrity release, born from a 480 rps load test on a
+3.2M-click database.
+
+### Fixed
+
+- 🗄 **Returning visitors could lose their click for up to a minute** — an unclosed read cursor made the click INSERT fail instantly with "database is locked" on busy databases, parking the click in the spool until the cron replayed it; a postback in that window found no click. The lookups now close their cursor and the whole click path was audited for the pattern
+- 👥 **The 2-second duplicate filter was keyed by IP only** — a second person behind the same mobile-carrier NAT got a redirect whose subid did not exist in the database, so their conversion had nothing to attach to. The key is now IP + user agent and a duplicate reuses the stored click id
+
+### Performance
+
+- 📊 **Report date filters use the index** — UTC ranges instead of `date()` over the column; identical numbers, verified against 1.6.2 row by row. The 7-day campaigns list on a 3.2M-click database drops from ~4.6 s to ~3 s
+- 📱 **PWA screen views in the campaigns list are pre-aggregated** instead of a correlated COUNT per click row
+
+### v1.6.2
 
 A bug-fix release for 1.6.0 — update as usual.
 
