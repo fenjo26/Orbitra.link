@@ -25,6 +25,7 @@ Performance and click-integrity release, born from a 480 rps load test on a
 
 - 📊 **Report date filters use the index** — UTC ranges instead of `date()` over the column; identical numbers, verified against 1.6.2 row by row. The 7-day campaigns list on a 3.2M-click database drops from ~4.6 s to ~3 s
 - 📱 **PWA screen views in the campaigns list are pre-aggregated** instead of a correlated COUNT per click row
+- ⚡ **IP_UA uniqueness checks seek an index** — clicks carry a compact `ua_hash`, and the once-a-minute spool worker builds `idx_clicks_ip_ua_created` one time after the update (minutes on huge databases; clicks keep flowing through the spool while it runs)
 
 ### v1.6.2
 

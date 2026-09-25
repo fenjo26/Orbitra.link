@@ -48,6 +48,17 @@ Performance and click-integrity release, from a 480 rps load test on a
 - **PWA screen views in the campaigns list are pre-aggregated** per click and
   LEFT JOINed, like the conversion and revenue aggregates, instead of a
   correlated COUNT executed once per click row.
+- **IP_UA uniqueness checks seek an index.** Every click ran four
+  uniqueness lookups (campaign, stream, global, router) that compared user
+  agents row by row after an `(ip, created_at)` seek — a new visitor behind a
+  busy carrier IP paid a full scan of that IP's 24-hour window, four times.
+  Clicks now carry a `ua_hash` (crc32 of the agent, written at every insert
+  point, spool replay included) and the probes seek
+  `idx_clicks_ip_ua_created (ip, ua_hash, created_at)`; pre-upgrade rows
+  without the hash are still found and age out with the window. The index is
+  built **once, by the click spool worker** (never inside a web request): on
+  multi-million-click databases that takes minutes, during which clicks keep
+  flowing through the spool and land when the build finishes.
 
 ## [1.6.2] — 2026-09-22
 
