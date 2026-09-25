@@ -21,7 +21,7 @@ $pdo->exec('CREATE TABLE bot_ips (id INTEGER PRIMARY KEY, ip_or_cidr TEXT)');
 $pdo->exec('CREATE TABLE bot_signatures (id INTEGER PRIMARY KEY, signature TEXT)');
 $pdo->exec('CREATE TABLE clicks (
     id TEXT PRIMARY KEY, campaign_id INTEGER, offer_id INTEGER, stream_id INTEGER,
-    source_id INTEGER, landing_id INTEGER, ip TEXT, user_agent TEXT, referer TEXT,
+    source_id INTEGER, landing_id INTEGER, ip TEXT, user_agent TEXT, ua_hash INTEGER, referer TEXT,
     country TEXT, country_code TEXT, region TEXT, city TEXT, latitude REAL,
     longitude REAL, zipcode TEXT, timezone TEXT, device_type TEXT, os TEXT,
     browser TEXT, language TEXT, accept_language_raw TEXT, parameters_json TEXT,

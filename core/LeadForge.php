@@ -804,9 +804,12 @@ class LeadForge
             return $qa;
         }
         try {
-            $pdo->prepare("INSERT INTO clicks (id, campaign_id, ip, user_agent, country, country_code, device_type, os, browser, language, accept_language_raw, parameters_json)
-                           VALUES (?, ?, '127.0.0.1', 'Orbitra Auto QA', 'Local', 'QA', 'desktop', 'QA', 'QA', 'en', 'en', '{}')")
-                ->execute([$qaClick, $campaignId]);
+            if (!function_exists('orbitraUaHash')) {
+                require_once __DIR__ . '/click_logger.php';
+            }
+            $pdo->prepare("INSERT INTO clicks (id, campaign_id, ip, user_agent, ua_hash, country, country_code, device_type, os, browser, language, accept_language_raw, parameters_json)
+                           VALUES (?, ?, '127.0.0.1', 'Orbitra Auto QA', ?, 'Local', 'QA', 'desktop', 'QA', 'QA', 'en', 'en', '{}')")
+                ->execute([$qaClick, $campaignId, orbitraUaHash('Orbitra Auto QA')]);
         } catch (\Throwable $e) {
             $qa['fail_reason'] = 'qa_click_failed';
             $say('QA FAIL: could not stage test click — ' . $e->getMessage());

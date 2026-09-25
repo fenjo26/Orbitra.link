@@ -2780,9 +2780,12 @@ if ($uriPath === '/pixel.gif') {
         $pxParamsJson = json_encode($pxParams, JSON_UNESCAPED_UNICODE);
 
         try {
+            if (!function_exists('orbitraUaHash')) {
+                require_once __DIR__ . '/core/click_logger.php';
+            }
             $stmtPxIns = $pdo->prepare("
                 INSERT INTO clicks
-                (id, campaign_id, offer_id, stream_id, source_id, ip, user_agent, referer,
+                (id, campaign_id, offer_id, stream_id, source_id, ip, user_agent, ua_hash, referer,
                  country, country_code, region, city, latitude, longitude, zipcode, timezone,
                  device_type, os, browser, language, accept_language_raw, parameters_json)
                 VALUES (?, ?, NULL, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Unknown', 'Unknown', ?, ?, ?)
@@ -2793,6 +2796,7 @@ if ($uriPath === '/pixel.gif') {
                 $orbitraPixelCampaign['source_id'] ?? null,
                 $pxIp,
                 $pxUa,
+                orbitraUaHash($pxUa),
                 (string) ($_SERVER['HTTP_REFERER'] ?? ''),
                 (string) ($pxGeo['country_code'] ?? 'Unknown'),
                 (string) ($pxGeo['country_code'] ?? 'Unknown'),

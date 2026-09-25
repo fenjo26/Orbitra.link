@@ -87,8 +87,11 @@ try {
     // subscriber base; 44 = media library (docs/media-core-v1.md); 43 = PWA
     // landings. All migration blocks are additive — whoever adds the next one
     // bumps this and appends below, re-reading the file first (parallel-session rule).
+    // 55 = ua_hash column + the pending flag for the IP+UA uniqueness index
+    //      (load ТЗ, acceptance blocker 2); the index itself is built by the
+    //      click spool worker, never inside a web request.
     // 54 = TOTP two-factor login (users.totp_secret / users.totp_enabled).
-    $LATEST_SCHEMA_VERSION = 54;
+    $LATEST_SCHEMA_VERSION = 55;
 
     $schemaVersion = 0;
     try {
@@ -404,6 +407,7 @@ try {
         landing_id INTEGER,
         ip TEXT NOT NULL,
         user_agent TEXT,
+        ua_hash INTEGER,
         referer TEXT,
         country TEXT,
         country_code TEXT,
@@ -2718,6 +2722,31 @@ try {
                     } catch (\Throwable $e) {
                         // Column already present on a half-migrated DB.
                     }
+                }
+            }
+
+            if ($schemaVersion < 55) {
+                // Migration 55: ua_hash for the IP_UA uniqueness probes (load
+                // ТЗ, acceptance blocker 2). crc32 of the user agent lets
+                // every (ip, ua) lookup — uniqueness, debounce, ClickFlags —
+                // seek an index instead of scanning every click of a busy
+                // carrier IP. The index itself is NOT built here: on
+                // multi-million-row tables that means minutes under the write
+                // lock, and clicks would pile into the spool behind a web
+                // request. cli/click_spool_cron.php builds it once, gated by
+                // the settings flag below; until then the probes still work,
+                // just as the old range scans.
+                try {
+                    $pdo->exec("ALTER TABLE clicks ADD COLUMN ua_hash INTEGER");
+                } catch (\Throwable $e) {
+                    // Column already present on a half-migrated DB.
+                }
+                try {
+                    $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('clicks_ua_index_state', 'pending')")->execute();
+                } catch (\Throwable $e) {
+                    // A settings hiccup must not fail the migration: without
+                    // the flag the index is simply never built and the probes
+                    // keep working without it.
                 }
             }
 

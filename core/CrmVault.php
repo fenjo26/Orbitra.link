@@ -159,9 +159,13 @@ function orbitraCrmRecordLead(PDO $pdo, array $lead, bool $allowCreateClick = fa
             if (!$chk->fetchColumn()) {
                 return ['ok' => false, 'message' => 'Campaign not found', 'lead_id' => null, 'conversion' => false, 'is_duplicate' => false];
             }
-            $pdo->prepare("INSERT INTO clicks (id, campaign_id, ip, user_agent, country, country_code, device_type, os, browser, language, accept_language_raw, parameters_json)
-                           VALUES (?, ?, ?, ?, 'Unknown', 'Unknown', 'Unknown', 'Unknown', 'Unknown', 'Unknown', 'Unknown', '{}')")
-                ->execute([$clickId, $campaignId, substr((string) ($lead['ip'] ?? ''), 0, 45), substr((string) ($lead['user_agent'] ?? ''), 0, 255)]);
+            $leadUa = substr((string) ($lead['user_agent'] ?? ''), 0, 255);
+            if (!function_exists('orbitraUaHash')) {
+                require_once __DIR__ . '/click_logger.php';
+            }
+            $pdo->prepare("INSERT INTO clicks (id, campaign_id, ip, user_agent, ua_hash, country, country_code, device_type, os, browser, language, accept_language_raw, parameters_json)
+                           VALUES (?, ?, ?, ?, ?, 'Unknown', 'Unknown', 'Unknown', 'Unknown', 'Unknown', 'Unknown', 'Unknown', '{}')")
+                ->execute([$clickId, $campaignId, substr((string) ($lead['ip'] ?? ''), 0, 45), $leadUa, orbitraUaHash($leadUa)]);
         } catch (\Throwable $e) {
             return ['ok' => false, 'message' => 'Could not stage click: ' . $e->getMessage(), 'lead_id' => null, 'conversion' => false, 'is_duplicate' => false];
         }

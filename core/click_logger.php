@@ -94,6 +94,7 @@ function orbitraBuildClickRow(array $ctx): array
         'landing_id' => isset($ctx['landing_id']) ? (int) $ctx['landing_id'] : null,
         'ip' => (string) ($ctx['ip'] ?? ''),
         'user_agent' => (string) ($ctx['user_agent'] ?? ''),
+        'ua_hash' => orbitraUaHash((string) ($ctx['user_agent'] ?? '')),
         'referer' => (string) ($ctx['referer'] ?? ''),
         'country' => (string) ($ctx['country'] ?? ''),
         'country_code' => (string) ($ctx['country_code'] ?? ''),
@@ -144,6 +145,98 @@ function orbitraIsSqliteLockError(\Throwable $e): bool
 }
 
 /**
+ * crc32 of a user agent — the compact (ip, ua) probe key behind
+ * idx_clicks_ip_ua_created (load ТЗ, acceptance blocker 2). A full
+ * (ip, user_agent, created_at) index stores the whole agent string and grows
+ * to ~40% of the clicks table; the 4-byte hash keeps it at a third of that.
+ * Every probe still compares the exact user_agent column, so a crc32
+ * collision can only cost a few candidate rows, never a wrong verdict.
+ */
+function orbitraUaHash(string $userAgent): int
+{
+    return crc32($userAgent);
+}
+
+/**
+ * The id of the most recent click with this exact ip + user agent inside the
+ * window — or null. Two probes, both driven by idx_clicks_ip_ua_created
+ * (ip, ua_hash, created_at):
+ *
+ *   1. hashed rows — ua_hash = crc32(ua), exact seek, scope in SQL;
+ *   2. rows written before migration 55 (ua_hash IS NULL). The scope filter
+ *      deliberately stays OUT of that SQL: with a campaign_id equality in
+ *      the query the planner can pick idx_clicks_campaign_created and range
+ *      over the campaign's whole window — the very scan this exists to end —
+ *      for as long as legacy rows remain inside it (roughly the uniqueness
+ *      horizon after an upgrade). Without the scope the seek returns the
+ *      visitor's own handful of NULL-hash rows (usually none) and the scope
+ *      is checked here in PHP.
+ *
+ * Without the index both probes still run — as the old range scans, which is
+ * what the hash index exists to end. Returns on the first hit and closes
+ * every cursor it opens — see orbitraFindUniquenessConflict() for why an
+ * open cursor breaks the INSERT that may follow.
+ *
+ * @param array $scope column => value pairs, e.g. ['campaign_id' => 5],
+ *        [] for the global probe
+ * @param string $timeCond "created_at >= ?" (with $timeBound) or an inline
+ *        SQLite expression such as "created_at >= datetime('now', '-2 seconds')"
+ *        (with $timeBound = null)
+ */
+function orbitraUaMatchFindId(PDO $pdo, array $scope, string $ip, string $userAgent, string $timeCond, ?string $timeBound, string $excludeId = ''): ?string
+{
+    $hashedConds = ['ip = ?', 'ua_hash = ?', 'user_agent = ?', $timeCond];
+    $hashedParams = [$ip, orbitraUaHash($userAgent), $userAgent];
+    if ($timeBound !== null) {
+        $hashedParams[] = $timeBound;
+    }
+    foreach ($scope as $scopeColumn => $scopeValue) {
+        $hashedConds[] = "$scopeColumn = ?";
+        $hashedParams[] = $scopeValue;
+    }
+    if ($excludeId !== '') {
+        $hashedConds[] = 'id != ?';
+        $hashedParams[] = $excludeId;
+    }
+    $stmt = $pdo->prepare('SELECT id FROM clicks WHERE ' . implode(' AND ', $hashedConds) . ' LIMIT 1');
+    $stmt->execute($hashedParams);
+    $id = $stmt->fetchColumn();
+    $stmt->closeCursor();
+    if ($id !== false) {
+        return (string) $id;
+    }
+
+    // Legacy rows: seek by ip + NULL hash only, scope in PHP.
+    $legacyConds = ['ip = ?', 'ua_hash IS NULL', 'user_agent = ?', $timeCond];
+    $legacyParams = [$ip, $userAgent];
+    if ($timeBound !== null) {
+        $legacyParams[] = $timeBound;
+    }
+    $stmt = $pdo->prepare('SELECT id, campaign_id, stream_id FROM clicks WHERE ' . implode(' AND ', $legacyConds));
+    $stmt->execute($legacyParams);
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt->closeCursor();
+    foreach ($rows as $row) {
+        if ($excludeId !== '' && (string) $row['id'] === $excludeId) {
+            continue;
+        }
+        foreach ($scope as $scopeColumn => $scopeValue) {
+            if ((string) ($row[$scopeColumn] ?? '') !== (string) $scopeValue) {
+                continue 2;
+            }
+        }
+        return (string) $row['id'];
+    }
+    return null;
+}
+
+/** Boolean convenience wrapper over orbitraUaMatchFindId(). */
+function orbitraUaMatchExists(PDO $pdo, array $scope, string $ip, string $userAgent, string $timeCond, ?string $timeBound, string $excludeId = ''): bool
+{
+    return orbitraUaMatchFindId($pdo, $scope, $ip, $userAgent, $timeCond, $timeBound, $excludeId) !== null;
+}
+
+/**
  * Campaign uniqueness check for the click path (index.php).
  *
  * This is the inline SELECT the router used to run, moved here so the read
@@ -156,24 +249,26 @@ function orbitraIsSqliteLockError(\Throwable $e): bool
  * affected: for unique visitors the SELECT runs to completion (no row) and
  * releases the snapshot by itself.
  *
+ * IP_UA campaigns probe the (ip, ua_hash) index — see orbitraUaMatchFindId();
+ * scanning every click of a busy carrier IP and comparing agents row by row
+ * used to cost seconds per click.
+ *
  * @param int $uniquenessHours Campaign uniqueness window in hours (> 0)
  * @param string $uniquenessMethod 'IP' or 'IP_UA'
  */
 function orbitraFindUniquenessConflict(PDO $pdo, int $campaignId, string $ip, string $userAgent, int $uniquenessHours, string $uniquenessMethod): bool
 {
     $timeAgo = date('Y-m-d H:i:s', time() - ($uniquenessHours * 3600));
-    $uniqCond = "ip = ?";
-    $uniqParams = [$ip];
-    if ($uniquenessMethod === 'IP_UA') {
-        $uniqCond .= " AND user_agent = ?";
-        $uniqParams[] = $userAgent;
+    if ($uniquenessMethod !== 'IP_UA') {
+        // IP-only: the first click of this IP inside the window settles it —
+        // one seek on idx_clicks_ip_created.
+        $stmt = $pdo->prepare("SELECT id FROM clicks WHERE campaign_id = ? AND ip = ? AND created_at >= ? LIMIT 1");
+        $stmt->execute([$campaignId, $ip, $timeAgo]);
+        $found = (bool) $stmt->fetch();
+        $stmt->closeCursor();
+        return $found;
     }
-
-    $uniqStmt = $pdo->prepare("SELECT id FROM clicks WHERE campaign_id = ? AND " . $uniqCond . " AND created_at >= ? LIMIT 1");
-    $uniqStmt->execute(array_merge([$campaignId], $uniqParams, [$timeAgo]));
-    $found = (bool) $uniqStmt->fetch();
-    $uniqStmt->closeCursor();
-    return $found;
+    return orbitraUaMatchExists($pdo, ['campaign_id' => $campaignId], $ip, $userAgent, 'created_at >= ?', $timeAgo);
 }
 
 /**
@@ -186,17 +281,11 @@ function orbitraFindUniquenessConflict(PDO $pdo, int $campaignId, string $ip, st
  *
  * Returns the stored click id of the duplicate so the caller can serve the
  * redirect with a subid that actually exists in the database (the row itself
- * is never rewritten), or null when the visit is not a duplicate. The cursor
- * is closed before returning — see orbitraFindUniquenessConflict() for why
- * an open cursor breaks the click INSERT that may follow.
+ * is never rewritten), or null when the visit is not a duplicate.
  */
 function orbitraFindDebounceDuplicate(PDO $pdo, int $campaignId, string $ip, string $userAgent): ?string
 {
-    $stmt = $pdo->prepare("SELECT id FROM clicks WHERE ip = ? AND campaign_id = ? AND user_agent = ? AND created_at >= datetime('now', '-2 seconds') LIMIT 1");
-    $stmt->execute([$ip, $campaignId, $userAgent]);
-    $id = $stmt->fetchColumn();
-    $stmt->closeCursor();
-    return $id === false ? null : (string) $id;
+    return orbitraUaMatchFindId($pdo, ['campaign_id' => $campaignId], $ip, $userAgent, "created_at >= datetime('now', '-2 seconds')", null);
 }
 
 /**

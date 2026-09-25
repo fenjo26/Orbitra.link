@@ -60,6 +60,32 @@ if ($lockFp && !flock($lockFp, LOCK_EX | LOCK_NB)) {
     exit(0); // another worker is running
 }
 
+// --- one-time build: the IP+UA uniqueness index (migration 55) ----------------
+// (ip, ua_hash, created_at) serves every IP_UA probe on the click path:
+// uniqueness, debounce and the ClickFlags campaign/stream/global checks.
+// Building it scans the whole clicks table — seconds when small, minutes on
+// multi-million-row databases — which is exactly why it never runs inside a
+// web request: clicks keep spooling while the write lock is held, and the
+// replay below lands them right after this finishes. Runs BEFORE the spool
+// take so the replay never competes with (or burns attempts against) the
+// build. Until the build happens the probes still work, just as the old
+// range scans.
+try {
+    $uaIndexState = $pdo->query("SELECT value FROM settings WHERE key = 'clicks_ua_index_state'")->fetchColumn();
+    if ($uaIndexState === 'pending' || $uaIndexState === 'building') {
+        orbitraSpoolLog('Building idx_clicks_ip_ua_created (one-time; blocks writes while it runs)...');
+        $uaIndexStartedAt = microtime(true);
+        $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('clicks_ua_index_state', 'building')")->execute();
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_clicks_ip_ua_created ON clicks(ip, ua_hash, created_at)');
+        $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('clicks_ua_index_state', 'done')")->execute();
+        orbitraSpoolLog('idx_clicks_ip_ua_created built in ' . round(microtime(true) - $uaIndexStartedAt, 1) . ' s');
+    }
+} catch (\Throwable $e) {
+    // A failed build must never stop the spool replay; the flag stays where
+    // it is and the next tick retries.
+    orbitraSpoolLogError('idx_clicks_ip_ua_created build deferred: ' . $e->getMessage());
+}
+
 // --- take the live spool (lock held only for the rename) -----------------------
 if (is_file(SPOOL_FILE) && filesize(SPOOL_FILE) > 0) {
     $fp = @fopen(SPOOL_FILE, 'ab');

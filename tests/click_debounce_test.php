@@ -139,12 +139,16 @@ try {
     $rows = $clickRows();
     check(count($rows) === 3, 'three clicks rows after the window passed (got ' . count($rows) . ')');
 
-    // --- Query plan: the ip-leading index still serves the debounce key -------
-    $plan = $pdo->query("EXPLAIN QUERY PLAN SELECT id FROM clicks WHERE ip = 'x' AND campaign_id = 1 AND user_agent = 'u' AND created_at >= datetime('now', '-2 seconds') LIMIT 1")
+    // --- Query plan: the hash index serves the debounce key -------------------
+    // (ip, ua_hash, created_at) is what the debounce probe seeks once built —
+    // the click spool worker creates it on real installs (migration 55); the
+    // test builds it directly, exactly like the worker does.
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_clicks_ip_ua_created ON clicks(ip, ua_hash, created_at)');
+    $plan = $pdo->query("EXPLAIN QUERY PLAN SELECT id FROM clicks WHERE ip = 'x' AND ua_hash = 123 AND user_agent = 'u' AND campaign_id = 1 AND created_at >= datetime('now', '-2 seconds') LIMIT 1")
         ->fetchAll(PDO::FETCH_ASSOC);
     $planText = implode(' ', array_map(static fn($r) => (string) ($r['detail'] ?? ''), $plan));
-    check(strpos($planText, 'idx_clicks_ip_created') !== false,
-        'debounce lookup uses idx_clicks_ip_created (plan: ' . $planText . ')');
+    check(strpos($planText, 'idx_clicks_ip_ua_created') !== false,
+        'debounce lookup seeks idx_clicks_ip_ua_created (plan: ' . $planText . ')');
 
     // --- Cursor discipline: a write may follow the debounce check -------------
     // Same shape the snapshot test pins for uniqueness: the helper must not
