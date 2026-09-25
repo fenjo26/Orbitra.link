@@ -27,6 +27,26 @@ Performance and click-integrity release, born from a 480 rps load test on a
 - 📱 **PWA screen views in the campaigns list are pre-aggregated** instead of a correlated COUNT per click row
 - ⚡ **IP_UA uniqueness checks seek an index** — clicks carry a compact `ua_hash`, and the once-a-minute spool worker builds `idx_clicks_ip_ua_created` one time after the update and then hashes the recent pre-update clicks (minutes on huge databases; clicks keep flowing through the spool while it runs)
 
+### Measured on the release stand
+
+Paired A/B runs against 1.6.2 on the same database — 3.2–3.9 million clicks
+(~8,500 on each mobile-carrier IP), a 2 vCPU / 7 GB VPS with **stock** nginx
+and PHP-FPM settings, SQLite in WAL mode, k6 at a constant 480 rps. Every
+redirect's subid was reconciled against the `clicks` table, not just counted.
+
+| Scenario | v1.6.2 | v1.6.3 |
+|---|---|---|
+| Returning visitors, 480 rps | 953 clicks parked in the spool, **27,775 redirects carrying a subid missing from the database** | **0 / 0**, p99 101 ms |
+| Visitors behind one carrier IP, straight after the update | 1–2% of requests answered at all | 0 errors, p99 182 ms |
+| Unique visitors, 480 rps (p99) | 84 ms | 87 ms |
+| Unique visitors, 560 rps (p99) | 1,214 ms | 517 ms |
+| Campaign reports, all presets incl. "Yesterday" | 1.6–5.0 s | 0.3–3.4 s, identical numbers |
+| After the update (one cron tick) | — | index built in 4.8 s + 1,008,085 legacy rows hashed in 29.6 s |
+
+Methodology, the raw acceptance reports and the k6 kit to reproduce it:
+[docs/TZ_LOAD_PERFORMANCE.md](docs/TZ_LOAD_PERFORMANCE.md) and
+[tests/load/](tests/load/).
+
 ### v1.6.2
 
 A bug-fix release for 1.6.0 — update as usual.
