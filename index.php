@@ -2748,14 +2748,17 @@ if ($uriPath === '/pixel.gif') {
             $stmtPx = $pdo->prepare("SELECT * FROM campaigns WHERE is_archived = 0 AND id = ? LIMIT 1");
             $stmtPx->execute([(int) $_GET['campaign_id']]);
             $orbitraPixelCampaign = $stmtPx->fetch(PDO::FETCH_ASSOC) ?: null;
+            $stmtPx->closeCursor();
         } elseif (!empty($_GET['token'])) {
             $stmtPx = $pdo->prepare("SELECT * FROM campaigns WHERE is_archived = 0 AND token = ? LIMIT 1");
             $stmtPx->execute([trim((string) $_GET['token'])]);
             $orbitraPixelCampaign = $stmtPx->fetch(PDO::FETCH_ASSOC) ?: null;
+            $stmtPx->closeCursor();
         } elseif (!empty($_GET['campaign'])) {
             $stmtPx = $pdo->prepare("SELECT * FROM campaigns WHERE is_archived = 0 AND alias = ? LIMIT 1");
             $stmtPx->execute([trim((string) $_GET['campaign'])]);
             $orbitraPixelCampaign = $stmtPx->fetch(PDO::FETCH_ASSOC) ?: null;
+            $stmtPx->closeCursor();
         }
     } catch (\Throwable $e) {
         $orbitraPixelCampaign = null;
@@ -2783,39 +2786,52 @@ if ($uriPath === '/pixel.gif') {
             if (!function_exists('orbitraUaHash')) {
                 require_once __DIR__ . '/core/click_logger.php';
             }
-            $stmtPxIns = $pdo->prepare("
-                INSERT INTO clicks
-                (id, campaign_id, offer_id, stream_id, source_id, ip, user_agent, ua_hash, referer,
-                 country, country_code, region, city, latitude, longitude, zipcode, timezone,
-                 device_type, os, browser, language, accept_language_raw, parameters_json)
-                VALUES (?, ?, NULL, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Unknown', 'Unknown', ?, ?, ?)
-            ");
-            $stmtPxIns->execute([
-                $pxClickId,
-                (int) $orbitraPixelCampaign['id'],
-                $orbitraPixelCampaign['source_id'] ?? null,
-                $pxIp,
-                $pxUa,
-                orbitraUaHash($pxUa),
-                (string) ($_SERVER['HTTP_REFERER'] ?? ''),
-                (string) ($pxGeo['country_code'] ?? 'Unknown'),
-                (string) ($pxGeo['country_code'] ?? 'Unknown'),
-                $pxGeo['region'] ?? '',
-                $pxGeo['city'] ?? '',
-                $pxGeo['latitude'] ?? null,
-                $pxGeo['longitude'] ?? null,
-                $pxGeo['zipcode'] ?? '',
-                $pxGeo['timezone'] ?? '',
-                orbitraClickApiGetDeviceType($pxUa),
-                ($pxLangCodes = orbitraClickApiExtractLanguageCodes($pxAcceptLanguage)) ? $pxLangCodes[0] : 'Unknown',
-                $pxAcceptLanguage,
-                $pxParamsJson,
-            ]);
+            // Columns and placeholders are generated from ONE array — the
+            // hand-maintained 22-placeholder VALUES beside a 23-column list is
+            // how the pixel silently stopped writing clicks (acceptance
+            // round 2, blocker 3).
+            $pxRow = [
+                'id' => $pxClickId,
+                'campaign_id' => (int) $orbitraPixelCampaign['id'],
+                'offer_id' => null,
+                'stream_id' => null,
+                'source_id' => $orbitraPixelCampaign['source_id'] ?? null,
+                'ip' => $pxIp,
+                'user_agent' => $pxUa,
+                'ua_hash' => orbitraUaHash($pxUa),
+                'referer' => (string) ($_SERVER['HTTP_REFERER'] ?? ''),
+                'country' => (string) ($pxGeo['country_code'] ?? 'Unknown'),
+                'country_code' => (string) ($pxGeo['country_code'] ?? 'Unknown'),
+                'region' => $pxGeo['region'] ?? '',
+                'city' => $pxGeo['city'] ?? '',
+                'latitude' => $pxGeo['latitude'] ?? null,
+                'longitude' => $pxGeo['longitude'] ?? null,
+                'zipcode' => $pxGeo['zipcode'] ?? '',
+                'timezone' => $pxGeo['timezone'] ?? '',
+                // Preserved from the original INSERT: the pixel never
+                // fingerprinted the OS, and the detected device kind lands in
+                // browser exactly as it did before.
+                'device_type' => 'Unknown',
+                'os' => 'Unknown',
+                'browser' => orbitraClickApiGetDeviceType($pxUa),
+                'language' => ($pxLangCodes = orbitraClickApiExtractLanguageCodes($pxAcceptLanguage)) ? $pxLangCodes[0] : 'Unknown',
+                'accept_language_raw' => $pxAcceptLanguage,
+                'parameters_json' => $pxParamsJson,
+            ];
+            $stmtPxIns = $pdo->prepare(
+                'INSERT INTO clicks (' . implode(', ', array_keys($pxRow)) . ')
+                 VALUES (' . implode(', ', array_fill(0, count($pxRow), '?')) . ')'
+            );
+            $stmtPxIns->execute(array_values($pxRow));
 
             require_once __DIR__ . '/core/ClickFlags.php';
             orbitraWriteClickFlags($pdo, $pxClickId, $pxIp, $pxUa, $orbitraPixelCampaign ?? [], 0, is_array($pxGeo ?? null) ? $pxGeo : []);
         } catch (\Throwable $e) {
-            // A duplicate/DB hiccup must not break the pixel — the image goes out.
+            // A duplicate/DB hiccup must not break the pixel — the image goes
+            // out. But a click that silently vanished is undiagnosable, so
+            // leave a trace (acceptance round 2: the broken INSERT swallowed
+            // its own error with nothing in any log).
+            error_log('Orbitra pixel click logging failed: ' . $e->getMessage());
         }
     }
 
