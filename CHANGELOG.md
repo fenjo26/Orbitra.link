@@ -54,11 +54,14 @@ Performance and click-integrity release, from a 480 rps load test on a
   busy carrier IP paid a full scan of that IP's 24-hour window, four times.
   Clicks now carry a `ua_hash` (crc32 of the agent, written at every insert
   point, spool replay included) and the probes seek
-  `idx_clicks_ip_ua_created (ip, ua_hash, created_at)`; pre-upgrade rows
-  without the hash are still found and age out with the window. The index is
-  built **once, by the click spool worker** (never inside a web request): on
+  `idx_clicks_ip_ua_created (ip, ua_hash, created_at)`. The index is built
+  **once, by the click spool worker** (never inside a web request): on
   multi-million-click databases that takes minutes, during which clicks keep
-  flowing through the spool and land when the build finishes.
+  flowing through the spool and land when the build finishes. Right after
+  the build the worker also hashes the pre-upgrade clicks inside the widest
+  uniqueness window (short committed batches that resume across ticks), so
+  mobile-NAT installs get the full fix within minutes, not a day; rows
+  outside every window are never probed and stay untouched.
 
 ## [1.6.2] — 2026-09-22
 
