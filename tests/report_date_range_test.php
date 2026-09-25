@@ -67,12 +67,14 @@ $insertLocal = static function (string $id, int $campaignId, string $localMoment
 };
 
 $presets = [
-    'today'        => "date('now', '%s')",
-    'yesterday'    => "date('now', '-1 day', '%s')",
-    'this_week'    => "date('now', 'weekday 1', '-7 days', '%s')",
-    'last_7_days'  => "date('now', '-7 days', '%s')",
-    'this_month'   => "date('now', 'start of month', '%s')",
-    'last_30_days' => "date('now', '-30 days', '%s')",
+    // [operator, inner date expression] — the TRUE v1.6.2 semantics:
+    // today/yesterday were EQUALITIES, the other four were lower bounds.
+    'today'        => ['=', "date('now', '%s')"],
+    'yesterday'    => ['=', "date('now', '-1 day', '%s')"],
+    'this_week'    => ['>=', "date('now', 'weekday 1', '-7 days', '%s')"],
+    'last_7_days'  => ['>=', "date('now', '-7 days', '%s')"],
+    'this_month'   => ['>=', "date('now', 'start of month', '%s')"],
+    'last_30_days' => ['>=', "date('now', '-30 days', '%s')"],
 ];
 
 foreach (['+00:00', '+03:00', '-05:00'] as $tz) {
@@ -122,17 +124,20 @@ foreach (['+00:00', '+03:00', '-05:00'] as $tz) {
     $put($day($todayLocal, '09:00:00'), 2);
 
     // --- anchor day: PHP must agree with SQLite's own date('now', …) ---------
-    foreach ($presets as $preset => $oldExpr) {
+    foreach ($presets as $preset => [$op, $oldExpr]) {
         $sqliteDay = (string) $pdo->query('SELECT ' . sprintf($oldExpr, $tz))->fetchColumn();
         $phpDay = orbitraDashboardAnchorDay($preset, $tz);
         check($phpDay === $sqliteDay,
             "[$tz] $preset anchor day: PHP $phpDay == SQLite $sqliteDay");
     }
 
-    // --- presets: old expression vs new bound, full row-set equality ---------
-    foreach ($presets as $preset => $oldExpr) {
-        $oldCond = sprintf("date(cl.created_at, '%s') >= %s", $tz, sprintf($oldExpr, $tz));
-        $newCond = orbitraLocalDayLowerBoundSql('cl.created_at', orbitraDashboardAnchorDay($preset, $tz), $tz);
+    // --- presets: old expression vs PRODUCTION condition, row-set equality ---
+    // The new side is the real builder getDashboardFilters() delegates to —
+    // not a re-implementation (that is how the 'yesterday includes today'
+    // regression slipped past an earlier revision of this test).
+    foreach ($presets as $preset => [$op, $oldExpr]) {
+        $oldCond = sprintf("date(cl.created_at, '%s') %s %s", $tz, $op, sprintf($oldExpr, $tz));
+        [$newCond] = orbitraDashboardDateCondition('cl.created_at', $preset, null, null, $tz);
         $oldRows = $pdo->query("SELECT COUNT(*) n, COALESCE(GROUP_CONCAT(id ORDER BY id), '') ids FROM clicks cl WHERE $oldCond")->fetch(PDO::FETCH_ASSOC);
         $newRows = $pdo->query("SELECT COUNT(*) n, COALESCE(GROUP_CONCAT(id ORDER BY id), '') ids FROM clicks cl WHERE $newCond")->fetch(PDO::FETCH_ASSOC);
         check($oldRows === $newRows,
@@ -161,19 +166,11 @@ foreach (['+00:00', '+03:00', '-05:00'] as $tz) {
             $oldConds[] = "date(cl.created_at, '$tz') <= date(?)";
             $oldParams[] = $to;
         }
-        $newConds = [];
-        if ($from !== null) {
-            $newConds[] = orbitraLocalDayLowerBoundSql('cl.created_at', $from, $tz);
-        }
-        if ($to !== null) {
-            $newConds[] = orbitraLocalDayUpperBoundSql('cl.created_at', $to, $tz);
-        }
+        [$newCond] = orbitraDashboardDateCondition('cl.created_at', 'custom', $from, $to, $tz);
         $stmtOld = $pdo->prepare("SELECT COUNT(*) n, COALESCE(GROUP_CONCAT(id ORDER BY id), '') ids FROM clicks cl" . ($oldConds ? ' WHERE ' . implode(' AND ', $oldConds) : ''));
         $stmtOld->execute($oldParams);
         $oldRows = $stmtOld->fetch(PDO::FETCH_ASSOC);
-        $stmtNew = $pdo->prepare("SELECT COUNT(*) n, COALESCE(GROUP_CONCAT(id ORDER BY id), '') ids FROM clicks cl" . ($newConds ? ' WHERE ' . implode(' AND ', $newConds) : ''));
-        $stmtNew->execute();
-        $newRows = $stmtNew->fetch(PDO::FETCH_ASSOC);
+        $newRows = $pdo->query("SELECT COUNT(*) n, COALESCE(GROUP_CONCAT(id ORDER BY id), '') ids FROM clicks cl" . ($newCond !== '' ? " WHERE $newCond" : ''))->fetch(PDO::FETCH_ASSOC);
         check($oldRows === $newRows,
             "[$tz] custom $label: old {$oldRows['n']} rows == new {$newRows['n']} rows, same ids");
     }
@@ -192,7 +189,7 @@ foreach (['+00:00', '+03:00', '-05:00'] as $tz) {
         LEFT JOIN clicks cl ON c.id = cl.campaign_id AND ($cond)
         GROUP BY c.id ORDER BY c.id
     ")->fetchAll(PDO::FETCH_ASSOC);
-    $oldJoin = $joinQuery(sprintf("date(cl.created_at, '%s') >= %s", $tz, sprintf($presets['last_7_days'], $tz)));
+    $oldJoin = $joinQuery(sprintf("date(cl.created_at, '%s') >= %s", $tz, sprintf($presets['last_7_days'][1], $tz)));
     $newJoin = $joinQuery(orbitraLocalDayLowerBoundSql('cl.created_at', orbitraDashboardAnchorDay('last_7_days', $tz), $tz));
     check($oldJoin == $newJoin, "[$tz] campaigns join: identical per-campaign rows");
 

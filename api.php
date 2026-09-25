@@ -21,6 +21,7 @@ if (!is_dir(__DIR__ . '/var/logs')) {
 // api.php - JSON API для React Dashboard
 require_once 'config.php';
 require_once __DIR__ . '/core/ReportMetrics.php';
+require_once __DIR__ . '/core/click_logger.php';
 require_once __DIR__ . '/core/RotationOptimiser.php';
 require_once __DIR__ . '/core/ConversionAttribution.php';
 require_once __DIR__ . '/core/ExtensionAdsStats.php';
@@ -2623,29 +2624,13 @@ function getDashboardFilters($prefix = '')
 
     $dateColumn = "{$prefix}created_at";
 
-    switch ($date_range) {
-        // Presets share the shape date(created_at, tz) >= date('now', …): one
-        // local-day lower bound, no upper bound. The bound is now a UTC
-        // literal (see core/ReportMetrics.php) so the (campaign_id, created_at)
-        // index serves the range instead of a full history scan.
-        case 'today':
-        case 'yesterday':
-        case 'this_week':
-        case 'last_7_days':
-        case 'this_month':
-        case 'last_30_days':
-            $anchorDay = orbitraDashboardAnchorDay($date_range, $dbTzOffset);
-            [$presetStart] = orbitraLocalDayBoundsUtc($anchorDay, $dbTzOffset);
-            $conditions[] = "$dateColumn >= '$presetStart'";
-            break;
-        case 'custom':
-            if ($custom_from) {
-                $conditions[] = orbitraLocalDayLowerBoundSql($dateColumn, $custom_from, $dbTzOffset);
-            }
-            if ($custom_to) {
-                $conditions[] = orbitraLocalDayUpperBoundSql($dateColumn, $custom_to, $dbTzOffset);
-            }
-            break;
+    // The preset/custom date logic lives in core/ReportMetrics.php
+    // (orbitraDashboardDateCondition) so tests run the production code: today
+    // and yesterday are exactly one local day, the other presets keep their
+    // lower-only bound, and the bounds are UTC literals the index can seek.
+    [$dateCondition, $dateParams] = orbitraDashboardDateCondition($dateColumn, $date_range, $custom_from, $custom_to, $dbTzOffset);
+    if ($dateCondition !== '') {
+        $conditions[] = $dateCondition;
     }
 
     // W3.4: Exclude Safe Page clicks from reports, resolved per campaign
@@ -9683,9 +9668,9 @@ try {
 
             try {
                 $pdo->prepare("
-                    INSERT INTO clicks (id, campaign_id, ip, user_agent, country_code, parameters_json, created_at)
-                    VALUES (?, ?, '127.0.0.1', 'Orbitra-Postback-Tester/1.0', 'US', ?, datetime('now'))
-                ")->execute([$testClickId, $testCampaignId, json_encode(['postback_test' => true])]);
+                    INSERT INTO clicks (id, campaign_id, ip, user_agent, ua_hash, country_code, parameters_json, created_at)
+                    VALUES (?, ?, '127.0.0.1', 'Orbitra-Postback-Tester/1.0', ?, 'US', ?, datetime('now'))
+                ")->execute([$testClickId, $testCampaignId, orbitraUaHash('Orbitra-Postback-Tester/1.0'), json_encode(['postback_test' => true])]);
 
                 // Fire the real request at this server, exactly as a network
                 // would: no session, no internal state, plain HTTP.

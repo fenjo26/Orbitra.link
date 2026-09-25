@@ -771,3 +771,53 @@ if (!function_exists('orbitraDashboardAnchorDay')) {
         return gmdate('Y-m-d', $t + orbitraTzOffsetSeconds($dbTzOffset));
     }
 }
+
+if (!function_exists('orbitraDashboardDateCondition')) {
+    /**
+     * The WHERE fragment getDashboardFilters() filters clicks by, for one
+     * dashboard preset or a custom local-day range. This is the whole
+     * production date logic in one testable place.
+     *
+     * Semantics mirror v1.6.2 exactly: today/yesterday select EXACTLY one
+     * local day (an equality then, a half-open UTC range now), the week /
+     * month / N-day presets keep only the lower bound (future-dated clicks
+     * stayed inside those reports then and still do), custom keeps per-end
+     * bounds. A day that is not 'Y-m-d' matches nothing — SQLite's date()
+     * returned NULL and dropped every row the same way.
+     *
+     * @return array{0:string,1:array} SQL fragment ('' when the preset adds
+     *         no date condition) and bound parameters (always [] — the
+     *         bounds are PHP-computed literals).
+     */
+    function orbitraDashboardDateCondition(string $column, string $date_range, ?string $custom_from, ?string $custom_to, string $dbTzOffset): array
+    {
+        switch ($date_range) {
+            case 'today':
+            case 'yesterday':
+                [$start, $end] = orbitraLocalDayBoundsUtc(
+                    orbitraDashboardAnchorDay($date_range, $dbTzOffset),
+                    $dbTzOffset
+                );
+                return ["$column >= '$start' AND $column < '$end'", []];
+            case 'this_week':
+            case 'last_7_days':
+            case 'this_month':
+            case 'last_30_days':
+                [$start] = orbitraLocalDayBoundsUtc(
+                    orbitraDashboardAnchorDay($date_range, $dbTzOffset),
+                    $dbTzOffset
+                );
+                return ["$column >= '$start'", []];
+            case 'custom':
+                $conds = [];
+                if ($custom_from) {
+                    $conds[] = orbitraLocalDayLowerBoundSql($column, $custom_from, $dbTzOffset);
+                }
+                if ($custom_to) {
+                    $conds[] = orbitraLocalDayUpperBoundSql($column, $custom_to, $dbTzOffset);
+                }
+                return [implode(' AND ', $conds), []];
+        }
+        return ['', []];
+    }
+}
