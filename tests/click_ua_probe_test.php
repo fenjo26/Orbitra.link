@@ -120,6 +120,68 @@ try {
     check($debounced === 'ua-legacy', 'debounce finds the NULL-hash duplicate and returns its id');
     check(orbitraFindDebounceDuplicate($pdo, $campaignId, '203.0.113.63', $ua) === null,
         'debounce passes a genuinely new visitor');
+
+    // --- backfill (acceptance round 2, blocker 4) ------------------------------
+    // Legacy rows inside the widest uniqueness window get hashed in rowid
+    // batches; rows outside every window stay NULL forever (no probe can
+    // reach them). Marker deleted = the backfill walked past everything.
+    // 'ua-legacy' from the debounce section above is also in-window NULL —
+    // the backfill must hash it too.
+    $backfillPdo = $harness->getPdo();
+    $backfillPdo->prepare("INSERT INTO clicks (id, campaign_id, ip, user_agent, ua_hash, created_at)
+                            VALUES ('bf-1', ?, '198.51.100.70', 'LegacyAgent/1.0 a', NULL, datetime('now', '-1 hour'))")
+        ->execute([$campaignId]);
+    $backfillPdo->prepare("INSERT INTO clicks (id, campaign_id, ip, user_agent, ua_hash, created_at)
+                            VALUES ('bf-2', ?, '198.51.100.71', 'LegacyAgent/1.0 b', NULL, datetime('now', '-2 hours'))")
+        ->execute([$campaignId]);
+    $backfillPdo->prepare("INSERT INTO clicks (id, campaign_id, ip, user_agent, ua_hash, created_at)
+                            VALUES ('bf-old', ?, '198.51.100.72', 'LegacyAgent/1.0 old', NULL, datetime('now', '-40 days'))")
+        ->execute([$campaignId]);
+    $backfillPdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('clicks_ua_backfill_rowid', '0')")->execute();
+
+    $markerPresent = static function () use ($backfillPdo): bool {
+        return $backfillPdo->query("SELECT value FROM settings WHERE key = 'clicks_ua_backfill_rowid'")->fetchColumn() !== false;
+    };
+    $hashedTotal = 0;
+    do {
+        // Tiny batches on purpose: the marker must advance between them.
+        $n = orbitraBackfillUaHashStep($backfillPdo, 10.0, 2);
+        $hashedTotal += $n;
+    } while ($n > 0 && $markerPresent());
+
+    $hashOf = static function (string $id) use ($backfillPdo) {
+        $stmt = $backfillPdo->prepare('SELECT ua_hash FROM clicks WHERE id = ?');
+        $stmt->execute([$id]);
+        $hash = $stmt->fetchColumn();
+        $stmt->closeCursor();
+        return $hash === false || $hash === null ? null : (int) $hash;
+    };
+    check($hashOf('bf-1') === crc32('LegacyAgent/1.0 a') && $hashOf('bf-2') === crc32('LegacyAgent/1.0 b'),
+        'backfill hashed the in-window legacy rows');
+    check($hashOf('ua-legacy') === crc32($ua), 'the debounce-section legacy row was in the window and got hashed too');
+    check($hashOf('bf-old') === null, 'the out-of-window legacy row stays NULL (no probe can reach it)');
+    check(!$markerPresent(), 'the backfill marker is deleted when the window is walked past');
+    check(orbitraBackfillUaHashStep($backfillPdo, 5.0) === 0, 'a second backfill step is a no-op');
+
+    // --- the real cron walks the whole state machine in one tick --------------
+    // pending -> index -> backfill -> done, exactly what an updated install
+    // sees on the next spool-worker tick.
+    $work2 = $harness->getWorkingDir();
+    @mkdir($work2 . '/cli', 0777, true);
+    copy(__DIR__ . '/../cli/click_spool_cron.php', $work2 . '/cli/click_spool_cron.php');
+    $backfillPdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('clicks_ua_index_state', 'pending')")->execute();
+    $backfillPdo->prepare("INSERT INTO clicks (id, campaign_id, ip, user_agent, ua_hash, created_at)
+                            VALUES ('cron-e2e', ?, '198.51.100.73', 'CronLegacy/3.0', NULL, datetime('now', '-3 hours'))")
+        ->execute([$campaignId]);
+    exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($work2 . '/cli/click_spool_cron.php') . ' 2>/dev/null', $cronOut, $cronRc);
+    check($cronRc === 0, 'the click spool cron ran cleanly');
+    $flagAfter = (string) $backfillPdo->query("SELECT value FROM settings WHERE key = 'clicks_ua_index_state'")->fetchColumn();
+    check($flagAfter === 'done', "the cron left clicks_ua_index_state = done (got '$flagAfter')");
+    $stmt = $backfillPdo->prepare('SELECT ua_hash FROM clicks WHERE id = ?');
+    $stmt->execute(['cron-e2e']);
+    $e2eHash = $stmt->fetchColumn();
+    $stmt->closeCursor();
+    check((int) $e2eHash === crc32('CronLegacy/3.0'), 'the cron hashed the in-window legacy row with the exact writer hash');
 } catch (\Throwable $e) {
     check(false, 'unexpected exception: ' . $e->getMessage());
 } finally {

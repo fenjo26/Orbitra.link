@@ -77,8 +77,37 @@ try {
         $uaIndexStartedAt = microtime(true);
         $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('clicks_ua_index_state', 'building')")->execute();
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_clicks_ip_ua_created ON clicks(ip, ua_hash, created_at)');
-        $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('clicks_ua_index_state', 'done')")->execute();
-        orbitraSpoolLog('idx_clicks_ip_ua_created built in ' . round(microtime(true) - $uaIndexStartedAt, 1) . ' s');
+        $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('clicks_ua_index_state', 'backfilling')")->execute();
+        // The backfill marker doubles as the completion signal: present means
+        // batches are still running (or a tick must resume them), deleted
+        // means the step walked past every in-window legacy row.
+        $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('clicks_ua_backfill_rowid', '0')")->execute();
+        $uaIndexState = 'backfilling'; // same tick continues with the backfill
+        orbitraSpoolLog('idx_clicks_ip_ua_created built in ' . round(microtime(true) - $uaIndexStartedAt, 1) . ' s; hashing legacy clicks next');
+    }
+    // Legacy rows predate ua_hash (migration 55) and stay invisible to the
+    // hashed probes for as long as they sit inside a uniqueness window — up
+    // to a day or more on installs with mobile traffic (acceptance round 2,
+    // blocker 4). Hash them right after the index build, in short committed
+    // batches that resume across ticks; rows outside every window are never
+    // probed and stay untouched.
+    if ($uaIndexState === 'backfilling') {
+        $uaBackfillStartedAt = microtime(true);
+        try {
+            $uaHashed = orbitraBackfillUaHashStep($pdo, 40.0);
+            // NULL-hash rows outside the uniqueness window stay NULL forever,
+            // so completion is the step deleting its marker — not a global
+            // NULL count.
+            $uaMarkerLeft = $pdo->query("SELECT value FROM settings WHERE key = 'clicks_ua_backfill_rowid'")->fetchColumn();
+            if ($uaMarkerLeft === false) {
+                $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('clicks_ua_index_state', 'done')")->execute();
+                orbitraSpoolLog('ua_hash backfill finished (' . $uaHashed . ' rows this tick, ' . round(microtime(true) - $uaBackfillStartedAt, 1) . ' s)');
+            } elseif ($uaHashed > 0) {
+                orbitraSpoolLog('ua_hash backfill: hashed ' . $uaHashed . ' legacy clicks in ' . round(microtime(true) - $uaBackfillStartedAt, 1) . ' s; continues next tick');
+            }
+        } catch (\Throwable $e) {
+            orbitraSpoolLogError('ua_hash backfill deferred: ' . $e->getMessage());
+        }
     }
 } catch (\Throwable $e) {
     // A failed build must never stop the spool replay; the flag stays where

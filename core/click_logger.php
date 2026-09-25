@@ -237,6 +237,84 @@ function orbitraUaMatchExists(PDO $pdo, array $scope, string $ip, string $userAg
 }
 
 /**
+ * One batched step of the ua_hash backfill for rows written before
+ * migration 55 (acceptance round 2, blocker 4). Without it the NULL-hash
+ * probes stay slow on installs with mobile traffic until every legacy row
+ * ages out of its uniqueness window — up to a day or more.
+ *
+ * Only rows inside the widest possible uniqueness window are hashed: a probe
+ * never looks further back than that, so older NULL-hash rows can never be
+ * matched and are not worth rewriting. Batches advance by rowid with the
+ * marker kept in settings (clicks_ua_backfill_rowid) — a repeated
+ * "LIMIT over ua_hash IS NULL" would rescan the window from the start on
+ * every batch, since the table has no index on that column by design.
+ *
+ * Hashing runs in PHP through orbitraUaHash() — the exact function the
+ * writers use. Computing crc32 inside SQLite (a registered function) stores
+ * a 32-bit sign-truncated integer on some PDO builds, and a probe carrying
+ * the positive PHP crc32 would never match it. Each batch commits on its
+ * own, so click writers never wait longer than one batch. The caller (the
+ * click spool worker) runs this with a per-tick time budget and lets the
+ * next tick continue where the marker stands; when a step finds nothing
+ * left, it deletes the marker and the caller flips the state flag to done.
+ *
+ * @return int rows hashed during this step
+ */
+function orbitraBackfillUaHashStep(PDO $pdo, float $budgetSeconds = 40.0, int $batchRows = 5000): int
+{
+    $maxHours = 24;
+    try {
+        $widest = $pdo->query('SELECT MAX(uniqueness_hours) FROM campaigns')->fetchColumn();
+        if ($widest !== null && (int) $widest > 0) {
+            $maxHours = max(24, min((int) $widest, 744));
+        }
+    } catch (\Throwable $e) {
+        // No campaigns table (never on a migrated install) — default window.
+    }
+    $windowStart = gmdate('Y-m-d H:i:s', time() - $maxHours * 3600);
+
+    $lastRowid = (int) ($pdo->query("SELECT value FROM settings WHERE key = 'clicks_ua_backfill_rowid'")->fetchColumn() ?: 0);
+
+    $select = $pdo->prepare('SELECT rowid, user_agent FROM clicks WHERE rowid > ? AND created_at >= ? AND ua_hash IS NULL ORDER BY rowid LIMIT ?');
+    $update = $pdo->prepare('UPDATE clicks SET ua_hash = ? WHERE rowid = ?');
+    $marker = $pdo->prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('clicks_ua_backfill_rowid', ?)");
+    $markerDone = static function () use ($pdo): void {
+        $pdo->prepare("DELETE FROM settings WHERE key = 'clicks_ua_backfill_rowid'")->execute();
+    };
+
+    $startedAt = microtime(true);
+    $hashed = 0;
+    while ((microtime(true) - $startedAt) < $budgetSeconds) {
+        $select->execute([$lastRowid, $windowStart, $batchRows]);
+        $rows = $select->fetchAll(PDO::FETCH_ASSOC);
+        $select->closeCursor();
+        if (!$rows) {
+            // Walked past every in-window legacy row — the backfill is done.
+            $markerDone();
+            return $hashed;
+        }
+        $pdo->beginTransaction();
+        try {
+            foreach ($rows as $row) {
+                $update->execute([orbitraUaHash((string) $row['user_agent']), (int) $row['rowid']]);
+                $hashed++;
+            }
+            $lastRowid = (int) end($rows)['rowid'];
+            $marker->execute([(string) $lastRowid]);
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+        if (count($rows) < $batchRows) {
+            $markerDone();
+            return $hashed;
+        }
+    }
+    return $hashed;
+}
+
+/**
  * Campaign uniqueness check for the click path (index.php).
  *
  * This is the inline SELECT the router used to run, moved here so the read
