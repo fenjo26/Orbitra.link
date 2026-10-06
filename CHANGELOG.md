@@ -7,6 +7,65 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.4] — 2026-10-06
+
+Test links and a behavioural bot hint.
+
+### Added
+
+- **Signed test links (`?_t=…`, `?_geo=XX`, `?_dbg=1`).** A campaign URL with
+  a valid test signature runs the real routing pipeline — streams, filters,
+  rotation, landings, offers — but never writes a clicks row: no click, no
+  uniqueness probe, no debounce, the same skip-INSERT pattern prefetch and
+  no-collect streams already use, so reports stay clean by construction. The
+  gate lives in every entry point that could birth a click row: the campaign
+  router (index.php), click.php, Click API v3 (tracking.js forwards the
+  landing's query params, so a test through an external landing stays a
+  test) and the `/?_lp=1` transition, where a test hop resolves the offer
+  from the binding cookie or an explicit `?offer_id=` and redirects with a
+  `test-` click id. `?_geo=XX` overrides the resolved country BEFORE the
+  visitor context is built, so stream Country filters, cloak country rules
+  and `{country}` macros all see the test country — geo-targeted streams are
+  checked without a VPN. `?_dbg=1` answers with a routing-trace page instead
+  of a redirect: every stream in position order with its type, schema and
+  filter logic; each filter's vote (match / no-match / abstain, with the
+  reason for abstentions); the winning stream marked SELECTED; the
+  destination with macros substituted and the redirect type; campaigns
+  without streams are covered too. The trace is produced by a pure observer
+  pass (`orbitraTraceStreams()`) that re-evaluates the same filters against
+  the same visitor context — the live selection is never touched. The
+  signature is `id:hmac(sha256, 'test-link|id|alias', postback_key)[0:32]`
+  (core/test_links.php): keyed by the instance postback key, so it survives
+  campaign token rotation and covers every campaign; rotating the postback
+  key retires all test links at once. `_geo` and `_dbg` are honoured only
+  with a valid signature for THIS campaign — an invalid or stale one
+  degrades to a normal logged click, so nothing about live traffic changes.
+  The campaign editor gets a **Test link** row under the Campaign URL:
+  server-computed signature from `get_campaign` (the postback key never
+  reaches the panel), a `_geo` input, a `_dbg` checkbox and a copy button;
+  `save_campaign` returns a fresh signature after an alias change.
+- **`possible_bots` — a behavioural bot hint.** The landing timers
+  (tracking.js, kclient.js and the tracker-injected LP timer) now record
+  whether the visitor ever moved the mouse or touched the screen: one first
+  `mousemove` / `touchstart` / `pointerdown` flips the flag and detaches the
+  listeners, so the signal costs nothing after that; scroll and typing
+  deliberately do not count — scripts generate them far more easily than
+  they fake a pointer. The flag rides the existing `/pixel.gif?action=lp`
+  heartbeat (`pa=0|1`) and is stored with MAX semantics: once 1 it stays 1,
+  a replayed `pa=0` cannot un-flag, and a beacon without `pa` (an older
+  script) leaves the column NULL. The new `pointer_activity` column
+  (migration 56, nullable, no backfill — pre-migration clicks stay NULL) and
+  the `possible_bots` metric count exactly the explicitly-zero rows: landing
+  visits where the timer ran but not one pointer event arrived. The metric
+  ships in the Traffic preset and the column catalog across every report
+  surface — dashboard, campaigns list, campaign reports with dimensions,
+  offers, landings — and is a hint to look closer at a source, never an
+  exclusion: NULL rows never count and Visitors totals are untouched.
+  Pinned in tests/pointer_activity_test.php and the report-metrics
+  reference suite.
+- **LICENSE ships with the repo** — the MIT license file both READMEs
+  already linked to.
+
 ## [1.6.3] — 2026-09-25
 
 Performance and click-integrity release, from a 480 rps load test on a

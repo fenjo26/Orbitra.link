@@ -1,4 +1,4 @@
-# Orbitra v1.6.3 Tracker
+# Orbitra v1.6.4 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,7 +11,17 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.6.3
+## 🆕 What's New in v1.6.4
+
+Test links and a behavioural bot hint.
+
+### Added
+
+- 🔗 **Signed test links** — open the campaign through the real routing pipeline (streams, filters, rotation, landings, offers) while writing nothing: no clicks row, no uniqueness, no debounce, so reports stay clean. `?_geo=XX` reroutes the test as another country — geo-targeted streams checked without a VPN — and `?_dbg=1` answers with a routing trace instead of a redirect: every stream in position order, each filter's verdict (match / no-match / abstain), the winning stream and the final URL with macros substituted. The editor's new **Test link** row issues the signature; `_geo`/`_dbg` work only with a valid one
+- 🖱 **"Possible bots" — a behavioural bot hint** — the landing timers (tracking.js, kclient.js and the tracker-injected timer) now report whether the visitor ever moved the mouse or touched the screen; scroll and typing do not count. The new `possible_bots` metric (Traffic preset and the column catalog) counts landing visits that ran the timer but never showed a single pointer event — a hint to look closer at a source, never an exclusion: unmeasured visits and Visitors totals stay untouched
+- 📄 **LICENSE ships with the repo** — the MIT license file both READMEs already linked to
+
+### v1.6.3
 
 Performance and click-integrity release, born from a 480 rps load test on a
 3.2M-click database.
