@@ -57,32 +57,7 @@ Methodology, the raw acceptance reports and the k6 kit to reproduce it:
 [docs/TZ_LOAD_PERFORMANCE.md](docs/TZ_LOAD_PERFORMANCE.md) and
 [tests/load/](tests/load/).
 
-### v1.6.2
-
-A bug-fix release for 1.6.0 — update as usual.
-
-### Fixed
-
-- 🔐 **False "certbot is not installed" warning** on the Domains page after the 1.6.0 root setup — the check now probes the `orbitra-issue-cert` helper the issuer uses, and the manual **Issue SSL** button works again. A real sudo problem gets its own message with the fix command
-
-### v1.6.1
-
-A follow-up polish release on top of the 1.6.0 security work.
-
-### Added
-
-- 👥 **One Users tab for everyone** — two sub-tabs: Users (the accounts table, admins) and Profile (own login, email, language, timezone, password and 2FA). Non-admins land on their profile directly; the duplicate profile inside Settings is gone
-- ⏰ **246 timezones** — grouped by region with live UTC offsets that follow DST (profile + setup wizard); a saved zone outside the list is never silently changed
-- 🩺 **System Status RAM** — reads memory via `free`/sysctl/wmic when /proc is hidden (open_basedir panels); says N/A when the host allows nothing
-- 🔢 **API-keys counter fixed** — it always showed 0; now counts the same keys the API modal lists, and the keys modal got wider (820px)
-- 🧭 **Manual Git update** self-provisions the pinned Composer; a role hint in the user modal explains the two roles and granular permissions
-
-### Previous Highlights (v1.6.0)
-
-- 🛡 **Security hardening from an independent audit** — account takeover and role checks fixed (default-deny for non-admins), IP allowlist, stopped/archived campaigns stop serving, the Sypex geo reader actually works now, TLS-verified geo downloads, Telegram bot locked down (one-time chat codes), optional TOTP two-factor login, HMAC for /crm-ingest, lost clicks spooled to disk, Keitaro import fixes
-- 🖥 **One-time server step** — after update the panel shows a single SSH command replacing the legacy sudo rules; fresh installs run it automatically
-
-Older releases (v1.5.15 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.6.2 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo
@@ -559,26 +534,6 @@ Switch the language in **Profile → Settings**. Seven languages are available: 
 | **Charts** | Chart.js 4.5.1 |
 | **Date Utils** | date-fns 3.6.0 |
 | **PHP Deps** | Composer |
-
-## 📝 What's New
-
-### Current release — v1.5.12 (2026-09-17)
-
-**Added**
-- 🔗 **Source S2S seeding (Keitaro-style)** — picking a traffic source that has a `postback_url` seeds the campaign's S2S Postbacks automatically when the list is empty (URL, GET, the source's own statuses); campaigns configured earlier get a one-click hint at the top of the S2S tab that adds the source's postback; switching sources never duplicates rows — with postbacks already configured the hint appears instead of a silent insert and disappears once the URL is present
-- 🗺️ **Upgrade note for ≤ 1.5.10 setups** — v1.5.11's aliases record `approved` as `sale` (was `custom`), so a campaign S2S filter tuned to `custom` stops matching; tick the `sale` chip — the postback tester shows the mismatch immediately
-
-### Previous release — v1.5.11 (2026-09-17)
-
-**Added**
-- 🗺️ **Built-in status aliases** — `approved`, `confirmed`, `accepted`, `converted` → `sale`; `declined`, `refused`, `cancelled`, `canceled` → `rejected`; they fire only as the last resort before `custom`, so configured conversion types and `{type}_status` parameters always win (a BIGO/Dr. Cash-style "approved" used to land in `custom`: no revenue, no S2S to the source)
-- 🧪 **Postback tester (campaign editor → S2S Postbacks)** — one click fires a real postback at this server with a throwaway click and shows a verdict for every stage: recording with the mapped status, statuses-filter match per configured postback, a live probe delivery (HTTP code + timing), unresolved macros like `{external_id}`/`{sub_id_N}` that would ship as literal text, and queue-worker health (ping, last error, cron); throwaway rows are deleted, the audit line stays in the incoming log
-- 🎛️ **S2S postbacks editor rebuilt** — segmented GET/POST, caret-accurate macro insertion (`{subid}`, `{status}`, `{payout}`, `{sub_id_1..5}`…), statuses as toggle chips with inline custom values instead of a raw comma field; stored value unchanged
-- 🩹 **Update self-heals the queue worker** — a missing worker cron is installed automatically after an in-panel update and a silent worker reports its last error in the update output; the cron log path is unified to `var/logs/postback_queue.log`
-
-Previous releases — v1.5.10: 🩹 postback hotfix for PHP < 8.4 (raw `BEGIN IMMEDIATE` invisible to `inTransaction()` before PHP 8.4, php bug #81227 — `orbitraPostbackTransactionActive()` asks SQLite itself), 🚚 installer provisions PHP 8.5/8.4 (ondrej/php / packages.sury.org, distro fallback, 8.1+ hard check, in-place server upgrade), 🕒 queue health timestamps in UTC + `next_retry_at` in the panel timezone; v1.5.9: 🔁 durable CAPI delivery + browser matching context (PR #16, conversion + counters + FX + Meta/TikTok queue events in one transaction, truthful `event_source_url`, confirmed delivery via `events_received`); v1.5.8: 🌗 code editor contrast restored in light themes (PR #14, a dedicated `.code-editor-textarea` class keeps the editor's dark canvas in every theme); v1.5.7: 🎯 affiliate-network `offer_params` reach the destination at click time (PR #12), 🤖 Telegram connect fixed via one shared transport + fewer `db_locked` answers (PR #13); v1.5.6: 🏠 Namecheap Buy & Park fix — registration contacts with ID `0` + real prices (PR #10); v1.5.5: 🤝 partners block on Feedback & Support (Pay2.House, GroupBuySEO as logo tiles, seven locales); v1.5.4: 📱 PWA visit funnel (ordered screens: own + install-instructions + push card, per-screen statistics & tracking scripts, funnel-first constructor), 💱 postback payouts converted to the base currency (PR #9); v1.5.3: 🧩 extension overlay counts like the panel, 🧱 one safe-page predicate in `core/ReportMetrics.php`, 📊 honest safe-page hint + 👁 Visitors in the default preset; v1.5.2: 🎨 boot screen before the bundle parses, 🖥 Terminal & Aurora themes, 🗺 two-column login, 🤖 Telegram bot as a visual menu (pinned keyboard ×7 languages), 📸 Snapchat Ads template, 🖱 non-blocking update check, 📊 Profitability → Margin; v1.5.1: ⏱ time on LP for every visitor (visible seconds + scroll depth into the click, *LP bounce/scroll/measured visits* metrics, **Time on LP (bucket)** dimension), 🤖 Telegram polling mode (bare IP / plain HTTP / proxy, real Telegram errors on screen); 🎯 clicks = the offer funnel (pre-bound landing views count as visitors, CPV/EPV ÷ visitors), 📌 pinned identity columns, 🔗 CAPI `content_id` (PR #8), 🧱 versioned column-width storage; v1.5.0: 📱 PWA landings (store-style constructor, funnel beacons into the click, self-healing push subscription, direct domain→PWA binding), 🔔 Web Push on your own base (self-hosted VAPID keys, subscriber list + CSV, manual & event messages, cron-driven queue with retries and aging), 🖼 Content Gallery + shared MediaPicker (size contracts, cropping), 🔐 four crypto-layer defects in push delivery found by live device diagnostics; 🧩 `{subid}` on the landing→offer hop, service worker on bound domains, panel session lifetime, "database is locked" as a clean 503, silent `save_user` demotion; v1.4.1: 🐞 Affiliate Networks crash fix (issue #7), 🌍 System Status localization; v1.4.0: 📊 honest LP-funnel metrics (Real LP clicks / Real offer clicks / Real LP CTR), ⏱ landing→offer timing buckets, 🎚 "After the click" default for new landing streams, 🔐 roles enforced server-side + per-campaign scoping (issue #6); v1.3.11: 🏠 domain-root campaigns in production, 🔑 private postback key on install; v1.3.10: 📱 rotation rows as a placed grid below 640px, 🎨 campaign-name link parity on both surfaces; v1.3.9: 🔒 SSL chain verdicts + certificates-on-save, 🎯 LeadForge honest failures, 🛡️ scan protection, Domains rebuilt; v1.3.8: 🧹 stray ellipsis gone, centred values, checkbox column fixed, lint-zero tracker tables; v1.3.7: 🔀 full column reorder, ✂️ hard cell clipping, 🎯 centred headers.
-
-Full version history: [CHANGELOG.md](CHANGELOG.md).
 
 ## 🤝 Contributing
 
