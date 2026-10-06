@@ -3327,6 +3327,7 @@ try {
                        SUM(cl.uniq_global) as unique_clicks_global,
                        COUNT(cl.id) as visitors,
                        SUM(cl.is_bot) as bots,
+                       SUM(CASE WHEN cl.pointer_activity = 0 THEN 1 ELSE 0 END) as possible_bots,
                        SUM(cl.is_proxy) as proxies,
                        SUM(CASE WHEN cl.referer IS NULL OR cl.referer = '' THEN 1 ELSE 0 END) as empty_referrers,
                        AVG(CASE WHEN cl.landing_at IS NOT NULL AND cl.offer_at IS NOT NULL
@@ -3477,6 +3478,18 @@ try {
             if (!orbitraAllFinanceVisible($financeFlags)) {
                 $campaign = orbitraMaskFinance($campaign, $financeFlags);
             }
+
+            // The signed ?_t= value for test links (editor's "Test link" row).
+            // Computed server-side: the HMAC key is the postback_key, which the
+            // panel session must never see raw.
+            if (!function_exists('orbitraTestSignature')) {
+                require_once __DIR__ . '/core/test_links.php';
+            }
+            $testKeyRow = $pdo->query("SELECT value FROM settings WHERE key = 'postback_key' LIMIT 1")->fetchColumn();
+            $campaign['test_signature'] = orbitraTestSignature(
+                $campaign,
+                is_string($testKeyRow) && $testKeyRow !== '' ? $testKeyRow : 'orbitra_secret'
+            );
 
             echo json_encode(['status' => 'success', 'data' => $campaign]);
             break;
@@ -13331,6 +13344,7 @@ try {
                     SUM(uniq_global) as unique_clicks_global,
                     COUNT(click_id) as visitors,
                     SUM(is_bot) as bots,
+                    SUM(CASE WHEN pointer_activity = 0 THEN 1 ELSE 0 END) as possible_bots,
                     SUM(is_proxy) as proxies,
                     SUM(CASE WHEN referer IS NULL OR referer = '' THEN 1 ELSE 0 END) as empty_referrers,
                     AVG(CASE WHEN landing_at IS NOT NULL AND offer_at IS NOT NULL
@@ -13378,6 +13392,7 @@ try {
                            clicks.referer,
                            clicks.is_bot,
                            clicks.is_proxy,
+                           clicks.pointer_activity,
                            clicks.uniq_campaign,
                            clicks.uniq_stream,
                            clicks.uniq_global,

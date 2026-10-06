@@ -403,6 +403,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const [loading, setLoading] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
     const [copySuccess, setCopySuccess] = useState(false);
+    // Test link state: the _geo country override (2 letters) and the _dbg
+    // trace toggle. The signature itself lives on the loaded campaign.
+    const [testGeo, setTestGeo] = useState('');
+    const [testDbg, setTestDbg] = useState(false);
+    const [testCopySuccess, setTestCopySuccess] = useState(false);
 
     // "Create stream" dropdown — click-toggled (hover-only would be dead on
     // touch screens) and closed by an outside click.
@@ -886,6 +891,24 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         return pairs.length ? `${url}?${pairs.join('&')}` : url;
     };
 
+    // Signed test link: the real routing pipeline, nothing logged. Built from
+    // the server-issued signature (get_campaign), the chosen domain and the
+    // _geo/_dbg toggles. Campaign URL parameters stay off on purpose — a test
+    // checks WHERE traffic goes, not what the ad network substitutes.
+    const getTestUrl = () => {
+        if (!formData.test_signature) return '';
+        const domain = domains.find(d => d.id == formData.domain_id);
+        let url = campaignLinkUrl(formData.alias, domain ? domain.name : null)
+            + '?_t=' + encodeURIComponent(formData.test_signature);
+        if (/^[A-Za-z]{2}$/.test(testGeo)) {
+            url += '&_geo=' + testGeo.toUpperCase();
+        }
+        if (testDbg) {
+            url += '&_dbg=1';
+        }
+        return url;
+    };
+
     // Map a traffic source's [{alias, param, macro}] into the campaign's
     // {paramKey: macro} parameter map used by the "Параметры" tab and the URL.
     const sourceToParameters = (source) => {
@@ -1013,6 +1036,14 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             } catch (e) { copied = false; }
         }
         if (!copied) alert(t('common.error'));
+    };
+
+    // Test-link copy: same clipboard fallback path, its own success tick so
+    // the two copy buttons do not flash each other's checkmarks.
+    const copyTestUrl = async () => {
+        await copyIntegrationSnippet(getTestUrl());
+        setTestCopySuccess(true);
+        setTimeout(() => setTestCopySuccess(false), 1500);
     };
 
     // Copy URL to clipboard with fallback for non-secure contexts / older browsers
@@ -1187,7 +1218,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             postbacks: data.postbacks || [],
                             parameters: data.parameters || {},
                             challenge_type: data.challenge_type || 'none',
-                            challenge_custom_code: data.challenge_custom_code || ''
+                            challenge_custom_code: data.challenge_custom_code || '',
+                            test_signature: data.test_signature || ''
                         };
                         setFormData(loaded);
                         // The loaded campaign is the clean baseline for the dirty check.
@@ -1454,6 +1486,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             // Do not send it from the editor by default to avoid accidental wipes during edits/migrations.
             const payload = { ...formData };
             delete payload.token;
+            // Server-computed (HMAC of the postback_key) — never sent back.
+            delete payload.test_signature;
             const res = await cachedPost('save_campaign', payload);
             if (res.data.status === 'success') {
                 const saved = res.data.data || {};
@@ -1468,7 +1502,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         : formData.streams,
                     id: saved.id || formData.id || campaignId,
                     token: saved.token || formData.token,
-                    rotation_type: saved.rotation_type || formData.rotation_type
+                    rotation_type: saved.rotation_type || formData.rotation_type,
+                    // The alias may have changed in this save — the signature
+                    // covers it, so adopt the fresh one.
+                    test_signature: saved.test_signature || formData.test_signature
                 };
                 setFormData(nextFormData);
                 setStreamStatsTick(x => x + 1);
@@ -2959,6 +2996,48 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                     </button>
                                                 </div>
                                             </div>
+
+                                            {/* Test link — the real routing, zero statistics. */}
+                                            {formData.test_signature && (
+                                                <div className="pt-4 mt-4" style={{ borderTop: '1px solid var(--color-border)' }}>
+                                                    <label className="form-label">{t('editor.testLink', 'Test link')}</label>
+                                                    <div className="flex gap-2">
+                                                        <input
+                                                            type="text"
+                                                            value={getTestUrl()}
+                                                            readOnly
+                                                            className="form-input text-xs"
+                                                            style={{ backgroundColor: 'var(--color-bg-soft)', color: 'var(--color-text-secondary)' }}
+                                                        />
+                                                        <button onClick={copyTestUrl} className="btn btn-secondary btn-icon" title={t('editor.copyUrl')}>
+                                                            {testCopySuccess ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                                                        </button>
+                                                    </div>
+                                                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2" style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
+                                                        <label className="flex items-center gap-1.5">
+                                                            <span>_geo</span>
+                                                            <input
+                                                                type="text"
+                                                                value={testGeo}
+                                                                maxLength={2}
+                                                                placeholder="DE"
+                                                                onChange={e => setTestGeo(e.target.value.replace(/[^A-Za-z]/g, '').toUpperCase())}
+                                                                className="form-input"
+                                                                style={{ width: '52px', padding: '4px 8px' }}
+                                                            />
+                                                        </label>
+                                                        <label className="flex items-center gap-1.5 cursor-pointer">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={testDbg}
+                                                                onChange={e => setTestDbg(e.target.checked)}
+                                                            />
+                                                            <span>_dbg=1</span>
+                                                        </label>
+                                                        <span>{t('editor.testLinkHint', 'Real routing, nothing is logged. _geo tests another country, _dbg shows why each stream won or lost.')}</span>
+                                                    </div>
+                                                </div>
+                                            )}
 
                                             {/* Bot Challenge Section */}
                                             <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--color-border)' }}>

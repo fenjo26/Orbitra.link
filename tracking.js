@@ -198,7 +198,22 @@
     // Only VISIBLE time accumulates: a tab parked in the background all morning
     // is not engagement. The endpoint stores MAX(), so duplicate and
     // out-of-order beacons are harmless.
-    var dwell = { ms: 0, mark: state.loadTs, off: document.hidden === true, depth: 0, sent: -1, sentDepth: -1 };
+    var dwell = { ms: 0, mark: state.loadTs, off: document.hidden === true, depth: 0, sent: -1, sentDepth: -1, pa: 0, sentPa: -1 };
+
+    // Pointer activity — the behavioural bot hint the reports surface as
+    // "possible bots". One first mousemove / touchstart / pointerdown flips
+    // the flag and detaches all three listeners; after that the signal costs
+    // nothing. Scroll and typing deliberately do NOT count: scripts generate
+    // them far more easily than they fake a pointer.
+    function ptrSeen() {
+        dwell.pa = 1;
+        document.removeEventListener('mousemove', ptrSeen);
+        document.removeEventListener('touchstart', ptrSeen);
+        document.removeEventListener('pointerdown', ptrSeen);
+    }
+    document.addEventListener('mousemove', ptrSeen);
+    document.addEventListener('touchstart', ptrSeen);
+    document.addEventListener('pointerdown', ptrSeen);
 
     function dwellAcc() {
         var now = Date.now();
@@ -224,13 +239,16 @@
         var t = Math.round(dwell.ms / 1000);
         // Only a CHANGED reading is worth a request: pagehide, beforeunload and
         // visibilitychange all fire on the same exit, and three identical
-        // beacons tell the tracker nothing it does not already have.
-        if (t <= dwell.sent && dwell.depth <= dwell.sentDepth) { return; }
+        // beacons tell the tracker nothing it does not already have. A pointer
+        // event counts as a change too — the first mousemove after minutes of
+        // stillness must go out even when time and depth did not move.
+        if (t <= dwell.sent && dwell.depth <= dwell.sentDepth && dwell.pa === dwell.sentPa) { return; }
         if (t < dwell.sent) { t = dwell.sent; }
         dwell.sent = t;
         dwell.sentDepth = dwell.depth;
+        dwell.sentPa = dwell.pa;
         var url = base + '/pixel.gif?action=lp&subid=' + encodeURIComponent(subid)
-            + '&t=' + t + '&s=' + dwell.depth + '&_=' + Date.now();
+            + '&t=' + t + '&s=' + dwell.depth + '&pa=' + dwell.pa + '&_=' + Date.now();
         // sendBeacon, not Image(): the last flush races the navigation to the
         // offer, and a request that has not left the browser dies with the page.
         try { if (navigator.sendBeacon && navigator.sendBeacon(url)) { return; } } catch (e) {}

@@ -829,6 +829,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
             case 'unique_clicks_stream':
             case 'unique_clicks_global':
             case 'bots':
+            case 'possible_bots':
             case 'proxies':
             case 'empty_referrers':
             case 'prelander_clicks':

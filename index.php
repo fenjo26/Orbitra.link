@@ -1745,15 +1745,26 @@ function orbitraLpTimerScript($clickId, $base = '')
     }
     $js = "<script>(function(){var u=" . json_encode($base . '/pixel.gif', JSON_UNESCAPED_SLASHES)
         . ",k=" . json_encode($clickId, JSON_UNESCAPED_SLASHES) . ";"
-        . "var ms=0,mark=Date.now(),off=document.hidden===true,depth=0,sent=-1,sentD=-1;"
+        . "var ms=0,mark=Date.now(),off=document.hidden===true,depth=0,sent=-1,sentD=-1,pa=0,sentP=-1;"
         . "function acc(){var n=Date.now();if(!off){ms+=n-mark;}mark=n;}"
         . "function secs(){acc();return Math.round(ms/1000);}"
         . "function deep(){try{var d=document.documentElement,b=document.body||{},"
         . "h=Math.max(d.scrollHeight||0,b.scrollHeight||0,d.offsetHeight||0),"
         . "v=window.innerHeight||d.clientHeight||0,y=window.pageYOffset||d.scrollTop||0,"
         . "p=h>v?Math.round(((y+v)/h)*100):100;if(p>depth){depth=p<0?0:(p>100?100:p);}}catch(e){}}"
-        . "function send(){var t=secs();if(t<=sent&&depth<=sentD){return;}if(t<sent){t=sent;}sent=t;sentD=depth;"
-        . "var q=u+'?action=lp&subid='+encodeURIComponent(k)+'&t='+t+'&s='+depth+'&_='+Date.now();"
+        // Pointer activity — the behavioural bot hint. One first mousemove,
+        // touchstart or pointerdown flips pa to 1 and detaches all three
+        // listeners: the signal costs nothing after that. Scroll and typing
+        // deliberately do NOT count — scripts generate them far more easily
+        // than they fake a pointer.
+        . "function ptr(){pa=1;try{document.removeEventListener('mousemove',ptr);"
+        . "document.removeEventListener('touchstart',ptr);"
+        . "document.removeEventListener('pointerdown',ptr);}catch(e){}}"
+        . "try{document.addEventListener('mousemove',ptr,{passive:true});"
+        . "document.addEventListener('touchstart',ptr,{passive:true});"
+        . "document.addEventListener('pointerdown',ptr,{passive:true});}catch(e){}"
+        . "function send(){var t=secs();if(t<=sent&&depth<=sentD&&pa===sentP){return;}if(t<sent){t=sent;}sent=t;sentD=depth;sentP=pa;"
+        . "var q=u+'?action=lp&subid='+encodeURIComponent(k)+'&t='+t+'&s='+depth+'&pa='+pa+'&_='+Date.now();"
         . "try{if(navigator.sendBeacon&&navigator.sendBeacon(q)){return;}}catch(e){}"
         . "try{if(window.fetch){fetch(q,{keepalive:true,mode:'no-cors'}).catch(function(){});return;}}catch(e){}"
         . "var i=new Image();i.src=q;}"
@@ -2698,6 +2709,10 @@ if ($uriPath === '/pixel.gif') {
         //
         //   t — VISIBLE seconds (a backgrounded tab does not accumulate)
         //   s — deepest scroll reached, 0-100 %
+        //   pa — pointer activity seen on the page: 1 once the visitor moved
+        //       the mouse / touched the screen, 0 when the whole visit went
+        //       by without either. A hint for the possible-bots metric, not a
+        //       verdict — scroll and typing alone do not set it.
         //
         // MAX() is the dedup gate: heartbeats arrive repeatedly and out of
         // order (sendBeacon gives no ordering guarantee), and a replayed or
@@ -2707,6 +2722,11 @@ if ($uriPath === '/pixel.gif') {
         if ($lpBeaconSubid !== '') {
             $lpBeaconSeconds = max(0, min((int) ($_GET['t'] ?? 0), 86400));
             $lpBeaconScroll = max(0, min((int) ($_GET['s'] ?? 0), 100));
+            // Absent stays NULL (not measured); 0/1 clamp to 0/1. MAX() keeps
+            // the same once-true-stays-true semantics as the timers above.
+            $lpBeaconPointer = array_key_exists('pa', $_GET)
+                ? ((int) ($_GET['pa'] ?? 0) > 0 ? 1 : 0)
+                : null;
             try {
                 // A landing served by this tracker already has the
                 // authoritative landing_at; COALESCE only fills the external
@@ -2721,11 +2741,15 @@ if ($uriPath === '/pixel.gif') {
                     "UPDATE clicks
                         SET lp_seconds = MAX(COALESCE(lp_seconds, 0), CAST(? AS INTEGER)),
                             lp_scroll  = MAX(COALESCE(lp_scroll, 0), CAST(? AS INTEGER)),
+                            pointer_activity = CASE WHEN ? IS NULL THEN pointer_activity
+                                                     ELSE MAX(COALESCE(pointer_activity, 0), CAST(? AS INTEGER)) END,
                             landing_at = COALESCE(landing_at, ?)
                       WHERE id = ?"
                 )->execute([
                     $lpBeaconSeconds,
                     $lpBeaconScroll,
+                    $lpBeaconPointer,
+                    $lpBeaconPointer,
                     gmdate('Y-m-d H:i:s', time() - $lpBeaconSeconds),
                     $lpBeaconSubid,
                 ]);
@@ -3312,6 +3336,47 @@ if (isset($_GET['_lp'])) {
     } catch (\Throwable $e) {
         // Falls back to the constant; a wrong key only rejects tokens, never accepts.
     }
+    // Signed TEST transition (?_lp=1&_t=…): a test click has no clicks row to
+    // resolve, so the normal path below cannot serve it. Validate the test
+    // signature, take the offer the test visit bound (orbitra_offer cookie) or
+    // an explicit ?offer_id=, and redirect without writing anything — the same
+    // no-log rule the test visit itself follows.
+    if (!empty($_GET['_t'])) {
+        require_once __DIR__ . '/core/test_links.php';
+        $lpTestCampaign = orbitraValidTestSignature((string) $_GET['_t'], $pdo, $lpSecret);
+        if ($lpTestCampaign !== null) {
+            $lpTestOfferId = 0;
+            if (isset($_GET['offer_id']) && (int) $_GET['offer_id'] > 0) {
+                $lpTestOfferId = (int) $_GET['offer_id'];
+            } elseif (isset($_COOKIE['orbitra_offer']) && (int) $_COOKIE['orbitra_offer'] > 0) {
+                $lpTestOfferId = (int) $_COOKIE['orbitra_offer'];
+            }
+            if ($lpTestOfferId <= 0) {
+                http_response_code(404);
+                die('Test landing transition failed: no offer bound to the test click. Pass ?offer_id= or open the campaign test link first.');
+            }
+            $lpTestOffer = orbitraGetOfferDestination($pdo, (int) $lpTestOfferId);
+            if (!$lpTestOffer || (empty($lpTestOffer['url']) && empty($lpTestOffer['is_local']))) {
+                http_response_code(404);
+                die('Test landing transition failed: offer not found.');
+            }
+            $lpTestClickId = 'test-' . generateUuid();
+            if (!empty($lpTestOffer['is_local'])) {
+                orbitraServeLocalOffer($pdo, (int) $lpTestOfferId, $lpTestClickId, [], ['postback_key' => $lpSecret]);
+            }
+            $lpTestUrl = applyOfferMacros($lpTestOffer['url'], $lpTestClickId, (int) $lpTestOfferId, [], [
+                'ip'      => orbitraClientIp(),
+                // The _geo override rides along from the test link; an empty
+                // country leaves the {country} macro to the offer's own logic.
+                'country' => (string) ($_GET['_geo'] ?? ''),
+            ]);
+            renderRedirectResponse($lpTestOffer['redirect_type'] ?? 'redirect', $lpTestUrl);
+            exit;
+        }
+        // An invalid _t falls through to the normal path, which answers
+        // "original click not found" for lack of a row — the honest verdict
+        // for a stale signature.
+    }
     $lpClickId = '';
     if (!empty($_GET['_token'])) {
         $lpClickId = (string) (verifyLpToken((string) $_GET['_token'], $lpSecret) ?? '');
@@ -3752,6 +3817,30 @@ foreach ($stmtSets->fetchAll() as $row) {
     $settings[$row['key']] = $row['value'];
 }
 
+// === Signed test link (?_t=…) ===
+// A valid signature turns the visit into a test click: the full routing
+// pipeline runs (so the operator sees exactly where traffic goes) but nothing
+// is written — no clicks row, no uniqueness, no debounce. ?_geo= and ?_dbg=1
+// ride on a valid signature only: without one they are ignored, so a visitor
+// cannot rewrite their own country or read the campaign's stream structure.
+$isTestClick = false;
+$testGeoOverride = '';
+if (isset($_GET['_t']) || isset($_GET['_geo']) || isset($_GET['_dbg'])) {
+    require_once __DIR__ . '/core/test_links.php';
+    $testSigCampaign = orbitraValidTestSignature((string) ($_GET['_t'] ?? ''), $pdo, (string) ($settings['postback_key'] ?? ''));
+    if ($testSigCampaign !== null && (int) ($testSigCampaign['id'] ?? 0) === (int) $campaignId) {
+        $isTestClick = true;
+        if (isset($_GET['_geo']) && preg_match('/^[A-Za-z]{2}$/', (string) $_GET['_geo']) === 1) {
+            // Overrides the resolved country BEFORE the visitor context is
+            // built: stream filters, cloak country rules and {country} macros
+            // all see the test country, exactly as a visitor from there would.
+            $testGeoOverride = strtoupper((string) $_GET['_geo']);
+            $country = $testGeoOverride;
+            $countryCode = $testGeoOverride;
+        }
+    }
+}
+
 // Prefetch guard (ignore_prefetch): a speculative request is not counted as a
 // click, but the campaign itself is served — killing the request here used to
 // leave the browser showing the cached "Prefetch ignored." body instead of the
@@ -3890,13 +3979,32 @@ function orbitraCountryFilterGeoReady(): bool
     return $ready;
 }
 
-function streamMatchesFilters($stream, $visitor, $pdo)
+function streamMatchesFilters($stream, $visitor, $pdo, &$filterTrace = null)
 {
-    if (empty($stream['filters_json']))
+    // Debug observer (?_dbg=1): when a trace array is passed in, every filter
+    // records its verdict — match / no-match / abstain — so the routing trace
+    // can show WHY a stream was skipped. Null (the production callers) keeps
+    // the function allocation-free on the hot path.
+    $record = function (array $filter, string $mode, string $result, array $payload = [], string $note = '') use (&$filterTrace): void {
+        if ($filterTrace === null) {
+            return;
+        }
+        $filterTrace[] = [
+            'name' => (string) ($filter['name'] ?? '?'),
+            'mode' => $mode,
+            'result' => $result,
+            'payload' => implode(', ', array_slice(array_map('strval', $payload), 0, 8)),
+            'note' => $note,
+        ];
+    };
+
+    if (empty($stream['filters_json'])) {
         return true;
+    }
     $filters = json_decode($stream['filters_json'], true);
-    if (json_last_error() !== JSON_ERROR_NONE || !is_array($filters) || empty($filters))
+    if (json_last_error() !== JSON_ERROR_NONE || !is_array($filters) || empty($filters)) {
         return true;
+    }
 
     $ip = $visitor['ip'] ?? '';
     $country = $visitor['country'] ?? '';
@@ -3916,8 +4024,13 @@ function streamMatchesFilters($stream, $visitor, $pdo)
     foreach ($filters as $f) {
         $mode = $f['mode'] ?? 'include';
         $payload = $f['payload'] ?? [];
-        if (empty($payload))
+        // Set when a branch already wrote its own (annotated) trace record;
+        // the generic vote record at the bottom then stays quiet.
+        $fRecorded = false;
+        if (empty($payload)) {
+            $record($f, $mode, 'abstain', [], 'empty payload');
             continue;
+        }
 
         $matched = false;
         switch ($f['name']) {
@@ -3934,9 +4047,12 @@ function streamMatchesFilters($stream, $visitor, $pdo)
                 //   its old permissive behavior.
                 if ($country === '' || $country === 'Unknown' || $country === 'Local') {
                     if ($mode !== 'include' || !orbitraCountryFilterGeoReady()) {
+                        $record($f, $mode, 'abstain', $payload, 'country undetermined');
                         continue 2;
                     }
                     // $matched stays false — fail closed.
+                    $record($f, $mode, 'no-match', $payload, 'country undetermined, include fails closed');
+                    $fRecorded = true;
                     break;
                 }
                 foreach ($payload as $item) {
@@ -4068,6 +4184,7 @@ function streamMatchesFilters($stream, $visitor, $pdo)
                 // with ISP field). If no ISP data is available for this IP,
                 // skip the filter so traffic is not blocked.
                 if ($isp === '') {
+                    $record($f, $mode, 'abstain', $payload, 'no ISP data');
                     continue 2;
                 }
                 $ispHaystack = strtolower($isp);
@@ -4082,9 +4199,11 @@ function streamMatchesFilters($stream, $visitor, $pdo)
             case 'Connection':
                 // Connection type (mobile/wifi/cable) has no free data source —
                 // skip without affecting stream selection.
+                $record($f, $mode, 'abstain', $payload, 'no data source');
                 continue 2;
             default:
                 // Unknown filter type — do not block traffic.
+                $record($f, $mode, 'abstain', $payload, 'unknown filter type');
                 continue 2;
         }
 
@@ -4095,13 +4214,194 @@ function streamMatchesFilters($stream, $visitor, $pdo)
         // mode with working geo deliberately does NOT abstain: an unresolved
         // country votes "no match" (fail closed).
         $votes[] = ($mode === 'include') ? $matched : !$matched;
+        if (!$fRecorded) {
+            $record($f, $mode, $matched ? 'match' : 'no-match', $payload);
+        }
     }
     return orbitraCombineFilterVotes($votes, $logic);
 }
 
-// Convert "HH" or "HH:MM" to minutes since midnight, or null if invalid.
-function timeToMinutes($value)
+/**
+ * Debug observer for ?_dbg=1: evaluate every stream against the SAME visitor
+ * context the live selection used, recording each filter's vote. Pure
+ * observer — the selection itself has already happened above, so a broken
+ * trace can at worst lie in the debug page, never in the routing.
+ */
+function orbitraTraceStreams(array $allStreams, array $visitor, PDO $pdo): array
 {
+    $trace = [];
+    foreach ($allStreams as $stream) {
+        $filtersTrace = [];
+        $matched = streamMatchesFilters($stream, $visitor, $pdo, $filtersTrace);
+        $trace[] = [
+            'id' => (int) ($stream['id'] ?? 0),
+            'name' => (string) ($stream['name'] ?? ('#' . ($stream['id'] ?? '?'))),
+            'type' => (string) ($stream['type'] ?? 'regular'),
+            'schema' => (string) ($stream['schema_type'] ?? 'redirect'),
+            'logic' => orbitraStreamFilterLogic($stream),
+            'filters' => $filtersTrace,
+            'matched' => $matched,
+        ];
+    }
+    return $trace;
+}
+
+/**
+ * The trace's destination preview: the same macro substitution the redirect
+ * performs below ({clickid}/{subid}/{ip}/{country}, tracking params, offer
+ * macros, leftover-{macro} strip, scheme fix) applied to a copy — the real
+ * $finalUrl stays untouched for the actual redirect.
+ */
+function orbitraTestPreviewUrl(string $url, $offerIdToLog, string $offerUrlMacros, string $clickId, array $clickParams, string $ip, string $country): string
+{
+    if ($url === '') {
+        return '';
+    }
+    $url = str_replace(
+        ['{clickid}', '{subid}', '{ip}', '{country}'],
+        [$clickId, $clickId, urlencode($ip), urlencode($country)],
+        $url
+    );
+    foreach ($clickParams as $key => $val) {
+        $url = str_replace('{' . $key . '}', urlencode((string) $val), $url);
+    }
+    if (!empty($offerIdToLog)) {
+        $url = str_replace('{offer_id}', $offerIdToLog, $url);
+        $url = str_replace('{offer}', urlencode($offerUrlMacros), $url);
+    }
+    $url = (string) preg_replace('#\{[a-zA-Z0-9_]+\}#', '', $url);
+    if (!preg_match('#^(https?:)?//#i', $url) && !preg_match('#^/#', $url)) {
+        $url = 'http://' . ltrim($url, '/');
+    }
+    return $url;
+}
+
+/**
+ * The ?_dbg=1 answer: a standalone page explaining where THIS test click went
+ * and why — every stream, every filter vote, the winning stream, the
+ * destination with macros substituted. English on purpose: router-facing
+ * answers ("Campaign is disabled.") are English, and the reader is the
+ * operator who opened the panel-generated link.
+ */
+function orbitraRenderTestTrace(array $ctx): void
+{
+    $e = fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
+
+    $campaign = $ctx['campaign'];
+    $visitor = $ctx['visitor'];
+    $selected = $ctx['selected'];
+    $selectedId = (int) ($selected['id'] ?? 0);
+
+    // Names for the outcome block (offer / landing rows).
+    $offerName = null;
+    if (!empty($ctx['offer_id'])) {
+        try {
+            $stmt = $ctx['pdo']->prepare("SELECT name FROM offers WHERE id = ? LIMIT 1");
+            $stmt->execute([(int) $ctx['offer_id']]);
+            $offerName = $stmt->fetchColumn() ?: null;
+            $stmt->closeCursor();
+        } catch (\Throwable $ignored) {
+        }
+    }
+    $landingName = null;
+    if (!empty($ctx['landing_id'])) {
+        try {
+            $stmt = $ctx['pdo']->prepare("SELECT name FROM landings WHERE id = ? LIMIT 1");
+            $stmt->execute([(int) $ctx['landing_id']]);
+            $landingName = $stmt->fetchColumn() ?: null;
+            $stmt->closeCursor();
+        } catch (\Throwable $ignored) {
+        }
+    }
+
+    $rows = '';
+    foreach ($ctx['streams_trace'] as $st) {
+        $isSelected = $st['id'] === $selectedId;
+        $verdict = $isSelected
+            ? '<span style="color:#16a34a;font-weight:700">SELECTED</span>'
+            : ($st['matched']
+                ? '<span style="color:#2563eb">passed</span>'
+                : '<span style="color:#dc2626">rejected</span>');
+        $filterLines = '';
+        if ($st['filters'] === []) {
+            $filterLines = '<div style="color:#64748b">no filters — always passes</div>';
+        } else {
+            foreach ($st['filters'] as $ft) {
+                $color = $ft['result'] === 'match' ? '#16a34a' : ($ft['result'] === 'no-match' ? '#dc2626' : '#94a3b8');
+                $note = $ft['note'] !== '' ? ' <i style="color:#94a3b8">(' . $e($ft['note']) . ')</i>' : '';
+                $payload = $ft['payload'] !== '' ? ' <b>' . $e($ft['payload']) . '</b>' : '';
+                $filterLines .= '<div style="margin:2px 0">'
+                    . $e($ft['name']) . ' · ' . $e($ft['mode']) . $payload . ' → '
+                    . '<span style="color:' . $color . ';font-weight:600">' . $e($ft['result']) . '</span>'
+                    . $note . '</div>';
+            }
+        }
+        $rows .= '<div style="border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;margin:8px 0">'
+            . '<div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap">'
+            . '<b>#' . $e($st['id']) . ' ' . $e($st['name']) . '</b>'
+            . '<span style="color:#64748b">' . $e($st['type']) . ' · ' . $e($st['schema']) . ' · filters: ' . $e($st['logic']) . '</span>'
+            . '<span style="margin-left:auto">' . $verdict . '</span></div>'
+            . '<div style="margin-top:6px;font-size:13px">' . $filterLines . '</div></div>';
+    }
+    if ($rows === '') {
+        $rows = '<div style="color:#dc2626">No active streams on this campaign.</div>';
+    }
+
+    // Outcome text by destination kind.
+    $outcome = [];
+    if (!empty($ctx['action'])) {
+        $outcome[] = 'stream action: <b>' . $e($ctx['action']) . '</b>';
+    }
+    if ($ctx['schema_type'] === 'cloak') {
+        $outcome[] = 'cloak verdict: <b>' . ($ctx['cloak_safe'] ? 'safe page' : 'money page') . '</b>';
+    }
+    if (!empty($ctx['landing_id'])) {
+        $outcome[] = 'landing <b>#' . $e($ctx['landing_id']) . ($landingName !== null ? ' ' . $e($landingName) : '') . '</b> (' . $e($ctx['landing_type'] ?: '?') . ')';
+    }
+    if (!empty($ctx['offer_id'])) {
+        $outcome[] = 'offer <b>#' . $e($ctx['offer_id']) . ($offerName !== null ? ' ' . $e($offerName) : '') . '</b>';
+    }
+    if (!empty($ctx['final_url_raw'])) {
+        $outcome[] = 'destination: <a href="' . $e($ctx['final_url']) . '" style="word-break:break-all">' . $e($ctx['final_url']) . '</a>'
+            . ' <span style="color:#64748b">(' . $e($ctx['redirect_type']) . ', macros substituted with the test click id)</span>';
+    } elseif ($ctx['landing_type'] === 'local' || $ctx['landing_type'] === 'action' || $ctx['landing_type'] === 'preload') {
+        $outcome[] = 'destination: the landing is served by the tracker itself (' . $e($ctx['landing_type']) . ')';
+    } else {
+        $outcome[] = 'destination: <span style="color:#dc2626">none — the campaign has no URL to send the visitor to</span>';
+    }
+    $outcomeHtml = '<div style="margin:4px 0">' . implode('</div><div style="margin:4px 0">', $outcome) . '</div>';
+
+    $geoNote = $ctx['test_geo_override'] !== ''
+        ? ' <span style="color:#b45309">(overridden by _geo=' . $e($ctx['test_geo_override']) . ')</span>'
+        : '';
+
+    header('Content-Type: text/html; charset=utf-8');
+    header('Cache-Control: no-store');
+    echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Orbitra — routing trace</title></head>'
+        . '<body style="font:14px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;color:#0f172a;max-width:880px;margin:24px auto;padding:0 16px">'
+        . '<h1 style="font-size:20px;margin:0 0 4px">Routing trace — test click</h1>'
+        . '<div style="color:#64748b;margin-bottom:16px">Nothing was logged: no clicks row, no uniqueness, no debounce. Add <b>_geo=XX</b> to reroute as another country.</div>'
+        . '<h2 style="font-size:15px;margin:16px 0 4px">Campaign</h2>'
+        . '<div>#' . $e($campaign['id'] ?? '') . ' <b>' . $e($campaign['name'] ?? '') . '</b>'
+        . ' · alias <b>/' . $e($campaign['alias'] ?? '') . '</b>'
+        . ' · state ' . $e($campaign['state'] ?? 'active')
+        . ' · rotation ' . $e($ctx['rotation']) . '</div>'
+        . '<h2 style="font-size:15px;margin:16px 0 4px">Test visitor</h2>'
+        . '<div>' . $e($visitor['ip'] ?? '') . ' · country <b>' . $e($ctx['country']) . '</b>' . $geoNote
+        . ' · ' . $e($visitor['device'] ?? '') . ' / ' . $e($visitor['os'] ?? '') . ' / ' . $e($visitor['browser'] ?? '')
+        . ' · lang ' . $e(is_array($visitor['languageCodes'] ?? null) ? implode(',', $visitor['languageCodes']) : '')
+        . '</div>'
+        . '<h2 style="font-size:15px;margin:16px 0 4px">Streams (in position order)</h2>'
+        . $rows
+        . '<h2 style="font-size:15px;margin:16px 0 4px">Outcome</h2>'
+        . $outcomeHtml
+        . '<div style="color:#64748b;margin-top:16px;font-size:13px">Test click id: ' . $e($ctx['click_id']) . '</div>'
+        . '</body></html>';
+    exit;
+}
+
+// Convert "HH" or "HH:MM" to minutes since midnight, or null if invalid.
+function timeToMinutes($value){
     $value = trim((string) $value);
     if ($value === '')
         return null;
@@ -4527,10 +4827,12 @@ $sourceIdToLog = $campaign['source_id'] ?? null;
 // so their conversions had nothing to attach to. On a hit the stored click id
 // is reused before the redirect step: the row is not rewritten, the stream
 // and offer chosen above stay as they are (same browser, 2-second window).
+// A test click never debounces: it has no row to reuse, and consecutive test
+// opens must each see the full routing.
 if (!function_exists('orbitraFindDebounceDuplicate')) {
     require_once __DIR__ . '/core/click_logger.php';
 }
-$debounceId = orbitraFindDebounceDuplicate($pdo, (int) $campaignId, $ip, $userAgent);
+$debounceId = $isTestClick ? null : orbitraFindDebounceDuplicate($pdo, (int) $campaignId, $ip, $userAgent);
 $isDebounced = $debounceId !== null;
 if ($isDebounced) {
     $clickId = $debounceId;
@@ -4542,8 +4844,9 @@ if ($isDebounced) {
 // this stream have nothing to attach to, which is the point for white pages.
 $streamCollectsClicks = !$selectedStream || (int) ($selectedStream['collect_clicks'] ?? 1) === 1;
 
-// A prefetch hit serves the campaign but never reaches the stats.
-if ($statsEnabled && !$isDebounced && !$isPrefetchRequest && !$skipClickLogging && $streamCollectsClicks) {
+// A prefetch hit serves the campaign but never reaches the stats. A test
+// click is the same idea one level up: serve everything, record nothing.
+if ($statsEnabled && !$isDebounced && !$isPrefetchRequest && !$skipClickLogging && $streamCollectsClicks && !$isTestClick) {
     // Build click row using shared module
     $clickCtx = [
         'click_id' => $clickId,
@@ -4594,7 +4897,7 @@ if ($statsEnabled && !$isDebounced && !$isPrefetchRequest && !$skipClickLogging 
     // one UPDATE, never allowed to break the click itself.
     require_once __DIR__ . '/core/ClickFlags.php';
     orbitraWriteClickFlags($pdo, $clickId, $ip, $userAgent, $campaign ?? [], $streamIdToLog ?? 0, is_array($geoData ?? null) ? $geoData : []);
-} elseif ($statsEnabled && !$isDebounced && !$isPrefetchRequest && ($skipClickLogging || !$streamCollectsClicks)) {
+} elseif ($statsEnabled && !$isDebounced && !$isPrefetchRequest && !$isTestClick && ($skipClickLogging || !$streamCollectsClicks)) {
     // Click was suppressed - record it for visibility (W3.3)
     // This covers dont_record_safe_clicks=true and collect_clicks=0 cases
     if (!function_exists('orbitraRecordSuppressedHit')) {
@@ -4616,6 +4919,41 @@ if ($statsEnabled && !$isDebounced && !$isPrefetchRequest && !$skipClickLogging 
         $verdict,
         $reasons
     );
+}
+
+// ?_dbg=1 on a valid test link: answer with the routing trace instead of
+// sending the visitor anywhere. Placed after the destination was resolved but
+// before anything is served or the no-stream die, so every destination kind
+// (redirect, action, cloak branch, no streams at all) is covered by one page.
+if ($isTestClick && ($_GET['_dbg'] ?? '') === '1') {
+    orbitraRenderTestTrace([
+        'campaign' => $campaign,
+        'visitor' => $visitor,
+        'country' => $country,
+        'test_geo_override' => $testGeoOverride,
+        'streams_trace' => orbitraTraceStreams($allStreams, $visitor, $pdo),
+        'selected' => $selectedStream,
+        'rotation' => (string) ($campaign['rotation_type'] ?? 'position'),
+        'offer_id' => $offerIdToLog,
+        'landing_id' => $landingIdToLog,
+        'landing_type' => $landingType ?? null,
+        'final_url_raw' => $finalUrl,
+        'final_url' => orbitraTestPreviewUrl(
+            (string) $finalUrl,
+            $offerIdToLog,
+            orbitraResolveOfferUrlMacros($offerUrl ?? '', $clickId, $offerIdToLog, $clickParams ?? [], ['ip' => $ip, 'country' => $country]),
+            $clickId,
+            $clickParams ?? [],
+            (string) $ip,
+            (string) $country
+        ),
+        'redirect_type' => $offerRedirectType,
+        'action' => $actionToPerfrom,
+        'schema_type' => (string) ($selectedStream['schema_type'] ?? 'redirect'),
+        'cloak_safe' => isset($cloakShowSafe) ? $cloakShowSafe : null,
+        'click_id' => $clickId,
+        'pdo' => $pdo,
+    ]);
 }
 
 if (!$selectedStream) {
@@ -4831,6 +5169,15 @@ if ($actionToPerfrom) {
             $finalUrl .= (strpos($finalUrl, '?') === false ? '?' : '&')
                 . '_subid=' . rawurlencode($clickId)
                 . '&_token=' . rawurlencode(issueLpToken($clickId, $lpSecretOut));
+            // A test click rides its signature along, so the landing's
+            // /?_lp=1 hop (and tracking.js, which forwards query params to the
+            // Click API) stays test-mode too: nothing gets logged downstream.
+            if ($isTestClick && !empty($_GET['_t'])) {
+                $finalUrl .= '&_t=' . rawurlencode((string) $_GET['_t']);
+                if ($testGeoOverride !== '') {
+                    $finalUrl .= '&_geo=' . rawurlencode($testGeoOverride);
+                }
+            }
         }
     }
 

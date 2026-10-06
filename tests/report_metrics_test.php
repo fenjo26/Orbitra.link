@@ -57,6 +57,7 @@ $m = orbitraComputeDerivedMetrics([
     'clicks' => 4, 'unique_clicks' => 5,
     'unique_clicks_stream' => 5, 'unique_clicks_global' => 4, 'visitors' => 6,
     'bots' => 1, 'proxies' => 2, 'empty_referrers' => 3, 'avg_lp_seconds' => 95,
+    'possible_bots' => 2,
     'prelander_clicks' => 4, 'offer_clicks' => 5, 'lp_clicks' => 2,
     'real_lp_clicks' => 2, 'real_offer_clicks' => 4,
     'conversions' => 8, 'purchases' => 3, 'holds' => 1, 'rejected' => 1, 'trash' => 1,
@@ -69,7 +70,7 @@ $m = orbitraComputeDerivedMetrics([
 $expected = [
     'clicks' => 4, 'unique_clicks' => 5, 'uc_rate' => 125.0,
     'unique_clicks_stream' => 5, 'unique_clicks_global' => 4, 'visitors' => 6,
-    'bots' => 1, 'bot_rate' => 25.0, 'proxies' => 2, 'empty_referrers' => 3,
+    'bots' => 1, 'bot_rate' => 25.0, 'possible_bots' => 2, 'proxies' => 2, 'empty_referrers' => 3,
     'time_since_lp_click' => '1m 35s',
     'conversions' => 8, 'sales' => 3, 'leads' => 1, 'registrations' => 1, 'deposits' => 1,
     'approve_rate' => 50.0,
@@ -178,7 +179,7 @@ $pdo->exec('CREATE TABLE clicks (id TEXT PRIMARY KEY, campaign_id INTEGER, offer
     revenue REAL DEFAULT 0, is_bot INTEGER DEFAULT 0, is_proxy INTEGER DEFAULT 0,
     referer TEXT, created_at TEXT DEFAULT "2026-01-01 10:00:00",
     uniq_campaign INTEGER DEFAULT 1, uniq_stream INTEGER DEFAULT 1, uniq_global INTEGER DEFAULT 1,
-    landing_at TEXT, offer_at TEXT, lp_seconds INTEGER, lp_scroll INTEGER,
+    landing_at TEXT, offer_at TEXT, lp_seconds INTEGER, lp_scroll INTEGER, pointer_activity INTEGER,
     pwa_intent_at TEXT, pwa_install_at TEXT, pwa_open_at TEXT, pwa_open_count INTEGER DEFAULT 0,
     push_prompted_at TEXT, push_subscribed_at TEXT, push_declined_at TEXT,
     pwa_entry_screen TEXT, pwa_last_screen TEXT, direct_offer INTEGER DEFAULT 0)');
@@ -245,6 +246,10 @@ $st = $pdo->prepare('INSERT INTO pwa_screen_views (click_id, landing_id, screen)
 foreach ([['m1', 1, 'store'], ['m1', 1, 'scr_a'], ['m2', 1, 'store'], ['m3', 1, 'instructions'],
           ['m3', 1, 'instructions'], ['m4', 2, 'store']] as $r) { $st->execute($r); }
 $pdo->exec("INSERT INTO revenue_records (click_id, amount) VALUES ('m1', 12)");
+// Behavioural bot hint: one measured-silent visit (0), one real pointer (1);
+// the other rows stay NULL (never measured) and must not count.
+$pdo->exec("UPDATE clicks SET pointer_activity = 0 WHERE id = 'm2'");
+$pdo->exec("UPDATE clicks SET pointer_activity = 1 WHERE id = 'm3'");
 $st = $pdo->prepare('INSERT INTO landings (id, name, group_id) VALUES (?,?,?)');
 foreach ([[1,'LP one',1], [2,'LP two',null], [3,'LP empty',null]] as $r) { $st->execute($r); }
 $pdo->exec("INSERT INTO landing_groups (id, name) VALUES (1, 'grp')");
@@ -271,6 +276,7 @@ $assert('Dashboard conversions', $dashboard['conversions'], 8, 0);
 $assert('Dashboard leads', $dashboard['leads'], 1, 0);
 $assert('Dashboard sales', $dashboard['sales'], 3, 0);
 $assert('Dashboard bots', $dashboard['bots'], 1, 0);
+$assert('Dashboard possible_bots counts only the explicitly-zero row', $dashboard['possible_bots'], 1, 0);
 $assert('Dashboard cost is not multiplied', $dashboard['cost'], 21);
 $assert('Dashboard confirmed revenue', $dashboard['revenue_confirmed'], 45);
 $assert('Dashboard confirmed profit', $dashboard['profit_confirmed'], 24);

@@ -509,6 +509,27 @@ function orbitraClickApiV3(PDO $pdo): void
         return;
     }
 
+    // Signed test link (?_t=…): answer with the same routing the campaign URL
+    // would produce, but never write a clicks row. tracking.js forwards the
+    // landing's query params here, so a test that went through an external
+    // landing stays a test.
+    $isTestClick = false;
+    $testGeoOverride = '';
+    if (isset($_GET['_t'])) {
+        require_once __DIR__ . '/test_links.php';
+        $testSecret = (string) ($settings['postback_key'] ?? '');
+        if ($testSecret === '') {
+            $testSecret = 'orbitra_secret';
+        }
+        $testSigCampaign = orbitraValidTestSignature((string) $_GET['_t'], $pdo, $testSecret);
+        if ($testSigCampaign !== null && (int) ($testSigCampaign['id'] ?? 0) === (int) ($campaign['id'] ?? 0)) {
+            $isTestClick = true;
+            if (isset($_GET['_geo']) && preg_match('/^[A-Za-z]{2}$/', (string) $_GET['_geo']) === 1) {
+                $testGeoOverride = strtoupper((string) $_GET['_geo']);
+            }
+        }
+    }
+
     $log = [];
     $campaignId = (int) ($campaign['id'] ?? 0);
     if ($wantLog) {
@@ -530,6 +551,11 @@ function orbitraClickApiV3(PDO $pdo): void
 
     $geoData = orbitraClickApiGetGeoData($ip);
     $country = (string) ($geoData['country_code'] ?? 'Unknown');
+    // A valid ?_geo= on a test link overrides the resolved country for the
+    // stream filters below and the {country} macro.
+    if ($testGeoOverride !== '') {
+        $country = $testGeoOverride;
+    }
 
     // Shared capture: standard keys, sub_id_N, ad-network IDs, click ids and
     // the campaign source's declared aliases — identical to redirect visits.
@@ -841,9 +867,10 @@ function orbitraClickApiV3(PDO $pdo): void
     // will not resolve, by design.
     $streamCollectsClicks = !$selectedStream || (int) ($selectedStream['collect_clicks'] ?? 1) === 1;
 
-    // Log click (if stats are enabled; a prefetch hit is answered but skipped).
+    // Log click (if stats are enabled; a prefetch hit is answered but skipped,
+    // and a test click never logs).
     $statsEnabled = ($settings['stats_enabled'] ?? '1') !== '0';
-    if ($statsEnabled && !$prefetchSkipClick && !$skipClickLogging && $streamCollectsClicks) {
+    if ($statsEnabled && !$prefetchSkipClick && !$skipClickLogging && $streamCollectsClicks && !$isTestClick) {
         try {
             // Build click row using shared module
             $clickCtx = [
@@ -902,7 +929,7 @@ function orbitraClickApiV3(PDO $pdo): void
                 $log[] = "DB insert failed: " . $e->getMessage();
             }
         }
-    } elseif ($statsEnabled && !$prefetchSkipClick && ($skipClickLogging || !$streamCollectsClicks)) {
+    } elseif ($statsEnabled && !$prefetchSkipClick && !$isTestClick && ($skipClickLogging || !$streamCollectsClicks)) {
         // Click was suppressed - record it for visibility (W3.3)
         $verdict = 'unknown';
         $reasons = '';
@@ -937,6 +964,15 @@ function orbitraClickApiV3(PDO $pdo): void
             $offerTransitionLink = $lpScheme . '://' . $lpHost . '/?_lp=1'
                 . '&_token=' . urlencode(issueLpToken($clickId, $lpSecret))
                 . '&offer_id=' . (int) $offerIdToLog;
+            // The test signature rides the transition too: the /?_lp=1 test
+            // branch then redirects without trying to resolve the (nonexistent)
+            // test click row.
+            if ($isTestClick && !empty($_GET['_t'])) {
+                $offerTransitionLink .= '&_t=' . urlencode((string) $_GET['_t']);
+                if ($testGeoOverride !== '') {
+                    $offerTransitionLink .= '&_geo=' . urlencode($testGeoOverride);
+                }
+            }
         }
     }
 

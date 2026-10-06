@@ -518,6 +518,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user }) => {
             case 'unique_clicks_stream':
             case 'unique_clicks_global':
             case 'bots':
+            case 'possible_bots':
             case 'proxies':
             case 'empty_referrers':
             case 'lp_views':
@@ -628,6 +629,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user }) => {
             case 'rejected':
             case 'trash':
             case 'bots':
+            case 'possible_bots':
             case 'proxies':
             case 'empty_referrers':
                 return num.toLocaleString();

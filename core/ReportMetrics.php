@@ -124,6 +124,11 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    COUNT(cl.id) AS visitors,
                    COUNT(DISTINCT cl.ip) AS unique_clicks,
                    COALESCE(SUM(cl.is_bot), 0) AS bots,
+                   -- Behavioural hint, not a verdict: the landing timer ran
+                   -- (so JS worked and the page rendered) yet not a single
+                   -- mousemove/touchstart/pointerdown arrived — NULL never
+                   -- counts, only an explicit zero does.
+                   COALESCE(SUM(CASE WHEN cl.pointer_activity = 0 THEN 1 ELSE 0 END), 0) AS possible_bots,
                    COALESCE(SUM(cl.is_proxy), 0) AS proxies,
                    COALESCE(SUM(CASE WHEN COALESCE(cl.referer, '') = '' THEN 1 ELSE 0 END), 0) AS empty_referrers,
                    COALESCE(SUM(CASE WHEN cl.landing_id IS NOT NULL AND cl.landing_id > 0 THEN 1 ELSE 0 END), 0) AS prelander_clicks,
@@ -208,6 +213,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    COALESCE(SUM(uniq_global), 0) as unique_clicks_global,
                    COUNT(click_id) as visitors,
                    COALESCE(SUM(is_bot), 0) as bots,
+                   COALESCE(SUM(CASE WHEN pointer_activity = 0 THEN 1 ELSE 0 END), 0) as possible_bots,
                    COALESCE(SUM(is_proxy), 0) as proxies,
                    COALESCE(SUM(CASE WHEN click_referer IS NULL OR click_referer = '' THEN 1 ELSE 0 END), 0) as empty_referrers,
                    AVG(CASE WHEN landing_at IS NOT NULL AND offer_at IS NOT NULL
@@ -249,7 +255,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                        cl.ip as click_ip,
                        cl.cost as click_cost,
                        cl.uniq_stream, cl.uniq_global,
-                       cl.is_bot, cl.is_proxy,
+                       cl.is_bot, cl.is_proxy, cl.pointer_activity,
                        cl.referer as click_referer,
                        cl.landing_at, cl.offer_at,
                        cl.lp_seconds, cl.lp_scroll,
@@ -300,6 +306,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                    COALESCE(SUM(uniq_global), 0) as unique_clicks_global,
                    COUNT(click_id) as visitors,
                    COALESCE(SUM(is_bot), 0) as bots,
+                   COALESCE(SUM(CASE WHEN pointer_activity = 0 THEN 1 ELSE 0 END), 0) as possible_bots,
                    COALESCE(SUM(is_proxy), 0) as proxies,
                    COALESCE(SUM(CASE WHEN click_referer IS NULL OR click_referer = '' THEN 1 ELSE 0 END), 0) as empty_referrers,
                    AVG(CASE WHEN landing_at IS NOT NULL AND offer_at IS NOT NULL
@@ -346,7 +353,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
                        cl.cost as click_cost,
                        cl.created_at as click_created,
                        cl.uniq_stream, cl.uniq_global,
-                       cl.is_bot, cl.is_proxy,
+                       cl.is_bot, cl.is_proxy, cl.pointer_activity,
                        cl.referer as click_referer,
                        cl.landing_at, cl.offer_at,
                        cl.lp_seconds, cl.lp_scroll,
@@ -384,6 +391,7 @@ if (!function_exists('orbitraConversionStatusGroups')) {
         $uniqueStream    = (int) ($raw['unique_clicks_stream'] ?? $uniqueClicks);
         $uniqueGlobal    = (int) ($raw['unique_clicks_global'] ?? $uniqueClicks);
         $bots            = (int) ($raw['bots'] ?? 0);
+        $possibleBots    = (int) ($raw['possible_bots'] ?? 0);
         $proxies         = (int) ($raw['proxies'] ?? 0);
         $emptyReferrers  = (int) ($raw['empty_referrers'] ?? 0);
 
@@ -465,6 +473,10 @@ if (!function_exists('orbitraConversionStatusGroups')) {
             'uc_rate_global'          => $clicks > 0 ? round(($uniqueGlobal / $clicks) * 100, 2) : 0,
             'bots'                    => $bots,
             'bot_rate'                => $clicks > 0 ? round(($bots / $clicks) * 100, 2) : 0,
+            // Behavioural hint (see the SQL providers): an explicitly measured
+            // absence of pointer activity. Not a bot verdict, no rate — the
+            // denominator (measured visits) is not this row's visitors.
+            'possible_bots'           => $possibleBots,
             'proxies'                 => $proxies,
             'empty_referrers'         => $emptyReferrers,
 

@@ -91,7 +91,11 @@ try {
     //      (load ТЗ, acceptance blocker 2); the index itself is built by the
     //      click spool worker, never inside a web request.
     // 54 = TOTP two-factor login (users.totp_secret / users.totp_enabled).
-    $LATEST_SCHEMA_VERSION = 55;
+    // 56 = pointer_activity on clicks (behavioural bot hint): NULL = the JS
+    //      never reported (no landing timer, direct hit), 0 = a landing was
+    //      measured and zero mouse/touch events were seen, 1 = real pointer
+    //      activity. Written only by /pixel.gif?action=lp beacons.
+    $LATEST_SCHEMA_VERSION = 56;
 
     $schemaVersion = 0;
     try {
@@ -2747,6 +2751,19 @@ try {
                     // A settings hiccup must not fail the migration: without
                     // the flag the index is simply never built and the probes
                     // keep working without it.
+                }
+            }
+
+            if ($schemaVersion < 56) {
+                // Migration 56: pointer_activity — the landing timer reports
+                // whether the visitor ever moved the mouse / touched the
+                // screen. NULL (the default) means "not measured", so every
+                // pre-migration click and every hit without a landing stays
+                // out of the possible-bots metric without a backfill.
+                try {
+                    $pdo->exec("ALTER TABLE clicks ADD COLUMN pointer_activity INTEGER");
+                } catch (\Throwable $e) {
+                    // Column already present on a half-migrated DB.
                 }
             }
 

@@ -572,6 +572,7 @@ const Landings = ({ landings, refreshData, user }) => {
             case 'rejected':
             case 'trash':
             case 'bots':
+            case 'possible_bots':
             case 'proxies':
             case 'empty_referrers':
                 return num.toLocaleString();
@@ -743,6 +744,7 @@ const Landings = ({ landings, refreshData, user }) => {
             case 'rejected':
             case 'trash':
             case 'bots':
+            case 'possible_bots':
             case 'proxies':
             case 'empty_referrers':
             case 'visits':

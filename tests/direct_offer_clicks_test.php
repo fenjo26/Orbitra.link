@@ -38,7 +38,7 @@ $pdo->exec('CREATE TABLE clicks (id TEXT PRIMARY KEY, campaign_id INTEGER, offer
     revenue REAL DEFAULT 0, is_bot INTEGER DEFAULT 0, is_proxy INTEGER DEFAULT 0,
     referer TEXT, created_at TEXT DEFAULT "2026-01-01 10:00:00",
     uniq_campaign INTEGER DEFAULT 1, uniq_stream INTEGER DEFAULT 1, uniq_global INTEGER DEFAULT 1,
-    landing_at TEXT, offer_at TEXT, lp_seconds INTEGER, lp_scroll INTEGER,
+    landing_at TEXT, offer_at TEXT, lp_seconds INTEGER, lp_scroll INTEGER, pointer_activity INTEGER,
     pwa_intent_at TEXT, pwa_install_at TEXT, pwa_open_at TEXT, pwa_open_count INTEGER DEFAULT 0,
     push_prompted_at TEXT, push_subscribed_at TEXT, push_declined_at TEXT,
     pwa_entry_screen TEXT, pwa_last_screen TEXT, direct_offer INTEGER DEFAULT 0)');

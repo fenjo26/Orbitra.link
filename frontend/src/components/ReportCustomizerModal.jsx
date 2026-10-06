@@ -32,6 +32,7 @@ export const ALL_REPORT_METRICS = [
     { id: 'uc_rate_stream', label: 'Unique clicks % (flow)', shortLabel: 'uClicks % (fl)' },
     { id: 'uc_rate_global', label: 'Unique clicks % (global)', shortLabel: 'uClicks % (gl)' },
     { id: 'bots', label: 'Bots', shortLabel: 'Bots', hintKey: 'botsHint', hint: 'Hits whose user agent looks like a crawler or a tool (the same signatures the cloak uses). They are counted in Visitors too' },
+    { id: 'possible_bots', label: 'Possible bots', shortLabel: 'Poss. bots', hintKey: 'possibleBotsHint', hint: 'Visits where the landing timer ran but not one mouse move or touch arrived — a behavioural hint to look closer, not a verdict. NULL (timer never ran) never counts' },
     { id: 'bot_rate', label: 'Bot %', shortLabel: 'Bot %', hintKey: 'botRateHint', hint: 'Bots ÷ Visitors × 100%' },
     { id: 'proxies', label: 'Proxies', shortLabel: 'Proxies', hintKey: 'proxiesHint', hint: 'Hits from proxy / VPN / Tor IPs. Needs the IP2Proxy database (Settings → Geo databases)' },
     { id: 'empty_referrers', label: 'Empty referrers', shortLabel: 'Empty ref', hintKey: 'emptyReferrersHint', hint: 'Hits with no referrer — typed-in, in-app browsers, or a source that strips it' },
@@ -105,7 +106,7 @@ export const PRESETS = {
     finance: ['cost', 'revenue', 'revenue_confirmed', 'revenue_hold', 'revenue_rejected', 'profit', 'roi', 'profit_confirmed', 'roi_confirmed', 'cpa', 'epc'],
     cod: ['clicks', 'unique_clicks', 'leads', 'sales', 'approve_rate', 'rejected', 'trash', 'cost', 'cpl', 'cps', 'cpa', 'revenue_confirmed', 'profit_confirmed', 'roi_confirmed'],
     lander_to_offer: ['clicks', 'unique_clicks', 'lp_views', 'lp_clicks', 'real_lp_clicks', 'real_lp_ctr', 'time_since_lp_click', 'time_on_lp', 'lp_bounce_rate', 'lp_scroll_depth', 'pwa_intents', 'real_pwa_installs', 'pwa_opens', 'pwa_install_rate', 'conversions', 'cr', 'cpv', 'cpc', 'epv', 'epc', 'cpa', 'cost', 'revenue', 'profit', 'roi'],
-    traffic: ['clicks', 'unique_clicks', 'visitors', 'unique_clicks_stream', 'unique_clicks_global', 'uc_rate', 'bots', 'bot_rate', 'proxies', 'empty_referrers', 'conversions', 'cr'],
+    traffic: ['clicks', 'unique_clicks', 'visitors', 'unique_clicks_stream', 'unique_clicks_global', 'uc_rate', 'bots', 'possible_bots', 'bot_rate', 'proxies', 'empty_referrers', 'conversions', 'cr'],
     all: ALL_REPORT_METRICS.map(m => m.id),
 };
 

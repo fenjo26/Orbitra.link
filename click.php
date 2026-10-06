@@ -108,6 +108,31 @@ if ((int) ($campaign['is_archived'] ?? 0) === 1) {
     exit;
 }
 
+// Signed test link (?_t=…): route through the real stream selection but write
+// nothing — the same no-log rule the router applies. The signature is keyed by
+// the instance postback_key and bound to THIS campaign's id + alias.
+$isTestClick = false;
+$testGeoOverride = '';
+if (isset($_GET['_t'])) {
+    require_once __DIR__ . '/core/test_links.php';
+    $testSecret = 'orbitra_secret';
+    try {
+        $testSecretRow = $pdo->query("SELECT value FROM settings WHERE key = 'postback_key' LIMIT 1")->fetchColumn();
+        if (is_string($testSecretRow) && $testSecretRow !== '') {
+            $testSecret = $testSecretRow;
+        }
+    } catch (\Throwable $e) {
+        // Falls back to the constant; a wrong key only rejects, never accepts.
+    }
+    $testSigCampaign = orbitraValidTestSignature((string) $_GET['_t'], $pdo, $testSecret);
+    if ($testSigCampaign !== null && (int) ($testSigCampaign['id'] ?? 0) === (int) $campaignId) {
+        $isTestClick = true;
+        if (isset($_GET['_geo']) && preg_match('/^[A-Za-z]{2}$/', (string) $_GET['_geo']) === 1) {
+            $testGeoOverride = strtoupper((string) $_GET['_geo']);
+        }
+    }
+}
+
 function clickNormalizeGeoString($value, $default = '')
 {
     if (!is_string($value)) {
@@ -359,6 +384,12 @@ try {
 $geoData = clickGetGeoData($ip);
 $country = $geoData['country_code'];
 $countryCode = $geoData['country_code'];
+// A valid ?_geo= on a test link overrides the resolved country: cloak country
+// rules and {country} macros then see the test country.
+if ($testGeoOverride !== '') {
+    $country = $testGeoOverride;
+    $countryCode = $testGeoOverride;
+}
 $region = $geoData['region'];
 $city = $geoData['city'];
 $latitude = $geoData['latitude'];
@@ -596,7 +627,7 @@ if ($stream) {
 // agent (IP alone collapsed different people behind one carrier NAT), and a
 // hit reuses the stored click id so the redirect/JSON carries a subid that
 // exists in the clicks table — see orbitraFindDebounceDuplicate().
-$debounceId = orbitraFindDebounceDuplicate($pdo, (int) $campaignId, $ip, $userAgent);
+$debounceId = $isTestClick ? null : orbitraFindDebounceDuplicate($pdo, (int) $campaignId, $ip, $userAgent);
 $isDebounced = $debounceId !== null;
 if ($isDebounced) {
     $clickId = $debounceId;
@@ -606,8 +637,8 @@ if ($isDebounced) {
 // its destination without a clicks row.
 $streamCollectsClicks = !$stream || (int) ($stream['collect_clicks'] ?? 1) === 1;
 
-// Log click (a prefetch hit is served but never logged)
-if ($statsEnabled && !$isDebounced && !$skipClickOnPrefetch && !$skipClickLogging && $streamCollectsClicks) {
+// Log click (a prefetch hit is served but never logged; a test click never logs)
+if ($statsEnabled && !$isDebounced && !$skipClickOnPrefetch && !$skipClickLogging && $streamCollectsClicks && !$isTestClick) {
     // Build click row using shared module (note: landing_id is null for click.php)
     $clickCtx = [
         'click_id' => $clickId,
@@ -667,7 +698,7 @@ if ($statsEnabled && !$isDebounced && !$skipClickOnPrefetch && !$skipClickLoggin
             }
         }
     }
-} elseif ($statsEnabled && !$isDebounced && !$skipClickOnPrefetch && ($skipClickLogging || !$streamCollectsClicks)) {
+} elseif ($statsEnabled && !$isDebounced && !$skipClickOnPrefetch && !$isTestClick && ($skipClickLogging || !$streamCollectsClicks)) {
     // Click was suppressed - record it for visibility (W3.3)
     $verdict = 'unknown';
     $reasons = '';
