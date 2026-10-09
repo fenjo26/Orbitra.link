@@ -142,6 +142,13 @@ function orbitraLetsEncryptCertExists(string $domain): bool
         return $cache[$domain] = true;
     }
 
+    // Root already has root's view: when file_exists() says no, there is no
+    // certificate, and the sudo probes below can only repeat that answer —
+    // slowly. cli/nginx_sync.php runs as root from install.sh.
+    if (function_exists('posix_geteuid') && posix_geteuid() === 0) {
+        return $cache[$domain] = false;
+    }
+
     if (!orbitraShellAvailable() || !orbitraCommandExists('sudo')) {
         return false;
     }
@@ -163,9 +170,17 @@ function orbitraLetsEncryptCertExists(string $domain): bool
         return false;
     }
 
-    $listing = orbitraShell('sudo -n certbot certificates 2>/dev/null');
-    $found = is_string($listing)
-        && stripos($listing, 'Certificate Name: ' . $domain) !== false;
+    // One listing per process, not one per domain: `certbot certificates` is a
+    // 2-3 s Python start-up, and asking it once for every domain without a
+    // certificate made an nginx rebuild over 99 imported domains take minutes
+    // (seen live: install.sh sat on "Orbitra Nginx sync" spawning certbot
+    // after certbot).
+    static $listing = null;
+    if ($listing === null) {
+        $listing = (string) orbitraShell('sudo -n certbot certificates 2>/dev/null');
+    }
+    $found = $listing !== ''
+        && stripos($listing, 'Certificate Name: ' . $domain . "\n") !== false;
 
     return $cache[$domain] = $found;
 }
