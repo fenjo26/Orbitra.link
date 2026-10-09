@@ -5,6 +5,13 @@
 
 set -e
 
+# Leave the caller's directory before anything else. Re-running the installer
+# from inside /var/www/orbitra (a natural thing to do) leaves the shell in a
+# directory that the previous run deleted and re-created, and git refuses to
+# clone from a vanished cwd: "Unable to read current working directory",
+# then "Failed to download repository" at step 3/5.
+cd / 2>/dev/null || true
+
 echo "======================================================="
 echo "       Starting Orbitra Tracker Installation           "
 echo "======================================================="
