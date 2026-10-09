@@ -7,6 +7,35 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.5] — 2026-10-09
+
+Dynadot, a safe MCP for large accounts, and a smoother move off Keitaro.
+
+### Added
+
+- 🌐 **Dynadot integration** — accounts by API key with balance, domain import, buy-and-park, and automatic A records when a domain is added, like Namecheap. DNS is changed carefully: domains on their own name servers (e.g. Cloudflare) are left alone, a Dynadot DNS zone keeps every other record (MX, TXT…), and requests are serialised per key (Dynadot bans parallel callers)
+- 🤖 **MCP for large accounts** — `orbitra_list_campaigns` is now compact (id, name, alias, domain, ready link) with id-range and domain filters and paging; it used to return ~130 stat fields per campaign, 1.4 MB for 360 campaigns, which no AI client could read. Stats moved to `orbitra_campaigns_stats`; `orbitra_list_domains` is compact too
+- 🔁 **Bulk domain move** — new `bulk_set_campaign_domain` API action and MCP tool: any number of campaigns in one call, only the domain changes, every id is validated first, and the answer carries the old and new link of each campaign
+- 🌍 **Geo banner for "Sypex only"** — the installer ships Sypex Geo Lite, so the "no geo database" warning never showed; a dismissible banner now suggests connecting MaxMind / IP2Location while Sypex is the only base
+- 🧭 **Keitaro migration, step 3** — enter the Keitaro server IP once and copy ready `scp` commands for macOS/Linux and Windows
+
+### Fixed
+
+- 🛠 **MCP `update_campaign` silently damaged campaigns** — every call re-created the streams under new ids (detaching click history), dropped their names, turned OR filter logic into AND, reset offer selection and the bot challenge. All of it is now carried over
+- 📦 **Keitaro import of `.sql.gz` imported nothing** — the upload temp file has no `.gz` name, so the dump was never unpacked; gzip is now detected by content. The file picker also accepts `.gz` (macOS greyed it out)
+- 📋 **The Keitaro dump command broke on its own quoting** and needed a MariaDB client on the host — it now runs as-is, also when MariaDB lives only in the Keitaro Docker container, and never dumps the whole database by accident
+- ⏱ **A slow domain save took the whole panel down with 504** — the request held the PHP session lock while the stock pool of 5 workers ran dry. The lock is released right after auth, nginx gives PHP 180 s, and the installer sizes the PHP-FPM pool from RAM
+- 🐢 **Nginx rebuilds ran certbot once per domain** — with 99 imported domains the installer sat for minutes on "Nginx sync"; now one listing per rebuild, none at all as root
+- 🌍 **The geo updater discarded every IP2Location / IP2Proxy database** on the cron and installer path (Composer autoloader not loaded)
+- 🐧 **Install on Ubuntu 26.04** — PHP repositories without a build for the release are skipped instead of failing at step 1/5; re-running the installer from inside `/var/www/orbitra` no longer fails to clone
+- 🎨 Settings menu sizes itself to the longest label in every locale; uk/zh translation slips fixed ("traffic", "clear", "conversions"); `/favicon.ico` is served on panel hosts only (tracking domains stay icon-less)
+
+### Upgrade notes
+
+- Migration 57 adds the `dynadot_accounts` table; update as usual.
+- The PHP-FPM pool sizing and nginx `fastcgi_read_timeout 180s` reach existing servers when the installer is re-run (the timeout also on the next domain save); otherwise raise `pm.max_children` in `/etc/php/<ver>/fpm/pool.d/www.conf` by hand.
+- MCP clients: reconnect the connector to pick up the new tool list.
+
 ## [1.6.4] — 2026-10-06
 
 Test links and a behavioural bot hint.

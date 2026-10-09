@@ -1,4 +1,4 @@
-# Orbitra v1.6.4 Tracker
+# Orbitra v1.6.5 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,53 +11,38 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.6.4
+## 🆕 What's New in v1.6.5
 
-Test links and a behavioural bot hint.
+Dynadot, a safe MCP for large accounts, and a smoother move off Keitaro.
 
 ### Added
 
-- 🔗 **Signed test links** — open the campaign through the real routing pipeline (streams, filters, rotation, landings, offers) while writing nothing: no clicks row, no uniqueness, no debounce, so reports stay clean. `?_geo=XX` reroutes the test as another country — geo-targeted streams checked without a VPN — and `?_dbg=1` answers with a routing trace instead of a redirect: every stream in position order, each filter's verdict (match / no-match / abstain), the winning stream and the final URL with macros substituted. The editor's new **Test link** row issues the signature; `_geo`/`_dbg` work only with a valid one
-- 🖱 **"Possible bots" — a behavioural bot hint** — the landing timers (tracking.js, kclient.js and the tracker-injected timer) now report whether the visitor ever moved the mouse or touched the screen; scroll and typing do not count. The new `possible_bots` metric (Traffic preset and the column catalog) counts landing visits that ran the timer but never showed a single pointer event — a hint to look closer at a source, never an exclusion: unmeasured visits and Visitors totals stay untouched
-- 📄 **LICENSE ships with the repo** — the MIT license file both READMEs already linked to
-
-### v1.6.3
-
-Performance and click-integrity release, born from a 480 rps load test on a
-3.2M-click database.
+- 🌐 **Dynadot integration** — accounts by API key with balance, domain import, buy-and-park, and automatic A records when a domain is added, like Namecheap. DNS is changed carefully: domains on their own name servers (e.g. Cloudflare) are left alone, a Dynadot DNS zone keeps every other record (MX, TXT…), and requests are serialised per key (Dynadot bans parallel callers)
+- 🤖 **MCP for large accounts** — `orbitra_list_campaigns` is now compact (id, name, alias, domain, ready link) with id-range and domain filters and paging; it used to return ~130 stat fields per campaign, 1.4 MB for 360 campaigns, which no AI client could read. Stats moved to `orbitra_campaigns_stats`; `orbitra_list_domains` is compact too
+- 🔁 **Bulk domain move** — new `bulk_set_campaign_domain` API action and MCP tool: any number of campaigns in one call, only the domain changes, every id is validated first, and the answer carries the old and new link of each campaign
+- 🌍 **Geo banner for "Sypex only"** — the installer ships Sypex Geo Lite, so the "no geo database" warning never showed; a dismissible banner now suggests connecting MaxMind / IP2Location while Sypex is the only base
+- 🧭 **Keitaro migration, step 3** — enter the Keitaro server IP once and copy ready `scp` commands for macOS/Linux and Windows
 
 ### Fixed
 
-- 🗄 **Returning visitors could lose their click for up to a minute** — an unclosed read cursor made the click INSERT fail instantly with "database is locked" on busy databases, parking the click in the spool until the cron replayed it; a postback in that window found no click. The lookups now close their cursor and the whole click path was audited for the pattern
-- 👥 **The 2-second duplicate filter was keyed by IP only** — a second person behind the same mobile-carrier NAT got a redirect whose subid did not exist in the database, so their conversion had nothing to attach to. The key is now IP + user agent and a duplicate reuses the stored click id
+- 🛠 **MCP `update_campaign` silently damaged campaigns** — every call re-created the streams under new ids (detaching click history), dropped their names, turned OR filter logic into AND, reset offer selection and the bot challenge. All of it is now carried over
+- 📦 **Keitaro import of `.sql.gz` imported nothing** — the upload temp file has no `.gz` name, so the dump was never unpacked; gzip is now detected by content. The file picker also accepts `.gz` (macOS greyed it out)
+- 📋 **The Keitaro dump command broke on its own quoting** and needed a MariaDB client on the host — it now runs as-is, also when MariaDB lives only in the Keitaro Docker container, and never dumps the whole database by accident
+- ⏱ **A slow domain save took the whole panel down with 504** — the request held the PHP session lock while the stock pool of 5 workers ran dry. The lock is released right after auth, nginx gives PHP 180 s, and the installer sizes the PHP-FPM pool from RAM
+- 🐢 **Nginx rebuilds ran certbot once per domain** — with 99 imported domains the installer sat for minutes on "Nginx sync"; now one listing per rebuild, none at all as root
+- 🌍 **The geo updater discarded every IP2Location / IP2Proxy database** on the cron and installer path (Composer autoloader not loaded)
+- 🐧 **Install on Ubuntu 26.04** — PHP repositories without a build for the release are skipped instead of failing at step 1/5; re-running the installer from inside `/var/www/orbitra` no longer fails to clone
+- 🎨 Settings menu sizes itself to the longest label in every locale; uk/zh translation slips fixed ("traffic", "clear", "conversions"); `/favicon.ico` is served on panel hosts only (tracking domains stay icon-less)
 
-### Performance
+### v1.6.4
 
-- 📊 **Report date filters use the index** — UTC ranges instead of `date()` over the column; identical numbers, verified against 1.6.2 row by row. The 7-day campaigns list on a 3.2M-click database drops from ~4.6 s to ~3 s
-- 📱 **PWA screen views in the campaigns list are pre-aggregated** instead of a correlated COUNT per click row
-- ⚡ **IP_UA uniqueness checks seek an index** — clicks carry a compact `ua_hash`, and the once-a-minute spool worker builds `idx_clicks_ip_ua_created` one time after the update and then hashes the recent pre-update clicks (minutes on huge databases; clicks keep flowing through the spool while it runs)
+Test links and a behavioural bot hint.
 
-### Measured on the release stand
+- 🔗 **Signed test links** — open a campaign through the real routing pipeline without writing a click; `?_geo=XX` tests another country, `?_dbg=1` shows the routing trace
+- 🖱 **"Possible bots"** — landing visits that ran the timer but never showed a mouse or touch event
+- 📄 **LICENSE ships with the repo**
 
-Paired A/B runs against 1.6.2 on the same database — 3.2–3.9 million clicks
-(~8,500 on each mobile-carrier IP), a 2 vCPU / 7 GB VPS with **stock** nginx
-and PHP-FPM settings, SQLite in WAL mode, k6 at a constant 480 rps. Every
-redirect's subid was reconciled against the `clicks` table, not just counted.
-
-| Scenario | v1.6.2 | v1.6.3 |
-|---|---|---|
-| Returning visitors, 480 rps | 953 clicks parked in the spool, **27,775 redirects carrying a subid missing from the database** | **0 / 0**, p99 101 ms |
-| Visitors behind one carrier IP, straight after the update | 1–2% of requests answered at all | 0 errors, p99 182 ms |
-| Unique visitors, 480 rps (p99) | 84 ms | 87 ms |
-| Unique visitors, 560 rps (p99) | 1,214 ms | 517 ms |
-| Campaign reports, all presets incl. "Yesterday" | 1.6–5.0 s | 0.3–3.4 s, identical numbers |
-| After the update (one cron tick) | — | index built in 4.8 s + 1,008,085 legacy rows hashed in 29.6 s |
-
-Methodology, the raw acceptance reports and the k6 kit to reproduce it:
-[docs/TZ_LOAD_PERFORMANCE.md](docs/TZ_LOAD_PERFORMANCE.md) and
-[tests/load/](tests/load/).
-
-Older releases (v1.6.2 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.6.3 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo
