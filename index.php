@@ -2,6 +2,27 @@
 // index.php - Обработчик кликов
 require_once 'config.php';
 
+// /favicon.ico. Claude's connector list (and browsers) take a site's icon from
+// here, and Orbitra used to answer 404, so a connector on the tracker showed a
+// placeholder. The Orbitra icon is served only where the panel itself may be
+// served (the bare IP, or a parked domain with admin_access allowed): on a
+// tracking-only domain a tracker's icon is a fingerprint that link checkers
+// and ad moderation look for, so those keep answering 404. The file lives in
+// core/, which nginx never serves directly.
+if (parse_url((string) ($_SERVER['REQUEST_URI'] ?? ''), PHP_URL_PATH) === '/favicon.ico') {
+    require_once __DIR__ . '/core/admin_access.php';
+    $orbitraFavicon = __DIR__ . '/core/branding/favicon.png';
+    if (is_file($orbitraFavicon) && orbitraHostAdminAllowed($pdo, $_SERVER['HTTP_HOST'] ?? '')) {
+        header('Content-Type: image/png');
+        header('Content-Length: ' . filesize($orbitraFavicon));
+        header('Cache-Control: public, max-age=86400');
+        readfile($orbitraFavicon);
+        exit;
+    }
+    http_response_code(404);
+    exit;
+}
+
 // Landing assets debug mode. Set to true via environment variable or setting
 // to diagnose issues with CSS/JS loading on landing pages.
 // Enable with: putenv('ORBITRA_LANDING_DEBUG=1') or in settings table
