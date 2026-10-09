@@ -8,6 +8,7 @@ import MobileCards from './common/MobileCards';
 import Dialog from './common/Dialog';
 import { useLanguage } from '../contexts/LanguageContext';
 import { cachedGet, cachedPost } from '../utils/apiCache';
+import DynadotDomainTools from './DynadotDomainTools';
 
 // Mirrors the backend cleaner: pasted URLs become bare hosts before they ever
 // reach save_domain, so an invalid-format rejection never surprises the user.
@@ -948,6 +949,7 @@ const Domains = ({ campaigns, user }) => {
                             </button>
                         </>
                     )}
+                    <DynadotDomainTools domains={domains} onChanged={fetchDomains} pageLoading={loading} />
                     {canWriteResource(user, 'domains') && (
                         <button
                             onClick={() => {

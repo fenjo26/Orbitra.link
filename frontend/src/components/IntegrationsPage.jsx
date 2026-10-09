@@ -7,6 +7,7 @@ import { copyToClipboard as copyUtil } from '../utils/clipboard';
 import ProxyInput from './common/ProxyInput';
 import PixelPicker from './common/PixelPicker';
 import IntegrationCard from './IntegrationCard';
+import DynadotHub from './DynadotHub';
 
 const API_URL = '/api.php';
 
@@ -226,6 +227,8 @@ const IntegrationsPage = () => {
     // card with a live balance; Buy/Import deep-link into the Domains dialogs
     // with the account preselected.
     const [ncAccounts, setNcAccounts] = useState([]);
+    // Dynadot: the hub component owns its state; the card only needs the list.
+    const [dyAccounts, setDyAccounts] = useState([]);
     const [ncIps, setNcIps] = useState({ server_ip: '', detected_ip: '' });
     const [ncAccModal, setNcAccModal] = useState(null); // { id?, name, username, api_key, contact_id, sandbox }
     const [ncAccBusy, setNcAccBusy] = useState(false);
@@ -768,6 +771,9 @@ const IntegrationsPage = () => {
                     setCfServerIp(res.data.data.server_ip || '');
                 }
             })
+            .catch(() => {});
+        axios.get(`${API_URL}?action=dynadot_accounts_list`)
+            .then(res => { if (res.data?.status === 'success') setDyAccounts(res.data.data.accounts || []); })
             .catch(() => {});
         axios.get(`${API_URL}?action=namecheap_accounts_list`)
             .then(res => {
@@ -3817,6 +3823,28 @@ const IntegrationsPage = () => {
             ctaText: t('integrations.openRegistrar', 'Open Registrar'),
             isNamecheap: true
         },
+        dynadot: {
+            category: 'domains',
+            badge: 'DOMAIN',
+            badgeBg: 'rgba(37, 99, 235, 0.15)',
+            badgeColor: '#2563eb',
+            icon: <Globe className="w-5 h-5" />,
+            iconBg: 'rgba(37, 99, 235, 0.1)',
+            iconColor: '#3b82f6',
+            title: 'Dynadot',
+            subtitle: (() => {
+                const b = dyAccounts.find(a => a.last_balance)?.last_balance;
+                return b ? `Balance: ${b}` : 'Buy & Park Domains';
+            })(),
+            description: t('dynadot.description'),
+            isConnected: dyAccounts.length > 0,
+            statText: (() => {
+                const b = dyAccounts.find(a => a.last_balance)?.last_balance;
+                return b ? `Balance: ${b}` : (dyAccounts.length ? `${dyAccounts.length} accounts connected` : 'Auto-DNS & Buy domains');
+            })(),
+            ctaText: t('integrations.openRegistrar', 'Open Registrar'),
+            isDynadot: true
+        },
         kclient_php: {
             category: 'sites',
             badge: 'TRACKING',
@@ -5936,6 +5964,8 @@ global \$wpdb;
                                     )}
                                 </div>
                             </div>
+                        ) : activeObj.isDynadot ? (
+                            <DynadotHub onAccountsChange={setDyAccounts} />
                         ) : activeObj.isNamecheap ? (
                             <div style={{ padding: '24px', flex: 1, overflow: 'auto' }}>
                                 <div style={{ maxWidth: '680px', display: 'flex', flexDirection: 'column', gap: '20px' }}>

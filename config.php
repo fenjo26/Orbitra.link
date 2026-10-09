@@ -95,7 +95,7 @@ try {
     //      never reported (no landing timer, direct hit), 0 = a landing was
     //      measured and zero mouse/touch events were seen, 1 = real pointer
     //      activity. Written only by /pixel.gif?action=lp beacons.
-    $LATEST_SCHEMA_VERSION = 56;
+    $LATEST_SCHEMA_VERSION = 57;
 
     $schemaVersion = 0;
     try {
@@ -2764,6 +2764,26 @@ try {
                     $pdo->exec("ALTER TABLE clicks ADD COLUMN pointer_activity INTEGER");
                 } catch (\Throwable $e) {
                     // Column already present on a half-migrated DB.
+                }
+            }
+
+            if ($schemaVersion < 57) {
+                // Migration 57: Dynadot multi-account — the counterpart of
+                // namecheap_accounts (migration 31). One API key per account;
+                // domains pin it through dns_provider='dynadot' +
+                // dns_account_id, like the Namecheap and Cloudflare pins.
+                try {
+                    $pdo->exec("CREATE TABLE IF NOT EXISTS dynadot_accounts (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT NOT NULL,
+                        api_key TEXT NOT NULL,
+                        sandbox INTEGER DEFAULT 0,
+                        last_balance TEXT DEFAULT '',
+                        domains_count INTEGER,
+                        is_active INTEGER DEFAULT 1,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    )");
+                } catch (\Throwable $e) {
                 }
             }
 

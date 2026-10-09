@@ -1015,6 +1015,138 @@ function orbitraCloudflareSyncDomain(PDO $pdo, array $domain, ?array $cfg = null
     return $dns;
 }
 
+// === Dynadot integration helpers ===
+//
+// Mirrors the Namecheap multi-account hub: dynadot_accounts rows (API key per
+// account), server-wide IPs shared with the other DNS integrations, a
+// memoized domain list per account, and zero-config parking on domain save.
+
+/** Active dynadot_accounts rows (schema 57+). */
+function orbitraDynadotAccountRows(PDO $pdo): array
+{
+    static $rows = null;
+    if ($rows !== null) {
+        return $rows;
+    }
+    $rows = [];
+    try {
+        $rows = $pdo->query("SELECT * FROM dynadot_accounts WHERE is_active = 1 ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
+    } catch (\Throwable $e) {
+        // Table not migrated yet — behaves as "no accounts".
+    }
+    return $rows;
+}
+
+/** Panel payload for the accounts (never the API key). */
+function orbitraDynadotAccountsPayload(PDO $pdo): array
+{
+    $out = [];
+    foreach (orbitraDynadotAccountRows($pdo) as $row) {
+        $out[] = [
+            'id' => (int) $row['id'],
+            'name' => (string) $row['name'],
+            'sandbox' => !empty($row['sandbox']),
+            'last_balance' => (string) ($row['last_balance'] ?? ''),
+            'domains_count' => $row['domains_count'] !== null ? (int) $row['domains_count'] : null,
+            'created_at' => (string) ($row['created_at'] ?? ''),
+        ];
+    }
+    return $out;
+}
+
+/**
+ * Client config for one account row. The A-record target and the outgoing IP
+ * for Dynadot's optional API whitelist are the server's, shared with the
+ * Namecheap/Cloudflare integrations.
+ */
+function orbitraDynadotAccountCfg(PDO $pdo, array $row): array
+{
+    $g = orbitraNamecheapGlobals($pdo);
+    return [
+        'api_key' => (string) ($row['api_key'] ?? ''),
+        'sandbox' => !empty($row['sandbox']),
+        'account_id' => (int) ($row['id'] ?? 0),
+        'server_ip' => $g['server_ip'],
+        'client_ip' => $g['client_ip'],
+    ];
+}
+
+/** Account named by the request body's account_id, or the first one. */
+function orbitraDynadotCfgForRequest(PDO $pdo, array $body): ?array
+{
+    $rows = orbitraDynadotAccountRows($pdo);
+    $accountId = (int) ($body['account_id'] ?? 0);
+    foreach ($rows as $row) {
+        if ($accountId <= 0 || (int) $row['id'] === $accountId) {
+            return orbitraDynadotAccountCfg($pdo, $row);
+        }
+    }
+    return null;
+}
+
+/** Account domain list, memoized per request (bulk imports park many hosts). */
+function orbitraDynadotAccountDomainList(array $cfg): array
+{
+    static $memo = [];
+    require_once __DIR__ . '/core/DynadotClient.php';
+    $key = md5(($cfg['api_key'] ?? '') . '|' . (!empty($cfg['sandbox']) ? '1' : '0'));
+    if (!array_key_exists($key, $memo)) {
+        $memo[$key] = DynadotClient::listDomains($cfg)['domains'];
+    }
+    return $memo[$key];
+}
+
+/** Longest registered zone of $host inside one account's domain list. */
+function orbitraDynadotFindRegistered(array $cfg, string $host): ?string
+{
+    $host = strtolower(trim($host));
+    $best = null;
+    foreach (orbitraDynadotAccountDomainList($cfg) as $registered) {
+        if ($host === $registered || str_ends_with($host, '.' . $registered)) {
+            if ($best === null || strlen($registered) > strlen($best)) {
+                $best = $registered;
+            }
+        }
+    }
+    return $best;
+}
+
+/**
+ * Point a parked domain at the tracker through Dynadot. Without an explicit
+ * $cfg every connected account is tried — the one whose list holds the
+ * registered zone writes its DNS. DynadotClient::setARecord() refuses domains
+ * on external name servers and never drops the zone's other records.
+ * @return array{ok:bool,message:string}
+ */
+function orbitraDynadotSyncDomain(PDO $pdo, array $domain, ?array $cfg = null): array
+{
+    require_once __DIR__ . '/core/DynadotClient.php';
+    $host = strtolower(trim((string) $domain['name']));
+
+    if ($cfg === null) {
+        foreach (orbitraDynadotAccountRows($pdo) as $row) {
+            $accountCfg = orbitraDynadotAccountCfg($pdo, $row);
+            if (orbitraDynadotFindRegistered($accountCfg, $host) !== null) {
+                return orbitraDynadotSyncDomain($pdo, $domain, $accountCfg);
+            }
+        }
+        return ['ok' => false, 'message' => 'Domain not found in any Dynadot account'];
+    }
+
+    if (($cfg['api_key'] ?? '') === '') {
+        return ['ok' => false, 'message' => 'Dynadot is not connected'];
+    }
+    if (filter_var($cfg['server_ip'] ?? '', FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
+        return ['ok' => false, 'message' => 'Server IP is unknown — set it in the Namecheap or Cloudflare integration'];
+    }
+    $registered = orbitraDynadotFindRegistered($cfg, $host);
+    if ($registered === null) {
+        return ['ok' => false, 'message' => 'Domain not found in Dynadot account'];
+    }
+    $sub = $registered === $host ? '' : substr($host, 0, -1 * (strlen($registered) + 1));
+    return DynadotClient::setARecord($cfg, $registered, $sub, (string) $cfg['server_ip']);
+}
+
 // === Namecheap integration helpers ===
 
 /** Active namecheap_accounts rows as panel payload (never the api_key secret). */
@@ -10639,6 +10771,17 @@ try {
                         if (!$pinFound) {
                             $dnsAccountId = null;
                         }
+                    } elseif (strcasecmp($dnsProvider, 'dynadot') === 0) {
+                        $pinFound = false;
+                        foreach (orbitraDynadotAccountRows($pdo) as $rowDdPin) {
+                            if ((int) $rowDdPin['id'] === $dnsAccountId) {
+                                $pinFound = true;
+                                break;
+                            }
+                        }
+                        if (!$pinFound) {
+                            $dnsAccountId = null;
+                        }
                     } else {
                         $dnsAccountId = null;
                     }
@@ -10856,6 +10999,31 @@ try {
                                     $results[count($results) - 1]['namecheap'] = $ncSync['ok']
                                         ? $ncSync['message']
                                         : null; // domain not in the account is not an error
+                                }
+
+                                // Dynadot: the same zero-config parking. A pinned
+                                // account is used directly; with no provider set,
+                                // every connected account is searched. "Not in this
+                                // account" stays silent, but a real refusal (external
+                                // name servers, a zone Orbitra will not rewrite) is a
+                                // warning — the A record was NOT written.
+                                if ((strcasecmp($dnsProvider, 'dynadot') === 0 || $dnsProvider === '') && count(orbitraDynadotAccountRows($pdo)) > 0) {
+                                    @set_time_limit(170); // one call per second per key
+                                    $ddPinCfg = null;
+                                    if (strcasecmp($dnsProvider, 'dynadot') === 0 && $dnsAccountId !== null) {
+                                        foreach (orbitraDynadotAccountRows($pdo) as $rowDdPin) {
+                                            if ((int) $rowDdPin['id'] === $dnsAccountId) {
+                                                $ddPinCfg = orbitraDynadotAccountCfg($pdo, $rowDdPin);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    $ddSync = orbitraDynadotSyncDomain($pdo, ['id' => $newId, 'name' => $domainName], $ddPinCfg);
+                                    if ($ddSync['ok']) {
+                                        $results[count($results) - 1]['dynadot'] = $ddSync['message'];
+                                    } elseif (stripos($ddSync['message'], 'not found in') === false) {
+                                        $errors[] = "$domainName — Dynadot: " . $ddSync['message'];
+                                    }
                                 }
 
                                 $sslPending = true;
@@ -12169,6 +12337,7 @@ try {
                     if (!$domainNc) {
                         echo json_encode(['status' => 'error', 'message' => 'Domain not found']);
                         break;
+
                     }
                     // A pinned account skips the try-all-accounts search; a
                     // dangling pin falls back to it on purpose.
@@ -12183,6 +12352,288 @@ try {
                     }
                     $resultNc = orbitraNamecheapSyncDomain($pdo, $domainNc, $cfgNcPin);
                     echo json_encode(['status' => $resultNc['ok'] ? 'success' : 'error', 'message' => $resultNc['message']]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        // === Dynadot: multi-account hub, safe DNS parking, purchasing, import ===
+        // Same contract as the Namecheap actions above. Dynadot allows one API
+        // call at a time per key, which DynadotClient enforces across workers.
+        case 'dynadot_status':
+        case 'dynadot_accounts_list':
+            try {
+                $accountsDd = orbitraDynadotAccountsPayload($pdo);
+                $gDd = orbitraNamecheapGlobals($pdo);
+                echo json_encode(['status' => 'success', 'data' => [
+                    'connected' => count($accountsDd) > 0,
+                    'accounts' => $accountsDd,
+                    'server_ip' => $gDd['server_ip'],
+                    'client_ip' => $gDd['client_ip'],
+                ]]);
+            } catch (\Exception $e) {
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
+        // Test Connection & Save: verified live before the row is stored.
+        case 'dynadot_account_save':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $dataDd = json_decode(orbitraRequestBody(), true);
+                $dataDd = is_array($dataDd) ? $dataDd : [];
+                try {
+                    $idDd = (int) ($dataDd['id'] ?? 0);
+                    $apiKey = trim((string) ($dataDd['api_key'] ?? ''));
+                    $name = mb_substr(trim((string) ($dataDd['name'] ?? '')), 0, 120);
+                    $sandbox = !empty($dataDd['sandbox']);
+
+                    $existingDd = null;
+                    if ($idDd > 0) {
+                        $stmtDd = $pdo->prepare("SELECT * FROM dynadot_accounts WHERE id = ? LIMIT 1");
+                        $stmtDd->execute([$idDd]);
+                        $existingDd = $stmtDd->fetch(PDO::FETCH_ASSOC);
+                        if (!$existingDd) {
+                            echo json_encode(['status' => 'error', 'message' => 'dynadot_account_not_found']);
+                            break;
+                        }
+                        // Empty key field = keep the stored secret.
+                        if ($apiKey === '') {
+                            $apiKey = (string) $existingDd['api_key'];
+                        }
+                    }
+                    if ($apiKey === '') {
+                        echo json_encode(['status' => 'error', 'message' => 'dynadot_key_required']);
+                        break;
+                    }
+                    if ($name === '') {
+                        $name = 'Dynadot ' . substr($apiKey, -4);
+                    }
+
+                    require_once __DIR__ . '/core/DynadotClient.php';
+                    $verify = DynadotClient::verifyConnection(['api_key' => $apiKey, 'sandbox' => $sandbox]);
+                    if (!$verify['ok']) {
+                        echo json_encode(['status' => 'error', 'message' => 'dynadot_connection_failed', 'detail' => [
+                            'error' => $verify['message'],
+                            'ip' => orbitraNamecheapGlobals($pdo)['client_ip'],
+                        ]]);
+                        break;
+                    }
+
+                    if ($existingDd) {
+                        $pdo->prepare("UPDATE dynadot_accounts SET name = ?, api_key = ?, sandbox = ?, last_balance = ? WHERE id = ?")
+                            ->execute([$name, $apiKey, $sandbox ? 1 : 0, $verify['balance'], $idDd]);
+                        logAudit($pdo, 'UPDATE', 'DynadotAccount', $idDd, "Name: $name");
+                    } else {
+                        $pdo->prepare("INSERT INTO dynadot_accounts (name, api_key, sandbox, last_balance) VALUES (?, ?, ?, ?)")
+                            ->execute([$name, $apiKey, $sandbox ? 1 : 0, $verify['balance']]);
+                        $idDd = (int) $pdo->lastInsertId();
+                        logAudit($pdo, 'CREATE', 'DynadotAccount', $idDd, "Name: $name");
+                    }
+                    echo json_encode(['status' => 'success', 'data' => ['account' => [
+                        'id' => $idDd,
+                        'name' => $name,
+                        'sandbox' => $sandbox,
+                        'last_balance' => $verify['balance'],
+                        'domains_count' => $existingDd && $existingDd['domains_count'] !== null ? (int) $existingDd['domains_count'] : null,
+                    ]]]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        case 'dynadot_account_delete':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $dataDd = json_decode(orbitraRequestBody(), true);
+                try {
+                    $idDd = (int) (($dataDd ?? [])['id'] ?? 0);
+                    $stmtDd = $pdo->prepare("SELECT name FROM dynadot_accounts WHERE id = ? LIMIT 1");
+                    $stmtDd->execute([$idDd]);
+                    $nameDd = $stmtDd->fetchColumn();
+                    if ($nameDd === false) {
+                        echo json_encode(['status' => 'error', 'message' => 'dynadot_account_not_found']);
+                        break;
+                    }
+                    $pdo->prepare("DELETE FROM dynadot_accounts WHERE id = ?")->execute([$idDd]);
+                    logAudit($pdo, 'DELETE', 'DynadotAccount', $idDd, 'Name: ' . (string) $nameDd);
+                    echo json_encode(['status' => 'success']);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        case 'dynadot_account_balance':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $dataDd = json_decode(orbitraRequestBody(), true);
+                try {
+                    $cfgDd = orbitraDynadotCfgForRequest($pdo, is_array($dataDd) ? $dataDd : []);
+                    if ($cfgDd === null) {
+                        echo json_encode(['status' => 'error', 'message' => 'dynadot_not_connected']);
+                        break;
+                    }
+                    require_once __DIR__ . '/core/DynadotClient.php';
+                    $bal = DynadotClient::getBalance($cfgDd);
+                    if (!$bal['ok']) {
+                        echo json_encode(['status' => 'error', 'message' => $bal['error'], 'detail' => ['ip' => $cfgDd['client_ip']]]);
+                        break;
+                    }
+                    $pdo->prepare("UPDATE dynadot_accounts SET last_balance = ? WHERE id = ?")->execute([$bal['balance'], $cfgDd['account_id']]);
+                    echo json_encode(['status' => 'success', 'data' => ['balance' => $bal['balance'], 'currency' => $bal['currency'], 'available' => $bal['available']]]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        // Every domain in the account — the Import dialog adds the selected
+        // ones through the usual save_domain flow (parking + SSL included).
+        case 'dynadot_domains':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $dataDd = json_decode(orbitraRequestBody(), true);
+                try {
+                    $cfgDd = orbitraDynadotCfgForRequest($pdo, is_array($dataDd) ? $dataDd : []);
+                    if ($cfgDd === null) {
+                        echo json_encode(['status' => 'error', 'message' => 'dynadot_not_connected']);
+                        break;
+                    }
+                    require_once __DIR__ . '/core/DynadotClient.php';
+                    $listDd = DynadotClient::listDomains($cfgDd);
+                    if (!$listDd['ok']) {
+                        echo json_encode(['status' => 'error', 'message' => $listDd['error'], 'detail' => ['ip' => $cfgDd['client_ip']]]);
+                        break;
+                    }
+                    $pdo->prepare("UPDATE dynadot_accounts SET domains_count = ? WHERE id = ?")->execute([count($listDd['domains']), $cfgDd['account_id']]);
+                    echo json_encode(['status' => 'success', 'data' => ['domains' => $listDd['domains']]]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        case 'dynadot_check_domain':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $dataDd = json_decode(orbitraRequestBody(), true);
+                try {
+                    $cfgDd = orbitraDynadotCfgForRequest($pdo, is_array($dataDd) ? $dataDd : []);
+                    if ($cfgDd === null) {
+                        echo json_encode(['status' => 'error', 'message' => 'dynadot_not_connected']);
+                        break;
+                    }
+                    $domain = strtolower(trim((string) (($dataDd ?? [])['domain'] ?? '')));
+                    if ($domain === '' || !preg_match('/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)+$/', $domain)) {
+                        echo json_encode(['status' => 'error', 'message' => 'Invalid domain name']);
+                        break;
+                    }
+                    require_once __DIR__ . '/core/DynadotClient.php';
+                    $check = DynadotClient::checkDomain($cfgDd, $domain);
+                    if ($check['error'] !== '') {
+                        echo json_encode(['status' => 'error', 'message' => $check['error']]);
+                        break;
+                    }
+                    echo json_encode(['status' => 'success', 'data' => $check]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        // Buy & Park: register from the account balance (Dynadot uses the
+        // account's default contacts), point the domain at this server, then
+        // hand it to the normal domain flow (nginx + Let's Encrypt).
+        case 'dynadot_register_domain':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $dataDd = json_decode(orbitraRequestBody(), true);
+                $dataDd = is_array($dataDd) ? $dataDd : [];
+                try {
+                    $cfgDd = orbitraDynadotCfgForRequest($pdo, $dataDd);
+                    if ($cfgDd === null) {
+                        echo json_encode(['status' => 'error', 'message' => 'dynadot_not_connected']);
+                        break;
+                    }
+                    $domain = strtolower(trim((string) ($dataDd['domain'] ?? '')));
+                    $years = max(1, min(10, (int) ($dataDd['years'] ?? 1)));
+                    if ($domain === '' || !preg_match('/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z]{2,})+$/', $domain)) {
+                        echo json_encode(['status' => 'error', 'message' => 'Invalid domain name']);
+                        break;
+                    }
+                    @set_time_limit(120);
+                    require_once __DIR__ . '/core/DynadotClient.php';
+
+                    // Registration costs real money — re-check availability so a
+                    // stale dialog can never buy an already-taken name.
+                    $check = DynadotClient::checkDomain($cfgDd, $domain, false);
+                    if ($check['error'] !== '' || !$check['available']) {
+                        echo json_encode(['status' => 'error', 'message' => 'dynadot_domain_taken', 'detail' => ['domain' => $domain, 'error' => $check['error']]]);
+                        break;
+                    }
+                    $reg = DynadotClient::registerDomain($cfgDd, $domain, $years, !empty($dataDd['premium']));
+                    if (!$reg['ok']) {
+                        echo json_encode(['status' => 'error', 'message' => $reg['message']]);
+                        break;
+                    }
+
+                    $fresh = DynadotClient::getBalance($cfgDd);
+                    if ($fresh['ok']) {
+                        $pdo->prepare("UPDATE dynadot_accounts SET last_balance = ? WHERE id = ?")->execute([$fresh['balance'], $cfgDd['account_id']]);
+                    }
+
+                    $exists = $pdo->prepare("SELECT id FROM domains WHERE name = ? LIMIT 1");
+                    $exists->execute([$domain]);
+                    if ($exists->fetchColumn()) {
+                        echo json_encode(['status' => 'success', 'data' => ['domain' => $domain, 'registered' => $reg['message'], 'duplicate' => true]]);
+                        break;
+                    }
+
+                    $pdo->prepare("INSERT INTO domains (name, index_campaign_id, catch_404, group_id, is_noindex, https_only, ssl_status, admin_access, registrar, dns_provider, dns_account_id) VALUES (?, NULL, 1, NULL, 1, 0, 'pending', 1, 'dynadot', 'dynadot', ?)")
+                        ->execute([$domain, (int) $cfgDd['account_id']]);
+                    $newId = (int) $pdo->lastInsertId();
+                    logAudit($pdo, 'CREATE', 'Domain', $newId, "Dynadot purchase: $domain");
+
+                    // A just-registered domain sits on Dynadot parking, so the
+                    // account list is re-read for it rather than the memo.
+                    require_once __DIR__ . '/core/DynadotClient.php';
+                    $ddSync = DynadotClient::setARecord($cfgDd, $domain, '', (string) $cfgDd['server_ip']);
+                    $nginxResult = updateNginxConfig($pdo);
+                    $sslRun = orbitraRunSslWorkerNow();
+
+                    echo json_encode(['status' => 'success', 'data' => [
+                        'domain' => $domain,
+                        'registered' => $reg['message'],
+                        'dynadot' => $ddSync['ok'] ? $ddSync['message'] : null,
+                        'dynadot_error' => $ddSync['ok'] ? null : $ddSync['message'],
+                        'nginx' => $nginxResult,
+                    ]]);
+                } catch (\Exception $e) {
+                    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                }
+            }
+            break;
+
+        // Force re-park an existing domain row (e.g. moved to a new server).
+        case 'dynadot_sync_domain':
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                $dataDd = json_decode(orbitraRequestBody(), true);
+                try {
+                    $stmtDd = $pdo->prepare("SELECT id, name, dns_provider, dns_account_id FROM domains WHERE id = ? LIMIT 1");
+                    $stmtDd->execute([(int) (($dataDd ?? [])['id'] ?? 0)]);
+                    $domainDd = $stmtDd->fetch(PDO::FETCH_ASSOC);
+                    if (!$domainDd) {
+                        echo json_encode(['status' => 'error', 'message' => 'Domain not found']);
+                        break;
+                    }
+                    $cfgDdPin = null;
+                    if (strcasecmp((string) ($domainDd['dns_provider'] ?? ''), 'dynadot') === 0 && !empty($domainDd['dns_account_id'])) {
+                        foreach (orbitraDynadotAccountRows($pdo) as $rowDdPin) {
+                            if ((int) $rowDdPin['id'] === (int) $domainDd['dns_account_id']) {
+                                $cfgDdPin = orbitraDynadotAccountCfg($pdo, $rowDdPin);
+                                break;
+                            }
+                        }
+                    }
+                    $resultDd = orbitraDynadotSyncDomain($pdo, $domainDd, $cfgDdPin);
+                    echo json_encode(['status' => $resultDd['ok'] ? 'success' : 'error', 'message' => $resultDd['message']]);
                 } catch (\Exception $e) {
                     echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
                 }

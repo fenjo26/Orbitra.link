@@ -97,6 +97,8 @@ function orbitraResourceAccessMap(): array
                 'cloudflare_status', 'cloudflare_accounts_list', 'cloudflare_account_zones',
                 'namecheap_status', 'namecheap_accounts_list', 'namecheap_addresses',
                 'namecheap_domains', 'namecheap_check_domain', 'namecheap_account_balance',
+                'dynadot_status', 'dynadot_accounts_list', 'dynadot_domains',
+                'dynadot_check_domain', 'dynadot_account_balance',
                 'backorder_domains', 'backorder_cron_info', 'postback_queue_info',
             ],
             'write' => [
@@ -107,6 +109,8 @@ function orbitraResourceAccessMap(): array
                 'cloudflare_account_import', 'cloudflare_account_repoint', 'namecheap_save',
                 'namecheap_test', 'namecheap_register_domain', 'namecheap_sync_domain',
                 'namecheap_account_save', 'namecheap_account_delete', 'backorder_import',
+                'dynadot_account_save', 'dynadot_account_delete', 'dynadot_register_domain',
+                'dynadot_sync_domain',
                 'backorder_update', 'backorder_delete', 'backorder_delete_selected',
                 'backorder_check_now', 'backorder_check_batch', 'backorder_install_cron',
                 'backorder_remove_cron', 'backorder_install_user_cron',
