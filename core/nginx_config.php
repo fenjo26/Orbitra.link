@@ -383,6 +383,9 @@ function orbitraNginxCommonBody(string $fpmSocket): string
     $b .= "        fastcgi_pass unix:{$fpmSocket};\n";
     $b .= "        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;\n";
     $b .= "        include fastcgi_params;\n";
+    // A domain save runs DNS sync, an nginx rebuild and the SSL worker (capped
+    // at 120 s) in one request; nginx's 60 s default answered it with a 504.
+    $b .= "        fastcgi_read_timeout 180s;\n";
     $b .= "    }\n\n";
 
     $b .= "    # Deny access to SQLite DB (the live database and its -wal/-shm/-journal\n";

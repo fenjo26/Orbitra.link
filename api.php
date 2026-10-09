@@ -1674,6 +1674,20 @@ if (!in_array($action, $publicActions)) {
 }
 // =================================
 
+// Release the session lock as soon as auth and CSRF are settled. PHP's file
+// sessions serialise every request of one browser: a save_domain that spent a
+// minute on Cloudflare / nginx / the SSL worker held the lock, each of the
+// panel's parallel polls (metrics, chart, campaigns, ssl_environment, ...)
+// parked a PHP-FPM worker waiting for it, the stock pool of 5 ran dry, and
+// every request — the slow one included — died at nginx's 60 s with a 504.
+// $_SESSION stays readable after the close; only the actions that still write
+// to it (sign-in/out, first-user setup, the OAuth state flows) keep the lock.
+if (session_status() === PHP_SESSION_ACTIVE
+    && !in_array($action, ['login', 'logout', 'check_setup', 'setup_first_user'], true)
+    && !preg_match('/_(oauth_start|oauth_callback|connect_accounts)$/', (string) $action)) {
+    session_write_close();
+}
+
 // Fetch default timezone from users
 $userTimezone = 'Europe/Moscow'; // fallback
 try {

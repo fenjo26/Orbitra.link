@@ -603,6 +603,9 @@ server {
         fastcgi_pass unix:$PHP_FPM_SOCK;
         fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
         include fastcgi_params;
+        # A domain save runs DNS sync, an nginx rebuild and the SSL worker
+        # (capped at 120 s) in one request; the 60 s default cut it with a 504.
+        fastcgi_read_timeout 180s;
     }
 
     # Deny access to SQLite DB (the live database and its -wal/-shm/-journal
@@ -654,6 +657,28 @@ for POOL_CONF in /etc/php/${PHP_V}/fpm/pool.d/*.conf; do
     [ -f "$POOL_CONF" ] || continue
     sed -i "s/^;[[:space:]]*catch_workers_output[[:space:]]*=.*/catch_workers_output = yes/" "$POOL_CONF"
 done
+
+# PHP-FPM pool size. Debian/Ubuntu ship pm.max_children = 5, which a tracker
+# outgrows on day one: the panel alone fires 6-8 parallel API calls per page,
+# and clicks, postbacks and crons share the same pool. Observed live: one slow
+# domain save plus the dashboard polls hit "server reached pm.max_children (5)"
+# and nginx answered 504 to everything. Size the pool from RAM (~64 MB per
+# worker, clamped to 10-64), and only replace the stock value — a pool someone
+# tuned by hand is left alone.
+FPM_WWW_CONF="/etc/php/${PHP_V}/fpm/pool.d/www.conf"
+if [ -f "$FPM_WWW_CONF" ] && grep -qE '^pm\.max_children[[:space:]]*=[[:space:]]*5[[:space:]]*$' "$FPM_WWW_CONF"; then
+    MEM_MB=$(awk '/^MemTotal:/ {print int($2/1024)}' /proc/meminfo 2>/dev/null)
+    FPM_CHILDREN=$(( ${MEM_MB:-1024} / 64 ))
+    [ "$FPM_CHILDREN" -lt 10 ] && FPM_CHILDREN=10
+    [ "$FPM_CHILDREN" -gt 64 ] && FPM_CHILDREN=64
+    sed -i -E \
+        -e "s/^pm\.max_children[[:space:]]*=.*/pm.max_children = ${FPM_CHILDREN}/" \
+        -e "s/^pm\.start_servers[[:space:]]*=.*/pm.start_servers = 4/" \
+        -e "s/^pm\.min_spare_servers[[:space:]]*=.*/pm.min_spare_servers = 2/" \
+        -e "s/^pm\.max_spare_servers[[:space:]]*=.*/pm.max_spare_servers = 8/" \
+        "$FPM_WWW_CONF"
+    echo "  > PHP-FPM pool: up to ${FPM_CHILDREN} workers (${MEM_MB:-?} MB RAM)."
+fi
 
 systemctl restart php${PHP_V}-fpm
 systemctl restart nginx
