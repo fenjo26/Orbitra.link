@@ -243,7 +243,10 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                             </div>
 
                             {adminMenuOpen && (
-                                <div className="absolute right-0 top-full mt-1 w-56 rounded-lg shadow-xl py-1 z-[100] border" style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}>
+                                <div className="absolute right-0 top-full mt-1 w-max min-w-[14rem] max-w-[min(20rem,calc(100vw-1.5rem))] rounded-lg shadow-xl py-1 z-[100] border" style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}>
+                                    {/* Width follows the longest label of the active locale (w-max) instead of a
+                                    fixed w-56 that wrapped "Пользователи и профиль" onto two centred lines;
+                                    capped so a long translation truncates rather than leaving the screen. */}
                                     {visibleAdminMenuItems.map((item, idx) => (
                                         item.divider ? (
                                             <div key={`div-${idx}`} className="border-t my-1" style={{ borderColor: 'var(--color-border)' }} />
@@ -251,14 +254,15 @@ const Navbar = ({ activeTab, setActiveTab, user, onLogout }) => {
                                             <button
                                                 key={item.tab}
                                                 onClick={() => handleMenuClick(item.tab)}
-                                                className={`w-full flex items-center space-x-3 px-4 py-2 text-sm transition border-l-2 ${activeTab === item.tab
+                                                title={item.label}
+                                                className={`w-full flex items-center gap-3 px-4 py-2 text-sm text-left transition border-l-2 ${activeTab === item.tab
                                                     ? 'bg-[var(--color-primary-light)] border-[var(--color-primary)] text-[var(--color-primary)]'
                                                     : 'border-transparent hover:border-[var(--color-primary)] hover:bg-[var(--color-bg-hover)]'
                                                     }`}
                                                 style={activeTab !== item.tab ? { color: 'var(--color-text-primary)' } : {}}
                                             >
-                                                <span style={{ color: 'var(--color-text-muted)' }}>{item.icon}</span>
-                                                <span>{item.label}</span>
+                                                <span className="shrink-0 flex" style={{ color: 'var(--color-text-muted)' }}>{item.icon}</span>
+                                                <span className="flex-1 min-w-0 truncate whitespace-nowrap">{item.label}</span>
                                             </button>
                                         )
                                     ))}
