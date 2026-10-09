@@ -53,17 +53,27 @@ function normalizeStreamForSave(s) {
       return fallback;
     }
   };
-  return {
+  // id keeps the stream (and its click history) across the save; name,
+  // filters_logic, offer_selection and collect_clicks used to be dropped here,
+  // which renamed streams, turned OR filters into AND and reset offer
+  // selection on every update_campaign call.
+  const out = {
     offer_id: s.offer_id ?? null,
     weight: s.weight ?? 100,
     is_active: s.is_active ?? 1,
     type: s.type ?? 'regular',
     position: s.position ?? 0,
     filters: s.filters ?? parse(s.filters_json, []),
+    filters_logic: s.filters_logic === 'or' ? 'or' : 'and',
     schema_type: s.schema_type ?? 'redirect',
     action_payload: s.action_payload ?? '',
     schema_custom: s.schema_custom ?? parse(s.schema_custom_json, []),
+    offer_selection: s.offer_selection === 'after' ? 'after' : 'before',
+    collect_clicks: Number(s.collect_clicks ?? 1) === 0 ? 0 : 1,
   };
+  if (s.id) out.id = s.id;
+  if (s.name !== undefined && s.name !== null) out.name = s.name;
+  return out;
 }
 
 // =============================================================================
@@ -108,8 +118,28 @@ tool(
 
 tool(
   'orbitra_list_campaigns',
-  'List all campaigns with their traffic stats (clicks, unique clicks, conversions). The primary way to see what campaigns exist and their IDs/aliases/tokens.',
-  { limit: z.number().int().optional().describe('Only return campaigns with clicks > 0, capped to N.') },
+  'Compact campaign list: id, name, alias, state, domain and the public link — no stats, so it stays small with thousands of campaigns. Paged (limit/offset, meta.next_offset) and filterable by id range or domain. The primary way to find campaign IDs; use orbitra_campaigns_stats for metrics.',
+  {
+    id_from: z.number().int().optional().describe('Only campaigns with id >= this.'),
+    id_to: z.number().int().optional().describe('Only campaigns with id <= this.'),
+    domain_id: z.number().int().optional().describe('Only campaigns bound to this domain.'),
+    domain_suffix: z.string().optional().describe('Only campaigns whose domain ends with this, e.g. ".ru".'),
+    archived: z.enum(['0', '1', 'all']).optional().describe("'0' active (default), '1' archived, 'all'."),
+    limit: z.number().int().optional().describe('Page size, 1-1000 (default 200).'),
+    offset: z.number().int().optional().describe('Rows to skip; pass meta.next_offset for the next page.'),
+  },
+  async (a) => asText(await apiGet('campaigns_brief', a))
+);
+
+tool(
+  'orbitra_campaigns_stats',
+  'Campaigns WITH full traffic stats (clicks, conversions, revenue, ROI, ~130 fields per campaign). Heavy: with many campaigns the answer is megabytes — prefer orbitra_list_campaigns to find campaigns and orbitra_campaign_report for one campaign. limit keeps only campaigns that had clicks in the period, capped to N.',
+  {
+    date_range: z.enum(DATE_RANGES).default('today'),
+    custom_from: z.string().optional(),
+    custom_to: z.string().optional(),
+    limit: z.number().int().optional().describe('Only campaigns with clicks > 0 in the period, capped to N.'),
+  },
   async (a) => asText(await apiGet('campaigns', a))
 );
 
@@ -150,9 +180,9 @@ tool(
 
 tool(
   'orbitra_list_domains',
-  'List tracking domains (with SSL/DNS status).',
-  {},
-  async () => asText(await apiGet('domains'))
+  'Compact list of tracking domains: id, name, status, cached DNS/SSL state, Cloudflare proxy, admin access and how many active campaigns use each. Optional suffix filter (e.g. ".de").',
+  { suffix: z.string().optional().describe('Only domains ending with this, e.g. ".de".') },
+  async (a) => asText(await apiGet('domains_brief', a))
 );
 
 tool(
@@ -283,7 +313,11 @@ tool(
       rotation_type: a.rotation_type ?? current.rotation_type,
       catch_404_stream_id:
         a.catch_404_stream_id !== undefined ? a.catch_404_stream_id : current.catch_404_stream_id,
-      streams: a.streams ?? (current.streams || []).map(normalizeStreamForSave),
+      // Absent challenge_type resets the bot challenge to 'none' on save.
+      challenge_type: current.challenge_type ?? 'none',
+      challenge_custom_code: current.challenge_custom_code ?? null,
+      parameters: current.parameters ?? [],
+      streams: (a.streams ?? current.streams ?? []).map(normalizeStreamForSave),
       postbacks:
         a.postbacks ??
         (current.postbacks || []).map((p) => ({
@@ -294,6 +328,20 @@ tool(
     };
     return asText(await apiPost('save_campaign', payload));
   }
+);
+
+tool(
+  'orbitra_bulk_set_campaign_domain',
+  'Move many campaigns to other tracking domains in ONE call. Changes only the campaign domain — streams, filters, offers and postbacks are not touched (unlike update_campaign, which re-saves the whole campaign). Pass items:[{id, domain_id}] for a per-campaign mapping, or ids + domain_id to put them all on one domain (domain_id null unbinds). Returns old_link/new_link for every campaign.',
+  {
+    items: z
+      .array(z.object({ id: z.number().int(), domain_id: z.number().int().nullable() }))
+      .optional()
+      .describe('Per-campaign target domains.'),
+    ids: z.array(z.number().int()).optional().describe('Campaign ids that all go to domain_id.'),
+    domain_id: z.number().int().nullable().optional().describe('Target domain for ids.'),
+  },
+  async (a) => asText(await apiPost('bulk_set_campaign_domain', a))
 );
 
 tool(

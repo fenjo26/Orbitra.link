@@ -36,14 +36,14 @@ function orbitraResourceAccessMap(): array
     $map = [
         'campaigns' => [
             'read' => [
-                'campaigns', 'campaigns_simple', 'get_campaign', 'campaign_pixels',
+                'campaigns', 'campaigns_simple', 'campaigns_brief', 'get_campaign', 'campaign_pixels',
                 'campaign_remote_links', 'rotation_status', 'cloak_summary',
                 'campaign_cost_match', 'campaign_report', 'campaign_logs', 'click_details',
                 'test_postback', 'postback_url', 'postback_logs', 'conversions',
                 'conversion_monitoring', 'ad_entity_statuses', 'campaign_stream_stats',
             ],
             'write' => [
-                'save_campaign', 'delete_campaign', 'bulk_delete_campaigns', 'copy_campaign',
+                'save_campaign', 'delete_campaign', 'bulk_delete_campaigns', 'bulk_set_campaign_domain', 'copy_campaign',
                 'bulk_import_campaigns', 'rename_campaign_group', 'delete_campaign_group',
                 'save_campaign_pixel', 'delete_campaign_pixel', 'clear_stats',
                 'clear_campaign_stats', 'update_costs', 'import_conversions',
@@ -92,7 +92,7 @@ function orbitraResourceAccessMap(): array
         ],
         'domains' => [
             'read' => [
-                'domains', 'domain_groups', 'check_domain_dns', 'check_cloudflare_status',
+                'domains', 'domains_brief', 'domain_groups', 'check_domain_dns', 'check_cloudflare_status',
                 'force_check_all_dns', 'check_ssl_status', 'ssl_environment',
                 'cloudflare_status', 'cloudflare_accounts_list', 'cloudflare_account_zones',
                 'namecheap_status', 'namecheap_accounts_list', 'namecheap_addresses',

@@ -294,17 +294,31 @@ function mcpNormalizeStream(array $s): array
         $decoded = json_decode((string) $v, true);
         return is_array($decoded) ? $decoded : $fallback;
     };
-    return [
+    // id keeps the stream (and its click history) across the save; name,
+    // filters_logic, offer_selection and collect_clicks used to be dropped,
+    // which renamed streams, turned OR filters into AND and reset offer
+    // selection on every update_campaign call.
+    $out = [
         'offer_id' => $s['offer_id'] ?? null,
         'weight' => $s['weight'] ?? 100,
         'is_active' => $s['is_active'] ?? 1,
         'type' => $s['type'] ?? 'regular',
         'position' => $s['position'] ?? 0,
         'filters' => $s['filters'] ?? $parse($s['filters_json'] ?? null, []),
+        'filters_logic' => ($s['filters_logic'] ?? 'and') === 'or' ? 'or' : 'and',
         'schema_type' => $s['schema_type'] ?? 'redirect',
         'action_payload' => $s['action_payload'] ?? '',
         'schema_custom' => $s['schema_custom'] ?? $parse($s['schema_custom_json'] ?? null, []),
+        'offer_selection' => ($s['offer_selection'] ?? 'before') === 'after' ? 'after' : 'before',
+        'collect_clicks' => (int) ($s['collect_clicks'] ?? 1) === 0 ? 0 : 1,
     ];
+    if (!empty($s['id'])) {
+        $out['id'] = (int) $s['id'];
+    }
+    if (isset($s['name'])) {
+        $out['name'] = $s['name'];
+    }
+    return $out;
 }
 
 /**

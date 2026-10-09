@@ -4212,6 +4212,179 @@ try {
             }
             break;
 
+        // Compact campaign list for programmatic clients (MCP, scripts): no
+        // stats, so it stays small however many campaigns there are, with an
+        // id range and paging. `campaigns` returns ~130 metric fields per row —
+        // 1.4 MB for 360 campaigns — which no AI client can read in one go.
+        case 'campaigns_brief':
+            try {
+                $where = [];
+                $args = [];
+                if (isset($_GET['id_from']) && $_GET['id_from'] !== '') {
+                    $where[] = 'c.id >= ?';
+                    $args[] = (int) $_GET['id_from'];
+                }
+                if (isset($_GET['id_to']) && $_GET['id_to'] !== '') {
+                    $where[] = 'c.id <= ?';
+                    $args[] = (int) $_GET['id_to'];
+                }
+                $archived = (string) ($_GET['archived'] ?? '0');
+                if ($archived === '0') {
+                    $where[] = 'COALESCE(c.is_archived, 0) = 0';
+                } elseif ($archived === '1') {
+                    $where[] = 'c.is_archived = 1';
+                }
+                if (!empty($_GET['domain_id'])) {
+                    $where[] = 'c.domain_id = ?';
+                    $args[] = (int) $_GET['domain_id'];
+                }
+                if (isset($_GET['domain_suffix']) && trim((string) $_GET['domain_suffix']) !== '') {
+                    $where[] = "LOWER(d.name) LIKE ?";
+                    $args[] = '%' . strtolower(ltrim(trim((string) $_GET['domain_suffix']), '%'));
+                }
+                [$scopeSql, $scopeArgs] = orbitraCampaignScopeCondition(orbitraCampaignScope($pdo), 'c.id');
+                if ($scopeSql !== '') {
+                    $where[] = $scopeSql;
+                    $args = array_merge($args, $scopeArgs);
+                }
+                $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+                $limit = max(1, min(1000, (int) ($_GET['limit'] ?? 200)));
+                $offset = max(0, (int) ($_GET['offset'] ?? 0));
+
+                $stmtTotal = $pdo->prepare("SELECT COUNT(*) FROM campaigns c LEFT JOIN domains d ON d.id = c.domain_id $whereSql");
+                $stmtTotal->execute($args);
+                $total = (int) $stmtTotal->fetchColumn();
+
+                $stmt = $pdo->prepare("SELECT c.id, c.name, c.alias, c.state, COALESCE(c.is_archived, 0) AS is_archived,
+                        c.domain_id, d.name AS domain_name, c.group_id, cg.name AS group_name
+                    FROM campaigns c
+                    LEFT JOIN domains d ON d.id = c.domain_id
+                    LEFT JOIN campaign_groups cg ON cg.id = c.group_id
+                    $whereSql ORDER BY c.id ASC LIMIT $limit OFFSET $offset");
+                $stmt->execute($args);
+                $rows = [];
+                foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $r) {
+                    $r['id'] = (int) $r['id'];
+                    $r['is_archived'] = (int) $r['is_archived'];
+                    $r['domain_id'] = $r['domain_id'] !== null ? (int) $r['domain_id'] : null;
+                    $r['group_id'] = $r['group_id'] !== null ? (int) $r['group_id'] : null;
+                    $r['link'] = $r['domain_name'] ? 'https://' . $r['domain_name'] . '/' . $r['alias'] : null;
+                    $rows[] = $r;
+                }
+                echo json_encode(['status' => 'success', 'data' => $rows, 'meta' => [
+                    'total' => $total, 'offset' => $offset, 'limit' => $limit,
+                    'next_offset' => $offset + count($rows) < $total ? $offset + count($rows) : null,
+                ]], JSON_UNESCAPED_UNICODE);
+            } catch (\Throwable $e) {
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
+        // Move campaigns to other tracking domains. Changes campaigns.domain_id
+        // and nothing else: save_campaign rewrites the streams, and a client
+        // that rebuilds them from get_campaign can lose stream ids, names,
+        // filter logic and offer selection — this action never touches them.
+        // Body: {items:[{id, domain_id}]} or {ids:[...], domain_id}.
+        // Answers with the old and new link of every campaign.
+        case 'bulk_set_campaign_domain':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid method']);
+                break;
+            }
+            $dataBd = json_decode(orbitraRequestBody(), true);
+            $dataBd = is_array($dataBd) ? $dataBd : [];
+            $pairs = [];
+            if (isset($dataBd['items']) && is_array($dataBd['items'])) {
+                foreach ($dataBd['items'] as $it) {
+                    if (is_array($it) && (int) ($it['id'] ?? 0) > 0) {
+                        $pairs[(int) $it['id']] = isset($it['domain_id']) && $it['domain_id'] !== null && $it['domain_id'] !== '' ? (int) $it['domain_id'] : null;
+                    }
+                }
+            } elseif (isset($dataBd['ids']) && is_array($dataBd['ids'])) {
+                $targetBd = isset($dataBd['domain_id']) && $dataBd['domain_id'] !== null && $dataBd['domain_id'] !== '' ? (int) $dataBd['domain_id'] : null;
+                foreach ($dataBd['ids'] as $v) {
+                    if ((int) $v > 0) {
+                        $pairs[(int) $v] = $targetBd;
+                    }
+                }
+            }
+            if (empty($pairs)) {
+                echo json_encode(['status' => 'error', 'message' => 'items (or ids + domain_id) required']);
+                break;
+            }
+            if (count($pairs) > 2000) {
+                echo json_encode(['status' => 'error', 'message' => 'At most 2000 campaigns per call']);
+                break;
+            }
+            $campaignScope = orbitraCampaignScope($pdo);
+            if ($campaignScope !== null) {
+                foreach (array_keys($pairs) as $sid) {
+                    orbitraAssertCampaignInScope($campaignScope, $sid, true);
+                }
+            }
+            try {
+                // Validate every target domain and campaign before writing anything.
+                $domainNames = [];
+                foreach ($pdo->query("SELECT id, name FROM domains")->fetchAll(PDO::FETCH_ASSOC) as $d) {
+                    $domainNames[(int) $d['id']] = (string) $d['name'];
+                }
+                $badDomains = [];
+                foreach ($pairs as $dId) {
+                    if ($dId !== null && !isset($domainNames[$dId])) {
+                        $badDomains[$dId] = true;
+                    }
+                }
+                if ($badDomains) {
+                    echo json_encode(['status' => 'error', 'message' => 'Unknown domain_id: ' . implode(', ', array_keys($badDomains))]);
+                    break;
+                }
+                $ph = implode(',', array_fill(0, count($pairs), '?'));
+                $stmtCur = $pdo->prepare("SELECT id, name, alias, domain_id FROM campaigns WHERE id IN ($ph)");
+                $stmtCur->execute(array_keys($pairs));
+                $current = [];
+                foreach ($stmtCur->fetchAll(PDO::FETCH_ASSOC) as $c) {
+                    $current[(int) $c['id']] = $c;
+                }
+                $missing = array_values(array_diff(array_keys($pairs), array_keys($current)));
+                if ($missing) {
+                    echo json_encode(['status' => 'error', 'message' => 'Unknown campaign id: ' . implode(', ', $missing)]);
+                    break;
+                }
+
+                $link = static fn (?string $host, string $alias): ?string => $host ? "https://$host/$alias" : null;
+                $result = [];
+                $changed = 0;
+                $pdo->beginTransaction();
+                $upd = $pdo->prepare("UPDATE campaigns SET domain_id = ? WHERE id = ?");
+                foreach ($pairs as $cid => $dId) {
+                    $c = $current[$cid];
+                    $oldId = $c['domain_id'] !== null ? (int) $c['domain_id'] : null;
+                    if ($oldId !== $dId) {
+                        $upd->execute([$dId, $cid]);
+                        $changed++;
+                    }
+                    $result[] = [
+                        'id' => $cid,
+                        'name' => (string) $c['name'],
+                        'alias' => (string) $c['alias'],
+                        'old_domain' => $oldId !== null ? ($domainNames[$oldId] ?? null) : null,
+                        'new_domain' => $dId !== null ? $domainNames[$dId] : null,
+                        'old_link' => $link($oldId !== null ? ($domainNames[$oldId] ?? null) : null, (string) $c['alias']),
+                        'new_link' => $link($dId !== null ? $domainNames[$dId] : null, (string) $c['alias']),
+                        'changed' => $oldId !== $dId,
+                    ];
+                }
+                $pdo->commit();
+                logAudit($pdo, 'UPDATE', 'Campaigns (bulk domain)', null, ['count' => count($pairs), 'changed' => $changed]);
+                echo json_encode(['status' => 'success', 'data' => ['changed' => $changed, 'campaigns' => $result]], JSON_UNESCAPED_UNICODE);
+            } catch (\Throwable $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            }
+            break;
+
         case 'bulk_import_campaigns':
             // Import multiple campaigns from a list (CSV or pipe-delimited)
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -9102,6 +9275,36 @@ try {
                     'status' => 'error',
                     'message' => $e->getMessage()
                 ]);
+            }
+            break;
+
+        // Compact domain list for programmatic clients (MCP, scripts): the
+        // cached DNS state, no live lookups, no per-row decoration, plus how
+        // many active campaigns each domain serves. Optional ?suffix=.de filter.
+        case 'domains_brief':
+            try {
+                $suffixDb = strtolower(trim((string) ($_GET['suffix'] ?? '')));
+                $sqlDb = "SELECT d.id, d.name, d.status, d.dns_status, d.ssl_status, d.https_only,
+                        d.cloudflare_proxy, d.admin_access, d.dns_provider, dg.name AS group_name,
+                        (SELECT COUNT(*) FROM campaigns c WHERE c.domain_id = d.id AND COALESCE(c.is_archived, 0) = 0) AS campaigns
+                    FROM domains d LEFT JOIN domain_groups dg ON dg.id = d.group_id";
+                $argsDb = [];
+                if ($suffixDb !== '') {
+                    $sqlDb .= " WHERE LOWER(d.name) LIKE ?";
+                    $argsDb[] = '%' . ltrim($suffixDb, '%');
+                }
+                $stmtDb = $pdo->prepare($sqlDb . " ORDER BY d.id ASC");
+                $stmtDb->execute($argsDb);
+                $rowsDb = [];
+                foreach ($stmtDb->fetchAll(PDO::FETCH_ASSOC) as $r) {
+                    foreach (['id', 'https_only', 'cloudflare_proxy', 'admin_access', 'campaigns'] as $k) {
+                        $r[$k] = $r[$k] !== null ? (int) $r[$k] : null;
+                    }
+                    $rowsDb[] = $r;
+                }
+                echo json_encode(['status' => 'success', 'data' => $rowsDb], JSON_UNESCAPED_UNICODE);
+            } catch (\Throwable $e) {
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
             }
             break;
 
