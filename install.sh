@@ -152,6 +152,55 @@ fi
 # when nothing was interrupted, and it unblocks apt when something was.
 dpkg --configure -a >/dev/null 2>&1 || true
 
+# --- Third-party PHP repositories: only where they publish this release -------
+# ondrej/php and packages.sury.org lag new distribution releases by months
+# (Ubuntu 26.04 "resolute" had no ondrej build at release). add-apt-repository
+# writes the source anyway, the next `apt-get update` then fails on a 404
+# Release file and `set -e` ends the install at step 1/5. So: probe the
+# Release file before adding a repository, and drop a source left behind by an
+# earlier run once its Release is confirmed missing — otherwise a re-run dies
+# at the very first `apt-get update`.
+ORBITRA_CODENAME="$( . /etc/os-release 2>/dev/null; echo "${VERSION_CODENAME:-}" )"
+ORBITRA_PPA_URL="https://ppa.launchpadcontent.net/ondrej/php/ubuntu"
+ORBITRA_SURY_URL="https://packages.sury.org/php"
+
+# 0 = Release published, 1 = confirmed missing (404), 2 = could not tell.
+php_repo_state() {
+    local code
+    [ -n "$ORBITRA_CODENAME" ] || return 2
+    command -v curl >/dev/null 2>&1 || return 2
+    code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 15 -L \
+        "$1/dists/${ORBITRA_CODENAME}/Release" 2>/dev/null)" || return 2
+    case "$code" in
+        200) return 0 ;;
+        404) return 1 ;;
+        *)   return 2 ;;
+    esac
+}
+
+remove_php_repo_sources() {
+    rm -f /etc/apt/sources.list.d/ondrej-ubuntu-php-*.list \
+          /etc/apt/sources.list.d/ondrej-ubuntu-php-*.sources \
+          /etc/apt/sources.list.d/php-sury.list
+}
+
+ORBITRA_REPO_ST=0
+if ls /etc/apt/sources.list.d/ondrej-ubuntu-php-* >/dev/null 2>&1; then
+    php_repo_state "$ORBITRA_PPA_URL" || ORBITRA_REPO_ST=$?
+    if [ "$ORBITRA_REPO_ST" -eq 1 ]; then
+        echo "  > Removing the ondrej/php source: it has no ${ORBITRA_CODENAME} release."
+        rm -f /etc/apt/sources.list.d/ondrej-ubuntu-php-*
+    fi
+fi
+ORBITRA_REPO_ST=0
+if [ -f /etc/apt/sources.list.d/php-sury.list ]; then
+    php_repo_state "$ORBITRA_SURY_URL" || ORBITRA_REPO_ST=$?
+    if [ "$ORBITRA_REPO_ST" -eq 1 ]; then
+        echo "  > Removing the packages.sury.org source: it has no ${ORBITRA_CODENAME} release."
+        rm -f /etc/apt/sources.list.d/php-sury.list
+    fi
+fi
+
 echo "[1/5] Updating system and installing packages (Nginx, PHP, SQLite)..."
 apt-get update -y
 
@@ -181,14 +230,22 @@ ORBITRA_PHP_INSTALLED=""
 # package step on a Debian release.
 if grep -qi '^ID=ubuntu' /etc/os-release 2>/dev/null; then
     apt-get install -y software-properties-common || true
-    if command -v add-apt-repository >/dev/null 2>&1; then
+    ORBITRA_REPO_ST=0
+    php_repo_state "$ORBITRA_PPA_URL" || ORBITRA_REPO_ST=$?
+    if [ "$ORBITRA_REPO_ST" -eq 1 ]; then
+        echo "  > ondrej/php has no build for ${ORBITRA_CODENAME} yet — using the distribution's PHP."
+    elif command -v add-apt-repository >/dev/null 2>&1; then
         echo "  > Adding the ondrej/php PPA (current PHP builds)..."
         add-apt-repository -y ppa:ondrej/php >/dev/null 2>&1 \
             || echo "  > NOTE: could not add the PPA — using the distribution's PHP."
     fi
 elif grep -qi '^ID=debian' /etc/os-release 2>/dev/null; then
     . /etc/os-release
-    if [ -n "${VERSION_CODENAME:-}" ] && [ ! -f /etc/apt/sources.list.d/php-sury.list ]; then
+    ORBITRA_REPO_ST=0
+    php_repo_state "$ORBITRA_SURY_URL" || ORBITRA_REPO_ST=$?
+    if [ "$ORBITRA_REPO_ST" -eq 1 ]; then
+        echo "  > packages.sury.org has no build for ${VERSION_CODENAME:-this release} yet — using the distribution's PHP."
+    elif [ -n "${VERSION_CODENAME:-}" ] && [ ! -f /etc/apt/sources.list.d/php-sury.list ]; then
         echo "  > Adding packages.sury.org (current PHP builds for ${VERSION_CODENAME})..."
         apt-get install -y gnupg >/dev/null 2>&1 || true
         if curl -fsSL https://packages.sury.org/php/apt.gpg 2>/dev/null \
@@ -201,7 +258,15 @@ elif grep -qi '^ID=debian' /etc/os-release 2>/dev/null; then
     fi
 fi
 
-apt-get update -y
+# Last line of defence when the probe could not tell (no curl, a proxy): if the
+# repository just added breaks `apt-get update`, take it out and carry on with
+# the distribution's PHP instead of aborting the install.
+if ! apt-get update -y; then
+    echo "  > NOTE: apt-get update failed with the third-party PHP repository —"
+    echo "    removing it and using the distribution's PHP."
+    remove_php_repo_sources
+    apt-get update -y
+fi
 
 for ORBITRA_PHP_V in 8.5 8.4; do
     ORBITRA_PKGS="php${ORBITRA_PHP_V}-fpm php${ORBITRA_PHP_V}-cli"
