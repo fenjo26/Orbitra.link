@@ -299,6 +299,24 @@ if (!class_exists(PDO::class) || !in_array('sqlite', PDO::getAvailableDrivers(),
     unlink($dumpFile2);
 }
 
+echo "\n== gzip dump uploaded through the panel (temp name, no .gz) ==\n";
+
+// The panel passes PHP's upload temp file ($_FILES[..]['tmp_name'], e.g.
+// /tmp/phpA1b2C3) — the name never ends in .gz. Detection must go by the
+// gzip magic bytes, or every uploaded .sql.gz parses as zero tables.
+$gzDump = "CREATE TABLE `keitaro_offers` (\n  `id` int(11) NOT NULL,\n  `name` varchar(255) NOT NULL\n) ENGINE=InnoDB;\n"
+    . "INSERT INTO `keitaro_offers` VALUES\n(1,'One'),\n(2,'Two; with semicolon');\n";
+$tmpNoExt = tempnam(sys_get_temp_dir(), 'php');
+file_put_contents($tmpNoExt, gzencode($gzDump));
+$parsedGz = orbitraKeitaroParseSqlDump($tmpNoExt, ['keitaro_offers']);
+check('gzip without .gz name: columns found', count($parsedGz['keitaro_offers']['columns']) === 2);
+check('gzip without .gz name: rows found (MariaDB 11+ one-row-per-line VALUES)',
+    count($parsedGz['keitaro_offers']['rows']) === 2, json_encode($parsedGz['keitaro_offers']['rows']));
+file_put_contents($tmpNoExt, $gzDump);
+$parsedPlain = orbitraKeitaroParseSqlDump($tmpNoExt, ['keitaro_offers']);
+check('plain SQL still parses', count($parsedPlain['keitaro_offers']['rows']) === 2);
+unlink($tmpNoExt);
+
 echo "\n" . str_repeat('-', 60) . "\n";
 echo "passed: $passed   failed: $failed\n";
 exit($failed === 0 ? 0 : 1);

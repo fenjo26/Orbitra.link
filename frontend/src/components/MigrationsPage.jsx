@@ -442,7 +442,7 @@ const MigrationsPage = () => {
                         <label className="form-label">{t('migrations.keitaroFile')}</label>
                         <input
                             type="file"
-                            accept=".sql,.sql.gz"
+                            accept=".sql,.gz,.sql.gz,application/gzip,application/x-gzip,application/sql,text/plain"
                             className="form-input"
                             onChange={(e) => setKFile(e.target.files?.[0] || null)}
                         />

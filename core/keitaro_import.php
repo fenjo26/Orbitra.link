@@ -30,8 +30,12 @@ function orbitraKeitaroLoadSqlDump(string $path, int $maxBytes = 104857600): str
         throw new RuntimeException("Failed to read SQL file");
     }
 
-    // Support .gz if user uploaded a compressed dump.
-    if (str_ends_with(strtolower($path), '.gz')) {
+    // Support a gzip-compressed dump. Detected by the gzip magic bytes, NOT by
+    // the file name: the panel hands over PHP's upload temp file
+    // ($_FILES['sql_file']['tmp_name'], e.g. /tmp/phpA1b2C3), which never ends
+    // in .gz — an extension check left every uploaded .sql.gz undecoded, and
+    // the parser then found zero tables in the binary and imported nothing.
+    if (strncmp($raw, "\x1f\x8b", 2) === 0) {
         if (!function_exists('gzdecode')) {
             throw new RuntimeException("gzdecode is not available on this server");
         }
