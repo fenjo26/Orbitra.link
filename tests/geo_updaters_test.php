@@ -109,5 +109,19 @@ $assert('zip without .dat → says so', strpos($resBad['message'], 'SxGeoCity.da
 @unlink($fixtureZip);
 @unlink($badZip);
 
+// cli/geo_update.php (the monthly cron and the installer's first download)
+// loads config.php + this module and nothing else. The IP2 readers are
+// Composer classes; without the autoloader every downloaded IP2 file failed
+// validation with "no official PHP library installed". Checked in a fresh
+// process, because this test file itself already sits behind an autoloader.
+if (is_file(__DIR__ . '/../vendor/ip2location/ip2proxy-php/src/Database.php')) {
+    $probe = 'require ' . var_export(realpath(__DIR__ . '/../core/geo_databases.php'), true) . ';'
+        . ' echo (class_exists("\\\\IP2Location\\\\Database") && class_exists("\\\\IP2Proxy\\\\Database")) ? "yes" : "no";';
+    $out = trim((string) shell_exec(escapeshellarg(PHP_BINARY) . ' -r ' . escapeshellarg($probe) . ' 2>&1'));
+    $assert('geo module alone loads the IP2 readers (cron/CLI path)', $out, 'yes');
+} else {
+    echo "  skip IP2 autoload check (composer packages not installed)\n";
+}
+
 echo $failures === 0 ? "\nALL PASSED\n" : "\n$failures FAILED\n";
 exit($failures === 0 ? 0 : 1);

@@ -9,6 +9,16 @@
  * file produce corrupt latitude/longitude values when read by the wrong parser.
  */
 
+// The IP2Location / IP2Proxy readers are Composer packages. The web entry
+// points (index.php, click.php, api.php) load the autoloader themselves, but
+// cli/geo_update.php — the monthly cron and the installer's first download —
+// did not, so every IP2 file it fetched failed validation with "no official
+// PHP library installed" and was thrown away. Load it here so this module
+// works from any entry point; require_once makes the second load a no-op.
+if (is_file(dirname(__DIR__) . '/vendor/autoload.php')) {
+    require_once dirname(__DIR__) . '/vendor/autoload.php';
+}
+
 function orbitraGeoDatabasePaths(?string $root = null): array
 {
     $root = $root ?: dirname(__DIR__);
