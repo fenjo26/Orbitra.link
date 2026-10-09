@@ -2235,7 +2235,10 @@ export default {
         "geoDbInstall": "安装 Sypex Geo（免费）",
         "geoDbInstalling": "正在下载数据库…",
         "geoDbSettings": "地理数据库设置",
-        "geoDbFailed": "下载失败——本服务器无法访问 Sypex 服务器。请在地理数据库设置中手动上传数据库。"
+        "geoDbFailed": "下载失败——本服务器无法访问 Sypex 服务器。请在地理数据库设置中手动上传数据库。",
+        "geoDbBasicTitle": "仅连接了基础地理数据库 Sypex Geo",
+        "geoDbBasicText": "Sypex Lite 可识别国家和城市，但精度有限，且没有代理/VPN、运营商和 ASN 数据——斗篷过滤机器人、审核员和数据中心的效果会变差。请在地理数据库设置中连接 MaxMind GeoLite2 和 IP2Location / IP2Proxy（免费，需要账户密钥）。",
+        "geoDbBasicAction": "连接数据库"
     },
     "workerHealth": {
         "title": "后台任务需要处理",

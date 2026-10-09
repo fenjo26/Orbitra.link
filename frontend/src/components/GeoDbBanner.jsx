@@ -4,17 +4,29 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 const API_URL = '/api.php';
 const DISMISS_KEY = 'orbitra_geo_db_banner_dismissed';
+// Separate key: closing the "only the basic base" hint must not also silence
+// the critical "no database at all" banner if every base later goes missing.
+const BASIC_DISMISS_KEY = 'orbitra_geo_db_basic_banner_dismissed';
+const BASIC_ONLY_ID = 'sypex_city_lite';
 
 // Sits in the dashboard notification stack (next to the update banner, which
 // also renders on every tab). Shows while not a single geo database works:
 // on a fresh install there is none, so country/city stay empty, geo filters
 // match nothing and every visitor cloaks as country Unknown — the operator
 // reads that as "cloaking is broken" instead of "no database installed".
+//
+// Second, softer level: the installer ships Sypex Geo City Lite, so a fresh
+// install is never at zero — but Sypex alone has no proxy/VPN, ISP or ASN data
+// and a rough city. While Sypex is the only working base the banner asks for
+// MaxMind / IP2Location instead; the operator can close it for good.
 const GeoDbBanner = () => {
     const { t } = useLanguage();
     const [dbs, setDbs] = useState(null);
     const [dismissed, setDismissed] = useState(() => {
         try { return localStorage.getItem(DISMISS_KEY) === '1'; } catch { return false; }
+    });
+    const [basicDismissed, setBasicDismissed] = useState(() => {
+        try { return localStorage.getItem(BASIC_DISMISS_KEY) === '1'; } catch { return false; }
     });
     const [installing, setInstalling] = useState(false);
     const [failed, setFailed] = useState(false);
@@ -28,8 +40,11 @@ const GeoDbBanner = () => {
 
     useEffect(() => { fetchDbs(); }, []);
 
-    if (dismissed || !Array.isArray(dbs)) return null;
-    if (dbs.some(d => String(d.status || '').toUpperCase() === 'OK')) return null;
+    if (!Array.isArray(dbs)) return null;
+    const working = dbs.filter(d => String(d.status || '').toUpperCase() === 'OK');
+    const basicOnly = working.length > 0 && working.every(d => d.id === BASIC_ONLY_ID);
+    if (working.length > 0 && !basicOnly) return null;
+    if (basicOnly ? basicDismissed : dismissed) return null;
 
     const installSypex = async () => {
         setInstalling(true);
@@ -58,10 +73,10 @@ const GeoDbBanner = () => {
             <div className="flex items-start gap-3">
                 <AlertTriangle className="w-6 h-6 text-[var(--color-warning)] flex-shrink-0" />
                 <div>
-                    <span className="font-medium text-[var(--color-text-primary)]">{t('app.geoDbTitle')}</span>
-                    <div className="mt-1 text-[var(--color-text-secondary)] text-sm">{t('app.geoDbText')}</div>
+                    <span className="font-medium text-[var(--color-text-primary)]">{t(basicOnly ? 'app.geoDbBasicTitle' : 'app.geoDbTitle')}</span>
+                    <div className="mt-1 text-[var(--color-text-secondary)] text-sm">{t(basicOnly ? 'app.geoDbBasicText' : 'app.geoDbText')}</div>
                     <div className="mt-3 flex flex-wrap items-center gap-2">
-                        <button
+                        {!basicOnly && <button
                             type="button"
                             onClick={installSypex}
                             disabled={installing}
@@ -71,14 +86,14 @@ const GeoDbBanner = () => {
                                 ? <RefreshCw className="w-4 h-4 animate-spin" />
                                 : <Download className="w-4 h-4" />}
                             {installing ? t('app.geoDbInstalling') : t('app.geoDbInstall')}
-                        </button>
+                        </button>}
                         <button
                             type="button"
                             onClick={() => window.dispatchEvent(new CustomEvent('orbitra:navigate', { detail: { tab: 'admin_geo_dbs' } }))}
                             className="btn btn-secondary flex items-center gap-2 text-xs"
                         >
                             <Settings className="w-4 h-4" />
-                            {t('app.geoDbSettings')}
+                            {t(basicOnly ? 'app.geoDbBasicAction' : 'app.geoDbSettings')}
                         </button>
                     </div>
                     {failed && (
@@ -90,8 +105,8 @@ const GeoDbBanner = () => {
             </div>
             <button
                 onClick={() => {
-                    setDismissed(true);
-                    try { localStorage.setItem(DISMISS_KEY, '1'); } catch { /* private mode */ }
+                    if (basicOnly) setBasicDismissed(true); else setDismissed(true);
+                    try { localStorage.setItem(basicOnly ? BASIC_DISMISS_KEY : DISMISS_KEY, '1'); } catch { /* private mode */ }
                 }}
                 aria-label={t('common.close')}
                 className="p-1 hover:bg-[var(--color-bg-hover)] rounded flex-shrink-0"

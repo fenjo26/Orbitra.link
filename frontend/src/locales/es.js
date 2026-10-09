@@ -2235,7 +2235,10 @@ export default {
         "geoDbInstall": "Instalar Sypex Geo (gratis)",
         "geoDbInstalling": "Descargando la base…",
         "geoDbSettings": "Ajustes de bases geográficas",
-        "geoDbFailed": "No se pudo descargar: el servidor de Sypex no es accesible desde este servidor. Suba una base manualmente en los ajustes de bases geográficas."
+        "geoDbFailed": "No se pudo descargar: el servidor de Sypex no es accesible desde este servidor. Suba una base manualmente en los ajustes de bases geográficas.",
+        "geoDbBasicTitle": "Solo está conectada la base geográfica básica Sypex Geo",
+        "geoDbBasicText": "Sypex Lite determina el país y la ciudad, pero de forma aproximada y sin datos de proxy/VPN, proveedor ni ASN: el cloaking filtra peor los bots, los moderadores y los centros de datos. Conecte MaxMind GeoLite2 e IP2Location / IP2Proxy (gratuitos, requieren clave de cuenta) en la configuración de bases geográficas.",
+        "geoDbBasicAction": "Conectar bases"
     },
     "workerHealth": {
         "title": "Los procesos en segundo plano necesitan atención",
