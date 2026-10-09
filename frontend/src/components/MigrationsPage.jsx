@@ -385,57 +385,57 @@ const MigrationsPage = () => {
                                     </p>
                                     <button
                                         onClick={() => {
-                                            const command = `bash -lc '
-set -euo pipefail
+                                            const command = `bash <<'ORBITRA_DUMP'
+set -eo pipefail
 
+# Sourced before set -u: the env file is Keitaro's, not ours.
 source /etc/keitaro/env/inventory.env
+set -u
 
-# Config to avoid exposing the password on the command line
-cat > /root/keitaro-mariadb.cnf <<EOF
-[client]
-user=$MARIADB_KEITARO_USER
-password=$MARIADB_KEITARO_PASSWORD
-host=127.0.0.1
-port=3306
-protocol=tcp
-EOF
-chmod 600 /root/keitaro-mariadb.cnf
+# Password goes through the environment, never through argv or a file left on disk.
+export MYSQL_PWD="$MARIADB_KEITARO_PASSWORD"
+DB="$MARIADB_KEITARO_DATABASE"
 
-# List of "settings" tables needed for migration (excluding logs/clicks/refs etc.)
-SQL_LIST="
-SELECT table_name
-FROM information_schema.tables
-WHERE table_schema = \\'\\'$MARIADB_KEITARO_DATABASE\\'\\'
-AND table_name IN (
-  \\'\\'keitaro_affiliate_networks\\'\\',
-  \\'\\'keitaro_groups\\'\\',
-  \\'\\'keitaro_offers\\'\\',
-  \\'\\'keitaro_domains\\'\\',
-  \\'\\'keitaro_campaigns\\'\\',
-  \\'\\'keitaro_campaign_postbacks\\'\\',
-  \\'\\'keitaro_landings\\'\\',
-  \\'\\'keitaro_streams\\'\\',
-  \\'\\'keitaro_stream_filters\\'\\',
-  \\'\\'keitaro_stream_offer_associations\\'\\',
-  \\'\\'keitaro_stream_landing_associations\\'\\',
-  \\'\\'keitaro_traffic_sources\\'\\',
-  \\'\\'keitaro_ref_sources\\'\\'
-)
-ORDER BY table_name;
-"
+# MariaDB client on the host, or inside the Keitaro MariaDB container.
+if CLI=$(command -v mariadb || command -v mysql) && DUMP=$(command -v mariadb-dump || command -v mysqldump); then
+  sql()  { "$CLI"  -u"$MARIADB_KEITARO_USER" -h127.0.0.1 -P3306 --protocol=tcp "$@" </dev/null; }
+  dump() { "$DUMP" -u"$MARIADB_KEITARO_USER" -h127.0.0.1 -P3306 --protocol=tcp "$@" </dev/null; }
+else
+  CT=$(docker ps --format '{{.Names}}' 2>/dev/null | grep -i -m1 -E 'mariadb|mysql' || true)
+  if [ -z "$CT" ]; then
+    echo "ERROR: no MariaDB client on this server and no MariaDB container found" >&2
+    exit 1
+  fi
+  echo "Using MariaDB inside container: $CT"
+  sql()  { docker exec -e MYSQL_PWD "$CT" sh -c 'exec $(command -v mariadb || command -v mysql) "$@"' sh -u"$MARIADB_KEITARO_USER" "$@" </dev/null; }
+  dump() { docker exec -e MYSQL_PWD "$CT" sh -c 'exec $(command -v mariadb-dump || command -v mysqldump) "$@"' sh -u"$MARIADB_KEITARO_USER" "$@" </dev/null; }
+fi
 
-TABLES=$(mariadb --defaults-extra-file=/root/keitaro-mariadb.cnf -N -e "$SQL_LIST" "$MARIADB_KEITARO_DATABASE" | tr "\\n" " ")
+# Settings tables only: campaigns, offers, domains, streams... - no click logs.
+TABLES=$(sql -N "$DB" -e "
+SELECT table_name FROM information_schema.tables
+WHERE table_schema = DATABASE()
+  AND table_name IN (
+    'keitaro_affiliate_networks', 'keitaro_groups', 'keitaro_offers',
+    'keitaro_domains', 'keitaro_campaigns', 'keitaro_campaign_postbacks',
+    'keitaro_landings', 'keitaro_streams', 'keitaro_stream_filters',
+    'keitaro_stream_offer_associations', 'keitaro_stream_landing_associations',
+    'keitaro_traffic_sources', 'keitaro_ref_sources')
+ORDER BY table_name" | tr '\\n' ' ')
 
-OUT="/root/keitaro_orbitra_full.sql.gz"
+# Without a table list mysqldump would dump the WHOLE database, click logs included.
+if [ -z "$(echo $TABLES)" ]; then
+  echo "ERROR: no Keitaro tables found in database $DB" >&2
+  exit 1
+fi
+
+OUT=/root/keitaro_orbitra_full.sql.gz
 echo "Dumping tables: $TABLES"
-mysqldump --defaults-extra-file=/root/keitaro-mariadb.cnf \\
-  --single-transaction --quick --skip-lock-tables \\
-  "$MARIADB_KEITARO_DATABASE" $TABLES \\
-  | gzip -1 > "$OUT"
+dump --single-transaction --quick --skip-lock-tables "$DB" $TABLES | gzip -1 > "$OUT"
 
 ls -lah "$OUT"
 echo "DONE: $OUT"
-'`;
+ORBITRA_DUMP`;
                                             copyToClipboard(command);
                                         }}
                                         className="text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors"
