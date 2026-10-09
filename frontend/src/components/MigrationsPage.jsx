@@ -30,15 +30,18 @@ const MigrationsPage = () => {
     const [purgeError, setPurgeError] = useState('');
     const [purgeResult, setPurgeResult] = useState(null);
 
-    const [copySuccess, setCopySuccess] = useState(false);
+    // Which copy button last succeeded ('dump', 'scp-unix', 'scp-win'), so only
+    // that one flips to "Copied" instead of every button on the page.
+    const [copySuccess, setCopySuccess] = useState(null);
+    const [kServerIp, setKServerIp] = useState('');
 
-    const copyToClipboard = async (text) => {
+    const copyToClipboard = async (text, key = 'dump') => {
         try {
             // Try modern Clipboard API first
             if (navigator.clipboard && window.isSecureContext) {
                 await navigator.clipboard.writeText(text);
-                setCopySuccess(true);
-                setTimeout(() => setCopySuccess(false), 2000);
+                setCopySuccess(key);
+                setTimeout(() => setCopySuccess(null), 2000);
                 return;
             }
         } catch (err) {
@@ -59,8 +62,8 @@ const MigrationsPage = () => {
             const successful = document.execCommand('copy');
             document.body.removeChild(textarea);
             if (successful) {
-                setCopySuccess(true);
-                setTimeout(() => setCopySuccess(false), 2000);
+                setCopySuccess(key);
+                setTimeout(() => setCopySuccess(null), 2000);
             } else {
                 throw new Error('execCommand failed');
             }
@@ -341,164 +344,64 @@ const MigrationsPage = () => {
                                     <p className="text-sm mb-2" style={{ color: 'var(--color-text-secondary)' }}>
                                         {t('migrations.backupStep1Desc')}
                                     </p>
-                                    <div style={{
-                                        background: '#1e1e1e',
-                                        borderRadius: '8px',
-                                        padding: '12px',
-                                        overflow: 'auto'
-                                    }}>
-                                        <code style={{
-                                            fontSize: '12px',
-                                            color: '#d4d4d4',
-                                            whiteSpace: 'pre-wrap',
-                                            fontFamily: 'monospace'
-                                        }}>
-{`ssh root@YOUR_KEITARO_SERVER_IP`}
-                                        </code>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Step 2 */}
-                        <div style={{ paddingLeft: '12px', borderLeft: '3px solid var(--color-primary)' }}>
-                            <div className="flex items-start gap-3">
-                                <div style={{
-                                    width: '24px',
-                                    height: '24px',
-                                    borderRadius: '50%',
-                                    background: 'var(--color-primary)',
-                                    color: 'white',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontSize: '13px',
-                                    fontWeight: 600,
-                                    flexShrink: 0
-                                }}>2</div>
-                                <div style={{ flex: 1 }}>
-                                    <p className="font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
-                                        {t('migrations.backupStep2Title')}
-                                    </p>
-                                    <p className="text-sm mb-2" style={{ color: 'var(--color-text-secondary)' }}>
-                                        {t('migrations.backupStep2Desc')}
-                                    </p>
-                                    <button
-                                        onClick={() => {
-                                            const command = `bash <<'ORBITRA_DUMP'
-set -eo pipefail
-
-# Sourced before set -u: the env file is Keitaro's, not ours.
-source /etc/keitaro/env/inventory.env
-set -u
-
-# Password goes through the environment, never through argv or a file left on disk.
-export MYSQL_PWD="$MARIADB_KEITARO_PASSWORD"
-DB="$MARIADB_KEITARO_DATABASE"
-
-# MariaDB client on the host, or inside the Keitaro MariaDB container.
-if CLI=$(command -v mariadb || command -v mysql) && DUMP=$(command -v mariadb-dump || command -v mysqldump); then
-  sql()  { "$CLI"  -u"$MARIADB_KEITARO_USER" -h127.0.0.1 -P3306 --protocol=tcp "$@" </dev/null; }
-  dump() { "$DUMP" -u"$MARIADB_KEITARO_USER" -h127.0.0.1 -P3306 --protocol=tcp "$@" </dev/null; }
-else
-  CT=$(docker ps --format '{{.Names}}' 2>/dev/null | grep -i -m1 -E 'mariadb|mysql' || true)
-  if [ -z "$CT" ]; then
-    echo "ERROR: no MariaDB client on this server and no MariaDB container found" >&2
-    exit 1
-  fi
-  echo "Using MariaDB inside container: $CT"
-  sql()  { docker exec -e MYSQL_PWD "$CT" sh -c 'exec $(command -v mariadb || command -v mysql) "$@"' sh -u"$MARIADB_KEITARO_USER" "$@" </dev/null; }
-  dump() { docker exec -e MYSQL_PWD "$CT" sh -c 'exec $(command -v mariadb-dump || command -v mysqldump) "$@"' sh -u"$MARIADB_KEITARO_USER" "$@" </dev/null; }
-fi
-
-# Settings tables only: campaigns, offers, domains, streams... - no click logs.
-TABLES=$(sql -N "$DB" -e "
-SELECT table_name FROM information_schema.tables
-WHERE table_schema = DATABASE()
-  AND table_name IN (
-    'keitaro_affiliate_networks', 'keitaro_groups', 'keitaro_offers',
-    'keitaro_domains', 'keitaro_campaigns', 'keitaro_campaign_postbacks',
-    'keitaro_landings', 'keitaro_streams', 'keitaro_stream_filters',
-    'keitaro_stream_offer_associations', 'keitaro_stream_landing_associations',
-    'keitaro_traffic_sources', 'keitaro_ref_sources')
-ORDER BY table_name" | tr '\\n' ' ')
-
-# Without a table list mysqldump would dump the WHOLE database, click logs included.
-if [ -z "$(echo $TABLES)" ]; then
-  echo "ERROR: no Keitaro tables found in database $DB" >&2
-  exit 1
-fi
-
-OUT=/root/keitaro_orbitra_full.sql.gz
-echo "Dumping tables: $TABLES"
-dump --single-transaction --quick --skip-lock-tables "$DB" $TABLES | gzip -1 > "$OUT"
-
-ls -lah "$OUT"
-echo "DONE: $OUT"
-ORBITRA_DUMP`;
-                                            copyToClipboard(command);
-                                        }}
-                                        className="text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors"
-                                        style={{
-                                            background: copySuccess ? 'var(--color-success-bg)' : 'var(--color-bg-hover)',
-                                            color: copySuccess ? 'var(--color-success)' : 'var(--color-primary)',
-                                            border: '1px solid var(--color-border)',
-                                            cursor: 'pointer'
-                                        }}
-                                        title={copySuccess ? t('common.copied') : t('migrations.copyCommand')}
-                                    >
-                                        {copySuccess ? <Check size={12} /> : <Terminal size={12} />}
-                                        {copySuccess ? t('common.copied') : t('migrations.copyCommand')}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Step 3 */}
-                        <div style={{ paddingLeft: '12px', borderLeft: '3px solid var(--color-primary)' }}>
-                            <div className="flex items-start gap-3">
-                                <div style={{
-                                    width: '24px',
-                                    height: '24px',
-                                    borderRadius: '50%',
-                                    background: 'var(--color-primary)',
-                                    color: 'white',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontSize: '13px',
-                                    fontWeight: 600,
-                                    flexShrink: 0
-                                }}>3</div>
-                                <div style={{ flex: 1 }}>
-                                    <p className="font-medium mb-2" style={{ color: 'var(--color-text-primary)' }}>
-                                        {t('migrations.backupStep3Title')}
-                                    </p>
-                                    <p className="text-sm mb-2" style={{ color: 'var(--color-text-secondary)' }}>
-                                        {t('migrations.backupStep3Desc')}
-                                    </p>
-                                    <div style={{
-                                        background: '#1e1e1e',
-                                        borderRadius: '8px',
-                                        padding: '12px',
-                                        overflow: 'auto'
-                                    }}>
-                                        <code style={{
-                                            fontSize: '12px',
-                                            color: '#d4d4d4',
-                                            whiteSpace: 'pre-wrap',
-                                            fontFamily: 'monospace'
-                                        }}>
-{`# Download to the current folder:
-scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz .
-
-# Download to Downloads (macOS/Linux):
-scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz ~/Downloads/
-
-# Download to Downloads (Windows PowerShell):
-scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz $env:USERPROFILE\\Downloads\\`}
-                                        </code>
-                                    </div>
+                                    {/* The server IP is typed once and substituted into ready commands:
+                                        the old static block made people swap YOUR_KEITARO_SERVER_IP by
+                                        hand, and its first variant ended in a lone " ." that got lost in
+                                        copying — scp then failed with a bare usage message. */}
+                                    <input
+                                        type="text"
+                                        className="form-input mb-3"
+                                        style={{ maxWidth: '280px' }}
+                                        value={kServerIp}
+                                        onChange={(e) => setKServerIp(e.target.value)}
+                                        placeholder={t('migrations.serverIpPlaceholder')}
+                                        aria-label={t('migrations.serverIpLabel')}
+                                        spellCheck={false}
+                                        autoComplete="off"
+                                    />
+                                    {(() => {
+                                        const cleaned = kServerIp.trim().replace(/^[a-z0-9_-]+@/i, '');
+                                        const host = /^[A-Za-z0-9.:[\]-]+$/.test(cleaned) ? cleaned : 'YOUR_KEITARO_SERVER_IP';
+                                        const src = `root@${host}:/root/keitaro_orbitra_full.sql.gz`;
+                                        const rows = [
+                                            { key: 'scp-unix', label: t('migrations.scpUnix'), cmd: `scp ${src} ~/Downloads/` },
+                                            { key: 'scp-win', label: t('migrations.scpWindows'), cmd: `scp ${src} $env:USERPROFILE\\Downloads\\` },
+                                        ];
+                                        return rows.map(r => (
+                                            <div key={r.key} className="mb-2">
+                                                <div className="text-xs mb-1" style={{ color: 'var(--color-text-muted)' }}>{r.label}</div>
+                                                <div className="flex items-stretch gap-2">
+                                                    <code style={{
+                                                        flex: 1,
+                                                        minWidth: 0,
+                                                        background: '#1e1e1e',
+                                                        color: '#d4d4d4',
+                                                        borderRadius: '8px',
+                                                        padding: '10px 12px',
+                                                        fontSize: '12px',
+                                                        fontFamily: 'monospace',
+                                                        overflowX: 'auto',
+                                                        whiteSpace: 'nowrap'
+                                                    }}>{r.cmd}</code>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => copyToClipboard(r.cmd, r.key)}
+                                                        className="text-xs px-3 rounded-lg flex items-center gap-1 transition-colors shrink-0"
+                                                        style={{
+                                                            background: copySuccess === r.key ? 'var(--color-success-bg)' : 'var(--color-bg-hover)',
+                                                            color: copySuccess === r.key ? 'var(--color-success)' : 'var(--color-primary)',
+                                                            border: '1px solid var(--color-border)',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                        title={copySuccess === r.key ? t('common.copied') : t('migrations.copyCommand')}
+                                                    >
+                                                        {copySuccess === r.key ? <Check size={12} /> : <Terminal size={12} />}
+                                                        {copySuccess === r.key ? t('common.copied') : t('migrations.copyCommand')}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ));
+                                    })()}
                                 </div>
                             </div>
                         </div>
