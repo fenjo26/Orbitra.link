@@ -671,10 +671,10 @@ function App() {
                 <StatCards metrics={metrics} preferences={dashboardPreferences} activeMetrics={activeMetrics} setActiveMetrics={setActiveMetrics} user={user} />
                 <MainChart chartData={chartData} activeMetrics={activeMetrics} currency={globalSettings.currency || 'USD'} />
                 <DataTables
-                  campaigns={campaigns.slice(0, 10)}
-                  offers={offers.slice(0, 10)}
-                  landings={landings.slice(0, 10)}
-                  sources={sources.slice(0, 10)}
+                  campaigns={campaigns}
+                  offers={offers}
+                  landings={landings}
+                  sources={sources}
                   preferences={dashboardPreferences}
                 />
                 <RecentClicks
