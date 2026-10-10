@@ -95,7 +95,7 @@ try {
     //      never reported (no landing timer, direct hit), 0 = a landing was
     //      measured and zero mouse/touch events were seen, 1 = real pointer
     //      activity. Written only by /pixel.gif?action=lp beacons.
-    $LATEST_SCHEMA_VERSION = 57;
+    $LATEST_SCHEMA_VERSION = 58;
 
     $schemaVersion = 0;
     try {
@@ -2783,6 +2783,37 @@ try {
                         is_active INTEGER DEFAULT 1,
                         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                     )");
+                } catch (\Throwable $e) {
+                }
+            }
+
+            if ($schemaVersion < 58) {
+                // Migration 58: a default "Revshare" conversion type. Revshare
+                // networks post status=revshare for every payout, and without a
+                // mapping it lands as an unmapped/custom status that does not
+                // reach profit — every operator ended up creating the same type
+                // by hand. Counts as profit only: not a new conversion (the FTD
+                // already was), no S2S postback, no cap. Skipped when any type
+                // already maps "revshare" or a type is named that way, so a
+                // hand-made one is never duplicated or overridden.
+                try {
+                    $hasRevshare = false;
+                    foreach ($pdo->query("SELECT name, status_values FROM conversion_types")->fetchAll(PDO::FETCH_ASSOC) as $ct58) {
+                        if (strcasecmp(trim((string) $ct58['name']), 'revshare') === 0) {
+                            $hasRevshare = true;
+                            break;
+                        }
+                        foreach (explode(',', (string) $ct58['status_values']) as $v58) {
+                            if (strtolower(trim($v58)) === 'revshare') {
+                                $hasRevshare = true;
+                                break 2;
+                            }
+                        }
+                    }
+                    if (!$hasRevshare) {
+                        $pdo->prepare("INSERT OR IGNORE INTO conversion_types (name, status_values, next_statuses, record_conversion, record_revenue, send_postback, affect_cap, color) VALUES (?, ?, '', 0, 1, 0, 0, ?)")
+                            ->execute(['Revshare', 'revshare', '#EAB308']);
+                    }
                 } catch (\Throwable $e) {
                 }
             }
