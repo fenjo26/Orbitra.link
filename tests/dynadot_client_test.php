@@ -84,6 +84,13 @@ $b = DynadotClient::getBalance($cfg);
 check('USD balance picked from BalanceList', $b['ok'] && $b['balance'] === 'USD 42.50', json_encode($b));
 $reset(['account_info' => json_encode(['AccountInfoResponse' => ['ResponseCode' => 0, 'Status' => 'success', 'AccountInfo' => ['AccountBalance' => '7.25']]])]);
 check('flat AccountBalance fallback', DynadotClient::getBalance($cfg)['available'] === '7.25');
+$reset(['account_info' => json_encode(['AccountInfoResponse' => ['ResponseCode' => 0, 'Status' => 'success', 'AccountInfo' => ['AccountBalance' => '€0.00', 'BalanceList' => []]]])]);
+$b = DynadotClient::getBalance($cfg);
+check('zero balance with a currency symbol is shown, not a dash', $b['balance'] === 'EUR 0.00', json_encode($b));
+$reset(['account_info' => json_encode(['AccountInfoResponse' => ['ResponseCode' => 0, 'Status' => 'success', 'AccountInfo' => ['account_balance' => '$1,234.50']]])]);
+check('symbol + thousands separator', DynadotClient::getBalance($cfg)['balance'] === 'USD 1234.50');
+$reset(['account_info' => json_encode(['AccountInfoResponse' => ['ResponseCode' => 0, 'Status' => 'success', 'AccountInfo' => ['account_balance' => '€4.73', 'balance_list' => [['currency' => 'EUR', 'amount' => '4.73']]]]])]);
+check('lowercase balance_list (EUR account)', DynadotClient::getBalance($cfg)['balance'] === 'EUR 4.73');
 
 echo "\n== list_domain ==\n";
 $reset(['list_domain' => static function ($q) {

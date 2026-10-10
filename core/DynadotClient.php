@@ -199,6 +199,32 @@ class DynadotClient
     /**
      * @return array{ok:bool,balance:string,currency:?string,available:?string,error:string}
      */
+    /** "€4.73" / "$1,234.50" / "0.00 USD" / "7.25" → [amount, currency|null], or null. */
+    private static function parseMoney(string $raw): ?array
+    {
+        $raw = trim($raw);
+        if ($raw === '') {
+            return null;
+        }
+        $currency = null;
+        foreach (['€' => 'EUR', '$' => 'USD', '£' => 'GBP', '¥' => 'CNY'] as $sym => $code) {
+            if (strpos($raw, $sym) !== false) {
+                $currency = $code;
+                $raw = str_replace($sym, '', $raw);
+                break;
+            }
+        }
+        if (preg_match('/\b([A-Z]{3})\b/', strtoupper($raw), $m)) {
+            $currency = $currency ?? $m[1];
+            $raw = trim(preg_replace('/\b[A-Za-z]{3}\b/', '', $raw));
+        }
+        $num = str_replace([',', ' '], '', trim($raw));
+        if ($num === '' || !is_numeric($num)) {
+            return null;
+        }
+        return [$num, $currency];
+    }
+
     public static function getBalance(array $cfg): array
     {
         $resp = self::request($cfg, 'account_info');
@@ -233,11 +259,18 @@ class DynadotClient
             }
         }
         if ($amount === null) {
+            // The flat field carries the account currency as a symbol or code
+            // ("€0.00", "$12.50", "0.00 USD"). A zero balance comes back with an
+            // empty BalanceList, so this is the only place it shows up — the
+            // old numeric-only check skipped it and the panel kept a dash.
             foreach (['AccountBalance', 'account_balance', 'Balance'] as $key) {
                 foreach (self::findAll($resp['data'], $key) as $value) {
-                    $v = trim((string) self::scalar($value));
-                    if ($v !== '' && is_numeric(str_replace(',', '', $v))) {
-                        $amount = $v;
+                    $money = self::parseMoney((string) self::scalar($value));
+                    if ($money !== null) {
+                        [$amount, $c] = $money;
+                        if ($currency === null && $c !== null) {
+                            $currency = $c;
+                        }
                         break 2;
                     }
                 }
