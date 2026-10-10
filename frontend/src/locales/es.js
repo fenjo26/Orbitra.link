@@ -960,6 +960,8 @@ export default {
         "statusDisabled": "Deshabilitado",
         "addMore": "Añadir más",
         "savedAddMore": "Guardado — listo para el siguiente dominio",
+        "batchProgress": "Añadiendo dominios: {done} de {total} — {name}. No hace falta esperar: las filas aparecen en la tabla a medida que se añaden.",
+        "batchDone": "Listo: {total} dominios procesados. SSL y la comprobación DNS siguen en la tabla.",
         "parkingSsl": "Aparcando — emitiendo certificados… (hasta ~30 s, el resto en unos minutos)",
         "domainBulkHelper": "Para agregar múltiples dominios, ingrese una lista separada por comas. HTTP(S) se limpia automáticamente.",
         "adminAccessHint": "Con el acceso denegado, el panel de administración y la API devuelven 404 en este dominio. El panel sigue disponible en otros hosts y mediante la IP del servidor.",

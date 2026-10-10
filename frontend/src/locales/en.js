@@ -960,6 +960,8 @@ export default {
         "statusDisabled": "Disabled",
         "addMore": "Add more",
         "savedAddMore": "Saved — ready for the next domain",
+        "batchProgress": "Adding domains: {done} of {total} — {name}. No need to wait: rows appear in the table as they are added.",
+        "batchDone": "Done: {total} domains processed. SSL and DNS checks continue in the table.",
         "parkingSsl": "Parking — issuing certificates… (up to ~30 s, the rest within minutes)",
         "domainBulkHelper": "To add multiple domains, type a list separated by commas. HTTP(S) is cleaned automatically.",
         "adminAccessHint": "With access denied, the admin panel and the API return 404 on this domain. The panel stays reachable via other hosts and the server IP.",

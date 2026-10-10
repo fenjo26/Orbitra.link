@@ -960,6 +960,8 @@ export default {
         "statusDisabled": "已禁用",
         "addMore": "继续添加",
         "savedAddMore": "已保存 — 可继续添加下一个域名",
+        "batchProgress": "正在添加域名：第 {done}/{total} 个 — {name}。无需等待：添加后会陆续出现在表格中。",
+        "batchDone": "完成：已处理 {total} 个域名。SSL 和 DNS 检查在表格中继续进行。",
         "parkingSsl": "停靠中——正在签发证书…（最长约 30 秒，其余的在几分钟内完成）",
         "domainBulkHelper": "要添加多个域名，请使用逗号分隔列表。HTTP(S) 将自动清除。",
         "adminAccessHint": "拒绝访问时，此域名上的管理面板和 API 返回 404。面板仍可通过其他主机和服务器 IP 访问。",

@@ -119,6 +119,7 @@ const Domains = ({ campaigns, user }) => {
     const [addMore, setAddMore] = useState(false);
     const [saveNotice, setSaveNotice] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const [batchProgress, setBatchProgress] = useState(null); // background bulk add: {done, total, current, failed[], finished}
     const nameInputRef = useRef(null);
 
     // DNS Warning Modal State
@@ -852,6 +853,29 @@ const Domains = ({ campaigns, user }) => {
         }
     };
 
+    // Background bulk add — see handleSubmit. One request per domain keeps
+    // each one well under the Cloudflare edge's 100 s limit (the single
+    // big request used to end in a 524 while the server kept going).
+    const runBatchAdd = async (base, names) => {
+        const failed = [];
+        const warnings = [];
+        for (let i = 0; i < names.length; i++) {
+            setBatchProgress({ done: i, total: names.length, current: names[i], failed: [...failed], finished: false });
+            try {
+                const r = await cachedPost('save_domain', { ...base, name: names[i] });
+                if (r.data.status === 'success') {
+                    warnings.push(...(r.data.warnings || []));
+                } else {
+                    failed.push(`${names[i]}: ${r.data.message || t('common.error')}`);
+                }
+            } catch (err) {
+                failed.push(`${names[i]}: ${err?.message ? String(err.message) : t('common.networkError')}`);
+            }
+            fetchDomains();
+        }
+        setBatchProgress({ done: names.length, total: names.length, current: '', failed: [...failed, ...warnings], finished: true });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -860,7 +884,29 @@ const Domains = ({ campaigns, user }) => {
         // it read as a hang.
         setSubmitting(true);
         try {
-            const res = await cachedPost('save_domain', formData);
+            // A pasted list is saved one domain per request. As one request it
+            // ran every DNS-provider sync, the nginx rebuild and certificate
+            // issuance back to back, and behind a Cloudflare-proxied panel the
+            // edge cut it at 100 s with a 524 while the server kept adding the
+            // domains — so the form reported a failure for a save that worked.
+            const names = !formData.id
+                ? String(formData.name || '').split(',').map(n => n.trim()).filter(Boolean)
+                : [];
+            let res;
+            if (names.length > 1) {
+                // Run in the background on the page: close the dialog now,
+                // show progress above the table and refresh the list after
+                // every domain, so the rows (and their DNS/SSL checks) appear
+                // as they land instead of behind a spinning modal.
+                const base = { ...formData };
+                setShowModal(false);
+                setFormData(defaultFormData);
+                setSubmitting(false);
+                runBatchAdd(base, names);
+                return;
+            } else {
+                res = await cachedPost('save_domain', formData);
+            }
             if (res.data.status === 'success') {
                 fetchDomains();
                 // Zero-config parking report: when the Namecheap integration
@@ -897,6 +943,26 @@ const Domains = ({ campaigns, user }) => {
             <InfoBanner storageKey="help_domains" title={t('help.domainBannerTitle')}>
                 <p>{t('help.domainBanner')}</p>
             </InfoBanner>
+            {batchProgress && (
+                <div className={`alert ${batchProgress.finished ? (batchProgress.failed.length ? 'alert-warning' : 'alert-success') : 'alert-info'} mb-4 flex items-start gap-2`}>
+                    {batchProgress.finished
+                        ? (batchProgress.failed.length ? <AlertCircle size={16} className="flex-shrink-0 mt-0.5" /> : <Check size={16} className="flex-shrink-0 mt-0.5" />)
+                        : <RefreshCw size={16} className="animate-spin flex-shrink-0 mt-0.5" />}
+                    <div className="flex-1">
+                        <div>
+                            {batchProgress.finished
+                                ? t('domains.batchDone').replace('{total}', batchProgress.total)
+                                : t('domains.batchProgress').replace('{done}', batchProgress.done + 1).replace('{total}', batchProgress.total).replace('{name}', batchProgress.current)}
+                        </div>
+                        {batchProgress.failed.length > 0 && (
+                            <div className="text-xs mt-1" style={{ whiteSpace: 'pre-line' }}>{batchProgress.failed.join('\n')}</div>
+                        )}
+                    </div>
+                    {batchProgress.finished && (
+                        <button type="button" className="btn btn-ghost btn-icon" onClick={() => setBatchProgress(null)}><X size={16} /></button>
+                    )}
+                </div>
+            )}
             {/* Two rows on purpose. One row with justify-between used to wrap
                 unpredictably: the primary "Add domain" button fell onto a second
                 line and landed beside the server-IP chip, while the page title
@@ -1281,7 +1347,7 @@ const Domains = ({ campaigns, user }) => {
                             </button>
                         </div>
 
-                        {error && <div className="alert alert-danger mb-4 flex items-center gap-2"><AlertCircle size={16} />{error}</div>}
+                        {error && <div className="alert alert-danger mb-4 flex items-center gap-2"><AlertCircle size={16} className="flex-shrink-0" /><span style={{ whiteSpace: 'pre-line' }}>{error}</span></div>}
                         {saveNotice && <div className="alert alert-success mb-4 flex items-center gap-2"><Check size={16} />{saveNotice}</div>}
 
                         <form onSubmit={handleSubmit} className="space-y-4">

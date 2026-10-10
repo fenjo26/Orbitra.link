@@ -11229,7 +11229,14 @@ try {
                                     }
                                 }
 
-                                $sslPending = true;
+                                // Only a domain waiting for certbot needs the sync
+                                // worker run; Cloudflare-proxied and custom-cert
+                                // domains have nothing to issue, and running it
+                                // for them only pushed a batch save past the
+                                // 100 s Cloudflare edge timeout (524).
+                                if ($sslStatus === 'pending') {
+                                    $sslPending = true;
+                                }
 
                                 logAudit($pdo, 'CREATE', 'Domain', $newId, "Name: $domainName");
                             } catch (\Exception $e) {
