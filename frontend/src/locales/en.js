@@ -3678,6 +3678,7 @@ export default {
         "defaultGroupActive": "Default grouping — click to remove"
     },
     "dateRangePicker": {
+        "myTimezone": "My timezone (profile)",
         "today": "Today",
         "yesterday": "Yesterday",
         "thisWeek": "This week",

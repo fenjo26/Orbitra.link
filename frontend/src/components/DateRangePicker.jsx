@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Calendar, ChevronLeft, ChevronRight, Globe, Check } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { getTimezone, setTimezone as setSharedTimezone } from '../utils/useTimezone';
+import { getTimezone, setTimezone as setSharedTimezone, profileTimezone } from '../utils/useTimezone';
+import { TIMEZONE_GROUPS, TIMEZONE_VALUES } from '../utils/timezones';
 
 // tz-database identifiers use underscores for spaces: the chip read "New_York",
 // "Sao_Paulo", "Ho_Chi_Minh". Show the city the way it is spelled.
@@ -488,11 +489,32 @@ const DateRangePicker = ({
                                 className="form-select text-xs py-1 px-2 rounded-lg"
                                 style={{ width: '200px' }}
                             >
-                                {TIMEZONES.map((tz) => (
-                                    <option key={tz.value} value={tz.value}>
-                                        {tz.label}
-                                    </option>
-                                ))}
+                                {/* Same full list as the profile, with the profile zone on top:
+                                    the old 14-zone list had no Athens, so a profile zone
+                                    outside it showed up here as "UTC". */}
+                                {(() => {
+                                    const mine = profileTimezone();
+                                    const zoneLabel = (v) => TIMEZONE_GROUPS.flatMap(g => g.zones).find(z => z.value === v)?.label || v;
+                                    return (
+                                        <>
+                                            {mine && (
+                                                <optgroup label={t('dateRangePicker.myTimezone')}>
+                                                    <option value={mine}>{zoneLabel(mine)}</option>
+                                                </optgroup>
+                                            )}
+                                            {timezone && timezone !== mine && !TIMEZONE_VALUES.has(timezone) && (
+                                                <option value={timezone}>{timezone}</option>
+                                            )}
+                                            {TIMEZONE_GROUPS.map(g => (
+                                                <optgroup key={g.region} label={g.region}>
+                                                    {g.zones.filter(z => z.value !== mine).map(z => (
+                                                        <option key={z.value} value={z.value}>{z.label}</option>
+                                                    ))}
+                                                </optgroup>
+                                            ))}
+                                        </>
+                                    );
+                                })()}
                             </select>
                         </div>
 

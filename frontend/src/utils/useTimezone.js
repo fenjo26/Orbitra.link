@@ -19,7 +19,7 @@ const DEFAULT_TIMEZONE = 'UTC';
 // the default whenever no explicit selection was applied; falling back to UTC
 // here made every view send timezone=UTC, which overrode the profile on the
 // server and showed click times hours off for anyone outside UTC.
-const profileTimezone = () => {
+export const profileTimezone = () => {
     try {
         const user = JSON.parse(localStorage.getItem('orbitra_user') || 'null');
         return (user && typeof user.timezone === 'string' && user.timezone) || '';

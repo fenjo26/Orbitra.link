@@ -3678,6 +3678,7 @@ export default {
         "defaultGroupActive": "默认分组 — 点击可取消"
     },
     "dateRangePicker": {
+        "myTimezone": "我的时区（个人资料）",
         "today": "今天",
         "yesterday": "昨天",
         "thisWeek": "本周",

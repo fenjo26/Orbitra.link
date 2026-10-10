@@ -3678,6 +3678,7 @@ export default {
         "defaultGroupActive": "Agrupación predeterminada — haz clic para quitar"
     },
     "dateRangePicker": {
+        "myTimezone": "Mi zona horaria (perfil)",
         "today": "Hoy",
         "yesterday": "Ayer",
         "thisWeek": "Esta semana",

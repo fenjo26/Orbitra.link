@@ -3678,6 +3678,7 @@ export default {
         "defaultGroupActive": "Групування за замовчуванням — натисніть, щоб прибрати"
     },
     "dateRangePicker": {
+        "myTimezone": "Мій часовий пояс (профіль)",
         "today": "Сьогодні",
         "yesterday": "Вчора",
         "thisWeek": "Поточний тиждень",

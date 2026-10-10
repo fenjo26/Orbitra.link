@@ -3678,6 +3678,7 @@ export default {
         "defaultGroupActive": "Groupement par défaut — cliquer pour retirer"
     },
     "dateRangePicker": {
+        "myTimezone": "Mon fuseau horaire (profil)",
         "today": "Aujourd'hui",
         "yesterday": "Hier",
         "thisWeek": "Cette semaine",
