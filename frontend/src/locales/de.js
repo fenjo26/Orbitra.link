@@ -11,7 +11,7 @@ export default {
         "recheck": "Ausgeführt — erneut prüfen",
         "stillNeeded": "Der Server meldet die neue Einrichtung noch nicht. Prüfen Sie die Ausgabe des Befehls auf Fehler.",
         "moreOnUpdatePage": "Update-Seite öffnen",
-        "ok": "Die Server-Einrichtung ist aktuell (Version {version})."
+        "ok": "Keine manuellen Schritte auf dem Server nötig: Rechte und Hilfsprogramme des Trackers sind eingerichtet."
     },
     "security": {
         "totpTitle": "Zwei-Faktor-Authentifizierung",

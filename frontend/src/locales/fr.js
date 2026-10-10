@@ -11,7 +11,7 @@ export default {
         "recheck": "C’est fait — vérifier à nouveau",
         "stillNeeded": "Le serveur n’a pas encore signalé la nouvelle configuration. Vérifiez la sortie de la commande pour d’éventuelles erreurs.",
         "moreOnUpdatePage": "Ouvrir la page de mise à jour",
-        "ok": "La configuration du serveur est à jour (version {version})."
+        "ok": "Aucune action manuelle n'est nécessaire sur le serveur : les droits et les assistants du tracker sont en place."
     },
     "security": {
         "totpTitle": "Authentification à deux facteurs",

@@ -11,7 +11,7 @@ export default {
         "recheck": "I ran it — check again",
         "stillNeeded": "The server has not reported the new setup yet. Check the command output for errors.",
         "moreOnUpdatePage": "Open the Update page",
-        "ok": "Server setup is up to date (version {version})."
+        "ok": "No manual steps needed on the server: the tracker's permissions and helpers are in place."
     },
     "security": {
         "totpTitle": "Two-Factor Authentication",

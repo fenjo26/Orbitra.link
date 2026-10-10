@@ -11,7 +11,7 @@ export default {
         "recheck": "已运行——重新检查",
         "stillNeeded": "服务器尚未报告新的配置。请检查命令输出中是否有错误。",
         "moreOnUpdatePage": "打开更新页面",
-        "ok": "服务器配置为最新（版本 {version}）。"
+        "ok": "服务器无需手动操作：追踪器的权限和辅助程序均已配置好。"
     },
     "security": {
         "totpTitle": "两步验证",

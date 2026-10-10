@@ -11,7 +11,7 @@ export default {
         "recheck": "Ya lo ejecuté: comprobar de nuevo",
         "stillNeeded": "El servidor todavía no ha informado de la nueva configuración. Revisa la salida del comando por si hay errores.",
         "moreOnUpdatePage": "Abrir la página de actualización",
-        "ok": "La configuración del servidor está al día (versión {version})."
+        "ok": "No hace falta ningún paso manual en el servidor: los permisos y asistentes del tracker están configurados."
     },
     "security": {
         "totpTitle": "Autenticación en dos pasos",

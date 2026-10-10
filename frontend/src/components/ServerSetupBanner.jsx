@@ -46,10 +46,10 @@ const ServerSetupBanner = ({ variant = 'banner', onNavigate }) => {
     if (status.state !== 'needed') {
         if (variant === 'card' && status.state === 'ok') {
             return (
-                <div className="page-card" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div className="page-card" title={`setup v${status.installed}`} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <CheckCircle className="w-5 h-5" style={{ color: 'var(--color-success)' }} />
                     <span style={{ fontSize: '14px', color: 'var(--color-text-secondary)' }}>
-                        {t('serverSetup.ok').replace('{version}', String(status.installed))}
+                        {t('serverSetup.ok')}
                     </span>
                 </div>
             );
