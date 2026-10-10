@@ -1,4 +1,4 @@
-# Orbitra v1.6.5 Tracker
+# Orbitra v1.6.6 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,38 +11,28 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.6.5
+## 🆕 What's New in v1.6.6
 
-Dynadot, a safe MCP for large accounts, and a smoother move off Keitaro.
+Your timezone everywhere, sortable dashboard blocks, and bulk domain adds that no longer time out.
 
 ### Added
 
-- 🌐 **Dynadot integration** — accounts by API key with balance, domain import, buy-and-park, and automatic A records when a domain is added, like Namecheap. DNS is changed carefully: domains on their own name servers (e.g. Cloudflare) are left alone, a Dynadot DNS zone keeps every other record (MX, TXT…), and requests are serialised per key (Dynadot bans parallel callers)
-- 🤖 **MCP for large accounts** — `orbitra_list_campaigns` is now compact (id, name, alias, domain, ready link) with id-range and domain filters and paging; it used to return ~130 stat fields per campaign, 1.4 MB for 360 campaigns, which no AI client could read. Stats moved to `orbitra_campaigns_stats`; `orbitra_list_domains` is compact too
-- 🔁 **Bulk domain move** — new `bulk_set_campaign_domain` API action and MCP tool: any number of campaigns in one call, only the domain changes, every id is validated first, and the answer carries the old and new link of each campaign
-- 🌍 **Geo banner for "Sypex only"** — the installer ships Sypex Geo Lite, so the "no geo database" warning never showed; a dismissible banner now suggests connecting MaxMind / IP2Location while Sypex is the only base
-- 🧭 **Keitaro migration, step 3** — enter the Keitaro server IP once and copy ready `scp` commands for macOS/Linux and Windows
+- ↕️ **Sortable dashboard blocks**: click a column header in Campaigns / Offers / Landings / Sources to sort by clicks, unique, conversions or name. The block sorts the whole list before taking its top 10, so a low-traffic campaign with a sale is one click away. The sort is remembered per block
+- 💰 **Default Revshare conversion type**: `status=revshare` now goes to profit out of the box (no new conversion, no S2S, no cap). Installs that already map `revshare` are left as they are
+- 🌍 **Full timezone list in the date picker**: the same ~350 zones as the profile, grouped by region, with your profile timezone pinned on top. The old 14-zone list had no Athens, Warsaw, Istanbul and many others
 
 ### Fixed
 
-- 🛠 **MCP `update_campaign` silently damaged campaigns** — every call re-created the streams under new ids (detaching click history), dropped their names, turned OR filter logic into AND, reset offer selection and the bot challenge. All of it is now carried over
-- 📦 **Keitaro import of `.sql.gz` imported nothing** — the upload temp file has no `.gz` name, so the dump was never unpacked; gzip is now detected by content. The file picker also accepts `.gz` (macOS greyed it out)
-- 📋 **The Keitaro dump command broke on its own quoting** and needed a MariaDB client on the host — it now runs as-is, also when MariaDB lives only in the Keitaro Docker container, and never dumps the whole database by accident
-- ⏱ **A slow domain save took the whole panel down with 504** — the request held the PHP session lock while the stock pool of 5 workers ran dry. The lock is released right after auth, nginx gives PHP 180 s, and the installer sizes the PHP-FPM pool from RAM
-- 🐢 **Nginx rebuilds ran certbot once per domain** — with 99 imported domains the installer sat for minutes on "Nginx sync"; now one listing per rebuild, none at all as root
-- 🌍 **The geo updater discarded every IP2Location / IP2Proxy database** on the cron and installer path (Composer autoloader not loaded)
-- 🐧 **Install on Ubuntu 26.04** — PHP repositories without a build for the release are skipped instead of failing at step 1/5; re-running the installer from inside `/var/www/orbitra` no longer fails to clone
-- 🎨 Settings menu sizes itself to the longest label in every locale; uk/zh translation slips fixed ("traffic", "clear", "conversions"); `/favicon.ico` is served on panel hosts only (tracking domains stay icon-less)
+- 🕒 **Click times, charts and reports showed UTC**: with no timezone chosen in the date picker the panel sent `timezone=UTC`, which overrode the profile. Views now default to the profile timezone and reset to it on sign-in and on profile save
+- ⏳ **Adding a pasted list of domains ended in a 524** behind a Cloudflare-proxied panel, although the domains were added. The dialog now closes at once, the list is saved one domain per request with progress above the table, and rows appear as they land. Cloudflare-proxied domains no longer run the certificate worker
+- 💳 **Dynadot balance stayed a dash at zero**: a zero balance comes only as `€0.00` with the currency symbol; it is now parsed and shown as `EUR 0.00`
+- 🧾 The server-setup card on the Update page says in plain words that no manual step is needed
 
-### v1.6.4
+### v1.6.5
 
-Test links and a behavioural bot hint.
+Dynadot integration, a safe MCP for large accounts (compact campaign list, bulk domain move, `update_campaign` no longer damages streams), Keitaro `.sql.gz` import fixed, no more 504s on slow domain saves, install on Ubuntu 26.04.
 
-- 🔗 **Signed test links** — open a campaign through the real routing pipeline without writing a click; `?_geo=XX` tests another country, `?_dbg=1` shows the routing trace
-- 🖱 **"Possible bots"** — landing visits that ran the timer but never showed a mouse or touch event
-- 📄 **LICENSE ships with the repo**
-
-Older releases (v1.6.3 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.6.4 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo

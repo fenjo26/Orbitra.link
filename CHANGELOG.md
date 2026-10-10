@@ -7,6 +7,28 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.6] — 2026-10-10
+
+Your timezone everywhere, sortable dashboard blocks, and bulk domain adds that no longer time out.
+
+### Added
+
+- ↕️ **Sortable dashboard blocks**: click a column header in Campaigns / Offers / Landings / Sources to sort by clicks, unique, conversions or name. The block sorts the whole list before taking its top 10, so a low-traffic campaign with a sale is one click away. The sort is remembered per block
+- 💰 **Default Revshare conversion type**: `status=revshare` now goes to profit out of the box (no new conversion, no S2S, no cap). Installs that already map `revshare` are left as they are
+- 🌍 **Full timezone list in the date picker**: the same ~350 zones as the profile, grouped by region, with your profile timezone pinned on top. The old 14-zone list had no Athens, Warsaw, Istanbul and many others
+
+### Fixed
+
+- 🕒 **Click times, charts and reports showed UTC**: with no timezone chosen in the date picker the panel sent `timezone=UTC`, which overrode the profile. Views now default to the profile timezone and reset to it on sign-in and on profile save
+- ⏳ **Adding a pasted list of domains ended in a 524** behind a Cloudflare-proxied panel, although the domains were added. The dialog now closes at once, the list is saved one domain per request with progress above the table, and rows appear as they land. Cloudflare-proxied domains no longer run the certificate worker
+- 💳 **Dynadot balance stayed a dash at zero**: a zero balance comes only as `€0.00` with the currency symbol; it is now parsed and shown as `EUR 0.00`
+- 🧾 The server-setup card on the Update page says in plain words that no manual step is needed
+
+### Upgrade notes
+
+- Migration 58 adds a `Revshare` conversion type (status `revshare` → profit only) unless a type already maps `revshare` or is named so.
+- If click times still look shifted after the update, re-save your profile once (or pick your timezone in the date picker): a UTC choice stored by the old picker is reset that way.
+
 ## [1.6.5] — 2026-10-09
 
 Dynadot, a safe MCP for large accounts, and a smoother move off Keitaro.
