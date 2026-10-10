@@ -15,9 +15,22 @@ import { useEffect, useState } from 'react';
 const STORAGE_KEY = 'orbitra_tz';
 const DEFAULT_TIMEZONE = 'UTC';
 
+// The signed-in user's profile timezone (stored with the user on login). It is
+// the default whenever no explicit selection was applied; falling back to UTC
+// here made every view send timezone=UTC, which overrode the profile on the
+// server and showed click times hours off for anyone outside UTC.
+const profileTimezone = () => {
+    try {
+        const user = JSON.parse(localStorage.getItem('orbitra_user') || 'null');
+        return (user && typeof user.timezone === 'string' && user.timezone) || '';
+    } catch {
+        return '';
+    }
+};
+
 const readStored = () => {
     try {
-        return localStorage.getItem(STORAGE_KEY) || DEFAULT_TIMEZONE;
+        return localStorage.getItem(STORAGE_KEY) || profileTimezone() || DEFAULT_TIMEZONE;
     } catch {
         // Private mode / storage disabled: fall back rather than break the page.
         return DEFAULT_TIMEZONE;
@@ -41,6 +54,15 @@ export const setTimezone = (next) => {
         // Persistence is a convenience; the in-memory value is the source of truth.
     }
     subscribers.forEach((fn) => fn(value));
+};
+
+/**
+ * Adopt the profile timezone as the shared selection: on sign-in and when the
+ * profile is saved, so a stale picker choice (often the old UTC default, which
+ * the picker persisted on every Apply) stops overriding it.
+ */
+export const adoptProfileTimezone = (tz) => {
+    if (typeof tz === 'string' && tz) setTimezone(tz);
 };
 
 export const subscribeTimezone = (fn) => {

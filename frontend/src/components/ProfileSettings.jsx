@@ -4,6 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { getStayInEditorAfterSave, setStayInEditorAfterSave } from '../utils/editorPreferences';
 import { copyToClipboard } from '../utils/clipboard';
 import { TIMEZONE_GROUPS, TIMEZONE_VALUES } from '../utils/timezones';
+import { adoptProfileTimezone } from '../utils/useTimezone';
 
 const API_URL = '/api.php';
 
@@ -102,10 +103,13 @@ const ProfileSettings = () => {
                 setMessage({ text: t('profile.saveSuccess'), type: 'success' });
                 setProfile(prev => ({ ...prev, current_password: '', new_password: '', confirm_password: '' }));
                 setContextLanguage(profile.language);
+                // Reports, logs and the dashboard follow the saved timezone.
+                adoptProfileTimezone(profile.timezone);
 
                 // Update local storage user profile so language persists on reload
                 if (currentUser) {
                     currentUser.language = profile.language;
+                    currentUser.timezone = profile.timezone;
                     localStorage.setItem('orbitra_user', JSON.stringify(currentUser));
                     window.dispatchEvent(new Event('userUpdated'));
                 }

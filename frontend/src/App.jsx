@@ -32,7 +32,7 @@ import GalleryPage from './components/GalleryPage';
 import PushBasePage from './components/PushBasePage';
 import { canAccessTab, firstAllowedTab } from './utils/permissions';
 import { applyCustomThemeVars, clearInverseText } from './utils/themeContrast';
-import { useTimezone } from './utils/useTimezone';
+import { useTimezone, adoptProfileTimezone } from './utils/useTimezone';
 
 // In development, Vite runs on port 5173 and the API on 8080.
 // In production they are served from the same domain.
@@ -477,6 +477,7 @@ function App() {
 
   const handleLogin = (userData) => {
     localStorage.setItem('orbitra_user', JSON.stringify(userData));
+    adoptProfileTimezone(userData?.timezone);
     setActiveMetrics(loadActiveMetrics(userData));
     setUser(userData);
   };
