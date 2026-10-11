@@ -54,10 +54,10 @@ $assert('clamp: string "0.333" passes (JSON-decoded body)', $clamp('0.333'), 0.3
 $assert('clamp: 168h ceiling', $clamp(300), 168.0);
 $assert('clamp: default 2 when absent', $clamp(null), 2.0);
 
-// Source guards: all four save points keep the float clamp, no (int) left.
+// Source guards: all five save points keep the float clamp, no (int) left.
 $api = file_get_contents($root . '/api.php');
-$assert('source: api.php has the float clamp in all 4 save points',
-    substr_count($api, "max(0.333, min(168.0, (float) (\$data['sync_interval_hours'] ?? 2)))"), 4);
+$assert('source: api.php has the float clamp in all 5 save points',
+    substr_count($api, "max(0.333, min(168.0, (float) (\$data['sync_interval_hours'] ?? 2)))"), 5);
 $hasIntClamp = strpos($api, "min(168, (int) (\$data['sync_interval_hours']") !== false;
 $assert('source: no (int) interval clamp left in api.php', $hasIntClamp, false);
 

@@ -138,6 +138,20 @@ const IntegrationsPage = () => {
     // null = unknown (preflight unfinished or failed): the 1-Click button then
     // keeps its old behaviour instead of locking users out of the popup.
     const [ttOauthConfigured, setTtOauthConfigured] = useState(null);
+    // TikTok MCP connect — the no-developer-app path: the panel registers
+    // itself with TikTok's MCP server (dynamic client registration) on the
+    // first click, so no preflight is needed — the button always works.
+    const ttMcpPopupRef = useRef(null);
+    const ttMcpPollRef = useRef(null);
+    const [ttMcpDiscoveredAccounts, setTtMcpDiscoveredAccounts] = useState([]);
+    const [ttMcpSelectedAccounts, setTtMcpSelectedAccounts] = useState([]);
+    const [ttMcpFlowId, setTtMcpFlowId] = useState('');
+    const [ttMcpOAuthLoading, setTtMcpOAuthLoading] = useState(false);
+    const [ttMcpConnecting, setTtMcpConnecting] = useState(false);
+    // Discovery through MCP can fail (the tool's argument shape may drift) —
+    // then the user pastes Advertiser IDs by hand instead of picking a list.
+    const [ttMcpNeedsIds, setTtMcpNeedsIds] = useState(false);
+    const [ttMcpManualIds, setTtMcpManualIds] = useState('');
     const [ttShowTokenHowTo, setTtShowTokenHowTo] = useState(false);
     const [ttAddMode, setTtAddMode] = useState('manual');
     const ttPopupRef = useRef(null);
@@ -1019,6 +1033,54 @@ const IntegrationsPage = () => {
         };
     }, []);
 
+    // Popup handshake for the TikTok MCP flow: same shape as the app-based
+    // flow, plus needs_advertiser_ids — when discovery returned nothing, the
+    // user finishes by pasting Advertiser IDs.
+    useEffect(() => {
+        const handleTikTokMcpMessage = (event) => {
+            if (event.origin !== window.location.origin || event.data?.type !== 'orbitra.tiktok_mcp') return;
+            if (!ttMcpPopupRef.current || event.source !== ttMcpPopupRef.current) return;
+
+            setTtMcpOAuthLoading(false);
+            if (ttMcpPollRef.current) {
+                window.clearInterval(ttMcpPollRef.current);
+                ttMcpPollRef.current = null;
+            }
+            ttMcpPopupRef.current = null;
+
+            if (event.data.status !== 'success') {
+                setTtMcpDiscoveredAccounts([]);
+                setTtMcpSelectedAccounts([]);
+                setTtMcpFlowId('');
+                setTtMcpNeedsIds(false);
+                setTtMessage({ type: 'error', text: event.data.message || translationRef.current('tiktokCosts.oauthFailed') });
+                return;
+            }
+
+            const accounts = Array.isArray(event.data.accounts) ? event.data.accounts : [];
+            setTtMcpDiscoveredAccounts(accounts);
+            setTtMcpSelectedAccounts(accounts.map(account => account.id));
+            setTtMcpFlowId(event.data.flow_id || '');
+            setTtMcpNeedsIds(accounts.length === 0 || event.data.needs_advertiser_ids === true);
+            setTtMessage(accounts.length === 0
+                ? { type: 'info', text: translationRef.current('tiktokCosts.mcpManualHint') }
+                : null);
+        };
+
+        window.addEventListener('message', handleTikTokMcpMessage);
+        return () => {
+            window.removeEventListener('message', handleTikTokMcpMessage);
+            if (ttMcpPollRef.current) {
+                window.clearInterval(ttMcpPollRef.current);
+                ttMcpPollRef.current = null;
+            }
+            if (ttMcpPopupRef.current && !ttMcpPopupRef.current.closed) {
+                ttMcpPopupRef.current.close();
+            }
+            ttMcpPopupRef.current = null;
+        };
+    }, []);
+
     // Same popup handshake for Google Ads: the callback page posts the
     // discovered account tree (direct accounts + MCC sub-accounts); the refresh
     // token stays server-side behind the flow id.
@@ -1317,6 +1379,92 @@ const IntegrationsPage = () => {
         }
     };
 
+    const resetTikTokMcp = () => {
+        if (ttMcpPollRef.current) {
+            window.clearInterval(ttMcpPollRef.current);
+            ttMcpPollRef.current = null;
+        }
+        if (ttMcpPopupRef.current && !ttMcpPopupRef.current.closed) {
+            ttMcpPopupRef.current.close();
+        }
+        ttMcpPopupRef.current = null;
+        setTtMcpDiscoveredAccounts([]);
+        setTtMcpSelectedAccounts([]);
+        setTtMcpFlowId('');
+        setTtMcpOAuthLoading(false);
+        setTtMcpConnecting(false);
+        setTtMcpNeedsIds(false);
+        setTtMcpManualIds('');
+    };
+
+    const handleStartTikTokMcp = () => {
+        setTtMessage(null);
+        resetTikTokMcp();
+
+        const width = 640;
+        const height = 720;
+        const left = Math.max(0, window.screenX + Math.round((window.outerWidth - width) / 2));
+        const top = Math.max(0, window.screenY + Math.round((window.outerHeight - height) / 2));
+        const popup = window.open(
+            `${API_URL}?action=tiktok_mcp_oauth_start`,
+            'orbitra-tiktok-mcp',
+            `popup=yes,width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+        );
+        if (!popup) {
+            setTtMessage({ type: 'error', text: t('tiktokCosts.popupBlocked') });
+            return;
+        }
+
+        ttMcpPopupRef.current = popup;
+        setTtMcpOAuthLoading(true);
+        popup.focus();
+        ttMcpPollRef.current = window.setInterval(() => {
+            if (popup.closed) {
+                window.clearInterval(ttMcpPollRef.current);
+                ttMcpPollRef.current = null;
+                ttMcpPopupRef.current = null;
+                setTtMcpOAuthLoading(false);
+            }
+        }, 500);
+    };
+
+    const toggleTikTokMcpAccount = (accountId, checked) => {
+        setTtMcpSelectedAccounts(current => checked
+            ? [...new Set([...current, accountId])]
+            : current.filter(id => id !== accountId));
+    };
+
+    const handleConnectTikTokMcp = async () => {
+        if (!ttMcpFlowId) return;
+        if (ttMcpNeedsIds && ttMcpManualIds.trim() === '') return;
+        if (!ttMcpNeedsIds && ttMcpSelectedAccounts.length === 0) return;
+        setTtMcpConnecting(true);
+        setTtMessage(null);
+        try {
+            const accounts = ttMcpDiscoveredAccounts.filter(account => ttMcpSelectedAccounts.includes(account.id));
+            const res = await axios.post(`${API_URL}?action=tiktok_mcp_connect`, {
+                flow_id: ttMcpFlowId,
+                accounts,
+                advertiser_ids: ttMcpNeedsIds ? ttMcpManualIds : undefined,
+                sync_interval_hours: ttSyncInterval || 2
+            });
+            if (res.data.status !== 'success') {
+                setTtMessage({ type: 'error', text: res.data.message || t('tiktokCosts.oauthFailed') });
+                return;
+            }
+
+            const connected = res.data.data?.connected_count ?? accounts.length;
+            setTtMessage({ type: 'success', text: t('tiktokCosts.mcpConnected').replace('{n}', connected) });
+            resetTikTokMcp();
+            setTtEditing(null);
+            fetchTtConnections();
+        } catch (err) {
+            setTtMessage({ type: 'error', text: err.response?.data?.message || err.message || t('tiktokCosts.oauthFailed') });
+        } finally {
+            setTtMcpConnecting(false);
+        }
+    };
+
     const handleConnectDiscoveredAccounts = async () => {
         if (!fbOAuthFlowId || fbSelectedAccounts.length === 0) return;
         setFbOAuthConnecting(true);
@@ -1464,6 +1612,7 @@ const IntegrationsPage = () => {
                 setTtEditing(null);
                 setTtTest(null);
                 resetTikTokOAuth();
+                resetTikTokMcp();
                 fetchTtConnections();
             }
         } catch (err) { setTtMessage({ type: 'error', text: err.message }); }
@@ -2237,6 +2386,129 @@ const IntegrationsPage = () => {
                                         )}
                                     </div>
 
+                                    {/* The no-developer-app path: TikTok's official MCP
+                                        server — the panel registers itself at first
+                                        click (dynamic client registration). */}
+                                    <div
+                                        className="p-5 rounded-2xl border text-center flex flex-col items-center gap-3"
+                                        style={{ backgroundColor: 'var(--color-bg-soft)', borderColor: 'var(--color-border)' }}
+                                    >
+                                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
+                                            style={{ backgroundColor: 'rgba(37, 244, 238, 0.12)', color: '#25F4EE' }}>
+                                            <Sparkles size={22} />
+                                        </div>
+                                        <div>
+                                            <h4 className="text-sm font-bold m-0" style={{ color: 'var(--color-text-primary)' }}>
+                                                {t('tiktokCosts.mcpTitle')}
+                                            </h4>
+                                            <p className="text-xs m-0 mt-1 max-w-md" style={{ color: 'var(--color-text-muted)' }}>
+                                                {t('tiktokCosts.mcpDesc')}
+                                            </p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={handleStartTikTokMcp}
+                                            disabled={ttMcpOAuthLoading || ttMcpConnecting}
+                                            className="btn py-2.5 px-6 rounded-xl font-bold flex items-center gap-2 transition-transform hover:scale-[1.02]"
+                                            style={{ backgroundColor: '#25F4EE', color: '#083332', boxShadow: '0 4px 14px rgba(37, 244, 238, 0.3)', opacity: ttMcpOAuthLoading ? 0.75 : 1 }}
+                                        >
+                                            {ttMcpOAuthLoading ? <RefreshCw size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                                            <span>{ttMcpOAuthLoading ? t('tiktokCosts.oauthConnecting') : t('tiktokCosts.mcpLoginButton')}</span>
+                                        </button>
+                                        {!ttMcpFlowId && (
+                                            <div className="text-[11px]" style={{ color: 'var(--color-text-muted)' }}>
+                                                {t('tiktokCosts.mcpNoAppNeeded')}
+                                            </div>
+                                        )}
+                                        {ttMcpFlowId && !ttMcpNeedsIds && ttMcpDiscoveredAccounts.length > 0 && (
+                                            <div className="w-full max-w-md p-4 rounded-2xl border space-y-3 text-left"
+                                                style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-success)' }}>
+                                                <div className="flex justify-between items-center gap-3">
+                                                    <span className="text-xs font-bold" style={{ color: 'var(--color-text-primary)' }}>
+                                                        {t('tiktokCosts.selectAccounts')}:
+                                                    </span>
+                                                    <button type="button" onClick={() => setTtMcpSelectedAccounts(ttMcpDiscoveredAccounts.map(account => account.id))}
+                                                        className="text-xs hover:underline" style={{ color: 'var(--color-primary)' }}>
+                                                        {t('common.selectAll')}
+                                                    </button>
+                                                </div>
+                                                <div className="space-y-2 max-h-48 overflow-y-auto">
+                                                    {ttMcpDiscoveredAccounts.map(account => (
+                                                        <label key={account.id}
+                                                            className="flex items-center justify-between gap-3 p-2.5 rounded-xl border cursor-pointer hover:bg-black/5 dark:hover:bg-white/5"
+                                                            style={{ borderColor: 'var(--color-border)' }}>
+                                                            <div className="flex items-center gap-2.5 min-w-0">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={ttMcpSelectedAccounts.includes(account.id)}
+                                                                    onChange={event => toggleTikTokMcpAccount(account.id, event.target.checked)}
+                                                                    className="rounded"
+                                                                />
+                                                                <div className="min-w-0">
+                                                                    <div className="text-xs font-semibold truncate" style={{ color: 'var(--color-text-primary)' }}>{account.name}</div>
+                                                                    <div className="text-[11px] font-mono" style={{ color: 'var(--color-text-muted)' }}>{account.id}</div>
+                                                                </div>
+                                                            </div>
+                                                            {account.currency && (
+                                                                <span className="text-xs font-semibold px-2 py-0.5 rounded shrink-0"
+                                                                    style={{ backgroundColor: 'var(--color-bg-soft)', color: 'var(--color-text-secondary)' }}>
+                                                                    {account.currency}
+                                                                </span>
+                                                            )}
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs whitespace-nowrap" style={{ color: 'var(--color-text-secondary)' }}>
+                                                        {t('tiktokCosts.syncEvery')}:
+                                                    </span>
+                                                    <select className="form-select text-xs" style={{ maxWidth: '120px' }}
+                                                        value={ttSyncInterval} onChange={e => setTtSyncInterval(parseFloat(e.target.value))}>
+                                                        {SYNC_INTERVAL_OPTIONS.map(o => (
+                                                            <option key={o.value} value={o.value}>{o.label}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                                <button type="button" onClick={handleConnectTikTokMcp}
+                                                    disabled={ttMcpConnecting || ttMcpSelectedAccounts.length === 0}
+                                                    className="btn btn-primary w-full py-2 rounded-xl text-xs font-semibold">
+                                                    {ttMcpConnecting ? t('tiktokCosts.connecting') : t('tiktokCosts.connectSelected')} ({ttMcpSelectedAccounts.length})
+                                                </button>
+                                            </div>
+                                        )}
+                                        {ttMcpFlowId && ttMcpNeedsIds && (
+                                            <div className="w-full max-w-md p-4 rounded-2xl border space-y-3 text-left"
+                                                style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}>
+                                                <div className="text-[11px] leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+                                                    {t('tiktokCosts.mcpManualHint')}
+                                                </div>
+                                                <input
+                                                    className="form-input text-xs font-mono"
+                                                    type="text"
+                                                    value={ttMcpManualIds}
+                                                    placeholder={t('tiktokCosts.mcpManualPlaceholder')}
+                                                    onChange={e => setTtMcpManualIds(e.target.value)}
+                                                />
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs whitespace-nowrap" style={{ color: 'var(--color-text-secondary)' }}>
+                                                        {t('tiktokCosts.syncEvery')}:
+                                                    </span>
+                                                    <select className="form-select text-xs" style={{ maxWidth: '120px' }}
+                                                        value={ttSyncInterval} onChange={e => setTtSyncInterval(parseFloat(e.target.value))}>
+                                                        {SYNC_INTERVAL_OPTIONS.map(o => (
+                                                            <option key={o.value} value={o.value}>{o.label}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                                <button type="button" onClick={handleConnectTikTokMcp}
+                                                    disabled={ttMcpConnecting || ttMcpManualIds.trim() === ''}
+                                                    className="btn btn-primary w-full py-2 rounded-xl text-xs font-semibold">
+                                                    {ttMcpConnecting ? t('tiktokCosts.connecting') : t('tiktokCosts.connectSelected')}
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+
                                     {ttDiscoveredAccounts.length > 0 && (
                                         <div className="p-4 rounded-2xl border space-y-3"
                                             style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-success)' }}>
@@ -2410,7 +2682,7 @@ const IntegrationsPage = () => {
                                     <Zap size={14} /> {ttTesting ? t('tiktokCosts.testing') : t('tiktokCosts.testConnection')}
                                 </button>
                                 <div style={{ display: 'flex', gap: '8px' }}>
-                                    <button onClick={() => { setTtEditing(null); setTtTest(null); resetTikTokOAuth(); }} className="btn btn-secondary btn-sm">
+                                    <button onClick={() => { setTtEditing(null); setTtTest(null); resetTikTokOAuth(); resetTikTokMcp(); }} className="btn btn-secondary btn-sm">
                                         <X size={14} /> {t('common.cancel')}
                                     </button>
                                     <button onClick={handleTtSave} className="btn btn-primary btn-sm"
@@ -2428,6 +2700,7 @@ const IntegrationsPage = () => {
                             setTtForm(emptyTtForm);
                             setTtTest(null);
                             resetTikTokOAuth();
+                            resetTikTokMcp();
                             setTtImportPixels(true);
                             setTtSyncInterval(2);
                             setTtMessage(null);

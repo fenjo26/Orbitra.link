@@ -19951,6 +19951,348 @@ try {
             ]);
             break;
 
+        // === TikTok for Business MCP — 1-click connect without a developer app ===
+        //
+        // TikTok's MCP server accepts arbitrary clients through dynamic client
+        // registration (RFC 7591): the panel registers itself at first click,
+        // then walks the standard OAuth + PKCE consent. Under the hood the MCP
+        // tools wrap the same Business API v1.3 the direct-token engine uses.
+
+        // Register the panel (DCR) and redirect the popup to the TikTok for
+        // Business consent screen with a PKCE challenge.
+        case 'tiktok_mcp_oauth_start':
+            if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+                echo json_encode(['status' => 'error', 'message' => 'GET required']);
+                break;
+            }
+
+            $origin = orbitraFacebookOAuthOrigin();
+            $redirectUri = $origin . '/api.php?action=tiktok_mcp_oauth_callback';
+            require_once __DIR__ . '/core/TikTokMcpClient.php';
+
+            try {
+                $mcpClientId = TikTokMcpClient::ensureClient($pdo, $redirectUri);
+            } catch (\Throwable $e) {
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.tiktok_mcp',
+                    'status' => 'error',
+                    'message' => 'TikTok MCP registration failed: ' . $e->getMessage(),
+                ], $origin, 'TikTok');
+            }
+
+            $now = time();
+            foreach ((array) ($_SESSION['tiktok_mcp_states'] ?? []) as $oldState => $details) {
+                if (!is_array($details) || (int) ($details['created_at'] ?? 0) < $now - 900) {
+                    unset($_SESSION['tiktok_mcp_states'][$oldState]);
+                }
+            }
+            foreach ((array) ($_SESSION['tiktok_mcp_flows'] ?? []) as $oldFlow => $details) {
+                if (!is_array($details) || (int) ($details['created_at'] ?? 0) < $now - 900) {
+                    unset($_SESSION['tiktok_mcp_flows'][$oldFlow]);
+                }
+            }
+
+            $state = bin2hex(random_bytes(32));
+            $pkce = TikTokMcpClient::pkcePair();
+            $_SESSION['tiktok_mcp_states'][$state] = [
+                'created_at' => $now,
+                'user_id' => (int) $_SESSION['user_id'],
+                'origin' => $origin,
+                'redirect_uri' => $redirectUri,
+                'code_verifier' => $pkce['verifier'],
+                'client_id' => $mcpClientId,
+            ];
+
+            header('Cache-Control: no-store');
+            header('Location: ' . TikTokMcpClient::authorizeUrl($mcpClientId, $redirectUri, $state, $pkce['challenge']), true, 302);
+            exit;
+
+        // Exchange the authorization code for MCP tokens, discover advertiser
+        // accounts (best-effort — the tool's exact argument shape may change),
+        // and hand non-secret metadata back to the opener window. If discovery
+        // yields nothing the user can paste Advertiser IDs manually.
+        case 'tiktok_mcp_oauth_callback':
+            if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+                echo json_encode(['status' => 'error', 'message' => 'GET required']);
+                break;
+            }
+
+            $origin = orbitraFacebookOAuthOrigin();
+            $state = trim((string) ($_GET['state'] ?? ''));
+            $storedState = $state !== '' ? ($_SESSION['tiktok_mcp_states'][$state] ?? null) : null;
+            if ($state !== '') {
+                unset($_SESSION['tiktok_mcp_states'][$state]);
+            }
+            if (!is_array($storedState)
+                || (int) ($storedState['created_at'] ?? 0) < time() - 900
+                || (int) ($storedState['user_id'] ?? 0) !== (int) $_SESSION['user_id']
+                || !hash_equals((string) ($storedState['origin'] ?? ''), $origin)) {
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.tiktok_mcp',
+                    'status' => 'error',
+                    'message' => 'The TikTok authorization request expired or could not be verified. Please try again.',
+                ], $origin, 'TikTok');
+            }
+
+            if (!empty($_GET['error'])) {
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.tiktok_mcp',
+                    'status' => 'error',
+                    'message' => trim((string) ($_GET['error_description'] ?? $_GET['error'] ?? 'TikTok authorization was cancelled.')),
+                ], $origin, 'TikTok');
+            }
+
+            $authCode = trim((string) ($_GET['code'] ?? ''));
+            if ($authCode === '') {
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.tiktok_mcp',
+                    'status' => 'error',
+                    'message' => 'TikTok did not return an authorization code.',
+                ], $origin, 'TikTok');
+            }
+
+            try {
+                $accessToken = TikTokMcpClient::exchangeCode(
+                    (string) ($storedState['client_id'] ?? ''),
+                    (string) ($storedState['redirect_uri'] ?? ''),
+                    $authCode,
+                    (string) ($storedState['code_verifier'] ?? ''),
+                );
+                $token = $accessToken['access_token'];
+
+                // Discovery through the MCP tool. Its argument shape is not
+                // part of a public contract we can verify offline, so failure
+                // here downgrades to manual Advertiser ID entry, not an error.
+                $accounts = [];
+                try {
+                    $discovered = TikTokMcpClient::callTool(['access_token' => $token], 'auth_advertiser_get', []);
+                    $advertiserList = $discovered['data']['list'] ?? [];
+                    if (is_array($advertiserList)) {
+                        foreach ($advertiserList as $advertiser) {
+                            if (!is_array($advertiser)) {
+                                continue;
+                            }
+                            $advertiserId = orbitraTikTokNormalizeAdvertiserId((string) ($advertiser['advertiser_id'] ?? ''));
+                            if ($advertiserId === '' || isset($accounts[$advertiserId])) {
+                                continue;
+                            }
+                            $accounts[$advertiserId] = [
+                                'id' => $advertiserId,
+                                'name' => substr(trim((string) ($advertiser['advertiser_name'] ?? '')) ?: $advertiserId, 0, 190),
+                                'currency' => strtoupper(trim((string) ($advertiser['currency'] ?? ''))),
+                                'timezone' => trim((string) ($advertiser['timezone'] ?? '')),
+                            ];
+                        }
+                    }
+                } catch (\Throwable $e) {
+                    $accounts = [];
+                }
+
+                $flowId = bin2hex(random_bytes(32));
+                $_SESSION['tiktok_mcp_flows'][$flowId] = [
+                    'created_at' => time(),
+                    'user_id' => (int) $_SESSION['user_id'],
+                    'access_token' => $token,
+                    'refresh_token' => $accessToken['refresh_token'],
+                    'token_expires_at' => time() + max(0, (int) $accessToken['expires_in']),
+                    'refresh_token_expires_at' => (int) $accessToken['refresh_token_expires_in'] > 0
+                        ? time() + (int) $accessToken['refresh_token_expires_in']
+                        : null,
+                    'accounts' => $accounts,
+                ];
+
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.tiktok_mcp',
+                    'status' => 'success',
+                    'flow_id' => $flowId,
+                    'accounts' => array_values($accounts),
+                    'needs_advertiser_ids' => count($accounts) === 0,
+                    'message' => count($accounts) > 0
+                        ? count($accounts) . ' TikTok ad account(s) found.'
+                        : 'Connected. Paste your Advertiser ID(s) to finish.',
+                ], $origin, 'TikTok');
+            } catch (\Throwable $e) {
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.tiktok_mcp',
+                    'status' => 'error',
+                    'message' => $e->getMessage(),
+                ], $origin, 'TikTok');
+            }
+
+        // Save one spend-sync aggregator connection per selected account.
+        // Accounts come either from the discovery list or (when discovery
+        // failed) from manually pasted Advertiser IDs validated against
+        // advertiser_info_get. Pixels are NOT imported on this path: the MCP
+        // token is not validated for the Events API, and a pixel that cannot
+        // send events is worse than no pixel.
+        case 'tiktok_mcp_connect':
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['status' => 'error', 'message' => 'POST required']);
+                break;
+            }
+
+            $data = json_decode(orbitraRequestBody(), true);
+            if (!is_array($data)) {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid JSON body']);
+                break;
+            }
+
+            $now = time();
+            foreach ((array) ($_SESSION['tiktok_mcp_flows'] ?? []) as $oldFlow => $details) {
+                if (!is_array($details) || (int) ($details['created_at'] ?? 0) < $now - 900) {
+                    unset($_SESSION['tiktok_mcp_flows'][$oldFlow]);
+                }
+            }
+
+            $flowId = trim((string) ($data['flow_id'] ?? ''));
+            $flow = $flowId !== '' ? ($_SESSION['tiktok_mcp_flows'][$flowId] ?? null) : null;
+            if (!is_array($flow)
+                || (int) ($flow['created_at'] ?? 0) < $now - 900
+                || (int) ($flow['user_id'] ?? 0) !== (int) $_SESSION['user_id']) {
+                echo json_encode(['status' => 'error', 'message' => 'TikTok MCP connection session expired. Please log in with TikTok again.']);
+                break;
+            }
+
+            $allowedAccounts = is_array($flow['accounts'] ?? null) ? $flow['accounts'] : [];
+            $token = trim((string) ($flow['access_token'] ?? ''));
+            if ($token === '' || strlen($token) > 8192) {
+                echo json_encode(['status' => 'error', 'message' => 'A valid TikTok access token is required.']);
+                break;
+            }
+
+            $selectedAccounts = [];
+            foreach ((array) ($data['accounts'] ?? []) as $requested) {
+                if (!is_array($requested)) {
+                    continue;
+                }
+                $accountId = orbitraTikTokNormalizeAdvertiserId((string) ($requested['id'] ?? $requested['advertiser_id'] ?? ''));
+                if ($accountId === '') {
+                    continue;
+                }
+                if (isset($allowedAccounts[$accountId])) {
+                    $selectedAccounts[$accountId] = $allowedAccounts[$accountId];
+                }
+            }
+
+            // Manual Advertiser IDs (comma/whitespace separated) fill in what
+            // discovery could not; each is validated with advertiser_info_get,
+            // falling back to the bare id when even that is unavailable.
+            if (count($selectedAccounts) === 0) {
+                $rawIds = $data['advertiser_ids'] ?? [];
+                if (is_string($rawIds)) {
+                    $rawIds = preg_split('/[\s,;]+/', trim($rawIds)) ?: [];
+                }
+                foreach ((array) $rawIds as $rawId) {
+                    $accountId = orbitraTikTokNormalizeAdvertiserId((string) $rawId);
+                    if ($accountId === '' || isset($selectedAccounts[$accountId])) {
+                        continue;
+                    }
+                    if (isset($allowedAccounts[$accountId])) {
+                        $selectedAccounts[$accountId] = $allowedAccounts[$accountId];
+                        continue;
+                    }
+                    $account = [
+                        'id' => $accountId,
+                        'name' => 'TikTok ' . $accountId,
+                        'currency' => '',
+                        'timezone' => '',
+                    ];
+                    try {
+                        $info = TikTokMcpClient::callTool(['access_token' => $token], 'advertiser_info_get', ['advertiser_ids' => [$accountId]]);
+                        $row = $info['data']['list'][0] ?? null;
+                        if (is_array($row)) {
+                            $account['name'] = substr(trim((string) ($row['name'] ?? '')) ?: $account['name'], 0, 190);
+                            $account['currency'] = strtoupper(trim((string) ($row['currency'] ?? '')));
+                            $account['timezone'] = trim((string) ($row['timezone'] ?? ''));
+                        }
+                    } catch (\Throwable $e) {
+                        // Оставляем «TikTok <id>»: кабинет всё равно валидируется
+                        // testConnection'ом и первым синком.
+                    }
+                    $selectedAccounts[$accountId] = $account;
+                }
+            }
+
+            if (count($selectedAccounts) < 1 || count($selectedAccounts) > 500) {
+                echo json_encode(['status' => 'error', 'message' => 'Select between 1 and 500 TikTok ad accounts.']);
+                break;
+            }
+
+            $syncInterval = max(0.333, min(168.0, (float) ($data['sync_interval_hours'] ?? 2)));
+
+            $created = 0;
+            $updated = 0;
+            try {
+                $existing = [];
+                $stmt = $pdo->query("SELECT id, credentials_json FROM aggregator_connections WHERE engine = 'tiktok' ORDER BY id ASC");
+                foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                    $credentials = json_decode((string) ($row['credentials_json'] ?? ''), true);
+                    if (!is_array($credentials)) {
+                        continue;
+                    }
+                    $accountId = orbitraTikTokNormalizeAdvertiserId((string) ($credentials['advertiser_id'] ?? ''));
+                    if ($accountId !== '' && !isset($existing[$accountId])) {
+                        $existing[$accountId] = ['id' => (int) $row['id'], 'credentials' => $credentials];
+                    }
+                }
+
+                $pdo->beginTransaction();
+                $updateStmt = $pdo->prepare("UPDATE aggregator_connections SET name=?, auth_type='oauth', credentials_json=?, sync_interval_hours=?, is_active=1 WHERE id=?");
+                $insertStmt = $pdo->prepare("INSERT INTO aggregator_connections (name, engine, affiliate_network_id, auth_type, credentials_json, base_url, deal_type, baseline, click_id_param, field_mapping_json, sync_interval_hours, is_active) VALUES (?, 'tiktok', NULL, 'oauth', ?, '', 'cpa', 0, 'sub_id', '{}', ?, 1)");
+
+                foreach ($selectedAccounts as $accountId => $account) {
+                    $credentials = $existing[$accountId]['credentials'] ?? [];
+                    // Приложение прямого пути больше не участвует: refresh пойдёт
+                    // через MCP client_id панели.
+                    unset($credentials['app_id'], $credentials['app_secret']);
+                    $credentials['mcp'] = 1;
+                    $credentials['access_token'] = $token;
+                    $credentials['advertiser_id'] = $accountId;
+                    $credentials['account_name'] = (string) $account['name'];
+                    $credentials['currency'] = (string) ($account['currency'] ?? '');
+                    $credentials['timezone'] = (string) ($account['timezone'] ?? '');
+                    $credentials['refresh_token'] = (string) ($flow['refresh_token'] ?? '');
+                    $credentials['token_expires_at'] = (int) ($flow['token_expires_at'] ?? 0);
+                    if (!empty($flow['refresh_token_expires_at'])) {
+                        $credentials['refresh_token_expires_at'] = (int) $flow['refresh_token_expires_at'];
+                    }
+                    $credentialsJson = json_encode($credentials, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+                    if (isset($existing[$accountId])) {
+                        $updateStmt->execute([$account['name'], $credentialsJson, $syncInterval, $existing[$accountId]['id']]);
+                        $updated++;
+                    } else {
+                        $insertStmt->execute([$account['name'], $credentialsJson, $syncInterval]);
+                        $created++;
+                    }
+                }
+
+                $pdo->commit();
+            } catch (\Throwable $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                http_response_code(500);
+                echo json_encode(['status' => 'error', 'message' => 'Could not save TikTok ad accounts: ' . $e->getMessage()]);
+                break;
+            }
+
+            unset($_SESSION['tiktok_mcp_flows'][$flowId]);
+            logAudit($pdo, 'CREATE', 'TikTok MCP Connections', null, [
+                'connected_count' => count($selectedAccounts),
+                'created_count' => $created,
+                'updated_count' => $updated,
+            ]);
+            echo json_encode([
+                'status' => 'success',
+                'data' => [
+                    'connected_count' => count($selectedAccounts),
+                    'created_count' => $created,
+                    'updated_count' => $updated,
+                ],
+            ]);
+            break;
+
         // === Google Ads Costs: 1-Click OAuth — mirrors the TikTok flow ===
 
         // Build the Google consent URL. Requires offline access (refresh token),

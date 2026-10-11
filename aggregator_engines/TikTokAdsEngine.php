@@ -40,6 +40,20 @@ class TikTokAdsEngine
     public static $testHttpHandler = null;
 
     /**
+     * Test seam: callable(array $credentials): array — MCP-версия refresh
+     * (плоский OAuth-ответ {access_token, refresh_token, expires_in,
+     * refresh_token_expires_in}). Production никогда его не ставит.
+     * @var callable|null
+     */
+    public static $testMcpRefreshHandler = null;
+
+    /** Подключение через TikTok MCP Server (без developer-приложения). */
+    private static function isMcp(array $credentials): bool
+    {
+        return (int) ($credentials['mcp'] ?? 0) === 1;
+    }
+
+    /**
      * Поля формы подключения. `label_key` — ключ локализации, `label` — английский
      * фолбэк: фронтенд рендерит t(field.label_key, field.label).
      *
@@ -126,14 +140,20 @@ class TikTokAdsEngine
                 'page_size'     => self::PAGE_SIZE,
             ];
 
-            $response = self::httpJson(self::API_BASE . '/report/integrated/get/', $credentials, $payload, 45);
-            if ($response['error'] !== null) {
-                throw new \RuntimeException('TikTok: ' . $response['error']);
-            }
+            if (self::isMcp($credentials)) {
+                // MCP-подключение: тот же отчёт, но инструментом report_integrated_get;
+                // конверт у ответа идентичен прямому вызову ({code, message, data}).
+                $decoded = self::mcpCallTool($credentials, 'report_integrated_get', $payload);
+            } else {
+                $response = self::httpJson(self::API_BASE . '/report/integrated/get/', $credentials, $payload, 45);
+                if ($response['error'] !== null) {
+                    throw new \RuntimeException('TikTok: ' . $response['error']);
+                }
 
-            $decoded = json_decode($response['body'], true);
-            if (!is_array($decoded)) {
-                throw new \RuntimeException('TikTok: unreadable API response.');
+                $decoded = json_decode($response['body'], true);
+                if (!is_array($decoded)) {
+                    throw new \RuntimeException('TikTok: unreadable API response.');
+                }
             }
             if ((int) ($decoded['code'] ?? -1) !== 0) {
                 throw new \RuntimeException('TikTok: ' . self::describeApiError($decoded));
@@ -202,13 +222,43 @@ class TikTokAdsEngine
             return $credentials;
         }
 
+        $oldToken = trim((string) ($credentials['access_token'] ?? ''));
+
+        if (self::isMcp($credentials)) {
+            // MCP-подключение: refresh идёт на OAuth-эндпоинт MCP-сервера
+            // (client_id панели, без секрета), ответ — плоский OAuth JSON, а не
+            // конверт {code, message, data} прямого API. Ротация та же: каждый
+            // refresh выдаёт новый refresh-токен.
+            require_once __DIR__ . '/../core/TikTokMcpClient.php';
+            $clientId = TikTokMcpClient::storedClientId($pdo);
+            if ($clientId === '') {
+                throw new \RuntimeException('TikTok MCP: this panel has no client registration — press "Connect via TikTok MCP" again.');
+            }
+            if (is_callable(self::$testMcpRefreshHandler)) {
+                $tokens = call_user_func(self::$testMcpRefreshHandler, $credentials);
+            } else {
+                $tokens = TikTokMcpClient::refreshToken($credentials, $clientId, $refreshToken);
+            }
+            $newToken = trim((string) ($tokens['access_token'] ?? ''));
+            if ($newToken === '') {
+                throw new \RuntimeException('TikTok MCP token refresh: no access token in response.');
+            }
+            return self::propagateRefreshedToken(
+                $pdo,
+                $credentials,
+                $oldToken,
+                $newToken,
+                trim((string) ($tokens['refresh_token'] ?? '')),
+                time() + max(0, (int) ($tokens['expires_in'] ?? 86400)),
+                (int) ($tokens['refresh_token_expires_in'] ?? 0)
+            );
+        }
+
         $appId = trim((string) ($credentials['app_id'] ?? ''));
         $secret = trim((string) ($credentials['app_secret'] ?? ''));
         if ($appId === '' || $secret === '') {
             throw new \RuntimeException('TikTok: token has expired and this connection has no App ID/Secret to refresh it. Re-connect via TikTok For Business.');
         }
-
-        $oldToken = trim((string) ($credentials['access_token'] ?? ''));
         // refresh_token одноразовый, поэтому запрос идёт вручную, а не через
         // httpJson(): тому нужен Access-Token из credentials, а здесь важен ровно
         // один POST с app-кредами и без случайного повторного refresh.
@@ -257,9 +307,26 @@ class TikTokAdsEngine
         $newRefresh = trim((string) ($decoded['data']['refresh_token'] ?? ''));
         $newExpiresAt = time() + max(0, (int) ($decoded['data']['expires_in'] ?? 86400));
 
-        // Новая пара токенов — во все oauth-подключения того же логина TikTok.
-        // Совпадение ищется по старому access-токену: он одинаков у всех копий
-        // одного логина и уникален между разными.
+        return self::propagateRefreshedToken(
+            $pdo,
+            $credentials,
+            $oldToken,
+            $newToken,
+            $newRefresh,
+            $newExpiresAt,
+            (int) ($decoded['data']['refresh_token_expires_in'] ?? 0)
+        );
+    }
+
+    /**
+     * Новая пара токенов — во все oauth-подключения того же логина TikTok.
+     * Совпадение ищется по старому access-токену: он одинаков у всех копий
+     * одного логина и уникален между разными.
+     *
+     * @return array обновлённые credentials текущего подключения
+     */
+    private static function propagateRefreshedToken(PDO $pdo, array $credentials, string $oldToken, string $newToken, string $newRefresh, int $newExpiresAt, int $newRefreshExpiresIn): array
+    {
         $stmt = $pdo->query("SELECT id, credentials_json FROM aggregator_connections WHERE engine = 'tiktok'");
         $updateStmt = $pdo->prepare("UPDATE aggregator_connections SET credentials_json = ? WHERE id = ?");
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
@@ -272,8 +339,8 @@ class TikTokAdsEngine
                 $rowCreds['refresh_token'] = $newRefresh;
             }
             $rowCreds['token_expires_at'] = $newExpiresAt;
-            if ((int) ($decoded['data']['refresh_token_expires_in'] ?? 0) > 0) {
-                $rowCreds['refresh_token_expires_at'] = time() + (int) $decoded['data']['refresh_token_expires_in'];
+            if ($newRefreshExpiresIn > 0) {
+                $rowCreds['refresh_token_expires_at'] = time() + $newRefreshExpiresIn;
             }
             $updateStmt->execute([json_encode($rowCreds, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), (int) $row['id']]);
         }
@@ -305,6 +372,25 @@ class TikTokAdsEngine
             }
         }
         return $missing;
+    }
+
+    /**
+     * Вызов инструмента TikTok MCP Server; ошибки транспорта/OAuth/инструмента
+     * бросаются RuntimeException-ом с текстом человека (как у прямого API).
+     * Возвращает разобранный payload инструмента ({code, message, data}).
+     */
+    private static function mcpCallTool(array $credentials, string $tool, array $arguments): array
+    {
+        require_once __DIR__ . '/../core/TikTokMcpClient.php';
+        try {
+            $decoded = TikTokMcpClient::callTool($credentials, $tool, $arguments);
+        } catch (\RuntimeException $e) {
+            throw new \RuntimeException('TikTok: ' . $e->getMessage());
+        }
+        if (!is_array($decoded) || !array_key_exists('code', $decoded)) {
+            throw new \RuntimeException('TikTok: unreadable MCP response from ' . $tool . '.');
+        }
+        return $decoded;
     }
 
     /**
@@ -353,14 +439,24 @@ class TikTokAdsEngine
             'advertiser_ids' => json_encode([$advertiserId]),
         ], '', '&', PHP_QUERY_RFC3986);
 
-        $response = self::httpGet(self::API_BASE . '/advertiser/info/?' . $query, $credentials, 15);
-        if ($response['error'] !== null) {
-            return ['data' => [], 'error' => $response['error']];
-        }
+        if (self::isMcp($credentials)) {
+            // MCP: читаем кабинет инструментом advertiser_info_get — он и
+            // валидирует токен, и возвращает те же поля (name/currency/timezone).
+            try {
+                $decoded = self::mcpCallTool($credentials, 'advertiser_info_get', ['advertiser_ids' => [$advertiserId]]);
+            } catch (\RuntimeException $e) {
+                return ['data' => [], 'error' => $e->getMessage()];
+            }
+        } else {
+            $response = self::httpGet(self::API_BASE . '/advertiser/info/?' . $query, $credentials, 15);
+            if ($response['error'] !== null) {
+                return ['data' => [], 'error' => $response['error']];
+            }
 
-        $decoded = json_decode($response['body'], true);
-        if (!is_array($decoded)) {
-            return ['data' => [], 'error' => 'Unreadable advertiser info response.'];
+            $decoded = json_decode($response['body'], true);
+            if (!is_array($decoded)) {
+                return ['data' => [], 'error' => 'Unreadable advertiser info response.'];
+            }
         }
         if ((int) ($decoded['code'] ?? -1) !== 0) {
             return ['data' => [], 'error' => self::describeApiError($decoded)];
@@ -501,7 +597,7 @@ class TikTokAdsEngine
      *
      * @param resource|\CurlHandle $ch
      */
-    private static function applyProxy($ch, array $credentials): void
+    public static function applyProxy($ch, array $credentials): void
     {
         $proxy = trim((string) ($credentials['proxy_url'] ?? ''));
         if ($proxy === '') {
@@ -538,7 +634,7 @@ class TikTokAdsEngine
      *
      * @return array{scheme:string,host:string,port:?int,user:?string,pass:?string}|null
      */
-    private static function parseProxyUrl(string $proxy): ?array
+    public static function parseProxyUrl(string $proxy): ?array
     {
         $scheme = 'http';
         if (preg_match('~^([a-z0-9+.-]+)://~i', $proxy, $m)) {
