@@ -1,6 +1,6 @@
 {
-    "version": "1.6.7",
-    "release_notes": "The calendar in the date picker follows your profile's First day of week instead of always starting on Sunday: day headers, the month grid and the This Week preset all respect it. Sunday no longer resets to Monday when the profile is reopened, saving the profile updates the calendar without a reload, and the setting now travels with sign-in, so other devices pick it up after logging in.",
+    "version": "1.6.8",
+    "release_notes": "TikTok spend import without a developer account: a new Connect via TikTok MCP button signs you in through TikTok's official MCP server — the panel registers itself, so there is no developer program to apply for and no API token to paste. Ad accounts are discovered automatically (or paste Advertiser IDs by hand), spend sync runs through the same cron and the tokens renew themselves while the sync is alive. The TikTok integration guide is now honest: no more \"No Developer App needed\" or Events Manager dead ends — it explains the real free developer-app path in all 7 languages.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-10-11"
 }

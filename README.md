@@ -1,4 +1,4 @@
-# Orbitra v1.6.7 Tracker
+# Orbitra v1.6.8 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,20 +11,23 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.6.7
+## 🆕 What's New in v1.6.8
 
-The calendar now follows your week.
+TikTok spend import with no developer account.
+
+### Added
+
+- 🎵 **Connect via TikTok MCP**: a new button in the TikTok Costs panel signs you in through TikTok's official MCP server — the panel registers itself (dynamic client registration), so there is no developer program to apply for and no API token to paste. Ad accounts are found automatically (or paste Advertiser IDs by hand), spend sync runs through the same cron as the built-in connection, and the tokens renew themselves while the sync is alive
 
 ### Fixed
 
-- 📅 **The date picker ignored the profile's First day of week** — the calendar always started on Sunday. Day headers, the month grid and the This Week preset now respect the setting: with Sunday selected, This Week runs Sunday to Saturday
-- 🔄 **Sunday reset itself to Monday** when the profile page was reopened, and the choice never reached other devices. The setting now travels with sign-in, and saving the profile updates the calendar immediately, without a reload
+- 📌 **The TikTok integration guide was wrong in both directions**: it promised "No Developer App needed" and sent users to Events Manager for a token. Reading spend always requires a Marketing API token from a (free) developer app, and an Events Manager token only sends conversion events. The guide now explains the real path (Developer Portal → Apps & Agents → Direct Advertiser, Ads Management + Reporting scopes) in all 7 languages
 
-### v1.6.6
+### v1.6.7
 
-Your timezone everywhere (click times, charts, reports follow the profile timezone), sortable dashboard blocks, bulk domain adds without 524 timeouts, a default Revshare conversion type, a zero Dynadot balance shown as EUR 0.00.
+The calendar follows the profile's First day of week (day headers, month grid, the This Week preset), and Sunday no longer resets to Monday when the profile is reopened.
 
-Older releases (v1.6.5 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.6.6 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo

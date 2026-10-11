@@ -7,6 +7,18 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.8] — 2026-10-11
+
+TikTok spend import without a developer account: connect through TikTok's official MCP server in one click.
+
+### Added
+
+- 🎵 **Connect via TikTok MCP — no developer app**: a new button in the TikTok Costs panel signs you in through TikTok's official MCP server. The panel registers itself (dynamic client registration, PKCE), so there is no developer program to apply for and no token to paste. Ad accounts are discovered automatically; if the list can't be read, paste Advertiser IDs by hand (each is verified). Spend sync runs through the same report as the built-in connection (`report/integrated/get`), the 24-hour access token is refreshed by the same cron, and the 30-day authorization renews itself while the sync is alive
+
+### Fixed
+
+- 📌 **The TikTok integration guide was wrong in both directions**: it promised "No Developer App needed" and sent users to Events Manager for a token. Reading spend always requires a Marketing API token from a (free) developer app, and an Events Manager token only sends conversion events. The guide now describes the real path (Developer Portal → Apps & Agents → Direct Advertiser, Ads Management + Reporting scopes) in all 7 languages
+
 ## [1.6.7] — 2026-10-11
 
 The calendar in the date picker follows the profile's first day of week.
