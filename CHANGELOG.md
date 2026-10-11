@@ -7,6 +7,15 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.7] — 2026-10-11
+
+The calendar in the date picker follows the profile's first day of week.
+
+### Fixed
+
+- 📅 **The date picker calendar ignored the profile's First day of week** and always started on Sunday. Day headers, the month grid and the This Week preset now respect the setting (with Sunday selected, This Week runs Sunday to Saturday)
+- 🔄 **Sunday reset itself to Monday** when the profile was reopened (0 was read as "no value"), and the setting never reached other devices: the sign-in response now carries `first_day_of_week`, and saving the profile updates the stored user so the calendar follows immediately without a reload
+
 ## [1.6.6] — 2026-10-10
 
 Your timezone everywhere, sortable dashboard blocks, and bulk domain adds that no longer time out.

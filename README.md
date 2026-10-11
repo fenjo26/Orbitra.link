@@ -1,4 +1,4 @@
-# Orbitra v1.6.6 Tracker
+# Orbitra v1.6.7 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,28 +11,20 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.6.6
+## 🆕 What's New in v1.6.7
 
-Your timezone everywhere, sortable dashboard blocks, and bulk domain adds that no longer time out.
-
-### Added
-
-- ↕️ **Sortable dashboard blocks**: click a column header in Campaigns / Offers / Landings / Sources to sort by clicks, unique, conversions or name. The block sorts the whole list before taking its top 10, so a low-traffic campaign with a sale is one click away. The sort is remembered per block
-- 💰 **Default Revshare conversion type**: `status=revshare` now goes to profit out of the box (no new conversion, no S2S, no cap). Installs that already map `revshare` are left as they are
-- 🌍 **Full timezone list in the date picker**: the same ~350 zones as the profile, grouped by region, with your profile timezone pinned on top. The old 14-zone list had no Athens, Warsaw, Istanbul and many others
+The calendar now follows your week.
 
 ### Fixed
 
-- 🕒 **Click times, charts and reports showed UTC**: with no timezone chosen in the date picker the panel sent `timezone=UTC`, which overrode the profile. Views now default to the profile timezone and reset to it on sign-in and on profile save
-- ⏳ **Adding a pasted list of domains ended in a 524** behind a Cloudflare-proxied panel, although the domains were added. The dialog now closes at once, the list is saved one domain per request with progress above the table, and rows appear as they land. Cloudflare-proxied domains no longer run the certificate worker
-- 💳 **Dynadot balance stayed a dash at zero**: a zero balance comes only as `€0.00` with the currency symbol; it is now parsed and shown as `EUR 0.00`
-- 🧾 The server-setup card on the Update page says in plain words that no manual step is needed
+- 📅 **The date picker ignored the profile's First day of week** — the calendar always started on Sunday. Day headers, the month grid and the This Week preset now respect the setting: with Sunday selected, This Week runs Sunday to Saturday
+- 🔄 **Sunday reset itself to Monday** when the profile page was reopened, and the choice never reached other devices. The setting now travels with sign-in, and saving the profile updates the calendar immediately, without a reload
 
-### v1.6.5
+### v1.6.6
 
-Dynadot integration, a safe MCP for large accounts (compact campaign list, bulk domain move, `update_campaign` no longer damages streams), Keitaro `.sql.gz` import fixed, no more 504s on slow domain saves, install on Ubuntu 26.04.
+Your timezone everywhere (click times, charts, reports follow the profile timezone), sortable dashboard blocks, bulk domain adds without 524 timeouts, a default Revshare conversion type, a zero Dynadot balance shown as EUR 0.00.
 
-Older releases (v1.6.4 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.6.5 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo

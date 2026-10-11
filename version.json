@@ -1,6 +1,6 @@
 {
-    "version": "1.6.6",
-    "release_notes": "Your timezone everywhere, sortable dashboard blocks, and bulk domain adds that no longer time out. Click times, charts and reports follow the profile timezone instead of UTC; the date picker lists every timezone with yours on top. Dashboard blocks sort by any column before taking the top 10. A pasted list of domains is added in the background one by one, so a Cloudflare-proxied panel no longer answers 524. A default Revshare conversion type sends status=revshare to profit. A zero Dynadot balance shows as EUR 0.00. Migration 58 adds the Revshare type unless you already map revshare; update as usual.",
+    "version": "1.6.7",
+    "release_notes": "The calendar in the date picker follows your profile's First day of week instead of always starting on Sunday: day headers, the month grid and the This Week preset all respect it. Sunday no longer resets to Monday when the profile is reopened, saving the profile updates the calendar without a reload, and the setting now travels with sign-in, so other devices pick it up after logging in.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-10-10"
+    "released_at": "2026-10-11"
 }
