@@ -1,4 +1,4 @@
-# Orbitra v1.6.10 Tracker
+# Orbitra v1.6.11 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,19 +11,19 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.6.10
+## 🆕 What's New in v1.6.11
 
-The TikTok MCP consent screen works now.
+One step further on the TikTok MCP login.
 
 ### Fixed
 
-- 🔑 **The TikTok MCP login screen refused to authorize** ("Missing required parameter(s): resource") — TikTok requires the MCP server address in the login URL and in both token requests (RFC 8707 resource indicators), and we weren't sending it. The parameter now travels with the authorize URL, the code exchange and the token refresh, so the Authorize button works
+- 🩹 **The TikTok MCP connection crashed right after Authorize** ("Class not found") — the MCP client class was loaded only by the login step, not by the callback that exchanges the code for tokens. It now loads once at startup, and a test guards the loading order
 
-### v1.6.9
+### v1.6.10
 
-"Connect via TikTok MCP" explains itself on plain-HTTP panels instead of failing with TikTok's "redirect_uris invalid": add a domain with SSL (Domains page) and open the panel at https://your-domain.
+The TikTok MCP consent screen works: the tracker sends the RFC 8707 resource parameter in the login URL and in both token requests, so the Authorize button works.
 
-Older releases (v1.6.8 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.6.9 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo

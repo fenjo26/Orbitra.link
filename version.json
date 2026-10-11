@@ -1,6 +1,6 @@
 {
-    "version": "1.6.10",
-    "release_notes": "The TikTok MCP consent screen no longer refuses to authorize: the tracker now sends the MCP server address (the RFC 8707 \"resource\" parameter) in the login URL and in both token requests, exactly as TikTok's MCP authorization requires. If you were stuck at the TikTok login screen, update and press \"Connect via TikTok MCP\" again — and if anything fails after Authorize, send us the error text.",
+    "version": "1.6.11",
+    "release_notes": "The TikTok MCP connection no longer fails right after you click Authorize: the callback step that exchanges the code for tokens now loads the MCP client class it needs (previously only the login step loaded it, so the exchange crashed with \"Class not found\"). Update and press \"Connect via TikTok MCP\" once more — after that your ad accounts should be found automatically, or you can paste an Advertiser ID by hand.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-10-11"
 }

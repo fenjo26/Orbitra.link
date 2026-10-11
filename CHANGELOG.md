@@ -7,6 +7,12 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.11] — 2026-10-11
+
+### Fixed
+
+- 🩹 **The TikTok MCP connection crashed right after Authorize** with 'Class "TikTokMcpClient" not found': the MCP client class was loaded only by the login step, not by the callback that exchanges the authorization code for tokens nor by the connect action. It now loads once at startup with the rest of the core classes, and a source-level test guards the loading order
+
 ## [1.6.10] — 2026-10-11
 
 ### Fixed
