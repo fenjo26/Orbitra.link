@@ -3368,6 +3368,7 @@ export default {
         "mcpDesc": "TikTok for Business 官方 MCP 服务器。使用 TikTok 账号登录 — 无需开发者应用、无需 API 令牌。导入消耗（不导入像素）。",
         "mcpLoginButton": "通过 TikTok MCP 连接",
         "mcpNoAppNeeded": "无需开发者应用或 API 令牌 — 追踪器会自动自行注册。",
+        "mcpHttpsNotice": "⚠️ TikTok 登录仅支持 HTTPS：TikTok 会拒绝普通 http:// 地址（包括裸 IP）。请在 Domains 页面添加带 SSL 的域名，并通过 https://您的域名 打开面板。",
         "mcpManualHint": "无法自动读取账户列表。请粘贴您的 Advertiser ID（逗号分隔）— 可在 ads.tiktok.com 查看（右上角账户菜单 → Advertiser ID）。",
         "mcpManualPlaceholder": "1234567890, 9876543210",
         "mcpConnected": "已通过 MCP 连接 {n} 个 TikTok 广告账户。",

@@ -1398,6 +1398,12 @@ const IntegrationsPage = () => {
     };
 
     const handleStartTikTokMcp = () => {
+        // TikTok's MCP registration rejects http:// redirect URIs outright —
+        // the same rule as the app-based 1-click flow, checked before the popup.
+        if (!trackerUrl.startsWith('https://')) {
+            setTtMessage({ type: 'error', text: t('tiktokCosts.mcpHttpsNotice') });
+            return;
+        }
         setTtMessage(null);
         resetTikTokMcp();
 
@@ -2418,6 +2424,14 @@ const IntegrationsPage = () => {
                                         {!ttMcpFlowId && (
                                             <div className="text-[11px]" style={{ color: 'var(--color-text-muted)' }}>
                                                 {t('tiktokCosts.mcpNoAppNeeded')}
+                                            </div>
+                                        )}
+                                        {!trackerUrl.startsWith('https://') && (
+                                            <div className="w-full max-w-md text-left rounded-xl border p-3.5"
+                                                style={{ background: 'var(--color-warning-bg)', borderColor: 'var(--color-warning)' }}>
+                                                <div className="text-[11px] leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+                                                    {t('tiktokCosts.mcpHttpsNotice')}
+                                                </div>
                                             </div>
                                         )}
                                         {ttMcpFlowId && !ttMcpNeedsIds && ttMcpDiscoveredAccounts.length > 0 && (

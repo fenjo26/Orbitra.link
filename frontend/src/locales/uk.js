@@ -3368,6 +3368,7 @@ export default {
         "mcpDesc": "Офіційний MCP-сервер TikTok for Business. Вхід за логіном TikTok — без застосунку розробника і без API-токена. Імпортує витрати (пікселі не імпортує).",
         "mcpLoginButton": "Підключити через TikTok MCP",
         "mcpNoAppNeeded": "Ані застосунок розробника, ані API-токен не потрібні — трекер реєструється сам.",
+        "mcpHttpsNotice": "⚠️ Вхід через TikTok працює лише по HTTPS: звичайну http://-адресу (включно з голим IP) TikTok відхиляє. Додайте домен із SSL на сторінці Domains і відкрийте панель по https://ваш-домен.",
         "mcpManualHint": "Список кабінетів не вдалося прочитати автоматично. Вставте Advertiser ID через кому — їх видно в ads.tiktok.com (меню акаунта праворуч вгорі → Advertiser ID).",
         "mcpManualPlaceholder": "1234567890, 9876543210",
         "mcpConnected": "Підключено кабінетів TikTok через MCP: {n}.",

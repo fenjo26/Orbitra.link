@@ -19968,6 +19968,20 @@ try {
 
             $origin = orbitraFacebookOAuthOrigin();
             $redirectUri = $origin . '/api.php?action=tiktok_mcp_oauth_callback';
+
+            // TikTok's MCP registration refuses any non-HTTPS redirect URI with
+            // a bare "redirect_uris invalid" (verified live 2026-10-11: http://
+            // is rejected for domains and bare IPs alike, while https:// — even
+            // a bare IP — is accepted). Fail with an actionable message instead
+            // of letting the popup round-trip end in that cryptic error.
+            if (!orbitraIsHttps()) {
+                orbitraFacebookOAuthPopupResponse([
+                    'type' => 'orbitra.tiktok_mcp',
+                    'status' => 'error',
+                    'message' => 'TikTok login works only over HTTPS. A plain http:// panel address (including a bare IP) is rejected by TikTok. Add a domain with SSL on the Domains page, open the panel at https://your-domain and try again.',
+                ], $origin, 'TikTok');
+            }
+
             require_once __DIR__ . '/core/TikTokMcpClient.php';
 
             try {

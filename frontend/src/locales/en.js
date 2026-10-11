@@ -3368,6 +3368,7 @@ export default {
         "mcpDesc": "Official TikTok for Business MCP server. Sign in with your TikTok login — no developer app, no API token. Imports ad spend (pixels are not imported).",
         "mcpLoginButton": "Connect via TikTok MCP",
         "mcpNoAppNeeded": "No developer app or API token needed — the tracker registers itself automatically.",
+        "mcpHttpsNotice": "⚠️ TikTok login works only over HTTPS: a plain http:// address (including a bare IP) is rejected by TikTok. Add a domain with SSL on the Domains page and open the panel at https://your-domain.",
         "mcpManualHint": "The account list could not be read automatically. Paste your Advertiser ID(s), comma-separated — find them in ads.tiktok.com (top-right account menu → Advertiser ID).",
         "mcpManualPlaceholder": "1234567890, 9876543210",
         "mcpConnected": "Connected {n} TikTok ad account(s) via MCP.",

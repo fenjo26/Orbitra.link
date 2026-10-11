@@ -3368,6 +3368,7 @@ export default {
         "mcpDesc": "Serveur MCP officiel TikTok for Business. Connexion avec votre identifiant TikTok — sans application développeur ni token API. Importe les dépenses (les pixels ne sont pas importés).",
         "mcpLoginButton": "Connecter via TikTok MCP",
         "mcpNoAppNeeded": "Aucune application développeur ni token API requis — le tracker s'enregistre automatiquement.",
+        "mcpHttpsNotice": "⚠️ La connexion TikTok ne fonctionne qu'en HTTPS : une adresse http:// simple (y compris une IP nue) est refusée par TikTok. Ajoutez un domaine avec SSL sur la page Domains et ouvrez le panneau via https://votre-domaine.",
         "mcpManualHint": "La liste des comptes n'a pas pu être lue automatiquement. Collez vos Advertiser ID séparés par des virgules — visibles dans ads.tiktok.com (menu de compte en haut à droite → Advertiser ID).",
         "mcpManualPlaceholder": "1234567890, 9876543210",
         "mcpConnected": "{n} compte(s) TikTok connecté(s) via MCP.",
