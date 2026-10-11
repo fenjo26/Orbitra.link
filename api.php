@@ -26,6 +26,10 @@ require_once __DIR__ . '/core/RotationOptimiser.php';
 require_once __DIR__ . '/core/ConversionAttribution.php';
 require_once __DIR__ . '/core/ExtensionAdsStats.php';
 require_once __DIR__ . '/core/PostbackMacros.php';
+// TikTok MCP: the OAuth start/callback/connect actions all use this class;
+// loading it once here keeps the callback and connect paths from fataling with
+// 'Class "TikTokMcpClient" not found' (only the start action used to require it).
+require_once __DIR__ . '/core/TikTokMcpClient.php';
 require_once 'version.php';
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';

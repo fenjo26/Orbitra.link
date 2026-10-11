@@ -387,5 +387,18 @@ try {
     TikTokAdsEngine::$testMcpRefreshHandler = null;
 }
 
+// ---- api.php loads the client for every tiktok_mcp_* action -----------------
+// v1.6.10 regression: only tiktok_mcp_oauth_start required the class, so the
+// OAuth callback fataled with 'Class "TikTokMcpClient" not found' right after
+// the user clicked Authorize. The require must sit at file scope, before any
+// action dispatch.
+$apiSource = (string) file_get_contents(__DIR__ . '/../api.php');
+$requirePos = strpos($apiSource, "require_once __DIR__ . '/core/TikTokMcpClient.php';");
+$firstUsePos = strpos($apiSource, 'TikTokMcpClient::');
+check('api.php requires TikTokMcpClient at file scope before any action uses it',
+    $requirePos !== false && $firstUsePos !== false && $requirePos < $firstUsePos
+    && $requirePos < (int) strpos($apiSource, "case 'tiktok_mcp_oauth_start'"),
+    'require at ' . var_export($requirePos, true) . ', first use at ' . var_export($firstUsePos, true));
+
 echo PHP_EOL . ($failed === 0 ? "PASSED: $passed checks" : "FAILED: $failed of " . ($passed + $failed)) . PHP_EOL;
 exit($failed === 0 ? 0 : 1);
