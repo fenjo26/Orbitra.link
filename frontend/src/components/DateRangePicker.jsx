@@ -3,6 +3,7 @@ import { Calendar, ChevronLeft, ChevronRight, Globe, Check } from 'lucide-react'
 import { useLanguage } from '../contexts/LanguageContext';
 import { getTimezone, setTimezone as setSharedTimezone, profileTimezone } from '../utils/useTimezone';
 import { TIMEZONE_GROUPS, TIMEZONE_VALUES } from '../utils/timezones';
+import { getFirstDayOfWeek, useFirstDayOfWeek } from '../utils/weekStart';
 
 // tz-database identifiers use underscores for spaces: the chip read "New_York",
 // "Sao_Paulo", "Ho_Chi_Minh". Show the city the way it is spelled.
@@ -57,8 +58,9 @@ export const getPresetDates = (presetKey) => {
             return { from: formatDate(y), to: formatDate(y) };
         }
         case 'thisWeek': {
-            const dayOfWeek = today.getDay(); // 0 is Sun
-            const startOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+            // Week starts on the profile's first day (0 = Sun, 1 = Mon).
+            const weekStart = getFirstDayOfWeek();
+            const startOffset = -((today.getDay() - weekStart + 7) % 7);
             const startOfWeek = new Date(today);
             startOfWeek.setDate(today.getDate() + startOffset);
             return { from: formatDate(startOfWeek), to: formatDate(today) };
@@ -102,6 +104,7 @@ const DateRangePicker = ({
     initialPreset
 }) => {
     const { t } = useLanguage();
+    const weekStart = useFirstDayOfWeek();
     const [isOpen, setIsOpen] = useState(false);
     const [activePreset, setActivePreset] = useState(initialPreset || 'today');
 
@@ -237,7 +240,8 @@ const DateRangePicker = ({
     // Calendar grid generation
     const year = viewDate.getFullYear();
     const month = viewDate.getMonth();
-    const firstDayIndex = new Date(year, month, 1).getDay(); // 0 is Sun
+    // Leading filler cells before the 1st, counted from the profile's week start.
+    const firstDayIndex = (new Date(year, month, 1).getDay() - weekStart + 7) % 7;
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const daysInPrevMonth = new Date(year, month, 0).getDate();
 
@@ -256,7 +260,7 @@ const DateRangePicker = ({
         t('dateRangePicker.months.11', 'December')
     ];
 
-    const weekDayHeaders = [
+    const allWeekDayHeaders = [
         t('dateRangePicker.days.0', 'Su'),
         t('dateRangePicker.days.1', 'Mo'),
         t('dateRangePicker.days.2', 'Tu'),
@@ -265,6 +269,7 @@ const DateRangePicker = ({
         t('dateRangePicker.days.5', 'Fr'),
         t('dateRangePicker.days.6', 'Sa')
     ];
+    const weekDayHeaders = [...allWeekDayHeaders.slice(weekStart), ...allWeekDayHeaders.slice(0, weekStart)];
 
     const calendarCells = [];
     // Previous month filler

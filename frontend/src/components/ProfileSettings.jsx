@@ -50,7 +50,8 @@ const ProfileSettings = () => {
                         ...profile,
                         language: data.data.language || currentLanguage,
                         timezone: data.data.timezone || 'Europe/Moscow',
-                        first_day_of_week: data.data.first_day_of_week || 1,
+                        // ?? not ||: 0 is Sunday, a real choice, not a missing value.
+                        first_day_of_week: data.data.first_day_of_week ?? 1,
                     });
                     setTotpEnabled(Boolean(data.data.totp_enabled));
                 }
@@ -110,6 +111,8 @@ const ProfileSettings = () => {
                 if (currentUser) {
                     currentUser.language = profile.language;
                     currentUser.timezone = profile.timezone;
+                    // The date picker reads the week start from the stored user.
+                    currentUser.first_day_of_week = parseInt(profile.first_day_of_week, 10) === 0 ? 0 : 1;
                     localStorage.setItem('orbitra_user', JSON.stringify(currentUser));
                     window.dispatchEvent(new Event('userUpdated'));
                 }

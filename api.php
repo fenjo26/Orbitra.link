@@ -16422,6 +16422,7 @@ try {
                             'role' => $user['role'],
                             'language' => $user['language'] ?? 'en',
                             'timezone' => $user['timezone'] ?? 'Europe/Kyiv',
+                            'first_day_of_week' => (int) ($user['first_day_of_week'] ?? 1) === 0 ? 0 : 1,
                             'permissions' => !empty($user['permissions_json']) ? json_decode($user['permissions_json'], true) : [],
                             'csrf_token' => $_SESSION['csrf_token']
                         ]
