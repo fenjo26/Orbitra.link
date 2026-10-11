@@ -545,6 +545,35 @@ if ($stream) {
         }
     }
 
+    // Cloak "gate" (pass_clean_to_next): a clean visitor is handed to the next
+    // active stream instead of this stream's (empty) money page. This entry
+    // point does not evaluate stream filters, so "next" is simply the next
+    // stream by position; the full filter-aware rule lives in index.php.
+    if (!$cloakShowSafe && ($stream['schema_type'] ?? '') === 'cloak'
+        && filter_var($customSchema['pass_clean_to_next'] ?? false, FILTER_VALIDATE_BOOL)) {
+        $nextStream = null;
+        $passedGate = false;
+        foreach ($allStreams as $candidate) {
+            if ($passedGate && ($candidate['schema_type'] ?? '') !== 'cloak') {
+                $nextStream = $candidate;
+                break;
+            }
+            if ((int) $candidate['id'] === (int) $stream['id']) {
+                $passedGate = true;
+            }
+        }
+        if ($nextStream) {
+            $stream = $nextStream;
+            $streamId = $stream['id'];
+            $customSchema = json_decode($stream['schema_custom_json'] ?? '{}', true);
+            if (!is_array($customSchema)) {
+                $customSchema = [];
+            }
+            unset($cloakDecision);
+            $skipClickLogging = false;
+        }
+    }
+
     if ($cloakShowSafe) {
         $safeLandingId = (int) ($customSchema['safe_landing_id'] ?? 0);
         $safeOfferId = (int) ($customSchema['safe_offer_id'] ?? 0);

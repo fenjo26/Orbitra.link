@@ -2120,6 +2120,7 @@ export default {
         "title": "Journaux système",
         "lastRecords": "Utilisez « Charger plus » pour remonter plus loin, ou exportez tout en CSV (jusqu'à 100 000 lignes, filtres appliqués).",
         "shownCount": "Enregistrements affichés : {count}.",
+        "openClickDetails": "Ouvrir le détail du clic",
         "loadMore": "Charger plus",
         "exportCsv": "Exporter CSV",
         "exportHint": "Télécharger le journal de cet onglet avec les filtres actuels (jusqu'à 100 000 lignes)",
@@ -2975,7 +2976,22 @@ export default {
         "preloadDesc": "Récupère une page distante via votre serveur et injecte une balise base pour que ses ressources se résolvent.",
         "curlProxyDesc": "Sert une page distante via ce serveur avec une balise base. Utile lorsque vous devez héberger le contenu sous votre propre domaine."
     },
+    "filterValues": {
+        "placeholder": "Choisissez dans la liste ou saisissez une valeur",
+        "addCustom": "Ajouter « {value} »",
+        "nothingFound": "Aucun résultat",
+        "deviceMobile": "Téléphone",
+        "deviceTablet": "Tablette",
+        "deviceDesktop": "Ordinateur",
+        "unknown": "Non détecté",
+        "browsers": "Navigateurs",
+        "inAppBrowsers": "Navigateurs intégrés aux applications",
+        "languageHint": "Vérifie la liste des langues du navigateur (Accept-Language), quelle que soit la position de la langue. « en » = tout anglais : en-US, en-IN… « en-IN » = uniquement l'anglais d'Inde."
+    },
     "cloaking": {
+        "passCleanToNext": "Envoyer les visiteurs propres au flux suivant",
+        "passCleanToNextHint": "Les visiteurs suspects voient la Safe Page. Les visiteurs propres continuent dans la liste des flux : la répartition par géo, appareil et langue se fait dans vos autres flux. La Money Page de ce flux n'est pas utilisée.",
+        "passCleanToNextOrder": "Placez ce flux en premier (ou rendez-le interceptant) pour que chaque visiteur passe la vérification avant les autres flux.",
         "targetingTitle": "Filtres de ciblage (non-correspondance → page sûre)",
         "geoFilter": "Filtre par pays",
         "geoPlaceholder": "Sélectionnez les pays cibles (ex. US, DE, GB)...",

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import GeoSelector from './GeoSelector';
+import FilterValueSelector from './FilterValueSelector';
 import HelpTooltip from './HelpTooltip';
 import { ArrowLeft, Plus, Check, Link, Copy, Settings, Trash2, ChevronDown, ChevronUp, AlertCircle, AlertTriangle, X, Shield, Globe, MousePointerClick, TrendingUp, Activity, BarChart2, BarChart3, DollarSign, RefreshCw, FileText, MoreVertical, Play, Code, Edit3, Eye, Info, Search, SlidersHorizontal } from 'lucide-react';
 import CampaignReports from './CampaignReports';
@@ -2574,7 +2575,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         { name: 'OS', label: t('filters.os'), placeholder: 'windows, macos, ios, android...' },
         { name: 'Browser', label: t('filters.browser'), placeholder: 'chrome, firefox, safari...' },
         { name: 'Bot', label: t('filters.bot'), placeholder: t('filters.botYes') },
-        { name: 'Language', label: t('filters.language'), placeholder: 'ru, en, de (from browser header)' },
+        { name: 'Language', label: t('filters.language'), placeholder: 'en, en-IN, de (from browser header)' },
         { name: 'ISP', label: t('filters.isp'), placeholder: t('filters.ispPlaceholder') },
         { name: 'Connection', label: t('filters.connection'), placeholder: 'mobile, wifi, cable...' },
         { name: 'IP', label: t('filters.ip'), placeholder: '192.168.1.1, 10.0.0.*...' },
@@ -2583,6 +2584,50 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         { name: 'Weekday', label: t('filters.weekday'), placeholder: 'monday, tuesday...' },
         { name: 'Time', label: t('filters.time'), placeholder: '9-18, 10:00-20:00...' },
     ];
+
+    // Values the router actually recognises for each picker-backed filter —
+    // mirrors getDeviceType()/detectOs()/browserMatchesToken() in index.php.
+    const languageDisplayNames = (() => {
+        try {
+            return new Intl.DisplayNames([language || 'en'], { type: 'language' });
+        } catch {
+            return null;
+        }
+    })();
+    const languageLabel = (code) => {
+        try {
+            const name = languageDisplayNames?.of(code) || code;
+            return name.charAt(0).toUpperCase() + name.slice(1);
+        } catch {
+            return code;
+        }
+    };
+    const filterValueOptions = {
+        Device: [
+            { value: 'mobile', label: t('filterValues.deviceMobile') },
+            { value: 'tablet', label: t('filterValues.deviceTablet') },
+            { value: 'desktop', label: t('filterValues.deviceDesktop') },
+        ],
+        OS: ['Android', 'iOS', 'Windows', 'macOS', 'Linux'].map(v => ({ value: v }))
+            .concat([{ value: 'Unknown', label: t('filterValues.unknown') }]),
+        Browser: [
+            ...['Chrome', 'Safari', 'Firefox', 'Edge', 'Opera'].map(v => ({ value: v, group: t('filterValues.browsers') })),
+            { value: 'Samsung', label: 'Samsung Internet', group: t('filterValues.browsers') },
+            { value: 'Unknown', label: t('filterValues.unknown'), group: t('filterValues.browsers') },
+            ...[
+                ['tiktok', 'TikTok'], ['facebook', 'Facebook'], ['instagram', 'Instagram'],
+                ['messenger', 'Messenger'], ['telegram', 'Telegram'], ['snapchat', 'Snapchat'],
+                ['pinterest', 'Pinterest'], ['twitter', 'X (Twitter)'], ['wechat', 'WeChat'],
+                ['webview', 'Android WebView'],
+            ].map(([value, label]) => ({ value, label, group: t('filterValues.inAppBrowsers') })),
+        ],
+        Language: [
+            'en', 'en-US', 'en-GB', 'en-CA', 'en-AU', 'en-NZ', 'en-IE', 'en-IN', 'en-PK', 'en-PH', 'en-NG', 'en-ZA',
+            'de', 'de-DE', 'de-AT', 'de-CH', 'fr', 'fr-FR', 'fr-CA', 'fr-BE', 'es', 'es-ES', 'es-MX', 'es-US',
+            'it', 'pt', 'pt-PT', 'pt-BR', 'nl', 'pl', 'ru', 'uk', 'tr', 'el', 'ro', 'cs', 'hu', 'sv', 'da', 'nb', 'fi',
+            'ar', 'he', 'hi', 'bn', 'ur', 'id', 'ms', 'th', 'vi', 'ja', 'ko', 'zh', 'zh-CN', 'zh-TW',
+        ].map(code => ({ value: code, label: languageLabel(code) })),
+    };
 
     const openFilterModal = (streamIdx, filterIdx = null) => {
         if (filterIdx !== null && filterIdx >= 0) {
@@ -5389,6 +5434,32 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                 </div>
                                                             </div>
 
+                                                            {/* Gate mode: clean visitors continue to the streams below */}
+                                                            <div className="p-3.5 rounded-xl space-y-2" style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}>
+                                                                <label className="flex items-start gap-2 cursor-pointer select-none">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={normBool(sc.pass_clean_to_next)}
+                                                                        onChange={e => setCloakField('pass_clean_to_next', e.target.checked)}
+                                                                        className="w-4 h-4 rounded mt-0.5"
+                                                                        style={{ accentColor: 'var(--color-primary)' }}
+                                                                    />
+                                                                    <span>
+                                                                        <span className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                                                                            {t('cloaking.passCleanToNext')}
+                                                                        </span>
+                                                                        <span className="block text-[11px]" style={{ color: 'var(--color-text-muted)', lineHeight: 1.4 }}>
+                                                                            {t('cloaking.passCleanToNextHint')}
+                                                                        </span>
+                                                                    </span>
+                                                                </label>
+                                                                {normBool(sc.pass_clean_to_next) && (
+                                                                    <div className="text-[11px] px-2.5 py-1.5 rounded-lg" style={{ backgroundColor: 'var(--color-primary-light)', color: 'var(--color-text-secondary)', lineHeight: 1.4 }}>
+                                                                        {t('cloaking.passCleanToNextOrder')}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            {!normBool(sc.pass_clean_to_next) && (<>
                                                             {/* Money Page Section */}
                                                             <div className="p-3.5 rounded-xl space-y-3" style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}>
                                                                 <span className="text-xs font-bold uppercase tracking-wider block" style={{ color: 'var(--color-text-primary)' }}>
@@ -5450,6 +5521,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                     {renderOfferSelection(idx, stream)}
                                                                 </div>
                                                             </div>
+                                                            </>)}
                                                         </div>
                                                     );
                                                 })()}
@@ -5764,6 +5836,15 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                     >
                                         <option value="yes">{t('filters.botYes')}</option>
                                     </select>
+                                ) : filterValueOptions[newFilter.name] ? (
+                                    <FilterValueSelector
+                                        key={newFilter.name}
+                                        value={newFilter.payload}
+                                        onChange={payload => setNewFilter({ ...newFilter, payload })}
+                                        options={filterValueOptions[newFilter.name]}
+                                        allowCustom={newFilter.name !== 'Device'}
+                                        hint={newFilter.name === 'Language' ? t('filterValues.languageHint') : null}
+                                    />
                                 ) : (
                                     <input
                                         type="text"

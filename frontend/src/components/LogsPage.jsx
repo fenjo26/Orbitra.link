@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Activity, ArrowRightLeft, ShieldAlert, TerminalSquare, ServerCrash, FileStack, Filter, ChevronDown, Download } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import MobileCards from './common/MobileCards';
+import ClickDetailsModal from './ClickDetailsModal';
 import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle } from './common/ColumnResize';
 
 const API_URL = '/api.php';
@@ -17,6 +18,21 @@ const LogsPage = () => {
     });
 
     const [logs, setLogs] = useState([]);
+    // Same click card Recent Clicks opens; the click id here was plain text
+    // before, so a click found in the full logs could not be inspected.
+    const [selectedClickId, setSelectedClickId] = useState(null);
+    const renderClickIdLink = (clickId, className = 'font-mono text-xs') => (
+        clickId ? (
+            <button
+                type="button"
+                onClick={() => setSelectedClickId(clickId)}
+                className={`${className} text-[var(--color-primary)] hover:underline text-left`}
+                title={t('logs.openClickDetails')}
+            >
+                {clickId}
+            </button>
+        ) : '-'
+    );
     const [loading, setLoading] = useState(true);
     // Keyset paging: the server hands back the cursor of the last row; "Load
     // more" asks for rows older than it, so new clicks arriving meanwhile can
@@ -400,7 +416,7 @@ const LogsPage = () => {
                                     {logs.map((log, i) => (
                                         <tr key={i}>
                                             <td>{log.created_at}</td>
-                                            <td className="font-mono text-xs">{log.click_id}</td>
+                                            <td>{renderClickIdLink(log.click_id)}</td>
                                             <td>{log.subid || '-'}</td>
                                             <td>{log.campaign_name || t('logs.direct')}</td>
                                             <td className="text-xs">{renderStream(log)}</td>
@@ -444,7 +460,7 @@ const LogsPage = () => {
                                     </>
                                 )}
                                 renderSubtitle={(log) => (
-                                    <span className="font-mono">{log.click_id}</span>
+                                    renderClickIdLink(log.click_id, 'font-mono')
                                 )}
                                 fields={[
                                     { id: 'created_at', label: t('logs.colTime'), render: (log) => log.created_at },
@@ -505,7 +521,7 @@ const LogsPage = () => {
                                     <tr key={i}>
                                         <td>{log.created_at}</td>
                                         <td className="font-mono text-xs">{log.remote_ip || '-'}</td>
-                                        <td className="font-mono text-xs">{log.click_id || '-'}</td>
+                                        <td>{renderClickIdLink(log.click_id)}</td>
                                         <td>{log.campaign_name || '-'}</td>
                                         <td>
                                             {log.status ? (
@@ -719,6 +735,13 @@ const LogsPage = () => {
             <div className="mt-4 text-xs text-[var(--color-text-muted)]">
                 {t('logs.shownCount', { count: logs.length })} {t('logs.lastRecords')}
             </div>
+
+            {selectedClickId && (
+                <ClickDetailsModal
+                    clickId={selectedClickId}
+                    onClose={() => setSelectedClickId(null)}
+                />
+            )}
         </div>
     );
 };

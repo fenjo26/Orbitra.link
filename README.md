@@ -1,4 +1,4 @@
-# Orbitra v1.6.11 Tracker
+# Orbitra v1.6.12 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,19 +11,25 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.6.11
+## 🆕 What's New in v1.6.12
 
-One step further on the TikTok MCP login.
+Streams that sort traffic the way affiliates actually asked for.
 
-### Fixed
+### Added
 
-- 🩹 **The TikTok MCP connection crashed right after Authorize** ("Class not found") — the MCP client class was loaded only by the login step, not by the callback that exchanges the code for tokens. It now loads once at startup, and a test guards the loading order
+- 🚪 **Cloaking can act as a gate.** New checkbox on a cloak stream — "Send clean visitors to the next stream": bots and moderators still get the Safe Page, while real visitors continue down the stream list, so geo/device/language splitting lives in your ordinary streams. Works in the redirect router, the Click API and click.php; the JS challenge still runs first when it is on
+- 🎛️ **Device, OS, Browser and Language filters get a picker** like the country filter: the list shows exactly the values the tracker recognises — including the in-app browsers (TikTok, Facebook, Instagram, Telegram, WebView…) that were impossible to guess before. Free text is still accepted with Enter
+- 🔎 **Full logs → click details**: the click id on the Logs page now opens the same click card as Recent Clicks
 
-### v1.6.10
+### Changed
 
-The TikTok MCP consent screen works: the tracker sends the RFC 8707 resource parameter in the login URL and in both token requests, so the Authorize button works.
+- 🌐 **The Language filter understands regions.** `en` still matches any English; `en-IN` now matches only English (India) instead of collapsing to `en` — so "exclude en-IN" keeps Indian traffic out of a Tier-1 stream, wherever the language sits in the browser's list. Existing filters written with a region (e.g. `en-US`) become as strict as they read — use the bare `en` for "any English"
 
-Older releases (v1.6.9 and earlier): see the [full changelog](CHANGELOG.md).
+### v1.6.11
+
+One step further on the TikTok MCP login: the connection no longer crashes right after Authorize (the MCP client class now loads for the callback steps too).
+
+Older releases (v1.6.10 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo

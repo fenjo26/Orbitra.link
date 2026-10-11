@@ -2120,6 +2120,7 @@ export default {
         "title": "Registros del sistema",
         "lastRecords": "Use «Cargar más» para retroceder o exporte todo a CSV (hasta 100.000 filas, con los filtros aplicados).",
         "shownCount": "Registros mostrados: {count}.",
+        "openClickDetails": "Abrir detalle del clic",
         "loadMore": "Cargar más",
         "exportCsv": "Exportar CSV",
         "exportHint": "Descargar el registro de esta pestaña con los filtros actuales (hasta 100.000 filas)",
@@ -2975,7 +2976,22 @@ export default {
         "preloadDesc": "Obtiene una página remota a través de tu servidor e inyecta una etiqueta base para que sus recursos se resuelvan.",
         "curlProxyDesc": "Sirve una página remota a través de este servidor con una etiqueta base. Útil cuando necesitas alojar el contenido bajo tu propio dominio."
     },
+    "filterValues": {
+        "placeholder": "Elige de la lista o escribe un valor",
+        "addCustom": "Añadir «{value}»",
+        "nothingFound": "No se encontró nada",
+        "deviceMobile": "Teléfono",
+        "deviceTablet": "Tableta",
+        "deviceDesktop": "Ordenador",
+        "unknown": "No detectado",
+        "browsers": "Navegadores",
+        "inAppBrowsers": "Navegadores dentro de apps",
+        "languageHint": "Se comprueba la lista de idiomas del navegador (Accept-Language), en cualquier posición. «en» = cualquier inglés: en-US, en-IN… «en-IN» = solo inglés de la India."
+    },
     "cloaking": {
+        "passCleanToNext": "Enviar visitantes limpios al siguiente flujo",
+        "passCleanToNextHint": "Los visitantes sospechosos ven la Safe Page. Los limpios siguen por la lista de flujos, así que el reparto por geo, dispositivo e idioma se hace en tus otros flujos. La Money Page de este flujo no se usa.",
+        "passCleanToNextOrder": "Coloca este flujo el primero (o hazlo de intercepción) para que cada visitante pase la comprobación antes que los demás flujos.",
         "targetingTitle": "Filtros de segmentación (sin coincidencia → página segura)",
         "geoFilter": "Filtro de países",
         "geoPlaceholder": "Selecciona los países objetivo (p. ej., US, DE, GB)...",

@@ -405,14 +405,8 @@ function orbitraClickApiStreamMatchesFilters(array $stream, string $ip, string $
                 $matched = orbitraDeviceGroupMatches($deviceType, $payload);
                 break;
             case 'Language':
-                $normalizedPayload = [];
-                foreach ($payload as $item) {
-                    $candidate = orbitraClickApiNormalizeLanguageCode((string) $item);
-                    if ($candidate !== '' && $candidate !== 'Unknown') {
-                        $normalizedPayload[] = $candidate;
-                    }
-                }
-                $matched = !empty(array_intersect($normalizedPayload, $languageCodes));
+                // Full tags from the raw header, so "en-IN" is not just "en".
+                $matched = orbitraLanguageFilterMatches($payload, $acceptLanguageRaw);
                 break;
             case 'Bot':
                 $botVerdict = CloakDetector::detectBotFilter([
@@ -574,11 +568,45 @@ function orbitraClickApiV3(PDO $pdo): void
     $stmt->execute([$campaignId]);
     $allStreams = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    // Cloak "gate" streams (pass_clean_to_next): a clean visitor is treated as
+    // not matching, so selection continues to the streams after it — same rule
+    // as the redirect router in index.php. No JS challenge on this path: the
+    // Click API is server-to-server and never renders one.
+    $cloakGateVisitor = [
+        'ip' => $ip,
+        'user_agent' => $userAgent,
+        'asn' => $geoData['asn'] ?? '',
+        'isp' => $geoData['isp'] ?? '',
+        'is_proxy' => $geoData['is_proxy'] ?? 0,
+        'proxy_type' => $geoData['proxy_type'] ?? '',
+        'proxy_threat' => $geoData['proxy_threat'] ?? '',
+        'proxy_provider' => $geoData['proxy_provider'] ?? '',
+        'proxy_fraud_score' => $geoData['proxy_fraud_score'] ?? null,
+        'accept_language' => $acceptLanguageRaw,
+        'pdo' => $pdo,
+    ];
+    $streamSelectable = function (array $stream) use ($ip, $country, $deviceType, $languageCodes, $userAgent, $geoData, $acceptLanguageRaw, $pdo, $cloakGateVisitor, $settings, $wantLog, &$log): bool {
+        if (!orbitraClickApiStreamMatchesFilters($stream, $ip, $country, $deviceType, $languageCodes, $userAgent, $geoData, $acceptLanguageRaw, $pdo)) {
+            return false;
+        }
+        if (($stream['schema_type'] ?? '') === 'cloak') {
+            $schema = json_decode((string) ($stream['schema_custom_json'] ?? '{}'), true);
+            if (is_array($schema) && filter_var($schema['pass_clean_to_next'] ?? false, FILTER_VALIDATE_BOOL)) {
+                $decision = orbitraCloakDecision($schema, $cloakGateVisitor, $settings, (string) $country, (string) $deviceType, '');
+                if (empty($decision['show_safe'])) {
+                    if ($wantLog) $log[] = "Cloak gate #{$stream['id']}: clean visitor, passing to the next stream";
+                    return false;
+                }
+            }
+        }
+        return true;
+    };
+
     $selectedStream = null;
     foreach ($allStreams as $stream) {
         if (($stream['type'] ?? 'regular') === 'intercepting') {
             if ($wantLog) $log[] = "Checking stream #{$stream['id']} (intercepting)";
-            if (orbitraClickApiStreamMatchesFilters($stream, $ip, $country, $deviceType, $languageCodes, $userAgent, $geoData, $acceptLanguageRaw, $pdo)) {
+            if ($streamSelectable($stream)) {
                 $selectedStream = $stream;
                 if ($wantLog) $log[] = "Accepted by filters (intercepting)";
                 break;
@@ -591,7 +619,7 @@ function orbitraClickApiV3(PDO $pdo): void
         foreach ($allStreams as $stream) {
             if (($stream['type'] ?? 'regular') !== 'regular') continue;
             if ($wantLog) $log[] = "Checking stream #{$stream['id']} (regular)";
-            if (orbitraClickApiStreamMatchesFilters($stream, $ip, $country, $deviceType, $languageCodes, $userAgent, $geoData, $acceptLanguageRaw, $pdo)) {
+            if ($streamSelectable($stream)) {
                 $eligible[] = $stream;
                 if ($wantLog) $log[] = "Accepted by filters (regular)";
             }
@@ -612,7 +640,7 @@ function orbitraClickApiV3(PDO $pdo): void
         foreach ($allStreams as $stream) {
             if (($stream['type'] ?? '') === 'fallback') {
                 if ($wantLog) $log[] = "Checking stream #{$stream['id']} (fallback)";
-                if (orbitraClickApiStreamMatchesFilters($stream, $ip, $country, $deviceType, $languageCodes, $userAgent, $geoData, $acceptLanguageRaw, $pdo)) {
+                if ($streamSelectable($stream)) {
                     $selectedStream = $stream;
                     if ($wantLog) $log[] = "Accepted by filters (fallback)";
                     break;

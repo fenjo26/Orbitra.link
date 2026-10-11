@@ -4119,14 +4119,8 @@ function streamMatchesFilters($stream, $visitor, $pdo, &$filterTrace = null)
                 $matched = (bool) ($botVerdict['is_suspicious'] ?? false);
                 break;
             case 'Language':
-                $payloadLanguages = [];
-                foreach ($payload as $item) {
-                    $normalized = normalizeLanguageCode((string) $item);
-                    if ($normalized !== 'Unknown') {
-                        $payloadLanguages[] = $normalized;
-                    }
-                }
-                $matched = !empty(array_intersect($payloadLanguages, $languageCodes));
+                // Full tags from the raw header, so "en-IN" is not just "en".
+                $matched = orbitraLanguageFilterMatches($payload, (string) ($visitor['acceptLanguage'] ?? ''));
                 break;
             case 'IP':
                 foreach ($payload as $item) {
@@ -4461,10 +4455,32 @@ $visitor = [
     'acceptLanguage' => $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '',
 ];
 
+// A cloak stream with "send clean visitors to the next stream" acts as a gate:
+// a suspicious visitor is caught by it (and gets its safe page below), a clean
+// one is treated as if the stream did not match, so selection carries on to
+// the streams after it. Its verdict is computed here, at selection time —
+// the only point where "the next stream" still exists.
+$cloakGateCtx = [
+    'ip' => $ip,
+    'user_agent' => $userAgent,
+    'asn' => $geoData['asn'] ?? '',
+    'isp' => $geoData['isp'] ?? '',
+    'is_proxy' => $geoData['is_proxy'] ?? 0,
+    'proxy_type' => $geoData['proxy_type'] ?? '',
+    'proxy_threat' => $geoData['proxy_threat'] ?? '',
+    'proxy_provider' => $geoData['proxy_provider'] ?? '',
+    'proxy_fraud_score' => $geoData['proxy_fraud_score'] ?? null,
+    'accept_language' => $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '',
+];
+$streamSelectable = function ($s) use ($visitor, $pdo, $cloakGateCtx, $settings, $countryCode, $deviceType, $campaignId) {
+    return streamMatchesFilters($s, $visitor, $pdo)
+        && !orbitraCloakGatePassesThrough($s, $cloakGateCtx, $settings, (string) $countryCode, (string) $deviceType, $campaignId);
+};
+
 // Пытаемся найти перехватывающий
 foreach ($allStreams as $stream) {
     if (($stream['type'] ?? 'regular') === 'intercepting') {
-        if (streamMatchesFilters($stream, $visitor, $pdo)) {
+        if ($streamSelectable($stream)) {
             $selectedStream = $stream;
             break;
         }
@@ -4473,8 +4489,8 @@ foreach ($allStreams as $stream) {
 
 // Если не найден перехватывающий, отбираем обычные
 if (!$selectedStream) {
-    $regular = array_filter($allStreams, function ($s) use ($visitor, $pdo) {
-        return ($s['type'] ?? 'regular') === 'regular' && streamMatchesFilters($s, $visitor, $pdo);
+    $regular = array_filter($allStreams, function ($s) use ($streamSelectable) {
+        return ($s['type'] ?? 'regular') === 'regular' && $streamSelectable($s);
     });
 
     if (!empty($regular)) {
@@ -4490,12 +4506,45 @@ if (!$selectedStream) {
 if (!$selectedStream) {
     foreach ($allStreams as $stream) {
         if (($stream['type'] ?? '') === 'fallback') {
-            if (streamMatchesFilters($stream, $visitor, $pdo)) {
+            if ($streamSelectable($stream)) {
                 $selectedStream = $stream;
                 break;
             }
         }
     }
+}
+
+/**
+ * Is this a cloak "gate" stream that lets the current visitor through?
+ *
+ * True only for a cloak stream with pass_clean_to_next on, when the detector
+ * finds the visitor clean AND — if the stream has the JS challenge on — the
+ * visitor already holds a valid challenge token. Anything else returns false,
+ * so the stream is selected as usual and its serving branch shows the safe
+ * page or runs the challenge; after the challenge the visitor comes back with
+ * the token and passes through here.
+ */
+function orbitraCloakGatePassesThrough(array $stream, array $ctx, array $settings, string $countryCode, string $deviceType, $campaignId): bool
+{
+    if (($stream['schema_type'] ?? '') !== 'cloak') {
+        return false;
+    }
+    $schema = json_decode((string) ($stream['schema_custom_json'] ?? '{}'), true);
+    if (!is_array($schema) || !filter_var($schema['pass_clean_to_next'] ?? false, FILTER_VALIDATE_BOOL)) {
+        return false;
+    }
+    require_once __DIR__ . '/core/click_logger.php';
+    $decision = orbitraCloakDecision($schema, $ctx, $settings, $countryCode, $deviceType, (string) ($_GET['_ocjf'] ?? ''));
+    if (!empty($decision['show_safe'])) {
+        return false;
+    }
+    if (filter_var($schema['js_challenge'] ?? false, FILTER_VALIDATE_BOOL)) {
+        $secret = $settings['postback_key'] ?? 'orbitra_secret';
+        if (!validateCloakJsToken($_GET['_ocj'] ?? '', $_GET['_ocs'] ?? '', $secret, $campaignId)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 // Универсальная функция для выбора элемента с весами

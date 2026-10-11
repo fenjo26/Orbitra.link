@@ -1,5 +1,5 @@
 {
-    "version": "1.6.11",
+    "version": "1.6.12",
     "release_notes": "The TikTok MCP connection no longer fails right after you click Authorize: the callback step that exchanges the code for tokens now loads the MCP client class it needs (previously only the login step loaded it, so the exchange crashed with \"Class not found\"). Update and press \"Connect via TikTok MCP\" once more — after that your ad accounts should be found automatically, or you can paste an Advertiser ID by hand.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-10-11"

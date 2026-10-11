@@ -2120,6 +2120,7 @@ export default {
         "title": "系统日志",
         "lastRecords": "点击“加载更多”继续向前翻页，或导出全部为 CSV（最多 100,000 行，已应用筛选）。",
         "shownCount": "已显示记录：{count}。",
+        "openClickDetails": "打开点击详情",
         "loadMore": "加载更多",
         "exportCsv": "导出 CSV",
         "exportHint": "按当前筛选下载此标签页的日志（最多 100,000 行）",
@@ -2975,7 +2976,22 @@ export default {
         "preloadDesc": "通过您的服务器抓取远程页面并注入 base 标签，使其资源可正确解析。",
         "curlProxyDesc": "通过本服务器以 base 标签提供远程页面。当您需要在自己的域名下托管内容时非常有用。"
     },
+    "filterValues": {
+        "placeholder": "从列表中选择或输入值",
+        "addCustom": "添加“{value}”",
+        "nothingFound": "未找到",
+        "deviceMobile": "手机",
+        "deviceTablet": "平板",
+        "deviceDesktop": "电脑",
+        "unknown": "未识别",
+        "browsers": "浏览器",
+        "inAppBrowsers": "应用内浏览器",
+        "languageHint": "检查浏览器的语言列表（Accept-Language），语言在列表中任何位置均可。“en”表示任何英语：en-US、en-IN…“en-IN”仅表示印度英语。"
+    },
     "cloaking": {
+        "passCleanToNext": "将正常访客转到下一个流",
+        "passCleanToNextHint": "可疑访客会看到安全页。正常访客继续按流列表匹配，地理、设备和语言可在其他流中分配。此流的钱页不会使用。",
+        "passCleanToNextOrder": "请把此流放在第一位（或设为拦截流），让每位访客先经过检查再进入其他流。",
         "targetingTitle": "定向过滤（不匹配 → 安全页）",
         "geoFilter": "国家过滤",
         "geoPlaceholder": "选择目标国家（如 US、DE、GB）...",

@@ -13268,14 +13268,8 @@ try {
                             else if ($f['name'] === 'Device')
                                 $matched = in_array($deviceType, $payload);
                             else if ($f['name'] === 'Language') {
-                                $normalizedPayload = [];
-                                foreach ($payload as $item) {
-                                    $candidate = normalizeBrowserLanguageCode((string) $item);
-                                    if ($candidate !== '') {
-                                        $normalizedPayload[] = $candidate;
-                                    }
-                                }
-                                $matched = !empty(array_intersect($normalizedPayload, $languageCodes));
+                                // Same matcher as the live router: full tags, so "en-IN" is not just "en".
+                                $matched = orbitraLanguageFilterMatches($payload, (string) ($botContext['accept_language'] ?? ''));
                             }
                             else if ($f['name'] === 'Bot') {
                                 $botVerdict = CloakDetector::detectBotFilter($botContext);
@@ -13434,7 +13428,11 @@ try {
                             }
                             $landingsCount = count($customSchema['landings'] ?? []);
                             $offersCount = count($customSchema['offers'] ?? []);
-                            $trace[] = "Cloak result: MONEY page ($landingsCount landings, $offersCount offers mapped).";
+                            if (filter_var($customSchema['pass_clean_to_next'] ?? false, FILTER_VALIDATE_BOOL)) {
+                                $trace[] = "Cloak result: clean visitor — this stream passes them on to the next matching stream (the live router skips it).";
+                            } else {
+                                $trace[] = "Cloak result: MONEY page ($landingsCount landings, $offersCount offers mapped).";
+                            }
                         }
                     } else {
                         $trace[] = "Redirect to single Offer ID: " . ($selectedStream['offer_id'] ?? 0);

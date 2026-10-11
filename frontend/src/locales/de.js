@@ -2120,6 +2120,7 @@ export default {
         "title": "System Protokolle",
         "lastRecords": "Mit „Mehr laden“ weiter zurückblättern oder alles als CSV exportieren (bis zu 100.000 Zeilen, Filter werden angewendet).",
         "shownCount": "Angezeigte Einträge: {count}.",
+        "openClickDetails": "Klickdetails öffnen",
         "loadMore": "Mehr laden",
         "exportCsv": "CSV exportieren",
         "exportHint": "Log dieses Tabs mit den aktuellen Filtern herunterladen (bis zu 100.000 Zeilen)",
@@ -2975,7 +2976,22 @@ export default {
         "preloadDesc": "Ruft eine Remote-Seite über Ihren Server ab und injiziert ein Base-Tag, damit deren Assets aufgelöst werden.",
         "curlProxyDesc": "Liefert eine Remote-Seite über diesen Server mit einem Base-Tag. Nützlich, wenn Sie Inhalte unter Ihrer eigenen Domain hosten müssen."
     },
+    "filterValues": {
+        "placeholder": "Aus der Liste wählen oder Wert eingeben",
+        "addCustom": "„{value}“ hinzufügen",
+        "nothingFound": "Nichts gefunden",
+        "deviceMobile": "Smartphone",
+        "deviceTablet": "Tablet",
+        "deviceDesktop": "Computer",
+        "unknown": "Nicht erkannt",
+        "browsers": "Browser",
+        "inAppBrowsers": "In-App-Browser",
+        "languageHint": "Geprüft wird die Sprachliste des Browsers (Accept-Language), egal an welcher Stelle die Sprache steht. „en“ bedeutet jedes Englisch: en-US, en-IN… „en-IN“ nur Englisch aus Indien."
+    },
     "cloaking": {
+        "passCleanToNext": "Saubere Besucher an den nächsten Stream weitergeben",
+        "passCleanToNextHint": "Verdächtige Besucher sehen die Safe Page. Saubere Besucher laufen weiter durch die Stream-Liste, sodass Geo, Gerät und Sprache in Ihren anderen Streams aufgeteilt werden. Die Money Page dieses Streams wird nicht verwendet.",
+        "passCleanToNextOrder": "Setzen Sie diesen Stream an die erste Stelle (oder machen Sie ihn abfangend), damit jeder Besucher die Prüfung vor den anderen Streams durchläuft.",
         "targetingTitle": "Targeting-Filter (Abweichung → sichere Seite)",
         "geoFilter": "Länderfilter",
         "geoPlaceholder": "Zielländer auswählen (z. B. US, DE, GB)...",

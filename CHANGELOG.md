@@ -7,6 +7,18 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.12] — 2026-10-11
+
+### Added
+
+- 🚪 **Cloaking can now act as a gate.** New checkbox on a cloak stream: "Send clean visitors to the next stream". Bots and moderators still get the Safe Page; real visitors are no longer locked into the cloak's own Money Page and continue down the stream list, so geo/device/language splitting lives in your ordinary streams. With the box ticked the Money Page block is hidden. Works in the redirect router, the Click API and click.php; the JS challenge still runs first when it is on
+- 🎛️ **Device, OS, Browser and Language filters get a picker** like the country filter: the list shows exactly the values the tracker recognises — including the in-app browsers (TikTok, Facebook, Instagram, Telegram, WebView…) that were impossible to guess before. Free text is still accepted with Enter
+- 🔎 **Full logs → click details**: the click id on the Logs page (traffic and postback tabs) now opens the same click card as Recent Clicks
+
+### Changed
+
+- 🌐 **The Language filter understands regions.** `en` still matches any English; `en-IN` now matches only English (India) instead of collapsing to `en`, so "exclude en-IN" finally keeps Indian traffic out of a Tier-1 English stream. A language counts wherever it appears in the browser's Accept-Language list. Existing filters written with a region (e.g. `en-US`) become as strict as they read — use the bare `en` for "any English"
+
 ## [1.6.11] — 2026-10-11
 
 ### Fixed

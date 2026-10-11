@@ -2120,6 +2120,7 @@ export default {
         "title": "System Logs",
         "lastRecords": "Use \"Load more\" to page further back, or export everything to CSV (up to 100,000 rows, filters applied).",
         "shownCount": "Records shown: {count}.",
+        "openClickDetails": "Open click details",
         "loadMore": "Load more",
         "exportCsv": "Export CSV",
         "exportHint": "Download this tab's log with the current filters (up to 100,000 rows)",
@@ -2975,7 +2976,22 @@ export default {
         "preloadDesc": "Fetches a remote page through your server and injects a base tag so its assets resolve.",
         "curlProxyDesc": "Serves a remote page through this server with a base tag. Useful when you need to host the content under your own domain."
     },
+    "filterValues": {
+        "placeholder": "Pick from the list or type a value",
+        "addCustom": "Add “{value}”",
+        "nothingFound": "Nothing found",
+        "deviceMobile": "Phone",
+        "deviceTablet": "Tablet",
+        "deviceDesktop": "Computer",
+        "unknown": "Not detected",
+        "browsers": "Browsers",
+        "inAppBrowsers": "In-app browsers",
+        "languageHint": "Checks the browser's language list (Accept-Language), wherever the language sits in it. “en” means any English: en-US, en-IN… “en-IN” means English from India only."
+    },
     "cloaking": {
+        "passCleanToNext": "Send clean visitors to the next stream",
+        "passCleanToNextHint": "Suspicious visitors get the Safe Page. Clean visitors continue down the stream list, so geo, device and language splitting happens in your other streams. This stream's Money Page is not used.",
+        "passCleanToNextOrder": "Put this stream first (or make it intercepting) so every visitor passes the check before the other streams.",
         "targetingTitle": "Targeting Filters (Mismatch → Safe Page)",
         "geoFilter": "Country Filter",
         "geoPlaceholder": "Select target countries (e.g. US, DE, GB)...",
