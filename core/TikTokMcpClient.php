@@ -105,6 +105,10 @@ class TikTokMcpClient
             'state' => $state,
             'code_challenge' => $codeChallenge,
             'code_challenge_method' => 'S256',
+            // RFC 8707 resource indicator — обязателен по спецификации MCP
+            // (2025-06-18); без него экран согласия TikTok отвечает
+            // "Missing required parameter(s): resource" и не даёт нажать Authorize.
+            'resource' => self::MCP_URL,
         ], '', '&', PHP_QUERY_RFC3986);
     }
 
@@ -123,6 +127,7 @@ class TikTokMcpClient
             'code_verifier' => $verifier,
             'client_id' => $clientId,
             'redirect_uri' => $redirectUri,
+            'resource' => self::MCP_URL,
         ], $proxyCredentials);
     }
 
@@ -138,6 +143,7 @@ class TikTokMcpClient
             'grant_type' => 'refresh_token',
             'refresh_token' => $refreshToken,
             'client_id' => $clientId,
+            'resource' => self::MCP_URL,
         ], $proxyCredentials);
     }
 

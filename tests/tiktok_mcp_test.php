@@ -98,7 +98,8 @@ check('authorize URL carries client/redirect/scope/state/PKCE',
     && $query['scope'] === 'mcp:tt4b'
     && $query['state'] === 'STATE123'
     && $query['code_challenge'] === 'CHALLENGE'
-    && $query['code_challenge_method'] === 'S256',
+    && $query['code_challenge_method'] === 'S256'
+    && ($query['resource'] ?? '') === TikTokMcpClient::MCP_URL,
     json_encode($query));
 
 // ---- DCR: ensureClient registers once, caches in settings -------------------
@@ -173,6 +174,7 @@ try {
         && $tokenForms[0]['form']['code_verifier'] === 'VERIFIER'
         && $tokenForms[0]['form']['client_id'] === 'CID-1'
         && $tokenForms[0]['form']['redirect_uri'] === 'https://panel.example/cb'
+        && ($tokenForms[0]['form']['resource'] ?? '') === TikTokMcpClient::MCP_URL
         && !isset($tokenForms[0]['form']['client_secret'])
         && !isset($tokenForms[0]['form']['secret']),
         json_encode($tokenForms[0]['form']));
@@ -184,6 +186,10 @@ try {
     check('refresh returns the rotated token pair',
         $refreshed['access_token'] === 'AT2' && $refreshed['refresh_token'] === 'RT2' && $refreshed['refresh_token_expires_in'] === 2591941,
         json_encode($refreshed));
+    check('refresh sends the RFC 8707 resource indicator',
+        ($tokenForms[1]['form']['grant_type'] ?? '') === 'refresh_token'
+        && ($tokenForms[1]['form']['resource'] ?? '') === TikTokMcpClient::MCP_URL,
+        json_encode($tokenForms[1]['form'] ?? null));
 } finally {
     TikTokMcpClient::$testHttpHandler = null;
 }
