@@ -7,6 +7,12 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.10] — 2026-10-11
+
+### Fixed
+
+- 🔑 **The TikTok MCP consent screen refused to authorize** with "Missing required parameter(s): resource": the MCP authorization spec (RFC 8707 resource indicators) requires the MCP server address in the login URL and in both token requests, and we didn't send it. The `resource` parameter now travels with the authorize URL, the code exchange and the token refresh — the Authorize button works
+
 ## [1.6.9] — 2026-10-11
 
 ### Fixed

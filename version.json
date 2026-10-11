@@ -1,6 +1,6 @@
 {
-    "version": "1.6.9",
-    "release_notes": "The Connect via TikTok MCP button now checks the panel address before contacting TikTok: on a plain http:// panel (including a bare IP) it shows a clear hint — add a domain with SSL on the Domains page and open the panel at https://your-domain — instead of failing with TikTok's cryptic \"redirect_uris invalid\" error. Verified against TikTok: HTTPS is the only hard requirement, even a bare-IP https:// address registers fine.",
+    "version": "1.6.10",
+    "release_notes": "The TikTok MCP consent screen no longer refuses to authorize: the tracker now sends the MCP server address (the RFC 8707 \"resource\" parameter) in the login URL and in both token requests, exactly as TikTok's MCP authorization requires. If you were stuck at the TikTok login screen, update and press \"Connect via TikTok MCP\" again — and if anything fails after Authorize, send us the error text.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-10-11"
 }
