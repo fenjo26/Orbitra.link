@@ -1,6 +1,6 @@
 {
     "version": "1.6.12",
-    "release_notes": "The TikTok MCP connection no longer fails right after you click Authorize: the callback step that exchanges the code for tokens now loads the MCP client class it needs (previously only the login step loaded it, so the exchange crashed with \"Class not found\"). Update and press \"Connect via TikTok MCP\" once more — after that your ad accounts should be found automatically, or you can paste an Advertiser ID by hand.",
+    "release_notes": "Cloaking can now act as a gate: tick \"Send clean visitors to the next stream\" on a cloak stream and bots keep getting the Safe Page while real visitors continue down your stream list. The Device, OS, Browser and Language filters get dropdown pickers with the exact values the tracker recognises (including in-app browsers like TikTok and Facebook). The Language filter now understands regions: \"en\" matches any English, \"en-IN\" matches India only. The click id in the full logs opens the click details card. Note: a Language filter saved with a region (e.g. \"en-US\") is now strictly that region — use the bare \"en\" for any English.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-10-11"
 }
