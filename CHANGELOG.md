@@ -7,6 +7,12 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.9] — 2026-10-11
+
+### Fixed
+
+- 🔒 **"Connect via TikTok MCP" on an HTTP panel ended in TikTok's cryptic "redirect_uris invalid"**: TikTok rejects non-HTTPS login addresses outright. The button now checks the panel address before anything is sent to TikTok and says in plain words what to do — add a domain with SSL on the Domains page and open the panel at https://your-domain — as a yellow card under the button and as a clear message in the login window. Verified against TikTok's registration endpoint: HTTPS is the only hard requirement — even a bare-IP https:// address registers fine, so no developer account was ever the issue
+
 ## [1.6.8] — 2026-10-11
 
 TikTok spend import without a developer account: connect through TikTok's official MCP server in one click.

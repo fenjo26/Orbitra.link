@@ -1,4 +1,4 @@
-# Orbitra v1.6.8 Tracker
+# Orbitra v1.6.9 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,23 +11,19 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.6.8
+## 🆕 What's New in v1.6.9
 
-TikTok spend import with no developer account.
-
-### Added
-
-- 🎵 **Connect via TikTok MCP**: a new button in the TikTok Costs panel signs you in through TikTok's official MCP server — the panel registers itself (dynamic client registration), so there is no developer program to apply for and no API token to paste. Ad accounts are found automatically (or paste Advertiser IDs by hand), spend sync runs through the same cron as the built-in connection, and the tokens renew themselves while the sync is alive
+TikTok MCP login now explains itself on plain-HTTP panels.
 
 ### Fixed
 
-- 📌 **The TikTok integration guide was wrong in both directions**: it promised "No Developer App needed" and sent users to Events Manager for a token. Reading spend always requires a Marketing API token from a (free) developer app, and an Events Manager token only sends conversion events. The guide now explains the real path (Developer Portal → Apps & Agents → Direct Advertiser, Ads Management + Reporting scopes) in all 7 languages
+- 🔒 **"Connect via TikTok MCP" on an HTTP panel ended in a cryptic TikTok error** ("redirect_uris invalid") — TikTok rejects non-HTTPS login addresses. The button now checks the panel address first and says in plain words what to do — add a domain with SSL on the Domains page and open the panel at https://your-domain — in a yellow card under the button and in the login window
 
-### v1.6.7
+### v1.6.8
 
-The calendar follows the profile's First day of week (day headers, month grid, the This Week preset), and Sunday no longer resets to Monday when the profile is reopened.
+TikTok spend import with no developer account: the new Connect via TikTok MCP button signs you in through TikTok's official MCP server (the panel registers itself, no tokens to paste), and the integration guide no longer promises "No Developer App needed" or points to Events Manager.
 
-Older releases (v1.6.6 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.6.7 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo

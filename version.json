@@ -1,6 +1,6 @@
 {
-    "version": "1.6.8",
-    "release_notes": "TikTok spend import without a developer account: a new Connect via TikTok MCP button signs you in through TikTok's official MCP server — the panel registers itself, so there is no developer program to apply for and no API token to paste. Ad accounts are discovered automatically (or paste Advertiser IDs by hand), spend sync runs through the same cron and the tokens renew themselves while the sync is alive. The TikTok integration guide is now honest: no more \"No Developer App needed\" or Events Manager dead ends — it explains the real free developer-app path in all 7 languages.",
+    "version": "1.6.9",
+    "release_notes": "The Connect via TikTok MCP button now checks the panel address before contacting TikTok: on a plain http:// panel (including a bare IP) it shows a clear hint — add a domain with SSL on the Domains page and open the panel at https://your-domain — instead of failing with TikTok's cryptic \"redirect_uris invalid\" error. Verified against TikTok: HTTPS is the only hard requirement, even a bare-IP https:// address registers fine.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
     "released_at": "2026-10-11"
 }
