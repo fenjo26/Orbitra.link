@@ -414,6 +414,43 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     // touch screens) and closed by an outside click.
     const [streamMenuOpen, setStreamMenuOpen] = useState(false);
     const streamMenuRef = useRef(null);
+
+    // Split view (xl+): the tab strip on the left wraps onto 1–3 rows while
+    // the "Streams" toolbar on the right is one row, so their bottom borders
+    // sat at different heights — a visible step across the seam. Both get the
+    // taller one's height. Natural heights are read from the children (both
+    // bars pack their content, so a min-height never feeds back into the
+    // measurement).
+    const tabStripRef = useRef(null);
+    const streamsBarRef = useRef(null);
+    const [splitBarH, setSplitBarH] = useState(null);
+    useEffect(() => {
+        const tabsEl = tabStripRef.current;
+        const barEl = streamsBarRef.current;
+        if (!tabsEl || !barEl || typeof ResizeObserver === 'undefined' || !window.matchMedia) return undefined;
+        const mq = window.matchMedia('(min-width: 1280px)');
+        const natural = (el) => {
+            const kids = [...el.children].filter(k => k.offsetParent !== null);
+            if (!kids.length) return 0;
+            const rects = kids.map(k => k.getBoundingClientRect());
+            const top = Math.min(...rects.map(r => r.top));
+            const bottom = Math.max(...rects.map(r => r.bottom));
+            const cs = getComputedStyle(el);
+            return Math.ceil(bottom - top
+                + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom)
+                + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth));
+        };
+        const update = () => {
+            const h = mq.matches ? Math.max(natural(tabsEl), natural(barEl)) : null;
+            setSplitBarH(prev => (prev === h ? prev : h));
+        };
+        const ro = new ResizeObserver(update);
+        ro.observe(tabsEl);
+        ro.observe(barEl);
+        mq.addEventListener?.('change', update);
+        update();
+        return () => { ro.disconnect(); mq.removeEventListener?.('change', update); };
+    }, []);
     useEffect(() => {
         if (!streamMenuOpen) return undefined;
         const close = (e) => {
@@ -2852,7 +2889,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             sideways: a hidden-scrollbar strip left "S2S Postbacks"
                             and "Notes" invisible in the ~380px sidebar, and nobody
                             knew they existed. */}
-                        <div className="flex flex-wrap px-2 pt-2 gap-x-0.5" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                        <div ref={tabStripRef} className="flex flex-wrap content-end px-2 pt-2 gap-x-0.5" style={{ borderBottom: '1px solid var(--color-border)', minHeight: splitBarH ?? undefined }}>
                             {[
                                 { key: 'general', label: t('editor.general') },
                                 { key: 'finance', label: t('editor.finance') },
@@ -4470,7 +4507,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
                     {/* Streams Area: below the tabs on narrow viewports, 70% pane from xl up */}
                     <div className="flex-1 min-w-0 flex flex-col border-t xl:border-t-0 rounded-b-[24px] xl:rounded-bl-none" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-main)' }}>
-                        <div className="p-4 flex justify-between items-center flex-wrap gap-x-3 gap-y-2 shadow-sm z-10" style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)' }}>
+                        <div ref={streamsBarRef} className="p-4 flex justify-between items-center content-center flex-wrap gap-x-3 gap-y-2 z-10" style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)', minHeight: splitBarH ?? undefined }}>
                             <h3 className="font-bold text-base lg:text-lg" style={{ color: 'var(--color-text-primary)' }}>
                                 {t('editor.streams')}
                                 <span className="font-normal text-sm ml-1" style={{ color: 'var(--color-text-muted)' }}>({formData.streams.length})</span>
