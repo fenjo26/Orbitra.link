@@ -1,6 +1,6 @@
 {
-    "version": "1.6.12",
-    "release_notes": "Cloaking can now act as a gate: tick \"Send clean visitors to the next stream\" on a cloak stream and bots keep getting the Safe Page while real visitors continue down your stream list. The Device, OS, Browser and Language filters get dropdown pickers with the exact values the tracker recognises (including in-app browsers like TikTok and Facebook). The Language filter now understands regions: \"en\" matches any English, \"en-IN\" matches India only. The click id in the full logs opens the click details card. Note: a Language filter saved with a region (e.g. \"en-US\") is now strictly that region — use the bare \"en\" for any English.",
+    "version": "1.6.13",
+    "release_notes": "Landings can now pass a visitor's choice to the offer the Keitaro way: add sub_id_1 … sub_id_30 to the transition link (/?_lp=1&sub_id_5=…, or {lp_url}&sub_id_5=… on a landing hosted elsewhere) and they update the click, so the offer URL's {sub_id_5} carries the chosen product, plan or answer to the network. Values are stored on the click too, so reports and postbacks see them. Empty values never erase what the traffic source sent.",
     "download_url": "https://github.com/fenjo26/Orbitra.link/archive/refs/heads/main.zip",
-    "released_at": "2026-10-11"
+    "released_at": "2026-10-12"
 }

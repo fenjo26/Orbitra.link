@@ -7,6 +7,12 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.13] — 2026-10-12
+
+### Added
+
+- 🛒 **Landings can pass a choice to the offer, Keitaro-style.** `sub_id_1` … `sub_id_30` on the landing→offer link (`/?_lp=1&sub_id_5=Blue%20Watch`, or `{lp_url}&sub_id_5=…` on a landing hosted elsewhere) now update the click, so `{sub_id_5}` in the offer URL carries the product, plan or quiz answer the visitor picked. The values are stored on the click too, so reports and postbacks see them. Only `sub_id_N` keys are accepted, an empty value never erases what the traffic source sent, values are capped at 512 bytes, and the click is still resolved only from the signed token or the visitor's own cookie. Test transitions substitute the values as well (nothing is written)
+
 ## [1.6.12] — 2026-10-11
 
 ### Added

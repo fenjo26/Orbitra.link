@@ -2608,17 +2608,11 @@ if ($uriPath === '/pixel.gif') {
                     if (!is_array($pxExisting)) {
                         $pxExisting = [];
                     }
-                    $pxAllowed = ['keyword', 'cost', 'currency', 'external_id', 'creative_id', 'ad_campaign_id', 'source'];
-                    for ($pxI = 1; $pxI <= 30; $pxI++) {
-                        $pxAllowed[] = 'sub_id_' . $pxI;
-                    }
-                    $pxDirty = false;
-                    foreach ($pxAllowed as $pxKey) {
-                        if (isset($_GET[$pxKey]) && $_GET[$pxKey] !== '') {
-                            $pxExisting[$pxKey] = substr((string) $_GET[$pxKey], 0, 512);
-                            $pxDirty = true;
-                        }
-                    }
+                    $pxAllowed = array_merge(
+                        ['keyword', 'cost', 'currency', 'external_id', 'creative_id', 'ad_campaign_id', 'source'],
+                        orbitraLandingUpdatableParamKeys()
+                    );
+                    [$pxExisting, $pxDirty] = orbitraMergeClickParamUpdates($pxExisting, $_GET, $pxAllowed);
                     if ($pxDirty) {
                         $stmtPxUpd = $pdo->prepare("UPDATE clicks SET parameters_json = ? WHERE id = ?");
                         $stmtPxUpd->execute([json_encode($pxExisting, JSON_UNESCAPED_UNICODE), $pxSubid]);
@@ -3382,10 +3376,13 @@ if (isset($_GET['_lp'])) {
                 die('Test landing transition failed: offer not found.');
             }
             $lpTestClickId = 'test-' . generateUuid();
+            // A test click has no row to update, but the landing's sub_id_N
+            // still reach the offer URL so the test shows what a real visitor gets.
+            [$lpTestParams] = orbitraMergeClickParamUpdates([], $_GET, orbitraLandingUpdatableParamKeys());
             if (!empty($lpTestOffer['is_local'])) {
-                orbitraServeLocalOffer($pdo, (int) $lpTestOfferId, $lpTestClickId, [], ['postback_key' => $lpSecret]);
+                orbitraServeLocalOffer($pdo, (int) $lpTestOfferId, $lpTestClickId, $lpTestParams, ['postback_key' => $lpSecret]);
             }
-            $lpTestUrl = applyOfferMacros($lpTestOffer['url'], $lpTestClickId, (int) $lpTestOfferId, [], [
+            $lpTestUrl = applyOfferMacros($lpTestOffer['url'], $lpTestClickId, (int) $lpTestOfferId, $lpTestParams, [
                 'ip'      => orbitraClientIp(),
                 // The _geo override rides along from the test link; an empty
                 // country leaves the {country} macro to the offer's own logic.
@@ -3471,6 +3468,24 @@ if (isset($_GET['_lp'])) {
         $decoded = json_decode($lpClick['parameters_json'], true);
         if (is_array($decoded)) {
             $lpParams = $decoded;
+        }
+    }
+
+    // Keitaro parity: sub_id_1..sub_id_30 on the transition link update the
+    // click. A landing that lets the visitor choose (product, plan, answer)
+    // appends them — /?_lp=1&_token=…&sub_id_5=Blue — and the offer URL's
+    // {sub_id_5} carries the choice to the network. The click row is updated
+    // too, so reports and postback macros see the same value. Only the
+    // visitor's own click can be touched: the click id above came from a
+    // signed token or this browser's cookie, never from the URL. With stats
+    // off there is no row to update, but the values still reach the offer URL.
+    [$lpParams, $lpParamsChanged] = orbitraMergeClickParamUpdates($lpParams, $_GET, orbitraLandingUpdatableParamKeys());
+    if ($lpClick && $lpParamsChanged) {
+        try {
+            $pdo->prepare("UPDATE clicks SET parameters_json = ? WHERE id = ?")
+                ->execute([json_encode($lpParams, JSON_UNESCAPED_UNICODE), $lpClickId]);
+        } catch (\Throwable $e) {
+            // The redirect still carries the new values; only the stored copy is stale.
         }
     }
 

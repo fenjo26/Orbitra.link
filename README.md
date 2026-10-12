@@ -1,4 +1,4 @@
-# Orbitra v1.6.12 Tracker
+# Orbitra v1.6.13 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,25 +11,19 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.6.12
+## 🆕 What's New in v1.6.13
 
-Streams that sort traffic the way affiliates actually asked for.
+A landing can now tell the offer what the visitor picked.
 
 ### Added
 
-- 🚪 **Cloaking can act as a gate.** New checkbox on a cloak stream — "Send clean visitors to the next stream": bots and moderators still get the Safe Page, while real visitors continue down the stream list, so geo/device/language splitting lives in your ordinary streams. Works in the redirect router, the Click API and click.php; the JS challenge still runs first when it is on
-- 🎛️ **Device, OS, Browser and Language filters get a picker** like the country filter: the list shows exactly the values the tracker recognises — including the in-app browsers (TikTok, Facebook, Instagram, Telegram, WebView…) that were impossible to guess before. Free text is still accepted with Enter
-- 🔎 **Full logs → click details**: the click id on the Logs page now opens the same click card as Recent Clicks
+- 🛒 **Landings can pass a choice to the offer, Keitaro-style.** Add `sub_id_1` … `sub_id_30` to the landing→offer link (`/?_lp=1&sub_id_5=…`, or `{lp_url}&sub_id_5=…` on a landing hosted elsewhere) and they update the click, so `{sub_id_5}` in the offer URL carries the product, plan or quiz answer to the network. The values land on the click too, so reports and postbacks see them; an empty value never erases what the traffic source sent
 
-### Changed
+### v1.6.12
 
-- 🌐 **The Language filter understands regions.** `en` still matches any English; `en-IN` now matches only English (India) instead of collapsing to `en` — so "exclude en-IN" keeps Indian traffic out of a Tier-1 stream, wherever the language sits in the browser's list. Existing filters written with a region (e.g. `en-US`) become as strict as they read — use the bare `en` for "any English"
+Cloaking can act as a gate ("Send clean visitors to the next stream"), the Device/OS/Browser/Language filters get pickers with the exact recognised values, and the Language filter understands regions (`en` = any English, `en-IN` = India only).
 
-### v1.6.11
-
-One step further on the TikTok MCP login: the connection no longer crashes right after Authorize (the MCP client class now loads for the callback steps too).
-
-Older releases (v1.6.10 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.6.11 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo

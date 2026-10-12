@@ -255,3 +255,46 @@ if (!function_exists('orbitraClickParamKeys')) {
         return $params;
     }
 }
+
+if (!function_exists('orbitraMergeClickParamUpdates')) {
+    /**
+     * Merge visitor-supplied updates onto a click's stored parameters.
+     *
+     * Shared by the two places that let a page amend its own click after the
+     * fact: the landing→offer hop (/?_lp=1&sub_id_5=…, Keitaro's "sub_id_1..30
+     * update the click") and the pixel's action=update (KTracking.update).
+     * Only keys in $allowed are taken; empty and non-scalar values are ignored
+     * (an empty value never erases what the traffic source sent), and values
+     * are capped at the same 512 bytes the click itself stores.
+     *
+     * @return array{0: array, 1: bool} [merged params, whether anything changed]
+     */
+    function orbitraMergeClickParamUpdates(array $existing, array $incoming, array $allowed): array
+    {
+        $changed = false;
+        foreach ($allowed as $key) {
+            if (!isset($incoming[$key]) || !is_scalar($incoming[$key])) {
+                continue;
+            }
+            $value = substr((string) $incoming[$key], 0, 512);
+            if ($value === '') {
+                continue;
+            }
+            if (!array_key_exists($key, $existing) || (string) $existing[$key] !== $value) {
+                $existing[$key] = $value;
+                $changed = true;
+            }
+        }
+        return [$existing, $changed];
+    }
+
+    /** sub_id_1 … sub_id_30 — the keys a landing may update on its way to the offer. */
+    function orbitraLandingUpdatableParamKeys(): array
+    {
+        $keys = [];
+        for ($i = 1; $i <= 30; $i++) {
+            $keys[] = 'sub_id_' . $i;
+        }
+        return $keys;
+    }
+}

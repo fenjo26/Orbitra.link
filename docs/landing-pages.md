@@ -45,6 +45,16 @@ The simplest form, and the one to reach for:
 
 Appending `&offer_id=` to `{offer}` does nothing useful: `{offer}` already expands to the advertiser's URL, so the parameter is just passed along to them. `/?_lp=1&offer_id=N` picks the offer inside the tracker and re-attributes the click, so a conversion lands on the right offer.
 
+**Passing a choice made on the landing** (a product, plan or quiz answer) works the Keitaro way: add `sub_id_1` … `sub_id_30` to the transition link and they update the click.
+
+```html
+<a href="/?_lp=1&sub_id_5=Blue%20Watch&sub_id_6=https%3A%2F%2Fcdn.example%2Fblue.jpg">Buy the blue one</a>
+```
+
+The offer URL then picks them up as `{sub_id_5}` / `{sub_id_6}`, e.g. `https://network.example/?sub1={clickid}&product={sub_id_5}&image={sub_id_6}`. The values are written to the click too, so reports and postbacks see the same thing. Only `sub_id_N` keys are accepted, empty values never erase what the traffic source sent, and each value is capped at 512 bytes. On a landing hosted elsewhere, append them to the signed link: `{lp_url}&sub_id_5=…`.
+
+Appending them to `{offer}` does not work for the same reason as `offer_id`: `{offer}` is already the advertiser's URL and never passes through the tracker again. If the value is known before the click (one product per campaign), skip the landing step entirely and put `?sub_id_5=…` in the campaign link.
+
 ### Time on the landing
 
 Nothing to add to the page: every landing the tracker serves gets a small timer
