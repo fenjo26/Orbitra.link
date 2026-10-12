@@ -124,23 +124,40 @@ class OrbitraTestHarness
         // (postback_test) make the server call ITSELF over HTTP — with the
         // default single worker that request deadlocks against its own
         // parent handler.
-        $cmd = sprintf(
-            'PHP_CLI_SERVER_WORKERS=%s %s -S %s:%d -t %s %s',
-            escapeshellarg((string) (getenv('ORBITRA_TEST_SERVER_WORKERS') ?: '4')),
-            escapeshellarg($phpBinary),
-            $this->host,
-            $this->port,
-            escapeshellarg($this->repoRoot),
-            escapeshellarg($this->routerFile)
-        ) . ' -d display_errors=1 -d error_reporting=E_ALL';
-
+        //
+        // The command MUST stay an array: a string would run through
+        // /bin/sh -c, making $this->pid the SHELL's pid — stop() would then
+        // SIGTERM the wrapper and orphan the php server (and its
+        // PHP_CLI_SERVER_WORKERS children), leaking a listening process per
+        // test run until the process table fills up. The array form execs
+        // php directly, so the pid below is the server itself, and SIGTERM
+        // reaches it (and its workers) on stop().
+        $env = array_merge(array_filter(getenv(), 'is_string'), [
+            'PHP_CLI_SERVER_WORKERS' => (string) (getenv('ORBITRA_TEST_SERVER_WORKERS') ?: '4'),
+        ]);
         $descriptorspec = [
             0 => ['pipe', 'r'],   // stdin
             1 => ['pipe', 'w'],   // stdout
             2 => ['pipe', 'w'],   // stderr
         ];
-
-        $process = proc_open($cmd, $descriptorspec, $pipes, $this->repoRoot);
+        $process = proc_open(
+            [
+                $phpBinary,
+                '-S',
+                $this->host . ':' . $this->port,
+                '-t',
+                $this->repoRoot,
+                $this->routerFile,
+                '-d',
+                'display_errors=1',
+                '-d',
+                'error_reporting=E_ALL',
+            ],
+            $descriptorspec,
+            $pipes,
+            $this->repoRoot,
+            $env
+        );
         if (!is_resource($process)) {
             throw new RuntimeException('Failed to start PHP server');
         }
@@ -286,6 +303,19 @@ class OrbitraTestHarness
             }
 
             $this->pid = null;
+        }
+
+        // PHP_CLI_SERVER_WORKERS children survive even a graceful SIGTERM to
+        // the parent (verified on PHP 8.5/macOS) and get orphaned to launchd,
+        // one listening set per test run — enough runs fill the process table
+        // ("fork: resource temporarily unavailable" everywhere). Sweep the
+        // whole server set by its exact host:port; the pattern is port-bound,
+        // so parallel harnesses on other ports are never touched.
+        if ($this->port !== null && function_exists('exec')) {
+            // "php " prefix keeps the pattern from starting with a dash —
+            // pkill would otherwise eat "-S" as one of its own flags and
+            // silently match nothing.
+            @exec('pkill -9 -f ' . escapeshellarg('php -S ' . $this->host . ':' . $this->port) . ' >/dev/null 2>&1');
         }
 
         // Restore original database if we replaced it

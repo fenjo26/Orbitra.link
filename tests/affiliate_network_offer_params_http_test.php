@@ -182,13 +182,18 @@ try {
     $assertOfferUrl($explicit['location'], $click['id'], $explicitOfferId, 'Cookie-based explicit LP', true);
     $assert($explicitOfferId, (int) $latestClick($fixture['id'])['offer_id'], 'Cookie-based explicit LP: correct kit attributed');
 
-    // Macros embedded in both supported inline landing types receive the
-    // prepared offer URL, before HTML escaping of incoming tracking values.
+    // Macros embedded in both supported inline landing types resolve to the
+    // signed transition (v1.6.14); following it lands on the prepared network
+    // URL with the tracking values HTML-escaped on the way in.
     foreach ([$landingId => 'action', $localLandingId => 'local'] as $id => $type) {
         $fixture = $campaign('landing_offer', $offerId, $id);
         $view = $request('/' . $fixture['alias'] . $traffic);
         $assert(200, $view['code'], $type . ' landing macro: served');
-        $assertOfferUrl($href($view['body'], 'offer'), $latestClick($fixture['id'])['id'], $offerId, $type . ' landing macro');
+        $offerHref = $href($view['body'], 'offer');
+        $assert(true, strpos($offerHref, '/index.php?_lp=1&_token=') !== false, $type . ' landing macro: {offer} is the signed transition');
+        $hop = $request($offerHref);
+        $assert(302, $hop['code'], $type . ' landing macro: transition redirects');
+        $assertOfferUrl($hop['location'], $latestClick($fixture['id'])['id'], $offerId, $type . ' landing macro');
     }
 
     // Direct routes include both modern weighted offers and the legacy FK.
@@ -259,11 +264,24 @@ try {
     $externalLandingUrl = 'https://landing.example/page?own=1#landing';
     $externalLanding = $insert('landings', ['name' => 'External landing', 'type' => 'redirect', 'url' => $externalLandingUrl]);
     $fixture = $campaign('landing_offer', $offerId, $externalLanding);
-    $assert($externalLandingUrl, $request('/' . $fixture['alias'])['location'], 'External landing does not inherit offer network parameters');
+    $extLoc = $request('/' . $fixture['alias'])['location'];
+    // v1.6.14: the docs-promised _subid/_token pair now actually arrives
+    // (the old guard never fired), inserted BEFORE the fragment; the offer
+    // network's parameters still never leak into the landing URL.
+    $assert(true, strpos($extLoc, 'https://landing.example/page?own=1') === 0, 'External landing does not inherit offer network parameters');
+    $assert(true, strpos($extLoc, 'fixed=') === false, 'External landing: no network params in the URL');
+    $assert(true, strpos($extLoc, '_subid=') !== false && strpos($extLoc, '_token=') !== false, 'External landing: signed pair appended');
+    $assert(true, preg_match('/_token=[^#]+#landing$/', $extLoc) === 1, 'External landing: pair inserted before the fragment');
+    // The Click API appends no pair (its clients use offer_link/cookies) and
+    // keeps the landing URL byte-exact.
     $assert($externalLandingUrl, $apiLocation($clickApi($fixture)), 'Click API external landing does not inherit offer network parameters');
 
-    // Resolve the entire offer before embedding it in a landing's query. A
-    // second macro pass after URL-encoding would leave %7Bsubid%7D unresolved.
+    // {offer} inside a landing's own query embeds the SIGNED TRANSITION
+    // (v1.6.14): the landing's page receives destination=<absolute transition>
+    // (the network parameters stay inside the offer URL the transition leads
+    // to — no second macro pass after URL-encoding), plus the docs-promised
+    // _subid/_token pair on the index path. The Click API path appends no
+    // pair: its clients use offer_link/cookies instead.
     $nestedLanding = $insert('landings', [
         'name' => 'Nested offer landing', 'type' => 'redirect',
         'url' => 'https://landing.example/page?destination={offer}',
@@ -273,12 +291,17 @@ try {
     $nestedQuery = [];
     parse_str((string) parse_url($nested['location'], PHP_URL_QUERY), $nestedQuery);
     $assert(302, $nested['code'], 'Nested offer: landing redirects');
-    $assert(['destination'], array_keys($nestedQuery), 'Nested offer: network parameters stay inside the offer URL');
-    $assertOfferUrl($nestedQuery['destination'] ?? '', $latestClick($fixture['id'])['id'], $offerId, 'Nested offer/index');
+    $assert(['destination', '_subid', '_token'], array_keys($nestedQuery), 'Nested offer: landing URL carries the destination plus the signed pair only');
+    $assert(true, strpos((string) ($nestedQuery['destination'] ?? ''), '/index.php?_lp=1&_token=') !== false, 'Nested offer: destination is the signed transition');
+    $nestedHop = $request('/index.php?' . parse_url((string) $nestedQuery['destination'], PHP_URL_QUERY));
+    $assert(302, $nestedHop['code'], 'Nested offer: transition redirects');
+    $assertOfferUrl($nestedHop['location'], $latestClick($fixture['id'])['id'], $offerId, 'Nested offer/index');
     $nestedApi = $clickApi($fixture);
     parse_str((string) parse_url($apiLocation($nestedApi), PHP_URL_QUERY), $nestedQuery);
-    $assert(['destination'], array_keys($nestedQuery), 'Nested offer/Click API: network parameters stay inside the offer URL');
-    $assertOfferUrl($nestedQuery['destination'] ?? '', $nestedApi['info']['sub_id'], $offerId, 'Nested offer/Click API');
+    $assert(['destination'], array_keys($nestedQuery), 'Nested offer/Click API: landing URL carries the destination only');
+    $nestedApiHop = $request('/index.php?' . parse_url((string) $nestedQuery['destination'], PHP_URL_QUERY));
+    $assert(302, $nestedApiHop['code'], 'Nested offer/Click API: transition redirects');
+    $assertOfferUrl($nestedApiHop['location'], $nestedApi['info']['sub_id'], $offerId, 'Nested offer/Click API');
 
     // Built-in networks can use path suffixes instead of a query parameter.
     $pathNetwork = $insert('affiliate_networks', [

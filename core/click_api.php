@@ -1026,7 +1026,15 @@ function orbitraClickApiV3(PDO $pdo): void
         }
         if ($offerIdToLog) {
             $resolved = str_replace('{offer_id}', (string) $offerIdToLog, $resolved);
-            $resolved = str_replace('{offer}', urlencode($offerUrlMacros), $resolved);
+            // {offer} inside a landing's URL: the absolute signed transition
+            // (same link as offer_link) — a relative one would resolve against
+            // the landing's own domain, and the direct offer URL would skip
+            // the tracker entirely.
+            if ($offerTransitionLink !== null) {
+                $resolved = str_replace('{offer}', urlencode($offerTransitionLink), $resolved);
+            } else {
+                $resolved = str_replace('{offer}', urlencode($offerUrlMacros), $resolved);
+            }
         }
 
         // Drop macros the click carried no value for — same cleanup as the

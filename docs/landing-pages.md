@@ -34,16 +34,16 @@ The simplest form, and the one to reach for:
 <a href="{offer}">Buy</a>
 ```
 
-`{offer}` is replaced with the URL of the offer the stream picked, click id included.
+`{offer}` is replaced with the signed landing→offer transition (since 1.6.14, matching Keitaro): the click passes through the tracker, so the funnel is counted and the offer's macros are substituted at the redirect. Before 1.6.14 it embedded the advertiser's direct URL, which skipped the tracker — streams with "offer selection: before" showed zero clicks.
 
-**With several offers on one page**, the choice has to go through the tracker:
+**With several offers on one page**, either form works — the explicit one in every version:
 
 ```html
 <a href="/?_lp=1&offer_id=10">Offer 10</a>
-<a href="/?_lp=1&offer_id=22">Offer 22</a>
+<a href="{offer}&offer_id=22">Offer 22</a>   <!-- 1.6.14+ -->
 ```
 
-Appending `&offer_id=` to `{offer}` does nothing useful: `{offer}` already expands to the advertiser's URL, so the parameter is just passed along to them. `/?_lp=1&offer_id=N` picks the offer inside the tracker and re-attributes the click, so a conversion lands on the right offer.
+Appending `&offer_id=` to `{offer}` **switches the offer** (since 1.6.14): `{offer}` expands to the signed transition link, so the tracker reads the parameter and re-attributes the click — a conversion lands on the offer you named. Before 1.6.14 `{offer}` expanded to the advertiser's direct URL and the parameter was just passed along to them; the explicit `/?_lp=1&offer_id=N` form works in every version.
 
 **Passing a choice made on the landing** (a product, plan or quiz answer) works the Keitaro way: add `sub_id_1` … `sub_id_30` to the transition link and they update the click.
 
@@ -53,7 +53,7 @@ Appending `&offer_id=` to `{offer}` does nothing useful: `{offer}` already expan
 
 The offer URL then picks them up as `{sub_id_5}` / `{sub_id_6}`, e.g. `https://network.example/?sub1={clickid}&product={sub_id_5}&image={sub_id_6}`. The values are written to the click too, so reports and postbacks see the same thing. Only `sub_id_N` keys are accepted, empty values never erase what the traffic source sent, and each value is capped at 512 bytes. On a landing hosted elsewhere, append them to the signed link: `{lp_url}&sub_id_5=…`.
 
-Appending them to `{offer}` does not work for the same reason as `offer_id`: `{offer}` is already the advertiser's URL and never passes through the tracker again. If the value is known before the click (one product per campaign), skip the landing step entirely and put `?sub_id_5=…` in the campaign link.
+Since 1.6.14 `{offer}&sub_id_5=…` works too — the macro is the transition link itself, so the tracker reads what you append to it. If the value is known before the click (one product per campaign), skip the landing step entirely and put `?sub_id_5=…` in the campaign link.
 
 ### Time on the landing
 
@@ -88,15 +88,16 @@ Substituted in the HTML of a local landing:
 
 | Macro | Value |
 |---|---|
-| `{offer}` | URL of the offer bound to this click |
-| `{offer_id}` | its id |
+| `{offer}` | signed landing→offer transition (`/index.php?_lp=1&_token=…`, since 1.6.14 — the click passes through the tracker, so the funnel counts and appended `&offer_id=` / `&sub_id_N` parameters reach it; same value as `{lp_url}`) |
+| `{lp_url}` | the same signed transition, spelled for external landings |
+| `{offer_id}` | the bound offer's id |
 | `{clickid}`, `{subid}` | the click id |
 | `{token}` | signed token, used by the JS adapter |
 | `{keyword}`, `{sub_id_1}` … `{sub_id_30}` | click parameters captured from the traffic source |
 
 Values taken from the URL are HTML-escaped. Nothing else is touched — `{unknown}`, JS template literals, Vue and Angular syntax all survive.
 
-With no offer on the stream, `{offer}` becomes `/?_lp=1`, which explains the misconfiguration when clicked instead of silently reloading the page.
+With no offer on the stream, `{offer}` becomes an unsigned transition link, which explains the misconfiguration when clicked instead of silently reloading the page.
 
 ---
 
@@ -109,6 +110,8 @@ https://your-landing.example/promo?_subid=<click id>&_token=<signed token>
 ```
 
 The token is what makes the offer link work at all. A landing on another domain cannot read the tracker's cookies, so without it the tracker has no way to tell which click is coming back. It is signed with HMAC-SHA256 and expires after 24 hours; a bare `_subid` from the URL is **not** accepted on its own, because that would let anyone attribute a visit to any click id they like. A local or preload landing recovers the click from its cookie instead, so it does not need the token.
+
+A `{offer}` inside the landing's own URL becomes the same transition, absolute (`http://your-tracker/index.php?_lp=1&_token=…`), so a landing that takes its CTA from a query parameter gets a working link too. Both behaviours need v1.6.14; before it the pair never actually arrived and `{offer}` embedded the advertiser's direct URL.
 
 **Install the [JS adapter](#js-adapter)** and link the offer as:
 

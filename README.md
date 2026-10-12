@@ -1,4 +1,4 @@
-# Orbitra v1.6.13 Tracker
+# Orbitra v1.6.14 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,19 +11,23 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.6.13
+## 🆕 What's New in v1.6.14
 
-A landing can now tell the offer what the visitor picked.
+`{offer}` on a landing now behaves exactly like Keitaro's.
 
-### Added
+### Changed
 
-- 🛒 **Landings can pass a choice to the offer, Keitaro-style.** Add `sub_id_1` … `sub_id_30` to the landing→offer link (`/?_lp=1&sub_id_5=…`, or `{lp_url}&sub_id_5=…` on a landing hosted elsewhere) and they update the click, so `{sub_id_5}` in the offer URL carries the product, plan or quiz answer to the network. The values land on the click too, so reports and postbacks see them; an empty value never erases what the traffic source sent
+- 🔗 **`{offer}` is the signed link through the tracker, not the advertiser's direct URL.** The button click is counted in the funnel (Real LP clicks, LP CTR, time-to-offer), and streams with "offer selection: before" — whose clicks silently showed as **zero** in reports — start counting properly. Parameters appended to the macro now reach the tracker: `{offer}&offer_id=10` switches the offer, `{offer}&sub_id_5=…` passes the visitor's choice (the 1.6.13 feature) straight on the macro. A `{offer}` inside an external landing's URL becomes an absolute signed link, and the `?_dbg=1` trace shows the transition. The price is one extra same-domain 302
 
-### v1.6.12
+### Fixed
 
-Cloaking can act as a gate ("Send clean visitors to the next stream"), the Device/OS/Browser/Language filters get pickers with the exact recognised values, and the Language filter understands regions (`en` = any English, `en-IN` = India only).
+- 🧾 **External redirect landings receive the documented `_subid`/`_token` pair.** The append existed since the beginning but never actually fired, so a hand-made landing on another domain had no working way back to the tracker
 
-Older releases (v1.6.11 and earlier): see the [full changelog](CHANGELOG.md).
+### v1.6.13
+
+A landing can pass the visitor's choice to the offer the Keitaro way: `sub_id_1` … `sub_id_30` on the landing→offer link update the click, so `{sub_id_5}` in the offer URL carries the picked product, plan or quiz answer.
+
+Older releases (v1.6.12 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo

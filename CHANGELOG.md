@@ -7,6 +7,16 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.14] — 2026-10-12
+
+### Changed
+
+- 🔗 **`{offer}` on a landing is now the signed link through the tracker, exactly like Keitaro.** The macro used to expand to the advertiser's direct URL, so the button click skipped the tracker entirely: streams with "offer selection: before" (the default) silently showed **zero clicks** in reports — no Real LP clicks, no LP CTR, no time-to-offer — and anything appended to the macro (`{offer}&offer_id=…`, `{offer}&sub_id_5=…`) landed on a foreign domain. Now `{offer}` expands to `/index.php?_lp=1&_token=…`, the hop completes the funnel, and appended parameters reach the tracker: an offer switch (`&offer_id=`) and the 1.6.13 click updates (`&sub_id_N=`) both work straight on the macro. The same applies to a `{offer}` inside an external landing's URL — as an absolute link, since a relative one would resolve against the landing's own domain — and to the `?_dbg=1` trace, which now shows the transition. The price is one extra same-domain 302. Local, action, PHP and preload landings, the Click API and `click.php` are all covered
+
+### Fixed
+
+- 🧾 **External redirect landings now actually receive the documented `_subid`/`_token` pair.** The append existed since v0.9.3.4 but was guarded on a condition the landing_offer and cloak branches make unreachable, so a hand-made landing on another domain got no way back and its `/?_lp=1` hop answered "original click not found". The pair is now appended for every redirect landing, inserted before the URL fragment
+
 ## [1.6.13] — 2026-10-12
 
 ### Added

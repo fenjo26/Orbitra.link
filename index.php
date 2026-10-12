@@ -2079,8 +2079,13 @@ function applyLandingMacros($html, $clickId, $offerId, $offerUrl, array $clickPa
         '{offer_id}' => (string) ($offerId ?: ''),
         '{{offer_id}}' => (string) ($offerId ?: ''),
         // Not url-encoded: this lands in an href, so it has to stay a usable URL.
-        '{offer}' => (string) $offerUrl !== '' ? (string) $offerUrl : '/?_lp=1',
-        '{{offer}}' => (string) $offerUrl !== '' ? (string) $offerUrl : '/?_lp=1',
+        // {offer} is the signed landing→offer transition (Keitaro parity): the
+        // click passes through /?_lp=1, which completes the funnel (offer_at)
+        // and accepts appended sub_id_N / offer_id params. Appending anything
+        // to the advertiser's direct URL (the pre-1.6.14 behaviour) silently
+        // skipped both.
+        '{offer}' => (string) $lpToken !== '' ? '/index.php?_lp=1&_token=' . urlencode((string) $lpToken) : '/index.php?_lp=1',
+        '{{offer}}' => (string) $lpToken !== '' ? '/index.php?_lp=1&_token=' . urlencode((string) $lpToken) : '/index.php?_lp=1',
         // LP→offer transition with the signed token bound to THIS click — the
         // macro PWA landings use for their CTAs and redirect timers. Routed
         // through /index.php (not /) so SPA-fallback vhosts cannot eat the
@@ -4282,7 +4287,7 @@ function orbitraTraceStreams(array $allStreams, array $visitor, PDO $pdo): array
  * macros, leftover-{macro} strip, scheme fix) applied to a copy — the real
  * $finalUrl stays untouched for the actual redirect.
  */
-function orbitraTestPreviewUrl(string $url, $offerIdToLog, string $offerUrlMacros, string $clickId, array $clickParams, string $ip, string $country): string
+function orbitraTestPreviewUrl(string $url, $offerIdToLog, string $offerUrlMacros, string $clickId, array $clickParams, string $ip, string $country, string $offerTransitionAbs = ''): string
 {
     if ($url === '') {
         return '';
@@ -4295,12 +4300,19 @@ function orbitraTestPreviewUrl(string $url, $offerIdToLog, string $offerUrlMacro
     foreach ($clickParams as $key => $val) {
         $url = str_replace('{' . $key . '}', urlencode((string) $val), $url);
     }
+    if ($offerTransitionAbs !== '') {
+        // The trace must show the visitor's real path: {offer} in a landing
+        // URL becomes the signed transition, not the advertiser's direct URL.
+        $url = str_replace('{offer}', urlencode($offerTransitionAbs), $url);
+    }
     if (!empty($offerIdToLog)) {
         $url = str_replace('{offer_id}', $offerIdToLog, $url);
-        $url = str_replace('{offer}', urlencode($offerUrlMacros), $url);
+        if ($offerTransitionAbs === '') {
+            $url = str_replace('{offer}', urlencode($offerUrlMacros), $url);
+        }
     }
     $url = (string) preg_replace('#\{[a-zA-Z0-9_]+\}#', '', $url);
-    if (!preg_match('#^(https?:)?//#i', $url) && !preg_match('#^/#', $url)) {
+    if (!preg_match('#^(https?:)?//#i', $url) && !preg_match('#^/#', $url) && !preg_match('#^(mailto|tel):#i', $url)) {
         $url = 'http://' . ltrim($url, '/');
     }
     return $url;
@@ -5006,6 +5018,34 @@ if ($statsEnabled && !$isDebounced && !$isPrefetchRequest && !$skipClickLogging 
     );
 }
 
+// The absolute, signed landing→offer transition — what {offer} resolves to
+// whenever the destination hands the link to a page that lives on another
+// host (redirect landing URL params; preload pages get <base href> pointing
+// at the remote origin). Absolute on purpose: a relative path would resolve
+// against the landing's own domain. Built once here, after the schema
+// branches have chosen the landing and before the _dbg trace and the
+// redirect, so every consumer (trace, {offer} in a landing URL) sees the
+// same link. Local/action landings build their own relative link inside
+// applyLandingMacros — their HTML is served from this domain.
+$lpTransitionAbs = '';
+if (!empty($landingIdToLog) && in_array((string) ($landingType ?? ''), ['redirect', 'preload'], true)) {
+    $lpHostOut = (string) ($_SERVER['HTTP_HOST'] ?? '');
+    if ($lpHostOut !== '') {
+        $lpTransitionAbs = (orbitraIsHttps() ? 'https' : 'http') . '://' . $lpHostOut
+            . '/index.php?_lp=1&_token=' . rawurlencode(issueLpToken($clickId, $settings['postback_key'] ?? 'orbitra_secret'));
+        if ($isTestClick && !empty($_GET['_t'])) {
+            // The test signature rides along, keeping the hop no-log.
+            $lpTransitionAbs .= '&_t=' . rawurlencode((string) $_GET['_t']);
+            if ($testGeoOverride !== '') {
+                $lpTransitionAbs .= '&_geo=' . rawurlencode($testGeoOverride);
+            }
+        }
+        if (!empty($offerIdToLog)) {
+            $lpTransitionAbs .= '&offer_id=' . (int) $offerIdToLog;
+        }
+    }
+}
+
 // ?_dbg=1 on a valid test link: answer with the routing trace instead of
 // sending the visitor anywhere. Placed after the destination was resolved but
 // before anything is served or the no-stream die, so every destination kind
@@ -5030,7 +5070,8 @@ if ($isTestClick && ($_GET['_dbg'] ?? '') === '1') {
             $clickId,
             $clickParams ?? [],
             (string) $ip,
-            (string) $country
+            (string) $country,
+            $lpTransitionAbs
         ),
         'redirect_type' => $offerRedirectType,
         'action' => $actionToPerfrom,
@@ -5154,6 +5195,9 @@ if ($actionToPerfrom) {
                 @set_time_limit(PhpLanding::timeout($pdo));
 
                 // Keitaro-compatible: the click is reachable as $rawClick->get('...').
+                // 'offer' matches the HTML {offer} macro: the signed transition,
+                // so parameters appended to it (sub_id_N, offer_id) reach the tracker.
+                $lpOfferVar = '/index.php?_lp=1&_token=' . rawurlencode(issueLpToken($clickId, $settings['postback_key'] ?? 'orbitra_secret'));
                 $rawClick = new OrbitraRawClick(array_merge(
                     $clickParams ?? [],
                     [
@@ -5162,7 +5206,7 @@ if ($actionToPerfrom) {
                         'campaign_id' => $campaignId ?? null,
                         'offer_id' => $offerIdToLog,
                         'landing_id' => $landingIdToLog,
-                        'offer' => $offerUrlMacros,
+                        'offer' => $lpOfferVar,
                     ]
                 ));
 
@@ -5212,9 +5256,12 @@ if ($actionToPerfrom) {
             }
             performTrackerAction($landingActionType ?? '', $payload);
         } else if ($landingType === 'preload') {
+            // {offer} must be the ABSOLUTE transition here: the served page
+            // carries <base href="$url"> pointing at the remote host, so a
+            // relative link would resolve against the landing's own domain.
             $url = str_replace(
                 ['{clickid}', '{offer_id}', '{offer}'],
-                [$clickId, $offerIdToLog, $offerUrlMacros],
+                [$clickId, $offerIdToLog, $lpTransitionAbs !== '' ? $lpTransitionAbs : $offerUrlMacros],
                 $landingUrl
             );
             $ch = curl_init();
@@ -5244,25 +5291,37 @@ if ($actionToPerfrom) {
         // The destination is the landing rather than the offer, so the landing's
         // own redirect method (http/js/meta_refresh) applies on the final hop.
         $offerRedirectType = $landingRedirectType;
+    }
 
-        // A landing on another domain cannot read this tracker's cookies, so its
-        // offer link has nothing to identify the visitor with. Hand it a signed
-        // token (and the raw subid, which Keitaro-shaped snippets expect) that
-        // /?_lp=1 will accept in the cookie's place.
-        if ($landingType === 'redirect') {
-            $lpSecretOut = $settings['postback_key'] ?? 'orbitra_secret';
-            $finalUrl .= (strpos($finalUrl, '?') === false ? '?' : '&')
-                . '_subid=' . rawurlencode($clickId)
-                . '&_token=' . rawurlencode(issueLpToken($clickId, $lpSecretOut));
-            // A test click rides its signature along, so the landing's
-            // /?_lp=1 hop (and tracking.js, which forwards query params to the
-            // Click API) stays test-mode too: nothing gets logged downstream.
-            if ($isTestClick && !empty($_GET['_t'])) {
-                $finalUrl .= '&_t=' . rawurlencode((string) $_GET['_t']);
-                if ($testGeoOverride !== '') {
-                    $finalUrl .= '&_geo=' . rawurlencode($testGeoOverride);
-                }
+    // A landing on another domain cannot read this tracker's cookies, so its
+    // offer link has nothing to identify the visitor with. Hand it a signed
+    // token (and the raw subid, which Keitaro-shaped snippets expect) that
+    // /?_lp=1 will accept in the cookie's place. This runs for EVERY redirect
+    // landing: the schema branches fold the landing URL into $finalUrl long
+    // before the catch-all above, so guarding the append on "!$finalUrl"
+    // (the original shape) left every landing_offer / cloak stream without
+    // the pair — the docs promise it since v0.9.3.4.
+    if (!empty($landingIdToLog) && ($landingType ?? '') === 'redirect' && $finalUrl !== '' && strpos($finalUrl, '_token=') === false) {
+        $lpSecretOut = $settings['postback_key'] ?? 'orbitra_secret';
+        $lpPair = '_subid=' . rawurlencode($clickId)
+            . '&_token=' . rawurlencode(issueLpToken($clickId, $lpSecretOut));
+        // A test click rides its signature along, so the landing's
+        // /?_lp=1 hop (and tracking.js, which forwards query params to the
+        // Click API) stays test-mode too: nothing gets logged downstream.
+        if ($isTestClick && !empty($_GET['_t'])) {
+            $lpPair .= '&_t=' . rawurlencode((string) $_GET['_t']);
+            if ($testGeoOverride !== '') {
+                $lpPair .= '&_geo=' . rawurlencode($testGeoOverride);
             }
+        }
+        // Insert before the fragment — appending after "#anchor" would hide
+        // the pair from the landing's server side entirely.
+        $lpAnchorPos = strpos($finalUrl, '#');
+        if ($lpAnchorPos === false) {
+            $finalUrl .= (strpos($finalUrl, '?') === false ? '?' : '&') . $lpPair;
+        } else {
+            $lpHead = substr($finalUrl, 0, $lpAnchorPos);
+            $finalUrl = $lpHead . (strpos($lpHead, '?') === false ? '?' : '&') . $lpPair . substr($finalUrl, $lpAnchorPos);
         }
     }
 
@@ -5305,7 +5364,16 @@ if ($actionToPerfrom) {
 
     if ($offerIdToLog) {
         $finalUrl = str_replace('{offer_id}', $offerIdToLog, $finalUrl);
-        // If finalUrl is landingUrl, '{offer}' macro should point to the configured offer URL
+    }
+    if ($lpTransitionAbs !== '') {
+        // {offer} inside a landing's URL: the absolute signed transition, so
+        // the landing's CTA hops back through the tracker (funnel counted,
+        // sub_id_N / offer_id appended to it work). urlencode() because the
+        // link travels as a parameter value on the landing's own URL.
+        $finalUrl = str_replace('{offer}', urlencode($lpTransitionAbs), $finalUrl);
+    } elseif ($offerIdToLog) {
+        // A {offer} in a non-landing destination (direct URL stream) keeps the
+        // old meaning: the configured offer's own URL.
         $finalUrl = str_replace('{offer}', urlencode($offerUrlMacros), $finalUrl);
     }
 
