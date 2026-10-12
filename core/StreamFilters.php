@@ -99,3 +99,80 @@ function orbitraLanguageFilterMatches(array $payload, string $acceptLanguageRaw)
     }
     return false;
 }
+
+/**
+ * Payload token of the Parameter filter that stands for "the parameter is
+ * missing or empty" — the same spelling Keitaro uses in its filter payloads.
+ */
+const ORBITRA_PARAM_FILTER_EMPTY = '@empty';
+
+/**
+ * The parameter a Parameter filter reads: its configured name, trimmed.
+ * '' means the filter is not configured and must abstain.
+ */
+function orbitraParameterFilterName(array $filter): string
+{
+    return trim((string) ($filter['param'] ?? ''));
+}
+
+/**
+ * The value of $name for this visit.
+ *
+ * The raw query (GET + POST) comes first, so any name works — including one
+ * no traffic-source template declares, like the `xxx=__PLACEMENT__` trick.
+ * When the raw query has no such key, the captured click parameters are
+ * consulted, so a filter on `sub_id_1` also sees a value the source template
+ * mapped there from another parameter name.
+ */
+function orbitraParameterFilterValue(string $name, array $rawParams, array $clickParams): string
+{
+    if ($name === '') {
+        return '';
+    }
+    $value = array_key_exists($name, $rawParams) ? $rawParams[$name] : ($clickParams[$name] ?? '');
+    if (is_array($value)) {
+        $value = json_encode($value, JSON_UNESCAPED_UNICODE);
+    }
+    return trim((string) $value);
+}
+
+/**
+ * Parameter stream filter: does the visit's value match any listed one?
+ *
+ *   "@empty"        → the parameter is missing or empty
+ *   "__PLACEMENT__" → exactly that value (case-insensitive), so an
+ *                     unreplaced ad-network macro is caught
+ *   "tiktok*"       → "*" is a wildcard for any run of characters
+ *
+ * Keitaro's "catch unreplaced macros" setup is then: Parameter `xxx`,
+ * include `__PLACEMENT__, @empty`, on an intercepting stream to the white page.
+ */
+function orbitraParameterFilterMatches(array $payload, string $value): bool
+{
+    foreach ($payload as $item) {
+        $token = trim((string) $item);
+        if ($token === '') {
+            continue;
+        }
+        if (strcasecmp($token, ORBITRA_PARAM_FILTER_EMPTY) === 0) {
+            if ($value === '') {
+                return true;
+            }
+            continue;
+        }
+        if ($value === '') {
+            continue;
+        }
+        if (strpos($token, '*') === false) {
+            if (strcasecmp($token, $value) === 0) {
+                return true;
+            }
+            continue;
+        }
+        $regex = '/^' . str_replace('\*', '.*', preg_quote($token, '/')) . '$/is';
+        if (@preg_match($regex, $value) === 1) {
+            return true;
+        }
+    }
+    return false;
+}

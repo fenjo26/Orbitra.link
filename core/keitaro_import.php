@@ -598,8 +598,9 @@ function orbitraKeitaroMapDeviceValue(string $v): string
 function orbitraKeitaroBuildOrbitraFilters(array $keitaroFilters, array &$droppedFilterTypes = []): array
 {
     // Best-effort conversion of Keitaro stream filters into Orbitra's filters_json schema.
-    // Orbitra supports: Country, Device, Bot, Language (see index.php streamMatchesFilters()).
-    // Keitaro filter types with no Orbitra equivalent (uniqueness, sub_id_N,
+    // Mapped here: Country, Device, Bot, Language, and sub_id_N / parameter
+    // (→ Orbitra's Parameter filter; see index.php streamMatchesFilters()).
+    // Keitaro filter types with no Orbitra equivalent (uniqueness,
     // operator filters, ...) used to be dropped silently — a campaign could
     // behave completely differently here and the report would show nothing.
     // They are counted by type into $droppedFilterTypes so the import report
@@ -672,12 +673,100 @@ function orbitraKeitaroBuildOrbitraFilters(array $keitaroFilters, array &$droppe
             continue;
         }
 
+        // sub_id_N and the custom "parameter" filter → Parameter. "@empty"
+        // keeps its Keitaro meaning (missing or empty value).
+        $paramFilters = orbitraKeitaroMapParameterFilter($type, $r, $mode);
+        if ($paramFilters !== null) {
+            foreach ($paramFilters as $pf) {
+                $out[] = $pf;
+            }
+            if ($paramFilters !== []) {
+                continue;
+            }
+        }
+
         // No Orbitra equivalent for this filter type: count it instead of
         // silently dropping it.
         $droppedKey = $type !== '' ? $type : ($field !== '' ? $field : 'unknown');
         $droppedFilterTypes[$droppedKey] = ($droppedFilterTypes[$droppedKey] ?? 0) + 1;
     }
 
+    return $out;
+}
+
+/**
+ * Keitaro sub_id_N / parameter filter → Orbitra Parameter filter(s).
+ *
+ * Returns null when the type is not a parameter filter at all, [] when it is
+ * one but carries nothing usable (the caller then counts it as dropped), or
+ * the converted filters. The custom-parameter payload is read in every shape
+ * seen in dumps: {"name":"xxx","values":[...]} (also value/payload), a list of
+ * {"name":..,"value":..} pairs (one filter per name), or "xxx=a,b".
+ */
+function orbitraKeitaroMapParameterFilter(string $type, array $row, string $mode): ?array
+{
+    $payloadRaw = $row['payload'] ?? $row['value'] ?? $row['values'] ?? $row['data'] ?? $row['selected'] ?? null;
+    $cleanValues = function ($raw): array {
+        $vals = [];
+        foreach (orbitraKeitaroParseList($raw) as $v) {
+            if (is_array($v)) {
+                continue;
+            }
+            $v = trim((string) $v);
+            if ($v !== '') {
+                $vals[] = $v;
+            }
+        }
+        return array_values(array_unique($vals));
+    };
+    $make = function (string $param, array $values) use ($mode): ?array {
+        $param = trim($param);
+        if ($param === '' || $values === []) {
+            return null;
+        }
+        return ['name' => 'Parameter', 'mode' => $mode, 'param' => $param, 'payload' => $values];
+    };
+
+    if (preg_match('/^sub_?id_?(\d{1,2})$/', $type, $m)) {
+        $f = $make('sub_id_' . (int) $m[1], $cleanValues($payloadRaw));
+        return $f ? [$f] : [];
+    }
+    if (!in_array($type, ['parameter', 'param', 'custom_param', 'custom_parameter', 'params'], true)) {
+        return null;
+    }
+
+    $decoded = is_string($payloadRaw) ? orbitraKeitaroJsonDecodeMaybe(trim($payloadRaw)) : $payloadRaw;
+    $out = [];
+    if (is_array($decoded)) {
+        $nameOf = fn(array $a) => (string) ($a['name'] ?? $a['param'] ?? $a['key'] ?? $a['parameter'] ?? '');
+        $valsOf = fn(array $a) => $a['values'] ?? $a['value'] ?? $a['payload'] ?? $a['data'] ?? null;
+        if ($nameOf($decoded) !== '') {
+            $f = $make($nameOf($decoded), $cleanValues($valsOf($decoded)));
+            if ($f) $out[] = $f;
+        } else {
+            $byName = [];
+            foreach ($decoded as $pair) {
+                if (!is_array($pair) || $nameOf($pair) === '') continue;
+                $byName[$nameOf($pair)] = array_merge($byName[$nameOf($pair)] ?? [], $cleanValues($valsOf($pair)));
+            }
+            foreach ($byName as $name => $vals) {
+                $f = $make((string) $name, array_values(array_unique($vals)));
+                if ($f) $out[] = $f;
+            }
+        }
+    } elseif (is_string($payloadRaw) && strpos($payloadRaw, '=') !== false) {
+        [$name, $vals] = explode('=', $payloadRaw, 2);
+        $f = $make($name, $cleanValues($vals));
+        if ($f) $out[] = $f;
+    }
+    // A name stored beside the payload (row-level "field"/"param" column).
+    if ($out === []) {
+        $rowName = (string) ($row['param'] ?? $row['field'] ?? '');
+        if ($rowName !== '' && strtolower($rowName) !== $type) {
+            $f = $make($rowName, $cleanValues($payloadRaw));
+            if ($f) $out[] = $f;
+        }
+    }
     return $out;
 }
 

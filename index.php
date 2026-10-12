@@ -4056,6 +4056,7 @@ function streamMatchesFilters($stream, $visitor, $pdo, &$filterTrace = null)
     $userAgent = $visitor['userAgent'] ?? '';
     $referer = $visitor['referer'] ?? '';
     $params = $visitor['params'] ?? [];
+    $rawParams = is_array($visitor['rawParams'] ?? null) ? $visitor['rawParams'] : [];
     $timezone = $visitor['timezone'] ?? '';
     $isp = trim(($visitor['isp'] ?? '') . ' ' . ($visitor['asn'] ?? ''));
 
@@ -4169,6 +4170,21 @@ function streamMatchesFilters($stream, $visitor, $pdo, &$filterTrace = null)
                         break;
                     }
                 }
+                break;
+            case 'Parameter':
+                // Any URL parameter by name; "@empty" matches a missing or
+                // empty one (core/StreamFilters.php). No name configured →
+                // abstain, like any other filter that cannot be evaluated.
+                $paramName = orbitraParameterFilterName($f);
+                if ($paramName === '') {
+                    $record($f, $mode, 'abstain', $payload, 'no parameter name');
+                    continue 2;
+                }
+                $paramValue = orbitraParameterFilterValue($paramName, $rawParams, $params);
+                $matched = orbitraParameterFilterMatches($payload, $paramValue);
+                $record($f, $mode, $matched ? 'match' : 'no-match', $payload,
+                    $paramName . '=' . ($paramValue === '' ? '(empty)' : $paramValue));
+                $fRecorded = true;
                 break;
             case 'Weekday':
                 try {
@@ -4471,6 +4487,8 @@ $visitor = [
     'userAgent' => $userAgent,
     'referer' => $referer,
     'params' => $clickParams,
+    // Raw query (GET + POST) for the Parameter filter, which may name any key.
+    'rawParams' => $incomingParams,
     'timezone' => $timezone,
     'isp' => $geoData['isp'] ?? '',
     'asn' => $geoData['asn'] ?? '',

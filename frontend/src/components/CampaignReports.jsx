@@ -728,20 +728,22 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
     };
 
     return (
-        <div className="fixed top-[88px] left-0 right-0 bottom-0 z-[2000] flex bg-black/60 backdrop-blur-sm">
-            <div className="flex flex-col w-full h-full" style={{ backgroundColor: 'var(--color-bg-main)', color: 'var(--color-text-primary)' }}>
+        // Same card shape as the rest of the panel: inset from the screen edge
+        // and rounded, instead of a square full-bleed sheet on a dark scrim.
+        <div className="fixed top-[88px] left-0 right-0 bottom-0 z-[2000] flex sm:px-6 sm:pb-6" style={{ backgroundColor: 'var(--color-bg-main)' }}>
+            <div className="flex flex-col w-full h-full min-w-0 sm:rounded-[24px] overflow-hidden shadow-lg" style={{ backgroundColor: 'var(--color-bg-main)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}>
                 {/* Header Toolbar */}
                 <div
-                    className="flex justify-between items-center px-6 py-3.5 border-b shadow-sm"
+                    className="flex justify-between items-center flex-wrap gap-2 px-4 sm:px-6 py-3.5 border-b shadow-sm"
                     style={{
                         backgroundColor: 'var(--color-bg-header)',
                         color: 'var(--color-text-header)',
                         borderColor: 'var(--color-border)'
                     }}
                 >
-                    <div className="flex items-center gap-3">
-                        <BarChart3 className="w-5 h-5" style={{ color: 'var(--color-primary)' }} />
-                        <h2 className="text-base font-bold">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <BarChart3 className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--color-primary)' }} />
+                        <h2 className="text-base font-bold truncate">
                             {t('campaignReports.report')} — {campaignName || t('campaignReports.allCampaigns', 'All Campaigns')}
                         </h2>
                     </div>
@@ -768,7 +770,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
 
                 {/* Sub-Header: Layers Pills, Columns Customizer Button [ ☵ ], DateRangePicker */}
                 <div
-                    className="p-3 px-6 flex flex-wrap gap-4 items-center justify-between border-b shadow-sm"
+                    className="py-3 px-4 sm:px-6 flex flex-wrap gap-4 items-center justify-between border-b shadow-sm"
                     style={{
                         backgroundColor: 'var(--color-bg-card)',
                         borderColor: 'var(--color-border)'
@@ -834,7 +836,7 @@ const CampaignReports = ({ campaignId, campaignName, onClose }) => {
                 </div>
 
                 {/* Table Content */}
-                <div className="flex-1 overflow-auto p-6" style={{ color: 'var(--color-text-primary)' }}>
+                <div className="flex-1 overflow-auto p-3 sm:p-6" style={{ color: 'var(--color-text-primary)' }}>
                     {loading ? (
                         <div className="flex justify-center items-center h-64">
                             <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: 'var(--color-primary)' }}></div>

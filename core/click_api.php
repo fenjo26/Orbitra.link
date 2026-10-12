@@ -376,7 +376,7 @@ function orbitraClickApiSelectWeightedItem(array $items): ?array
     return $items[0];
 }
 
-function orbitraClickApiStreamMatchesFilters(array $stream, string $ip, string $country, string $deviceType, array $languageCodes, string $userAgent, array $geoData, string $acceptLanguageRaw, PDO $pdo): bool
+function orbitraClickApiStreamMatchesFilters(array $stream, string $ip, string $country, string $deviceType, array $languageCodes, string $userAgent, array $geoData, string $acceptLanguageRaw, PDO $pdo, array $rawParams = [], array $clickParams = []): bool
 {
     if (empty($stream['filters_json'])) {
         return true;
@@ -423,6 +423,19 @@ function orbitraClickApiStreamMatchesFilters(array $stream, string $ip, string $
                     'pdo' => $pdo,
                 ]);
                 $matched = (bool) ($botVerdict['is_suspicious'] ?? false);
+                break;
+            case 'Parameter':
+                // Any parameter the client forwarded (kclient sendAllParams /
+                // param()); "@empty" matches a missing or empty one. No name
+                // configured → abstain (no vote), same as the redirect router.
+                $paramName = orbitraParameterFilterName($f);
+                if ($paramName === '') {
+                    continue 2;
+                }
+                $matched = orbitraParameterFilterMatches(
+                    $payload,
+                    orbitraParameterFilterValue($paramName, $rawParams, $clickParams)
+                );
                 break;
             default:
                 // Unknown filters: keep permissive to avoid blocking traffic.
@@ -585,8 +598,8 @@ function orbitraClickApiV3(PDO $pdo): void
         'accept_language' => $acceptLanguageRaw,
         'pdo' => $pdo,
     ];
-    $streamSelectable = function (array $stream) use ($ip, $country, $deviceType, $languageCodes, $userAgent, $geoData, $acceptLanguageRaw, $pdo, $cloakGateVisitor, $settings, $wantLog, &$log): bool {
-        if (!orbitraClickApiStreamMatchesFilters($stream, $ip, $country, $deviceType, $languageCodes, $userAgent, $geoData, $acceptLanguageRaw, $pdo)) {
+    $streamSelectable = function (array $stream) use ($ip, $country, $deviceType, $languageCodes, $userAgent, $geoData, $acceptLanguageRaw, $pdo, $cloakGateVisitor, $settings, $wantLog, &$log, $incomingParams, $clickParams): bool {
+        if (!orbitraClickApiStreamMatchesFilters($stream, $ip, $country, $deviceType, $languageCodes, $userAgent, $geoData, $acceptLanguageRaw, $pdo, $incomingParams, $clickParams)) {
             return false;
         }
         if (($stream['schema_type'] ?? '') === 'cloak') {

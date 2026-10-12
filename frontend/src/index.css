@@ -4,6 +4,188 @@
    detection would otherwise scan — each build would change what the next
    build sees, so content hashes never stabilize. Keep dist out of the scan. */
 @source not "../dist";
+/*  Layout half of the component styles below, in Tailwind's base layer.
+
+   The rest of this file is unlayered on purpose: visual properties (padding,
+   radius, font size, colours, borders) of .btn, .form-input, .card and the
+   other component classes stay authoritative, so every button and field
+   looks the same wherever it is used. Layout properties (display, width,
+   margin, flex, grid placement, fluid widths) live here instead, so a Tailwind utility on
+   the element wins — hidden / xl:block, w-14, flex-1, ml-auto, w-auto now do
+   what the markup says. Unlayered, `.btn { display: inline-flex }` beat
+   `hidden` and `input { width: 100% }` beat `w-14`.
+
+   Fixed sizes (a 20px checkbox, a 480px modal) stay below with the look.
+
+   Adding a rule? Put display / fluid width / margin / flex / grid placement here,
+   everything else in the matching rule further down.  */
+@layer base {
+  .dashboard {
+    margin: 40px auto;
+  }
+  input,
+  select,
+  textarea,
+  .input {
+    width: 100%;
+  }
+  .input-with-icon {
+    display: flex;
+    width: 100%;
+  }
+  table {
+    width: 100%;
+  }
+  .dropdown-menu {
+    margin-top: 8px !important;
+  }
+  .badge {
+    display: inline-flex;
+  }
+  .alert-banner {
+    display: flex;
+    margin-bottom: 16px;
+  }
+  .progress-ring {
+    display: flex;
+  }
+  .icon-circle {
+    display: flex;
+  }
+  .header {
+    display: flex;
+    margin-bottom: 40px;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .divider {
+    margin: 16px 0;
+  }
+  .page-header {
+    display: flex;
+    margin-bottom: 16px;
+  }
+  .page-table {
+    width: 100%;
+  }
+  .tracker-table {
+    min-width: 100%;
+    width: max-content;
+  }
+  .tracker-table td button,
+  .tracker-table td .action-btn {
+    flex-shrink: 0;
+  }
+  .form-input {
+    width: 100%;
+  }
+  .form-select {
+    width: 100%;
+  }
+  .form-textarea {
+    width: 100%;
+  }
+  .form-label {
+    display: block;
+    margin-bottom: 6px;
+  }
+  .btn {
+    display: inline-flex;
+  }
+  .modal-overlay {
+    display: flex;
+  }
+  .modal-content {
+    width: 100%;
+  }
+  .modal-header {
+    display: flex;
+    margin-bottom: 16px;
+  }
+  .modal-footer {
+    display: flex;
+    margin-top: 16px;
+  }
+  .empty-state-icon {
+    margin: 0 auto 16px;
+  }
+  .empty-state-title {
+    margin-bottom: 8px;
+  }
+  .status-badge {
+    display: inline-flex;
+  }
+  .form-hint {
+    margin-top: 6px;
+  }
+  .form-checkbox-label {
+    display: flex;
+  }
+  .form-checkbox-label input[type="checkbox"] {
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .form-checkbox-content {
+    flex: 1;
+  }
+  .form-checkbox-description {
+    margin: 2px 0 0 0;
+  }
+  .form-section {
+    display: flex;
+  }
+  .form-divider {
+    margin-top: 32px;
+  }
+  .form-section-title {
+    margin-bottom: 16px;
+  }
+  .action-buttons {
+    display: flex;
+  }
+  @media (max-width: 1024px) {
+    .dashboard {
+      margin: 24px auto;
+    }
+  }
+  @media (max-width: 768px) {
+    .dashboard {
+      margin: 16px auto;
+    }
+    .modal-content {
+      max-width: 100%;
+    }
+    .header {
+      margin-bottom: 20px;
+    }
+  }
+  @media (max-width: 480px) {
+    .dashboard {
+      margin: 8px;
+    }
+    .modal-content {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+    .conversions-filters .conversions-search {
+      grid-column: span 1 !important;
+    }
+    .tb-release {
+      width: auto !important;
+      min-width: 0 !important;
+    }
+    .tb-search {
+      width: 100% !important;
+    }
+    .tb-hide-sm {
+      display: none !important;
+    }
+  }
+  .card-metric-grid {
+    display: grid;
+  }
+}
 
 /* CSS Variables for Theming */
 :root {
@@ -695,7 +877,6 @@ h2 {
 /* Layout Variables (Custom user wrapper classes if needed) */
 .dashboard {
   max-width: 1400px;
-  margin: 40px auto;
   padding: 40px;
   border-radius: 30px;
   background: var(--color-bg-main);
@@ -803,7 +984,6 @@ textarea,
   font-size: 14px;
   outline: none;
   color: var(--color-text-primary);
-  width: 100%;
   transition: 0.25s cubic-bezier(.4, 0, .2, 1);
 }
 
@@ -836,9 +1016,7 @@ textarea:focus,
 
 .input-with-icon {
   position: relative;
-  display: flex;
   align-items: center;
-  width: 100%;
 }
 
 .input-with-icon input,
@@ -881,7 +1059,6 @@ textarea:focus,
 }
 
 table {
-  width: 100%;
   border-collapse: separate;
   border-spacing: 0 8px;
 }
@@ -926,14 +1103,12 @@ tbody tr:hover td {
   border-radius: 16px !important;
   border: none !important;
   box-shadow: var(--shadow-main);
-  margin-top: 8px !important;
   overflow: hidden;
   padding: 8px;
 }
 
 /* Badges */
 .badge {
-  display: inline-flex;
   align-items: center;
   padding: 6px 12px;
   border-radius: 12px;
@@ -972,11 +1147,9 @@ tbody tr:hover td {
 .alert-banner {
   padding: 14px 16px;
   border-radius: 16px;
-  display: flex;
   gap: 12px;
   font-size: 13.5px;
   line-height: 1.55;
-  margin-bottom: 16px;
 }
 
 .alert-success {
@@ -1009,7 +1182,6 @@ tbody tr:hover td {
   height: 120px;
   border-radius: 50%;
   background: conic-gradient(var(--color-primary) 0% 36%, var(--color-border) 36% 100%);
-  display: flex;
   align-items: center;
   justify-content: center;
 }
@@ -1026,7 +1198,6 @@ tbody tr:hover td {
   height: 44px;
   border-radius: 50%;
   background: var(--color-bg-soft);
-  display: flex;
   align-items: center;
   justify-content: center;
 }
@@ -1050,19 +1221,13 @@ tbody tr:hover td {
 
 /* Utilities */
 .header {
-  display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 40px;
 }
 
 .no-scrollbar {
   -ms-overflow-style: none; /* IE/Edge legacy */
   scrollbar-width: none; /* Firefox */
-}
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome/Safari */
 }
 
 .avatar {
@@ -1139,7 +1304,6 @@ code {
 .divider {
   height: 1px;
   background-color: var(--color-border);
-  margin: 16px 0;
 }
 
 /* ========================================
@@ -1158,11 +1322,9 @@ code {
 
 /* Page Header - заголовок страницы с кнопками */
 .page-header {
-  display: flex;
   justify-content: space-between;
   align-items: center;
   padding-bottom: 16px;
-  margin-bottom: 16px;
   border-bottom: 1px solid var(--color-border);
   flex-wrap: wrap;
   gap: 12px;
@@ -1184,7 +1346,6 @@ code {
    ======================================== */
 
 .page-table {
-  width: 100%;
   border-collapse: separate;
   border-spacing: 0;
 }
@@ -1240,8 +1401,6 @@ code {
 
 .tracker-table {
   font-variant-numeric: tabular-nums;
-  min-width: 100%;
-  width: max-content;
 }
 
 .tracker-table th {
@@ -1323,10 +1482,6 @@ code {
 
 /* Icons and buttons inside flex cells must not deform while there is still
    room — they keep their size and get clipped by the cell instead. */
-.tracker-table td button,
-.tracker-table td .action-btn {
-  flex-shrink: 0;
-}
 
 /* The ellipsis belongs to text, and only to text. A cell whose content is a
    control renders an atomic inline box that cannot be shortened, so the
@@ -1610,7 +1765,6 @@ body.col-resizing * {
   font-size: 14px;
   color: var(--color-text-primary);
   outline: none;
-  width: 100%;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
@@ -1653,7 +1807,6 @@ body.col-resizing * {
   font-size: 14px;
   color: var(--color-text-primary);
   outline: none;
-  width: 100%;
   cursor: pointer;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
@@ -1687,7 +1840,6 @@ body.col-resizing * {
   font-size: 14px;
   color: var(--color-text-primary);
   outline: none;
-  width: 100%;
   resize: vertical;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -1703,11 +1855,9 @@ body.col-resizing * {
 
 /* Form Label */
 .form-label {
-  display: block;
   font-size: 14px;
   font-weight: 500;
   color: var(--color-text-primary);
-  margin-bottom: 6px;
 }
 
 /* ========================================
@@ -1715,7 +1865,6 @@ body.col-resizing * {
    ======================================== */
 
 .btn {
-  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
@@ -1789,7 +1938,6 @@ body.col-resizing * {
   position: fixed;
   inset: 0;
   z-index: 2000;
-  display: flex;
   align-items: center;
   justify-content: center;
   background-color: rgba(0, 0, 0, 0.5);
@@ -1803,18 +1951,15 @@ body.col-resizing * {
   border-radius: 24px;
   box-shadow: var(--shadow-main);
   padding: 24px;
-  width: 100%;
   max-width: 480px;
   max-height: 90vh;
   overflow-y: auto;
 }
 
 .modal-header {
-  display: flex;
   justify-content: space-between;
   align-items: center;
   padding-bottom: 16px;
-  margin-bottom: 16px;
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -1825,11 +1970,9 @@ body.col-resizing * {
 }
 
 .modal-footer {
-  display: flex;
   justify-content: flex-end;
   gap: 12px;
   padding-top: 16px;
-  margin-top: 16px;
   border-top: 1px solid var(--color-border);
 }
 
@@ -1846,7 +1989,6 @@ body.col-resizing * {
 .empty-state-icon {
   width: 64px;
   height: 64px;
-  margin: 0 auto 16px;
   color: var(--color-text-muted);
 }
 
@@ -1854,7 +1996,6 @@ body.col-resizing * {
   font-size: 16px;
   font-weight: 500;
   color: var(--color-text-primary);
-  margin-bottom: 8px;
 }
 
 .empty-state-text {
@@ -1867,7 +2008,6 @@ body.col-resizing * {
    ======================================== */
 
 .status-badge {
-  display: inline-flex;
   align-items: center;
   padding: 4px 10px;
   font-size: 12px;
@@ -1898,26 +2038,16 @@ body.col-resizing * {
 .form-hint {
   font-size: 12px;
   color: var(--color-text-muted);
-  margin-top: 6px;
 }
 
 /* Form Checkbox Label - обёртка для чекбокса */
 .form-checkbox-label {
-  display: flex;
   align-items: flex-start;
   gap: 12px;
   cursor: pointer;
 }
 
-.form-checkbox-label input[type="checkbox"] {
-  margin-top: 2px;
-  flex-shrink: 0;
-}
-
 /* Form Checkbox Content */
-.form-checkbox-content {
-  flex: 1;
-}
 
 .form-checkbox-title {
   font-weight: 500;
@@ -1927,19 +2057,16 @@ body.col-resizing * {
 .form-checkbox-description {
   font-size: 12px;
   color: var(--color-text-muted);
-  margin: 2px 0 0 0;
 }
 
 /* Form Section */
 .form-section {
-  display: flex;
   flex-direction: column;
   gap: 24px;
 }
 
 /* Form Section Divider */
 .form-divider {
-  margin-top: 32px;
   padding-top: 24px;
   border-top: 1px solid var(--color-border);
 }
@@ -1947,7 +2074,6 @@ body.col-resizing * {
 /* Form Section Title */
 .form-section-title {
   font-weight: 500;
-  margin-bottom: 16px;
   color: var(--color-text-primary);
 }
 
@@ -1956,7 +2082,6 @@ body.col-resizing * {
    ======================================== */
 
 .action-buttons {
-  display: flex;
   /* Centred like every other cell: the header above it is centred too. */
   justify-content: center;
   gap: 4px;
@@ -2012,7 +2137,6 @@ body.col-resizing * {
 @media (max-width: 1024px) {
   .dashboard {
     padding: 24px;
-    margin: 24px auto;
   }
 
   .card {
@@ -2029,7 +2153,6 @@ body.col-resizing * {
 @media (max-width: 768px) {
   .dashboard {
     padding: 16px;
-    margin: 16px auto;
     border-radius: 20px;
   }
 
@@ -2133,7 +2256,6 @@ body.col-resizing * {
   }
 
   .modal-content {
-    max-width: 100%;
     border-radius: 16px;
     padding: 16px;
     max-height: 85vh;
@@ -2141,7 +2263,6 @@ body.col-resizing * {
 
   /* Utility spacing */
   .header {
-    margin-bottom: 20px;
     flex-wrap: wrap;
     gap: 12px;
   }
@@ -2213,7 +2334,6 @@ body.col-resizing * {
 @media (max-width: 480px) {
   .dashboard {
     padding: 12px;
-    margin: 8px;
     border-radius: 16px;
   }
 
@@ -2241,8 +2361,6 @@ body.col-resizing * {
     /* !important: several modals carry inline width/padding/borderRadius on
        .modal-content — a sheet must still be a sheet for them. Scoped to
        this media block only. */
-    width: 100% !important;
-    max-width: 100% !important;
     height: 100vh;
     height: 100dvh;
     max-height: 100dvh !important;
@@ -2266,26 +2384,10 @@ body.col-resizing * {
     grid-template-columns: 1fr !important;
   }
 
-  .conversions-filters .conversions-search {
-    grid-column: span 1 !important;
-  }
-
   /* Toolbar controls release their desktop widths so they can share rows
      instead of stacking one per line. tb-search takes a full row (bigger
      touch target for the main search field); tb-hide-sm drops labels the
      icon or context already conveys. */
-  .tb-release {
-    width: auto !important;
-    min-width: 0 !important;
-  }
-
-  .tb-search {
-    width: 100% !important;
-  }
-
-  .tb-hide-sm {
-    display: none !important;
-  }
 
   .btn,
   .btn-primary,
@@ -2305,7 +2407,6 @@ body.col-resizing * {
    narrowest phones, where a quarter of the card leaves ~70px — not enough for
    a currency figure, which would then truncate on every single card. */
 .card-metric-grid {
-  display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 

@@ -13239,13 +13239,35 @@ try {
                 }
                 $trace[] = "Campaign found: " . $campaign['name'];
 
+                // URL parameters of the simulated click, for the Parameter
+                // filter: "xxx=__PLACEMENT__&sub_id_1=abc", with or without a
+                // leading "?" or a whole URL in front. Source-template aliases
+                // are applied exactly like a live click, so a filter on
+                // sub_id_1 sees a value the template maps there.
+                $simQuery = trim((string) ($data['url_params'] ?? ''));
+                if (($qPos = strpos($simQuery, '?')) !== false) {
+                    $simQuery = substr($simQuery, $qPos + 1);
+                }
+                $simRawParams = [];
+                if ($simQuery !== '') {
+                    parse_str($simQuery, $simRawParams);
+                }
+                $simClickParams = [];
+                require_once __DIR__ . '/core/ClickParams.php';
+                foreach (orbitraSourceParamAliases($pdo, $campaign['source_id'] ?? null) as $srcParam => $srcAlias) {
+                    if (isset($simRawParams[$srcParam]) && !isset($simClickParams[$srcAlias])) {
+                        $simClickParams[$srcAlias] = $simRawParams[$srcParam];
+                    }
+                }
+                $trace[] = "URL parameters: " . ($simQuery !== '' ? $simQuery : '-');
+
                 $stmt = $pdo->prepare("SELECT * FROM streams WHERE campaign_id = ? AND is_active = 1 ORDER BY position ASC, id ASC");
                 $stmt->execute([$campaignId]);
                 $allStreams = $stmt->fetchAll();
                 $trace[] = "Loaded " . count($allStreams) . " active streams";
 
                 if (!function_exists('streamMatchesFiltersSim')) {
-                    function streamMatchesFiltersSim($stream, $ip, $country, $deviceType, $languageCodes, $botContext, &$trace)
+                    function streamMatchesFiltersSim($stream, $ip, $country, $deviceType, $languageCodes, $botContext, &$trace, array $rawParams = [], array $clickParams = [])
                     {
                         if (empty($stream['filters_json']))
                             return true;
@@ -13276,6 +13298,16 @@ try {
                                 $matched = (bool) ($botVerdict['is_suspicious'] ?? false);
                                 $trace[] = "  [Bot Filter] suspicious=" . ($matched ? 'yes' : 'no')
                                     . ", reasons=[" . implode(', ', $botVerdict['reasons'] ?? []) . "]";
+                            }
+                            else if ($f['name'] === 'Parameter') {
+                                // Same matcher as the live router; no name → abstain.
+                                $paramName = orbitraParameterFilterName($f);
+                                if ($paramName === '')
+                                    continue;
+                                $paramValue = orbitraParameterFilterValue($paramName, $rawParams, $clickParams);
+                                $matched = orbitraParameterFilterMatches($payload, $paramValue);
+                                $trace[] = "  [Parameter Filter] {$paramName}=" . ($paramValue === '' ? '(empty)' : $paramValue)
+                                    . " -> " . ($matched ? 'match' : 'no match');
                             }
                             else
                                 $matched = true;
@@ -13313,7 +13345,7 @@ try {
                 $trace[] = "Evaluating Intercepting streams...";
                 foreach ($allStreams as $stream) {
                     if (($stream['type'] ?? 'regular') === 'intercepting') {
-                        if (streamMatchesFiltersSim($stream, $ip, $country, $deviceType, $languageCodes, $botFilterContext, $trace)) {
+                        if (streamMatchesFiltersSim($stream, $ip, $country, $deviceType, $languageCodes, $botFilterContext, $trace, $simRawParams, $simClickParams)) {
                             $selectedStream = $stream;
                             $trace[] = "=> MATCHED Intercepting Stream: " . $stream['name'];
                             break;
@@ -13323,7 +13355,7 @@ try {
 
                 if (!$selectedStream) {
                     $trace[] = "Evaluating Regular streams...";
-                    $regular = array_filter($allStreams, fn($s) => ($s['type'] ?? 'regular') === 'regular' && streamMatchesFiltersSim($s, $ip, $country, $deviceType, $languageCodes, $botFilterContext, $trace));
+                    $regular = array_filter($allStreams, fn($s) => ($s['type'] ?? 'regular') === 'regular' && streamMatchesFiltersSim($s, $ip, $country, $deviceType, $languageCodes, $botFilterContext, $trace, $simRawParams, $simClickParams));
 
                     if (!empty($regular)) {
                         $trace[] = "Found " . count($regular) . " eligible regular streams";

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import GeoSelector from './GeoSelector';
 import FilterValueSelector from './FilterValueSelector';
 import HelpTooltip from './HelpTooltip';
-import { ArrowLeft, Plus, Check, Link, Copy, Settings, Trash2, ChevronDown, ChevronUp, AlertCircle, AlertTriangle, X, Shield, Globe, MousePointerClick, TrendingUp, Activity, BarChart2, BarChart3, DollarSign, RefreshCw, FileText, MoreVertical, Play, Code, Edit3, Eye, Info, Search, SlidersHorizontal } from 'lucide-react';
+import { ArrowLeft, Plus, Check, Link, Copy, Settings, Trash2, ChevronDown, ChevronUp, ChevronsDownUp, ChevronsUpDown, AlertCircle, AlertTriangle, X, Shield, Globe, MousePointerClick, TrendingUp, Activity, BarChart2, BarChart3, DollarSign, RefreshCw, FileText, MoreVertical, Play, Code, Edit3, Eye, Info, Search, SlidersHorizontal } from 'lucide-react';
 import CampaignReports from './CampaignReports';
 import ConversionsLogModal from './ConversionsLogModal';
 import ClickLogModal from './ClickLogModal';
@@ -517,7 +517,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         asn: '',
         isp: '',
         js_executed: true,
-        webdriver: false
+        webdriver: false,
+        url_params: ''
     });
 
     // Pixel states
@@ -626,7 +627,34 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     const fmtCount = (n) => Number(n || 0).toLocaleString();
 
     // Stream Expansion state
-    const [expandedStream, setExpandedStream] = useState(null);
+    // Collapsed stream cards, by stream id, remembered per campaign in this
+    // browser. Everything starts expanded; the chevron next to the stream's
+    // copy button folds the card down to its header row.
+    const [collapsedStreams, setCollapsedStreams] = useState(() => new Set());
+    const collapsedStorageKey = activeCampaignId ? `orbitra.collapsedStreams.${activeCampaignId}` : null;
+    useEffect(() => {
+        if (!collapsedStorageKey) { setCollapsedStreams(new Set()); return; }
+        try {
+            const saved = JSON.parse(window.localStorage.getItem(collapsedStorageKey) || '[]');
+            setCollapsedStreams(new Set(Array.isArray(saved) ? saved.map(String) : []));
+        } catch {
+            setCollapsedStreams(new Set());
+        }
+    }, [collapsedStorageKey]);
+    const streamCollapseKey = (stream, idx) => String(stream.id ?? `idx_${idx}`);
+    const toggleStreamCollapsed = (key) => {
+        setCollapsedStreams(prev => {
+            const next = new Set(prev);
+            if (next.has(key)) next.delete(key); else next.add(key);
+            if (collapsedStorageKey) {
+                try {
+                    // Temp ids of unsaved streams are not worth remembering.
+                    window.localStorage.setItem(collapsedStorageKey, JSON.stringify([...next].filter(k => !k.startsWith('temp_') && !k.startsWith('idx_'))));
+                } catch { /* storage unavailable — keep it for this session only */ }
+            }
+            return next;
+        });
+    };
 
     // Unsaved-change tracking: baselineRef holds the serialized formData the
     // editor started from (loaded campaign or the new-campaign template);
@@ -2567,7 +2595,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
     // Filter management
     const [filterModal, setFilterModal] = useState({ open: false, streamIdx: null });
-    const [newFilter, setNewFilter] = useState({ name: 'Country', mode: 'include', payload: '' });
+    const [newFilter, setNewFilter] = useState({ name: 'Country', mode: 'include', payload: '', param: '', matchEmpty: false });
+    // Parameter filter: "@empty" in the payload means "missing or empty" —
+    // the same token the router (core/StreamFilters.php) and Keitaro use.
+    const PARAM_EMPTY_TOKEN = '@empty';
+    const isParamEmptyToken = (v) => String(v).trim().toLowerCase() === PARAM_EMPTY_TOKEN;
 
     const availableFilters = [
         { name: 'Country', label: t('filters.country'), placeholder: 'RU, US, UK...' },
@@ -2580,6 +2612,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         { name: 'Connection', label: t('filters.connection'), placeholder: 'mobile, wifi, cable...' },
         { name: 'IP', label: t('filters.ip'), placeholder: '192.168.1.1, 10.0.0.*...' },
         { name: 'Keyword', label: t('filters.keyword'), placeholder: 'keyword1, keyword2...' },
+        { name: 'Parameter', label: t('filters.parameter'), placeholder: t('filters.parameterValuesPlaceholder') },
         { name: 'Referer', label: t('filters.referer'), placeholder: 'google.com, facebook.com...' },
         { name: 'Weekday', label: t('filters.weekday'), placeholder: 'monday, tuesday...' },
         { name: 'Time', label: t('filters.time'), placeholder: '9-18, 10:00-20:00...' },
@@ -2634,27 +2667,50 @@ const CampaignEditor = ({ campaignId, onClose }) => {
             const f = formData.streams[streamIdx]?.filters?.[filterIdx];
             if (f) {
                 setFilterModal({ open: true, streamIdx, filterIdx });
+                const items = Array.isArray(f.payload)
+                    ? f.payload.map(String)
+                    : String(f.payload || '').split(',').map(p => p.trim()).filter(Boolean);
+                const isParam = f.name === 'Parameter';
                 setNewFilter({
                     name: f.name || 'Country',
                     mode: f.mode || 'include',
-                    payload: Array.isArray(f.payload) ? f.payload.join(', ') : (f.payload || '')
+                    payload: (isParam ? items.filter(v => !isParamEmptyToken(v)) : items).join(', '),
+                    param: isParam ? String(f.param || '') : '',
+                    matchEmpty: isParam && items.some(isParamEmptyToken)
                 });
                 return;
             }
         }
         setFilterModal({ open: true, streamIdx, filterIdx: null });
-        setNewFilter({ name: 'Country', mode: 'include', payload: '' });
+        setNewFilter({ name: 'Country', mode: 'include', payload: '', param: '', matchEmpty: false });
     };
 
+    // Same key rule as "Add Parameter" on the Parameters tab (PHP would turn
+    // "." into "_" and "[]" into an array, so neither can be matched by name).
+    const cleanParamName = (raw) => String(raw || '').trim().replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 100);
+
+    const filterCanSave = (() => {
+        if (newFilter.name === 'Parameter') {
+            return cleanParamName(newFilter.param) !== ''
+                && (newFilter.matchEmpty || !!newFilter.payload?.trim());
+        }
+        return !!newFilter.payload?.trim();
+    })();
+
     const saveFilter = () => {
-        if (!newFilter.payload?.trim()) return;
+        if (!filterCanSave) return;
         const s = [...formData.streams];
         if (!s[filterModal.streamIdx].filters) s[filterModal.streamIdx].filters = [];
-        const filterObj = {
-            name: newFilter.name,
-            mode: newFilter.mode,
-            payload: newFilter.payload.split(',').map(p => p.trim()).filter(p => p)
-        };
+        let values = String(newFilter.payload || '').split(',').map(p => p.trim()).filter(p => p);
+        const filterObj = { name: newFilter.name, mode: newFilter.mode };
+        if (newFilter.name === 'Parameter') {
+            // "@empty" typed into the values counts the same as the checkbox.
+            const typedEmpty = values.some(isParamEmptyToken);
+            values = values.filter(v => !isParamEmptyToken(v));
+            if (newFilter.matchEmpty || typedEmpty) values.push(PARAM_EMPTY_TOKEN);
+            filterObj.param = cleanParamName(newFilter.param);
+        }
+        filterObj.payload = values;
         if (filterModal.filterIdx !== null && filterModal.filterIdx >= 0) {
             s[filterModal.streamIdx].filters[filterModal.filterIdx] = filterObj;
         } else {
@@ -2674,9 +2730,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
         <>
             {/* Below lg the two panes stack into one column and the page
                 itself scrolls; from lg up the fixed split-view stays. */}
-            <div className="w-full lg:h-[calc(100vh-80px)] flex flex-col rounded-[24px] shadow-lg" style={{ backgroundColor: 'var(--color-bg-card)', border: 'none' }}>
+            <div className="w-full xl:h-[calc(100vh-80px)] flex flex-col rounded-[24px] shadow-lg" style={{ backgroundColor: 'var(--color-bg-card)', border: 'none' }}>
                 {/* Header */}
-                <div className="flex justify-between items-center flex-wrap gap-2 px-4 py-3 lg:px-6 lg:py-4 flex-shrink-0" style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}>
+                <div className="flex justify-between items-center flex-wrap gap-2 px-4 py-3 lg:px-6 lg:py-4 flex-shrink-0 rounded-t-[24px]" style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}>
                     <div className="flex items-center gap-3 min-w-0">
                         <button
                             onClick={requestClose}
@@ -2696,7 +2752,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         )}
                     </div>
 
-                    <div className="flex items-center flex-wrap gap-2 lg:space-x-2 lg:gap-0">
+                    <div className="flex items-center flex-wrap gap-2">
                         <button
                             type="button"
                             onClick={() => handleSave(true)}
@@ -2778,20 +2834,25 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         </div>
 
                     </div>
-                    {/* Close button — hidden below lg; the Back arrow next to
+                    {/* Close button — hidden below xl; the Back arrow next to
                         the title already leaves the editor there. */}
-                    <button onClick={requestClose} className="btn btn-secondary hidden lg:flex">
+                    <button onClick={requestClose} className="btn btn-secondary hidden xl:flex">
                         <X className="w-5 h-5 mr-2" />
                         {t('common.close')}
                     </button>
                 </div>
 
-                {/* Main Content: single column below lg, left tabs + right streams from lg up */}
-                <div className="flex-1 flex flex-col lg:flex-row">
-                    {/* Tab column: full-width strip below lg, 30% sidebar from lg up */}
-                    <div className="w-full lg:w-[30%] min-w-0 lg:min-w-[300px] flex flex-col border-b lg:border-b-0" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}>
-                        {/* Tabs */}
-                        <div className="flex px-2 pt-2 overflow-x-auto no-scrollbar" style={{ borderBottom: '1px solid var(--color-border)' }}>
+                {/* Main Content: single column below xl, left tabs + right streams from xl up.
+                    Split view starts at xl, not lg: at 1024–1279 the 30% sidebar
+                    was ~300px and the Parameters/Integrations tabs broke in it. */}
+                <div className="flex-1 flex flex-col xl:flex-row min-h-0">
+                    {/* Tab column: full-width strip below xl, 30% sidebar from xl up */}
+                    <div className="w-full xl:w-[30%] min-w-0 xl:min-w-[340px] flex flex-col border-b xl:border-b-0 xl:rounded-bl-[24px]" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}>
+                        {/* Tabs — they wrap onto a second row instead of scrolling
+                            sideways: a hidden-scrollbar strip left "S2S Postbacks"
+                            and "Notes" invisible in the ~380px sidebar, and nobody
+                            knew they existed. */}
+                        <div className="flex flex-wrap px-2 pt-2 gap-x-0.5" style={{ borderBottom: '1px solid var(--color-border)' }}>
                             {[
                                 { key: 'general', label: t('editor.general') },
                                 { key: 'finance', label: t('editor.finance') },
@@ -2804,7 +2865,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                 <button
                                     key={tab.key}
                                     onClick={() => setActiveTab(tab.key)}
-                                    className="px-4 max-lg:py-3 py-2 text-sm font-medium border-b-2 transition whitespace-nowrap rounded-t-lg"
+                                    className="px-3 max-xl:py-2.5 py-2 text-sm font-medium border-b-2 transition whitespace-nowrap rounded-t-lg"
                                     style={{
                                         borderColor: activeTab === tab.key ? 'var(--color-primary)' : 'transparent',
                                         color: activeTab === tab.key ? 'var(--color-primary)' : 'var(--color-text-secondary)',
@@ -2816,9 +2877,13 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                             ))}
                         </div>
 
-                        {/* Tab content — the page scrolls below lg, so the pane
-                            itself only becomes a scroll context from lg up. */}
-                        <div className="flex-1 p-4 lg:p-5 lg:overflow-y-auto" style={{ backgroundColor: 'var(--color-bg-card)' }}>
+                        {/* Tab content — the page scrolls below xl, so the pane
+                            itself only becomes a scroll context from xl up. It is
+                            also a size container: what is inside lays out by the
+                            pane's own width (@md:, @lg:), not the screen's — the
+                            same pane is full-width on a tablet and ~380px beside
+                            the streams on a laptop. */}
+                        <div className="@container flex-1 p-4 xl:p-5 xl:overflow-y-auto xl:rounded-bl-[24px]" style={{ backgroundColor: 'var(--color-bg-card)' }}>
                             {loading ? (
                                 <div className="text-center py-10 flex flex-col items-center" style={{ color: 'var(--color-text-muted)' }}>
                                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 mb-2" style={{ borderColor: 'var(--color-primary)' }}></div>
@@ -3264,11 +3329,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                         </p>
                                                     )}
                                                 </div>
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex items-center flex-wrap gap-2">
                                                     <button
                                                         type="button"
                                                         onClick={copyFacebookParams}
-                                                        className="btn btn-secondary text-xs py-1 px-2.5 rounded-xl font-medium flex items-center gap-1.5"
+                                                        className="btn btn-secondary text-xs py-1 px-2.5 rounded-xl font-medium flex items-center gap-1.5 whitespace-nowrap"
                                                         title={t('parameters.facebookParamsHint', 'Copy Facebook Ads URL Parameters (without leading ?) for pasting into Meta Ads Manager')}
                                                         style={copySuccess ? { backgroundColor: 'var(--color-success)', borderColor: 'var(--color-success)' } : {}}
                                                     >
@@ -3287,7 +3352,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                     <button
                                                         type="button"
                                                         onClick={addCustomParameter}
-                                                        className="btn btn-secondary text-xs py-1 px-2.5 rounded-xl font-medium"
+                                                        className="btn btn-secondary text-xs py-1 px-2.5 rounded-xl font-medium whitespace-nowrap"
                                                     >
                                                         <Plus className="w-3.5 h-3.5" />
                                                         {t('parameters.addParam', 'Add Parameter')}
@@ -3301,7 +3366,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                 </p>
                                             )}
 
-                                            <div className="hidden sm:grid grid-cols-12 gap-2 px-2 text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--color-text-muted)' }}>
+                                            <div className="hidden @lg:grid grid-cols-12 gap-2 px-2 text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--color-text-muted)' }}>
                                                 <span className="col-span-3">{t('sourceEditor.alias')}</span>
                                                 <span className="col-span-3">{t('sourceEditor.param')}</span>
                                                 <span className="col-span-6">{t('sourceEditor.sourceMacro')}</span>
@@ -3311,14 +3376,14 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                 {displayParameters.map(param => {
                                                     const hasMapping = Object.prototype.hasOwnProperty.call(formData.parameters || {}, param.key);
                                                     return (
-                                                        <div key={param.key} className="grid grid-cols-1 sm:grid-cols-12 items-center gap-2 p-2 rounded-xl transition-colors" style={{ backgroundColor: 'var(--color-bg-soft)' }}>
-                                                            <span className="sm:col-span-3 text-xs font-medium truncate" style={{ color: 'var(--color-text-primary)' }} title={param.label}>
+                                                        <div key={param.key} className="grid grid-cols-[minmax(0,1fr)_auto] @lg:grid-cols-12 items-center gap-2 p-2 rounded-xl transition-colors" style={{ backgroundColor: 'var(--color-bg-soft)' }}>
+                                                            <span className="@lg:col-span-3 text-xs font-medium truncate min-w-0" style={{ color: 'var(--color-text-primary)' }} title={param.label}>
                                                                 {param.label}
                                                             </span>
-                                                            <code className="sm:col-span-3 text-xs px-2 py-1 rounded-lg border truncate" style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }} title={param.key}>
+                                                            <code className="@lg:col-span-3 text-xs px-2 py-1 rounded-lg border truncate max-w-[10rem] @lg:max-w-none" style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)', color: 'var(--color-text-muted)' }} title={param.key}>
                                                                 {param.key}
                                                             </code>
-                                                            <div className="sm:col-span-6 flex items-center gap-2 min-w-0">
+                                                            <div className="col-span-2 @lg:col-span-6 flex items-center gap-2 min-w-0">
                                                                 <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>=</span>
                                                                 <input
                                                                     type="text"
@@ -3354,7 +3419,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                 <summary className="text-xs font-semibold cursor-pointer select-none" style={{ color: 'var(--color-text-secondary)' }}>
                                                     {t('parameters.additionalSubIds', 'Sub IDs (sub_id_1 .. sub_id_30)')}
                                                 </summary>
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-3 max-h-60 overflow-y-auto pr-1">
+                                                <div className="grid grid-cols-1 @lg:grid-cols-2 gap-2 mt-3 max-h-60 overflow-y-auto pr-1">
                                                     {CAMPAIGN_SUB_ID_KEYS.map(subKey => (
                                                         <div key={subKey} className="flex items-center gap-2">
                                                             <code className="text-xs w-20 flex-shrink-0" style={{ color: 'var(--color-text-muted)' }}>{subKey}</code>
@@ -3389,11 +3454,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                     <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--color-text-primary)' }}>
                                                         {t('streamRefine.costSyncTitle', 'Cost Sync')}
                                                     </div>
-                                                    <div className="flex items-center gap-2">
+                                                    <div className="flex items-center flex-wrap gap-2">
                                                         <button
                                                             type="button"
                                                             onClick={() => setShowAddCostConnModal(true)}
-                                                            className="btn btn-secondary text-xs py-1 px-2.5 rounded-xl flex items-center gap-1.5"
+                                                            className="btn btn-secondary text-xs py-1 px-2.5 rounded-xl flex items-center gap-1.5 whitespace-nowrap"
                                                         >
                                                             <Plus className="w-3.5 h-3.5" />
                                                             {t('streamRefine.addCostConnection', 'Add Cost Connection')}
@@ -3401,7 +3466,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                         <button
                                                             type="button"
                                                             onClick={() => setShowCostModal(true)}
-                                                            className="btn btn-secondary text-xs py-1 px-2.5 rounded-xl flex items-center gap-1.5"
+                                                            className="btn btn-secondary text-xs py-1 px-2.5 rounded-xl flex items-center gap-1.5 whitespace-nowrap"
                                                         >
                                                             <DollarSign className="w-3.5 h-3.5" />
                                                             {t('streamRefine.updateCostsManually', 'Update Costs Manually')}
@@ -3725,7 +3790,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '8px' }}>
+                                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(165px, 1fr))', gap: '8px' }}>
                                                     {pixelPlatforms.map(platform => (
                                                         <button
                                                             key={platform.id}
@@ -3739,8 +3804,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                             onMouseOver={e => e.currentTarget.style.borderColor = 'var(--color-primary)'}
                                                             onMouseOut={e => e.currentTarget.style.borderColor = 'var(--color-border)'}
                                                         >
-                                                            <span className="text-xl">{platform.icon}</span>
-                                                            <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{platform.name}</span>
+                                                            <span className="text-xl flex-shrink-0">{platform.icon}</span>
+                                                            <span className="text-sm font-medium truncate min-w-0" style={{ color: 'var(--color-text-primary)' }} title={platform.name}>{platform.name}</span>
                                                         </button>
                                                     ))}
                                                 </div>
@@ -4403,16 +4468,17 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                         </div>
                     </div>
 
-                    {/* Streams Area: below the tabs on narrow viewports, 70% pane from lg up */}
-                    <div className="flex-1 flex flex-col border-t lg:border-t-0" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-main)' }}>
-                        <div className="p-4 flex justify-between items-center flex-wrap gap-2 shadow-sm z-10" style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)' }}>
+                    {/* Streams Area: below the tabs on narrow viewports, 70% pane from xl up */}
+                    <div className="flex-1 min-w-0 flex flex-col border-t xl:border-t-0 rounded-b-[24px] xl:rounded-bl-none" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg-main)' }}>
+                        <div className="p-4 flex justify-between items-center flex-wrap gap-x-3 gap-y-2 shadow-sm z-10" style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-card)' }}>
                             <h3 className="font-bold text-base lg:text-lg" style={{ color: 'var(--color-text-primary)' }}>
                                 {t('editor.streams')}
                                 <span className="font-normal text-sm ml-1" style={{ color: 'var(--color-text-muted)' }}>({formData.streams.length})</span>
                             </h3>
 
+                            <div className="flex items-center flex-wrap justify-end gap-2 ml-auto min-w-0">
                             {activeCampaignId ? (
-                                <div className="flex items-center gap-2 ml-auto mr-2">
+                                <div className="flex items-center gap-2">
                                     <select
                                         value={streamStatsPeriod}
                                         onChange={e => setStreamStatsPeriod(e.target.value)}
@@ -4441,7 +4507,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                 {/* Click-toggle, not hover: hover never fires on a
                                     phone, and this menu is the only way to add a
                                     stream. Outside clicks close it. */}
-                                <button type="button" className="btn btn-primary" onClick={() => setStreamMenuOpen(!streamMenuOpen)}>
+                                <button type="button" className="btn btn-primary whitespace-nowrap" onClick={() => setStreamMenuOpen(!streamMenuOpen)}>
                                     <Plus className="w-4 h-4" />
                                     {t('editor.createStream')}
                                     <ChevronDown className={`w-4 h-4 ml-1 opacity-70 transition-transform ${streamMenuOpen ? 'rotate-180' : ''}`} />
@@ -4465,9 +4531,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                     </div>
                                 )}
                             </div>
+                            </div>
                         </div>
 
-                        <div className="flex-1 p-4 lg:p-6 lg:overflow-y-auto">
+                        <div className="flex-1 p-4 lg:p-6 xl:overflow-y-auto">
                             {formData.streams.length === 0 ? (
                                 <div className="h-full flex flex-col items-center justify-center text-center max-w-sm mx-auto">
                                     <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6" style={{ backgroundColor: 'var(--color-bg-soft)' }}>
@@ -4514,9 +4581,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                             borderLeftColor: stream.type === 'intercepting' ? '#f97316' : stream.type === 'fallback' ? 'var(--color-text-muted)' : '#3b82f6'
                                         }}>
 
-                                            <div className="flex items-center justify-between flex-wrap gap-2 px-4 py-2" style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}>
-                                                <div className="flex items-center gap-3">
-                                                    <span className="text-xs font-bold uppercase" style={{
+                                            <div className="flex items-center justify-between flex-wrap gap-2 px-4 py-2" style={{ borderBottom: collapsedStreams.has(streamCollapseKey(stream, idx)) ? 'none' : '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-soft)' }}>
+                                                <div className="flex items-center flex-wrap gap-x-3 gap-y-1.5 min-w-0">
+                                                    <span className="text-xs font-bold uppercase whitespace-nowrap" style={{
                                                         color: stream.type === 'intercepting' ? '#f97316' : stream.type === 'fallback' ? 'var(--color-text-muted)' : '#3b82f6'
                                                     }}>
                                                         {stream.type === 'intercepting' ? t('editor.streamInterceptingShort') : stream.type === 'fallback' ? t('editor.streamFallbackShort') : t('editor.streamRegularShort')}
@@ -4525,7 +4592,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                         type="text"
                                                         value={stream.name || ''}
                                                         onChange={e => updateStream(idx, 'name', e.target.value)}
-                                                        className="bg-transparent border-none font-semibold px-0 w-full sm:w-48 min-w-0"
+                                                        className="bg-transparent border-none font-semibold px-0 min-w-0 w-56 max-w-full"
                                                         style={{ color: 'var(--color-text-primary)' }}
                                                         placeholder={t('editor.streamName')}
                                                     />
@@ -4534,7 +4601,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                         for weighted rotation (the old duplicate inside stream
                                                         settings is gone). */}
                                                     {formData.rotation_type === 'weight' && stream.type === 'regular' && (
-                                                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg" style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
+                                                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg flex-shrink-0" style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)' }}>
                                                             <span className="text-[11px] font-semibold whitespace-nowrap" style={{ color: 'var(--color-text-muted)' }}>{t('editor.streamWeight')}:</span>
                                                             <input
                                                                 type="number"
@@ -4560,7 +4627,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                         const unsaved = !stream.id || String(stream.id).startsWith('temp_');
                                                         return (
                                                             <div
-                                                                className="flex items-center gap-2 px-2 py-0.5 rounded-lg text-[11px] whitespace-nowrap"
+                                                                className="flex items-center flex-wrap gap-x-2 gap-y-0.5 px-2 py-0.5 rounded-lg text-[11px] whitespace-nowrap flex-shrink-0 max-w-full"
                                                                 style={{ backgroundColor: 'var(--color-bg-card)', border: '1px solid var(--color-border)', color: 'var(--color-text-muted)' }}
                                                                 title={unsaved ? t('editor.streamStatsUnsaved') : t('editor.streamStatsHint')}
                                                                 data-stream-stats={stream.id || ''}
@@ -4623,12 +4690,23 @@ const CampaignEditor = ({ campaignId, onClose }) => {
 
                                                     <div className="w-px h-6" style={{ backgroundColor: 'var(--color-border)' }}></div>
 
-                                                    <button
-                                                        onClick={() => setExpandedStream(expandedStream === idx ? null : idx)}
-                                                        className="action-btn"
-                                                    >
-                                                        <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${expandedStream === idx ? 'rotate-180' : ''}`} />
-                                                    </button>
+                                                    {(() => {
+                                                        const collapsed = collapsedStreams.has(streamCollapseKey(stream, idx));
+                                                        const label = collapsed ? t('editor.expandStream') : t('editor.collapseStream');
+                                                        return (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => toggleStreamCollapsed(streamCollapseKey(stream, idx))}
+                                                                className="action-btn"
+                                                                title={label}
+                                                                aria-label={label}
+                                                                aria-expanded={!collapsed}
+                                                                data-stream-collapse={stream.id || idx}
+                                                            >
+                                                                {collapsed ? <ChevronsUpDown className="w-5 h-5" /> : <ChevronsDownUp className="w-5 h-5" />}
+                                                            </button>
+                                                        );
+                                                    })()}
                                                     <button onClick={() => duplicateStream(idx)} className="action-btn text-blue" title={t('editor.duplicate')}>
                                                         <Copy className="w-4 h-4" />
                                                     </button>
@@ -4638,7 +4716,8 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                 </div>
                                             </div>
 
-                                            <div className="p-4 space-y-4">
+                                            {!collapsedStreams.has(streamCollapseKey(stream, idx)) && (
+                                            <div className="p-4 space-y-4" data-stream-body={stream.id || idx}>
                                                 {(stream.collect_clicks ?? 1) == 0 && (
                                                     <div className="rounded-2xl px-3 py-2 flex items-center gap-2" style={{
                                                         backgroundColor: 'color-mix(in srgb, var(--color-warning, #f59e0b) 10%, transparent)',
@@ -5297,7 +5376,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                     <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--color-text-primary)' }}>
                                                                         🛡️ {t('streamRefine.safePageTitle', 'Safe Page (For Reviewers & Bots)')}
                                                                     </span>
-                                                                    <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: 'var(--color-border)' }}>
+                                                                    <div className="flex flex-wrap rounded-lg overflow-hidden border max-w-full" style={{ borderColor: 'var(--color-border)' }}>
                                                                     {[
                                                                         ['url', t('streamRefine.tabUrl', 'External URL')],
                                                                         ['landing', t('streamRefine.tabLanding', 'Tracker Landing')],
@@ -5308,7 +5387,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                                 key={mode}
                                                                                 type="button"
                                                                                 onClick={() => setSafeMode(mode)}
-                                                                                className="px-2.5 py-1 text-[11px] font-medium transition"
+                                                                                className="flex-auto px-2.5 py-1 text-[11px] font-medium transition whitespace-nowrap"
                                                                                 style={{
                                                                                     backgroundColor: safeMode === mode ? 'var(--color-primary)' : 'var(--color-bg-card)',
                                                                                     color: safeMode === mode ? 'var(--color-text-inverse)' : 'var(--color-text-secondary)'
@@ -5718,7 +5797,11 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                             <div className="space-y-1">
                                                                 {stream.filters.map((f, fIdx) => (
                                                                     <div key={fIdx} className="flex rounded-lg text-sm overflow-hidden items-center" style={{ border: '1px solid var(--color-border)' }}>
-                                                                        <div className="px-2 py-1 font-semibold" style={{ backgroundColor: 'var(--color-bg-soft)', color: 'var(--color-text-primary)' }}>{f.name}</div>
+                                                                        <div className="px-2 py-1 font-semibold whitespace-nowrap" style={{ backgroundColor: 'var(--color-bg-soft)', color: 'var(--color-text-primary)' }}>
+                                                                            {f.name === 'Parameter'
+                                                                                ? <>{t('filters.parameter')} <span className="font-mono">{f.param || '?'}</span></>
+                                                                                : f.name}
+                                                                        </div>
                                                                         <div className="px-2 py-1 font-bold" style={{ color: f.mode === 'include' ? 'var(--color-success)' : 'var(--color-danger)' }}>
                                                                             {f.mode === 'include' ? '✓' : '✗'}
                                                                         </div>
@@ -5728,7 +5811,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                                             onClick={() => openFilterModal(idx, fIdx)}
                                                                             title={t('editor.editFilter')}
                                                                         >
-                                                                            {Array.isArray(f.payload) ? f.payload.join(', ') : (f.payload || '')}
+                                                                            {(Array.isArray(f.payload) ? f.payload : String(f.payload || '').split(','))
+                                                                                .map(v => (f.name === 'Parameter' && isParamEmptyToken(v)) ? t('filters.parameterEmptyShort') : String(v).trim())
+                                                                                .filter(Boolean)
+                                                                                .join(', ')}
                                                                         </div>
                                                                         <button
                                                                             type="button"
@@ -5758,6 +5844,7 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                     </div>
                                                 )}
                                             </div>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
@@ -5788,7 +5875,9 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                     onChange={e => setNewFilter({
                                         ...newFilter,
                                         name: e.target.value,
-                                        payload: e.target.value === 'Bot' ? 'yes' : ''
+                                        payload: e.target.value === 'Bot' ? 'yes' : '',
+                                        param: '',
+                                        matchEmpty: false
                                     })}
                                     className="form-select"
                                 >
@@ -5820,6 +5909,20 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                     </label>
                                 </div>
                             </div>
+                            {newFilter.name === 'Parameter' && (
+                                <div>
+                                    <label className="form-label">{t('filters.parameterName')}</label>
+                                    <input
+                                        type="text"
+                                        value={newFilter.param}
+                                        onChange={e => setNewFilter({ ...newFilter, param: cleanParamName(e.target.value) })}
+                                        className="form-input font-mono"
+                                        placeholder={t('filters.parameterNamePlaceholder')}
+                                        data-filter-param-name
+                                        autoFocus
+                                    />
+                                </div>
+                            )}
                             <div>
                                 <label className="form-label">{t('editor.values')}</label>
                                 {newFilter.name === 'Country' ? (
@@ -5850,16 +5953,31 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                         type="text"
                                         value={newFilter.payload}
                                         onChange={e => setNewFilter({ ...newFilter, payload: e.target.value })}
-                                        className="form-input"
+                                        className={`form-input${newFilter.name === 'Parameter' ? ' font-mono' : ''}`}
                                         placeholder={availableFilters.find(f => f.name === newFilter.name)?.placeholder}
+                                        data-filter-values
                                     />
+                                )}
+                                {newFilter.name === 'Parameter' && (
+                                    <>
+                                        <label className="form-checkbox-label mt-2">
+                                            <input
+                                                type="checkbox"
+                                                checked={newFilter.matchEmpty}
+                                                onChange={e => setNewFilter({ ...newFilter, matchEmpty: e.target.checked })}
+                                                data-filter-match-empty
+                                            />
+                                            {t('filters.parameterEmpty')}
+                                        </label>
+                                        <p className="text-xs mt-2" style={{ color: 'var(--color-text-muted)' }}>{t('filters.parameterHint')}</p>
+                                    </>
                                 )}
                             </div>
                         </div>
 
                         <div className="modal-footer">
                             <button onClick={() => setFilterModal({ open: false, streamIdx: null, filterIdx: null })} className="btn btn-secondary">{t('common.cancel')}</button>
-                            <button onClick={saveFilter} disabled={!newFilter.payload?.trim()} className="btn btn-primary">
+                            <button onClick={saveFilter} disabled={!filterCanSave} className="btn btn-primary">
                                 {filterModal.filterIdx !== null ? t('common.save') : t('common.add')}
                             </button>
                         </div>
@@ -6153,6 +6271,18 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                     <option value="pt">pt</option>
                                     <option value="zh">zh</option>
                                 </select>
+                            </div>
+                            <div>
+                                <label className="form-label">{t('simulation.urlParams')}</label>
+                                <input
+                                    type="text"
+                                    value={trafficSimForm.url_params}
+                                    onChange={(e) => setTrafficSimForm({ ...trafficSimForm, url_params: e.target.value })}
+                                    className="form-input font-mono"
+                                    placeholder="xxx=__PLACEMENT__&sub_id_1=abc"
+                                    data-sim-url-params
+                                />
+                                <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>{t('simulation.urlParamsHint')}</p>
                             </div>
                             <div className="flex flex-wrap gap-4">
                                 <label className="form-checkbox-label">

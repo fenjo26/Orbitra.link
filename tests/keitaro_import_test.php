@@ -111,7 +111,10 @@ foreach ($filters as $f) {
 }
 check('country reject still maps to exclude', ($byName['Country']['mode'] ?? '') === 'exclude', json_encode($byName));
 check('uniqueness ×2 counted', ($dropped['uniqueness'] ?? 0) === 2, json_encode($dropped));
-check('sub_id_8 ×1 counted', ($dropped['sub_id_8'] ?? 0) === 1, json_encode($dropped));
+// sub_id_N now maps to the Parameter filter instead of being dropped.
+check('sub_id_8 maps to Parameter', isset($byName['Parameter']) && ($byName['Parameter']['param'] ?? '') === 'sub_id_8'
+    && ($byName['Parameter']['payload'] ?? null) === ['abc'], json_encode($byName));
+check('sub_id_8 is not counted as dropped', !isset($dropped['sub_id_8']), json_encode($dropped));
 check('mapped filters are not counted as dropped', !isset($dropped['country']), json_encode($dropped));
 
 // "Pass to campaign" resolution: mapped, db-known, and missing targets.

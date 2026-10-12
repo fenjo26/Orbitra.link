@@ -1,4 +1,4 @@
-# Orbitra v1.6.14 Tracker
+# Orbitra v1.6.15 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,23 +11,25 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.6.14
+## 🆕 What's New in v1.6.15
 
-`{offer}` on a landing now behaves exactly like Keitaro's.
+Stream filters can now read any URL parameter — Keitaro's "Parameter" filter, including the empty-value check used to keep moderation bots on the white page. The campaign editor now fits tablets and laptops, and layout classes finally take effect across the whole panel.
 
-### Changed
+### Added
 
-- 🔗 **`{offer}` is the signed link through the tracker, not the advertiser's direct URL.** The button click is counted in the funnel (Real LP clicks, LP CTR, time-to-offer), and streams with "offer selection: before" — whose clicks silently showed as **zero** in reports — start counting properly. Parameters appended to the macro now reach the tracker: `{offer}&offer_id=10` switches the offer, `{offer}&sub_id_5=…` passes the visitor's choice (the 1.6.13 feature) straight on the macro. A `{offer}` inside an external landing's URL becomes an absolute signed link, and the `?_dbg=1` trace shows the transition. The price is one extra same-domain 302
+- 🎯 **New stream filter: URL Parameter.** Filter by any parameter of the click link, by name — the Keitaro "Parameter" filter. Values match exactly (case-insensitive), `*` is a wildcard, and **Empty** matches a parameter that is missing or blank. This is the TikTok moderation trick: put `xxx=__PLACEMENT__` in the campaign link and send `__PLACEMENT__` + Empty to the white page on an intercepting stream — a real ad click arrives with the macro replaced, a bot or a reviewer opening the bare link does not. Works in the redirect router, the Click API (parameters forwarded by the PHP client), the `?_dbg=1` trace and the traffic simulator, which gets a "URL parameters" field. Keitaro import now converts `sub_id_N` and parameter filters instead of reporting them as dropped
 
 ### Fixed
 
-- 🧾 **External redirect landings receive the documented `_subid`/`_token` pair.** The append existed since the beginning but never actually fired, so a hand-made landing on another domain had no working way back to the tracker
+- 🔽 **The chevron on a stream card now collapses the stream.** It only rotated its own icon; the card never folded. It now hides the stream's settings down to its header row, has its own up/down icon so it no longer looks like "move down", and the collapsed state is remembered per campaign in the browser
+- 🎛 **One source of truth for layout across the whole panel.** The panel's own styles (buttons, fields, cards, modals, tables) used to outrank every Tailwind class in the markup, so layout classes were silently ignored: `hidden` didn't hide a button, `w-14` didn't narrow a field, `w-auto` didn't shrink a select. Layout (display, fluid width, margin, flex) now sits in Tailwind's base layer, and the classes in the markup take effect. The look stays authoritative and identical everywhere: padding, radius, fonts, colours and fixed sizes. Checked with a before/after screenshot comparison of every page at three widths. The visible effects are compact weight fields in streams, a filter select in Domain Monitoring that no longer stretches, and push-subscriber table columns at their intended widths
+- 📐 **Campaign editor fits tablets and laptops.** The two-pane layout (settings beside streams) now starts at 1280px instead of 1024px. Between them the ~300px sidebar broke the Parameters tab (headers overlapping, values cut off) and pushed the Integrations buttons past the edge. Below 1280 the editor is one column. The settings pane now lays out by its own width, so the parameter list switches to a compact two-line row when it sits beside the streams
+- 🗂 **All editor tabs are visible.** The tab strip scrolled sideways with a hidden scrollbar, so "S2S Postbacks" and "Notes" were invisible in the sidebar. The tabs now wrap onto a second row
+- 🧩 **Stream cards wrap instead of crushing.** The stream header (type, name, weight, stats) wraps on narrow widths. The weight field no longer squeezes to an empty box, the streams toolbar wraps as one group, and the Safe Page source switch no longer clips "Inline HTML" on a phone
+- 🔘 **Rounded editor header, no stray Close button.** The editor header had square corners on a rounded card, and the Close button meant for wide screens showed on every width and took a row of its own. The Report screen is a rounded card too, inset like the rest of the panel
+- ✏️ **"Report" without the colon** in all seven languages. The button read "Report:", the report title "Report: — …" and its tooltip "Report:: name"
 
-### v1.6.13
-
-A landing can pass the visitor's choice to the offer the Keitaro way: `sub_id_1` … `sub_id_30` on the landing→offer link update the click, so `{sub_id_5}` in the offer URL carries the picked product, plan or quiz answer.
-
-Older releases (v1.6.12 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.6.14 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo
@@ -105,7 +107,7 @@ Orbitra is deliberately lightweight — it runs on plain **PHP + SQLite** behind
 - **6 payout models**: CPC, CPuC, CPM, CPA, CPS, RevShare
 - **30+ parameters**: keyword, sub_id_1...30, cost, creative_id and more
 - **Advanced stream logic**: Intercept → Regular → Fallback with weights and positions
-- **Advanced filtering**: GEO, Device (Desktop / Mobile / Tablet taxonomy shared by the tracker, Click API and reports), OS, Browser, ISP, IP, Language, Referer
+- **Advanced filtering**: GEO, Device (Desktop / Mobile / Tablet taxonomy shared by the tracker, Click API and reports), OS, Browser, ISP, IP, Language, Referer, any URL parameter (incl. "empty")
 - **A/B testing**: built-in split-test support with weighted rotation
 - **Play/Pause from the panel** — one click pauses an internal campaign (a disabled campaign stops serving immediately) or an actual Facebook ad / ad set / campaign right from the table or a report row, via the Meta Marketing API
 - **Per-stream "Collect clicks"** — fallback and white-page streams can serve their destination without writing a click row, so unwanted traffic stops polluting CR and CPA

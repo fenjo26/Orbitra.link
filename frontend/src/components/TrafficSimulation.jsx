@@ -14,7 +14,8 @@ const TrafficSimulation = () => {
         user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
         country: 'US',
         device_type: 'desktop',
-        accept_language: 'ru,en-US;q=0.9,en;q=0.8'
+        accept_language: 'ru,en-US;q=0.9,en;q=0.8',
+        url_params: ''
     });
     const [trace, setTrace] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -124,6 +125,17 @@ const TrafficSimulation = () => {
                                 className="form-input"
                                 placeholder="ru,en-US;q=0.9,en;q=0.8"
                             />
+                        </div>
+                        <div>
+                            <label className="form-label">{t('simulation.urlParams')}</label>
+                            <input
+                                type="text"
+                                value={formData.url_params}
+                                onChange={e => setFormData({ ...formData, url_params: e.target.value })}
+                                className="form-input font-mono"
+                                placeholder="xxx=__PLACEMENT__&sub_id_1=abc"
+                            />
+                            <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>{t('simulation.urlParamsHint')}</p>
                         </div>
                         <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%' }}>
                             <Play className="w-4 h-4" />
