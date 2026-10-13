@@ -9125,6 +9125,47 @@ try {
             ];
             $logsFinance = orbitraRequestFinanceFlags();
 
+            // Click-parameter filters and columns (traffic log, Keitaro-style).
+            // Anything malformed is a 400, never a silently dropped filter: the
+            // operator would read unfiltered rows as filtered ones.
+            try {
+                $logFilters['param_filters'] = orbitraLogsParseParamFilters($_GET['param_filters'] ?? null);
+                $paramCols = [];
+                foreach (explode(',', (string) ($_GET['param_cols'] ?? '')) as $token) {
+                    $token = trim($token);
+                    if ($token === '') {
+                        continue;
+                    }
+                    if (!orbitraLogsValidParamName($token)) {
+                        throw new InvalidArgumentException("param_cols: invalid parameter name '$token'");
+                    }
+                    $paramCols[] = $token;
+                }
+                if (count($paramCols) > ORBITRA_LOGS_PARAM_COL_MAX) {
+                    throw new InvalidArgumentException('param_cols: too many columns');
+                }
+                // The export projection may itself request parameter columns.
+                $exportColumns = [];
+                if ($action === 'logs_export') {
+                    $exportColumns = orbitraLogsParseExportColumns($_GET['columns'] ?? null);
+                    foreach ($exportColumns as $key) {
+                        if (strpos($key, 'p_') === 0) {
+                            $paramCols[] = substr($key, 2);
+                        }
+                    }
+                    if (count($paramCols) > ORBITRA_LOGS_PARAM_COL_MAX) {
+                        throw new InvalidArgumentException('columns: too many parameter columns');
+                    }
+                }
+                if (($logFilters['param_filters'] || $paramCols) && $type !== 'traffic') {
+                    throw new InvalidArgumentException('parameter filters/columns are only supported for the traffic log');
+                }
+                $logFilters['param_cols'] = array_values(array_unique($paramCols));
+            } catch (InvalidArgumentException $e) {
+                echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+                break;
+            }
+
             if ($action === 'logs_export') {
                 // Stream the file: release the session lock so the panel stays
                 // usable while a 100k-row export is being written.
@@ -9145,7 +9186,7 @@ try {
                     }
                 })();
                 $out = fopen('php://output', 'w');
-                orbitraLogsWriteCsv($out, $rowsIter);
+                orbitraLogsWriteCsv($out, $rowsIter, $exportColumns ?: null);
                 fclose($out);
                 exit;
             }
@@ -9169,6 +9210,13 @@ try {
                 'has_more' => $page['has_more'],
                 'next_cursor' => $page['next_cursor'],
             ]);
+            break;
+
+        case 'logs_param_keys':
+            // Click-parameter names present in recent clicks (14 days) — the
+            // suggestion list for the traffic log's column picker and
+            // parameter filters. Read-only and bounded; see logs_query.php.
+            echo json_encode(['status' => 'success', 'data' => orbitraLogsParamKeys($pdo)]);
             break;
 
         case 'click_details':

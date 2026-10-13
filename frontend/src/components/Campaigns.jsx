@@ -10,7 +10,6 @@ import { useIsDesktop, useResizableTableColumns, ColRow } from './common/ColumnR
 import { colWidth } from './common/tableColumns';
 import { SortableTh } from './common/SortableTh';
 import CampaignReports from './CampaignReports';
-import ClickLogModal from './ClickLogModal';
 import ConversionsLogModal from './ConversionsLogModal';
 import CampaignUrlModal from './CampaignUrlModal';
 import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
@@ -160,7 +159,14 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                 </button>
                 <button
                     type="button"
-                    onClick={() => setLogModal({ type: 'clicks', id: camp.id, name: camp.name })}
+                    onClick={() => {
+                        // Keitaro-style: the row's click-log action opens the FULL
+                        // traffic log pre-filtered to this campaign. LogsPage reads
+                        // the URL params on mount; the navigate event switches the
+                        // app tab (the same path the dashboard's "show all" takes).
+                        window.history.pushState(null, '', `${window.location.pathname}?tab=traffic&campaign_id=${camp.id}`);
+                        window.dispatchEvent(new CustomEvent('orbitra:navigate', { detail: { tab: 'logs' } }));
+                    }}
                     className={btnClass}
                     style={{ color: 'var(--color-text-muted)' }}
                     title={t('table.clickLog')}
@@ -1615,14 +1621,6 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                         // rows scrolled out of view.
                         setSelectedCampaignIds(new Set());
                     }}
-                />
-            )}
-
-            {logModal?.type === 'clicks' && (
-                <ClickLogModal
-                    campaignId={logModal.id}
-                    campaignName={logModal.name}
-                    onClose={() => setLogModal(null)}
                 />
             )}
 

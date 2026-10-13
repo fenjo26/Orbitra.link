@@ -129,5 +129,77 @@ $assert('formula neutralised', strpos($csv, "'=HYPERLINK") !== false, true);
 $capped = iterator_count(orbitraLogsIterate($pdo, 'traffic', [], '+00:00', 0, 120, 50));
 $assert('export cap honoured', $capped, 120);
 
+echo "click-parameter filters and columns\n";
+// Parameter clicks on today (dynamic: the param-keys window is "last 14 days"
+// relative to NOW, so a fixed 2026-09-xx date would fall outside it): two
+// rows with TikTok-style IDs, one with an unreplaced macro, one without
+// parameters at all, plus a legacy row whose parameters_json is '' (invalid
+// JSON — the json_valid guards must keep it selectable). Rows list newest-first.
+$pd = gmdate('Y-m-d');
+$pdo->exec("INSERT INTO clicks (id, campaign_id, stream_id, ip, parameters_json, created_at) VALUES
+    ('tt1', 1, 11, '2.2.2.2', '{\"campaign_id\":\"1878858016755778\",\"ad_id\":\"1878908994123889\",\"ttclid\":\"abc\"}', '$pd 12:00:00'),
+    ('tt2', 1, 11, '2.2.2.2', '{\"campaign_id\":\"1777\",\"ad_id\":\"1888\"}', '$pd 12:01:00'),
+    ('mac', 1, 11, '2.2.2.2', '{\"ad_id\":\"__CID__\"}', '$pd 12:02:00'),
+    ('noparams', 1, 11, '2.2.2.2', '{}', '$pd 12:03:00'),
+    ('legacy', 1, 11, '2.2.2.2', '', '$pd 12:04:00')");
+$ids = fn(array $rows) => array_map(fn($r) => $r['click_id'], $rows);
+$day = ['date_from' => $pd, 'date_to' => $pd];
+
+$f = orbitraLogsParseParamFilters(json_encode([['param' => 'ad_id', 'op' => 'eq', 'value' => '1878908994123889']]));
+$assert('eq matches only the exact id', $ids(orbitraLogsFetchPage($pdo, 'traffic', $day + ['param_filters' => $f], 500, 0, '+00:00', 0)['rows']), ['tt1']);
+$f = orbitraLogsParseParamFilters(json_encode([['param' => 'ad_id', 'op' => 'neq', 'value' => '1878908994123889']]));
+$assert('neq is the exact complement (absent/empty included, ordered)',
+    $ids(orbitraLogsFetchPage($pdo, 'traffic', $day + ['param_filters' => $f], 500, 0, '+00:00', 0)['rows']),
+    ['legacy', 'noparams', 'mac', 'tt2']);
+$f = orbitraLogsParseParamFilters(json_encode([['param' => 'campaign_id', 'op' => 'in', 'value' => '1878858016755778, 1777']]));
+$assert('in matches either value', $ids(orbitraLogsFetchPage($pdo, 'traffic', $day + ['param_filters' => $f], 500, 0, '+00:00', 0)['rows']), ['tt2', 'tt1']);
+$f = orbitraLogsParseParamFilters(json_encode([['param' => 'ad_id', 'op' => 'nin', 'value' => '1878908994123889,1888']]));
+$assert('nin keeps absent + others', $ids(orbitraLogsFetchPage($pdo, 'traffic', $day + ['param_filters' => $f], 500, 0, '+00:00', 0)['rows']), ['legacy', 'noparams', 'mac']);
+$f = orbitraLogsParseParamFilters(json_encode([['param' => 'ad_id', 'op' => 'empty', 'value' => '']]));
+$assert('empty = clicks without the parameter', $ids(orbitraLogsFetchPage($pdo, 'traffic', $day + ['param_filters' => $f], 500, 0, '+00:00', 0)['rows']), ['legacy', 'noparams']);
+$f = orbitraLogsParseParamFilters(json_encode([['param' => 'campaign_id', 'op' => 'nempty', 'value' => '']]));
+$assert('nempty = clicks carrying the parameter', $ids(orbitraLogsFetchPage($pdo, 'traffic', $day + ['param_filters' => $f], 500, 0, '+00:00', 0)['rows']), ['tt2', 'tt1']);
+$f = orbitraLogsParseParamFilters(json_encode([
+    ['param' => 'ad_id', 'op' => 'nempty', 'value' => ''],
+    ['param' => 'campaign_id', 'op' => 'eq', 'value' => '1777'],
+]));
+$assert('two filters AND together', $ids(orbitraLogsFetchPage($pdo, 'traffic', $day + ['param_filters' => $f], 500, 0, '+00:00', 0)['rows']), ['tt2']);
+
+$threw = null;
+try { orbitraLogsParseParamFilters(json_encode([['param' => 'ad_id; DROP TABLE clicks', 'op' => 'eq', 'value' => '1']])); } catch (InvalidArgumentException $e) { $threw = $e->getMessage(); }
+$assert('non-identifier param name rejected', strpos((string) $threw, 'invalid parameter name') !== false, true);
+$threw = null;
+try { orbitraLogsParseParamFilters(json_encode([['param' => 'ad_id', 'op' => 'regex', 'value' => '1']])); } catch (InvalidArgumentException $e) { $threw = $e->getMessage(); }
+$assert('unknown operator rejected', strpos((string) $threw, 'unknown operator') !== false, true);
+$threw = null;
+try { orbitraLogsParseParamFilters('not json'); } catch (InvalidArgumentException $e) { $threw = $e->getMessage(); }
+$assert('malformed JSON rejected', strpos((string) $threw, 'malformed') !== false, true);
+$threw = null;
+try { orbitraLogsParseExportColumns('p:bad-name,created_at'); } catch (InvalidArgumentException $e) { $threw = $e->getMessage(); }
+$assert('bad export param column rejected', strpos((string) $threw, 'invalid parameter column') !== false, true);
+$threw = null;
+try { orbitraLogsParseExportColumns('no_such_field'); } catch (InvalidArgumentException $e) { $threw = $e->getMessage(); }
+$assert('unknown export field rejected', strpos((string) $threw, 'unknown column') !== false, true);
+
+$page = orbitraLogsFetchPage($pdo, 'traffic', ['param_cols' => ['ad_id', 'ttclid']], 500, 0, '+00:00', 0);
+$row = $page['rows'][4]; // tt1 — the param batch is dated today, so it sorts ahead of the 2026-09 seeds
+$assert('param column extracted', $row['p_ad_id'], '1878908994123889');
+$assert('second param column extracted', $row['p_ttclid'], 'abc');
+$legacyRow = $page['rows'][0]; // legacy (newest of the param batch)
+$assert('legacy parameters_json yields NULL, no SQL error', array_key_exists('p_ad_id', $legacyRow) && $legacyRow['p_ad_id'] === null, true);
+
+$fh = fopen('php://memory', 'w+');
+orbitraLogsWriteCsv($fh, orbitraLogsIterate($pdo, 'traffic', ['param_cols' => ['ad_id'], 'param_filters' => orbitraLogsParseParamFilters(json_encode([['param' => 'ttclid', 'op' => 'eq', 'value' => 'abc']]))], '+00:00', 0), ['created_at', 'p_ad_id']);
+rewind($fh);
+$csvLines = array_values(array_filter(explode("\n", substr(stream_get_contents($fh), 3)), 'strlen'));
+$assert('export projection header order', str_getcsv($csvLines[0], ';', '"', '\\'), ['created_at', 'p_ad_id']);
+$assert('export projection row', str_getcsv($csvLines[1], ';', '"', '\\'), ["$pd 12:00:00", '1878908994123889']);
+$assert('export projection row count', count($csvLines), 2);
+
+$keys = orbitraLogsParamKeys($pdo);
+$keysByKey = [];
+foreach ($keys as $k) $keysByKey[$k['key']] = $k['clicks'];
+$assert('param keys: counts per key', [$keysByKey['ad_id'], $keysByKey['campaign_id'], $keysByKey['ttclid']], [3, 2, 1]);
+
 echo $failures === 0 ? "\nALL PASSED\n" : "\n$failures FAILED\n";
 exit($failures === 0 ? 0 : 1);

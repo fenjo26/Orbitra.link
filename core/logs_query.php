@@ -18,10 +18,147 @@ const ORBITRA_LOGS_TYPES = ['traffic', 'postbacks', 's2s', 'system', 'audit'];
 const ORBITRA_LOGS_PAGE_MAX = 500;
 const ORBITRA_LOGS_EXPORT_MAX = 100000;
 
+// Click-parameter filters/columns (traffic log, Keitaro-style): how many a
+// request may carry. Caps exist so a request cannot turn into a 50-term
+// json_extract chain over a full table scan.
+const ORBITRA_LOGS_PARAM_FILTER_MAX = 5;
+const ORBITRA_LOGS_PARAM_COL_MAX = 15;
+const ORBITRA_LOGS_PARAM_KEY_MAX = 100;
+
 function orbitraLogsClampLimit($raw, int $default = 50): int
 {
     $n = is_numeric($raw) ? (int) $raw : $default;
     return max(1, min(ORBITRA_LOGS_PAGE_MAX, $n));
+}
+
+/**
+ * Click parameters reach SQL through json_extract, whose path argument cannot
+ * be a bound parameter. Every name therefore passes this gate first:
+ * identifiers only, nothing else. A name that fails is a caller error and
+ * must surface as a 400 — silently dropping a filter would return rows the
+ * operator believes were filtered (the admin_api PR#11 lesson).
+ */
+function orbitraLogsValidParamName(string $name): bool
+{
+    return (bool) preg_match('/^[A-Za-z0-9_]{1,64}$/', $name);
+}
+
+/**
+ * Parse the param_filters JSON (traffic log): [{"param":"ad_id","op":"eq","value":"123"}].
+ *
+ * Ops: eq / neq (a value of "" compares against the empty string, which is
+ * also what an absent parameter reads as — so eq "" means "clicks without this
+ * parameter"), in / nin (comma-separated list, at least one item), empty /
+ * nempty (no value). Values are stored strings, so all comparisons are TEXT.
+ *
+ * Throws InvalidArgumentException on anything malformed — the API layer turns
+ * that into a 400 instead of running an unfiltered query.
+ */
+function orbitraLogsParseParamFilters(?string $json): array
+{
+    if ($json === null || $json === '') {
+        return [];
+    }
+    $decoded = json_decode($json, true);
+    if (!is_array($decoded)) {
+        throw new InvalidArgumentException('param_filters: malformed JSON');
+    }
+    if (count($decoded) > ORBITRA_LOGS_PARAM_FILTER_MAX) {
+        throw new InvalidArgumentException('param_filters: at most ' . ORBITRA_LOGS_PARAM_FILTER_MAX . ' filters allowed');
+    }
+    $out = [];
+    foreach (array_values($decoded) as $i => $row) {
+        if (!is_array($row)) {
+            throw new InvalidArgumentException("param_filters[$i]: each filter must be an object");
+        }
+        $param = trim((string) ($row['param'] ?? ''));
+        $op = (string) ($row['op'] ?? '');
+        $value = (string) ($row['value'] ?? '');
+        if (!orbitraLogsValidParamName($param)) {
+            throw new InvalidArgumentException("param_filters[$i]: invalid parameter name");
+        }
+        if (!in_array($op, ['eq', 'neq', 'in', 'nin', 'empty', 'nempty'], true)) {
+            throw new InvalidArgumentException("param_filters[$i]: unknown operator '$op'");
+        }
+        if (strlen($value) > 512) {
+            throw new InvalidArgumentException("param_filters[$i]: value too long");
+        }
+        $values = null;
+        if ($op === 'in' || $op === 'nin') {
+            $values = [];
+            foreach (explode(',', $value) as $item) {
+                $item = trim($item);
+                if ($item !== '') {
+                    if (strlen($item) > 512) {
+                        throw new InvalidArgumentException("param_filters[$i]: list item too long");
+                    }
+                    $values[] = $item;
+                }
+            }
+            if (count($values) < 1) {
+                throw new InvalidArgumentException("param_filters[$i]: '$op' needs at least one comma-separated value");
+            }
+            if (count($values) > 50) {
+                throw new InvalidArgumentException("param_filters[$i]: at most 50 list values");
+            }
+        }
+        $out[] = ['param' => $param, 'op' => $op, 'value' => $value, 'values' => $values];
+    }
+    return $out;
+}
+
+/**
+ * Canonical traffic-log export fields — the columns the traffic SELECT emits
+ * (minus the internal _cur_* pair). The export `columns` parameter accepts
+ * these names verbatim, plus p:<param> tokens for click-parameter columns.
+ */
+function orbitraLogsTrafficFields(): array
+{
+    return [
+        'id', 'click_id', 'created_at', 'campaign_name', 'ip',
+        'country_code', 'region', 'city', 'geo_timezone', 'language',
+        'accept_language_raw', 'device_type', 'user_agent', 'lp_seconds',
+        'lp_scroll', 'redirect_url', 'subid', 'cloak_verdict', 'cloak_reasons',
+        'is_safe_page', 'isp', 'asn', 'proxy_type', 'cloak_sensitivity',
+        'landing_name', 'offer_name', 'stream_id', 'stream_name', 'stream_type',
+    ];
+}
+
+/**
+ * Parse the export `columns` parameter into the ordered list of row keys the
+ * CSV writer will emit. p:<param> tokens map to the p_<param> SELECT aliases;
+ * anything unknown is a 400 (never a silently narrower export).
+ *
+ * @return array Empty array means "no projection requested" (all columns).
+ */
+function orbitraLogsParseExportColumns(?string $csv): array
+{
+    if ($csv === null || trim($csv) === '') {
+        return [];
+    }
+    $allowed = array_flip(orbitraLogsTrafficFields());
+    $out = [];
+    foreach (explode(',', $csv) as $token) {
+        $token = trim($token);
+        if ($token === '') {
+            continue;
+        }
+        if (strpos($token, 'p:') === 0) {
+            $name = substr($token, 2);
+            if (!orbitraLogsValidParamName($name)) {
+                throw new InvalidArgumentException("columns: invalid parameter column '$token'");
+            }
+            $out[] = 'p_' . $name;
+        } elseif (isset($allowed[$token])) {
+            $out[] = $token;
+        } else {
+            throw new InvalidArgumentException("columns: unknown column '$token'");
+        }
+        if (count($out) > 30 + ORBITRA_LOGS_PARAM_COL_MAX) {
+            throw new InvalidArgumentException('columns: too many columns');
+        }
+    }
+    return $out;
 }
 
 /** "2026-09-18 10:00:00|abc" → ['ts' => ..., 'id' => ...]; null when malformed. */
@@ -74,6 +211,8 @@ function orbitraLogsUtcBound(?string $date, int $tzOffsetSeconds, bool $endOfDay
  *
  * $f keys (all optional): campaign_id, stream_id, route (all|money|safe),
  * reason, date_from, date_to (panel-local Y-m-d), cursor (see above).
+ * Traffic only: param_filters (parsed by orbitraLogsParseParamFilters) and
+ * param_cols (click-parameter columns to add as p_<name> aliases).
  *
  * @return array{0:string,1:array} SQL without LIMIT/OFFSET, and its params
  */
@@ -117,6 +256,41 @@ function orbitraLogsBuildQuery(string $type, array $f, string $dbTzOffset, int $
             $where[] = 'cl.cloak_reasons LIKE ?';
             $params[] = '%' . $reason . '%';
         }
+        // Click-parameter filters (Keitaro-style). The IFNULL wrapper makes an
+        // absent parameter read as '' — that keeps neq/nin as exact complements
+        // of eq/in (rows WITHOUT the parameter are included), and makes
+        // eq "" mean "clicks that do not carry this parameter". CASE guards
+        // json_extract behind json_valid: legacy rows may hold '' or NULL,
+        // and json_extract on malformed JSON raises an SQL error, not NULL.
+        $paramFilters = isset($f['param_filters']) && is_array($f['param_filters']) ? $f['param_filters'] : [];
+        foreach ($paramFilters as $pf) {
+            $expr = "IFNULL(CASE WHEN json_valid(cl.parameters_json) "
+                . "THEN json_extract(cl.parameters_json, '$." . $pf['param'] . "') END, '')";
+            switch ($pf['op']) {
+                case 'eq':
+                    $where[] = "$expr = ?";
+                    $params[] = $pf['value'];
+                    break;
+                case 'neq':
+                    $where[] = "$expr != ?";
+                    $params[] = $pf['value'];
+                    break;
+                case 'in':
+                case 'nin':
+                    $marks = implode(', ', array_fill(0, count($pf['values']), '?'));
+                    $where[] = "$expr " . ($pf['op'] === 'in' ? 'IN' : 'NOT IN') . " ($marks)";
+                    foreach ($pf['values'] as $v) {
+                        $params[] = $v;
+                    }
+                    break;
+                case 'empty':
+                    $where[] = "$expr = ''";
+                    break;
+                case 'nempty':
+                    $where[] = "$expr != ''";
+                    break;
+            }
+        }
     }
 
     $from = orbitraLogsUtcBound($f['date_from'] ?? null, $tzOffsetSeconds, false);
@@ -140,6 +314,18 @@ function orbitraLogsBuildQuery(string $type, array $f, string $dbTzOffset, int $
     $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
     $order = "ORDER BY $alias.created_at DESC, $alias.id DESC";
     $cur = "$alias.created_at AS _cur_ts, $alias.id AS _cur_id";
+
+    // Requested click-parameter columns (traffic log). Each becomes a p_<name>
+    // alias guarded by json_valid — legacy rows with '' / NULL parameters_json
+    // yield NULL instead of an SQL error. Names are validated upstream
+    // (orbitraLogsValidParamName), so the alias is a plain identifier.
+    $paramColsSql = '';
+    if ($type === 'traffic' && !empty($f['param_cols']) && is_array($f['param_cols'])) {
+        foreach ($f['param_cols'] as $pc) {
+            $paramColsSql .= ",\n                    CASE WHEN json_valid(cl.parameters_json) "
+                . "THEN json_extract(cl.parameters_json, '$." . $pc . "') END AS p_" . $pc;
+        }
+    }
 
     switch ($type) {
         case 'traffic':
@@ -181,7 +367,7 @@ function orbitraLogsBuildQuery(string $type, array $f, string $dbTzOffset, int $
                     -- to the intercepting / regular / fallback stream, per row.
                     cl.stream_id,
                     s.name AS stream_name,
-                    s.type AS stream_type,
+                    s.type AS stream_type{$paramColsSql},
                     $cur
                 FROM clicks cl
                 LEFT JOIN campaigns c ON cl.campaign_id = c.id
@@ -292,15 +478,46 @@ function orbitraLogsIterate(PDO $pdo, string $type, array $f, string $dbTzOffset
     }
 }
 
-/** Write rows as ;-separated UTF-8 CSV with a BOM (opens correctly in Excel). */
-function orbitraLogsWriteCsv($out, iterable $rows): int
+/**
+ * Click-parameter names actually present in recent clicks, most frequent
+ * first — the suggestion list for the column picker and the parameter filter.
+ * Bounded to the last 14 days so a large clicks table is not fully aggregated
+ * on every dropdown open. Legacy rows with '' / NULL parameters_json are
+ * guarded: json_each on malformed JSON raises an SQL error, and the CASE
+ * feeds it NULL instead, which yields no rows.
+ *
+ * @return array<int, array{key:string, clicks:int}>
+ */
+function orbitraLogsParamKeys(PDO $pdo): array
+{
+    $sql = "SELECT je.key AS k, COUNT(*) AS c
+            FROM clicks cl, json_each(CASE WHEN json_valid(cl.parameters_json) THEN cl.parameters_json END) je
+            WHERE cl.created_at >= datetime('now', '-14 days')
+            GROUP BY je.key
+            ORDER BY c DESC, k ASC
+            LIMIT " . ORBITRA_LOGS_PARAM_KEY_MAX;
+    $out = [];
+    foreach ($pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC) as $row) {
+        $out[] = ['key' => (string) $row['k'], 'clicks' => (int) $row['c']];
+    }
+    return $out;
+}
+
+/**
+ * Write rows as ;-separated UTF-8 CSV with a BOM (opens correctly in Excel).
+ *
+ * $columns: optional ordered projection (row keys). Without it the header is
+ * derived from the first row, as before. A requested key missing from a row
+ * renders as '' — param columns are NULL on legacy rows without parameters.
+ */
+function orbitraLogsWriteCsv($out, iterable $rows, ?array $columns = null): int
 {
     fwrite($out, "\xEF\xBB\xBF");
     $n = 0;
     $header = null;
     foreach ($rows as $row) {
         if ($header === null) {
-            $header = array_keys($row);
+            $header = ($columns !== null && $columns) ? array_values($columns) : array_keys($row);
             fputcsv($out, $header, ';', '"', '\\');
         }
         $line = [];

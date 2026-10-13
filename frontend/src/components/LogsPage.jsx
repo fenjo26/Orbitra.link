@@ -1,11 +1,53 @@
-import React, { useState, useEffect } from 'react';
-import { Activity, ArrowRightLeft, ShieldAlert, TerminalSquare, ServerCrash, FileStack, Filter, ChevronDown, Download } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Activity, ArrowRightLeft, ShieldAlert, TerminalSquare, ServerCrash, FileStack, Filter, ChevronDown, Download, Columns3, Plus, X } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import MobileCards from './common/MobileCards';
 import ClickDetailsModal from './ClickDetailsModal';
 import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle } from './common/ColumnResize';
 
 const API_URL = '/api.php';
+
+// Keitaro-style column customization for the traffic log. Base ids drive the
+// resize handles and localStorage widths; `field` is the CSV export field the
+// id maps to. Param columns are stored as `p:<name>` tokens and read from the
+// row's p_<name> keys, added server-side by param_cols.
+const LOGS_COLUMNS_KEY = 'orbitra_logs_traffic_columns';
+const BASE_COLUMN_DEFS = [
+    { id: 'time', width: 170, field: 'created_at', labelKey: 'logs.colTime' },
+    { id: 'click_id', width: 120, field: 'click_id', labelKey: 'logs.colClickId' },
+    { id: 'subid', width: 100, field: 'subid', labelKey: 'logs.colSubid' },
+    { id: 'campaign', width: 180, field: 'campaign_name', labelKey: 'logs.colCampaign' },
+    { id: 'stream', width: 150, field: 'stream_name', labelKey: 'logs.colStream' },
+    { id: 'route', width: 100, field: 'is_safe_page', labelKey: 'logs.colRoute' },
+    { id: 'reason', width: 180, field: 'cloak_reasons', labelKey: 'logs.colReason' },
+    { id: 'destination', width: 160, field: 'landing_name', labelKey: 'logs.colDestination' },
+    { id: 'lp_time', width: 110, field: 'lp_seconds', labelKey: 'logs.colLpTime' },
+    { id: 'ip', width: 110, field: 'ip', labelKey: 'logs.colIp' },
+    { id: 'geo', width: 160, field: 'country_code', labelKey: 'logs.colGeo' },
+    { id: 'device', width: 100, field: 'device_type', labelKey: 'logs.colDevice' },
+    { id: 'isp', width: 120, field: 'isp', labelKey: 'logs.colIsp' },
+    { id: 'asn', width: 110, field: 'asn', labelKey: 'logs.colAsn' }
+];
+const DEFAULT_COLUMN_IDS = BASE_COLUMN_DEFS.map(c => c.id);
+const PARAM_COL_WIDTH = 150;
+// Offered even before any click carried them — the IDs cost matching lives on.
+const COMMON_PARAM_SUGGESTIONS = [
+    'campaign_id', 'campaignid', 'ad_id', 'adset_id', 'adgroup_id', 'adgroupid',
+    'creative', 'creative_id', 'ttclid', 'fbclid', 'gclid', 'utm_source', 'utm_campaign'
+];
+const PARAM_NAME_RE = /^[A-Za-z0-9_]{1,64}$/;
+
+const parseStoredColumns = () => {
+    if (typeof window === 'undefined') return { ids: DEFAULT_COLUMN_IDS, customized: false };
+    let stored = null;
+    try { stored = JSON.parse(localStorage.getItem(LOGS_COLUMNS_KEY) || 'null'); } catch { /* storage unavailable */ }
+    if (Array.isArray(stored) && stored.length) {
+        const base = DEFAULT_COLUMN_IDS.filter(id => stored.includes(id));
+        const params = stored.filter(id => typeof id === 'string' && id.startsWith('p:') && PARAM_NAME_RE.test(id.slice(2)));
+        if (base.length + params.length) return { ids: [...base, ...params], customized: true };
+    }
+    return { ids: DEFAULT_COLUMN_IDS, customized: false };
+};
 
 const LogsPage = () => {
     const { t } = useLanguage();
@@ -62,27 +104,92 @@ const LogsPage = () => {
         return !!(params.get('campaign_id') || params.get('stream_id') || (params.get('route') && params.get('route') !== 'all') || params.get('reason') || params.get('date_from') || params.get('date_to'));
     });
 
+    // Visible traffic columns: base ids in registry order + `p:<name>` params.
+    // `customized` gates the export projection — a user who never opened the
+    // picker keeps the full-width CSV they had before.
+    const initialColumns = parseStoredColumns();
+    const [visibleColumns, setVisibleColumns] = useState(initialColumns.ids);
+    const [columnsCustomized, setColumnsCustomized] = useState(initialColumns.customized);
+    const [columnsOpen, setColumnsOpen] = useState(false);
+    const visibleBase = BASE_COLUMN_DEFS.filter(c => visibleColumns.includes(c.id));
+    const visibleParams = visibleColumns.filter(id => id.startsWith('p:')).map(id => id.slice(2));
+
+    const toggleColumn = (id) => {
+        const has = visibleColumns.includes(id);
+        const basePart = DEFAULT_COLUMN_IDS.filter(bid => (bid === id) ? !has : visibleColumns.includes(bid));
+        const paramPart = visibleColumns.filter(x => x.startsWith('p:') && x !== id);
+        const next = [...basePart, ...paramPart];
+        if (!has && id.startsWith('p:')) next.push(id);
+        if (!next.length) return; // never hide every column
+        setVisibleColumns(next);
+        setColumnsCustomized(true);
+        try { localStorage.setItem(LOGS_COLUMNS_KEY, JSON.stringify(next)); } catch { /* storage unavailable */ }
+    };
+
+    // Click-parameter suggestions (what recent clicks actually carry), loaded
+    // lazily: the picker and the parameter-filter select share one fetch.
+    const [availableParams, setAvailableParams] = useState(null);
+    const ensureParamList = () => {
+        if (availableParams) return;
+        fetch(`${API_URL}?action=logs_param_keys`)
+            .then(res => res.json())
+            .then(data => { if (data.status === 'success') setAvailableParams(data.data || []); })
+            .catch(() => { /* picker shows suggestions only */ });
+    };
+    const paramOptions = (() => {
+        const fetched = Array.isArray(availableParams) ? availableParams.map(p => p.key) : [];
+        const counts = {};
+        if (Array.isArray(availableParams)) availableParams.forEach(p => { counts[p.key] = p.clicks; });
+        const merged = [...new Set([...COMMON_PARAM_SUGGESTIONS, ...fetched])];
+        return merged.map(key => ({ key, clicks: counts[key] }));
+    })();
+
+    // Keitaro-style parameter filters: [{param, op, value}] applied server-side
+    // (eq/neq/in/nin/empty/nempty — see core/logs_query.php). Not persisted.
+    const [paramFilters, setParamFilters] = useState([]);
+    const PARAM_OPS = ['eq', 'neq', 'in', 'nin', 'empty', 'nempty'];
+    const activeParamFilters = paramFilters
+        .filter(r => r.param && PARAM_NAME_RE.test(r.param))
+        .filter(r => r.op === 'empty' || r.op === 'nempty' || r.value.trim() !== '');
+    const updateParamFilter = (idx, patch) => {
+        setParamFilters(prev => prev.map((row, i) => i === idx ? { ...row, ...patch } : row));
+    };
+
     // Click-log column resizing (traffic tab) — desktop table only; below lg
     // the log renders as MobileCards and skips resizing entirely.
+    //
+    // The default widths sum wider than a typical panel (~1870px + param
+    // columns), which used to hang the table out of the card with a clipped
+    // right edge — it read as a broken, misaligned grid. Defaults are therefore
+    // scaled down to the measured container, so out of the box the table fits
+    // the card exactly; horizontal scroll appears only once the user has
+    // dragged columns wider than there is room (stored widths always win over
+    // the fitted defaults — the resize hook resolves stored ?? default).
+    const scrollBoxRef = useRef(null);
+    const [fitWidth, setFitWidth] = useState(0);
+    useEffect(() => {
+        const el = scrollBoxRef.current;
+        if (!el || typeof ResizeObserver === 'undefined') return undefined;
+        const ro = new ResizeObserver((entries) => {
+            const w = Math.floor(entries[0].contentRect.width);
+            setFitWidth((prev) => (Math.abs(prev - w) > 1 ? w : prev));
+        });
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, []);
     const isDesktop = useIsDesktop();
+    // Sum of the widths the CURRENT view wants (visible base + param columns) —
+    // hidden columns must not eat the fit budget.
+    const desiredTotal = visibleBase.reduce((sum, c) => sum + c.width, 0)
+        + visibleParams.length * PARAM_COL_WIDTH;
+    const fitScale = isDesktop && fitWidth > 0 && desiredTotal > fitWidth ? fitWidth / desiredTotal : 1;
+    const fitted = (w) => Math.max(60, Math.round(w * fitScale));
     const colResize = useResizableTableColumns({
         tableId: 'logs_traffic',
         enabled: isDesktop,
         columns: [
-            { id: 'time', width: 170 },
-            { id: 'click_id', width: 120 },
-            { id: 'subid', width: 100 },
-            { id: 'campaign', width: 180 },
-            { id: 'stream', width: 150 },
-            { id: 'route', width: 100 },
-            { id: 'reason', width: 180 },
-            { id: 'destination', width: 160 },
-            { id: 'lp_time', width: 110 },
-            { id: 'ip', width: 110 },
-            { id: 'geo', width: 160 },
-            { id: 'device', width: 100 },
-            { id: 'isp', width: 120 },
-            { id: 'asn', width: 110 }
+            ...visibleBase.map(c => ({ id: c.id, width: fitted(c.width) })),
+            ...visibleParams.map(name => ({ id: 'p:' + name, width: fitted(PARAM_COL_WIDTH) }))
         ]
     });
 
@@ -105,9 +212,26 @@ const LogsPage = () => {
             if (filters.reason) params.append('reason', filters.reason);
             if (filters.date_from) params.append('date_from', filters.date_from);
             if (filters.date_to) params.append('date_to', filters.date_to);
+            if (activeParamFilters.length) {
+                params.append('param_filters', JSON.stringify(activeParamFilters.map(r => ({ param: r.param, op: r.op, value: r.value.trim() }))));
+            }
+            if (visibleParams.length) {
+                params.append('param_cols', visibleParams.join(','));
+            }
+            // Export what the table shows — but only once the user has actually
+            // customized the view, so the default export keeps every field.
+            if (action === 'logs_export' && columnsCustomized) {
+                const fields = [...visibleBase.map(c => c.field), ...visibleParams.map(p => 'p:' + p)];
+                if (fields.length) params.append('columns', fields.join(','));
+            }
         }
         return params;
     };
+
+    // Derived arrays are rebuilt every render; the fetch effect below keys on
+    // stable string signatures instead, or it would refetch on every render.
+    const paramFiltersSig = JSON.stringify(activeParamFilters.map(r => [r.param, r.op, r.value]));
+    const paramColsSig = visibleParams.join(',');
 
     useEffect(() => {
         let cancelled = false;
@@ -137,7 +261,7 @@ const LogsPage = () => {
             });
         return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [activeTab, filters]);
+    }, [activeTab, filters, paramFiltersSig, paramColsSig]);
 
     const loadMore = () => {
         if (!nextCursor || loadingMore) return;
@@ -247,6 +371,70 @@ const LogsPage = () => {
                     />
                 </div>
             )}
+            {showFilters && (
+                <div className="mt-3 pt-3 border-t" style={{ borderColor: 'var(--color-border)' }}>
+                    {/* Parameter filters — Keitaro-style: server-side conditions on
+                        any click parameter (ad_id, ttclid, sub_id_N…). "is empty"
+                        answers "which clicks arrived WITHOUT this parameter". */}
+                    {paramFilters.map((row, idx) => (
+                        <div key={idx} className="flex flex-wrap items-center gap-2 mb-2">
+                            <select
+                                value={row.param}
+                                onChange={e => updateParamFilter(idx, { param: e.target.value })}
+                                onFocus={ensureParamList}
+                                className="form-select text-xs py-1.5 rounded-lg min-w-[140px]"
+                                style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}
+                                aria-label={t('logs.paramFilterParam')}
+                            >
+                                {!paramOptions.some(o => o.key === row.param) && row.param && (
+                                    <option value={row.param}>{row.param}</option>
+                                )}
+                                {paramOptions.map(o => (
+                                    <option key={o.key} value={o.key}>
+                                        {o.key}{o.clicks ? ` (${o.clicks})` : ''}
+                                    </option>
+                                ))}
+                            </select>
+                            <select
+                                value={row.op}
+                                onChange={e => updateParamFilter(idx, { op: e.target.value })}
+                                className="form-select text-xs py-1.5 rounded-lg"
+                                style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}
+                            >
+                                {PARAM_OPS.map(op => <option key={op} value={op}>{t(`logs.op_${op}`)}</option>)}
+                            </select>
+                            {row.op !== 'empty' && row.op !== 'nempty' && (
+                                <input
+                                    type="text"
+                                    value={row.value}
+                                    onChange={e => updateParamFilter(idx, { value: e.target.value })}
+                                    placeholder={row.op === 'in' || row.op === 'nin' ? t('logs.paramFilterListHint') : t('logs.paramFilterValue')}
+                                    className="form-input text-xs py-1.5 rounded-lg flex-1 min-w-[160px]"
+                                    style={{ backgroundColor: 'var(--color-bg-card)', borderColor: 'var(--color-border)' }}
+                                />
+                            )}
+                            <button
+                                type="button"
+                                onClick={() => setParamFilters(prev => prev.filter((_, i) => i !== idx))}
+                                className="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/5"
+                                style={{ color: 'var(--color-text-muted)' }}
+                                title={t('common.delete')}
+                            >
+                                <X className="w-3.5 h-3.5" />
+                            </button>
+                        </div>
+                    ))}
+                    <button
+                        type="button"
+                        onClick={() => { ensureParamList(); setParamFilters(prev => [...prev, { param: '', op: 'eq', value: '' }]); }}
+                        className="flex items-center gap-1.5 text-xs font-medium"
+                        style={{ color: 'var(--color-primary)' }}
+                    >
+                        <Plus className="w-3.5 h-3.5" />
+                        {t('logs.addParamFilter')}
+                    </button>
+                </div>
+            )}
         </div>
     );
 
@@ -347,6 +535,44 @@ const LogsPage = () => {
                     </span>
                 );
 
+                // One renderer per base column — shared by the desktop table.
+                // Param columns render the row's p_<name> key directly.
+                const renderBaseCell = (colId, log) => {
+                    switch (colId) {
+                        case 'time': return log.created_at;
+                        case 'click_id': return renderClickIdLink(log.click_id);
+                        case 'subid': return log.subid || '-';
+                        case 'campaign': return log.campaign_name || t('logs.direct');
+                        case 'stream': return <span className="text-xs">{renderStream(log)}</span>;
+                        case 'route': return renderRouteBadge(log);
+                        case 'reason': return renderReasonChips(log);
+                        case 'destination': return <span className="text-xs">{renderDestination(log)}</span>;
+                        case 'lp_time': return <span className="text-xs">{renderLpTime(log)}</span>;
+                        case 'ip': return log.ip;
+                        case 'geo':
+                            return (
+                                <div>
+                                    <div>{log.country_code || '-'}</div>
+                                    <div className="text-xs text-[var(--color-text-muted)]">
+                                        {[log.region, log.city].filter(Boolean).join(', ') || '-'}
+                                    </div>
+                                    {log.geo_timezone ? (
+                                        <div className="text-[11px] text-[var(--color-text-muted)]">{log.geo_timezone}</div>
+                                    ) : null}
+                                </div>
+                            );
+                        case 'device': return log.device_type || '-';
+                        case 'isp': return <span className="text-xs text-[var(--color-text-muted)]">{log.isp || '-'}</span>;
+                        case 'asn': return <span className="text-xs font-mono text-[var(--color-text-muted)]">{log.asn || '-'}</span>;
+                        default: return '-';
+                    }
+                };
+                const renderParamCell = (name, log) => {
+                    const v = log['p_' + name];
+                    if (v === null || v === undefined || v === '') return <span className="text-xs text-[var(--color-text-muted)]">-</span>;
+                    return <span className="font-mono text-xs break-all" title={String(v)}>{String(v)}</span>;
+                };
+
                 return (
                     <>
                         <div className="hidden lg:block">
@@ -354,89 +580,29 @@ const LogsPage = () => {
                                 {colResize.colgroup}
                                 <thead>
                                     <tr>
-                                        <th className="resizable-th">
-                                            {t('logs.colTime')}
-                                            <ColumnResizeHandle rt={colResize} colId="time" />
-                                        </th>
-                                        <th className="resizable-th">
-                                            {t('logs.colClickId')}
-                                            <ColumnResizeHandle rt={colResize} colId="click_id" />
-                                        </th>
-                                        <th className="resizable-th">
-                                            {t('logs.colSubid')}
-                                            <ColumnResizeHandle rt={colResize} colId="subid" />
-                                        </th>
-                                        <th className="resizable-th">
-                                            {t('logs.colCampaign')}
-                                            <ColumnResizeHandle rt={colResize} colId="campaign" />
-                                        </th>
-                                        <th className="resizable-th">
-                                            {t('logs.colStream')}
-                                            <ColumnResizeHandle rt={colResize} colId="stream" />
-                                        </th>
-                                        <th className="resizable-th">
-                                            {t('logs.colRoute')}
-                                            <ColumnResizeHandle rt={colResize} colId="route" />
-                                        </th>
-                                        <th className="resizable-th">
-                                            {t('logs.colReason')}
-                                            <ColumnResizeHandle rt={colResize} colId="reason" />
-                                        </th>
-                                        <th className="resizable-th">
-                                            {t('logs.colDestination')}
-                                            <ColumnResizeHandle rt={colResize} colId="destination" />
-                                        </th>
-                                        <th className="resizable-th">
-                                            {t('logs.colLpTime')}
-                                            <ColumnResizeHandle rt={colResize} colId="lp_time" />
-                                        </th>
-                                        <th className="resizable-th">
-                                            {t('logs.colIp')}
-                                            <ColumnResizeHandle rt={colResize} colId="ip" />
-                                        </th>
-                                        <th className="resizable-th">
-                                            {t('logs.colGeo')}
-                                            <ColumnResizeHandle rt={colResize} colId="geo" />
-                                        </th>
-                                        <th className="resizable-th">
-                                            {t('logs.colDevice')}
-                                            <ColumnResizeHandle rt={colResize} colId="device" />
-                                        </th>
-                                        <th className="resizable-th">
-                                            {t('logs.colIsp')}
-                                            <ColumnResizeHandle rt={colResize} colId="isp" />
-                                        </th>
-                                        <th className="resizable-th">
-                                            {t('logs.colAsn')}
-                                            <ColumnResizeHandle rt={colResize} colId="asn" />
-                                        </th>
+                                        {visibleBase.map(col => (
+                                            <th key={col.id} className="resizable-th">
+                                                {t(col.labelKey)}
+                                                <ColumnResizeHandle rt={colResize} colId={col.id} />
+                                            </th>
+                                        ))}
+                                        {visibleParams.map(name => (
+                                            <th key={'p:' + name} className="resizable-th">
+                                                {name}
+                                                <ColumnResizeHandle rt={colResize} colId={'p:' + name} />
+                                            </th>
+                                        ))}
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {logs.map((log, i) => (
                                         <tr key={i}>
-                                            <td>{log.created_at}</td>
-                                            <td>{renderClickIdLink(log.click_id)}</td>
-                                            <td>{log.subid || '-'}</td>
-                                            <td>{log.campaign_name || t('logs.direct')}</td>
-                                            <td className="text-xs">{renderStream(log)}</td>
-                                            <td>{renderRouteBadge(log)}</td>
-                                            <td>{renderReasonChips(log)}</td>
-                                            <td className="text-xs">{renderDestination(log)}</td>
-                                            <td className="text-xs">{renderLpTime(log)}</td>
-                                            <td>{log.ip}</td>
-                                            <td>
-                                                <div>{log.country_code || '-'}</div>
-                                                <div className="text-xs text-[var(--color-text-muted)]">
-                                                    {[log.region, log.city].filter(Boolean).join(', ') || '-'}
-                                                </div>
-                                                {log.geo_timezone ? (
-                                                    <div className="text-[11px] text-[var(--color-text-muted)]">{log.geo_timezone}</div>
-                                                ) : null}
-                                            </td>
-                                            <td>{log.device_type || '-'}</td>
-                                            <td className="text-xs text-[var(--color-text-muted)]">{log.isp || '-'}</td>
-                                            <td className="text-xs font-mono text-[var(--color-text-muted)]">{log.asn || '-'}</td>
+                                            {visibleBase.map(col => (
+                                                <td key={col.id}>{renderBaseCell(col.id, log)}</td>
+                                            ))}
+                                            {visibleParams.map(name => (
+                                                <td key={'p:' + name}>{renderParamCell(name, log)}</td>
+                                            ))}
                                         </tr>
                                     ))}
                                 </tbody>
@@ -474,6 +640,11 @@ const LogsPage = () => {
                                     { id: 'device', label: t('logs.colDevice'), render: (log) => log.device_type || '-' },
                                     { id: 'isp', label: t('logs.colIsp'), render: (log) => log.isp || '-' },
                                     { id: 'asn', label: t('logs.colAsn'), render: (log) => log.asn || '-' },
+                                    ...visibleParams.map(name => ({
+                                        id: 'p_' + name,
+                                        label: name,
+                                        render: (log) => log['p_' + name] || '-'
+                                    }))
                                 ]}
                                 primaryIds={['created_at', 'destination', 'stream', 'ip', 'geo']}
                             />
@@ -684,14 +855,81 @@ const LogsPage = () => {
             <div className="flex items-center gap-2 mb-4">
                 <FileStack size={18} className="text-[var(--color-primary)]" />
                 <h3 className="page-title m-0">{t('logs.title')}</h3>
-                <a
-                    href={exportHref}
-                    className="btn btn-secondary ml-auto flex items-center gap-2 text-xs"
-                    title={t('logs.exportHint')}
-                >
-                    <Download size={14} />
-                    <span>{t('logs.exportCsv')}</span>
-                </a>
+                <div className="ml-auto relative flex items-center gap-2">
+                    {activeTab === 'traffic' && (
+                        <>
+                            <button
+                                type="button"
+                                onClick={() => { setColumnsOpen(!columnsOpen); ensureParamList(); }}
+                                className={`btn flex items-center gap-2 text-xs ${columnsOpen ? 'btn-primary' : 'btn-secondary'}`}
+                                title={t('logs.columnsHint')}
+                            >
+                                <Columns3 size={14} />
+                                <span>{t('logs.columns')}</span>
+                            </button>
+                            {columnsOpen && (
+                                <>
+                                    <div className="fixed inset-0" style={{ zIndex: 40 }} onClick={() => setColumnsOpen(false)} />
+                                    <div
+                                        className="absolute right-0 top-full mt-2 w-80 max-h-[60vh] overflow-y-auto rounded-xl border shadow-xl p-3 text-xs"
+                                        style={{
+                                            zIndex: 50,
+                                            backgroundColor: 'var(--color-bg-card)',
+                                            borderColor: 'var(--color-border)'
+                                        }}
+                                    >
+                                        <div className="font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>
+                                            {t('logs.columnsBase')}
+                                        </div>
+                                        {BASE_COLUMN_DEFS.map(col => (
+                                            <label key={col.id} className="flex items-center gap-2 py-1 cursor-pointer" style={{ color: 'var(--color-text-primary)' }}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={visibleColumns.includes(col.id)}
+                                                    onChange={() => toggleColumn(col.id)}
+                                                />
+                                                {t(col.labelKey)}
+                                            </label>
+                                        ))}
+                                        <div className="font-semibold mt-3 mb-1 pt-2 border-t" style={{ color: 'var(--color-text-primary)', borderColor: 'var(--color-border)' }}>
+                                            {t('logs.columnsParams')}
+                                        </div>
+                                        <p className="m-0 mb-2" style={{ color: 'var(--color-text-muted)' }}>
+                                            {t('logs.columnsParamsHint')}
+                                        </p>
+                                        {paramOptions.length === 0 && (
+                                            <p className="m-0" style={{ color: 'var(--color-text-muted)' }}>{t('logs.columnsParamsEmpty')}</p>
+                                        )}
+                                        {paramOptions.map(o => {
+                                            const id = 'p:' + o.key;
+                                            return (
+                                                <label key={id} className="flex items-center gap-2 py-1 cursor-pointer font-mono" style={{ color: 'var(--color-text-primary)' }}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={visibleColumns.includes(id)}
+                                                        onChange={() => toggleColumn(id)}
+                                                    />
+                                                    <span className="break-all">{o.key}</span>
+                                                    {o.clicks ? (
+                                                        <span className="ml-auto text-[10px] text-[var(--color-text-muted)] whitespace-nowrap pl-2">{o.clicks}</span>
+                                                    ) : null}
+                                                </label>
+                                            );
+                                        })}
+                                    </div>
+                                </>
+                            )}
+                        </>
+                    )}
+                    <a
+                        href={exportHref}
+                        className="btn btn-secondary flex items-center gap-2 text-xs"
+                        title={t('logs.exportHint')}
+                    >
+                        <Download size={14} />
+                        <span>{t('logs.exportCsv')}</span>
+                    </a>
+                </div>
             </div>
 
             {/* Tabs */}
@@ -714,7 +952,7 @@ const LogsPage = () => {
             {activeTab === 'traffic' && renderTrafficFilters()}
 
             {/* Table */}
-            <div className="overflow-x-auto rounded-lg border border-[var(--color-border)]">
+            <div ref={scrollBoxRef} className="overflow-x-auto rounded-lg border border-[var(--color-border)]">
                 {renderTable()}
             </div>
 
