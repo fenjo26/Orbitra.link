@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { X, Check, LayoutGrid, Sliders, Eye } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
-const DEFAULT_METRICS = [
-    'clicks', 'unique_clicks', 'conversions', 'cost', 'revenue', 'profit', 'roi', 'cpc', 'cpa'
+export const DEFAULT_METRICS = [
+    'clicks', 'unique_clicks', 'conversions', 'cost', 'revenue', 'profit', 'roi'
 ];
 
 const METRIC_PRESETS = {

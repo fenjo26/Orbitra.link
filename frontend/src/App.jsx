@@ -25,7 +25,7 @@ import CampaignEditor from './components/CampaignEditor';
 import DashboardHeader from './components/DashboardHeader';
 import GeoDbBanner from './components/GeoDbBanner';
 import ServerSetupBanner from './components/ServerSetupBanner';
-import DashboardSettingsModal from './components/DashboardSettingsModal';
+import DashboardSettingsModal, { DEFAULT_METRICS } from './components/DashboardSettingsModal';
 import LeadForgePage from './components/LeadForgePage';
 import CRMPage from './components/CRMPage';
 import GalleryPage from './components/GalleryPage';
@@ -295,8 +295,18 @@ function App() {
 
   const [dashboardPreferences, setDashboardPreferences] = useState(() => {
     const saved = localStorage.getItem('ltt_dash_prefs');
-    return saved ? JSON.parse(saved) : {
-      visible_metrics: ['clicks', 'unique_clicks', 'conversions', 'cost', 'revenue', 'profit', 'roi', 'cpc', 'cpa'],
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // One-time default cleanup: CPC/CPA left the default metric row, but the
+      // old default was auto-persisted on first visit. A saved copy still
+      // identical to that old default migrates; a customized one is untouched.
+      if (Array.isArray(parsed.visible_metrics) && parsed.visible_metrics.join(',') === 'clicks,unique_clicks,conversions,cost,revenue,profit,roi,cpc,cpa') {
+        parsed.visible_metrics = [...DEFAULT_METRICS];
+      }
+      return parsed;
+    }
+    return {
+      visible_metrics: [...DEFAULT_METRICS],
       visible_blocks: ['campaigns', 'offers', 'landings', 'sources'],
       click_columns: ['created_at', 'campaign_name', 'device_type', 'ip', 'user_agent', 'redirect_url']
     };
