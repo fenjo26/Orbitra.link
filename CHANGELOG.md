@@ -7,6 +7,20 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.16] — 2026-10-13
+
+### Added
+
+- 📋 **Click log, Keitaro-style: parameter columns and filters.** Traffic-log columns are now selectable: base columns plus any click parameter (`ad_id`, `campaign_id`, `sub_id_N`, `ttclid`…) as its own column, with suggestions taken from parameters actually present in clicks over the last 14 days; the choice persists in the browser and the CSV export follows the visible columns. Parameter filters — equals / not equals / in list / not in list / is empty / is not empty, up to 5 conditions — are applied inside the shared logs query, so the page and the CSV always agree; "is empty" answers "which clicks arrived WITHOUT this parameter". Malformed filter names get a 400, never a silently dropped filter. The click-log button on a campaign row now opens the full traffic log pre-filtered to that campaign instead of the mini modal
+- 📊 **Dense traffic-log table.** The traffic table now wears the compact `.tracker-table` layer (tight padding, light column dividers, hard cell clipping so a narrow column can never paint over its neighbour), with per-column fit floors: full timestamps (154px) and ad-network IDs (136px) always render in full — comparing those IDs against the ad platform's report is the column's purpose. The other log tabs keep the roomy `.page-table`
+- 🔍 **"Sync Now" explains why spend did not match.** When imported spend matches no clicks, the integrations page shows the concrete reason — `no_spend` / `no_clicks` / `no_ids` / `macros` (unreplaced `__CID__`-style values) / `ids_differ` — with the date, click count and the actual IDs, on the same sync path for Facebook, TikTok and Google. Re-syncing an already attributed day no longer reports "matched 0" (unchanged rows are counted by their stored match), `adgroup_id` joins the baseline click keys, and the click card's Parameters section now lists every captured parameter, ad-network IDs first
+- 🤝 **Partners block synced with orbitra.link/partners** — Helodata, Accsly.io, OpenGSC; Novproxy added
+
+### Fixed
+
+- 💰 **Unmatched cost rows retry on every sync.** An unchanged amount used to skip re-attribution regardless of outcome, so a row that missed once never retried — a late click, a fixed ad URL or a newly captured `adgroup_id` could never land its spend. Only matched-and-unchanged rows skip now. The diagnostic also reports "macros" only when no real ID survives: an optional dead macro (TikTok's `__CREATIVE_ID__`, which TikTok never fills) next to real campaign/ad IDs no longer masks the actual cause
+- 📐 **Campaign editor: settings tabs and Streams headers line up.** In the two-pane view (xl+) the settings tab strip wraps onto 1–3 rows while the Streams toolbar is one, so their bottom borders sat at different heights with a step at the seam. Both bars now get the taller one's height, and the toolbar's drop shadow — a soft second line under the seam — is gone. Verified at 1280/1440/1920/2560
+
 ## [1.6.15] — 2026-10-12
 
 ### Added
