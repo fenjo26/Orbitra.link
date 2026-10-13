@@ -12,9 +12,12 @@ const API_URL = '/api.php';
 // id maps to. Param columns are stored as `p:<name>` tokens and read from the
 // row's p_<name> keys, added server-side by param_cols.
 const LOGS_COLUMNS_KEY = 'orbitra_logs_traffic_columns';
+// `min` = fit floor for this column: the width below which its atomic content
+// (a full timestamp, an IP, a click id) starts clipping. Columns without one
+// use FIT_FLOOR.
 const BASE_COLUMN_DEFS = [
-    { id: 'time', width: 170, field: 'created_at', labelKey: 'logs.colTime' },
-    { id: 'click_id', width: 120, field: 'click_id', labelKey: 'logs.colClickId' },
+    { id: 'time', width: 170, min: 154, field: 'created_at', labelKey: 'logs.colTime' },
+    { id: 'click_id', width: 120, min: 96, field: 'click_id', labelKey: 'logs.colClickId' },
     { id: 'subid', width: 100, field: 'subid', labelKey: 'logs.colSubid' },
     { id: 'campaign', width: 180, field: 'campaign_name', labelKey: 'logs.colCampaign' },
     { id: 'stream', width: 150, field: 'stream_name', labelKey: 'logs.colStream' },
@@ -22,7 +25,7 @@ const BASE_COLUMN_DEFS = [
     { id: 'reason', width: 180, field: 'cloak_reasons', labelKey: 'logs.colReason' },
     { id: 'destination', width: 160, field: 'landing_name', labelKey: 'logs.colDestination' },
     { id: 'lp_time', width: 110, field: 'lp_seconds', labelKey: 'logs.colLpTime' },
-    { id: 'ip', width: 110, field: 'ip', labelKey: 'logs.colIp' },
+    { id: 'ip', width: 110, min: 80, field: 'ip', labelKey: 'logs.colIp' },
     { id: 'geo', width: 160, field: 'country_code', labelKey: 'logs.colGeo' },
     { id: 'device', width: 100, field: 'device_type', labelKey: 'logs.colDevice' },
     { id: 'isp', width: 120, field: 'isp', labelKey: 'logs.colIsp' },
@@ -30,6 +33,11 @@ const BASE_COLUMN_DEFS = [
 ];
 const DEFAULT_COLUMN_IDS = BASE_COLUMN_DEFS.map(c => c.id);
 const PARAM_COL_WIDTH = 150;
+// Ad-network IDs are 16–19 digit numbers: ~136px at the log's font. Comparing
+// them against the platform's report is the column's whole purpose, so they
+// must render in full — below this a clipped ID cannot be read without hovering.
+const PARAM_COL_MIN = 136;
+const FIT_FLOOR = 72;
 // Offered even before any click carried them — the IDs cost matching lives on.
 const COMMON_PARAM_SUGGESTIONS = [
     'campaign_id', 'campaignid', 'ad_id', 'adset_id', 'adgroup_id', 'adgroupid',
@@ -183,13 +191,17 @@ const LogsPage = () => {
     const desiredTotal = visibleBase.reduce((sum, c) => sum + c.width, 0)
         + visibleParams.length * PARAM_COL_WIDTH;
     const fitScale = isDesktop && fitWidth > 0 && desiredTotal > fitWidth ? fitWidth / desiredTotal : 1;
-    const fitted = (w) => Math.max(60, Math.round(w * fitScale));
+    // Per-column floors keep atomic values (a full timestamp, an IP, a click
+    // id, ad-network IDs) readable; everything else floors at FIT_FLOOR.
+    // Floors can push the sum past the card by a few dozen px — that small
+    // scroll is the honest price of not clipping the time column.
+    const fitted = (w, min = FIT_FLOOR) => Math.max(min, Math.round(w * fitScale));
     const colResize = useResizableTableColumns({
         tableId: 'logs_traffic',
         enabled: isDesktop,
         columns: [
-            ...visibleBase.map(c => ({ id: c.id, width: fitted(c.width) })),
-            ...visibleParams.map(name => ({ id: 'p:' + name, width: fitted(PARAM_COL_WIDTH) }))
+            ...visibleBase.map(c => ({ id: c.id, width: fitted(c.width, c.min) })),
+            ...visibleParams.map(name => ({ id: 'p:' + name, width: fitted(PARAM_COL_WIDTH, PARAM_COL_MIN) }))
         ]
     });
 
@@ -576,7 +588,13 @@ const LogsPage = () => {
                 return (
                     <>
                         <div className="hidden lg:block">
-                            <table className="page-table" style={{ ...colResize.tableStyle }}>
+                            {/* tracker-table: the traffic log is a wide multi-column
+                                grid like Campaigns/Reports, and gets the same dense
+                                treatment — compact padding, cell clipping (a narrow
+                                column can never paint over its neighbour) and light
+                                column dividers. The other log tabs stay .page-table:
+                                they are narrow and read fine roomy. */}
+                            <table className="page-table tracker-table" style={{ ...colResize.tableStyle }}>
                                 {colResize.colgroup}
                                 <thead>
                                     <tr>
