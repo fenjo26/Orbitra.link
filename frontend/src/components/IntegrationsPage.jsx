@@ -25,6 +25,20 @@ const SYNC_INTERVAL_OPTIONS = [
     { value: 24, label: '24 h' },
 ];
 
+// Turns CostImporter's "why nothing matched" diagnostic into one sentence the
+// user can act on. Falls back to the platform's generic hint when the server is
+// older or could not diagnose.
+const costDiagText = (t, diag, fallback) => {
+    if (!diag || !diag.code) return fallback;
+    const key = `costDiag.${diag.code}`;
+    let text = t(key);
+    if (!text || text === key) return fallback;
+    Object.entries(diag).forEach(([k, v]) => {
+        text = text.split(`{${k}}`).join(String(v ?? ''));
+    });
+    return text;
+};
+
 const IntegrationsPage = () => {
     const { t } = useLanguage();
     const translationRef = useRef(t);
@@ -1572,7 +1586,7 @@ const IntegrationsPage = () => {
                 setFbMessage({
                     type: matched === 0 && fetched > 0 ? 'error' : 'success',
                     text: matched === 0 && fetched > 0
-                        ? t('fbCosts.syncedNoMatch').replace('{n}', fetched)
+                        ? costDiagText(t, { fetched, ...(d.data?.diagnostic ?? d.diagnostic ?? {}) }, t('fbCosts.syncedNoMatch').replace('{n}', fetched))
                         : t('fbCosts.syncedOk').replace('{n}', fetched).replace('{m}', matched)
                 });
             } else {
@@ -1652,7 +1666,7 @@ const IntegrationsPage = () => {
                 setTtMessage({
                     type: matched === 0 && fetched > 0 ? 'error' : 'success',
                     text: matched === 0 && fetched > 0
-                        ? t('tiktokCosts.syncedNoMatch').replace('{n}', fetched)
+                        ? costDiagText(t, { fetched, ...(d.data?.diagnostic ?? d.diagnostic ?? {}) }, t('tiktokCosts.syncedNoMatch').replace('{n}', fetched))
                         : t('tiktokCosts.syncedOk').replace('{n}', fetched).replace('{m}', matched)
                 });
             } else {
@@ -1843,7 +1857,7 @@ const IntegrationsPage = () => {
                 setGaMessage({
                     type: matched === 0 && fetched > 0 ? 'error' : 'success',
                     text: matched === 0 && fetched > 0
-                        ? t('googleAdsCosts.syncedNoMatch').replace('{n}', fetched)
+                        ? costDiagText(t, { fetched, ...(d.data?.diagnostic ?? d.diagnostic ?? {}) }, t('googleAdsCosts.syncedNoMatch').replace('{n}', fetched))
                         : t('googleAdsCosts.syncedOk').replace('{n}', fetched).replace('{m}', matched)
                 });
             } else {

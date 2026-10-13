@@ -66,7 +66,7 @@ class CostImporter
             ? (bool) $options['exclude_safe_page']
             : self::safePageExclusionNeeded($pdo);
 
-        $findExisting = $pdo->prepare("SELECT id, amount FROM cost_records WHERE connection_id = ? AND external_id = ?");
+        $findExisting = $pdo->prepare("SELECT id, amount, is_matched FROM cost_records WHERE connection_id = ? AND external_id = ?");
         $insertCost = $pdo->prepare("
             INSERT INTO cost_records
                 (connection_id, external_id, source_campaign_id, ad_id, adset_id, amount, currency, click_date, raw_json, is_matched)
@@ -146,17 +146,23 @@ class CostImporter
 
             $existingId = null;
             $existingAmount = null;
+            $existingMatched = false;
             if ($externalId) {
                 $findExisting->execute([$connectionId, $externalId]);
                 $existingRow = $findExisting->fetch(PDO::FETCH_ASSOC);
                 if ($existingRow) {
                     $existingId = (int) $existingRow['id'];
                     $existingAmount = (float) $existingRow['amount'];
+                    $existingMatched = (int) ($existingRow['is_matched'] ?? 0) === 1;
                 }
             }
 
-            // Nothing changed since the last sync — skip the attribution work entirely.
+            // Nothing changed since the last sync — skip the attribution work entirely,
+            // but still count the row by its stored outcome. Skipping it silently made
+            // every re-sync of an unchanged day report "fetched N, matched 0" even when
+            // all N rows had been attributed on the first pass.
             if ($existingId !== null && abs($existingAmount - $amount) < 0.0000001) {
+                $stats[$existingMatched ? 'matched' : 'unmatched']++;
                 continue;
             }
 
@@ -231,7 +237,136 @@ class CostImporter
             }
         }
 
+        // Nothing attributed: say *why* in terms the user can act on, instead of a
+        // generic "check your URL". Cheap (a handful of grouped queries) and only
+        // runs on the failure path.
+        $stats['diagnostic'] = null;
+        if ($stats['matched'] === 0 && $stats['fetched'] > 0) {
+            try {
+                $stats['diagnostic'] = self::diagnoseUnmatched($pdo, $records, $keys, $platformTz);
+            } catch (\Throwable $e) {
+                $stats['diagnostic'] = null;
+            }
+        }
+
         return $stats;
+    }
+
+    /**
+     * Explain why no spend row found a click. Returns a machine-readable code plus
+     * the concrete values behind it, so the UI can show e.g. "TikTok ad 1847… spent
+     * on Oct 12, clicks that day carry ad_id=__CID__" rather than guesswork.
+     *
+     * Codes, checked in order:
+     *  - no_spend:   every row the platform returned has zero spend.
+     *  - no_clicks:  Orbitra has no clicks at all on any day the platform spent.
+     *  - no_ids:     clicks exist that day, but none carries ad/adset/campaign IDs —
+     *                the ad link does not reach Orbitra with the platform's macros.
+     *  - macros:     the IDs on the clicks are unreplaced macros (__CID__, {{ad.id}}).
+     *  - ids_differ: clicks carry real IDs, just not the ones the platform spent on.
+     *
+     * @return array{code:string}|null
+     */
+    private static function diagnoseUnmatched(PDO $pdo, array $records, array $keys, ?string $platformTz): ?array
+    {
+        $spend = array_values(array_filter($records, function ($r) {
+            return (float) ($r['amount'] ?? 0) > 0 && (string) ($r['date'] ?? '') !== '';
+        }));
+        if (empty($spend)) {
+            return ['code' => 'no_spend'];
+        }
+        usort($spend, function ($a, $b) {
+            return (float) ($b['amount'] ?? 0) <=> (float) ($a['amount'] ?? 0);
+        });
+
+        $dayClicks = [];
+        $countDay = function (string $date) use ($pdo, $platformTz, &$dayClicks): int {
+            if (!array_key_exists($date, $dayClicks)) {
+                $tz = self::offsetModifier($platformTz, $date);
+                $expr = $tz === '' ? 'date(created_at)' : "date(created_at, '{$tz}')";
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM clicks WHERE {$expr} = ?");
+                $stmt->execute([$date]);
+                $dayClicks[$date] = (int) $stmt->fetchColumn();
+            }
+            return $dayClicks[$date];
+        };
+
+        // Largest spend row whose day has any clicks at all; capped so a 30-day
+        // window of one-row-per-ad does not turn into hundreds of COUNT(*) scans.
+        $target = null;
+        $spendDays = [];
+        foreach ($spend as $rec) {
+            $spendDays[$rec['date']] = true;
+        }
+        $days = array_keys($spendDays);
+        sort($days);
+        foreach (array_slice($spend, 0, 60) as $rec) {
+            if ($countDay((string) $rec['date']) > 0) {
+                $target = $rec;
+                break;
+            }
+        }
+        if ($target === null) {
+            return [
+                'code'  => 'no_clicks',
+                'from'  => $days[0],
+                'to'    => $days[count($days) - 1],
+                'days'  => count($days),
+            ];
+        }
+
+        $date = (string) $target['date'];
+        $tz = self::offsetModifier($platformTz, $date);
+        $expr = $tz === '' ? 'date(created_at)' : "date(created_at, '{$tz}')";
+
+        $params = [];
+        foreach (['ad', 'adset', 'campaign'] as $level) {
+            foreach ($keys[$level] as $param) {
+                $params[] = preg_replace('/[^A-Za-z0-9_]/', '', $param);
+            }
+        }
+        $params = array_values(array_unique(array_filter($params)));
+
+        $seen = [];
+        foreach ($params as $param) {
+            $stmt = $pdo->prepare(
+                "SELECT json_extract(parameters_json, '$." . $param . "') AS v, COUNT(*) AS c
+                 FROM clicks
+                 WHERE {$expr} = ? AND json_extract(parameters_json, '$." . $param . "') IS NOT NULL
+                 GROUP BY v ORDER BY c DESC LIMIT 3"
+            );
+            $stmt->execute([$date]);
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                $seen[] = ['param' => $param, 'value' => (string) $row['v'], 'clicks' => (int) $row['c']];
+            }
+        }
+
+        $base = [
+            'date'        => $date,
+            'clicks'      => $countDay($date),
+            'amount'      => round((float) ($target['amount'] ?? 0), 2),
+            'currency'    => (string) ($target['currency'] ?? ''),
+            'ad_id'       => (string) ($target['ad_id'] ?? ''),
+            'adset_id'    => (string) ($target['adset_id'] ?? ''),
+            'campaign_id' => (string) ($target['source_campaign_id'] ?? ''),
+        ];
+
+        if (empty($seen)) {
+            return ['code' => 'no_ids'] + $base;
+        }
+
+        foreach ($seen as $item) {
+            $v = $item['value'];
+            if (strpos($v, '__') !== false || strpos($v, '{') !== false || strpos($v, '}') !== false) {
+                return ['code' => 'macros', 'param' => $item['param'], 'value' => $v] + $base;
+            }
+        }
+
+        $sample = array_map(function ($item) {
+            return $item['param'] . '=' . $item['value'];
+        }, array_slice($seen, 0, 4));
+
+        return ['code' => 'ids_differ', 'seen' => implode(', ', $sample)] + $base;
     }
 
     /**

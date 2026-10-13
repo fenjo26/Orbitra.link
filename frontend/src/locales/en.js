@@ -1,4 +1,11 @@
 export default {
+    "costDiag": {
+        "no_spend": "Fetched {fetched} records, but all of them have zero spend, so there is nothing to attribute yet.",
+        "no_clicks": "Fetched {fetched} spend records ({from} to {to}), but Orbitra has no clicks at all on those days. Spend is attributed only to clicks from the same day: send traffic through the campaign link, then sync again.",
+        "no_ids": "Fetched {fetched} spend records, but none of the {clicks} clicks on {date} carry an ad, ad group or campaign ID. The ad link probably does not open the Orbitra campaign link directly, or the parameters get lost on the way (for example on a landing page). Largest unmatched spend: {amount} {currency} on campaign {campaign_id}.",
+        "macros": "Fetched {fetched} spend records, but clicks on {date} carry {param}={value}: the ad platform did not replace this macro. Check the parameter in the ad URL and make sure the clicks come from real ads, not from opening the link by hand.",
+        "ids_differ": "Fetched {fetched} spend records, but the IDs do not match. The platform spent {amount} {currency} on {date} on campaign {campaign_id} (ad {ad_id}), while Orbitra clicks that day carry {seen}. Check that the ads of this ad account point to this campaign link."
+    },
     "serverSetup": {
         "title": "One-time server step needed",
         "text": "This version needs a one-time change on the server that the Update button cannot make on its own: it runs as the web user and has no root access.",

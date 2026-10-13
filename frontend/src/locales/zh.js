@@ -1,4 +1,11 @@
 export default {
+    "costDiag": {
+        "no_spend": "已获取 {fetched} 条记录，但花费均为零，暂无可归因的数据。",
+        "no_clicks": "已获取 {fetched} 条花费记录（{from} 至 {to}），但 Orbitra 在这些日期没有任何点击。花费只会归因到同一天的点击：请通过广告系列链接导入流量后再次同步。",
+        "no_ids": "已获取 {fetched} 条花费记录，但 {date} 的 {clicks} 次点击都没有广告、广告组或广告系列 ID。广告链接可能没有直接打开 Orbitra 广告系列链接，或参数在中途丢失（例如在落地页上）。最大的未归因花费：{amount} {currency}，广告系列 {campaign_id}。",
+        "macros": "已获取 {fetched} 条花费记录，但 {date} 的点击携带 {param}={value}：广告平台没有替换该宏。请检查广告网址中的参数，并确认点击来自真实广告，而不是手动打开链接。",
+        "ids_differ": "已获取 {fetched} 条花费记录，但 ID 不匹配。平台在 {date} 为广告系列 {campaign_id}（广告 {ad_id}）花费了 {amount} {currency}，而 Orbitra 当天的点击携带的是 {seen}。请确认该广告账户的广告指向此广告系列链接。"
+    },
     "serverSetup": {
         "title": "需要在服务器上执行一次性步骤",
         "text": "此版本需要在服务器上做一次性修改，“更新”按钮无法自行完成：它以 Web 用户身份运行，没有 root 权限。",

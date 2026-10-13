@@ -1,4 +1,11 @@
 export default {
+    "costDiag": {
+        "no_spend": "{fetched} enregistrements récupérés, mais tous ont une dépense nulle : il n'y a encore rien à attribuer.",
+        "no_clicks": "{fetched} enregistrements de dépense récupérés (du {from} au {to}), mais Orbitra n'a aucun clic ces jours-là. La dépense n'est attribuée qu'aux clics du même jour : envoyez du trafic via le lien de campagne, puis synchronisez à nouveau.",
+        "no_ids": "{fetched} enregistrements de dépense récupérés, mais aucun des {clicks} clics du {date} ne contient d'ID d'annonce, de groupe d'annonces ou de campagne. Le lien de l'annonce n'ouvre probablement pas directement le lien de campagne Orbitra, ou les paramètres se perdent en route (par exemple sur une landing page). Plus grosse dépense non attribuée : {amount} {currency} sur la campagne {campaign_id}.",
+        "macros": "{fetched} enregistrements de dépense récupérés, mais les clics du {date} contiennent {param}={value} : la plateforme publicitaire n'a pas remplacé cette macro. Vérifiez le paramètre dans l'URL de l'annonce et que les clics proviennent de vraies annonces, pas d'une ouverture manuelle du lien.",
+        "ids_differ": "{fetched} enregistrements de dépense récupérés, mais les ID ne correspondent pas. La plateforme a dépensé {amount} {currency} le {date} sur la campagne {campaign_id} (annonce {ad_id}), alors que les clics Orbitra de ce jour contiennent {seen}. Vérifiez que les annonces de ce compte pointent vers ce lien de campagne."
+    },
     "serverSetup": {
         "title": "Une étape unique est nécessaire sur le serveur",
         "text": "Cette version nécessite une modification unique sur le serveur que le bouton Mettre à jour ne peut pas faire seul : il s’exécute en tant qu’utilisateur web, sans droits root.",

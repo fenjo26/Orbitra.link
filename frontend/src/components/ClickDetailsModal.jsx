@@ -280,6 +280,26 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
                                 ) : null
                             ))}
 
+                            {/* Every other parameter the click carried (ad-network IDs such as
+                                campaign_id / adgroup_id / ad_id, click IDs, UTM tags). Cost import
+                                matches on these, so users must be able to see them per click. */}
+                            {(() => {
+                                const params = data.parameters && typeof data.parameters === 'object' ? data.parameters : {};
+                                const shown = new Set(['keyword', 'cost', 'currency', 'external_id', 'creative_id', 'ad_campaign_id', 'source', 'subid']);
+                                const priority = ['campaign_id', 'campaignid', 'adset_id', 'adgroup_id', 'adgroupid', 'ad_group_id', 'adgroup', 'ad_id', 'creative', 'ttclid', 'fbclid', 'gclid'];
+                                const rank = (k) => { const i = priority.indexOf(k); return i === -1 ? priority.length : i; };
+                                return Object.keys(params)
+                                    .filter((k) => !shown.has(k) && !/^sub_id_\d+$/.test(k) && params[k] !== null && params[k] !== '')
+                                    .sort((a, b) => rank(a) - rank(b) || a.localeCompare(b))
+                                    .map((k) => (
+                                        <DetailRow
+                                            key={`param-${k}`}
+                                            label={k}
+                                            value={typeof params[k] === 'object' ? JSON.stringify(params[k]) : String(params[k])}
+                                        />
+                                    ));
+                            })()}
+
                             <SectionHeader title={t('clickDetails.sections.geoDevice')} />
                             <DetailRow label={t('clickDetails.fields.country')} value={data.country} />
                             <DetailRow label={t('clickDetails.fields.region')} value={data.region} />

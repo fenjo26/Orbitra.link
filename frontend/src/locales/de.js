@@ -1,4 +1,11 @@
 export default {
+    "costDiag": {
+        "no_spend": "{fetched} Datensätze abgerufen, aber alle haben null Ausgaben, es gibt also noch nichts zuzuordnen.",
+        "no_clicks": "{fetched} Ausgaben-Datensätze abgerufen ({from} bis {to}), aber Orbitra hat an diesen Tagen keine Klicks. Ausgaben werden nur Klicks vom selben Tag zugeordnet: Leiten Sie Traffic über den Kampagnenlink und synchronisieren Sie erneut.",
+        "no_ids": "{fetched} Ausgaben-Datensätze abgerufen, aber keiner der {clicks} Klicks am {date} enthält eine Anzeigen-, Anzeigengruppen- oder Kampagnen-ID. Der Anzeigenlink öffnet vermutlich nicht direkt den Orbitra-Kampagnenlink, oder die Parameter gehen unterwegs verloren (z. B. auf einer Landingpage). Größte nicht zugeordnete Ausgabe: {amount} {currency} für Kampagne {campaign_id}.",
+        "macros": "{fetched} Ausgaben-Datensätze abgerufen, aber Klicks am {date} enthalten {param}={value}: Die Werbeplattform hat dieses Makro nicht ersetzt. Prüfen Sie den Parameter in der Anzeigen-URL und dass die Klicks aus echten Anzeigen stammen, nicht aus manuell geöffneten Links.",
+        "ids_differ": "{fetched} Ausgaben-Datensätze abgerufen, aber die IDs stimmen nicht überein. Die Plattform hat am {date} {amount} {currency} für Kampagne {campaign_id} (Anzeige {ad_id}) ausgegeben, während Orbitra-Klicks an diesem Tag {seen} enthalten. Prüfen Sie, ob die Anzeigen dieses Werbekontos auf diesen Kampagnenlink verweisen."
+    },
     "serverSetup": {
         "title": "Einmaliger Schritt auf dem Server nötig",
         "text": "Diese Version braucht eine einmalige Änderung auf dem Server, die der Aktualisieren-Button nicht selbst vornehmen kann: Er läuft als Web-Benutzer und hat keine Root-Rechte.",

@@ -1,4 +1,11 @@
 export default {
+    "costDiag": {
+        "no_spend": "Se obtuvieron {fetched} registros, pero todos tienen gasto cero, así que aún no hay nada que atribuir.",
+        "no_clicks": "Se obtuvieron {fetched} registros de gasto ({from} a {to}), pero Orbitra no tiene ningún clic en esos días. El gasto solo se atribuye a clics del mismo día: envía tráfico por el enlace de la campaña y vuelve a sincronizar.",
+        "no_ids": "Se obtuvieron {fetched} registros de gasto, pero ninguno de los {clicks} clics del {date} tiene ID de anuncio, grupo de anuncios o campaña. Probablemente el enlace del anuncio no abre directamente el enlace de campaña de Orbitra, o los parámetros se pierden por el camino (por ejemplo, en una landing). Mayor gasto sin atribuir: {amount} {currency} en la campaña {campaign_id}.",
+        "macros": "Se obtuvieron {fetched} registros de gasto, pero los clics del {date} tienen {param}={value}: la plataforma publicitaria no reemplazó esta macro. Revisa el parámetro en la URL del anuncio y que los clics vengan de anuncios reales, no de abrir el enlace a mano.",
+        "ids_differ": "Se obtuvieron {fetched} registros de gasto, pero los ID no coinciden. La plataforma gastó {amount} {currency} el {date} en la campaña {campaign_id} (anuncio {ad_id}), mientras que los clics de Orbitra de ese día tienen {seen}. Comprueba que los anuncios de esta cuenta apunten a este enlace de campaña."
+    },
     "serverSetup": {
         "title": "Hace falta un paso único en el servidor",
         "text": "Esta versión necesita un cambio único en el servidor que el botón Actualizar no puede hacer por sí solo: se ejecuta como el usuario web y no tiene acceso root.",

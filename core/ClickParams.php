@@ -128,7 +128,7 @@ if (!function_exists('orbitraClickParamKeys')) {
         $keys = array_merge($keys, [
             'ad_id', 'adset_id', 'campaign_id',
             'ad_name', 'adset_name', 'campaign_name',
-            'adgroup', 'adgroupid', 'ad_group_id', 'campaignid', 'creative',
+            'adgroup', 'adgroupid', 'adgroup_id', 'ad_group_id', 'campaignid', 'creative',
             'site', 'site_id', 'placement', 'utm_placement', 'widget', 'section',
             'matchtype', 'device', 'loc_physical', 'cpc',
         ]);

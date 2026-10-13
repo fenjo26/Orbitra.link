@@ -21289,6 +21289,7 @@ try {
                                             'new'         => $newCount,
                                             'updated'     => $costStats['updated'],
                                             'unmatched'   => $costStats['unmatched'],
+                                            'diagnostic'  => $costStats['diagnostic'] ?? null,
                                             'duration_ms' => $durationMs,
                                         ],
                                     ]);
