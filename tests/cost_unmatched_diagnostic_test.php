@@ -114,6 +114,18 @@ check('ids_differ names the IDs the clicks actually carry',
     && strpos($s['diagnostic']['seen'], 'campaign_id=1777000000000000001') !== false,
     json_encode($s['diagnostic']));
 
+// A dead optional macro next to real IDs is not the cause (the real-world click:
+// creative=__CREATIVE_ID__ alongside real campaign_id/adgroup_id/ad_id).
+$pdo = freshDb();
+addClick($pdo, 'c1', $d1, ['campaign_id' => '1878858016755778', 'adgroup_id' => '1878908990538914',
+    'ad_id' => '1878908994123889', 'creative' => '__CREATIVE_ID__']);
+$s = CostImporter::import($pdo, 1, [rec($d1, 9.0)], [], $opts);
+check('leftover creative macro does not mask real IDs (ids_differ, macro not in sample)',
+    ($s['diagnostic']['code'] ?? null) === 'ids_differ'
+    && strpos($s['diagnostic']['seen'], 'ad_id=1878908994123889') !== false
+    && strpos($s['diagnostic']['seen'], '__CREATIVE_ID__') === false,
+    json_encode($s['diagnostic']));
+
 // Picks the largest spend row whose day has clicks, not just the first row.
 $pdo = freshDb();
 addClick($pdo, 'c1', $d2, ['utm_source' => 'tiktok']);
@@ -135,6 +147,18 @@ $s2 = CostImporter::import($pdo, 1, [rec($d1, 6.0)], [], $opts);
 check('unchanged re-sync still reports the row as matched',
     $s2['matched'] === 1 && $s2['unmatched'] === 0 && $s2['new'] === 0 && $s2['updated'] === 0 && $s2['diagnostic'] === null,
     json_encode($s2));
+
+// An unchanged row that stayed unmatched is retried once its clicks exist
+// (closed days never change amount, so skipping them meant "unmatched forever").
+$pdo = freshDb();
+$s1 = CostImporter::import($pdo, 1, [rec($d1, 8.0)], [], $opts);
+addClick($pdo, 'late', $d1, ['ad_id' => '1846000000000000003']);
+$s2 = CostImporter::import($pdo, 1, [rec($d1, 8.0)], [], $opts);
+$late = (float) $pdo->query("SELECT cost FROM clicks WHERE id = 'late'")->fetchColumn();
+$flag = (int) $pdo->query("SELECT is_matched FROM cost_records")->fetchColumn();
+check('unchanged but unmatched row is retried and attributed on re-sync',
+    $s1['matched'] === 0 && $s2['matched'] === 1 && $s2['updated'] === 1 && abs($late - 8.0) < 0.001 && $flag === 1,
+    json_encode([$s1['matched'], $s2, $late, $flag]));
 
 // TikTok template param: adgroup_id must be captured even without a source template.
 echo "\nClickParams\n";

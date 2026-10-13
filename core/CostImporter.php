@@ -157,12 +157,15 @@ class CostImporter
                 }
             }
 
-            // Nothing changed since the last sync — skip the attribution work entirely,
-            // but still count the row by its stored outcome. Skipping it silently made
-            // every re-sync of an unchanged day report "fetched N, matched 0" even when
-            // all N rows had been attributed on the first pass.
-            if ($existingId !== null && abs($existingAmount - $amount) < 0.0000001) {
-                $stats[$existingMatched ? 'matched' : 'unmatched']++;
+            // Nothing changed since the last sync and the row is already attributed —
+            // skip the attribution work, but still count it as matched (skipping it
+            // silently made every re-sync report "fetched N, matched 0").
+            // An unchanged row that is still UNmatched is retried: its clicks may have
+            // arrived after the first sync, or the ad URL may have been fixed since.
+            // Skipping those left past days unmatched forever, because a closed day's
+            // spend never changes again.
+            if ($existingId !== null && $existingMatched && abs($existingAmount - $amount) < 0.0000001) {
+                $stats['matched']++;
                 continue;
             }
 
@@ -355,16 +358,23 @@ class CostImporter
             return ['code' => 'no_ids'] + $base;
         }
 
-        foreach ($seen as $item) {
-            $v = $item['value'];
-            if (strpos($v, '__') !== false || strpos($v, '{') !== false || strpos($v, '}') !== false) {
-                return ['code' => 'macros', 'param' => $item['param'], 'value' => $v] + $base;
-            }
+        // A leftover macro in one optional key (e.g. creative=__CREATIVE_ID__, which
+        // TikTok never fills) must not mask real IDs in the others: report "macros"
+        // only when the clicks carry no real ID at all, and keep macros out of the
+        // "ids_differ" sample.
+        $isMacro = function (string $v): bool {
+            return strpos($v, '__') !== false || strpos($v, '{') !== false || strpos($v, '}') !== false;
+        };
+        $real = array_values(array_filter($seen, function ($item) use ($isMacro) {
+            return !$isMacro($item['value']);
+        }));
+        if (empty($real)) {
+            return ['code' => 'macros', 'param' => $seen[0]['param'], 'value' => $seen[0]['value']] + $base;
         }
 
         $sample = array_map(function ($item) {
             return $item['param'] . '=' . $item['value'];
-        }, array_slice($seen, 0, 4));
+        }, array_slice($real, 0, 4));
 
         return ['code' => 'ids_differ', 'seen' => implode(', ', $sample)] + $base;
     }
