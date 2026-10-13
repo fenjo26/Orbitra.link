@@ -364,7 +364,11 @@ export default {
         "partnersTitle": "Partners",
         "partnersDesc": "Services we recommend for media buying and everyday work.",
         "partnerPay2houseDesc": "Virtual cards for Facebook, Google and TikTok Ads, plus everyday online services.",
-        "partnerGroupbuyseoDesc": "Group-buy access to SEO and marketing tools — Ahrefs, Semrush, ChatGPT Plus and more."
+        "partnerGroupbuyseoDesc": "Group-buy access to SEO and marketing tools — Ahrefs, Semrush, ChatGPT Plus and more.",
+        "partnerHelodataDesc": "Compliant, stable proxy IP network for data collection, ad verification and market intelligence.",
+        "partnerAccslyDesc": "Account marketplace: 35,000+ offers from verified stores across 80+ platforms.",
+        "partnerOpengscDesc": "Our other free project: a self-hosted SEO dashboard for Google, Bing and Yandex with AI tools.",
+        "partnerNovproxyDesc": "Global proxies — static, ISP and residential — in 190+ countries. 99.9% uptime, pay-as-you-go."
     },
     "profile": {
         "title": "Profile Settings",

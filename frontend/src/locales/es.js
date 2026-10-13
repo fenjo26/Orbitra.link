@@ -364,7 +364,11 @@ export default {
         "partnersTitle": "Socios",
         "partnersDesc": "Servicios que recomendamos para la compra de medios y el trabajo diario.",
         "partnerPay2houseDesc": "Tarjetas virtuales para anuncios de Facebook, Google y TikTok, además de servicios en línea.",
-        "partnerGroupbuyseoDesc": "Acceso compartido a herramientas de SEO y marketing: Ahrefs, Semrush, ChatGPT Plus y más."
+        "partnerGroupbuyseoDesc": "Acceso compartido a herramientas de SEO y marketing: Ahrefs, Semrush, ChatGPT Plus y más.",
+        "partnerHelodataDesc": "Red de proxys IP estables y conformes para recopilar datos y verificar anuncios.",
+        "partnerAccslyDesc": "Mercado de cuentas: más de 35.000 ofertas de tiendas verificadas en 80+ plataformas.",
+        "partnerOpengscDesc": "Nuestro otro proyecto gratuito: panel SEO autoalojado para Google, Bing y Yandex con herramientas de IA.",
+        "partnerNovproxyDesc": "Proxys globales — estáticos, ISP y residenciales — en más de 190 países, con pago por uso."
     },
     "profile": {
         "title": "Configuración de perfil",

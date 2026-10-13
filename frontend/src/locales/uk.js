@@ -364,7 +364,11 @@ export default {
         "partnersTitle": "Партнери",
         "partnersDesc": "Сервіси, які ми рекомендуємо для роботи з рекламою та не лише.",
         "partnerPay2houseDesc": "Віртуальні картки для оплати реклами у Facebook, Google, TikTok Ads та онлайн-сервісів.",
-        "partnerGroupbuyseoDesc": "Спільний доступ до SEO та маркетингових інструментів — Ahrefs, Semrush, ChatGPT Plus та інших."
+        "partnerGroupbuyseoDesc": "Спільний доступ до SEO та маркетингових інструментів — Ahrefs, Semrush, ChatGPT Plus та інших.",
+        "partnerHelodataDesc": "Стабільна мережа проксі-IP для збору даних, перевірки реклами та моніторингу ринків.",
+        "partnerAccslyDesc": "Маркетплейс акаунтів: 35 000+ пропозицій від перевірених магазинів на 80+ платформах.",
+        "partnerOpengscDesc": "Наш інший безкоштовний проєкт: self-hosted SEO-панель для Google, Bing і Яндекс з ІІ-інструментами.",
+        "partnerNovproxyDesc": "Глобальні проксі — статичні, ISP та резидентні — у 190+ країнах. Доступність 99,9%, оплата за фактом."
     },
     "profile": {
         "title": "Налаштування профілю",

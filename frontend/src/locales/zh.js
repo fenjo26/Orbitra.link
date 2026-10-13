@@ -364,7 +364,11 @@ export default {
         "partnersTitle": "合作伙伴",
         "partnersDesc": "我们推荐的广告投放及日常办公服务。",
         "partnerPay2houseDesc": "用于 Facebook、Google、TikTok 广告及各类在线服务付款的虚拟卡。",
-        "partnerGroupbuyseoDesc": "以拼团价格使用 Ahrefs、Semrush、ChatGPT Plus 等 SEO 与营销工具。"
+        "partnerGroupbuyseoDesc": "以拼团价格使用 Ahrefs、Semrush、ChatGPT Plus 等 SEO 与营销工具。",
+        "partnerHelodataDesc": "稳定合规的代理 IP 网络，适用于数据采集、广告验证与市场情报。",
+        "partnerAccslyDesc": "账号交易市场：80+ 平台上经过审核的商家，提供 35,000+ 商品。",
+        "partnerOpengscDesc": "我们的另一个免费项目：自托管 SEO 面板，支持 Google、Bing 和 Yandex，内置 AI 工具。",
+        "partnerNovproxyDesc": "全球代理 IP —— 静态、ISP 与住宅类型，覆盖 190+ 国家/地区，按用量付费。"
     },
     "profile": {
         "title": "配置文件设置",

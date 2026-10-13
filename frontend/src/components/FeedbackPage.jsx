@@ -19,6 +19,34 @@ const partners = [
         descKey: 'feedback.partnerGroupbuyseoDesc',
         logoChip: '#FFFFFF',
     },
+    {
+        name: 'Helodata',
+        url: 'https://helodata.com?ref=ruslan1',
+        logo: '/partners/helodata-logo.png',
+        descKey: 'feedback.partnerHelodataDesc',
+        logoChip: '#0F172A',
+    },
+    {
+        name: 'Accsly.io',
+        url: 'https://accsly.io/?utm_source=orbitra&utm_medium=referral',
+        logo: '/partners/accsly-logo.png',
+        descKey: 'feedback.partnerAccslyDesc',
+        logoChip: '#FFFFFF',
+    },
+    {
+        name: 'OpenGSC',
+        url: 'https://opengsc.org?utm_source=orbitra',
+        logo: '/partners/opengsc-logo.svg',
+        descKey: 'feedback.partnerOpengscDesc',
+        logoChip: '#FFFFFF',
+    },
+    {
+        name: 'Novproxy',
+        url: 'https://novproxy.com?kwd=tt-orb',
+        logo: '/partners/novproxy-logo.png',
+        descKey: 'feedback.partnerNovproxyDesc',
+        logoChip: '#FFFFFF',
+    },
 ];
 
 const FeedbackPage = () => {
