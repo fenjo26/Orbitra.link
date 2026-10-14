@@ -1980,6 +1980,8 @@ export default {
         "feedUpdate": "Jetzt aktualisieren",
         "feedUpdating": "Wird aktualisiert…",
         "feedUpdateError": "Bereiche konnten nicht aktualisiert werden",
+        "iprangeHardLabel": "Treffer in den Bereichen als sicheres Bot-Signal werten",
+        "iprangeHardHint": "Standardmäßig aus. Bei mittlerer Empfindlichkeit braucht ein Besucher aus diesen Bereichen mit normalem Browser ein zweites Signal, um auf die Safe-Page zu gehen — daher können Prüfer von Meta und Telegram (ihre Netze sind per ASN nicht als Rechenzentren markiert) das Angebot erreichen. Einschalten, wenn Sie Meta- oder Telegram-Traffic fahren: Ein Treffer schickt dann bei jeder Empfindlichkeit auf die Safe-Page.",
         "clearSourceHint": "Nur die Einträge aus dieser Quelle entfernen",
         "addIp": "IP hinzufügen",
         "addSignature": "Signaturen hinzufügen",

@@ -1980,6 +1980,8 @@ export default {
         "feedUpdate": "Mettre à jour",
         "feedUpdating": "Mise à jour…",
         "feedUpdateError": "Impossible de mettre à jour les plages",
+        "iprangeHardLabel": "Considérer une correspondance de plage comme un signal de bot sûr",
+        "iprangeHardHint": "Désactivé par défaut. En sensibilité moyenne, un visiteur venant de ces plages avec un navigateur ordinaire a besoin d'un second signal pour être envoyé vers la page blanche — les modérateurs de Meta et Telegram (leurs réseaux ne sont pas marqués datacenter par ASN) peuvent donc atteindre l'offre. Activez-le si vous diffusez du trafic Meta ou Telegram : une correspondance enverra alors vers la page blanche quelle que soit la sensibilité.",
         "clearSourceHint": "Supprimer uniquement les entrées de cette source",
         "addIp": "Ajouter une adresse IP",
         "addSignature": "Ajouter des signatures",

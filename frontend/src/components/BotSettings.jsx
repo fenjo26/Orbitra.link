@@ -44,6 +44,13 @@ const BotSettings = () => {
     const [vpnSaving, setVpnSaving] = useState(false);
     const [vpnSaved, setVpnSaved] = useState(false);
 
+    // Range hit as a hard bot signal (global_settings key
+    // bot_iprange_hard_signal, '1'/'0'). Default OFF: the historical verdicts
+    // stay unless the operator opts in — see CloakDetector::iprangeHardSignalEnabled.
+    const [iprangeHard, setIprangeHard] = useState('0');
+    const [iprangeSaving, setIprangeSaving] = useState(false);
+    const [iprangeSaved, setIprangeSaved] = useState(false);
+
     const endpointOf = (type) => (type === 'ip' ? 'bot_ips' : 'bot_signatures');
 
     const loadFeed = useCallback(async (update = false) => {
@@ -110,6 +117,8 @@ const BotSettings = () => {
                     // Missing key = never configured = default (on).
                     const vpn = data.data?.bot_vpn_asn_signal;
                     setVpnAsnSignal(vpn === undefined || vpn === null ? '1' : String(vpn));
+                    // Missing key = never configured = default (off).
+                    setIprangeHard(String(data.data?.bot_iprange_hard_signal ?? '0') === '1' ? '1' : '0');
                 }
             } catch (e) {
                 // The list just starts empty; saving still works.
@@ -162,6 +171,28 @@ const BotSettings = () => {
             alert(`${t('botSettings.saveError')}: ${e.message}`);
         } finally {
             setVpnSaving(false);
+        }
+    };
+
+    const saveIprangeHard = async (value) => {
+        setIprangeSaving(true);
+        try {
+            const res = await fetch(`${API_URL}?action=global_settings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ settings: { bot_iprange_hard_signal: value } })
+            });
+            const data = await res.json().catch(() => null);
+            if (!res.ok || data?.status !== 'success') {
+                throw new Error(data?.message || `HTTP ${res.status}`);
+            }
+            setIprangeHard(value);
+            setIprangeSaved(true);
+            setTimeout(() => setIprangeSaved(false), 2000);
+        } catch (e) {
+            alert(`${t('botSettings.saveError')}: ${e.message}`);
+        } finally {
+            setIprangeSaving(false);
         }
     };
 
@@ -598,9 +629,10 @@ const BotSettings = () => {
                 </div>
 
                 {/* Datacenter / crawler range feed. Status, not a list: these
-                    ranges are matched by IpRanges (which understands CIDR and
-                    indexes them), never stored as blocklist rows — 20k rows here
-                    would look like rules and fire none. */}
+                    ranges are matched by IpRanges (which indexes them for binary
+                    search), never stored as blocklist rows — bot_ips scans CIDR
+                    rows linearly with a 5000-row cap, so 20k rows would be slow
+                    and mostly unchecked. */}
                 <div
                     className="mt-4 p-3 rounded-xl flex flex-wrap items-center gap-x-3 gap-y-2"
                     style={{ backgroundColor: 'var(--color-bg-soft)', border: '1px solid var(--color-border)' }}
@@ -631,6 +663,36 @@ const BotSettings = () => {
                         <RotateCcw size={14} />
                         {feed.updating ? t('botSettings.feedUpdating') : t('botSettings.feedUpdate')}
                     </button>
+                    {/* Opt-in: a range hit becomes a hard signal (settings key
+                        bot_iprange_hard_signal). Lives next to the feed it tunes. */}
+                    <label className="w-full flex items-start gap-3 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            checked={iprangeHard === '1'}
+                            disabled={iprangeSaving}
+                            onChange={(e) => saveIprangeHard(e.target.checked ? '1' : '0')}
+                            style={{ marginTop: '3px' }}
+                        />
+                        <div className="min-w-0 flex-1">
+                            <div className="text-xs font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                                {t('botSettings.iprangeHardLabel')}
+                            </div>
+                            <div className="text-[11px] mt-0.5" style={{ color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+                                {t('botSettings.iprangeHardHint')}
+                            </div>
+                        </div>
+                        {iprangeSaving && (
+                            <span className="text-[11px] font-medium shrink-0" style={{ color: 'var(--color-text-muted)' }}>
+                                {t('botSettings.saving')}
+                            </span>
+                        )}
+                        {!iprangeSaving && iprangeSaved && (
+                            <span className="text-[11px] font-medium shrink-0 flex items-center gap-1" style={{ color: 'var(--color-success)' }}>
+                                <CheckCircle2 size={12} />
+                                {t('botSettings.saved')}
+                            </span>
+                        )}
+                    </label>
                 </div>
 
                 <div style={{ marginTop: '16px' }}>

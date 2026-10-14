@@ -155,7 +155,11 @@ matching nothing.
 **"Fetched N, matched 0"** — spend arrived but nothing could be attached to a
 click. The cron log says this explicitly. Almost always the campaign URL is missing
 `ad_id` / `adset_id` / `campaign_id`. Check a recent click's parameters in
-Reports → Clicks.
+⚙ → Logs → Traffic.
+
+**Update spend** on the account row names the exact reason (`no_spend`, `no_clicks`,
+`no_ids`, `macros`, `ids_differ`) with the date and the IDs on both sides — see
+[Costs](costs.md#получено-n-привязано-0) (Russian). Unmatched rows retry on every sync.
 
 **Sync reports an error with a Meta message** — the message is Meta's own, verbatim.
 Common ones:
@@ -413,7 +417,7 @@ attribution and does not guarantee immediate Ads Manager reporting.
 ### Troubleshooting
 
 **Nothing arrives in Events Manager** — check, in order: the click has `fbclid`
-(Reports → Clicks); `fbclid={fbclid}` is *not* in the ad's URL parameters; the
+(⚙ → Logs → Traffic); `fbclid={fbclid}` is *not* in the ad's URL parameters; the
 status is mapped to an event; the queue worker cron is running; the S2S log shows
 the attempt.
 

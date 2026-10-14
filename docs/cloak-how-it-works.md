@@ -4,7 +4,7 @@ This document explains what the Cloak stream schema does on every click: how the
 money/safe decision is made, what gets written to the database, and where to
 look in the panel when traffic does not behave the way you expect.
 
-Related: `docs/cloaking.md` (operator guide), `docs/architecture.md`.
+Related: [cloaking.md](cloaking.md) (operator guide, Russian), [architecture.md](architecture.md).
 
 ---
 
@@ -110,7 +110,7 @@ migration of existing ones), so reports stay clean while nothing is invisible.
 
 ## 8. Where to look in the panel
 
-- **Analytics → Clicks**: Route (money/safe), Reason, Destination, ISP and ASN
+- **⚙ → Logs → Traffic**: Route (money/safe), Reason, Destination, ISP and ASN
   columns; filter by campaign, route and reason.
 - **Campaign editor → Cloak card**: live diagnostics (`cloak_summary`) and the
   detection-layer degradation warnings of §4.
@@ -125,3 +125,12 @@ migration of existing ones), so reports stay clean while nothing is invisible.
 | 100% of traffic on the safe page | Geo Databases page: is a country DB installed? `geo_unknown` reasons in the click log? |
 | Real mobile users on the white page | Reason codes: `ip2proxy_vpn_proxy` → uncheck the VPN/Proxy layer (a hard signal — sensitivity `low` will NOT override it). |
 | Want to see raw decisions | Server PHP error log, `Orbitra cloak [...]` lines.
+
+## 10. Options added later
+
+- **Send clean visitors to the next stream** (cloak stream checkbox, v1.6.12) — the cloak becomes a gate: suspicious visitors get the safe page, clean ones continue down the stream list instead of the stream's own money page. Put the stream first (or make it intercepting) so every visitor is checked.
+- **VPN-ASN as a bot signal** (Settings → Bots, settings key `bot_vpn_asn_signal`, on by default) — turn it off when your audience is largely behind commercial VPNs; datacenter ASNs keep working.
+- **Signed test links** (`?_t=…&_dbg=1&_geo=XX`, v1.6.4) — run the real pipeline, including the cloak decision, without writing a click; the `_dbg` page shows every filter's vote.
+- **Verdict shown only for judged clicks** (v1.6.17) — the click card and traffic log show route, verdict and reasons only for clicks a cloak stream actually evaluated.
+
+The Russian operator guide is [cloaking.md](cloaking.md).

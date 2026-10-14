@@ -1980,6 +1980,8 @@ export default {
         "feedUpdate": "Update now",
         "feedUpdating": "Updating…",
         "feedUpdateError": "Could not update the ranges",
+        "iprangeHardLabel": "Count a range hit as a sure bot signal",
+        "iprangeHardHint": "Off by default. On medium sensitivity a visitor from these ranges with an ordinary browser needs a second signal to be sent to the safe page — so Meta and Telegram reviewers (their networks are not marked as datacenters by ASN) can reach the offer. Turn on if you run Meta or Telegram traffic: a range hit then sends the visitor to the safe page on any sensitivity.",
         "clearSourceHint": "Remove only the entries from this source",
         "addIp": "Add IP",
         "addSignature": "Add Signatures",

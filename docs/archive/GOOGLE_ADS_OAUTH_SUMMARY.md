@@ -1,5 +1,8 @@
 # Google Ads 1-Click OAuth Implementation Summary
 
+> **Архив.** Заметка о реализации 1-Click OAuth Google Ads (2026-08). Как подключать — [Расходы → Google Ads](../costs.md#google-ads).
+
+
 ## Overview
 
 This document summarizes the implementation of the seamless 1-Click Google Ads OAuth connection for Orbitra Tracker, matching the Keitaro tracker UX.

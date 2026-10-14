@@ -97,11 +97,12 @@ Quit Claude Desktop completely (⌘Q on macOS) and reopen it — the config is o
 | `orbitra_ping` | Check connectivity + system status |
 | `orbitra_get_metrics` | Clicks / conversions / revenue / profit for a period |
 | `orbitra_get_chart` | Time-series data for trends |
-| `orbitra_list_campaigns` | All campaigns + stats |
+| `orbitra_list_campaigns` | Compact campaign list (id, name, alias, domain, link), paged, filterable by id range / domain |
+| `orbitra_campaigns_stats` | Campaigns with full stats (~130 fields each — heavy on big accounts) |
 | `orbitra_get_campaign` | One campaign incl. streams & postbacks |
 | `orbitra_campaign_report` | Detailed campaign breakdown |
 | `orbitra_list_offers` / `orbitra_get_offer` / `orbitra_all_offers` | Offers |
-| `orbitra_list_domains` | Tracking domains + SSL/DNS status |
+| `orbitra_list_domains` | Compact list of tracking domains: status, cached DNS/SSL, Cloudflare proxy, active campaigns |
 | `orbitra_list_traffic_sources` | Traffic sources |
 | `orbitra_list_landings` | Landing pages |
 | `orbitra_list_affiliate_networks` | Affiliate/CPA networks |
@@ -116,6 +117,7 @@ Quit Claude Desktop completely (⌘Q on macOS) and reopen it — the config is o
 | `orbitra_create_campaign` | New campaign (name + alias, optional streams) |
 | `orbitra_update_campaign` | Update a campaign; streams preserved unless replaced |
 | `orbitra_bulk_create_campaigns` | Create many campaigns at once |
+| `orbitra_bulk_set_campaign_domain` | Move many campaigns to other domains in one call; only the domain changes |
 | `orbitra_delete_campaign` / `orbitra_copy_campaign` | Archive / duplicate |
 | `orbitra_create_offer` / `orbitra_update_offer` / `orbitra_delete_offer` | Offers |
 | `orbitra_create_domain` / `orbitra_delete_domain` / `orbitra_check_domain_dns` | Domains |

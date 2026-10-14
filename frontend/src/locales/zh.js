@@ -1980,6 +1980,8 @@ export default {
         "feedUpdate": "立即更新",
         "feedUpdating": "更新中…",
         "feedUpdateError": "无法更新 IP 段",
+        "iprangeHardLabel": "将命中 IP 段视为确定的机器人信号",
+        "iprangeHardHint": "默认关闭。在中等灵敏度下，来自这些 IP 段、使用普通浏览器的访客需要第二个信号才会被送往安全页——因此 Meta 和 Telegram 的审核人员（其网络未按 ASN 标记为数据中心）可能看到优惠页。如果您投放 Meta 或 Telegram 流量，请开启：命中 IP 段后在任何灵敏度下都会送往安全页。",
         "clearSourceHint": "仅删除来自该来源的条目",
         "addIp": "添加IP",
         "addSignature": "添加签名",

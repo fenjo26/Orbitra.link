@@ -157,5 +157,5 @@ Orbitra regenerates nginx config automatically. If it doesn't update:
 
 ## See Also
 
-- [CERTBOT_SETUP.md](./CERTBOT_SETUP.md) - Let's Encrypt configuration
+- [Domains & SSL](domains.md) - Let's Encrypt issuance (Russian)
 - ORB-014 - HTTPS on the origin for parked domains

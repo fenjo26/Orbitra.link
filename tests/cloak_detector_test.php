@@ -160,7 +160,58 @@ if (is_readable(IpRanges::fileV4())) {
             $failures[] = "iprange_datacenter evidence must be the matched CIDR ({$probeLine}), got: "
                 . implode(',', $iprangeDetect['reasons']);
         }
+
+        // bot_iprange_hard_signal: a lone range hit with a clean browser and no
+        // datacenter ASN (Meta/Telegram space, or an install without
+        // GeoLite2-ASN). Default = soft (historical verdicts unchanged);
+        // opted in = hard, so it flips medium and low as well.
+        $rangeOnly = ['ip' => $probeIp, 'user_agent' => $browserUa, 'asn' => '', 'isp' => '', 'accept_language' => 'en-US'];
+        $rangeChecks = [
+            ['range hit alone passes medium by default', ['sensitivity' => 'medium', 'iprange_hard_signal' => false], false],
+            ['range hit alone passes low by default', ['sensitivity' => 'low', 'iprange_hard_signal' => false], false],
+            ['range hit alone blocks high by default', ['sensitivity' => 'high', 'iprange_hard_signal' => false], true],
+            ['range hit alone blocks medium when hard', ['sensitivity' => 'medium', 'iprange_hard_signal' => true], true],
+            ['range hit alone blocks low when hard', ['sensitivity' => 'low', 'iprange_hard_signal' => true], true],
+        ];
+        foreach ($rangeChecks as [$name, $cfg, $expected]) {
+            $r = CloakDetector::detect($rangeOnly, $cfg);
+            if ((bool) $r['is_suspicious'] !== $expected) {
+                $failures[] = "$name: expected suspicious=" . ($expected ? 'true' : 'false')
+                    . ', got ' . ($r['is_suspicious'] ? 'true' : 'false') . ' (' . implode(',', $r['reasons']) . ')';
+            }
+        }
+        $rangeCaseCount = count($rangeChecks);
+
+        // The settings row drives the default when the config does not say.
+        // The verdict is memoized per process, so reset it between reads.
+        $memo = new ReflectionProperty(CloakDetector::class, 'iprangeHardSignal');
+        $memo->setAccessible(true);
+        $settingsPdo = new PDO('sqlite::memory:');
+        $settingsPdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $settingsPdo->exec('CREATE TABLE settings (key TEXT PRIMARY KEY, value TEXT)');
+        $settingsPdo->exec('CREATE TABLE bot_ips (id INTEGER PRIMARY KEY, ip_or_cidr TEXT NOT NULL)');
+        $settingsPdo->exec('CREATE TABLE bot_signatures (id INTEGER PRIMARY KEY, signature TEXT NOT NULL)');
+        foreach ([[null, false], ['0', false], ['1', true]] as [$stored, $expected]) {
+            $settingsPdo->exec('DELETE FROM settings');
+            if ($stored !== null) {
+                $settingsPdo->prepare("INSERT INTO settings (key, value) VALUES ('bot_iprange_hard_signal', ?)")->execute([$stored]);
+            }
+            $memo->setValue(null, null);
+            $r = CloakDetector::detect($rangeOnly + ['pdo' => $settingsPdo], ['sensitivity' => 'medium']);
+            if ((bool) $r['is_suspicious'] !== $expected) {
+                $failures[] = 'bot_iprange_hard_signal=' . var_export($stored, true) . ' on medium: expected suspicious='
+                    . ($expected ? 'true' : 'false') . ', got ' . ($r['is_suspicious'] ? 'true' : 'false');
+            }
+            $rangeCaseCount++;
+        }
+        $memo->setValue(null, null);
     }
+}
+
+// Opting in must not touch traffic outside the ranges.
+$cleanWithHard = CloakDetector::detect($visitor(), $config('medium', ['iprange_hard_signal' => true]));
+if ($cleanWithHard['is_suspicious']) {
+    $failures[] = 'iprange_hard_signal=true flagged a residential visitor: ' . implode(',', $cleanWithHard['reasons']);
 }
 
 // Evidence is capped at 64 chars so a long keyword cannot bloat the
@@ -183,4 +234,4 @@ if ($failures) {
     exit(1);
 }
 
-echo 'CloakDetector tests passed (' . (count($cases) + count($botFilterCases) + 2) . ' cases).' . PHP_EOL;
+echo 'CloakDetector tests passed (' . (count($cases) + count($botFilterCases) + 3 + ($rangeCaseCount ?? 0)) . ' cases).' . PHP_EOL;

@@ -1980,6 +1980,8 @@ export default {
         "feedUpdate": "Actualizar ahora",
         "feedUpdating": "Actualizando…",
         "feedUpdateError": "No se pudieron actualizar los rangos",
+        "iprangeHardLabel": "Contar un acierto en los rangos como señal segura de bot",
+        "iprangeHardHint": "Desactivado por defecto. Con sensibilidad media, un visitante de estos rangos con un navegador normal necesita una segunda señal para ir a la página segura, así que los revisores de Meta y Telegram (sus redes no figuran como centros de datos por ASN) pueden llegar a la oferta. Actívalo si trabajas tráfico de Meta o Telegram: un acierto en los rangos enviará a la página segura con cualquier sensibilidad.",
         "clearSourceHint": "Eliminar solo las entradas de esta fuente",
         "addIp": "Agregar IP",
         "addSignature": "Agregar firmas",

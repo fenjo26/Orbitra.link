@@ -1,4 +1,4 @@
 <?php
 // version.php - Версия проекта// Orbitra Tracker Version File
-define('ORBITRA_VERSION', '1.6.17');
+define('ORBITRA_VERSION', '1.6.18');
 // Note: keep in sync with version.json for update checker.

@@ -1,5 +1,8 @@
 # Certbot Setup Guide for Ubuntu/Debian
 
+> **Архив.** Общая инструкция по certbot от 2026-08. Её совет выдать веб-пользователю `sudo certbot` с произвольными аргументами **больше не применяется**: с v1.6.0 сертификаты выпускаются через помощник `orbitra-issue-cert` (ставит `cli/server_setup.sh`). Актуально — [Домены и SSL](../domains.md).
+
+
 This guide provides step-by-step instructions for installing Certbot, configuring sudoers, and setting up CA certificates on Ubuntu/Debian servers.
 
 ## Table of Contents

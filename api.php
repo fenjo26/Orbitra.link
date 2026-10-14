@@ -14335,7 +14335,7 @@ try {
 
         case 'global_settings':
             if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-                $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token', 'allow_php_landings', 'php_landing_timeout', 'admin_path', 'stats_enabled', 'stats_retention_days', 'archive_retention_days', 'admin_ip_access', 'ignore_prefetch', 'bot_isp_list', 'server_ip_override', 'privacy_enabled', 'privacy_action', 'privacy_redirect_url', 'update_notify', 'bot_vpn_asn_signal', 'crm_ingest_secret')");
+                $stmt = $pdo->query("SELECT key, value FROM settings WHERE key IN ('postback_key', 'currency', 'maxmind_license_key', 'maxmind_account_id', 'ip2location_token', 'allow_php_landings', 'php_landing_timeout', 'admin_path', 'stats_enabled', 'stats_retention_days', 'archive_retention_days', 'admin_ip_access', 'ignore_prefetch', 'bot_isp_list', 'server_ip_override', 'privacy_enabled', 'privacy_action', 'privacy_redirect_url', 'update_notify', 'bot_vpn_asn_signal', 'bot_iprange_hard_signal', 'crm_ingest_secret')");
                 $data = [];
                 while ($row = $stmt->fetch()) {
                     $data[$row['key']] = $row['value'];
@@ -14471,7 +14471,7 @@ try {
                               'stats_enabled', 'stats_retention_days', 'archive_retention_days',
                               'admin_ip_access', 'ignore_prefetch', 'bot_isp_list', 'server_ip_override',
                               'privacy_enabled', 'privacy_action', 'privacy_redirect_url',
-                              'update_notify', 'bot_vpn_asn_signal', 'crm_ingest_secret'];
+                              'update_notify', 'bot_vpn_asn_signal', 'bot_iprange_hard_signal', 'crm_ingest_secret'];
                     foreach ($whitelist as $key) {
                         if (!isset($settings[$key])) {
                             continue;
@@ -14488,7 +14488,7 @@ try {
                             }
                             $value = $value === '1' || $value === 1 || $value === true ? '1' : '0';
                         }
-                        if ($key === 'bot_vpn_asn_signal') {
+                        if ($key === 'bot_vpn_asn_signal' || $key === 'bot_iprange_hard_signal') {
                             // Cloak tuning is an admin decision: anyone may read
                             // the flag, only an admin flips it.
                             if (($_SESSION['role'] ?? '') !== 'admin') {
@@ -17197,10 +17197,11 @@ try {
             // had no way to see whether the lists were there at all.
             //
             // The ranges are deliberately NOT copied into bot_ips: the cloak
-            // detector matches them through IpRanges::match(), which understands
-            // CIDR, while the bot_ips layer matches a literal string. Importing
-            // 20k rows here would add rows that look like blocks and can never
-            // fire one.
+            // detector matches them through IpRanges::match(), which indexes
+            // them for binary search. bot_ips does match CIDR rows now
+            // (CloakDetector::findBlocklistRow), but by a linear PHP scan capped
+            // at 5000 rows per click — 20k imported ranges would be slow on
+            // every click and three quarters of them would never be checked.
             require_once __DIR__ . '/core/IpRanges.php';
             if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
                 if (($_SESSION['role'] ?? '') !== 'admin') {

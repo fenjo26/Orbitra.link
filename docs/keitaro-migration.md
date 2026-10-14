@@ -1,382 +1,124 @@
-# Миграция из Keitaro в Orbitra
+# Миграция из Keitaro
 
-Полное руководство по переносу данных из Keitaro Tracker в Orbitra с сохранением токенов Click API для совместимости с существующими интеграционными скриптами.
+Orbitra переносит из Keitaro настройки — партнёрки, офферы, домены, кампании с токенами Click API, потоки с фильтрами, постбеки кампаний, лендинги и источники. Статистика кликов не переносится: это новый старт.
 
-## 📋 Содержание
+## Что переносится
 
-1. [Подготовка](#подготовка)
-2. [Создание бекапа Keitaro](#создание-бекапа-keitaro)
-3. [Загрузка в Orbitra](#загрузка-в-orbitra)
-4. [Проверка результатов](#проверка-результатов)
-5. [Сохранение токенов](#сохранение-токенов)
-6. [Troubleshooting](#troubleshooting)
-7. [Шаблоны источников и партнёрок](#шаблоны-источников-и-партнёрок)
+| Keitaro | Orbitra | Что сохраняется |
+|---|---|---|
+| Партнёрские сети | Партнерки | Postback URL, параметры оффера |
+| Офферы | Офферы | URL, выплата, гео |
+| Домены | Домены | Парковка, HTTPS-only |
+| Группы | Группы кампаний | Название |
+| Кампании | Кампании | Алиас, **токен Click API**, состояние, источник |
+| Потоки | Потоки | Тип, позиция, вес, схема, действие, фильтры (в том числе `sub_id_N` и фильтры по параметру), режимы «разрешить / запретить», связи с офферами и лендингами |
+| Постбеки кампаний | S2S Postbacks | URL, метод, статусы |
+| Лендинги | Лендинги | Названия и URL |
+| Источники | Источники | Параметры |
 
-## Подготовка
+Не переносятся: клики и конверсии, пользователи, файлы локальных лендингов (только записи о них). Фильтры, которые нельзя перенести, перечисляются в отчёте импорта.
 
-### Что понадобится
+Шаблоны источников и партнёрок Keitaro уже встроены в Orbitra — переносить их не нужно ([Источники и партнёрки](sources-and-networks.md)).
 
-1. **Доступ к Keitaro серверу** по SSH с правами root
-2. **Установленный Orbitra** на новом сервере
-3. **Базовые знания** командной строки Linux
+## 1. Дамп на сервере Keitaro
 
-### Что мигрирует
-
-| Сущность Keitaro | Таблица Orbitra | Сохраняется |
-|------------------|-----------------|-------------|
-| Партнёрские сети | `affiliate_networks` | ✅ Postback URL |
-| Офферы | `offers` | ✅ URL, payout, geo |
-| Домены | `domains` | ✅ Парковка, HTTPS |
-| Группы кампаний | `groups` | ✅ Название |
-| Кампании | `campaigns` | ✅ **Токены!** |
-| Потоки | `streams` | ✅ Фильтры, схемы |
-| Лендинги | `landings` | ✅ Названия |
-| Источники | `traffic_sources` | ✅ Параметры |
-| Postback'и | `campaign_postbacks` | ✅ URL, метод, статусы |
-
-### Что НЕ мигрирует
-
-- ❌ Логи кликов (clicks) — не нужны для работы
-- ❌ Статистика — новый старт
-- ❌ Пользователи — создаются заново
-
-## Создание бекапа Keitaro
-
-### Шаг 1: Подключитесь к Keitaro серверу
+Подключитесь к серверу Keitaro по SSH под root и выполните команду целиком. Она берёт доступ к базе из `/etc/keitaro/env/inventory.env`, работает и с клиентом MariaDB на хосте, и с MariaDB внутри Docker-контейнера Keitaro, выгружает только таблицы настроек (без логов кликов) и откажется работать, если таблицы не найдены — чтобы случайно не выгрузить всю базу.
 
 ```bash
-ssh root@YOUR_KEITARO_SERVER_IP
-```
+bash <<'ORBITRA_DUMP'
+set -eo pipefail
 
-Замените `YOUR_KEITARO_SERVER_IP` на реальный IP адрес вашего Keitaro сервера.
-
-### Шаг 2: Создайте дамп базы данных
-
-Скопируйте и выполните команду ниже:
-
-```bash
-bash -lc '
-set -euo pipefail
-
+# Sourced before set -u: the env file is Keitaro's, not ours.
 source /etc/keitaro/env/inventory.env
+set -u
 
-# Конфиг для подключения к БД
-cat > /root/keitaro-mariadb.cnf <<EOF
-[client]
-user=$MARIADB_KEITARO_USER
-password=$MARIADB_KEITARO_PASSWORD
-host=127.0.0.1
-port=3306
-protocol=tcp
-EOF
-chmod 600 /root/keitaro-mariadb.cnf
+# Password goes through the environment, never through argv or a file left on disk.
+export MYSQL_PWD="$MARIADB_KEITARO_PASSWORD"
+DB="$MARIADB_KEITARO_DATABASE"
 
-# Список таблиц для миграции
-TABLES="
-keitaro_affiliate_networks
-keitaro_groups
-keitaro_offers
-keitaro_domains
-keitaro_campaigns
-keitaro_campaign_postbacks
-keitaro_landings
-keitaro_streams
-keitaro_stream_filters
-keitaro_stream_offer_associations
-keitaro_stream_landing_associations
-keitaro_traffic_sources
-keitaro_ref_sources
-"
+# MariaDB client on the host, or inside the Keitaro MariaDB container.
+if CLI=$(command -v mariadb || command -v mysql) && DUMP=$(command -v mariadb-dump || command -v mysqldump); then
+  sql()  { "$CLI"  -u"$MARIADB_KEITARO_USER" -h127.0.0.1 -P3306 --protocol=tcp "$@" </dev/null; }
+  dump() { "$DUMP" -u"$MARIADB_KEITARO_USER" -h127.0.0.1 -P3306 --protocol=tcp "$@" </dev/null; }
+else
+  CT=$(docker ps --format '{{.Names}}' 2>/dev/null | grep -i -m1 -E 'mariadb|mysql' || true)
+  if [ -z "$CT" ]; then
+    echo "ERROR: no MariaDB client on this server and no MariaDB container found" >&2
+    exit 1
+  fi
+  echo "Using MariaDB inside container: $CT"
+  sql()  { docker exec -e MYSQL_PWD "$CT" sh -c 'exec $(command -v mariadb || command -v mysql) "$@"' sh -u"$MARIADB_KEITARO_USER" "$@" </dev/null; }
+  dump() { docker exec -e MYSQL_PWD "$CT" sh -c 'exec $(command -v mariadb-dump || command -v mysqldump) "$@"' sh -u"$MARIADB_KEITARO_USER" "$@" </dev/null; }
+fi
 
-echo "Creating dump of tables: $TABLES"
-mysqldump --defaults-extra-file=/root/keitaro-mariadb.cnf \
-  --single-transaction --quick --skip-lock-tables \
-  "$MARIADB_KEITARO_DATABASE" $TABLES \
-  | gzip -1 > /root/keitaro_orbitra_full.sql.gz
+# Settings tables only: campaigns, offers, domains, streams... - no click logs.
+TABLES=$(sql -N "$DB" -e "
+SELECT table_name FROM information_schema.tables
+WHERE table_schema = DATABASE()
+  AND table_name IN (
+    'keitaro_affiliate_networks', 'keitaro_groups', 'keitaro_offers',
+    'keitaro_domains', 'keitaro_campaigns', 'keitaro_campaign_postbacks',
+    'keitaro_landings', 'keitaro_streams', 'keitaro_stream_filters',
+    'keitaro_stream_offer_associations', 'keitaro_stream_landing_associations',
+    'keitaro_traffic_sources', 'keitaro_ref_sources')
+ORDER BY table_name" | tr '\n' ' ')
 
-ls -lah /root/keitaro_orbitra_full.sql.gz
-echo "DONE: /root/keitaro_orbitra_full.sql.gz"
-'
+# Without a table list mysqldump would dump the WHOLE database, click logs included.
+if [ -z "$(echo $TABLES)" ]; then
+  echo "ERROR: no Keitaro tables found in database $DB" >&2
+  exit 1
+fi
+
+OUT=/root/keitaro_orbitra_full.sql.gz
+echo "Dumping tables: $TABLES"
+dump --single-transaction --quick --skip-lock-tables "$DB" $TABLES | gzip -1 > "$OUT"
+
+ls -lah "$OUT"
+echo "DONE: $OUT"
+ORBITRA_DUMP
 ```
 
-**Ожидаемый результат:**
-```
-Creating dump of tables: ...
--rw-r--r-- 1 root root 2.5M Mar 13 12:34 /root/keitaro_orbitra_full.sql.gz
-DONE: /root/keitaro_orbitra_full.sql.gz
-```
+В конце появится `DONE: /root/keitaro_orbitra_full.sql.gz`. Файл обычно 1–5 МБ.
 
-### Шаг 3: Скачайте файл к себе
+## 2. Скачайте файл
 
-**Для macOS/Linux:**
+На странице **⚙ → Миграции** введите IP сервера Keitaro — панель подставит его в готовые команды. Выполните команду на своём компьютере, не на сервере:
+
 ```bash
-# В текущую папку
-scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz .
-
-# В Downloads
-scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz ~/Downloads/
+# macOS / Linux
+scp root@IP_KEITARO:/root/keitaro_orbitra_full.sql.gz ~/Downloads/
 ```
 
-**Для Windows (PowerShell):**
 ```powershell
-scp root@YOUR_KEITARO_SERVER_IP:/root/keitaro_orbitra_full.sql.gz $env:USERPROFILE\Downloads\
+# Windows (PowerShell)
+scp root@IP_KEITARO:/root/keitaro_orbitra_full.sql.gz $env:USERPROFILE\Downloads\
 ```
 
-### Кнопка "Скопировать команду"
+## 3. Импорт в Orbitra
 
-В админке Orbitra на странице **Миграции** есть кнопка для копирования команды бекапа:
+**⚙ → Миграции → Импорт из Keitaro (SQL dump)**:
 
-1. Нажмите кнопку **"Скопировать команду"**
-2. Вставьте команду в терминал Keitaro сервера
-3. Нажмите Enter
+1. Выберите файл `.sql.gz` или `.sql`. Дамп не выполняется как SQL — он только разбирается.
+2. Отметьте, что импортировать. **Сохранять ID кампаний** (Orbitra ID = Keitaro ID) работает только на чистой установке, где таблица кампаний пуста, включая архив.
+3. **Показать предпросмотр** — пробный прогон без записи: сколько объектов каждого типа будет импортировано и какие фильтры не переносятся.
+4. **Импортировать в Orbitra**.
 
-## Загрузка в Orbitra
+Для повторного импорта на тестовом сервере есть блок **Очистка**: удаляет всю конфигурацию трекера (домены, офферы, партнёрки, кампании, потоки, постбеки, пиксели, источники, лендинги, группы), не трогая статистику и пользователей. Для подтверждения нужно ввести `DELETE`.
 
-### Шаг 1: Откройте Миграции
+## 4. После импорта
 
-В админке Orbitra перейдите в меню:
-```
-Миграции → Импорт из Keitaro (SQL dump)
-```
+- **Токены.** Откройте пару кампаний — токен Click API должен совпадать с Keitaro. Тогда интеграционные скрипты на сайтах (`click.php`, KClient) продолжат работать, нужно только поменять в них адрес трекера.
+- **Домены.** Направьте A-записи доменов на новый сервер (или подключите Cloudflare / Namecheap / Dynadot — записи пропишутся сами) и дождитесь сертификатов ([Домены и SSL](domains.md)).
+- **Постбеки партнёрок.** Postback URL в Orbitra другой: `https://ваш-домен/<postback_key>/postback?…`. Обновите его в кабинетах сетей ([Постбеки](postbacks.md)).
+- **Гео-база.** Без неё фильтры стран не работают — проверьте **⚙ → Гео базы**.
+- **Проверка маршрутизации.** Тестовая ссылка кампании с `&_dbg=1` покажет, какой поток выбирается и почему, без записи клика ([Кампании и потоки](campaigns.md#тестовая-ссылка)).
 
-### Шаг 2: Выберите файл
+## Частые проблемы
 
-Нажмите **"Выберите файл"** и выберите `keitaro_orbitra_full.sql.gz`.
-
-### Шаг 3: Настройте опции импорта
-
-**Рекомендуемые настройки:**
-
-- ✅ **Партнёрки (affiliate networks)** — импортировать
-- ✅ **Офферы** — импортировать
-- ✅ **Домены** — импортировать
-- ✅ **Кампании** — импортировать
-  - ✅ **Сохранять ID кампаний** — если чистая установка
-- ☐ **Потоки (streams)** — опционально
-- ☐ **Постбеки кампаний** — опционально
-- ☐ **Лендинги** — опционально
-- ☐ **Источники трафика** — опционально
-
-### Шаг 4: Предпросмотр
-
-Перед реальным импортом нажмите **"Показать предпросмотр"**:
-
-- **Dry-run mode** — данные НЕ записываются в БД
-- **Проверка** — показывает что будет импортировано
-- **Отчёт** — количества объектов по типам
-
-**Пример результата:**
-```json
-{
-  "status": "success",
-  "data": {
-    "affiliate_networks": {"imported": 5},
-    "offers": {"imported": 23},
-    "domains": {"imported": 3},
-    "campaigns": {"imported": 12, "tokens_preserved": 12},
-    "streams": {"imported": 45}
-  }
-}
-```
-
-### Шаг 5: Реальный импорт
-
-Если предпросмотр успешен, нажмите **"Импортировать в Orbitra"**.
-
-**Импорт займет:**
-- 5-10 секунд для небольших дампов (1-5 МБ)
-- 30-60 секунд для больших дампов (10-20 МБ)
-
-## Проверка результатов
-
-### 1. Проверьте кампании
-
-Перейдите в **Кампании** и убедитесь:
-- ✅ Кампании импортированы
-- ✅ Название и параметры корректны
-- ✅ **Токены на месте** (в поле "Токен Click API")
-
-### 2. Проверьте офферы
-
-Перейдите в **Офферы**:
-- ✅ Офферы импортированы
-- ✅ URL корректны
-- ✅ Payout и geo на месте
-
-### 3. Проверьте потоки
-
-Откройте любую кампанию и перейдите на вкладку **"Потоки"**:
-- ✅ Потоки импортированы
-- ✅ Фильтры корректны
-- ✅ Схемы (URL/Offer/Landing) на месте
-
-### 4. Проверьте домены
-
-Перейдите в **Домены**:
-- ✅ Домены импортированы
-- ✅ Parking settings сохранены
-- ✅ HTTPS-only настройки сохранены
-
-## Сохранение токенов
-
-### Почему токены важатся
-
-**Токены Click API** используются в интеграционных скриптах:
-
-```javascript
-// Пример скрипта на лендинге
-fetch('https://tracker.com/click.php?token=abc123def456...');
-```
-
-При миграции:
-1. Токены **сохраняются автоматически**
-2. Ваши скрипты **продолжат работать**
-3. Не нужно **переписывать скрипты**
-
-### Проверка токенов
-
-1. Откройте кампанию в редакторе
-2. Посмотрите поле **"Токен Click API"**
-3. Убедитесь что токен совпадает с Keitaro
-
-### Регенерация токена
-
-Если нужно изменить токен:
-1. Нажмите кнопку **"Пересоздать токен"**
-2. Старый токен **перестанет работать**
-3. Обновите скрипты с новым токеном
-
-## Troubleshooting
-
-### Проблема: Файл не загружается
-
-**Ошибка:** "Неверный формат файла"
-
-**Решение:**
-- Убедитесь что файл `.sql.gz` (не .sql)
-- Проверьте размер файла (должен быть 1-20 МБ)
-- Попробуйте пересоздать дамп
-
-### Проблема: Ничего не импортировалось
-
-**Ошибка:** Пустой результат импорта
-
-**Решение:**
-- Проверьте что дамп создан корректно
-- Убедитесь что галочки стоят напротив нужных сущностей
-- Проверьте логи ошибок в браузере (Console F12)
-
-### Проблема: Токены не сохранились
-
-**Ошибка:** Пустые токены в кампаниях
-
-**Решение:**
-- Убедитесь что в дампе есть поле `token` в таблице `keitaro_campaigns`
-- Проверьте логи импорта на наличие ошибок
-- Попробуйте пересоздать дамп с флагом `--skip-lock-tables`
-
-### Проблема: Потоки не импортировались
-
-**Ошибка:** Streams пустые
-
-**Решение:**
-- Убедитесь что включена галочка "Импортировать потоки"
-- Проверьте что дамп содержит таблицу `keitaro_streams`
-- Убедитесь что есть связанные таблицы `keitaro_stream_filters`
-
-### Проблема: Домен не работает
-
-**Ошибка:** 404 при переходе по домену
-
-**Решение:**
-- Проверьте DNS A запись домена
-- Убедитесь что Nginx настроен правильно
-- Проверьте что домен привязан к кампании (index campaign)
-
-## Полный чек-лист миграции
-
-### До миграции
-
-- [ ] Доступ к Keitaro серверу по SSH
-- [ ] Orbitra установлен на новом сервере
-- [ ] Проверена версия Keitaro (совместима с v7+)
-- [ ] Создан дамп keitaro_orbitra_full.sql.gz
-- [ ] Файл скачан на локальный компьютер
-
-### Импорт
-
-- [ ] Файл загружен в Orbitra
-- [ ] Выбраны нужные опции импорта
-- [ ] Запущен предпросмотр (dry-run)
-- [ ] Проверен результат предпросмотра
-- [ ] Запущен реальный импорт
-- [ ] Импорт завершён успешно
-
-### После миграции
-
-- [ ] Кампании импортированы
-- [ ] Токены Click API на месте
-- [ ] Офферы импортированы
-- [ ] Домены импортированы
-- [ ] Потоки импортированы
-- [ ] Партнёрки импортированы
-- [ ] Источники импортированы
-- [ ] Тестовый клик по кампании
-
-## Советы
-
-### Перед миграцией
-
-1. **Сделайте резервную копию** Keitaro (полный дамп)
-2. **Проверьте новый сервер** — достаточно места на диске
-3. **Установите Orbitra** последней версии
-4. **Протестируйте** на тестовом сервере сначала
-
-### Во время миграции
-
-1. **Используйте dry-run** — сначала предпросмотр
-2. **Проверьте логи** — следите за ошибками
-3. **Не прерывайте** — дождитесь полного завершения
-
-### После миграции
-
-1. **Проверьте токены** — убедитесь что они совпадают
-2. **Протестируйте клик** — сделайте тестовый переход
-3. **Проверьте потоки** — убедитесь что фильтры работают
-4. **Настройте домены** — добавьте A записи в DNS
-
-## Шаблоны источников и партнёрок
-
-Шаблоны Keitaro уже встроены в трекер — переносить их из старой панели не нужно.
-После обновления в выпадающем списке **Template** доступно 209 источников трафика
-и 438 партнёрских сетей с готовыми макросами, параметрами оффера и постбэк-ссылками.
-
-Данные лежат в `data/keitaro_traffic_sources.json` и `data/keitaro_affiliate_networks.json`
-и генерируются из выгрузок Keitaro (`source_templates.json`, `network_templates.json`):
-
-```bash
-python3 cli/generate_keitaro_templates.py source_templates.json network_templates.json
-php tests/keitaro_templates_test.php
-```
-
-Править эти файлы вручную не нужно. Макрос, написанный «по памяти», выглядит в
-интерфейсе правильно, но клик приходит с пустым `external_id`, и ни одна конверсия
-по постбэку не находит свой клик.
-
-## Дополнительная информация
-
-### Официальная документация
-
-- **[README](../README.md)** — общая информация
-- **[Features](features.md)** — описание функций
-- **[API](api.md)** — API документация
-
-### Поддержка
-
-Если возникли вопросы или проблемы:
-- **GitHub Issues**: https://github.com/fenjo26/Orbitra.link/issues
-- **Документация**: [docs/](index.md)
-
----
-
-*Руководство обновлено для версии v0.9.4.1*
+| Симптом | Причина и решение |
+|---|---|
+| Команда дампа пишет `no Keitaro tables found` | Не та база в `inventory.env` или нестандартная установка Keitaro. Проверьте `MARIADB_KEITARO_DATABASE` |
+| `no MariaDB client … and no MariaDB container found` | Нет ни клиента MariaDB, ни запущенного контейнера с MariaDB — запустите Keitaro или поставьте клиент |
+| Импорт ничего не нашёл | Дамп пустой или не из той базы — посмотрите размер файла и строку `Dumping tables:` в выводе команды |
+| Потоки не перенеслись | Не отмечен пункт «Импортировать потоки» или в дампе нет `keitaro_streams` и таблиц связей |
+| Домен отвечает 404 | DNS ещё не указывает на новый сервер или домену не задана Index-кампания |

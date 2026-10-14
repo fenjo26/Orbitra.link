@@ -36,6 +36,13 @@ class CloakDetector
     private static $vpnAsnSignal = null;
 
     /**
+     * Memoized `bot_iprange_hard_signal` verdict for this process (null = not
+     * read yet). FALSE is the historical default: a hit in the published
+     * cloud/crawler ranges is a soft signal.
+     */
+    private static $iprangeHardSignal = null;
+
+    /**
      * Maximum length of the evidence part of a `code:evidence` reason string.
      * A full desktop Chrome UA is ~120 chars; without a cap a single reason
      * could dominate the clicks.cloak_reasons column.
@@ -697,6 +704,54 @@ class CloakDetector
     }
 
     /**
+     * Whether an `iprange_datacenter` hit counts as a HARD signal.
+     *
+     * Backed by the settings key `bot_iprange_hard_signal` ('1' = hard). Off by
+     * default, so existing installs keep the historical verdicts: the hit is a
+     * soft signal that needs a second one on medium and is ignored on low.
+     *
+     * Why the switch exists: the range feed covers providers whose ASNs are
+     * NOT in asn_blocklist.json's datacenter_hosting set — Meta (AS32934) and
+     * Telegram (AS62041) among them — and installs without the GeoLite2-ASN
+     * database never produce datacenter_asn at all. In both cases a reviewer
+     * with an ordinary browser UA coming from the provider's own published
+     * space carries exactly one soft signal and reaches the money page on
+     * medium. Operators running Meta/Telegram traffic can opt into treating
+     * that hit as conclusive.
+     *
+     * Resolution order mirrors vpnAsnSignalEnabled(): an explicit
+     * 'iprange_hard_signal' entry in the detect() config wins (tests, callers
+     * that already hold settings); otherwise the settings row is read through
+     * $visitor['pdo'] / $GLOBALS['pdo'] and memoized. Callers only ask after a
+     * range has actually matched, so ordinary traffic pays nothing.
+     */
+    private static function iprangeHardSignalEnabled(array $visitor, array $config): bool
+    {
+        if (array_key_exists('iprange_hard_signal', $config)) {
+            $parsed = filter_var($config['iprange_hard_signal'], FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
+            return $parsed ?? false;
+        }
+        if (self::$iprangeHardSignal !== null) {
+            return self::$iprangeHardSignal;
+        }
+        self::$iprangeHardSignal = false;
+        $pdo = $visitor['pdo'] ?? ($GLOBALS['pdo'] ?? null);
+        if ($pdo instanceof PDO) {
+            try {
+                $stmt = $pdo->prepare("SELECT value FROM settings WHERE key = 'bot_iprange_hard_signal' LIMIT 1");
+                $stmt->execute();
+                $value = $stmt->fetchColumn();
+                if (is_string($value) && trim($value) === '1') {
+                    self::$iprangeHardSignal = true;
+                }
+            } catch (\Throwable $e) {
+                // Unreadable settings keep the historical default: soft signal.
+            }
+        }
+        return self::$iprangeHardSignal;
+    }
+
+    /**
      * Evaluate a visitor against all enabled detection layers.
      *
      * @param array $visitor  Visitor context: ip, user_agent, asn ('AS1234'), isp,
@@ -711,6 +766,11 @@ class CloakDetector
      *                                            settings key bot_vpn_asn_signal
      *                                            (default: read from settings,
      *                                            true when unreadable/absent)
+     *                          iprange_hard_signal bool, explicit override of
+     *                                            the settings key
+     *                                            bot_iprange_hard_signal
+     *                                            (default: read from settings,
+     *                                            false when unreadable/absent)
      * @return array {is_suspicious: bool, reasons: string[]}
      */
     public static function detect(array $visitor, array $config = []): array
@@ -879,6 +939,17 @@ class CloakDetector
             'ip2proxy_datacenter', 'ip2proxy_bot', 'ip2proxy_vpn_proxy',
             'ip2proxy_threat', 'ip2proxy_high_fraud',
         ];
+        // Opt-in (settings key bot_iprange_hard_signal): a hit in a provider's
+        // own published range is treated as conclusive. Only consulted when a
+        // range actually matched, so the settings read is skipped otherwise.
+        foreach ($reasons as $r) {
+            if (self::reasonCode($r) === 'iprange_datacenter') {
+                if (self::iprangeHardSignalEnabled($visitor, $config)) {
+                    $hardSignalCodes[] = 'iprange_datacenter';
+                }
+                break;
+            }
+        }
         $hardHits = [];
         $softHits = [];
         foreach ($reasons as $r) {

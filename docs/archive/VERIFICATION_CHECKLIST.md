@@ -1,5 +1,8 @@
 # Verification Checklist - Infrastructure Fixes
 
+> **Архив.** Чек-лист проверки инфраструктурных правок 2026-08.
+
+
 ## 1. Log File Protection (Security)
 ```bash
 # Test nginx config generation

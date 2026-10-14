@@ -7,7 +7,19 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [1.6.18] — 2026-10-14
+
+### Added
+
+- 🛡️ **Opt-in: treat a hit in the datacenter/crawler IP ranges as a hard bot signal** (Settings → Bots, under "Datacenter & crawler IP ranges"; settings key `bot_iprange_hard_signal`, off by default). Until now an `iprange_datacenter` match was a soft signal: on medium (the Cloak stream default) it needed a second one, on low it was ignored. That is harmless for AWS/GCP/Azure, whose ASNs already give the hard `datacenter_asn`, but Meta (AS32934) and Telegram (AS62041) are not in `asn_blocklist.json`'s datacenter set — so a Meta/Telegram reviewer with an ordinary browser UA, coming from the provider's own published range, carried a single soft signal and reached the money page on medium. The same applies to installs without the GeoLite2-ASN database. With the box ticked, a range hit sends the visitor to the safe page at any sensitivity. Nothing changes for installs that leave it off; only admins can change it. The "Bot" filter stream is unaffected (it always runs on high). `CloakDetector::detect()` also accepts an `iprange_hard_signal` config override, mirroring `vpn_asn_signal`
+
+### Changed
+
+- The comments next to the range feed (`api.php` `bot_ips_feed`, `BotSettings.jsx`) said the `bot_ips` list only matches literal IPs; it has matched CIDR rows for a while. They now give the real reason the feed is not imported there: CIDR rows are scanned linearly, capped at 5000 per click
+
+- 📚 **Documentation rebuilt as a wiki-ready `docs/` tree.** New pages (quick start, campaigns & streams, postbacks, costs, sources & networks, reports & logs, domains & SSL, Telegram bot, administration), rewritten index / features overview / architecture / REST API / cloaking / Keitaro migration / Cloudflare pages checked against the current code (schema 59, v1.6.17 — half of the docs were stuck on 0.9–1.5, with an `admin/admin` walkthrough and Docker instructions), `features.md` slimmed from a 260 KB version diary to a short overview with links (version history lives in CHANGELOG only), and six stale root files moved to `docs/archive/`. `cli/wiki_sync.py` publishes `docs/` as the GitHub wiki (36 pages, readable titles, sidebar, links rewritten); `cli/api_catalog.php` generates the API action list from the code (290 actions with their access level) and with `--check` verifies `docs/api.md` has not drifted
+
+- 🤖 **`cli/add_antibot_stream.php`.** One-shot server script that adds an intercepting "Antibot" stream (Bot = yes → 404) to every active campaign that has none — Keitaro imports usually carry only a regular stream plus a fallback, and a fallback never intercepts a datacenter visitor an earlier stream already took. Dry run by default (lists the campaigns, writes nothing); `--apply` first writes a full DB copy (VACUUM INTO) and the inserted stream ids, `--rollback` deletes exactly those rows and nothing else. Existing streams are never touched. Run it as `www-data`
 
 ### Fixed
 

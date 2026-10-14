@@ -1,240 +1,60 @@
-# Orbitra Tracker Documentation
+# Документация Orbitra
 
-Добро пожаловать в официальную документацию **Orbitra v1.5.0**!
+Orbitra — self-hosted трекер трафика и конверсий: кампании и потоки, клоакинг, лендинги и PWA, постбеки, импорт расходов, отчёты. Работает на одном недорогом VPS (PHP + SQLite + Nginx) и совместим с Keitaro по Click API, токенам кампаний и шаблонам.
 
-Orbitra — это современная система управления трафиком и отслеживания конверсий. Упрощённый и более быстрый аналог Keitaro Tracker с сохранением полной совместимости по API и функциональности.
-
-## 🚀 Быстрый старт
-
-### Автоматическая установка (рекомендуется)
-
-Для установки на чистый Ubuntu сервер выполните:
+Документация актуальна для **v1.6.17**. Что поменялось в каждой версии — [CHANGELOG](../CHANGELOG.md).
 
 ```bash
 wget -O orbitra-install.sh https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/install.sh && bash orbitra-install.sh
 ```
 
-Загрузка вынесена в отдельный шаг намеренно: `wget -qO- … | bash` при неудачной
-загрузке (у свежего сервера иногда не готов DNS в первую минуту) молча передаёт
-в bash пустоту — установка «завершается» вообще без вывода. Здесь неудачная
-загрузка останавливается на `&&`, и wget пишет причину.
+## Начало работы
 
-Установщик автоматически настроит Nginx, PHP 8.3, SQLite3 и SSL сертификат.
+- [Быстрый старт: первая кампания](getting-started.md)
+- [Установка и обновление](deployment.md)
+- [Миграция из Keitaro](keitaro-migration.md)
+- [Обзор возможностей](features.md)
 
-### Ручная установка
+## Трафик
 
-См. раздел **[Запуск и Деплой](deployment.md)** для подробных инструкций по:
-- Локальной разработке
-- Автоматической установке (install.sh)
-- Продакшн настройке
+- [Кампании и потоки](campaigns.md) — фильтры, схемы, ротация, тестовые ссылки
+- [Клоакинг](cloaking.md) · [How the cloaker works](cloak-how-it-works.md) (EN)
+- [Landing pages](landing-pages.md) (EN) — типы лендингов, `{offer}`, макросы, JS-адаптер, LeadForge
+- [Tracking Client (PHP)](tracking-client-php.md) (EN) — `kclient.php`
+- [PWA-лендинги и Web Push](pwa-push.md) · [PWA Funnel](pwa-funnel.md) (EN)
+- [Галерея контента](content-gallery.md)
 
-## 📚 Навигация по документации
+## Конверсии и деньги
 
-Мы разделили документацию на логические разделы:
+- [Постбеки и конверсии](postbacks.md) — входящие постбеки, статусы, S2S в источник
+- [Расходы](costs.md) — Facebook, TikTok, Google Ads, агрегатор доходов
+- [Facebook / Meta](facebook.md) (EN) — импорт расходов и Conversions API
+- [Dolphin / Fbtool](dolphin-fbtool.md) — приём расходов через Keitaro Admin API
+- [Источники трафика и партнёрские сети](sources-and-networks.md)
+- [Affiliate network offer parameters](affiliate-network-parameters.md) (EN)
 
-### Основная документация
+## Аналитика
 
-1. **[Архитектура и Технологии](architecture.md)**
-   - Технологический стек (PHP 8.3, React 19, Vite 7, SQLite 3)
-   - Структура базы данных (15+ таблиц)
-   - Frontend архитектура (53 React компонентов)
-   - Система миграций
+- [Отчёты, логи и метрики](reports.md)
 
-2. **[Основные Функции](features.md)**
-   - Управление кампаниями и потоками
-   - Click API с токенами
-   - Интеграции и постбеки
-   - Telegram Bot мониторинг
-   - Аналитика и отчёты
+## Инфраструктура
 
-3. **[REST API](api.md)**
-   - 60+ API эндпоинтов
-   - Аутентификация и сессии
-   - Примеры запросов
-   - Форматы ответов
+- [Домены и SSL](domains.md)
+- [Cloudflare](cloudflare.md) · [Cloudflare Full Strict SSL](CLOUDFLARE_FULL_STRICT_SSL.md) (EN)
 
-4. **[Запуск и Деплой](deployment.md)**
-   - Локальная разработка
-   - Автоматический установщик (install.sh)
-   - Продакшн конфигурация
-   - SSL сертификаты
+## Управление и интеграции
 
-5. **[Лендинги](landing-pages.md)** (English) — все четыре типа, макросы, JS-адаптер, PHP-лендинги и разбор частых ошибок
-   - **[Tracking Client (PHP)](tracking-client-php.md)** (English) — `kclient.php`: сниппет, вторичные страницы, `getOffer()`, конверсии
-   - **[PWA-лендинги и Web Push](pwa-push.md)** — конструктор PWA, витрина, привязка домена, воронка, VAPID-ключи, база подписчиков, сообщения и крон доставки, диагностика
-   - **[Галерея контента](content-gallery.md)** — медиа-библиотека, папки, ограничения, MediaPicker и кадрирование под размер
-6. **[Facebook / Meta](facebook.md)** (English)
-   - Импорт расходов из Meta Marketing API
-   - Conversions API: отправка конверсий с сервера
-   - Токены, макросы кампании, маппинг статусов
-   - Конвертация валют и разбор ошибок
-7. **[Миграция из Keitaro](keitaro-migration.md)**
-   - Создание бекапа Keitaro
-   - Загрузка дампа в Orbitra
-   - Сохранение токенов Click API
-   - Пошаговая инструкция
+- [Администрирование](administration.md) — пользователи, права, настройки, гео-базы, обновление
+- [Telegram-бот](telegram.md)
+- [MCP: ИИ-ассистент в трекере](mcp.md)
+- [REST API](api.md) — авторизация и каталог всех действий
 
-### Специальные разделы
+## Для разработчиков
 
-6. **[MCP-сервер для нейросетей](mcp.md)**
-   - Подключение Claude Desktop к трекеру
-   - API-ключи (read / write)
-   - Анализ и управление кампаниями через ИИ
+- [Архитектура](architecture.md) — устройство, кроны, база, разработка, выпуск версии
+- Технические задания и разборы: [нагрузка и SQLite](TZ_LOAD_PERFORMANCE.md), [SSL-цепочки и приватность](TZ_SSL_CHAIN_AND_PRIVACY.md), [Web Push](TZ_PWA_PUSH.md), [логи, гео, потоки](TZ_LOGS_GEO_STREAMS.md), [Media Core v1](media-core-v1.md), [LeadForge subid validation](leadforge-subid-validation.md) (EN)
+- [Архив устаревших документов](archive/README.md)
 
-7. **[Инструкция по миграции из Keitaro](keitaro-migration.md)**
-   - Создание бекапа Keitaro
-   - Загрузка дампа в Orbitra
-   - Сохранение токенов
-   - Восстановление из архива
+## Поддержка
 
-## 🎯 Ключевые возможности Orbitra
-
-### 🎯 Управление трафиком
-- **6 моделей оплаты**: CPC, CPuC, CPM, CPA, CPS, RevShare
-- **Сложная логика потоков**: Intercept → Regular → Fallback
-- **A/B тестирование**: сплит-тесты с весами
-- **Расширенная фильтрация**: GEO, Device, OS, Browser, ISP, IP, Language
-
-### 📊 Аналитика в реальном времени
-- **Dashboard**: агрегированная статистика по кликам, конверсиям, доходу
-- **Trends**: детальная аналитика с 8 метриками и графиками
-- **Campaign Reports**: отчёты по кампаниям с группировкой по параметрам
-- **Conversion Log**: детальный лог конверсий
-
-### 🔗 Интеграции
-- **Click API с токенами**: полная совместимость с Keitaro
-- **S2S Postbacks**: server-to-server постбеки
-- **Шаблоны партнерских сетей**: 15+ готовых интеграций
-- **Шаблоны источников**: Facebook, Google, TikTok, VK, Яндекс
-
-### 🤖 Telegram Bot
-- **10+ команд** для мониторинга кампаний
-- **Мгновенные уведомления** о конверсиях
-- **Ежедневная сводка** с ТОП-3 кампаниями
-- **Мультиязычность**: бот говорит на всех 7 языках интерфейса
-
-### 🌍 Мультиязычность
-- **7 языков**: 🇬🇧 English, 🇷🇺 Русский, 🇺🇦 Українська, 🇪🇸 Español, 🇨🇳 中文, 🇫🇷 Français, 🇩🇪 Deutsch
-- **Полное покрытие i18n** — 100% паритет ключей по всем языкам
-- **Переключение языка** в настройках профиля
-
-### 🔄 Миграция из Keitaro
-- **Полный импорт**: кампании, офферы, домены, потоки
-- **Сохранение токенов** для совместимости с существующими скриптами
-- **Пошаговая инструкция** в UI
-- **Preview mode** для проверки перед импортом
-
-## 📁 Структура проекта
-
-```
-Orbitra/
-├── api.php                    # REST API (60+ эндпоинтов)
-├── index.php                  # Главный трекер
-├── postback.php               # Обработчик постбеков
-├── click.php                  # Click API
-├── config.php                 # Конфигурация и миграции БД
-├── router.php                 # PHP server router
-├── install.sh                 # Автоустановщик
-│
-├── core/                      # Модули системы
-│   ├── keitaro_import.php     # Импорт из Keitaro
-│   ├── click_api.php          # Click API
-│   └── backorder.php          # Мониторинг доменов
-│
-├── frontend/                  # React + Vite
-│   ├── src/
-│   │   ├── components/       # 53 React компонентов
-│   │   ├── contexts/         # LanguageContext (i18n)
-│   │   └── locales/          # переводы (7 языков)
-│   └── package.json
-│
-├── mcp/                       # MCP-сервер для нейросетей (Node.js)
-│   ├── src/index.js          # инструменты (чтение + управление)
-│   └── README.md             # подключение Claude Desktop
-│
-├── docs/                      # Эта документация
-└── landings/                  # Загруженные лендинги
-```
-
-## 🔑 Первый вход и настройка
-
-Учётной записи «по умолчанию» нет. При первом открытии админки (`/admin.php`) Orbitra видит, что пользователей ещё нет, и запускает **мастер первичной настройки**, где вы создаёте собственного администратора:
-
-- **Логин** — минимум 3 символа
-- **Пароль** — минимум 6 символов (с подтверждением)
-- **Часовой пояс** и **язык интерфейса** (один из 7 языков)
-
-Дальше вход выполняется по заданным вами данным.
-
-## 🛠 Технологический стек
-
-### Backend
-- **PHP 8.3+** — современный PHP без тяжёлых фреймворков
-- **SQLite 3** — лёгкая база данных в одном файле
-- **Composer** — управление зависимостями
-
-### Frontend
-- **React 19.2.0** — последний React с hooks
-- **Vite 7.3.1** — современный build tool
-- **Tailwind CSS 4.2.0** — utility-first CSS
-- **Lucide React** — иконки
-- **Axios 1.13.5** — HTTP клиент
-- **Chart.js 4.5.1** — графики
-- **date-fns 3.6.0** — работа с датами
-
-### DevOps
-- **install.sh** — автоматический установщик
-- **Nginx + PHP-FPM** — веб-сервер
-- **Let's Encrypt** — SSL сертификаты
-
-## 🆚 Orbitra vs Keitaro
-
-| Характеристика | Orbitra | Keitaro |
-|----------------|----------|----------|
-| **Стоимость** | Бесплатный (MIT) | Платный |
-| **База данных** | SQLite (простота) | MySQL (сложность) |
-| **Frontend** | React 19 (современный) | React 16 (устаревший) |
-| **Click API** | Совместим | Native |
-| **Миграция** | Встроенная | — |
-| **Telegram Bot** | Встроенный | Плагин |
-| **Скорость** | Быстрее | Медленнее |
-| **Поддержка** | Сообщество | Официальная |
-
-## 📚 Дополнительные ресурсы
-
-- **GitHub**: https://github.com/fenjo26/Orbitra.link
-- **Issues**: https://github.com/fenjo26/Orbitra.link/issues
-- **Wiki**: [Развитие проекта](../README.md#-участие-в-разработке)
-
-## 🎓 Быстрый старт для разработчиков
-
-```bash
-# Клонирование
-git clone https://github.com/fenjo26/Orbitra.link.git
-cd Orbitra
-
-# Backend зависимости
-composer install --no-dev
-
-# Frontend зависимости
-cd frontend
-npm install
-npm run dev  # Dev server на localhost:5173
-
-# Backend server
-php -S localhost:8080 router.php
-```
-
-Откройте `http://localhost:8080` в браузере.
-
-## 🔍 Поиск по документации
-
-Ищите конкретную информацию:
-- **API endpoints**: см. [api.md](api.md)
-- **Database schema**: см. [architecture.md](architecture.md#база-данных)
-- **Migration steps**: см. [keitaro-migration.md](keitaro-migration.md)
-- **Deployment**: см. [deployment.md](deployment.md)
-
----
-
-*Документация обновлена для версии v1.1.7*
+Вопросы и баги — [GitHub Issues](https://github.com/fenjo26/Orbitra.link/issues). В панели: **⚙ → Поддержка и отзывы**.

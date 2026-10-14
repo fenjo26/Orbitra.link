@@ -22,7 +22,7 @@ MCP-сервер — это тонкий клиент к обычному API т
 
 ## Шаг 1. Получите API-ключ
 
-В интерфейсе: **Пользователи → ваш пользователь → API-ключи**.
+В панели: **⚙ → ИИ / MCP** или **⚙ → Пользователи → API-ключи** (ключи создаёт админ).
 
 - **Read key** — только аналитика (метрики, списки, отчёты).
 - **Write key** — плюс управление (создание/редактирование/удаление кампаний, офферов, доменов…).
@@ -61,7 +61,7 @@ ORBITRA_URL=https://tracker.example.com ORBITRA_API_KEY=ваш_ключ npm run 
 
 Самый быстрый способ, и единственный, который работает в браузерной версии Claude: трекер сам отдаёт MCP по HTTP через `mcp.php`.
 
-1. **Пользователи → API-ключи**, создайте ключ (Read — только аналитика, Write — ещё и управление).
+1. **⚙ → Пользователи → API-ключи**, создайте ключ (Read — только аналитика, Write — ещё и управление).
 2. Нажмите рядом с ключом кнопку со ссылкой — в буфер попадёт готовый адрес:
 
 ```
@@ -72,9 +72,9 @@ https://ваш-трекер.example.com/mcp.php?k=ВАШ_КЛЮЧ
 
 Ставить ничего не нужно — ни Node, ни репозиторий на своей машине.
 
-> 🔑 **Ключ едет прямо в адресе**, потому что диалог коннектора не имеет поля для ключа и умеет только OAuth. Считайте такой URL паролем: не публикуйте его, а чтобы закрыть доступ — удалите ключ в **Пользователи → API-ключи**, адрес сразу перестанет работать. Read-ключ физически не может ничего изменить.
+> 🔑 **Ключ едет прямо в адресе**, потому что диалог коннектора не имеет поля для ключа и умеет только OAuth. Считайте такой URL паролем: не публикуйте его, а чтобы закрыть доступ — удалите ключ в **⚙ → Пользователи → API-ключи**, адрес сразу перестанет работать. Read-ключ физически не может ничего изменить.
 
-**Как это устроено.** `mcp.php` реализует MCP Streamable HTTP без сессий: каждый POST — самодостаточный обмен JSON-RPC. Список инструментов он берёт из `mcp/tools.json`, который генерируется из Node-сервера (`node mcp/src/manifest.js`), поэтому два подключения показывают ровно один и тот же набор из 31 инструмента. Вызов инструмента выполняется коротким CLI-процессом `cli/api_invoke.php` — трекер не ходит сам к себе по HTTP, иначе на VPS с двумя PHP-FPM воркерами запрос мог бы заблокировать сайт.
+**Как это устроено.** `mcp.php` реализует MCP Streamable HTTP без сессий: каждый POST — самодостаточный обмен JSON-RPC. Список инструментов он берёт из `mcp/tools.json`, который генерируется из Node-сервера (`node mcp/src/manifest.js`), поэтому два подключения показывают ровно один и тот же набор из 33 инструментов. Вызов инструмента выполняется коротким CLI-процессом `cli/api_invoke.php` — трекер не ходит сам к себе по HTTP, иначе на VPS с двумя PHP-FPM воркерами запрос мог бы заблокировать сайт.
 
 **Требования:** PHP CLI (он и так нужен для крона) и разрешённый `proc_open`. Если `proc_open` отключён в `php.ini`, эндпоинт скажет об этом прямым текстом — тогда используйте вариант B. Путь к PHP можно задать вручную настройкой `mcp_php_binary`.
 
@@ -110,21 +110,23 @@ https://ваш-трекер.example.com/mcp.php?k=ВАШ_КЛЮЧ
 - **Ключ или URL неверны.** Проверьте отдельно: `ORBITRA_URL=... ORBITRA_API_KEY=... npm run smoke -- --ping`.
 - **`403 API key is read-only`** на создание или изменение — нужен Write-ключ, Read-ключ отдаёт только аналитику.
 
-## Инструменты (31)
+## Инструменты (33)
 
 **Чтение:** `orbitra_ping`, `orbitra_get_metrics`, `orbitra_get_chart`, `orbitra_list_campaigns`,
-`orbitra_get_campaign`, `orbitra_campaign_report`, `orbitra_list_offers`, `orbitra_get_offer`,
+`orbitra_campaigns_stats`, `orbitra_get_campaign`, `orbitra_campaign_report`, `orbitra_list_offers`, `orbitra_get_offer`,
 `orbitra_all_offers`, `orbitra_list_domains`, `orbitra_list_traffic_sources`,
 `orbitra_list_landings`, `orbitra_list_affiliate_networks`, `orbitra_list_conversions`,
 `orbitra_recent_clicks`, `orbitra_system_status`.
 
 **Управление (нужен write-ключ):** `orbitra_create_campaign`, `orbitra_update_campaign`,
-`orbitra_bulk_create_campaigns`, `orbitra_delete_campaign`, `orbitra_copy_campaign`,
+`orbitra_bulk_create_campaigns`, `orbitra_bulk_set_campaign_domain`, `orbitra_delete_campaign`, `orbitra_copy_campaign`,
 `orbitra_create_offer`, `orbitra_update_offer`, `orbitra_delete_offer`, `orbitra_create_domain`,
 `orbitra_delete_domain`, `orbitra_check_domain_dns`, `orbitra_create_traffic_source`,
 `orbitra_list_traffic_source_templates`, `orbitra_create_landing`.
 
 **Продвинутое:** `orbitra_api_request` — прямой вызов любого действия `api.php` (запасной вариант).
+
+**Большие аккаунты.** `orbitra_list_campaigns` и `orbitra_list_domains` возвращают компактные списки (id, название, алиас, домен, ссылка) с фильтрами по диапазону ID и домену и постраничной выдачей — ответ остаётся маленьким и на тысячах кампаний. Статистику по всем кампаниям отдаёт `orbitra_campaigns_stats` (тяжёлый ответ), по одной — `orbitra_campaign_report`. Сменить домен у многих кампаний разом — `orbitra_bulk_set_campaign_domain`: меняется только домен, потоки и постбеки не трогаются, в ответе старая и новая ссылка каждой кампании. `orbitra_update_campaign` сохраняет ID потоков, их имена, логику фильтров, выбор оффера и Bot Challenge.
 
 Полный справочник по параметрам — в [mcp/README.md](../mcp/README.md).
 
@@ -139,6 +141,7 @@ https://ваш-трекер.example.com/mcp.php?k=ВАШ_КЛЮЧ
 
 ## Обновление
 
-MCP поставляется вместе с проектом, поэтому штатное обновление (**Настройки → Обновление** или
+MCP поставляется вместе с проектом, поэтому штатное обновление (**⚙ → Обновление** или
 `git pull`) подтягивает новые файлы автоматически. После обновления, изменившего зависимости,
-выполните `cd mcp && npm install`.
+выполните `cd mcp && npm install`. Если в новой версии поменялся список инструментов,
+переподключите коннектор в клиенте, чтобы он перечитал их.

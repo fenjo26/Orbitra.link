@@ -1,4 +1,4 @@
-# Orbitra v1.6.17 Tracker
+# Orbitra v1.6.18 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,23 +11,21 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.6.17
+## 🆕 What's New in v1.6.18
 
-The click log reads like Keitaro's: the full device breakdown in the click card, OS/browser logos with versions in the tables, the real destination URL in "Direction" — and one honest timezone. Chrome on iPhone is no longer stored as Safari.
+The campaign's own click log joins the honest format, cloak operators get an opt-in hard signal for provider IP ranges, and the documentation is rebuilt as a publishable wiki.
 
 ### Added
 
-- 📱 **Click card: the full device breakdown.** OS with its version, browser with its version, device brand and model, the in-app browser when the click came from Facebook / Instagram / TikTok and others, and the bot's name (bingbot, GPTBot, curl…) in the previously always-empty row — parsed from the stored User-Agent when the card opens (`core/UserAgent.php`), so every click already in the database gets it, with nothing added to the click path
-- 🖥️ **Dashboard "Recent clicks" and the traffic log, Keitaro-style.** New default columns — event ID, time, campaign, OS logo, browser logo, IP, destination — with the version on hover, in-app logos, a bot icon for bots, and a gear that opens the settings at the column picker. Columns drag to reorder and resize (the same grip as Campaigns) in both tables; the traffic log gains OS and Browser columns with logo and version text plus an opt-in raw User-Agent column; the CSV export gains `os` and `browser`
-- 🎯 **"Direction" shows where the visitor really went.** The actual redirect URL — offer plus network params with the click's own id in `sub1` — or the non-offer stream's action (`404 Not Found`, text, safe page…), rebuilt on read so old clicks get it too. The card names the stream that took the click ("EU (regular)", "Bots (fallback)"), shows uniqueness and the proxy flag, and the click's domain is stored (migration 59, instant) and shown in card, log and CSV
-- 🕐 **One honest timezone.** The click card shows the panel-timezone time with the zone named plus a separate "Date and Time (UTC)" row — what networks report in; table cells show UTC on hover; the dashboard, traffic log and card all follow the one timezone selection (picker, else profile)
+- 🛡️ **Opt-in: a datacenter/crawler IP-range hit as a hard bot signal** (Settings → Bots, off by default). Meta (AS32934) and Telegram (AS62041) are not in the datacenter ASN set, so a reviewer with an ordinary browser UA coming from the provider's own published range carried a single soft signal and reached the money page on medium sensitivity — with the box ticked, any range hit goes to the safe page at any sensitivity. Existing installs keep the historical verdicts; admin-only
+- 📚 **Documentation rebuilt as a wiki-ready `docs/` tree** — 36 pages checked against the current code (half of the docs were stuck on 0.9–1.5), `features.md` slimmed to a short overview, six stale root files archived. `cli/wiki_sync.py` publishes it as the GitHub wiki; `cli/api_catalog.php` keeps `docs/api.md` honest against the code (290 actions)
+- 🤖 **`cli/add_antibot_stream.php`** — adds an intercepting Antibot stream (Bot = yes → 404) to every active campaign lacking one: Keitaro imports usually carry only a regular stream plus a fallback, and a fallback never intercepts what an earlier stream already took. Dry run by default, full DB backup before writing, rollback deletes exactly what it added
 
 ### Fixed
 
-- 🍏 **Chrome, Firefox, Edge and Opera on iPhone were stored as Safari** — iOS browsers send `CriOS/`/`FxiOS/`/`EdgiOS/`/`OPiOS/`, and the detector fell through to the `Safari/` token. One detector now serves the router, `click.php` and the Click API, which used to store `Unknown` OS and browser for every click
-- ☁️ **Honest click data.** "Cloaking: Route — Money" no longer appears on clicks no cloak stream ever judged; ISP / ASN / proxy type are stored for every click (they were cloak-only); the log's "SubID" column is honestly labelled "Sub ID 1"
+- 🧾 **The campaign click log still rendered the pre-1.6.17 format** — an unconditional "Money" badge and an always-visible "Verdict: —" on every click. It now shows the stream that took the click ("EU (regular)"), OS and browser logos with the version on hover, the bot's name, IP, the click's domain, the real destination and UTC on the time hover; the SAFE badge, verdict and reason chips appear only for clicks a cloak stream actually judged. Barkrowler joins the known bots (its name carries no bot/crawler suffix, so the generic rule missed it)
 
-Older releases (v1.6.16 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.6.17 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo
@@ -295,15 +293,22 @@ After the administrator is created the wizard no longer appears, and you log in 
 
 ## 📚 Documentation
 
-Full documentation is available in the [docs/](docs/) folder:
+Full documentation is available in the [docs/](docs/) folder (in Russian, a few pages in English):
 
-- **[Overview](docs/index.md)** — documentation navigation
-- **[Architecture](docs/architecture.md)** — technology stack and DB structure
-- **[Features](docs/features.md)** — detailed feature descriptions
+- **[Overview](docs/index.md)** — documentation home and navigation
+- **[Getting started](docs/getting-started.md)** — from a clean server to the first conversion
+- **[Installation & updates](docs/deployment.md)** — requirements, installer, PHP upgrades
+- **[Campaigns & streams](docs/campaigns.md)** — filters, schemas, rotation, test links
+- **[Cloaking](docs/cloaking.md)** — detection layers, sensitivity, diagnostics
+- **[Postbacks & conversions](docs/postbacks.md)** — incoming postbacks, statuses, S2S queue
+- **[Costs](docs/costs.md)** — Facebook, TikTok, Google Ads spend import
+- **[Reports & logs](docs/reports.md)** — dashboard, report builder, click log, metric definitions
+- **[Domains & SSL](docs/domains.md)** — Let's Encrypt, Cloudflare, Namecheap, Dynadot
+- **[Administration](docs/administration.md)** — users, roles, settings, geo databases
 - **[PWA & Push](docs/pwa-push.md)** — PWA landings, web push campaigns, diagnostics
-- **[Content Gallery](docs/content-gallery.md)** — media library and MediaPicker
-- **[API](docs/api.md)** — REST API documentation
-- **[Deployment](docs/deployment.md)** — installation and configuration instructions
+- **[API](docs/api.md)** — REST API and the full action catalogue
+- **[MCP](docs/mcp.md)** — connecting AI assistants
+- **[Architecture](docs/architecture.md)** — internals, crons, database, release process
 
 ## 🔌 Main API Endpoints
 
