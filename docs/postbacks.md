@@ -1,30 +1,30 @@
-# Постбеки и конверсии
+# Postbacks and conversions
 
-Конверсия попадает в Orbitra постбеком от партнёрской сети и привязывается к клику по его ID (`subid`). Дальше трекер может переслать её в источник трафика (исходящий S2S-постбек) и в Conversions API рекламной платформы.
+A conversion reaches Orbitra as a postback from the affiliate network and is attached to a click by its ID (`subid`). The tracker can then forward it to the traffic source (an outgoing S2S postback) and to the ad platform's Conversions API.
 
-## Входящий постбек
+## Incoming postback
 
-Адрес постбека — **⚙ → Postback URL**. Он выглядит так:
+The postback address is **⚙ → Postback URL**. It looks like this:
 
 ```
-https://ваш-домен/<postback_key>/postback
+https://your-domain/<postback_key>/postback
 ```
 
-`postback_key` — секретный ключ инсталляции (защита от поддельных конверсий). Если он равен публичному значению по умолчанию из репозитория, панель предупреждает; сгенерировать новый — на той же странице или `php cli/generate_postback_key.php`. Установщик генерирует собственный ключ сам.
+`postback_key` is the installation's secret key (protection against fake conversions). If it still equals the public default value from the repository, the panel warns you; generate a new one on the same page or with `php cli/generate_postback_key.php`. The installer generates its own key.
 
-### Параметры
+### Parameters
 
-| Параметр | Обязательный | Значение |
+| Parameter | Required | Meaning |
 |---|---|---|
-| `subid` | да | ID клика трекера — то, что сеть получила в `{subid}` / `{clickid}` |
-| `status` | нет | Статус конверсии: `lead`, `sale`, `rejected`, `registration`, `deposit`, `trash` или любой свой |
-| `payout` | нет | Сумма выплаты |
-| `currency` | нет | Валюта выплаты |
-| `tid` | нет | ID транзакции — для повторных конверсий по одному клику |
-| `sub_id_N` | нет | Дополнительные значения |
-| `<тип>_status` | нет | Обучение статусов прямо в URL: `sale_status=approved,confirmed` |
+| `subid` | yes | Tracker click ID — what the network received in `{subid}` / `{clickid}` |
+| `status` | no | Conversion status: `lead`, `sale`, `rejected`, `registration`, `deposit`, `trash`, or any custom one |
+| `payout` | no | Payout amount |
+| `currency` | no | Payout currency |
+| `tid` | no | Transaction ID — for repeated conversions on the same click |
+| `sub_id_N` | no | Additional values |
+| `<type>_status` | no | Map statuses right in the URL: `sale_status=approved,confirmed` |
 
-Примеры:
+Examples:
 
 ```
 …/postback?subid={subid}&status=lead
@@ -33,91 +33,91 @@ https://ваш-домен/<postback_key>/postback
 …/postback?subid={subid}&status={status}&sale_status=approved,confirmed
 ```
 
-Если сеть называет параметры по-своему, задайте **алиасы параметров** на той же странице.
+If the network names its parameters differently, set up **parameter aliases** on the same page.
 
-### Ответы
+### Responses
 
-`200` — конверсия записана. `4xx` — запрос отклонён (неверный ключ, неизвестный клик). `500` / `503` — ошибка записи; сеть должна повторить постбек. Конверсия, её счётчики и события для Conversions API записываются одной транзакцией: при ошибке не будет «200 и потерянного события».
+`200` — the conversion is recorded. `4xx` — the request is rejected (wrong key, unknown click). `500` / `503` — a write error; the network should retry the postback. The conversion, its counters and the Conversions API events are written in a single transaction: an error can never produce a "200 and a lost event".
 
-### Как определяется статус
+### How the status is determined
 
-По порядку:
+In order:
 
-1. **Типы конверсий** из **Настройки → Типы конверсий** — если статус есть в списке значений типа.
-2. Встроенный тип с тем же именем.
-3. Правило `<тип>_status=…` из самого постбека.
-4. **Встроенные алиасы**: `approved`, `confirmed`, `accepted`, `converted` → `sale`; `declined`, `refused`, `cancelled`, `canceled` → `rejected`.
-5. Иначе — `custom`.
+1. **Conversion types** from **Settings → Conversion Types** — if the status is in a type's value list.
+2. A built-in type with the same name.
+3. The `<type>_status=…` rule from the postback itself.
+4. **Built-in aliases**: `approved`, `confirmed`, `accepted`, `converted` → `sale`; `declined`, `refused`, `cancelled`, `canceled` → `rejected`.
+5. Otherwise — `custom`.
 
-Статусы, не попавшие ни в один тип, видны в **Настройки → Типы конверсий → Несмапленные статусы**: оттуда их можно смапить в тип, и уже записанные конверсии переклассифицируются.
+Statuses that did not match any type are listed under **Settings → Conversion Types → Unmapped statuses**: you can map them to a type there, and already recorded conversions get reclassified.
 
-### Типы конверсий
+### Conversion types
 
-У каждого типа: название, список статусов от сети, цвет метки и четыре флага — влияет на «Конверсии», влияет на «Профит», отправлять S2S в источник, учитывается в Cap оффера. Из коробки есть тип **Revshare** (статус `revshare` идёт только в профит: без новой конверсии, без S2S, без Cap).
+Each type has: a name, a list of statuses from the network, a label color, and four flags — counts toward "Conversions", counts toward "Profit", send S2S to the source, counts toward the offer Cap. A **Revshare** type exists out of the box (the `revshare` status goes into profit only: no new conversion, no S2S, no Cap).
 
-### Выплаты в другой валюте
+### Payouts in another currency
 
-Выплата конвертируется в базовую валюту трекера (курсы — `core/CurrencyRates.php`). Исходная сумма, валюта и курс сохраняются в клике. Макросы исходящих постбеков `{payout}` / `{currency}` несут значение в базовой валюте, исходные — `{fx_orig_payout}` / `{fx_orig_currency}`. Неизвестная пара валют записывается как есть.
+The payout is converted to the tracker's base currency (rates in `core/CurrencyRates.php`). The original amount, currency and rate are stored on the click. The outgoing postback macros `{payout}` / `{currency}` carry the value in the base currency; the original ones are `{fx_orig_payout}` / `{fx_orig_currency}`. An unknown currency pair is recorded as is.
 
-### Журнал входящих постбеков
+### Incoming postback log
 
-**⚙ → Логи → Постбеки** — каждый входящий запрос с результатом: найден ли клик, какой статус получился, сумма. ID клика открывает карточку клика.
+**⚙ → Logs → Postbacks** — every incoming request with its outcome: whether the click was found, the resulting status, the amount. The click ID opens the click card.
 
-## Исходящие S2S-постбеки (в источник трафика)
+## Outgoing S2S postbacks (to the traffic source)
 
-Настраиваются в кампании, вкладка **S2S Postbacks**. Каждый постбек — карточка: URL, метод GET или POST, статусы-чипы (`sale`, `lead`, `rejected`, `registration`, `deposit`, `trash` плюс свои). Меню «вставить макрос» подставляет макрос в позицию курсора.
+Configured in the campaign, on the **S2S Postbacks** tab. Each postback is a card: URL, GET or POST method, status chips (`sale`, `lead`, `rejected`, `registration`, `deposit`, `trash` plus custom ones). The "insert macro" menu inserts a macro at the cursor position.
 
-Если у выбранного источника трафика задан `postback_url`, кампания с пустым списком получает его автоматически. Если постбеки уже настроены, вверху вкладки появится подсказка с кнопкой «добавить».
+If the selected traffic source has a `postback_url` set, a campaign with an empty list receives it automatically. If postbacks are already configured, a hint with an "add" button appears at the top of the tab.
 
-**Фильтр статусов** пропускает конверсию, если совпал внутренний статус (`sale`), слово самой сети (`approved`) или старый чип `custom` для слов, которые теперь распознаются алиасами.
+The **status filter** passes a conversion through if the internal status matched (`sale`), the network's own word (`approved`), or the legacy `custom` chip for words that are now recognized by aliases.
 
-### Макросы
+### Macros
 
-`{subid}` (он же `{clickid}`, `{click_id}`), `{status}`, `{payout}` (он же `{conversion_revenue}`), `{currency}`, `{tid}` (он же `{external_id}`), `{campaign_id}`, `{offer_id}`, `{cost}`, `{revenue}`, `{profit}` и любой сохранённый параметр клика по имени: `{sub_id_1}` … `{sub_id_30}`, `{fx_orig_payout}`, `{fx_orig_currency}` и т.д.
+`{subid}` (also `{clickid}`, `{click_id}`), `{status}`, `{payout}` (also `{conversion_revenue}`), `{currency}`, `{tid}` (also `{external_id}`), `{campaign_id}`, `{offer_id}`, `{cost}`, `{revenue}`, `{profit}`, and any saved click parameter by name: `{sub_id_1}` … `{sub_id_30}`, `{fx_orig_payout}`, `{fx_orig_currency}`, etc.
 
-В `{status}` уходит внутренний статус (`sale`), а не исходное слово сети. Чтобы перевести его в словарь источника, используйте трансформацию в стиле Keitaro: `{status: sale=purchase lead=lead}` — статус, которого нет в списке, уходит как есть.
+`{status}` carries the internal status (`sale`), not the network's original word. To translate it into the source's vocabulary, use a Keitaro-style transformation: `{status: sale=purchase lead=lead}` — a status not in the list goes through unchanged.
 
-### Очередь доставки
+### Delivery queue
 
-Исходящие постбеки не отправляются в момент конверсии — они встают в очередь `s2s_postbacks_log`, и крон `postback_queue_cron.php` (раз в минуту) доставляет их с повторами:
+Outgoing postbacks are not sent at the moment of conversion — they go into the `s2s_postbacks_log` queue, and the `postback_queue_cron.php` cron (once a minute) delivers them with retries:
 
-- успех — HTTP 2xx–3xx;
-- повторы: 60 с → 5 мин → 30 мин → 2 ч → 24 ч, потом строка помечается `failed`;
-- SSRF-проверка при постановке и перед отправкой: адрес в приватной сети — сразу `failed`;
-- строка, брошенная упавшим воркером в `in_flight`, через 10 минут возвращается в очередь.
+- success — HTTP 2xx–3xx;
+- retries: 60 s → 5 min → 30 min → 2 h → 24 h, after which the row is marked `failed`;
+- SSRF check on enqueue and before sending: an address in a private network gets `failed` immediately;
+- a row left in `in_flight` by a crashed worker returns to the queue after 10 minutes.
 
-> ⚠️ Без крона очередь не разбирается. Установщик ставит его сам; проверить и поставить вручную — **Настройки → Автоматизация → Очередь постбеков**. Обновление через панель тоже восстанавливает пропавший крон.
+> ⚠️ Without the cron, the queue is never processed. The installer sets it up; to check or add it manually — **Settings → Automation → Postback Queue**. Updating through the panel also restores a missing cron.
 
-Лог очереди: **⚙ → Логи → S2S** (статус, попытки, следующая попытка, последняя ошибка, HTTP-код).
+Queue log: **⚙ → Logs → S2S** (status, attempts, next attempt, last error, HTTP code).
 
-### Тестер постбеков
+### Postback tester
 
-Кнопка на вкладке **S2S Postbacks** (только администратор) отправляет на этот же сервер настоящий постбек с одноразовым кликом и показывает вердикт по каждому шагу:
+The button on the **S2S Postbacks** tab (admin only) sends a real postback to this same server with a one-off click and shows a verdict for every step:
 
-- с каким статусом записалась конверсия;
-- пропускает ли её фильтр статусов каждого S2S-постбека — и почему: по внутреннему статусу, по слову сети или по старому чипу;
-- пробная доставка в источник: HTTP-код и время;
-- макросы, которые не подставились бы и ушли бы в источник текстом (`{external_id}`, `{sub_id_N}`);
-- заглушки из шаблона источника (`bbg=xxx`, `[YOUR_…]`);
-- жив ли воркер очереди и стоит ли крон.
+- which status the conversion was recorded with;
+- whether each S2S postback's status filter passes it — and why: by internal status, by the network's word, or by the legacy chip;
+- a trial delivery to the source: HTTP code and timing;
+- macros that would not resolve and would go to the source as plain text (`{external_id}`, `{sub_id_N}`);
+- placeholders from the source template (`bbg=xxx`, `[YOUR_…]`);
+- whether the queue worker is alive and the cron is installed.
 
-Тестовые клик, конверсия и строки очереди после проверки удаляются.
+The test click, conversion and queue rows are deleted after the check.
 
-### Повторная отправка пропущенных
+### Re-sending missed conversions
 
-Кнопка **«Переотправить пропущенные конверсии»** ставит в очередь конверсии за последние 72 часа, которые проходят текущий фильтр, но не попали в очередь. Повторное нажатие ничего не дублирует.
+The **"Re-send missed conversions"** button enqueues conversions from the last 72 hours that pass the current filter but never made it into the queue. Pressing it again duplicates nothing.
 
-## Импорт конверсий
+## Conversion import
 
-**⚙ → Импорт конверсий** — загрузка из файла или вставка списка click ID, если сеть не умеет постбеки или их нужно восстановить.
+**⚙ → Conversion Import** — upload a file or paste a list of click IDs when the network cannot send postbacks, or when they need to be restored.
 
 ## Conversions API
 
-Отправка конверсий на сервер Meta и TikTok настраивается в профиле пикселя и в кампании (вкладка «Интеграции»). Подробно про Meta — [Facebook / Meta](facebook.md). События ставятся в очередь вместе с конверсией и доставляются с подтверждением: успех — только ответ 2xx, где `events_received` совпало с размером пачки.
+Sending conversions to Meta and TikTok servers is configured in the pixel profile and in the campaign (the "Integrations" tab). For details on Meta, see [Facebook / Meta](facebook.md). Events are enqueued together with the conversion and delivered with confirmation: success only on a 2xx response where `events_received` matches the batch size.
 
-## Мониторинг
+## Monitoring
 
-`conversion_monitor_cron.php` считает долю неудачных постбеков за окно (по умолчанию 60 минут) и при превышении порога (10%) пишет алерт в `var/logs/conversion_alerts.log`; отправка алерта в Telegram пока не реализована. Установщик этот крон не ставит, при необходимости добавьте:
+`conversion_monitor_cron.php` computes the failed-postback share over a window (60 minutes by default) and, when the threshold (10%) is exceeded, writes an alert to `var/logs/conversion_alerts.log`; sending the alert to Telegram is not implemented yet. The installer does not set up this cron — add it if needed:
 
 ```
 */5 * * * * php /var/www/orbitra/conversion_monitor_cron.php --quiet

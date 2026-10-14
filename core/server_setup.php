@@ -111,3 +111,45 @@ function orbitraEnsureClickSpoolCron(): bool
     @unlink($tmp);
     return $done = strpos((string) orbitraShell('crontab -l 2>/dev/null'), $marker) !== false;
 }
+
+/**
+ * Schedule cli/cleanup_cron.php in the web user's own crontab when missing.
+ * The SystemSettings retention windows ("log retention", "archive retention")
+ * are only enforced by that worker: installs made before it was shipped (and
+ * installs whose install.sh predates the cron line) saved the fields while
+ * nothing ever purged — the database grew forever. Same contract as the spool
+ * cron: idempotent, marker-line, silent when the crontab cannot be managed.
+ */
+function orbitraEnsureCleanupCron(): bool
+{
+    static $done = null;
+    if ($done !== null) {
+        return $done;
+    }
+    $marker = '# orbitra-cleanup';
+    $root = dirname(__DIR__);
+    $script = $root . '/cli/cleanup_cron.php';
+    if (!is_file($script) || !orbitraShellAvailable() || !orbitraCommandExists('crontab')) {
+        return $done = false;
+    }
+    $current = (string) orbitraShell('crontab -l 2>/dev/null');
+    if (strpos($current, $marker) !== false) {
+        return $done = true;
+    }
+    $logDir = $root . '/var/logs';
+    if (!is_dir($logDir)) {
+        @mkdir($logDir, 0775, true);
+    }
+    $php = trim((string) orbitraShell('command -v php 2>/dev/null')) ?: 'php';
+    $line = "41 3 * * * $php " . escapeshellarg($script) . ' >> '
+        . escapeshellarg($logDir . '/cleanup.log') . " 2>&1 $marker";
+    $updated = rtrim($current, "\n");
+    $updated = ($updated === '' ? '' : $updated . "\n") . $line . "\n";
+    $tmp = @tempnam(sys_get_temp_dir(), 'orbitra_cron_');
+    if ($tmp === false || @file_put_contents($tmp, $updated) === false) {
+        return $done = false;
+    }
+    orbitraShell('crontab ' . escapeshellarg($tmp) . ' 2>&1');
+    @unlink($tmp);
+    return $done = strpos((string) orbitraShell('crontab -l 2>/dev/null'), $marker) !== false;
+}

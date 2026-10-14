@@ -1,133 +1,133 @@
-# Кампании и потоки
+# Campaigns and Streams
 
-Кампания — это ссылка, по которой приходит трафик, и набор **потоков**, которые решают, куда отправить каждого посетителя. Раздел **Кампании** в верхнем меню.
+A campaign is the URL traffic arrives on plus a set of **streams** that decide where each visitor goes. The **Campaigns** section is in the top menu.
 
-## Редактор кампании
+## The campaign editor
 
-Редактор открывается на весь экран. На широком экране (от 1280px) он разделён на две панели: настройки кампании слева, потоки справа; уже — одна колонка.
+The editor opens full-screen. On a wide screen (1280px and up) it is split into two panels: campaign settings on the left, streams on the right; on a narrower screen it becomes a single column.
 
-### Вкладки настроек
+### Settings tabs
 
-| Вкладка | Что там |
+| Tab | What is there |
 |---|---|
-| **Общие** | Название, алиас (6 символов, генерируется автоматически), URL кампании, домен, группа, источник трафика, состояние, тестовая ссылка |
-| **Финансы** | Модель расхода, уникальность, тип ротации потоков |
-| **Параметры** | Какие параметры ссылки трекер сохраняет в клик (`keyword`, `cost`, `external_id`, `creative_id`, `ad_campaign_id`, `source`, `sub_id_1` … `sub_id_30`) и из каких параметров источника их брать |
-| **Интеграции** | Пиксели (Facebook / TikTok и др., см. [Facebook / Meta](facebook.md)) и подключение синхронизации расходов ([Расходы](costs.md)) |
-| **Tracking** | Генератор кода подключения: скрипт отслеживания, `kclient.js`, `kclient.php`, пиксель, баннеры (script / iframe), плагин WordPress, виджеты (таймер обратного отсчёта, «кнопка назад», exit-intent). Доступна после первого сохранения — код содержит токен кампании |
-| **S2S Postbacks** | Исходящие постбеки в источник трафика, тестер постбеков, повторная отправка пропущенных конверсий — см. [Постбеки и конверсии](postbacks.md) |
-| **Заметки** | Свободный текст |
+| **General** | Name, alias (6 characters, generated automatically), campaign URL, domain, group, traffic source, state, test link |
+| **Finance** | Cost model, uniqueness, stream rotation type |
+| **Parameters** | Which link parameters the tracker saves into the click (`keyword`, `cost`, `external_id`, `creative_id`, `ad_campaign_id`, `source`, `sub_id_1` … `sub_id_30`) and which source parameters to take them from |
+| **Integrations** | Pixels (Facebook / TikTok etc., see [Facebook / Meta](facebook.md)) and connecting cost synchronization ([Costs](costs.md)) |
+| **Tracking** | Integration code generator: the tracking script, `kclient.js`, `kclient.php`, the pixel, banners (script / iframe), the WordPress plugin, widgets (a countdown timer, the "back button", exit-intent). Available after the first save — the code contains the campaign token |
+| **S2S Postbacks** | Outgoing postbacks to the traffic source, a postback tester, re-sending missed conversions — see [Postbacks and conversions](postbacks.md) |
+| **Notes** | Free-form text |
 
-### Модели расхода
+### Cost models
 
-CPC, CPV, CPuC (за уникальный клик), CPM, CPA, CPS, RevShare. Ручная стоимость перезаписывается импортом расходов, если он подключён ([Расходы](costs.md)).
+CPC, CPV, CPuC (per unique click), CPM, CPA, CPS, RevShare. Manual cost is overwritten by cost import if it is connected ([Costs](costs.md)).
 
-### Уникальность
+### Uniqueness
 
-- **Метод:** IP, IP + User-Agent или Cookies.
-- **Срок:** в часах.
-- Уникальность считается в трёх разрезах — по кампании, по потоку и глобально; все три видны в отчётах.
+- **Method:** IP, IP + User-Agent, or Cookies.
+- **Period:** in hours.
+- Uniqueness is computed in three scopes — per campaign, per stream, and globally; all three are visible in reports.
 
-### Состояние кампании
+### Campaign state
 
-Остановленная кампания (`paused` / `disabled`) отвечает `503`, архивная — `404`. Это касается ссылки по алиасу, `click.php` и Click API.
+A stopped campaign (`paused` / `disabled`) responds with `503`, an archived one with `404`. This applies to the alias URL, `click.php`, and the Click API.
 
-## Потоки
+## Streams
 
-Поток — правило маршрутизации: фильтры (кому подходит) + схема (что показать).
+A stream is a routing rule: filters (who it matches) + a schema (what to show).
 
-### Типы и порядок
+### Types and order
 
-1. **Перехватывающие** — проверяются первыми. Подходят для ботов, white-страниц, исключений.
-2. **Обычные** — основной трафик. Выбираются по позиции или по весу (тип ротации на вкладке «Финансы»).
-3. **Замыкающие** — если ничего выше не подошло.
+1. **Intercepting** — checked first. Suited for bots, white pages, exceptions.
+2. **Regular** — the main traffic. Selected by position or by weight (the rotation type on the "Finance" tab).
+3. **Default** — when nothing above matched.
 
-Сохранение кампании не пересоздаёт потоки: у каждого потока стабильный ID, и история кликов не рассыпается по старым номерам. Новые потоки называются «Поток 1», «Поток 2» … Шеврон на карточке сворачивает поток, состояние запоминается для каждой кампании.
+Saving a campaign does not recreate its streams: each stream keeps a stable ID, so click history does not scatter across old numbers. New streams are named "Stream 1", "Stream 2" … The chevron on a card collapses the stream; the state is remembered per campaign.
 
-На карточке каждого потока — визиты, уникальные, боты и доля трафика кампании за сегодня / вчера / 7 / 30 дней. Так видно, сколько трафика ушло в белый поток и сколько в денежный.
+Each stream card shows visits, uniques, bots, and the share of campaign traffic for today / yesterday / 7 / 30 days. This makes it easy to see how much traffic went to the white stream and how much to the money stream.
 
-### Фильтры
+### Filters
 
-| Фильтр | Как работает |
+| Filter | How it works |
 |---|---|
-| **Страна** | Список стран или гео-профиль (EU, CIS…). Если страну определить не удалось и включён режим «включить», фильтр не пропускает посетителя — но только когда установлена гео-база; без базы фильтр воздерживается |
-| **Устройство** | Десктоп / мобильные / планшеты |
-| **Операционная система**, **Браузер** | Значения выбираются из списка, который реально распознаёт трекер, включая встроенные браузеры приложений (TikTok, Facebook, Instagram, Telegram, WebView). Свой текст можно ввести через Enter |
-| **Язык браузера** | `en` — любой английский, `en-IN` — только английский (Индия). Учитывается весь `Accept-Language`, а не только первый язык |
-| **Бот** | Детектор ботов на максимальной чувствительности (тот же, что в клоаке) |
-| **IP-адрес** | Адреса и CIDR, IPv4 и IPv6 |
-| **Провайдер (ISP)** | Сравнение с ISP и ASN посетителя (нужна база ASN) |
-| **Тип соединения** | По данным гео-базы |
-| **Реферер**, **Ключевое слово** | Сравнение со значением клика |
-| **Параметр URL** | Любой параметр ссылки по имени. Точное совпадение без учёта регистра, `*` — любые символы, «Пустое» — параметра нет или он пустой |
-| **День недели**, **Время** | По местному времени посетителя (часовой пояс из гео-базы; без него — время сервера) |
+| **Country** | A list of countries or a geo profile (EU, CIS…). If the country cannot be determined and "include" mode is on, the filter does not let the visitor through — but only when a geo database is installed; without one the filter abstains |
+| **Device** | Desktop / mobile / tablets |
+| **Operating system**, **Browser** | Values are chosen from the list the tracker actually recognizes, including in-app browsers (TikTok, Facebook, Instagram, Telegram, WebView). You can type your own value and press Enter |
+| **Browser language** | `en` — any English, `en-IN` — English (India) only. The entire `Accept-Language` is considered, not just the first language |
+| **Bot** | The bot detector at maximum sensitivity (the same one used in cloaking) |
+| **IP address** | Addresses and CIDR, IPv4 and IPv6 |
+| **Provider (ISP)** | Compared against the visitor's ISP and ASN (requires the ASN database) |
+| **Connection type** | From geo-database data |
+| **Referer**, **Keyword** | Compared against the click's value |
+| **URL parameter** | Any link parameter by name. Case-insensitive exact match, `*` — any characters, "Empty" — the parameter is missing or empty |
+| **Day of week**, **Time** | By the visitor's local time (time zone from the geo database; without it, server time) |
 
-Фильтры потока объединяются по **И** (все должны совпасть) или по **ИЛИ** (достаточно одного). Фильтр, который не может принять решение (нет гео-базы, нет данных ISP), не голосует: при «И» он не блокирует поток, при «ИЛИ» не открывает его.
+A stream's filters are combined with **AND** (all must match) or **OR** (one is enough). A filter that cannot reach a decision (no geo database, no ISP data) does not vote: under "AND" it does not block the stream, under "OR" it does not open it.
 
-**Приём против модерации TikTok** через «Параметр URL»: добавьте в ссылку кампании `xxx=__PLACEMENT__`; на перехватывающем потоке с белой страницей поставьте фильтр «Параметр URL» `xxx` со значениями `__PLACEMENT__` и «Пустое». В настоящем клике сеть подставит значение макроса, а модератор, открывший голую ссылку, придёт с `__PLACEMENT__` или без параметра.
+**A trick against TikTok moderation** via "URL parameter": add `xxx=__PLACEMENT__` to the campaign URL; on an intercepting stream with a white page, set a "URL parameter" filter on `xxx` with the values `__PLACEMENT__` and "Empty". In a real click the network substitutes the macro's value, while a moderator opening the bare link arrives with `__PLACEMENT__` or without the parameter.
 
-### Схемы
+### Schemas
 
-| Схема | Что происходит |
+| Schema | What happens |
 |---|---|
-| **Прямой переход на оффер** | Редирект на оффер из каталога (ротация нескольких офферов по весу) или на прямой URL. Каждый такой переход — клик |
-| **Лендинг + Оффер** | Показ лендинга, с которого посетитель уходит на оффер. Оффер можно не указывать |
-| **Действие** | Ничего не делать, 404, показать текст, показать HTML, отправить в другую кампанию (клик пишется в обе) |
-| **Cloaking** | Разделение на белую и денежную страницу — см. [Клоакинг](cloaking.md) |
+| **Direct redirect to offer** | A redirect to an offer from the catalog (several offers rotated by weight) or to a direct URL. Every such transition is a click |
+| **Landing + Offer** | Shows a landing from which the visitor goes on to the offer. The offer is optional |
+| **Action** | Do nothing, 404, show text, show HTML, send to another campaign (the click is written to both) |
+| **Cloaking** | Splits traffic between a safe page and a money page — see [Cloaking](cloaking.md) |
 
-**Выбор оффера** в схеме «Лендинг + Оффер»:
+**Offer selection** in the "Landing + Offer" schema:
 
-- **После клика** (по умолчанию для новых потоков) — оффер выбирается, когда посетитель реально уходит с лендинга. Переходы LP, LP CTR и время до оффера честные.
-- **Перед кликом** — каждый показ лендинга считается переходом на оффер (старое поведение, LP CTR около 100%).
+- **After the click** (the default for new streams) — the offer is chosen when the visitor actually leaves the landing. LP clicks, LP CTR, and time to offer are honest.
+- **Before the click** — every landing view counts as a click to the offer (legacy behavior, LP CTR around 100%).
 
-Как сделать ссылку на оффер на самом лендинге (`{offer}`, `/?_lp=1`, передача `sub_id_N` в оффер) — в [Лендингах](landing-pages.md).
+How to build the offer link on the landing itself (`{offer}`, `/?_lp=1`, passing `sub_id_N` to the offer) is covered in [Landing pages](landing-pages.md).
 
-### Типы редиректа оффера
+### Offer redirect types
 
-Задаются в оффере. Макросы и SSRF-проверка одинаковы для всех типов.
+Set on the offer. Macros and the SSRF check are the same for all types.
 
-| Тип | Поведение |
+| Type | Behavior |
 |---|---|
-| HTTP-редирект | 302, по умолчанию |
-| JS-редирект | HTML-страница с переходом через JavaScript |
-| Meta Refresh | Тег `<meta http-equiv="refresh">` |
-| Iframe | Оффер в полноэкранном iframe на вашем домене |
-| Form Submit | Автоотправка POST-формы: данные трекинга в теле запроса |
-| curl-прокси | Страница оффера через ваш сервер с тегом `<base>` |
+| HTTP redirect | 302, the default |
+| JS redirect | An HTML page that navigates via JavaScript |
+| Meta Refresh | A `<meta http-equiv="refresh">` tag |
+| Iframe | The offer in a full-page iframe on your domain |
+| Form Submit | An auto-submitted POST form: tracking data in the request body |
+| curl proxy | The offer page served through your server with a `<base>` tag |
 
-### Ротация с автооптимизацией
+### Rotation with auto-optimization
 
-Переключатель **Авто** у списка офферов или лендингов в потоке включает автоматический пересчёт весов по метрике: подтверждённые продажи, CR, EPV, EPC или ROI (для ROI нужны расходы). Настраиваются окно в днях, минимальное число продаж до участия в дележе, нижняя и верхняя граница доли и интервал пересчёта. Пересчёт делает крон `rotation_optimiser_cron.php`; журнал решений виден в карточке потока. Пока «Авто» включён, ручной ввод весов заблокирован.
+The **Auto** switch next to a stream's offer or landing list enables automatic weight recalculation by a metric: confirmed sales, CR, EPV, EPC, or ROI (ROI requires costs). Configurable: the window in days, the minimum number of sales before taking part in the split, the lower and upper bounds of the share, and the recalculation interval. Recalculation is done by the `rotation_optimiser_cron.php` cron; the decision log is visible in the stream card. While "Auto" is on, manual weight entry is locked.
 
-### Прочие настройки потока
+### Other stream settings
 
-- **Собирать клики** — выключено: посетитель получает направление, но клик не пишется (конверсию не к чему привязать).
+- **Collect clicks** — when disabled, the visitor still gets a direction, but the click is not written (there is nothing to attach a conversion to).
 
-**Bot Challenge** — настройка кампании, а не потока: проверка человека (reCAPTCHA v2/v3 или свой код) до выбора потока.
+**Bot Challenge** is a campaign setting, not a stream one: a human check (reCAPTCHA v2/v3 or your own code) before a stream is chosen.
 
-## Тестовая ссылка
+## Test link
 
-Строка **Тестовая ссылка** на вкладке «Общие» выдаёт URL кампании с подписью `?_t=<id>:<hmac>`. По ней работает настоящая маршрутизация — потоки, фильтры, ротация, лендинги, офферы, — но клик не записывается, поэтому статистика остаётся чистой.
+The **Test link** row on the "General" tab produces a campaign URL signed with `?_t=<id>:<hmac>`. Real routing works along it — streams, filters, rotation, landings, offers — but the click is not recorded, so statistics stay clean.
 
-- `&_geo=DE` — подменить страну посетителя: проверка гео-потоков без VPN.
-- `&_dbg=1` — вместо редиректа страница-трассировка: каждый поток с типом, схемой и голосом каждого фильтра (совпал / не совпал / воздержался и почему), выбранный поток и итоговый URL с подставленными макросами.
+- `&_geo=DE` — override the visitor's country: test geo streams without a VPN.
+- `&_dbg=1` — instead of a redirect, a trace page: every stream with its type, schema, and each filter's vote (matched / did not match / abstained and why), the selected stream, and the final URL with macros substituted.
 
-Подпись строится от ключа постбеков инсталляции, поэтому переживает смену токена кампании; смена ключа постбеков отзывает все тестовые ссылки. Неверная или чужая подпись превращается в обычный клик.
+The signature is derived from the installation's postback key, so it survives a campaign token change; changing the postback key revokes all test links. An invalid or foreign signature turns the request into an ordinary click.
 
-## Симуляция трафика
+## Traffic simulation
 
-**⚙ → Симуляция трафика**: задайте IP, User-Agent, страну, устройство, язык и параметры URL — панель покажет, какой поток сработал и почему, ничего не записывая.
+**⚙ → Traffic simulation**: set an IP, User-Agent, country, device, language, and URL parameters — the panel will show which stream fired and why, without recording anything.
 
-## Click API и токены кампаний
+## Click API and campaign tokens
 
-У каждой кампании есть токен (32 hex-символа). Интеграционные скрипты (`click.php`, `kclient.php`, `tracking.js`, Click API v3 `/click_api/v3`) обращаются к кампании по токену, а не по ID. При импорте из Keitaro токены переносятся, поэтому уже установленные скрипты продолжают работать. Токен можно перевыпустить в редакторе. Подробно про PHP-клиент — [Tracking Client (PHP)](tracking-client-php.md).
+Every campaign has a token (32 hex characters). Integration scripts (`click.php`, `kclient.php`, `tracking.js`, Click API v3 `/click_api/v3`) address the campaign by token, not by ID. Tokens are transferred on import from Keitaro, so already-installed scripts keep working. The token can be reissued in the editor. For details on the PHP client, see [Tracking Client (PHP)](tracking-client-php.md).
 
-## Защита от дублей
+## Duplicate protection
 
-- Повторный клик того же посетителя (кампания + IP + User-Agent) в течение 2 секунд не пишется второй строкой; редирект получает ID уже записанного клика.
-- Prefetch/prerender-запросы браузера обслуживаются, но не пишутся.
-- Если база занята (`database is locked`), клик уходит в `var/spool/clicks.log`, и крон `cli/click_spool_cron.php` дописывает его в течение минуты.
+- A repeat click from the same visitor (campaign + IP + User-Agent) within 2 seconds is not written as a second row; the redirect receives the ID of the already-recorded click.
+- Browser prefetch/prerender requests are served but not written.
+- If the database is busy (`database is locked`), the click goes to `var/spool/clicks.log`, and the `cli/click_spool_cron.php` cron writes it within a minute.
 
-## Массовые операции
+## Bulk operations
 
-Копирование кампаний, массовое удаление, импорт, перенос группы кампаний на другой домен (`bulk_set_campaign_domain`, также в [MCP](mcp.md)), переименование групп прямо в списке.
+Campaign copying, bulk deletion, import, moving a group of campaigns to another domain (`bulk_set_campaign_domain`, also in [MCP](mcp.md)), renaming groups right in the list.

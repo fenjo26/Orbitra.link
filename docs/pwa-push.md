@@ -1,268 +1,267 @@
-# PWA-лендинги и Web Push
+# PWA Landings and Web Push
 
-PWA-лендинг — это локальный лендинг, который Orbitra рендерит в полноценное
-веб-приложение: витрину «магазина приложений», манифест и service worker.
-Связка с модулем **Web Push** позволяет собрать базу подписчиков прямо на
-витрине и рассылать им пуши — своими силами, без внешних сервисов (FCM
-используется только как транспорт Android, Apple — как транспорт iOS; ключи
-и база — ваши).
+A PWA landing is a local landing that Orbitra renders into a full-blown
+web app: an "app store" storefront, a manifest and a service worker.
+Combined with the **Web Push** module it lets you grow a subscriber base right
+on the storefront and send them pushes — all by yourself, without external services (FCM
+is used only as the Android transport, Apple as the iOS transport; the keys
+and the database are yours).
 
-Документ покрывает: конструктор PWA, установку приложения, привязку домена,
-вёрстку воронки, базу подписчиков, сообщения (ручные и событийные), крон
-доставки и диагностику проблем.
+This document covers: the PWA builder, app installation, domain binding,
+funnel instrumentation, the subscriber base, messages (manual and event-driven), the delivery
+cron and troubleshooting.
 
 ---
 
-## 1. PWA-лендинг: что это и как устроено
+## 1. PWA landing: what it is and how it works
 
-### 1.1 Как это работает внутри
+### 1.1 How it works inside
 
-- PWA — обычная строка в таблице `landings` (тип `local`), у которой в
-  `config_json` есть `"pwa": true`. Кликовый роутер, ротация стримов и клоакинг
-  работают с ним как с любым локальным лендингом — никаких новых типов.
-- При сохранении конструктор генерирует в каталог лендинга три файла:
-  `index.html` (витрина в стиле Google Play), `manifest.webmanifest` и `sw.js`.
-- Лендинг отдаётся по адресу **`/lander/<slug>/`** — Chrome предлагает установку
-  только внутри scope манифеста, поэтому корневой URL не используется.
-- Клик (строка в Click Log + куки атрибуции) пишется **до** редиректа на
-  витрину, поэтому подписка на push, beacon'ы воронки и переход на оффер
-  атрибутируются настоящему клику.
+- A PWA is an ordinary row in the `landings` table (type `local`) whose
+  `config_json` contains `"pwa": true`. The click router, stream rotation and cloaking
+  treat it like any other local landing — no new types.
+- On save, the builder generates three files in the landing directory:
+  `index.html` (a Google Play-style storefront), `manifest.webmanifest` and `sw.js`.
+- The landing is served at **`/lander/<slug>/`** — Chrome only offers installation
+  inside the manifest scope, so a root URL is not used.
+- The click (a Click Log row + attribution cookies) is written **before** the redirect to the
+  storefront, so the push subscription, funnel beacons and the hop to the offer
+  are attributed to the real click.
 
-### 1.2 Конструктор
+### 1.2 The builder
 
-Лендинги → **Добавить PWA** (или «Дублировать» у существующего). Основные блоки
-редактора:
+Landings → **Add PWA** (or "Duplicate" on an existing one). The editor's main
+blocks:
 
-| Блок | Что настраивает |
+| Block | What it configures |
 |---|---|
-| General | Имя приложения, slug, группа, иконка и скриншоты (через Галерею контента), категория, разработчик, язык, версия, «обновлено» |
-| Store | Описание (с макросами `{value}`), теги, гистограмма оценок, отзывы, «что нового», бейджи (verified, glow, live-счётчик), светлая/тёмная тема, цветовая схема |
-| Screen | Встроенный экран приложения после установки: тип, заголовок, текст, кнопка, картинка, свой HTML/JS |
-| Actions | Действие кнопки установки: на оффер / на кампанию / на URL / никуда (`action_target`), таймеры авто-редиректа |
-| Push | Включение подписки на пуши на экране приложения (`push_enabled`) |
-| Domain | Привязка домена (см. §2) + оффер для прямого домена |
+| General | App name, slug, group, icon and screenshots (via the Content Gallery), category, developer, language, version, "updated" |
+| Store | Description (with `{value}` macros), tags, rating histogram, reviews, "what's new", badges (verified, glow, live counter), light/dark theme, color scheme |
+| Screen | The in-app screen shown after installation: type, title, text, button, image, custom HTML/JS |
+| Actions | Install-button action: to the offer / to a campaign / to a URL / nowhere (`action_target`), auto-redirect timers |
+| Push | Enable the push subscription on the app screen (`push_enabled`) |
+| Domain | Domain binding (see §2) + the offer for the direct domain |
 
-Кнопка **Preview** рендерит черновик конфигурации через боевой рендерер —
-живой предпросмотр витрины и экрана (платформа auto/iOS) без сохранения.
+The **Preview** button renders the config draft with the production renderer —
+a live preview of the storefront and the screen (auto/iOS platform) without saving.
 
-### 1.3 Воронка и beacon'ы
+### 1.3 The funnel and beacons
 
-Страница витрины отправляет однопиксельные beacon'ы, которые пишут в клик:
+The storefront page sends one-pixel beacons that write into the click:
 
-- `pwa_intent_at` — тап по «Установить»;
-- `pwa_install_at` — приложение установлено (событие `appinstalled` или первый
-  standalone-открытие на iOS);
-- `pwa_open_at` / `pwa_open_count` — переоткрытия установленного приложения
-  (не чаще раза в 10 минут на клик);
-- `push_prompted_at` / `push_declined_at` / `push_subscribed_at` — события
-  подписки на пуш;
-- `push_fail_reason` — причина несостоявшейся подписки
+- `pwa_intent_at` — a tap on "Install";
+- `pwa_install_at` — the app was installed (the `appinstalled` event or the first
+  standalone launch on iOS);
+- `pwa_open_at` / `pwa_open_count` — re-openings of the installed app
+  (at most once per 10 minutes per click);
+- `push_prompted_at` / `push_declined_at` / `push_subscribed_at` — push
+  subscription events;
+- `push_fail_reason` — why a subscription did not happen
   (`nokey` / `unsupported` / `insecure` / `denied` / `dismissed` / `error` /
   `timeout`).
 
-Все колонки видны в **деталях клика** — это главный инструмент диагностики
-воронки: трекер сам называет причину, логи браузера не нужны.
+All the columns are visible in **click details** — the main funnel diagnostics tool:
+the tracker names the reason itself, no browser logs needed.
 
-### 1.4 Подписка на пуш живёт в service worker
+### 1.4 The push subscription lives in the service worker
 
-Подписка выполняется целиком внутри сгенерированного `sw.js`
-(`orbitraSubscribe`): страница лишь отправляет сообщение воркеру и уходит на
-оффер. Это осознанно — у iOS-холодный первый `pushManager.subscribe` может
-занимать десятки секунд, и подписка не должна зависеть от того, сколько
-пользователь находится на странице. Воркер также:
+The subscription runs entirely inside the generated `sw.js`
+(`orbitraSubscribe`): the page merely sends a message to the worker and heads off
+to the offer. This is deliberate — on iOS the first, cold `pushManager.subscribe` can
+take tens of seconds, and the subscription must not depend on how long
+the user stays on the page. The worker also:
 
-- переподписывается сам по событию `pushsubscriptionchange` (ротация ключа
-  endpoint'а на стороне push-сервиса, обновление VAPID-ключа);
-- при каждом открытии установленного приложения тихо сверяет подписку с
-  настройками трекера (**self-heal**) — переоткрытие приложения чинит
-  подписку без переустановки;
-- показывает входящие пуши и обрабатывает клик по уведомлению
-  (фокус существующего окна с переходом на `data.url`).
+- re-subscribes by itself on `pushsubscriptionchange` (endpoint key rotation on
+  the push service's side, VAPID key update);
+- on every opening of the installed app quietly reconciles the subscription with
+  the tracker settings (**self-heal**) — reopening the app repairs the
+  subscription without a reinstall;
+- shows incoming pushes and handles notification clicks
+  (focusing an existing window and navigating to `data.url`).
 
-Плейсхолдер `{vapid_public}` в `sw.js` подставляется **в момент отдачи файла**,
-а не при генерации — смена VAPID-ключа доезжает до уже установленных
-приложений без перегенерации статики.
+The `{vapid_public}` placeholder in `sw.js` is substituted **at file-serving time**,
+not at generation — a VAPID key change reaches already installed
+apps without regenerating the static files.
 
 ### 1.5 RENDERER_VERSION
 
-Каждое изменение рендерера сопровождается бампом `RENDERER_VERSION`
-(`core/PwaLanding.php`). При следующем просмотре лендинга трекер сравнивает
-версию-маркер в отрендеренной статике и **сам перегенерирует** устаревшие
-файлы — вручную переливать файлы на сервере не нужно.
+Every renderer change bumps `RENDERER_VERSION`
+(`core/PwaLanding.php`). On the next view of the landing the tracker compares
+the version marker in the rendered static files and **regenerates** outdated
+files by itself — no manual re-uploading to the server.
 
 ---
 
-## 2. Привязка «домен → PWA»
+## 2. Domain → PWA binding
 
-Домен можно привязать к PWA напрямую: визит на `https://domain.com/` открывает
-витрину с корня, без хопа через кампанию и `/lander/` — URL установки чистый.
+A domain can be bound to a PWA directly: a visit to `https://domain.com/` opens
+the storefront from the root, with no hop through a campaign and `/lander/` — a clean install URL.
 
-- Привязка настраивается в конструкторе (блок Domain) или в карточке домена.
-- Один домен — не более одного PWA; один PWA можно повесить на несколько
-  доменов.
-- Рядом с доменом выбирается **оффер** (`pwa_offer_id`): без кампании кнопка
-  «Offer» на витрине всё равно ведёт на оффер через `/?_lp=1` с атрибуцией.
-- Приоритеты: явный `?campaign_id=` или алиас кампании всегда сильнее
-  привязки; привязка сильнее `index_campaign_id` на корне.
-- Органические визиты (холодный посетитель без куки клика) логируются как
-  настоящие клики в архивную системную кампанию `orbitra-pwa-organic` — она
-  создаётся автоматически и не видна в списке кампаний. Повторные заходы с
-  живой кукой не плодят дубликаты.
+- The binding is configured in the builder (Domain block) or in the domain card.
+- One domain — at most one PWA; one PWA can hang on several
+  domains.
+- Next to the domain an **offer** is selected (`pwa_offer_id`): even without a campaign the
+  "Offer" button on the storefront still leads to the offer via `/?_lp=1` with attribution.
+- Priorities: an explicit `?campaign_id=` or campaign alias always beats the
+  binding; the binding beats `index_campaign_id` on the root.
+- Organic visits (a cold visitor without a click cookie) are logged as
+  real clicks into the archived system campaign `orbitra-pwa-organic` — it is
+  created automatically and is not visible in the campaign list. Repeat visits with
+  a live cookie do not spawn duplicates.
 
 ---
 
-## 3. Web Push: база, ключи, отправка
+## 3. Web Push: the base, keys, sending
 
-### 3.1 VAPID-ключи и контакт
+### 3.1 VAPID keys and the contact
 
-Страница **Push Base** (панель → Push):
+The **Push Base** page (panel → Push):
 
-1. Заполните **контакт** — `mailto:you@domain.com` или `https://…`. Без
-   реального контакта генерация ключей заблокирована: Apple
-   (`web.push.apple.com`) валидирует claim `sub` в JWT и отвечает
-   **403 BadJwtToken** на адреса-заглушки.
-2. Нажмите **Сгенерировать ключи**. Ключи хранятся в настройках трекера
-   (`vapid_public_key` / `vapid_private_key` / `vapid_private_pem`), шифрование
-   и подпись — чистый PHP + openssl (RFC 8291 + RFC 8292), без composer.
-3. **Ротация ключей** требует подтверждения: существующие подписки перестают
-   быть валидными, но каждое устройство тихо переподпишется при следующем
-   открытии приложения (self-heal), база восстановится сама.
+1. Fill in the **contact** — `mailto:you@domain.com` or `https://…`. Without
+   a real contact key generation is blocked: Apple
+   (`web.push.apple.com`) validates the `sub` claim in the JWT and answers
+   **403 BadJwtToken** to placeholder addresses.
+2. Click **Generate keys**. The keys are stored in the tracker settings
+   (`vapid_public_key` / `vapid_private_key` / `vapid_private_pem`); encryption
+   and signing are pure PHP + openssl (RFC 8291 + RFC 8292), no composer.
+3. **Key rotation** asks for confirmation: existing subscriptions stop being
+   valid, but every device quietly re-subscribes on the next
+   opening of the app (self-heal); the base restores itself.
 
-Полоса диагностики на странице показывает: наличие ключей, публичный ключ,
-контакт (и предупреждение, если стоит дефолтный), возраст последнего пинга
-ворнера и коды последних ошибок доставки.
+The diagnostics strip on the page shows: whether keys exist, the public key,
+the contact (with a warning if the default one is set), the age of the worker's
+last ping and the latest delivery error codes.
 
-### 3.2 Вкладка «Подписчики»
+### 3.2 The "Subscribers" tab
 
-Таблица `push_subscriptions`: id, клик, endpoint, страна, язык, UA, статус
-(активна / состарилась), создана, последний показ. Возможности:
+The `push_subscriptions` table: id, click, endpoint, country, language, UA, status
+(active / expired), created, last shown. Capabilities:
 
-- фильтры по статусу/стране, поиск по endpoint и click_id, пагинация 50/стр;
-- операции: **активировать / деактивировать / удалить** (жёсткое удаление —
-  GDPR-сценарий);
-- **CSV-экспорт** всей базы (`;`-разделитель: id;дата;статус;страна;язык;click_id;endpoint);
-- кнопка **Send** в строке — тестовый пуш конкретному подписчику **мимо очереди
-  и крона**, мгновенно. Ответы разбираются честно: 403 — подсказка про
-  невалидный контакт VAPID, 404/410 — подписка мертва, остальное — код ошибки
-  сервиса. Это самый быстрый способ проверить всю трубу (ключи → JWT →
-  push-сервис → устройство).
+- filters by status/country, search by endpoint and click_id, 50 rows/page pagination;
+- operations: **activate / deactivate / delete** (hard deletion —
+  the GDPR scenario);
+- **CSV export** of the whole base (`;` separator: id;date;status;country;language;click_id;endpoint);
+- the **Send** button on a row — a test push to one subscriber **bypassing the queue
+  and the cron**, instantly. Responses are decoded honestly: 403 — a hint about
+  an invalid VAPID contact, 404/410 — the subscription is dead, anything else — the service's
+  error code. This is the fastest way to test the whole pipe (keys → JWT →
+  push service → device).
 
-Подписчики плодятся переустановками и переподписками (endpoint меняет
-push-сервис) — старые ряды сами состариваются через 404/410 при отправке,
-отдельной чистки не нужно. Перед обстрелом проверяйте «свежесть» подписчика
-по его клику (детали клика показывают лендинг и UA установки).
+Subscribers multiply through reinstalls and re-subscriptions (the endpoint is changed by the
+push service) — old rows expire by themselves via 404/410 on send,
+no separate cleanup needed. Before a blast, check a subscriber's "freshness"
+by its click (click details show the landing and the install UA).
 
-### 3.3 Вкладка «Сообщения»
+### 3.3 The "Messages" tab
 
-Сообщения — шаблоны рассылки. Два вида:
+Messages are broadcast templates. Two kinds:
 
-- **Ручные** — то, что вы отправляете кнопкой;
-- **Событийные** (kind `event`) — отправляются кроном автоматически по событию:
-  `install` (установка PWA), `lead`, `sale`, с задержкой `delay_seconds` секунд
-  от события.
+- **Manual** — what you send with a button;
+- **Event-driven** (kind `event`) — sent by the cron automatically on an event:
+  `install` (PWA install), `lead`, `sale`, delayed by `delay_seconds` seconds
+  from the event.
 
-Поля сообщения: заголовок (≤250), текст (≤400), иконка (URL, удобно из
-Галереи), ссылка перехода, сегмент, флаг «активно».
+Message fields: title (≤250), body (≤400), icon (a URL, conveniently from the
+Gallery), click-through link, segment, the "active" flag.
 
-**Сегменты** считаются по счётчикам конверсий подписчика в момент постановки в
-очередь:
+**Segments** are computed from the subscriber's conversion counters at the moment of
+queueing:
 
-| Сегмент | Кто получает |
+| Segment | Who receives it |
 |---|---|
-| `all` | все активные подписчики |
-| `reg0` | без регистрации |
-| `reg1dep0` | есть регистрация, нет депозита |
-| `reg1dep1` | есть регистрация и депозит |
+| `all` | all active subscribers |
+| `reg0` | no registration |
+| `reg1dep0` | registered, no deposit |
+| `reg1dep1` | registered and deposited |
 
-В тексте работают макросы, которые разворачиваются **в момент отправки**:
-`{вариант1|вариант2}` (случайный выбор, вложенность ≤10), `{Random=(X,Y)}`,
-`{subid}` и другие кликовые макросы — одно сообщение даёт каждому получателю
-свой текст.
+The body supports macros expanded **at send time**:
+`{variant1|variant2}` (random choice, nesting ≤10), `{Random=(X,Y)}`,
+`{subid}` and other click macros — one message gives every recipient
+its own text.
 
-### 3.4 Отправка: очередь и крон
+### 3.4 Sending: the queue and the cron
 
-Панель сама ничего не рассылает. Кнопка **«Отправить сейчас»** в строке
-сообщения ставит в очередь (`push_queue`) по одной записи на каждого активного
-подписчика сегмента с защитой от дублей, и отвечает «В очередь поставлено: N».
+The panel itself sends nothing. The **"Send now"** button on a message row
+queues (`push_queue`) one entry per active subscriber of the segment, with duplicate protection, and answers "Queued: N".
 
-Доставку выполняет крон-воркер **`cli/push_cron.php`** — **каждую минуту**:
+Delivery is done by the cron worker **`cli/push_cron.php`** — **every minute**:
 
 ```
 * * * * * www-data php /var/www/orbitra/cli/push_cron.php --quiet >> /var/www/orbitra/var/logs/push.log 2>&1
 ```
 
-Строка ставится `install.sh` автоматически (маркер `# orbitra-push`); проверка:
-`crontab -u www-data -l | grep orbitra-push`. Воркер: flock от параллельного
-запуска, батчи ≤300, повторная попытка через 300 секунд, 429 уважает
-`Retry-After`, 401/403 — один ретрай со свежим JWT, 404/410 — подписка
-состаривается, 5xx/сеть — возврат в очередь. Событийные сообщения триггерятся
-тем же воркером по курсору в settings.
+The line is installed by `install.sh` automatically (marker `# orbitra-push`); check:
+`crontab -u www-data -l | grep orbitra-push`. The worker: flock against parallel
+runs, batches ≤300, retry after 300 seconds, 429 respects
+`Retry-After`, 401/403 — one retry with a fresh JWT, 404/410 — the subscription
+expires, 5xx/network — back into the queue. Event messages are triggered
+by the same worker via a cursor in settings.
 
-Здоровье очереди — в полосе над списком сообщений: pending/done/failed и время
-последнего пинга воркера. Если пинг не тикает — крон не установлен или не
-запускается, доставка стоять не будет.
+Queue health is shown in the strip above the message list: pending/done/failed and the time
+of the worker's last ping. If the ping is not ticking — the cron is not installed or not
+running, and delivery will not happen.
 
-### 3.5 Что значит «отправлено»
+### 3.5 What "sent" means
 
-**201 от push-сервиса — это «конверт принят», а не доставка.** Push-сервис
-шифрование не вскрывает (E2E): он отвечает 201 и молча выбрасывает сообщение,
-если устройство его не прочитает. Финальный судья — только телефон. Смониторенная
-цепочка проверки:
+**A 201 from the push service means "envelope accepted", not delivered.** The push service
+cannot break the encryption (E2E): it answers 201 and silently drops the message
+if the device never reads it. The final judge is the phone alone. A monitored
+verification chain:
 
-1. Push Base → Подписчики → **Send** в строке → баннер «принят»;
-2. на устройстве: шторка уведомлений (баннер мог тихо уйти при открытом
-   приложении);
-3. если 201, а тишина — смотрите §4.
-
----
-
-## 4. Диагностика и частые проблемы
-
-**Подписки нет вообще** — детали клика: `push_fail_reason` назовёт причину
-(`unsupported` = нет Push API — вебвью Telegram/Chrome на iOS; `insecure` =
-нет HTTPS; `nokey` = VAPID не настроен; `denied` = отказ; `timeout` = медленная
-сеть — подписка доедет при следующем открытии через self-heal).
-
-**iOS — только Safari и только с домашнего экрана.** Веб-пуш на iOS работает
-при условиях: iOS ≥ 16.4, приложение добавлено «На экран Домой» **именно из
-Safari** (в обычной Safari объекта `Notification` нет — подписка не создаётся
-никогда), домен с нормальным публичным сертификатом. Приложение, добавленное
-на домашний экран из **Chrome (CriOS)**, пуши не гарантирует: проверяйте
-браузер установки по UA в деталях клика (`CriOS/…` = Chrome,
-`Version/…` = Safari). Не работает — переустановите иконку из Safari.
-
-**403 BadJwtToken при отправке** — невалидный контакт VAPID: Apple отвергает
-адреса-заглушки (`mailto:orbitra@localhost`). Впишите реальный `mailto:`.
-
-**201, но не приходит всем и везде** — проверьте, что сервер на актуальной
-версии (`git log --oneline -1` через `sudo -u www-data`): ранние сборки имели
-дефекты крипто-конверта (заголовок без keyid, key schedule не по RFC 8291),
-которые сервис принимал с 201. Затем контрольный эксперимент: десктопный
-Chrome → установить PWA → Allow → Send: если на десктопе приходит, а на
-iPhone нет — проблема в устройстве/канале (VPN рвёт постоянное соединение
-APNs; Chrome-установки), если и на десктопе нет — пишите в поддержку с кодом
-ошибки из полосы диагностики.
-
-**«Кнопки не нажимаются» после обновления панели** — почти всегда кэш
-браузера со старым `index.html`: hard-reload (Cmd+Shift+R) или приватная
-вкладка.
-
-**Тишина крона** — `push_cron_last_ping_at` не тикает: крон не установлен.
-`crontab -u www-data -l | grep orbitra-push`; лог — `var/logs/push.log`.
+1. Push Base → Subscribers → **Send** on the row → the "accepted" banner;
+2. on the device: the notification shade (the banner may have silently passed while the
+   app was open);
+3. if 201 but silence — see §4.
 
 ---
 
-## 5. Тесты
+## 4. Troubleshooting and common problems
 
-- `tests/push_sender_test.php` — криптография: ES256-подпись верифицируется
-  openssl, ключ в `k=` совпадает с подписанным ключом, расшифровка записи
-  побайтово как делает браузер (keyid читается с провода), эталонный вектор от
-  библиотеки web-push (npm) расшифровывается нашим кодом, HKDF по RFC 5869,
-  лимиты размера записи (тело ≤ 4096 байт — лимит Apple/FCM).
-- `tests/push_macros_test.php` — макросы и сегментный SQL.
-- `tests/push_base_test.php` — валидатор `/push_subscribe`, миграции, статика.
-- `tests/push_cron_test.php` — очередь, ретраи, старение подписок.
-- `tests/pwa_landing_test.php` — SW-хендлеры, подстановка `{vapid_public}` при
-  отдаче, заголовок `Service-Worker-Allowed`.
-- `tests/domain_pwa_test.php` — корневой рендер привязанного домена, куки,
-  органические клики, приоритеты привязки.
+**No subscription at all** — click details: `push_fail_reason` names the reason
+(`unsupported` = no Push API — the Telegram/Chrome webview on iOS; `insecure` =
+no HTTPS; `nokey` = VAPID not configured; `denied` = refused; `timeout` = slow
+network — the subscription will arrive on the next open via self-heal).
+
+**iOS — Safari only, and only from the home screen.** Web push on iOS works
+under these conditions: iOS ≥ 16.4, the app added to the home screen **specifically from
+Safari** (plain Safari has no `Notification` object — a subscription is never
+created), a domain with a proper public certificate. An app added
+to the home screen from **Chrome (CriOS)** gets no push guarantee: check the
+installing browser by UA in click details (`CriOS/…` = Chrome,
+`Version/…` = Safari). If it does not work — reinstall the icon from Safari.
+
+**403 BadJwtToken when sending** — an invalid VAPID contact: Apple rejects
+placeholder addresses (`mailto:orbitra@localhost`). Enter a real `mailto:`.
+
+**201 but not arriving for everyone everywhere** — check that the server is on the latest
+version (`git log --oneline -1` via `sudo -u www-data`): early builds had
+crypto-envelope defects (a header without keyid, a key schedule not per RFC 8291)
+that the service still accepted with a 201. Then a control experiment:
+desktop Chrome → install the PWA → Allow → Send: if it arrives on the desktop but not on the
+iPhone — the problem is the device/channel (a VPN breaks the persistent
+APNs connection; Chrome installs); if the desktop gets nothing either — write to support with the
+error code from the diagnostics strip.
+
+**"Buttons don't click" after a panel update** — almost always the browser
+cache with an old `index.html`: hard-reload (Cmd+Shift+R) or a private
+tab.
+
+**Silent cron** — `push_cron_last_ping_at` is not ticking: the cron is not installed.
+`crontab -u www-data -l | grep orbitra-push`; the log is `var/logs/push.log`.
+
+---
+
+## 5. Tests
+
+- `tests/push_sender_test.php` — cryptography: the ES256 signature verifies with
+  openssl, the key in `k=` matches the signed key, the record decrypts
+  byte-for-byte the way the browser does it (keyid read off the wire), a reference vector from the
+  web-push library (npm) decrypts with our code, HKDF per RFC 5869,
+  record size limits (body ≤ 4096 bytes — the Apple/FCM limit).
+- `tests/push_macros_test.php` — macros and segment SQL.
+- `tests/push_base_test.php` — the `/push_subscribe` validator, migrations, static files.
+- `tests/push_cron_test.php` — queue, retries, subscription expiry.
+- `tests/pwa_landing_test.php` — SW handlers, `{vapid_public}` substitution at
+  serve time, the `Service-Worker-Allowed` header.
+- `tests/domain_pwa_test.php` — root rendering of a bound domain, cookies,
+  organic clicks, binding priorities.

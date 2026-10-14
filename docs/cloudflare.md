@@ -1,35 +1,35 @@
-# Cloudflare — DNS и SSL доменов
+# Cloudflare — Domain DNS and SSL
 
-Интеграция подключает трекер к Cloudflare через API: домены, которые вы паркуете в Orbitra, получают A-запись на сервер трекера **автоматически**, а при включённом прокси (оранжевое облако) SSL отдаёт край Cloudflare — без certbot и ожидания валидации.
+The integration connects the tracker to Cloudflare via API: domains you park in Orbitra get an A record pointing at the tracker server **automatically**, and with the proxy enabled (orange cloud) SSL is served by the Cloudflare edge — no certbot and no waiting for validation.
 
-Настройка: **⚙ → Интеграции → Cloudflare** (группа «Домены и SSL»). Общая картина по доменам — [Домены и SSL](domains.md).
+Configuration: **⚙ → Integrations → Cloudflare** (the "Domains and SSL" group). The big picture on domains — [Domains and SSL](domains.md).
 
-## 1. API-токен
+## 1. API token
 
 1. Cloudflare → **My Profile → API Tokens → Create Token**.
-2. Шаблон **«Edit zone DNS»** → *Use template*.
-3. **Add more** → добавьте **Zone · Zone · Edit** (нужно для смены SSL-режима зоны; без него DNS тоже работает).
+2. The **"Edit zone DNS"** template → *Use template*.
+3. **Add more** → add **Zone · Zone · Edit** (needed to change the zone's SSL mode; DNS works without it too).
 4. **Zone Resources: Include → All zones**.
-5. Continue to summary → **Create Token** → скопируйте токен.
+5. Continue to summary → **Create Token** → copy the token.
 
-## 2. Аккаунты
+## 2. Accounts
 
-Аккаунтов Cloudflare может быть несколько (например, по одному на байера). Для каждого: название, токен (проверяется при сохранении), число зон.
+There can be several Cloudflare accounts (for example, one per buyer). For each: a name, the token (validated on save), the number of zones.
 
-- **IP сервера** — куда указывают A-записи. По умолчанию определяется автоматически.
-- **SSL режим зоны** — `Flexible` (SSL сразу, Cloudflare ходит на сервер по HTTP), `Full` (на сервере нужен сертификат — Orbitra ставит самоподписанный), `Strict` (нужен доверенный сертификат, см. [Cloudflare Full Strict SSL](CLOUDFLARE_FULL_STRICT_SSL.md)).
-- **Прокси** — оранжевое облако по умолчанию для новых доменов.
+- **Server IP** — what the A records point to. Detected automatically by default.
+- **Zone SSL mode** — `Flexible` (SSL right away, Cloudflare reaches the server over HTTP), `Full` (the server needs a certificate — Orbitra installs a self-signed one), `Strict` (a trusted certificate is required, see [Cloudflare Full Strict SSL](CLOUDFLARE_FULL_STRICT_SSL.md)).
+- **Proxy** — the orange cloud on by default for new domains.
 
-У домена в поле **«Управлять DNS через»** выбирается аккаунт; пусто — аккаунт по умолчанию. Токен, сохранённый до появления мультиаккаунтов, стал аккаунтом №1.
+In the domain's **"Manage DNS via"** field you pick the account; empty means the default account. A token saved before multi-account support appeared became account #1.
 
-## 3. Как это работает
+## 3. How it works
 
-- **Парковка домена.** При добавлении домена (в том числе поддомена) трекер ищет зону в аккаунте — `sub.example.com` найдёт зону `example.com` — и создаёт или обновляет одну A-запись на IP сервера. Лишние A/AAAA-записи того же имени удаляются.
-- **Зоны нет в аккаунте** — домен работает как обычно: DNS вручную, сертификат Let's Encrypt.
-- **Import & Auto-DNS** — подтянуть зоны аккаунта и одним действием припарковать выбранные в трекер. Уже добавленные помечены «уже в трекере».
-- **Переезд на новый сервер** — смените IP сервера и нажмите **«Перепрописать A-записи»** у аккаунта (или **«Перепарковать все домены»**).
-- **Проксированные домены** не идут в очередь certbot, в списке доменов у них SSL «Cloudflare».
+- **Parking a domain.** When a domain is added (including a subdomain), the tracker looks up the zone in the account — `sub.example.com` will find the zone `example.com` — and creates or updates a single A record to the server IP. Extra A/AAAA records of the same name are deleted.
+- **The zone is not in the account** — the domain works as usual: DNS managed manually, a Let's Encrypt certificate.
+- **Import & Auto-DNS** — pull the account's zones and park the selected ones into the tracker in one action. Already-added ones are marked "already in the tracker".
+- **Moving to a new server** — change the server IP and press **"Rewrite A records"** on the account (or **"Re-park all domains"**).
+- **Proxied domains** do not enter the certbot queue; in the domain list their SSL reads "Cloudflare".
 
-## 4. Какие вызовы делает трекер
+## 4. Which calls the tracker makes
 
-`/user/tokens/verify`, `/zones`, `/zones/{id}/dns_records` (GET / POST / PUT / DELETE), `/zones/{id}/settings/ssl`. Аккаунты хранятся в таблице `cloudflare_accounts`, у доменов — `dns_account_id`.
+`/user/tokens/verify`, `/zones`, `/zones/{id}/dns_records` (GET / POST / PUT / DELETE), `/zones/{id}/settings/ssl`. Accounts are stored in the `cloudflare_accounts` table; domains carry `dns_account_id`.

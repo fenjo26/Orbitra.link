@@ -1,69 +1,69 @@
-# Домены и SSL
+# Domains and SSL
 
-Раздел **Домены**. Домен — это хост, на который приходят ссылки кампаний. Панель доступна и без доменов, по IP сервера: `http://<ip>/admin.php`.
+The **Domains** section. A domain is the host campaign links point to. The panel also works without domains, by the server IP: `http://<ip>/admin.php`.
 
-## Добавление
+## Adding
 
-1. **Добавить домен** — один или несколько через запятую (`http(s)://` отрезается сам). Список добавляется в фоне по одному запросу на домен, строки появляются в таблице по мере добавления; окно можно не ждать.
-2. Направьте A-запись домена на IP сервера (показан вверху страницы). Если DNS домена управляет подключённый Cloudflare, Namecheap или Dynadot, запись пропишется сама.
-3. Трекер проверяет DNS и выпускает сертификат автоматически.
+1. **Add domain** — one or several, comma-separated (`http(s)://` is stripped automatically). The list is added in the background, one request per domain; rows appear in the table as they are added, no need to wait for the dialog.
+2. Point the domain's A record at the server IP (shown at the top of the page). If the domain's DNS is managed by a connected Cloudflare, Namecheap or Dynadot, the record is written automatically.
+3. The tracker checks DNS and issues the certificate automatically.
 
-**IP сервера** определяется автоматически. Если сервер за NAT или без исходящего HTTP, задайте его вручную в **Настройки → Общие** — им пользуются и проверка DNS, и выпуск SSL.
+The **server IP** is detected automatically. If the server is behind NAT or has no outgoing HTTP, set it manually in **Settings → General** — both the DNS check and SSL issuance use it.
 
-## Настройки домена
+## Domain settings
 
-| Поле | Смысл |
+| Field | Meaning |
 |---|---|
-| **Index страница** | Кампания, которая открывается при заходе на домен без алиаса |
-| **Перехватывать 404** | Несуществующие пути домена тоже открывают Index-кампанию вместо 404 |
-| **Поисковые роботы** | Запретить (по умолчанию: `noindex` и `robots.txt` с `Disallow: /`) или разрешить индексацию |
-| **HTTPS-only** | 301 с HTTP на HTTPS |
-| **Админ-панель** | «Запретить» — панель и `api.php` на этом домене отвечают 404, трекинг работает. Панель остаётся доступной на других доменах и по IP |
-| **Статус** | «Отключен» — домен отвечает 404 на всё, включая трекинг |
-| **Режим SSL** | Let's Encrypt, Cloudflare, свой сертификат или самоподписанный. Не выбран — Cloudflare для проксированных доменов, иначе Let's Encrypt |
-| **Прокси Cloudflare** | Оранжевое облако: TLS для посетителя завершает Cloudflare; сервер всё равно отвечает по HTTPS на 443 (Orbitra настраивает это сама) |
-| **Управлять DNS через** | Какой аккаунт Cloudflare / Namecheap / Dynadot паркует A-запись этого домена |
-| **Группа** | Для сортировки; группы переименовываются прямо в списке |
-| **PWA** | Домен можно привязать к PWA-лендингу — он будет отдавать приложение с корня ([PWA и Web Push](pwa-push.md)) |
+| **Index page** | The campaign that opens when the domain is visited without an alias |
+| **Catch 404** | Nonexistent paths of the domain also open the Index campaign instead of a 404 |
+| **Search robots** | Disallow (default: `noindex` and a `robots.txt` with `Disallow: /`) or allow indexing |
+| **HTTPS-only** | 301 from HTTP to HTTPS |
+| **Admin panel** | "Disallow" — the panel and `api.php` on this domain respond with 404, tracking keeps working. The panel stays available on other domains and by IP |
+| **Status** | "Disabled" — the domain answers 404 to everything, including tracking |
+| **SSL mode** | Let's Encrypt, Cloudflare, your own certificate, or self-signed. Not selected — Cloudflare for proxied domains, otherwise Let's Encrypt |
+| **Cloudflare proxy** | The orange cloud: TLS for the visitor is terminated by Cloudflare; the server still answers over HTTPS on 443 (Orbitra configures this itself) |
+| **Manage DNS via** | Which Cloudflare / Namecheap / Dynadot account parks this domain's A record |
+| **Group** | For sorting; groups can be renamed right in the list |
+| **PWA** | The domain can be bound to a PWA landing — it will serve the app from the root ([PWA and Web Push](pwa-push.md)) |
 
 ## SSL
 
 ### Let's Encrypt
 
-Сертификаты выпускает фоновый воркер `cli/ssl_installer.php` (крон каждые 5 минут, ставит установщик) через корневой помощник `orbitra-issue-cert` с фиксированными аргументами. Выпуск идёт по `webroot`, конфиг nginx пересобирается из базы. Кнопка **Выпустить SSL** запускает воркер сразу.
+Certificates are issued by the background worker `cli/ssl_installer.php` (a cron every 5 minutes, installed by the installer) through the root helper `orbitra-issue-cert` with fixed arguments. Issuance uses the `webroot` method; the nginx config is rebuilt from the database. The **Issue SSL** button starts the worker immediately.
 
-Статусы в колонке SSL объясняют, чего не хватает: домен ещё не указывает на сервер (сертификат выпустится сам, когда A-запись разойдётся), certbot не установлен, веб-пользователь не может запустить помощник через sudo, сертификат выпущен, но nginx его ещё не отдаёт, в файле нет промежуточного сертификата (Chrome не откроет — перевыпустите) и т.д.
+The statuses in the SSL column explain what is missing: the domain does not point at the server yet (the certificate will be issued by itself once the A record propagates), certbot is not installed, the web user cannot run the helper via sudo, the certificate is issued but nginx is not serving it yet, the file is missing the intermediate certificate (Chrome will refuse to open — reissue), and so on.
 
-Если панель пишет, что веб-пользователь не может запустить помощник, выполните один раз:
+If the panel says the web user cannot run the helper, run this once:
 
 ```bash
 sudo bash /var/www/orbitra/cli/server_setup.sh
 ```
 
-Полная диагностика SSL на сервере: `sudo bash /var/www/orbitra/cli/ssl_diagnose.sh`.
+Full SSL diagnostics on the server: `sudo bash /var/www/orbitra/cli/ssl_diagnose.sh`.
 
 ### Cloudflare
 
-При прокси Cloudflare сертификат посетителю отдаёт Cloudflare, а на сервере для режима **Full** ставится самоподписанный. Для **Full (Strict)** укажите пути к сертификату и ключу Cloudflare Origin CA в поле «Свой сертификат». Режимы подробно — [Cloudflare Full Strict SSL](CLOUDFLARE_FULL_STRICT_SSL.md) (на английском).
+With the Cloudflare proxy, the visitor's certificate is served by Cloudflare, and a self-signed one is installed on the server for the **Full** mode. For **Full (Strict)**, enter the paths to the Cloudflare Origin CA certificate and key in the "Custom certificate" field. The modes are covered in detail in [Cloudflare Full Strict SSL](CLOUDFLARE_FULL_STRICT_SSL.md) (in English).
 
-### Свой сертификат
+### Custom certificate
 
-Пути к файлам сертификата и ключа на сервере. Пути проверяются на допустимые символы до записи в конфиг nginx.
+Paths to the certificate and key files on the server. Paths are validated for allowed characters before being written to the nginx config.
 
-### Панель по IP
+### Panel by IP
 
-`https://<ip>/admin.php` работает с самоподписанным сертификатом (Let's Encrypt не выдаёт сертификаты на IP). Если конфиг nginx правили руками и панель перестала отвечать, пересоберите его из базы: `sudo php /var/www/orbitra/cli/nginx_sync.php`.
+`https://<ip>/admin.php` works with a self-signed certificate (Let's Encrypt does not issue certificates for IPs). If the nginx config was edited by hand and the panel stopped responding, rebuild it from the database: `sudo php /var/www/orbitra/cli/nginx_sync.php`.
 
-## Регистраторы и DNS-провайдеры
+## Registrars and DNS providers
 
-Подключаются в **⚙ → Интеграции**, группа «Домены и SSL». У каждого провайдера может быть несколько аккаунтов; для каждого домена выбирается, через какой аккаунт им управлять.
+Connected under **⚙ → Integrations**, in the "Domains and SSL" group. Each provider can have several accounts; for each domain you choose which account manages it.
 
-| Провайдер | Что умеет |
+| Provider | What it can do |
 |---|---|
-| **Cloudflare** | A-запись на сервер при добавлении домена (зона ищется по родителю: `sub.example.com` → `example.com`), лишние A/AAAA этого имени удаляются; режим SSL зоны; прокси; **Import & Auto-DNS** — подтянуть зоны аккаунта в трекер; перепрописать все A-записи аккаунта на новый IP. Подробно — [Cloudflare](cloudflare.md) |
-| **Namecheap** | Баланс, импорт доменов, покупка с парковкой (контакт из Address Book, цена регистрации на год из прайса аккаунта), A-записи при добавлении домена |
-| **Dynadot** | Аккаунты по API-ключу с балансом, импорт доменов, покупка с парковкой, A-записи при добавлении. Домены на своих NS (например, Cloudflare) не трогаются, в DNS-зоне Dynadot остальные записи (MX, TXT) сохраняются. Запросы к одному ключу идут последовательно — Dynadot банит параллельные |
+| **Cloudflare** | An A record to the server when a domain is added (the zone is looked up by parent: `sub.example.com` → `example.com`), extra A/AAAA records of that name are removed; the zone's SSL mode; proxy; **Import & Auto-DNS** — pull an account's zones into the tracker; rewrite all of an account's A records to a new IP. For details, see [Cloudflare](cloudflare.md) |
+| **Namecheap** | Balance, domain import, purchase with parking (contact from Address Book, one-year registration price from the account's price list), A records when a domain is added |
+| **Dynadot** | Accounts by API key with balance, domain import, purchase with parking, A records on adding. Domains on custom NS (for example, Cloudflare) are not touched; in Dynadot's DNS zone the remaining records (MX, TXT) are preserved. Requests to one key run sequentially — Dynadot bans parallel ones |
 
 ## Backorder
 
-**⚙ → Backorder** — мониторинг доменов, которые хотите перехватить: список доменов с проверкой «свободен / занят», заметками и экспортом в TXT/CSV. Автопроверка работает, пока открыта страница; круглосуточно — через крон в **Настройки → Автоматизация** (каждые 3 минуты, `backorder_cron.php`).
+**⚙ → Backorder** — monitoring of domains you want to catch: a list of domains with "free / taken" checks, notes, and TXT/CSV export. Auto-checking works while the page is open; around the clock — via the cron in **Settings → Automation** (every 3 minutes, `backorder_cron.php`).

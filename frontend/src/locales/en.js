@@ -2880,6 +2880,8 @@ export default {
         "backupStep3Desc": "Enter the Keitaro server IP — the commands below fill it in. Run the command in a terminal on your own computer (not on the server): the file lands in Downloads.",
         "serverIpLabel": "Keitaro server IP",
         "serverIpPlaceholder": "Keitaro server IP, e.g. 203.0.113.10",
+        "dumpOnServerTitle": "Create the dump on the Keitaro server (SSH as root) — the whole command at once:",
+        "dumpOnServerHint": "It reads credentials from Keitaro's own inventory.env, dumps the settings tables only (no click logs) and leaves /root/keitaro_orbitra_full.sql.gz.",
         "scpUnix": "macOS / Linux",
         "scpWindows": "Windows (PowerShell)",
         "copyCommand": "Copy command",

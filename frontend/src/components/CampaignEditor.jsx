@@ -472,7 +472,6 @@ const CampaignEditor = ({ campaignId, onClose }) => {
     // diagnostics link carries (24h), and a single stream. The modal itself
     // lives in ClickLogModal so the Campaigns list can open the same screen.
     const [clickLogRequest, setClickLogRequest] = useState(null);
-    const [showCostModal, setShowCostModal] = useState(false);
     const [showClearModal, setShowClearModal] = useState(false);
     const [showReportsMenu, setShowReportsMenu] = useState(false);
     const [showReports, setShowReports] = useState(false);
@@ -2847,12 +2846,6 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                     <div className="px-3 py-2 text-xs font-semibold uppercase" style={{ color: 'var(--color-text-muted)' }}>{t('common.actions')}</div>
                                     {/* <div className="h-px mx-2 my-1" style={{ backgroundColor: 'var(--color-border)' }}></div> */}
                                     <button
-                                        onClick={() => { setShowReportsMenu(false); setShowCostModal(true); }}
-                                        className="w-full text-left px-4 py-2 text-sm flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}
-                                    >
-                                        <DollarSign className="w-4 h-4" /> {t('campaigns.updateCosts')}
-                                    </button>
-                                    <button
                                         onClick={openTrafficSimulation}
                                         className="w-full text-left px-4 py-2 text-sm flex items-center gap-2"
                                         style={{ color: 'var(--color-text-primary)' }}
@@ -3499,14 +3492,6 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                         >
                                                             <Plus className="w-3.5 h-3.5" />
                                                             {t('streamRefine.addCostConnection', 'Add Cost Connection')}
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setShowCostModal(true)}
-                                                            className="btn btn-secondary text-xs py-1 px-2.5 rounded-xl flex items-center gap-1.5 whitespace-nowrap"
-                                                        >
-                                                            <DollarSign className="w-3.5 h-3.5" />
-                                                            {t('streamRefine.updateCostsManually', 'Update Costs Manually')}
                                                         </button>
                                                     </div>
                                                 </div>
@@ -6124,50 +6109,6 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                 </button>
                             </div>
                         </form>
-                    </div>
-                </div>
-            )}
-
-            {/* Update Cost Modal */}
-            {showCostModal && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h3 className="modal-title">{t('campaigns.updateCosts')}</h3>
-                            <button onClick={() => setShowCostModal(false)} className="action-btn">
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-                        <div className="space-y-4">
-                            <div>
-                                <label className="form-label">{t('editor.timePeriod')}</label>
-                                <div className="flex gap-2">
-                                    <input type="date" className="form-input" style={{ flex: 1 }} />
-                                    <input type="time" className="form-input" style={{ width: '100px' }} />
-                                    <span style={{ color: 'var(--color-text-muted)' }}>—</span>
-                                    <input type="time" className="form-input" style={{ width: '100px' }} />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="form-label">{t('editor.costAmount')}</label>
-                                <div className="flex gap-2">
-                                    <input type="number" step="0.01" className="form-input" placeholder="0.00" />
-                                    <select className="form-select" style={{ width: 'auto' }}>
-                                        <option>USD</option>
-                                        <option>EUR</option>
-                                        <option>RUB</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <label className="flex items-center gap-2 text-sm" style={{ color: 'var(--color-text-primary)' }}>
-                                <input type="checkbox" className="rounded" />
-                                {t('editor.onlyUniqueClicks')}
-                            </label>
-                        </div>
-                        <div className="modal-footer">
-                            <button onClick={() => setShowCostModal(false)} className="btn btn-secondary">{t('common.cancel')}</button>
-                            <button className="btn btn-primary">{t('common.update')}</button>
-                        </div>
                     </div>
                 </div>
             )}

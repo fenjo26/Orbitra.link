@@ -906,6 +906,21 @@ if ! crontab -u www-data -l 2>/dev/null | grep -qF "$SPOOL_CRON_MARKER"; then
       || echo "  > NOTE: could not write the crontab. Add this line manually: * * * * * php /var/www/orbitra/cli/click_spool_cron.php"
 fi
 
+# Retention windows. The SystemSettings "log retention" and "archive
+# retention" fields are only words until cli/cleanup_cron.php runs — a fresh
+# install without this line saved the windows but never purged anything, and
+# the database grew forever. Daily is enough: the windows are in days.
+echo "  > Scheduling the retention cleanup worker (daily)..."
+CLEANUP_CRON_MARKER="# orbitra-cleanup"
+if ! crontab -u www-data -l 2>/dev/null | grep -qF "$CLEANUP_CRON_MARKER"; then
+    {
+        crontab -u www-data -l 2>/dev/null
+        echo "41 3 * * * php /var/www/orbitra/cli/cleanup_cron.php >> /var/www/orbitra/var/logs/cleanup.log 2>&1 $CLEANUP_CRON_MARKER"
+    } | crontab -u www-data - 2>/dev/null \
+      && echo "  > Retention cleanup scheduled (daily)." \
+      || echo "  > NOTE: could not write the crontab. Add this line manually: 41 3 * * * php /var/www/orbitra/cli/cleanup_cron.php"
+fi
+
 # Outbound postback / CAPI queue worker. Every server-side conversion -- affiliate
 # postbacks and Facebook/TikTok Conversions API events alike -- is written to
 # s2s_postbacks_log as 'pending' and delivered from there. Without this worker the

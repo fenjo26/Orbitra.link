@@ -7,6 +7,22 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.19] — 2026-10-14
+
+### Added
+
+- ⏰ **Retention cleanup is scheduled for every install.** `install.sh` now adds the `cli/cleanup_cron.php` daily cron, and the update self-heal (`server_setup_status`) installs it for existing installs through the same idempotent marker pattern as the click-spool cron — until now the SystemSettings "log retention" / "archive retention" fields were saved on fresh installs while nothing ever purged, and the database grew forever
+
+- 🌐 **Documentation is in English now.** The public repo's `docs/` tree is translated (the GitHub wiki publishes it — English page names via `cli/wiki_sync.py`), with the Russian versions kept in `docs/ru/` together with the internal Russian-only spec pages (ТЗ), which are no longer published to the wiki at all
+
+### Fixed
+
+- 📦 **The Keitaro dump command is back on the Migrations page.** A refactor (8d3bac8) dropped the server-side dump command together with the old steps, leaving scp commands that fetch a file nothing on the Keitaro server creates. Step 1 now shows the full command again — run it on the Keitaro server over SSH as root; it reads credentials from Keitaro's own `inventory.env`, works with a host or container MariaDB, dumps the settings tables only and refuses when none are found (identical to docs/keitaro-migration.md)
+- 🔔 **The conversion-failure alert actually sends to Telegram.** `orbitraSendConversionAlert()` only wrote a log line while reporting success — a placeholder where the delivery should have been. It now sends through the panel's own bot (`core/telegram_api.php`) to every chat that turned conversion notifications on (`/notify on`); the cron's "Alert sent successfully" is finally true, and the log line stays
+- 🔐 **Non-admins: `logs_param_keys` and `cohort` no longer 403.** Both actions fell into the resource-map's default-deny hole: a user with logs read access saw the traffic log fine but its parameter-column suggestions broke, and the Analytics cohort view was admin-only. `logs_param_keys` joins the logs read group, `cohort` rides the trends-style read whitelist (pinned by a RBAC test)
+- 🗑️ **Dead "Update Costs" modal removed from the campaign editor.** Every input in it was uncontrolled and its Update button had no handler — including the "unique clicks only" checkbox that touched nothing. The working manual cost update (with the checkbox that does filter) lives in the Campaigns list and stays
+- 📄 **`.env.example` stops telling people to copy it to `.env`.** PHP never reads that file; the variables belong in the PHP-FPM pool or the Apache VirtualHost. The file now says so, with concrete examples
+
 ## [1.6.18] — 2026-10-14
 
 ### Added

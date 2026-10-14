@@ -1,39 +1,39 @@
-**[Главная](index.md)**
+**[Home](index.md)**
 
-**Начало работы**
-- [Быстрый старт](getting-started.md)
-- [Установка и обновление](deployment.md)
-- [Миграция из Keitaro](keitaro-migration.md)
-- [Возможности](features.md)
+**Getting started**
+- [Quick start](getting-started.md)
+- [Install & update](deployment.md)
+- [Migrating from Keitaro](keitaro-migration.md)
+- [Feature overview](features.md)
 
-**Трафик**
-- [Кампании и потоки](campaigns.md)
-- [Клоакинг](cloaking.md)
+**Traffic**
+- [Campaigns & streams](campaigns.md)
+- [Cloaking](cloaking.md)
 - [Landing pages](landing-pages.md)
 - [Tracking Client (PHP)](tracking-client-php.md)
-- [PWA и Web Push](pwa-push.md)
+- [PWA & Web Push](pwa-push.md)
 - [PWA Funnel](pwa-funnel.md)
-- [Галерея контента](content-gallery.md)
+- [Content gallery](content-gallery.md)
 
-**Конверсии и деньги**
-- [Постбеки и конверсии](postbacks.md)
-- [Расходы](costs.md)
+**Conversions & money**
+- [Postbacks & conversions](postbacks.md)
+- [Costs](costs.md)
 - [Facebook / Meta](facebook.md)
 - [Dolphin / Fbtool](dolphin-fbtool.md)
-- [Источники и партнёрки](sources-and-networks.md)
+- [Sources & networks](sources-and-networks.md)
 
-**Аналитика**
-- [Отчёты и логи](reports.md)
+**Analytics**
+- [Reports & logs](reports.md)
 
-**Инфраструктура**
-- [Домены и SSL](domains.md)
+**Infrastructure**
+- [Domains & SSL](domains.md)
 - [Cloudflare](cloudflare.md)
 
-**Управление**
-- [Администрирование](administration.md)
-- [Telegram-бот](telegram.md)
+**Management**
+- [Administration](administration.md)
+- [Telegram bot](telegram.md)
 - [MCP](mcp.md)
 - [REST API](api.md)
 
-**Разработчикам**
-- [Архитектура](architecture.md)
+**For developers**
+- [Architecture](architecture.md)

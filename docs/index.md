@@ -1,60 +1,60 @@
-# Документация Orbitra
+# Orbitra Documentation
 
-Orbitra — self-hosted трекер трафика и конверсий: кампании и потоки, клоакинг, лендинги и PWA, постбеки, импорт расходов, отчёты. Работает на одном недорогом VPS (PHP + SQLite + Nginx) и совместим с Keitaro по Click API, токенам кампаний и шаблонам.
+Orbitra is a self-hosted traffic and conversion tracker: campaigns and streams, cloaking, landing pages and PWA, postbacks, cost import, reports. It runs on a single inexpensive VPS (PHP + SQLite + Nginx) and is Keitaro-compatible via Click API, campaign tokens, and templates.
 
-Документация актуальна для **v1.6.17**. Что поменялось в каждой версии — [CHANGELOG](../CHANGELOG.md).
+This documentation is current for **v1.6.19**. For what changed in each version, see the [CHANGELOG](../CHANGELOG.md).
 
 ```bash
 wget -O orbitra-install.sh https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/install.sh && bash orbitra-install.sh
 ```
 
-## Начало работы
+## Getting started
 
-- [Быстрый старт: первая кампания](getting-started.md)
-- [Установка и обновление](deployment.md)
-- [Миграция из Keitaro](keitaro-migration.md)
-- [Обзор возможностей](features.md)
+- [Quick start: your first campaign](getting-started.md)
+- [Installation and updates](deployment.md)
+- [Migrating from Keitaro](keitaro-migration.md)
+- [Feature overview](features.md)
 
-## Трафик
+## Traffic
 
-- [Кампании и потоки](campaigns.md) — фильтры, схемы, ротация, тестовые ссылки
-- [Клоакинг](cloaking.md) · [How the cloaker works](cloak-how-it-works.md) (EN)
-- [Landing pages](landing-pages.md) (EN) — типы лендингов, `{offer}`, макросы, JS-адаптер, LeadForge
+- [Campaigns and streams](campaigns.md) — filters, schemas, rotation, test links
+- [Cloaking](cloaking.md) · [How the cloaker works](cloak-how-it-works.md) (EN)
+- [Landing pages](landing-pages.md) (EN) — landing types, `{offer}`, macros, the JS adapter, LeadForge
 - [Tracking Client (PHP)](tracking-client-php.md) (EN) — `kclient.php`
-- [PWA-лендинги и Web Push](pwa-push.md) · [PWA Funnel](pwa-funnel.md) (EN)
-- [Галерея контента](content-gallery.md)
+- [PWA landing pages and Web Push](pwa-push.md) · [PWA Funnel](pwa-funnel.md) (EN)
+- [Content gallery](content-gallery.md)
 
-## Конверсии и деньги
+## Conversions and money
 
-- [Постбеки и конверсии](postbacks.md) — входящие постбеки, статусы, S2S в источник
-- [Расходы](costs.md) — Facebook, TikTok, Google Ads, агрегатор доходов
-- [Facebook / Meta](facebook.md) (EN) — импорт расходов и Conversions API
-- [Dolphin / Fbtool](dolphin-fbtool.md) — приём расходов через Keitaro Admin API
-- [Источники трафика и партнёрские сети](sources-and-networks.md)
+- [Postbacks and conversions](postbacks.md) — incoming postbacks, statuses, S2S to the source
+- [Costs](costs.md) — Facebook, TikTok, Google Ads, the revenue aggregator
+- [Facebook / Meta](facebook.md) (EN) — cost import and Conversions API
+- [Dolphin / Fbtool](dolphin-fbtool.md) — receiving costs via the Keitaro Admin API
+- [Traffic sources and affiliate networks](sources-and-networks.md)
 - [Affiliate network offer parameters](affiliate-network-parameters.md) (EN)
 
-## Аналитика
+## Analytics
 
-- [Отчёты, логи и метрики](reports.md)
+- [Reports, logs, and metrics](reports.md)
 
-## Инфраструктура
+## Infrastructure
 
-- [Домены и SSL](domains.md)
+- [Domains and SSL](domains.md)
 - [Cloudflare](cloudflare.md) · [Cloudflare Full Strict SSL](CLOUDFLARE_FULL_STRICT_SSL.md) (EN)
 
-## Управление и интеграции
+## Management and integrations
 
-- [Администрирование](administration.md) — пользователи, права, настройки, гео-базы, обновление
-- [Telegram-бот](telegram.md)
-- [MCP: ИИ-ассистент в трекере](mcp.md)
-- [REST API](api.md) — авторизация и каталог всех действий
+- [Administration](administration.md) — users, permissions, settings, geo databases, updates
+- [Telegram bot](telegram.md)
+- [MCP: an AI assistant in the tracker](mcp.md)
+- [REST API](api.md) — authorization and the catalog of all actions
 
-## Для разработчиков
+## For developers
 
-- [Архитектура](architecture.md) — устройство, кроны, база, разработка, выпуск версии
-- Технические задания и разборы: [нагрузка и SQLite](TZ_LOAD_PERFORMANCE.md), [SSL-цепочки и приватность](TZ_SSL_CHAIN_AND_PRIVACY.md), [Web Push](TZ_PWA_PUSH.md), [логи, гео, потоки](TZ_LOGS_GEO_STREAMS.md), [Media Core v1](media-core-v1.md), [LeadForge subid validation](leadforge-subid-validation.md) (EN)
-- [Архив устаревших документов](archive/README.md)
+- [Architecture](architecture.md) — internals, crons, the database, development, releasing a version
+- Technical specs and write-ups: [load and SQLite](TZ_LOAD_PERFORMANCE.md), [SSL chains and privacy](TZ_SSL_CHAIN_AND_PRIVACY.md), [Web Push](TZ_PWA_PUSH.md), [logs, geo, streams](TZ_LOGS_GEO_STREAMS.md), [Media Core v1](media-core-v1.md), [LeadForge subid validation](leadforge-subid-validation.md) (EN)
+- [Archive of outdated documents](archive/README.md)
 
-## Поддержка
+## Support
 
-Вопросы и баги — [GitHub Issues](https://github.com/fenjo26/Orbitra.link/issues). В панели: **⚙ → Поддержка и отзывы**.
+Questions and bugs — [GitHub Issues](https://github.com/fenjo26/Orbitra.link/issues). In the panel: **⚙ → Support and feedback**.

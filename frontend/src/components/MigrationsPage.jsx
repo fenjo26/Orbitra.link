@@ -4,6 +4,53 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 const API_URL = '/api.php';
 
+// Creates the settings-only dump ON the Keitaro server (run there, as root,
+// over SSH). Kept identical to docs/keitaro-migration.md: credentials come
+// from Keitaro's own inventory.env, works with a host MariaDB client or the
+// one inside Keitaro's container, dumps settings tables only (no click logs)
+// and refuses to run when none are found. 8d3bac8 dropped this block from the
+// panel together with the old steps, leaving scp commands that fetch a file
+// nothing on the server creates.
+const KEITARO_DUMP_CMD = `bash <<'ORBITRA_DUMP'
+set -eo pipefail
+source /etc/keitaro/env/inventory.env
+set -u
+export MYSQL_PWD="$MARIADB_KEITARO_PASSWORD"
+DB="$MARIADB_KEITARO_DATABASE"
+if CLI=$(command -v mariadb || command -v mysql) && DUMP=$(command -v mariadb-dump || command -v mysqldump); then
+  sql()  { "$CLI"  -u"$MARIADB_KEITARO_USER" -h127.0.0.1 -P3306 --protocol=tcp "$@" </dev/null; }
+  dump() { "$DUMP" -u"$MARIADB_KEITARO_USER" -h127.0.0.1 -P3306 --protocol=tcp "$@" </dev/null; }
+else
+  CT=$(docker ps --format '{{.Names}}' 2>/dev/null | grep -i -m1 -E 'mariadb|mysql' || true)
+  if [ -z "$CT" ]; then
+    echo "ERROR: no MariaDB client on this server and no MariaDB container found" >&2
+    exit 1
+  fi
+  echo "Using MariaDB inside container: $CT"
+  sql()  { docker exec -e MYSQL_PWD "$CT" sh -c 'exec $(command -v mariadb || command -v mysql) "$@"' sh -u"$MARIADB_KEITARO_USER" "$@" </dev/null; }
+  dump() { docker exec -e MYSQL_PWD "$CT" sh -c 'exec $(command -v mariadb-dump || command -v mysqldump) "$@"' sh -u"$MARIADB_KEITARO_USER" "$@" </dev/null; }
+fi
+TABLES=$(sql -N "$DB" -e "
+SELECT table_name FROM information_schema.tables
+WHERE table_schema = DATABASE()
+  AND table_name IN (
+    'keitaro_affiliate_networks', 'keitaro_groups', 'keitaro_offers',
+    'keitaro_domains', 'keitaro_campaigns', 'keitaro_campaign_postbacks',
+    'keitaro_landings', 'keitaro_streams', 'keitaro_stream_filters',
+    'keitaro_stream_offer_associations', 'keitaro_stream_landing_associations',
+    'keitaro_traffic_sources', 'keitaro_ref_sources')
+ORDER BY table_name" | tr '\\n' ' ')
+if [ -z "$(echo $TABLES)" ]; then
+  echo "ERROR: no Keitaro tables found in database $DB" >&2
+  exit 1
+fi
+OUT=/root/keitaro_orbitra_full.sql.gz
+echo "Dumping tables: $TABLES"
+dump --single-transaction --quick --skip-lock-tables "$DB" $TABLES | gzip -1 > "$OUT"
+ls -lah "$OUT"
+echo "DONE: $OUT"
+ORBITRA_DUMP`;
+
 const MigrationsPage = () => {
     const { t } = useLanguage();
     const [migrations, setMigrations] = useState([]);
@@ -344,6 +391,45 @@ const MigrationsPage = () => {
                                     <p className="text-sm mb-2" style={{ color: 'var(--color-text-secondary)' }}>
                                         {t('migrations.backupStep1Desc')}
                                     </p>
+                                    {/* The dump command runs ON the Keitaro server (SSH, root) and
+                                        creates the file the scp commands below then fetch. */}
+                                    <div className="text-xs mb-1" style={{ color: 'var(--color-text-muted)' }}>
+                                        {t('migrations.dumpOnServerTitle')}
+                                    </div>
+                                    <p className="text-xs mb-2" style={{ color: 'var(--color-text-muted)' }}>
+                                        {t('migrations.dumpOnServerHint')}
+                                    </p>
+                                    <div className="flex items-stretch gap-2 mb-3">
+                                        <code style={{
+                                            flex: 1,
+                                            minWidth: 0,
+                                            background: '#1e1e1e',
+                                            color: '#d4d4d4',
+                                            borderRadius: '8px',
+                                            padding: '10px 12px',
+                                            fontSize: '11px',
+                                            fontFamily: 'monospace',
+                                            overflowX: 'auto',
+                                            maxHeight: '120px',
+                                            overflowY: 'auto',
+                                            whiteSpace: 'pre'
+                                        }}>{KEITARO_DUMP_CMD}</code>
+                                        <button
+                                            type="button"
+                                            onClick={() => copyToClipboard(KEITARO_DUMP_CMD, 'dump')}
+                                            className="text-xs px-3 rounded-lg flex items-center gap-1 transition-colors shrink-0"
+                                            style={{
+                                                background: copySuccess === 'dump' ? 'var(--color-success-bg)' : 'var(--color-bg-hover)',
+                                                color: copySuccess === 'dump' ? 'var(--color-success)' : 'var(--color-primary)',
+                                                border: '1px solid var(--color-border)',
+                                                cursor: 'pointer'
+                                            }}
+                                            title={copySuccess === 'dump' ? t('common.copied') : t('migrations.copyCommand')}
+                                        >
+                                            {copySuccess === 'dump' ? <Check size={12} /> : <Terminal size={12} />}
+                                            {copySuccess === 'dump' ? t('common.copied') : t('migrations.copyCommand')}
+                                        </button>
+                                    </div>
                                     {/* The server IP is typed once and substituted into ready commands:
                                         the old static block made people swap YOUR_KEITARO_SERVER_IP by
                                         hand, and its first variant ended in a lone " ." that got lost in

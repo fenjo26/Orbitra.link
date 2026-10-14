@@ -1,81 +1,81 @@
-# Отчёты, логи и метрики
+# Reports, logs and metrics
 
-## Часовой пояс и период
+## Time zone and period
 
-Все отчёты, графики и логи показывают время в одном поясе: выбранном в календаре периода, а если там ничего не выбрано — в поясе профиля. Список — около 350 зон по регионам, пояс профиля закреплён сверху. Первый день недели в календаре берётся из профиля. В таблицах при наведении на время видно UTC.
+All reports, charts and logs show time in a single zone: the one selected in the period calendar, or the profile zone when nothing is selected there. The list has about 350 zones grouped by region, with the profile zone pinned to the top. The calendar's first day of the week comes from the profile. In tables, hovering over a time shows UTC.
 
-## Дашборд
+## Dashboard
 
-- **Карточки и график** — визиты, клики, конверсии, доход, расход, прибыль за период. Набор карточек и метрика графика настраиваются в настройках дашборда.
-- **Блоки «Кампании / Офферы / Лендинги / Источники»** — топ-10. Клик по заголовку колонки сортирует по кликам, уникальным, конверсиям или названию, причём сортируется весь список до отбора топа. Сортировка запоминается для каждого блока.
-- **Последние клики** — по умолчанию ID события, дата и время, кампания, ОС (логотип), браузер (логотип), IP, направление. Шестерёнка открывает выбор колонок (доступны ещё гео, тип устройства, сырой User-Agent, домен). Колонки перетаскиваются за ручку и меняют ширину, двойной клик по краю сбрасывает ширину.
-- Если не установлена гео-база или установлен только Sypex Geo, сверху висит баннер с предложением подключить базу.
+- **Cards and chart** — visits, clicks, conversions, revenue, cost, profit for the period. The set of cards and the chart metric are configured in the dashboard settings.
+- **"Campaigns / Offers / Landings / Sources" blocks** — top 10. Clicking a column header sorts by clicks, uniques, conversions or name — and the full list is sorted before the top is cut. The sorting is remembered per block.
+- **Latest clicks** — by default: event ID, date and time, campaign, OS (logo), browser (logo), IP, destination. The gear icon opens column selection (geo, device type, raw User-Agent and domain are also available). Columns can be dragged by the handle and resized; double-clicking the edge resets the width.
+- If no geo database is installed, or only Sypex Geo is, a banner at the top suggests connecting one.
 
-## Список кампаний
+## Campaign list
 
-Колонки выбираются в настройщике отчёта; есть готовые пресеты (например, «Трафик», «Лендинг → Оффер»). Колонки перетаскиваются и меняют ширину; ID, статус и название закреплены слева и не уезжают при прокрутке широкой таблицы. На телефоне строки превращаются в карточки, набор метрик в карточке выбирается отдельно.
+Columns are chosen in the report customizer; ready-made presets exist (for example, "Traffic", "Landing → Offer"). Columns can be dragged and resized; ID, status and name are pinned left and stay put when the wide table scrolls. On a phone, rows turn into cards, and the set of metrics in a card is chosen separately.
 
-Кнопка лога кликов в строке кампании открывает полный лог трафика с фильтром по этой кампании.
+The click log button in a campaign row opens the full traffic log filtered to that campaign.
 
-## Отчёт по кампании
+## Campaign report
 
-Конструктор: группировка по одному или нескольким измерениям, фильтры, набор метрик, экспорт в CSV.
+A builder: grouping by one or several dimensions, filters, a set of metrics, CSV export.
 
-**Измерения:** кампания, поток, лендинг, оффер, источник; страна, регион, город; тип устройства, ОС, браузер, язык; день, час; время до оффера (бакеты), время на лендинге (бакеты); первый и последний экран PWA; ID кампании / группы объявлений / объявления, ключевое слово, ID креатива, внешний ID, `sub_id_1` … `sub_id_5`; названия кампании, adset и объявления; UTM-площадка; ISP и ASN.
+**Dimensions:** campaign, stream, landing, offer, source; country, region, city; device type, OS, browser, language; day, hour; time to offer (buckets), time on landing (buckets); first and last PWA screen; campaign / ad group / ad ID, keyword, creative ID, external ID, `sub_id_1` … `sub_id_5`; campaign, adset and ad names; UTM placement; ISP and ASN.
 
-Потоки, удалённые до версии со стабильными ID, показываются как «Удалённый поток #N», потоки без имени — «Поток без названия».
+Streams deleted before the version with stable IDs show up as "Deleted stream #N", and unnamed streams as "Untitled stream".
 
-## Тренды и когорты
+## Trends and cohorts
 
-**Тренды** — графики метрик по дням, неделям, месяцам, часам или дню недели с фильтрами по кампании, офферу, источнику и параметрам. Мультивыбор кампаний и офферов. **Когорты** — кампании группируются по месяцу или кварталу запуска, и видно, как каждая когорта ведёт себя по месяцам жизни (M0, M1…).
+**Trends** — metric charts by day, week, month, hour or day of week with filters by campaign, offer, source and parameters. Multi-select of campaigns and offers. **Cohorts** — campaigns are grouped by launch month or quarter, and you can see how each cohort behaves over its months of life (M0, M1…).
 
-## Логи
+## Logs
 
-**⚙ → Логи**, вкладки: трафик, постбеки, S2S, системный, аудит.
+**⚙ → Logs**, tabs: traffic, postbacks, S2S, system, audit.
 
-### Лог трафика
+### Traffic log
 
-- **Колонки:** базовые плюс любой параметр клика отдельной колонкой (`ad_id`, `campaign_id`, `sub_id_N`, `ttclid`…). Подсказки берутся из параметров, реально встречавшихся в кликах за 14 дней. Выбор и порядок колонок запоминаются в браузере.
-- **Фильтры:** кампания, поток, маршрут и причина клоаки, период; по параметрам — равно / не равно / в списке / не в списке / пусто / не пусто, до 5 условий. «Пусто» отвечает на вопрос «какие клики пришли без этого параметра».
-- **Подгрузка:** «Показать ещё» без потолка в 100 строк. Пагинация по курсору, поэтому новые клики не сдвигают страницу.
-- **CSV:** те же фильтры и видимые колонки, до 100 000 строк, разделитель `;`, UTF-8 с BOM (Excel открывает по колонкам). Ячейки, начинающиеся с `= + - @`, экранируются.
-- **Колонка «Sub ID 1»** — входящий параметр `sub_id_1`, а не ID клика. ID клика, который уходит в сеть, — это ID события.
-- **ОС и браузер** — логотип и версия; встроенные браузеры приложений (Facebook, Instagram, TikTok…) и имена ботов распознаются.
+- **Columns:** the basic ones plus any click parameter as its own column (`ad_id`, `campaign_id`, `sub_id_N`, `ttclid`…). Suggestions come from parameters actually seen in clicks over the last 14 days. The column selection and order are remembered in the browser.
+- **Filters:** campaign, stream, cloaking route and reason, period; for parameters — equals / not equals / in list / not in list / empty / not empty, up to 5 conditions. "Empty" answers the question "which clicks arrived without this parameter".
+- **Loading:** "Show more" with no 100-row ceiling. Pagination is cursor-based, so new clicks do not shift the page.
+- **CSV:** the same filters and visible columns, up to 100,000 rows, `;` separator, UTF-8 with BOM (Excel opens it in columns). Cells starting with `= + - @` are escaped.
+- **The "Sub ID 1" column** — the incoming `sub_id_1` parameter, not the click ID. The click ID that goes to the network is the event ID.
+- **OS and browser** — logo and version; in-app browsers (Facebook, Instagram, TikTok…) and bot names are recognized.
 
-### Карточка клика
+### Click card
 
-Открывается по ID клика в дашборде, логах и журнале постбеков:
+Opens from a click ID in the dashboard, logs and postback journal:
 
-- устройство: ОС и браузер с версиями, марка и модель, встроенный браузер приложения, имя бота — разбирается из сохранённого User-Agent при открытии, поэтому работает и для старых кликов;
-- поток, который взял клик («EU (обычный)»), уникальность (кампания / поток / глобально), флаг прокси, ISP / ASN;
-- **Направление** — реальный URL редиректа с параметрами сети и ID клика, либо действие потока (404, текст, белая страница, «в кампанию #N»);
-- домен, на который пришёл клик;
-- время в поясе панели с названием пояса и отдельная строка UTC; время показа лендинга, перехода на оффер и время до оффера;
-- время на лендинге и глубина прокрутки;
-- все параметры клика, ID рекламных сетей первыми;
-- вердикт и причины клоаки — только если клик судила клоака.
+- device: OS and browser with versions, brand and model, in-app browser, bot name — parsed from the stored User-Agent on open, so it works for old clicks too;
+- the stream that took the click ("EU (regular)"), uniqueness (campaign / stream / global), proxy flag, ISP / ASN;
+- **Destination** — the actual redirect URL with the network's parameters and the click ID, or the stream action (404, text, safe page, "to campaign #N");
+- the domain the click arrived on;
+- time in the panel's zone with the zone name plus a separate UTC line; landing view time, offer click time, and time to offer;
+- time on landing and scroll depth;
+- all click parameters, with ad network IDs first;
+- the cloaking verdict and reasons — only if cloaking judged the click.
 
-## Как считаются метрики
+## How metrics are calculated
 
-| Метрика | Определение |
+| Metric | Definition |
 |---|---|
-| **Визиты** | Все хиты кампании, включая показы лендинга и белой страницы (если белые не исключены из отчётов) |
-| **Клики** | Воронка оффера: прямые переходы на оффер (из каталога или по прямому URL) плюс показы лендинга, с которых посетитель реально ушёл на оффер. Действия «показать текст / 404» и белые страницы — не клики |
-| **Уникальные** | Отдельно по кампании, потоку и глобально |
-| **CPC, CR, EPC** | Делятся на клики |
-| **CPV, EPV** | Делятся на визиты |
-| **ROI** | Прибыль ÷ расход |
-| **Маржа** | Прибыль ÷ доход |
-| **Реальные клики LP / на оффер, Real LP CTR** | Только клики с зафиксированным переходом лендинг → оффер |
-| **Время на лендинге, отказы LP, глубина прокрутки** | По таймеру на странице лендинга. Считается только видимое время; знаменатель — визиты, где таймер отработал. Визиты без таймера (чужой домен без скрипта, боты без JS) — «Неизвестно», а не ноль |
-| **Возможные боты** | Визиты с работавшим таймером лендинга, где не было ни одного движения мыши или касания. Это подсказка присмотреться к источнику, а не исключение из статистики |
-| **Подтверждённые** доход / профит / ROI | Только конверсии подтверждённых типов |
-| **Просмотры экранов PWA** | См. [PWA Funnel](pwa-funnel.md) |
+| **Visits** | All campaign hits, including landing and safe page views (unless safe hits are excluded from reports) |
+| **Clicks** | The offer funnel: direct offers clicked (from the catalog or by direct URL) plus landing views from which the visitor actually went to the offer. "Show text / 404" actions and safe pages are not clicks |
+| **Uniques** | Separate per campaign, stream and globally |
+| **CPC, CR, EPC** | Divided by clicks |
+| **CPV, EPV** | Divided by visits |
+| **ROI** | Profit ÷ cost |
+| **Margin** | Profit ÷ revenue |
+| **Real LP / offer clicks, Real LP CTR** | Only clicks with a recorded landing → offer transition |
+| **Time on landing, LP bounces, scroll depth** | From the timer on the landing page. Only visible time counts; the denominator is visits where the timer ran. Visits without a timer (a foreign domain without the script, bots without JS) are "Unknown", not zero |
+| **Possible bots** | Visits where the landing timer ran but there was not a single mouse movement or touch. This is a hint to look closer at the source, not an exclusion from statistics |
+| **Approved** revenue / profit / ROI | Only conversions of approved types |
+| **PWA screen views** | See [PWA Funnel](pwa-funnel.md) |
 
-Свои формулы — **Настройки → Пользовательские метрики**.
+Custom formulas — **Settings → Custom Metrics**.
 
-Если в кампании включено «Исключить клики Safe Page из отчётов», белые хиты уходят из визитов и всего, что от них считается ([Клоакинг](cloaking.md#запись-и-отчёты)).
+If "Exclude Safe Page clicks from reports" is enabled in the campaign, safe hits leave visits and everything computed from them ([Cloaking](cloaking.md#recording-and-reports)).
 
-## Состояние системы
+## System status
 
-**⚙ → Состояние** — диск, CPU, RAM, размер базы и рекомендации. На хостингах, которые прячут `/proc`, RAM показывается как N/A.
+**⚙ → Status** — disk, CPU, RAM, database size and recommendations. On hostings that hide `/proc`, RAM shows as N/A.

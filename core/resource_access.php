@@ -136,7 +136,11 @@ function orbitraResourceAccessMap(): array
             'hybrid' => [],
         ],
         'logs' => [
-            'read' => ['logs', 'logs_export'],
+            // logs_param_keys: the param-column suggestion list for the traffic
+            // log (GET, read-only, bounded in logs_query.php) — without it here
+            // a non-admin with logs read access got 403 and the column picker
+            // lost its suggestions while the log itself loaded fine.
+            'read' => ['logs', 'logs_export', 'logs_param_keys'],
             'write' => [],
             'hybrid' => [],
         ],
@@ -349,6 +353,10 @@ function orbitraUnmappedAllowedActions(): array
         'metrics' => true,
         'chart' => true,
         'trends' => true,
+        // Campaign-launch cohorts (Analytics page): GET, read-only, the same
+        // class as trends — outside the map it defaulted to admin-only and the
+        // Cohort view 403'd for non-admins with analytics access.
+        'cohort' => true,
         'check_update' => true,
         'worker_health' => true,
         // Read-only for non-admins: the POST side writes server-wide settings.

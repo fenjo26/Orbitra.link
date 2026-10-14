@@ -293,6 +293,22 @@ try {
     sort($reportCampaigns);
     // Both seeded campaigns have clicks; only the owned one may surface.
     $check('own: campaign_report shows only scoped campaigns', [$ownCampaign], $reportCampaigns);
+
+    // --- logs-scoped user: log helpers must not 403 ------------------------
+    // logs_param_keys (the traffic-log column suggestions) is part of the logs
+    // READ group, and cohort (Analytics) rides the trends-style whitelist —
+    // both used to fall into the default-deny hole outside the resource map,
+    // so a non-admin with logs access saw the log fine but its param-column
+    // picker broke, and the Cohort view 403'd.
+    $insertUser('rbac_logs', 'user', ['logs' => ['access' => 'read']]);
+    try {
+        $harness->getPdo()->exec('DELETE FROM rate_limits');
+    } catch (\Throwable $e) {
+    }
+    $logsUser = $login('rbac_logs');
+    $check('logs user: logs allowed', 200, $get('logs', $logsUser)['code']);
+    $check('logs user: logs_param_keys allowed', 200, $get('logs_param_keys', $logsUser)['code']);
+    $check('logs user: cohort allowed', 200, $get('cohort', $logsUser)['code']);
 } finally {
     $harness->stop();
 }

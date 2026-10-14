@@ -2580,6 +2580,8 @@ export default {
         "backupStep3Desc": "Введите IP сервера Keitaro — команды ниже подставят его сами. Выполните команду в терминале своего компьютера (не на сервере): файл попадёт в «Загрузки».",
         "serverIpLabel": "IP сервера Keitaro",
         "serverIpPlaceholder": "IP сервера Keitaro, например 203.0.113.10",
+        "dumpOnServerTitle": "Создайте дамп на сервере Keitaro (SSH под root) — команда целиком:",
+        "dumpOnServerHint": "Читает доступы из inventory.env самого Keitaro, выгружает только таблицы настроек (без логов кликов) и оставляет /root/keitaro_orbitra_full.sql.gz.",
         "scpUnix": "macOS / Linux",
         "scpWindows": "Windows (PowerShell)",
         "copyCommand": "Скопировать команду",

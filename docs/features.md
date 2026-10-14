@@ -1,42 +1,42 @@
-# Возможности Orbitra
+# Orbitra Features
 
-Короткий обзор с переходами на подробные страницы. История изменений по версиям — в [CHANGELOG](../CHANGELOG.md).
+A short overview with links to detailed pages. The per-version change history is in the [CHANGELOG](../CHANGELOG.md).
 
-## Трафик
+## Traffic
 
-- **Кампании и потоки** — перехватывающие, обычные и замыкающие потоки, ротация по позиции или весу, 14 типов фильтров (страна, устройство, ОС, браузер, язык с регионами, бот, IP, ISP, тип соединения, реферер, ключевое слово, параметр URL, день недели, время), логика И / ИЛИ. → [Кампании и потоки](campaigns.md)
-- **Схемы** — прямой переход на оффер, лендинг + оффер, действие (404, текст, HTML, другая кампания), клоакинг.
-- **Автооптимизация ротации** — веса офферов и лендингов пересчитываются по продажам, CR, EPV, EPC или ROI.
-- **Тестовые ссылки** — настоящая маршрутизация без записи клика, подмена страны `_geo`, трассировка `_dbg`.
-- **Клоакинг** — дата-центры, VPN и прокси, списки ботов, эвристики User-Agent, проверка JavaScript, режим «чистых — в следующий поток». → [Клоакинг](cloaking.md)
-- **Лендинги** — локальные (ZIP и встроенный редактор), внешние, preload, action, PHP; макрос `{offer}`, передача выбора на лендинге в `sub_id_N`, время на странице. → [Лендинги](landing-pages.md), [Tracking Client (PHP)](tracking-client-php.md)
-- **PWA-лендинги и Web Push** — конструктор приложения в стиле магазина, воронка экранов, своя база подписчиков и рассылки на своих VAPID-ключах. → [PWA и Web Push](pwa-push.md), [PWA Funnel](pwa-funnel.md), [Галерея контента](content-gallery.md)
-- **Click API** — токены кампаний, совместимые с Keitaro, `click.php`, Click API v3, `kclient.php`.
+- **Campaigns and streams** — intercepting, regular, and default streams; rotation by position or weight; 14 filter types (country, device, OS, browser, language with regions, bot, IP, ISP, connection type, referer, keyword, URL parameter, day of week, time); AND / OR logic. → [Campaigns and streams](campaigns.md)
+- **Schemas** — direct redirect to offer, landing + offer, action (404, text, HTML, another campaign), cloaking.
+- **Rotation auto-optimization** — offer and landing weights recalculated by sales, CR, EPV, EPC, or ROI.
+- **Test links** — real routing without recording a click, country override with `_geo`, tracing with `_dbg`.
+- **Cloaking** — data centers, VPNs and proxies, bot lists, User-Agent heuristics, JavaScript verification, a "clean visitors to the next stream" mode. → [Cloaking](cloaking.md)
+- **Landing pages** — local (ZIP and the built-in editor), external, preload, action, PHP; the `{offer}` macro, passing the choice made on the landing into `sub_id_N`, time on page. → [Landing pages](landing-pages.md), [Tracking Client (PHP)](tracking-client-php.md)
+- **PWA landing pages and Web Push** — a store-style app builder, a screen funnel, your own subscriber base and push campaigns on your own VAPID keys. → [PWA and Web Push](pwa-push.md), [PWA Funnel](pwa-funnel.md), [Content gallery](content-gallery.md)
+- **Click API** — Keitaro-compatible campaign tokens, `click.php`, Click API v3, `kclient.php`.
 
-## Конверсии и деньги
+## Conversions and money
 
-- **Постбеки** — обучение статусов, встроенные алиасы, свои типы конверсий, конвертация валют, журнал входящих. → [Постбеки и конверсии](postbacks.md)
-- **S2S в источник** — очередь с повторами, тестер, повторная отправка пропущенного, автоподстановка постбека источника.
-- **Conversions API** — Meta и TikTok, с надёжной доставкой и подтверждением. → [Facebook / Meta](facebook.md)
-- **Расходы** — Facebook, TikTok (в том числе без приложения разработчика, через MCP), Google Ads с MCC, Dolphin / Fbtool, диагностика несопоставленного расхода. → [Расходы](costs.md)
-- **Агрегатор доходов** — забор дохода из кабинетов партнёрок без постбеков.
+- **Postbacks** — status training, built-in aliases, custom conversion types, currency conversion, an incoming-postback log. → [Postbacks and conversions](postbacks.md)
+- **S2S to the source** — a queue with retries, a tester, re-sending missed conversions, auto-filling the source postback.
+- **Conversions API** — Meta and TikTok, with reliable delivery and confirmation. → [Facebook / Meta](facebook.md)
+- **Costs** — Facebook, TikTok (including without a developer app, via MCP), Google Ads with MCC, Dolphin / Fbtool, unmatched-cost diagnostics. → [Costs](costs.md)
+- **Revenue aggregator** — pulls revenue from affiliate-network dashboards without postbacks.
 
-## Аналитика
+## Analytics
 
-- Дашборд, список кампаний с настраиваемыми колонками, конструктор отчётов с ~40 измерениями, тренды, когорты. → [Отчёты, логи и метрики](reports.md)
-- Лог кликов в стиле Keitaro: колонки и фильтры по любому параметру, CSV до 100 000 строк, карточка клика с полной детализацией устройства и реальным направлением.
-- Честная воронка лендинга: реальные переходы, время до оффера, время на странице, «возможные боты».
+- Dashboard, campaign list with customizable columns, a report builder with ~40 dimensions, trends, cohorts. → [Reports, logs, and metrics](reports.md)
+- A Keitaro-style click log: columns and filters on any parameter, CSV up to 100,000 rows, a click card with full device detail and the real direction.
+- An honest landing funnel: real clicks through, time to offer, time on page, "possible bots".
 
-## Инфраструктура
+## Infrastructure
 
-- **Домены и SSL** — автоматический Let's Encrypt, Cloudflare (несколько аккаунтов), Namecheap и Dynadot с покупкой и парковкой, backorder. → [Домены и SSL](domains.md)
-- **Установка одной командой** на Ubuntu / Debian, обновление из панели. → [Установка и обновление](deployment.md)
-- **Миграция из Keitaro** с сохранением токенов. → [Миграция из Keitaro](keitaro-migration.md)
+- **Domains and SSL** — automatic Let's Encrypt, Cloudflare (multiple accounts), Namecheap and Dynadot with purchase and parking, backorder. → [Domains and SSL](domains.md)
+- **One-command install** on Ubuntu / Debian, updates from the panel. → [Installation and updates](deployment.md)
+- **Migration from Keitaro** with token preservation. → [Migrating from Keitaro](keitaro-migration.md)
 
-## Управление
+## Management
 
-- Пользователи с правами по ресурсам и доступом к отдельным кампаниям, двухфакторный вход, API-ключи. → [Администрирование](administration.md)
-- **Telegram-бот** — уведомления, сводка, команды со статистикой. → [Telegram-бот](telegram.md)
-- **MCP** — подключение Claude и других ИИ-ассистентов к трекеру. → [MCP](mcp.md)
-- **REST API** — ~290 действий. → [REST API](api.md)
-- Расширение для Facebook Ads Manager, 7 языков интерфейса, темы оформления.
+- Users with per-resource permissions and access to individual campaigns, two-factor login, API keys. → [Administration](administration.md)
+- **Telegram bot** — notifications, a digest, commands with statistics. → [Telegram bot](telegram.md)
+- **MCP** — connecting Claude and other AI assistants to the tracker. → [MCP](mcp.md)
+- **REST API** — ~290 actions. → [REST API](api.md)
+- A Facebook Ads Manager extension, 7 interface languages, themes.

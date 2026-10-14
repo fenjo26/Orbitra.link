@@ -1,102 +1,102 @@
-# Установка и обновление
+# Installation and update
 
-Проект Orbitra оптимизирован для быстрого старта без сложной настройки окружения. В основе лежит лёгкий стек **PHP + SQLite + Nginx** — без отдельного сервера БД (нет ClickHouse, Redis или MySQL).
+Orbitra is optimized for a quick start without complex environment setup. It is built on a lightweight **PHP + SQLite + Nginx** stack — no separate DB server (no ClickHouse, Redis or MySQL).
 
-## Системные требования
+## System requirements
 
-Orbitra хранит всё в одном файле SQLite, поэтому требует значительно меньше RAM, чем трекеры на ClickHouse, и работает на самых дешёвых VPS.
+Orbitra stores everything in a single SQLite file, so it needs significantly less RAM than ClickHouse-based trackers and runs on the cheapest VPS plans.
 
-**Базовые (обязательные):**
+**Basic (required):**
 
 - **CPU:** 1 vCPU (x86_64)
-- **RAM:** 1 GB (рекомендуется 2 GB)
-- **Диск:** 20 GB SSD
-- **ОС:** Ubuntu от 22.04 до 26.04 или Debian 12 / 13
-- Чистый сервер без панели управления; доступ root/sudo
+- **RAM:** 1 GB (2 GB recommended)
+- **Disk:** 20 GB SSD
+- **OS:** Ubuntu 22.04 through 26.04, or Debian 12 / 13
+- A clean server without a control panel; root/sudo access
 
-**Подбор по объёму трафика (ориентир):**
+**Sizing by traffic volume (a guideline):**
 
-| Кликов в сутки | RAM | CPU | Диск |
+| Clicks per day | RAM | CPU | Disk |
 |---|---|---|---|
-| до ~100 000 | 1–2 GB | 1–2 vCPU | 20 GB SSD |
-| ~100 000 – 500 000 | 2–4 GB | 2 vCPU | 40 GB SSD |
-| ~500 000 – 1 000 000 | 4–8 GB | 4 vCPU | 80 GB SSD |
+| up to ~100,000 | 1–2 GB | 1–2 vCPU | 20 GB SSD |
+| ~100,000 – 500,000 | 2–4 GB | 2 vCPU | 40 GB SSD |
+| ~500,000 – 1,000,000 | 4–8 GB | 4 vCPU | 80 GB SSD |
 
-> ✅ **Проверено на практике:** Orbitra стабильно работает на VPS **2 vCPU / 2 GB RAM / 20 GB SSD** (Ubuntu 24.04) при небольшом трафике — удобная и недорогая отправная точка. Верхние строки таблицы — это запас под более высокий трафик, а не жёсткое требование.
+> ✅ **Verified in practice:** Orbitra runs stably on a **2 vCPU / 2 GB RAM / 20 GB SSD** VPS (Ubuntu 24.04) with light traffic — a convenient and inexpensive starting point. The upper rows of the table are headroom for higher traffic, not a hard requirement.
 
-> 💡 **Почему меньше, чем у Keitaro?** Keitaro хранит клики в ClickHouse + Redis + MySQL, поэтому его требования по RAM растут до 64 GB на миллионах кликов в сутки. У Orbitra всё в одном файле SQLite — узкое место не RAM, а дисковый I/O и однопоточная запись SQLite. Для низких и средних объёмов (в режиме WAL) этого достаточно; для устойчивых **миллионов кликов в сутки** с тяжёлой аналитикой архитектурно лучше подходит трекер на колоночной БД (как Keitaro).
+> 💡 **Why less than Keitaro?** Keitaro stores clicks in ClickHouse + Redis + MySQL, so its RAM requirements grow up to 64 GB at millions of clicks per day. In Orbitra everything lives in a single SQLite file — the bottleneck is not RAM but disk I/O and SQLite's single-threaded writes. For low and medium volumes (in WAL mode) this is enough; for sustained **millions of clicks per day** with heavy analytics, a columnar-DB tracker (like Keitaro) is architecturally the better fit.
 
-> 💡 При установке на сервер с 1 GB RAM добавьте 1–2 GB swap: сборка фронтенда (Vite) — самый требовательный к памяти шаг. Сам трекер работает и на 1 GB.
+> 💡 When installing on a 1 GB RAM server, add 1–2 GB of swap: building the frontend (Vite) is the most memory-hungry step. The tracker itself runs fine on 1 GB.
 
-## Быстрая Автоматическая Установка (Production)
+## Quick Automatic Installation (Production)
 
-Самый быстрый и правильный способ запуска проекта на сервере — использование встроенного инсталлятора. 
+The fastest and proper way to launch the project on a server is the built-in installer.
 
-1. Убедитесь, что у вас "чистый" Linux сервер (Ubuntu 22.04+ или Debian 12+).
-2. Выполните команду от имени root/sudo:
+1. Make sure you have a "clean" Linux server (Ubuntu 22.04+ or Debian 12+).
+2. Run the command as root/sudo:
    ```bash
    wget -O orbitra-install.sh https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/install.sh && bash orbitra-install.sh
    ```
-   Загрузка вынесена в отдельный шаг намеренно: `wget -qO- … | bash` при неудачной
-   загрузке молча передаёт в bash пустоту, и установка «завершается» без единой
-   строки вывода. Так неудачная загрузка останавливается на `&&`, и wget пишет причину.
-3. Скрипт сам установит Nginx, актуальный PHP (8.5, при недоступности — 8.4, из репозитория Ondřej Surý; недоступен и он — дистрибутивный), SQLite, скачает код фронтенда и настроит сертификаты HTTPS.
+   The download is a separate step on purpose: with `wget -qO- … | bash`, a failed
+   download silently pipes emptiness into bash, and the installation "completes"
+   without a single line of output. This way it stops at `&&`, and wget reports the reason.
+3. The script installs Nginx, a current PHP (8.5, falling back to 8.4 from the Ondřej Surý repository; if that is unavailable too — the distro one), SQLite, downloads the frontend code and sets up HTTPS certificates.
 
-> **Первый вход:** учётной записи «по умолчанию» нет. После установки откройте `http://<ваш-домен>/admin.php` — при первом запуске Orbitra запустит мастер первичной настройки, где вы создадите собственного администратора (логин ≥ 3 символов, пароль ≥ 8 символов, часовой пояс и язык).
+> **First sign-in:** there is no "default" account. After installation, open `http://<your-domain>/admin.php` — on first run Orbitra starts the initial setup wizard, where you create your own administrator (login ≥ 3 characters, password ≥ 8 characters, time zone and language).
 
-### Доступ к панели по IP
+### Panel access by IP
 
-Панель всегда доступна по адресу сервера — `http://<ip>/admin.php` — сколько бы доменов вы ни привязали и какие бы из них потом ни удалили. За это отвечает catch-all блок, который Orbitra ставит первым в конфиге Nginx; сертификаты выписываются через `certbot certonly --webroot`, поэтому Certbot конфиг не переписывает.
+The panel is always available at the server address — `http://<ip>/admin.php` — no matter how many domains you bind and which of them you later delete. This is handled by a catch-all block that Orbitra puts first in the Nginx config; certificates are issued via `certbot certonly --webroot`, so Certbot does not rewrite the config.
 
-`https://<ip>/admin.php` тоже работает, но с предупреждением браузера: Let's Encrypt не выдаёт сертификаты на голые IP, поэтому используется самоподписанный.
+`https://<ip>/admin.php` works too, but with a browser warning: Let's Encrypt does not issue certificates for bare IPs, so a self-signed one is used.
 
-Если панель всё-таки перестала отвечать — например, конфиг Nginx правили руками, — пересоберите его из базы:
+If the panel still stops responding — for example, the Nginx config was edited by hand — rebuild it from the database:
 
 ```bash
 sudo php /var/www/orbitra/cli/nginx_sync.php
 ```
 
-Команда заодно чинит renewal-конфиги Certbot, оставшиеся от прежнего способа выписки, и генерирует самоподписанный сертификат. **После обновления с версии ниже 0.9.6.4 выполните её один раз.**
+The command also repairs Certbot renewal configs left over from the previous issuing method and generates a self-signed certificate. **After updating from a version below 0.9.6.4, run it once.**
 
-### Что ставит установщик
+### What the installer sets up
 
-- Nginx, PHP-FPM (пул рассчитывается от объёма RAM, `fastcgi_read_timeout 180s`), SQLite, Composer с проверкой SHA-256.
-- Код в `/var/www/orbitra`, владелец — `www-data`.
-- Собственный ключ постбеков.
-- Гео-базу Sypex Geo City (бесплатно, без ключа). Если сервер не достучался до sypexgeo.net, установка всё равно завершится, а базу можно поставить позже в **⚙ → Гео базы**.
-- Помощники SSL и nginx с проверкой аргументов (`cli/server_setup.sh`).
-- Кроны: спул кликов, очередь постбеков, Web Push, автооптимизация ротации, опрос Telegram, выпуск SSL, импорт расходов, IP-диапазоны, гео-базы. Полная таблица — [Архитектура](architecture.md#фоновые-задачи).
-- Зависимости MCP-сервера, если на сервере есть npm.
-- Открывает 80/443 в ufw, если он включён.
+- Nginx, PHP-FPM (the pool is sized from the amount of RAM, `fastcgi_read_timeout 180s`), SQLite, Composer with SHA-256 verification.
+- The code in `/var/www/orbitra`, owned by `www-data`.
+- Its own postback key.
+- The Sypex Geo City database (free, no key). If the server could not reach sypexgeo.net, the installation still completes, and the database can be added later in **⚙ → Geo Databases**.
+- SSL and nginx helpers with argument validation (`cli/server_setup.sh`).
+- Crons: click spool, postback queue, Web Push, rotation auto-optimization, Telegram polling, SSL issuance, cost import, IP ranges, geo databases. Full table in [Architecture](architecture.md#background-tasks).
+- MCP server dependencies, if npm is present on the server.
+- Opens 80/443 in ufw if it is enabled.
 
-Не ставится автоматически: очистка по срокам хранения (`cli/cleanup_cron.php`, см. [Администрирование](administration.md#сроки-хранения)), монитор постбеков и проверка URL источников.
+Not installed automatically: retention-based cleanup (`cli/cleanup_cron.php`, see [Administration](administration.md#retention-periods)), the postback monitor, and source URL checks.
 
-Перезапуск установщика на работающем сервере безопасен: он обновляет PHP, конфиги и кроны, не трогая данные.
+Re-running the installer on a live server is safe: it updates PHP, configs and crons without touching data.
 
-Настройки безопасности панели после установки — свой путь к панели, доступ по IP, двухфакторный вход — описаны в [Администрировании](administration.md).
+Panel security settings after installation — a custom panel path, access by IP, two-factor sign-in — are covered in [Administration](administration.md).
 
-## Обновление PHP
+## Updating PHP
 
-Ubuntu 22.04 / Debian 12 / Ubuntu 24.04 из коробки ставят PHP 8.1 / 8.2 / 8.3 — эти версии больше не получают обновлений безопасности (8.1 и 8.2 — EOL, 8.3 — только security-фиксы до конца 2027). Orbitra v1.5.10 работает на всех них, но свежая установка и обновление сервера должны начинаться с PHP 8.4+.
+Ubuntu 22.04 / Debian 12 / Ubuntu 24.04 ship PHP 8.1 / 8.2 / 8.3 out of the box — these versions no longer receive security updates (8.1 and 8.2 are EOL; 8.3 gets only security fixes until the end of 2027). Orbitra v1.5.10 runs on all of them, but a fresh install or a server upgrade should start from PHP 8.4+.
 
-**Самый простой путь — перезапустить инсталлятор** (он идемпотентен и умеет обновление поверх существующей установки):
+**The simplest path is to re-run the installer** (it is idempotent and supports upgrading over an existing installation):
 
 ```bash
 sudo bash /var/www/orbitra/install.sh
 ```
 
-Инсталлятор добавит репозиторий текущих сборок PHP (ondrej/php на Ubuntu, packages.sury.org на Debian), поставит PHP 8.5 (при недоступности — 8.4) рядом со старым, переключит CLI-альтернативу `php` (её используют кроны и Composer), перепишет конфиг Nginx на новый сокет FPM, применит настройки пула и перезапустит сервисы. Старая версия PHP остаётся установленной, но перестаёт обслуживать трафик; при желании её можно удалить после проверки.
+The installer adds the current PHP builds repository (ondrej/php on Ubuntu, packages.sury.org on Debian), installs PHP 8.5 (falling back to 8.4) alongside the old one, switches the `php` CLI alternative (used by crons and Composer), rewrites the Nginx config to the new FPM socket, applies the pool settings and restarts the services. The old PHP version stays installed but stops serving traffic; you can remove it after checking, if you like.
 
-**Вручную (Ubuntu):**
+**Manual (Ubuntu):**
 
 ```bash
 sudo add-apt-repository -y ppa:ondrej/php && sudo apt-get update
 sudo apt-get install -y php8.5-fpm php8.5-cli php8.5-sqlite3 php8.5-curl php8.5-mbstring php8.5-xml php8.5-zip php8.5-intl php8.5-bcmath
 sudo update-alternatives --set php /usr/bin/php8.5
-sudo bash /var/www/orbitra/install.sh   # переведёт nginx/FPM/кроны на новую версию
+sudo bash /var/www/orbitra/install.sh   # switches nginx/FPM/crons to the new version
 ```
 
-**Вручную (Debian):**
+**Manual (Debian):**
 
 ```bash
 . /etc/os-release
@@ -108,48 +108,48 @@ sudo update-alternatives --set php /usr/bin/php8.5
 sudo bash /var/www/orbitra/install.sh
 ```
 
-После обновления проверьте: `php -v` показывает 8.4/8.5, панель открывается, в *Логах → Системный лог* нет записей `postback.php database error`, а в настройках очереди постбеков пинг воркера свежий. Панель сама предупредит при обновлении через кнопку, если сервер остаётся на PHP < 8.4.
+After the update, check: `php -v` shows 8.4/8.5, the panel opens, *Logs → System log* has no `postback.php database error` entries, and the worker ping in the postback queue settings is fresh. When updating via the button, the panel will warn by itself if the server stays on PHP < 8.4.
 
-## Разовый шаг на сервере после обновления (1.6.0+)
+## One-time server step after updating (1.6.0+)
 
-Кнопка «Обновить» в панели работает от веб-пользователя и не может менять
-sudoers. Серверам, установленным до 1.6.0, после обновления нужен один запуск
-`cli/server_setup.sh` от root — панель сама покажет баннер с командой:
+The "Update" button in the panel runs as the web user and cannot modify
+sudoers. Servers installed before 1.6.0 need a single run of
+`cli/server_setup.sh` as root after updating — the panel will show a banner with the command:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/fenjo26/Orbitra.link/v1.6.0/cli/server_setup.sh | sudo ORBITRA_REF=v1.6.0 bash
 ```
 
-Скрипт скачивается из тега релиза, а не из `/var/www/orbitra` (эта папка
-принадлежит веб-пользователю, и root не должен исполнять файлы, которые тот
-может переписать). Он заменяет старые правила sudo (`certbot` с любыми
-аргументами и `cp` в `sites-available` — через оба веб-пользователь мог
-получить root) на помощники с проверкой аргументов, ставит крон очереди
-кликов и записывает версию в `/etc/orbitra/server-setup-version`. Запускать
-повторно безопасно. `install.sh` вызывает тот же скрипт, так что новые
-установки получают то же самое.
+The script is downloaded from the release tag, not from `/var/www/orbitra` (that directory
+belongs to the web user, and root must not execute files the web user
+can rewrite). It replaces the old sudo rules (`certbot` with any
+arguments, and `cp` into `sites-available` — either one could let the web user
+gain root) with helpers that validate arguments, installs the click queue
+cron and writes the version to `/etc/orbitra/server-setup-version`. Running it
+again is safe. `install.sh` calls the same script, so new
+installations get the same thing.
 
-## Целостность обновлений
+## Update integrity
 
-- `composer.phar` не лежит в репозитории: установщик скачивает версию, закреплённую в `install.sh` (`COMPOSER_VER`), и сверяет `COMPOSER_SHA256`; несовпадение останавливает установку. Уже существующий `/var/www/orbitra/composer.phar` используется как есть.
-- Панель (`frontend/dist`) собирается на машине релиза и коммитится: сервер никогда не запускает `npm install` / `npm run build`, рабочая копия после установки остаётся чистой.
-- Теги релизов стоит подписывать (`git tag -s`), чтобы обновление из панели тянуло проверяемый код.
+- `composer.phar` is not kept in the repository: the installer downloads the version pinned in `install.sh` (`COMPOSER_VER`) and verifies `COMPOSER_SHA256`; a mismatch stops the installation. An already existing `/var/www/orbitra/composer.phar` is used as is.
+- The panel (`frontend/dist`) is built on the release machine and committed: the server never runs `npm install` / `npm run build`, and the working copy stays clean after installation.
+- Release tags should be signed (`git tag -s`) so that updating from the panel pulls verifiable code.
 
-## Локальная Разработка (React & PHP Server)
+## Local Development (React & PHP Server)
 
-Если вы планируете изменять исходный код фронтенда (`React`) и визуальную часть трекера, вам потребуется локальная связка PHP + Vite.
+If you plan to modify the frontend source code (`React`) and the tracker's visual part, you will need a local PHP + Vite setup.
 
-### Часть 1: Запуск Backend API
-Откройте первый терминал и запустите встроенный PHP сервер с роутером:
+### Part 1: Starting the Backend API
+Open a first terminal and start the built-in PHP server with the router:
 
 ```bash
 cd Orbitra
 php -S localhost:8080 router.php
 ```
-*Этот сервер будет принимать API запросы и редиректы.*
+*This server will handle API requests and redirects.*
 
-### Часть 2: Запуск Frontend (Vite)
-Откройте второй терминал, установите npm пакеты и запустите dev-сервер:
+### Part 2: Starting the Frontend (Vite)
+Open a second terminal, install the npm packages and start the dev server:
 
 ```bash
 cd Orbitra/frontend
@@ -157,19 +157,19 @@ npm install
 npm run dev
 ```
 
-После этого откройте в браузере `http://localhost:5173`. Все API запросы с фронтенда будут автоматически проксироваться (через `vite.config.js` proxy) на `http://localhost:8080/api.php`, что позволяет избежать проблем с CORS и сессиями в режиме разработки.
+Then open `http://localhost:5173` in your browser. All API requests from the frontend are automatically proxied (via the `vite.config.js` proxy) to `http://localhost:8080/api.php`, which avoids CORS and session issues in development mode.
 
-## Сборка панели
+## Building the panel
 
-Нужна только если вы меняете код панели:
+Only needed if you change the panel code:
 
 ```bash
 cd Orbitra/frontend
 npm run build
 ```
 
-Сборка ложится в `frontend/dist/`, который коммитится в репозиторий — сервер берёт готовую панель через `git pull` или обновление из панели и сам ничего не собирает.
+The build lands in `frontend/dist/`, which is committed to the repository — the server takes the ready-made panel via `git pull` or an update from the panel and builds nothing itself.
 
-## Telegram-бот
+## Telegram bot
 
-Подключение и режимы работы — [Telegram-бот](telegram.md).
+Connecting and operating modes — [Telegram bot](telegram.md).

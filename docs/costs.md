@@ -1,83 +1,83 @@
-# Расходы: импорт из рекламных кабинетов
+# Costs: import from ad accounts
 
-Orbitra забирает дневной расход из рекламных кабинетов и раскладывает его по кликам, поэтому ROI и прибыль в отчётах считаются по реальным деньгам, а не по ручной стоимости клика.
+Orbitra pulls daily spend from ad accounts and distributes it across clicks, so ROI and profit in reports are calculated from real money, not from a manual cost per click.
 
-Подключения — в **⚙ → Интеграции**, группа рекламных сетей: **Facebook Costs**, **TikTok Costs**, **Google Ads Costs**. В редакторе кампании на вкладке **Интеграции** видно, есть ли у кликов кампании ID для привязки, и можно добавить подключение.
+Connections are in **⚙ → Integrations**, in the ad networks group: **Facebook Costs**, **TikTok Costs**, **Google Ads Costs**. The campaign editor's **Integrations** tab shows whether the campaign's clicks carry IDs for matching, and lets you add a connection.
 
-## Как расход попадает на клик
+## How spend lands on a click
 
-1. Крон `aggregator_cron.php` (установщик ставит его раз в 15 минут) проходит по подключениям, у которых подошёл интервал обновления. При каждом проходе перечитываются последние 5 дней, при первом — 30: кабинеты задним числом уточняют расход, а текущий день растёт до полуночи.
-2. Записи складываются в `cost_records` с обновлением по `(connection_id, external_id)`. Повторная синхронизация того же дня безопасна: расход пересчитывается, а не накапливается.
-3. Для каждой записи ищутся клики того же дня, от точного уровня к общему:
-   1. `ad_id` (также `creative_id`, `creative`);
-   2. `adset_id` / `adgroup_id` (также `adgroup`, `adgroupid`, `ad_group_id`);
-   3. `campaign_id` (также `campaign`, `campaignid`, `ad_campaign_id`).
-4. Расход дня делится поровну между найденными кликами.
-5. Расход конвертируется в валюту трекера (курсы `open.er-api.com`, кэш 12 часов; свои курсы — настройка `fx_rates_manual_json`, единиц за 1 USD).
+1. The `aggregator_cron.php` cron (the installer adds it every 15 minutes) walks the connections whose update interval is due. Every pass re-reads the last 5 days, and the first pass reads 30: ad accounts revise spend retroactively, and the current day grows until midnight.
+2. Records land in `cost_records` with updates keyed by `(connection_id, external_id)`. Re-syncing the same day is safe: spend is recalculated, not accumulated.
+3. For each record, clicks of the same day are matched, from the most specific level to the broadest:
+   1. `ad_id` (also `creative_id`, `creative`);
+   2. `adset_id` / `adgroup_id` (also `adgroup`, `adgroupid`, `ad_group_id`);
+   3. `campaign_id` (also `campaign`, `campaignid`, `ad_campaign_id`).
+4. The day's spend is divided evenly among the matched clicks.
+5. Spend is converted to the tracker's currency (rates from `open.er-api.com`, cached for 12 hours; custom rates via the `fx_rates_manual_json` setting, units per 1 USD).
 
-**Главное условие:** ссылка в объявлении должна передавать ID объявления, группы или кампании в трекер. Проще всего выбрать в кампании источник трафика из шаблона (Facebook, TikTok, Google Ads) — шаблон сам добавит нужные макросы.
+**The main requirement:** the ad's link must pass the ad, group or campaign ID into the tracker. The easiest way is to pick a template traffic source (Facebook, TikTok, Google Ads) in the campaign — the template adds the needed macros itself.
 
-Записи, которые не нашли кликов, пробуют привязаться заново при каждой синхронизации: поздний клик, исправленная ссылка или новый `adgroup_id` подтянут расход.
+Records that found no clicks retry matching on every sync: a late click, a fixed link or a new `adgroup_id` will pull the spend in.
 
-### «Получено N, привязано 0»
+### "Received N, matched 0"
 
-Кнопка **Обновить расходы** у подключения показывает конкретную причину:
+The **Refresh costs** button on a connection shows the specific reason:
 
-| Код | Что значит |
+| Code | Meaning |
 |---|---|
-| `no_spend` | записи пришли, но расход в них нулевой |
-| `no_clicks` | в эти дни в Orbitra нет кликов |
-| `no_ids` | у кликов нет ID объявления, группы или кампании — ссылка ведёт не прямо на кампанию Orbitra или параметры теряются по пути |
-| `macros` | в кликах нераскрытые макросы вида `__CID__` — источник не подставил значения |
-| `ids_differ` | ID в кликах и в отчёте кабинета не совпадают; показываются оба |
+| `no_spend` | records arrived, but the spend in them is zero |
+| `no_clicks` | there are no clicks in Orbitra on those days |
+| `no_ids` | the clicks carry no ad, group or campaign ID — the link does not lead straight to the Orbitra campaign, or parameters get lost along the way |
+| `macros` | clicks contain unresolved macros like `__CID__` — the source did not substitute values |
+| `ids_differ` | IDs in the clicks and in the ad account report do not match; both are shown |
 
-В карточке клика раздел «Параметры» показывает все пойманные параметры, ID рекламных сетей — первыми.
+In the click card, the "Parameters" section shows all captured parameters, with ad network IDs first.
 
 ## Facebook / Meta
 
-Long-lived User Token или System User Token с `ads_read` + ID рекламного аккаунта (`act_…`). Можно указать версию API и прокси. Подробно — [Facebook / Meta](facebook.md).
+A Long-lived User Token or System User Token with `ads_read` + the ad account ID (`act_…`). You can specify the API version and a proxy. For details, see [Facebook / Meta](facebook.md).
 
 ## TikTok
 
-Три способа подключения:
+Three ways to connect:
 
-| Способ | Что нужно |
+| Method | What you need |
 |---|---|
-| **Подключить через TikTok MCP** | Только вход в TikTok. Приложение разработчика и токен не нужны — трекер регистрируется сам через официальный MCP-сервер TikTok. Импортирует расход, пиксели не импортирует. **Панель должна быть открыта по HTTPS** (подойдёт и `https://` на голом IP) |
-| **1-Click (Войти через TikTok)** | App ID и App Secret своего приложения TikTok for Business: переменные окружения `ORBITRA_TIKTOK_APP_ID` / `ORBITRA_TIKTOK_APP_SECRET` или поля ручного подключения. Находит кабинеты и пиксели, импортирует пиксели в Pixel Vault |
-| **Вручную** | Токен Marketing API из бесплатного приложения разработчика (Developer Portal → Apps & Agents → Direct Advertiser, права Ads Management и Reporting) + Advertiser ID |
+| **Connect via TikTok MCP** | Only a TikTok login. No developer app or token needed — the tracker registers itself through TikTok's official MCP server. Imports spend; does not import pixels. **The panel must be opened over HTTPS** (`https://` on a bare IP works too) |
+| **1-Click (Sign in with TikTok)** | App ID and App Secret of your own TikTok for Business app: the `ORBITRA_TIKTOK_APP_ID` / `ORBITRA_TIKTOK_APP_SECRET` environment variables, or the manual connection fields. Finds ad accounts and pixels, imports pixels into Pixel Vault |
+| **Manual** | A Marketing API token from a free developer app (Developer Portal → Apps & Agents → Direct Advertiser, Ads Management and Reporting permissions) + Advertiser ID |
 
-Токен Events Manager для импорта расходов не подходит — он только отправляет события конверсий. Если список кабинетов через MCP не читается, Advertiser ID можно вставить вручную через запятую.
+An Events Manager token does not work for spend import — it only sends conversion events. If the ad account list cannot be read through MCP, you can paste Advertiser IDs manually, comma-separated.
 
 ## Google Ads
 
-- **1-Click (Войти через Google)** — находит прямые аккаунты и дочерние кабинеты MCC, для каждого выбранного создаёт подключение. Нужны Developer Token (из MCC) и OAuth Client ID + Secret (Google Cloud Console, тип «Web application», redirect URI `https://ваш-домен/api.php?action=google_ads_oauth_callback`).
-- **Вручную** — Customer ID, Developer Token, Client ID, Client Secret, Refresh Token.
+- **1-Click (Sign in with Google)** — finds direct accounts and MCC child accounts, creating a connection for each one you select. Requires a Developer Token (from the MCC) and an OAuth Client ID + Secret (Google Cloud Console, type "Web application", redirect URI `https://your-domain/api.php?action=google_ads_oauth_callback`).
+- **Manual** — Customer ID, Developer Token, Client ID, Client Secret, Refresh Token.
 
-Ключи для 1-Click берутся по порядку: переменные окружения `ORBITRA_GOOGLE_CLIENT_ID`, `ORBITRA_GOOGLE_CLIENT_SECRET`, `ORBITRA_GOOGLE_DEVELOPER_TOKEN` → настройки → поля уже сохранённого ручного подключения. Проще всего один раз сохранить ручное подключение — после этого заработает и кнопка 1-Click. Проверить настройку сервера: `php check_google_ads_oauth.php`.
+The 1-Click keys are picked up in order: the `ORBITRA_GOOGLE_CLIENT_ID`, `ORBITRA_GOOGLE_CLIENT_SECRET`, `ORBITRA_GOOGLE_DEVELOPER_TOKEN` environment variables → settings → fields of an already saved manual connection. The simplest way is to save a manual connection once — after that the 1-Click button works too. To check the server setup: `php check_google_ads_oauth.php`.
 
-> Переменные окружения читаются из окружения PHP-FPM (`env[ORBITRA_GOOGLE_CLIENT_ID] = …` в конфиге пула), а не из файла `.env` — PHP-код его не загружает. `.env.example` — только список имён.
+> Environment variables are read from the PHP-FPM environment (`env[ORBITRA_GOOGLE_CLIENT_ID] = …` in the pool config), not from the `.env` file — PHP code does not load it. `.env.example` is only a list of names.
 
-Google и TikTok не принимают OAuth-редиректы на `http://`. На голом IP без сертификата используйте ручное подключение.
+Google and TikTok do not accept OAuth redirects to `http://`. On a bare IP without a certificate, use a manual connection.
 
-Расход привязывается по ValueTrack `{campaignid}` и `{creative}` — их добавляет шаблон источника Google Ads.
+Spend is matched by the ValueTrack parameters `{campaignid}` and `{creative}` — the Google Ads source template adds them.
 
-## Dolphin и Fbtool
+## Dolphin and Fbtool
 
-Эти сервисы умеют отправлять расход только в Keitaro через его Admin API. Orbitra принимает такой же запрос на `POST /admin_api/v1/campaigns/<ID>/update_costs`. Подробно — [Dolphin / Fbtool](dolphin-fbtool.md).
+These services can only send spend to Keitaro via its Admin API. Orbitra accepts the same request at `POST /admin_api/v1/campaigns/<ID>/update_costs`. For details, see [Dolphin / Fbtool](dolphin-fbtool.md).
 
-## Ручной расход
+## Manual spend
 
-Кнопка **Обновить расходы** в меню кампании задаёт расход за период вручную (действие `update_costs`).
+The **Refresh costs** button in the campaign menu sets spend for a period manually (action `update_costs`).
 
-## Агрегатор доходов
+## Revenue aggregator
 
-**⚙ → Агрегатор доходов** — обратная задача: забрать **доход** из кабинетов партнёрских программ, которые не шлют постбеки. Движки: ReferOn, Affilka, Generic API. Для каждого подключения задаются сеть, тип сделки, интервал синхронизации и имя параметра, в котором партнёрка хранит click ID Orbitra. Доходы и логи синхронизации — на вкладках той же страницы.
+**⚙ → Revenue Aggregator** — the inverse task: pull **revenue** from affiliate program accounts that do not send postbacks. Engines: ReferOn, Affilka, Generic API. For each connection you set the network, deal type, sync interval, and the name of the parameter where the affiliate program stores the Orbitra click ID. Revenues and sync logs are on the tabs of the same page.
 
-## Крон
+## Cron
 
 ```
 */15 * * * * php /var/www/orbitra/aggregator_cron.php >> /var/www/orbitra/var/logs/aggregator.log 2>&1
 ```
 
-Интервал проверяется для каждого подключения отдельно, поэтому частый крон дешёвый; для интервалов меньше 15 минут запускайте его чаще. Флаги: `--force` (игнорировать интервал), `--connection=5`, `--days=30`.
+The interval is checked per connection, so a frequent cron is cheap; for intervals under 15 minutes, run it more often. Flags: `--force` (ignore the interval), `--connection=5`, `--days=30`.

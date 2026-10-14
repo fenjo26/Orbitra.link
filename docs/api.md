@@ -1,17 +1,17 @@
 # REST API
 
-Панель общается с бэкендом через один файл — `api.php`. Каждый запрос передаёт `?action=<имя>`; тело POST — JSON. Тот же API используют [MCP-сервер](mcp.md), расширение для Ads Manager и ваши скрипты.
+The panel talks to the backend through a single file — `api.php`. Every request passes `?action=<name>`; the POST body is JSON. The same API is used by the [MCP server](mcp.md), the Ads Manager extension and your own scripts.
 
-## Авторизация
+## Authorization
 
-**API-ключ** (для скриптов). Заголовок `Authorization: Bearer <ключ>` или `X-Api-Key: <ключ>`. Ключи создаёт админ в **⚙ → Пользователи → API-ключи**:
+**API key** (for scripts). Header `Authorization: Bearer <key>` or `X-Api-Key: <key>`. An admin creates keys in **⚙ → Users → API keys**:
 
-- `read` — только чтение: любые GET и несколько POST-действий расширения, которые лишь передают длинные списки ID;
-- `write` — чтение и изменение.
+- `read` — read-only: any GET plus a few extension POST actions that only submit long lists of IDs;
+- `write` — read and modify.
 
-С ключом CSRF-токен не нужен. Ключ действует от имени своего пользователя, поэтому права этого пользователя по ресурсам тоже применяются.
+No CSRF token is needed with a key. A key acts on behalf of its user, so that user's resource permissions apply too.
 
-**Сессия** (браузер). `POST ?action=login` ставит cookie сессии и возвращает `csrf_token`; все изменяющие запросы (POST / PUT / PATCH / DELETE) должны нести заголовок `X-CSRF-TOKEN`.
+**Session** (browser). `POST ?action=login` sets a session cookie and returns `csrf_token`; every mutating request (POST / PUT / PATCH / DELETE) must carry the `X-CSRF-TOKEN` header.
 
 ```bash
 curl -s -H "Authorization: Bearer $ORBITRA_KEY" \
@@ -22,149 +22,149 @@ curl -s -X POST -H "Authorization: Bearer $ORBITRA_KEY" -H "Content-Type: applic
   "https://tracker.example.com/api.php?action=bulk_set_campaign_domain"
 ```
 
-## Ответы и ошибки
+## Responses and errors
 
-Ответ — JSON вида `{"status": "success", "data": …}` или `{"status": "error", "message": "…"}`.
+The response is JSON like `{"status": "success", "data": …}` or `{"status": "error", "message": "…"}`.
 
-| Код | Когда |
+| Code | When |
 |---|---|
-| `400` | Неверные параметры (у части действий) |
-| `401` | Нет сессии или ключа (у `login` — неверный логин или пароль) |
-| `403` | Нет прав на ресурс, read-ключ на запись, неверный CSRF, IP не в списке доступа к панели |
-| `404` | Панель на этом домене запрещена (флаг домена «Админ-панель: запретить») |
-| `429` | Слишком много неудачных входов |
-| `500` | Необработанная ошибка, текст в `message` |
-| `503` | База занята фоновой задачей (`"code": "db_locked"`, заголовок `Retry-After`), ничего не изменено — повторите через пару секунд |
+| `400` | Invalid parameters (for some actions) |
+| `401` | No session or key (for `login` — wrong login or password) |
+| `403` | No rights to the resource, read key attempting a write, bad CSRF, IP not in the panel access list |
+| `404` | Panel disabled on this domain (domain flag "Admin panel: deny") |
+| `429` | Too many failed logins |
+| `500` | Unhandled error, text in `message` |
+| `503` | Database busy with a background task (`"code": "db_locked"`, `Retry-After` header), nothing was changed — retry in a few seconds |
 
-Неизвестное действие отвечает кодом 200 с `{"status": "error", "message": "Invalid action"}` — проверяйте поле `status`, а не только HTTP-код.
+An unknown action responds with code 200 and `{"status": "error", "message": "Invalid action"}` — check the `status` field, not just the HTTP code.
 
-## Часто используемые действия
+## Commonly used actions
 
-| Действие | Метод | Что делает |
+| Action | Method | What it does |
 |---|---|---|
-| `metrics`, `chart` | GET | Сводка и график дашборда. `date_from`, `date_to`, `timezone` |
-| `campaigns_brief` | GET | Компактный список кампаний: id, название, алиас, домен, ссылка — без статистики. Фильтры `id_from`, `id_to`, `domain_id`, `domain_suffix`, `archived`; `limit` (до 1000, по умолчанию 200) и `offset` |
-| `campaigns` | GET | Кампании со всей статистикой (тяжёлый ответ на больших аккаунтах) |
-| `get_campaign` | GET | Кампания с потоками, `id=` |
-| `save_campaign` | POST | Создать или сохранить кампанию вместе с массивом `streams`. ID существующих потоков сохраняются |
-| `bulk_set_campaign_domain` | POST | Перенести кампании на другие домены: `items: [{id, domain_id}]` или `ids` + `domain_id`. Меняется только домен |
-| `campaign_report` | GET | Отчёт по кампании с группировками |
-| `campaign_stream_stats` | GET | Визиты, уникальные и боты по потокам |
-| `logs` | GET | Логи: `type` = `traffic` / `postbacks` / `s2s` / `system` / `audit`, `limit` (1–500), `cursor` (из `next_cursor`) или `offset`; для трафика — `campaign_id`, `stream_id`, `route`, `reason`, `date_from` / `date_to` и фильтры по параметрам. Ответ: `data`, `has_more`, `next_cursor` |
-| `logs_export` | GET | То же в CSV (`;`, UTF-8 BOM), до 100 000 строк |
-| `click_details` | GET | Карточка клика |
-| `conversions` | GET | Лог конверсий |
-| `offers`, `get_offer`, `save_offer` | GET / POST | Офферы |
-| `domains_brief`, `save_domain` | GET / POST | Домены |
-| `ping` | GET | Проверка живости и версия, без авторизации |
+| `metrics`, `chart` | GET | Dashboard summary and chart. `date_from`, `date_to`, `timezone` |
+| `campaigns_brief` | GET | Compact campaign list: id, name, alias, domain, link — no stats. Filters `id_from`, `id_to`, `domain_id`, `domain_suffix`, `archived`; `limit` (up to 1000, default 200) and `offset` |
+| `campaigns` | GET | Campaigns with full stats (a heavy response on large accounts) |
+| `get_campaign` | GET | A campaign with its streams, `id=` |
+| `save_campaign` | POST | Create or save a campaign together with its `streams` array. IDs of existing streams are preserved |
+| `bulk_set_campaign_domain` | POST | Move campaigns to other domains: `items: [{id, domain_id}]` or `ids` + `domain_id`. Only the domain changes |
+| `campaign_report` | GET | Campaign report with groupings |
+| `campaign_stream_stats` | GET | Visits, uniques and bots per stream |
+| `logs` | GET | Logs: `type` = `traffic` / `postbacks` / `s2s` / `system` / `audit`, `limit` (1–500), `cursor` (from `next_cursor`) or `offset`; for traffic — `campaign_id`, `stream_id`, `route`, `reason`, `date_from` / `date_to` and parameter filters. Response: `data`, `has_more`, `next_cursor` |
+| `logs_export` | GET | The same as CSV (`;`, UTF-8 BOM), up to 100,000 rows |
+| `click_details` | GET | Click details card |
+| `conversions` | GET | Conversion log |
+| `offers`, `get_offer`, `save_offer` | GET / POST | Offers |
+| `domains_brief`, `save_domain` | GET / POST | Domains |
+| `ping` | GET | Liveness check and version, no authorization |
 
-Набор полей `save_*` проще всего подсмотреть в панели: DevTools → Network при сохранении нужного объекта.
+The easiest way to see the field set of a `save_*` action is in the panel: DevTools → Network while saving the object you need.
 
-## Другие HTTP-точки
+## Other HTTP endpoints
 
-Это не действия `api.php`, а отдельные адреса трекера:
+These are not `api.php` actions but separate tracker URLs:
 
-| Адрес | Назначение |
+| URL | Purpose |
 |---|---|
-| `/<алиас>`, `/r/<алиас>` | Ссылка кампании |
-| `/<postback_key>/postback` | Входящий постбек ([Постбеки](postbacks.md)) |
-| `/click.php`, `/click_api/v3` | Click API для интеграционных скриптов и `kclient.php` ([Tracking Client (PHP)](tracking-client-php.md)) |
-| `/?_lp=1` | Переход с лендинга на оффер ([Лендинги](landing-pages.md)) |
-| `/pixel.gif` | Пиксель и маяки (время на лендинге, `action=matching` для Meta) |
-| `/lander/<slug>/`, `/offers/<id>/` | Локальные лендинги и офферы, PWA |
-| `/push_subscribe` | Приём подписок Web Push |
-| `/crm-ingest` | Приём лидов LeadForge (опционально с HMAC) |
-| `/admin_api/v1/campaigns/<id>/update_costs` | Keitaro-совместимый приём расходов ([Dolphin / Fbtool](dolphin-fbtool.md)) |
-| `/mcp.php` | MCP по HTTP ([MCP](mcp.md)) |
-| `/telegram_bot.php` | Вебхук Telegram |
+| `/<alias>`, `/r/<alias>` | Campaign link |
+| `/<postback_key>/postback` | Incoming postback ([Postbacks](postbacks.md)) |
+| `/click.php`, `/click_api/v3` | Click API for integration scripts and `kclient.php` ([Tracking Client (PHP)](tracking-client-php.md)) |
+| `/?_lp=1` | Landing-to-offer hop ([Landings](landing-pages.md)) |
+| `/pixel.gif` | Pixel and beacons (time on landing, `action=matching` for Meta) |
+| `/lander/<slug>/`, `/offers/<id>/` | Local landings and offers, PWA |
+| `/push_subscribe` | Receives Web Push subscriptions |
+| `/crm-ingest` | Receives LeadForge leads (optionally with HMAC) |
+| `/admin_api/v1/campaigns/<id>/update_costs` | Keitaro-compatible cost intake ([Dolphin / Fbtool](dolphin-fbtool.md)) |
+| `/mcp.php` | MCP over HTTP ([MCP](mcp.md)) |
+| `/telegram_bot.php` | Telegram webhook |
 
-## Каталог действий
+## Action catalog
 
-Сгенерирован из кода: имена действий взяты из `api.php`, группы и права — из карты доступа `core/resource_access.php`. Админу доступно всё. Обновить после добавления действия:
+Generated from the code: action names come from `api.php`, groups and permissions from the access map in `core/resource_access.php`. Admins can do everything. Refresh it after adding an action:
 
 ```bash
-php cli/api_catalog.php             # напечатать каталог
-php cli/api_catalog.php --check     # выход 1, если этот файл устарел
+php cli/api_catalog.php             # print the catalog
+php cli/api_catalog.php --check     # exit 1 when this file is stale
 ```
 
 <!-- api-catalog:begin — generated by `php cli/api_catalog.php`, do not edit by hand -->
 
-Всего действий в `api.php`: **290**.
+Total actions in `api.php`: **290**.
 
-### Без авторизации
+### Without authorization
 
 `check_setup`, `login`, `logout`, `ping`, `setup_first_user`
 
-### Кампании, отчёты по кампаниям, конверсии — ресурс `campaigns`
+### Campaigns, campaign reports, conversions — resource `campaigns`
 
-- **Чтение:** `ad_entity_statuses`, `campaign_cost_match`, `campaign_logs`, `campaign_pixels`, `campaign_remote_links`, `campaign_report`, `campaign_stream_stats`, `campaigns`, `campaigns_brief`, `campaigns_simple`, `click_details`, `cloak_summary`, `conversion_monitoring`, `conversions`, `get_campaign`, `postback_logs`, `postback_url`, `rotation_status`, `test_postback`
-- **Запись:** `ad_entity_toggle_status`, `bulk_delete_campaigns`, `bulk_import_campaigns`, `bulk_set_campaign_domain`, `clear_campaign_stats`, `clear_stats`, `copy_campaign`, `delete_campaign`, `delete_campaign_group`, `delete_campaign_pixel`, `import_conversions`, `keitaro_import_sql`, `rename_campaign_group`, `retroactive_remap`, `save_campaign`, `save_campaign_pixel`, `update_costs`
-- **GET — чтение, POST — запись:** `campaign_groups`, `groups`
+- **Read:** `ad_entity_statuses`, `campaign_cost_match`, `campaign_logs`, `campaign_pixels`, `campaign_remote_links`, `campaign_report`, `campaign_stream_stats`, `campaigns`, `campaigns_brief`, `campaigns_simple`, `click_details`, `cloak_summary`, `conversion_monitoring`, `conversions`, `get_campaign`, `postback_logs`, `postback_url`, `rotation_status`, `test_postback`
+- **Write:** `ad_entity_toggle_status`, `bulk_delete_campaigns`, `bulk_import_campaigns`, `bulk_set_campaign_domain`, `clear_campaign_stats`, `clear_stats`, `copy_campaign`, `delete_campaign`, `delete_campaign_group`, `delete_campaign_pixel`, `import_conversions`, `keitaro_import_sql`, `rename_campaign_group`, `retroactive_remap`, `save_campaign`, `save_campaign_pixel`, `update_costs`
+- **GET is read, POST is write:** `campaign_groups`, `groups`
 
-### Офферы — ресурс `offers`
+### Offers — resource `offers`
 
-- **Чтение:** `all_offers`, `get_offer`, `get_offer_file`, `offer_file_content`, `offer_files`, `offer_groups`, `offers`, `offers_simple`
-- **Запись:** `bulk_delete_offers`, `bulk_import_offers`, `copy_offer`, `delete_offer`, `delete_offer_group`, `offer_create_file`, `offer_delete_file`, `offer_file_op`, `offer_rename_file`, `offer_save_file`, `rename_offer_group`, `save_offer`, `save_offer_file`, `upload_offer`, `upload_offer_file`
-- **GET — чтение, POST — запись:** `offer_groups`
+- **Read:** `all_offers`, `get_offer`, `get_offer_file`, `offer_file_content`, `offer_files`, `offer_groups`, `offers`, `offers_simple`
+- **Write:** `bulk_delete_offers`, `bulk_import_offers`, `copy_offer`, `delete_offer`, `delete_offer_group`, `offer_create_file`, `offer_delete_file`, `offer_file_op`, `offer_rename_file`, `offer_save_file`, `rename_offer_group`, `save_offer`, `save_offer_file`, `upload_offer`, `upload_offer_file`
+- **GET is read, POST is write:** `offer_groups`
 
-### Лендинги и PWA — ресурс `landings`
+### Landings and PWA — resource `landings`
 
-- **Чтение:** `get_landing`, `get_landing_file`, `landing_files`, `landing_groups`, `landings`, `landings_simple`, `pwa_config_get`, `pwa_preview`
-- **Запись:** `bulk_delete_landings`, `bulk_import_landings`, `copy_landing`, `delete_landing`, `delete_landing_group`, `landing_file_op`, `pwa_config_save`, `rename_landing_group`, `save_landing`, `save_landing_file`, `upload_landing`, `upload_landing_file`
-- **GET — чтение, POST — запись:** `landing_groups`
+- **Read:** `get_landing`, `get_landing_file`, `landing_files`, `landing_groups`, `landings`, `landings_simple`, `pwa_config_get`, `pwa_preview`
+- **Write:** `bulk_delete_landings`, `bulk_import_landings`, `copy_landing`, `delete_landing`, `delete_landing_group`, `landing_file_op`, `pwa_config_save`, `rename_landing_group`, `save_landing`, `save_landing_file`, `upload_landing`, `upload_landing_file`
+- **GET is read, POST is write:** `landing_groups`
 
-### Источники трафика — ресурс `sources`
+### Traffic sources — resource `sources`
 
-- **Чтение:** `check_all_source_urls`, `check_source_url`, `get_traffic_source`, `traffic_source_templates`
-- **Запись:** `bulk_delete_traffic_sources`, `bulk_import_sources`
-- **GET — чтение, POST — запись:** `traffic_sources`
+- **Read:** `check_all_source_urls`, `check_source_url`, `get_traffic_source`, `traffic_source_templates`
+- **Write:** `bulk_delete_traffic_sources`, `bulk_import_sources`
+- **GET is read, POST is write:** `traffic_sources`
 
-### Партнёрские сети — ресурс `networks`
+### Affiliate networks — resource `networks`
 
-- **Чтение:** `affiliate_network_templates`, `get_affiliate_network`
-- **Запись:** `bulk_delete_affiliate_networks`, `delete_affiliate_network`
-- **GET — чтение, POST — запись:** `affiliate_networks`
+- **Read:** `affiliate_network_templates`, `get_affiliate_network`
+- **Write:** `bulk_delete_affiliate_networks`, `delete_affiliate_network`
+- **GET is read, POST is write:** `affiliate_networks`
 
-### Домены, SSL, регистраторы, бэкордер — ресурс `domains`
+### Domains, SSL, registrars, backorder — resource `domains`
 
-- **Чтение:** `backorder_cron_info`, `backorder_domains`, `check_cloudflare_status`, `check_domain_dns`, `check_ssl_status`, `cloudflare_account_zones`, `cloudflare_accounts_list`, `cloudflare_status`, `domain_groups`, `domains`, `domains_brief`, `dynadot_account_balance`, `dynadot_accounts_list`, `dynadot_check_domain`, `dynadot_domains`, `dynadot_status`, `force_check_all_dns`, `namecheap_account_balance`, `namecheap_accounts_list`, `namecheap_addresses`, `namecheap_check_domain`, `namecheap_domains`, `namecheap_status`, `postback_queue_info`, `ssl_environment`
-- **Запись:** `backorder_check_batch`, `backorder_check_now`, `backorder_delete`, `backorder_delete_selected`, `backorder_import`, `backorder_install_cron`, `backorder_install_user_cron`, `backorder_remove_cron`, `backorder_remove_user_cron`, `backorder_update`, `cloudflare_account_delete`, `cloudflare_account_import`, `cloudflare_account_repoint`, `cloudflare_account_save`, `cloudflare_options_save`, `cloudflare_save`, `cloudflare_sync_all`, `cloudflare_sync_domain`, `cloudflare_test`, `delete_domain`, `delete_domain_group`, `dynadot_account_delete`, `dynadot_account_save`, `dynadot_register_domain`, `dynadot_sync_domain`, `fix_nginx`, `namecheap_account_delete`, `namecheap_account_save`, `namecheap_register_domain`, `namecheap_save`, `namecheap_sync_domain`, `namecheap_test`, `postback_queue_install_user_cron`, `postback_queue_remove_user_cron`, `regenerate_nginx`, `reissue_ssl`, `rename_domain_group`, `run_ssl_worker`, `save_domain`
+- **Read:** `backorder_cron_info`, `backorder_domains`, `check_cloudflare_status`, `check_domain_dns`, `check_ssl_status`, `cloudflare_account_zones`, `cloudflare_accounts_list`, `cloudflare_status`, `domain_groups`, `domains`, `domains_brief`, `dynadot_account_balance`, `dynadot_accounts_list`, `dynadot_check_domain`, `dynadot_domains`, `dynadot_status`, `force_check_all_dns`, `namecheap_account_balance`, `namecheap_accounts_list`, `namecheap_addresses`, `namecheap_check_domain`, `namecheap_domains`, `namecheap_status`, `postback_queue_info`, `ssl_environment`
+- **Write:** `backorder_check_batch`, `backorder_check_now`, `backorder_delete`, `backorder_delete_selected`, `backorder_import`, `backorder_install_cron`, `backorder_install_user_cron`, `backorder_remove_cron`, `backorder_remove_user_cron`, `backorder_update`, `cloudflare_account_delete`, `cloudflare_account_import`, `cloudflare_account_repoint`, `cloudflare_account_save`, `cloudflare_options_save`, `cloudflare_save`, `cloudflare_sync_all`, `cloudflare_sync_domain`, `cloudflare_test`, `delete_domain`, `delete_domain_group`, `dynadot_account_delete`, `dynadot_account_save`, `dynadot_register_domain`, `dynadot_sync_domain`, `fix_nginx`, `namecheap_account_delete`, `namecheap_account_save`, `namecheap_register_domain`, `namecheap_save`, `namecheap_sync_domain`, `namecheap_test`, `postback_queue_install_user_cron`, `postback_queue_remove_user_cron`, `regenerate_nginx`, `reissue_ssl`, `rename_domain_group`, `run_ssl_worker`, `save_domain`
 
-### Галерея контента — ресурс `media`
+### Content Gallery — resource `media`
 
-- **Чтение:** `media_folders`, `media_list`
-- **Запись:** `media_folder_op`, `media_op`, `media_upload`
+- **Read:** `media_folders`, `media_list`
+- **Write:** `media_folder_op`, `media_op`, `media_upload`
 
-### Web Push — ресурс `push`
+### Web Push — resource `push`
 
-- **Чтение:** `push_messages`, `push_queue_list`, `push_subscribers`, `push_subscribers_export`, `push_vapid_status`
-- **Запись:** `push_message_delete`, `push_message_save`, `push_send_now`, `push_subscribers_op`, `push_test_send`, `push_vapid_contact_save`, `push_vapid_generate`
+- **Read:** `push_messages`, `push_queue_list`, `push_subscribers`, `push_subscribers_export`, `push_vapid_status`
+- **Write:** `push_message_delete`, `push_message_save`, `push_send_now`, `push_subscribers_op`, `push_test_send`, `push_vapid_contact_save`, `push_vapid_generate`
 
-### Логи — ресурс `logs`
+### Logs — resource `logs`
 
-- **Чтение:** `logs`, `logs_export`
+- **Read:** `logs`, `logs_export`
 
-### Доступно любому вошедшему пользователю
+### Available to any logged-in user
 
-Не привязаны к ресурсу; для не-админов разрешены явно (`orbitraUnmappedAllowedActions()`). Действия с пометкой «только GET» на POST для не-админа отвечают 403.
+Not tied to a resource; allowed explicitly for non-admins (`orbitraUnmappedAllowedActions()`). Actions marked "GET only" answer 403 on POST for non-admins.
 
-- **GET и POST:** `chart`, `check_update`, `extension_ads_stats`, `extension_credentials`, `extension_deep_stats`, `metrics`, `profile_settings`, `save_pixel_profile`, `totp_disable`, `totp_enable`, `totp_setup`, `trends`, `worker_health`
-- **Только GET:** `conversion_types`, `countries_list`, `global_settings`, `pixel_profiles_list`, `pwa_funnel_stats`
+- **GET and POST:** `chart`, `check_update`, `extension_ads_stats`, `extension_credentials`, `extension_deep_stats`, `metrics`, `profile_settings`, `save_pixel_profile`, `totp_disable`, `totp_enable`, `totp_setup`, `trends`, `worker_health`
+- **GET only:** `conversion_types`, `countries_list`, `global_settings`, `pixel_profiles_list`, `pwa_funnel_stats`
 
-### Архив
+### Archive
 
-`archive_items`, `archive_purge`, `archive_restore` — список требует доступа на чтение ко всем пяти ресурсам архива, восстановление и удаление — полного доступа к ресурсу удаляемого элемента.
+`archive_items`, `archive_purge`, `archive_restore` — listing requires read access to all five archive resources; restore and delete require full access to the resource of the item being deleted.
 
-### Агрегатор расходов и доходов (только администратор)
+### Cost and revenue aggregator (admin only)
 
 `aggregator_connection_detail`, `aggregator_connections`, `aggregator_engine_fields`, `aggregator_revenue`, `aggregator_revenue_export`, `aggregator_sync`, `aggregator_sync_logs`, `aggregator_test_connection`
 
-### Только администратор
+### Admin only
 
-Всё, что не перечислено выше, для не-админов закрыто по умолчанию.
+Everything not listed above is denied to non-admins by default.
 
 `app_config`, `app_configs`, `attach_pixel_profile`, `bot_ips`, `bot_ips_feed`, `bot_signatures`, `cohort`, `conversion_statuses`, `crm_lead`, `crm_lead_update`, `crm_leads`, `custom_metrics`, `delete_api_key`, `delete_app_config`, `delete_geo_profile`, `delete_pixel_profile`, `delete_traffic_source`, `delete_user`, `detect_geo`, `facebook_capi_list`, `facebook_capi_meta`, `facebook_capi_test`, `facebook_connect_accounts`, `facebook_extend_token`, `facebook_oauth_callback`, `facebook_oauth_start`, `facebook_oauth_status`, `generate_api_key`, `geo_db_update`, `geo_db_upload`, `geo_dbs`, `geo_profiles`, `get_geo_profile`, `get_user`, `google_ads_connect_accounts`, `google_ads_oauth_callback`, `google_ads_oauth_start`, `google_ads_oauth_status`, `init_geo_templates`, `ipranges_update`, `leadforge_analyze`, `leadforge_build_batch`, `leadforge_download`, `leadforge_forge_landing`, `leadforge_live_qa`, `leadforge_networks`, `leadforge_profiles`, `logs_param_keys`, `migrations`, `pixel_profile_test_event`, `postback_backfill`, `postback_test`, `purge_metadata`, `pwa_domain_options`, `regenerate_campaign_token`, `run_migration`, `run_update`, `save_app_config`, `save_geo_profile`, `save_pwa_domain_binding`, `save_settings`, `save_telegram_settings`, `save_user`, `server_setup_status`, `settings`, `simulate_traffic`, `system_status`, `telegram_chat_remove`, `telegram_link_code`, `telegram_settings`, `telegram_test`, `tiktok_connect_accounts`, `tiktok_mcp_connect`, `tiktok_mcp_oauth_callback`, `tiktok_mcp_oauth_start`, `tiktok_oauth_callback`, `tiktok_oauth_start`, `tiktok_oauth_status`, `unmapped_statuses`, `users`
 
-⚠️ — имя есть в карте доступа, но обработчика в `api.php` нет (запрос ответит ошибкой).
+⚠️ — the name exists in the access map but has no handler in `api.php` (a request will answer with an error).
 
 <!-- api-catalog:end -->

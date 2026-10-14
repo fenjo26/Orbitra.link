@@ -1,20 +1,20 @@
-# Архитектура
+# Architecture
 
-Orbitra — PHP + SQLite без фреймворка и React-панель. Никаких отдельных серверов БД, очередей и кэшей: всё состояние в одном файле SQLite, фоновые задачи — кроны.
+Orbitra is PHP + SQLite with no framework, plus a React panel. No separate DB servers, queues or caches: all state lives in a single SQLite file, background tasks are cron jobs.
 
-## Стек
+## Stack
 
-| Слой | Что |
+| Layer | What |
 |---|---|
-| Сервер | Nginx + PHP-FPM (установщик ставит PHP 8.5, при недоступности 8.4; работает от 8.1) |
-| База | SQLite 3 в режиме WAL, файл `orbitra_db.sqlite` в корне проекта |
-| PHP-зависимости | Composer (версия закреплена в `install.sh` и проверяется по SHA-256): GeoIP2, IP2Location / IP2Proxy |
-| Панель | React 19, Vite 7, Tailwind CSS 4, Chart.js, lucide-react, axios |
-| MCP | Node.js-сервер в `mcp/` (stdio) и PHP-эндпоинт `mcp.php` (HTTP) |
+| Server | Nginx + PHP-FPM (the installer installs PHP 8.5, falling back to 8.4 if unavailable; runs from 8.1) |
+| Database | SQLite 3 in WAL mode, file `orbitra_db.sqlite` in the project root |
+| PHP dependencies | Composer (version pinned in `install.sh` and verified by SHA-256): GeoIP2, IP2Location / IP2Proxy |
+| Panel | React 19, Vite 7, Tailwind CSS 4, Chart.js, lucide-react, axios |
+| MCP | Node.js server in `mcp/` (stdio) and PHP endpoint `mcp.php` (HTTP) |
 
-Собранная панель (`frontend/dist`) лежит в репозитории: сервер не запускает `npm`, сборка делается на машине релиза.
+The built panel (`frontend/dist`) is committed to the repository: the server never runs `npm`, builds happen on the release machine.
 
-## Как проходит клик
+## How a click flows
 
 ```
 посетитель ─► nginx ─► index.php (роутер)
@@ -29,99 +29,99 @@ Orbitra — PHP + SQLite без фреймворка и React-панель. Ни
                          └─ ответ: редирект на оффер (core/OfferUrl.php), лендинг, действие, белая страница
 ```
 
-Те же правила выполняются в `click.php`, Click API v3 (`core/click_api.php`) и симуляторе, поэтому общие части вынесены в `core/`.
+The same rules run in `click.php`, Click API v3 (`core/click_api.php`) and the simulator, so the shared parts live in `core/`.
 
-## Точки входа
+## Entry points
 
-| Файл | Назначение |
+| File | Purpose |
 |---|---|
-| `index.php` | Роутер трекера: ссылки кампаний, постбек `/<key>/postback`, `/pixel.gif`, `/lander/…`, `/offers/…`, `/push_subscribe`, `/crm-ingest`, переход `/?_lp=1`, статика лендингов |
-| `router.php` | Роутер для встроенного сервера PHP (локальная разработка) |
-| `admin.php` | Оболочка панели |
-| `api.php` | REST API панели (~290 действий) — [REST API](api.md) |
-| `session_bootstrap.php` | Сессия, срок жизни, HTTPS-детект за прокси |
-| `click.php`, `kclient.php` | Click API для интеграционных скриптов и PHP-клиент |
-| `postback.php` | Приём конверсий |
-| `admin_api.php` | Keitaro-совместимый Admin API (приём расходов) |
+| `index.php` | Tracker router: campaign links, postback `/<key>/postback`, `/pixel.gif`, `/lander/…`, `/offers/…`, `/push_subscribe`, `/crm-ingest`, the `/?_lp=1` hop, landing static files |
+| `router.php` | Router for the PHP built-in server (local development) |
+| `admin.php` | Panel shell |
+| `api.php` | Panel REST API (~290 actions) — [REST API](api.md) |
+| `session_bootstrap.php` | Session, lifetime, HTTPS detection behind a proxy |
+| `click.php`, `kclient.php` | Click API for integration scripts and the PHP client |
+| `postback.php` | Receives conversions |
+| `admin_api.php` | Keitaro-compatible Admin API (receives costs) |
 | `mcp.php` | MCP Streamable HTTP |
-| `telegram_bot.php`, `telegram_notify.php` | Бот и уведомления |
-| `config.php` | Подключение к БД, миграции схемы, общие функции |
-| `install.sh` | Установщик и обновлятор сервера |
+| `telegram_bot.php`, `telegram_notify.php` | Bot and notifications |
+| `config.php` | DB connection, schema migrations, shared functions |
+| `install.sh` | Server installer and updater |
 
-## Фоновые задачи
+## Background tasks
 
-| Скрипт | Расписание | Ставит | Что делает |
+| Script | Schedule | Installed by | What it does |
 |---|---|---|---|
-| `cli/click_spool_cron.php` | каждую минуту | установщик, `server_setup.sh`, панель | Дописывает клики из спула; строит тяжёлые индексы вне веб-запросов |
-| `postback_queue_cron.php` | каждую минуту | установщик, панель | Очередь исходящих S2S-постбеков и событий CAPI |
-| `cli/push_cron.php` | каждую минуту | установщик | Рассылка Web Push |
-| `rotation_optimiser_cron.php` | каждую минуту | установщик | Автооптимизация весов ротации |
-| `telegram_poll_cron.php` | каждую минуту | установщик | Опрос Telegram, ежедневная сводка |
-| `cli/ssl_installer.php` | каждые 5 минут | установщик | Выпуск и подключение сертификатов |
-| `aggregator_cron.php` | каждые 15 минут | установщик | Импорт расходов и доходов |
-| `ipranges_cron.php` | ежедневно | установщик | Диапазоны IP облаков и краулеров |
-| `cli/geo_update.php` | ежемесячно | установщик | Обновление гео-баз |
-| `backorder_cron.php` | каждые 3 минуты | панель (Автоматизация) | Проверка доменов backorder |
-| `cli/cleanup_cron.php` | по желанию | вручную | Очистка по срокам хранения |
-| `conversion_monitor_cron.php` | по желанию | вручную | Алерт о доле неудачных постбеков |
-| `check_sources_cron.php` | по желанию | вручную | Проверка URL источников |
+| `cli/click_spool_cron.php` | every minute | installer, `server_setup.sh`, panel | Flushes clicks from the spool; builds heavy indexes outside web requests |
+| `postback_queue_cron.php` | every minute | installer, panel | Queue of outbound S2S postbacks and CAPI events |
+| `cli/push_cron.php` | every minute | installer | Web Push delivery |
+| `rotation_optimiser_cron.php` | every minute | installer | Auto-optimises rotation weights |
+| `telegram_poll_cron.php` | every minute | installer | Telegram polling, daily digest |
+| `cli/ssl_installer.php` | every 5 minutes | installer | Certificate issuance and wiring |
+| `aggregator_cron.php` | every 15 minutes | installer | Cost and revenue import |
+| `ipranges_cron.php` | daily | installer | Cloud and crawler IP ranges |
+| `cli/geo_update.php` | monthly | installer | Geo database updates |
+| `backorder_cron.php` | every 3 minutes | panel (Automation) | Backorder domain checks |
+| `cli/cleanup_cron.php` | optional | manually | Retention-based cleanup |
+| `conversion_monitor_cron.php` | optional | manually | Alert on the failed-postback share |
+| `check_sources_cron.php` | optional | manually | Checks source URLs |
 
-Кроны работают от `www-data`, логи пишут в `var/logs/`.
+Crons run as `www-data` and write logs to `var/logs/`.
 
-## Модули `core/`
+## `core/` modules
 
-| Область | Файлы |
+| Area | Files |
 |---|---|
-| Клик и маршрутизация | `click_logger.php`, `click_api.php`, `StreamFilters.php`, `ClickParams.php`, `ClickFlags.php`, `ClickDestination.php`, `OfferUrl.php`, `Device.php`, `UserAgent.php`, `prefetch.php`, `test_links.php`, `landing_path.php`, `PhpLanding.php`, `RotationOptimiser.php`, `stream_stats.php` |
-| Клоака и боты | `CloakDetector.php`, `IpRanges.php`, `CloudDetector.php`, `data/asn_blocklist.json`, `geo_databases.php`, `SxGeo.php` |
-| Конверсии | `ConversionAttribution.php`, `PostbackMacros.php`, `PostbackDelivery.php`, `CurrencyRates.php`, `ConversionMonitor.php`, `FacebookConversions.php`, `TikTokConversions.php`, `MetaCapiResponse.php`, `MetaMatching.php` |
-| Расходы | `CostImporter.php`, `google_ads_tree.php`, `TikTokMcpClient.php`, `../aggregator_engines/*` |
-| Отчёты | `ReportMetrics.php`, `logs_query.php`, `ExtensionStats.php`, `ExtensionAdsStats.php`, `finance_masking.php` |
-| Домены и сервер | `ssl_manager.php`, `SslConfig.php`, `nginx_config.php`, `server_ip.php`, `server_setup.php`, `DomainDnsResolver.php`, `CloudflareApi.php`, `NamecheapClient.php`, `DynadotClient.php`, `backorder.php`, `shell.php`, `git_update.php` |
-| PWA и пуши | `PwaLanding.php`, `PushBase.php`, `PushQueue.php`, `PushSender.php`, `PushMacros.php` |
-| Доступ и безопасность | `resource_access.php`, `admin_access.php`, `admin_path.php`, `ip_access.php`, `Totp.php`, `CrmVault.php`, `db_retry.php` |
-| Прочее | `keitaro_import.php`, `LeadForge.php`, `telegram_api.php`, `branding/` |
+| Click and routing | `click_logger.php`, `click_api.php`, `StreamFilters.php`, `ClickParams.php`, `ClickFlags.php`, `ClickDestination.php`, `OfferUrl.php`, `Device.php`, `UserAgent.php`, `prefetch.php`, `test_links.php`, `landing_path.php`, `PhpLanding.php`, `RotationOptimiser.php`, `stream_stats.php` |
+| Cloaking and bots | `CloakDetector.php`, `IpRanges.php`, `CloudDetector.php`, `data/asn_blocklist.json`, `geo_databases.php`, `SxGeo.php` |
+| Conversions | `ConversionAttribution.php`, `PostbackMacros.php`, `PostbackDelivery.php`, `CurrencyRates.php`, `ConversionMonitor.php`, `FacebookConversions.php`, `TikTokConversions.php`, `MetaCapiResponse.php`, `MetaMatching.php` |
+| Costs | `CostImporter.php`, `google_ads_tree.php`, `TikTokMcpClient.php`, `../aggregator_engines/*` |
+| Reports | `ReportMetrics.php`, `logs_query.php`, `ExtensionStats.php`, `ExtensionAdsStats.php`, `finance_masking.php` |
+| Domains and server | `ssl_manager.php`, `SslConfig.php`, `nginx_config.php`, `server_ip.php`, `server_setup.php`, `DomainDnsResolver.php`, `CloudflareApi.php`, `NamecheapClient.php`, `DynadotClient.php`, `backorder.php`, `shell.php`, `git_update.php` |
+| PWA and push | `PwaLanding.php`, `PushBase.php`, `PushQueue.php`, `PushSender.php`, `PushMacros.php` |
+| Access and security | `resource_access.php`, `admin_access.php`, `admin_path.php`, `ip_access.php`, `Totp.php`, `CrmVault.php`, `db_retry.php` |
+| Misc | `keitaro_import.php`, `LeadForge.php`, `telegram_api.php`, `branding/` |
 
-## База данных
+## Database
 
-- Файл `orbitra_db.sqlite`, режим WAL (`ORBITRA_SQLITE_JOURNAL_MODE` может переключить на `DELETE`).
-- Схема создаётся и мигрирует в `config.php` при первом запросе. Текущая версия — `$LATEST_SCHEMA_VERSION` (59 на момент v1.6.17), хранится в `PRAGMA user_version`. Миграции пошаговые и идемпотентные.
-- `database.sql` — справочный дамп схемы, приложение его не загружает.
+- File `orbitra_db.sqlite`, WAL mode (`ORBITRA_SQLITE_JOURNAL_MODE` can switch it to `DELETE`).
+- The schema is created and migrated in `config.php` on the first request. Current version — `$LATEST_SCHEMA_VERSION` (59 as of v1.6.17), stored in `PRAGMA user_version`. Migrations are step-by-step and idempotent.
+- `database.sql` is a reference dump of the schema; the application never loads it.
 
-Основные таблицы:
+Main tables:
 
-| Группа | Таблицы |
+| Group | Tables |
 |---|---|
-| Трекинг | `campaigns`, `streams`, `offers`, `landings`, `clicks`, `conversions`, `campaign_postbacks`, `campaign_pixels`, `stream_rotation_log`, `pwa_screen_views` |
-| Справочники | `traffic_sources`, `affiliate_networks`, `conversion_types`, `custom_metrics`, `geo_profiles`, `*_groups` |
-| Постбеки | `incoming_postbacks_log`, `s2s_postbacks_log` (очередь), `postback_logs` |
-| Расходы и доходы | `aggregator_connections`, `cost_records`, `revenue_records`, `aggregator_sync_logs`, `oauth_tokens`, `pixel_profiles`, `meta_matching_keys`, `ad_entity_status_cache` |
-| Домены | `domains`, `cloudflare_accounts`, `namecheap_accounts`, `dynadot_accounts`, `backorder_domains` |
-| Пуши и медиа | `push_subscriptions`, `push_messages`, `push_queue`, `push_sends`, `media_folders`, `media_assets`, `app_configs` |
-| Боты и клоака | `bot_ips`, `bot_signatures`, `cloak_suppressed_stats` |
-| Система | `users`, `user_api_keys`, `settings`, `system_logs`, `audit_logs`, `telegram_bot_chats`, `schema_migrations` |
+| Tracking | `campaigns`, `streams`, `offers`, `landings`, `clicks`, `conversions`, `campaign_postbacks`, `campaign_pixels`, `stream_rotation_log`, `pwa_screen_views` |
+| Reference data | `traffic_sources`, `affiliate_networks`, `conversion_types`, `custom_metrics`, `geo_profiles`, `*_groups` |
+| Postbacks | `incoming_postbacks_log`, `s2s_postbacks_log` (queue), `postback_logs` |
+| Costs and revenue | `aggregator_connections`, `cost_records`, `revenue_records`, `aggregator_sync_logs`, `oauth_tokens`, `pixel_profiles`, `meta_matching_keys`, `ad_entity_status_cache` |
+| Domains | `domains`, `cloudflare_accounts`, `namecheap_accounts`, `dynadot_accounts`, `backorder_domains` |
+| Push and media | `push_subscriptions`, `push_messages`, `push_queue`, `push_sends`, `media_folders`, `media_assets`, `app_configs` |
+| Bots and cloaking | `bot_ips`, `bot_signatures`, `cloak_suppressed_stats` |
+| System | `users`, `user_api_keys`, `settings`, `system_logs`, `audit_logs`, `telegram_bot_chats`, `schema_migrations` |
 | LeadForge / CRM | `leadforge_profiles`, `crm_leads` |
 
-Ключевые индексы на `clicks`: `(campaign_id, created_at)` для отчётов, `(ip, ua_hash, created_at)` для проверок уникальности. Даты в отчётах сравниваются с границами локального дня в UTC, чтобы индекс работал.
+Key indexes on `clicks`: `(campaign_id, created_at)` for reports, `(ip, ua_hash, created_at)` for uniqueness checks. Dates in reports are compared against local-day boundaries expressed in UTC so the index stays usable.
 
-## Безопасность сервера
+## Server security
 
-- Веб-пользователь не имеет широкого sudo. Корневые действия идут через помощники с проверкой аргументов: `orbitra-issue-cert`, `orbitra-delete-cert`, `orbitra-install-nginx-conf` (принимает конфиг nginx только из разрешённых директив). Ставит их `cli/server_setup.sh`, версия — `/etc/orbitra/server-setup-version`.
-- nginx и `.htaccess` закрывают `cli/`, `core/`, `vendor/`, `var/`, `data/`, файлы SQLite и `.sh/.md/.phar/.lock`. Скрипты `cli/*.php` отказываются работать из веба.
-- Заголовки `X-Forwarded-*` учитываются только от Cloudflare и частных прокси.
+- The web user has no broad sudo. Root actions go through helpers with argument validation: `orbitra-issue-cert`, `orbitra-delete-cert`, `orbitra-install-nginx-conf` (accepts an nginx config built only from allowed directives). They are installed by `cli/server_setup.sh`; the version lives in `/etc/orbitra/server-setup-version`.
+- nginx and `.htaccess` block `cli/`, `core/`, `vendor/`, `var/`, `data/`, SQLite files and `.sh/.md/.phar/.lock`. `cli/*.php` scripts refuse to run from the web.
+- `X-Forwarded-*` headers are honored only from Cloudflare and private proxies.
 
-## Панель
+## Panel
 
 `frontend/src`:
 
-- `App.jsx` — навигация по страницам (без роутера), загрузка сессии и темы;
-- `components/` — страницы и редакторы (около 80), общие компоненты в `components/common/` (таблицы, перетаскивание и ширина колонок, MediaPicker и др.);
-- `contexts/LanguageContext.jsx` + `locales/*.js` — 7 языков; все строки интерфейса только через `t()`;
-- `utils/` — права, цвета конверсий, сниппеты интеграций.
+- `App.jsx` — page navigation (no router), session and theme loading;
+- `components/` — pages and editors (about 80), shared components in `components/common/` (tables, drag-and-drop and column widths, MediaPicker, etc.);
+- `contexts/LanguageContext.jsx` + `locales/*.js` — 7 languages; all UI strings go exclusively through `t()`;
+- `utils/` — permissions, conversion colors, integration snippets.
 
-Стили — CSS-переменные тем в `index.css` плюс Tailwind; раскладка (display, ширина, отступы) живёт в базовом слое Tailwind, поэтому классы в разметке работают поверх стилей панели.
+Styling is theme CSS variables in `index.css` plus Tailwind; layout (display, widths, spacing) lives in Tailwind's base layer, so classes in markup work on top of the panel styles.
 
-## Разработка
+## Development
 
 ```bash
 # Бэкенд
@@ -136,17 +136,17 @@ php tests/<имя>_test.php                       # тесты — самост�
 bash cli/os_matrix.sh                          # install.sh против всех поддерживаемых Ubuntu/Debian
 ```
 
-Нагрузочный тест (k6) — `tests/load/README.md`; запускать только на тестовом сервере.
+Load testing (k6) is described in `tests/load/README.md`; run it only on a test server.
 
-### Выпуск версии
+### Release process
 
-1. Номер версии — одинаковый в `version.json` (с `release_notes` и `released_at`), `version.php` и `frontend/package.json`. Панель обновления читает `version.json`.
-2. Раздел `[Unreleased]` в `CHANGELOG.md` переименовывается в версию с датой.
-3. Блок «What's New / Что нового» в обоих README.
-4. `npm run build` — собранный `frontend/dist` коммитится вместе с релизом.
-5. Если изменились действия API — `php cli/api_catalog.php`, и каталог вставляется в `docs/api.md` (`--check` проверит).
-6. Если изменились страницы документации — их же правки в `docs/`. Отдельного списка «что нового» в документации нет: история версий только в `CHANGELOG.md`.
+1. The version number must be identical in `version.json` (with `release_notes` and `released_at`), `version.php` and `frontend/package.json`. The update panel reads `version.json`.
+2. The `[Unreleased]` section in `CHANGELOG.md` is renamed to the version with its date.
+3. The "What's New / Что нового" block in both READMEs.
+4. `npm run build` — the built `frontend/dist` is committed together with the release.
+5. If API actions changed — run `php cli/api_catalog.php`; the catalog is then inserted into `docs/api.md` (`--check` will verify).
+6. If documentation pages changed — apply the same edits in `docs/`. There is no separate "what's new" list for documentation: version history lives only in `CHANGELOG.md`.
 
-### Документация и вики
+### Documentation and wiki
 
-Источник документации — папка `docs/`. GitHub-вики собирается из неё скриптом `cli/wiki_sync.py` (инструкция в начале скрипта); править нужно `docs/`, а не вики: при следующей синхронизации ручные правки сгенерированных страниц перезапишутся. Новую страницу добавьте в `docs/`, в `docs/index.md` и в `docs/_Sidebar.md`.
+The source of truth for documentation is the `docs/` folder. The GitHub wiki is generated from it by `cli/wiki_sync.py` (instructions at the top of the script); edit `docs/`, not the wiki: manual edits to generated pages will be overwritten at the next sync. Add a new page to `docs/`, to `docs/index.md` and to `docs/_Sidebar.md`.

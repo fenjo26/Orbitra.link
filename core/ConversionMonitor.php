@@ -128,18 +128,46 @@ if (!function_exists('orbitraSendConversionAlert')) {
         $logLine = "[" . date('Y-m-d H:i:s') . "] " . str_replace("\n", ' | ', $message) . PHP_EOL;
         @file_put_contents($alertFile, $logLine, FILE_APPEND | LOCK_EX);
 
-        // Send to Telegram if configured
-        try {
-            if (file_exists(__DIR__ . '/../telegram_notify.php')) {
-                require_once __DIR__ . '/../telegram_notify.php';
-                // Telegram integration would call a notification function here
-                // This is a placeholder for future implementation
+        // Deliver through the panel's own Telegram bot to every chat that
+        // turned conversion notifications on (/notify on) — the shared
+        // transport in core/telegram_api.php, the token from settings. This
+        // used to be a placeholder that only wrote the log line above, so
+        // "✓ Alert sent successfully" in the cron output was a lie.
+        $telegramOk = true; // not configured is not a failure — the log above is the channel then
+        $pdo = $GLOBALS['pdo'] ?? null;
+        if ($pdo instanceof PDO) {
+            try {
+                $stmt = $pdo->prepare('SELECT value FROM settings WHERE key = ? LIMIT 1');
+                $stmt->execute(['telegram_bot_token']);
+                $token = (string) $stmt->fetchColumn();
+                $stmt->closeCursor();
+                if ($token !== '') {
+                    require_once __DIR__ . '/telegram_api.php';
+                    $chats = $pdo->query('SELECT chat_id FROM telegram_bot_chats WHERE is_active = 1 AND notify_conversions = 1')->fetchAll(PDO::FETCH_COLUMN);
+                    if ($chats) {
+                        $delivered = 0;
+                        foreach ($chats as $chatId) {
+                            $res = orbitraTelegramApi($token, 'sendMessage', [
+                                'chat_id' => $chatId,
+                                'text' => $message,
+                            ], 10);
+                            if (($res['ok'] ?? false) === true) {
+                                $delivered++;
+                            }
+                        }
+                        // Plain text only: the metrics carry numbers and
+                        // percent signs that Markdown would happily eat.
+                        $telegramOk = $delivered > 0;
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Alerting must never break monitoring; the log line above
+                // still happened, so do not fail the whole call.
+                $telegramOk = true;
             }
-        } catch (\Throwable $e) {
-            // Continue silently
         }
 
-        return true;
+        return $telegramOk;
     }
 }
 

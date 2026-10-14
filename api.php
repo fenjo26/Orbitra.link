@@ -15334,6 +15334,7 @@ try {
             }
             $setupStatus = orbitraServerSetupStatus();
             $setupStatus['spool_cron'] = orbitraEnsureClickSpoolCron();
+            $setupStatus['cleanup_cron'] = orbitraEnsureCleanupCron();
             echo json_encode(['status' => 'success', 'data' => $setupStatus]);
             break;
 

@@ -1,55 +1,55 @@
-# Telegram-бот
+# Telegram bot
 
-Бот присылает уведомления о конверсиях и ежедневную сводку и отвечает на команды со статистикой. Говорит на тех же семи языках, что и панель.
+The bot sends conversion notifications and a daily digest, and answers commands with statistics. It speaks the same seven languages as the panel.
 
-## Подключение
+## Connecting
 
-1. В Telegram откройте `@BotFather`, выполните `/newbot` и получите токен вида `1111:AAABBB…`.
-2. **⚙ → Интеграции → Telegram Bot** — вставьте токен и нажмите **Подключить**.
-3. На той же странице **Подключить чат → Получить код** и отправьте боту `/start КОД` (или откройте ссылку «Открыть бота»). Код одноразовый, действует 15 минут. Чаты без кода бот не принимает; отключить чат можно там же.
-4. Включите нужные уведомления.
+1. In Telegram, open `@BotFather`, run `/newbot` and get a token like `1111:AAABBB…`.
+2. **⚙ → Integrations → Telegram Bot** — paste the token and press **Connect**.
+3. On the same page, **Connect chat → Get code** and send `/start CODE` to the bot (or open the "Open bot" link). The code is one-time and valid for 15 minutes. The bot does not accept chats without a code; a chat can be disconnected on the same page.
+4. Enable the notifications you need.
 
-После `/start` бот закрепляет клавиатуру-меню: Статистика, Топ, Кампании, Конверсии, Уведомления, Сводка, Язык, Помощь — команды можно не набирать.
+After `/start` the bot pins a keyboard menu: Stats, Top, Campaigns, Conversions, Notifications, Digest, Language, Help — no need to type the commands.
 
-## Как обновления доходят до бота
+## How updates reach the bot
 
-Режим панель выбирает сама и показывает на карточке статуса; его можно задать и вручную.
+The panel picks the mode itself and shows it on the status card; you can also set it manually.
 
-- **Вебхук** — Telegram вызывает `https://<домен>/telegram_bot.php`. Работает только по HTTPS, на доменном имени и с сертификатом, которому Telegram доверяет. Запрос проверяется секретным токеном Telegram.
-- **Опрос (polling)** — крон `telegram_poll_cron.php` раз в минуту сам забирает обновления. Входящее соединение не нужно: бот работает на голом IP, по `http://` и за прокси. Установщик ставит крон:
+- **Webhook** — Telegram calls `https://<domain>/telegram_bot.php`. Works only over HTTPS, on a domain name, with a certificate Telegram trusts. The request is verified by the Telegram secret token.
+- **Polling** — the `telegram_poll_cron.php` cron fetches updates once a minute. No inbound connection needed: the bot works on a bare IP, over `http://` and behind a proxy. The installer adds the cron:
 
   ```
   * * * * * php /var/www/orbitra/telegram_poll_cron.php --quiet >> /var/www/orbitra/var/logs/telegram_poll.log 2>&1
   ```
 
-  При работающем вебхуке задача сразу выходит, ничего не делая.
+  When a webhook is active, the job exits immediately without doing anything.
 
-Если бот молчит, карточка статуса покажет режим, ошибку, которую вернул сам Telegram (`getWebhookInfo`), и время последнего запуска опросчика. Пустое время при режиме «опрос» значит, что строки в crontab нет. Проверка вручную:
+If the bot is silent, the status card will show the mode, the error returned by Telegram itself (`getWebhookInfo`), and the poller's last run time. An empty time in "polling" mode means there is no crontab entry. Manual check:
 
 ```
 sudo -u www-data php /var/www/orbitra/telegram_poll_cron.php --once
 ```
 
-## Команды
+## Commands
 
-| Команда | Что делает |
+| Command | What it does |
 |---|---|
-| `/stats` | Статистика за сегодня; `/stats yesterday`, `/stats 1d`, `/stats 7d`, `/stats 30d` |
-| `/campaigns` | Активные кампании, по кнопке на каждую |
-| `/campaign ID` | Детали кампании |
-| `/top` | Топ-5 кампаний по доходу за сегодня |
-| `/conversions` | Последние 10 конверсий |
-| `/notify on\|off` | Уведомления о конверсиях; без аргумента — текущее состояние и кнопка |
-| `/daily on\|off` | Ежедневная сводка |
-| `/lang en\|ru\|uk\|es\|zh\|fr\|de` | Язык бота; без аргумента — выбор кнопками |
-| `/sources` | Источники трафика и статус проверки их URL |
-| `/checksources` | Проверить URL всех источников |
-| `/allow ID` | Разрешить ещё один чат по его ID |
-| `/help` | Справка и повторное закрепление меню |
+| `/stats` | Today's statistics; `/stats yesterday`, `/stats 1d`, `/stats 7d`, `/stats 30d` |
+| `/campaigns` | Active campaigns, with a button for each |
+| `/campaign ID` | Campaign details |
+| `/top` | Top 5 campaigns by revenue today |
+| `/conversions` | Last 10 conversions |
+| `/notify on\|off` | Conversion notifications; without an argument — current state and a button |
+| `/daily on\|off` | Daily digest |
+| `/lang en\|ru\|uk\|es\|zh\|fr\|de` | Bot language; without an argument — choose with buttons |
+| `/sources` | Traffic sources and the status of their URL check |
+| `/checksources` | Check all sources' URLs |
+| `/allow ID` | Allow one more chat by its ID |
+| `/help` | Help and re-pinning the menu |
 
-Команды без аргумента ничего не меняют: `/notify` показывает текущее состояние, а не выключает уведомления.
+Commands without an argument change nothing: `/notify` shows the current state instead of turning notifications off.
 
-## Уведомления
+## Notifications
 
-- **О конверсии** — кампания, статус, сумма и валюта, страна с флагом, время.
-- **Ежедневная сводка** — клики, конверсии, доход, расход, прибыль и топ-3 кампании. Время отправки — `telegram_daily_time` в настройках интеграции. Сводку отправляет опросчик (для вебхука тоже), не чаще раза в сутки.
+- **On a conversion** — campaign, status, amount and currency, country with a flag, time.
+- **Daily digest** — clicks, conversions, revenue, cost, profit and the top 3 campaigns. Send time is `telegram_daily_time` in the integration settings. The digest is sent by the poller (for webhook mode too), at most once a day.

@@ -1,4 +1,4 @@
-# Orbitra v1.6.18 Tracker
+# Orbitra v1.6.19 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,21 +11,24 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.6.18
+## 🆕 What's New in v1.6.19
 
-The campaign's own click log joins the honest format, cloak operators get an opt-in hard signal for provider IP ranges, and the documentation is rebuilt as a publishable wiki.
+Six review findings closed, and the documentation is English now.
 
 ### Added
 
-- 🛡️ **Opt-in: a datacenter/crawler IP-range hit as a hard bot signal** (Settings → Bots, off by default). Meta (AS32934) and Telegram (AS62041) are not in the datacenter ASN set, so a reviewer with an ordinary browser UA coming from the provider's own published range carried a single soft signal and reached the money page on medium sensitivity — with the box ticked, any range hit goes to the safe page at any sensitivity. Existing installs keep the historical verdicts; admin-only
-- 📚 **Documentation rebuilt as a wiki-ready `docs/` tree** — 36 pages checked against the current code (half of the docs were stuck on 0.9–1.5), `features.md` slimmed to a short overview, six stale root files archived. `cli/wiki_sync.py` publishes it as the GitHub wiki; `cli/api_catalog.php` keeps `docs/api.md` honest against the code (290 actions)
-- 🤖 **`cli/add_antibot_stream.php`** — adds an intercepting Antibot stream (Bot = yes → 404) to every active campaign lacking one: Keitaro imports usually carry only a regular stream plus a fallback, and a fallback never intercepts what an earlier stream already took. Dry run by default, full DB backup before writing, rollback deletes exactly what it added
+- ⏰ **Retention cleanup is scheduled for every install** — `install.sh` adds the daily `cleanup_cron.php` cron and the update self-heal installs it on existing installs; the "log retention" / "archive retention" fields finally purge
+- 🌐 **Documentation in English.** The GitHub wiki publishes `docs/` as 32 English pages; Russian versions live in `docs/ru/`, and the internal spec pages are no longer published
 
 ### Fixed
 
-- 🧾 **The campaign click log still rendered the pre-1.6.17 format** — an unconditional "Money" badge and an always-visible "Verdict: —" on every click. It now shows the stream that took the click ("EU (regular)"), OS and browser logos with the version on hover, the bot's name, IP, the click's domain, the real destination and UTC on the time hover; the SAFE badge, verdict and reason chips appear only for clicks a cloak stream actually judged. Barkrowler joins the known bots (its name carries no bot/crawler suffix, so the generic rule missed it)
+- 📦 **The Keitaro dump command is back on the Migrations page** — a refactor had dropped it, leaving scp commands fetching a file nothing on the server creates
+- 🔔 **The conversion-failure alert actually sends to Telegram** — it used to log a line and report success; now it delivers through the panel's own bot to every chat with `/notify` on
+- 🔐 **Non-admins: `logs_param_keys` and `cohort` no longer 403** — the traffic log's column suggestions and the Analytics cohort view work for users with the matching access
+- 🗑️ **The dead "Update Costs" modal is gone from the campaign editor** — every input in it was unwired, including the "unique clicks only" checkbox; the working one in the Campaigns list stays
+- 📄 **`.env.example` stops telling people to copy it to `.env`** — PHP never reads that file; it now points at the PHP-FPM pool / Apache vhost with examples
 
-Older releases (v1.6.17 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.6.18 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo

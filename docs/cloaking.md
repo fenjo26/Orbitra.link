@@ -1,103 +1,103 @@
-# Клоакинг
+# Cloaking
 
-Схема потока **Cloaking** делит трафик на две ветки: подозрительные посетители (боты, модераторы, дата-центры, VPN) видят **белую страницу**, реальные люди — **денежную**. Решение принимает один модуль (`core/CloakDetector.php`) для всех точек входа: ссылка кампании (`index.php`), `click.php` и Click API v3.
+The **Cloaking** stream schema splits traffic into two branches: suspicious visitors (bots, moderators, data centers, VPNs) see the **safe page**, real people the **money page**. One module (`core/CloakDetector.php`) makes the decision for all entry points: the campaign URL (`index.php`), `click.php`, and Click API v3.
 
-Подробный технический разбор на английском — [How the Orbitra Cloaker Works](cloak-how-it-works.md).
+A detailed technical write-up in English: [How the Orbitra Cloaker Works](cloak-how-it-works.md).
 
-## Настройка потока
+## Stream setup
 
-### Белая страница
+### Safe page
 
-Встроенный HTML, внешний URL, локальный лендинг или локальный оффер. Лендинги и офферы в списке сгруппированы по группам, есть поиск.
+Built-in HTML, an external URL, a local landing, or a local offer. Landings and offers in the list are grouped by group, with a search.
 
-### Денежная страница
+### Money page
 
-Работает как схема «Лендинг + Оффер», включая выбор оффера «перед кликом / после клика».
+Works like the "Landing + Offer" schema, including "before the click / after the click" offer selection.
 
-### Чистых — в следующий поток
+### Clean visitors to the next stream
 
-Галочка **«Направлять чистых посетителей в следующий поток»** превращает клоаку в фильтр на входе. Подозрительные получают белую страницу, а чистые идут дальше по списку потоков — гео, устройства и языки разводятся обычными потоками. Денежная страница этого потока при этом не используется. Поставьте такой поток первым или сделайте перехватывающим, чтобы проверку проходил каждый посетитель.
+The **"Send clean visitors to the next stream"** checkbox turns the cloak into an entry filter. Suspicious visitors get the safe page, while clean ones continue down the stream list — geo, devices, and languages are split up by regular streams. This stream's money page is not used in this mode. Put such a stream first or make it intercepting so that every visitor passes the check.
 
-### Слои определения
+### Detection layers
 
-| Слой | Источник | Без чего не работает |
+| Layer | Source | Does not work without |
 |---|---|---|
-| **Дата-центры / хостинги** | Блок-лист ASN (`core/data/asn_blocklist.json`), опубликованные диапазоны облаков и краулеров, ключевые слова хостинга в названии ISP | База ASN (GeoLite2-ASN) |
-| **VPN / прокси** | IP2Proxy PX12 (VPN, TOR, residential, threat, fraud-скор ≥ 80), список VPN-ASN | IP2Proxy PX12 / база ASN |
-| **Чёрные списки ботов** | IP и сигнатуры User-Agent из **Настройки → Боты** | — |
-| **Эвристика User-Agent** | Краулеры и инструменты (`facebookexternalhit`, `meta-externalagent`, `curl`, `python`, headless…), пустой User-Agent, нет `Accept-Language` | — |
+| **Data centers / hosting** | An ASN blocklist (`core/data/asn_blocklist.json`), published cloud and crawler ranges, hosting keywords in the ISP name | The ASN database (GeoLite2-ASN) |
+| **VPN / proxy** | IP2Proxy PX12 (VPN, TOR, residential, threat, fraud score ≥ 80), a VPN-ASN list | IP2Proxy PX12 / the ASN database |
+| **Bot blacklists** | IPs and User-Agent signatures from **Settings → Bots** | — |
+| **User-Agent heuristics** | Crawlers and tools (`facebookexternalhit`, `meta-externalagent`, `curl`, `python`, headless…), an empty User-Agent, a missing `Accept-Language` | — |
 
-Если нужной базы нет, редактор кампании показывает предупреждение прямо в карточке клоаки.
+If a required database is missing, the campaign editor shows a warning right in the cloak card.
 
-### Чувствительность
+### Sensitivity
 
-Сигналы бывают **жёсткие** (явное попадание в блок-лист или репутационную базу) и **мягкие** (отдельно шумные эвристики).
+Signals are either **hard** (an explicit hit in a blocklist or reputation database) or **soft** (individually noisy heuristics).
 
-| Уровень | Белая страница при |
+| Level | Safe page when |
 |---|---|
-| Низкая | только жёстком сигнале |
-| Средняя (по умолчанию) | жёстком сигнале или двух мягких |
-| Высокая | любом одном сигнале |
+| Low | only a hard signal |
+| Medium (default) | a hard signal, or two soft ones |
+| High | any single signal |
 
-### Фильтры таргетинга
+### Targeting filters
 
-Применяются после пассивных слоёв, несовпадение — белая страница (`TARGETING_SAFE`):
+Applied after the passive layers; a mismatch means the safe page (`TARGETING_SAFE`):
 
-- **Страны** — разрешить или заблокировать список. Если страну определить нельзя, причина пишется как `geo_unknown`, а не `geo_country`. Без гео-базы каждый посетитель — `Unknown`, и фильтр стран отправит на белую 100% трафика; редактор об этом предупреждает.
-- **Типы устройств** — только выбранные или все, кроме выбранных.
-- **Блокировать ботов и провайдеров дата-центров** — сравнение ISP и ASN посетителя со списком. Локальный список потока или, если он пуст, глобальный из **Настройки → Боты**.
+- **Countries** — allow or block a list. If the country cannot be determined, the reason is recorded as `geo_unknown` rather than `geo_country`. Without a geo database every visitor is `Unknown`, and the country filter will send 100% of traffic to the safe page; the editor warns about this.
+- **Device types** — only the selected ones, or all except the selected ones.
+- **Block bots and data-center providers** — the visitor's ISP and ASN compared against a list: the stream's local list or, if it is empty, the global one from **Settings → Bots**.
 
-### Проверка JavaScript
+### JavaScript verification
 
-Выключена по умолчанию. Посетитель сначала получает белую страницу, а на денежную переходит по одноразовой подписанной ссылке (TTL 5 минут) только после выполнения JS. `navigator.webdriver = true` остаётся на белой. Всё, что не исполняет JS, — тоже. Цена — лишний переход для каждого живого посетителя.
+Off by default. The visitor first receives the safe page and moves to the money page via a one-time signed link (TTL 5 minutes) only after executing JS. `navigator.webdriver = true` stays on the safe page. So does anything that does not execute JS. The price is one extra hop for every live visitor.
 
-### Запись и отчёты
+### Recording and reports
 
-| Настройка | По умолчанию | Что делает |
+| Setting | Default | What it does |
 |---|---|---|
-| **Записывать клики на Safe Page** | вкл. | Хиты белой страницы пишутся с `is_safe_page = 1`. Выключите — они не попадут в базу |
-| **Исключить клики Safe Page из отчётов** | вкл. | Хиты остаются в логе кликов, но не входят в визиты и всё производное от них (уникальные, боты, пустые рефереры, расход, CPV). В «Клики» они не попадают никогда |
+| **Record Safe Page clicks** | on | Safe-page hits are written with `is_safe_page = 1`. Turn it off and they will not reach the database |
+| **Exclude Safe Page clicks from reports** | on | Hits stay in the click log but do not count as visits or anything derived from them (uniques, bots, empty referers, cost, CPV). They never appear in "Clicks" |
 
-Даже если хиты не пишутся, счётчик подавленных хитов (`cloak_suppressed_stats`) считает их по кампании, потоку, дню и вердикту — «ноль кликов» не спрячет реальный трафик.
+Even when hits are not written, the suppressed-hit counter (`cloak_suppressed_stats`) counts them per campaign, stream, day, and verdict — "zero clicks" will not hide the real traffic.
 
-## Глобальные настройки: Настройки → Боты
+## Global settings: Settings → Bots
 
-- **IP-адреса ботов** — IP и CIDR, IPv4 и IPv6. У каждой записи есть источник (вручную или из фида), очистка может удалить только записи одного источника.
-- **Сигнатуры (User-Agent)** — подстроки.
-- **Глобальный чёрный список Bot ISP** — один провайдер на строку. Слишком короткие и общие строки (`Inc`, `LLC`) игнорируются: они совпали бы почти с каждым ISP.
-- **Диапазоны IP дата-центров и краулеров** — опубликованные диапазоны AWS, Google Cloud и Googlebot, Bing, Azure, Oracle, DigitalOcean, Facebook, Telegram, OpenAI, Cloudflare, Apple Private Relay и других из [lord-alfred/ipranges](https://github.com/lord-alfred/ipranges). Обновляются ежедневно кроном `ipranges_cron.php` (вручную — кнопка «Обновить сейчас» или `php ipranges_cron.php --force`), хранятся в `var/ipranges/`. Пока списки не скачаны, слой неактивен.
-- **Считать VPN-ASN сигналом бота** — по умолчанию включено. Выключите, если ваша аудитория массово сидит за коммерческим VPN.
+- **Bot IP addresses** — IPs and CIDR, IPv4 and IPv6. Every entry has a source (manual or from a feed); cleanup can delete entries of one source only.
+- **Signatures (User-Agent)** — substrings.
+- **Global Bot ISP blacklist** — one provider per line. Too-short and too-generic strings (`Inc`, `LLC`) are ignored: they would match almost every ISP.
+- **Data-center and crawler IP ranges** — published ranges of AWS, Google Cloud and Googlebot, Bing, Azure, Oracle, DigitalOcean, Facebook, Telegram, OpenAI, Cloudflare, Apple Private Relay, and others from [lord-alfred/ipranges](https://github.com/lord-alfred/ipranges). Updated daily by the `ipranges_cron.php` cron (manually via the "Update now" button or `php ipranges_cron.php --force`), stored in `var/ipranges/`. Until the lists are downloaded, the layer is inactive.
+- **Treat VPN ASN as a bot signal** — on by default. Turn it off if your audience widely sits behind a commercial VPN.
 
-## Диагностика
+## Diagnostics
 
-- **Карточка клоаки в редакторе** — сколько хитов ушло на деньги и на белую за выбранный период, топ причин и ссылка в лог кликов с тем же окном. Если почти весь трафик уходит на белую, карточка предупреждает.
-- **Лог кликов** — колонки «Маршрут» и «Причина» появляются автоматически, когда на странице есть клики клоаки; фильтр по маршруту и причине. В карточке клика — вердикт и причины, но только для кликов, которые клоака действительно судила.
-- **Тестовая ссылка с `_dbg=1`** — трассировка маршрутизации без записи клика, `_geo=XX` подменяет страну ([Кампании и потоки](campaigns.md#тестовая-ссылка)).
-- **Лог PHP** — строки вида `Orbitra cloak [campaign=12 stream=34]: stage=PASSIVE_SAFE ... reasons=[crawler_or_tool_ua]`.
+- **The cloak card in the editor** — how many hits went to money and to safe over the selected period, the top reasons, and a link into the click log with the same window. If almost all traffic goes to the safe page, the card warns.
+- **The click log** — the "Route" and "Reason" columns appear automatically when there are cloak clicks on the page, with a filter by route and reason. The click card shows the verdict and reasons, but only for clicks the cloak actually judged.
+- **The test link with `_dbg=1`** — a routing trace without recording a click; `_geo=XX` overrides the country ([Campaigns and streams](campaigns.md#test-link)).
+- **The PHP log** — lines like `Orbitra cloak [campaign=12 stream=34]: stage=PASSIVE_SAFE ... reasons=[crawler_or_tool_ua]`.
 
-### Вердикты и причины
+### Verdicts and reasons
 
-Вердикт: `money`, `passive_safe`, `targeting_safe`, `js_safe`. Причины пишутся в `clicks.cloak_reasons`, основные:
+Verdicts: `money`, `passive_safe`, `targeting_safe`, `js_safe`. Reasons are written to `clicks.cloak_reasons`; the main ones:
 
-| Код | Значение |
+| Code | Meaning |
 |---|---|
-| `geo_country` / `geo_unknown` | страна не в списке / страну не удалось определить |
-| `device_type` | тип устройства не разрешён |
-| `bot_isp`, `isp_blocklist` | ISP в списке ботов и дата-центров |
-| `datacenter_asn`, `asn_datacenter` | ASN дата-центра или хостинга |
-| `vpn_proxy_asn` | ASN VPN- или прокси-провайдера |
-| `iprange_datacenter` | IP в опубликованном диапазоне облака или краулера |
-| `hosting_isp` | ключевое слово хостинга в названии ISP |
-| `ip2proxy_*` | сигнал IP2Proxy: `vpn_proxy`, `datacenter`, `residential`, `tor`, `bot`, `threat`, `high_fraud` |
-| `bot_blocklist` | IP в списке ботов |
-| `crawler_or_tool_ua`, `suspicious_ua`, `no_user_agent`, `missing_accept_language` | эвристики User-Agent и заголовков |
-| `webdriver`, `js_missing`, `js_fingerprint` | проверка JavaScript |
+| `geo_country` / `geo_unknown` | country not in the list / country could not be determined |
+| `device_type` | device type not allowed |
+| `bot_isp`, `isp_blocklist` | ISP in the bot and data-center list |
+| `datacenter_asn`, `asn_datacenter` | data-center or hosting ASN |
+| `vpn_proxy_asn` | VPN or proxy provider ASN |
+| `iprange_datacenter` | IP in a published cloud or crawler range |
+| `hosting_isp` | hosting keyword in the ISP name |
+| `ip2proxy_*` | an IP2Proxy signal: `vpn_proxy`, `datacenter`, `residential`, `tor`, `bot`, `threat`, `high_fraud` |
+| `bot_blocklist` | IP in the bot list |
+| `crawler_or_tool_ua`, `suspicious_ua`, `no_user_agent`, `missing_accept_language` | User-Agent and header heuristics |
+| `webdriver`, `js_missing`, `js_fingerprint` | JavaScript verification |
 
-## Частые проблемы
+## Common problems
 
-| Симптом | Что проверить |
+| Symptom | What to check |
 |---|---|
-| В рекламном кабинете клики есть, в трекере ноль | Не выключена ли запись кликов Safe Page; счётчик подавленных хитов |
-| 100% трафика на белой странице | Установлена ли гео-база (**⚙ → Гео базы**); причины `geo_unknown` в логе кликов |
-| Живые мобильные пользователи на белой | Причина `ip2proxy_vpn_proxy` — снимите слой VPN/прокси (это жёсткий сигнал, низкая чувствительность его не отменит) |
-| Проверяющие Meta или Telegram доходят до оффера | Их сети не помечены как дата-центры по ASN; одно попадание в диапазон на средней чувствительности — только мягкий сигнал. Поднимите чувствительность или добавьте фильтр «Бот» на перехватывающий поток |
+| The ad dashboard shows clicks, the tracker shows zero | Whether Safe Page click recording is off; the suppressed-hit counter |
+| 100% of traffic on the safe page | Whether the geo database is installed (**⚙ → Geo databases**); `geo_unknown` reasons in the click log |
+| Live mobile users on the safe page | Reason `ip2proxy_vpn_proxy` — remove the VPN/proxy layer (it is a hard signal; low sensitivity will not cancel it) |
+| Meta or Telegram reviewers reach the offer | Their networks are not flagged as data centers by ASN; a single range hit at medium sensitivity is only a soft signal. Raise the sensitivity or add a "Bot" filter to an intercepting stream |

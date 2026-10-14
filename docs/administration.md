@@ -1,128 +1,128 @@
-# Администрирование
+# Administration
 
-Всё, что открывается из меню ⚙ в правом верхнем углу панели.
+Everything opened from the ⚙ menu in the panel's top right corner.
 
-## Пользователи и доступ
+## Users and access
 
-**⚙ → Пользователи**. Две вкладки: **Пользователи** (таблица аккаунтов, видна админам) и **Профиль** (свой аккаунт — у каждого пользователя).
+**⚙ → Users**. Two tabs: **Users** (the accounts table, visible to admins) and **Profile** (your own account — for every user).
 
-### Роли
+### Roles
 
-Ролей две: **админ** (полный доступ) и **юзер** (права по ресурсам). Аккаунт, созданный при установке, удалить нельзя, как и последнего оставшегося админа. Для юзера есть шаблоны прав: медиабаер, видеомонтажёр / дизайнер, разработчик или свои права.
+There are two roles: **admin** (full access) and **user** (per-resource permissions). The account created at installation cannot be deleted, nor can the last remaining admin. Users have permission templates: media buyer, video editor / designer, developer, or custom permissions.
 
-Права выдаются по ресурсам: кампании, офферы, лендинги, источники, партнёрки, домены, логи, галерея, push. Уровни — **полный**, **только чтение**, **нет доступа**. Для кампаний есть ещё **свои + назначенные** и **только назначенные** — тогда юзер видит и меняет только эти кампании везде: в списках, отчётах, логах, конверсиях, на дашборде. Отдельно скрываются финансовые данные: расходы, доход, выплаты.
+Permissions are granted per resource: campaigns, offers, landings, sources, affiliate networks, domains, logs, gallery, push. Levels are **full**, **read-only**, **no access**. For campaigns there are also **own + assigned** and **assigned only** — then the user sees and edits only those campaigns everywhere: in lists, reports, logs, conversions, on the dashboard. Financial data can be hidden separately: costs, revenue, payouts.
 
-Права проверяются на сервере. Действия, не отнесённые ни к одному ресурсу, доступны только админу (полный список — [REST API](api.md#каталог-действий)). Глобально опасные операции (очистка статистики, импорт из Keitaro, импорт конверсий, ретро-перемаппинг) недоступны юзерам с доступом «свои + назначенные».
+Permissions are enforced on the server. Actions not assigned to any resource are admin-only (full list in [REST API](api.md#action-catalog)). Globally dangerous operations (clearing statistics, Keitaro import, conversion import, retro-remapping) are unavailable to users with "own + assigned" access.
 
-### Профиль
+### Profile
 
-Логин, email, язык интерфейса, часовой пояс (около 250 зон с текущим смещением UTC), первый день недели, смена пароля (нужен текущий пароль; минимум 8 символов).
+Login, email, interface language, time zone (about 250 zones with the current UTC offset), first day of the week, password change (requires the current password; minimum 8 characters).
 
-**Двухфакторная авторизация** — TOTP через приложение-аутентификатор. Коды одноразовые.
+**Two-factor authentication** — TOTP via an authenticator app. Codes are one-time.
 
-### API-ключи
+### API keys
 
-Создаются админом для пользователя: **read** — только чтение, **write** — ещё и управление. Ключ передаётся заголовком `Authorization: Bearer <ключ>` или `X-Api-Key`. Используется в [MCP](mcp.md), [REST API](api.md), приёме расходов от Dolphin / Fbtool и расширении для Ads Manager.
+Created by an admin for a user: **read** — read-only, **write** — also management. The key is passed in the `Authorization: Bearer <key>` header or `X-Api-Key`. Used in [MCP](mcp.md), [REST API](api.md), receiving costs from Dolphin / Fbtool, and the Ads Manager extension.
 
-### Вход
+### Sign-in
 
-Ограничения на неудачные попытки: 5 за 5 минут с одного IP и 20 за 15 минут на аккаунт (сбрасывается после успешного входа). Срок сессии — `session_lifetime` (по умолчанию сутки, от 5 минут до 30 дней; переменная окружения `ORBITRA_SESSION_LIFETIME` важнее настройки).
+Failed-attempt limits: 5 per 5 minutes from one IP, and 20 per 15 minutes per account (reset after a successful sign-in). Session lifetime is `session_lifetime` (a day by default, from 5 minutes to 30 days; the `ORBITRA_SESSION_LIFETIME` environment variable takes priority over the setting).
 
-## Настройки
+## Settings
 
-**⚙ → Настройки**, вкладки:
+**⚙ → Settings**, tabs:
 
-| Вкладка | Что там |
+| Tab | What's there |
 |---|---|
-| **Общие** | Postback-ключ, валюта по умолчанию, ручной IP сервера, разрешение PHP-лендингов (по умолчанию выключено) и их таймаут 1–9 с |
-| **Боты** | IP и сигнатуры ботов, глобальный список Bot ISP, диапазоны дата-центров, VPN-ASN как сигнал бота — см. [Клоакинг](cloaking.md#глобальные-настройки-настройки--боты) |
-| **Типы конверсий** | Свои статусы и что они значат, несмапленные статусы — см. [Постбеки](postbacks.md#типы-конверсий) |
-| **Пользовательские метрики** | Свои формулы для отчётов |
-| **Автоматизация** | Кроны: очередь постбеков, backorder |
-| **Система** | Сбор статистики вкл/выкл, игнорировать prefetch, проверка новых версий, сроки хранения логов и архива, доступ к панели по IP/подсетям, путь к админ-панели |
-| **Приватность** | Защита от сканирования: что отвечать на прямой заход на рабочую ссылку без параметров кампании — 302 на ваш URL, 404 или пустая страница |
+| **General** | Postback key, default currency, manual server IP, PHP landings permission (off by default) and their 1–9 s timeout |
+| **Bots** | Bot IPs and signatures, the global Bot ISP list, datacenter ranges, VPN ASN as a bot signal — see [Cloaking](cloaking.md#global-settings-settings--bots) |
+| **Conversion types** | Custom statuses and what they mean, unmapped statuses — see [Postbacks](postbacks.md#conversion-types) |
+| **Custom metrics** | Custom formulas for reports |
+| **Automation** | Crons: postback queue, backorder |
+| **System** | Statistics collection on/off, ignore prefetch, new version checks, log and archive retention periods, panel access by IP/subnets, admin panel path |
+| **Privacy** | Scan protection: what to answer when a working link is hit directly without campaign parameters — a 302 to your URL, 404, or an empty page |
 
-### Путь к панели
+### Panel path
 
-`/admin.php` первым проверяет любой сканер. В **Система → Путь к админ-панели** его можно заменить на свой (`/my-panel`), после чего `/admin.php` начнёт отвечать 404. Это прячет форму входа, но не заменяет пароль. Если путь забыт:
+`/admin.php` is the first thing any scanner checks. In **System → Admin panel path** you can replace it with your own (`/my-panel`), after which `/admin.php` starts answering 404. This hides the login form but does not replace the password. If the path is forgotten:
 
 ```bash
-php /var/www/orbitra/cli/admin_path.php          # показать текущий путь
+php /var/www/orbitra/cli/admin_path.php          # print the current path
 php /var/www/orbitra/cli/admin_path.php reset    # вернуть /admin.php
 ```
 
-### Доступ к панели по IP
+### Panel access by IP
 
-Список IP и подсетей (IPv4 и IPv6, по одному в строке). Пусто — панель доступна отовсюду. Заполнено — вход в панель и авторизованные вызовы `api.php` только с этих адресов. Заголовкам `X-Forwarded-For` трекер верит только от Cloudflare и частных прокси. Осторожно: можно заблокировать самого себя. Снять ограничение с сервера:
+A list of IPs and subnets (IPv4 and IPv6, one per line). Empty — the panel is available from anywhere. Filled — signing in to the panel and authorized `api.php` calls work only from those addresses. `X-Forwarded-For` headers are trusted by the tracker only from Cloudflare and private proxies. Careful: you can lock yourself out. To lift the restriction from the server:
 
 ```bash
 sudo -u www-data php -r '$db = new PDO("sqlite:/var/www/orbitra/orbitra_db.sqlite"); $db->exec("UPDATE settings SET value = \x27\x27 WHERE key = \x27admin_ip_access\x27");'
 ```
 
-### Сроки хранения
+### Retention periods
 
-Поля «Срок хранения логов» и «Срок хранения ресурсов в архиве» работают только при запущенном кроне очистки. **Установщик его не ставит** — добавьте вручную:
+The "Log retention period" and "Archive resource retention period" fields only work when the cleanup cron is running. **The installer does not set it up** — add it manually:
 
 ```
 0 3 * * * php /var/www/orbitra/cli/cleanup_cron.php >> /var/www/orbitra/var/logs/cleanup.log 2>&1
 ```
 
-Удаление идёт порциями, чтобы не блокировать базу.
+Deletion runs in batches so the database is not blocked.
 
-## Персонализация
+## Personalization
 
-**⚙ → Персонализация** — логотип, название, светлая или тёмная тема и палитры: Cobalt, Canary, Parchment, Indigo (в светлом и тёмном варианте), Terminal, Aurora. Тема применяется до первой отрисовки, поэтому тёмная тема тёмная с первого кадра.
+**⚙ → Personalization** — logo, name, light or dark theme and palettes: Cobalt, Canary, Parchment, Indigo (in light and dark variants), Terminal, Aurora. The theme is applied before the first paint, so the dark theme is dark from the very first frame.
 
-Язык интерфейса — в профиле: English, Русский, Українська, Español, Deutsch, Français, 中文.
+The interface language is in the profile: English, Русский, Українська, Español, Deutsch, Français, 中文.
 
-## Гео-базы
+## Geo databases
 
-**⚙ → Гео базы**. Без гео-базы не работают фильтры стран и клоака по странам (все посетители — `Unknown`), без базы ASN — слои дата-центров и списка ISP.
+**⚙ → Geo Databases**. Without a geo database, country filters and country cloaking do not work (all visitors are `Unknown`); without an ASN database — the datacenter and ISP list layers.
 
-| База | Ключ | Даёт |
+| Database | Key | Provides |
 |---|---|---|
-| Sypex Geo City | не нужен | Страна, регион, город. Ставится установщиком |
-| MaxMind GeoLite2 City / ASN | лицензионный ключ MaxMind | Город, ASN и провайдер |
-| IP2Location DB11 | токен IP2Location | Гео, часовой пояс |
-| IP2Proxy PX12 | токен IP2Location | VPN, прокси, TOR, residential, fraud-скор |
+| Sypex Geo City | not needed | Country, region, city. Installed by the installer |
+| MaxMind GeoLite2 City / ASN | MaxMind license key | City, ASN and provider |
+| IP2Location DB11 | IP2Location token | Geo, time zone |
+| IP2Proxy PX12 | IP2Location token | VPN, proxy, TOR, residential, fraud score |
 
-Базы обновляются ежемесячно кроном `cli/geo_update.php` (метка `# orbitra-geo`; MaxMind и IP2 — только если ключи сохранены). Обновление панели само ставит Sypex, если баз нет совсем. Баннер на всех вкладках предупреждает, когда баз нет или стоит только Sypex.
+The databases are updated monthly by the `cli/geo_update.php` cron (tagged `# orbitra-geo`; MaxMind and IP2 — only if keys are saved). A panel update installs Sypex by itself when there are no databases at all. A banner on all tabs warns when there are no databases or only Sypex.
 
-**⚙ → Гео-профили** — готовые наборы стран для фильтров (EU, CIS и т.п.) и свои.
+**⚙ → Geo profiles** — ready-made country sets for filters (EU, CIS, etc.) and custom ones.
 
-## Обновление
+## Update
 
-**⚙ → Обновление** — проверка новой версии на GitHub и обновление кнопкой (`git pull` от веб-пользователя). Проверка кешируется на час, при ошибке — на 10 минут; выключается в **Система → Уведомлять о новых версиях**.
+**⚙ → Update** — checks for a new version on GitHub and updates with a button (`git pull` as the web user). The check is cached for an hour, for 10 minutes on error; disabled in **System → Notify about new versions**.
 
-После обновления панель сама:
+After an update the panel by itself:
 
-- ставит пропавший крон очереди постбеков;
-- скачивает Sypex Geo, если гео-баз нет;
-- предупреждает, если сервер на PHP ниже 8.4 (как обновить PHP — [Установка](deployment.md#обновление-php)).
+- restores the postback queue cron if missing;
+- downloads Sypex Geo when there are no geo databases;
+- warns if the server runs PHP below 8.4 (how to update PHP — [Deployment](deployment.md#updating-php)).
 
-Изменения, которым нужен root (правила sudo, помощники SSL), кнопка сделать не может — панель покажет баннер с командой `cli/server_setup.sh` ([Установка](deployment.md#разовый-шаг-на-сервере-после-обновления-160)).
+Changes that need root (sudo rules, SSL helpers) cannot be done by the button — the panel shows a banner with the `cli/server_setup.sh` command ([Deployment](deployment.md#one-time-server-step-after-updating-160)).
 
-Если `exec` на хостинге отключён, страница показывает команды ручного обновления через Git.
+If `exec` is disabled on the hosting, the page shows commands for manual updating via Git.
 
-## Прочее
+## Misc
 
-| Пункт меню | Что делает |
+| Menu item | What it does |
 |---|---|
-| **Архив** | Удалённые кампании, офферы, лендинги, источники, партнёрки: восстановить или стереть навсегда |
-| **Очистка статистики** | Удалить клики и конверсии за период или все |
-| **Миграции** | Версия схемы базы, импорт из Keitaro ([Миграция из Keitaro](keitaro-migration.md)) |
-| **Состояние** | Диск, CPU, RAM, размер базы |
-| **Логи** | Трафик, постбеки, S2S, системный, аудит ([Отчёты и логи](reports.md#логи)) |
-| **Галерея** | Медиатека для PWA, лендингов и офферов ([Галерея контента](content-gallery.md)) |
-| **ИИ / MCP** | Подключение ИИ-ассистента ([MCP](mcp.md)) |
-| **Поддержка и отзывы** | Контакты и блок партнёров |
+| **Archive** | Deleted campaigns, offers, landings, sources, affiliate networks: restore or erase forever |
+| **Clear statistics** | Delete clicks and conversions for a period or all of them |
+| **Migrations** | Database schema version, Keitaro import ([Keitaro Migration](keitaro-migration.md)) |
+| **Status** | Disk, CPU, RAM, database size |
+| **Logs** | Traffic, postbacks, S2S, system, audit ([Reports and logs](reports.md#logs)) |
+| **Gallery** | Media library for PWA, landings and offers ([Content Gallery](content-gallery.md)) |
+| **AI / MCP** | Connecting an AI assistant ([MCP](mcp.md)) |
+| **Support and feedback** | Contacts and the partners block |
 
-## Расширение для Ads Manager
+## Ads Manager extension
 
-Расширение для Chrome и антидетект-браузеров на Chromium показывает метрики Orbitra рядом со строками кампаний, групп и объявлений в Facebook Ads Manager (обновление раз в 30 секунд), а по клику — трёхдневную детализацию: история по дням, лендинги и офферы, точность доставки Pixel / CAPI.
+An extension for Chrome and Chromium-based antidetect browsers shows Orbitra metrics next to campaign, ad group and ad rows in Facebook Ads Manager (refreshing every 30 seconds), and on click — a three-day breakdown: daily history, landings and offers, Pixel / CAPI delivery accuracy.
 
-1. **⚙ → Интеграции → Chrome & Antidetect Extension** — скачайте архив и распакуйте.
-2. Загрузите папку как распакованное расширение (или ZIP, где это поддерживается).
-3. Во всплывающем окне расширения вставьте URL трекера и выделенный read-ключ, который показывает Orbitra.
+1. **⚙ → Integrations → Chrome & Antidetect Extension** — download the archive and unpack it.
+2. Load the folder as an unpacked extension (or a ZIP, where supported).
+3. In the extension popup, paste the tracker URL and the highlighted read key Orbitra shows.
 
-Расширению нужен только read-ключ. Белые хиты исключаются так же, как в отчётах.
+The extension only needs a read key. Safe hits are excluded the same way as in reports.

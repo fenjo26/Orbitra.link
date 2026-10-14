@@ -2880,6 +2880,8 @@ export default {
         "backupStep3Desc": "输入 Keitaro 服务器的 IP，下方命令会自动填入。请在您自己电脑的终端中运行命令（而不是在服务器上）：文件将保存到“下载”文件夹。",
         "serverIpLabel": "Keitaro 服务器 IP",
         "serverIpPlaceholder": "Keitaro 服务器 IP，例如 203.0.113.10",
+        "dumpOnServerTitle": "在 Keitaro 服务器上创建转储（SSH 以 root 登录）——整条命令一次执行：",
+        "dumpOnServerHint": "从 Keitaro 自身的 inventory.env 读取凭据，仅导出设置表（不含点击日志），生成 /root/keitaro_orbitra_full.sql.gz。",
         "scpUnix": "macOS / Linux",
         "scpWindows": "Windows (PowerShell)",
         "copyCommand": "复制命令",

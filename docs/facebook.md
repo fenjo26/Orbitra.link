@@ -159,7 +159,7 @@ click. The cron log says this explicitly. Almost always the campaign URL is miss
 
 **Update spend** on the account row names the exact reason (`no_spend`, `no_clicks`,
 `no_ids`, `macros`, `ids_differ`) with the date and the IDs on both sides — see
-[Costs](costs.md#получено-n-привязано-0) (Russian). Unmatched rows retry on every sync.
+[Costs](costs.md#received-n-matched-0). Unmatched rows retry on every sync.
 
 **Sync reports an error with a Meta message** — the message is Meta's own, verbatim.
 Common ones:

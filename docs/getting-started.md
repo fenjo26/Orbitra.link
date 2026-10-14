@@ -1,67 +1,67 @@
-# Быстрый старт: первая кампания
+# Quick Start: Your First Campaign
 
-От чистого сервера до первой конверсии. Каждый шаг ссылается на подробную страницу.
+From a bare server to your first conversion. Each step links to a detailed page.
 
-## 1. Установка
+## 1. Installation
 
-На чистом Ubuntu 22.04+ или Debian 12+ под root:
+On a clean Ubuntu 22.04+ or Debian 12+ as root:
 
 ```bash
 wget -O orbitra-install.sh https://raw.githubusercontent.com/fenjo26/Orbitra.link/main/install.sh && bash orbitra-install.sh
 ```
 
-Подробности и требования — [Установка и обновление](deployment.md).
+For details and requirements, see [Installation and updates](deployment.md).
 
-## 2. Первый вход
+## 2. First login
 
-Откройте `http://<ip-сервера>/admin.php`. Пользователя по умолчанию нет: мастер первого запуска попросит создать администратора (логин от 3 символов, пароль от 8), выбрать часовой пояс и язык.
+Open `http://<server-ip>/admin.php`. There is no default user: the first-run wizard will ask you to create an administrator (login of at least 3 characters, password of at least 8), choose a time zone and a language.
 
-Сразу стоит:
+Worth doing right away:
 
-- включить двухфакторный вход (**⚙ → Пользователи → Профиль**);
-- при желании сменить путь к панели и ограничить доступ по IP ([Администрирование](administration.md)).
+- enable two-factor login (**⚙ → Users → Profile**);
+- optionally, change the admin panel path and restrict access by IP ([Administration](administration.md)).
 
-## 3. Домен
+## 3. Domain
 
-**Домены → Добавить домен**, затем A-запись домена на IP сервера. Сертификат выпустится сам, когда DNS разойдётся. С подключённым Cloudflare, Namecheap или Dynadot A-запись тоже пропишется сама. → [Домены и SSL](domains.md)
+**Domains → Add domain**, then point the domain's A record at the server IP. The certificate is issued automatically once DNS propagates. With Cloudflare, Namecheap, or Dynadot connected, the A record is also set automatically. → [Domains and SSL](domains.md)
 
-После этого панель удобнее открывать по `https://ваш-домен/admin.php`: вход через Google и TikTok и вебхук Telegram работают только по HTTPS.
+After that, it is more convenient to open the panel at `https://your-domain/admin.php`: Google and TikTok sign-in and the Telegram webhook only work over HTTPS.
 
-## 4. Партнёрка и оффер
+## 4. Affiliate network and offer
 
-1. **Партнерки → Добавить**, выберите сеть из шаблонов. Шаблон даст Postback URL для кабинета сети и параметры оффера (например `&subid={subid}`).
-2. Скопируйте Postback URL в кабинет сети как глобальный постбек.
-3. **Офферы → Создать**: название, URL из кабинета сети, партнёрка. Параметры сети допишутся к URL сами в момент клика.
+1. **Affiliate networks → Add**, pick a network from the templates. The template provides the Postback URL for the network's dashboard and the offer parameters (for example `&subid={subid}`).
+2. Copy the Postback URL into the network's dashboard as the global postback.
+3. **Offers → Create**: a name, the URL from the network's dashboard, the affiliate network. The network's parameters are appended to the URL automatically at click time.
 
-Локальный оффер (свой лендинг с формой) загружается ZIP-архивом и редактируется во встроенном файловом менеджере. → [Источники и партнёрки](sources-and-networks.md), [Лендинги](landing-pages.md)
+A local offer (your own landing with a form) is uploaded as a ZIP archive and edited in the built-in file manager. → [Traffic sources and affiliate networks](sources-and-networks.md), [Landing pages](landing-pages.md)
 
-## 5. Источник трафика
+## 5. Traffic source
 
-**Источники → Добавить**, выберите шаблон рекламной сети (Facebook, TikTok, Google Ads…). Шаблон добавит в ссылку кампании макросы с ID кампании, группы и объявления — они нужны для импорта расходов и разбора статистики.
+**Sources → Add**, pick an ad-network template (Facebook, TikTok, Google Ads…). The template adds macros with the campaign, group, and ad IDs to the campaign URL — they are needed for cost import and statistics breakdown.
 
-## 6. Кампания
+## 6. Campaign
 
-**Кампании → Создать**:
+**Campaigns → Create**:
 
-1. **Общие:** название, домен, источник трафика.
-2. **Потоки:** добавьте обычный поток со схемой «Прямой переход на оффер» и выберите оффер. Нужны фильтры по стране или устройству — добавьте их в поток; нужен лендинг — схема «Лендинг + Оффер».
-3. Сохраните. Ссылку кампании (`https://ваш-домен/алиас`) вставьте в объявление.
+1. **General:** name, domain, traffic source.
+2. **Streams:** add a regular stream with the "Direct redirect to offer" schema and pick an offer. Need country or device filters — add them to the stream; need a landing — use the "Landing + Offer" schema.
+3. Save. Put the campaign URL (`https://your-domain/alias`) into the ad.
 
-→ [Кампании и потоки](campaigns.md), [Клоакинг](cloaking.md)
+→ [Campaigns and streams](campaigns.md), [Cloaking](cloaking.md)
 
-## 7. Проверка
+## 7. Verification
 
-- **Тестовая ссылка** на вкладке «Общие» с `&_dbg=1` покажет, какой поток сработает и куда уйдёт посетитель. Клик при этом не записывается. `&_geo=DE` проверит другую страну без VPN.
-- **⚙ → Postback URL → Тест** отправит пробную конверсию на ID реального клика.
-- Тестер на вкладке **S2S Postbacks** проверит всю цепочку постбеков в источник.
+- The **Test link** row on the "General" tab with `&_dbg=1` shows which stream will fire and where the visitor will go. No click is recorded. `&_geo=DE` tests a different country without a VPN.
+- **⚙ → Postback URL → Test** will send a sample conversion against a real click ID.
+- The tester on the **S2S Postbacks** tab will verify the whole postback chain to the source.
 
-## 8. Расходы и уведомления
+## 8. Costs and notifications
 
-- Подключите рекламный кабинет в **⚙ → Интеграции** (Facebook, TikTok, Google Ads), чтобы ROI считался по реальному расходу. → [Расходы](costs.md)
-- Подключите Telegram-бота для уведомлений о конверсиях. → [Telegram-бот](telegram.md)
+- Connect an ad account under **⚙ → Integrations** (Facebook, TikTok, Google Ads) so ROI is calculated from real spend. → [Costs](costs.md)
+- Connect the Telegram bot for conversion notifications. → [Telegram bot](telegram.md)
 
-## 9. Статистика
+## 9. Statistics
 
-Дашборд, список кампаний, отчёт по кампании с группировками и полный лог кликов. → [Отчёты, логи и метрики](reports.md)
+Dashboard, campaign list, per-campaign report with groupings, and the full click log. → [Reports, logs, and metrics](reports.md)
 
-Переезжаете с Keitaro? → [Миграция из Keitaro](keitaro-migration.md)
+Moving from Keitaro? → [Migrating from Keitaro](keitaro-migration.md)
