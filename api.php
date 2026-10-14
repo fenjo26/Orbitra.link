@@ -13152,9 +13152,11 @@ try {
                     cl.isp,
                     cl.asn,
                     cl.proxy_type,
+                    cl.domain,
                     c.name as campaign_name,
                     o.name as offer_name,
-                    s.name as stream_name
+                    s.name as stream_name,
+                    s.type as stream_type
                 FROM clicks cl
                 LEFT JOIN campaigns c ON cl.campaign_id = c.id
                 LEFT JOIN offers o ON cl.offer_id = o.id
@@ -13166,7 +13168,11 @@ try {
             $stmt->execute(array_merge($whereParams, [$limit]));
             $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Format logs with ClickContext-style text
+            // Format logs with ClickContext-style text, then attach the same
+            // read-side enrichments the traffic log gets (parsed UA, the real
+            // destination, UTC time) so the campaign click log renders the
+            // honest format instead of the pre-1.6.17 one.
+            $destinations = orbitraClickDestinations($pdo, array_column($logs, 'id'));
             foreach ($logs as &$log) {
                 $logText = "[ClickContext]\n";
                 $logText .= "IP: {$log['ip']}\n";
@@ -13186,7 +13192,15 @@ try {
                 $logText .= "Conversion: " . ($log['is_conversion'] ? 'Yes' : 'No') . "\n";
                 $logText .= "Revenue: {$log['revenue']}\n";
                 $log['log_text'] = $logText;
+
+                $log['ua'] = orbitraParseUserAgent((string) ($log['user_agent'] ?? ''));
+                $log['destination'] = $destinations[(string) ($log['id'] ?? '')] ?? null;
+                // created_at above is already the panel timezone (SQL shift);
+                // the UTC original backs the time's tooltip, as in the log.
+                $rowTs = strtotime((string) ($log['created_at'] ?? '') . ' UTC');
+                $log['created_at_utc'] = $rowTs !== false ? gmdate('Y-m-d H:i:s', $rowTs - (int) $offsetOffset) : null;
             }
+            unset($log);
 
             echo json_encode(['status' => 'success', 'data' => $logs]);
             break;

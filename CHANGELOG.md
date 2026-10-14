@@ -7,6 +7,12 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Fixed
+
+- 🧾 **The campaign click log still rendered the pre-1.6.17 format.** The "Click log" panel of a campaign (row action and editor) kept the old row: an unconditional "Money" badge, an always-visible "Verdict: —", no OS / browser / bot / domain / destination, no UTC on the time. It now shows the honest row the traffic log has: the stream that took the click ("EU (regular)"), OS and browser logos with the version on hover, the bot's name, IP and the click's domain, the real destination, UTC on the time hover — and the SAFE badge, verdict and reason chips only for clicks a cloak stream actually judged (`campaign_logs` attaches the parsed UA, destination and UTC time, as the traffic-log endpoint does). ISP / ASN / proxy stay visible for new clicks that carry them
+
 ## [1.6.17] — 2026-10-14
 
 ### Added

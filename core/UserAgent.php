@@ -110,7 +110,7 @@ if (!function_exists('orbitraUaBotName')) {
             'MJ12bot' => 'mj12bot', 'DotBot' => 'dotbot', 'PetalBot' => 'petalbot', 'Bytespider' => 'bytespider',
             'GPTBot' => 'gptbot', 'OAI-SearchBot' => 'oai-searchbot', 'ChatGPT-User' => 'chatgpt-user',
             'ClaudeBot' => 'claudebot', 'Claude-User' => 'claude-user', 'PerplexityBot' => 'perplexitybot',
-            'CCBot' => 'ccbot', 'Amazonbot' => 'amazonbot',
+            'CCBot' => 'ccbot', 'Amazonbot' => 'amazonbot', 'Barkrowler' => 'barkrowler',
             'Facebook crawler' => 'facebookexternalhit', 'Meta crawler' => 'meta-externalagent',
             'Facebot' => 'facebot', 'Twitterbot' => 'twitterbot', 'TelegramBot' => 'telegrambot',
             'WhatsApp' => 'whatsapp/', 'LinkedInBot' => 'linkedinbot', 'Slackbot' => 'slackbot',

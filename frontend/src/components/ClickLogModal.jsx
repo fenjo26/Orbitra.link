@@ -3,6 +3,8 @@ import { X } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { cachedGet, invalidateCache } from '../utils/apiCache';
 import ClickDetailsModal from './ClickDetailsModal';
+import { OsIcon, BrowserIcon } from './PlatformIcons';
+import ClickDirection from './ClickDirection';
 
 /**
  * Click Log overlay for a single campaign.
@@ -136,6 +138,12 @@ const ClickLogModal = ({
                                     // strings; split on the FIRST ':' only so evidence
                                     // containing colons (IPv6 CIDR) survives intact.
                                     const reasons = (log.cloak_reasons || '').split(',').map(s => s.trim()).filter(Boolean);
+                                    // Only a cloak stream actually judged this click. The old
+                                    // row painted "Money" + "Verdict: —" on every click because
+                                    // it keyed on is_safe_page, which is 0 on all of them.
+                                    const judged = Boolean(log.cloak_verdict) || reasons.length > 0;
+                                    const ua = log.ua || {};
+                                    const streamLabel = [log.stream_name, log.stream_type ? `(${log.stream_type})` : ''].filter(Boolean).join(' ');
                                     return (
                                         <div
                                             key={log.id}
@@ -146,22 +154,51 @@ const ClickLogModal = ({
                                         >
                                             <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                                                 <div className="flex items-center gap-2 flex-wrap">
-                                                    <span className="text-[11px] font-mono" style={{ color: 'var(--color-text-muted)' }}>{log.created_at}</span>
-                                                    <span className={`status-badge ${log.is_safe_page === 1 ? 'status-inactive' : 'status-active'} text-[11px]`}>
-                                                        {log.is_safe_page === 1 ? t('logs.routeSafe') : t('logs.routeMoney')}
+                                                    <span
+                                                        className="text-[11px] font-mono"
+                                                        style={{ color: 'var(--color-text-muted)' }}
+                                                        title={log.created_at_utc ? `UTC: ${log.created_at_utc}` : undefined}
+                                                    >
+                                                        {log.created_at}
                                                     </span>
-                                                    <span className="text-[11px]" style={{ color: 'var(--color-text-secondary)' }}>
-                                                        {t('campaignEditor.clickLogVerdict')}: <b style={{ color: 'var(--color-text-primary)' }}>{log.cloak_verdict || '—'}</b>
-                                                    </span>
+                                                    {log.is_safe_page === 1 && (
+                                                        <span className="status-badge status-inactive text-[11px]">{t('logs.routeSafe')}</span>
+                                                    )}
+                                                    {streamLabel && (
+                                                        <span className="text-[10px] px-1.5 py-0.5 rounded font-mono" style={{ backgroundColor: 'var(--color-bg-soft)', color: 'var(--color-text-secondary)', border: '1px solid var(--color-border)' }}>
+                                                            {streamLabel}
+                                                        </span>
+                                                    )}
+                                                    {judged && log.cloak_verdict && (
+                                                        <span className="text-[11px]" style={{ color: 'var(--color-text-secondary)' }}>
+                                                            {t('campaignEditor.clickLogVerdict')}: <b style={{ color: 'var(--color-text-primary)' }}>{log.cloak_verdict}</b>
+                                                        </span>
+                                                    )}
                                                 </div>
                                                 <span className="text-[11px] font-mono" style={{ color: 'var(--color-text-muted)' }}>#{log.id}</span>
                                             </div>
 
+                                            {/* Device line: OS / browser logos (version on hover), bot or
+                                                in-app name, IP and the domain the click arrived on. */}
+                                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px]" style={{ color: 'var(--color-text-secondary)' }}>
+                                                <OsIcon ua={log.ua} fallbackOs={log.os} unknownLabel="" />
+                                                <BrowserIcon ua={log.ua} fallbackBrowser={log.browser} unknownLabel="" />
+                                                {ua.bot && <b style={{ color: 'var(--color-text-primary)' }}>{ua.bot}</b>}
+                                                {ua.in_app && <span>{ua.in_app}</span>}
+                                                {log.ip && <span className="font-mono">{log.ip}</span>}
+                                                {log.domain && <span className="font-mono truncate" title={log.domain} style={{ color: 'var(--color-text-muted)' }}>{log.domain}</span>}
+                                            </div>
+
+                                            {/* Where the visitor really went (offer URL with the
+                                                network's sub1, or the stream action). */}
+                                            <div className="mt-1 text-[11px] min-w-0" style={{ color: 'var(--color-text-secondary)' }}>
+                                                <span style={{ color: 'var(--color-text-muted)' }}>{t('logs.colDirection')}: </span>
+                                                <ClickDirection destination={log.destination} />
+                                            </div>
+
                                             {/* Reason chips: the code plus the evidence that matched, visible inline */}
-                                            {reasons.length === 0 ? (
-                                                <span className="text-[11px]" style={{ color: 'var(--color-text-muted)' }}>—</span>
-                                            ) : (
-                                                <div className="flex flex-wrap gap-1">
+                                            {reasons.length > 0 && (
+                                                <div className="flex flex-wrap gap-1 mt-2">
                                                     {reasons.map((reason, idx) => {
                                                         const colon = reason.indexOf(':');
                                                         const code = colon === -1 ? reason : reason.slice(0, colon);

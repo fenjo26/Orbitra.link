@@ -86,6 +86,7 @@ expectUa('bingbot', 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatib
     'bot' => 'bingbot', 'device_type' => 'Bot',
 ]);
 expectUa('MJ12bot', 'Mozilla/5.0 (compatible; MJ12bot/v1.4.8; http://mj12bot.com/)', ['bot' => 'MJ12bot']);
+expectUa('Barkrowler (no bot/crawler suffix)', 'Mozilla/5.0 (compatible; Barkrowler/0.9; +https://babbar.tech/crawler)', ['bot' => 'Barkrowler']);
 expectUa('unknown crawler', 'Mozilla/5.0 (compatible; SuperFooCrawler/3.1; +https://foo.example)', ['bot' => 'SuperFooCrawler']);
 expectUa('curl', 'curl/8.5.0', ['bot' => 'curl', 'browser_name' => 'curl', 'browser_version' => '8.5.0']);
 expectUa('Cubot phone is not a bot', 'Mozilla/5.0 (Linux; Android 11; CUBOT X50) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Mobile Safari/537.36', ['bot' => '']);
