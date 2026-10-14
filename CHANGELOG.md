@@ -7,6 +7,32 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.17] — 2026-10-14
+
+### Added
+
+- 📱 **Click details: full device breakdown, Keitaro-style.** The click card now shows the OS with its version (iOS 26.6.2, Android 14, Windows 10/11), the browser with its version (Chrome (iOS) 154.0.8037.55), the device brand and model (Apple iPhone, Samsung SM-S918B), the in-app browser when the click came from Facebook / Instagram / TikTok / Messenger / Snapchat / Telegram and others, and the bot's name (bingbot, MJ12bot, GPTBot, curl…) in the previously always-empty "Bot / Scanner" row. It is parsed from the stored User-Agent when the card opens (`core/UserAgent.php`, ~16 µs), so it works for every click already in the database and adds nothing to the click path. Chrome's frozen parts (`Mac OS X 10_15_7`, `154.0.0.0`) and the reduced Android model `K` are shown as sent / left empty rather than guessed
+
+- 🖥️ **Dashboard "Recent clicks", Keitaro-style.** New default columns: event ID, date and time, campaign, OS logo, browser logo, IP, destination. Hovering a logo shows the version (iOS 26.6.2, Chrome (iOS) 154.0.8037.55); in-app clicks show the app's logo (Facebook, Instagram, TikTok…) and bots a bot icon with the bot's name. A gear on the card opens the settings straight at the column picker; GEO, device type and the raw User-Agent remain available there. The old "OS" column was really the device type and is now labelled so. Saved column choices still equal to an old default move to the new one; customised ones are kept. Logos: Simple Icons (CC0)
+
+- 📜 **Traffic log: OS and Browser columns.** Logo plus version text (iOS 26.6.2, Chrome (iOS) 154.0.8037.55, Facebook (Chrome WebView 120…), MJ12bot), full text on hover; on by default, removable in the column picker, also on mobile cards. A raw User-Agent column is available there too (off by default — it is wide). The CSV export gains `os` and `browser` (the stored family)
+
+- ↔️ **Drag to reorder columns in Recent clicks and the traffic log; resize Recent clicks.** Same grip as the metric columns on Campaigns/Offers (`common/useColumnReorder.js`, one hook for both tables): drag a header by its grip to move it, drag its right edge to resize, double-click the edge to reset. Recent clicks keeps the order in the dashboard preferences and widths under `recent_clicks`; the traffic log keeps its order in the column list it already saved, so base and parameter columns now mix freely, and the CSV export follows the on-screen order. Turning a column on adds it at the end
+
+- 🎯 **"Direction" shows where the visitor really went.** The traffic log, Recent clicks and the click card used to print the offer URL as entered (`…click?pid=15&offer_id=150`), without the network's `&sub1={subid}` and with macros unresolved, and showed nothing for bot clicks. Now: the URL the redirect actually used — offer + network params + the click's own id and parameters (`…offer_id=150&sub1=<click id>`, identical to the 302 `Location` in testing) — or what a non-offer stream did: `404 Not Found`, text, HTML, empty response, "to campaign #N", safe page. Rebuilt on read from the current offer/network settings (`core/ClickDestination.php`, one batched query per page), so it works for old clicks too
+- 🌐 **Domain of the click** (migration 59, `clicks.domain`): the tracker host the click arrived on, as Keitaro's "Domain" — in the click card, as a Recent clicks column and a traffic-log column (off by default) and in the CSV. Written by the router and `click.php`; clicks from before the update and from the Click API have none
+- 🔎 **Honest click card.** The stream that took the click is shown by name and kind — "EU (regular)", "Bots (fallback)" — which, with Direction, is the "why" for clicks routed by filters (Keitaro-style Bots/Antibot streams carry no cloak verdict). Uniqueness (campaign / stream / global) and the proxy flag are shown. Bots get their client as the browser ("curl 8.5.0", "MJ12bot 1.4.8"), and a stored `Unknown` reads in the panel's language instead of the English token
+
+### Fixed
+
+- 🍏 **Chrome, Firefox, Edge and Opera on iPhone were stored as Safari.** iOS browsers send `CriOS/`, `FxiOS/`, `EdgiOS/`, `OPiOS/` instead of `Chrome/`…, and the detector fell through to the `Safari/` token, so browser reports and stream browser filters counted them as Safari. They are now stored under their real family (existing clicks keep their old value). One detector serves the router, `click.php` and the Click API — which used to store `Unknown` OS and browser for every click
+
+- ☁️ **"Cloaking: Route — Money" appeared on every click.** The card showed the cloak block whenever `is_safe_page` existed — and it is 0 on every click — so clicks no cloak ever judged read "Money" with an empty verdict. The block now appears only for clicks a cloak stream actually judged. In the traffic log, Route and Reason are hidden by default and come back automatically while the page holds cloak clicks (unless the columns were customised)
+- 📡 **ISP / ASN / proxy type were stored only for cloak streams.** The geo lookup resolved them on every click (GeoLite2-ASN, IP2Proxy), but only a cloak stream wrote them, so every other click read "-". Now stored for every click in the router, `click.php` and the Click API; old clicks stay empty. Proxy type still needs an IP2Proxy database
+- 🏷️ **The log's "SubID" column is "Sub ID 1".** It always showed the incoming `sub_id_1` parameter, not the click's own id that goes to the network (that is the click id) — the old label read like Keitaro's Subid and looked broken when empty
+
+- 🕐 **The click card showed UTC while the tables showed panel time.** The same click read 13:41 in the card and 16:41 in the row it was opened from: the log shifts `created_at` to the panel timezone in SQL, the card printed the stored UTC. The card now shows the panel-timezone time with the zone named, plus a separate "Date and Time (UTC)" row — what networks and ad platforms report in; Landing shown / Offer transition shift the same way, so Time-to-offer is unchanged. Table time cells show UTC on hover. The card and the full traffic log now send the shared panel timezone (date picker, else profile), like the dashboard already did — before, the log silently used the profile timezone even when another one was picked. Verified for Europe/Moscow and America/New_York: dashboard row, log row and card agree
+
 ## [1.6.16] — 2026-10-13
 
 ### Added

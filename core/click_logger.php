@@ -80,6 +80,22 @@ if (!function_exists('logCloakEvent')) {
  *   - cloak_sensitivity: string|null (W1: sensitivity level)
  * @return array Column => value map for INSERT
  */
+/**
+ * A Host header as a storable domain: lower-case, port and trailing dot
+ * dropped, '' for anything that is not a plain hostname or IP (the header is
+ * visitor-controlled).
+ */
+function orbitraNormalizeClickDomain(string $host): string
+{
+    $host = strtolower(trim($host));
+    $host = preg_replace('/:\d+$/', '', $host);
+    $host = rtrim((string) $host, '.');
+    if ($host === '' || strlen($host) > 253 || !preg_match('/^[a-z0-9.\-]+$/', $host)) {
+        return '';
+    }
+    return $host;
+}
+
 function orbitraBuildClickRow(array $ctx): array
 {
     // Foreign key safety: offer_id must be NULL, not 0, for the foreign key
@@ -124,6 +140,13 @@ function orbitraBuildClickRow(array $ctx): array
     // tests that predate the column keep inserting unchanged rows.
     if (!empty($ctx['direct_offer']) && $offerId === null) {
         $row['direct_offer'] = 1;
+    }
+    // The tracker host the click arrived on (migration 59). Same "only when
+    // set" rule: writers that do not know the host (Click API, CRM imports)
+    // and test schemas without the column insert unchanged rows.
+    $domain = orbitraNormalizeClickDomain((string) ($ctx['domain'] ?? ''));
+    if ($domain !== '') {
+        $row['domain'] = $domain;
     }
     return $row;
 }

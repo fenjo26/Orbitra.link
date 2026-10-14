@@ -27,7 +27,7 @@ $pdo = new PDO('sqlite::memory:', null, null, [
 $pdo->exec("CREATE TABLE clicks (
     id TEXT PRIMARY KEY, campaign_id INTEGER, offer_id INTEGER, landing_id INTEGER, stream_id INTEGER,
     ip TEXT, country_code TEXT, country TEXT, region TEXT, city TEXT, timezone TEXT, language TEXT,
-    accept_language_raw TEXT, device_type TEXT, user_agent TEXT, lp_seconds INTEGER, lp_scroll INTEGER,
+    accept_language_raw TEXT, domain TEXT, device_type TEXT, os TEXT, browser TEXT, user_agent TEXT, lp_seconds INTEGER, lp_scroll INTEGER,
     parameters_json TEXT, cloak_verdict TEXT, cloak_reasons TEXT, is_safe_page INTEGER, isp TEXT, asn TEXT,
     proxy_type TEXT, cloak_sensitivity TEXT, created_at DATETIME)");
 $pdo->exec("CREATE TABLE campaigns (id INTEGER PRIMARY KEY, name TEXT)");

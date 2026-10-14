@@ -22,6 +22,9 @@ if (!is_dir(__DIR__ . '/var/logs')) {
 require_once 'config.php';
 require_once __DIR__ . '/core/ReportMetrics.php';
 require_once __DIR__ . '/core/click_logger.php';
+require_once __DIR__ . '/core/Device.php';
+require_once __DIR__ . '/core/UserAgent.php';
+require_once __DIR__ . '/core/ClickDestination.php';
 require_once __DIR__ . '/core/RotationOptimiser.php';
 require_once __DIR__ . '/core/ConversionAttribution.php';
 require_once __DIR__ . '/core/ExtensionAdsStats.php';
@@ -9201,6 +9204,24 @@ try {
 
             $page = orbitraLogsFetchPage($pdo, $type, $logFilters, $limit, $offset, $dbTzOffset, (int) $offsetOffset);
             $rows = $page['rows'];
+            if ($type === 'traffic') {
+                // OS / browser logos and their tooltips (versions, model, bot
+                // name) — parsed per row on read, ~16 µs each, so old clicks
+                // get them too. Not part of the CSV export.
+                // Where each click was really sent (offer URL with the
+                // network's sub1 and resolved macros, or the stream action) —
+                // one batched lookup for the page, see core/ClickDestination.php.
+                $destinations = orbitraClickDestinations($pdo, array_column($rows, 'id'));
+                foreach ($rows as &$logRow) {
+                    // created_at is already in the panel timezone (SQL shift);
+                    // the UTC original backs the time cell's tooltip.
+                    $rowTs = strtotime((string) ($logRow['created_at'] ?? '') . ' UTC');
+                    $logRow['created_at_utc'] = $rowTs !== false ? gmdate('Y-m-d H:i:s', $rowTs - (int) $offsetOffset) : null;
+                    $logRow['ua'] = orbitraParseUserAgent((string) ($logRow['user_agent'] ?? ''));
+                    $logRow['destination'] = $destinations[(string) ($logRow['id'] ?? '')] ?? null;
+                }
+                unset($logRow);
+            }
             if (!orbitraAllFinanceVisible($logsFinance)) {
                 $rows = orbitraMaskFinance($rows, $logsFinance);
             }
@@ -9235,6 +9256,7 @@ try {
                     l.name as landing_name,
                     s.name as source_name,
                     st.type as stream_type,
+                    st.name as stream_name,
                     an.name as affiliate_network_name
                 FROM clicks cl
                 LEFT JOIN campaigns c ON cl.campaign_id = c.id
@@ -9256,6 +9278,26 @@ try {
                 } else {
                     $clickInfo['parameters'] = [];
                 }
+                // Parsed on read: versions, model and bot name for every click,
+                // including those logged before the parser existed.
+                // Times in the panel timezone, with the same offset the traffic
+                // log applies in SQL (datetime(created_at, $dbTzOffset)) — the
+                // card used to print raw UTC, so a click read 13:41 here and
+                // 16:41 in the table. All three shift together, so the card's
+                // Time-to-offer delta is unchanged.
+                // The raw UTC value travels alongside as <key>_utc: the card
+                // shows both, since networks and ad platforms report in UTC.
+                foreach (['created_at', 'landing_at', 'offer_at'] as $tsKey) {
+                    $tsVal = (string) ($clickInfo[$tsKey] ?? '');
+                    $tsUnix = $tsVal !== '' ? strtotime($tsVal . ' UTC') : false;
+                    $clickInfo[$tsKey . '_utc'] = $tsUnix !== false ? gmdate('Y-m-d H:i:s', $tsUnix) : null;
+                    if ($tsUnix !== false) {
+                        $clickInfo[$tsKey] = gmdate('Y-m-d H:i:s', $tsUnix + (int) $offsetOffset);
+                    }
+                }
+                $clickInfo['display_timezone'] = $userTimezone;
+                $clickInfo['ua'] = orbitraParseUserAgent((string) ($clickInfo['user_agent'] ?? ''));
+                $clickInfo['destination'] = orbitraClickDestinations($pdo, [(string) $clickInfo['id']])[(string) $clickInfo['id']] ?? null;
                 echo json_encode(['status' => 'success', 'data' => $clickInfo]);
             } else {
                 echo json_encode(['status' => 'error', 'message' => 'Клик не найден']);

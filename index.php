@@ -45,6 +45,7 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 }
 require_once __DIR__ . '/core/geo_databases.php';
 require_once __DIR__ . '/core/Device.php';
+require_once __DIR__ . '/core/UserAgent.php';
 require_once __DIR__ . '/core/OfferUrl.php';
 // Cloaking detector (datacenter/VPN ASN + UA heuristics + bot blocklists). Lazy: only
 // consulted when a stream with schema_type='cloak' is selected.
@@ -317,38 +318,15 @@ function getDeviceType($userAgent)
     return orbitraDetectDeviceType((string) $userAgent);
 }
 
+// Coarse families stored in clicks.os / clicks.browser — see core/UserAgent.php.
 function detectOs($userAgent)
 {
-    $ua = strtolower($userAgent);
-    if (strpos($ua, 'windows') !== false)
-        return 'Windows';
-    if (strpos($ua, 'android') !== false)
-        return 'Android';
-    if (strpos($ua, 'iphone') !== false || strpos($ua, 'ipad') !== false || strpos($ua, 'ios') !== false)
-        return 'iOS';
-    if (strpos($ua, 'mac os') !== false || strpos($ua, 'macintosh') !== false)
-        return 'macOS';
-    if (strpos($ua, 'linux') !== false)
-        return 'Linux';
-    return 'Unknown';
+    return orbitraUaOsFamily((string) $userAgent);
 }
 
 function detectBrowser($userAgent)
 {
-    $ua = strtolower($userAgent);
-    if (strpos($ua, 'edg/') !== false)
-        return 'Edge';
-    if (strpos($ua, 'opr/') !== false || strpos($ua, 'opera') !== false)
-        return 'Opera';
-    if (strpos($ua, 'samsungbrowser') !== false)
-        return 'Samsung Browser';
-    if (strpos($ua, 'chrome/') !== false && strpos($ua, 'edg/') === false)
-        return 'Chrome';
-    if (strpos($ua, 'firefox/') !== false)
-        return 'Firefox';
-    if (strpos($ua, 'safari/') !== false && strpos($ua, 'chrome/') === false)
-        return 'Safari';
-    return 'Unknown';
+    return orbitraUaBrowserFamily((string) $userAgent);
 }
 
 // Replace tracking macros in an offer URL and ensure it has a scheme.
@@ -4988,6 +4966,14 @@ if ($statsEnabled && !$isDebounced && !$isPrefetchRequest && !$skipClickLogging 
         'language' => $language,
         'accept_language_raw' => $acceptLanguageRaw,
         'parameters_json' => $parametersJson,
+        'domain' => $_SERVER['HTTP_HOST'] ?? '',
+        // Connection data for EVERY click, not only cloak streams: the geo
+        // lookup already resolved it (ASN / IP2Proxy databases), it just was
+        // never stored, so ISP / ASN / proxy read "-" on every non-cloak click.
+        // A cloak stream's own context below still overrides these.
+        'isp' => !in_array(trim((string) ($geoData['isp'] ?? '')), ['', '-'], true) ? (string) $geoData['isp'] : null,
+        'asn' => !in_array(trim((string) ($geoData['asn'] ?? '')), ['', '-'], true) ? (string) $geoData['asn'] : null,
+        'proxy_type' => !in_array(trim((string) ($geoData['proxy_type'] ?? '')), ['', '-'], true) ? (string) $geoData['proxy_type'] : null,
     ];
 
     // Add cloak observability fields for cloak streams (W1)

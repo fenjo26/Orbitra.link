@@ -1,4 +1,4 @@
-# Orbitra v1.6.16 Tracker
+# Orbitra v1.6.17 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,23 +11,23 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.6.16
+## 🆕 What's New in v1.6.17
 
-The traffic log is Keitaro-style now: any click parameter can be its own filterable column, and the click-log button on a campaign row opens the full log pre-filtered to that campaign. Cost sync explains why spend did not match — and unmatched rows retry until they do.
+The click log reads like Keitaro's: the full device breakdown in the click card, OS/browser logos with versions in the tables, the real destination URL in "Direction" — and one honest timezone. Chrome on iPhone is no longer stored as Safari.
 
 ### Added
 
-- 📋 **Click log, Keitaro-style: parameter columns and filters.** Traffic-log columns are now selectable: base columns plus any click parameter (`ad_id`, `campaign_id`, `sub_id_N`, `ttclid`…) as its own column, with suggestions taken from parameters actually present in clicks over the last 14 days; the choice persists in the browser and the CSV export follows the visible columns. Parameter filters — equals / not equals / in list / not in list / is empty / is not empty, up to 5 conditions — are applied inside the shared logs query, so the page and the CSV always agree; "is empty" answers "which clicks arrived WITHOUT this parameter". Malformed filter names get a 400, never a silently dropped filter. The click-log button on a campaign row now opens the full traffic log pre-filtered to that campaign instead of the mini modal
-- 📊 **Dense traffic-log table.** The traffic table now wears the compact `.tracker-table` layer (tight padding, light column dividers, hard cell clipping so a narrow column can never paint over its neighbour), with per-column fit floors: full timestamps (154px) and ad-network IDs (136px) always render in full — comparing those IDs against the ad platform's report is the column's purpose. The other log tabs keep the roomy `.page-table`
-- 🔍 **"Sync Now" explains why spend did not match.** When imported spend matches no clicks, the integrations page shows the concrete reason — `no_spend` / `no_clicks` / `no_ids` / `macros` (unreplaced `__CID__`-style values) / `ids_differ` — with the date, click count and the actual IDs, on the same sync path for Facebook, TikTok and Google. Re-syncing an already attributed day no longer reports "matched 0" (unchanged rows are counted by their stored match), `adgroup_id` joins the baseline click keys, and the click card's Parameters section now lists every captured parameter, ad-network IDs first
-- 🤝 **Partners block synced with orbitra.link/partners** — Helodata, Accsly.io, OpenGSC; Novproxy added
+- 📱 **Click card: the full device breakdown.** OS with its version, browser with its version, device brand and model, the in-app browser when the click came from Facebook / Instagram / TikTok and others, and the bot's name (bingbot, GPTBot, curl…) in the previously always-empty row — parsed from the stored User-Agent when the card opens (`core/UserAgent.php`), so every click already in the database gets it, with nothing added to the click path
+- 🖥️ **Dashboard "Recent clicks" and the traffic log, Keitaro-style.** New default columns — event ID, time, campaign, OS logo, browser logo, IP, destination — with the version on hover, in-app logos, a bot icon for bots, and a gear that opens the settings at the column picker. Columns drag to reorder and resize (the same grip as Campaigns) in both tables; the traffic log gains OS and Browser columns with logo and version text plus an opt-in raw User-Agent column; the CSV export gains `os` and `browser`
+- 🎯 **"Direction" shows where the visitor really went.** The actual redirect URL — offer plus network params with the click's own id in `sub1` — or the non-offer stream's action (`404 Not Found`, text, safe page…), rebuilt on read so old clicks get it too. The card names the stream that took the click ("EU (regular)", "Bots (fallback)"), shows uniqueness and the proxy flag, and the click's domain is stored (migration 59, instant) and shown in card, log and CSV
+- 🕐 **One honest timezone.** The click card shows the panel-timezone time with the zone named plus a separate "Date and Time (UTC)" row — what networks report in; table cells show UTC on hover; the dashboard, traffic log and card all follow the one timezone selection (picker, else profile)
 
 ### Fixed
 
-- 💰 **Unmatched cost rows retry on every sync.** An unchanged amount used to skip re-attribution regardless of outcome, so a row that missed once never retried — a late click, a fixed ad URL or a newly captured `adgroup_id` could never land its spend. Only matched-and-unchanged rows skip now. The diagnostic also reports "macros" only when no real ID survives: an optional dead macro (TikTok's `__CREATIVE_ID__`, which TikTok never fills) next to real campaign/ad IDs no longer masks the actual cause
-- 📐 **Campaign editor: settings tabs and Streams headers line up.** In the two-pane view (xl+) the settings tab strip wraps onto 1–3 rows while the Streams toolbar is one, so their bottom borders sat at different heights with a step at the seam. Both bars now get the taller one's height, and the toolbar's drop shadow — a soft second line under the seam — is gone. Verified at 1280/1440/1920/2560
+- 🍏 **Chrome, Firefox, Edge and Opera on iPhone were stored as Safari** — iOS browsers send `CriOS/`/`FxiOS/`/`EdgiOS/`/`OPiOS/`, and the detector fell through to the `Safari/` token. One detector now serves the router, `click.php` and the Click API, which used to store `Unknown` OS and browser for every click
+- ☁️ **Honest click data.** "Cloaking: Route — Money" no longer appears on clicks no cloak stream ever judged; ISP / ASN / proxy type are stored for every click (they were cloak-only); the log's "SubID" column is honestly labelled "Sub ID 1"
 
-Older releases (v1.6.15 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.6.16 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo

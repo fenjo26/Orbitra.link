@@ -12,6 +12,7 @@
 
 require_once __DIR__ . '/geo_databases.php';
 require_once __DIR__ . '/Device.php';
+require_once __DIR__ . '/UserAgent.php';
 require_once __DIR__ . '/OfferUrl.php';
 require_once __DIR__ . '/CloakDetector.php';
 require_once __DIR__ . '/StreamFilters.php';
@@ -933,11 +934,15 @@ function orbitraClickApiV3(PDO $pdo): void
                 'zipcode' => $geoData['zipcode'] ?? '',
                 'timezone' => $geoData['timezone'] ?? '',
                 'device_type' => $deviceType,
-                'os' => 'Unknown',
-                'browser' => 'Unknown',
+                'os' => orbitraUaOsFamily((string) $userAgent),
+                'browser' => orbitraUaBrowserFamily((string) $userAgent),
                 'language' => $language,
                 'accept_language_raw' => $acceptLanguageRaw,
                 'parameters_json' => $parametersJson,
+                // Connection data for every click, as in the router (index.php).
+                'isp' => !in_array(trim((string) ($geoData['isp'] ?? '')), ['', '-'], true) ? (string) $geoData['isp'] : null,
+                'asn' => !in_array(trim((string) ($geoData['asn'] ?? '')), ['', '-'], true) ? (string) $geoData['asn'] : null,
+                'proxy_type' => !in_array(trim((string) ($geoData['proxy_type'] ?? '')), ['', '-'], true) ? (string) $geoData['proxy_type'] : null,
             ];
 
             // Add cloak observability fields for cloak streams (W1)

@@ -3,7 +3,13 @@ import { Activity, ArrowRightLeft, ShieldAlert, TerminalSquare, ServerCrash, Fil
 import { useLanguage } from '../contexts/LanguageContext';
 import MobileCards from './common/MobileCards';
 import ClickDetailsModal from './ClickDetailsModal';
-import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle } from './common/ColumnResize';
+import { useIsDesktop, useResizableTableColumns } from './common/ColumnResize';
+import { SortableTh } from './common/SortableTh';
+import useColumnReorder from './common/useColumnReorder';
+import { OsIcon, BrowserIcon } from './PlatformIcons';
+import { describeOs, describeBrowser } from './uaLabels';
+import ClickDirection from './ClickDirection';
+import { useTimezone } from '../utils/useTimezone';
 
 const API_URL = '/api.php';
 
@@ -20,19 +26,35 @@ const BASE_COLUMN_DEFS = [
     { id: 'click_id', width: 120, min: 96, field: 'click_id', labelKey: 'logs.colClickId' },
     { id: 'subid', width: 100, field: 'subid', labelKey: 'logs.colSubid' },
     { id: 'campaign', width: 180, field: 'campaign_name', labelKey: 'logs.colCampaign' },
+    { id: 'domain', width: 160, field: 'domain', labelKey: 'logs.colDomain', defaultHidden: true },
     { id: 'stream', width: 150, field: 'stream_name', labelKey: 'logs.colStream' },
-    { id: 'route', width: 100, field: 'is_safe_page', labelKey: 'logs.colRoute' },
-    { id: 'reason', width: 180, field: 'cloak_reasons', labelKey: 'logs.colReason' },
+    // Cloak-only: hidden by default, shown automatically while the page has
+    // cloak rows (see effectiveColumns) — otherwise they read as "always -".
+    { id: 'route', width: 100, field: 'is_safe_page', labelKey: 'logs.colRoute', defaultHidden: true, cloakOnly: true },
+    { id: 'reason', width: 180, field: 'cloak_reasons', labelKey: 'logs.colReason', defaultHidden: true, cloakOnly: true },
     { id: 'destination', width: 160, field: 'landing_name', labelKey: 'logs.colDestination' },
+    // The URL the visitor was actually sent to (offer + network sub1), or the
+    // stream action for non-offer clicks. Not exported: it is rebuilt on read.
+    { id: 'direction', width: 260, field: 'redirect_url', labelKey: 'logs.colDirection' },
     { id: 'lp_time', width: 110, field: 'lp_seconds', labelKey: 'logs.colLpTime' },
     { id: 'ip', width: 110, min: 80, field: 'ip', labelKey: 'logs.colIp' },
     { id: 'geo', width: 160, field: 'country_code', labelKey: 'logs.colGeo' },
     { id: 'device', width: 100, field: 'device_type', labelKey: 'logs.colDevice' },
+    // Logo + version, parsed per row server-side (row.ua); the CSV exports the
+    // stored coarse family. The raw User-Agent is opt-in: it is wide.
+    { id: 'os', width: 130, min: 112, field: 'os', labelKey: 'logs.colOs' },
+    { id: 'browser', width: 170, min: 150, field: 'browser', labelKey: 'logs.colBrowser' },
+    { id: 'user_agent', width: 260, field: 'user_agent', labelKey: 'logs.colUa', defaultHidden: true },
     { id: 'isp', width: 120, field: 'isp', labelKey: 'logs.colIsp' },
     { id: 'asn', width: 110, field: 'asn', labelKey: 'logs.colAsn' }
 ];
-const DEFAULT_COLUMN_IDS = BASE_COLUMN_DEFS.map(c => c.id);
+// Registry order (every base column) vs. what a fresh visitor sees.
+const ALL_COLUMN_IDS = BASE_COLUMN_DEFS.map(c => c.id);
+const DEFAULT_COLUMN_IDS = BASE_COLUMN_DEFS.filter(c => !c.defaultHidden).map(c => c.id);
 const PARAM_COL_WIDTH = 150;
+// Log headers reorder and resize but do not sort (rows are newest-first, keyset-paged).
+const NO_SORT = { key: null, dir: 'asc' };
+const noop = () => {};
 // Ad-network IDs are 16–19 digit numbers: ~136px at the log's font. Comparing
 // them against the platform's report is the column's whole purpose, so they
 // must render in full — below this a clipped ID cannot be read without hovering.
@@ -50,15 +72,17 @@ const parseStoredColumns = () => {
     let stored = null;
     try { stored = JSON.parse(localStorage.getItem(LOGS_COLUMNS_KEY) || 'null'); } catch { /* storage unavailable */ }
     if (Array.isArray(stored) && stored.length) {
-        const base = DEFAULT_COLUMN_IDS.filter(id => stored.includes(id));
-        const params = stored.filter(id => typeof id === 'string' && id.startsWith('p:') && PARAM_NAME_RE.test(id.slice(2)));
-        if (base.length + params.length) return { ids: [...base, ...params], customized: true };
+        // Stored order is the user's (headers drag to reorder); unknown ids drop out.
+        const ids = stored.filter(id => typeof id === 'string'
+            && (ALL_COLUMN_IDS.includes(id) || (id.startsWith('p:') && PARAM_NAME_RE.test(id.slice(2)))));
+        if (ids.length) return { ids: [...new Set(ids)], customized: true };
     }
     return { ids: DEFAULT_COLUMN_IDS, customized: false };
 };
 
 const LogsPage = () => {
     const { t } = useLanguage();
+    const [timezone] = useTimezone();
 
     // W3: Initialize from URL params (for deep-linking from diagnostics panel)
     const [activeTab, setActiveTab] = useState(() => {
@@ -119,20 +143,37 @@ const LogsPage = () => {
     const [visibleColumns, setVisibleColumns] = useState(initialColumns.ids);
     const [columnsCustomized, setColumnsCustomized] = useState(initialColumns.customized);
     const [columnsOpen, setColumnsOpen] = useState(false);
-    const visibleBase = BASE_COLUMN_DEFS.filter(c => visibleColumns.includes(c.id));
-    const visibleParams = visibleColumns.filter(id => id.startsWith('p:')).map(id => id.slice(2));
+    // Columns in the user's order — base and parameter columns mix freely.
+    // { id, labelKey/width/min/field } for base, { id: 'p:x', param: 'x' } for params.
+    // A visitor who never customised the columns gets Route/Reason back as soon
+    // as the loaded page contains cloak clicks, placed after Stream.
+    const hasCloakRows = activeTab === 'traffic' && logs.some(l => l && (l.cloak_verdict || Number(l.is_safe_page) === 1));
+    const effectiveColumns = (() => {
+        if (columnsCustomized || !hasCloakRows) return visibleColumns;
+        const cloakIds = BASE_COLUMN_DEFS.filter(c => c.cloakOnly).map(c => c.id).filter(id => !visibleColumns.includes(id));
+        if (!cloakIds.length) return visibleColumns;
+        const at = visibleColumns.indexOf('stream');
+        const next = [...visibleColumns];
+        next.splice(at === -1 ? next.length : at + 1, 0, ...cloakIds);
+        return next;
+    })();
+    const orderedColumns = effectiveColumns
+        .map(id => (id.startsWith('p:') ? { id, param: id.slice(2) } : BASE_COLUMN_DEFS.find(c => c.id === id)))
+        .filter(Boolean);
+    const visibleBase = orderedColumns.filter(c => !c.param);
+    const visibleParams = orderedColumns.filter(c => c.param).map(c => c.param);
 
-    const toggleColumn = (id) => {
-        const has = visibleColumns.includes(id);
-        const basePart = DEFAULT_COLUMN_IDS.filter(bid => (bid === id) ? !has : visibleColumns.includes(bid));
-        const paramPart = visibleColumns.filter(x => x.startsWith('p:') && x !== id);
-        const next = [...basePart, ...paramPart];
-        if (!has && id.startsWith('p:')) next.push(id);
+    const saveColumns = (next) => {
         if (!next.length) return; // never hide every column
         setVisibleColumns(next);
         setColumnsCustomized(true);
         try { localStorage.setItem(LOGS_COLUMNS_KEY, JSON.stringify(next)); } catch { /* storage unavailable */ }
     };
+    // Turning a column on appends it at the end; off removes it in place.
+    const toggleColumn = (id) => {
+        saveColumns(effectiveColumns.includes(id) ? effectiveColumns.filter(x => x !== id) : [...effectiveColumns, id]);
+    };
+    const columnReorder = useColumnReorder(orderedColumns.map(c => c.id), saveColumns);
 
     // Click-parameter suggestions (what recent clicks actually carry), loaded
     // lazily: the picker and the parameter-filter select share one fetch.
@@ -200,8 +241,9 @@ const LogsPage = () => {
         tableId: 'logs_traffic',
         enabled: isDesktop,
         columns: [
-            ...visibleBase.map(c => ({ id: c.id, width: fitted(c.width, c.min) })),
-            ...visibleParams.map(name => ({ id: 'p:' + name, width: fitted(PARAM_COL_WIDTH, PARAM_COL_MIN) }))
+            ...orderedColumns.map(c => (c.param
+                ? { id: c.id, width: fitted(PARAM_COL_WIDTH, PARAM_COL_MIN) }
+                : { id: c.id, width: fitted(c.width, c.min) }))
         ]
     });
 
@@ -217,6 +259,10 @@ const LogsPage = () => {
     // builds all three from one query (core/logs_query.php).
     const buildLogParams = (action) => {
         const params = new URLSearchParams({ action, type: activeTab });
+        // The shared panel timezone (date picker / profile), as the dashboard
+        // sends it: times and date filters here then agree with Recent clicks
+        // and the click card instead of silently using the profile default.
+        if (timezone) params.append('timezone', timezone);
         if (activeTab === 'traffic') {
             if (filters.campaign_id) params.append('campaign_id', filters.campaign_id);
             if (filters.stream_id) params.append('stream_id', filters.stream_id);
@@ -233,7 +279,7 @@ const LogsPage = () => {
             // Export what the table shows — but only once the user has actually
             // customized the view, so the default export keeps every field.
             if (action === 'logs_export' && columnsCustomized) {
-                const fields = [...visibleBase.map(c => c.field), ...visibleParams.map(p => 'p:' + p)];
+                const fields = orderedColumns.map(c => (c.param ? c.id : c.field));
                 if (fields.length) params.append('columns', fields.join(','));
             }
         }
@@ -273,7 +319,7 @@ const LogsPage = () => {
             });
         return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [activeTab, filters, paramFiltersSig, paramColsSig]);
+    }, [activeTab, filters, paramFiltersSig, paramColsSig, timezone]);
 
     const loadMore = () => {
         if (!nextCursor || loadingMore) return;
@@ -547,11 +593,19 @@ const LogsPage = () => {
                     </span>
                 );
 
+                // Logo + label; the label clips with the cell, the full text stays in the tooltip.
+                const renderUaCell = (icon, label) => (
+                    <span className="inline-flex items-center gap-1.5 max-w-full" title={label || ''}>
+                        {icon}
+                        <span className="text-xs truncate">{label || '-'}</span>
+                    </span>
+                );
+
                 // One renderer per base column — shared by the desktop table.
                 // Param columns render the row's p_<name> key directly.
                 const renderBaseCell = (colId, log) => {
                     switch (colId) {
-                        case 'time': return log.created_at;
+                        case 'time': return <span title={log.created_at_utc ? `UTC: ${log.created_at_utc}` : undefined}>{log.created_at}</span>;
                         case 'click_id': return renderClickIdLink(log.click_id);
                         case 'subid': return log.subid || '-';
                         case 'campaign': return log.campaign_name || t('logs.direct');
@@ -559,6 +613,8 @@ const LogsPage = () => {
                         case 'route': return renderRouteBadge(log);
                         case 'reason': return renderReasonChips(log);
                         case 'destination': return <span className="text-xs">{renderDestination(log)}</span>;
+                        case 'direction': return <span className="text-xs block min-w-0"><ClickDirection destination={log.destination} fallbackUrl={log.redirect_url} /></span>;
+                        case 'domain': return <span className="text-xs" title={log.domain || ''}>{log.domain || '-'}</span>;
                         case 'lp_time': return <span className="text-xs">{renderLpTime(log)}</span>;
                         case 'ip': return log.ip;
                         case 'geo':
@@ -574,6 +630,9 @@ const LogsPage = () => {
                                 </div>
                             );
                         case 'device': return log.device_type || '-';
+                        case 'os': return renderUaCell(<OsIcon ua={log.ua} fallbackOs={log.os} />, describeOs(log.ua, log.os));
+                        case 'browser': return renderUaCell(<BrowserIcon ua={log.ua} fallbackBrowser={log.browser} />, describeBrowser(log.ua, log.browser));
+                        case 'user_agent': return <span className="text-xs text-[var(--color-text-muted)]" title={log.user_agent || ''}>{log.user_agent || '-'}</span>;
                         case 'isp': return <span className="text-xs text-[var(--color-text-muted)]">{log.isp || '-'}</span>;
                         case 'asn': return <span className="text-xs font-mono text-[var(--color-text-muted)]">{log.asn || '-'}</span>;
                         default: return '-';
@@ -598,28 +657,29 @@ const LogsPage = () => {
                                 {colResize.colgroup}
                                 <thead>
                                     <tr>
-                                        {visibleBase.map(col => (
-                                            <th key={col.id} className="resizable-th">
-                                                {t(col.labelKey)}
-                                                <ColumnResizeHandle rt={colResize} colId={col.id} />
-                                            </th>
-                                        ))}
-                                        {visibleParams.map(name => (
-                                            <th key={'p:' + name} className="resizable-th">
-                                                {name}
-                                                <ColumnResizeHandle rt={colResize} colId={'p:' + name} />
-                                            </th>
+                                        {orderedColumns.map((col, idx) => (
+                                            <SortableTh
+                                                key={col.id}
+                                                colKey={col.id}
+                                                label={col.param ? col.param : t(col.labelKey)}
+                                                sortable={false}
+                                                sortBy={NO_SORT}
+                                                requestSort={noop}
+                                                draggable
+                                                resize={colResize}
+                                                data-col={col.id}
+                                                {...columnReorder.thProps(idx)}
+                                            />
                                         ))}
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {logs.map((log, i) => (
                                         <tr key={i}>
-                                            {visibleBase.map(col => (
-                                                <td key={col.id}>{renderBaseCell(col.id, log)}</td>
-                                            ))}
-                                            {visibleParams.map(name => (
-                                                <td key={'p:' + name}>{renderParamCell(name, log)}</td>
+                                            {orderedColumns.map(col => (
+                                                <td key={col.id} data-col={col.id}>
+                                                    {col.param ? renderParamCell(col.param, log) : renderBaseCell(col.id, log)}
+                                                </td>
                                             ))}
                                         </tr>
                                     ))}
@@ -649,6 +709,7 @@ const LogsPage = () => {
                                 fields={[
                                     { id: 'created_at', label: t('logs.colTime'), render: (log) => log.created_at },
                                     { id: 'destination', label: t('logs.colDestination'), render: renderDestination },
+                                    { id: 'direction', label: t('logs.colDirection'), render: (log) => <ClickDirection destination={log.destination} fallbackUrl={log.redirect_url} wrap /> },
                                     { id: 'stream', label: t('logs.colStream'), render: renderStream },
                                     { id: 'lp_time', label: t('logs.colLpTime'), render: renderLpTime },
                                     { id: 'ip', label: t('logs.colIp'), render: (log) => log.ip },
@@ -656,6 +717,8 @@ const LogsPage = () => {
                                     { id: 'subid', label: t('logs.colSubid'), render: (log) => log.subid || '-' },
                                     { id: 'reasons', label: t('logs.colReason'), render: renderReasonChips },
                                     { id: 'device', label: t('logs.colDevice'), render: (log) => log.device_type || '-' },
+                                    { id: 'os', label: t('logs.colOs'), render: (log) => renderUaCell(<OsIcon ua={log.ua} fallbackOs={log.os} />, describeOs(log.ua, log.os)) },
+                                    { id: 'browser', label: t('logs.colBrowser'), render: (log) => renderUaCell(<BrowserIcon ua={log.ua} fallbackBrowser={log.browser} />, describeBrowser(log.ua, log.browser)) },
                                     { id: 'isp', label: t('logs.colIsp'), render: (log) => log.isp || '-' },
                                     { id: 'asn', label: t('logs.colAsn'), render: (log) => log.asn || '-' },
                                     ...visibleParams.map(name => ({
@@ -903,7 +966,7 @@ const LogsPage = () => {
                                             <label key={col.id} className="flex items-center gap-2 py-1 cursor-pointer" style={{ color: 'var(--color-text-primary)' }}>
                                                 <input
                                                     type="checkbox"
-                                                    checked={visibleColumns.includes(col.id)}
+                                                    checked={effectiveColumns.includes(col.id)}
                                                     onChange={() => toggleColumn(col.id)}
                                                 />
                                                 {t(col.labelKey)}
@@ -924,7 +987,7 @@ const LogsPage = () => {
                                                 <label key={id} className="flex items-center gap-2 py-1 cursor-pointer font-mono" style={{ color: 'var(--color-text-primary)' }}>
                                                     <input
                                                         type="checkbox"
-                                                        checked={visibleColumns.includes(id)}
+                                                        checked={effectiveColumns.includes(id)}
                                                         onChange={() => toggleColumn(id)}
                                                     />
                                                     <span className="break-all">{o.key}</span>

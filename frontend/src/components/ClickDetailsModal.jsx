@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { X, Loader } from 'lucide-react';
 import { createPortal } from 'react-dom';
+import ClickDirection from './ClickDirection';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useTimezone } from '../utils/useTimezone';
 
 const API_URL = '/api.php';
 
 const ClickDetailsModal = ({ clickId, onClose }) => {
     const { t } = useLanguage();
+    const [timezone] = useTimezone();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -18,7 +21,8 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
         const fetchDetails = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get(`${API_URL}?action=click_details&id=${clickId}`);
+                // Same timezone the tables send, so the card's times match the row clicked.
+                const response = await axios.get(`${API_URL}?action=click_details&id=${encodeURIComponent(clickId)}&timezone=${encodeURIComponent(timezone)}`);
                 if (response.data.status === 'success') {
                     setData(response.data.data);
                 } else {
@@ -32,7 +36,7 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
         };
 
         fetchDetails();
-    }, [clickId]);
+    }, [clickId, timezone]);
 
     useEffect(() => {
         if (!clickId || typeof document === 'undefined') return;
@@ -74,8 +78,34 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
         </div>
     );
 
-    // SQLite stores landing_at / offer_at as UTC "YYYY-MM-DD HH:MM:SS"; the
-    // delta is the Time-since-LP-click pair for this exact click.
+    // Parsed server-side from the stored User-Agent (core/UserAgent.php), so
+    // versions, model and bot name exist for old clicks too. The stored
+    // os/browser columns are the coarse families used by filters.
+    const ua = (data && data.ua) || {};
+    // Stored 0/1 flags; null/undefined (older rows, flags not written) stays "-".
+    const yesNo = (v) => (v === null || v === undefined || v === '' ? null : (Number(v) === 1 ? t('clickDetails.yes') : t('clickDetails.no')));
+    const joinParts = (...parts) => parts.filter(Boolean).join(' ');
+    // Panel-timezone time with its zone named, and the UTC original on hover —
+    // the separate UTC row is what networks and ad platforms report in.
+    const withZone = (local, utc) => (local ? (
+        <span title={utc ? `UTC: ${utc}` : undefined}>
+            {local}
+            {data?.display_timezone && (
+                <span className="ml-2 text-xs" style={{ color: 'var(--color-text-muted)' }}>{data.display_timezone}</span>
+            )}
+        </span>
+    ) : null);
+    // Writers store the literal 'Unknown' when detection found nothing; show
+    // it translated, like Keitaro's "Неизвестно", never as an English token.
+    const unknownLabel = t('clickDetails.unknown');
+    const shown = (v) => (v === 'Unknown' ? unknownLabel : v);
+    const known = (v) => (v && v !== 'Unknown' ? v : '');
+    const uaOs = joinParts(known(ua.os_name) || known(data?.os), ua.os_version) || (data?.user_agent ? unknownLabel : '');
+    const uaBrowser = joinParts(known(ua.browser_name) || known(data?.browser), ua.browser_version) || (data?.user_agent ? unknownLabel : '');
+    const uaDeviceModel = joinParts(ua.device_brand, ua.device_model);
+
+    // landing_at / offer_at arrive shifted by one panel-timezone offset (both
+    // the same), so parsing them as UTC still yields the right delta.
     const lpTimeDelta = (() => {
         const parse = (v) => (v ? new Date(String(v).replace(' ', 'T') + 'Z').getTime() : NaN);
         const from = parse(data?.landing_at);
@@ -187,8 +217,24 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
                             <DetailRow label={t('clickDetails.fields.offer')} value={data.offer_name} />
                             <DetailRow label={t('clickDetails.fields.affiliateNetwork')} value={data.affiliate_network_name} />
                             <DetailRow label={t('clickDetails.fields.source')} value={data.source_name} />
-                            <DetailRow label={t('clickDetails.fields.streamType')} value={data.stream_type} />
+                            {/* Which stream took the click and what kind it is — for clicks
+                                routed by filters (Keitaro-style Bots / Antibot streams) this,
+                                with Direction, is the honest "why": they carry no cloak verdict. */}
+                            <DetailRow
+                                label={t('clickDetails.fields.stream')}
+                                value={data.stream_name || data.stream_type
+                                    ? [data.stream_name, data.stream_type ? `(${data.stream_type})` : ''].filter(Boolean).join(' ')
+                                    : null}
+                            />
+                            <DetailRow label={t('clickDetails.fields.uniqCampaign')} value={yesNo(data.uniq_campaign)} />
+                            <DetailRow label={t('clickDetails.fields.uniqStream')} value={yesNo(data.uniq_stream)} />
+                            <DetailRow label={t('clickDetails.fields.uniqGlobal')} value={yesNo(data.uniq_global)} />
                             <DetailRow label={t('clickDetails.fields.referer')} value={data.referer} />
+                            <DetailRow label={t('clickDetails.fields.domain')} value={data.domain} />
+                            <DetailRow
+                                label={t('clickDetails.fields.direction')}
+                                value={<ClickDirection destination={data.destination} wrap />}
+                            />
 
                             <SectionHeader title={t('clickDetails.sections.id')} />
                             <DetailRow label={t('clickDetails.fields.clickId')} value={data.id} />
@@ -202,11 +248,15 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
                             <DetailRow label={t('clickDetails.fields.ip')} value={data.ip} />
                             <DetailRow label={t('clickDetails.fields.isp')} value={data.isp} />
                             <DetailRow label={t('clickDetails.fields.asn')} value={data.asn} />
+                            <DetailRow label={t('clickDetails.fields.proxy')} value={yesNo(data.is_proxy)} />
                             <DetailRow label={t('clickDetails.fields.proxyType')} value={data.proxy_type} />
-                            <DetailRow label={t('clickDetails.fields.botScanner')} value={t('clickDetails.noData')} />
+                            <DetailRow label={t('clickDetails.fields.botScanner')} value={ua.bot || (Number(data.is_bot) === 1 ? t('clickDetails.yes') : t('clickDetails.no'))} />
 
                             {/* W3: Cloak verdict and reasons */}
-                            {(data.cloak_verdict || data.cloak_reasons || data.is_safe_page !== undefined) && (
+                            {/* Only clicks a cloak stream actually judged. is_safe_page is 0 on
+                                every click, so keying on it painted "Money" on clicks no cloak
+                                ever saw. */}
+                            {(data.cloak_verdict || data.cloak_reasons) && (
                                 <>
                                     <SectionHeader title={t('clickDetails.sections.cloak')} />
                                     <DetailRow
@@ -306,19 +356,22 @@ const ClickDetailsModal = ({ clickId, onClose }) => {
                             <DetailRow label={t('clickDetails.fields.city')} value={data.city} />
                             <DetailRow label={t('clickDetails.fields.zipcode')} value={data.zipcode} />
                             <DetailRow label={t('clickDetails.fields.timezone')} value={data.timezone} />
-                            <DetailRow label={t('clickDetails.fields.language')} value={data.language} />
+                            <DetailRow label={t('clickDetails.fields.language')} value={shown(data.language)} />
                             <DetailRow label={t('clickDetails.fields.acceptLanguageRaw')} value={data.accept_language_raw} />
                             <DetailRow label={t('clickDetails.fields.latitude')} value={data.latitude} />
                             <DetailRow label={t('clickDetails.fields.longitude')} value={data.longitude} />
-                            <DetailRow label={t('clickDetails.fields.deviceType')} value={data.device_type} />
-                            <DetailRow label={t('clickDetails.fields.os')} value={data.os} />
-                            <DetailRow label={t('clickDetails.fields.browser')} value={data.browser} />
+                            <DetailRow label={t('clickDetails.fields.deviceType')} value={shown(data.device_type)} />
+                            <DetailRow label={t('clickDetails.fields.deviceModel')} value={uaDeviceModel} />
+                            <DetailRow label={t('clickDetails.fields.os')} value={uaOs} />
+                            <DetailRow label={t('clickDetails.fields.browser')} value={uaBrowser} />
+                            {ua.in_app && <DetailRow label={t('clickDetails.fields.inAppBrowser')} value={ua.in_app} />}
                             <DetailRow label={t('clickDetails.fields.userAgent')} value={data.user_agent} />
 
                             <SectionHeader title={t('clickDetails.sections.calendar')} />
-                            <DetailRow label={t('clickDetails.fields.dateTime')} value={data.created_at} />
-                            <DetailRow label={t('clickDetails.fields.landingAt')} value={data.landing_at} />
-                            <DetailRow label={t('clickDetails.fields.offerAt')} value={data.offer_at} />
+                            <DetailRow label={t('clickDetails.fields.dateTime')} value={withZone(data.created_at, data.created_at_utc)} />
+                            <DetailRow label={t('clickDetails.fields.dateTimeUtc')} value={data.created_at_utc} />
+                            <DetailRow label={t('clickDetails.fields.landingAt')} value={withZone(data.landing_at, data.landing_at_utc)} />
+                            <DetailRow label={t('clickDetails.fields.offerAt')} value={withZone(data.offer_at, data.offer_at_utc)} />
                             <DetailRow label={t('clickDetails.fields.timeToOffer')} value={lpTimeDelta} />
                             <DetailRow label={t('clickDetails.fields.timeOnLp')} value={lpDwell} />
                             <DetailRow label={t('clickDetails.fields.lpScroll')} value={lpScroll} />

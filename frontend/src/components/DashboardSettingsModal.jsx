@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { X, Check, LayoutGrid, Sliders, Eye } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { RECENT_CLICK_COLUMNS, DEFAULT_CLICK_COLUMNS } from './recentClicksColumns';
 
 export const DEFAULT_METRICS = [
     'clicks', 'unique_clicks', 'conversions', 'cost', 'revenue', 'profit', 'roi'
@@ -12,13 +13,20 @@ const METRIC_PRESETS = {
     media_buying: ['clicks', 'unique_clicks', 'cpv', 'cpc', 'epc', 'cpa', 'cost', 'revenue', 'profit', 'roi', 'cr'],
 };
 
-const DashboardSettingsModal = ({ preferences, setPreferences, onClose }) => {
+const DashboardSettingsModal = ({ preferences, setPreferences, onClose, initialSection = null }) => {
     const { t } = useLanguage();
     const [localPrefs, setLocalPrefs] = useState(() => ({
         visible_metrics: preferences?.visible_metrics || DEFAULT_METRICS,
         visible_blocks: preferences?.visible_blocks || ['campaigns', 'offers', 'landings', 'sources'],
-        click_columns: preferences?.click_columns || ['created_at', 'campaign_name', 'country_code', 'ip', 'device_type', 'user_agent', 'redirect_url']
+        click_columns: preferences?.click_columns || [...DEFAULT_CLICK_COLUMNS]
     }));
+    const clickColumnsRef = useRef(null);
+
+    useEffect(() => {
+        if (initialSection === 'click_columns' && clickColumnsRef.current) {
+            clickColumnsRef.current.scrollIntoView({ block: 'start' });
+        }
+    }, [initialSection]);
 
     const metricGroups = [
         {
@@ -81,15 +89,7 @@ const DashboardSettingsModal = ({ preferences, setPreferences, onClose }) => {
         { id: 'sources', label: t('nav.sources') },
     ];
 
-    const columnsList = [
-        { id: 'created_at', label: t('dashboard.colDate') },
-        { id: 'campaign_name', label: t('dashboard.colCampaign') },
-        { id: 'country_code', label: t('dashboard.colGeo') },
-        { id: 'device_type', label: t('dashboard.colOs') },
-        { id: 'ip', label: t('dashboard.colIp') },
-        { id: 'user_agent', label: t('dashboard.colUa') },
-        { id: 'redirect_url', label: t('dashboard.colUrl') },
-    ];
+    const columnsList = RECENT_CLICK_COLUMNS.map((col) => ({ id: col.id, label: t(col.labelKey) }));
 
     const toggleArrayItem = (array, item) => {
         const current = array || [];
@@ -263,7 +263,7 @@ const DashboardSettingsModal = ({ preferences, setPreferences, onClose }) => {
                         </div>
                     </section>
 
-                    <section>
+                    <section ref={clickColumnsRef} data-testid="click-columns-section">
                         <h3
                             className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider border-b pb-1.5 mb-3"
                             style={{ color: 'var(--color-text-muted)', borderColor: 'var(--color-border)' }}

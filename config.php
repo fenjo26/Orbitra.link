@@ -95,7 +95,9 @@ try {
     //      never reported (no landing timer, direct hit), 0 = a landing was
     //      measured and zero mouse/touch events were seen, 1 = real pointer
     //      activity. Written only by /pixel.gif?action=lp beacons.
-    $LATEST_SCHEMA_VERSION = 58;
+    // 59 = clicks.domain: the tracker host a click arrived on (Keitaro's
+    //      "Domain"). NULL for clicks logged before it and for the Click API.
+    $LATEST_SCHEMA_VERSION = 59;
 
     $schemaVersion = 0;
     try {
@@ -2815,6 +2817,17 @@ try {
                             ->execute(['Revshare', 'revshare', '#EAB308']);
                     }
                 } catch (\Throwable $e) {
+                }
+            }
+
+            if ($schemaVersion < 59) {
+                // Migration 59: the host a click arrived on. ADD COLUMN is
+                // O(1) in SQLite — no table rewrite on a multi-million-row
+                // clicks table. Old rows stay NULL (shown as "-").
+                try {
+                    $pdo->exec("ALTER TABLE clicks ADD COLUMN domain TEXT");
+                } catch (\Throwable $e) {
+                    // Column already present on a half-migrated DB.
                 }
             }
 

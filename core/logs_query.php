@@ -115,9 +115,9 @@ function orbitraLogsParseParamFilters(?string $json): array
 function orbitraLogsTrafficFields(): array
 {
     return [
-        'id', 'click_id', 'created_at', 'campaign_name', 'ip',
+        'id', 'click_id', 'created_at', 'campaign_name', 'domain', 'ip',
         'country_code', 'region', 'city', 'geo_timezone', 'language',
-        'accept_language_raw', 'device_type', 'user_agent', 'lp_seconds',
+        'accept_language_raw', 'device_type', 'os', 'browser', 'user_agent', 'lp_seconds',
         'lp_scroll', 'redirect_url', 'subid', 'cloak_verdict', 'cloak_reasons',
         'is_safe_page', 'isp', 'asn', 'proxy_type', 'cloak_sensitivity',
         'landing_name', 'offer_name', 'stream_id', 'stream_name', 'stream_type',
@@ -335,6 +335,7 @@ function orbitraLogsBuildQuery(string $type, array $f, string $dbTzOffset, int $
                     cl.id as click_id,
                     datetime(cl.created_at, '$dbTzOffset') as created_at,
                     c.name as campaign_name,
+                    cl.domain,
                     cl.ip,
                     COALESCE(NULLIF(cl.country_code, ''), cl.country) as country_code,
                     cl.region,
@@ -343,6 +344,8 @@ function orbitraLogsBuildQuery(string $type, array $f, string $dbTzOffset, int $
                     cl.language,
                     cl.accept_language_raw,
                     cl.device_type,
+                    cl.os,
+                    cl.browser,
                     cl.user_agent,
                     -- Time on the landing (the /pixel.gif?action=lp beacon):
                     -- present whether or not the visitor went on to the offer,

@@ -26,6 +26,7 @@ import DashboardHeader from './components/DashboardHeader';
 import GeoDbBanner from './components/GeoDbBanner';
 import ServerSetupBanner from './components/ServerSetupBanner';
 import DashboardSettingsModal, { DEFAULT_METRICS } from './components/DashboardSettingsModal';
+import { DEFAULT_CLICK_COLUMNS, migrateClickColumns } from './components/recentClicksColumns';
 import LeadForgePage from './components/LeadForgePage';
 import CRMPage from './components/CRMPage';
 import GalleryPage from './components/GalleryPage';
@@ -303,15 +304,19 @@ function App() {
       if (Array.isArray(parsed.visible_metrics) && parsed.visible_metrics.join(',') === 'clicks,unique_clicks,conversions,cost,revenue,profit,roi,cpc,cpa') {
         parsed.visible_metrics = [...DEFAULT_METRICS];
       }
+      // Same rule for the Recent clicks columns (Keitaro-style default since 1.6.17).
+      parsed.click_columns = migrateClickColumns(parsed.click_columns);
       return parsed;
     }
     return {
       visible_metrics: [...DEFAULT_METRICS],
       visible_blocks: ['campaigns', 'offers', 'landings', 'sources'],
-      click_columns: ['created_at', 'campaign_name', 'device_type', 'ip', 'user_agent', 'redirect_url']
+      click_columns: [...DEFAULT_CLICK_COLUMNS]
     };
   });
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  // Which section the settings modal scrolls to: the Recent clicks gear opens it on the columns.
+  const [settingsModalSection, setSettingsModalSection] = useState(null);
 
   useEffect(() => {
     localStorage.setItem('ltt_dash_prefs', JSON.stringify(dashboardPreferences));
@@ -676,7 +681,7 @@ function App() {
                   filters={dashboardFilters}
                   setFilters={setDashboardFilters}
                   campaigns={campaigns}
-                  onOpenSettings={() => setShowSettingsModal(true)}
+                  onOpenSettings={() => { setSettingsModalSection(null); setShowSettingsModal(true); }}
                 />
                 <StatCards metrics={metrics} preferences={dashboardPreferences} activeMetrics={activeMetrics} setActiveMetrics={setActiveMetrics} user={user} />
                 <MainChart chartData={chartData} activeMetrics={activeMetrics} currency={globalSettings.currency || 'USD'} />
@@ -690,7 +695,9 @@ function App() {
                 <RecentClicks
                   logs={logs}
                   preferences={dashboardPreferences}
+                  setPreferences={setDashboardPreferences}
                   onShowAll={() => setActiveTab('logs')}
+                  onOpenSettings={() => { setSettingsModalSection('click_columns'); setShowSettingsModal(true); }}
                 />
               </>
             )}
@@ -793,6 +800,7 @@ function App() {
               <DashboardSettingsModal
                 preferences={dashboardPreferences}
                 setPreferences={setDashboardPreferences}
+                initialSection={settingsModalSection}
                 onClose={() => setShowSettingsModal(false)}
               />
             )}
