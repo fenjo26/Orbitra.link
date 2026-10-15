@@ -47,6 +47,20 @@ const partners = [
         descKey: 'feedback.partnerNovproxyDesc',
         logoChip: '#FFFFFF',
     },
+    {
+        name: '369 Links Market',
+        url: 'https://t.me/marketplace369_bot?start=ref_58bsvidx',
+        logo: '/partners/369linksmarket-logo.png',
+        descKey: 'feedback.partner369Desc',
+        logoChip: '#010103',
+    },
+    {
+        name: 'FieldLink',
+        url: 'https://seoboost-root.info/r/flt_oW6P5bnPM5JTkU44PxbVxFWBUF4e8MBRFDy0kG17t5Y',
+        logo: '/partners/fieldlink-logo.svg',
+        descKey: 'feedback.partnerFieldlinkDesc',
+        logoChip: '#07110c',
+    },
 ];
 
 const FeedbackPage = () => {

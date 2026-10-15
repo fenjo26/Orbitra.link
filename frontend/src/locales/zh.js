@@ -375,7 +375,9 @@ export default {
         "partnerHelodataDesc": "稳定合规的代理 IP 网络，适用于数据采集、广告验证与市场情报。",
         "partnerAccslyDesc": "账号交易市场：80+ 平台上经过审核的商家，提供 35,000+ 商品。",
         "partnerOpengscDesc": "我们的另一个免费项目：自托管 SEO 面板，支持 Google、Bing 和 Yandex，内置 AI 工具。",
-        "partnerNovproxyDesc": "全球代理 IP —— 静态、ISP 与住宅类型，覆盖 190+ 国家/地区，按用量付费。"
+        "partnerNovproxyDesc": "全球代理 IP —— 静态、ISP 与住宅类型，覆盖 190+ 国家/地区，按用量付费。",
+        "partner369Desc": "Telegram 内的链接建设：magic links、首页链接、crowd 链接、Xrumer。Magic links 和首页链接可通过 OpenGSC API 下单。",
+        "partnerFieldlinkDesc": "客座文章与首页链接，按 donor 站流量定价，自动索引。两者均可在 OpenGSC 中直接下单。"
     },
     "profile": {
         "title": "配置文件设置",

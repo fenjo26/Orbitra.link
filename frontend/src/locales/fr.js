@@ -375,7 +375,9 @@ export default {
         "partnerHelodataDesc": "Réseau de proxys IP stables et conformes pour la collecte de données et la vérification publicitaire.",
         "partnerAccslyDesc": "Place de marché de comptes — 35 000+ offres de boutiques vérifiées sur plus de 80 plateformes.",
         "partnerOpengscDesc": "Notre autre projet gratuit — tableau de bord SEO auto-hébergé pour Google, Bing et Yandex, avec outils IA.",
-        "partnerNovproxyDesc": "Proxys mondiaux — statiques, ISP et résidentiels — dans plus de 190 pays, avec paiement à l'usage."
+        "partnerNovproxyDesc": "Proxys mondiaux — statiques, ISP et résidentiels — dans plus de 190 pays, avec paiement à l'usage.",
+        "partner369Desc": "Netlinking dans Telegram : magic links, liens de pages d'accueil, crowd, Xrumer. Magic links et liens d'accueil commandables via l'API OpenGSC.",
+        "partnerFieldlinkDesc": "Articles invités et liens de pages d'accueil au prix selon le trafic du donneur, avec auto-indexation. Commandables directement depuis OpenGSC."
     },
     "profile": {
         "title": "Paramètres du profil",
