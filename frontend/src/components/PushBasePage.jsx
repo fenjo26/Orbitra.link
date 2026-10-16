@@ -18,7 +18,10 @@ const EMPTY_FORM = {
     title: '',
     text: '',
     icon_url: '',
+    image_url: '',
     link_url: '',
+    countries: '',
+    languages: '',
     kind: 'manual',
     event: 'install',
     delay_seconds: 0,
@@ -266,7 +269,10 @@ export default function PushBasePage({ user }) {
             title: m.title || '',
             text: m.text || '',
             icon_url: m.icon_url || '',
+            image_url: m.image_url || '',
             link_url: m.link_url || '',
+            countries: m.countries || '',
+            languages: m.languages || '',
             kind: m.kind === 'event' ? 'event' : 'manual',
             event: EVENTS.includes(m.event) ? m.event : 'install',
             delay_seconds: Number(m.delay_seconds) || 0,
@@ -287,7 +293,10 @@ export default function PushBasePage({ user }) {
                 title: form.title,
                 text: form.text,
                 icon_url: form.icon_url,
+                image_url: form.image_url,
                 link_url: form.link_url,
+                countries: form.countries,
+                languages: form.languages,
                 kind: form.kind,
                 event: form.kind === 'event' ? form.event : null,
                 delay_seconds: Number(form.delay_seconds) || 0,
@@ -576,6 +585,7 @@ export default function PushBasePage({ user }) {
                                     <th>{t('push.kind')}</th>
                                     <th>{t('push.segment')}</th>
                                     <th>{t('push.sent')}</th>
+                                    <th>{t('push.clicked')}</th>
                                     <th>{t('push.failed')}</th>
                                     <th>{t('push.queued')}</th>
                                     <th>{t('push.created')}</th>
@@ -584,7 +594,7 @@ export default function PushBasePage({ user }) {
                             </thead>
                             <tbody>
                                 {messages.length === 0 && !messagesLoading && (
-                                    <tr><td colSpan={8} className="text-center py-6" style={{ color: 'var(--color-text-muted)' }}>{t('push.messagesEmpty')}</td></tr>
+                                    <tr><td colSpan={9} className="text-center py-6" style={{ color: 'var(--color-text-muted)' }}>{t('push.messagesEmpty')}</td></tr>
                                 )}
                                 {messages.map((m) => (
                                     <tr key={m.id}>
@@ -605,6 +615,14 @@ export default function PushBasePage({ user }) {
                                         </td>
                                         <td className="cell-text" style={{ whiteSpace: 'nowrap' }}>{segmentLabel(m.segment)}</td>
                                         <td className="cell-text" style={{ color: 'var(--color-success)' }}>{Number(m.sent || 0).toLocaleString()}</td>
+                                        <td className="cell-text" style={{ whiteSpace: 'nowrap', color: Number(m.clicked || 0) > 0 ? 'var(--color-primary)' : undefined }}>
+                                            {Number(m.clicked || 0).toLocaleString()}
+                                            {Number(m.sent || 0) > 0 && (
+                                                <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                                                    {' '}{Math.round((Number(m.clicked || 0) / Number(m.sent)) * 100)}%
+                                                </span>
+                                            )}
+                                        </td>
                                         <td className="cell-text" style={{ color: Number(m.failed || 0) > 0 ? 'var(--color-danger)' : undefined }}>{Number(m.failed || 0).toLocaleString()}</td>
                                         <td className="cell-text">{Number(m.queued || 0).toLocaleString()}</td>
                                         <td className="cell-text" style={{ whiteSpace: 'nowrap' }}>{String(m.created_at || '').replace('T', ' ').slice(0, 16)}</td>
@@ -679,6 +697,15 @@ export default function PushBasePage({ user }) {
                             placeholder="https://…/icon.png"
                         />
 
+                        <label className="block text-xs font-semibold mb-1">{t('push.imageUrl')}</label>
+                        <input
+                            className="form-input w-full mb-1"
+                            value={form.image_url}
+                            onChange={(e) => setForm({ ...form, image_url: e.target.value })}
+                            placeholder="https://…/banner.png"
+                        />
+                        <div className="text-xs mb-3" style={{ color: 'var(--color-text-muted)' }}>{t('push.imageUrlHint')}</div>
+
                         <label className="block text-xs font-semibold mb-1">{t('push.linkUrl')}</label>
                         <input
                             className="form-input w-full mb-1"
@@ -698,6 +725,29 @@ export default function PushBasePage({ user }) {
                                 <option key={seg} value={seg}>{segmentLabel(seg)}</option>
                             ))}
                         </select>
+
+                        <div className="grid grid-cols-2 gap-3 mb-3">
+                            <div>
+                                <label className="block text-xs font-semibold mb-1">{t('push.countries')}</label>
+                                <input
+                                    className="form-input w-full"
+                                    value={form.countries}
+                                    onChange={(e) => setForm({ ...form, countries: e.target.value })}
+                                    placeholder="US, DE"
+                                />
+                                <div className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>{t('push.countriesHint')}</div>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold mb-1">{t('push.languages')}</label>
+                                <input
+                                    className="form-input w-full"
+                                    value={form.languages}
+                                    onChange={(e) => setForm({ ...form, languages: e.target.value })}
+                                    placeholder="en, es"
+                                />
+                                <div className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>{t('push.languagesHint')}</div>
+                            </div>
+                        </div>
 
                         <div className="mb-3" style={{ maxWidth: 280 }}>
                             <SegmentedControl

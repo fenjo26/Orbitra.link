@@ -5685,7 +5685,8 @@ try {
                     SUM(CASE WHEN pwa_intent_at IS NOT NULL THEN 1 ELSE 0 END) AS intents,
                     SUM(CASE WHEN pwa_install_at IS NOT NULL THEN 1 ELSE 0 END) AS installs,
                     SUM(CASE WHEN offer_at IS NOT NULL THEN 1 ELSE 0 END) AS offer_clicks,
-                    SUM(CASE WHEN push_subscribed_at IS NOT NULL THEN 1 ELSE 0 END) AS push_subs
+                    SUM(CASE WHEN push_subscribed_at IS NOT NULL THEN 1 ELSE 0 END) AS push_subs,
+                    SUM(COALESCE(push_clicks, 0)) AS push_clicks
                 FROM clicks WHERE landing_id = ?");
             $stmt->execute([$id]);
             $totals = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
@@ -5702,6 +5703,7 @@ try {
                     'installs'     => (int) ($totals['installs'] ?? 0),
                     'offer_clicks' => (int) ($totals['offer_clicks'] ?? 0),
                     'push_subs'    => (int) ($totals['push_subs'] ?? 0),
+                    'push_clicks'  => (int) ($totals['push_clicks'] ?? 0),
                 ],
             ]]);
             break;
@@ -6019,15 +6021,17 @@ try {
             // failed = the rest) plus how many rows still sit in the queue.
             require_once __DIR__ . '/core/PushQueue.php';
             $stmt = $pdo->query("
-                SELECT m.id, m.title, m.text, m.icon_url, m.link_url, m.kind, m.event,
-                       m.delay_seconds, m.segment, m.active, m.created_at,
+                SELECT m.id, m.title, m.text, m.icon_url, m.image_url, m.link_url, m.kind, m.event,
+                       m.delay_seconds, m.segment, m.countries, m.languages, m.active, m.created_at,
                        COALESCE(st.sent, 0)     AS sent,
                        COALESCE(st.failed, 0)   AS failed,
+                       COALESCE(st.clicked, 0)  AS clicked,
                        COALESCE(q.queued, 0)    AS queued
                 FROM push_messages m
                 LEFT JOIN (SELECT message_id,
                                   SUM(CASE WHEN ok = 1 THEN 1 ELSE 0 END) AS sent,
-                                  SUM(CASE WHEN ok = 1 THEN 0 ELSE 1 END) AS failed
+                                  SUM(CASE WHEN ok = 1 THEN 0 ELSE 1 END) AS failed,
+                                  SUM(CASE WHEN ok = 1 AND clicked_at IS NOT NULL THEN 1 ELSE 0 END) AS clicked
                            FROM push_sends GROUP BY message_id) st ON st.message_id = m.id
                 LEFT JOIN (SELECT message_id, COUNT(*) AS queued
                            FROM push_queue WHERE status = 'pending' GROUP BY message_id) q ON q.message_id = m.id
@@ -6062,15 +6066,24 @@ try {
                     break;
                 }
                 $segment = in_array($body['segment'] ?? '', orbitraPushSegments(), true) ? (string) $body['segment'] : 'all';
+                // Geo/language targeting: stored as clean comma lists (2-letter
+                // codes, lowercase; SQL uppercases countries when matching).
+                // Junk entries are dropped, never stored — a filter must not
+                // become a matching no-op the operator believes in.
+                $countries = implode(',', orbitraPushCodeList((string) ($body['countries'] ?? '')));
+                $languages = implode(',', orbitraPushCodeList((string) ($body['languages'] ?? '')));
                 $fields = [
                     'title'         => $title,
                     'text'          => $text,
                     'icon_url'      => trim((string) ($body['icon_url'] ?? '')),
+                    'image_url'     => trim((string) ($body['image_url'] ?? '')),
                     'link_url'      => trim((string) ($body['link_url'] ?? '')),
                     'kind'          => $kind,
                     'event'         => $event,
                     'delay_seconds' => max(0, (int) ($body['delay_seconds'] ?? 0)),
                     'segment'       => $segment,
+                    'countries'     => $countries,
+                    'languages'     => $languages,
                     'active'        => !empty($body['active']) ? 1 : 0,
                 ];
                 $id = (int) ($body['id'] ?? 0);

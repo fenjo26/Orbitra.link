@@ -2621,7 +2621,7 @@ if ($uriPath === '/pixel.gif') {
         $pwaSubid = trim((string) ($_GET['subid'] ?? ''));
         $pwaKind = (string) ($_GET['kind'] ?? '');
         $pwaReason = substr(trim((string) ($_GET['reason'] ?? '')), 0, 32);
-        if ($pwaSubid !== '' && in_array($pwaKind, ['intent', 'install', 'open', 'prompt', 'decline', 'pushfail', 'screen'], true)) {
+        if ($pwaSubid !== '' && in_array($pwaKind, ['intent', 'install', 'open', 'prompt', 'decline', 'pushfail', 'screen', 'pushclick'], true)) {
             try {
                 if ($pwaKind === 'intent') {
                     $pdo->prepare("UPDATE clicks SET pwa_intent_at = datetime('now') WHERE id = ? AND pwa_intent_at IS NULL")
@@ -2673,6 +2673,26 @@ if ($uriPath === '/pixel.gif') {
                                     $pwaScreen,
                                 ]);
                         }
+                    }
+                } elseif ($pwaKind === 'pushclick') {
+                    // A push notification was tapped (the SW beacons this from
+                    // notificationclick). Throttled like 'open' — one count per
+                    // 10 minutes per click, a reopened notification must not
+                    // pump it. sid/mid attribute the tap to the delivery:
+                    // push_sends.clicked_at is only ever set once.
+                    $pushClickStmt = $pdo->prepare("SELECT push_click_at FROM clicks WHERE id = ?");
+                    $pushClickStmt->execute([$pwaSubid]);
+                    $lastPushClick = (string) ($pushClickStmt->fetchColumn() ?: '');
+                    if ($lastPushClick === '' || strtotime($lastPushClick) < time() - 600) {
+                        $pdo->prepare("UPDATE clicks SET push_clicks = COALESCE(push_clicks, 0) + 1, push_click_at = datetime('now') WHERE id = ?")
+                            ->execute([$pwaSubid]);
+                    }
+                    $pwaSid = (int) ($_GET['sid'] ?? 0);
+                    $pwaMid = (int) ($_GET['mid'] ?? 0);
+                    if ($pwaSid > 0 && $pwaMid > 0) {
+                        $pdo->prepare("UPDATE push_sends SET clicked_at = datetime('now')
+                                       WHERE message_id = ? AND subscription_id = ? AND ok = 1 AND clicked_at IS NULL")
+                            ->execute([$pwaMid, $pwaSid]);
                     }
                 } else {
                     // Standalone reopen — throttled to one count per 10 minutes
@@ -2947,6 +2967,81 @@ if ($uriPath === '/push_subscribe') {
         http_response_code(500);
         echo json_encode(['status' => 'error', 'message' => 'Subscribe failed']);
     }
+    exit;
+}
+
+// === Push unsubscribe: POST /push_unsubscribe (idempotent) ===
+// Called by the landing SW's tray "Unsubscribe" action and by the public
+// page below. Same trust model as /push_subscribe: the endpoint URL is a
+// high-entropy secret on its own, and the only effect is deactivating the
+// base row (is_active = 0) — the subscription keys are not touched, so an
+// accidental deactivation is repairable from the panel.
+if ($uriPath === '/push_unsubscribe') {
+    header('Content-Type: application/json; charset=utf-8');
+    $unsubBody = [];
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $unsubBody = json_decode((string) file_get_contents('php://input'), true) ?: [];
+    }
+    $unsubEndpoint = trim((string) ($unsubBody['endpoint'] ?? ($_GET['endpoint'] ?? '')));
+    if ($unsubEndpoint === '' || !preg_match('#^https://#', $unsubEndpoint) || strlen($unsubEndpoint) > 2000) {
+        http_response_code(400);
+        echo json_encode(['status' => 'error', 'message' => 'Invalid subscription']);
+        exit;
+    }
+    try {
+        $stmtUnsub = $pdo->prepare("UPDATE push_subscriptions SET is_active = 0 WHERE endpoint = ?");
+        $stmtUnsub->execute([$unsubEndpoint]);
+        echo json_encode(['status' => 'success']);
+    } catch (\Throwable $e) {
+        error_log('push_unsubscribe failed: ' . $e->getMessage());
+        http_response_code(500);
+        echo json_encode(['status' => 'error', 'message' => 'Unsubscribe failed']);
+    }
+    exit;
+}
+
+// === Public unsubscribe page: GET /push-unsubscribe?endpoint=<urlencoded> ===
+// The page the operator can link from anywhere (a push body, a lander). The
+// deactivate itself is a POST behind a button — an emailed/prefetched GET
+// link must never silently unsubscribe the person it was sent to. Rendered
+// standalone (no panel SPA): the recipient has no panel session.
+if ($uriPath === '/push-unsubscribe') {
+    header('Content-Type: text/html; charset=utf-8');
+    $unsubPageDict = [
+        'en' => ['t' => 'Unsubscribe from notifications', 'p' => 'You will no longer receive push notifications from this app.', 'b' => 'Unsubscribe', 'd' => 'You are unsubscribed.', 'e' => 'Could not unsubscribe — please try again.', 'n' => 'Open any notification from this app and tap “Unsubscribe”, or use the link that came with it.'],
+        'ru' => ['t' => 'Отписка от уведомлений', 'p' => 'Вы больше не будете получать пуш-уведомления от этого приложения.', 'b' => 'Отписаться', 'd' => 'Вы отписаны.', 'e' => 'Не удалось отписаться — попробуйте ещё раз.', 'n' => 'Откройте любое уведомление от приложения и нажмите «Отписаться», либо воспользуйтесь ссылкой из уведомления.'],
+        'uk' => ['t' => 'Відписка від сповіщень', 'p' => 'Ви більше не отримуватимете пуш-сповіщення від цього застосунку.', 'b' => 'Відписатися', 'd' => 'Ви відписані.', 'e' => 'Не вдалося відписатися — спробуйте ще раз.', 'n' => 'Відкрийте будь-яке сповіщення від застосунку та натисніть «Відписатися», або скористайтеся посиланням зі сповіщення.'],
+        'es' => ['t' => 'Cancelar notificaciones', 'p' => 'Ya no recibirás notificaciones push de esta aplicación.', 'b' => 'Desuscribirse', 'd' => 'Estás desuscrito.', 'e' => 'No se pudo completar — inténtalo de nuevo.', 'n' => 'Abre cualquier notificación de esta app y toca «Desuscribirse», o usa el enlace que la acompañaba.'],
+        'de' => ['t' => 'Benachrichtigungen abbestellen', 'p' => 'Du erhältst keine Push-Benachrichtigungen mehr von dieser App.', 'b' => 'Abbestellen', 'd' => 'Du bist abbestellt.', 'e' => 'Hat nicht geklappt — bitte erneut versuchen.', 'n' => 'Öffne eine beliebige Benachrichtigung dieser App und tippe auf „Abbestellen“, oder nutze den Link daraus.'],
+        'fr' => ['t' => 'Se désabonner des notifications', 'p' => 'Vous ne recevrez plus de notifications push de cette application.', 'b' => 'Se désabonner', 'd' => 'Vous êtes désabonné.', 'e' => 'Échec de la désinscription — réessayez.', 'n' => 'Ouvrez une notification de cette app et touchez « Se désabonner », ou utilisez le lien fourni.'],
+        'zh' => ['t' => '取消通知订阅', 'p' => '您将不再收到此应用的推送通知。', 'b' => '取消订阅', 'd' => '已取消订阅。', 'e' => '取消订阅失败，请重试。', 'n' => '打开此应用的任意通知并点击“取消订阅”，或使用通知中的链接。'],
+    ];
+    $unsubLang = 'en';
+    foreach (explode(',', (string) ($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '')) as $unsubCandidate) {
+        $unsubCandidate = strtolower(substr(trim($unsubCandidate), 0, 2));
+        if (isset($unsubPageDict[$unsubCandidate])) {
+            $unsubLang = $unsubCandidate;
+            break;
+        }
+    }
+    $u = $unsubPageDict[$unsubLang];
+    $unsubHasEndpoint = trim((string) ($_GET['endpoint'] ?? '')) !== '';
+    $unsubEndpointJson = json_encode(trim((string) ($_GET['endpoint'] ?? '')));
+    $unsubStringsJson = json_encode($u, JSON_UNESCAPED_UNICODE);
+    echo '<!DOCTYPE html><html lang="' . htmlspecialchars($unsubLang, ENT_QUOTES) . '"><head><meta charset="UTF-8">'
+        . '<meta name="viewport" content="width=device-width, initial-scale=1"><title>' . htmlspecialchars($u['t'], ENT_QUOTES) . '</title>'
+        . '<style>body{margin:0;font-family:Roboto,-apple-system,\'Segoe UI\',Arial,sans-serif;background:#0d1117;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center}'
+        . '.c{padding:32px 24px;max-width:380px}h1{font-size:19px;margin:0 0 10px;font-weight:600}p{font-size:14px;line-height:1.55;color:rgba(255,255,255,.65);margin:0 0 22px}'
+        . 'button{background:#01875f;color:#fff;border:none;border-radius:22px;padding:12px 34px;font-size:15px;font-weight:500;cursor:pointer}'
+        . '#r{margin-top:16px;font-size:14px;min-height:20px}</style></head><body><div class="c">'
+        . '<h1>' . htmlspecialchars($u['t'], ENT_QUOTES) . '</h1><p id="p">' . htmlspecialchars($unsubHasEndpoint ? $u['p'] : $u['n'], ENT_QUOTES) . '</p>'
+        . ($unsubHasEndpoint ? '<button type="button" id="go">' . htmlspecialchars($u['b'], ENT_QUOTES) . '</button><div id="r"></div>' : '')
+        . '<script>var S=' . $unsubStringsJson . ',E=' . $unsubEndpointJson . ';'
+        . 'var b=document.getElementById("go");if(b)b.onclick=function(){b.disabled=true;'
+        . 'fetch("/push_unsubscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({endpoint:E})})'
+        . '.then(function(r){return r.ok;}).then(function(ok){document.getElementById("r").textContent=ok?S.d:S.e;'
+        . 'document.getElementById("r").style.color=ok?"#10b981":"#ef4444";if(ok)document.getElementById("p").textContent="";},function(){document.getElementById("r").textContent=S.e;b.disabled=false;});};'
+        . '</script></div></body></html>';
     exit;
 }
 

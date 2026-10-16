@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Smartphone, Trash2, ExternalLink, Loader2, Plus, ImagePlus, GripVertical, Check, Save, Copy } from 'lucide-react';
+import { X, Smartphone, Trash2, ExternalLink, Loader2, Plus, ImagePlus, GripVertical, Check, Save, Copy, AlertTriangle } from 'lucide-react';
 import MediaPicker from './common/MediaPicker';
 import CampaignUrlModal from './CampaignUrlModal';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -374,6 +374,30 @@ const Toggle = ({ label, checked, onChange }) => (
     </label>
 );
 
+// One install-readiness row: green check when the item helps Chrome's native
+// install sheet, amber warning when it is what keeps the prompt plain.
+const ReadyRow = ({ ok, label, hint }) => (
+    <div className="flex items-start gap-2">
+        <span
+            className="flex items-center justify-center rounded-full flex-none"
+            style={{
+                width: 18, height: 18, marginTop: 1,
+                background: ok
+                    ? 'color-mix(in srgb, var(--color-success) 15%, transparent)'
+                    : 'color-mix(in srgb, var(--color-warning) 15%, transparent)',
+            }}
+        >
+            {ok
+                ? <Check className="w-3 h-3" style={{ color: 'var(--color-success)' }} />
+                : <AlertTriangle className="w-3 h-3" style={{ color: 'var(--color-warning)' }} />}
+        </span>
+        <div className="min-w-0">
+            <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>{label}</span>
+            {hint && <span className="block text-xs" style={{ color: 'var(--color-text-muted)' }}>{hint}</span>}
+        </div>
+    </div>
+);
+
 export default function PwaEditor({ landingId, onClose }) {
     const { t } = useLanguage();
     const [name, setName] = useState('');
@@ -437,6 +461,46 @@ export default function PwaEditor({ landingId, onClose }) {
     const [offerSaving, setOfferSaving] = useState(false);
     const [offerChoice, setOfferChoice] = useState(null); // string id | '' | null
     const offersSeq = useRef(0);
+
+    // --- Install readiness (the PWABuilder-analyzer-style checklist) --------
+    // Mirrors core/PwaLanding.php::renderManifest(): Chrome (Android 94+ /
+    // desktop 105+) renders the native install prompt as a rich store-like
+    // sheet when the manifest carries screenshots + a description. Shot sizes
+    // are measured in the browser (Image onload) under the exact constraints
+    // the generator enforces server-side, so the badge never disagrees with
+    // the shipped manifest.
+    const screenList = (config.screens || []).filter(Boolean);
+    const screenKey = screenList.join('|');
+    const [screenDims, setScreenDims] = useState({});
+    useEffect(() => {
+        screenList.forEach((url) => {
+            const img = new Image();
+            img.onload = () => setScreenDims((m) => (m[url] ? m : { ...m, [url]: { w: img.naturalWidth, h: img.naturalHeight } }));
+            img.onerror = () => setScreenDims((m) => (m[url] ? m : { ...m, [url]: null }));
+            img.src = url;
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [screenKey]);
+    const richShotOk = (url) => {
+        const d = screenDims[url];
+        if (!d || !d.w || !d.h) return false;
+        if (d.w < 320 || d.h < 320 || d.w > 3840 || d.h > 3840) return false;
+        return Math.max(d.w, d.h) <= 2.3 * Math.min(d.w, d.h);
+    };
+    const validShots = screenList.filter((url) => richShotOk(url)).length;
+    const richInstall = validShots > 0 && (config.description || '').trim() !== '';
+
+    // Push keys decide whether the installed app can ever ask for
+    // notifications — one cheap cached call to the same endpoint the Push
+    // base page uses.
+    const [pushKeys, setPushKeys] = useState(null); // null = still loading
+    useEffect(() => {
+        cachedGet('push_vapid_status', {}, 300000)
+            .then(({ data }) => {
+                if (data?.status === 'success') setPushKeys(!!data.data?.has_keys);
+            })
+            .catch(() => {});
+    }, []);
 
     useEffect(() => {
         axios.get(`${API_URL}?action=campaigns`).then((res) => {
@@ -1166,6 +1230,52 @@ export default function PwaEditor({ landingId, onClose }) {
                                     </div>
                                 </Section>
 
+                                <Section title={t('pwa.readyTitle')}>
+                                    <span className="text-xs block mb-2" style={{ color: 'var(--color-text-muted)' }}>{t('pwa.readyHint')}</span>
+                                    <div
+                                        className="flex items-center gap-2 text-sm rounded-xl px-3 py-2 mb-1"
+                                        style={{
+                                            background: richInstall
+                                                ? 'color-mix(in srgb, var(--color-success) 10%, transparent)'
+                                                : 'color-mix(in srgb, var(--color-warning) 10%, transparent)',
+                                            color: richInstall ? 'var(--color-success)' : 'var(--color-warning)',
+                                        }}
+                                    >
+                                        {richInstall ? <Check className="w-4 h-4 flex-none" /> : <AlertTriangle className="w-4 h-4 flex-none" />}
+                                        <span className="font-medium">{richInstall ? t('pwa.readyRichOk') : t('pwa.readyRichNo')}</span>
+                                    </div>
+                                    {!richInstall && (
+                                        <div className="text-xs mb-3" style={{ color: 'var(--color-text-muted)' }}>{t('pwa.readyRichNoHint')}</div>
+                                    )}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-3">
+                                        <ReadyRow
+                                            ok={!!(config.icon_url || config.icon)}
+                                            label={t('pwa.readyIcon')}
+                                            hint={!(config.icon_url || config.icon) ? t('pwa.readyIconNo') : null}
+                                        />
+                                        <ReadyRow
+                                            ok={(config.description || '').trim() !== ''}
+                                            label={t('pwa.readyDescription')}
+                                            hint={(config.description || '').trim() === '' ? t('pwa.readyDescriptionNo') : null}
+                                        />
+                                        <ReadyRow
+                                            ok={validShots > 0}
+                                            label={t('pwa.readyScreens')}
+                                            hint={validShots > 0 ? `${validShots}/${screenList.length}` : t('pwa.readyScreensNo')}
+                                        />
+                                        <ReadyRow
+                                            ok={pushKeys === true}
+                                            label={t('pwa.readyPush')}
+                                            hint={pushKeys === true ? t('pwa.readyPushOk') : (pushKeys === null ? '…' : t('pwa.readyPushNo'))}
+                                        />
+                                        <ReadyRow
+                                            ok={!!boundDomain}
+                                            label={t('pwa.readyDomain')}
+                                            hint={boundDomain ? boundDomain.name : t('pwa.readyDomainNo')}
+                                        />
+                                    </div>
+                                </Section>
+
                             </>
                         )}
 
@@ -1695,6 +1805,15 @@ export default function PwaEditor({ landingId, onClose }) {
                                                         {String(shot).startsWith('/') ? (
                                                             <img src={shot} alt="" style={{ width: 22, height: 22, borderRadius: 4, objectFit: 'cover' }} />
                                                         ) : shot}
+                                                        {screenDims[shot] && (
+                                                            <span
+                                                                className="flex items-center gap-0.5"
+                                                                style={{ color: richShotOk(shot) ? 'var(--color-success)' : 'var(--color-warning)' }}
+                                                            >
+                                                                {screenDims[shot].w}×{screenDims[shot].h}
+                                                                {richShotOk(shot) ? '✓' : '⚠'}
+                                                            </span>
+                                                        )}
                                                         <button type="button" onClick={() => set('screens', config.screens.filter((_, j) => j !== i))}>
                                                             <X className="w-3 h-3" />
                                                         </button>

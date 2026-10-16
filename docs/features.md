@@ -10,7 +10,7 @@ A short overview with links to detailed pages. The per-version change history is
 - **Test links** — real routing without recording a click, country override with `_geo`, tracing with `_dbg`.
 - **Cloaking** — data centers, VPNs and proxies, bot lists, User-Agent heuristics, JavaScript verification, a "clean visitors to the next stream" mode. → [Cloaking](cloaking.md)
 - **Landing pages** — local (ZIP and the built-in editor), external, preload, action, PHP; the `{offer}` macro, passing the choice made on the landing into `sub_id_N`, time on page. → [Landing pages](landing-pages.md), [Tracking Client (PHP)](tracking-client-php.md)
-- **PWA landing pages and Web Push** — a store-style app builder, a screen funnel, your own subscriber base and push campaigns on your own VAPID keys. → [PWA and Web Push](pwa-push.md), [PWA Funnel](pwa-funnel.md), [Content gallery](content-gallery.md)
+- **PWA landing pages and Web Push** — a store-style app builder with a rich native install sheet (your screenshots inside Chrome's install prompt, a live install-readiness check), a screen funnel, a localized offline page and in-app-browser guidance, your own subscriber base and push campaigns on your own VAPID keys with push-click tracking, per-message CTR, geo/language targeting, banner images and one-tap unsubscribe. → [PWA and Web Push](pwa-push.md), [PWA Funnel](pwa-funnel.md), [Content gallery](content-gallery.md)
 - **Click API** — Keitaro-compatible campaign tokens, `click.php`, Click API v3, `kclient.php`.
 
 ## Conversions and money

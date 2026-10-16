@@ -60,6 +60,56 @@ function orbitraPushSegmentConditionSql(string $segment): string
 }
 
 /**
+ * Parse a comma/space/semicolon list of 2-letter codes into a clean unique
+ * array ("US, de;  ru" → ['us','de','ru']). Anything longer or shorter is
+ * dropped — a stored filter must never become a LIKE injection surface.
+ */
+function orbitraPushCodeList(string $raw): array
+{
+    $out = [];
+    foreach (preg_split('/[\s,;]+/', trim($raw)) ?: [] as $code) {
+        $code = strtolower(trim($code));
+        if (preg_match('/^[a-z]{2}$/', $code) === 1) {
+            $out[$code] = true;
+        }
+    }
+    return array_keys($out);
+}
+
+/**
+ * WHERE fragment for the message's geo/language targeting, appended to the
+ * enqueue SELECTs. Empty lists → no constraint (every subscriber). Country
+ * compares uppercased; language matches on the primary subtag — the stored
+ * value is navigator.language ('en', 'en-US', 'pt-BR'), the operator filters
+ * by a 2-letter code.
+ *
+ * @param array $message push_messages row (countries/languages, csv)
+ * @param array $params  prepared-statement params, appended IN SQL ORDER —
+ *                      callers must place this fragment before the NOT EXISTS
+ *                      clause whose placeholder comes last.
+ */
+function orbitraPushTargetingSql(array $message, array &$params): string
+{
+    $parts = [];
+    $countries = orbitraPushCodeList((string) ($message['countries'] ?? ''));
+    if ($countries !== []) {
+        $parts[] = 'UPPER(COALESCE(ps.country_code, \'\')) IN ('
+            . implode(',', array_fill(0, count($countries), '?')) . ')';
+        foreach ($countries as $country) {
+            $params[] = strtoupper($country);
+        }
+    }
+    $languages = orbitraPushCodeList((string) ($message['languages'] ?? ''));
+    if ($languages !== []) {
+        $parts[] = '(' . implode(' OR ', array_fill(0, count($languages), "LOWER(COALESCE(ps.language, '')) LIKE ?")) . ')';
+        foreach ($languages as $language) {
+            $params[] = $language . '%';
+        }
+    }
+    return $parts === [] ? '' : '              AND ' . implode("\n              AND ", $parts) . "\n";
+}
+
+/**
  * Queue one message for every ACTIVE subscription matching its segment.
  *
  * @param array      $message push_messages row (id, segment, delay_seconds…)
@@ -78,18 +128,20 @@ function orbitraPushEnqueueMessage(PDO $pdo, array $message, ?string $segmentOve
         $segment = 'all';
     }
     $delay = max(0, (int) ($message['delay_seconds'] ?? 0));
+    $params = [$messageId, '+' . $delay . ' seconds'];
 
     $sql = "INSERT INTO push_queue (message_id, subscription_id, run_at, status)
             SELECT ?, ps.id, datetime('now', ?), 'pending'
             " . orbitraPushSegmentJoinSql() . "
             WHERE ps.is_active = 1
               AND " . orbitraPushSegmentConditionSql($segment) . "
-              AND NOT EXISTS (
+" . orbitraPushTargetingSql($message, $params) . "              AND NOT EXISTS (
                   SELECT 1 FROM push_queue q
                   WHERE q.message_id = ? AND q.subscription_id = ps.id
               )";
+    $params[] = $messageId;
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$messageId, '+' . $delay . ' seconds', $messageId]);
+    $stmt->execute($params);
     return $stmt->rowCount();
 }
 
@@ -111,6 +163,7 @@ function orbitraPushEnqueueForSubscriptions(PDO $pdo, array $message, array $sub
         $segment = 'all';
     }
     $delay = max(0, (int) ($message['delay_seconds'] ?? 0));
+    $params = [$messageId, '+' . $delay . ' seconds'];
 
     $in = implode(',', $ids);
     $sql = "INSERT INTO push_queue (message_id, subscription_id, run_at, status)
@@ -119,12 +172,13 @@ function orbitraPushEnqueueForSubscriptions(PDO $pdo, array $message, array $sub
             WHERE ps.id IN ($in)
               AND ps.is_active = 1
               AND " . orbitraPushSegmentConditionSql($segment) . "
-              AND NOT EXISTS (
+" . orbitraPushTargetingSql($message, $params) . "              AND NOT EXISTS (
                   SELECT 1 FROM push_queue q
                   WHERE q.message_id = ? AND q.subscription_id = ps.id
               )";
+    $params[] = $messageId;
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$messageId, '+' . $delay . ' seconds', $messageId]);
+    $stmt->execute($params);
     return $stmt->rowCount();
 }
 

@@ -83,7 +83,7 @@ try {
             SELECT q.id            AS queue_id,
                    q.attempts      AS attempts,
                    m.id            AS message_id,
-                   m.title, m.text, m.icon_url, m.link_url,
+                   m.title, m.text, m.icon_url, m.image_url, m.link_url,
                    s.id            AS sub_id,
                    s.click_id, s.endpoint, s.p256dh, s.auth, s.is_active
             FROM push_queue q

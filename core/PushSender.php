@@ -354,7 +354,7 @@ class PushSender
         $title = PushMacros::expand((string) ($message['title'] ?? ''), $subid);
         $body = PushMacros::expand((string) ($message['text'] ?? ''), $subid);
         $link = PushMacros::expand((string) ($message['link_url'] ?? ''), $subid);
-        $payload = self::buildPayload($message, $subid, $title, $body, $link);
+        $payload = self::buildPayload($message, $subid, $title, $body, $link, (int) ($subscription['id'] ?? 0));
 
         $sub = self::getVapidSub($pdo);
         try {
@@ -413,7 +413,10 @@ class PushSender
      * a network. Macro-expanded title/body/link come in pre-expanded; the tag
      * collapses a series of pushes for the same message into one tray slot
      * (renotify re-alerts on replacement), and data carries the ids the
-     * worker and the SW both read.
+     * worker and the SW both read: message_id + subid attribute a tap to the
+     * delivery and the click row (the SW's pushclick beacon), sid to the
+     * push_sends row. image feeds Chrome Android's rich banner layout; iOS
+     * ignores it without any error.
      *
      * The body is the only free-form part of the JSON, so when the whole
      * payload approaches the aes128gcm plaintext ceiling (encrypt() throws
@@ -421,23 +424,25 @@ class PushSender
      * ellipsis — then the title, then the extras. A send should never die on
      * an oversized text the operator pasted.
      */
-    public static function buildPayload(array $message, string $subid, ?string $title = null, ?string $body = null, ?string $link = null): string
+    public static function buildPayload(array $message, string $subid, ?string $title = null, ?string $body = null, ?string $link = null, int $subscriptionId = 0): string
     {
         $title = $title ?? (string) ($message['title'] ?? '');
         $body = $body ?? (string) ($message['text'] ?? '');
         $link = $link ?? (string) ($message['link_url'] ?? '');
         $icon = (string) ($message['icon_url'] ?? '');
+        $image = (string) ($message['image_url'] ?? '');
         $messageId = (int) ($message['id'] ?? 0);
 
-        $build = static function (string $t, string $b, string $l, string $i) use ($messageId, $subid): string {
+        $build = static function (string $t, string $b, string $l, string $i) use ($messageId, $subid, $subscriptionId, $image): string {
             return json_encode([
                 'title'     => $t,
                 'body'      => $b,
                 'icon'      => $i,
                 'badge'     => $i,
+                'image'     => $image,
                 'tag'       => 'orbitra-m' . $messageId,
                 'renotify'  => true,
-                'data'      => ['url' => $l, 'message_id' => $messageId, 'subid' => $subid],
+                'data'      => ['url' => $l, 'message_id' => $messageId, 'subid' => $subid, 'sid' => $subscriptionId],
             ], JSON_UNESCAPED_UNICODE);
         };
 

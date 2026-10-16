@@ -53,6 +53,21 @@ function cleanupDir(string $dir): void {
     @rmdir($dir);
 }
 
+// Minimal solid-color truecolor PNG, no GD (tests must run where the runtime
+// has no image extension): filter-0 scanlines + zlib IDAT. Just enough image
+// for getimagesize() to read the IHDR the manifest generator trusts.
+function writeSolidPng(string $path, int $w, int $h): void {
+    $scan = "\x00" . str_repeat("\x2a\x6e\x9e", $w);
+    $raw = str_repeat($scan, $h);
+    $chunk = static function (string $type, string $data): string {
+        return pack('N', strlen($data)) . $type . $data . pack('N', crc32($type . $data));
+    };
+    file_put_contents($path, "\x89PNG\r\n\x1a\n"
+        . $chunk('IHDR', pack('NNCCCCC', $w, $h, 8, 2, 0, 0, 0))
+        . $chunk('IDAT', zlib_encode($raw, ZLIB_ENCODING_DEFLATE))
+        . $chunk('IEND', ''));
+}
+
 $repoRoot = dirname(__DIR__);
 $harness = new OrbitraTestHarness($repoRoot);
 $madeDirs = [];
@@ -135,7 +150,12 @@ try {
     assertContains('{subid}', $html, 'index.html keeps {subid} as a serve-time placeholder');
     assertContains('pwa-install-btn', $html, 'index.html renders the install button');
     assertContains('Best app by PlayBest Ltd, download Lucky Spin now', $html, 'description macros resolved at generation time');
-    assertContains('id="pwa-ios"', $html, 'iOS instruction overlay present');
+    assertContains('id="pwa-instr"', $html, 'install-instructions overlay present');
+    assertContains('class="flow-instr-ios"', $html, 'instruction overlay carries the Safari list (ios_flow=instruction)');
+    assertContains('class="flow-instr-android"', $html, 'instruction overlay carries the Android-menu list');
+    assertContains('"instrIos":true', $html, 'cfg exposes instrIos=true for ios_flow=instruction');
+    assertContains('id="pwa-inapp"', $html, 'in-app webview overlay present');
+    assertContains('inAppWebview', $html, 'page JS detects in-app webviews');
     assertNotContains($html, '_token=', 'no click token baked into the static page');
     assertTrue(!strpos($html, 'missing.png'), 'non-existent screen dropped from the strip');
 
@@ -157,6 +177,14 @@ try {
     assertContains("addEventListener('notificationclick'", $sw, 'sw.js handles notificationclick');
     assertContains("addEventListener('pushsubscriptionchange'", $sw, 'sw.js re-subscribes when the browser rotates the subscription');
     assertContains("'{vapid_public}'", $sw, 'sw.js carries the serve-time VAPID token, never a baked key');
+    // Renderer v18: engagement plumbing inside the worker itself.
+    assertContains('kind=pushclick', $sw, 'sw.js beacons push clicks from notificationclick');
+    assertContains('/push_unsubscribe', $sw, 'sw.js wires the tray Unsubscribe action to the ingest');
+    assertContains("action: 'unsub'", $sw, 'notifications carry the unsubscribe action button');
+    assertContains('opts.image = data.image', $sw, 'notifications show the banner image when the payload has one');
+    assertContains('OFFLINE_HTML', $sw, 'sw.js serves a dedicated offline page for failed navigations');
+    assertContains('No connection', $sw, 'the offline page is localized in the landing language (en default)');
+    assertTrue(strpos($sw, "caches.match('./')") === false, 'offline navigations no longer fall back to the stale cached listing');
 
     // The worker OWNS the subscription. The page used to hold subscribe() and
     // then navigate to the offer, which aborted it — no timeout value can win
@@ -224,6 +252,61 @@ try {
     $urlManifest = json_decode((string) file_get_contents($urlDir . '/manifest.webmanifest'), true);
     assertTrue(($urlManifest['icons'][0]['src'] ?? '') === '/uploads/media/ab/abcd1234-icon.png',
         'manifest icon points at the media-library URL');
+    assertTrue(!array_key_exists('screenshots', $urlManifest),
+        'no screenshots declared when no shot file exists on disk (URL does not resolve)');
+
+    // ------------------------------------------------------------------
+    // Renderer v17: rich-install manifest (id/lang/display_override/
+    // description/screenshots) and the instruction-overlay behavior for
+    // browsers without a native prompt.
+    // ------------------------------------------------------------------
+    $richConfig = PwaLanding::normalizeConfig([
+        'pwa' => true,
+        'app_name' => 'Rich Install App',
+        'developer' => 'RichDev Ltd',
+        'description' => 'Rich app by {value1} — play {value} now',
+        'lang' => 'de',
+        'screens' => ['shot-portrait.png', 'shot-tiny.png', 'shot-wide.png', 'https://cdn.example.com/remote.png'],
+        'ios_flow' => 'default',
+    ]);
+    $richSlug = 'pwa-rich-' . bin2hex(random_bytes(4));
+    $pdo->prepare("INSERT INTO landings (name, url, type, state, slug, config_json) VALUES (?, '', 'local', 'active', ?, ?)")
+        ->execute(['Rich Install PWA', $richSlug, json_encode($richConfig, JSON_UNESCAPED_UNICODE)]);
+    $richLandingId = (int) $pdo->lastInsertId();
+    $richDir = orbitraLandingDir($pdo, $richLandingId);
+    $madeDirs[] = $richDir;
+    @mkdir($richDir, 0775, true); // orbitraLandingDir() only resolves; generate() would mkdir too late for the fixtures
+    writeSolidPng($richDir . '/shot-portrait.png', 640, 1136); // narrow, ratio 1.775 — sheet-worthy
+    writeSolidPng($richDir . '/shot-wide.png', 1200, 600);     // wide, ratio 2.0 — sheet-worthy
+    writeSolidPng($richDir . '/shot-tiny.png', 200, 200);      // below Chrome's 320px floor — skipped
+    PwaLanding::generate($pdo, $richLandingId);
+    $richManifest = json_decode((string) file_get_contents($richDir . '/manifest.webmanifest'), true);
+    assertTrue(($richManifest['id'] ?? '') === './', 'manifest declares a stable id');
+    assertTrue(($richManifest['lang'] ?? '') === 'de', 'manifest carries the configured language');
+    assertTrue(in_array('standalone', $richManifest['display_override'] ?? [], true)
+        && in_array('browser', $richManifest['display_override'] ?? [], true), 'manifest declares display_override');
+    assertTrue(($richManifest['description'] ?? '') === 'Rich app by RichDev Ltd — play Rich Install App now',
+        'manifest description resolves the {value} macros like the page copy');
+    $shots = $richManifest['screenshots'] ?? [];
+    $shotSrcs = array_column($shots, 'src');
+    assertTrue(count($shots) === 2
+        && in_array('shot-portrait.png', $shotSrcs, true)
+        && in_array('shot-wide.png', $shotSrcs, true),
+        'manifest screenshots: valid shots declared, undersized and unresolvable ones skipped');
+    $bySrc = [];
+    foreach ($shots as $oneShot) {
+        $bySrc[$oneShot['src']] = $oneShot;
+    }
+    assertTrue(($bySrc['shot-portrait.png']['sizes'] ?? '') === '640x1136'
+        && ($bySrc['shot-portrait.png']['form_factor'] ?? '') === 'narrow', 'portrait shot: real sizes + narrow form factor');
+    assertTrue(($bySrc['shot-wide.png']['sizes'] ?? '') === '1200x600'
+        && ($bySrc['shot-wide.png']['form_factor'] ?? '') === 'wide', 'landscape shot: real sizes + wide form factor');
+    assertTrue(($bySrc['shot-portrait.png']['type'] ?? '') === 'image/png', 'screenshot mime comes from getimagesize');
+    $richHtml = (string) file_get_contents($richDir . '/index.html');
+    assertContains('id="pwa-instr"', $richHtml, 'instructions overlay renders even with ios_flow=default (Android needs it)');
+    assertContains('class="flow-instr-android"', $richHtml, 'Android menu steps present in the overlay');
+    assertNotContains('Open this page in Safari', $richHtml, 'ios_flow=default keeps the Safari list out of the overlay');
+    assertContains('"instrIos":false', $richHtml, 'cfg exposes instrIos=false for ios_flow=default');
 
     // ------------------------------------------------------------------
     // renderPreview: production renderer, neutralized macros, iOS flag.

@@ -169,6 +169,81 @@ try {
     $queue = json_decode($get('push_queue_list', $admin)['body'], true);
     assertTrue(($queue['data']['pending'] ?? 0) === 4, 'push_queue_list counts the pending rows');
 
+    // --- renderer v60: payload carries image + delivery attribution ids -----
+    require_once $repoRoot . '/core/PushSender.php';
+    $payloadRow = ['id' => 7, 'title' => 'T', 'text' => 'B', 'icon_url' => 'https://i/icon.png',
+                   'image_url' => 'https://i/banner.png', 'link_url' => 'https://l/?s={subid}'];
+    $payload = json_decode(PushSender::buildPayload($payloadRow, 'pc-1', 'T', 'B', 'https://l/?s=pc-1', 42), true);
+    assertTrue(($payload['image'] ?? '') === 'https://i/banner.png', 'payload carries the banner image for Android');
+    assertTrue(($payload['data']['sid'] ?? 0) === 42 && ($payload['data']['message_id'] ?? 0) === 7
+        && ($payload['data']['subid'] ?? '') === 'pc-1', 'payload data carries subid + message_id + sid for click attribution');
+
+    // --- geo/language targeting on save + enqueue ----------------------------
+    $msgGeo = $post('push_message_save', $admin, [
+        'title' => 'Geo', 'text' => 'B', 'segment' => 'all', 'active' => 1,
+        'image_url' => 'https://i/banner.png',
+        'countries' => 'us, XX9',   // junk entry must be dropped → 'us' (the DE subscriber stays excluded)
+        'languages' => 'en, es',
+    ]);
+    $geoRow = json_decode($msgGeo['body'], true)['data']['row'];
+    assertTrue(($geoRow['countries'] ?? '') === 'us' && ($geoRow['languages'] ?? '') === 'en,es'
+        && ($geoRow['image_url'] ?? '') === 'https://i/banner.png', 'save normalizes country/language lists and stores the banner');
+    $msgGeoId = (int) $geoRow['id'];
+    // Two fresh subscribers: US+en-US matches; DE+en does NOT (country out).
+    foreach ([['geo-us', 'US', 'en-US'], ['geo-de', 'DE', 'en-US']] as [$gcid, $gcountry, $glang]) {
+        $pdo->prepare("INSERT OR IGNORE INTO clicks (id, campaign_id, ip, user_agent) VALUES (?, ?, '1.2.3.4', 'UA')")
+            ->execute([$gcid, $campaignId]);
+        $pdo->prepare("INSERT INTO push_subscriptions (click_id, endpoint, p256dh, auth, is_active, country_code, language)
+                       VALUES (?, ?, 'k', 'a', 1, ?, ?)")
+            ->execute([$gcid, 'https://ep/' . $gcid . '/' . bin2hex(random_bytes(3)), $gcountry, $glang]);
+    }
+    $sendGeo = $post('push_send_now', $admin, ['message_id' => $msgGeoId]);
+    assertTrue((json_decode($sendGeo['body'], true)['data']['enqueued'] ?? -1) === 1,
+        'geo/language targeting enqueues only the US+en subscriber (DE country out, prefix language match in)');
+
+    // --- push clicks: pixel kind=pushclick + push_sends.clicked_at ------------
+    $pdo->prepare("INSERT OR IGNORE INTO clicks (id, campaign_id, ip, user_agent) VALUES ('pc-1', ?, '1.2.3.4', 'UA')")
+        ->execute([$campaignId]);
+    $pcEndpoint = 'https://ep/pc-1/' . bin2hex(random_bytes(3));
+    $pdo->prepare("INSERT INTO push_subscriptions (click_id, endpoint, p256dh, auth, is_active, country_code, language)
+                   VALUES ('pc-1', ?, 'k', 'a', 1, 'US', 'en-US')")
+        ->execute([$pcEndpoint]);
+    $pcSubId = (int) $pdo->lastInsertId();
+    $pdo->prepare("INSERT INTO push_sends (message_id, subscription_id, ok, response_code) VALUES (?, ?, 1, 201)")
+        ->execute([$msgGeoId, $pcSubId]);
+    $pixel = static function (string $qs) use ($harness) {
+        return $harness->getWithHeaders('/pixel.gif?' . $qs);
+    };
+    $pixel("action=pwa&kind=pushclick&subid=pc-1&sid=$pcSubId&mid=$msgGeoId");
+    $pixel("action=pwa&kind=pushclick&subid=pc-1&sid=$pcSubId&mid=$msgGeoId");
+    $pcClick = $pdo->query("SELECT push_clicks, push_click_at FROM clicks WHERE id = 'pc-1'")->fetch(PDO::FETCH_ASSOC);
+    assertTrue((int) ($pcClick['push_clicks'] ?? 0) === 1 && !empty($pcClick['push_click_at']),
+        'pushclick beacons count once (10-minute throttle) and stamp push_click_at');
+    assertTrue((int) $pdo->query("SELECT COUNT(*) FROM push_sends WHERE message_id = $msgGeoId AND subscription_id = $pcSubId AND clicked_at IS NOT NULL")->fetchColumn() === 1,
+        'pushclick attributes the tap to the delivery (push_sends.clicked_at)');
+    // clicked shows up in the message stats the panel table renders.
+    $listGeo = json_decode($get('push_messages', $admin)['body'], true);
+    $geoListRow = null;
+    foreach (($listGeo['data']['rows'] ?? []) as $row) {
+        if ((int) $row['id'] === $msgGeoId) { $geoListRow = $row; }
+    }
+    assertTrue($geoListRow !== null && (int) ($geoListRow['clicked'] ?? -1) === 1, 'push_messages list carries the clicked counter');
+
+    // --- unsubscribe: POST /push_unsubscribe + the public page ----------------
+    $unsub = $harness->postWithHeaders('/push_unsubscribe', json_encode(['endpoint' => $pcEndpoint]), ['Content-Type: application/json']);
+    assertTrue(($unsub['code'] ?? 0) === 200, '/push_unsubscribe answers 200 for a known endpoint');
+    assertTrue((int) $pdo->query("SELECT is_active FROM push_subscriptions WHERE id = $pcSubId")->fetchColumn() === 0,
+        '/push_unsubscribe deactivates the subscriber');
+    $unsubAgain = $harness->postWithHeaders('/push_unsubscribe', json_encode(['endpoint' => $pcEndpoint]), ['Content-Type: application/json']);
+    assertTrue(($unsubAgain['code'] ?? 0) === 200, '/push_unsubscribe is idempotent');
+    $unsubBad = $harness->postWithHeaders('/push_unsubscribe', json_encode(['endpoint' => 'http://insecure']), ['Content-Type: application/json']);
+    assertTrue(($unsubBad['code'] ?? 0) === 400, '/push_unsubscribe rejects a non-https endpoint');
+    $unsubPage = $harness->getWithHeaders('/push-unsubscribe?endpoint=' . urlencode($pcEndpoint));
+    assertTrue(($unsubPage['code'] ?? 0) === 200 && strpos((string) $unsubPage['body'], '<!DOCTYPE html>') === 0,
+        '/push-unsubscribe page renders standalone HTML');
+    assertTrue(strpos((string) $unsubPage['body'], 'fetch("/push_unsubscribe"') !== false,
+        'the page deactivates via POST behind the button, never on a prefetched GET');
+
     // --- delete ----------------------------------------------------------------
     $del = $post('push_message_delete', $admin, ['id' => $msgId]);
     assertTrue(($del['code'] ?? 0) === 200 && (int) $pdo->query("SELECT COUNT(*) FROM push_messages WHERE id = $msgId")->fetchColumn() === 0,

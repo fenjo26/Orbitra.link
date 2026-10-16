@@ -1,4 +1,4 @@
-# Orbitra v1.6.20 Tracker
+# Orbitra v1.7.0 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,25 +11,25 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.6.20
+## 🆕 What's New in v1.7.0
 
-Integrations, reviewed end to end: the Back Button Trap and the Geo / App Config scripts work, and every code card fills itself in.
+PWA landings and push, upgraded end to end: a rich native install sheet, push-click tracking, targeting, and one-tap unsubscribe.
+
+### Added
+
+- 📱 **Rich native install sheet** — Chrome (Android 94+, desktop 105+) shows a store-like install card with your screenshots and description; the builder's new **Install readiness** card shows live what the sheet will look like (icon, description, screenshot sizes, push keys, domain), and existing landings pick it up without a re-save
+- 🔔 **Push clicks are tracked** — a tap on a notification counts on the click row and on the delivery; the Messages tab gets a **Push clicks** column with CTR, and the funnel totals include push clicks
+- 🌍 **Geo and language targeting for push messages** — comma lists of countries and browser languages (`en` matches `en-US`); applies to "Send now" and to event-triggered sends
+- 🖼 **Banner image on notifications** (Android; iOS ignores it) and a localized **Unsubscribe** button on every notification, backed by a public idempotent endpoint plus a standalone `/push-unsubscribe` page
+- 📴 **A real offline page** in the installed app — a localized "No connection" card with Retry, instead of a stale cached listing
+- 🧭 **In-app browsers get guidance** — Instagram/TikTok/Facebook webview visitors see a dismissible "open in your browser" card instead of a dead Install button
 
 ### Fixed
 
-- 🌍 **Geo Redirect, WordPress, Static site and App Config work for real visitors** — their public endpoints answered 401 to anyone not logged into the panel
-- ↩️ **Back Button Trap actually traps** — the Integrations page shipped a stale snippet that never fired; it now uses the same generator as the campaign editor
-- ↩️ **Armed by the visitor's first click or tap** — browsers ignore history traps set before the visitor touched the page; the snippet arms at the right moment, and a second Back leaves normally
-- ↩️ **One return = one click** — no more background request plus a campaign click; returns are tagged `sub1=back_button`, and an empty trap URL means this campaign's own link
-- 🖤 **Integration code is readable again** — no more light highlight behind every line of the code editor
+- 🤖 Android Firefox/Opera showed **Safari** install instructions — the overlay now carries both platform lists and shows the right one
+- 📨 `/push_subscribe` answered an **empty 200** on router.php deployments — single-segment public paths were swallowed by the campaign-alias branch (the /crm-ingest bug class)
 
-### Changed
-
-- 🧩 **All integration code fills itself in** — pick a campaign (or App Config) and the token, id and the campaign's https domain go into the code; no placeholders, no bare http://IP
-- 📝 **Clear descriptions on every card** — what it does and where it goes: your site, a landing on your hosting or one uploaded to Orbitra; subtitles and statuses translated into all languages
-- 🧩 **Widgets fill themselves in** — Countdown, Back Button Trap, Exit popup and Geo / Device redirects start with a campaign picker and three plain steps: choose, copy, paste
-
-Older releases (v1.6.19 and earlier): see the [full changelog](CHANGELOG.md).
+Older releases (v1.6.20 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo

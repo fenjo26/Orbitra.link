@@ -117,9 +117,14 @@ elseif ($uri === '/click_api/v3' || $uri === '/click_api/v3/') {
 }
 // LeadForge bridge + CRM ingest: the generated order.php / thank_you.php run
 // inside index.php's in-process route (steered by the orbitra_lp / orbitra_lo
-// cookies), and /crm-ingest is index.php's public POST endpoint. Without this
-// the single-segment alias branch below swallows both and answers empty 200s.
-elseif (preg_match('#^/(order|thank_you)\.php$#', $uri) || $uri === '/crm-ingest') {
+// cookies), and /crm-ingest is index.php's public POST endpoint. The push
+// endpoints (/push_subscribe, /push_unsubscribe, /push-unsubscribe) are the
+// same kind of public index.php route — without this, the single-segment
+// alias branch below swallows them and answers empty 200s (the trap /crm-ingest
+// already documented; nginx deployments never see it because they route
+// everything to index.php directly, Apache/router.php ones do).
+elseif (preg_match('#^/(order|thank_you)\.php$#', $uri)
+    || in_array($uri, ['/crm-ingest', '/push_subscribe', '/push_unsubscribe', '/push-unsubscribe'], true)) {
     include 'index.php';
     exit;
 }

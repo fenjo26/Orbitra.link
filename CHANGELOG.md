@@ -7,6 +7,23 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.7.0] — 2026-10-16
+
+### Added
+
+- 📱 **Rich native install sheet for PWA landings.** The manifest now carries screenshots, a description, `id`, `lang` and `display_override` (renderer v17), so Chrome on Android (94+) and desktop (105+) shows a store-like install card with your screenshots instead of a bare icon-and-name prompt. Screenshots already in the builder are used as-is — every screenshot that passes Chrome's constraints (each side 320–3840px, side ratio ≤ 2.3) is declared, and existing landings regenerate their statics on the next view, no re-save needed. The builder's new **Install readiness** card shows live what the sheet will look like: icon, description, screenshot sizes (measured in the browser under the same rules the generator enforces), push keys and the bound domain.
+- 🔔 **Push clicks are tracked, so push ROI is finally visible.** Tapping a notification beacons `kind=pushclick` from the service worker before the navigation leaves: the click row gains `push_clicks` + `push_click_at` (throttled to one count per 10 minutes, like reopen counting), the delivery row records `push_sends.clicked_at`, the Messages tab shows a **Push clicks** column with the click-through percentage, and the PWA funnel totals include the landing's push clicks. The `clicks.push_clicks` column had existed since migration 46 with nothing ever writing it.
+- 🌍 **Geo and language targeting for push messages.** A message can be limited to comma lists of countries (ISO codes, matched against the subscriber's geo) and browser languages (2-letter codes matched by primary subtag — `en` matches a subscriber stored as `en-US`). Junk entries are dropped on save, never stored, and the filter applies both to "Send now" and to event-triggered sends.
+- 🖼 **Banner image on notifications** — one field in the message form; Android Chrome shows it as a large picture, iOS ignores it silently.
+- 🚪 **One-tap unsubscribe.** Every notification carries a localized "Unsubscribe" action button (baked into the landing's SW; iOS ignores actions — tapping the notification there still opens). It POSTs the browser's endpoint to the public idempotent `/push_unsubscribe` ingest, which sets `is_active = 0` — the keys stay, so the panel can re-activate. There is also a standalone public page `/push-unsubscribe?endpoint=…` (7 languages, Accept-Language aware): the deactivation sits behind a POST button, so a prefetched link never unsubscribes anyone.
+- 📴 **A real offline page in the installed app.** Failed navigations serve a localized "No connection" card with a Retry button (renderer v18) instead of the stale cached store listing — the cached listing beaconed an outdated click id into the funnel and its CTA cannot work offline anyway.
+- 🧭 **In-app browsers get guidance instead of a dead button.** Instagram, Facebook, TikTok and generic WebView visitors (and iOS WKWebView outside Safari) see a dismissible "open this page in your browser" card in the landing's own language; the funnel underneath keeps running — beacons and auto-redirect stay live for operators who prefer to send the visitor on.
+
+### Fixed
+
+- 🤖 **Android Firefox/Opera showed Safari install instructions.** Browsers without a native install prompt fell through to the iOS-only overlay — and with `ios_flow = default` the Install button did nothing at all there. The instructions overlay now carries both platform lists (CSS keyed on the UA sniff picks the right one), and `ios_flow` governs only the iOS list, as documented.
+- 📨 **`/push_subscribe` answered an empty 200 through router.php** (Apache-style deployments): single-segment public paths were swallowed by the campaign-alias branch — the same class of bug `/crm-ingest` already documented. The push endpoints (`/push_subscribe`, `/push_unsubscribe`, `/push-unsubscribe`) now bypass the alias branch explicitly.
+
 ## [1.6.20] — 2026-10-16
 
 ### Fixed

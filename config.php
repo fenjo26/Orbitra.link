@@ -97,7 +97,11 @@ try {
     //      activity. Written only by /pixel.gif?action=lp beacons.
     // 59 = clicks.domain: the tracker host a click arrived on (Keitaro's
     //      "Domain"). NULL for clicks logged before it and for the Click API.
-    $LATEST_SCHEMA_VERSION = 59;
+    // 60 = push engagement: push_messages.image_url (Android rich banner) +
+    //      countries/languages targeting; push_sends.clicked_at (first tap per
+    //      delivery); clicks.push_click_at throttles the pushclick counter
+    //      (push_clicks itself has existed since migration 46, unwritten).
+    $LATEST_SCHEMA_VERSION = 60;
 
     $schemaVersion = 0;
     try {
@@ -2828,6 +2832,33 @@ try {
                     $pdo->exec("ALTER TABLE clicks ADD COLUMN domain TEXT");
                 } catch (\Throwable $e) {
                     // Column already present on a half-migrated DB.
+                }
+            }
+
+            if ($schemaVersion < 60) {
+                // Migration 60: push engagement. push_messages gains a banner
+                // image (Chrome Android's rich notification layout) and
+                // geo/language targeting — comma lists matched against
+                // push_subscriptions at enqueue time (core/PushQueue.php).
+                // push_sends.clicked_at records the first tap on a delivery so
+                // per-message CTR is one JOIN. clicks.push_click_at is the
+                // throttle/dedup timestamp behind the pixel's pushclick kind
+                // (same 10-minute window as pwa_open_at); the push_clicks
+                // counter column itself has existed since migration 46 with
+                // no writer — the writer arrives with the SW beacon.
+                $alters60 = [
+                    "ALTER TABLE push_messages ADD COLUMN image_url TEXT",
+                    "ALTER TABLE push_messages ADD COLUMN countries TEXT",
+                    "ALTER TABLE push_messages ADD COLUMN languages TEXT",
+                    "ALTER TABLE push_sends ADD COLUMN clicked_at DATETIME",
+                    "ALTER TABLE clicks ADD COLUMN push_click_at TEXT",
+                ];
+                foreach ($alters60 as $sql60) {
+                    try {
+                        $pdo->exec($sql60);
+                    } catch (\Throwable $e) {
+                        // Column already present on a half-migrated DB.
+                    }
                 }
             }
 

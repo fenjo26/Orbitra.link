@@ -76,6 +76,7 @@ export default function PwaFunnelCard({ landingId, landingName, onClose }) {
                                     { label: t('pwa.funnelCardInstalls'), value: data.totals?.installs },
                                     { label: t('pwa.funnelCardOfferClicks'), value: data.totals?.offer_clicks },
                                     { label: t('pwa.funnelCardPushSubs'), value: data.totals?.push_subs },
+                                    { label: t('pwa.funnelCardPushClicks'), value: data.totals?.push_clicks },
                                 ].map((card) => (
                                     <div
                                         key={card.label}

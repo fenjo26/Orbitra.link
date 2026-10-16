@@ -34,7 +34,7 @@ class PwaLanding
      * page; the lander route regenerates stale statics on the next view, so
      * renderer upgrades reach already-created PWA landings without a re-save.
      */
-    public const RENDERER_VERSION = 16;
+    public const RENDERER_VERSION = 18;
 
     /** Keys the constructor is allowed to persist; everything else is dropped. */
     private static function configKeys(): array
@@ -368,8 +368,8 @@ class PwaLanding
 
         $files = [
             'index.html'           => self::renderIndex($config, $landingId),
-            'manifest.webmanifest' => self::renderManifest($config),
-            'sw.js'                => self::renderSw($landingId),
+            'manifest.webmanifest' => self::renderManifest($config, $dir),
+            'sw.js'                => self::renderSw($landingId, $config),
         ];
         foreach ($files as $name => $content) {
             if (@file_put_contents($dir . '/' . $name, $content) === false) {
@@ -497,10 +497,65 @@ class PwaLanding
         return str_ends_with(strtolower($src), '.webp') ? 'image/webp' : 'image/png';
     }
 
-    private static function renderManifest(array $c): string
+    /**
+     * Manifest screenshots for Chrome's rich install sheet. The store strip's
+     * shot list is reused: every entry that resolves to a readable local file
+     * (a relative name inside the landing dir, or a web-root path such as
+     * /uploads/media/... or /assets/pwa-presets/...) and passes Chrome's sheet
+     * constraints is declared; everything else is skipped so one bad shot
+     * cannot knock the whole sheet back to the plain prompt.
+     */
+    private static function manifestScreenshots(array $c, string $dir): array
+    {
+        $root = dirname(__DIR__);
+        $out = [];
+        foreach ($c['screens'] as $src) {
+            if (!is_string($src) || $src === '' || preg_match('#^[a-z][a-z0-9+.-]*://#i', $src) === 1) {
+                continue;
+            }
+            $path = null;
+            if ($src[0] === '/') {
+                $norm = (string) preg_replace('#/+#', '/', $src);
+                if (strpos($norm, '/../') !== false || strpos($norm, '/./') !== false) {
+                    continue;
+                }
+                if (is_file($root . $norm)) {
+                    $path = $root . $norm;
+                }
+            } elseif (is_file($dir . '/' . $src)) {
+                $path = $dir . '/' . $src;
+            }
+            if ($path === null) {
+                continue;
+            }
+            // getimagesize() reads the header only and needs no GD — the same
+            // gate the media library upload already trusts.
+            $info = @getimagesize($path);
+            if (!is_array($info) || (int) ($info[0] ?? 0) < 1 || (int) ($info[1] ?? 0) < 1) {
+                continue;
+            }
+            $w = (int) $info[0];
+            $h = (int) $info[1];
+            // Chrome's rich-install constraints: every side 320..3840px and
+            // the longer side at most 2.3x the shorter.
+            if ($w < 320 || $h < 320 || $w > 3840 || $h > 3840 || max($w, $h) > 2.3 * min($w, $h)) {
+                continue;
+            }
+            $out[] = [
+                'src'         => $src,
+                'sizes'       => $w . 'x' . $h,
+                'type'        => (string) ($info['mime'] ?? 'image/png'),
+                'form_factor' => $h >= $w ? 'narrow' : 'wide',
+            ];
+        }
+        return $out;
+    }
+
+    private static function renderManifest(array $c, string $dir): string
     {
         $scheme = self::colorSchemes()[$c['color_scheme']] ?? '#01875f';
         $bg = $c['theme_mode'] === 'dark' ? '#0f1114' : '#ffffff';
+        $appName = $c['app_name'] !== '' ? $c['app_name'] : 'App';
         $icons = [];
         $iconSrc = self::iconSrc($c);
         if ($iconSrc !== '') {
@@ -532,27 +587,70 @@ class PwaLanding
                 ],
             ];
         }
+        // id + display_override + screenshots + description feed Chrome's rich
+        // install sheet (Android 94+, desktop 105+): with them the native
+        // prompt becomes a store-like card with shots and copy instead of a
+        // bare icon+name line. The description macros resolve exactly like
+        // the page copy so the two can never disagree.
         $manifest = [
-            'name'             => $c['app_name'] !== '' ? $c['app_name'] : 'App',
-            'short_name'       => mb_substr($c['app_name'] !== '' ? $c['app_name'] : 'App', 0, 12),
+            'id'               => './',
+            'name'             => $appName,
+            'short_name'       => mb_substr($appName, 0, 12),
+            'lang'             => $c['lang'],
             'start_url'        => './',
             'scope'            => './',
             'display'          => 'standalone',
+            'display_override' => ['standalone', 'minimal-ui', 'browser'],
             'orientation'      => 'portrait',
             'background_color' => $bg,
             'theme_color'      => $scheme,
             'icons'            => $icons,
         ];
+        $description = str_replace(
+            ['{value}', '{value1}', '{value2}'],
+            [$appName, $c['developer'], $c['developer']],
+            (string) $c['description']
+        );
+        if ($description !== '') {
+            $manifest['description'] = $description;
+        }
+        $screenshots = self::manifestScreenshots($c, $dir);
+        if ($screenshots !== []) {
+            $manifest['screenshots'] = $screenshots;
+        }
         return json_encode($manifest, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n";
     }
 
-    private static function renderSw(int $landingId): string
+    private static function renderSw(int $landingId, array $c = []): string
     {
         $cache = 'orbitra-pwa-' . (int) $landingId . '-v' . time();
+        // The SW is generated per landing, so visitor-facing strings can be
+        // baked in the landing's own language at render time — same dict the
+        // store page uses. Defaults keep a hand-called renderSw() (tests)
+        // self-sufficient.
+        $dict = self::langDict();
+        $lang = isset($c['lang'], $dict[$c['lang']]) ? $c['lang'] : 'en';
+        $t = $dict[$lang];
+        $scheme = self::colorSchemes()[$c['color_scheme'] ?? 'green'] ?? '#01875f';
+        $offlineHtml = '<!DOCTYPE html><html lang="' . self::esc($lang) . '"><head><meta charset="UTF-8">'
+            . '<meta name="viewport" content="width=device-width, initial-scale=1">'
+            . '<title>' . self::esc($t['offline_title']) . '</title>'
+            . '<style>body{margin:0;font-family:Roboto,-apple-system,\'Segoe UI\',Arial,sans-serif;background:#0d1117;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center}'
+            . '.o-card{padding:32px 24px;max-width:340px}.o-card h1{font-size:18px;margin:0 0 8px;font-weight:600}'
+            . '.o-card p{font-size:14px;line-height:1.5;color:rgba(255,255,255,.65);margin:0 0 20px}'
+            . '.o-card button{background:' . self::esc($scheme) . ';color:#fff;border:none;border-radius:22px;padding:12px 32px;font-size:15px;font-weight:500;cursor:pointer}</style>'
+            . '</head><body><div class="o-card"><h1>' . self::esc($t['offline_title']) . '</h1>'
+            . '<p>' . self::esc($t['offline_text']) . '</p>'
+            . '<button type="button" onclick="location.reload()">' . self::esc($t['offline_retry']) . '</button>'
+            . '</div></body></html>';
         $sw = <<<'SW'
 // Generated by Orbitra. Scope = this landing's own directory (the script's
 // folder), so it never controls the admin panel or a sibling landing.
 var CACHE = '__CACHE__';
+var OFFLINE_HTML = __OFFLINE_HTML__;
+var UNSUB = __UNSUB__;
+var UNSUBED = __UNSUBED__;
+var UNSUBED_TEXT = __UNSUBED_TEXT__;
 self.addEventListener('install', function (e) { self.skipWaiting(); });
 self.addEventListener('activate', function (e) {
     e.waitUntil(clients.claim().then(function () {
@@ -578,9 +676,12 @@ self.addEventListener('fetch', function (e) {
     var accepts = req.headers.get('accept') || '';
     if (req.mode === 'navigate' || accepts.indexOf('text/html') !== -1) {
         // Navigations always go to the network: the served HTML carries the
-        // fresh click macros ({subid}/{lp_url}). Offline falls back to cache.
+        // fresh click macros ({subid}/{lp_url}). Offline serves a dedicated
+        // page, NOT the cached listing — a stale listing would beacon a stale
+        // subid into the funnel and its CTA dies on the next redirect anyway;
+        // the page's Retry button reloads the moment the network returns.
         e.respondWith(fetch(req).catch(function () {
-            return caches.match(req).then(function (hit) { return hit || caches.match('./'); });
+            return new Response(OFFLINE_HTML, { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
         }));
         return;
     }
@@ -599,33 +700,77 @@ self.addEventListener('fetch', function (e) {
 // The worker MUST own a push listener or the browser discards every message
 // the sender delivers — a subscription without this handler receives pushes
 // that are never displayed. Payload shape = core/PushSender.php:
-// { title, body, icon, data: { url } }.
+// { title, body, icon, image, tag, renotify, data: { url, message_id, subid, sid } }.
 self.addEventListener('push', function (e) {
     var data = {};
     try { data = e.data ? e.data.json() : {}; } catch (err) { data = {}; }
+    var d = (data && data.data) || {};
     var opts = {
         body: data.body || '',
         tag: data.tag || 'orbitra',
-        data: { url: (data.data && data.data.url) || './' }
+        renotify: true,
+        // data passthrough: the click handler beacons kind=pushclick with
+        // these ids so a tap lands on the click row AND the push_sends row.
+        data: {
+            url: d.url || './',
+            subid: d.subid || '',
+            mid: d.message_id || 0,
+            sid: d.sid || 0
+        },
+        // The tray's unsubscribe shortcut. iOS ignores actions (tapping the
+        // notification itself still opens); Android Chrome shows the button.
+        actions: [{ action: 'unsub', title: UNSUB }]
     };
     if (data.icon) opts.icon = data.icon;
+    if (data.image) opts.image = data.image;
     e.waitUntil(self.registration.showNotification(data.title || '', opts));
 });
 self.addEventListener('notificationclick', function (e) {
+    var d = e.notification.data || {};
     e.notification.close();
-    var url = (e.notification.data && e.notification.data.url) || './';
-    e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
-        for (var i = 0; i < list.length; i++) {
-            var client = list[i];
-            if ('focus' in client) {
-                client.focus();
-                if (url && url !== './' && 'navigate' in client) {
-                    try { client.navigate(url); } catch (err) {}
+    if (e.action === 'unsub') {
+        // "Unsubscribe" in the tray: deactivate THIS browser's subscription
+        // server-side (idempotent — the endpoint is the key), then confirm
+        // with one quiet notification. No navigation: the visitor stays
+        // wherever they are.
+        e.waitUntil(self.registration.pushManager.getSubscription().then(function (sub) {
+            if (!sub) return null;
+            return fetch('/push_unsubscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ endpoint: sub.endpoint })
+            });
+        }).then(function (res) {
+            if (!res || !res.ok) return null;
+            return self.registration.showNotification(UNSUBED, { body: UNSUBED_TEXT, tag: 'orbitra-unsub' });
+        }).catch(function () {}));
+        return;
+    }
+    var url = d.url || './';
+    // A tap on the notification = a push click. The beacon rides ahead of the
+    // focus/open so it always leaves the browser (waitUntil), and the server
+    // throttles to one count per 10 minutes per click — a notification the
+    // visitor keeps reopening must not pump the counter.
+    var ping = d.subid
+        ? fetch('/pixel.gif?action=pwa&kind=pushclick&subid=' + encodeURIComponent(d.subid)
+            + '&mid=' + encodeURIComponent(d.mid || 0)
+            + '&sid=' + encodeURIComponent(d.sid || 0)
+            + '&_=' + Date.now(), { credentials: 'omit' }).catch(function () {})
+        : Promise.resolve();
+    e.waitUntil(ping.then(function () {
+        return self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
+            for (var i = 0; i < list.length; i++) {
+                var client = list[i];
+                if ('focus' in client) {
+                    client.focus();
+                    if (url && url !== './' && 'navigate' in client) {
+                        try { client.navigate(url); } catch (err) {}
+                    }
+                    return;
                 }
-                return;
             }
-        }
-        return self.clients.openWindow(url);
+            return self.clients.openWindow(url);
+        });
     }));
 });
 // ---------------------------------------------------------------------------
@@ -721,7 +866,17 @@ self.addEventListener('pushsubscriptionchange', function (e) {
     e.waitUntil(orbitraSubscribe('', ''));
 });
 SW;
-        return str_replace('__CACHE__', $cache, $sw);
+        return str_replace(
+            ['__CACHE__', '__OFFLINE_HTML__', '__UNSUB__', '__UNSUBED__', '__UNSUBED_TEXT__'],
+            [
+                $cache,
+                json_encode($offlineHtml, JSON_UNESCAPED_UNICODE),
+                json_encode($t['unsub'], JSON_UNESCAPED_UNICODE),
+                json_encode($t['unsubed_title'], JSON_UNESCAPED_UNICODE),
+                json_encode($t['unsubed_text'], JSON_UNESCAPED_UNICODE),
+            ],
+            $sw
+        );
     }
 
     /**
@@ -734,6 +889,10 @@ SW;
                 0 => 'Install the app', 1 => 'Open this page in Safari', 2 => 'Tap the Share button', 3 => "Tap 'Add to Home Screen'", 4 => 'Launch the app from your home screen', 5 => 'Installing…', 6 => 'Close',
                 7 => 'Open the browser menu', 8 => 'Tap "Add to Home screen"', 9 => 'Confirm to install',
                 'push_title' => 'Enable notifications', 'push_text' => 'Get bonuses and updates right on your phone', 'push_allow' => 'Allow', 'push_later' => 'Not now',
+                'inapp_title' => 'Open this page in your browser', 'inapp_text' => 'Apps can’t be installed from inside this app. Open the link in your browser and tap Install.',
+                'inapp_step_ios' => 'Tap the ⋯ button and choose “Open in Safari”', 'inapp_step_android' => 'Tap the ⋮ menu and choose “Open in Chrome”',
+                'offline_title' => 'No connection', 'offline_text' => 'This app needs the internet. Check your connection and try again.', 'offline_retry' => 'Retry',
+                'unsub' => 'Unsubscribe', 'unsubed_title' => 'Notifications off', 'unsubed_text' => 'You will no longer receive notifications from this app.',
                 'get' => 'GET', 'in_app_purchases' => 'In-App Purchases', 'ratings_reviews' => 'Ratings & Reviews', 'see_all' => 'See All',
                 'whats_new' => "What's New", 'version_history' => 'Version History', 'version' => 'Version', 'preview' => 'Preview',
                 'information' => 'Information', 'provider' => 'Provider', 'size' => 'Size', 'category' => 'Category',
@@ -746,6 +905,10 @@ SW;
                 0 => 'Установите приложение', 1 => 'Откройте страницу в Safari', 2 => 'Нажмите кнопку «Поделиться»', 3 => 'Выберите «На экран “Домой”»', 4 => 'Запустите приложение с домашнего экрана', 5 => 'Установка…', 6 => 'Закрыть',
                 7 => 'Откройте меню браузера', 8 => 'Нажмите «На экран “Домой”»', 9 => 'Подтвердите установку',
                 'push_title' => 'Включите уведомления', 'push_text' => 'Получайте бонусы и обновления прямо на телефон', 'push_allow' => 'Разрешить', 'push_later' => 'Не сейчас',
+                'inapp_title' => 'Откройте страницу в браузере', 'inapp_text' => 'Установить приложение внутри этого приложения нельзя. Откройте ссылку в браузере и нажмите «Установить».',
+                'inapp_step_ios' => 'Нажмите ⋯ и выберите «Открыть в Safari»', 'inapp_step_android' => 'Нажмите меню ⋮ и выберите «Открыть в Chrome»',
+                'offline_title' => 'Нет соединения', 'offline_text' => 'Приложению нужен интернет. Проверьте соединение и попробуйте снова.', 'offline_retry' => 'Повторить',
+                'unsub' => 'Отписаться', 'unsubed_title' => 'Уведомления отключены', 'unsubed_text' => 'Вы больше не будете получать уведомления от этого приложения.',
                 'get' => 'ЗАГРУЗИТЬ', 'in_app_purchases' => 'Встроенные покупки', 'ratings_reviews' => 'Оценки и отзывы', 'see_all' => 'См. все',
                 'whats_new' => 'Что нового', 'version_history' => 'История версий', 'version' => 'Версия', 'preview' => 'Предпросмотр',
                 'information' => 'Информация', 'provider' => 'Продавец', 'size' => 'Размер', 'category' => 'Категория',
@@ -758,6 +921,10 @@ SW;
                 0 => 'Встановіть застосунок', 1 => 'Відкрийте сторінку в Safari', 2 => 'Натисніть кнопку «Поділитися»', 3 => 'Виберіть «На екран “Додому”»', 4 => 'Запустіть застосунок з головного екрана', 5 => 'Встановлення…', 6 => 'Закрити',
                 7 => 'Відкрийте меню браузера', 8 => 'Натисніть «На екран “Додому”»', 9 => 'Підтвердьте встановлення',
                 'push_title' => 'Увімкніть повідомлення', 'push_text' => 'Отримуйте бонуси та новини прямо на телефон', 'push_allow' => 'Дозволити', 'push_later' => 'Не зараз',
+                'inapp_title' => 'Відкрийте сторінку в браузері', 'inapp_text' => 'Встановити застосунок усередині цього застосунку неможливо. Відкрийте посилання у браузері та натисніть «Встановити».',
+                'inapp_step_ios' => 'Натисніть ⋯ і виберіть «Відкрити в Safari»', 'inapp_step_android' => 'Натисніть меню ⋮ і виберіть «Відкрити в Chrome»',
+                'offline_title' => 'Немає з’єднання', 'offline_text' => 'Застосунку потрібен інтернет. Перевірте з’єднання та спробуйте ще раз.', 'offline_retry' => 'Повторити',
+                'unsub' => 'Відписатися', 'unsubed_title' => 'Сповіщення вимкнено', 'unsubed_text' => 'Ви більше не отримуватимете сповіщення від цього застосунку.',
                 'get' => 'ОТРИМАТИ', 'in_app_purchases' => 'Вбудовані покупки', 'ratings_reviews' => 'Оцінки та відгуки', 'see_all' => 'Див. всі',
                 'whats_new' => 'Що нового', 'version_history' => 'Історія версій', 'version' => 'Версія', 'preview' => 'Попередній перегляд',
                 'information' => 'Інформація', 'provider' => 'Розробник', 'size' => 'Розмір', 'category' => 'Категорія',
@@ -770,6 +937,10 @@ SW;
                 0 => 'Instala la aplicación', 1 => 'Abre esta página en Safari', 2 => 'Toca el botón Compartir', 3 => 'Toca «Añadir a inicio»', 4 => 'Abre la aplicación desde tu pantalla de inicio', 5 => 'Instalando…', 6 => 'Cerrar',
                 7 => 'Abre el menú del navegador', 8 => 'Toca «Añadir a inicio»', 9 => 'Confirma la instalación',
                 'push_title' => 'Activa las notificaciones', 'push_text' => 'Recibe bonos y novedades en tu teléfono', 'push_allow' => 'Permitir', 'push_later' => 'Ahora no',
+                'inapp_title' => 'Abre esta página en tu navegador', 'inapp_text' => 'No se puede instalar la aplicación desde dentro de esta app. Abre el enlace en tu navegador y toca Instalar.',
+                'inapp_step_ios' => 'Toca ⋯ y elige «Abrir en Safari»', 'inapp_step_android' => 'Toca el menú ⋮ y elige «Abrir en Chrome»',
+                'offline_title' => 'Sin conexión', 'offline_text' => 'Esta aplicación necesita internet. Comprueba tu conexión e inténtalo de nuevo.', 'offline_retry' => 'Reintentar',
+                'unsub' => 'Desuscribirse', 'unsubed_title' => 'Notificaciones desactivadas', 'unsubed_text' => 'Ya no recibirás notificaciones de esta aplicación.',
                 'get' => 'OBTENER', 'in_app_purchases' => 'Compras dentro de la app', 'ratings_reviews' => 'Valoraciones y reseñas', 'see_all' => 'Ver todo',
                 'whats_new' => 'Novedades', 'version_history' => 'Historial de versiones', 'version' => 'Versión', 'preview' => 'Vista previa',
                 'information' => 'Información', 'provider' => 'Proveedor', 'size' => 'Tamaño', 'category' => 'Categoría',
@@ -782,6 +953,10 @@ SW;
                 0 => 'App installieren', 1 => 'Öffne diese Seite in Safari', 2 => 'Tippe auf „Teilen“', 3 => 'Tippe auf „Zum Home-Bildschirm“', 4 => 'Öffne die App vom Home-Bildschirm', 5 => 'Wird installiert…', 6 => 'Schließen',
                 7 => 'Öffne das Browser-Menü', 8 => 'Tippe auf „Zum Home-Bildschirm“', 9 => 'Bestätige die Installation',
                 'push_title' => 'Benachrichtigungen aktivieren', 'push_text' => 'Erhalte Boni und Updates direkt aufs Handy', 'push_allow' => 'Erlauben', 'push_later' => 'Später',
+                'inapp_title' => 'Öffne diese Seite im Browser', 'inapp_text' => 'Apps lassen sich aus dieser App heraus nicht installieren. Öffne den Link im Browser und tippe auf Installieren.',
+                'inapp_step_ios' => 'Tippe auf ⋯ und wähle „In Safari öffnen“', 'inapp_step_android' => 'Tippe auf das Menü ⋮ und wähle „In Chrome öffnen“',
+                'offline_title' => 'Keine Verbindung', 'offline_text' => 'Diese App braucht das Internet. Prüfe deine Verbindung und versuche es erneut.', 'offline_retry' => 'Erneut versuchen',
+                'unsub' => 'Abbestellen', 'unsubed_title' => 'Benachrichtigungen aus', 'unsubed_text' => 'Du erhältst keine Benachrichtigungen mehr von dieser App.',
                 'get' => 'LADEN', 'in_app_purchases' => 'In-App-Käufe', 'ratings_reviews' => 'Bewertungen & Rezensionen', 'see_all' => 'Alle anzeigen',
                 'whats_new' => 'Neuheiten', 'version_history' => 'Versionsverlauf', 'version' => 'Version', 'preview' => 'Vorschau',
                 'information' => 'Informationen', 'provider' => 'Entwickler', 'size' => 'Größe', 'category' => 'Kategorie',
@@ -794,6 +969,10 @@ SW;
                 0 => 'Installer l’application', 1 => 'Ouvrez cette page dans Safari', 2 => 'Touchez le bouton Partager', 3 => 'Touchez « Sur l’écran d’accueil »', 4 => 'Lancez l’application depuis l’écran d’accueil', 5 => 'Installation…', 6 => 'Fermer',
                 7 => 'Ouvrez le menu du navigateur', 8 => 'Touchez « Sur l’écran d’accueil »', 9 => 'Confirmez l’installation',
                 'push_title' => 'Activez les notifications', 'push_text' => 'Recevez bonus et actualités sur votre téléphone', 'push_allow' => 'Autoriser', 'push_later' => 'Plus tard',
+                'inapp_title' => 'Ouvrez cette page dans votre navigateur', 'inapp_text' => 'Impossible d’installer l’application depuis cette application. Ouvrez le lien dans votre navigateur et touchez Installer.',
+                'inapp_step_ios' => 'Touchez ⋯ et choisissez « Ouvrir dans Safari »', 'inapp_step_android' => 'Touchez le menu ⋮ et choisissez « Ouvrir dans Chrome »',
+                'offline_title' => 'Pas de connexion', 'offline_text' => 'Cette application a besoin d’internet. Vérifiez votre connexion et réessayez.', 'offline_retry' => 'Réessayer',
+                'unsub' => 'Se désabonner', 'unsubed_title' => 'Notifications désactivées', 'unsubed_text' => 'Vous ne recevrez plus de notifications de cette application.',
                 'get' => 'OBTENIR', 'in_app_purchases' => 'Achats intégrés', 'ratings_reviews' => 'Notes et avis', 'see_all' => 'Tout afficher',
                 'whats_new' => 'Nouveautés', 'version_history' => 'Historique des versions', 'version' => 'Version', 'preview' => 'Aperçu',
                 'information' => 'Informations', 'provider' => 'Fournisseur', 'size' => 'Taille', 'category' => 'Catégorie',
@@ -806,6 +985,10 @@ SW;
                 0 => '安装应用', 1 => '在 Safari 中打开此页面', 2 => '点击“分享”按钮', 3 => '点击“添加到主屏幕”', 4 => '从主屏幕启动应用', 5 => '安装中…', 6 => '关闭',
                 7 => '打开浏览器菜单', 8 => '点击“添加到主屏幕”', 9 => '确认安装',
                 'push_title' => '开启通知', 'push_text' => '在手机上第一时间获取奖励和更新', 'push_allow' => '允许', 'push_later' => '暂不',
+                'inapp_title' => '在浏览器中打开此页面', 'inapp_text' => '无法在此应用内安装应用。请在浏览器中打开链接，然后点击“安装”。',
+                'inapp_step_ios' => '点击 ⋯ 按钮，选择“在 Safari 中打开”', 'inapp_step_android' => '点击 ⋮ 菜单，选择“在 Chrome 中打开”',
+                'offline_title' => '无网络连接', 'offline_text' => '此应用需要网络。请检查连接后重试。', 'offline_retry' => '重试',
+                'unsub' => '取消订阅', 'unsubed_title' => '通知已关闭', 'unsubed_text' => '您将不再收到此应用的通知。',
                 'get' => '获取', 'in_app_purchases' => 'App 内购买项目', 'ratings_reviews' => '评分及评论', 'see_all' => '查看全部',
                 'whats_new' => '新功能', 'version_history' => '版本历史记录', 'version' => '版本', 'preview' => '预览',
                 'information' => '信息', 'provider' => '开发商', 'size' => '大小', 'category' => '类目',
@@ -1134,6 +1317,7 @@ SW;
             'install'    => (int) $c['install_redirect'],
             'push'       => !empty($c['push_enabled']),
             'appAction'  => $c['app_action'],
+            'instrIos'   => $c['ios_flow'] === 'instruction',
             'sound'      => !empty($c['sound_enabled']),
             'vibration'  => !empty($c['vibration_enabled']),
         ];
@@ -1344,15 +1528,36 @@ SW;
             ? '<div class="share-row"><span class="share-btn">👍</span><span class="share-btn">🔗</span><span class="share-btn">✉️</span></div>'
             : '';
 
-        $iosOverlay = '';
-        if ($c['ios_flow'] === 'instruction') {
-            $iosOverlay = '<div id="pwa-ios" class="ios-overlay" hidden><div class="ios-card">'
-                . '<h3>' . self::esc($t[0]) . '</h3><ol>'
-                . '<li>' . self::esc($t[1]) . '</li><li>' . self::esc($t[2]) . '</li>'
+        // Install-instructions overlay — the fallback for every browser without
+        // a native install prompt. Both platform lists render and CSS keyed on
+        // data-store (the UA sniff in <head>) shows the right one: the Safari
+        // steps on iOS, the browser-menu steps on Android Firefox/Opera. The
+        // iOS list only exists while ios_flow=instruction ("default" relies on
+        // the browser's own Add-to-Home-Screen affordances); the Android list
+        // is unconditional — it is the only instruction those browsers ever get.
+        $instrOverlay = '<div id="pwa-instr" class="ios-overlay" hidden><div class="ios-card">'
+            . '<h3>' . self::esc($t[0]) . '</h3>'
+            . ($c['ios_flow'] === 'instruction'
+                ? '<ol class="flow-instr-ios"><li>' . self::esc($t[1]) . '</li><li>' . self::esc($t[2]) . '</li>'
                 . '<li>' . self::esc($t[3]) . '</li><li>' . self::esc($t[4]) . '</li></ol>'
-                . '<button type="button" id="pwa-ios-close">' . self::esc($t[6]) . '</button>'
-                . '</div></div>';
-        }
+                : '')
+            . '<ol class="flow-instr-android"><li>' . self::esc($t[7] ?? $t[0]) . '</li><li>' . self::esc($t[8] ?? $t[0]) . '</li><li>' . self::esc($t[9] ?? $t[0]) . '</li></ol>'
+            . '<button type="button" id="pwa-instr-close">' . self::esc($t[6]) . '</button>'
+            . '</div></div>';
+
+        // In-app webview card (Instagram/Facebook/TikTok built-in browsers and
+        // generic WebView containers): installation is impossible there and
+        // the visit would burn on a dead Install button. One dismissible card
+        // explains how to reopen the page in a real browser; the funnel
+        // underneath keeps running (beacons, auto-redirect) for operators who
+        // prefer to send the visitor on anyway.
+        $inappOverlay = '<div id="pwa-inapp" class="ios-overlay" hidden><div class="ios-card">'
+            . '<h3>' . self::esc($t['inapp_title']) . '</h3>'
+            . '<p class="ios-push-text">' . self::esc($t['inapp_text']) . '</p>'
+            . '<ol class="flow-instr-ios"><li>' . self::esc($t['inapp_step_ios']) . '</li></ol>'
+            . '<ol class="flow-instr-android"><li>' . self::esc($t['inapp_step_android']) . '</li></ol>'
+            . '<button type="button" id="pwa-inapp-close">' . self::esc($t[6]) . '</button>'
+            . '</div></div>';
 
         // Push subscription screen (NOTIFICATION_* funnel step): shown by the
         // page JS only when the serve-time {vapid_public} macro carries a key
@@ -1449,6 +1654,19 @@ SW;
   var isIOS = window.__PWA_FORCE_IOS === true
     || /iPad|iPhone|iPod/.test(navigator.userAgent)
     || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  // In-app webviews (Instagram/Facebook/TikTok built-in browsers, generic
+  // Android WebView, iOS WKWebView outside Safari) cannot install PWAs —
+  // that visit gets the "open in a real browser" card instead of a dead
+  // Install button. Known iOS browser tokens are excluded so Chrome/Firefox/
+  // Edge on iOS (all WebKit, all with their own token) never match.
+  var isAndroid = /Android/i.test(navigator.userAgent);
+  var inAppWebview = (function () {
+    var ua = navigator.userAgent || '';
+    if (/Instagram|FBAN|FBAV|FB_IAB|TikTok|Snapchat|musical_ly|LinkedIn|Pinterest|barcelona|okhttp/i.test(ua)) return true;
+    if (isAndroid && /;\s*wv\)/.test(ua)) return true;
+    if (isIOS && /AppleWebKit/.test(ua) && !/Safari|CriOS|FxiOS|EdgiOS|OPiOS|Opt\/|DuckDuckGo|Yandex|GSA\/|GoogleSearch/.test(ua)) return true;
+    return false;
+  })();
   var installingEl = document.getElementById('pwa-installing');
 
   // THE registration, and it runs before anything else in this IIFE.
@@ -1636,12 +1854,15 @@ SW;
   if (preloader) { setTimeout(function () { preloader.classList.add('done'); }, 600); }
 
   var deferred = null;
-  function iosOverlay(show) {
-    var el = document.getElementById('pwa-ios');
+  function instrOverlay(show) {
+    var el = document.getElementById('pwa-instr');
     if (el) el.hidden = !show;
   }
-  var closeBtn = document.getElementById('pwa-ios-close');
-  if (closeBtn) closeBtn.addEventListener('click', function () { iosOverlay(false); });
+  var closeBtn = document.getElementById('pwa-instr-close');
+  if (closeBtn) closeBtn.addEventListener('click', function () { instrOverlay(false); });
+  var inappEl = document.getElementById('pwa-inapp');
+  var inappClose = document.getElementById('pwa-inapp-close');
+  if (inappClose) inappClose.addEventListener('click', function () { if (inappEl) inappEl.hidden = true; });
 
   // --- Push subscription (NOTIFICATION_* funnel step) ----------------------
   // Self-healing like any production push client: a visitor who already
@@ -1883,7 +2104,7 @@ SW;
     // decides where that happens by ordering the funnel).
     if (flowIdx >= 0 && flowNext()) return;
     if (isStandalone || window.__PWA_FORCE_APP_SCREEN === true) { later(0, redirect); return; }
-    if (isIOS) { iosOverlay(true); return; }
+    if (isIOS) { if (cfg.instrIos) instrOverlay(true); return; }
     if (deferred) {
       if (installingEl) installingEl.hidden = false;
       deferred.prompt();
@@ -1897,7 +2118,10 @@ SW;
         }
       });
     } else {
-      iosOverlay(true);
+      // No native prompt here (Firefox/Opera on Android, webviews): show the
+      // browser-menu instructions for THIS platform — the overlay carries
+      // both lists and data-store CSS picks the Android one.
+      instrOverlay(true);
     }
   }
 
@@ -1913,7 +2137,7 @@ SW;
   });
   window.addEventListener('appinstalled', function () {
     beacon('install');
-    iosOverlay(false);
+    instrOverlay(false);
     if (installingEl) installingEl.hidden = false;
     // The store page never asks for notifications — the installed app does
     // (see the standalone branch). Straight to the offer per config here.
@@ -1973,6 +2197,7 @@ SW;
   // [store] funnel this re-creates today's behavior — plus the screen-view
   // beacon every step now sends. The auto-redirect timer stays global: it
   // fires into the offer no matter which step is on screen.
+  if (inAppWebview && inappEl) inappEl.hidden = false;
   if (window.__PWA_FORCE_SCREEN) {
     showFlowScreen(String(window.__PWA_FORCE_SCREEN));
   } else if (flow.length > 0) {
@@ -2289,7 +2514,8 @@ CSS;
 <div class="store-layout store-gp">' . $gpPage . '</div>
 <div class="store-layout store-ios">' . $iosPage . '</div>
 ' . $share . '
-' . $iosOverlay . '
+        ' . $instrOverlay . '
+        ' . $inappOverlay . '
 ' . $pushScreen . '
 ' . $appScreen . '
 ' . $flowScreensHtml . '

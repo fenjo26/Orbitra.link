@@ -27,6 +27,19 @@ cron and troubleshooting.
 - The click (a Click Log row + attribution cookies) is written **before** the redirect to the
   storefront, so the push subscription, funnel beacons and the hop to the offer
   are attributed to the real click.
+- `manifest.webmanifest` (renderer v17) is built for Chrome's **rich install
+  sheet** (Android 94+ / desktop 105+): besides the base fields it declares
+  `id`, `lang`, `description` (with the `{value}` macros resolved) and
+  `display_override`, and lists every storefront screenshot that passes
+  Chrome's sheet constraints (each side 320–3840px, side ratio ≤ 2.3) as
+  `screenshots` with a `narrow`/`wide` form factor. The editor's
+  **Install readiness** card shows the same verdict live.
+- Browsers without a native install prompt get an instructions overlay:
+  Firefox/Opera on Android see the browser-menu steps (iOS sees the Safari
+  steps while `ios_flow = instruction`), and in-app webviews (Instagram,
+  Facebook, TikTok, generic WebView) get a dismissible
+  "open this page in your browser" card — the funnel underneath keeps
+  running.
 
 ### 1.2 The builder
 
@@ -41,6 +54,7 @@ blocks:
 | Actions | Install-button action: to the offer / to a campaign / to a URL / nowhere (`action_target`), auto-redirect timers |
 | Push | Enable the push subscription on the app screen (`push_enabled`) |
 | Domain | Domain binding (see §2) + the offer for the direct domain |
+| Readiness | A live checklist of what the native install sheet will look like: icon, description, screenshot sizes, push keys, domain binding |
 
 The **Preview** button renders the config draft with the production renderer —
 a live preview of the storefront and the screen (auto/iOS platform) without saving.
@@ -162,7 +176,9 @@ Messages are broadcast templates. Two kinds:
   from the event.
 
 Message fields: title (≤250), body (≤400), icon (a URL, conveniently from the
-Gallery), click-through link, segment, the "active" flag.
+Gallery), banner image (a URL — Android Chrome shows it as a large picture on
+the notification; iOS ignores it silently), click-through link, segment,
+country and language targeting, the "active" flag.
 
 **Segments** are computed from the subscriber's conversion counters at the moment of
 queueing:
@@ -174,10 +190,46 @@ queueing:
 | `reg1dep0` | registered, no deposit |
 | `reg1dep1` | registered and deposited |
 
+**Targeting** (migration 60) narrows any segment further at queue time:
+`countries` — a comma list of ISO codes matched against the subscriber's geo
+(`US, DE`), `languages` — 2-letter browser-language codes matched by primary
+subtag (`en` matches a subscriber stored as `en-US`). Empty list = no
+constraint. Junk entries are dropped on save, never stored.
+
 The body supports macros expanded **at send time**:
 `{variant1|variant2}` (random choice, nesting ≤10), `{Random=(X,Y)}`,
 `{subid}` and other click macros — one message gives every recipient
 its own text.
+
+### 3.3.1 Push clicks and the message CTR
+
+Every notification the SW shows carries the delivery ids in its `data`
+(`subid`, `message_id`, `sid`). Tapping it fires one beacon
+(`/pixel.gif?action=pwa&kind=pushclick`) **before** the navigation, so the tap
+is counted even though the browser immediately leaves for the offer:
+
+- `clicks.push_clicks` + `push_click_at` on the click row (throttled to one
+  count per 10 minutes, like reopen counting) — this is the ROI number:
+  subscribers → clicks → conversions, all on one funnel;
+- `push_sends.clicked_at` on the delivery row — the Messages table renders
+  **Push clicks** per message with the click-through percentage;
+- the PWA funnel card totals include the landing's push clicks.
+
+### 3.3.2 Unsubscribing
+
+The notification itself carries an **Unsubscribe** action button (localized,
+baked into the landing's SW; iOS ignores actions — tapping the notification
+there still opens). Pressing it POSTs the browser's endpoint to the public
+`/push_unsubscribe` ingest, which sets `is_active = 0` (idempotent; the keys
+stay, so the panel can re-activate). There is also a standalone public page
+`/push-unsubscribe?endpoint=<urlencoded>` — it renders a confirm button (the
+deactivation is a POST behind it, so a prefetched link never unsubscribes
+anyone) and can be linked from anywhere.
+
+The generated SW also serves a **dedicated offline page** for failed
+navigations (localized, with a Retry button) instead of the stale cached
+listing — a cached store page would beacon a stale click id and its CTA cannot
+work offline anyway.
 
 ### 3.4 Sending: the queue and the cron
 
@@ -259,6 +311,9 @@ tab.
   web-push library (npm) decrypts with our code, HKDF per RFC 5869,
   record size limits (body ≤ 4096 bytes — the Apple/FCM limit).
 - `tests/push_macros_test.php` — macros and segment SQL.
+- `tests/push_api_test.php` — message CRUD, geo/language targeting, the
+  pushclick pixel (throttle + `push_sends.clicked_at`), `/push_unsubscribe`
+  and the public unsubscribe page, RBAC.
 - `tests/push_base_test.php` — the `/push_subscribe` validator, migrations, static files.
 - `tests/push_cron_test.php` — queue, retries, subscription expiry.
 - `tests/pwa_landing_test.php` — SW handlers, `{vapid_public}` substitution at
