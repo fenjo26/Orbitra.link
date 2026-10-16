@@ -11582,7 +11582,12 @@ try {
                 // which the operator reasonably read as the tracker breaking.
                 orbitraDbAllowSlowWrites($pdo, 15000);
 
-                $input = json_decode((string) file_get_contents('php://input'), true);
+                // orbitraRequestBody(), not a bare php://input read: over MCP the
+                // action runs in a CLI child whose stdin (what php://input is
+                // there) was already drained, so the direct read saw an empty
+                // body and every call died on "Invalid domain ID" no matter
+                // what the client sent.
+                $input = json_decode(orbitraRequestBody(), true);
                 $domainId = (int) ($input['id'] ?? 0);
 
                 if ($domainId <= 0) {

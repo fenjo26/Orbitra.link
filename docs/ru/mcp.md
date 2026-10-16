@@ -74,7 +74,7 @@ https://ваш-трекер.example.com/mcp.php?k=ВАШ_КЛЮЧ
 
 > 🔑 **Ключ едет прямо в адресе**, потому что диалог коннектора не имеет поля для ключа и умеет только OAuth. Считайте такой URL паролем: не публикуйте его, а чтобы закрыть доступ — удалите ключ в **⚙ → Пользователи → API-ключи**, адрес сразу перестанет работать. Read-ключ физически не может ничего изменить.
 
-**Как это устроено.** `mcp.php` реализует MCP Streamable HTTP без сессий: каждый POST — самодостаточный обмен JSON-RPC. Список инструментов он берёт из `mcp/tools.json`, который генерируется из Node-сервера (`node mcp/src/manifest.js`), поэтому два подключения показывают ровно один и тот же набор из 33 инструментов. Вызов инструмента выполняется коротким CLI-процессом `cli/api_invoke.php` — трекер не ходит сам к себе по HTTP, иначе на VPS с двумя PHP-FPM воркерами запрос мог бы заблокировать сайт.
+**Как это устроено.** `mcp.php` реализует MCP Streamable HTTP без сессий: каждый POST — самодостаточный обмен JSON-RPC. Список инструментов он берёт из `mcp/tools.json`, который генерируется из Node-сервера (`node mcp/src/manifest.js`), поэтому два подключения показывают ровно один и тот же набор из 36 инструментов. Вызов инструмента выполняется коротким CLI-процессом `cli/api_invoke.php` — трекер не ходит сам к себе по HTTP, иначе на VPS с двумя PHP-FPM воркерами запрос мог бы заблокировать сайт.
 
 **Требования:** PHP CLI (он и так нужен для крона) и разрешённый `proc_open`. Если `proc_open` отключён в `php.ini`, эндпоинт скажет об этом прямым текстом — тогда используйте вариант B. Путь к PHP можно задать вручную настройкой `mcp_php_binary`.
 
@@ -110,18 +110,19 @@ https://ваш-трекер.example.com/mcp.php?k=ВАШ_КЛЮЧ
 - **Ключ или URL неверны.** Проверьте отдельно: `ORBITRA_URL=... ORBITRA_API_KEY=... npm run smoke -- --ping`.
 - **`403 API key is read-only`** на создание или изменение — нужен Write-ключ, Read-ключ отдаёт только аналитику.
 
-## Инструменты (33)
+## Инструменты (36)
 
 **Чтение:** `orbitra_ping`, `orbitra_get_metrics`, `orbitra_get_chart`, `orbitra_list_campaigns`,
 `orbitra_campaigns_stats`, `orbitra_get_campaign`, `orbitra_campaign_report`, `orbitra_list_offers`, `orbitra_get_offer`,
-`orbitra_all_offers`, `orbitra_list_domains`, `orbitra_list_traffic_sources`,
+`orbitra_all_offers`, `orbitra_list_domains`, `orbitra_ssl_environment`, `orbitra_list_traffic_sources`,
 `orbitra_list_landings`, `orbitra_list_affiliate_networks`, `orbitra_list_conversions`,
 `orbitra_recent_clicks`, `orbitra_system_status`.
 
 **Управление (нужен write-ключ):** `orbitra_create_campaign`, `orbitra_update_campaign`,
 `orbitra_bulk_create_campaigns`, `orbitra_bulk_set_campaign_domain`, `orbitra_delete_campaign`, `orbitra_copy_campaign`,
 `orbitra_create_offer`, `orbitra_update_offer`, `orbitra_delete_offer`, `orbitra_create_domain`,
-`orbitra_delete_domain`, `orbitra_check_domain_dns`, `orbitra_create_traffic_source`,
+`orbitra_delete_domain`, `orbitra_check_domain_dns`, `orbitra_reissue_ssl`, `orbitra_run_ssl_worker`,
+`orbitra_create_traffic_source`,
 `orbitra_list_traffic_source_templates`, `orbitra_create_landing`.
 
 **Продвинутое:** `orbitra_api_request` — прямой вызов любого действия `api.php` (запасной вариант).

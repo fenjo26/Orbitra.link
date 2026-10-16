@@ -216,7 +216,7 @@ function mcpCallApiInProcess(string $apiKey, string $method, string $action, arr
         );
     }
     if (($decoded['status'] ?? '') === 'error') {
-        throw new RuntimeException('Orbitra API error: ' . ($decoded['message'] ?? 'unknown'));
+        throw new RuntimeException(mcpApiErrorMessage($decoded));
     }
     return $decoded;
 }
@@ -276,9 +276,30 @@ function mcpCallApi(PDO $pdo, string $apiKey, string $method, string $action, ar
     }
     $spawnWorks = true;
     if (($decoded['status'] ?? '') === 'error') {
-        throw new RuntimeException('Orbitra API error: ' . ($decoded['message'] ?? 'unknown'));
+        throw new RuntimeException(mcpApiErrorMessage($decoded));
     }
     return $decoded;
+}
+
+/**
+ * The message a failed api.php call becomes inside an MCP tool result. The bare
+ * "message" alone is often not actionable: the SSL endpoints put the fix (which
+ * dependency is missing, which IP the DNS check saw) into "detail"/"data", and a
+ * model that never sees those can only guess.
+ */
+function mcpApiErrorMessage(array $decoded): string
+{
+    $message = 'Orbitra API error: ' . ($decoded['message'] ?? 'unknown');
+    $extras = [];
+    foreach (['detail', 'data'] as $key) {
+        if (isset($decoded[$key]) && ($decoded[$key] !== '' && $decoded[$key] !== [])) {
+            $extras[] = is_string($decoded[$key]) ? $decoded[$key] : json_encode($decoded[$key], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        }
+    }
+    if ($extras) {
+        $message .= ' — ' . implode('; ', $extras);
+    }
+    return $message;
 }
 
 /** Mirror of normalizeStreamForSave() in mcp/src/index.js. */

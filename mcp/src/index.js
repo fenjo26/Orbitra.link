@@ -459,6 +459,27 @@ tool(
   async (a) => asText(await apiGet('check_domain_dns', { id: a.id }))
 );
 
+tool(
+  'orbitra_ssl_environment',
+  'Read-only SSL diagnostics: whether this server can issue certificates at all (certbot installed, sudo rule for the web user, ACME dir writable) and the detected server IP that DNS pre-flights compare A records against. When domains sit in waiting_dns despite DNS pointing at the server, call this first: a wrong detected IP is fixed with the server_ip_override setting, environment problems are fixed on the server. Admin API key required.',
+  {},
+  async () => asText(await apiGet('ssl_environment'))
+);
+
+tool(
+  'orbitra_reissue_ssl',
+  'Issue or re-issue the Let\'s Encrypt certificate for ONE domain now, synchronously — certbot runs for tens of seconds, so expect a slow answer. Doubles as "issue now" for a first certificate. Refuses Cloudflare-proxied domains (their SSL is at the edge) and domains whose DNS does not point at this server; the error says which IP was expected and which was seen, so diagnose with orbitra_ssl_environment / orbitra_check_domain_dns before retrying. Admin API key required. Mind the Let\'s Encrypt rate limits (50 certs per registered domain per week) when looping over many domains — prefer orbitra_run_ssl_worker, which respects the retry backoff.',
+  { id: z.number().int().describe('Domain ID (from orbitra_list_domains).') },
+  async (a) => asText(await apiPost('reissue_ssl', { id: a.id }))
+);
+
+tool(
+  'orbitra_run_ssl_worker',
+  'Work the certificate queue once, now, instead of waiting for cron: issues up to 5 pending certificates (respecting the failure backoff and the DNS gate), re-probes already-installed ones, and returns counters plus the environment report (certbot present, detected server IP). Slow — certbot runs per domain, so a full batch can take minutes. Call repeatedly while domains remain pending; if domains sit in waiting_dns although their DNS points here, check the reported server_ip (fixable via the server_ip_override setting). Admin API key required.',
+  {},
+  async () => asText(await apiPost('run_ssl_worker'))
+);
+
 // ---- Traffic sources -------------------------------------------------------
 
 tool(
