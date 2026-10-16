@@ -377,7 +377,8 @@ export default {
         "partnerOpengscDesc": "Our other free project: a self-hosted SEO dashboard for Google, Bing and Yandex with AI tools.",
         "partnerNovproxyDesc": "Global proxies — static, ISP and residential — in 190+ countries. 99.9% uptime, pay-as-you-go.",
         "partner369Desc": "Link building in Telegram: magic links, homepage links, crowd links, Xrumer. Magic and homepage links are orderable via the OpenGSC API.",
-        "partnerFieldlinkDesc": "Guest posts and homepage links priced by donor traffic, with auto-indexing. Orderable directly from OpenGSC."
+        "partnerFieldlinkDesc": "Guest posts and homepage links priced by donor traffic, with auto-indexing. Orderable directly from OpenGSC.",
+        "partnerTradeproxyDesc": "TradeProxy offers residential and mobile IPv4 proxies from trusted global providers at prices 30–70% lower than official rates. Enjoy flexible packages, a 30-day refund policy, and reliable proxy solutions for ad tracking, traffic routing, and automation."
     },
     "profile": {
         "title": "Profile Settings",

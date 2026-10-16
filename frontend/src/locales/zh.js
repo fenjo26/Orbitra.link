@@ -377,7 +377,8 @@ export default {
         "partnerOpengscDesc": "我们的另一个免费项目：自托管 SEO 面板，支持 Google、Bing 和 Yandex，内置 AI 工具。",
         "partnerNovproxyDesc": "全球代理 IP —— 静态、ISP 与住宅类型，覆盖 190+ 国家/地区，按用量付费。",
         "partner369Desc": "Telegram 内的链接建设：magic links、首页链接、crowd 链接、Xrumer。Magic links 和首页链接可通过 OpenGSC API 下单。",
-        "partnerFieldlinkDesc": "客座文章与首页链接，按 donor 站流量定价，自动索引。两者均可在 OpenGSC 中直接下单。"
+        "partnerFieldlinkDesc": "客座文章与首页链接，按 donor 站流量定价，自动索引。两者均可在 OpenGSC 中直接下单。",
+        "partnerTradeproxyDesc": "TradeProxy 提供来自可信赖的全球供应商的住宅和移动 IPv4 代理，价格比官方费率低 30–70%。灵活的套餐、30 天退款政策，以及适用于广告追踪、流量路由和自动化的可靠代理解决方案。"
     },
     "profile": {
         "title": "配置文件设置",

@@ -61,6 +61,13 @@ const partners = [
         descKey: 'feedback.partnerFieldlinkDesc',
         logoChip: '#07110c',
     },
+    {
+        name: 'TradeProxy',
+        url: 'https://tradeproxy.net/?utm_source=orbitra',
+        logo: '/partners/tradeproxy-logo.png',
+        descKey: 'feedback.partnerTradeproxyDesc',
+        logoChip: '#0F172A',
+    },
 ];
 
 const FeedbackPage = () => {
