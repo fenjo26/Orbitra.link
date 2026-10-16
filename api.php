@@ -9674,6 +9674,13 @@ try {
                 echo json_encode(['status' => 'error', 'message' => 'Missing domain ID']);
                 break;
             }
+            // The cache write below is retried like reissue_ssl's: this action
+            // is fired in bursts (the Domains page, mass MCP sweeps over every
+            // parked domain) exactly when reissue/worker writes are in flight,
+            // and a bare UPDATE answered the whole sweep with
+            // "SQLSTATE[HY000]: General error: 5 database is locked".
+            require_once __DIR__ . '/core/db_retry.php';
+            orbitraDbAllowSlowWrites($pdo, 15000);
 
             $stmt = $pdo->prepare("SELECT id, name, cloudflare_proxy, dns_status, dns_reason FROM domains WHERE id = ?");
             $stmt->execute([$domainId]);
@@ -9691,8 +9698,11 @@ try {
             $result = orbitraResolveDomainDnsState($pdo, $domain, $serverIp);
 
             // Update cache
-            $updateStmt = $pdo->prepare("UPDATE domains SET dns_status = ?, dns_reason = ?, dns_ip = ?, dns_checked_at = CURRENT_TIMESTAMP WHERE id = ?");
-            $updateStmt->execute([$result['status'], $result['reason'], $result['ip'], $domainId]);
+            orbitraDbWriteWithRetry(
+                $pdo,
+                "UPDATE domains SET dns_status = ?, dns_reason = ?, dns_ip = ?, dns_checked_at = CURRENT_TIMESTAMP WHERE id = ?",
+                [$result['status'], $result['reason'], $result['ip'], $domainId]
+            );
 
             echo json_encode(['status' => 'success', 'data' => [
                 'id' => $domain['id'],
@@ -9775,6 +9785,12 @@ try {
 
         // Force DNS check for ALL domains (no limits)
         case 'force_check_all_dns':
+            // Same lock treatment as check_domain_dns: this runs over every
+            // parked domain in one go, so one locked UPDATE used to throw away
+            // the whole sweep's results.
+            require_once __DIR__ . '/core/db_retry.php';
+            orbitraDbAllowSlowWrites($pdo, 15000);
+
             // Detect server IP using unified function (ORB-005)
             $serverIp = orbitraDetectServerIp($pdo);
 
@@ -9783,14 +9799,14 @@ try {
             $allDomains = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             $results = [];
-            $updateStmt = $pdo->prepare("UPDATE domains SET dns_status = ?, dns_reason = ?, dns_ip = ?, dns_checked_at = CURRENT_TIMESTAMP WHERE id = ?");
+            $updateSql = "UPDATE domains SET dns_status = ?, dns_reason = ?, dns_ip = ?, dns_checked_at = CURRENT_TIMESTAMP WHERE id = ?";
 
             foreach ($allDomains as $domain) {
                 // Do DNS lookup for EACH domain using shared resolver (Cloudflare-aware)
                 $result = orbitraResolveDomainDnsState($pdo, $domain, $serverIp);
 
                 // Update database
-                $updateStmt->execute([$result['status'], $result['reason'], $result['ip'], $domain['id']]);
+                orbitraDbWriteWithRetry($pdo, $updateSql, [$result['status'], $result['reason'], $result['ip'], $domain['id']]);
 
                 $results[] = [
                     'id' => $domain['id'],

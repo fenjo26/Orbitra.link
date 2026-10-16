@@ -204,6 +204,33 @@ try {
     $viewer = $rpc('orbitra_run_ssl_worker', [], 'SSL_VIEWER_READ');
     check($viewer['isError'] && strpos((string) $viewer['payload'], 'read-only') !== false,
         'orbitra_run_ssl_worker is write-gated at the MCP layer');
+
+    // --- check_domain_dns waits out a held write lock -------------------------
+    // The cache UPDATE used to be bare: a mass MCP sweep over every parked
+    // domain, run while reissue/worker writes were in flight, died on
+    // "database is locked". Hold the write lock from a second connection for
+    // 7s — past the 5s web busy_timeout, well inside the 15s allowance the
+    // action now takes — and require the check to succeed anyway.
+    $dbPath = null;
+    foreach ($pdo->query('PRAGMA database_list')->fetchAll(PDO::FETCH_ASSOC) as $dbRow) {
+        if (($dbRow['file'] ?? '') !== '') { $dbPath = $dbRow['file']; }
+    }
+    $holder = proc_open([PHP_BINARY, '-r', '
+        $pdo = new PDO("sqlite:" . $argv[1]);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec("BEGIN IMMEDIATE");
+        $pdo->exec("UPDATE settings SET value = value WHERE key = \'postback_key\'");
+        usleep(7000000);
+    ', $dbPath], [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $holderPipes);
+    usleep(300000); // let the holder actually take the lock
+    $lockStart = microtime(true);
+    $dns = $rpc('orbitra_check_domain_dns', ['id' => $pendingId], 'SSL_ADMIN_READ');
+    $lockWait = microtime(true) - $lockStart;
+    foreach ($holderPipes as $p) { fclose($p); }
+    proc_close($holder);
+    check(!$dns['isError'] && array_key_exists('dns_status', $dns['payload']['data'] ?? []),
+        'check_domain_dns survives a held write lock instead of dying on "database is locked"');
+    check($lockWait > 5, "the check really waited for the lock ({$lockWait}s) — the contention was real");
 } finally {
     if (is_resource($server)) {
         proc_terminate($server);
