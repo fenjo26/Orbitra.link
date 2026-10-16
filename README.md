@@ -1,4 +1,4 @@
-# Orbitra v1.6.19 Tracker
+# Orbitra v1.6.20 Tracker
 
 **🌐 Language: English | [Русский](README.ru.md)**
 
@@ -11,24 +11,25 @@
 
 Orbitra is a modern traffic management and conversion tracking system. A simpler and faster alternative to Keitaro Tracker, while keeping full API and feature compatibility.
 
-## 🆕 What's New in v1.6.19
+## 🆕 What's New in v1.6.20
 
-Six review findings closed, and the documentation is English now.
-
-### Added
-
-- ⏰ **Retention cleanup is scheduled for every install** — `install.sh` adds the daily `cleanup_cron.php` cron and the update self-heal installs it on existing installs; the "log retention" / "archive retention" fields finally purge
-- 🌐 **Documentation in English.** The GitHub wiki publishes `docs/` as 32 English pages; Russian versions live in `docs/ru/`, and the internal spec pages are no longer published
+Integrations, reviewed end to end: the Back Button Trap and the Geo / App Config scripts work, and every code card fills itself in.
 
 ### Fixed
 
-- 📦 **The Keitaro dump command is back on the Migrations page** — a refactor had dropped it, leaving scp commands fetching a file nothing on the server creates
-- 🔔 **The conversion-failure alert actually sends to Telegram** — it used to log a line and report success; now it delivers through the panel's own bot to every chat with `/notify` on
-- 🔐 **Non-admins: `logs_param_keys` and `cohort` no longer 403** — the traffic log's column suggestions and the Analytics cohort view work for users with the matching access
-- 🗑️ **The dead "Update Costs" modal is gone from the campaign editor** — every input in it was unwired, including the "unique clicks only" checkbox; the working one in the Campaigns list stays
-- 📄 **`.env.example` stops telling people to copy it to `.env`** — PHP never reads that file; it now points at the PHP-FPM pool / Apache vhost with examples
+- 🌍 **Geo Redirect, WordPress, Static site and App Config work for real visitors** — their public endpoints answered 401 to anyone not logged into the panel
+- ↩️ **Back Button Trap actually traps** — the Integrations page shipped a stale snippet that never fired; it now uses the same generator as the campaign editor
+- ↩️ **Armed by the visitor's first click or tap** — browsers ignore history traps set before the visitor touched the page; the snippet arms at the right moment, and a second Back leaves normally
+- ↩️ **One return = one click** — no more background request plus a campaign click; returns are tagged `sub1=back_button`, and an empty trap URL means this campaign's own link
+- 🖤 **Integration code is readable again** — no more light highlight behind every line of the code editor
 
-Older releases (v1.6.18 and earlier): see the [full changelog](CHANGELOG.md).
+### Changed
+
+- 🧩 **All integration code fills itself in** — pick a campaign (or App Config) and the token, id and the campaign's https domain go into the code; no placeholders, no bare http://IP
+- 📝 **Clear descriptions on every card** — what it does and where it goes: your site, a landing on your hosting or one uploaded to Orbitra; subtitles and statuses translated into all languages
+- 🧩 **Widgets fill themselves in** — Countdown, Back Button Trap, Exit popup and Geo / Device redirects start with a campaign picker and three plain steps: choose, copy, paste
+
+Older releases (v1.6.19 and earlier): see the [full changelog](CHANGELOG.md).
 
 
 ## 🖥 Live Demo

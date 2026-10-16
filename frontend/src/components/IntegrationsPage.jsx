@@ -8,6 +8,8 @@ import ProxyInput from './common/ProxyInput';
 import PixelPicker from './common/PixelPicker';
 import IntegrationCard from './IntegrationCard';
 import DynadotHub from './DynadotHub';
+import { buildSnippet, METHOD_INSTALL_HINTS } from '../utils/integrationSnippets';
+import { campaignLinkUrl } from '../utils/campaignUrl';
 
 const API_URL = '/api.php';
 
@@ -287,6 +289,54 @@ const IntegrationsPage = () => {
 
     const trackerUrl = window.location.origin;
 
+    // Widget cards pick a campaign and get finished code — no placeholders to
+    // hand-edit. Widgets are built by the same generator as the campaign
+    // editor's Tracking tab (utils/integrationSnippets.js), so the two pages
+    // can never ship different code again (this page used to keep a stale copy
+    // of the back-button trap that never fired).
+    const [snippetCampaigns, setSnippetCampaigns] = useState(null);
+    const [snippetCampaignId, setSnippetCampaignId] = useState('');
+    const fetchSnippetCampaigns = useCallback(async () => {
+        try {
+            const res = await axios.get(`${API_URL}?action=campaigns_simple`);
+            if (res.data.status === 'success') setSnippetCampaigns(res.data.data || []);
+            else setSnippetCampaigns([]);
+        } catch (err) { console.error(err); setSnippetCampaigns([]); }
+    }, []);
+    const campaignAwareTabs = ['countdown_timer', 'back_button_trap', 'exit_popup', 'geo_redirect', 'device_redirect', 'kclient_php', 'kclient_js', 'tracking_pixel', 'js_banner'];
+    useEffect(() => {
+        if (campaignAwareTabs.includes(activeTab) && snippetCampaigns === null) fetchSnippetCampaigns();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeTab, snippetCampaigns, fetchSnippetCampaigns]);
+    const snippetCampaign = (snippetCampaigns || []).find(c => String(c.id) === String(snippetCampaignId)) || null;
+    // The tracker address written into the code. A picked campaign with a
+    // domain gives its https host — the panel may well be open over a bare
+    // http://IP, and an https landing refuses to load scripts from that
+    // (mixed content), which is exactly how hand-filled snippets used to fail.
+    const snippetBase = snippetCampaign && snippetCampaign.domain_name
+        ? `https://${snippetCampaign.domain_name}`
+        : trackerUrl;
+    const panelOnInsecureHost = window.location.protocol === 'http:'
+        || /^\d{1,3}(\.\d{1,3}){3}$/.test(window.location.hostname);
+    const snippetCtx = {
+        trackerUrl: snippetBase,
+        campaign: snippetCampaign
+            ? { id: snippetCampaign.id, alias: snippetCampaign.alias, token: snippetCampaign.token || '', url: campaignLinkUrl(snippetCampaign.alias, snippetCampaign.domain_name) }
+            : { id: 'YOUR_CAMPAIGN_ID', alias: '', token: '', url: '' },
+    };
+    // Hand-written cards: swap the placeholders for the picked campaign's
+    // values and the panel origin for the campaign's own https host.
+    const withCampaign = (code) => {
+        if (!snippetCampaign) return code;
+        let out = code.split(trackerUrl).join(snippetBase)
+            .split('YOUR_CAMPAIGN_ID').join(String(snippetCampaign.id))
+            .split('campaign_id=YOUR_ID').join(`campaign_id=${snippetCampaign.id}`);
+        if (snippetCampaign.token) out = out.split('CAMPAIGN_TOKEN').join(snippetCampaign.token);
+        return out;
+    };
+    const [snippetConfigKey, setSnippetConfigKey] = useState('');
+    const withConfig = (code) => snippetConfigKey ? code.split('key=CONFIG_KEY').join(`key=${encodeURIComponent(snippetConfigKey)}`) : code;
+
     const loadExtensionCredentials = useCallback(async () => {
         setExtKeyLoading(true);
         setExtKeyError('');
@@ -503,6 +553,7 @@ const IntegrationsPage = () => {
 
     useEffect(() => {
         if (activeTab === 'app_config') { fetchConfigs(); fetchCampaigns(); }
+        if (activeTab === 'wordpress' || activeTab === 'static_site') fetchConfigs();
     }, [activeTab, fetchConfigs, fetchCampaigns]);
 
     const configTemplates = {
@@ -3983,10 +4034,10 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(59, 130, 246, 0.1)',
             iconColor: '#3b82f6',
             title: t('googleAdsCosts.title', 'Google Ads Costs'),
-            subtitle: 'Cost + Conversions',
+            subtitle: t('intgCards.google_ads_costs_sub'),
             description: t('googleAdsCosts.description'),
             isConnected: gaConnections.length > 0,
-            statText: gaConnections.length ? `${gaConnections.length} accounts connected` : 'Auto-import ad spend',
+            statText: gaConnections.length ? t('intgCards.accounts', { n: gaConnections.length }) : t('intgCards.google_ads_costs_stat'),
             ctaText: t('integrations.manageAccounts', 'Manage Accounts'),
             isGoogleAdsCosts: true
         },
@@ -3999,10 +4050,10 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(236, 72, 153, 0.1)',
             iconColor: '#ec4899',
             title: t('tiktokCosts.title', 'TikTok Costs'),
-            subtitle: 'Cost + Events API',
+            subtitle: t('intgCards.tiktok_costs_sub'),
             description: t('tiktokCosts.description'),
             isConnected: ttConnections.length > 0,
-            statText: ttConnections.length ? `${ttConnections.length} accounts connected` : 'Auto-import ad spend',
+            statText: ttConnections.length ? t('intgCards.accounts', { n: ttConnections.length }) : t('intgCards.google_ads_costs_stat'),
             ctaText: t('integrations.manageAccounts', 'Manage Accounts'),
             isTikTokCosts: true
         },
@@ -4015,10 +4066,10 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(37, 99, 235, 0.1)',
             iconColor: '#2563eb',
             title: t('fbCosts.title'),
-            subtitle: 'Auto-import ad spend',
+            subtitle: t('intgCards.facebook_costs_sub'),
             description: t('fbCosts.description'),
             isConnected: fbConnections.length > 0,
-            statText: fbConnections.length ? `${fbConnections.length} accounts connected` : 'Auto-import ad spend',
+            statText: fbConnections.length ? t('intgCards.accounts', { n: fbConnections.length }) : t('intgCards.google_ads_costs_stat'),
             ctaText: t('integrations.manageAccounts', 'Manage Accounts'),
             isFacebookCosts: true
         },
@@ -4031,10 +4082,10 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(147, 51, 234, 0.1)',
             iconColor: '#8b5cf6',
             title: t('fbConv.title'),
-            subtitle: 'Server-side pixel vault',
+            subtitle: t('intgCards.facebook_conversions_sub'),
             description: t('fbConv.description'),
             isConnected: capiPixels.length > 0,
-            statText: capiPixels.length ? `${capiPixels.length} active pixels` : 'Server-side CAPI',
+            statText: capiPixels.length ? t('intgCards.pixels', { n: capiPixels.length }) : t('intgCards.facebook_conversions_stat'),
             ctaText: t('integrations.manageCapi', 'Manage CAPI'),
             isFacebookConversions: true
         },
@@ -4047,10 +4098,10 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(79, 70, 229, 0.1)',
             iconColor: '#6366f1',
             title: t('pixelVault.pixelVaultTitle'),
-            subtitle: 'Multi-source pixel vault',
+            subtitle: t('intgCards.pixel_vault_sub'),
             description: t('pixelVault.description'),
             isConnected: pixelProfiles.length > 0,
-            statText: pixelProfiles.length ? `${pixelProfiles.length} profiles stored` : 'Pixel repository',
+            statText: pixelProfiles.length ? t('intgCards.profiles', { n: pixelProfiles.length }) : t('intgCards.pixel_vault_stat'),
             ctaText: t('integrations.manageVault', 'Manage Vault'),
             isPixelVault: true
         },
@@ -4063,10 +4114,10 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(245, 158, 11, 0.1)',
             iconColor: '#f59e0b',
             title: t('extCosts.title', 'Dolphin / FBTool API'),
-            subtitle: 'External upload & costs',
+            subtitle: t('intgCards.dolphin_fbtool_sub'),
             description: t('extCosts.description', 'Приём расходов из Dolphin и Fbtool.pro через Orbitra Automation API endpoint'),
             isConnected: true,
-            statText: 'Admin API endpoint',
+            statText: t('intgCards.dolphin_fbtool_stat'),
             ctaText: t('integrations.viewApiKeys', 'View API Keys'),
             code: `# ${t('extCosts.step1', '1. Создайте API-ключ с правами write: Пользователи → ваш профиль → сгенерировать ключ (permissions: write)')}\n\n# ${t('extCosts.step2', '2. Скопируйте в Dolphin (Настройки → Экспорт расходов → Tracker API) или Fbtool (Расходы → Tracker API):')}\n#    Tracker URL:  ${trackerUrl}\n#    Admin API key: <ваш ключ>\n\n# ${t('extCosts.step3', '3. Endpoint, который вызывают сервисы (совместим с Keitaro Admin API v1):')}\n# POST ${trackerUrl}/admin_api/v1/campaigns/CAMPAIGN_ID/update_costs\n# Authorization: Bearer <API_KEY>\n{\n  "start_date": "2026-08-15",\n  "end_date": "2026-08-15",\n  "cost": 12.34,\n  "currency": "USD",\n  "timezone": "Europe/Berlin",\n  "filters": { "sub_id_4": "120212558973560058" }\n}\n\n# ${t('extCosts.hint', 'Фильтры матчатся по параметрам клика: sub_id_4 = ad_id, sub_id_3 = adset_id (дефолты шаблона Facebook), либо любое имя параметра напрямую (ad_id, adset_id, campaign_id...). Расход делится поровну между совпавшими кликами за период; повторная отправка перезаписывает, а не суммирует.')}`
         },
@@ -4079,10 +4130,10 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(16, 185, 129, 0.1)',
             iconColor: '#10b981',
             title: t('integrations.chromeExtension', 'Chrome & Antidetect Extension'),
-            subtitle: 'Ads Manager overlay',
+            subtitle: t('intgCards.chrome_extension_sub'),
             description: t('integrations.chromeExtDesc', 'Overlay real-time tracker analytics directly inside Facebook Ads Manager.'),
             isConnected: !!extApiKey,
-            statText: extApiKey ? 'Ready · Key active' : 'Download & install',
+            statText: extApiKey ? t('intgCards.extReady') : t('intgCards.extDownload'),
             ctaText: t('integrations.configure', 'Configure'),
             isChromeExtension: true
         },
@@ -4095,10 +4146,10 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(249, 115, 22, 0.1)',
             iconColor: '#f97316',
             title: t('cloudflare.title', 'Cloudflare'),
-            subtitle: 'DNS, Proxy & Free SSL',
+            subtitle: t('intgCards.cloudflare_sub'),
             description: t('cloudflare.description', 'Управление DNS доменов трекера через Cloudflare API: A-записи прописываются сами, SSL — краем CF'),
             isConnected: cfAccounts.length > 0,
-            statText: cfAccounts.length ? `${cfAccounts.length} accounts · ${cfStatus?.managed_domains || 0} zones` : 'Auto-DNS & Edge SSL',
+            statText: cfAccounts.length ? t('intgCards.cfZones', { n: cfAccounts.length, z: cfStatus?.managed_domains || 0 }) : t('intgCards.cloudflare_stat'),
             ctaText: t('integrations.manageDns', 'Manage DNS'),
             isCloudflare: true
         },
@@ -4111,15 +4162,12 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(225, 29, 72, 0.1)',
             iconColor: '#f43f5e',
             title: t('namecheap.title', 'Namecheap'),
-            subtitle: (() => {
-                const b = ncAccounts.find(a => a.last_balance)?.last_balance;
-                return b ? `Balance: ${b}` : 'Buy & Park Domains';
-            })(),
+            subtitle: t('intgCards.namecheap_sub'),
             description: t('namecheap.description', 'Автопарковка DNS доменов из аккаунта Namecheap, покупка новых доменов и выпуск SSL — прямо из трекера'),
             isConnected: ncAccounts.length > 0,
             statText: (() => {
                 const b = ncAccounts.find(a => a.last_balance)?.last_balance;
-                return b ? `Balance: ${b}` : (ncAccounts.length ? `${ncAccounts.length} accounts connected` : 'Auto-DNS & Buy domains');
+                return b ? t('intgCards.balance', { b }) : (ncAccounts.length ? t('intgCards.accounts', { n: ncAccounts.length }) : t('intgCards.namecheap_stat'));
             })(),
             ctaText: t('integrations.openRegistrar', 'Open Registrar'),
             isNamecheap: true
@@ -4133,20 +4181,20 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(37, 99, 235, 0.1)',
             iconColor: '#3b82f6',
             title: 'Dynadot',
-            subtitle: (() => {
-                const b = dyAccounts.find(a => a.last_balance)?.last_balance;
-                return b ? `Balance: ${b}` : 'Buy & Park Domains';
-            })(),
+            subtitle: t('intgCards.namecheap_sub'),
             description: t('dynadot.description'),
             isConnected: dyAccounts.length > 0,
             statText: (() => {
                 const b = dyAccounts.find(a => a.last_balance)?.last_balance;
-                return b ? `Balance: ${b}` : (dyAccounts.length ? `${dyAccounts.length} accounts connected` : 'Auto-DNS & Buy domains');
+                return b ? t('intgCards.balance', { b }) : (dyAccounts.length ? t('intgCards.accounts', { n: dyAccounts.length }) : t('intgCards.namecheap_stat'));
             })(),
             ctaText: t('integrations.openRegistrar', 'Open Registrar'),
             isDynadot: true
         },
         kclient_php: {
+            landingTip: 'integrations.landingTipKclient',
+            installHint: 'tracking.instKclientPhp',
+            campaignAware: true,
             category: 'sites',
             badge: 'TRACKING',
             badgeBg: 'rgba(14, 165, 233, 0.15)',
@@ -4155,14 +4203,17 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(14, 165, 233, 0.1)',
             iconColor: '#0ea5e9',
             title: 'Tracking Client (PHP)',
-            subtitle: 'Server-side cloak code',
+            subtitle: t('intgCards.kclient_php_sub'),
             description: t('integrations.kclientPhpDesc'),
             isConnected: true,
-            statText: 'Full server-side execution',
+            statText: t('intgCards.kclient_php_stat'),
             ctaText: t('integrations.getCode', 'Get Code'),
-            code: `<?php\n// ${t('integrations.codeToInsert')}\n// kclient.php: ${trackerUrl}/kclient.php?download=1\nrequire_once dirname(__FILE__) . '/kclient.php';\n$client = new KClickClient('${trackerUrl}', 'CAMPAIGN_TOKEN');\n$client->sendAllParams();\n// $client->debug();            // show errors while testing\n// $client->execute();          // run, print the output, keep the page going\n$client->executeAndBreak();     // stop the page if the tracker redirects or returns content\n?>`
+            code: withCampaign(`<?php\n// ${t('integrations.codeToInsert')}\n// kclient.php: ${trackerUrl}/kclient.php?download=1\nrequire_once dirname(__FILE__) . '/kclient.php';\n$client = new KClickClient('${trackerUrl}', 'CAMPAIGN_TOKEN');\n$client->sendAllParams();\n// $client->debug();            // show errors while testing\n// $client->execute();          // run, print the output, keep the page going\n$client->executeAndBreak();     // stop the page if the tracker redirects or returns content\n?>`)
         },
         kclient_js: {
+            landingTip: 'integrations.landingTipKclient',
+            installHint: 'tracking.instKclientJs',
+            campaignAware: true,
             category: 'sites',
             badge: 'TRACKING',
             badgeBg: 'rgba(234, 179, 8, 0.15)',
@@ -4171,14 +4222,16 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(234, 179, 8, 0.1)',
             iconColor: '#eab308',
             title: 'Tracking Client (JS)',
-            subtitle: 'Single page / Tilda / WP',
+            subtitle: t('intgCards.kclient_js_sub'),
             description: t('integrations.kclientJsDesc'),
             isConnected: true,
-            statText: 'Client-side async script',
+            statText: t('intgCards.kclient_js_stat'),
             ctaText: t('integrations.getScript', 'Get Script'),
-            code: `<script type="application/javascript">\n  var orbitra_db_url = '${trackerUrl}';\n  var orbitra_campaign_token = 'CAMPAIGN_TOKEN';\n</script>\n<script src="${trackerUrl}/kclient.js"></script>\n<noscript><img src="${trackerUrl}/pixel.gif?token=CAMPAIGN_TOKEN" alt="" /></noscript>`
+            code: withCampaign(`<script type="application/javascript">\n  var orbitra_db_url = '${trackerUrl}';\n  var orbitra_campaign_token = 'CAMPAIGN_TOKEN';\n</script>\n<script src="${trackerUrl}/kclient.js"></script>\n<noscript><img src="${trackerUrl}/pixel.gif?token=CAMPAIGN_TOKEN" alt="" /></noscript>`)
         },
         tracking_pixel: {
+            installHint: 'tracking.instPixel',
+            campaignAware: true,
             category: 'sites',
             badge: 'PIXEL',
             badgeBg: 'rgba(168, 85, 247, 0.15)',
@@ -4187,12 +4240,12 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(168, 85, 247, 0.1)',
             iconColor: '#a855f7',
             title: 'Tracking Pixel',
-            subtitle: 'Email & basic HTML tracker',
+            subtitle: t('intgCards.tracking_pixel_sub'),
             description: t('integrations.pixelDesc'),
             isConnected: true,
-            statText: '1x1 transparent tracker',
+            statText: t('intgCards.tracking_pixel_stat'),
             ctaText: t('integrations.getPixel', 'Get Pixel'),
-            code: `<!-- Tracking impressions -->\n<img src="${trackerUrl}/pixel.gif?campaign_id=YOUR_ID" width="1" height="1" border="0" alt="" />\n\n<!-- Tracking conversions (place on Thank You page) -->\n<img src="${trackerUrl}/pixel.gif?action=conversion&subid={subid}&status=lead" width="1" height="1" border="0" alt="" />`
+            code: withCampaign(`<!-- Tracking impressions -->\n<img src="${trackerUrl}/pixel.gif?campaign_id=YOUR_ID" width="1" height="1" border="0" alt="" />\n\n<!-- Tracking conversions (place on Thank You page) -->\n<img src="${trackerUrl}/pixel.gif?action=conversion&subid={subid}&status=lead" width="1" height="1" border="0" alt="" />`)
         },
         tiktok_pixel: {
             category: 'sites',
@@ -4203,14 +4256,17 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(236, 72, 153, 0.1)',
             iconColor: '#ec4899',
             title: t('integrations.tiktokPixelTitle', 'TikTok Pixel'),
-            subtitle: 'Cookie bridge & local landers',
+            subtitle: t('intgCards.tiktok_pixel_sub'),
             description: t('integrations.tiktokPixelDesc', 'Browser TikTok Pixel on local landings. The pixel id arrives in the {pixel} campaign parameter from the TikTok source template and is stored in a cookie for the thank-you page.'),
             isConnected: true,
-            statText: 'Client-side TikTok pixel',
+            statText: t('intgCards.tiktok_pixel_stat'),
             ctaText: t('integrations.getScript', 'Get Script'),
             code: `<!-- 1. Landing <head>: store the pixel id from the campaign parameter.\n        The TikTok source template fills {pixel} = __PIXEL__; replace "pixel"\n        if your campaign passes it under another name. -->\n<script>\nvar date = new Date();\ndate.setTime(date.getTime() + (5 * 24 * 60 * 60 * 1000));\nif (!'{pixel}'.match('{')) {\n  document.cookie = "pixel={pixel}; " + "expires=" + date.toUTCString() + "";\n}\n</script>\n\n<!-- 2. Where events fire (landing or thank-you page): read the cookie\n        and boot the pixel with it. -->\n<script>\nvar matches = document.cookie.match(new RegExp("(?:^|; )" + 'pixel' + "=([^;]*)"));\nvar pixel = matches ? decodeURIComponent(matches[1]) : undefined;\n</script>\n\n<!-- TikTok Pixel Code Start -->\n<script>\n    !function (w, d, t) {\n      w.TiktokAnalyticsObject = t;\n      var ttq = w[t] = w[t] = [];\n      ttq.methods = ["page", "track", "identify", "instances", "debug", "on", "off", "once", "ready", "alias", "group", "enableCookie", "disableCookie"],\n        ttq.setAndDefer = function (t, e) {\n          t[e] = function () {\n            t.push([e].concat(Array.prototype.slice.call(arguments, 0)))\n          }\n        };\n      for (var i = 0; i < ttq.methods.length; i++) ttq.setAndDefer(ttq, ttq.methods[i]);\n      ttq.instance = function (t) {\n        for (var e = ttq._i[t] || [], n = 0; n < ttq.methods.length; n++) ttq.setAndDefer(e, ttq.methods[n]);\n        return e\n      }, ttq.load = function (e, n) {\n        var i = "https://analytics.tiktok.com/i18n/pixel/events.js";\n        ttq._i = ttq._i || {}, ttq._i[e] = [], ttq._i[e]._u = i, ttq._t = ttq._t || {}, ttq._t[e] = +new Date, ttq._o = ttq._o || {}, ttq._o[e] = n || {};\n        var o = document.createElement("script");\n        o.type = "text/javascript", o.async = !0, o.src = i + "?sdkid=" + e + "&lib=" + t;\n        var a = document.getElementsByTagName("script")[0];\n        a.parentNode.insertBefore(o, a)\n      };\n      ttq.load(pixel);\n      ttq.page();\n    }(window, document, 'ttq');\n</script>\n<!-- TikTok Pixel Code End -->\n\n<!-- No access to the landing code (offer redirect)? Use the server-side\n        TikTok Conversions API instead: Pixel Vault -> Connect TikTok. -->`
         },
         js_banner: {
+            landingTip: 'integrations.landingTipWidget',
+            installHint: 'tracking.instBanner',
+            campaignAware: true,
             category: 'sites',
             badge: 'BANNER',
             badgeBg: 'rgba(20, 184, 166, 0.15)',
@@ -4219,14 +4275,16 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(20, 184, 166, 0.1)',
             iconColor: '#14b8a6',
             title: t('integrations.jsBannerTitle'),
-            subtitle: 'Dynamic banner widget',
+            subtitle: t('intgCards.js_banner_sub'),
             description: t('integrations.jsBannerDesc'),
             isConnected: true,
-            statText: 'Ad block & split-testing',
+            statText: t('intgCards.js_banner_stat'),
             ctaText: t('integrations.getCode', 'Get Code'),
-            code: `<div id="orbitra-banner" style="width:300px;height:250px;overflow:hidden"></div>\n<script>\n  var orbitra_db_url = '${trackerUrl}';\n  var orbitra_campaign_token = 'CAMPAIGN_TOKEN';\n</script>\n<script src="${trackerUrl}/banner.js" async></script>`
+            code: withCampaign(`<div id="orbitra-banner" style="width:300px;height:250px;overflow:hidden"></div>\n<script>\n  var orbitra_db_url = '${trackerUrl}';\n  var orbitra_campaign_token = 'CAMPAIGN_TOKEN';\n</script>\n<script src="${trackerUrl}/banner.js" async></script>`)
         },
         wordpress: {
+            installHint: 'integrations.instWpFunctions',
+            configAware: true,
             category: 'sites',
             badge: 'INTEGRATION',
             badgeBg: 'rgba(59, 130, 246, 0.15)',
@@ -4235,12 +4293,12 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(59, 130, 246, 0.1)',
             iconColor: '#3b82f6',
             title: t('wordpress.title'),
-            subtitle: 'functions.php remote config',
+            subtitle: t('intgCards.wordpress_sub'),
             description: t('wordpress.description'),
             isConnected: true,
-            statText: 'WordPress shortcodes',
+            statText: t('intgCards.wordpress_stat'),
             ctaText: t('integrations.getCode', 'Get Code'),
-            code: `<?php\n// ${t('wordpress.instruction')}\nfunction ltt_check_remote_config() {\n    $config_url = '${trackerUrl}/api.php?action=app_config&key=CONFIG_KEY';\n    $response = wp_remote_get($config_url, ['timeout' => 5]);\n    \n    if (is_wp_error($response)) return null;\n    \n    $body = wp_remote_retrieve_body($response);\n    return json_decode($body, true);\n}\n\n// Example: Conditionally show content based on remote config\nfunction ltt_conditional_content($atts, $content = null) {\n    $config = ltt_check_remote_config();\n    if (!$config || !isset($config['stub'])) return $content;\n    \n    if ($config['stub']['enabled']) {\n        return '<div class="ltt-stub">' . esc_html($config['stub']['message']) . '</div>';\n    }\n    return $content;\n}\nadd_shortcode('ltt_content', 'ltt_conditional_content');\n\n// Example: WebView redirect\nfunction ltt_webview_redirect() {\n    $config = ltt_check_remote_config();\n    if ($config && isset($config['webview']) && $config['webview']['enabled']) {\n        $url = esc_url($config['webview']['url']);\n        echo '<script>if(/Android|iPhone/i.test(navigator.userAgent)){window.location="' . $url . '"}</script>';\n    }\n}\nadd_action('wp_head', 'ltt_webview_redirect');\n?>`
+            code: withConfig(`<?php\n// ${t('wordpress.instruction')}\nfunction ltt_check_remote_config() {\n    $config_url = '${trackerUrl}/api.php?action=app_config&key=CONFIG_KEY';\n    $response = wp_remote_get($config_url, ['timeout' => 5]);\n    \n    if (is_wp_error($response)) return null;\n    \n    $body = wp_remote_retrieve_body($response);\n    return json_decode($body, true);\n}\n\n// Example: Conditionally show content based on remote config\nfunction ltt_conditional_content($atts, $content = null) {\n    $config = ltt_check_remote_config();\n    if (!$config || !isset($config['stub'])) return $content;\n    \n    if ($config['stub']['enabled']) {\n        return '<div class="ltt-stub">' . esc_html($config['stub']['message']) . '</div>';\n    }\n    return $content;\n}\nadd_shortcode('ltt_content', 'ltt_conditional_content');\n\n// Example: WebView redirect\nfunction ltt_webview_redirect() {\n    $config = ltt_check_remote_config();\n    if ($config && isset($config['webview']) && $config['webview']['enabled']) {\n        $url = esc_url($config['webview']['url']);\n        echo '<script>if(/Android|iPhone/i.test(navigator.userAgent)){window.location="' . $url . '"}</script>';\n    }\n}\nadd_action('wp_head', 'ltt_webview_redirect');\n?>`)
         },
         wordpress_plugin: {
             category: 'sites',
@@ -4251,14 +4309,17 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(30, 64, 175, 0.1)',
             iconColor: '#2563eb',
             title: t('integrations.wpPluginTitle'),
-            subtitle: 'Ready-to-use WP plugin',
+            subtitle: t('intgCards.wordpress_plugin_sub'),
             description: t('integrations.wpPluginDesc'),
             isConnected: true,
-            statText: 'Downloadable ZIP archive',
+            statText: t('intgCards.wordpress_plugin_stat'),
             ctaText: t('integrations.downloadPlugin', 'Download Plugin'),
             isWpPlugin: true
         },
         static_site: {
+            landingTip: 'integrations.landingTipWidget',
+            installHint: 'integrations.instStaticSite',
+            configAware: true,
             category: 'sites',
             badge: 'SCRIPT',
             badgeBg: 'rgba(100, 116, 139, 0.15)',
@@ -4267,14 +4328,16 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(100, 116, 139, 0.1)',
             iconColor: '#64748b',
             title: t('staticSite.title'),
-            subtitle: 'HTML/JS remote control',
+            subtitle: t('intgCards.static_site_sub'),
             description: t('staticSite.description'),
             isConnected: true,
-            statText: 'WebView & stub toggle',
+            statText: t('intgCards.static_site_stat'),
             ctaText: t('integrations.getScript', 'Get Script'),
-            code: `<script>\n// ${t('staticSite.instruction')}\n(async function() {\n    const CONFIG_URL = '${trackerUrl}/api.php?action=app_config&key=CONFIG_KEY';\n    try {\n        const res = await fetch(CONFIG_URL);\n        const config = await res.json();\n        \n        // WebView: redirect mobile users\n        if (config.webview?.enabled && /Android|iPhone/i.test(navigator.userAgent)) {\n            window.location.href = config.webview.url;\n            return;\n        }\n        \n        // Banner: show/hide banner element\n        if (config.banner?.enabled) {\n            const banner = document.getElementById('ltt-banner');\n            if (banner) {\n                banner.style.display = 'block';\n                banner.innerHTML = '<a href="' + config.banner.click_url + '">' +\n                    '<img src="' + config.banner.image_url + '" alt="banner" />' +\n                '</a>';\n            }\n        }\n        \n        // Stub: show maintenance page\n        if (config.stub?.enabled) {\n            document.body.innerHTML = '<div style="display:flex;align-items:center;' +\n                'justify-content:center;min-height:100vh;font-family:sans-serif;' +\n                'background:#f5f5f5"><h1>' + config.stub.message + '</h1></div>';\n        }\n    } catch (e) { console.error('Config error:', e); }\n})();\n</script>`
+            code: withConfig(`<script>\n// ${t('staticSite.instruction')}\n(async function() {\n    const CONFIG_URL = '${trackerUrl}/api.php?action=app_config&key=CONFIG_KEY';\n    try {\n        const res = await fetch(CONFIG_URL);\n        const config = await res.json();\n        \n        // WebView: redirect mobile users\n        if (config.webview?.enabled && /Android|iPhone/i.test(navigator.userAgent)) {\n            window.location.href = config.webview.url;\n            return;\n        }\n        \n        // Banner: show/hide banner element\n        if (config.banner?.enabled) {\n            const banner = document.getElementById('ltt-banner');\n            if (banner) {\n                banner.style.display = 'block';\n                banner.innerHTML = '<a href="' + config.banner.click_url + '">' +\n                    '<img src="' + config.banner.image_url + '" alt="banner" />' +\n                '</a>';\n            }\n        }\n        \n        // Stub: show maintenance page\n        if (config.stub?.enabled) {\n            document.body.innerHTML = '<div style="display:flex;align-items:center;' +\n                'justify-content:center;min-height:100vh;font-family:sans-serif;' +\n                'background:#f5f5f5"><h1>' + config.stub.message + '</h1></div>';\n        }\n    } catch (e) { console.error('Config error:', e); }\n})();\n</script>`)
         },
         geo_redirect: {
+            landingTip: 'integrations.landingTipWidget',
+            installHint: 'integrations.instRedirect',
             category: 'sites',
             badge: 'REDIRECT',
             badgeBg: 'rgba(16, 185, 129, 0.15)',
@@ -4283,14 +4346,17 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(16, 185, 129, 0.1)',
             iconColor: '#10b981',
             title: t('integrations.geoRedirectTitle'),
-            subtitle: 'Country-based redirection',
+            subtitle: t('intgCards.geo_redirect_sub'),
             description: t('integrations.geoRedirectDesc'),
             isConnected: true,
-            statText: 'Dynamic Geo-IP routing',
+            statText: t('intgCards.geo_redirect_stat'),
             ctaText: t('integrations.getScript', 'Get Script'),
-            code: `<script>\n// Geo Redirect Script - redirect users based on country\n(function() {\n    var trackerUrl = '${trackerUrl}';\n    var campaignId = 'YOUR_CAMPAIGN_ID';\n    \n    // Mapping: country code -> offer URL\n    var geoOffers = {\n        'RU': 'https://offer1.com',\n        'DE': 'https://offer2.com',\n        'ES': 'https://offer3.com',\n        'US': 'https://offer4.com',\n        'DEFAULT': 'https://default-offer.com'\n    };\n    \n    fetch(trackerUrl + '/api.php?action=detect_geo')\n        .then(r => r.json())\n        .then(data => {\n            var country = data.country || 'DEFAULT';\n            var url = geoOffers[country] || geoOffers['DEFAULT'];\n            \n            // Track click and redirect\n            var clickUrl = trackerUrl + '/click.php?campaign_id=' + campaignId + \n                '&sub1=' + country + '&redirect=0';\n            \n            fetch(clickUrl).finally(() => {\n                window.location.href = url;\n            });\n        })\n        .catch(() => {\n            window.location.href = geoOffers['DEFAULT'];\n        });\n})();\n</script>`
+            campaignAware: true,
+            code: withCampaign(`<script>\n// Geo Redirect Script - redirect users based on country\n(function() {\n    var trackerUrl = '${trackerUrl}';\n    var campaignId = 'YOUR_CAMPAIGN_ID';\n    \n    // Mapping: country code -> offer URL\n    var geoOffers = {\n        'RU': 'https://offer1.com',\n        'DE': 'https://offer2.com',\n        'ES': 'https://offer3.com',\n        'US': 'https://offer4.com',\n        'DEFAULT': 'https://default-offer.com'\n    };\n    \n    fetch(trackerUrl + '/api.php?action=detect_geo')\n        .then(r => r.json())\n        .then(data => {\n            var country = data.country || 'DEFAULT';\n            var url = geoOffers[country] || geoOffers['DEFAULT'];\n            \n            // Track click and redirect\n            var clickUrl = trackerUrl + '/click.php?campaign_id=' + campaignId + \n                '&sub1=' + country + '&redirect=0';\n            \n            fetch(clickUrl).finally(() => {\n                window.location.href = url;\n            });\n        })\n        .catch(() => {\n            window.location.href = geoOffers['DEFAULT'];\n        });\n})();\n</script>`)
         },
         device_redirect: {
+            landingTip: 'integrations.landingTipWidget',
+            installHint: 'integrations.instRedirect',
             category: 'sites',
             badge: 'REDIRECT',
             badgeBg: 'rgba(99, 102, 241, 0.15)',
@@ -4299,12 +4365,13 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(99, 102, 241, 0.1)',
             iconColor: '#6366f1',
             title: t('integrations.deviceRedirectTitle'),
-            subtitle: 'Device type routing',
+            subtitle: t('intgCards.device_redirect_sub'),
             description: t('integrations.deviceRedirectDesc'),
             isConnected: true,
-            statText: 'Mobile / Tablet / PC',
+            statText: t('intgCards.device_redirect_stat'),
             ctaText: t('integrations.getScript', 'Get Script'),
-            code: `<script>\n// Device Redirect Script - redirect based on device type\n(function() {\n    var trackerUrl = '${trackerUrl}';\n    var campaignId = 'YOUR_CAMPAIGN_ID';\n    \n    var mobileUrl = 'https://mobile-offer.com';\n    var desktopUrl = 'https://desktop-offer.com';\n    var tabletUrl = 'https://tablet-offer.com';\n    \n    function getDeviceType() {\n        var ua = navigator.userAgent;\n        if (/tablet|ipad/i.test(ua)) return 'tablet';\n        if (/mobile|iphone|ipod|android|blackberry|opera mini|iemobile/i.test(ua)) return 'mobile';\n        return 'desktop';\n    }\n    \n    var device = getDeviceType();\n    var targetUrl = device === 'mobile' ? mobileUrl : \n                    device === 'tablet' ? tabletUrl : desktopUrl;\n    \n    // Track click and redirect\n    var clickUrl = trackerUrl + '/click.php?campaign_id=' + campaignId + \n        '&sub1=' + device + '&redirect=0';\n    \n    fetch(clickUrl).finally(() => {\n        window.location.href = targetUrl;\n    });\n})();\n</script>`
+            campaignAware: true,
+            code: withCampaign(`<script>\n// Device Redirect Script - redirect based on device type\n(function() {\n    var trackerUrl = '${trackerUrl}';\n    var campaignId = 'YOUR_CAMPAIGN_ID';\n    \n    var mobileUrl = 'https://mobile-offer.com';\n    var desktopUrl = 'https://desktop-offer.com';\n    var tabletUrl = 'https://tablet-offer.com';\n    \n    function getDeviceType() {\n        var ua = navigator.userAgent;\n        if (/tablet|ipad/i.test(ua)) return 'tablet';\n        if (/mobile|iphone|ipod|android|blackberry|opera mini|iemobile/i.test(ua)) return 'mobile';\n        return 'desktop';\n    }\n    \n    var device = getDeviceType();\n    var targetUrl = device === 'mobile' ? mobileUrl : \n                    device === 'tablet' ? tabletUrl : desktopUrl;\n    \n    // Track click and redirect\n    var clickUrl = trackerUrl + '/click.php?campaign_id=' + campaignId + \n        '&sub1=' + device + '&redirect=0';\n    \n    fetch(clickUrl).finally(() => {\n        window.location.href = targetUrl;\n    });\n})();\n</script>`)
         },
         telegram: {
             category: 'tools',
@@ -4315,10 +4382,10 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(14, 165, 233, 0.1)',
             iconColor: '#0ea5e9',
             title: 'Telegram Bot',
-            subtitle: 'Conversion alerts & digests',
+            subtitle: t('intgCards.telegram_sub'),
             description: t('telegram.description'),
             isConnected: !!tgSettings?.token_set,
-            statText: tgSettings?.token_set ? `Connected: @${tgSettings.bot_username || 'Bot'}` : 'Instant notifications',
+            statText: tgSettings?.token_set ? t('intgCards.botConnected', { bot: tgSettings.bot_username || 'Bot' }) : t('intgCards.telegram_stat'),
             ctaText: t('integrations.configureBot', 'Configure Bot'),
             isTelegram: true
         },
@@ -4331,10 +4398,10 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(245, 158, 11, 0.1)',
             iconColor: '#f59e0b',
             title: t('appConfig.title'),
-            subtitle: 'Dynamic WebView JSON API',
+            subtitle: t('intgCards.app_config_sub'),
             description: t('appConfig.subtitle'),
             isConnected: configs.length > 0,
-            statText: configs.length ? `${configs.length} active configs` : 'Mobile apps & WebViews',
+            statText: configs.length ? t('intgCards.configs', { n: configs.length }) : t('intgCards.app_config_stat'),
             ctaText: t('integrations.manageConfigs', 'Manage Configs'),
             isAppConfig: true
         },
@@ -4350,11 +4417,12 @@ const IntegrationsPage = () => {
             subtitle: 'reCAPTCHA v2/v3 & Turnstile',
             description: t('recaptcha.tabDesc'),
             isConnected: !!(rcSettings.recaptcha_v2_site_key || rcSettings.recaptcha_v3_site_key || rcSettings.turnstile_site_key),
-            statText: (rcSettings.recaptcha_v2_site_key || rcSettings.turnstile_site_key) ? 'Protection configured' : 'Anti-bot challenge',
+            statText: (rcSettings.recaptcha_v2_site_key || rcSettings.turnstile_site_key) ? t('intgCards.rcConfigured') : t('intgCards.recaptcha_stat'),
             ctaText: t('integrations.configureKeys', 'Configure Keys'),
             isRecaptcha: true
         },
         countdown_timer: {
+            landingTip: 'integrations.landingTipWidget',
             category: 'tools',
             badge: 'WIDGET',
             badgeBg: 'rgba(236, 72, 153, 0.15)',
@@ -4363,14 +4431,16 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(236, 72, 153, 0.1)',
             iconColor: '#ec4899',
             title: t('integrations.countdownTitle'),
-            subtitle: 'Offer expiration urgency',
+            subtitle: t('intgCards.countdown_timer_sub'),
             description: t('integrations.countdownDesc'),
             isConnected: true,
-            statText: 'Self-contained countdown',
+            statText: t('intgCards.countdown_timer_stat'),
             ctaText: t('integrations.getWidget', 'Get Widget'),
-            code: `<div id="ltt-countdown" style="font-family:sans-serif;text-align:center;padding:20px;\n    background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border-radius:12px;max-width:400px;\n    margin:0 auto;box-shadow:0 10px 40px rgba(0,0,0,0.2);">\n    <div style="font-size:14px;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">\n        OFFER EXPIRES IN\n    </div>\n    <div id="ltt-timer" style="font-size:48px;font-weight:bold;">\n        <span id="ltt-hours">00</span>:<span id="ltt-minutes">00</span>:<span id="ltt-seconds">00</span>\n    </div>\n    <a id="ltt-cta" href="#" style="display:inline-block;margin-top:20px;padding:14px 40px;\n        background:#22c55e;color:white;text-decoration:none;border-radius:8px;font-weight:600;\n        font-size:16px;transition:transform 0.2s;">\n        GET OFFER NOW\n    </a>\n</div>\n\n<script>\n(function() {\n    var trackerUrl = '${trackerUrl}';\n    var campaignId = 'YOUR_CAMPAIGN_ID';\n    var redirectUrl = 'https://your-offer.com';\n    var hoursFromNow = 2; // Countdown duration\n    \n    var endTime = new Date().getTime() + (hoursFromNow * 60 * 60 * 1000);\n    \n    document.getElementById('ltt-cta').href = trackerUrl + '/click.php?campaign_id=' + campaignId + '&url=' + encodeURIComponent(redirectUrl);\n    \n    function updateTimer() {\n        var now = new Date().getTime();\n        var distance = endTime - now;\n        \n        if (distance < 0) {\n            document.getElementById('ltt-countdown').innerHTML = '<h2>OFFER EXPIRED</h2>';\n            return;\n        }\n        \n        var hours = Math.floor(distance / (1000 * 60 * 60));\n        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));\n        var seconds = Math.floor((distance % (1000 * 60)) / 1000);\n        \n        document.getElementById('ltt-hours').textContent = String(hours).padStart(2, '0');\n        document.getElementById('ltt-minutes').textContent = String(minutes).padStart(2, '0');\n        document.getElementById('ltt-seconds').textContent = String(seconds).padStart(2, '0');\n    }\n    \n    updateTimer();\n    setInterval(updateTimer, 1000);\n})();\n</script>`
+            code: buildSnippet('countdown', snippetCtx),
+            snippetMethod: 'countdown',
         },
         back_button_trap: {
+            landingTip: 'integrations.landingTipWidget',
             category: 'tools',
             badge: 'CONVERSION',
             badgeBg: 'rgba(239, 68, 68, 0.15)',
@@ -4379,14 +4449,16 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(239, 68, 68, 0.1)',
             iconColor: '#ef4444',
             title: t('integrations.backButtonTitle'),
-            subtitle: 'Intercept exit & rebound',
+            subtitle: t('intgCards.back_button_trap_sub'),
             description: t('integrations.backButtonDesc'),
             isConnected: true,
-            statText: 'Browser history handler',
+            statText: t('intgCards.back_button_trap_stat'),
             ctaText: t('integrations.getScript', 'Get Script'),
-            code: `<script>\n// Back Button Trap - intercept browser back button\n(function() {\n    var trackerUrl = '${trackerUrl}';\n    var campaignId = 'YOUR_CAMPAIGN_ID';\n    var trapUrl = 'https://your-special-offer.com';\n    \n    // Push a state to intercept back button\n    history.pushState({ trap: true }, '', location.href);\n    \n    window.addEventListener('popstate', function(e) {\n        if (e.state && e.state.trap) {\n            // Track the back button click\n            var clickUrl = trackerUrl + '/click.php?campaign_id=' + campaignId + \n                '&sub1=back_button&redirect=0';\n            \n            fetch(clickUrl).finally(() => {\n                // Redirect to special offer\n                window.location.href = trapUrl;\n            });\n        }\n    });\n})();\n</script>`
+            code: buildSnippet('back_button', snippetCtx),
+            snippetMethod: 'back_button',
         },
         exit_popup: {
+            landingTip: 'integrations.landingTipWidget',
             category: 'tools',
             badge: 'CONVERSION',
             badgeBg: 'rgba(168, 85, 247, 0.15)',
@@ -4395,12 +4467,13 @@ const IntegrationsPage = () => {
             iconBg: 'rgba(168, 85, 247, 0.1)',
             iconColor: '#a855f7',
             title: t('integrations.exitPopupTitle'),
-            subtitle: 'Exit-intent modal overlay',
+            subtitle: t('intgCards.exit_popup_sub'),
             description: t('integrations.exitPopupDesc'),
             isConnected: true,
-            statText: 'Mouse leave detector',
+            statText: t('intgCards.exit_popup_stat'),
             ctaText: t('integrations.getScript', 'Get Script'),
-            code: `<style>\n.ltt-exit-popup { display:none; position:fixed; top:0; left:0; width:100%; height:100%;\n    background:rgba(0,0,0,0.7); z-index:99999; justify-content:center; align-items:center; }\n.ltt-exit-popup.show { display:flex; }\n.ltt-exit-content { background:white; padding:40px; border-radius:16px; max-width:500px;\n    text-align:center; position:relative; box-shadow:0 20px 60px rgba(0,0,0,0.3); }\n.ltt-exit-close { position:absolute; top:15px; right:20px; font-size:24px; cursor:pointer;\n    color:#999; border:none; background:none; }\n.ltt-exit-close:hover { color:#333; }\n.ltt-exit-btn { display:inline-block; margin-top:20px; padding:16px 40px; background:#22c55e;\n    color:white; text-decoration:none; border-radius:8px; font-weight:600; font-size:18px; }\n</style>\n\n<div id="ltt-exit-popup" class="ltt-exit-popup">\n    <div class="ltt-exit-content">\n        <button class="ltt-exit-close" onclick="document.getElementById('ltt-exit-popup').classList.remove('show')">&times;</button>\n        <h2 style="margin:0 0 15px;font-size:28px;">Wait! Special Offer!</h2>\n        <p style="font-size:16px;color:#666;margin-bottom:10px;">Don't miss this exclusive deal just for you!</p>\n        <a id="ltt-exit-cta" href="#" class="ltt-exit-btn">CLAIM OFFER</a>\n    </div>\n</div>\n\n<script>\n(function() {\n    var trackerUrl = '${trackerUrl}';\n    var campaignId = 'YOUR_CAMPAIGN_ID';\n    var offerUrl = 'https://your-offer.com';\n    var shown = false;\n    \n    document.getElementById('ltt-exit-cta').href = trackerUrl + '/click.php?campaign_id=' + campaignId + '&url=' + encodeURIComponent(offerUrl);\n    \n    document.addEventListener('mouseout', function(e) {\n        if (shown) return;\n        if (e.clientY < 10 && e.relatedTarget === null) {\n            shown = true;\n            document.getElementById('ltt-exit-popup').classList.add('show');\n            \n            // Track exit intent\n            fetch(trackerUrl + '/click.php?campaign_id=' + campaignId + '&sub1=exit_popup&redirect=0');\n        }\n    });\n})();\n</script>`
+            code: buildSnippet('exit_intent', snippetCtx),
+            snippetMethod: 'exit_intent',
         }
     };
 
@@ -5655,7 +5728,7 @@ global \$wpdb;
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                             </span>
                             <span className="text-xs font-semibold text-[var(--color-text-primary)]">
-                                {liveCount} {t('integrations.connectionsLive', 'Active Connections')}
+                                {t('integrations.connectionsLiveCount', { n: liveCount })}
                             </span>
                         </div>
                     </div>
@@ -5822,7 +5895,7 @@ global \$wpdb;
                     {activeObj.isConnected && (
                         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs font-medium">
                             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            {activeObj.statText || 'Active'}
+                            {activeObj.statText || t('integrations.statusActive', 'Active')}
                         </div>
                     )}
                 </div>
@@ -6693,9 +6766,84 @@ global \$wpdb;
                             </div>
                         ) : activeObj.isTelegram ? renderTelegramPanel() : activeObj.isAppConfig ? renderAppConfigPanel() : activeObj.isPixelVault ? renderPixelVaultPanel() : activeObj.isFacebookCosts ? renderFacebookCostsPanel() : activeObj.isTikTokCosts ? renderTikTokCostsPanel() : activeObj.isGoogleAdsCosts ? renderGoogleAdsCostsPanel() : activeObj.isFacebookConversions ? renderFacebookConversionsPanel() : activeObj.isChromeExtension ? renderChromeExtensionPanel() : activeObj.isWpPlugin ? renderWpPluginPanel() : (
                             <div style={{ padding: '20px 24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                                {(activeObj.snippetMethod || activeObj.campaignAware) && (
+                                    <div style={{
+                                        marginBottom: '16px', padding: '14px 16px', borderRadius: '12px',
+                                        background: 'var(--color-bg-soft)', border: '1px solid var(--color-border)',
+                                        display: 'flex', flexDirection: 'column', gap: '8px'
+                                    }}>
+                                        <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                                            {t('integrations.snippetStep1', '1. Choose the campaign this code belongs to')}
+                                        </label>
+                                        <select
+                                            className="form-select"
+                                            data-snippet-campaign
+                                            value={snippetCampaignId}
+                                            onChange={e => setSnippetCampaignId(e.target.value)}
+                                        >
+                                            <option value="">{snippetCampaigns === null ? t('common.loading', 'Loading...') : t('integrations.snippetPickCampaign', '— pick a campaign —')}</option>
+                                            {(snippetCampaigns || []).map(c => (
+                                                <option key={c.id} value={c.id}>#{c.id} {c.name}{c.domain_name ? ` · ${c.domain_name}` : ''}</option>
+                                            ))}
+                                        </select>
+                                        <div style={{ fontSize: '12px', color: snippetCampaign ? 'var(--color-success)' : 'var(--color-text-secondary)' }}>
+                                            {snippetCampaign
+                                                ? t('integrations.snippetFilled', 'Done — the campaign data is already in the code. Just copy it.')
+                                                : t('integrations.snippetPickHint', 'Pick a campaign and its data is filled into the code for you — nothing to edit by hand.')}
+                                        </div>
+                                        {panelOnInsecureHost && !(snippetCampaign && snippetCampaign.domain_name) && (
+                                            <div style={{ fontSize: '12px', color: 'var(--color-warning)' }}>
+                                                {t('integrations.snippetInsecureHost', 'The panel is open over http or a bare IP, so the code points there too — https landings will block it. Pick a campaign bound to a domain and its https address is used instead.')}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                                {activeObj.configAware && (
+                                    <div style={{
+                                        marginBottom: '16px', padding: '14px 16px', borderRadius: '12px',
+                                        background: 'var(--color-bg-soft)', border: '1px solid var(--color-border)',
+                                        display: 'flex', flexDirection: 'column', gap: '8px'
+                                    }}>
+                                        <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                                            {t('integrations.snippetStep1Config', '1. Choose the App Config this code reads')}
+                                        </label>
+                                        {configs.length > 0 ? (
+                                            <>
+                                                <select
+                                                    className="form-select"
+                                                    data-snippet-config
+                                                    value={snippetConfigKey}
+                                                    onChange={e => setSnippetConfigKey(e.target.value)}
+                                                >
+                                                    <option value="">{t('integrations.snippetPickConfig', '— pick a config —')}</option>
+                                                    {configs.map(cfg => (
+                                                        <option key={cfg.id} value={cfg.config_key}>{cfg.name}</option>
+                                                    ))}
+                                                </select>
+                                                <div style={{ fontSize: '12px', color: snippetConfigKey ? 'var(--color-success)' : 'var(--color-text-secondary)' }}>
+                                                    {snippetConfigKey
+                                                        ? t('integrations.snippetConfigFilled', 'Done — the config key is already in the code. Just copy it.')
+                                                        : t('integrations.snippetPickConfigHint', 'Pick a config and its key is filled into the code for you.')}
+                                                </div>
+                                                {panelOnInsecureHost && (
+                                                    <div style={{ fontSize: '12px', color: 'var(--color-warning)' }}>
+                                                        {t('integrations.snippetInsecureHostConfig', 'The panel is open over http or a bare IP, so the code points there too — https sites will block it. Open the panel through your https domain and copy the code again.')}
+                                                    </div>
+                                                )}
+                                            </>
+                                        ) : (
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', fontSize: '13px', color: 'var(--color-text-secondary)' }}>
+                                                <span>{t('integrations.snippetNoConfigs', 'No configs yet — create one on the App Config card first.')}</span>
+                                                <button className="btn btn-secondary btn-sm" onClick={() => setActiveTab('app_config')}>
+                                                    {t('integrations.snippetOpenAppConfig', 'Open App Config')}
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                                     <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--color-text-primary)' }}>
-                                        {t('integrations.codeToInsert')}
+                                        {(activeObj.snippetMethod || activeObj.campaignAware || activeObj.configAware) ? t('integrations.snippetStep2', '2. Copy the code') : t('integrations.codeToInsert')}
                                     </span>
                                     <button
                                         onClick={() => copyToClipboard(activeObj.code, activeTab)}
@@ -6751,9 +6899,31 @@ global \$wpdb;
                                         color: '#cdd6f4',
                                         lineHeight: 1.6
                                     }}>
-                                        <code>{activeObj.code}</code>
+                                        {/* The global `code` chip style (light pill) made every line of a
+                                            dark editor look highlighted — reset it inside the editor. */}
+                                        <code style={{ background: 'transparent', padding: 0, borderRadius: 0, color: 'inherit', fontSize: 'inherit' }}>{activeObj.code}</code>
                                     </pre>
                                 </div>
+
+                                {(activeObj.snippetMethod || activeObj.campaignAware || activeObj.configAware) && (
+                                    <div style={{
+                                        marginTop: '16px', padding: '12px 16px', borderRadius: '12px',
+                                        background: 'var(--color-bg-soft)', border: '1px solid var(--color-border)',
+                                        fontSize: '13px', lineHeight: 1.55, color: 'var(--color-text-secondary)',
+                                        display: 'flex', flexDirection: 'column', gap: '6px'
+                                    }}>
+                                        <div>
+                                            <strong style={{ color: 'var(--color-text-primary)' }}>{t('integrations.snippetStep3', '3. Where to paste it')}:</strong>{' '}
+                                            {t(activeObj.installHint || METHOD_INSTALL_HINTS[activeObj.snippetMethod] || 'tracking.instWidgets')}
+                                        </div>
+                                        {activeObj.landingTip && (
+                                            <div>{t(activeObj.landingTip)}</div>
+                                        )}
+                                        {activeObj.snippetMethod && (
+                                            <div>{t('integrations.snippetMoreSettings', 'Need your own texts, colours, URL or delay? Open the campaign → tab')} «{t('editor.tracking', 'Tracking')}».</div>
+                                        )}
+                                    </div>
+                                )}
 
                                 {/* Warning for KClient PHP */}
                                 {activeTab === 'kclient_php' && (

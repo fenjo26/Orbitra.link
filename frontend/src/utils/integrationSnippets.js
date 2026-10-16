@@ -46,7 +46,7 @@ export const METHOD_INSTALL_HINTS = {
     script: 'tracking.instAdSnippet',
     pixel: 'tracking.instPixel',
     countdown: 'tracking.instWidgets',
-    back_button: 'tracking.instWidgets',
+    back_button: 'tracking.instBackButton',
     exit_intent: 'tracking.instWidgets',
     wordpress: 'tracking.instWordpress',
 };
@@ -239,19 +239,70 @@ function countdownSnippet({ trackerUrl, campaign }, opts = {}) {
     return `<!-- Orbitra Countdown Widget — insert before the landing's closing </body> -->\n<div id="ltt-countdown" style="font-family:sans-serif;text-align:center;padding:20px;\n    background:${theme.gradient};color:white;border-radius:12px;max-width:400px;\n    margin:0 auto;box-shadow:0 10px 40px rgba(0,0,0,0.2);">\n    <div style="font-size:14px;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">\n        ${esc(headerText)}\n    </div>\n    <div id="ltt-timer" style="font-size:48px;font-weight:bold;">\n        <span id="ltt-hours">00</span>:<span id="ltt-minutes">00</span>:<span id="ltt-seconds">00</span>\n    </div>\n    <a id="ltt-cta" href="#" style="display:inline-block;margin-top:20px;padding:14px 40px;\n        background:${theme.cta};color:white;text-decoration:none;border-radius:8px;font-weight:600;\n        font-size:16px;transition:transform 0.2s;">\n        ${esc(buttonText)}\n    </a>\n</div>\n\n<script>\n(function() {\n    var trackerUrl = '${trackerUrl}';\n    var campaignId = '${campaign.id}';\n    var redirectUrl = ${JSON.stringify(offerUrl)};\n    var totalSeconds = ${totalSeconds};\n\n    var endTime = new Date().getTime() + totalSeconds * 1000;\n\n    document.getElementById('ltt-cta').href = trackerUrl + '/click.php?campaign_id=' + campaignId + '&url=' + encodeURIComponent(redirectUrl);\n\n    function updateTimer() {\n        var distance = endTime - new Date().getTime();\n        if (distance < 0) {\n            ${onExpire}\n            return;\n        }\n        document.getElementById('ltt-hours').textContent = String(Math.floor(distance / 3600000)).padStart(2, '0');\n        document.getElementById('ltt-minutes').textContent = String(Math.floor((distance % 3600000) / 60000)).padStart(2, '0');\n        document.getElementById('ltt-seconds').textContent = String(Math.floor((distance % 60000) / 1000)).padStart(2, '0');\n    }\n\n    updateTimer();\n    setInterval(updateTimer, 1000);\n})();\n</script>`;
 }
 
-function backButtonSnippet({ trackerUrl, campaign }, opts = {}) {
-    const trapUrl = opts.trapUrl || 'https://your-special-offer.com';
-    const logClick = opts.logClick !== false;
+/** Appends sub1=back_button so returns show up as their own row in reports.
+ *  Leaves the URL alone when it already carries a sub1 or is empty. */
+export function tagBackButtonUrl(url) {
+    const u = String(url || '').trim();
+    if (!u || /[?&]sub1=/.test(u)) return u;
+    const hashAt = u.indexOf('#');
+    const base = hashAt >= 0 ? u.slice(0, hashAt) : u;
+    const hash = hashAt >= 0 ? u.slice(hashAt) : '';
+    return base + (base.includes('?') ? '&' : '?') + 'sub1=back_button' + hash;
+}
+
+/** Back Button Trap.
+ *
+ *  Browsers (Chrome, Edge, Safari) skip history entries a page added before the
+ *  visitor touched it, so a trap armed on load is silently ignored by the real
+ *  Back button. The trap is therefore armed by the first click / tap / key
+ *  press — exactly when the browser starts honouring it.
+ *
+ *  Pressing Back lands on the marked "base" entry; the page replaces itself
+ *  with trapUrl (location.replace), so a second Back leaves normally instead of
+ *  looping. The return is counted by the tracker link itself (sub1=back_button),
+ *  never by a second background request: that request double-counted, and from
+ *  an https landing to an http tracker it was blocked as mixed content anyway.
+ *  Empty trap URL = this campaign's own link. */
+function backButtonSnippet({ campaign }, opts = {}) {
+    const rawUrl = String(opts.trapUrl || '').trim() || campaign.url || 'https://your-special-offer.com';
+    const trapUrl = opts.logClick !== false ? tagBackButtonUrl(rawUrl) : rawUrl;
     const delay = Math.max(0, parseInt(opts.delay, 10) || 0);
+    const delayLines = delay > 0
+        ? `\n    var readyAt = Date.now() + ${delay * 1000}; // activation delay: ${delay} s`
+        : '';
+    const delayCheck = delay > 0 ? ' || Date.now() < readyAt' : '';
 
-    const armLine = delay > 0
-        ? `setTimeout(arm, ${delay * 1000});`
-        : `arm();`;
-    const trapBody = logClick
-        ? `var clickUrl = trackerUrl + '/click.php?campaign_id=' + campaignId + '&sub1=back_button&redirect=0';\n        fetch(clickUrl).finally(function() {\n            window.location.href = trapUrl;\n        });`
-        : `window.location.href = trapUrl;`;
+    return `<!-- Orbitra Back Button Trap — paste before the landing's closing </body> -->
+<!-- Works after the visitor has clicked or tapped the page once (browser rule).
+     To test: open the landing, click anywhere on it, then press Back. -->
+<script>
+(function () {
+    // Where to send a visitor who presses Back:
+    var trapUrl = ${JSON.stringify(trapUrl)};${delayLines}
 
-    return `<!-- Orbitra Back Button Trap — insert before the landing's closing </body> -->\n<script>\n(function() {\n    var trackerUrl = '${trackerUrl}';\n    var campaignId = '${campaign.id}';\n    var trapUrl = ${JSON.stringify(trapUrl)};\n\n    function arm() {\n        history.pushState(null, '', location.href);\n    }\n\n    ${armLine}\n\n    window.addEventListener('popstate', function() {\n        // Any popstate on this page is an attempt to go "back": pushState\n        // keeps the page from unloading, and we route the user into the trap.\n        ${trapBody}\n    });\n})();\n</script>`;
+    var armed = false, fired = false;
+
+    function arm() {
+        if (armed${delayCheck}) return;
+        armed = true;
+        try {
+            var st = history.state && typeof history.state === 'object' ? history.state : {};
+            history.replaceState(Object.assign({}, st, { orbitraTrap: 'base' }), '', location.href);
+            history.pushState({ orbitraTrap: 'guard' }, '', location.href);
+        } catch (e) {}
+    }
+
+    ['pointerdown', 'touchend', 'keydown', 'click'].forEach(function (type) {
+        window.addEventListener(type, arm, { capture: true, passive: true });
+    });
+
+    window.addEventListener('popstate', function (e) {
+        if (fired || !e.state || e.state.orbitraTrap !== 'base') return;
+        fired = true;
+        location.replace(trapUrl);
+    });
+})();
+</script>`;
 }
 
 function exitIntentSnippet({ trackerUrl, campaign }, opts = {}) {

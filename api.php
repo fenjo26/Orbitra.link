@@ -75,6 +75,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 header('Content-Type: application/json');
 $action = $_GET['action'] ?? '';
 
+// Public endpoints for landings / third-party sites: no session, no admin-IP
+// allowlist, no CSRF — see core/public_endpoints.php for why they sit here.
+require_once __DIR__ . '/core/public_endpoints.php';
+if ($action === 'detect_geo') {
+    orbitraPublicDetectGeo();
+    exit;
+}
+if ($action === 'app_config') {
+    orbitraPublicAppConfig($pdo);
+    exit;
+}
+
 // A domain parked with admin_access=0 serves tracking only. api.php is part
 // of the admin surface, so on such a host it answers 404 for everything
 // except the pre-auth public actions (login/first-setup/ping) — a signed-in
@@ -3546,7 +3558,7 @@ try {
             $scopeIn = orbitraCampaignScopeInSql(orbitraCampaignScope($pdo), 'c.id');
             $scopeIn = $scopeIn !== '' ? " AND $scopeIn" : '';
             $stmt = $pdo->query("
-                SELECT c.id, c.name, c.alias, c.state, c.group_id,
+                SELECT c.id, c.name, c.alias, c.state, c.group_id, c.token,
                        cg.name as group_name,
                        ts.name as source_name,
                        d.name as domain_name
@@ -21179,127 +21191,6 @@ try {
             }
             break;
 
-        // Public endpoint — no auth needed
-        case 'app_config':
-            header('Access-Control-Allow-Origin: *');
-            $key = $_GET['key'] ?? '';
-            if (!$key) {
-                echo json_encode(['error' => 'Key required']);
-                break;
-            }
-            $stmt = $pdo->prepare("SELECT config_json, is_active FROM app_configs WHERE config_key = ?");
-            $stmt->execute([$key]);
-            $config = $stmt->fetch();
-            if (!$config) {
-                http_response_code(404);
-                echo json_encode(['error' => 'Config not found']);
-            } elseif (!$config['is_active']) {
-                echo json_encode(['active' => false]);
-            } else {
-                echo $config['config_json'];
-            }
-            break;
-
-        // Public endpoint — geo detection for integration scripts
-        case 'detect_geo':
-            header('Access-Control-Allow-Origin: *');
-            header('Content-Type: application/json');
-
-            // Reuse GeoIP logic from index.php
-            if (file_exists(__DIR__ . '/vendor/autoload.php')) {
-                require_once __DIR__ . '/vendor/autoload.php';
-            }
-
-            $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-            // Check forwarded headers
-            $ipKeys = ['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR'];
-            foreach ($ipKeys as $key) {
-                if (!empty($_SERVER[$key])) {
-                    foreach (explode(',', $_SERVER[$key]) as $candidateIp) {
-                        $candidateIp = trim($candidateIp);
-                        if (filter_var($candidateIp, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false) {
-                            $ip = $candidateIp;
-                            break 2;
-                        }
-                    }
-                }
-            }
-
-            $country = 'UNKNOWN';
-            if (!in_array($ip, ['127.0.0.1', '::1'])) {
-                // 1. MaxMind
-                $maxMindDb = __DIR__ . '/geo/GeoLite2-City.mmdb';
-                if (file_exists($maxMindDb) && class_exists('\GeoIp2\Database\Reader')) {
-                    try {
-                        $reader = new \GeoIp2\Database\Reader($maxMindDb);
-                        $record = $reader->city($ip);
-                        $country = $record->country->isoCode ?: 'UNKNOWN';
-                    } catch (\Exception $e) {
-                    }
-                }
-
-                // 2. IP2Location (DB11)
-                if ($country === 'UNKNOWN') {
-                    $ip2locCandidates = [
-                        __DIR__ . '/geo/IP2LOCATION-LITE-DB11.BIN',
-                        __DIR__ . '/geo/IP2LOCATION-LITE.BIN'
-                    ];
-                    $ip2locDb = null;
-                    foreach ($ip2locCandidates as $candidate) {
-                        if (file_exists($candidate)) {
-                            $ip2locDb = $candidate;
-                            break;
-                        }
-                    }
-
-                    if ($ip2locDb && class_exists('\IP2Location\Database')) {
-                        try {
-                            $db = new \IP2Location\Database($ip2locDb, \IP2Location\Database::FILE_IO);
-                            $records = $db->lookup($ip, \IP2Location\Database::ALL);
-                            if ($records && is_array($records) && !empty($records['countryCode']) && $records['countryCode'] !== '-') {
-                                $country = $records['countryCode'];
-                            }
-                        } catch (\Exception $e) {
-                        }
-                    }
-                }
-
-                // 3. SxGeo
-                if ($country === 'UNKNOWN') {
-                    $sxGeoDat = __DIR__ . '/var/geoip/SxGeoCity/SxGeoCity.dat';
-                    $sxGeoParser = __DIR__ . '/core/SxGeo.php';
-                    if (file_exists($sxGeoDat) && file_exists($sxGeoParser)) {
-                        require_once $sxGeoParser;
-                        try {
-                            $sxGeoClass = '\SxGeo';
-                            if (class_exists($sxGeoClass)) {
-                                $sxGeo = new $sxGeoClass($sxGeoDat);
-                                $cc = $sxGeo->getCountry($ip);
-                                if ($cc)
-                                    $country = $cc;
-                            }
-                        } catch (\Exception $e) {
-                        }
-                    }
-                }
-
-                // 4. Fallback: external API
-                if ($country === 'UNKNOWN') {
-                    $ch = curl_init("http://ip-api.com/json/{$ip}?fields=countryCode");
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                    curl_setopt($ch, CURLOPT_TIMEOUT, 2);
-                    $response = curl_exec($ch);
-                    // curl_close() deprecated in PHP 8.5 - resources are auto-freed
-                    if ($response) {
-                        $data = json_decode($response, true);
-                        if (!empty($data['countryCode']))
-                            $country = $data['countryCode'];
-                    }
-                }
-            }
-
-            echo json_encode(['country' => $country, 'ip' => $ip]);
-            break;
 
 
         default:

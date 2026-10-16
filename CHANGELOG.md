@@ -7,6 +7,22 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.6.20] — 2026-10-16
+
+### Fixed
+
+- 🌍 **Geo Redirect, WordPress, Static site and App Config work for real visitors.** `api.php?action=detect_geo` and `?action=app_config` sat below the admin-IP allowlist and the login check, so every visitor without a panel session got `401 Unauthorized` — with no CORS header, which the browser reports only as "Failed to fetch". Both are now answered before any of that (`core/public_endpoints.php`), on every domain including tracking-only ones.
+- ↩️ **Back Button Trap actually traps.** The Integrations page kept its own stale copy of the snippet that only reacted to a history entry marked `{trap:true}` — but Back lands on the entry *before* it, whose state is empty, so the handler never fired: the first Back press did nothing visible and the second left the page. Integrations now builds the widget with the same generator as the campaign editor (`utils/integrationSnippets.js`), so the two can no longer drift.
+- ↩️ **The trap is armed by the visitor's first click / tap / key press.** Chrome, Edge and Safari skip history entries a page added before the visitor interacted with it, so a trap armed on load was ignored by the real Back button. Arming on the first gesture is exactly when browsers start honouring it; a second Back after the trap leaves normally (`location.replace`, no loop). The snippet and the panel say this in plain words, with how to test it.
+- ↩️ **One return = one click.** The snippet used to `fetch` `click.php` and then open a campaign link that logged a click of its own — double counting, and from an https landing to an http tracker the fetch was blocked as mixed content anyway. Returns are now counted by the trap link alone, tagged `sub1=back_button`; an empty trap URL means this campaign's own link.
+- 🖤 **Integration code is readable again.** The global `code` chip style painted a light pill behind every line of the dark code editor on the Integrations page.
+
+### Changed
+
+- 🧩 **Every code card on the Integrations page fills itself in.** Tracking Client (PHP/JS), Tracking Pixel and JS banner join the campaign picker (the token, the id and the campaign's own **https domain** go straight into the code — no more `CAMPAIGN_TOKEN` / `YOUR_ID`, and no bare `http://IP` that https landings refuse to load). WordPress and Static site get an App Config picker for `CONFIG_KEY`. When the panel itself is open over http or an IP, the card says so.
+- 📝 **Clear descriptions everywhere.** Every card says what it does and where it goes — your own site, a landing on your hosting, or a landing uploaded to Orbitra (with where to paste it in the file editor, and that the tracking clients aren't needed there). Card subtitles, statuses and counters were hard-coded English; they are translated into all seven languages.
+- 🧩 **Widgets on the Integrations page fill themselves in.** Countdown, Back Button Trap, Exit popup and the Geo / Device redirect scripts now open with a campaign picker: choose the campaign, copy, paste — no `YOUR_CAMPAIGN_ID` to edit by hand. Each card walks through it in three numbered steps and says where the code goes; custom texts, colours and delays stay in the campaign's Tracking tab.
+
 ## [1.6.19] — 2026-10-14
 
 ### Added

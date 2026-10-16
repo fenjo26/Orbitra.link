@@ -1,7 +1,9 @@
 import React from 'react';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const IntegrationCard = ({ item, onSelect, onClick }) => {
+    const { t } = useLanguage();
     const handleAction = () => {
         if (typeof onSelect === 'function') {
             onSelect(item?.id);
@@ -46,11 +48,11 @@ const IntegrationCard = ({ item, onSelect, onClick }) => {
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                             </span>
-                            Active
+                            {t('integrations.statusActive', 'Active')}
                         </span>
                     ) : (
                         <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 shrink-0">
-                            Available
+                            {t('integrations.statusAvailable', 'Available')}
                         </span>
                     )}
                 </div>
@@ -107,7 +109,7 @@ const IntegrationCard = ({ item, onSelect, onClick }) => {
                             color: item.isConnected ? 'var(--color-text-primary)' : 'var(--color-text-muted)',
                         }}
                     >
-                        {item.statText || 'Click to configure'}
+                        {item.statText || t('integrations.clickToConfigure', 'Click to configure')}
                     </span>
                 </div>
 

@@ -4002,7 +4002,10 @@ const CampaignEditor = ({ campaignId, onClose }) => {
                                                         <>
                                                             <div>
                                                                 <label className="form-label">{t('tracking.trapUrl', 'Trap Redirect URL')}</label>
-                                                                <input type="text" className="form-input" placeholder="https://your-special-offer.com" value={trackOpts.trapUrl} onChange={e => setTrackOpts({ ...trackOpts, trapUrl: e.target.value })} />
+                                                                <input type="text" className="form-input" placeholder={getCampaignUrl() || 'https://your-special-offer.com'} value={trackOpts.trapUrl} onChange={e => setTrackOpts({ ...trackOpts, trapUrl: e.target.value })} />
+                                                                <div className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
+                                                                    {t('tracking.trapUrlHint', 'Leave empty to send the visitor back into this campaign. You can also paste another campaign link or any site.')}
+                                                                </div>
                                                             </div>
                                                             <label className="flex items-center gap-2 text-xs" style={{ color: 'var(--color-text-secondary)' }}>
                                                                 <input
