@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Calendar, ChevronLeft, ChevronRight, Globe, Check } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getTimezone, setTimezone as setSharedTimezone, profileTimezone } from '../utils/useTimezone';
@@ -87,6 +87,80 @@ export const getPresetDates = (presetKey) => {
         default:
             return null;
     }
+};
+
+// Which fixed preset a committed range equals. Used only as a fallback to
+// classify a range the picker reported without a preset id; display stays raw
+// dates by the operator's preference (Keitaro shows the period's dates too).
+const presetForRange = (from, to) => {
+    if (!from || !to) return null;
+    const ids = ['today', 'yesterday', 'thisWeek', 'last7Days', 'thisMonth', 'last30Days', 'previousMonth'];
+    for (const id of ids) {
+        const range = getPresetDates(id);
+        if (range && range.from === from && range.to === to) return id;
+    }
+    return null;
+};
+
+/**
+ * Date range for a list page, Keitaro-style: the "today" the page opens on is
+ * ALWAYS the actual today, never the day the tab happened to load.
+ *
+ * What this replaces: pages computed getPresetDates('today') once at mount, so
+ * a panel tab kept open for days quietly served day-old numbers on Campaigns,
+ * Offers and Landings alike — and Campaigns additionally replayed a saved
+ * custom range forever after its end date passed. Here:
+ *   - a non-custom preset is re-derived on every mount AND rolled forward by a
+ *     minute timer, so an overnight tab switches to the new day on its own;
+ *   - a stored custom range survives only while it still touches today (a
+ *     research window ending in the past would otherwise silently become the
+ *     default view, which is exactly the three-day-old-numbers report);
+ *   - with storageKey the {preset, from, to} entry persists across reloads.
+ *
+ * Returns [{from, to, preset}, setRange]; setRange matches the picker's
+ * onChange signature (from, to, preset).
+ */
+export function useDateRange({ storageKey = null, defaultPreset = 'today' } = {}) {
+    const [state, setState] = useState(() => {
+        const fallback = getPresetDates(defaultPreset) || getPresetDates('today');
+        let saved = null;
+        if (storageKey) {
+            try { saved = JSON.parse(localStorage.getItem(storageKey) || 'null'); } catch { saved = null; }
+        }
+        if (saved && saved.preset && saved.preset !== 'custom') {
+            const derived = getPresetDates(saved.preset);
+            if (derived) return { from: derived.from, to: derived.to, preset: saved.preset };
+        }
+        // Legacy entries saved before presets existed (bare {from, to}) are
+        // treated as custom — and custom is kept only while still current.
+        const savedIsCurrentCustom = saved
+            && (!saved.preset || saved.preset === 'custom')
+            && saved.from && saved.to
+            && saved.to >= (fallback?.to || '');
+        if (savedIsCurrentCustom) return { from: saved.from, to: saved.to, preset: 'custom' };
+        return { from: fallback?.from || formatDate(new Date()), to: fallback?.to || formatDate(new Date()), preset: defaultPreset };
+    });
+
+    useEffect(() => {
+        if (state.preset === 'custom') return;
+        const timer = setInterval(() => {
+            const derived = getPresetDates(state.preset);
+            if (derived && (derived.from !== state.from || derived.to !== state.to)) {
+                setState({ from: derived.from, to: derived.to, preset: state.preset });
+            }
+        }, 60000);
+        return () => clearInterval(timer);
+    }, [state.preset, state.from, state.to]);
+
+    const setRange = useCallback((from, to, preset) => {
+        const next = { from, to, preset: preset || presetForRange(from, to) || 'custom' };
+        setState(next);
+        if (storageKey) {
+            try { localStorage.setItem(storageKey, JSON.stringify(next)); } catch { /* storage unavailable */ }
+        }
+    }, [storageKey]);
+
+    return [state, setRange];
 };
 
 const DateRangePicker = ({
@@ -295,7 +369,9 @@ const DateRangePicker = ({
         calendarCells.push({ dayNumber: d, dateStr: str, isCurrentMonth: false });
     }
 
-    // Format display range for trigger button
+    // Format display range for trigger button. Raw dates by the operator's
+    // preference — the day switching at midnight is what makes them current,
+    // not a preset label.
     const formatDisplay = () => {
         if (!dateFrom && !dateTo) return t('dateRangePicker.today');
         if (dateFrom === dateTo) return dateFrom;

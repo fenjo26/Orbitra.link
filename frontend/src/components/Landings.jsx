@@ -12,7 +12,7 @@ import { SortableTh, sortRows, nextSortState } from './common/SortableTh';
 import PaginationToolbar from './common/PaginationToolbar';
 import MobileCards from './common/MobileCards';
 import { useCardMetrics } from './common/CardMetrics';
-import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
+import DateRangePicker, { useDateRange } from './DateRangePicker';
 import { useTimezone } from '../utils/useTimezone';
 import axios from 'axios';
 import { canWriteResource } from '../utils/permissions';
@@ -199,8 +199,11 @@ const Landings = ({ landings, refreshData, user }) => {
         setThDragOverIdx(null);
     };
 
-    const [dateFrom, setDateFrom] = useState(() => getPresetDates('today')?.from || formatDate(new Date()));
-    const [dateTo, setDateTo] = useState(() => getPresetDates('today')?.to || formatDate(new Date()));
+    // useDateRange: "today" here is the real today on every visit and rolls
+    // over at midnight in a long-lived tab, instead of the day the tab loaded.
+    const [dateRange, setDateRange] = useDateRange();
+    const dateFrom = dateRange.from;
+    const dateTo = dateRange.to;
     const [timezone, setTimezone] = useTimezone();
     // key=null keeps the API's own order, same contract as Campaigns and Offers.
     const [sortBy, setSortBy] = useState({ key: null, dir: 'desc' });
@@ -237,10 +240,7 @@ const Landings = ({ landings, refreshData, user }) => {
         fetchLandings();
     }, [fetchLandings]);
 
-    const handleDateChange = (from, to) => {
-        setDateFrom(from);
-        setDateTo(to);
-    };
+    const handleDateChange = setDateRange;
 
     const handleCreate = () => {
         setEditingLandingId(null);
@@ -959,6 +959,7 @@ const Landings = ({ landings, refreshData, user }) => {
                     <DateRangePicker
                         dateFrom={dateFrom}
                         dateTo={dateTo}
+                        initialPreset={dateRange.preset}
                         onChange={handleDateChange}
                         selectedTimezone={timezone}
                         onTimezoneChange={setTimezone}

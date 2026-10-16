@@ -7,7 +7,7 @@ import ClickDetailsModal from './ClickDetailsModal';
 import MobileCards from './common/MobileCards';
 import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle } from './common/ColumnResize';
 import { resolveConversionColor } from '../utils/conversionColors';
-import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
+import DateRangePicker, { useDateRange } from './DateRangePicker';
 import { useTimezone } from '../utils/useTimezone';
 
 const API_URL = '/api.php';
@@ -25,10 +25,11 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
 
-    // Date Range & Timezone State - initialize with "today" preset for consistency
-    const todayPreset = getPresetDates('today');
-    const [dateFrom, setDateFrom] = useState(todayPreset?.from || formatDate(new Date()));
-    const [dateTo, setDateTo] = useState(todayPreset?.to || formatDate(new Date()));
+    // useDateRange: "today" re-derives on every mount and rolls over at
+    // midnight in a long-lived tab, instead of the day the tab loaded.
+    const [dateRange, setDateRange] = useDateRange();
+    const dateFrom = dateRange.from;
+    const dateTo = dateRange.to;
     const [timezone, setTimezone] = useTimezone();
 
     // Resizable columns — desktop table only; below lg the list renders as
@@ -220,10 +221,8 @@ const ConversionsLog = ({ campaignId: propCampaignId, onClose }) => {
                     <DateRangePicker
                         dateFrom={dateFrom}
                         dateTo={dateTo}
-                        onChange={(from, to) => {
-                            setDateFrom(from);
-                            setDateTo(to);
-                        }}
+                        initialPreset={dateRange.preset}
+                        onChange={setDateRange}
                         selectedTimezone={timezone}
                         onTimezoneChange={setTimezone}
                     />

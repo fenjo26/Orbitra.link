@@ -7,7 +7,7 @@ import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getReportMetricTool
 import { useIsDesktop, useResizableTableColumns, ColumnResizeHandle, ColRow } from './common/ColumnResize';
 import { colWidth } from './common/tableColumns';
 import { SortableTh, sortRows, nextSortState } from './common/SortableTh';
-import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
+import DateRangePicker, { useDateRange } from './DateRangePicker';
 import { useTimezone } from '../utils/useTimezone';
 import axios from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -155,8 +155,11 @@ const Offers = ({ offers: initialOffers = [], refreshData, user }) => {
     // range. Only joined traffic rows are date-limited; zero-traffic offers
     // stay visible and editable.
     const [offers, setOffers] = useState(initialOffers);
-    const [dateFrom, setDateFrom] = useState(() => getPresetDates('today')?.from || formatDate(new Date()));
-    const [dateTo, setDateTo] = useState(() => getPresetDates('today')?.to || formatDate(new Date()));
+    // useDateRange: "today" here is the real today on every visit and rolls
+    // over at midnight in a long-lived tab, instead of the day the tab loaded.
+    const [dateRange, setDateRange] = useDateRange();
+    const dateFrom = dateRange.from;
+    const dateTo = dateRange.to;
     const [timezone, setTimezone] = useTimezone();
     const fetchSequence = useRef(0);
 
@@ -191,10 +194,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user }) => {
         await Promise.allSettled(tasks);
     };
 
-    const handleDateChange = (from, to) => {
-        setDateFrom(from);
-        setDateTo(to);
-    };
+    const handleDateChange = setDateRange;
 
     const handleSaveColumns = (cols) => {
         // Sanitise on the way in as well as on load, so a bad id never reaches
@@ -871,6 +871,7 @@ const Offers = ({ offers: initialOffers = [], refreshData, user }) => {
                 <DateRangePicker
                     dateFrom={dateFrom}
                     dateTo={dateTo}
+                    initialPreset={dateRange.preset}
                     onChange={handleDateChange}
                     selectedTimezone={timezone}
                     onTimezoneChange={setTimezone}

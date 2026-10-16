@@ -12,7 +12,7 @@ import { SortableTh } from './common/SortableTh';
 import CampaignReports from './CampaignReports';
 import ConversionsLogModal from './ConversionsLogModal';
 import CampaignUrlModal from './CampaignUrlModal';
-import DateRangePicker, { formatDate, getPresetDates } from './DateRangePicker';
+import DateRangePicker, { useDateRange } from './DateRangePicker';
 import { useTimezone } from '../utils/useTimezone';
 import ReportCustomizerModal, { ALL_REPORT_METRICS, PRESETS, getDefaultTemplateColumns, getReportMetricTooltip, normalizeReportMetricIds } from './ReportCustomizerModal';
 import axios from 'axios';
@@ -256,23 +256,14 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         handleToggleCampaignState(camp, 'PAUSED');
     };
 
-    // Date & Timezone Range Picker State. The range persists across reloads
-    // and navigation (localStorage). A stored preset is re-derived through
-    // getPresetDates on mount, never replayed as literal dates — "today"
-    // must still mean today tomorrow, not yesterday's dates under a today
-    // label.
-    const savedRange = (() => {
-        try { return JSON.parse(localStorage.getItem('orbitra_campaigns_range') || 'null'); } catch { return null; }
-    })();
-    const todayPreset = getPresetDates('today');
-    const initialRange = (savedRange?.preset && savedRange.preset !== 'custom' && getPresetDates(savedRange.preset))
-        || {
-            from: savedRange?.from || todayPreset?.from || formatDate(new Date()),
-            to: savedRange?.to || todayPreset?.to || formatDate(new Date()),
-        };
-    const [datePreset, setDatePreset] = useState(savedRange?.preset || 'today');
-    const [dateFrom, setDateFrom] = useState(initialRange.from);
-    const [dateTo, setDateTo] = useState(initialRange.to);
+    // Date & Timezone Range Picker State. The range lives in the shared
+    // useDateRange hook: a stored preset re-derives to the real "today" on
+    // every visit and rolls over at midnight in a long-lived tab, and a saved
+    // custom range stops being replayed once its end date has passed — the
+    // page used to keep serving three-day-old numbers that read as current.
+    const [dateRange, setDateRange] = useDateRange({ storageKey: 'orbitra_campaigns_range' });
+    const dateFrom = dateRange.from;
+    const dateTo = dateRange.to;
     const [timezone, setTimezone] = useTimezone();
     // Custom conversion-type colours for the status column header markers, so a
     // dot always matches whatever that status is coloured as everywhere else in
@@ -470,16 +461,10 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
         fetchCampaigns();
     }, [dateFrom, dateTo, selectedGroupId, timezone]);
 
-    const handleDateChange = (from, to, preset) => {
-        setDateFrom(from);
-        setDateTo(to);
-        // The picker passes its preset id as an optional third argument; store
-        // it with the dates so the next mount re-derives the range instead of
-        // replaying frozen dates.
-        const p = preset || 'custom';
-        setDatePreset(p);
-        try { localStorage.setItem('orbitra_campaigns_range', JSON.stringify({ preset: p, from, to })); } catch { /* storage unavailable */ }
-    };
+    // The midnight rollover for a long-lived tab lives in useDateRange; the
+    // setter below matches the picker's onChange signature and persists the
+    // preset alongside the dates.
+    const handleDateChange = setDateRange;
 
     const handleSaveColumns = (cols) => {
         setChosenColumns(cols);
@@ -1121,7 +1106,7 @@ const Campaigns = ({ campaigns: initialCampaigns, refreshData, setActiveTab, set
                         dateFrom={dateFrom}
                         dateTo={dateTo}
                         onChange={handleDateChange}
-                        initialPreset={datePreset}
+                        initialPreset={dateRange.preset}
                         selectedTimezone={timezone}
                         onTimezoneChange={setTimezone}
                     />
