@@ -406,6 +406,45 @@ function mcpRunHandler(PDO $pdo, string $apiKey, string $handler, array $args)
             $params = is_array($args['params'] ?? null) ? $args['params'] : [];
             $body = is_array($args['body'] ?? null) ? $args['body'] : [];
             return mcpCallApi($pdo, $apiKey, $method, $action, $params, $body);
+
+        case 'get_integration_code':
+            // The options object must travel as ONE JSON string in the query —
+            // api_invoke only forwards scalar GET params, and String(object)
+            // would be "[object Object]". Both transports (this handler and
+            // the Node twin) stringify before the GET.
+            $campaignId = (int) ($args['campaign_id'] ?? 0);
+            $method = trim((string) ($args['method'] ?? ''));
+            if ($campaignId <= 0 || $method === '') {
+                throw new RuntimeException('campaign_id and method are required.');
+            }
+            $params = ['campaign_id' => $campaignId, 'method' => $method];
+            if (!empty($args['tracker_url'])) {
+                $params['tracker_url'] = (string) $args['tracker_url'];
+            }
+            if (isset($args['options'])) {
+                $params['options'] = is_string($args['options'])
+                    ? $args['options']
+                    : json_encode($args['options'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            }
+            return mcpCallApi($pdo, $apiKey, 'GET', 'integration_code', $params);
+
+        case 'integrations_status':
+            // Three read calls, each reported in its own section so one failing
+            // section (or, on proc_open-less hosts, the one-dispatch limit of
+            // the in-process fallback) never hides the rest.
+            $grab = static function (string $action) use ($pdo, $apiKey): array {
+                try {
+                    $res = mcpCallApi($pdo, $apiKey, 'GET', $action);
+                    return is_array($res['data'] ?? null) ? $res['data'] : ['raw' => $res];
+                } catch (\Throwable $e) {
+                    return ['error' => $e->getMessage()];
+                }
+            };
+            return [
+                'cloudflare' => $grab('cloudflare_status'),
+                'telegram' => $grab('telegram_settings'),
+                'traffic_sources' => $grab('traffic_sources'),
+            ];
     }
     throw new RuntimeException('Unknown handler: ' . $handler);
 }
@@ -636,8 +675,12 @@ foreach ($messages as $msg) {
                 $GLOBALS['ORBITRA_MCP_RPC_ID'] = $id;
 
                 // Refuse writes early with an explanation the model can act on,
-                // rather than letting api.php answer with a bare 403.
-                $writes = ($tool['method'] ?? '') === 'POST' || isset($tool['handler']) && $tool['handler'] !== 'api_request';
+                // rather than letting api.php answer with a bare 403. A handler
+                // counts as a write unless its manifest entry says readOnly —
+                // handlers that only chain GETs (integration code, status
+                // aggregates) are reads no matter how many calls they make.
+                $writes = ($tool['method'] ?? '') === 'POST'
+                    || isset($tool['handler']) && $tool['handler'] !== 'api_request' && empty($tool['readOnly']);
                 if ($writes && !$canWrite) {
                     $responses[] = mcpResult($id, mcpToolText(
                         'This connection uses a read-only API key, so "' . $name . '" is not permitted. '

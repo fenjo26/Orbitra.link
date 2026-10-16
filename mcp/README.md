@@ -104,6 +104,10 @@ Quit Claude Desktop completely (⌘Q on macOS) and reopen it — the config is o
 | `orbitra_list_offers` / `orbitra_get_offer` / `orbitra_all_offers` | Offers |
 | `orbitra_list_domains` | Compact list of tracking domains: status, cached DNS/SSL, Cloudflare proxy, active campaigns |
 | `orbitra_ssl_environment` | Whether the server can issue certificates (certbot, sudo rule, ACME dir) + the detected server IP — first stop when domains sit in `waiting_dns` (admin key) |
+| `orbitra_get_integration_code` | Ready-to-paste integration code for a campaign (KClient, pixels, widgets, ad snippets) from the SAME generator the panel uses — domain, token and id already substituted |
+| `orbitra_list_app_configs` | App Configs: named JSON payloads served publicly by key |
+| `orbitra_telegram_status` | Telegram bot state (webhook/polling, last error) |
+| `orbitra_integrations_status` | What is connected: Cloudflare, Telegram, traffic sources (FB/TikTok/Google Ads) |
 | `orbitra_list_traffic_sources` | Traffic sources |
 | `orbitra_list_landings` | Landing pages |
 | `orbitra_list_affiliate_networks` | Affiliate/CPA networks |
@@ -123,6 +127,7 @@ Quit Claude Desktop completely (⌘Q on macOS) and reopen it — the config is o
 | `orbitra_create_offer` / `orbitra_update_offer` / `orbitra_delete_offer` | Offers |
 | `orbitra_create_domain` / `orbitra_delete_domain` / `orbitra_check_domain_dns` | Domains |
 | `orbitra_reissue_ssl` / `orbitra_run_ssl_worker` | Issue Let's Encrypt certificates: one domain now (synchronous, slow) / work the pending queue (up to 5 per call). Admin key |
+| `orbitra_save_app_config` | Create / update an App Config (mints a config_key on create) |
 | `orbitra_create_traffic_source` / `orbitra_list_traffic_source_templates` | Sources |
 | `orbitra_create_landing` | Landing entries |
 

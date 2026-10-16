@@ -74,7 +74,7 @@ Nothing to install — neither Node nor the repository on your machine.
 
 > 🔑 **The key travels right inside the URL**, because the connector dialog has no field for a key and only supports OAuth. Treat such a URL as a password: do not publish it, and to cut off access delete the key in **⚙ → Users → API keys** — the URL stops working immediately. A read key physically cannot change anything.
 
-**How it works.** `mcp.php` implements sessionless MCP Streamable HTTP: every POST is a self-contained JSON-RPC exchange. It takes the tool list from `mcp/tools.json`, which is generated from the Node server (`node mcp/src/manifest.js`), so both connection types show exactly the same set of 36 tools. A tool call runs as a short CLI process `cli/api_invoke.php` — the tracker does not call itself over HTTP, which on a VPS with two PHP-FPM workers could otherwise block the whole site.
+**How it works.** `mcp.php` implements sessionless MCP Streamable HTTP: every POST is a self-contained JSON-RPC exchange. It takes the tool list from `mcp/tools.json`, which is generated from the Node server (`node mcp/src/manifest.js`), so both connection types show exactly the same set of 41 tools. A tool call runs as a short CLI process `cli/api_invoke.php` — the tracker does not call itself over HTTP, which on a VPS with two PHP-FPM workers could otherwise block the whole site.
 
 **Requirements:** PHP CLI (already needed for cron) and `proc_open` allowed. If `proc_open` is disabled in `php.ini`, the endpoint will tell you so in plain text — use option B in that case. The PHP path can be set manually via the `mcp_php_binary` setting.
 
@@ -110,11 +110,12 @@ Fully restart Claude Desktop (⌘Q on macOS) — the Orbitra tools will appear i
 - **Wrong key or URL.** Verify separately: `ORBITRA_URL=... ORBITRA_API_KEY=... npm run smoke -- --ping`.
 - **`403 API key is read-only`** on create or update — you need a Write key; a Read key only returns analytics.
 
-## Tools (36)
+## Tools (41)
 
 **Read:** `orbitra_ping`, `orbitra_get_metrics`, `orbitra_get_chart`, `orbitra_list_campaigns`,
 `orbitra_campaigns_stats`, `orbitra_get_campaign`, `orbitra_campaign_report`, `orbitra_list_offers`, `orbitra_get_offer`,
-`orbitra_all_offers`, `orbitra_list_domains`, `orbitra_ssl_environment`, `orbitra_list_traffic_sources`,
+`orbitra_all_offers`, `orbitra_list_domains`, `orbitra_ssl_environment`, `orbitra_get_integration_code`,
+`orbitra_list_app_configs`, `orbitra_telegram_status`, `orbitra_integrations_status`, `orbitra_list_traffic_sources`,
 `orbitra_list_landings`, `orbitra_list_affiliate_networks`, `orbitra_list_conversions`,
 `orbitra_recent_clicks`, `orbitra_system_status`.
 
@@ -122,6 +123,7 @@ Fully restart Claude Desktop (⌘Q on macOS) — the Orbitra tools will appear i
 `orbitra_bulk_create_campaigns`, `orbitra_bulk_set_campaign_domain`, `orbitra_delete_campaign`, `orbitra_copy_campaign`,
 `orbitra_create_offer`, `orbitra_update_offer`, `orbitra_delete_offer`, `orbitra_create_domain`,
 `orbitra_delete_domain`, `orbitra_check_domain_dns`, `orbitra_reissue_ssl`, `orbitra_run_ssl_worker`,
+`orbitra_save_app_config`,
 `orbitra_create_traffic_source`,
 `orbitra_list_traffic_source_templates`, `orbitra_create_landing`.
 

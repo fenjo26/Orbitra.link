@@ -3560,6 +3560,96 @@ try {
             echo json_encode(['status' => 'success', 'data' => $stmt->fetchAll()]);
             break;
 
+        case 'integration_code':
+            // Ready-to-paste integration snippet for one campaign (KClient,
+            // pixels, widgets, ad-network codes). Built by the SAME generator
+            // the panel uses: core/integration_snippets.php is the PHP mirror
+            // of utils/integrationSnippets.js, kept identical by
+            // tests/integration_snippets_parity_test.php. Scoped like
+            // campaigns_simple because the code embeds the campaign token.
+            // Serves the MCP orbitra_get_integration_code tool; the panel
+            // keeps generating client-side (same output, instant).
+            {
+                $scopeIn = orbitraCampaignScopeInSql(orbitraCampaignScope($pdo), 'c.id');
+                $scopeIn = $scopeIn !== '' ? " AND $scopeIn" : '';
+                $campaignId = (int) ($_GET['campaign_id'] ?? 0);
+                $method = trim((string) ($_GET['method'] ?? ''));
+                if ($campaignId <= 0 || $method === '') {
+                    echo json_encode(['status' => 'error', 'message' => 'campaign_id and method are required']);
+                    break;
+                }
+                require_once __DIR__ . '/core/integration_snippets.php';
+                if (!in_array($method, orbitraIntegrationMethods(), true)) {
+                    echo json_encode(['status' => 'error', 'message' => 'Unknown method', 'data' => ['methods' => orbitraIntegrationMethods()]]);
+                    break;
+                }
+                $stmt = $pdo->prepare("
+                    SELECT c.id, c.name, c.alias, c.token, d.name AS domain_name
+                    FROM campaigns c
+                    LEFT JOIN domains d ON c.domain_id = d.id
+                    WHERE c.id = ?$scopeIn
+                ");
+                $stmt->execute([$campaignId]);
+                $campaign = $stmt->fetch(PDO::FETCH_ASSOC);
+                if (!$campaign) {
+                    echo json_encode(['status' => 'error', 'message' => 'Campaign not found']);
+                    break;
+                }
+
+                // The tracker address written into the code mirrors the panel's
+                // snippetBase: the campaign's own https host when it has a
+                // domain (an https landing refuses http tracker scripts — mixed
+                // content), the request origin otherwise, an explicit
+                // tracker_url always winning.
+                $trackerUrl = trim((string) ($_GET['tracker_url'] ?? ''));
+                if ($trackerUrl === '') {
+                    if (!empty($campaign['domain_name'])) {
+                        $trackerUrl = 'https://' . $campaign['domain_name'];
+                    } else {
+                        $host = (string) ($_SERVER['HTTP_HOST'] ?? '');
+                        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                        $trackerUrl = $host !== '' ? $scheme . '://' . $host : '';
+                    }
+                }
+
+                // Options arrive as a JSON object in `options` (the MCP tool)
+                // or as individual query params (hand-rolled API calls); both
+                // spellings of each key are accepted.
+                $opts = $_GET;
+                unset($opts['action'], $opts['campaign_id'], $opts['method'], $opts['tracker_url'], $opts['api_key'], $opts['key']);
+                $rawOptions = (string) ($_GET['options'] ?? '');
+                unset($opts['options']);
+                if ($rawOptions !== '') {
+                    $decoded = json_decode($rawOptions, true);
+                    if (is_array($decoded)) {
+                        $opts = array_merge($decoded, $opts);
+                    }
+                }
+                $opts = orbitraIntegrationNormalizeOptions($opts);
+
+                $ctx = [
+                    'tracker_url' => $trackerUrl,
+                    'campaign' => [
+                        'id' => (int) $campaign['id'],
+                        'alias' => (string) $campaign['alias'],
+                        'token' => (string) $campaign['token'],
+                        'url' => rtrim($trackerUrl, '/') . '/' . $campaign['alias'],
+                    ],
+                ];
+                $code = orbitraBuildSnippet($method, $ctx, $opts);
+                echo json_encode([
+                    'status' => 'success',
+                    'data' => [
+                        'method' => $method,
+                        'tracker_url' => $trackerUrl,
+                        'campaign' => ['id' => (int) $campaign['id'], 'alias' => (string) $campaign['alias']],
+                        'options' => $opts,
+                        'code' => $code,
+                    ],
+                ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            }
+            break;
+
         // Optimized offers list without heavy clicks JOIN (for dropdowns/quick loading)
         case 'offers_simple':
             $stmt = $pdo->query("
@@ -21036,7 +21126,12 @@ try {
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $data = json_decode(orbitraRequestBody(), true);
                 $name = $data['name'] ?? '';
+                // Object or string: API callers (the MCP tool) naturally build
+                // the payload as JSON, the panel posts the textarea string.
                 $config_json = $data['config_json'] ?? '{}';
+                if (is_array($config_json)) {
+                    $config_json = json_encode($config_json, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+                }
 
                 if (!$name) {
                     echo json_encode(['status' => 'error', 'message' => 'Name is required']);

@@ -25,7 +25,9 @@ const OUT = join(__dirname, '..', 'tools.json');
 
 // Tools whose handler does more than forward one call. Each needs a matching
 // implementation in mcp.php; "steps" documents what that implementation must do
-// so the two cannot silently diverge in behaviour.
+// so the two cannot silently diverge in behaviour. readOnly marks handlers that
+// only run GETs — mcp.php's write-key gate would otherwise refuse them for
+// read-scoped connections (the Node server has no such gate to inherit it from).
 const ROUTE_OVERRIDES = {
   orbitra_update_campaign: {
     handler: 'update_campaign',
@@ -42,6 +44,16 @@ const ROUTE_OVERRIDES = {
   orbitra_api_request: {
     handler: 'api_request',
     steps: ['forward an arbitrary action chosen by the caller'],
+  },
+  orbitra_get_integration_code: {
+    handler: 'get_integration_code',
+    readOnly: true,
+    steps: ['stringify options object into ONE query param', 'GET integration_code with campaign_id + method (+tracker_url)'],
+  },
+  orbitra_integrations_status: {
+    handler: 'integrations_status',
+    readOnly: true,
+    steps: ['GET cloudflare_status', 'GET telegram_settings', 'GET traffic_sources', 'each into its own section, per-section errors'],
   },
 };
 
