@@ -7,6 +7,12 @@ sections.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.7.2] — 2026-10-19
+
+### Fixed
+
+- 🔔 **Push base dialog actually fixed on installed panels.** The z-index/layout fix for the "New message" dialog went into 1.7.1 as source only — `frontend/dist` had been built half an hour earlier, so updated panels still showed the dialog under the navbar. Rebuilt the bundle; no other changes.
+
 ## [1.7.1] — 2026-10-19
 
 ### Added
